@@ -75,6 +75,16 @@ class ConversationManager {
     const outcome = this.relationshipOutcomes.get(speakerId);
     return outcome;
   }
+
+  // Get all active speeches (for PixiJS renderer)
+  getAllSpeeches() {
+    return this.activeConversations;
+  }
+
+  // Get all active outcomes (for PixiJS renderer)
+  getAllOutcomes() {
+    return this.relationshipOutcomes;
+  }
 }
 
 // Export singleton instance

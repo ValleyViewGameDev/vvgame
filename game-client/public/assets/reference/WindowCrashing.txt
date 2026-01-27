@@ -1,0 +1,869 @@
+-------------------------------------
+Translated Report (Full Report Below)
+-------------------------------------
+
+Process:               WindowServer [21959]
+Path:                  /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/Resources/WindowServer
+Identifier:            WindowServer
+Version:               600.00 (???)
+Code Type:             ARM-64 (Native)
+Parent Process:        launchd [1]
+User ID:               88
+
+Date/Time:             2026-01-26 12:36:20.5214 -0800
+OS Version:            macOS 15.5 (24F74)
+Report Version:        12
+Anonymous UUID:        860866B9-3270-354D-6489-F4F9369B06CC
+
+Sleep/Wake UUID:       E28AC0A8-069B-4E41-B780-D52588D231A9
+
+Time Awake Since Boot: 190000 seconds
+Time Since Wake:       3879 seconds
+
+System Integrity Protection: enabled
+
+Crashed Thread:        0  ws_main_thread  Dispatch queue: com.apple.main-thread
+
+Exception Type:        EXC_CRASH (SIGABRT)
+Exception Codes:       0x0000000000000000, 0x0000000000000000
+
+Termination Reason:    Namespace SIGNAL, Code 6 Abort trap: 6
+Terminating Process:   WindowServer [21959]
+
+Application Specific Information:
+abort() called
+
+
+Thread 0 Crashed:: ws_main_thread Dispatch queue: com.apple.main-thread
+0   libsystem_kernel.dylib        	       0x188171388 __pthread_kill + 8
+1   libsystem_pthread.dylib       	       0x1881aa88c pthread_kill + 296
+2   libsystem_c.dylib             	       0x1880b3c60 abort + 124
+3   SkyLight                      	       0x18e296c8c WSIOSurfaceDebugTallyAndAbort(int, int) + 900
+4   SkyLight                      	       0x18e57c888 iosurface_create_common(__CFDictionary const*, char const*, bool) + 1408
+5   SkyLight                      	       0x18e57cddc WSIOSurfaceCreateTargetableWithFormatAndProtection + 364
+6   SkyLight                      	       0x18e5c2688 CaptureSurfaceMetal::CreateMetalBacking(bool) + 464
+7   SkyLight                      	       0x18e5e0ca0 CompositorMetal::CreateCaptureSurface(CGRect, unsigned int, unsigned int, WSPixelFormat, float, bool, CGColorSpace*, unsigned int, unsigned long long) + 384
+8   SkyLight                      	       0x18e317d2c rebuild_one_menu_bar(PKGManagedMenuSpace*, CGSRegionObject**, bool, PKGMenuBarRebuildType) + 6600
+9   SkyLight                      	       0x18e3162b8 invocation function for block in rebuild_menu_bars_passing_test(PKGMenuBarRebuildType, bool (PKGManagedSpace*) block_pointer) + 120
+10  SkyLight                      	       0x18e43aae8 PKGForEachManagedMenuSpace + 256
+11  SkyLight                      	       0x18e31602c rebuild_menu_bars_passing_test(PKGMenuBarRebuildType, bool (PKGManagedSpace*) block_pointer) + 228
+12  SkyLight                      	       0x18e3209dc rebuild_app_menu_bars(unsigned int, bool) + 136
+13  SkyLight                      	       0x18e3206f8 set_menu_bars(CGXConnection*, CGSPerMenuBarData const*, unsigned long, unsigned int, unsigned int, CGSMenuBarFilterType, unsigned int, float vector[4], bool, bool, bool, bool, bool) + 2252
+14  SkyLight                      	       0x18e2c0740 PKGTransactionSetMenuBars(_PKGTransactionContext*) + 2624
+15  SkyLight                      	       0x18e2bbd40 PKGTransactionCommit(CGXConnection*, unsigned int, unsigned long long, unsigned char*, unsigned int, void const*, unsigned int) + 420
+16  SkyLight                      	       0x18e2c831c PKGTransactionDecodeCAPayload + 216
+17  SkyLight                      	       0x18e5645c0 WS::CA::callback::CGXConnectionPayloadOperationQueue::_executePayloadsOnSession(unsigned int, bool) + 528
+18  SkyLight                      	       0x18e276a1c block_hoist_notification_handler(unsigned int, mach_msg_header_t*, void*) + 188
+19  SkyLight                      	       0x18e5f0a6c post_port_data + 288
+20  SkyLight                      	       0x18e5f0784 CGXRunOneServicesPass + 1492
+21  SkyLight                      	       0x18e5f1210 server_loop + 140
+22  SkyLight                      	       0x18e5f1050 SLXServer + 1396
+23  WindowServer                  	       0x1046f4758 0x1046f4000 + 1880
+24  dyld                          	       0x187e0ab98 start + 6076
+
+Thread 1:: com.apple.coreanimation.display.primary
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a7dac CA::WindowServer::IOMFBServer::thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 2:: com.apple.coreanimation.frameinfo.primary
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a8000 CA::WindowServer::IOMFBServer::frame_info_thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 3:: com.apple.coreanimation.cursor.primary
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a9c3c CA::WindowServer::IOMFBServer::cursor_thread_body(void*) + 456
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 4:: com.apple.coreanimation.display.external-0
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a7dac CA::WindowServer::IOMFBServer::thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 5:: com.apple.coreanimation.frameinfo.external-0
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a8000 CA::WindowServer::IOMFBServer::frame_info_thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 6:: com.apple.coreanimation.cursor.external-0
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a9c3c CA::WindowServer::IOMFBServer::cursor_thread_body(void*) + 456
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 7:: com.apple.coreanimation.display.external-1
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a7dac CA::WindowServer::IOMFBServer::thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 8:: com.apple.coreanimation.frameinfo.external-1
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a8000 CA::WindowServer::IOMFBServer::frame_info_thread_body(void*) + 416
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 9:: com.apple.coreanimation.cursor.external-1
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   QuartzCore                    	       0x1915a9c3c CA::WindowServer::IOMFBServer::cursor_thread_body(void*) + 456
+9   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+10  libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+11  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 10:: com.apple.coreanimation.render-server
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   QuartzCore                    	       0x19132f140 CA::Render::Server::server_thread(void*) + 816
+5   QuartzCore                    	       0x19132ee00 thread_fun(void*) + 32
+6   libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+7   libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 11::  Dispatch queue: com.apple.VirtualDisplayListener
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188173ec8 mach_msg_server_once + 296
+4   CoreDisplay                   	       0x18a7bf9f4 -[VirtualDisplayListener rx] + 128
+5   libdispatch.dylib             	       0x187ff2b2c _dispatch_call_block_and_release + 32
+6   libdispatch.dylib             	       0x18800c85c _dispatch_client_callout + 16
+7   libdispatch.dylib             	       0x187ffb350 _dispatch_lane_serial_drain + 740
+8   libdispatch.dylib             	       0x187ffbe2c _dispatch_lane_invoke + 388
+9   libdispatch.dylib             	       0x188006264 _dispatch_root_queue_drain_deferred_wlh + 292
+10  libdispatch.dylib             	       0x188005ae8 _dispatch_workloop_worker_thread + 540
+11  libsystem_pthread.dylib       	       0x1881a6e64 _pthread_wqthread + 292
+12  libsystem_pthread.dylib       	       0x1881a5b74 start_wqthread + 8
+
+Thread 12:: IOHIDService - RunLoopCompatibilityThread
+0   libsystem_kernel.dylib        	       0x188168c34 mach_msg2_trap + 8
+1   libsystem_kernel.dylib        	       0x18817b3a0 mach_msg2_internal + 76
+2   libsystem_kernel.dylib        	       0x188171764 mach_msg_overwrite + 484
+3   libsystem_kernel.dylib        	       0x188168fa8 mach_msg + 24
+4   CoreFoundation                	       0x188295e7c __CFRunLoopServiceMachPort + 160
+5   CoreFoundation                	       0x188294798 __CFRunLoopRun + 1208
+6   CoreFoundation                	       0x188293c58 CFRunLoopRunSpecific + 572
+7   CoreFoundation                	       0x18830d714 CFRunLoopRun + 64
+8   IOKit                         	       0x18c0dcebc __IOHIDServiceRunLoopCompatibilityThread + 276
+9   libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+10  libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+Thread 13:
+0   libsystem_pthread.dylib       	       0x1881a5b6c start_wqthread + 0
+
+Thread 14::  Dispatch queue: com.apple.libtrace.state.block-list
+0   libsystem_kernel.dylib        	       0x18816a9b8 __ulock_wait + 8
+1   libdispatch.dylib             	       0x187ff4cbc _dlock_wait + 56
+2   libdispatch.dylib             	       0x187ff4adc _dispatch_thread_event_wait_slow + 56
+3   libdispatch.dylib             	       0x188002a88 __DISPATCH_WAIT_FOR_QUEUE__ + 368
+4   libdispatch.dylib             	       0x188002640 _dispatch_sync_f_slow + 148
+5   libsystem_trace.dylib         	       0x187efa7a8 ___os_state_request_for_self_block_invoke + 372
+6   libdispatch.dylib             	       0x187ff2b2c _dispatch_call_block_and_release + 32
+7   libdispatch.dylib             	       0x18800c85c _dispatch_client_callout + 16
+8   libdispatch.dylib             	       0x187ffb350 _dispatch_lane_serial_drain + 740
+9   libdispatch.dylib             	       0x187ffbe60 _dispatch_lane_invoke + 440
+10  libdispatch.dylib             	       0x188006264 _dispatch_root_queue_drain_deferred_wlh + 292
+11  libdispatch.dylib             	       0x188005ae8 _dispatch_workloop_worker_thread + 540
+12  libsystem_pthread.dylib       	       0x1881a6e64 _pthread_wqthread + 292
+13  libsystem_pthread.dylib       	       0x1881a5b74 start_wqthread + 8
+
+Thread 15:
+0   libsystem_pthread.dylib       	       0x1881a5b6c start_wqthread + 0
+
+Thread 16:
+0   libsystem_pthread.dylib       	       0x1881a5b6c start_wqthread + 0
+
+Thread 17:
+0   libsystem_pthread.dylib       	       0x1881a5b6c start_wqthread + 0
+
+Thread 18:: com.apple.windowserver.root_queue
+0   libsystem_kernel.dylib        	       0x188168bc8 semaphore_timedwait_trap + 8
+1   libdispatch.dylib             	       0x188027750 _dispatch_sema4_timedwait + 64
+2   libdispatch.dylib             	       0x187ff4ed8 _dispatch_semaphore_wait_slow + 76
+3   libdispatch.dylib             	       0x188004c28 _dispatch_worker_thread + 324
+4   libsystem_pthread.dylib       	       0x1881aac0c _pthread_start + 136
+5   libsystem_pthread.dylib       	       0x1881a5b80 thread_start + 8
+
+
+Thread 0 crashed with ARM Thread State (64-bit):
+    x0: 0x0000000000000000   x1: 0x0000000000000000   x2: 0x0000000000000000   x3: 0x0000000000000000
+    x4: 0x00000001f3ca03b8   x5: 0x06996c550e041004   x6: 0x0000000000000000   x7: 0x0000000000000000
+    x8: 0x77f6386c6363dc61   x9: 0x778f386d95484361  x10: 0x0000000000bf3d01  x11: 0x00000000005b7600
+   x12: 0x00000000220ad152  x13: 0x00000000ffff8003  x14: 0x00000000000015fc  x15: 0x06010000100000d0
+   x16: 0x0000000000000148  x17: 0x00000001f7309fa8  x18: 0x0000000000000000  x19: 0x0000000000000006
+   x20: 0x0000000000000103  x21: 0x00000001f62b9fe0  x22: 0x00000000aaaaaaaa  x23: 0x0000600000b141c0
+   x24: 0x000060000de91367  x25: 0x000000018e688bf4  x26: 0x000060000de91360  x27: 0x000000016b6f86d8
+   x28: 0xaaaaaaaaaaaaaaaa   fp: 0x000000016b6f8440   lr: 0x00000001881aa88c
+    sp: 0x000000016b6f8420   pc: 0x0000000188171388 cpsr: 0x40000000
+   far: 0x0000000000000000  esr: 0x56000080  Address size fault
+
+Binary Images:
+       0x1046f4000 -        0x1046f7fff WindowServer (*) <0fd0e97a-f57e-3e46-8c2c-6b2954bf166d> /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+       0x10591c000 -        0x10604ffff CursorAsset (*) <87ebbe6c-f016-3e20-8ede-cc30cd902789> /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/Resources/CursorAsset
+       0x10491c000 -        0x104927fff com.apple.iokit.hid.IOHIDNXEventTranslatorSessionFilter (1.0) <53d97983-d2b6-32e4-8ff9-05ee1bd548e6> /System/Library/HIDPlugins/IOHIDNXEventTranslatorSessionFilter.plugin/Contents/MacOS/IOHIDNXEventTranslatorSessionFilter
+       0x104908000 -        0x10490bfff com.apple.iokit.hid.IOHIDDFREventFilter (1.0) <947df899-4b6b-39cb-bfe8-229ed340e82e> /System/Library/HIDPlugins/IOHIDDFREventFilter.plugin/Contents/MacOS/IOHIDDFREventFilter
+       0x10493c000 -        0x10493ffff com.apple.HIDRMSessionFilter (1.0) <d1b8afdc-de79-3a32-bdaf-f2197c9faa74> /System/Library/HIDPlugins/SessionFilters/HIDRMSessionFilter.plugin/Contents/MacOS/HIDRMSessionFilter
+       0x104a84000 -        0x104aa3fff com.apple.IOAnalytics (1.0) <76302d50-a7ad-36fb-a512-2653d3eb9c0d> /System/Library/HIDPlugins/SessionFilters/IOAnalytics.plugin/Contents/MacOS/IOAnalytics
+       0x104950000 -        0x104953fff com.apple.IOHIDRemoteSensorSessionFilter (1.0) <4d98f1eb-73b0-3291-9f63-6635a92e8d3e> /System/Library/HIDPlugins/SessionFilters/IOHIDRemoteSensorSessionFilter.plugin/Contents/MacOS/IOHIDRemoteSensorSessionFilter
+       0x104964000 -        0x104967fff com.apple.IOHIDTelemetrySessionFilter (1.0) <a6d7fa30-88f2-35c8-884c-e8d40f6471e2> /System/Library/HIDPlugins/SessionFilters/IOHIDTelemetrySessionFilter.plugin/Contents/MacOS/IOHIDTelemetrySessionFilter
+       0x1048e0000 -        0x1048e7fff com.apple.CoreRCPlugin (1.0) <ee49a440-e32c-3016-aec2-c93d39a1847b> /System/Library/HIDPlugins/SessionFilters/CoreRCPlugin.plugin/Contents/MacOS/CoreRCPlugin
+       0x1050f4000 -        0x105227fff com.apple.hid.HSTouchHIDService (*) <c09cd470-b0f6-3dc7-a7b2-d34e998d7933> /System/Library/HIDPlugins/ServicePlugins/HSTouchHIDService.plugin/Contents/MacOS/HSTouchHIDService
+       0x10499c000 -        0x10499ffff com.apple.IOHIDEventServicePlugin (1.0) <be06383b-4446-3081-9db9-c8d1af7ab665> /System/Library/HIDPlugins/ServicePlugins/IOHIDEventServicePlugin.plugin/Contents/MacOS/IOHIDEventServicePlugin
+       0x104978000 -        0x10497bfff com.apple.iokit.hid.IOHIDNXEventTranslatorServiceFilter (1.0) <7d8b2f37-4651-39aa-a884-8cc1693f4842> /System/Library/HIDPlugins/IOHIDNXEventTranslatorServiceFilter.plugin/Contents/MacOS/IOHIDNXEventTranslatorServiceFilter
+       0x1049b0000 -        0x1049cbfff com.apple.hid.ColourSensorFilterPlugin (1.0) <c479586c-c9ca-304b-bedd-333492bedd16> /System/Library/HIDPlugins/ColourSensorFilterPlugin.plugin/Contents/MacOS/ColourSensorFilterPlugin
+       0x104b24000 -        0x104b2ffff com.apple.iokit.hid.IOHIDPointerScrollFilter (1.0) <c600da0f-4afc-3d13-bace-4cb595b7409a> /System/Library/HIDPlugins/IOHIDPointerScrollFilter.plugin/Contents/MacOS/IOHIDPointerScrollFilter
+       0x104b50000 -        0x104b57fff com.apple.iokit.hid.IOHIDEventProcessorFilter (1.0) <434ff9ad-97f3-3605-8b97-6685da13d17f> /System/Library/HIDPlugins/IOHIDEventProcessorFilter.plugin/Contents/MacOS/IOHIDEventProcessorFilter
+       0x1049e0000 -        0x1049e7fff com.apple.hid.ReportIntervalServiceFilter (1.0) <11587c6e-60f8-3fbd-9430-7d3b5dcbf9f7> /System/Library/HIDPlugins/ServiceFilters/ReportIntervalServiceFilter.plugin/Contents/MacOS/ReportIntervalServiceFilter
+       0x104d44000 -        0x104df7fff com.apple.universalcontrol.servicefilter (1.0) <9d83403b-724f-35e8-9613-989267ee7f87> /System/Library/HIDPlugins/ServiceFilters/UniversalControlServiceFilter.plugin/Contents/MacOS/UniversalControlServiceFilter
+       0x104afc000 -        0x104afffff com.apple.iokit.IOHIDNXEventRouter (2.0.0) <d7320d57-3cb0-3625-99a6-1880a5cd7ad4> /System/Library/Extensions/IOHIDFamily.kext/Contents/PlugIns/IOHIDNXEventRouter.plugin/Contents/MacOS/IOHIDNXEventRouter
+       0x104ad8000 -        0x104ae3fff com.apple.hid.AppleDeviceManagementHIDFilter (1.0) <44f762b1-fedb-3546-9f3d-ce253e3779b4> /System/Library/HIDPlugins/ServiceFilters/AppleDeviceManagementHIDFilter.plugin/Contents/MacOS/AppleDeviceManagementHIDFilter
+       0x104bcc000 -        0x104be3fff com.apple.iokit.IOHIDLib (2.0.0) <e414dd7a-f98a-34bb-b188-dfb4657ec69e> /System/Library/Extensions/IOHIDFamily.kext/Contents/PlugIns/IOHIDLib.plugin/Contents/MacOS/IOHIDLib
+       0x104bf8000 -        0x104c07fff com.apple.iokit.hid.IOHIDKeyboardFilter (1.0) <a478fec2-746a-3490-bd62-5ffee1919596> /System/Library/HIDPlugins/IOHIDKeyboardFilter.plugin/Contents/MacOS/IOHIDKeyboardFilter
+       0x104ba0000 -        0x104ba7fff com.apple.KeyboardTelemetryServiceFilter (1.0) <b1c5a403-9747-3e2e-b2e7-1586be402d73> /System/Library/HIDPlugins/ServiceFilters/KeyboardTelemetryServiceFilter.plugin/Contents/MacOS/KeyboardTelemetryServiceFilter
+       0x104b74000 -        0x104b83fff com.apple.corebrightness.KeyboardBacklightServiceFilter (1.0) <6a09cc1d-b26f-3505-9109-fefb3a1adfe9> /System/Library/HIDPlugins/ServiceFilters/KeyboardBacklightServiceFilter.plugin/Contents/MacOS/KeyboardBacklightServiceFilter
+       0x105058000 -        0x10506ffff TouchBarEvent.bundle (*) <f8b1dc1d-cfb4-3613-9c50-4e5430787b0f> /System/Library/CoreServices/TouchBarEvent.bundle
+       0x10ab88000 -        0x10b2bbfff com.apple.AGXMetalG16G-B0 (327.5) <29ee8f2e-c126-3321-b212-577b1d435c5c> /System/Library/Extensions/AGXMetalG16G_B0.bundle/Contents/MacOS/AGXMetalG16G_B0
+       0x188168000 -        0x1881a3653 libsystem_kernel.dylib (*) <60485b6f-67e5-38c1-aec9-efd6031ff166> /usr/lib/system/libsystem_kernel.dylib
+       0x1881a4000 -        0x1881b0a47 libsystem_pthread.dylib (*) <647b91fc-96d3-3bbb-af08-970df45257c8> /usr/lib/system/libsystem_pthread.dylib
+       0x18803b000 -        0x1880bc46f libsystem_c.dylib (*) <f4529d5e-24f3-3bbb-bd3c-984856875fc8> /usr/lib/system/libsystem_c.dylib
+       0x18e1eb000 -        0x18e7102ff com.apple.SkyLight (1.600.0) <3a386772-a7fe-3359-aac4-1ae9c903cb49> /System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight
+       0x187e04000 -        0x187e9f4cf dyld (*) <9cf0401a-a938-389e-a77d-9e9608076ccf> /usr/lib/dyld
+               0x0 - 0xffffffffffffffff ??? (*) <00000000-0000-0000-0000-000000000000> ???
+       0x188219000 -        0x188757fff com.apple.CoreFoundation (6.9) <df489a59-b4f6-32b8-9bb4-9b832960aa52> /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation
+       0x1912e5000 -        0x1916b8c7f com.apple.QuartzCore (1.11) <e0d9f378-dc87-33f8-93a5-3c62ad30ea19> /System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore
+       0x18a7ae000 -        0x18a8ce71f com.apple.CoreDisplay (288) <2895a1c4-45b2-358d-b390-66217de02bf9> /System/Library/Frameworks/CoreDisplay.framework/Versions/A/CoreDisplay
+       0x187ff1000 -        0x18803773f libdispatch.dylib (*) <8bf83cda-8db1-3d46-94b0-d811bd77e078> /usr/lib/system/libdispatch.dylib
+       0x18c031000 -        0x18c11333f com.apple.framework.IOKit (2.0.2) <d1ba721b-4309-3caf-81c7-595aef32f6a9> /System/Library/Frameworks/IOKit.framework/Versions/A/IOKit
+       0x187eef000 -        0x187f0a7ff libsystem_trace.dylib (*) <c8ed43c4-c077-34e9-ab26-f34231c895be> /usr/lib/system/libsystem_trace.dylib
+
+External Modification Summary:
+  Calls made by other processes targeting this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by this process:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+  Calls made by all processes on this machine:
+    task_for_pid: 0
+    thread_create: 0
+    thread_set_state: 0
+
+VM Region Summary:
+ReadOnly portion of Libraries: Total=1.0G resident=0K(0%) swapped_out_or_unallocated=1.0G(100%)
+Writable regions: Total=4.5G written=3348K(0%) resident=2676K(0%) swapped_out=784K(0%) unallocated=4.5G(100%)
+
+                                VIRTUAL   REGION 
+REGION TYPE                        SIZE    COUNT (non-coalesced) 
+===========                     =======  ======= 
+Accelerate framework               128K        1 
+Activity Tracing                   256K        1 
+CG backing stores                   96K        6 
+ColorSync                          784K       40 
+CoreAnimation                     86.5M     1072 
+CoreGraphics                        32K        2 
+IOKit                               48K        3 
+Image IO                            64K        1 
+Kernel Alloc Once                   32K        1 
+MALLOC                             4.4G      438 
+MALLOC guard page                  192K       12 
+Mach message                      2880K       46 
+STACK GUARD                       56.3M       19 
+Stack                             21.0M       19 
+VM_ALLOCATE                       18.8M      227 
+VM_ALLOCATE (reserved)             240K       13         reserved VM address space (unallocated)
+__AUTH                            1750K      298 
+__AUTH_CONST                      32.7M      468 
+__CGSERVER                          16K        1 
+__CTF                               824        1 
+__DATA                            6954K      466 
+__DATA_CONST                      17.6M      493 
+__DATA_DIRTY                       803K      135 
+__FONT_DATA                        2352        1 
+__LINKEDIT                       620.1M       26 
+__OBJC_RO                         61.4M        1 
+__OBJC_RW                         2396K        1 
+__SLSERVER                          16K        1 
+__TEXT                           431.4M      507 
+__TPRO_CONST                       128K        2 
+dyld private memory                160K        2 
+mapped file                      274.0M       14 
+page table in kernel              2676K        1 
+shared memory                     1232K       26 
+===========                     =======  ======= 
+TOTAL                              6.0G     4345 
+TOTAL, minus reserved VM space     6.0G     4345 
+
+
+
+-----------
+Full Report
+-----------
+
+{"app_name":"WindowServer","timestamp":"2026-01-26 12:36:22.00 -0800","app_version":"600.00","slice_uuid":"0fd0e97a-f57e-3e46-8c2c-6b2954bf166d","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 15.5 (24F74)","roots_installed":0,"incident_id":"FFDFAE58-C1F6-4622-8A54-E400EF4D7D3F","name":"WindowServer"}
+{
+  "uptime" : 190000,
+  "procRole" : "Graphics",
+  "version" : 2,
+  "userID" : 88,
+  "deployVersion" : 210,
+  "modelCode" : "Mac16,13",
+  "coalitionID" : 344,
+  "osVersion" : {
+    "train" : "macOS 15.5",
+    "build" : "24F74",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-01-26 12:36:20.5214 -0800",
+  "codeSigningMonitor" : 2,
+  "incident" : "FFDFAE58-C1F6-4622-8A54-E400EF4D7D3F",
+  "pid" : 21959,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "roots_installed" : 0,
+  "bug_type" : "309",
+  "procLaunch" : "2026-01-26 11:33:16.4481 -0800",
+  "procStartAbsTime" : 4612928309109,
+  "procExitAbsTime" : 4703707805850,
+  "procName" : "WindowServer",
+  "procPath" : "\/System\/Library\/PrivateFrameworks\/SkyLight.framework\/Versions\/A\/Resources\/WindowServer",
+  "bundleInfo" : {"CFBundleShortVersionString":"600.00"},
+  "parentProc" : "launchd",
+  "parentPid" : 1,
+  "coalitionName" : "com.apple.WindowServer",
+  "crashReporterKey" : "860866B9-3270-354D-6489-F4F9369B06CC",
+  "appleIntelligenceStatus" : {"state":"available"},
+  "consecutiveCrashCount" : 4,
+  "throttleTimeout" : 10,
+  "codeSigningID" : "com.apple.WindowServer",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570522369,
+  "codeSigningValidationCategory" : 1,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 432345564227567616,
+  "instructionByteStream" : {"beforePC":"fyMD1f17v6n9AwCRm+D\/l78DAJH9e8Go\/w9f1sADX9YQKYDSARAA1A==","atPC":"AwEAVH8jA9X9e7+p\/QMAkZDg\/5e\/AwCR\/XvBqP8PX9bAA1\/WcAqA0g=="},
+  "bootSessionUUID" : "7C60F440-7D98-4061-8646-A37C14A09AC2",
+  "wakeTime" : 3879,
+  "sleepWakeUUID" : "E28AC0A8-069B-4E41-B780-D52588D231A9",
+  "sip" : "enabled",
+  "exception" : {"codes":"0x0000000000000000, 0x0000000000000000","rawCodes":[0,0],"type":"EXC_CRASH","signal":"SIGABRT"},
+  "termination" : {"flags":0,"code":6,"namespace":"SIGNAL","indicator":"Abort trap: 6","byProc":"WindowServer","byPid":21959},
+  "asi" : {"libsystem_c.dylib":["abort() called"]},
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"threadState":{"x":[{"value":0},{"value":0},{"value":0},{"value":0},{"value":8385070008,"symbolLocation":0,"symbol":"_os_log_current_test_callback"},{"value":475530348227465220},{"value":0},{"value":0},{"value":8644158572959358049},{"value":8615166655490179937},{"value":12532993},{"value":5993984},{"value":571134290},{"value":4294934531},{"value":5628},{"value":432627039472713936},{"value":328},{"value":8442126248},{"value":0},{"value":6},{"value":259},{"value":8425021408,"symbolLocation":224,"symbol":"_main_thread"},{"value":2863311530},{"value":105553127883200},{"value":105553349645159},{"value":6684183540,"symbolLocation":11061,"symbol":"hid_usb_apple_2_adb_keymap"},{"value":105553349645152},{"value":6097438424},{"value":12297829382473034410}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578415756},"cpsr":{"value":1073741824},"fp":{"value":6097437760},"sp":{"value":6097437728},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578181000,"matchesCrashFrame":1},"far":{"value":0}},"id":4051114,"triggered":true,"name":"ws_main_thread","queue":"com.apple.main-thread","frames":[{"imageOffset":37768,"symbol":"__pthread_kill","symbolLocation":8,"imageIndex":25},{"imageOffset":26764,"symbol":"pthread_kill","symbolLocation":296,"imageIndex":26},{"imageOffset":494688,"symbol":"abort","symbolLocation":124,"imageIndex":27},{"imageOffset":703628,"symbol":"WSIOSurfaceDebugTallyAndAbort(int, int)","symbolLocation":900,"imageIndex":28},{"imageOffset":3741832,"symbol":"iosurface_create_common(__CFDictionary const*, char const*, bool)","symbolLocation":1408,"imageIndex":28},{"imageOffset":3743196,"symbol":"WSIOSurfaceCreateTargetableWithFormatAndProtection","symbolLocation":364,"imageIndex":28},{"imageOffset":4028040,"symbol":"CaptureSurfaceMetal::CreateMetalBacking(bool)","symbolLocation":464,"imageIndex":28},{"imageOffset":4152480,"symbol":"CompositorMetal::CreateCaptureSurface(CGRect, unsigned int, unsigned int, WSPixelFormat, float, bool, CGColorSpace*, unsigned int, unsigned long long)","symbolLocation":384,"imageIndex":28},{"imageOffset":1232172,"symbol":"rebuild_one_menu_bar(PKGManagedMenuSpace*, CGSRegionObject**, bool, PKGMenuBarRebuildType)","symbolLocation":6600,"imageIndex":28},{"imageOffset":1225400,"symbol":"invocation function for block in rebuild_menu_bars_passing_test(PKGMenuBarRebuildType, bool (PKGManagedSpace*) block_pointer)","symbolLocation":120,"imageIndex":28},{"imageOffset":2423528,"symbol":"PKGForEachManagedMenuSpace","symbolLocation":256,"imageIndex":28},{"imageOffset":1224748,"symbol":"rebuild_menu_bars_passing_test(PKGMenuBarRebuildType, bool (PKGManagedSpace*) block_pointer)","symbolLocation":228,"imageIndex":28},{"imageOffset":1268188,"symbol":"rebuild_app_menu_bars(unsigned int, bool)","symbolLocation":136,"imageIndex":28},{"imageOffset":1267448,"symbol":"set_menu_bars(CGXConnection*, CGSPerMenuBarData const*, unsigned long, unsigned int, unsigned int, CGSMenuBarFilterType, unsigned int, float vector[4], bool, bool, bool, bool, bool)","symbolLocation":2252,"imageIndex":28},{"imageOffset":874304,"symbol":"PKGTransactionSetMenuBars(_PKGTransactionContext*)","symbolLocation":2624,"imageIndex":28},{"imageOffset":855360,"symbol":"PKGTransactionCommit(CGXConnection*, unsigned int, unsigned long long, unsigned char*, unsigned int, void const*, unsigned int)","symbolLocation":420,"imageIndex":28},{"imageOffset":906012,"symbol":"PKGTransactionDecodeCAPayload","symbolLocation":216,"imageIndex":28},{"imageOffset":3642816,"symbol":"WS::CA::callback::CGXConnectionPayloadOperationQueue::_executePayloadsOnSession(unsigned int, bool)","symbolLocation":528,"imageIndex":28},{"imageOffset":571932,"symbol":"block_hoist_notification_handler(unsigned int, mach_msg_header_t*, void*)","symbolLocation":188,"imageIndex":28},{"imageOffset":4217452,"symbol":"post_port_data","symbolLocation":288,"imageIndex":28},{"imageOffset":4216708,"symbol":"CGXRunOneServicesPass","symbolLocation":1492,"imageIndex":28},{"imageOffset":4219408,"symbol":"server_loop","symbolLocation":140,"imageIndex":28},{"imageOffset":4218960,"symbol":"SLXServer","symbolLocation":1396,"imageIndex":28},{"imageOffset":1880,"imageIndex":0},{"imageOffset":27544,"symbol":"start","symbolLocation":6076,"imageIndex":29}]},{"id":4051168,"name":"com.apple.coreanimation.display.primary","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":268293722079232},{"value":0},{"value":268293722079232},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":62467},{"value":0},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":4294967295},{"value":2},{"value":268293722079232},{"value":0},{"value":268293722079232},{"value":6099738280},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6099738128},"sp":{"value":6099738048},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895276,"symbol":"CA::WindowServer::IOMFBServer::thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051169,"name":"com.apple.coreanimation.frameinfo.primary","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":266094698823680},{"value":0},{"value":266094698823680},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":61955},{"value":0},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":4294967295},{"value":2},{"value":266094698823680},{"value":0},{"value":266094698823680},{"value":6100836008},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6100835856},"sp":{"value":6100835776},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895872,"symbol":"CA::WindowServer::IOMFBServer::frame_info_thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051171,"name":"com.apple.coreanimation.cursor.primary","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":257298605801472},{"value":0},{"value":257298605801472},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":59907},{"value":0},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":4294967295},{"value":2},{"value":257298605801472},{"value":0},{"value":257298605801472},{"value":6101409448},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6101409296},"sp":{"value":6101409216},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2903100,"symbol":"CA::WindowServer::IOMFBServer::cursor_thread_body(void*)","symbolLocation":456,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051172,"name":"com.apple.coreanimation.display.external-0","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":247403001151488},{"value":0},{"value":247403001151488},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":57603},{"value":0},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":4294967295},{"value":2},{"value":247403001151488},{"value":0},{"value":247403001151488},{"value":6102507176},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6102507024},"sp":{"value":6102506944},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895276,"symbol":"CA::WindowServer::IOMFBServer::thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051173,"name":"com.apple.coreanimation.frameinfo.external-0","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":240805931384832},{"value":0},{"value":240805931384832},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":56067},{"value":2043},{"value":18446744073709551569},{"value":60},{"value":0},{"value":4294967295},{"value":2},{"value":240805931384832},{"value":0},{"value":240805931384832},{"value":6103604904},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6103604752},"sp":{"value":6103604672},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895872,"symbol":"CA::WindowServer::IOMFBServer::frame_info_thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051175,"name":"com.apple.coreanimation.cursor.external-0","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":230910326734848},{"value":3758097136},{"value":230910326734848},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":53763},{"value":2043},{"value":18446744073709551569},{"value":64},{"value":0},{"value":4294967295},{"value":2},{"value":230910326734848},{"value":3758097136},{"value":230910326734848},{"value":6104178344},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6104178192},"sp":{"value":6104178112},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2903100,"symbol":"CA::WindowServer::IOMFBServer::cursor_thread_body(void*)","symbolLocation":456,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051176,"name":"com.apple.coreanimation.display.external-1","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":372747326717952},{"value":0},{"value":372747326717952},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":86787},{"value":0},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":4294967295},{"value":2},{"value":372747326717952},{"value":0},{"value":372747326717952},{"value":6105276072},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6105275920},"sp":{"value":6105275840},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895276,"symbol":"CA::WindowServer::IOMFBServer::thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051177,"name":"com.apple.coreanimation.frameinfo.external-1","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":288084931379200},{"value":0},{"value":288084931379200},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":67075},{"value":2043},{"value":18446744073709551569},{"value":126},{"value":0},{"value":4294967295},{"value":2},{"value":288084931379200},{"value":0},{"value":288084931379200},{"value":6106373800},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6106373648},"sp":{"value":6106373568},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2895872,"symbol":"CA::WindowServer::IOMFBServer::frame_info_thread_body(void*)","symbolLocation":416,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051180,"name":"com.apple.coreanimation.cursor.external-1","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":292482977890304},{"value":3758097136},{"value":292482977890304},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":68099},{"value":2043},{"value":18446744073709551569},{"value":35},{"value":0},{"value":4294967295},{"value":2},{"value":292482977890304},{"value":3758097136},{"value":292482977890304},{"value":6106947240},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6106947088},"sp":{"value":6106947008},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":2903100,"symbol":"CA::WindowServer::IOMFBServer::cursor_thread_body(void*)","symbolLocation":456,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051182,"name":"com.apple.coreanimation.render-server","threadState":{"x":[{"value":0},{"value":21525170190},{"value":8589934592},{"value":0},{"value":0},{"value":45092861640704},{"value":2},{"value":0},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":10499},{"value":2550347877},{"value":18446744073709551569},{"value":8442128056},{"value":0},{"value":0},{"value":2},{"value":45092861640704},{"value":0},{"value":0},{"value":6108031576},{"value":8589934592},{"value":21525170190},{"value":18446744073709550527},{"value":4345301006}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6108031424},"sp":{"value":6108031344},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":303424,"symbol":"CA::Render::Server::server_thread(void*)","symbolLocation":816,"imageIndex":32},{"imageOffset":302592,"symbol":"thread_fun(void*)","symbolLocation":32,"imageIndex":32},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4051184,"threadState":{"x":[{"value":268451845},{"value":21525170178},{"value":8589934592},{"value":0},{"value":0},{"value":1154534453805056},{"value":2},{"value":0},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":268811},{"value":2043},{"value":18446744073709551569},{"value":87},{"value":0},{"value":0},{"value":2},{"value":1154534453805056},{"value":0},{"value":0},{"value":6108620552},{"value":8589934592},{"value":21525170178},{"value":18446744073709550527},{"value":4345300994}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6108620400},"sp":{"value":6108620320},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"queue":"com.apple.VirtualDisplayListener","frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":48840,"symbol":"mach_msg_server_once","symbolLocation":296,"imageIndex":25},{"imageOffset":72180,"symbol":"-[VirtualDisplayListener rx]","symbolLocation":128,"imageIndex":33},{"imageOffset":6956,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":34},{"imageOffset":112732,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":34},{"imageOffset":41808,"symbol":"_dispatch_lane_serial_drain","symbolLocation":740,"imageIndex":34},{"imageOffset":44588,"symbol":"_dispatch_lane_invoke","symbolLocation":388,"imageIndex":34},{"imageOffset":86628,"symbol":"_dispatch_root_queue_drain_deferred_wlh","symbolLocation":292,"imageIndex":34},{"imageOffset":84712,"symbol":"_dispatch_workloop_worker_thread","symbolLocation":540,"imageIndex":34},{"imageOffset":11876,"symbol":"_pthread_wqthread","symbolLocation":292,"imageIndex":26},{"imageOffset":7028,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":26}]},{"id":4051233,"name":"IOHIDService - RunLoopCompatibilityThread","threadState":{"x":[{"value":268451845},{"value":21592279046},{"value":8589934592},{"value":330965884862464},{"value":0},{"value":330965884862464},{"value":2},{"value":4294967295},{"value":0},{"value":17179869184},{"value":0},{"value":2},{"value":0},{"value":0},{"value":77059},{"value":2043},{"value":18446744073709551569},{"value":31},{"value":0},{"value":4294967295},{"value":2},{"value":330965884862464},{"value":0},{"value":330965884862464},{"value":6109765592},{"value":8589934592},{"value":21592279046},{"value":18446744073709550527},{"value":4412409862}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6578221984},"cpsr":{"value":0},"fp":{"value":6109765440},"sp":{"value":6109765360},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146356},"far":{"value":0}},"frames":[{"imageOffset":3124,"symbol":"mach_msg2_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":78752,"symbol":"mach_msg2_internal","symbolLocation":76,"imageIndex":25},{"imageOffset":38756,"symbol":"mach_msg_overwrite","symbolLocation":484,"imageIndex":25},{"imageOffset":4008,"symbol":"mach_msg","symbolLocation":24,"imageIndex":25},{"imageOffset":511612,"symbol":"__CFRunLoopServiceMachPort","symbolLocation":160,"imageIndex":31},{"imageOffset":505752,"symbol":"__CFRunLoopRun","symbolLocation":1208,"imageIndex":31},{"imageOffset":502872,"symbol":"CFRunLoopRunSpecific","symbolLocation":572,"imageIndex":31},{"imageOffset":1001236,"symbol":"CFRunLoopRun","symbolLocation":64,"imageIndex":31},{"imageOffset":704188,"symbol":"__IOHIDServiceRunLoopCompatibilityThread","symbolLocation":276,"imageIndex":35},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]},{"id":4102324,"frames":[{"imageOffset":7020,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":26}],"threadState":{"x":[{"value":6098071552},{"value":419423},{"value":6097534976},{"value":0},{"value":409603},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6098071552},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578396012},"far":{"value":0}}},{"id":4106227,"threadState":{"x":[{"value":18446744073709551612},{"value":0},{"value":4294967295},{"value":0},{"value":335007449088},{"value":0},{"value":2},{"value":0},{"value":0},{"value":17179869184},{"value":19},{"value":2},{"value":78},{"value":0},{"value":0},{"value":0},{"value":515},{"value":8442126408},{"value":0},{"value":4294967295},{"value":1},{"value":0},{"value":6116222800},{"value":6116222960},{"value":105553127858176},{"value":6575550464},{"value":0},{"value":4522561592},{"value":9223372036864564562}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6576622780},"cpsr":{"value":1073741824},"fp":{"value":6116222608},"sp":{"value":6116222576},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578153912},"far":{"value":0}},"queue":"com.apple.libtrace.state.block-list","frames":[{"imageOffset":10680,"symbol":"__ulock_wait","symbolLocation":8,"imageIndex":25},{"imageOffset":15548,"symbol":"_dlock_wait","symbolLocation":56,"imageIndex":34},{"imageOffset":15068,"symbol":"_dispatch_thread_event_wait_slow","symbolLocation":56,"imageIndex":34},{"imageOffset":72328,"symbol":"__DISPATCH_WAIT_FOR_QUEUE__","symbolLocation":368,"imageIndex":34},{"imageOffset":71232,"symbol":"_dispatch_sync_f_slow","symbolLocation":148,"imageIndex":34},{"imageOffset":47016,"symbol":"___os_state_request_for_self_block_invoke","symbolLocation":372,"imageIndex":36},{"imageOffset":6956,"symbol":"_dispatch_call_block_and_release","symbolLocation":32,"imageIndex":34},{"imageOffset":112732,"symbol":"_dispatch_client_callout","symbolLocation":16,"imageIndex":34},{"imageOffset":41808,"symbol":"_dispatch_lane_serial_drain","symbolLocation":740,"imageIndex":34},{"imageOffset":44640,"symbol":"_dispatch_lane_invoke","symbolLocation":440,"imageIndex":34},{"imageOffset":86628,"symbol":"_dispatch_root_queue_drain_deferred_wlh","symbolLocation":292,"imageIndex":34},{"imageOffset":84712,"symbol":"_dispatch_workloop_worker_thread","symbolLocation":540,"imageIndex":34},{"imageOffset":11876,"symbol":"_pthread_wqthread","symbolLocation":292,"imageIndex":26},{"imageOffset":7028,"symbol":"start_wqthread","symbolLocation":8,"imageIndex":26}]},{"id":4108201,"frames":[{"imageOffset":7020,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":26}],"threadState":{"x":[{"value":6113570816},{"value":315255},{"value":6113034240},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6113570816},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578396012},"far":{"value":0}}},{"id":4108566,"frames":[{"imageOffset":7020,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":26}],"threadState":{"x":[{"value":6098644992},{"value":508599},{"value":6098108416},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6098644992},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578396012},"far":{"value":0}}},{"id":4109276,"frames":[{"imageOffset":7020,"symbol":"start_wqthread","symbolLocation":0,"imageIndex":26}],"threadState":{"x":[{"value":6114717696},{"value":0},{"value":6114181120},{"value":0},{"value":278531},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6114717696},"esr":{"value":0,"description":" Address size fault"},"pc":{"value":6578396012},"far":{"value":0}}},{"id":4116468,"name":"com.apple.windowserver.root_queue","threadState":{"x":[{"value":14},{"value":4294966578740461572},{"value":999999833},{"value":68719460488},{"value":105553174477952},{"value":2498088977},{"value":105553181246720},{"value":3},{"value":999999833},{"value":3},{"value":13835058055282163714},{"value":80000000},{"value":105553166817720},{"value":2045},{"value":2384773224},{"value":2382674025},{"value":18446744073709551578},{"value":8442130472},{"value":0},{"value":4703827379213},{"value":5040522624},{"value":1000000000},{"value":5040522488},{"value":6109196512},{"value":0},{"value":0},{"value":18446744071411073023},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":6576830288},"cpsr":{"value":2147483648},"fp":{"value":6109196096},"sp":{"value":6109196064},"esr":{"value":1442840704,"description":" Address size fault"},"pc":{"value":6578146248},"far":{"value":0}},"frames":[{"imageOffset":3016,"symbol":"semaphore_timedwait_trap","symbolLocation":8,"imageIndex":25},{"imageOffset":223056,"symbol":"_dispatch_sema4_timedwait","symbolLocation":64,"imageIndex":34},{"imageOffset":16088,"symbol":"_dispatch_semaphore_wait_slow","symbolLocation":76,"imageIndex":34},{"imageOffset":80936,"symbol":"_dispatch_worker_thread","symbolLocation":324,"imageIndex":34},{"imageOffset":27660,"symbol":"_pthread_start","symbolLocation":136,"imageIndex":26},{"imageOffset":7040,"symbol":"thread_start","symbolLocation":8,"imageIndex":26}]}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4369367040,
+    "size" : 16384,
+    "uuid" : "0fd0e97a-f57e-3e46-8c2c-6b2954bf166d",
+    "path" : "\/System\/Library\/PrivateFrameworks\/SkyLight.framework\/Resources\/WindowServer",
+    "name" : "WindowServer"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4388405248,
+    "size" : 7553024,
+    "uuid" : "87ebbe6c-f016-3e20-8ede-cc30cd902789",
+    "path" : "\/System\/Library\/PrivateFrameworks\/SkyLight.framework\/Versions\/A\/Resources\/CursorAsset",
+    "name" : "CursorAsset"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371628032,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDNXEventTranslatorSessionFilter",
+    "size" : 49152,
+    "uuid" : "53d97983-d2b6-32e4-8ff9-05ee1bd548e6",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDNXEventTranslatorSessionFilter.plugin\/Contents\/MacOS\/IOHIDNXEventTranslatorSessionFilter",
+    "name" : "IOHIDNXEventTranslatorSessionFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371546112,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDDFREventFilter",
+    "size" : 16384,
+    "uuid" : "947df899-4b6b-39cb-bfe8-229ed340e82e",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDDFREventFilter.plugin\/Contents\/MacOS\/IOHIDDFREventFilter",
+    "name" : "IOHIDDFREventFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371759104,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.HIDRMSessionFilter",
+    "size" : 16384,
+    "uuid" : "d1b8afdc-de79-3a32-bdaf-f2197c9faa74",
+    "path" : "\/System\/Library\/HIDPlugins\/SessionFilters\/HIDRMSessionFilter.plugin\/Contents\/MacOS\/HIDRMSessionFilter",
+    "name" : "HIDRMSessionFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4373102592,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.IOAnalytics",
+    "size" : 131072,
+    "uuid" : "76302d50-a7ad-36fb-a512-2653d3eb9c0d",
+    "path" : "\/System\/Library\/HIDPlugins\/SessionFilters\/IOAnalytics.plugin\/Contents\/MacOS\/IOAnalytics",
+    "name" : "IOAnalytics",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371841024,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.IOHIDRemoteSensorSessionFilter",
+    "size" : 16384,
+    "uuid" : "4d98f1eb-73b0-3291-9f63-6635a92e8d3e",
+    "path" : "\/System\/Library\/HIDPlugins\/SessionFilters\/IOHIDRemoteSensorSessionFilter.plugin\/Contents\/MacOS\/IOHIDRemoteSensorSessionFilter",
+    "name" : "IOHIDRemoteSensorSessionFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371922944,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.IOHIDTelemetrySessionFilter",
+    "size" : 16384,
+    "uuid" : "a6d7fa30-88f2-35c8-884c-e8d40f6471e2",
+    "path" : "\/System\/Library\/HIDPlugins\/SessionFilters\/IOHIDTelemetrySessionFilter.plugin\/Contents\/MacOS\/IOHIDTelemetrySessionFilter",
+    "name" : "IOHIDTelemetrySessionFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4371382272,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.CoreRCPlugin",
+    "size" : 32768,
+    "uuid" : "ee49a440-e32c-3016-aec2-c93d39a1847b",
+    "path" : "\/System\/Library\/HIDPlugins\/SessionFilters\/CoreRCPlugin.plugin\/Contents\/MacOS\/CoreRCPlugin",
+    "name" : "CoreRCPlugin",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4379852800,
+    "CFBundleIdentifier" : "com.apple.hid.HSTouchHIDService",
+    "size" : 1261568,
+    "uuid" : "c09cd470-b0f6-3dc7-a7b2-d34e998d7933",
+    "path" : "\/System\/Library\/HIDPlugins\/ServicePlugins\/HSTouchHIDService.plugin\/Contents\/MacOS\/HSTouchHIDService",
+    "name" : "HSTouchHIDService"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4372152320,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.IOHIDEventServicePlugin",
+    "size" : 16384,
+    "uuid" : "be06383b-4446-3081-9db9-c8d1af7ab665",
+    "path" : "\/System\/Library\/HIDPlugins\/ServicePlugins\/IOHIDEventServicePlugin.plugin\/Contents\/MacOS\/IOHIDEventServicePlugin",
+    "name" : "IOHIDEventServicePlugin",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4372004864,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDNXEventTranslatorServiceFilter",
+    "size" : 16384,
+    "uuid" : "7d8b2f37-4651-39aa-a884-8cc1693f4842",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDNXEventTranslatorServiceFilter.plugin\/Contents\/MacOS\/IOHIDNXEventTranslatorServiceFilter",
+    "name" : "IOHIDNXEventTranslatorServiceFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4372234240,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.hid.ColourSensorFilterPlugin",
+    "size" : 114688,
+    "uuid" : "c479586c-c9ca-304b-bedd-333492bedd16",
+    "path" : "\/System\/Library\/HIDPlugins\/ColourSensorFilterPlugin.plugin\/Contents\/MacOS\/ColourSensorFilterPlugin",
+    "name" : "ColourSensorFilterPlugin",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4373757952,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDPointerScrollFilter",
+    "size" : 49152,
+    "uuid" : "c600da0f-4afc-3d13-bace-4cb595b7409a",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDPointerScrollFilter.plugin\/Contents\/MacOS\/IOHIDPointerScrollFilter",
+    "name" : "IOHIDPointerScrollFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4373938176,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDEventProcessorFilter",
+    "size" : 32768,
+    "uuid" : "434ff9ad-97f3-3605-8b97-6685da13d17f",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDEventProcessorFilter.plugin\/Contents\/MacOS\/IOHIDEventProcessorFilter",
+    "name" : "IOHIDEventProcessorFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4372430848,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.hid.ReportIntervalServiceFilter",
+    "size" : 32768,
+    "uuid" : "11587c6e-60f8-3fbd-9430-7d3b5dcbf9f7",
+    "path" : "\/System\/Library\/HIDPlugins\/ServiceFilters\/ReportIntervalServiceFilter.plugin\/Contents\/MacOS\/ReportIntervalServiceFilter",
+    "name" : "ReportIntervalServiceFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4375986176,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.universalcontrol.servicefilter",
+    "size" : 737280,
+    "uuid" : "9d83403b-724f-35e8-9613-989267ee7f87",
+    "path" : "\/System\/Library\/HIDPlugins\/ServiceFilters\/UniversalControlServiceFilter.plugin\/Contents\/MacOS\/UniversalControlServiceFilter",
+    "name" : "UniversalControlServiceFilter",
+    "CFBundleVersion" : "158.4.2.200"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4373594112,
+    "CFBundleShortVersionString" : "2.0.0",
+    "CFBundleIdentifier" : "com.apple.iokit.IOHIDNXEventRouter",
+    "size" : 16384,
+    "uuid" : "d7320d57-3cb0-3625-99a6-1880a5cd7ad4",
+    "path" : "\/System\/Library\/Extensions\/IOHIDFamily.kext\/Contents\/PlugIns\/IOHIDNXEventRouter.plugin\/Contents\/MacOS\/IOHIDNXEventRouter",
+    "name" : "IOHIDNXEventRouter",
+    "CFBundleVersion" : "2.0.0"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4373446656,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.hid.AppleDeviceManagementHIDFilter",
+    "size" : 49152,
+    "uuid" : "44f762b1-fedb-3546-9f3d-ce253e3779b4",
+    "path" : "\/System\/Library\/HIDPlugins\/ServiceFilters\/AppleDeviceManagementHIDFilter.plugin\/Contents\/MacOS\/AppleDeviceManagementHIDFilter",
+    "name" : "AppleDeviceManagementHIDFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4374446080,
+    "CFBundleShortVersionString" : "2.0.0",
+    "CFBundleIdentifier" : "com.apple.iokit.IOHIDLib",
+    "size" : 98304,
+    "uuid" : "e414dd7a-f98a-34bb-b188-dfb4657ec69e",
+    "path" : "\/System\/Library\/Extensions\/IOHIDFamily.kext\/Contents\/PlugIns\/IOHIDLib.plugin\/Contents\/MacOS\/IOHIDLib",
+    "name" : "IOHIDLib",
+    "CFBundleVersion" : "2.0.0"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4374626304,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.iokit.hid.IOHIDKeyboardFilter",
+    "size" : 65536,
+    "uuid" : "a478fec2-746a-3490-bd62-5ffee1919596",
+    "path" : "\/System\/Library\/HIDPlugins\/IOHIDKeyboardFilter.plugin\/Contents\/MacOS\/IOHIDKeyboardFilter",
+    "name" : "IOHIDKeyboardFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4374265856,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.KeyboardTelemetryServiceFilter",
+    "size" : 32768,
+    "uuid" : "b1c5a403-9747-3e2e-b2e7-1586be402d73",
+    "path" : "\/System\/Library\/HIDPlugins\/ServiceFilters\/KeyboardTelemetryServiceFilter.plugin\/Contents\/MacOS\/KeyboardTelemetryServiceFilter",
+    "name" : "KeyboardTelemetryServiceFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4374085632,
+    "CFBundleShortVersionString" : "1.0",
+    "CFBundleIdentifier" : "com.apple.corebrightness.KeyboardBacklightServiceFilter",
+    "size" : 65536,
+    "uuid" : "6a09cc1d-b26f-3505-9109-fefb3a1adfe9",
+    "path" : "\/System\/Library\/HIDPlugins\/ServiceFilters\/KeyboardBacklightServiceFilter.plugin\/Contents\/MacOS\/KeyboardBacklightServiceFilter",
+    "name" : "KeyboardBacklightServiceFilter",
+    "CFBundleVersion" : "1"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4379213824,
+    "size" : 98304,
+    "uuid" : "f8b1dc1d-cfb4-3613-9c50-4e5430787b0f",
+    "path" : "\/System\/Library\/CoreServices\/TouchBarEvent.bundle",
+    "name" : "TouchBarEvent.bundle"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 4474830848,
+    "CFBundleShortVersionString" : "327.5",
+    "CFBundleIdentifier" : "com.apple.AGXMetalG16G-B0",
+    "size" : 7553024,
+    "uuid" : "29ee8f2e-c126-3321-b212-577b1d435c5c",
+    "path" : "\/System\/Library\/Extensions\/AGXMetalG16G_B0.bundle\/Contents\/MacOS\/AGXMetalG16G_B0",
+    "name" : "AGXMetalG16G_B0",
+    "CFBundleVersion" : "327.5"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6578143232,
+    "size" : 243284,
+    "uuid" : "60485b6f-67e5-38c1-aec9-efd6031ff166",
+    "path" : "\/usr\/lib\/system\/libsystem_kernel.dylib",
+    "name" : "libsystem_kernel.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6578388992,
+    "size" : 51784,
+    "uuid" : "647b91fc-96d3-3bbb-af08-970df45257c8",
+    "path" : "\/usr\/lib\/system\/libsystem_pthread.dylib",
+    "name" : "libsystem_pthread.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6576910336,
+    "size" : 529520,
+    "uuid" : "f4529d5e-24f3-3bbb-bd3c-984856875fc8",
+    "path" : "\/usr\/lib\/system\/libsystem_c.dylib",
+    "name" : "libsystem_c.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6679343104,
+    "CFBundleShortVersionString" : "1.600.0",
+    "CFBundleIdentifier" : "com.apple.SkyLight",
+    "size" : 5395200,
+    "uuid" : "3a386772-a7fe-3359-aac4-1ae9c903cb49",
+    "path" : "\/System\/Library\/PrivateFrameworks\/SkyLight.framework\/Versions\/A\/SkyLight",
+    "name" : "SkyLight"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6574587904,
+    "size" : 636112,
+    "uuid" : "9cf0401a-a938-389e-a77d-9e9608076ccf",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6578868224,
+    "CFBundleShortVersionString" : "6.9",
+    "CFBundleIdentifier" : "com.apple.CoreFoundation",
+    "size" : 5500928,
+    "uuid" : "df489a59-b4f6-32b8-9bb4-9b832960aa52",
+    "path" : "\/System\/Library\/Frameworks\/CoreFoundation.framework\/Versions\/A\/CoreFoundation",
+    "name" : "CoreFoundation",
+    "CFBundleVersion" : "3502.1.401"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6730698752,
+    "CFBundleShortVersionString" : "1.11",
+    "CFBundleIdentifier" : "com.apple.QuartzCore",
+    "size" : 4013184,
+    "uuid" : "e0d9f378-dc87-33f8-93a5-3c62ad30ea19",
+    "path" : "\/System\/Library\/Frameworks\/QuartzCore.framework\/Versions\/A\/QuartzCore",
+    "name" : "QuartzCore",
+    "CFBundleVersion" : "1156.18"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6618275840,
+    "CFBundleShortVersionString" : "288",
+    "CFBundleIdentifier" : "com.apple.CoreDisplay",
+    "size" : 1181472,
+    "uuid" : "2895a1c4-45b2-358d-b390-66217de02bf9",
+    "path" : "\/System\/Library\/Frameworks\/CoreDisplay.framework\/Versions\/A\/CoreDisplay",
+    "name" : "CoreDisplay",
+    "CFBundleVersion" : "288"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6576607232,
+    "size" : 288576,
+    "uuid" : "8bf83cda-8db1-3d46-94b0-d811bd77e078",
+    "path" : "\/usr\/lib\/system\/libdispatch.dylib",
+    "name" : "libdispatch.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6643978240,
+    "CFBundleShortVersionString" : "2.0.2",
+    "CFBundleIdentifier" : "com.apple.framework.IOKit",
+    "size" : 926528,
+    "uuid" : "d1ba721b-4309-3caf-81c7-595aef32f6a9",
+    "path" : "\/System\/Library\/Frameworks\/IOKit.framework\/Versions\/A\/IOKit",
+    "name" : "IOKit"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e",
+    "base" : 6575550464,
+    "size" : 112640,
+    "uuid" : "c8ed43c4-c077-34e9-ab26-f34231c895be",
+    "path" : "\/usr\/lib\/system\/libsystem_trace.dylib",
+    "name" : "libsystem_trace.dylib"
+  }
+],
+  "sharedCache" : {
+  "base" : 6573752320,
+  "size" : 5047205888,
+  "uuid" : "d7397d7f-8df9-3920-81a7-c0a144be9c51"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=1.0G resident=0K(0%) swapped_out_or_unallocated=1.0G(100%)\nWritable regions: Total=4.5G written=3348K(0%) resident=2676K(0%) swapped_out=784K(0%) unallocated=4.5G(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nAccelerate framework               128K        1 \nActivity Tracing                   256K        1 \nCG backing stores                   96K        6 \nColorSync                          784K       40 \nCoreAnimation                     86.5M     1072 \nCoreGraphics                        32K        2 \nIOKit                               48K        3 \nImage IO                            64K        1 \nKernel Alloc Once                   32K        1 \nMALLOC                             4.4G      438 \nMALLOC guard page                  192K       12 \nMach message                      2880K       46 \nSTACK GUARD                       56.3M       19 \nStack                             21.0M       19 \nVM_ALLOCATE                       18.8M      227 \nVM_ALLOCATE (reserved)             240K       13         reserved VM address space (unallocated)\n__AUTH                            1750K      298 \n__AUTH_CONST                      32.7M      468 \n__CGSERVER                          16K        1 \n__CTF                               824        1 \n__DATA                            6954K      466 \n__DATA_CONST                      17.6M      493 \n__DATA_DIRTY                       803K      135 \n__FONT_DATA                        2352        1 \n__LINKEDIT                       620.1M       26 \n__OBJC_RO                         61.4M        1 \n__OBJC_RW                         2396K        1 \n__SLSERVER                          16K        1 \n__TEXT                           431.4M      507 \n__TPRO_CONST                       128K        2 \ndyld private memory                160K        2 \nmapped file                      274.0M       14 \npage table in kernel              2676K        1 \nshared memory                     1232K       26 \n===========                     =======  ======= \nTOTAL                              6.0G     4345 \nTOTAL, minus reserved VM space     6.0G     4345 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "name" : "ws_main_thread",
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "64a38552d661b37ef0d36e9daaab1be639c13e47"
+}
+
+Model: Mac16,13, BootROM 11881.121.1, proc 10:4:6 processors, 16 GB, SMC 
+Graphics: Apple M4, Apple M4, Built-In
+Display: Color LCD, spdisplays_2880x1864Retina, Main, MirrorOff, Online
+Memory Module: LPDDR5, Micron
+AirPort: spairport_wireless_card_type_wifi (0x14E4, 0x4388), wl0: Mar 22 2025 02:17:00 version 23.40.30.0.41.51.180 FWID 01-989cd4a9
+IO80211_driverkit-1475.39 "IO80211_driverkit-1475.39" Apr 18 2025 20:10:40
+AirPort: 
+Bluetooth: Version (null), 0 services, 0 devices, 0 incoming serial ports
+Network Service: Wi-Fi, AirPort, en0
+USB Device: USB31Bus
+USB Device: USB31Bus
+Thunderbolt Bus: MacBook Air, Apple Inc.
+Thunderbolt Bus: MacBook Air, Apple Inc.

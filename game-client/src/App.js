@@ -7,12 +7,13 @@ import './Render/Tooltip.css';
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
-import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
+import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
 import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
 import { RenderTilesCanvasV2 } from './Render/RenderTilesCanvasV2';
+import PixiRenderer from './Render/PixiRenderer';
 import { RenderResources } from './Render/RenderResources';
 import { RenderNPCs } from './Render/RenderNPCs';
 import { RenderPCs } from './Render/RenderPCs';
@@ -422,12 +423,35 @@ useEffect(() => {
   window.addEventListener('tileRendererChange', handleTileRendererChange);
   return () => window.removeEventListener('tileRendererChange', handleTileRendererChange);
 }, []);
+
+// PixiJS Renderer toggle - defaults to false (Canvas 2D) for safety
+const [usePixiJS, setUsePixiJS] = useState(() => {
+  const hasExplicitChoice = localStorage.getItem('usePixiJSExplicit') === 'true';
+  if (hasExplicitChoice) {
+    return localStorage.getItem('usePixiJS') === 'true';
+  }
+  return false; // Default to Canvas 2D for safety
+});
+
+// Listen for PixiJS renderer toggle changes from DebugPanel
+useEffect(() => {
+  const handlePixiRendererChange = (e) => setUsePixiJS(e.detail);
+  window.addEventListener('pixiRendererChange', handlePixiRendererChange);
+  return () => window.removeEventListener('pixiRendererChange', handlePixiRendererChange);
+}, []);
+
 const TILE_SIZES = useMemo(() => globalTuning?.closerZoom ? {
   closer: globalTuning.closerZoom,
   close: globalTuning.closeZoom,
   far: globalTuning.farZoom
 } : { closer: 50, close: 30, far: 16 }, [globalTuning]); // Update when globalTuning loads
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
+
+// PixiJS uses a fixed base tile size and applies zoom via GPU transform
+// This prevents full re-renders when zoom changes - only the transform updates
+// Base tile size should match the "close" zoom level for 1:1 rendering at default zoom
+const PIXI_BASE_TILE_SIZE = TILE_SIZES.close; // Use "close" zoom as base (e.g., 40 from globalTuning)
+const pixiZoomScale = activeTileSize / PIXI_BASE_TILE_SIZE; // Scale factor for GPU transform
 const [isRelocating, setIsRelocating] = useState(null);
 
 const [visibleSettlementId, setVisibleSettlementId] = useState(null);
@@ -475,7 +499,8 @@ useEffect(() => {
 const prevZoomRef = useRef(zoomLevel);
 
 // Maintain camera position during zoom transitions (only when zoom actually changes)
-useLayoutEffect(() => {
+// Uses useEffect (not useLayoutEffect) to ensure PixiRenderer has resized first
+useEffect(() => {
   // Only center camera if zoomLevel actually changed (not on playersInGrid updates during movement)
   if (prevZoomRef.current === zoomLevel) {
     return;
@@ -487,11 +512,20 @@ useLayoutEffect(() => {
     const playerIdStr = String(currentPlayer._id);
     const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
 
-    console.log(`📷 [ZOOM TRANSITION] zoomLevel changed to: ${zoomLevel}, activeTileSize: ${activeTileSize}`);
+    console.log(`📷 [ZOOM TRANSITION] ========== ZOOM LEVEL CHANGE ==========`);
+    console.log(`📷 [ZOOM TRANSITION] zoomLevel: ${zoomLevel}`);
+    console.log(`📷 [ZOOM TRANSITION] activeTileSize: ${activeTileSize}`);
+    console.log(`📷 [ZOOM TRANSITION] PIXI_BASE_TILE_SIZE: ${PIXI_BASE_TILE_SIZE}`);
+    console.log(`📷 [ZOOM TRANSITION] pixiZoomScale: ${pixiZoomScale}`);
+    console.log(`📷 [ZOOM TRANSITION] Expected container size: ${64 * PIXI_BASE_TILE_SIZE * pixiZoomScale}px`);
     console.log(`📷 [ZOOM TRANSITION] playerPos from playersInGrid:`, playerPos);
+    console.log(`📷 [ZOOM TRANSITION] ======================================`);
 
     if (playerPos && activeTileSize) {
-      centerCameraOnPlayerFast(playerPos, activeTileSize);
+      // Use requestAnimationFrame to ensure the DOM has updated after PixiRenderer resizes
+      requestAnimationFrame(() => {
+        centerCameraOnPlayerFast(playerPos, activeTileSize);
+      });
     } else {
       console.warn(`📷 [ZOOM TRANSITION] Cannot center - missing playerPos or activeTileSize`);
     }
@@ -2891,94 +2925,141 @@ return (
 
       {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
       <>
-        {/* Layer 1: Tiles - conditionally use V1 or V2 renderer */}
-        {useV2Tiles ? (
-          <RenderTilesCanvasV2
+        {/* Conditional: PixiJS Renderer OR Canvas 2D Renderer */}
+        {usePixiJS ? (
+          /* PixiJS WebGL Renderer (Experimental) */
+          <PixiRenderer
             grid={memoizedGrid}
             tileTypes={memoizedTileTypes}
-            TILE_SIZE={activeTileSize}
+            resources={memoizedResources}
+            npcs={npcs}
+            pcs={pcs}
+            currentPlayer={currentPlayer}
+            TILE_SIZE={PIXI_BASE_TILE_SIZE}
+            zoomScale={pixiZoomScale}
             zoomLevel={zoomLevel}
             handleTileClick={handleTileClick}
+            masterResources={masterResources}
+            strings={strings}
+            craftingStatus={null}
+            tradingStatus={null}
+            badgeState={badgeState}
+            electionPhase={timers.elections.phase}
+            globalTuning={globalTuning}
+            hoverTooltip={hoverTooltip}
+            setHoverTooltip={setHoverTooltip}
+            onNPCClick={handleNPCPanel}
+            onPCClick={handlePCClick}
+            // Props for NPC interactions
+            setInventory={setInventory}
+            setBackpack={setBackpack}
+            setResources={setResources}
+            setCurrentPlayer={setCurrentPlayer}
+            masterSkills={masterSkills}
+            masterTrophies={masterTrophies}
+            setModalContent={setModalContent}
+            setIsModalOpen={setIsModalOpen}
+            updateStatus={updateStatus}
+            openPanel={openPanel}
+            setActiveStation={setActiveStation}
+            gridId={gridId}
+            timers={timers}
+            playersInGrid={playersInGrid}
+            isDeveloper={isDeveloper}
+            connectedPlayers={connectedPlayers}
+            cursorMode={cursorMode}
           />
         ) : (
-          <RenderTilesCanvas
-            grid={memoizedGrid}
-            tileTypes={memoizedTileTypes}
-            TILE_SIZE={activeTileSize}
-            zoomLevel={zoomLevel}
-            handleTileClick={handleTileClick}
-          />
-        )}
+          /* Canvas 2D Renderer (Default/Fallback) */
+          <>
+            {/* Layer 1: Tiles - conditionally use V1 or V2 renderer */}
+            {useV2Tiles ? (
+              <RenderTilesCanvasV2
+                grid={memoizedGrid}
+                tileTypes={memoizedTileTypes}
+                TILE_SIZE={activeTileSize}
+                zoomLevel={zoomLevel}
+                handleTileClick={handleTileClick}
+              />
+            ) : (
+              <RenderTilesCanvas
+                grid={memoizedGrid}
+                tileTypes={memoizedTileTypes}
+                TILE_SIZE={activeTileSize}
+                zoomLevel={zoomLevel}
+                handleTileClick={handleTileClick}
+              />
+            )}
 
-        {/* Layer 1.5: Cursor Tile Highlight (only when in cursor placement mode) */}
-        {cursorMode && (
-          <CursorTileHighlight
-            hoveredTile={hoveredTile}
-            cursorMode={cursorMode}
-            TILE_SIZE={activeTileSize}
-            gridWidth={memoizedGrid?.[0]?.length || 0}
-            gridHeight={memoizedGrid?.length || 0}
-          />
-        )}
+            {/* Layer 1.5: Cursor Tile Highlight (only when in cursor placement mode) */}
+            {cursorMode && (
+              <CursorTileHighlight
+                hoveredTile={hoveredTile}
+                cursorMode={cursorMode}
+                TILE_SIZE={activeTileSize}
+                gridWidth={memoizedGrid?.[0]?.length || 0}
+                gridHeight={memoizedGrid?.length || 0}
+              />
+            )}
 
-        {/* Layer 2: Resources */}
-        <RenderResources
-          resources={memoizedResources}
-          masterResources={masterResources}
-          globalTuning={globalTuning}
-          TILE_SIZE={activeTileSize}
-          handleTileClick={handleTileClick}
-          currentPlayer={currentPlayer}
-          badgeState={badgeState}
-          electionPhase={timers.elections.phase}
-        />
-        
-        {/* Layer 3: NPCs */}
-        <RenderNPCs
-          npcs={npcs}
-          TILE_SIZE={activeTileSize}
-          currentPlayer={currentPlayer}
-          globalTuning={globalTuning}
-          gridId={currentPlayer?.location?.g}
-          onNPCClick={handleNPCPanel}
-          checkQuestNPCStatus={(npc) => checkQuestNPCStatus(npc, currentPlayer)}
-          checkTradeNPCStatus={(npc) => checkTradeNPCStatus(npc, masterResources)}
-          checkKentNPCStatus={(npc) => checkKentNPCStatus(npc, currentPlayer)}
-          strings={strings}
-          masterResources={masterResources}
-          playersInGrid={playersInGrid}
-          setInventory={setInventory}
-          setBackpack={setBackpack}
-          setResources={setResources}
-          setCurrentPlayer={setCurrentPlayer}
-          masterSkills={masterSkills}
-          setModalContent={setModalContent}
-          setIsModalOpen={setIsModalOpen}
-          updateStatus={updateStatus}
-          openPanel={openPanel}
-          setActiveStation={setActiveStation}
-          masterTrophies={masterTrophies}
-          setHoverTooltip={setHoverTooltip}
-          isDeveloper={isDeveloper}
-        />
+            {/* Layer 2: Resources */}
+            <RenderResources
+              resources={memoizedResources}
+              masterResources={masterResources}
+              globalTuning={globalTuning}
+              TILE_SIZE={activeTileSize}
+              handleTileClick={handleTileClick}
+              currentPlayer={currentPlayer}
+              badgeState={badgeState}
+              electionPhase={timers.elections.phase}
+            />
 
-        {/* Layer 4: PCs */}
-        <RenderPCs
-          pcs={pcs}
-          TILE_SIZE={activeTileSize}
-          currentPlayer={currentPlayer}
-          gridId={gridId}
-          onPCClick={handlePCClick}
-          setCurrentPlayer={setCurrentPlayer}
-          setInventory={setInventory}
-          setBackpack={setBackpack}
-          masterResources={masterResources}
-          strings={strings}
-          connectedPlayers={connectedPlayers}
-        />
-        
-        {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
-        <RenderDynamicElements
+            {/* Layer 3: NPCs */}
+            <RenderNPCs
+              npcs={npcs}
+              TILE_SIZE={activeTileSize}
+              currentPlayer={currentPlayer}
+              globalTuning={globalTuning}
+              gridId={currentPlayer?.location?.g}
+              onNPCClick={handleNPCPanel}
+              checkQuestNPCStatus={(npc) => checkQuestNPCStatus(npc, currentPlayer)}
+              checkTradeNPCStatus={(npc) => checkTradeNPCStatus(npc, masterResources)}
+              checkKentNPCStatus={(npc) => checkKentNPCStatus(npc, currentPlayer)}
+              strings={strings}
+              masterResources={masterResources}
+              playersInGrid={playersInGrid}
+              setInventory={setInventory}
+              setBackpack={setBackpack}
+              setResources={setResources}
+              setCurrentPlayer={setCurrentPlayer}
+              masterSkills={masterSkills}
+              setModalContent={setModalContent}
+              setIsModalOpen={setIsModalOpen}
+              updateStatus={updateStatus}
+              openPanel={openPanel}
+              setActiveStation={setActiveStation}
+              masterTrophies={masterTrophies}
+              setHoverTooltip={setHoverTooltip}
+              isDeveloper={isDeveloper}
+            />
+
+            {/* Layer 4: PCs */}
+            <RenderPCs
+              pcs={pcs}
+              TILE_SIZE={activeTileSize}
+              currentPlayer={currentPlayer}
+              gridId={gridId}
+              onPCClick={handlePCClick}
+              setCurrentPlayer={setCurrentPlayer}
+              setInventory={setInventory}
+              setBackpack={setBackpack}
+              masterResources={masterResources}
+              strings={strings}
+              connectedPlayers={connectedPlayers}
+            />
+
+            {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
+            <RenderDynamicElements
           TILE_SIZE={activeTileSize}
           openPanel={openPanel}
           setActiveStation={setActiveStation}
@@ -3010,9 +3091,11 @@ return (
           onTileHover={setHoveredTile}
           cursorModeActive={!!cursorMode}
           isDeveloper={isDeveloper}
-        />
-        
-        {/* Hover Tooltip - render at top level */}
+            />
+          </>
+        )}
+
+        {/* Hover Tooltip - render at top level (works with both PixiJS and Canvas) */}
         {hoverTooltip && (
           <div
             className="HoverTooltip"
@@ -3024,7 +3107,7 @@ return (
             dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}
           />
         )}
-        
+
         {/* <RenderVFX
           toggleVFX={currentPlayer?.settings?.toggleVFX}
           // Placeholder for VFX

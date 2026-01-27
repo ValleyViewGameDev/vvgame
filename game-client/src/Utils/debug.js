@@ -45,6 +45,15 @@ const DebugPanel = ({
     }
     return true; // Default to V2 for all users
   });
+
+  // PixiJS Renderer toggle - defaults to false (Canvas 2D) for safety
+  const [usePixiJS, setUsePixiJS] = useState(() => {
+    const hasExplicitChoice = localStorage.getItem('usePixiJSExplicit') === 'true';
+    if (hasExplicitChoice) {
+      return localStorage.getItem('usePixiJS') === 'true';
+    }
+    return false; // Default to Canvas 2D for safety
+  });
   
   // Performance monitoring state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -1074,6 +1083,28 @@ const handleGetRich = async () => {
           </label>
           <div style={{ fontSize: '10px', marginTop: '4px', color: '#888' }}>
             Enables quarter-tile blending with grass blades at edges
+          </div>
+        </div>
+
+        {/* PixiJS Renderer Toggle */}
+        <div style={{ marginTop: '10px', marginBottom: '8px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffc107' }}>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={usePixiJS}
+              onChange={(e) => {
+                const newValue = e.target.checked;
+                setUsePixiJS(newValue);
+                localStorage.setItem('usePixiJS', newValue);
+                localStorage.setItem('usePixiJSExplicit', 'true');
+                window.dispatchEvent(new CustomEvent('pixiRendererChange', { detail: newValue }));
+              }}
+              style={{ width: '16px', height: '16px' }}
+            />
+            <span style={{ fontWeight: 'bold' }}>Use PixiJS Renderer (Experimental)</span>
+          </label>
+          <div style={{ fontSize: '10px', marginTop: '4px', color: '#856404' }}>
+            WebGL-accelerated rendering with smooth zoom. Uncheck to revert to Canvas 2D.
           </div>
         </div>
 
