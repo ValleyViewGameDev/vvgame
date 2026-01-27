@@ -334,13 +334,13 @@ async function isValidMove(targetX, targetY, masterResources,
 }
 
 
-export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
+export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
   const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) {
     // Container not ready yet, retry after a short delay (Safari fix)
     console.log(`📷 [CAMERA] No container found, retrying... (attempt ${retryCount + 1})`);
     if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, retryCount + 1));
+      requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1));
     }
     return;
   }
@@ -351,23 +351,28 @@ export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
     return;
   }
 
+  // Calculate the actual world bounds (64x64 grid)
+  const GRID_SIZE = 64;
+  const scaledWorldSize = GRID_SIZE * TILE_SIZE * zoomScale;
+
   // Use the container's actual client dimensions for centering
-  // This accounts for the actual viewport size regardless of CSS layout
   const viewportWidth = gameContainer.clientWidth;
   const viewportHeight = gameContainer.clientHeight;
 
-  // Center the player in the middle of the visible viewport
-  const centerX = position.x * TILE_SIZE - viewportWidth / 2 + TILE_SIZE / 2;
-  const centerY = position.y * TILE_SIZE - viewportHeight / 2 + TILE_SIZE / 2;
+  // Calculate where we want the player to be centered (in scaled coordinates)
+  const playerWorldX = position.x * TILE_SIZE * zoomScale;
+  const playerWorldY = position.y * TILE_SIZE * zoomScale;
+  const centerX = playerWorldX - viewportWidth / 2 + (TILE_SIZE * zoomScale) / 2;
+  const centerY = playerWorldY - viewportHeight / 2 + (TILE_SIZE * zoomScale) / 2;
 
-  // Clamp scroll positions so we don't scroll beyond the container's bounds
-  const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
-  const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
+  // Clamp to ACTUAL grid bounds (not scrollWidth/scrollHeight which may be inaccurate)
+  const maxScrollLeft = Math.max(0, scaledWorldSize - viewportWidth);
+  const maxScrollTop = Math.max(0, scaledWorldSize - viewportHeight);
 
   // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
   if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
     console.log(`📷 [CAMERA] Container not ready, retrying... (attempt ${retryCount + 1})`);
-    requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, retryCount + 1));
+    requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1));
     return;
   }
 
@@ -382,13 +387,13 @@ export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
 }
 
 
-export function centerCameraOnPlayerFast(position, TILE_SIZE, retryCount = 0) {
+export function centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
   const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) {
     // Container not ready yet, retry after a short delay (Safari fix)
     console.log(`📷 [CAMERA FAST] No container found, retrying... (attempt ${retryCount + 1})`);
     if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, retryCount + 1));
+      requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale, retryCount + 1));
     }
     return;
   }
@@ -399,40 +404,33 @@ export function centerCameraOnPlayerFast(position, TILE_SIZE, retryCount = 0) {
     return;
   }
 
+  // Calculate the actual world bounds (64x64 grid)
+  const GRID_SIZE = 64;
+  const scaledWorldSize = GRID_SIZE * TILE_SIZE * zoomScale;
+
   // Use the container's actual client dimensions for centering
-  // This accounts for the actual viewport size regardless of CSS layout
   const viewportWidth = gameContainer.clientWidth;
   const viewportHeight = gameContainer.clientHeight;
 
-  // Center the player in the middle of the visible viewport
-  const centerX = position.x * TILE_SIZE - viewportWidth / 2 + TILE_SIZE / 2;
-  const centerY = position.y * TILE_SIZE - viewportHeight / 2 + TILE_SIZE / 2;
+  // Calculate where we want the player to be centered (in scaled coordinates)
+  const playerWorldX = position.x * TILE_SIZE * zoomScale;
+  const playerWorldY = position.y * TILE_SIZE * zoomScale;
+  const centerX = playerWorldX - viewportWidth / 2 + (TILE_SIZE * zoomScale) / 2;
+  const centerY = playerWorldY - viewportHeight / 2 + (TILE_SIZE * zoomScale) / 2;
 
-  // Clamp scroll positions so we don't scroll beyond the container's bounds
-  const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
-  const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
-
-  // DEBUG: Log all camera centering calculations
-  console.log(`📷 [CAMERA FAST DEBUG] ========== ZOOM CAMERA CENTER ==========`);
-  console.log(`📷 [CAMERA FAST DEBUG] Input: position=(${position.x}, ${position.y}), TILE_SIZE=${TILE_SIZE}, retry=${retryCount}`);
-  console.log(`📷 [CAMERA FAST DEBUG] Viewport: width=${viewportWidth}, height=${viewportHeight}`);
-  console.log(`📷 [CAMERA FAST DEBUG] Target player pixel: x=${position.x * TILE_SIZE}, y=${position.y * TILE_SIZE}`);
-  console.log(`📷 [CAMERA FAST DEBUG] Calculated scroll: centerX=${centerX}, centerY=${centerY}`);
-  console.log(`📷 [CAMERA FAST DEBUG] Container: scrollWidth=${gameContainer.scrollWidth}, scrollHeight=${gameContainer.scrollHeight}`);
-  console.log(`📷 [CAMERA FAST DEBUG] Max scroll: maxScrollLeft=${maxScrollLeft}, maxScrollTop=${maxScrollTop}`);
+  // Clamp to ACTUAL grid bounds (not scrollWidth/scrollHeight which may be inaccurate)
+  const maxScrollLeft = Math.max(0, scaledWorldSize - viewportWidth);
+  const maxScrollTop = Math.max(0, scaledWorldSize - viewportHeight);
 
   // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
   if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
     console.log(`📷 [CAMERA FAST] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
-    requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, retryCount + 1));
+    requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale, retryCount + 1));
     return;
   }
 
   const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
   const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
-
-  console.log(`📷 [CAMERA FAST DEBUG] Final clamped scroll: clampedX=${clampedX}, clampedY=${clampedY}`);
-  console.log(`📷 [CAMERA FAST DEBUG] =========================================`);
 
   gameContainer.scrollTo({
     left: clampedX,

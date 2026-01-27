@@ -443,15 +443,78 @@ useEffect(() => {
 const TILE_SIZES = useMemo(() => globalTuning?.closerZoom ? {
   closer: globalTuning.closerZoom,
   close: globalTuning.closeZoom,
+  farish: globalTuning.farishZoom,
   far: globalTuning.farZoom
-} : { closer: 50, close: 30, far: 16 }, [globalTuning]); // Update when globalTuning loads
-const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
+} : { closer: 50, close: 30, farish: 25, far: 16 }, [globalTuning]); // Update when globalTuning loads
+
+// Get active tile size - for settlement/frontier views, use 'far' as fallback
+// since those views don't use the grid renderer but we still need valid values
+const activeTileSize = TILE_SIZES[zoomLevel] || TILE_SIZES.far;
 
 // PixiJS uses a fixed base tile size and applies zoom via GPU transform
 // This prevents full re-renders when zoom changes - only the transform updates
 // Base tile size should match the "close" zoom level for 1:1 rendering at default zoom
 const PIXI_BASE_TILE_SIZE = TILE_SIZES.close; // Use "close" zoom as base (e.g., 40 from globalTuning)
-const pixiZoomScale = activeTileSize / PIXI_BASE_TILE_SIZE; // Scale factor for GPU transform
+
+// For settlement/frontier views, keep pixiZoomScale at 'far' level so when we return
+// the animation starts from a valid scale. This prevents NaN issues.
+const effectiveZoomLevel = (zoomLevel === 'settlement' || zoomLevel === 'frontier') ? 'far' : zoomLevel;
+const effectiveTileSize = TILE_SIZES[effectiveZoomLevel] || TILE_SIZES.far;
+const pixiZoomScale = effectiveTileSize / PIXI_BASE_TILE_SIZE; // Scale factor for GPU transform
+
+// Smooth zoom animation state
+// currentZoomScale smoothly animates toward targetZoomScale (pixiZoomScale)
+const [currentZoomScale, setCurrentZoomScale] = useState(pixiZoomScale);
+const targetZoomScaleRef = useRef(pixiZoomScale);
+const zoomAnimationRef = useRef(null);
+
+// Animate zoom changes smoothly
+useEffect(() => {
+  targetZoomScaleRef.current = pixiZoomScale;
+
+  // Skip animation if already at target
+  if (Math.abs(currentZoomScale - pixiZoomScale) < 0.001) {
+    setCurrentZoomScale(pixiZoomScale);
+    return;
+  }
+
+  const animate = () => {
+    setCurrentZoomScale(current => {
+      const target = targetZoomScaleRef.current;
+      const diff = target - current;
+
+      // Done animating - snap to target
+      if (Math.abs(diff) < 0.001) {
+        return target;
+      }
+
+      // Lerp toward target (0.12 = ~180ms total transition at 60fps)
+      const newScale = current + diff * 0.12;
+
+      // Schedule next frame if not done
+      if (Math.abs(target - newScale) >= 0.001) {
+        zoomAnimationRef.current = requestAnimationFrame(animate);
+      }
+
+      return newScale;
+    });
+  };
+
+  // Cancel any existing animation
+  if (zoomAnimationRef.current) {
+    cancelAnimationFrame(zoomAnimationRef.current);
+  }
+
+  // Start new animation
+  zoomAnimationRef.current = requestAnimationFrame(animate);
+
+  return () => {
+    if (zoomAnimationRef.current) {
+      cancelAnimationFrame(zoomAnimationRef.current);
+    }
+  };
+}, [pixiZoomScale]);
+
 const [isRelocating, setIsRelocating] = useState(null);
 
 const [visibleSettlementId, setVisibleSettlementId] = useState(null);
@@ -495,16 +558,39 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
+// Keep camera centered during zoom animation
+// This effect must be defined AFTER playersInGrid is declared
+useEffect(() => {
+  // Only re-center during active animation (not every render)
+  if (Math.abs(currentZoomScale - targetZoomScaleRef.current) < 0.001) return;
+
+  if (currentPlayer?.location?.g && currentPlayer?._id) {
+    const gridId = currentPlayer.location.g;
+    const playerIdStr = String(currentPlayer._id);
+    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+
+    if (playerPos) {
+      centerCameraOnPlayerFast(playerPos, PIXI_BASE_TILE_SIZE, currentZoomScale);
+    }
+  }
+}, [currentZoomScale, currentPlayer, playersInGrid, PIXI_BASE_TILE_SIZE]);
+
 // Track previous zoom level to detect actual zoom changes
 const prevZoomRef = useRef(zoomLevel);
 
 // Maintain camera position during zoom transitions (only when zoom actually changes)
-// Uses useEffect (not useLayoutEffect) to ensure PixiRenderer has resized first
+// This effect handles two cases:
+// 1. Normal zoom changes between grid levels (far/close/closer) - animation effect handles continuous centering
+// 2. Returning FROM settlement/frontier view TO grid view - must explicitly center camera
 useEffect(() => {
-  // Only center camera if zoomLevel actually changed (not on playersInGrid updates during movement)
+  // Only act if zoomLevel actually changed (not on playersInGrid updates during movement)
   if (prevZoomRef.current === zoomLevel) {
     return;
   }
+
+  const wasInZoomedOutView = prevZoomRef.current === 'settlement' || prevZoomRef.current === 'frontier';
+  const isNowInGridView = zoomLevel === 'far' || zoomLevel === 'farish' || zoomLevel === 'close' || zoomLevel === 'closer';
+
   prevZoomRef.current = zoomLevel;
 
   if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g && currentPlayer?._id) {
@@ -514,23 +600,29 @@ useEffect(() => {
 
     console.log(`📷 [ZOOM TRANSITION] ========== ZOOM LEVEL CHANGE ==========`);
     console.log(`📷 [ZOOM TRANSITION] zoomLevel: ${zoomLevel}`);
+    console.log(`📷 [ZOOM TRANSITION] wasInZoomedOutView: ${wasInZoomedOutView}`);
     console.log(`📷 [ZOOM TRANSITION] activeTileSize: ${activeTileSize}`);
     console.log(`📷 [ZOOM TRANSITION] PIXI_BASE_TILE_SIZE: ${PIXI_BASE_TILE_SIZE}`);
-    console.log(`📷 [ZOOM TRANSITION] pixiZoomScale: ${pixiZoomScale}`);
+    console.log(`📷 [ZOOM TRANSITION] pixiZoomScale (target): ${pixiZoomScale}`);
+    console.log(`📷 [ZOOM TRANSITION] currentZoomScale (animating): ${currentZoomScale}`);
     console.log(`📷 [ZOOM TRANSITION] Expected container size: ${64 * PIXI_BASE_TILE_SIZE * pixiZoomScale}px`);
     console.log(`📷 [ZOOM TRANSITION] playerPos from playersInGrid:`, playerPos);
     console.log(`📷 [ZOOM TRANSITION] ======================================`);
 
-    if (playerPos && activeTileSize) {
-      // Use requestAnimationFrame to ensure the DOM has updated after PixiRenderer resizes
+    // When returning from settlement/frontier view, explicitly center camera
+    // The smooth zoom animation won't trigger because pixiZoomScale was already at 'far' level
+    if (wasInZoomedOutView && isNowInGridView && playerPos) {
+      console.log(`📷 [ZOOM TRANSITION] Returning from zoomed-out view, centering camera immediately`);
+      // Use requestAnimationFrame to ensure DOM has updated after view change
       requestAnimationFrame(() => {
-        centerCameraOnPlayerFast(playerPos, activeTileSize);
+        centerCameraOnPlayerFast(playerPos, PIXI_BASE_TILE_SIZE, currentZoomScale);
       });
-    } else {
+    } else if (!playerPos || !activeTileSize) {
       console.warn(`📷 [ZOOM TRANSITION] Cannot center - missing playerPos or activeTileSize`);
     }
+    // For normal grid zoom changes, the animation effect handles continuous centering
   }
-}, [zoomLevel, activeTileSize, playersInGrid, currentPlayer]);
+}, [zoomLevel, activeTileSize, playersInGrid, currentPlayer, currentZoomScale, pixiZoomScale, PIXI_BASE_TILE_SIZE]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
@@ -936,8 +1028,11 @@ useEffect(() => {
           far: globalTuningData?.farZoom || 16
         };
         const initialTileSize = tileSizesFromTuning[storedZoom] || tileSizesFromTuning.close;
-        console.log(`📷 Centering camera on (${playerPosition.x}, ${playerPosition.y}) with TILE_SIZE: ${initialTileSize} (zoom: ${storedZoom}, from globalTuning: ${JSON.stringify(tileSizesFromTuning)})`);
-        centerCameraOnPlayer(playerPosition, initialTileSize);
+        // Base tile size is the "close" zoom level - same as PIXI_BASE_TILE_SIZE
+        const baseTileSize = tileSizesFromTuning.close;
+        const initialZoomScale = initialTileSize / baseTileSize;
+        console.log(`📷 Centering camera on (${playerPosition.x}, ${playerPosition.y}) with baseTileSize: ${baseTileSize}, zoomScale: ${initialZoomScale} (zoom: ${storedZoom})`);
+        centerCameraOnPlayer(playerPosition, baseTileSize, initialZoomScale);
       }
 
       // Step 8. Resolve player location 
@@ -1889,7 +1984,9 @@ const zoomIn = async () => {
     }
 
   } else if (zoomLevel === 'far') {
-    setZoomLevel('close'); // Zoom into a detailed view - useLayoutEffect will center camera
+    setZoomLevel('farish'); // Zoom into farish view - useLayoutEffect will center camera
+  } else if (zoomLevel === 'farish') {
+    setZoomLevel('close'); // Zoom into close view - useLayoutEffect will center camera
   } else if (zoomLevel === 'close') {
     setZoomLevel('closer'); // useLayoutEffect will center camera
   }
@@ -1902,6 +1999,8 @@ const zoomOut = () => {
   if (zoomLevel === 'closer') {
     setZoomLevel('close'); // useLayoutEffect will center camera
   } else if (zoomLevel === 'close') {
+    setZoomLevel('farish'); // useLayoutEffect will center camera
+  } else if (zoomLevel === 'farish') {
     setZoomLevel('far'); // useLayoutEffect will center camera
   } else if (zoomLevel === 'far') {
     setZoomLevel('settlement'); // Zoom out to settlement view
@@ -2544,7 +2643,7 @@ const handleLoginSuccess = async (player) => {
 
   // Extract NPCs and PCs for the current grid (only when rendering game board)
   const npcs = React.useMemo(() => {
-    if (zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close') {
+    if (zoomLevel === 'far' || zoomLevel === 'farish' || zoomLevel === 'closer' || zoomLevel === 'close') {
       const npcArray = Object.values(NPCsInGrid?.[gridId]?.npcs || {});
       return npcArray;
     }
@@ -2923,7 +3022,7 @@ return (
         </div>
       )}
 
-      {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
+      {currentPlayer && (zoomLevel === 'far' || zoomLevel === 'farish' || zoomLevel === 'closer' || zoomLevel === 'close') ? (
       <>
         {/* Conditional: PixiJS Renderer OR Canvas 2D Renderer */}
         {usePixiJS ? (
@@ -2936,7 +3035,7 @@ return (
             pcs={pcs}
             currentPlayer={currentPlayer}
             TILE_SIZE={PIXI_BASE_TILE_SIZE}
-            zoomScale={pixiZoomScale}
+            zoomScale={currentZoomScale}
             zoomLevel={zoomLevel}
             handleTileClick={handleTileClick}
             masterResources={masterResources}

@@ -937,8 +937,21 @@ const PixiRenderer = ({
     }
   }, [setHoverTooltip]);
 
+  // Calculate the actual grid size for scroll boundaries
+  const gridPixelSize = 64 * TILE_SIZE * zoomScale;
+
   return (
-    <>
+    // Outer wrapper establishes scroll boundaries - this div's size determines
+    // how far the user can scroll in the .homestead container
+    <div
+      style={{
+        position: 'relative',
+        width: `${gridPixelSize}px`,
+        height: `${gridPixelSize}px`,
+        // Prevent any overflow that could extend scroll area
+        overflow: 'hidden',
+      }}
+    >
       <div
         ref={containerRef}
         onClick={handleClick}
@@ -948,8 +961,8 @@ const PixiRenderer = ({
           position: 'absolute',
           top: 0,
           left: 0,
-          width: `${64 * TILE_SIZE * zoomScale}px`,
-          height: `${64 * TILE_SIZE * zoomScale}px`,
+          width: `${gridPixelSize}px`,
+          height: `${gridPixelSize}px`,
           zIndex: 1,
           cursor: 'pointer',
         }}
@@ -994,7 +1007,7 @@ const PixiRenderer = ({
         masterResources={masterResources}
         TILE_SIZE={TILE_SIZE}
       />
-    </>
+    </div>
   );
 };
 
