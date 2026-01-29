@@ -74,6 +74,7 @@ import LevelUpModal from './UI/Modals/LevelUpModal';
 import LanguagePickerModal from './UI/Modals/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
+import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
 import { getDerivedLevel } from './Utils/playerManagement';
 
@@ -173,6 +174,38 @@ useEffect(() => {
 
   const strings = useStrings();
   const { uiLocked } = useUILock();
+
+  // Build a lookup map for panel icons from Icons.json
+  // Maps panel name to SVG filename, e.g., { "QuestPanel": "icon-quests.svg" }
+  const panelIcons = useMemo(() => {
+    const iconMap = {};
+    for (const entry of panelIconsData) {
+      const [panelName, iconFile] = Object.entries(entry)[0];
+      iconMap[panelName] = iconFile;
+    }
+    return iconMap;
+  }, []);
+
+  // Helper to render nav button content: SVG icon if available, emoji fallback otherwise
+  const renderNavIcon = useCallback((panelName, fallbackEmoji) => {
+    const iconFile = panelIcons[panelName];
+    if (iconFile) {
+      return (
+        <img
+          src={`/assets/icons/${iconFile}`}
+          alt={panelName}
+          className="nav-icon"
+          onError={(e) => {
+            // If icon fails to load, replace with fallback emoji
+            e.target.style.display = 'none';
+            e.target.parentNode.appendChild(document.createTextNode(fallbackEmoji));
+          }}
+        />
+      );
+    }
+    return fallbackEmoji;
+  }, [panelIcons]);
+
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
   // Canvas rendering mode variables removed - now forced to Canvas mode
@@ -3345,7 +3378,7 @@ return (
           </div>
         </div>
 
-      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>👸</button>
+      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>{renderNavIcon('BasePanel', '👸')}</button>
       <button
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
         title="My Profile"
@@ -3366,7 +3399,7 @@ return (
           }
         }}
       >{currentPlayer?.icon || '😊'}</button>
-      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>✅</button>
+      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>{renderNavIcon('QuestPanel', '✅')}</button>
 
       {/* Hide these panels during early FTUE steps (1-2) */}
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
@@ -3378,7 +3411,7 @@ return (
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
               openPanel('FarmingPanel');
             }}
-          >🌽</button>
+          >{renderNavIcon('FarmingPanel', '🌽')}</button>
           <button
             className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer}
             onClick={() => {
@@ -3386,7 +3419,7 @@ return (
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
               openPanel('ToolsPanel');
             }}
-          >⛏️</button>
+          >{renderNavIcon('ToolsPanel', '⛏️')}</button>
           <button
             className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer}
             onClick={() => {
@@ -3394,7 +3427,7 @@ return (
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
               openPanel('BuyPanel');
             }}
-          >🐮</button>
+          >{renderNavIcon('BuyPanel', '🐮')}</button>
           <button
             className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer}
             onClick={() => {
@@ -3402,11 +3435,11 @@ return (
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
               openPanel('BuildPanel');
             }}
-          >🛖</button>
+          >{renderNavIcon('BuildPanel', '🛖')}</button>
           <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
               setActiveStation(null); // ✅ Reset activeStation
               openPanel("SkillsPanel"); // ✅ Open the panel normally
-            }}>💪</button>
+            }}>{renderNavIcon('SkillsPanel', '💪')}</button>
         </>
       )}
 
@@ -3418,7 +3451,7 @@ return (
             if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
             openPanel('PetsPanel');
           }}
-        >🐒</button>
+        >{renderNavIcon('PetsPanel', '🐒')}</button>
       )}
 
       {!currentPlayer?.firsttimeuser && (
@@ -3430,19 +3463,19 @@ return (
             if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
             openPanel('BuyDecoPanel');
           }}
-        >🪴</button>
+        >{renderNavIcon('BuyDecoPanel', '🪴')}</button>
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
       )}
 
       {!currentPlayer?.firsttimeuser && (
-        <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
+        <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>{renderNavIcon('GovPanel', '🏛️')}</button>
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>🏆</button>
+        <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>{renderNavIcon('TrophyPanel', '🏆')}</button>
       )}
 
       {isDeveloper && (
@@ -3722,6 +3755,10 @@ return (
             console.log(`🌍 Clicked frontier settlement at (${row}, ${col})`);
           }}
           isZoomAnimating={isZoomAnimating || isZoomAnimatingRef.current}
+          // FTUE Doinker props
+          doinkerTargets={doinkerTargets}
+          doinkerType={doinkerType}
+          doinkerVisible={!!doinkerTargets}
         />
 
         {/* Hover Tooltip - render at top level (works with both PixiJS and Canvas) */}
@@ -3743,15 +3780,17 @@ return (
           TILE_SIZE={activeTileSize}
         /> */}
 
-        {/* FTUE Doinker - Bouncing arrow(s) pointing at target resource(s), NPC(s), or UI buttons */}
-        <FTUEDoinker
-          doinkerTargets={doinkerTargets}
-          doinkerType={doinkerType}
-          TILE_SIZE={activeTileSize}
-          visible={!!doinkerTargets}
-          gridId={gridId}
-          activePanel={activePanel}
-        />
+        {/* FTUE Doinker - Button-type only (resource/NPC doinkers handled by PixiRendererDoinker) */}
+        {doinkerType === 'button' && (
+          <FTUEDoinker
+            doinkerTargets={doinkerTargets}
+            doinkerType={doinkerType}
+            TILE_SIZE={activeTileSize}
+            visible={!!doinkerTargets}
+            gridId={gridId}
+            activePanel={activePanel}
+          />
+        )}
 
         </>
       ) : null}

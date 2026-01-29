@@ -199,7 +199,7 @@ const PixiRendererVFX = ({
         if (derivedRange > 1) {
           const interactionRadius = derivedRange * TILE_SIZE;
 
-          playerInteractionGraphic.beginFill(0x808080, 0.2);
+          playerInteractionGraphic.beginFill(0x808080, 0.12);
           playerInteractionGraphic.drawCircle(playerCenterX, playerCenterY, interactionRadius);
           playerInteractionGraphic.endFill();
           playerInteractionGraphic.visible = true;

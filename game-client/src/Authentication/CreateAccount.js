@@ -368,7 +368,6 @@ return (
       </select>
 
       {/* Avatar Selection */}
-      <h3 className="avatar-header">{strings[4071]}</h3>
       <div className="avatar-carousel">
         <button
           type="button"
@@ -378,18 +377,23 @@ return (
         >
           ◀
         </button>
-        <div className="avatar-icons-container">
-          {freeIcons.slice(iconScrollIndex, iconScrollIndex + visibleIconCount).map((icon) => (
-            <button
-              key={icon.value}
-              type="button"
-              className={`avatar-icon-btn ${selectedIcon === icon.value ? 'selected' : ''}`}
-              onClick={() => setSelectedIcon(icon.value)}
-              title={icon.label}
-            >
-              {icon.value}
-            </button>
-          ))}
+        <div className="avatar-icons-viewport">
+          <div
+            className="avatar-icons-container"
+            style={{ transform: `translateX(-${iconScrollIndex * 45}px)` }}
+          >
+            {freeIcons.map((icon) => (
+              <button
+                key={icon.value}
+                type="button"
+                className={`avatar-icon-btn ${selectedIcon === icon.value ? 'selected' : ''}`}
+                onClick={() => setSelectedIcon(icon.value)}
+                title={icon.label}
+              >
+                {icon.value}
+              </button>
+            ))}
+          </div>
         </div>
         <button
           type="button"
@@ -404,7 +408,7 @@ return (
       {error && <p className="error-message">{error}</p>}
 
       <div className="shared-buttons">
-        <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>
+        <button className="btn-basic btn-success" type="submit" disabled={isSubmitting} style={{ fontSize: '18px' }}>
           {strings[4068] || "Begin!"}
         </button>
       </div>

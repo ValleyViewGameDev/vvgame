@@ -128,7 +128,7 @@
 /* Avatar Header */
 .avatar-header {
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 1px;
 }
 
 /* Avatar Carousel */
@@ -136,19 +136,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  margin: 12px 0;
+  gap: 13px;
+  margin: 2px 0;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
 
 .avatar-scroll-btn {
-  background: var(--color-input-bg);
-  border: 1px solid var(--color-input-border);
+  background: none;
+  border: none;
   border-radius: 4px;
   padding: 6px 8px;
-  font-size: 12px;
+  font-size: 16px;
   cursor: pointer;
   color: var(--color-text-primary);
   transition: background-color 0.2s ease;
@@ -164,20 +164,27 @@
   cursor: not-allowed;
 }
 
+.avatar-icons-viewport {
+  width: 135px; /* 3 icons * 40px + 2 gaps * 5px + some padding */
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
 .avatar-icons-container {
   display: flex;
-  gap: 4px;
+  gap: 5px;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
 .avatar-icon-btn {
   width: 40px;
   height: 40px;
-  font-size: 24px;
+  font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--color-input-border);
+  border: 1px solid var(--color-input-border);
   border-radius: 8px;
   background: var(--color-input-bg);
   cursor: pointer;
@@ -194,5 +201,5 @@
   border-color: var(--color-primary-green);
   background: var(--color-primary-green-light);
   box-shadow: 0 0 8px var(--color-primary-green);
-  transform: scale(1.15);
+  transform: scale(1.2);
 }

@@ -12,6 +12,7 @@ import PixiRendererNPCOverlays from './PixiRendererNPCOverlays';
 import PixiRendererSettlementGrids, { clearGridSnapshotCache } from './PixiRendererSettlementGrids';
 import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
 import PixiRendererPadding from './PixiRendererPadding';
+import PixiRendererDoinker from './PixiRendererDoinker';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import {
   TILES_PER_GRID,
@@ -241,6 +242,10 @@ const PixiRenderer = ({
   isVisuallyInFrontier = false, // True when visually showing frontier
   onFrontierSettlementClick, // Callback when clicking a different settlement at frontier zoom
   isZoomAnimating = false, // True during zoom animation - skip CSS transform updates to avoid conflicts
+  // FTUE Doinker props
+  doinkerTargets,         // Resource/NPC type(s) to point doinker at
+  doinkerType,            // 'resource' or 'button'
+  doinkerVisible = false, // Whether doinker should be visible
 }) => {
   const containerRef = useRef(null);
   const appRef = useRef(null);
@@ -1416,6 +1421,7 @@ const PixiRenderer = ({
         TILE_SIZE={TILE_SIZE}
         connectedPlayers={connectedPlayers}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
+        gridId={gridId}
       />
       {/* Speech bubbles and relationship outcomes */}
       <PixiRendererSpeech
@@ -1437,6 +1443,18 @@ const PixiRenderer = ({
         getNPCRenderPosition={getNPCRenderPosition}
         npcAnimations={npcAnimations}
       />
+      {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
+      {doinkerType !== 'button' && (
+        <PixiRendererDoinker
+          doinkerTargets={doinkerTargets}
+          doinkerType={doinkerType}
+          TILE_SIZE={TILE_SIZE}
+          zoomScale={zoomScale}
+          visible={doinkerVisible}
+          gridId={gridId}
+          gridWorldPosition={currentGridWorldPos}
+        />
+      )}
     </div>
   );
 };

@@ -364,6 +364,13 @@ body {
   display: inline-block;
 }
 
+/* Nav button SVG icons */
+.nav-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
 
 /* GAME BOARD */
 

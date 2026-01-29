@@ -2,6 +2,9 @@ import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container, Text } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
 
+// FTUE Cave dungeon grid ID - players in this grid should only see themselves
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+
 /**
  * PixiRendererPCs - Player Character rendering for PixiJS renderer
  *
@@ -10,6 +13,7 @@ import { renderPositions } from '../../PlayerMovement';
  * - Current player highlight (yellow circle)
  * - Offline player transparency
  * - State-based icon changes (dead, low health, camping, in boat)
+ * - FTUE isolation (hides other PCs in tutorial dungeon)
  *
  * IMPORTANT: This component uses object pooling to prevent IOSurface/GPU
  * memory exhaustion. Never create Graphics/Text objects in render loops
@@ -22,6 +26,7 @@ const PixiRendererPCs = ({
   TILE_SIZE,              // Tile size in pixels
   connectedPlayers,       // Set of online player IDs (for opacity)
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
+  gridId,                 // Current grid ID (for FTUE filtering)
 }) => {
   const pcContainerRef = useRef(null);
 
@@ -183,6 +188,11 @@ const PixiRendererPCs = ({
       // Calculate if this is the current player
       const isCurrentPlayer = currentPlayer && String(pc.playerId) === String(currentPlayer._id);
 
+      // FTUE: In the opening dungeon, only render the current player (hide all other PCs)
+      if (gridId === FTUE_CAVE_GRID_ID && !isCurrentPlayer) {
+        continue;
+      }
+
       // Check if player is connected (online)
       const isConnected = isCurrentPlayer || connectedPlayers?.has(pc.playerId);
 
@@ -213,7 +223,7 @@ const PixiRendererPCs = ({
 
     // Hide unused pool texts
     hideUnusedPoolTexts(textsUsed);
-  }, [pcs, currentPlayer, connectedPlayers, TILE_SIZE, gridOffset, getDisplayIcon, getTextFromPool, hideUnusedPoolTexts, getPCRenderPosition]);
+  }, [pcs, currentPlayer, connectedPlayers, TILE_SIZE, gridOffset, gridId, getDisplayIcon, getTextFromPool, hideUnusedPoolTexts, getPCRenderPosition]);
 
   // Initial render and re-render on state changes
   useEffect(() => {

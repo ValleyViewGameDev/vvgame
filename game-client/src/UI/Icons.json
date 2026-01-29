@@ -1,0 +1,13 @@
+[
+  { "BasePanel": "icon-game.svg" },
+  { "FarmingPanel": "icon-farming.svg" },
+  { "ToolsPanel": "icon-tools.svg" },
+  { "BuyPanel": "icon-buy.svg" },
+  { "BuildPanel": "icon-build.svg" },
+  { "SkillsPanel": "icon-skills.svg" },
+  { "PetsPanel": "icon-pets.svg" },
+  { "CombatPanel": "icon-combat.svg" },
+  { "BuyDecoPanel": "icon-buydeco.svg" },
+  { "GovPanel": "icon-gov.svg" },
+  { "TrophyPanel": "icon-trophy.svg" }
+]

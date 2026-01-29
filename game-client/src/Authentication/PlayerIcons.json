@@ -6,7 +6,6 @@
     { "label": "Screaming Face", "value": "😱" },
     { "label": "Nerd Face", "value": "🤓" },
     { "label": "Face with Hand Over Mouth", "value": "🤭" },
-    { "label": "Alien", "value": "👽" },
     { "label": "Crying Face", "value": "😭" },
     { "label": "Sunglasses Face", "value": "😎" },
     { "label": "Unamused Face", "value": "😒" },
@@ -15,6 +14,7 @@
   "paid": [
     { "label": "Clown Face", "value": "🤡" },
     { "label": "Robot", "value": "🤖" },
+    { "label": "Alien", "value": "👽" },
     { "label": "Poop", "value": "💩" },
     { "label": "Space Invader", "value": "👾" },
     { "label": "Octopus", "value": "🐙" },
