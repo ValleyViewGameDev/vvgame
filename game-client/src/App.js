@@ -43,7 +43,6 @@ import {
   socketListenForStoreBadgeUpdates,
 } from './socketManager';
 
-import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
@@ -142,7 +141,7 @@ import LoadingScreen from './UI/LoadingScreen';
 import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, registerCurrentPlayerForCamera, renderPositions } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
-import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
+import { fetchHomesteadOwner, calculateDistance, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import Redirect, { shouldRedirect } from './Redirect';
@@ -412,6 +411,7 @@ useEffect(() => {
 
       if (invalidCrops.length > 0) {
         console.warn(`🧹 Found ${invalidCrops.length} crops with invalid growEnd fields, cleaning up...`);
+        console.warn('🧹 Invalid crops:', invalidCrops.map(c => ({ type: c.type, x: c.x, y: c.y, growEnd: c.growEnd })));
         cleanedResources = resources.map(res => {
           const needsCleanup = invalidCrops.some(ic => ic.x === res.x && ic.y === res.y);
           if (needsCleanup) {
@@ -2064,44 +2064,8 @@ useEffect(() => {
   }
 }, [currentPlayer?.xp, masterXPLevels, currentLevel]);
 
-// FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
-// Track the gridId we've initialized FarmState for to avoid re-running on every resources change
-const farmStateInitializedGridRef = useRef(null);
-
-useEffect(() => {
-  // Only initialize FarmState when:
-  // 1. gridId changes (entering a new grid)
-  // 2. OR we haven't initialized yet for this grid AND resources are now loaded
-  const needsInit = gridId && masterResources && masterResources.length > 0 &&
-                    resources && resources.length > 0 &&
-                    farmStateInitializedGridRef.current !== gridId;
-
-  if (needsInit) {
-    console.log(`🌾 [App] Initializing FarmState for grid ${gridId} with ${resources.length} resources`);
-    farmStateInitializedGridRef.current = gridId;
-
-    // Initialize and immediately convert any farmplots that finished while player was away
-    farmState.initializeAndProcessCompleted({ resources, gridId, setResources, masterResources });
-    farmState.startSeedTimer({gridId, setResources, masterResources});
-  }
-
-  return () => {
-    // Only stop timer and reset ref when gridId actually changes (not on every render)
-    if (farmStateInitializedGridRef.current && farmStateInitializedGridRef.current !== gridId) {
-      farmState.stopSeedTimer();
-      farmStateInitializedGridRef.current = null;
-    }
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [gridId, masterResources, resources]); // Now safe to include resources because of ref guard
-
-// Cleanup FarmState when component unmounts or gridId changes to null
-useEffect(() => {
-  return () => {
-    farmState.stopSeedTimer();
-    farmStateInitializedGridRef.current = null;
-  };
-}, []);  
+// FARM STATE - Now initialized in initializeGrid (AppInit.js) for clean sequential flow
+// FarmState timer is stopped in changePlayerLocation CLEANUP phase (GridManagement.js)  
 
 
 
@@ -3683,14 +3647,44 @@ return (
             }
             console.log(`🏘️ [DEV] Traveling to grid at (${row}, ${col}):`, gridData);
 
+            // Determine spawn position based on grid type
+            const gridType = gridData.gridType || gridData.type || 'valley';
+            let spawnX = 0;
+            let spawnY = 0;
+
+            try {
+              if (gridType === 'homestead') {
+                // Homestead: place player 1 tile to the right of Signpost Town
+                const signpostPos = await fetchHomesteadSignpostPosition(gridData.gridId);
+                spawnX = signpostPos.x + 1;
+                spawnY = signpostPos.y;
+                console.log(`🏘️ [DEV] Homestead spawn at (${spawnX}, ${spawnY}) - right of Signpost Town`);
+              } else if (gridType === 'town') {
+                // Town: place player 1 tile to the left of Signpost Home (already offset in helper)
+                const signpostPos = await fetchTownSignpostPosition(gridData.gridId);
+                spawnX = signpostPos.x;
+                spawnY = signpostPos.y;
+                console.log(`🏘️ [DEV] Town spawn at (${spawnX}, ${spawnY}) - left of Signpost Home`);
+              } else {
+                // Other grid types (valley, etc.): use default position
+                spawnX = 0;
+                spawnY = 0;
+                console.log(`🏘️ [DEV] Default spawn at (${spawnX}, ${spawnY}) for ${gridType}`);
+              }
+            } catch (posError) {
+              console.warn(`🏘️ [DEV] Error getting signpost position, using default:`, posError);
+              spawnX = 0;
+              spawnY = 0;
+            }
+
             // Construct toLocation from gridData
             const toLocation = {
-              x: 32,  // Center of grid
-              y: 32,
+              x: spawnX,
+              y: spawnY,
               g: gridData.gridId,
               s: currentPlayer.location?.s,  // Stay in same settlement
               f: currentPlayer.location?.f,  // Stay in same frontier
-              gtype: gridData.gridType || gridData.type || 'valley',
+              gtype: gridType,
               gridCoord: gridData.gridCoord,
             };
 

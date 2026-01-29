@@ -2,6 +2,7 @@ import API_BASE from './config';
 import axios from 'axios';
 import { fetchGridData } from './Utils/GridManagement'; // Utility for fetching grid data
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
+import farmState from './FarmState';
 
 /**
  * Grid Initialization (Runs on Refresh or Login)
@@ -100,12 +101,25 @@ export const initializeGrid = async (
     // Also update the global grid state with both tiles and resources
     GlobalGridStateTilesAndResources.setTiles(tiles || []);
     GlobalGridStateTilesAndResources.setResources(processedResources);
-    
+
     console.log('✅ Grid, tiles, and resources initialized for gridId:', gridId);
     console.log('🔍 [DEBUG] Final verification in AppInit:', {
       globalTilesLength: GlobalGridStateTilesAndResources.getTiles().length,
       globalResourcesLength: GlobalGridStateTilesAndResources.getResources().length
     });
+
+    // Initialize FarmState with enriched resources - this happens AFTER resources are set
+    // to ensure FarmState sees the fully enriched data with master properties like 'output'
+    if (masterResources && masterResources.length > 0 && processedResources.length > 0) {
+      console.log('🌾 [AppInit] Initializing FarmState for grid:', gridId);
+      await farmState.initializeAndProcessCompleted({
+        resources: processedResources,
+        gridId,
+        setResources,
+        masterResources
+      });
+      farmState.startSeedTimer({ gridId, setResources, masterResources });
+    }
   } catch (error) {
     console.error('Error initializing grid:', error);
   }

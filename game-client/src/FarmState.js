@@ -85,6 +85,7 @@ class FarmState {
                 type: newCrop.type,
                 x: seed.x,
                 y: seed.y,
+                growEnd: null, // Explicitly clear growEnd when converting to crop
               },
               true
             );
@@ -205,6 +206,7 @@ class FarmState {
                   type: newCrop.type,
                   x: seed.x,
                   y: seed.y,
+                  growEnd: null, // Explicitly clear growEnd when converting to crop
                 },
                 true
               );
@@ -279,11 +281,12 @@ class FarmState {
 
         try {
           const response = await updateGridResource(
-            gridId, 
-            { 
+            gridId,
+            {
               type: newCrop.type,
               x: seed.x,
               y: seed.y,
+              growEnd: null, // Explicitly clear growEnd when converting to crop
             },
             true
           );

@@ -14,6 +14,7 @@ import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
 import SVGAssetManager from '../Render/SVGAssetManager';
 import { isGridVisited } from './gridsVisitedUtils';
+import farmState from '../FarmState';
 
 export const updateGridResource = async (
   gridId,
@@ -204,6 +205,7 @@ export const changePlayerLocation = async (
     try {
       NPCsInGridManager.stopGridTimer();
       playersInGridManager.stopBatchSaving();
+      farmState.stopSeedTimer(); // Stop FarmState timer before grid change
       console.log('✅ [CLEANUP] Timers stopped successfully');
     } catch (timerError) {
       console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
@@ -380,7 +382,7 @@ export const changePlayerLocation = async (
     
     // Now properly initialize the grid with tiles and resources using the correct function
     console.log('🔄 [COMMIT] Initializing grid with proper tile loading...');
-    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer);
+    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources);
 
     console.log('✅ [COMMIT] State successfully committed with proper grid initialization');
 
