@@ -562,7 +562,7 @@ export async function executeBulkHarvest({
     setResources(updatedResources);
     
     // Re-initialize FarmState with the updated resources
-    farmState.initializeFarmState(updatedResources);
+    farmState.initializeFarmState(updatedResources, masterResources);
 
     // Calculate which skills were applied for each harvested type using shared utility
     const harvestSkillsInfo = {};

@@ -384,39 +384,47 @@ useEffect(() => {
 useEffect(() => {
   // Always update, even if resources is empty array (important for grid transitions!)
   if (resources !== undefined && resources !== null) {
-    // Defensive cleanup: Check for crops with invalid growEnd fields
+    // Defensive cleanup: Check for crops (NOT farmplots) with invalid growEnd fields
+    // Crops are the OUTPUT of farmplots (e.g., "Wheat" is output of "Wheat Plot")
+    // Farmplots should KEEP their growEnd - that's how they track growth timers
     let cleanedResources = resources;
-    const invalidCrops = resources.filter(res => {
-      // Check if this is a crop (output of a farmplot) with growEnd
-      if (res.growEnd && masterResources) {
-        const isCrop = masterResources.some(mr => 
-          mr.category === 'farmplot' && mr.output === res.type
-        );
-        return isCrop;
-      }
-      return false;
-    });
-    
-    if (invalidCrops.length > 0) {
-      console.warn(`🧹 Found ${invalidCrops.length} crops with invalid growEnd fields, cleaning up...`);
-      invalidCrops.forEach(crop => {
-        // console.log(`  - ${crop.type} at (${crop.x}, ${crop.y}) has growEnd=${crop.growEnd}`);
-      });
-      cleanedResources = resources.map(res => {
-        // If this is one of the invalid crops, remove growEnd
-        const needsCleanup = invalidCrops.some(ic => ic.x === res.x && ic.y === res.y);
-        if (needsCleanup) {
-          const { growEnd, ...cleanedRes } = res;
-          // console.log(`🌾 Cleaned crop ${res.type} at (${res.x}, ${res.y})`);
-          return cleanedRes;
+    if (masterResources && masterResources.length > 0) {
+      // Build sets for quick lookup
+      const farmplotTypes = new Set();  // Types that ARE farmplots (e.g., "Wheat Plot")
+      const cropTypes = new Set();      // Types that are OUTPUT of farmplots (e.g., "Wheat")
+      for (const mr of masterResources) {
+        if (mr.category === 'farmplot') {
+          farmplotTypes.add(mr.type);
+          if (mr.output) {
+            cropTypes.add(mr.output);
+          }
         }
-        return res;
+      }
+
+      // Find crops (NOT farmplots) that incorrectly have growEnd
+      const invalidCrops = resources.filter(res => {
+        if (!res.growEnd) return false;
+        // If this IS a farmplot, it SHOULD have growEnd - don't clean it up!
+        if (farmplotTypes.has(res.type) || res.category === 'farmplot') return false;
+        // If this is a crop (output of a farmplot) with growEnd, that's invalid
+        return cropTypes.has(res.type);
       });
-      setResources(cleanedResources);
+
+      if (invalidCrops.length > 0) {
+        console.warn(`🧹 Found ${invalidCrops.length} crops with invalid growEnd fields, cleaning up...`);
+        cleanedResources = resources.map(res => {
+          const needsCleanup = invalidCrops.some(ic => ic.x === res.x && ic.y === res.y);
+          if (needsCleanup) {
+            const { growEnd, ...cleanedRes } = res;
+            return cleanedRes;
+          }
+          return res;
+        });
+        setResources(cleanedResources);
+      }
     }
-    
+
     GlobalGridStateTilesAndResources.setResources(cleanedResources);
-    //console.log('GlobalGridStateTilesAndResources resources updated:', cleanedResources);
   }
 }, [resources, masterResources]);
 
@@ -2057,21 +2065,43 @@ useEffect(() => {
 }, [currentPlayer?.xp, masterXPLevels, currentLevel]);
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
-// IMPORTANT: Only initialize FarmState when gridId changes (entering a new grid)
-// Do NOT include 'resources' in dependencies - that causes a feedback loop where:
-// 1. Seed converts to crop → setResources called → resources changes
-// 2. This effect re-runs → FarmState re-initialized → timer restarted
-// 3. Repeat, causing performance issues and WebGL context loss on grids with many farmplots
+// Track the gridId we've initialized FarmState for to avoid re-running on every resources change
+const farmStateInitializedGridRef = useRef(null);
+
 useEffect(() => {
-  if (gridId && masterResources && resources) {
+  // Only initialize FarmState when:
+  // 1. gridId changes (entering a new grid)
+  // 2. OR we haven't initialized yet for this grid AND resources are now loaded
+  const needsInit = gridId && masterResources && masterResources.length > 0 &&
+                    resources && resources.length > 0 &&
+                    farmStateInitializedGridRef.current !== gridId;
+
+  if (needsInit) {
+    console.log(`🌾 [App] Initializing FarmState for grid ${gridId} with ${resources.length} resources`);
+    farmStateInitializedGridRef.current = gridId;
+
     // Initialize and immediately convert any farmplots that finished while player was away
-    // This is async but we don't need to await - it will update UI when done
     farmState.initializeAndProcessCompleted({ resources, gridId, setResources, masterResources });
     farmState.startSeedTimer({gridId, setResources, masterResources});
   }
-  return () => { farmState.stopSeedTimer(); };
+
+  return () => {
+    // Only stop timer and reset ref when gridId actually changes (not on every render)
+    if (farmStateInitializedGridRef.current && farmStateInitializedGridRef.current !== gridId) {
+      farmState.stopSeedTimer();
+      farmStateInitializedGridRef.current = null;
+    }
+  };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [gridId, masterResources]); // Intentionally exclude 'resources' - see comment above  
+}, [gridId, masterResources, resources]); // Now safe to include resources because of ref guard
+
+// Cleanup FarmState when component unmounts or gridId changes to null
+useEffect(() => {
+  return () => {
+    farmState.stopSeedTimer();
+    farmStateInitializedGridRef.current = null;
+  };
+}, []);  
 
 
 

@@ -583,7 +583,7 @@ const FarmHandPanel = ({
     if (crops.length === 0) {
       updateStatus(strings[344] || 'No crops ready for harvest.');
       // Restart FarmState timer if no crops
-      farmState.initializeFarmState(freshResources);
+      farmState.initializeFarmState(freshResources, masterResources);
       farmState.startSeedTimer({ gridId, setResources, masterResources });
       return;
     }
@@ -658,7 +658,7 @@ const FarmHandPanel = ({
       // Always restart FarmState timer after harvest
       const farmState = await import('../../FarmState').then(m => m.default);
       const currentResources = GlobalGridStateTilesAndResources.getResources();
-      farmState.initializeFarmState(currentResources);
+      farmState.initializeFarmState(currentResources, masterResources);
       farmState.startSeedTimer({ gridId, setResources, masterResources });
     }
   }
@@ -988,7 +988,7 @@ const FarmHandPanel = ({
           // Restart FarmState timer
           const farmState = await import('../../FarmState').then(m => m.default);
           const currentResources = GlobalGridStateTilesAndResources.getResources();
-          farmState.initializeFarmState(currentResources);
+          farmState.initializeFarmState(currentResources, masterResources);
           farmState.startSeedTimer({ gridId, setResources, masterResources });
         }}
         crops={availableCrops}

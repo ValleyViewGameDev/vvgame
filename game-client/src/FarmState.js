@@ -7,8 +7,20 @@ class FarmState {
       this.farmState = [];
     }
   
-    initializeFarmState(resources = []) {
-      this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
+    initializeFarmState(resources = [], masterResources = []) {
+      // Build a lookup set of farmplot types from masterResources
+      const farmplotTypes = new Set();
+      for (const mr of masterResources) {
+        if (mr.category === 'farmplot' && mr.output) {
+          farmplotTypes.add(mr.type);
+        }
+      }
+
+      // Find farmplots by either category field or type lookup
+      this.farmState = resources.filter((res) => {
+        if (!res.growEnd) return false;
+        return res.category === 'farmplot' || farmplotTypes.has(res.type);
+      });
     }
 
     /**
@@ -17,8 +29,33 @@ class FarmState {
      * have finished growing while they were away.
      */
     async initializeAndProcessCompleted({ resources, gridId, setResources, masterResources }) {
-      // Store all farmplots with growEnd
-      this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
+      // Build a lookup map of farmplot types from masterResources
+      // Resources from DB may not have 'category' field, so we look it up by type
+      const farmplotMasterMap = new Map();
+      for (const mr of masterResources) {
+        if (mr.category === 'farmplot' && mr.output) {
+          farmplotMasterMap.set(mr.type, mr);
+        }
+      }
+
+      // Find all farmplots with growEnd by looking up their type in masterResources
+      // This handles both enriched resources (with category) and raw DB resources (without)
+      const farmplotsWithGrowEnd = [];
+      for (const res of resources) {
+        if (!res.growEnd) continue;
+
+        // Check if this resource is a farmplot (either by category or by type lookup)
+        const isFarmplot = res.category === 'farmplot' || farmplotMasterMap.has(res.type);
+        if (isFarmplot) {
+          // Enrich with master data if needed (especially 'output' field)
+          const masterData = farmplotMasterMap.get(res.type);
+          const enrichedRes = masterData ? { ...masterData, ...res } : res;
+          farmplotsWithGrowEnd.push(enrichedRes);
+        }
+      }
+
+      this.farmState = farmplotsWithGrowEnd;
+      console.log(`🌾 [FarmState] Found ${this.farmState.length} farmplots with growEnd timers`);
 
       const now = Date.now();
       const alreadyCompleted = this.farmState.filter((seed) => seed.growEnd <= now);
@@ -28,10 +65,16 @@ class FarmState {
 
         // Process all completed farmplots in parallel for efficiency
         const updatePromises = alreadyCompleted.map(async (seed) => {
-          const newCrop = masterResources.find((res) => res.type === seed.output);
+          const outputType = seed.output;
+          if (!outputType) {
+            console.warn(`🌾 [FarmState] Farmplot at (${seed.x}, ${seed.y}) has no output defined`);
+            return { seed, success: false };
+          }
+
+          const newCrop = masterResources.find((res) => res.type === outputType);
 
           if (!newCrop) {
-            console.warn(`🌾 [FarmState] No target resource found for seed output: ${seed.output}`);
+            console.warn(`🌾 [FarmState] No target resource found for seed output: ${outputType}`);
             return { seed, success: false };
           }
 
