@@ -2064,7 +2064,9 @@ useEffect(() => {
 // 3. Repeat, causing performance issues and WebGL context loss on grids with many farmplots
 useEffect(() => {
   if (gridId && masterResources && resources) {
-    farmState.initializeFarmState(resources); // Initialize once with current resources
+    // Initialize and immediately convert any farmplots that finished while player was away
+    // This is async but we don't need to await - it will update UI when done
+    farmState.initializeAndProcessCompleted({ resources, gridId, setResources, masterResources });
     farmState.startSeedTimer({gridId, setResources, masterResources});
   }
   return () => { farmState.stopSeedTimer(); };

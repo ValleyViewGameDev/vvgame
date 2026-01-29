@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { updateGridResource } from './Utils/GridManagement';
 
 let farmTimer = null;
@@ -10,8 +9,86 @@ class FarmState {
   
     initializeFarmState(resources = []) {
       this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
-      
-      
+    }
+
+    /**
+     * Initialize farm state and immediately process any already-completed farmplots.
+     * This handles the case where a player returns to their homestead after farmplots
+     * have finished growing while they were away.
+     */
+    async initializeAndProcessCompleted({ resources, gridId, setResources, masterResources }) {
+      // Store all farmplots with growEnd
+      this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
+
+      const now = Date.now();
+      const alreadyCompleted = this.farmState.filter((seed) => seed.growEnd <= now);
+
+      if (alreadyCompleted.length > 0) {
+        console.log(`🌾 [FarmState] Found ${alreadyCompleted.length} farmplots ready to convert on load`);
+
+        // Process all completed farmplots in parallel for efficiency
+        const updatePromises = alreadyCompleted.map(async (seed) => {
+          const newCrop = masterResources.find((res) => res.type === seed.output);
+
+          if (!newCrop) {
+            console.warn(`🌾 [FarmState] No target resource found for seed output: ${seed.output}`);
+            return { seed, success: false };
+          }
+
+          try {
+            const response = await updateGridResource(
+              gridId,
+              {
+                type: newCrop.type,
+                x: seed.x,
+                y: seed.y,
+              },
+              true
+            );
+
+            if (response?.success) {
+              return {
+                seed,
+                success: true,
+                enriched: { ...newCrop, x: seed.x, y: seed.y }
+              };
+            }
+            return { seed, success: false };
+          } catch (error) {
+            console.error(`🌾 [FarmState] Error converting farmplot at (${seed.x}, ${seed.y}):`, error);
+            return { seed, success: false };
+          }
+        });
+
+        const results = await Promise.all(updatePromises);
+        const successfulConversions = results.filter(r => r.success);
+
+        if (successfulConversions.length > 0) {
+          console.log(`🌾 [FarmState] Successfully converted ${successfulConversions.length} farmplots to crops`);
+
+          // Remove converted seeds from farmState
+          const convertedPositions = new Set(
+            successfulConversions.map(r => `${r.seed.x},${r.seed.y}`)
+          );
+          this.farmState = this.farmState.filter(s => !convertedPositions.has(`${s.x},${s.y}`));
+
+          // Update UI with converted crops
+          setResources(prev => {
+            let updated = [...prev];
+            for (const { seed, enriched } of successfulConversions) {
+              updated = updated.filter(r => !(r.x === seed.x && r.y === seed.y));
+              updated.push(enriched);
+            }
+            return updated;
+          });
+        }
+
+        // Log any failures for debugging
+        const failures = results.filter(r => !r.success);
+        if (failures.length > 0) {
+          console.warn(`🌾 [FarmState] Failed to convert ${failures.length} farmplots`);
+        }
+      }
     }
   
     addSeed(seed) {
