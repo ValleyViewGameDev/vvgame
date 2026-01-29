@@ -7739,7 +7739,7 @@
     "filename": "town-hall.svg"
   },
   {
-    "type": "Wagon",
+    "type": "Train",
     "symbol": "🚂",
     "layoutkey": "TR",
     "size": 2,
