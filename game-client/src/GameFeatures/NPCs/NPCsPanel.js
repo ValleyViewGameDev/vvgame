@@ -48,6 +48,8 @@ const NPCPanel = ({
   zoomLevel,
   setZoomLevel,
   centerCameraOnPlayer,
+  currentGridPosition,      // Grid position within settlement for camera centering
+  currentSettlementPosition, // Settlement position within frontier for camera centering
   globalTuning,
   isDeveloper,
 }) => {
@@ -968,11 +970,19 @@ const handleHeal = async (recipe) => {
                 preInteractionRelationshipRef.current = rel ? { ...rel } : null;
 
                 // Just center camera on player using current zoom level
+                // Pass grid and settlement positions for unified world model
                 const gridId = currentPlayer?.location?.g;
                 const playerId = currentPlayer._id?.toString();
                 const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
                 if (playerInGridState?.position) {
-                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                  centerCameraOnPlayer(
+                    playerInGridState.position,
+                    TILE_SIZE,
+                    1, // zoomScale
+                    0, // retryCount
+                    currentGridPosition,
+                    currentSettlementPosition
+                  );
                 }
                 resolve();
               });
@@ -1340,11 +1350,19 @@ const handleHeal = async (recipe) => {
                 preInteractionRelationshipRef.current = rel ? { ...rel } : null;
 
                 // Just center camera on player using current zoom level
+                // Pass grid and settlement positions for unified world model
                 const gridId = currentPlayer?.location?.g;
                 const playerId = currentPlayer._id?.toString();
                 const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
                 if (playerInGridState?.position) {
-                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                  centerCameraOnPlayer(
+                    playerInGridState.position,
+                    TILE_SIZE,
+                    1, // zoomScale
+                    0, // retryCount
+                    currentGridPosition,
+                    currentSettlementPosition
+                  );
                 }
                 resolve();
               });

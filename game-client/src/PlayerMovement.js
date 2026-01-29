@@ -4,6 +4,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
+import { getPlayerWorldPosition, getScrollPosition } from './Render/PixiRenderer/UnifiedCamera';
 
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
@@ -340,49 +341,69 @@ async function isValidMove(targetX, targetY, masterResources,
 }
 
 
-export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
-  const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) {
-    // Container not ready yet, retry after a short delay (Safari fix)
-    console.log(`📷 [CAMERA] No container found, retrying... (attempt ${retryCount + 1})`);
-    if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1));
+export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale = 1, retryCount = 0, gridPosition = null, settlementPosition = null, instant = false) {
+  // Return a Promise so callers can await until camera is actually centered
+  return new Promise((resolve) => {
+    const gameContainer = document.querySelector(".homestead");
+    if (!gameContainer) {
+      // Container not ready yet, retry after a short delay (Safari fix)
+      console.log(`📷 [CAMERA] No container found, retrying... (attempt ${retryCount + 1})`);
+      if (retryCount < 5) {
+        requestAnimationFrame(() => {
+          centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1, gridPosition, settlementPosition, instant).then(resolve);
+        });
+      } else {
+        console.warn('⚠️ [CAMERA] Container not found after 5 retries');
+        resolve(false);
+      }
+      return;
     }
-    return;
-  }
 
-  // Guard against undefined position during network delays
-  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-    console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
-    return;
-  }
+    // Guard against undefined position during network delays
+    if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+      console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
+      resolve(false);
+      return;
+    }
 
-  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
-  // This matches the formula used in App.js scroll effect (getScrollPosition)
-  // Formula: scroll = playerWorldPos * tileSize * zoomScale - PLAYER_FIXED_POSITION
-  const playerWorldX = position.x * TILE_SIZE * zoomScale;
-  const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
-  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
+    // UNIFIED WORLD MODEL: Use getPlayerWorldPosition and getScrollPosition
+    // for consistent camera centering that accounts for grid/settlement offsets
+    const gridPos = gridPosition || { row: 0, col: 0 };
+    const settlementPos = settlementPosition || { row: 0, col: 0 };
 
-  // Clamp to valid scroll bounds (no negative scroll, no scroll past content)
-  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
+    const worldPos = getPlayerWorldPosition(position, gridPos, settlementPos);
+    const scroll = getScrollPosition(worldPos, zoomScale, TILE_SIZE, PLAYER_FIXED_POSITION);
 
-  // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
-    console.log(`📷 [CAMERA] Container not ready, retrying... (attempt ${retryCount + 1})`);
-    requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1));
-    return;
-  }
+    // Clamp to valid scroll bounds (no negative scroll, no scroll past content)
+    const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+    const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
 
-  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
+    // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
+    if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 10) {
+      console.log(`📷 [CAMERA] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
+      requestAnimationFrame(() => {
+        centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1, gridPosition, settlementPosition, instant).then(resolve);
+      });
+      return;
+    }
 
-  gameContainer.scrollTo({
-    left: clampedX,
-    top: clampedY,
-    behavior: "smooth",
+    const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
+    const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
+
+    // Use instant scroll for grid transitions (no animation), smooth for regular movement
+    if (instant) {
+      gameContainer.scrollLeft = clampedX;
+      gameContainer.scrollTop = clampedY;
+      console.log(`📷 [CAMERA] Scroll set instantly to (${clampedX}, ${clampedY})`);
+    } else {
+      gameContainer.scrollTo({
+        left: clampedX,
+        top: clampedY,
+        behavior: "smooth",
+      });
+    }
+
+    resolve(true);
   });
 }
 

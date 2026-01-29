@@ -4425,6 +4425,8 @@ return (
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
           centerCameraOnPlayer={centerCameraOnPlayer}
+          currentGridPosition={currentGridPosition}
+          currentSettlementPosition={currentSettlementPosition}
           globalTuning={globalTuning}
           isDeveloper={isDeveloper}
         />

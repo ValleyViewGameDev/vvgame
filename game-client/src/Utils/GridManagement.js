@@ -15,6 +15,7 @@ import locationChangeManager from './LocationChangeManager';
 import SVGAssetManager from '../Render/SVGAssetManager';
 import { isGridVisited } from './gridsVisitedUtils';
 import farmState from '../FarmState';
+import { parseGridCoord } from '../Render/PixiRenderer/UnifiedCamera';
 
 export const updateGridResource = async (
   gridId,
@@ -603,28 +604,38 @@ export const changePlayerLocation = async (
     }
     
     // Center camera immediately after grid initialization, before verification delays
-    const centerCameraWithRetry = async (position, attempts = 0) => {
-      if (typeof position.x !== 'number' || typeof position.y !== 'number') {
-        console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid coordinates:', position);
-        return;
+    // Parse grid AND settlement position from gridCoord for proper world coordinate calculation
+    const gridCoord = toLocation.gridCoord ?? updatedPlayer.homesteadGridCoord;
+    let gridPosition = { row: 0, col: 0 };
+    let settlementPosition = { row: 0, col: 0 };
+
+    if (gridCoord != null) {
+      const parsed = parseGridCoord(gridCoord);
+      if (parsed) {
+        gridPosition = { row: parsed.gridRow, col: parsed.gridCol };
+        settlementPosition = { row: parsed.settlementRow, col: parsed.settlementCol };
+        console.log(`📍 [GRID TRANSITION] Position from gridCoord ${gridCoord}: grid=(${parsed.gridRow}, ${parsed.gridCol}), settlement=(${parsed.settlementRow}, ${parsed.settlementCol})`);
       }
-      
-      try {
-        centerCameraOnPlayer(position, TILE_SIZE);
-        console.log(`📷 [GRID TRANSITION] Camera centered on (${position.x}, ${position.y})`);
-      } catch (error) {
-        if (attempts < 3) {
-          console.warn(`⚠️ [GRID TRANSITION] Camera centering failed, retrying in 100ms (attempt ${attempts + 1}/3):`, error);
-          setTimeout(() => centerCameraWithRetry(position, attempts + 1), 100);
-        } else {
-          console.error(`❌ [GRID TRANSITION] Camera centering failed after 3 attempts:`, error);
-        }
-      }
-    };
-    
-    // Center camera immediately
+    } else {
+      console.warn(`⚠️ [GRID TRANSITION] No gridCoord available for grid ${toLocation.g} - camera may be mispositioned`);
+    }
+
+    // Center camera and wait for it to complete before fading up
+    // centerCameraOnPlayer now returns a Promise that resolves when scroll is actually set
+    let cameraReady = false;
     if (typeof finalX === 'number' && typeof finalY === 'number') {
-      await centerCameraWithRetry({ x: finalX, y: finalY });
+      console.log(`📷 [GRID TRANSITION] Centering camera on (${finalX}, ${finalY}) in grid (${gridPosition.row}, ${gridPosition.col}), settlement (${settlementPosition.row}, ${settlementPosition.col})`);
+      // Await the Promise - this ensures camera is in position before we continue
+      cameraReady = await centerCameraOnPlayer(
+        { x: finalX, y: finalY },
+        TILE_SIZE,
+        1, // zoomScale
+        0, // retryCount
+        gridPosition,
+        settlementPosition,
+        true // instant=true for grid transitions
+      );
+      console.log(`📷 [GRID TRANSITION] Camera centering complete: ${cameraReady ? 'SUCCESS' : 'FAILED'}`);
     } else {
       console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid final coordinates:', { finalX, finalY });
     }
