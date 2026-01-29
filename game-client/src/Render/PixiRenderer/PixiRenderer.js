@@ -291,6 +291,10 @@ const PixiRenderer = ({
   const resourceRenderVersionRef = useRef(0);
   const overlayRenderVersionRef = useRef(0);
 
+  // Object pool for overlay sprites to prevent GPU memory exhaustion
+  // Each pool item: { sprite: Sprite, text: Text, active: boolean }
+  const overlayPoolRef = useRef([]);
+
   // NPC Animation system for smooth movement
   // Uses direct display object position updates instead of React state
   // Animation data: { startPos, currentPos, targetPos, startTime, duration }
@@ -319,11 +323,8 @@ const PixiRenderer = ({
       } else if (res.category === 'farmplot' && res.isSearching) {
         const key = `${res.x}-${res.y}`;
         acc.searching.push(key);
-      } else if (res.category === 'farmplot' && res.growEnd) {
-        const key = `${res.x}-${res.y}`;
-        if (res.growEnd < now) {
-          acc.ready.push(key);
-        }
+        // Note: farmplots do NOT get added to ready array - they transition directly to doobers
+        // when growEnd is reached, so they don't need the checkmark overlay
       } else if (res.category === 'pet') {
         const key = `${res.x}-${res.y}`;
         if (res.craftEnd && res.craftedItem) {
@@ -509,6 +510,8 @@ const PixiRenderer = ({
         appRef.current.destroy(true, { children: true, texture: true });
         appRef.current = null;
       }
+      // Clear overlay pool to release GPU resources
+      overlayPoolRef.current = [];
       // Clear texture caches to prevent stale texture references on remount
       clearTextureCache();
       clearTileTextureCache();
@@ -880,21 +883,59 @@ const PixiRenderer = ({
   // Note: PC rendering is now handled by PixiRendererPCs component
 
   // Render resource overlays (checkmarks, clocks, etc.)
+  // Uses object pooling to prevent GPU memory exhaustion from creating/destroying sprites
   useEffect(() => {
     if (!overlayContainerRef.current || !resources) return;
 
     const overlayContainer = overlayContainerRef.current;
+    const pool = overlayPoolRef.current;
 
     // Increment render version to invalidate any in-flight async renders
     overlayRenderVersionRef.current += 1;
     const thisRenderVersion = overlayRenderVersionRef.current;
 
-    // Clear existing overlays immediately
-    overlayContainer.removeChildren();
+    // Helper: Get or create a pooled overlay object
+    const getOverlayFromPool = (index) => {
+      if (index < pool.length) {
+        const overlay = pool[index];
+        // Reset visibility - will be set when used
+        if (overlay.sprite) overlay.sprite.visible = false;
+        if (overlay.text) overlay.text.visible = false;
+        return overlay;
+      }
+
+      // Create new overlay object and add to pool
+      const sprite = new Sprite();
+      sprite.visible = false;
+
+      const text = new Text('', {
+        fontSize: 12,
+        fontFamily: 'sans-serif',
+      });
+      text.resolution = 2;
+      text.visible = false;
+
+      const overlay = { sprite, text };
+      pool.push(overlay);
+
+      // Add to container
+      overlayContainer.addChild(sprite);
+      overlayContainer.addChild(text);
+
+      return overlay;
+    };
+
+    // Helper: Hide all unused overlays in the pool
+    const hideUnusedOverlays = (usedCount) => {
+      for (let i = usedCount; i < pool.length; i++) {
+        if (pool[i].sprite) pool[i].sprite.visible = false;
+        if (pool[i].text) pool[i].text.visible = false;
+      }
+    };
 
     // Async function to render overlays
     const renderOverlays = async () => {
-      let overlayCount = 0;
+      let overlaysUsed = 0;
 
       for (const resource of resources) {
         // Check if this render is still current (cancelled if new render started)
@@ -930,6 +971,9 @@ const PixiRenderer = ({
         const x = gridOffsetX + resource.x * TILE_SIZE + 2;
         const y = gridOffsetY + resource.y * TILE_SIZE + TILE_SIZE - overlaySize - 2;
 
+        // Get overlay from pool
+        const overlay = getOverlayFromPool(overlaysUsed);
+
         if (svgFilename) {
           // Try to load SVG overlay (loads at fixed base size, scaled via sprite)
           const texture = await loadSVGTexture(svgFilename, true);
@@ -939,34 +983,33 @@ const PixiRenderer = ({
             return;
           }
 
-          // Verify texture is valid before creating sprite
+          // Verify texture is valid before using sprite
           if (texture && texture.valid !== false) {
             // Double-check container is still valid after await
             if (!overlayContainerRef.current) return;
 
-            const sprite = new Sprite(texture);
-            // Scale sprite to desired size (texture is fixed at OVERLAY_TEXTURE_SIZE)
-            sprite.width = overlaySize;
-            sprite.height = overlaySize;
-            sprite.x = x;
-            sprite.y = y;
-            overlayContainer.addChild(sprite);
-            overlayCount++;
+            // Reuse sprite from pool
+            overlay.sprite.texture = texture;
+            overlay.sprite.width = overlaySize;
+            overlay.sprite.height = overlaySize;
+            overlay.sprite.x = x;
+            overlay.sprite.y = y;
+            overlay.sprite.visible = true;
+            overlay.text.visible = false;
+            overlaysUsed++;
             continue;
           }
         }
 
         // Emoji fallback for overlays
         if (emojiMapping) {
-          const text = new Text(emojiMapping.emoji, {
-            fontSize: overlaySize * 0.8,
-            fontFamily: 'sans-serif',
-          });
-          text.resolution = 2;
-          text.x = x;
-          text.y = y;
-          overlayContainer.addChild(text);
-          overlayCount++;
+          overlay.text.text = emojiMapping.emoji;
+          overlay.text.style.fontSize = overlaySize * 0.8;
+          overlay.text.x = x;
+          overlay.text.y = y;
+          overlay.text.visible = true;
+          overlay.sprite.visible = false;
+          overlaysUsed++;
         }
       }
 
@@ -992,6 +1035,9 @@ const PixiRenderer = ({
           const overlayX = npcX + 2;
           const overlayY = npcY + TILE_SIZE - overlaySize - 2;
 
+          // Get overlay from pool
+          const overlay = getOverlayFromPool(overlaysUsed);
+
           const svgFilename = OVERLAY_SVG_MAPPING[overlayType];
           if (svgFilename) {
             // Load at fixed base size, scale via sprite
@@ -999,14 +1045,15 @@ const PixiRenderer = ({
 
             if (thisRenderVersion !== overlayRenderVersionRef.current) return;
             if (texture && texture.valid !== false && overlayContainerRef.current) {
-              const sprite = new Sprite(texture);
-              // Scale sprite to desired size
-              sprite.width = overlaySize;
-              sprite.height = overlaySize;
-              sprite.x = overlayX;
-              sprite.y = overlayY;
-              overlayContainer.addChild(sprite);
-              overlayCount++;
+              // Reuse sprite from pool
+              overlay.sprite.texture = texture;
+              overlay.sprite.width = overlaySize;
+              overlay.sprite.height = overlaySize;
+              overlay.sprite.x = overlayX;
+              overlay.sprite.y = overlayY;
+              overlay.sprite.visible = true;
+              overlay.text.visible = false;
+              overlaysUsed++;
               continue;
             }
           }
@@ -1014,21 +1061,22 @@ const PixiRenderer = ({
           // Emoji fallback for NPC overlays
           const emojiMapping = OVERLAY_EMOJI_MAPPING[overlayType];
           if (emojiMapping) {
-            const text = new Text(emojiMapping.emoji, {
-              fontSize: overlaySize * 0.8,
-              fontFamily: 'sans-serif',
-            });
-            text.resolution = 2;
-            text.x = overlayX;
-            text.y = overlayY;
-            overlayContainer.addChild(text);
-            overlayCount++;
+            overlay.text.text = emojiMapping.emoji;
+            overlay.text.style.fontSize = overlaySize * 0.8;
+            overlay.text.x = overlayX;
+            overlay.text.y = overlayY;
+            overlay.text.visible = true;
+            overlay.sprite.visible = false;
+            overlaysUsed++;
           }
         }
       }
 
-      if (overlayCount > 0) {
-        // console.log(`✨ PixiJS rendered ${overlayCount} overlays`);
+      // Hide any unused overlays from the pool
+      hideUnusedOverlays(overlaysUsed);
+
+      if (overlaysUsed > 0) {
+        // console.log(`✨ PixiJS rendered ${overlaysUsed} overlays (pool size: ${pool.length})`);
       }
     };
 
@@ -1340,6 +1388,7 @@ const PixiRenderer = ({
         strings={strings}
         settlementOffset={settlementOffset}
         isFrontierZoom={isFrontierZoom}
+        isDeveloper={isDeveloper}
       />
       {/* Cursor highlight for placement modes */}
       <PixiRendererCursor

@@ -3005,6 +3005,7 @@
     "action": "collect",
     "source": "Grape Vine",
     "passable": true,
+    "repeatable": true,
     "requires": "Winemaker",
     "qtycollected": 1,
     "xp": 2,
@@ -6790,7 +6791,8 @@
     "ingredient3qty": 300,
     "ingredient4": "Clay",
     "ingredient4qty": 600,
-    "gemcost": 12100
+    "gemcost": 12100,
+    "filename": "outpost.svg"
   },
   {
     "type": "Animal Stall",
@@ -7641,7 +7643,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "trade.svg"
   },
   {
     "type": "Trading Post",
@@ -7670,7 +7673,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "trade.svg"
   },
   {
     "type": "Bank",
@@ -7733,7 +7737,7 @@
     "filename": "town-hall.svg"
   },
   {
-    "type": "Train",
+    "type": "Wagon",
     "symbol": "🚂",
     "layoutkey": "TR",
     "size": 2,
@@ -7759,7 +7763,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "wagon.svg"
   },
   {
     "type": "Carnival",

@@ -139,7 +139,7 @@ import TransitionOverlay from './UI/TransitionOverlay';
 import { useTransitionFade } from './UI/useTransitionFade';
 import LoadingScreen from './UI/LoadingScreen';
 
-import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles } from './Utils/GridManagement';
+import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, registerCurrentPlayerForCamera, renderPositions } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
@@ -2057,13 +2057,19 @@ useEffect(() => {
 }, [currentPlayer?.xp, masterXPLevels, currentLevel]);
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
+// IMPORTANT: Only initialize FarmState when gridId changes (entering a new grid)
+// Do NOT include 'resources' in dependencies - that causes a feedback loop where:
+// 1. Seed converts to crop → setResources called → resources changes
+// 2. This effect re-runs → FarmState re-initialized → timer restarted
+// 3. Repeat, causing performance issues and WebGL context loss on grids with many farmplots
 useEffect(() => {
-  if (gridId && masterResources) {
-    farmState.initializeFarmState(resources); // ✅ Works for seeds
-    farmState.startSeedTimer({gridId,setResources,masterResources});
+  if (gridId && masterResources && resources) {
+    farmState.initializeFarmState(resources); // Initialize once with current resources
+    farmState.startSeedTimer({gridId, setResources, masterResources});
   }
   return () => { farmState.stopSeedTimer(); };
-}, [gridId, resources, masterResources]);  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [gridId, masterResources]); // Intentionally exclude 'resources' - see comment above  
 
 
 
@@ -3633,9 +3639,52 @@ return (
           settlementPlayers={settlementPlayers}
           currentGridPosition={currentGridPosition}
           isVisuallyInSettlement={isVisuallyInSettlement}
-          onSettlementGridClick={(row, col) => {
-            // TODO: Implement navigation to clicked grid
-            console.log(`🏘️ Clicked settlement grid at (${row}, ${col})`);
+          onSettlementGridClick={async (gridData, row, col) => {
+            // Developer mode grid travel from settlement zoom
+            if (!isDeveloper) {
+              console.log(`🏘️ Grid click ignored (not developer mode)`);
+              return;
+            }
+            if (!gridData || !gridData.gridId) {
+              console.log(`🏘️ Grid click ignored (no grid data at ${row}, ${col})`);
+              return;
+            }
+            console.log(`🏘️ [DEV] Traveling to grid at (${row}, ${col}):`, gridData);
+
+            // Construct toLocation from gridData
+            const toLocation = {
+              x: 32,  // Center of grid
+              y: 32,
+              g: gridData.gridId,
+              s: currentPlayer.location?.s,  // Stay in same settlement
+              f: currentPlayer.location?.f,  // Stay in same frontier
+              gtype: gridData.gridType || gridData.type || 'valley',
+              gridCoord: gridData.gridCoord,
+            };
+
+            try {
+              await changePlayerLocation(
+                currentPlayer,
+                currentPlayer.location,   // fromLocation
+                toLocation,               // toLocation
+                setCurrentPlayer,
+                setGridId,
+                setGrid,
+                setTileTypes,
+                setResources,
+                PIXI_BASE_TILE_SIZE,
+                closeAllPanels,
+                updateStatus,
+                bulkOperationContext,
+                masterResources,
+                strings,
+                masterTrophies,
+                transitionFadeControl
+              );
+            } catch (error) {
+              console.error('🏘️ [DEV] Grid travel failed:', error);
+              updateStatus('Grid travel failed');
+            }
           }}
           // Frontier zoom props
           frontierData={frontierData}

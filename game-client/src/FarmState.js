@@ -23,88 +23,113 @@ class FarmState {
 
   /**
    * Process seeds periodically to check for growth completion.
+   * Processes seeds in small batches to prevent performance issues on grids with many farmplots.
    */
   startSeedTimer({ gridId, setResources, masterResources }) {
     if (farmTimer) clearInterval(farmTimer);
-    
+
     // Store the current gridId to check if we're still on the same grid
     const currentGridId = gridId;
-    
-  
+
+    // Guard against concurrent processing
+    let isProcessing = false;
+
+    // Maximum seeds to process per timer tick to prevent overwhelming the client/server
+    const MAX_SEEDS_PER_TICK = 5;
+
     farmTimer = setInterval(async () => {
-      //console.log('FarmState timer ticking.');
-      //console.log('Current farmState:', this.farmState);
-  
+      // Skip if already processing from previous tick
+      if (isProcessing) {
+        return;
+      }
+
       const now = Date.now();
       const completedSeeds = this.farmState.filter((seed) => seed.growEnd <= now);
-      //console.log('Completed seeds:', completedSeeds);
-  
+
       if (completedSeeds.length > 0) {
+        isProcessing = true;
 
-        // Process seeds sequentially to match server processing speed
-        let successfulCount = 0;
-        
-        for (const seed of completedSeeds) {
-          // First check if this seed still exists in current farmState
-          // (it might have been removed by bulk harvest)
-          const stillExists = this.farmState.some(s => 
-            s.x === seed.x && s.y === seed.y && s.type === seed.type
-          );
-          
-          if (!stillExists) {
-            console.log(`Seed at (${seed.x}, ${seed.y}) no longer exists in farmState, skipping conversion.`);
-            continue;
-          }
-          
-          const newCrop = masterResources.find((res) => res.type === seed.output);
-          
-          if (!newCrop) {
-            console.warn(`No target resource found for seed output: ${seed.output}`);
-            continue;
-          }
+        try {
+          // Only process a batch of seeds per tick to prevent performance issues
+          const seedsToProcess = completedSeeds.slice(0, MAX_SEEDS_PER_TICK);
 
-          try {
-            const response = await updateGridResource(
-              currentGridId, 
-              { 
-                type: newCrop.type,
-                x: seed.x,
-                y: seed.y,
-              },
-              true
+          // Collect all successful conversions for a single batched UI update
+          const successfulConversions = [];
+          const seedsToRemove = [];
+
+          for (const seed of seedsToProcess) {
+            // First check if this seed still exists in current farmState
+            // (it might have been removed by bulk harvest)
+            const stillExists = this.farmState.some(s =>
+              s.x === seed.x && s.y === seed.y && s.type === seed.type
             );
 
-            if (response?.success) {
-              
-              const enriched = {
-                ...newCrop,
-                x: seed.x,
-                y: seed.y
-              };
-
-              // Update UI only after server confirms the update
-              setResources(prev => {
-                const filtered = prev.filter(r => !(r.x === seed.x && r.y === seed.y));
-                return [...filtered, enriched];
-              });
-              
-              // Remove from farmState after successful conversion
-              this.farmState = this.farmState.filter(s => !(s.x === seed.x && s.y === seed.y && s.type === seed.type));
-              
-              successfulCount++;
-              
-              // Add a small delay between conversions to make them visually distinct
-              // This also helps prevent overwhelming the server and keeps us in sync
-              // Using 120ms to match observed server processing time
-              await new Promise(resolve => setTimeout(resolve, 120));
-            } else {
-              console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
+            if (!stillExists) {
+              // Silently skip - no need to log each one
+              continue;
             }
-          } catch (error) {
-            console.error(`Error updating grid resource for seed at (${seed.x}, ${seed.y}):`, error);
+
+            const newCrop = masterResources.find((res) => res.type === seed.output);
+
+            if (!newCrop) {
+              console.warn(`No target resource found for seed output: ${seed.output}`);
+              // Mark for removal anyway to prevent repeated warnings
+              seedsToRemove.push(seed);
+              continue;
+            }
+
+            try {
+              const response = await updateGridResource(
+                currentGridId,
+                {
+                  type: newCrop.type,
+                  x: seed.x,
+                  y: seed.y,
+                },
+                true
+              );
+
+              if (response?.success) {
+                const enriched = {
+                  ...newCrop,
+                  x: seed.x,
+                  y: seed.y
+                };
+
+                successfulConversions.push({ seed, enriched });
+                seedsToRemove.push(seed);
+
+                // Small delay between server calls to avoid overwhelming the server
+                await new Promise(resolve => setTimeout(resolve, 50));
+              } else {
+                console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
+              }
+            } catch (error) {
+              console.error(`Error updating grid resource for seed at (${seed.x}, ${seed.y}):`, error);
+            }
           }
+
+          // Batch remove processed seeds from farmState
+          if (seedsToRemove.length > 0) {
+            this.farmState = this.farmState.filter(s =>
+              !seedsToRemove.some(r => r.x === s.x && r.y === s.y && r.type === s.type)
+            );
+          }
+
+          // Single batched UI update for all successful conversions
+          if (successfulConversions.length > 0) {
+            setResources(prev => {
+              let updated = [...prev];
+              for (const { seed, enriched } of successfulConversions) {
+                updated = updated.filter(r => !(r.x === seed.x && r.y === seed.y));
+                updated.push(enriched);
+              }
+              return updated;
+            });
+          }
+        } finally {
+          isProcessing = false;
         }
-        
       }
     }, 1000);
   }
