@@ -47,7 +47,7 @@ class NPC {
     const { type: _type, id: _id, ...safeProperties } = properties;
     Object.assign(this, safeProperties);
 
-    console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
+    //console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }
 
 

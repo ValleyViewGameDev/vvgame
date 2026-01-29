@@ -19,6 +19,7 @@ const PixiRendererSpeech = ({
   pcs,                    // Array of PCs (for position lookup by playerId)
   currentPlayer,          // Current player object
   TILE_SIZE,              // Tile size in pixels
+  gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
 }) => {
   const speechContainerRef = useRef(null);
 
@@ -32,8 +33,10 @@ const PixiRendererSpeech = ({
   const activeOutcomesRef = useRef([]);  // Track active outcome animations
   const processedOutcomesRef = useRef(new Set());  // Track outcomes we've already animated (by key)
 
-  // Animation ticker ref
+  // Animation ticker ref (on-demand pattern)
   const tickerCallbackRef = useRef(null);
+  // Counter for consecutive frames with no animations
+  const noAnimationFramesRef = useRef(0);
 
   /**
    * Get border color based on match state
@@ -238,30 +241,36 @@ const PixiRendererSpeech = ({
       processedOutcomesRef.current.clear();
       speechContainerRef.current = null;
 
-      // Remove ticker callback
-      if (tickerCallbackRef.current && app?.ticker) {
-        app.ticker.remove(tickerCallbackRef.current);
+      // Remove ticker callback - wrapped in try-catch for grid transition safety
+      try {
+        if (tickerCallbackRef.current && app?.ticker) {
+          app.ticker.remove(tickerCallbackRef.current);
+          tickerCallbackRef.current = null;
+        }
+      } catch (e) {
+        // Ticker may already be destroyed during grid transition
         tickerCallbackRef.current = null;
       }
     };
   }, [app]);
 
-  // Setup animation ticker for outcomes
-  useEffect(() => {
+  // Start animation ticker on-demand when outcome animations are active
+  // This prevents continuous 60fps polling when no outcomes are animating
+  const startOutcomeAnimationTicker = useCallback(() => {
+    if (tickerCallbackRef.current) return; // Already running
     if (!app?.ticker) return;
 
-    // Remove old callback if exists
-    if (tickerCallbackRef.current) {
-      app.ticker.remove(tickerCallbackRef.current);
-    }
+    const ticker = app.ticker;
 
     const animateOutcomes = () => {
       const now = Date.now();
       const animationDuration = 2000; // 2 seconds
+      let hasActiveAnimations = false;
 
       activeOutcomesRef.current.forEach(outcome => {
         if (!outcome.active) return;
 
+        hasActiveAnimations = true;
         const elapsed = now - outcome.startTime;
         const progress = Math.min(elapsed / animationDuration, 1);
 
@@ -280,17 +289,39 @@ const PixiRendererSpeech = ({
 
       // Clean up inactive outcomes from active list
       activeOutcomesRef.current = activeOutcomesRef.current.filter(o => o.active);
+
+      // PERFORMANCE: Remove ticker when no active animations
+      if (!hasActiveAnimations) {
+        noAnimationFramesRef.current++;
+        if (noAnimationFramesRef.current > 5) {
+          try {
+            ticker.remove(animateOutcomes);
+          } catch (e) {
+            // Ticker may be destroyed
+          }
+          tickerCallbackRef.current = null;
+          noAnimationFramesRef.current = 0;
+        }
+      } else {
+        noAnimationFramesRef.current = 0;
+      }
     };
 
     tickerCallbackRef.current = animateOutcomes;
-    app.ticker.add(animateOutcomes);
+    ticker.add(animateOutcomes);
+  }, [app]);
 
+  // Cleanup animation ticker on unmount
+  useEffect(() => {
     return () => {
-      // Safely remove ticker callback - app.ticker may be null if app was destroyed
       if (tickerCallbackRef.current && app?.ticker) {
-        app.ticker.remove(tickerCallbackRef.current);
+        try {
+          app.ticker.remove(tickerCallbackRef.current);
+        } catch (e) {
+          // Ticker may be destroyed
+        }
+        tickerCallbackRef.current = null;
       }
-      tickerCallbackRef.current = null;
     };
   }, [app]);
 
@@ -311,9 +342,10 @@ const PixiRendererSpeech = ({
       if (!position) continue;
 
       // Calculate bubble position (above entity)
+      // Apply grid offset for settlement zoom
       const bubbleRadius = TILE_SIZE * 0.75;
-      const centerX = (position.x + 0.5) * TILE_SIZE;
-      const centerY = position.y * TILE_SIZE - TILE_SIZE * 0.2 - bubbleRadius;
+      const centerX = gridOffset.x + (position.x + 0.5) * TILE_SIZE;
+      const centerY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.2 - bubbleRadius;
 
       // Get bubble from pool
       const bubble = getBubbleFromPool(bubblesUsed);
@@ -351,9 +383,10 @@ const PixiRendererSpeech = ({
       if (!position) continue;
 
       // Create new outcome animation
+      // Apply grid offset for settlement zoom
       const outcomeObj = getOutcomeFromPool();
-      const startX = (position.x + 0.5) * TILE_SIZE;
-      const startY = position.y * TILE_SIZE - TILE_SIZE * 0.5;
+      const startX = gridOffset.x + (position.x + 0.5) * TILE_SIZE;
+      const startY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.5;
 
       outcomeObj.text.text = outcome.emoji || (outcome.type === 'positive' ? '👍' : '👎');
       outcomeObj.text.style.fontSize = TILE_SIZE * 1.2;
@@ -366,6 +399,8 @@ const PixiRendererSpeech = ({
       outcomeObj.timestamp = outcome.timestamp;
 
       activeOutcomesRef.current.push(outcomeObj);
+      // Start the animation ticker (on-demand pattern)
+      startOutcomeAnimationTicker();
     }
 
     // Clean up processedOutcomes for outcomes that are no longer in ConversationManager
@@ -379,9 +414,9 @@ const PixiRendererSpeech = ({
       }
     });
 
-  }, [conversationVersion, npcs, pcs, currentPlayer, TILE_SIZE,
+  }, [conversationVersion, npcs, pcs, currentPlayer, TILE_SIZE, gridOffset,
       findEntityPosition, getBubbleFromPool, hideUnusedBubbles,
-      getBorderColor, drawBubble, getOutcomeFromPool]);
+      getBorderColor, drawBubble, getOutcomeFromPool, startOutcomeAnimationTicker]);
 
   // This component doesn't render any DOM elements
   return null;

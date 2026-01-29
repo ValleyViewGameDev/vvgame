@@ -22,6 +22,7 @@ const PixiRendererVFX = ({
   currentPlayer,          // Current player (for settings like rangeOn)
   TILE_SIZE,              // Current tile size
   masterResources,        // Master resources list (for getDerivedRange calculation)
+  gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
 }) => {
   const vfxContainerRef = useRef(null);
 
@@ -185,8 +186,9 @@ const PixiRendererVFX = ({
     if (currentPC?.position) {
       const playerPosX = currentPC.position.x;
       const playerPosY = currentPC.position.y;
-      const playerCenterX = (playerPosX + 0.5) * TILE_SIZE;
-      const playerCenterY = (playerPosY + 0.5) * TILE_SIZE;
+      // Apply grid offset for settlement zoom
+      const playerCenterX = gridOffset.x + (playerPosX + 0.5) * TILE_SIZE;
+      const playerCenterY = gridOffset.y + (playerPosY + 0.5) * TILE_SIZE;
 
       // Check if player is on their own homestead
       const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
@@ -230,8 +232,9 @@ const PixiRendererVFX = ({
 
         if (posX === undefined || posY === undefined) continue;
 
-        const centerX = (posX + 0.5) * TILE_SIZE;
-        const centerY = (posY + 0.5) * TILE_SIZE;
+        // Apply grid offset for settlement zoom
+        const centerX = gridOffset.x + (posX + 0.5) * TILE_SIZE;
+        const centerY = gridOffset.y + (posY + 0.5) * TILE_SIZE;
         const radius = npc.attackrange * TILE_SIZE;
 
         // Get a graphics object from the pool (reused)
@@ -246,7 +249,7 @@ const PixiRendererVFX = ({
     hideUnusedPoolGraphics(npcGraphicsUsed);
     activeNpcGraphicsCount.current = npcGraphicsUsed;
 
-  }, [npcs, pcs, currentPlayer, masterResources, TILE_SIZE, drawDashedCircle, getNpcGraphicFromPool, hideUnusedPoolGraphics]);
+  }, [npcs, pcs, currentPlayer, masterResources, TILE_SIZE, gridOffset, drawDashedCircle, getNpcGraphicFromPool, hideUnusedPoolGraphics]);
 
   // This component doesn't render any DOM elements
   return null;

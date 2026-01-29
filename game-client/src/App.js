@@ -11,13 +11,16 @@ import React, { useContext, useState, useEffect, memo, useMemo, useCallback, use
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
-import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
-import { RenderTilesCanvasV2 } from './Render/RenderTilesCanvasV2';
+// LEGACY RENDERING - COMMENTED OUT (PixiJS is now the only renderer)
+// import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
+// import { RenderTilesCanvasV2 } from './Render/RenderTilesCanvasV2';
+// import { RenderResources } from './Render/RenderResources';
+// import { RenderNPCs } from './Render/RenderNPCs';
+// import { RenderPCs } from './Render/RenderPCs';
+// import { RenderDynamicElements, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, generateResourceTooltip, generateNPCTooltip, generatePCTooltip } from './Render/RenderDynamicElements';
+
+// PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
-import { RenderResources } from './Render/RenderResources';
-import { RenderNPCs } from './Render/RenderNPCs';
-import { RenderPCs } from './Render/RenderPCs';
-import { RenderDynamicElements, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, generateResourceTooltip, generateNPCTooltip, generatePCTooltip } from './Render/RenderDynamicElements';
 import CursorTileHighlight from './Render/CursorTileHighlight';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
@@ -51,9 +54,20 @@ import NPCsInGridManager from './GridState/GridStateNPCs.js';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
-import SettlementView from './ZoomedOut/SettlementView';
-import FrontierView from './ZoomedOut/FrontierView';
+// LEGACY - Old HTML-based zoom views (PixiJS now handles settlement/frontier zoom)
+// import SettlementView from './ZoomedOut/SettlementView';
+// import FrontierView from './ZoomedOut/FrontierView';
 import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
+import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
+import {
+  getPlayerWorldPosition,
+  getScrollPosition,
+  parseGridCoord,
+  WORLD_PADDING_SETTLEMENTS,
+  WORLD_SIZE_TILES,
+  TILES_PER_GRID,
+  TILES_PER_SETTLEMENT,
+} from './Render/PixiRenderer/UnifiedCamera';
 
 import Modal from './UI/Modals/Modal';
 import RevivalModal from './UI/Modals/RevivalModal';
@@ -123,9 +137,10 @@ import { formatCountdown } from './UI/Timers';
 import StartScreenAnimation from './UI/StartScreenAnimation';
 import TransitionOverlay from './UI/TransitionOverlay';
 import { useTransitionFade } from './UI/useTransitionFade';
+import LoadingScreen from './UI/LoadingScreen';
 
 import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles } from './Utils/GridManagement';
-import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
+import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, registerCurrentPlayerForCamera, renderPositions } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -385,14 +400,14 @@ useEffect(() => {
     if (invalidCrops.length > 0) {
       console.warn(`🧹 Found ${invalidCrops.length} crops with invalid growEnd fields, cleaning up...`);
       invalidCrops.forEach(crop => {
-        console.log(`  - ${crop.type} at (${crop.x}, ${crop.y}) has growEnd=${crop.growEnd}`);
+        // console.log(`  - ${crop.type} at (${crop.x}, ${crop.y}) has growEnd=${crop.growEnd}`);
       });
       cleanedResources = resources.map(res => {
         // If this is one of the invalid crops, remove growEnd
         const needsCleanup = invalidCrops.some(ic => ic.x === res.x && ic.y === res.y);
         if (needsCleanup) {
           const { growEnd, ...cleanedRes } = res;
-          console.log(`🌾 Cleaned crop ${res.type} at (${res.x}, ${res.y})`);
+          // console.log(`🌾 Cleaned crop ${res.type} at (${res.x}, ${res.y})`);
           return cleanedRes;
         }
         return res;
@@ -407,45 +422,17 @@ useEffect(() => {
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 
-// V2 Tile Renderer toggle - always defaults to V2 (true)
-// Only respect stored 'false' if user explicitly toggled it off after this update
-const [useV2Tiles, setUseV2Tiles] = useState(() => {
-  const hasExplicitChoice = localStorage.getItem('useV2TilesExplicit') === 'true';
-  if (hasExplicitChoice) {
-    return localStorage.getItem('useV2Tiles') === 'true';
-  }
-  return true; // Default to V2 for all users
-});
-
-// Listen for V2 tile renderer toggle changes from DebugPanel
-useEffect(() => {
-  const handleTileRendererChange = (e) => setUseV2Tiles(e.detail);
-  window.addEventListener('tileRendererChange', handleTileRendererChange);
-  return () => window.removeEventListener('tileRendererChange', handleTileRendererChange);
-}, []);
-
-// PixiJS Renderer toggle - defaults to false (Canvas 2D) for safety
-const [usePixiJS, setUsePixiJS] = useState(() => {
-  const hasExplicitChoice = localStorage.getItem('usePixiJSExplicit') === 'true';
-  if (hasExplicitChoice) {
-    return localStorage.getItem('usePixiJS') === 'true';
-  }
-  return false; // Default to Canvas 2D for safety
-});
-
-// Listen for PixiJS renderer toggle changes from DebugPanel
-useEffect(() => {
-  const handlePixiRendererChange = (e) => setUsePixiJS(e.detail);
-  window.addEventListener('pixiRendererChange', handlePixiRendererChange);
-  return () => window.removeEventListener('pixiRendererChange', handlePixiRendererChange);
-}, []);
+// PixiJS is now the only renderer - always enabled
+const usePixiJS = true;
 
 const TILE_SIZES = useMemo(() => globalTuning?.closerZoom ? {
   closer: globalTuning.closerZoom,
   close: globalTuning.closeZoom,
   farish: globalTuning.farishZoom,
-  far: globalTuning.farZoom
-} : { closer: 50, close: 30, farish: 25, far: 16 }, [globalTuning]); // Update when globalTuning loads
+  far: globalTuning.farZoom,
+  settlement: globalTuning.settlementZoom || 2,
+  frontier: globalTuning.frontierZoom || 0.25
+} : { closer: 50, close: 30, farish: 25, far: 16, settlement: 2, frontier: 0.25 }, [globalTuning]); // Update when globalTuning loads
 
 // Get active tile size - for settlement/frontier views, use 'far' as fallback
 // since those views don't use the grid renderer but we still need valid values
@@ -456,9 +443,9 @@ const activeTileSize = TILE_SIZES[zoomLevel] || TILE_SIZES.far;
 // Base tile size should match the "close" zoom level for 1:1 rendering at default zoom
 const PIXI_BASE_TILE_SIZE = TILE_SIZES.close; // Use "close" zoom as base (e.g., 40 from globalTuning)
 
-// For settlement/frontier views, keep pixiZoomScale at 'far' level so when we return
-// the animation starts from a valid scale. This prevents NaN issues.
-const effectiveZoomLevel = (zoomLevel === 'settlement' || zoomLevel === 'frontier') ? 'far' : zoomLevel;
+// All zoom levels now have their own tile size in TILE_SIZES
+// Settlement and frontier use their own zoom levels for seamless zooming
+const effectiveZoomLevel = zoomLevel;
 const effectiveTileSize = TILE_SIZES[effectiveZoomLevel] || TILE_SIZES.far;
 const pixiZoomScale = effectiveTileSize / PIXI_BASE_TILE_SIZE; // Scale factor for GPU transform
 
@@ -467,37 +454,204 @@ const pixiZoomScale = effectiveTileSize / PIXI_BASE_TILE_SIZE; // Scale factor f
 const [currentZoomScale, setCurrentZoomScale] = useState(pixiZoomScale);
 const targetZoomScaleRef = useRef(pixiZoomScale);
 const zoomAnimationRef = useRef(null);
+const [isZoomAnimating, setIsZoomAnimating] = useState(false); // Lock to prevent spam zooming
+const isZoomAnimatingRef = useRef(false); // Ref that is set synchronously BEFORE zoomLevel changes
+const zoomLevelRef = useRef(zoomLevel); // Track current zoom level for animation completion
 
-// Animate zoom changes smoothly
+// Store the player's world position in tiles
+// This ref is updated by the camera useEffect and read by the animation loop
+// Using a ref ensures the animation loop always has the latest position
+const playerWorldPosRef = useRef({ x: 0, y: 0 });
+
+// Refs for coordinate system state - updated by camera useEffect, read by animation loop
+// Also updated at the start of animation to ensure first frame has correct values
+// These allow the animation loop to access current state without stale closures
+const isVisuallyInSettlementRef = useRef(false);
+const isVisuallyInFrontierRef = useRef(false);
+const currentGridPositionRef = useRef(null);
+const currentSettlementPositionRef = useRef(null);
+const playerPosRef = useRef(null);
+const prevZoomScaleRef = useRef(null);
+
+// Keep zoomLevelRef updated - used by animation completion to determine final visual state
+useEffect(() => {
+  zoomLevelRef.current = zoomLevel;
+}, [zoomLevel]);
+
+// Animate zoom changes smoothly using refs for immediate updates
+// CRITICAL: We use refs instead of state for the animation loop to avoid React batching delays.
+// During animation, we directly manipulate the DOM (scroll and canvas transform) for perfect sync.
+// React state is only updated at the END of animation to avoid re-render conflicts.
+const currentZoomScaleRef = useRef(currentZoomScale);
+
+// ============================================================================
+// UNIFIED WORLD MODEL - ZOOM ANIMATION
+// ============================================================================
+// With the unified world model, the world position is calculated ONCE at
+// animation start. It doesn't change during zoom because the coordinate system
+// never changes. Scroll position scales LINEARLY with zoomScale - no jumps.
+//
+// IMPORTANT: During animation, we must update ALL zoom-dependent DOM elements:
+// 1. Scroll position (gameContainer.scrollLeft/scrollTop)
+// 2. Canvas CSS transform scale (pixiCanvas.style.transform)
+// 3. Canvas container position (pixiCanvasContainer.style.left/top)
+// 4. World container size (worldContainer.style.width/height)
+//
+// React state only updates at the END of animation to trigger final re-render.
+// ============================================================================
 useEffect(() => {
   targetZoomScaleRef.current = pixiZoomScale;
 
   // Skip animation if already at target
-  if (Math.abs(currentZoomScale - pixiZoomScale) < 0.001) {
+  if (Math.abs(currentZoomScaleRef.current - pixiZoomScale) < 0.001) {
+    currentZoomScaleRef.current = pixiZoomScale;
     setCurrentZoomScale(pixiZoomScale);
+    isZoomAnimatingRef.current = false;
+    setIsZoomAnimating(false);
     return;
   }
 
+  // Start animation - lock zoom input (ref was already set by zoom handler)
+  isZoomAnimatingRef.current = true;
+  setIsZoomAnimating(true);
+
+  // Get DOM elements for direct manipulation (bypassing React)
+  const gameContainer = document.querySelector(".homestead");
+  const pixiCanvasContainer = document.querySelector(".pixi-container"); // The div that positions the canvas
+  const pixiCanvas = pixiCanvasContainer?.querySelector("canvas");
+  const worldContainer = document.querySelector(".pixi-world-container"); // The outer world container
+  const paddingContainer = document.querySelector(".pixi-padding-container"); // Padding outer container
+  const paddingInner = document.querySelector(".pixi-padding-inner"); // Padding inner (transform target)
+
+  // Get player position from playersInGrid
+  let playerPos = null;
+  if (currentPlayer?.location?.g && currentPlayer?._id) {
+    const gridId = currentPlayer.location.g;
+    const playerIdStr = String(currentPlayer._id);
+    playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+  }
+
+  // UNIFIED WORLD MODEL: Calculate positions ONCE at animation start
+  // Use REFS because the useMemo definitions come later in the file
+  const gridPos = currentGridPositionRef.current || { row: 0, col: 0 };
+  const settlementPos = currentSettlementPositionRef.current || { row: 0, col: 0 };
+  const worldPos = getPlayerWorldPosition(
+    playerPos || { x: 0, y: 0 },
+    gridPos,
+    settlementPos
+  );
+
+  // Calculate grid world position in tiles (matches getGridWorldPixelPosition logic)
+  // This is the position of the current grid within the unified world
+  // Constants are imported from UnifiedCamera.js to stay in sync
+
+  const gridWorldTileX = WORLD_PADDING_SETTLEMENTS * TILES_PER_SETTLEMENT
+    + settlementPos.col * TILES_PER_SETTLEMENT
+    + gridPos.col * TILES_PER_GRID;
+  const gridWorldTileY = WORLD_PADDING_SETTLEMENTS * TILES_PER_SETTLEMENT
+    + settlementPos.row * TILES_PER_SETTLEMENT
+    + gridPos.row * TILES_PER_GRID;
+
+  console.log(`🎬 [ZOOM ANIMATION] Starting zoom: ${currentZoomScaleRef.current.toFixed(3)} → ${pixiZoomScale.toFixed(3)}`);
+  console.log(`🎬 [ZOOM ANIMATION] Player world position (tiles): (${worldPos.x}, ${worldPos.y})`);
+  console.log(`🎬 [ZOOM ANIMATION] Grid world position (tiles): (${gridWorldTileX}, ${gridWorldTileY})`);
+  console.log(`🎬 [ZOOM ANIMATION] DOM elements found: gameContainer=${!!gameContainer}, pixiCanvasContainer=${!!pixiCanvasContainer}, pixiCanvas=${!!pixiCanvas}, worldContainer=${!!worldContainer}`);
+
   const animate = () => {
-    setCurrentZoomScale(current => {
-      const target = targetZoomScaleRef.current;
-      const diff = target - current;
+    const current = currentZoomScaleRef.current;
+    const target = targetZoomScaleRef.current;
+    const diff = target - current;
 
-      // Done animating - snap to target
-      if (Math.abs(diff) < 0.001) {
-        return target;
+    // Done animating - snap to target
+    if (Math.abs(diff) < 0.001) {
+      currentZoomScaleRef.current = target;
+
+      // Final DOM updates at exact target scale
+      if (gameContainer) {
+        const scroll = getScrollPosition(worldPos, target, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
+        gameContainer.scrollLeft = scroll.x;
+        gameContainer.scrollTop = scroll.y;
+      }
+      if (pixiCanvas) {
+        pixiCanvas.style.transform = `scale(${target})`;
+      }
+      if (pixiCanvasContainer) {
+        const gridPixelX = gridWorldTileX * PIXI_BASE_TILE_SIZE * target;
+        const gridPixelY = gridWorldTileY * PIXI_BASE_TILE_SIZE * target;
+        pixiCanvasContainer.style.left = `${gridPixelX}px`;
+        pixiCanvasContainer.style.top = `${gridPixelY}px`;
+        pixiCanvasContainer.style.width = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * target}px`;
+        pixiCanvasContainer.style.height = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * target}px`;
+      }
+      if (worldContainer) {
+        const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * target;
+        worldContainer.style.width = `${worldPixelSize}px`;
+        worldContainer.style.height = `${worldPixelSize}px`;
+      }
+      if (paddingContainer) {
+        const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * target;
+        paddingContainer.style.width = `${worldPixelSize}px`;
+        paddingContainer.style.height = `${worldPixelSize}px`;
+      }
+      if (paddingInner) {
+        paddingInner.style.transform = `scale(${target})`;
       }
 
-      // Lerp toward target (0.12 = ~180ms total transition at 60fps)
-      const newScale = current + diff * 0.12;
+      // Update React state ONLY at the end of animation
+      // CRITICAL: Determine and set visual states BEFORE clearing isZoomAnimating
+      // to prevent flash where grids render at wrong scale (React batches these)
+      const targetZoomLevel = zoomLevelRef.current;
+      const shouldShowSettlement = targetZoomLevel === 'settlement' || targetZoomLevel === 'frontier';
+      const shouldShowFrontier = targetZoomLevel === 'frontier';
 
-      // Schedule next frame if not done
-      if (Math.abs(target - newScale) >= 0.001) {
-        zoomAnimationRef.current = requestAnimationFrame(animate);
-      }
+      // Update all states atomically - React batches these into single re-render
+      setIsVisuallyInSettlement(shouldShowSettlement);
+      setIsVisuallyInFrontier(shouldShowFrontier);
+      setCurrentZoomScale(target);
+      isZoomAnimatingRef.current = false;
+      setIsZoomAnimating(false);
+      console.log(`🎬 [ZOOM ANIMATION] Complete at scale ${target.toFixed(3)}, settlement=${shouldShowSettlement}, frontier=${shouldShowFrontier}`);
+      return;
+    }
 
-      return newScale;
-    });
+    // Lerp toward target (0.14 = ~150ms total transition at 60fps)
+    const newScale = current + diff * 0.14;
+    currentZoomScaleRef.current = newScale;
+
+    // Update ALL zoom-dependent DOM elements directly
+    // This ensures everything stays in sync during animation
+    if (gameContainer) {
+      const scroll = getScrollPosition(worldPos, newScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
+      gameContainer.scrollLeft = scroll.x;
+      gameContainer.scrollTop = scroll.y;
+    }
+    if (pixiCanvas) {
+      pixiCanvas.style.transform = `scale(${newScale})`;
+    }
+    if (pixiCanvasContainer) {
+      const gridPixelX = gridWorldTileX * PIXI_BASE_TILE_SIZE * newScale;
+      const gridPixelY = gridWorldTileY * PIXI_BASE_TILE_SIZE * newScale;
+      pixiCanvasContainer.style.left = `${gridPixelX}px`;
+      pixiCanvasContainer.style.top = `${gridPixelY}px`;
+      pixiCanvasContainer.style.width = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * newScale}px`;
+      pixiCanvasContainer.style.height = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * newScale}px`;
+    }
+    if (worldContainer) {
+      const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * newScale;
+      worldContainer.style.width = `${worldPixelSize}px`;
+      worldContainer.style.height = `${worldPixelSize}px`;
+    }
+    if (paddingContainer) {
+      const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * newScale;
+      paddingContainer.style.width = `${worldPixelSize}px`;
+      paddingContainer.style.height = `${worldPixelSize}px`;
+    }
+    if (paddingInner) {
+      paddingInner.style.transform = `scale(${newScale})`;
+    }
+
+    // Schedule next frame
+    zoomAnimationRef.current = requestAnimationFrame(animate);
   };
 
   // Cancel any existing animation
@@ -513,7 +667,69 @@ useEffect(() => {
       cancelAnimationFrame(zoomAnimationRef.current);
     }
   };
-}, [pixiZoomScale]);
+  // UNIFIED WORLD MODEL: Only depend on pixiZoomScale - refs are read at animation start
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [pixiZoomScale, PIXI_BASE_TILE_SIZE]);
+
+// Visual settlement mode - tracks whether we're visually displaying settlement view
+// When entering settlement: immediately true (zoomLevel === 'settlement')
+// When exiting settlement: stays true until zoom animation completes (so grids stay visible)
+const [isVisuallyInSettlement, setIsVisuallyInSettlement] = useState(zoomLevel === 'settlement');
+const prevZoomLevelForVisualRef = useRef(zoomLevel);
+const isExitingSettlementRef = useRef(false);
+const isEnteringSettlementRef = useRef(false);
+const enteringSettlementFromRef = useRef(null); // Track which zoom level we're entering from
+
+// Visual frontier mode - tracks whether we're visually displaying frontier view
+// At frontier zoom, the entire settlement becomes one "tile" in the 8×8 frontier grid
+// Settlement grids (PixiRendererSettlementGrids) stay visible, and we add 63 more settlement previews
+const [isVisuallyInFrontier, setIsVisuallyInFrontier] = useState(zoomLevel === 'frontier');
+const prevZoomLevelForFrontierRef = useRef(zoomLevel); // Separate ref for frontier to avoid race with settlement useEffect
+const isEnteringFrontierRef = useRef(false);
+const isExitingFrontierRef = useRef(false);
+const enteringFrontierFromRef = useRef(null); // Track which zoom level we're entering from
+
+useEffect(() => {
+  const wasSettlement = prevZoomLevelForVisualRef.current === 'settlement';
+  const isSettlement = zoomLevel === 'settlement';
+  prevZoomLevelForVisualRef.current = zoomLevel;
+
+  if (isSettlement && !wasSettlement) {
+    // Entering settlement - set visual mode immediately
+    // The scroll position will be recalculated by the camera useEffect after
+    // React re-renders with the new container size
+    isExitingSettlementRef.current = false;
+    isEnteringSettlementRef.current = true;
+    setIsVisuallyInSettlement(true);
+  } else if (wasSettlement && !isSettlement) {
+    // Exiting settlement - keep visual settlement mode ON (grids stay visible during zoom)
+    isExitingSettlementRef.current = true;
+    isEnteringSettlementRef.current = false;
+    enteringSettlementFromRef.current = null;
+  }
+}, [zoomLevel]);
+
+// Frontier visual state management
+useEffect(() => {
+  const wasFrontier = prevZoomLevelForFrontierRef.current === 'frontier';
+  const isFrontier = zoomLevel === 'frontier';
+  prevZoomLevelForFrontierRef.current = zoomLevel;
+
+  if (isFrontier && !wasFrontier) {
+    // Entering frontier - set visual mode immediately
+    isEnteringFrontierRef.current = true;
+    isExitingFrontierRef.current = false;
+    setIsVisuallyInFrontier(true);
+    setIsVisuallyInSettlement(true);
+  } else if (wasFrontier && !isFrontier) {
+    // Exiting frontier - visual mode will be cleared atomically at animation completion
+    // (see zoom animation useEffect above)
+    isExitingFrontierRef.current = true;
+    isEnteringFrontierRef.current = false;
+    enteringFrontierFromRef.current = null;
+    // NO timeout - handled atomically at animation completion to prevent flash
+  }
+}, [zoomLevel]);
 
 const [isRelocating, setIsRelocating] = useState(null);
 
@@ -524,6 +740,176 @@ useEffect(() => {
     setVisibleSettlementId(currentPlayer.location.s);
   }
 }, [currentPlayer]);
+
+// Settlement data for PixiRenderer settlement zoom
+// Only fetched when at settlement zoom level with usePixiJS enabled
+const [settlementData, setSettlementData] = useState(null);
+const [settlementPlayers, setSettlementPlayers] = useState(null);
+const [visitedGridTiles, setVisitedGridTiles] = useState(null);
+
+// Fetch settlement data when entering settlement zoom with PixiJS
+useEffect(() => {
+  if (zoomLevel !== 'settlement' || !usePixiJS || !visibleSettlementId) {
+    return;
+  }
+
+  const fetchSettlementData = async () => {
+    try {
+      console.log('📦 [PixiRenderer] Fetching settlement bundle for settlement zoom');
+      const response = await axios.post(`${API_BASE}/api/get-settlement-bundle`, {
+        settlementId: visibleSettlementId
+      });
+      const { players: playersArray, settlement } = response.data;
+
+      // Transform players array to Map
+      const playersMap = new Map();
+      if (Array.isArray(playersArray)) {
+        for (const player of playersArray) {
+          playersMap.set(player._id, player);
+        }
+      }
+
+      setSettlementData(settlement?.grids || []);
+      setSettlementPlayers(playersMap);
+      console.log('📐 [PixiRenderer] Settlement data loaded:', settlement?.grids?.length, 'grids');
+    } catch (err) {
+      console.error('[PixiRenderer] Error fetching settlement data:', err);
+    }
+  };
+
+  fetchSettlementData();
+}, [zoomLevel, usePixiJS, visibleSettlementId]);
+
+// Fetch visited grid tiles when settlement data is loaded
+useEffect(() => {
+  if (!settlementData?.length || !currentPlayer?.gridsVisited || !visibleSettlementId || !usePixiJS) {
+    return;
+  }
+
+  const fetchVisitedTiles = async () => {
+    try {
+      // Get settlement tiles with their gridCoords
+      const settlementTiles = settlementData.flat()
+        .filter(tile => tile.gridCoord !== undefined && tile.gridId);
+
+      // Get visited coords from bit buffer (SSGG format)
+      const { getVisitedGridCoords } = await import('./Utils/gridsVisitedUtils');
+      const visitedSSGG = getVisitedGridCoords(currentPlayer.gridsVisited);
+
+      // Find intersection
+      const coordsToFetch = settlementTiles
+        .filter(tile => visitedSSGG.includes(tile.gridCoord % 10000))
+        .map(tile => tile.gridCoord);
+
+      if (coordsToFetch.length === 0) return;
+
+      const response = await axios.post(`${API_BASE}/api/grids-tiles`, {
+        settlementId: visibleSettlementId,
+        gridCoords: coordsToFetch
+      });
+
+      if (response.data.success && response.data.tilesMap) {
+        setVisitedGridTiles(response.data.tilesMap);
+        console.log(`📍 [PixiRenderer] Fetched tiles for ${Object.keys(response.data.tilesMap).length} visited grids`);
+      }
+    } catch (err) {
+      console.error('[PixiRenderer] Error fetching visited grid tiles:', err);
+    }
+  };
+
+  fetchVisitedTiles();
+}, [settlementData, currentPlayer?.gridsVisited, visibleSettlementId, usePixiJS]);
+
+// Calculate current grid position within the settlement (0-7, 0-7)
+// Uses settlementData if available, falls back to parsing homesteadGridCoord
+const currentGridPosition = useMemo(() => {
+  // First, try to find position from settlementData (most accurate when available)
+  if (settlementData?.length && currentPlayer?.location?.g) {
+    const playerGridId = currentPlayer.location.g;
+    for (let row = 0; row < settlementData.length; row++) {
+      for (let col = 0; col < (settlementData[row]?.length || 0); col++) {
+        if (settlementData[row][col]?.gridId === playerGridId) {
+          return { row, col };
+        }
+      }
+    }
+  }
+
+  // Fallback: derive position from location.gridCoord (current location) or homesteadGridCoord
+  // This allows zoom animation to use correct position even before settlementData loads
+  // IMPORTANT: Use location.gridCoord first (current location), not homesteadGridCoord (home)
+  const gridCoord = currentPlayer?.location?.gridCoord ?? currentPlayer?.homesteadGridCoord;
+  if (gridCoord !== null && gridCoord !== undefined) {
+    const parsed = parseGridCoord(gridCoord);
+    if (parsed) {
+      console.log(`📍 [GRID POSITION] Derived from gridCoord ${gridCoord}: (${parsed.gridRow}, ${parsed.gridCol})`);
+      return { row: parsed.gridRow, col: parsed.gridCol };
+    }
+  }
+
+  return null;
+}, [settlementData, currentPlayer?.location?.g, currentPlayer?.location?.gridCoord, currentPlayer?.homesteadGridCoord]);
+
+// Frontier data for PixiRenderer frontier zoom
+// Only fetched when at frontier zoom level with usePixiJS enabled
+const [frontierData, setFrontierData] = useState(null);
+const [frontierSettlementGrids, setFrontierSettlementGrids] = useState({});
+
+// Fetch frontier data when entering frontier zoom with PixiJS
+useEffect(() => {
+  if (zoomLevel !== 'frontier' || !usePixiJS || !currentPlayer?.location?.f) {
+    return;
+  }
+
+  const fetchFrontierData = async () => {
+    try {
+      console.log('🌍 [PixiRenderer] Fetching frontier bundle for frontier zoom');
+      const response = await axios.get(
+        `${API_BASE}/api/frontier-bundle/${currentPlayer.location.f}?playerSettlementId=${currentPlayer.location.s}`
+      );
+      const { frontierGrid, settlementGrids = {} } = response.data;
+
+      setFrontierData(frontierGrid);
+      setFrontierSettlementGrids(settlementGrids);
+      console.log('🌍 [PixiRenderer] Frontier data loaded:', frontierGrid?.length, 'x', frontierGrid?.[0]?.length, 'settlements');
+    } catch (err) {
+      console.error('[PixiRenderer] Error fetching frontier data:', err);
+    }
+  };
+
+  fetchFrontierData();
+}, [zoomLevel, usePixiJS, currentPlayer?.location?.f, currentPlayer?.location?.s]);
+
+// Calculate current settlement position within the frontier (0-7, 0-7)
+// Uses frontierData if available, falls back to parsing homesteadGridCoord
+// This ensures we have a valid position even during frontier data loading
+const currentSettlementPosition = useMemo(() => {
+  // First, try to find position from frontierData (most accurate when available)
+  if (frontierData?.length && currentPlayer?.location?.s) {
+    const playerSettlementId = currentPlayer.location.s;
+    for (let row = 0; row < frontierData.length; row++) {
+      for (let col = 0; col < (frontierData[row]?.length || 0); col++) {
+        if (frontierData[row][col]?.settlementId === playerSettlementId) {
+          return { row, col };
+        }
+      }
+    }
+  }
+
+  // Fallback: derive position from location.gridCoord (current location) or homesteadGridCoord
+  // This allows zoom animation to use correct position even before frontierData loads
+  // IMPORTANT: Use location.gridCoord first (current location), not homesteadGridCoord (home)
+  const gridCoord = currentPlayer?.location?.gridCoord ?? currentPlayer?.homesteadGridCoord;
+  if (gridCoord !== null && gridCoord !== undefined) {
+    const parsed = parseGridCoord(gridCoord);
+    if (parsed) {
+      console.log(`📍 [SETTLEMENT POSITION] Derived from gridCoord ${gridCoord}: (${parsed.settlementRow}, ${parsed.settlementCol})`);
+      return { row: parsed.settlementRow, col: parsed.settlementCol };
+    }
+  }
+
+  return null;
+}, [frontierData, currentPlayer?.location?.s, currentPlayer?.location?.gridCoord, currentPlayer?.homesteadGridCoord]);
 
 // Persist zoom level on page unload so camera centers correctly after refresh
 useEffect(() => {
@@ -558,71 +944,178 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-// Keep camera centered during zoom animation
-// This effect must be defined AFTER playersInGrid is declared
+// Register current player for camera tethering during movement animation
 useEffect(() => {
-  // Only re-center during active animation (not every render)
-  if (Math.abs(currentZoomScale - targetZoomScaleRef.current) < 0.001) return;
+  if (currentPlayer?._id && activeTileSize) {
+    registerCurrentPlayerForCamera(currentPlayer._id, activeTileSize);
+  }
+}, [currentPlayer?._id, activeTileSize]);
 
-  if (currentPlayer?.location?.g && currentPlayer?._id) {
-    const gridId = currentPlayer.location.g;
-    const playerIdStr = String(currentPlayer._id);
-    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+// ============================================================================
+// UNIFIED WORLD MODEL - CAMERA POSITION
+// ============================================================================
+// Player is ALWAYS at pixel position (PLAYER_FIXED_POSITION.x, PLAYER_FIXED_POSITION.y)
+// in the .homestead container. With the unified world model, we use ONE formula
+// for calculating world position at ALL zoom levels.
+// ============================================================================
 
-    if (playerPos) {
-      centerCameraOnPlayerFast(playerPos, PIXI_BASE_TILE_SIZE, currentZoomScale);
+useEffect(() => {
+  // Clear entering/exiting flags when animation completes
+  const animationComplete = Math.abs(currentZoomScale - targetZoomScaleRef.current) < 0.001;
+  if (animationComplete) {
+    if (isEnteringSettlementRef.current) {
+      isEnteringSettlementRef.current = false;
+      enteringSettlementFromRef.current = null;
+    }
+    if (isEnteringFrontierRef.current) {
+      isEnteringFrontierRef.current = false;
+      enteringFrontierFromRef.current = null;
+    }
+    if (isExitingSettlementRef.current) {
+      isExitingSettlementRef.current = false;
+    }
+    if (isExitingFrontierRef.current) {
+      isExitingFrontierRef.current = false;
     }
   }
-}, [currentZoomScale, currentPlayer, playersInGrid, PIXI_BASE_TILE_SIZE]);
 
-// Track previous zoom level to detect actual zoom changes
-const prevZoomRef = useRef(zoomLevel);
+  // Get player position
+  if (!currentPlayer?.location?.g || !currentPlayer?._id) return;
+  const gridId = currentPlayer.location.g;
+  const playerIdStr = String(currentPlayer._id);
+  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+  if (!playerPos) return;
 
-// Maintain camera position during zoom transitions (only when zoom actually changes)
-// This effect handles two cases:
-// 1. Normal zoom changes between grid levels (far/close/closer) - animation effect handles continuous centering
-// 2. Returning FROM settlement/frontier view TO grid view - must explicitly center camera
-useEffect(() => {
-  // Only act if zoomLevel actually changed (not on playersInGrid updates during movement)
-  if (prevZoomRef.current === zoomLevel) {
+  // Check if player is currently animating - if so, don't update scroll here
+  // The animation ticker will handle smooth camera updates
+  const isPlayerAnimating = !!renderPositions[playerIdStr];
+  if (isPlayerAnimating) {
+    // Update refs but don't update scroll - animation handles it
+    isVisuallyInSettlementRef.current = isVisuallyInSettlement;
+    isVisuallyInFrontierRef.current = isVisuallyInFrontier;
+    currentGridPositionRef.current = currentGridPosition;
+    currentSettlementPositionRef.current = currentSettlementPosition;
+    // Don't update playerPosRef yet - wait for animation to complete
+    prevZoomScaleRef.current = currentZoomScale;
     return;
   }
 
-  const wasInZoomedOutView = prevZoomRef.current === 'settlement' || prevZoomRef.current === 'frontier';
-  const isNowInGridView = zoomLevel === 'far' || zoomLevel === 'farish' || zoomLevel === 'close' || zoomLevel === 'closer';
+  // Check if player position actually changed (not just other player data like inventory/quests)
+  // Also check if grid/settlement position changed (player moved to a new grid)
+  // Also check if zoom scale changed (requires scroll recalculation)
+  // IMPORTANT: Check BEFORE updating refs
+  const prevPos = playerPosRef.current;
+  const prevGridPos = currentGridPositionRef.current;
+  const prevSettlementPos = currentSettlementPositionRef.current;
+  const prevZoomScale = prevZoomScaleRef.current;
 
-  prevZoomRef.current = zoomLevel;
+  const tilePositionChanged = !prevPos || prevPos.x !== playerPos.x || prevPos.y !== playerPos.y;
+  const gridPositionChanged = !prevGridPos ||
+    prevGridPos.row !== currentGridPosition?.row ||
+    prevGridPos.col !== currentGridPosition?.col;
+  const settlementPositionChanged = !prevSettlementPos ||
+    prevSettlementPos.row !== currentSettlementPosition?.row ||
+    prevSettlementPos.col !== currentSettlementPosition?.col;
+  const zoomScaleChanged = prevZoomScale === null || prevZoomScale !== currentZoomScale;
 
-  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g && currentPlayer?._id) {
-    const gridId = currentPlayer.location.g;
-    const playerIdStr = String(currentPlayer._id);
-    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+  const shouldUpdateScroll = tilePositionChanged || gridPositionChanged || settlementPositionChanged || zoomScaleChanged;
 
-    console.log(`📷 [ZOOM TRANSITION] ========== ZOOM LEVEL CHANGE ==========`);
-    console.log(`📷 [ZOOM TRANSITION] zoomLevel: ${zoomLevel}`);
-    console.log(`📷 [ZOOM TRANSITION] wasInZoomedOutView: ${wasInZoomedOutView}`);
-    console.log(`📷 [ZOOM TRANSITION] activeTileSize: ${activeTileSize}`);
-    console.log(`📷 [ZOOM TRANSITION] PIXI_BASE_TILE_SIZE: ${PIXI_BASE_TILE_SIZE}`);
-    console.log(`📷 [ZOOM TRANSITION] pixiZoomScale (target): ${pixiZoomScale}`);
-    console.log(`📷 [ZOOM TRANSITION] currentZoomScale (animating): ${currentZoomScale}`);
-    console.log(`📷 [ZOOM TRANSITION] Expected container size: ${64 * PIXI_BASE_TILE_SIZE * pixiZoomScale}px`);
-    console.log(`📷 [ZOOM TRANSITION] playerPos from playersInGrid:`, playerPos);
-    console.log(`📷 [ZOOM TRANSITION] ======================================`);
+  // Update refs for backward compatibility (will be removed in Phase 4)
+  // IMPORTANT: Update AFTER position comparison
+  isVisuallyInSettlementRef.current = isVisuallyInSettlement;
+  isVisuallyInFrontierRef.current = isVisuallyInFrontier;
+  currentGridPositionRef.current = currentGridPosition;
+  currentSettlementPositionRef.current = currentSettlementPosition;
+  playerPosRef.current = playerPos;
+  prevZoomScaleRef.current = currentZoomScale;
 
-    // When returning from settlement/frontier view, explicitly center camera
-    // The smooth zoom animation won't trigger because pixiZoomScale was already at 'far' level
-    if (wasInZoomedOutView && isNowInGridView && playerPos) {
-      console.log(`📷 [ZOOM TRANSITION] Returning from zoomed-out view, centering camera immediately`);
-      // Use requestAnimationFrame to ensure DOM has updated after view change
-      requestAnimationFrame(() => {
-        centerCameraOnPlayerFast(playerPos, PIXI_BASE_TILE_SIZE, currentZoomScale);
-      });
-    } else if (!playerPos || !activeTileSize) {
-      console.warn(`📷 [ZOOM TRANSITION] Cannot center - missing playerPos or activeTileSize`);
+  // UNIFIED WORLD MODEL: ONE formula at ALL zoom levels
+  const worldPos = getPlayerWorldPosition(
+    playerPos,
+    currentGridPosition || { row: 0, col: 0 },
+    currentSettlementPosition || { row: 0, col: 0 }
+  );
+
+  // Update ref for animation loop
+  playerWorldPosRef.current = worldPos;
+
+  // Only update scroll when:
+  // 1. NOT animating - animation loop handles scroll during zoom
+  // 2. Player position or zoom scale actually changed - don't re-center on inventory/quest updates
+  if (!isZoomAnimating && shouldUpdateScroll) {
+    const gameContainer = document.querySelector(".homestead");
+    if (gameContainer) {
+      const scroll = getScrollPosition(worldPos, currentZoomScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
+      gameContainer.scrollLeft = scroll.x;
+      gameContainer.scrollTop = scroll.y;
     }
-    // For normal grid zoom changes, the animation effect handles continuous centering
   }
-}, [zoomLevel, activeTileSize, playersInGrid, currentPlayer, currentZoomScale, pixiZoomScale, PIXI_BASE_TILE_SIZE]);
+}, [currentZoomScale, currentPlayer, playersInGrid, PIXI_BASE_TILE_SIZE, isVisuallyInSettlement, isVisuallyInFrontier, currentGridPosition, currentSettlementPosition, isZoomAnimating]);
+
+// Camera tethering during player movement animation
+// This runs on every animation frame when the current player is animating
+useEffect(() => {
+  if (!currentPlayer?._id) return;
+  const playerIdStr = String(currentPlayer._id);
+
+  let animationFrameId = null;
+  let isRunning = true;
+
+  const updateCameraDuringAnimation = () => {
+    if (!isRunning) return;
+
+    // Check if player is animating
+    const animatedPos = renderPositions[playerIdStr];
+    if (animatedPos) {
+      // Use the interpolated position for smooth camera following
+      const worldPos = getPlayerWorldPosition(
+        animatedPos,
+        currentGridPosition || { row: 0, col: 0 },
+        currentSettlementPosition || { row: 0, col: 0 }
+      );
+
+      const gameContainer = document.querySelector(".homestead");
+      if (gameContainer) {
+        const scroll = getScrollPosition(worldPos, currentZoomScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
+        gameContainer.scrollLeft = scroll.x;
+        gameContainer.scrollTop = scroll.y;
+      }
+
+      // Continue the animation loop
+      animationFrameId = requestAnimationFrame(updateCameraDuringAnimation);
+    } else {
+      // Animation complete - update playerPosRef to final position
+      const gridId = currentPlayer.location?.g;
+      const finalPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+      if (finalPos) {
+        playerPosRef.current = finalPos;
+      }
+    }
+  };
+
+  // Start the animation loop
+  animationFrameId = requestAnimationFrame(updateCameraDuringAnimation);
+
+  return () => {
+    isRunning = false;
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+  };
+}, [currentPlayer, currentGridPosition, currentSettlementPosition, currentZoomScale, PIXI_BASE_TILE_SIZE, playersInGrid]);
+
+// NOTE: Visual state clearing (isVisuallyInSettlement/isVisuallyInFrontier) is now handled
+// atomically at animation completion in the zoom animation useEffect above.
+// This prevents the flash bug where grids would render at wrong scale due to race condition.
+
+// Track previous zoom level for logging
+const prevZoomRef = useRef(zoomLevel);
+useEffect(() => {
+  if (prevZoomRef.current !== zoomLevel) {
+    console.log(`📷 [ZOOM] Level changed: ${prevZoomRef.current} -> ${zoomLevel}`);
+    prevZoomRef.current = zoomLevel;
+  }
+}, [zoomLevel]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
@@ -799,6 +1292,9 @@ const memoizedResources = useMemo(() => resources, [resources]);
 
 const [showKeyArt, setShowKeyArt] = useState(false);
 
+// Check if there's a stored player - if so, we should show loading screen immediately
+// This is evaluated at render time (synchronously) so we don't flash a blank screen
+const hasStoredPlayer = !!localStorage.getItem('player');
 
 /////////// APP INITIALIZATION /////////////////////////
 
@@ -1031,8 +1527,54 @@ useEffect(() => {
         // Base tile size is the "close" zoom level - same as PIXI_BASE_TILE_SIZE
         const baseTileSize = tileSizesFromTuning.close;
         const initialZoomScale = initialTileSize / baseTileSize;
-        console.log(`📷 Centering camera on (${playerPosition.x}, ${playerPosition.y}) with baseTileSize: ${baseTileSize}, zoomScale: ${initialZoomScale} (zoom: ${storedZoom})`);
-        centerCameraOnPlayer(playerPosition, baseTileSize, initialZoomScale);
+
+        // UNIFIED WORLD MODEL: Use full world position including grid/settlement offsets
+        // Parse location.gridCoord to get grid and settlement positions (CURRENT location, not homestead)
+        // Falls back to homesteadGridCoord if location.gridCoord not available
+        const gridCoord = DBPlayerData.location?.gridCoord ?? DBPlayerData.homesteadGridCoord;
+        const parsed = gridCoord != null ? parseGridCoord(gridCoord) : null;
+        const gridPosition = parsed ? { row: parsed.gridRow, col: parsed.gridCol } : { row: 0, col: 0 };
+        const settlementPosition = parsed ? { row: parsed.settlementRow, col: parsed.settlementCol } : { row: 0, col: 0 };
+        console.log(`📷 [UNIFIED CAMERA INIT] Using gridCoord: ${gridCoord} (from location: ${DBPlayerData.location?.gridCoord}, homestead: ${DBPlayerData.homesteadGridCoord})`);
+
+        // Calculate full world position (includes padding + settlement offset + grid offset + tile position)
+        const worldPos = getPlayerWorldPosition(playerPosition, gridPosition, settlementPosition);
+        const scroll = getScrollPosition(worldPos, initialZoomScale, baseTileSize, PLAYER_FIXED_POSITION);
+
+        console.log(`📷 [UNIFIED CAMERA INIT] Player tile: (${playerPosition.x}, ${playerPosition.y}), grid: (${gridPosition.row}, ${gridPosition.col}), settlement: (${settlementPosition.row}, ${settlementPosition.col})`);
+        console.log(`📷 [UNIFIED CAMERA INIT] World position: (${worldPos.x}, ${worldPos.y}), scroll: (${scroll.x}, ${scroll.y}), zoomScale: ${initialZoomScale}`);
+
+        // Set scroll position directly using unified world model formula
+        const initCameraWithRetry = (retryCount = 0) => {
+          const gameContainer = document.querySelector(".homestead");
+          if (!gameContainer) {
+            if (retryCount < 10) {
+              console.log(`📷 [UNIFIED CAMERA INIT] Container not ready, retrying... (attempt ${retryCount + 1})`);
+              requestAnimationFrame(() => initCameraWithRetry(retryCount + 1));
+            }
+            return;
+          }
+
+          // Clamp to valid scroll bounds
+          const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+          const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
+
+          // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
+          if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 10) {
+            console.log(`📷 [UNIFIED CAMERA INIT] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
+            requestAnimationFrame(() => initCameraWithRetry(retryCount + 1));
+            return;
+          }
+
+          const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
+          const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
+
+          console.log(`📷 [UNIFIED CAMERA INIT] Setting scroll to (${clampedX}, ${clampedY}), maxScroll: (${maxScrollLeft}, ${maxScrollTop})`);
+          gameContainer.scrollLeft = clampedX;
+          gameContainer.scrollTop = clampedY;
+        };
+
+        initCameraWithRetry();
       }
 
       // Step 8. Resolve player location 
@@ -1960,7 +2502,11 @@ const zoomIn = async () => {
   const gridId = currentPlayer?.location?.g;
   if (!gridId || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
-  
+
+  // Set animating ref BEFORE changing zoomLevel to prevent flash
+  // This ensures components see isZoomAnimatingRef.current === true on their first render
+  isZoomAnimatingRef.current = true;
+
   if (zoomLevel === 'frontier') {
     setZoomLevel('settlement'); // Zoom into the settlement view
     updateStatus(12); // "Settlement view."
@@ -1996,6 +2542,13 @@ const zoomOut = () => {
   if (!currentPlayer?.location?.g || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
 
+  // Already at maximum zoom out - nothing to do
+  if (zoomLevel === 'frontier') { return; }
+
+  // Set animating ref BEFORE changing zoomLevel to prevent flash
+  // This ensures components see isZoomAnimatingRef.current === true on their first render
+  isZoomAnimatingRef.current = true;
+
   if (zoomLevel === 'closer') {
     setZoomLevel('close'); // useLayoutEffect will center camera
   } else if (zoomLevel === 'close') {
@@ -2030,13 +2583,15 @@ useEffect(() => {
     if (activeModal) { return; } // Keyboard input disabled while modal is open
     if (isOffSeason) { return; } // Keyboard input disabled while offseason
 
-    // Handle zoom shortcuts (work at any zoom level)
+    // Handle zoom shortcuts (work at any zoom level, but block during zoom animation)
     if (event.key === '-' || event.key === '_') {
+      if (isZoomAnimating) { return; } // Block zoom input during animation
       zoomOut();
       event.preventDefault();
       return;
     }
     if (event.key === '=' || event.key === '+') {
+      if (isZoomAnimating) { return; } // Block zoom input during animation
       zoomIn();
       event.preventDefault();
       return;
@@ -2084,13 +2639,13 @@ useEffect(() => {
     handleMovementKeyUp(event);
   };
   
-  window.addEventListener('keydown', handleKeyDown); 
+  window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
   return () => {
-    window.removeEventListener('keydown', handleKeyDown); 
+    window.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('keyup', handleKeyUp);
   };
-}, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel]);
+}, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel, isZoomAnimating]);
 
 
 
@@ -3022,177 +3577,77 @@ return (
         </div>
       )}
 
-      {currentPlayer && (zoomLevel === 'far' || zoomLevel === 'farish' || zoomLevel === 'closer' || zoomLevel === 'close') ? (
+      {/* Loading Screen - shown when we have a stored player but app isn't initialized yet */}
+      {/* This includes: 1) stored player in localStorage loading, 2) currentPlayer set but init incomplete */}
+      {!showKeyArt && !isAppInitialized && hasStoredPlayer && (
+        <LoadingScreen message="Preparing your adventure..." />
+      )}
+
+      {/* Game Renderer - only render when ALL data is ready */}
+      {currentPlayer && isAppInitialized && tileTypes.length > 0 ? (
       <>
-        {/* Conditional: PixiJS Renderer OR Canvas 2D Renderer */}
-        {usePixiJS ? (
-          /* PixiJS WebGL Renderer (Experimental) */
-          <PixiRenderer
-            grid={memoizedGrid}
-            tileTypes={memoizedTileTypes}
-            resources={memoizedResources}
-            npcs={npcs}
-            pcs={pcs}
-            currentPlayer={currentPlayer}
-            TILE_SIZE={PIXI_BASE_TILE_SIZE}
-            zoomScale={currentZoomScale}
-            zoomLevel={zoomLevel}
-            handleTileClick={handleTileClick}
-            masterResources={masterResources}
-            strings={strings}
-            craftingStatus={null}
-            tradingStatus={null}
-            badgeState={badgeState}
-            electionPhase={timers.elections.phase}
-            globalTuning={globalTuning}
-            hoverTooltip={hoverTooltip}
-            setHoverTooltip={setHoverTooltip}
-            onNPCClick={handleNPCPanel}
-            onPCClick={handlePCClick}
-            // Props for NPC interactions
-            setInventory={setInventory}
-            setBackpack={setBackpack}
-            setResources={setResources}
-            setCurrentPlayer={setCurrentPlayer}
-            masterSkills={masterSkills}
-            masterTrophies={masterTrophies}
-            setModalContent={setModalContent}
-            setIsModalOpen={setIsModalOpen}
-            updateStatus={updateStatus}
-            openPanel={openPanel}
-            setActiveStation={setActiveStation}
-            gridId={gridId}
-            timers={timers}
-            playersInGrid={playersInGrid}
-            isDeveloper={isDeveloper}
-            connectedPlayers={connectedPlayers}
-            cursorMode={cursorMode}
-          />
-        ) : (
-          /* Canvas 2D Renderer (Default/Fallback) */
-          <>
-            {/* Layer 1: Tiles - conditionally use V1 or V2 renderer */}
-            {useV2Tiles ? (
-              <RenderTilesCanvasV2
-                grid={memoizedGrid}
-                tileTypes={memoizedTileTypes}
-                TILE_SIZE={activeTileSize}
-                zoomLevel={zoomLevel}
-                handleTileClick={handleTileClick}
-              />
-            ) : (
-              <RenderTilesCanvas
-                grid={memoizedGrid}
-                tileTypes={memoizedTileTypes}
-                TILE_SIZE={activeTileSize}
-                zoomLevel={zoomLevel}
-                handleTileClick={handleTileClick}
-              />
-            )}
-
-            {/* Layer 1.5: Cursor Tile Highlight (only when in cursor placement mode) */}
-            {cursorMode && (
-              <CursorTileHighlight
-                hoveredTile={hoveredTile}
-                cursorMode={cursorMode}
-                TILE_SIZE={activeTileSize}
-                gridWidth={memoizedGrid?.[0]?.length || 0}
-                gridHeight={memoizedGrid?.length || 0}
-              />
-            )}
-
-            {/* Layer 2: Resources */}
-            <RenderResources
-              resources={memoizedResources}
-              masterResources={masterResources}
-              globalTuning={globalTuning}
-              TILE_SIZE={activeTileSize}
-              handleTileClick={handleTileClick}
-              currentPlayer={currentPlayer}
-              badgeState={badgeState}
-              electionPhase={timers.elections.phase}
-            />
-
-            {/* Layer 3: NPCs */}
-            <RenderNPCs
-              npcs={npcs}
-              TILE_SIZE={activeTileSize}
-              currentPlayer={currentPlayer}
-              globalTuning={globalTuning}
-              gridId={currentPlayer?.location?.g}
-              onNPCClick={handleNPCPanel}
-              checkQuestNPCStatus={(npc) => checkQuestNPCStatus(npc, currentPlayer)}
-              checkTradeNPCStatus={(npc) => checkTradeNPCStatus(npc, masterResources)}
-              checkKentNPCStatus={(npc) => checkKentNPCStatus(npc, currentPlayer)}
-              strings={strings}
-              masterResources={masterResources}
-              playersInGrid={playersInGrid}
-              setInventory={setInventory}
-              setBackpack={setBackpack}
-              setResources={setResources}
-              setCurrentPlayer={setCurrentPlayer}
-              masterSkills={masterSkills}
-              setModalContent={setModalContent}
-              setIsModalOpen={setIsModalOpen}
-              updateStatus={updateStatus}
-              openPanel={openPanel}
-              setActiveStation={setActiveStation}
-              masterTrophies={masterTrophies}
-              setHoverTooltip={setHoverTooltip}
-              isDeveloper={isDeveloper}
-            />
-
-            {/* Layer 4: PCs */}
-            <RenderPCs
-              pcs={pcs}
-              TILE_SIZE={activeTileSize}
-              currentPlayer={currentPlayer}
-              gridId={gridId}
-              onPCClick={handlePCClick}
-              setCurrentPlayer={setCurrentPlayer}
-              setInventory={setInventory}
-              setBackpack={setBackpack}
-              masterResources={masterResources}
-              strings={strings}
-              connectedPlayers={connectedPlayers}
-            />
-
-            {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
-            <RenderDynamicElements
-          TILE_SIZE={activeTileSize}
-          openPanel={openPanel}
-          setActiveStation={setActiveStation}
-          setInventory={setInventory}
-          setBackpack={setBackpack}
-          setResources={setResources}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          onNPCClick={handleNPCPanel}  // Pass the callback
-          onPCClick={handlePCClick}  // Pass the callback
-          handleTileClick={handleTileClick}  // Pass tile click handler
-          masterResources={masterResources}
-          masterSkills={masterSkills}
-          masterTrophies={masterTrophies}
-          hoverTooltip={hoverTooltip}
-          setHoverTooltip={setHoverTooltip}
-          setModalContent={setModalContent}
-          setIsModalOpen={setIsModalOpen}
-          updateStatus={updateStatus}
-          strings={strings}
-          gridId={gridId}
-          globalTuning={globalTuning}
-          timers={timers}
+        {/* PixiJS WebGL Renderer - the only renderer */}
+        <PixiRenderer
+          grid={memoizedGrid}
+          tileTypes={memoizedTileTypes}
           resources={memoizedResources}
           npcs={npcs}
           pcs={pcs}
-          grid={memoizedGrid}
-          tileTypes={memoizedTileTypes}
-          onTileHover={setHoveredTile}
-          cursorModeActive={!!cursorMode}
+          currentPlayer={currentPlayer}
+          TILE_SIZE={PIXI_BASE_TILE_SIZE}
+          zoomScale={currentZoomScale}
+          zoomLevel={zoomLevel}
+          handleTileClick={handleTileClick}
+          masterResources={masterResources}
+          strings={strings}
+          craftingStatus={null}
+          tradingStatus={null}
+          badgeState={badgeState}
+          electionPhase={timers.elections.phase}
+          globalTuning={globalTuning}
+          hoverTooltip={hoverTooltip}
+          setHoverTooltip={setHoverTooltip}
+          onNPCClick={handleNPCPanel}
+          onPCClick={handlePCClick}
+          // Props for NPC interactions
+          setInventory={setInventory}
+          setBackpack={setBackpack}
+          setResources={setResources}
+          setCurrentPlayer={setCurrentPlayer}
+          masterSkills={masterSkills}
+          masterTrophies={masterTrophies}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+          updateStatus={updateStatus}
+          openPanel={openPanel}
+          setActiveStation={setActiveStation}
+          gridId={gridId}
+          timers={timers}
+          playersInGrid={playersInGrid}
           isDeveloper={isDeveloper}
-            />
-          </>
-        )}
+          connectedPlayers={connectedPlayers}
+          cursorMode={cursorMode}
+          // Settlement zoom props
+          settlementData={settlementData}
+          visitedGridTiles={visitedGridTiles}
+          settlementPlayers={settlementPlayers}
+          currentGridPosition={currentGridPosition}
+          isVisuallyInSettlement={isVisuallyInSettlement}
+          onSettlementGridClick={(row, col) => {
+            // TODO: Implement navigation to clicked grid
+            console.log(`🏘️ Clicked settlement grid at (${row}, ${col})`);
+          }}
+          // Frontier zoom props
+          frontierData={frontierData}
+          frontierSettlementGrids={frontierSettlementGrids}
+          currentSettlementPosition={currentSettlementPosition}
+          isVisuallyInFrontier={isVisuallyInFrontier}
+          onFrontierSettlementClick={(row, col) => {
+            // TODO: Implement navigation to clicked settlement
+            console.log(`🌍 Clicked frontier settlement at (${row}, ${col})`);
+          }}
+          isZoomAnimating={isZoomAnimating || isZoomAnimatingRef.current}
+        />
 
         {/* Hover Tooltip - render at top level (works with both PixiJS and Canvas) */}
         {hoverTooltip && (
@@ -3227,49 +3682,8 @@ return (
       ) : null}
 
 {/* //////////////////  ZOOM OUTS  ///////////////////*/}
-
-    {/* Settlement zoom view */}
-    {zoomLevel === 'settlement' && (
-      <SettlementView
-        currentPlayer={currentPlayer}
-        isDeveloper={isDeveloper}
-        setZoomLevel={setZoomLevel}
-        isRelocating={isRelocating}
-        setIsRelocating={setIsRelocating}
-        setCurrentPlayer={setCurrentPlayer}
-        setGridId={setGridId}
-        setGrid={setGrid}
-        setResources={setResources}
-        setTileTypes={setTileTypes}
-        TILE_SIZE={activeTileSize}
-        masterResources={masterResources}
-        closeAllPanels={closeAllPanels}
-        visibleSettlementId={visibleSettlementId}
-        setVisibleSettlementId={setVisibleSettlementId}
-        onClose={() => setZoomLevel('far')}
-      />
-    )}
-    {zoomLevel === 'frontier' && (
-      <FrontierView
-        currentPlayer={currentPlayer}
-        isDeveloper={isDeveloper}
-        setZoomLevel={setZoomLevel} 
-        isRelocating={isRelocating}
-        setIsRelocating={setIsRelocating}
-        setCurrentPlayer={setCurrentPlayer}
-        setGridId={setGridId}              
-        setGrid={setGrid}            
-        setResources={setResources}  
-        setTileTypes={setTileTypes}
-        masterResources={masterResources}
-        masterTrophies={masterTrophies}
-        TILE_SIZE={activeTileSize}
-        closeAllPanels={closeAllPanels}
-        visibleSettlementId={visibleSettlementId}
-        setVisibleSettlementId={setVisibleSettlementId}
-        onClose={() => setZoomLevel('settlement')}
-      />
-    )}
+    {/* LEGACY - Old SettlementView and FrontierView components removed */}
+    {/* PixiJS now handles settlement and frontier zoom in PixiRenderer */}
     </div>
 
 {/* ///////////////////// MODALS ////////////////////// */}

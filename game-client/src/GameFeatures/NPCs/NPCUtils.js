@@ -1,5 +1,5 @@
 import API_BASE from "../../config.js";
-import axios from "axios";    
+import axios from "axios";
 import FloatingTextManager from "../../UI/FloatingText.js";
 import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
 import { handleAttackOnNPC } from "../Combat/Combat.js";
@@ -10,6 +10,7 @@ import { calculateDistance } from '../../Utils/worldHelpers.js';
 import { getLocalizedString } from '../../Utils/stringLookup.js';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters.js';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement.js';
+import { createCollectEffect } from '../../VFX/VFX.js';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -148,7 +149,8 @@ async function handleProtectedFarmAnimalCollection(
 
       // Only show success feedback if item was added to inventory
       if (gained === true) {
-        // Visual feedback
+        // Visual feedback - poof effect and floating text
+        createCollectEffect(col, row, TILE_SIZE);
         FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
         
         // Calculate skill info for formatting

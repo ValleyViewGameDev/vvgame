@@ -74,7 +74,7 @@ class GridStateManager {
   async flushPendingPositionUpdates() {
     if (this.pendingPositionUpdates.size === 0) return;
     
-    console.log(`💾 Flushing batch position updates for ${this.pendingPositionUpdates.size} grids`);
+    // console.log(`💾 Flushing batch position updates for ${this.pendingPositionUpdates.size} grids`);
     
     // Process each grid's updates
     for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
@@ -94,7 +94,7 @@ class GridStateManager {
           timestamp: Date.now()
         });
         
-        console.log(`✅ Batch saved ${npcUpdates.size} NPC positions for grid ${gridId}`);
+        // console.log(`✅ Batch saved ${npcUpdates.size} NPC positions for grid ${gridId}`);
         
         // Clear the updates for this grid
         npcUpdates.clear();
@@ -242,7 +242,7 @@ class GridStateManager {
             gridId
           );
 
-          console.log('  ✅ Hydrated NPC instance:', hydrated);
+          //console.log('  ✅ Hydrated NPC instance:', hydrated);
 
           NPCsInGrid.npcs[npcId] = hydrated;
         });

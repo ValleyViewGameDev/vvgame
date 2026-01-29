@@ -3,9 +3,13 @@ import NPCsInGridManager from './GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
+import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
 
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
+
+// Track current registered TILE_SIZE for camera callback
+let registeredTileSize = 64;
 
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
@@ -257,7 +261,9 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
     lastUpdated: timestamp,
   });
 
-  centerCameraOnPlayer(finalPosition, TILE_SIZE);
+  // Note: Camera tethering during animation is not yet implemented for the unified world model.
+  // The camera will jump to the final position after the animation completes.
+  // For now, we don't call centerCameraOnPlayer here to avoid the jump during animation.
 }
 
 async function isValidMove(targetX, targetY, masterResources,
@@ -351,33 +357,27 @@ export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale = 1, retryCo
     return;
   }
 
-  // Calculate the actual world bounds (64x64 grid)
-  const GRID_SIZE = 64;
-  const scaledWorldSize = GRID_SIZE * TILE_SIZE * zoomScale;
-
-  // Use the container's actual client dimensions for centering
-  const viewportWidth = gameContainer.clientWidth;
-  const viewportHeight = gameContainer.clientHeight;
-
-  // Calculate where we want the player to be centered (in scaled coordinates)
+  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
+  // This matches the formula used in App.js scroll effect (getScrollPosition)
+  // Formula: scroll = playerWorldPos * tileSize * zoomScale - PLAYER_FIXED_POSITION
   const playerWorldX = position.x * TILE_SIZE * zoomScale;
   const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const centerX = playerWorldX - viewportWidth / 2 + (TILE_SIZE * zoomScale) / 2;
-  const centerY = playerWorldY - viewportHeight / 2 + (TILE_SIZE * zoomScale) / 2;
+  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
+  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
 
-  // Clamp to ACTUAL grid bounds (not scrollWidth/scrollHeight which may be inaccurate)
-  const maxScrollLeft = Math.max(0, scaledWorldSize - viewportWidth);
-  const maxScrollTop = Math.max(0, scaledWorldSize - viewportHeight);
+  // Clamp to valid scroll bounds (no negative scroll, no scroll past content)
+  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
 
   // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
+  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
     console.log(`📷 [CAMERA] Container not ready, retrying... (attempt ${retryCount + 1})`);
     requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1));
     return;
   }
 
-  const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
+  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
 
   gameContainer.scrollTo({
     left: clampedX,
@@ -404,37 +404,119 @@ export function centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale = 1, ret
     return;
   }
 
-  // Calculate the actual world bounds (64x64 grid)
-  const GRID_SIZE = 64;
-  const scaledWorldSize = GRID_SIZE * TILE_SIZE * zoomScale;
-
-  // Use the container's actual client dimensions for centering
-  const viewportWidth = gameContainer.clientWidth;
-  const viewportHeight = gameContainer.clientHeight;
-
-  // Calculate where we want the player to be centered (in scaled coordinates)
+  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
+  // This matches the formula used in App.js scroll effect (getScrollPosition)
   const playerWorldX = position.x * TILE_SIZE * zoomScale;
   const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const centerX = playerWorldX - viewportWidth / 2 + (TILE_SIZE * zoomScale) / 2;
-  const centerY = playerWorldY - viewportHeight / 2 + (TILE_SIZE * zoomScale) / 2;
+  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
+  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
 
-  // Clamp to ACTUAL grid bounds (not scrollWidth/scrollHeight which may be inaccurate)
-  const maxScrollLeft = Math.max(0, scaledWorldSize - viewportWidth);
-  const maxScrollTop = Math.max(0, scaledWorldSize - viewportHeight);
+  // Clamp to valid scroll bounds
+  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
 
   // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
+  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
     console.log(`📷 [CAMERA FAST] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
     requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale, retryCount + 1));
     return;
   }
 
-  const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
+  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
 
   gameContainer.scrollTo({
     left: clampedX,
     top: clampedY,
+  });
+}
+
+/**
+ * Center camera for settlement zoom level (512×512 tile world = 8×8 grids)
+ * Position should be in settlement coordinates (gridCol * 64 + playerX, gridRow * 64 + playerY)
+ */
+export function centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
+  const gameContainer = document.querySelector(".homestead");
+  if (!gameContainer) {
+    if (retryCount < 5) {
+      requestAnimationFrame(() => centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale, retryCount + 1));
+    }
+    return;
+  }
+
+  // Guard against undefined position
+  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+    console.warn('⚠️ [CAMERA SETTLEMENT] Cannot center camera - invalid position:', position);
+    return;
+  }
+
+  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
+  // This matches the formula used in App.js scroll effect (getScrollPosition)
+  const playerWorldX = position.x * TILE_SIZE * zoomScale;
+  const playerWorldY = position.y * TILE_SIZE * zoomScale;
+  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
+  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
+
+  // Clamp to valid scroll bounds
+  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
+
+  // If container hasn't laid out yet, retry
+  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
+    requestAnimationFrame(() => centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale, retryCount + 1));
+    return;
+  }
+
+  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
+
+  gameContainer.scrollTo({
+    left: clampedX,
+    top: clampedY,
+  });
+}
+
+/**
+ * Fixed Player Position Camera Model for Frontier Zoom
+ *
+ * CONCEPT: The player is ALWAYS at pixel position (200, 200) within the .homestead container.
+ * The world scrolls to maintain this position, regardless of where the player is in the frontier.
+ *
+ * Position should be in frontier coordinates:
+ * (settlementCol * 512 + gridCol * 64 + playerX, settlementRow * 512 + gridRow * 64 + playerY)
+ *
+ * NO CLAMPING: We allow unconstrained scrolling. Spillover content (padding settlements)
+ * uses negative positioning to extend beyond the 8×8 frontier, ensuring there's always
+ * visible content at the player's fixed screen position.
+ */
+export function centerCameraOnPlayerFrontier(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
+  const gameContainer = document.querySelector(".homestead");
+  if (!gameContainer) {
+    if (retryCount < 5) {
+      requestAnimationFrame(() => centerCameraOnPlayerFrontier(position, TILE_SIZE, zoomScale, retryCount + 1));
+    }
+    return;
+  }
+
+  // Guard against undefined position
+  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+    console.warn('⚠️ [CAMERA FRONTIER] Cannot center camera - invalid position:', position);
+    return;
+  }
+
+  // Player's world position in scaled pixels
+  const playerWorldX = position.x * TILE_SIZE * zoomScale;
+  const playerWorldY = position.y * TILE_SIZE * zoomScale;
+
+  // Scroll = player world position - fixed screen position (from CameraConstants)
+  // NO padding offset needed - spillover uses negative positioning
+  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
+  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
+
+  // NO CLAMPING - spillover content handles edge cases
+  gameContainer.scrollTo({
+    left: scrollX,
+    top: scrollY,
   });
 }
 
@@ -510,6 +592,57 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
 
   // ✅ If all checks pass, movement is allowed
   return true;
+}
+
+/**
+ * Register the current player for camera tethering during movement animation.
+ * This should be called from App.js when the player is initialized.
+ * @param {string} playerId - The current player's ID
+ * @param {number} tileSize - The current TILE_SIZE
+ */
+export function registerCurrentPlayerForCamera(playerId, tileSize) {
+  registeredTileSize = tileSize;
+
+  // Create a camera callback that will be called on each animation frame
+  const cameraCallback = (interpolatedPosition) => {
+    // Use instant camera update (not smooth) since we're already animating frame-by-frame
+    centerCameraOnPlayerInstant(interpolatedPosition, registeredTileSize);
+  };
+
+  // Register with PlayersInGrid manager
+  playersInGridManager.registerCurrentPlayer(playerId, cameraCallback);
+}
+
+/**
+ * Instantly center the camera on a position without smooth scrolling.
+ * NOTE: This function uses a simplified formula that doesn't account for the
+ * unified world model (grid/settlement offsets). It's currently unused but
+ * kept for future camera tethering implementation.
+ */
+function centerCameraOnPlayerInstant(position, TILE_SIZE, zoomScale = 1) {
+  const gameContainer = document.querySelector(".homestead");
+  if (!gameContainer) return;
+
+  // Guard against undefined position
+  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+    return;
+  }
+
+  // Simple formula - doesn't account for unified world model offsets
+  const playerWorldX = position.x * TILE_SIZE * zoomScale;
+  const playerWorldY = position.y * TILE_SIZE * zoomScale;
+  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
+  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
+
+  // Clamp to valid scroll bounds
+  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
+  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
+  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
+
+  // Use instant scroll (no behavior or behavior: 'instant')
+  gameContainer.scrollLeft = clampedX;
+  gameContainer.scrollTop = clampedY;
 }
 
 // Export renderPositions at the end to avoid initialization issues

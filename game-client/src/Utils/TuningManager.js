@@ -18,7 +18,8 @@ export async function loadMasterSkills() {
     try {
       const response = await axios.get(`${API_BASE}/api/skills-tuning`);
       masterSkills = response.data;
-      console.log('Skills tuning loaded:', masterSkills);
+//      console.log('Skills tuning loaded:', masterSkills);
+      console.log('Skills tuning loaded');
     } catch (error) {
       console.error('Error fetching master skills:', error);
       masterSkills = {};
@@ -35,7 +36,8 @@ export async function loadMasterResources() {
     try {
       const response = await axios.get(`${API_BASE}/api/resources`);
       masterResources = response.data;
-      console.log('Master resources loaded:', masterResources);
+//      console.log('Master resources loaded:', masterResources);
+      console.log('Master resources loaded');
     } catch (error) {
       console.error('Error fetching master resources:', error);
       masterResources = [];
@@ -53,7 +55,8 @@ export async function loadGlobalTuning() {
     try {
       const response = await axios.get(`${API_BASE}/api/global-tuning`);
       globalTuning = response.data;
-      console.log('Global tuning loaded:', globalTuning);
+//      console.log('Global tuning loaded:', globalTuning);
+      console.log('Global tuning loaded');
     } catch (error) {
       console.error('Error fetching global tuning:', error);
       globalTuning = {};
@@ -70,7 +73,8 @@ export async function loadMasterInteractions() {
     try {
       const response = await axios.get(`${API_BASE}/api/interactions`);
       masterInteractions = response.data;
-      console.log('Master interactions loaded:', masterInteractions);
+//      console.log('Master interactions loaded:', masterInteractions);
+      console.log('Master interactions loaded');
     } catch (error) {
       console.error('Error fetching master interactions:', error);
       masterInteractions = [];
@@ -87,7 +91,8 @@ export async function loadMasterTraders() {
     try {
       const response = await axios.get(`${API_BASE}/api/traders`);
       masterTraders = response.data;
-      console.log('Master traders loaded:', masterTraders);
+//      console.log('Master traders loaded:', masterTraders);
+      console.log('Master traders loaded');
     } catch (error) {
       console.error('Error fetching master traders:', error);
       masterTraders = [];
@@ -104,7 +109,8 @@ export async function loadMasterTrophies() {
     try {
       const response = await axios.get(`${API_BASE}/api/trophies`);
       masterTrophies = response.data;
-      console.log('Master trophies loaded:', masterTrophies);
+//      console.log('Master trophies loaded:', masterTrophies);
+      console.log('Master trophies loaded');
     } catch (error) {
       console.error('Error fetching master trophies:', error);
       masterTrophies = [];
@@ -121,7 +127,8 @@ export async function loadMasterWarehouse() {
     try {
       const response = await axios.get(`${API_BASE}/api/warehouse`);
       masterWarehouse = response.data;
-      console.log('Master warehouse loaded:', masterWarehouse);
+//      console.log('Master warehouse loaded:', masterWarehouse);
+      console.log('Master warehouse loaded');
     } catch (error) {
       console.error('Error fetching master warehouse:', error);
       masterWarehouse = [];
@@ -138,7 +145,8 @@ export async function loadMasterXPLevels() {
     try {
       const response = await axios.get(`${API_BASE}/api/xp-levels`);
       masterXPLevels = response.data;
-      console.log('Master XP levels loaded:', masterXPLevels);
+//      console.log('Master XP levels loaded:', masterXPLevels);
+      console.log('Master XP levels loaded');
     } catch (error) {
       console.error('Error fetching master XP levels:', error);
       masterXPLevels = [];
@@ -155,7 +163,8 @@ export async function loadFTUEsteps() {
     try {
       const response = await axios.get(`${API_BASE}/api/ftue-steps`);
       masterFTUEsteps = response.data;
-      console.log('FTUE steps loaded:', masterFTUEsteps);
+//      console.log('FTUE steps loaded:', masterFTUEsteps);
+      console.log('FTUE steps loaded');
     } catch (error) {
       console.error('Error fetching FTUE steps:', error);
       masterFTUEsteps = [];

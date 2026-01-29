@@ -1,12 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import './FloatingText.css';
-import { calculateTileCenter } from '../VFX/VFX.js';
 import { useStrings } from '../UI/StringsContext';
 
 // Global array to store floating texts - shared across all instances
 let globalFloatingTexts = [];
 let globalForceUpdate = null;
+
+/**
+ * Calculate world position for floating text
+ * Works with both legacy canvas and PixiJS world model
+ */
+const calculateWorldPosition = (x, y, TILE_SIZE) => {
+    // Try to get PixiJS container position (for unified world model)
+    const pixiContainer = document.querySelector('.pixi-container');
+
+    if (pixiContainer) {
+        // PixiJS world model: grid is positioned at an offset within the world
+        const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
+        const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
+
+        // Calculate world position: grid offset + tile position + center offset
+        const worldX = gridOffsetX + (x * TILE_SIZE) + (TILE_SIZE / 2);
+        const worldY = gridOffsetY + (y * TILE_SIZE) + (TILE_SIZE / 2);
+
+        return { centerX: worldX, centerY: worldY };
+    }
+
+    // Legacy fallback: simple tile calculation
+    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2) - 6;
+    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - 6;
+    return { centerX, centerY };
+};
 
 const FloatingTextManager = () => {
     const [tick, setTick] = useState(0);
@@ -18,13 +43,14 @@ const FloatingTextManager = () => {
     // Set this instance as the active one for force updates
     useEffect(() => {
         globalForceUpdate = forceUpdate;
-        
+
         FloatingTextManager.addFloatingText = (message, x, y, TILE_SIZE, options = {}) => {
             const displayText = typeof message === 'number'
                 ? (strings[message] || `Missing string for code: ${message}`)
                 : message;
 
-            const container = document.querySelector('.homestead');
+            // Prefer pixi-world-container for PixiJS, fallback to homestead
+            const container = document.querySelector('.pixi-world-container') || document.querySelector('.homestead');
             if (!container) return;
 
             if (isNaN(x) || isNaN(y)) {
@@ -32,34 +58,43 @@ const FloatingTextManager = () => {
                 return;
             }
 
-            const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
+            const { centerX, centerY } = calculateWorldPosition(x, y, TILE_SIZE);
             const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-            
+
             // Edge detection and offset calculation
             const EDGE_THRESHOLD = 100; // Distance from edge to trigger offset
             const OFFSET_AMOUNT = 40; // How much to offset when near edge
-            
+
             let finalX = centerX;
             let finalY = centerY;
-            
+
             // Get container dimensions (64x64 grid)
             const gridSize = 64 * TILE_SIZE;
-            
+
+            // For PixiJS world model, edge detection needs to account for grid offset
+            const pixiContainer = document.querySelector('.pixi-container');
+            const gridOffsetX = pixiContainer ? (parseFloat(pixiContainer.style.left) || 0) : 0;
+            const gridOffsetY = pixiContainer ? (parseFloat(pixiContainer.style.top) || 0) : 0;
+
+            // Calculate position within the grid (for edge detection)
+            const posInGridX = centerX - gridOffsetX;
+            const posInGridY = centerY - gridOffsetY;
+
             // Check left edge
-            if (centerX < EDGE_THRESHOLD) {
+            if (posInGridX < EDGE_THRESHOLD) {
                 finalX = centerX + OFFSET_AMOUNT;
             }
             // Check right edge
-            else if (centerX > gridSize - EDGE_THRESHOLD) {
+            else if (posInGridX > gridSize - EDGE_THRESHOLD) {
                 finalX = centerX - OFFSET_AMOUNT;
             }
-            
+
             // Check top edge
-            if (centerY < EDGE_THRESHOLD) {
+            if (posInGridY < EDGE_THRESHOLD) {
                 finalY = centerY + OFFSET_AMOUNT;
             }
-            // Check bottom edge  
-            else if (centerY > gridSize - EDGE_THRESHOLD) {
+            // Check bottom edge
+            else if (posInGridY > gridSize - EDGE_THRESHOLD) {
                 finalY = centerY - OFFSET_AMOUNT;
             }
 
@@ -77,9 +112,10 @@ const FloatingTextManager = () => {
         };
     }, [strings]);
 
-    const container = document.querySelector('.homestead');
+    // Prefer pixi-world-container for PixiJS, fallback to homestead
+    const container = document.querySelector('.pixi-world-container') || document.querySelector('.homestead');
     if (!container) return null;
-    
+
     return createPortal(
         <div className="floating-text-container">
             {globalFloatingTexts.map(({ id, text, x, y, color, size }) => (
@@ -97,7 +133,7 @@ const FloatingTextManager = () => {
                     onAnimationEnd={(e) => {
                         // Immediately hide the element to prevent visual artifacts
                         e.target.style.display = 'none';
-                        
+
                         globalFloatingTexts = globalFloatingTexts.filter(t => t.id !== id);
                         if (globalForceUpdate) globalForceUpdate();
                     }}

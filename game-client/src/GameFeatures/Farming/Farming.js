@@ -136,7 +136,13 @@ export const handleFarmPlotPlacement = async ({
     );
     console.log("🌾 Enriched resource before setResources:", enrichedNewResource);
 
-    // Optimistically update local client state
+    // Start grow animation BEFORE updating state so PixiRenderer skips rendering this resource
+    // This prevents the resource from appearing before the animation plays
+    if (enrichedNewResource.symbol) {
+      createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
+    }
+
+    // Optimistically update local client state (after VFX marks resource as animating)
     const existing = GlobalGridStateTilesAndResources.getResources() || [];
     GlobalGridStateTilesAndResources.setResources([...existing, enrichedNewResource]);
     console.log("🧪 Global resources after planting:", GlobalGridStateTilesAndResources.getResources());
@@ -163,11 +169,10 @@ export const handleFarmPlotPlacement = async ({
         output: selectedItem.output, // ✅ required for crop conversion
       });
 
-      // Show VFX and floating text for planting
+      // Show collect VFX and floating text for planting
+      // Note: createPlantGrowEffect is called earlier (before setResources) to ensure
+      // PixiRenderer skips rendering the resource during animation
       createCollectEffect(tileX, tileY, TILE_SIZE);
-      if (enrichedNewResource.symbol) {
-        createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
-      }
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
 
       // Track quest progress for "Plant" actions

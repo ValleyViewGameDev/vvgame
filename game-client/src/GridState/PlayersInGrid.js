@@ -10,13 +10,20 @@ class GridStatePCManager {
       this.pendingUpdates = {}; // Track pending position updates
       this.batchInterval = null; // Interval for batch saving
       this.BATCH_SAVE_INTERVAL = 5000; // Save positions every 5 seconds
+      this.currentPlayerId = null; // Track current player for camera tethering
+      this.onCurrentPlayerMove = null; // Callback for camera updates during animation
     }
- 
+
     registerSetPlayersInGrid(setter) {
       this.setPlayersInGridReact = setter;
     }
     registerTileSize(tileSize) {
       this.tileSize = tileSize;
+    }
+    // Register the current player ID and camera callback for smooth camera tethering
+    registerCurrentPlayer(playerId, onMoveCallback) {
+      this.currentPlayerId = playerId ? String(playerId) : null;
+      this.onCurrentPlayerMove = onMoveCallback;
     }
     
     // Start the batch save interval
@@ -565,6 +572,8 @@ class GridStatePCManager {
         newPosition &&
         (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y)
       ) {
+        // Animate the PC movement using default duration from RenderAnimatePosition
+        // (60ms to match MOVEMENT_COOLDOWN_MS for smooth continuous movement)
         animateRemotePC(playerId, oldPosition, newPosition, this.tileSize);
       }
 

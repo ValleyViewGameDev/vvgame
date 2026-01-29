@@ -37,23 +37,7 @@ const DebugPanel = ({
   const [messageIdentifier, setMessageIdentifier] = useState('');
   const [orphanedGridId, setOrphanedGridId] = useState('');
 
-  // V2 Tile Renderer toggle - always defaults to V2 (true)
-  const [useV2Tiles, setUseV2Tiles] = useState(() => {
-    const hasExplicitChoice = localStorage.getItem('useV2TilesExplicit') === 'true';
-    if (hasExplicitChoice) {
-      return localStorage.getItem('useV2Tiles') === 'true';
-    }
-    return true; // Default to V2 for all users
-  });
-
-  // PixiJS Renderer toggle - defaults to false (Canvas 2D) for safety
-  const [usePixiJS, setUsePixiJS] = useState(() => {
-    const hasExplicitChoice = localStorage.getItem('usePixiJSExplicit') === 'true';
-    if (hasExplicitChoice) {
-      return localStorage.getItem('usePixiJS') === 'true';
-    }
-    return false; // Default to Canvas 2D for safety
-  });
+  // PixiJS is now the only renderer - legacy V2 tiles and PixiJS toggles removed
   
   // Performance monitoring state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -1057,56 +1041,13 @@ const handleGetRich = async () => {
       }}>
         <h3 style={{ margin: '0 0 8px 0', color: '#333', fontSize: '12px' }}>⚡ Performance Metrics</h3>
 
-        {/* Rendering Mode - label and value on separate lines */}
+        {/* Rendering Mode - PixiJS is now the only renderer */}
         <div style={{ marginBottom: '8px', color: '#666' }}>
           <div>🎨 Rendering Mode:</div>
-          <div><strong style={{ color: 'green' }}>Canvas (Forced)</strong></div>
+          <div><strong style={{ color: '#1e88e5' }}>PixiJS (WebGL)</strong></div>
         </div>
 
-        {/* V2 Tile Renderer Toggle */}
-        <div style={{ marginTop: '10px', marginBottom: '8px', padding: '8px', backgroundColor: '#e8e8e8', borderRadius: '4px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
-            <input
-              type="checkbox"
-              checked={useV2Tiles}
-              onChange={(e) => {
-                const newValue = e.target.checked;
-                setUseV2Tiles(newValue);
-                localStorage.setItem('useV2Tiles', newValue);
-                localStorage.setItem('useV2TilesExplicit', 'true'); // Mark as explicit user choice
-                // Dispatch event to notify App.js
-                window.dispatchEvent(new CustomEvent('tileRendererChange', { detail: newValue }));
-              }}
-              style={{ width: '16px', height: '16px' }}
-            />
-            <span style={{ fontWeight: 'bold' }}>Use V2 Tile Renderer (Autotiling)</span>
-          </label>
-          <div style={{ fontSize: '10px', marginTop: '4px', color: '#888' }}>
-            Enables quarter-tile blending with grass blades at edges
-          </div>
-        </div>
-
-        {/* PixiJS Renderer Toggle */}
-        <div style={{ marginTop: '10px', marginBottom: '8px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffc107' }}>
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
-            <input
-              type="checkbox"
-              checked={usePixiJS}
-              onChange={(e) => {
-                const newValue = e.target.checked;
-                setUsePixiJS(newValue);
-                localStorage.setItem('usePixiJS', newValue);
-                localStorage.setItem('usePixiJSExplicit', 'true');
-                window.dispatchEvent(new CustomEvent('pixiRendererChange', { detail: newValue }));
-              }}
-              style={{ width: '16px', height: '16px' }}
-            />
-            <span style={{ fontWeight: 'bold' }}>Use PixiJS Renderer (Experimental)</span>
-          </label>
-          <div style={{ fontSize: '10px', marginTop: '4px', color: '#856404' }}>
-            WebGL-accelerated rendering with smooth zoom. Uncheck to revert to Canvas 2D.
-          </div>
-        </div>
+        {/* PixiJS is now the only renderer - V2 tiles and PixiJS toggles removed */}
 
         {/* Two-column grid with labels and values on separate rows */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px' }}>

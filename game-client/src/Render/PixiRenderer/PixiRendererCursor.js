@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
+import { TILES_PER_GRID } from './UnifiedCamera';
 
 /**
  * PixiRendererCursor - Cursor tile highlight for placement modes
@@ -17,6 +18,7 @@ const PixiRendererCursor = ({
   hoveredTile,      // { row, col } or null - the tile position currently being hovered
   cursorMode,       // { type, size, emoji, ... } or null - the current cursor mode
   TILE_SIZE,        // Tile size in pixels
+  gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
 }) => {
   const cursorContainerRef = useRef(null);
   const highlightGraphicRef = useRef(null);
@@ -79,8 +81,8 @@ const PixiRendererCursor = ({
 
     const { row, col } = hoveredTile;
 
-    // Validate tile position
-    if (row < 0 || row >= 64 || col < 0 || col >= 64) {
+    // Validate tile position (grid is TILES_PER_GRID×TILES_PER_GRID)
+    if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) {
       highlightGraphic.visible = false;
       return;
     }
@@ -98,10 +100,10 @@ const PixiRendererCursor = ({
         const tileRow = row - dy;
 
         // Skip tiles that are out of bounds
-        if (tileCol < 0 || tileCol >= 64 || tileRow < 0 || tileRow >= 64) continue;
+        if (tileCol < 0 || tileCol >= TILES_PER_GRID || tileRow < 0 || tileRow >= TILES_PER_GRID) continue;
 
-        const x = tileCol * TILE_SIZE;
-        const y = tileRow * TILE_SIZE;
+        const x = gridOffset.x + tileCol * TILE_SIZE;
+        const y = gridOffset.y + tileRow * TILE_SIZE;
 
         // Draw highlight fill - white semi-transparent
         highlightGraphic.beginFill(0xFFFFFF, 0.25);
@@ -118,7 +120,7 @@ const PixiRendererCursor = ({
       }
     }
 
-  }, [hoveredTile, cursorMode, TILE_SIZE]);
+  }, [hoveredTile, cursorMode, TILE_SIZE, gridOffset]);
 
   // This component doesn't render any DOM elements
   return null;

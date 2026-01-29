@@ -25,7 +25,13 @@ const loadOverlayTexture = async (filename, size) => {
   const cacheKey = `overlay-${filename}-${size}`;
 
   if (overlayTextureCache.has(cacheKey)) {
-    return overlayTextureCache.get(cacheKey);
+    const cachedTexture = overlayTextureCache.get(cacheKey);
+    // Check if texture is still valid (not destroyed by WebGL context loss)
+    if (cachedTexture && cachedTexture.valid !== false && cachedTexture.baseTexture?.valid !== false) {
+      return cachedTexture;
+    }
+    // Texture is invalid, remove from cache and reload
+    overlayTextureCache.delete(cacheKey);
   }
 
   if (overlayLoadingPromises.has(cacheKey)) {
@@ -110,15 +116,26 @@ const PixiRendererNPCOverlays = ({
   currentPlayer,          // Current player object (for quest/Kent status)
   masterResources,        // Master resources (for trade NPCs)
   TILE_SIZE,              // Tile size in pixels
+  gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
+  getNPCRenderPosition,   // Function to get animated NPC position
+  npcAnimations,          // Ref to NPC animation state (for ticker updates)
 }) => {
   const overlayContainerRef = useRef(null);
 
   // Object pool for overlay sprites/text
-  const overlayPoolRef = useRef([]);      // Pool of { sprite, text, active }
+  const overlayPoolRef = useRef([]);      // Pool of { sprite, text, active, npcId }
   const renderVersionRef = useRef(0);      // For cancelling stale async renders
 
   // Cache for NPC overlay status to avoid redundant async calls
   const statusCacheRef = useRef(new Map());
+
+  // Track overlay assignments to NPCs for animation updates
+  const overlayAssignmentsRef = useRef(new Map()); // npcId -> { overlay, overlaySize }
+
+  // Ref to track if animation ticker is running (on-demand pattern)
+  const animationTickerRef = useRef(null);
+  // Counter for consecutive frames with no animations
+  const noAnimationFramesRef = useRef(0);
 
   /**
    * Get or create an overlay display object from the pool
@@ -215,9 +232,19 @@ const PixiRendererNPCOverlays = ({
     });
 
     return () => {
-      // Cleanup on unmount - don't destroy, parent handles that
+      // Cleanup on unmount - destroy textures properly to release GPU resources
       overlayPoolRef.current = [];
       statusCacheRef.current.clear();
+      // Destroy each cached texture before clearing
+      for (const texture of overlayTextureCache.values()) {
+        if (texture && texture.destroy) {
+          try {
+            texture.destroy(true);
+          } catch (e) {
+            // Texture may already be destroyed
+          }
+        }
+      }
       overlayTextureCache.clear();
       overlayLoadingPromises.clear();
       overlayContainerRef.current = null;
@@ -289,13 +316,19 @@ const PixiRendererNPCOverlays = ({
         }
 
         // Calculate position (lower-left corner of NPC tile)
-        const npcX = npc.position.x * TILE_SIZE;
-        const npcY = npc.position.y * TILE_SIZE;
+        // Use animated position if available, otherwise use npc.position
+        const renderPos = getNPCRenderPosition ? getNPCRenderPosition(npc) : npc.position;
+        // Apply grid offset for settlement zoom
+        const npcX = gridOffset.x + renderPos.x * TILE_SIZE;
+        const npcY = gridOffset.y + renderPos.y * TILE_SIZE;
         const overlayX = npcX + 2;
         const overlayY = npcY + TILE_SIZE - overlaySize - 2;
 
         // Get overlay from pool
         const overlay = getOverlayFromPool(overlaysUsed);
+
+        // Track this overlay's assignment to the NPC for animation updates
+        overlayAssignmentsRef.current.set(npc.id, { overlay, overlaySize, npc });
 
         // Try to load SVG texture
         if (svgFilename) {
@@ -333,8 +366,16 @@ const PixiRendererNPCOverlays = ({
       // Hide unused overlays
       hideUnusedOverlays(overlaysUsed);
 
+      // Clean up assignments for NPCs that no longer have overlays
+      const currentNpcIds = new Set(npcs.filter(n => n.position).map(n => n.id));
+      for (const npcId of overlayAssignmentsRef.current.keys()) {
+        if (!currentNpcIds.has(npcId)) {
+          overlayAssignmentsRef.current.delete(npcId);
+        }
+      }
+
       if (overlaysUsed > 0) {
-        console.log(`📌 PixiJS rendered ${overlaysUsed} NPC overlays`);
+        // console.log(`📌 PixiJS rendered ${overlaysUsed} NPC overlays`);
       }
     };
 
@@ -344,8 +385,97 @@ const PixiRendererNPCOverlays = ({
     return () => {
       statusCacheRef.current.clear();
     };
-  }, [npcs, currentPlayer, masterResources, TILE_SIZE,
-      getOverlayFromPool, hideUnusedOverlays, getOverlaySize]);
+  }, [npcs, currentPlayer, masterResources, TILE_SIZE, gridOffset,
+      getOverlayFromPool, hideUnusedOverlays, getOverlaySize, getNPCRenderPosition]);
+
+  // Start animation ticker on-demand when NPC animations are detected
+  // This prevents continuous 60fps polling when NPCs are idle
+  const startAnimationTicker = useCallback(() => {
+    if (animationTickerRef.current) return; // Already running
+    if (!app?.ticker || !npcAnimations) return;
+
+    const ticker = app.ticker;
+
+    const onTick = () => {
+      // Check if any NPC has an active animation
+      const hasActiveAnimations = Object.values(npcAnimations.current || {}).some(
+        anim => anim && anim.duration > 0
+      );
+
+      if (hasActiveAnimations) {
+        noAnimationFramesRef.current = 0;
+
+        // Update positions for all tracked overlays
+        for (const assignment of overlayAssignmentsRef.current.values()) {
+          const { overlay, overlaySize, npc } = assignment;
+          if (!overlay || !npc) continue;
+
+          // Get the current animated position
+          const renderPos = getNPCRenderPosition ? getNPCRenderPosition(npc) : npc.position;
+          if (!renderPos) continue;
+
+          // Calculate new position
+          const npcX = gridOffset.x + renderPos.x * TILE_SIZE;
+          const npcY = gridOffset.y + renderPos.y * TILE_SIZE;
+          const overlayX = npcX + 2;
+          const overlayY = npcY + TILE_SIZE - overlaySize - 2;
+
+          // Update sprite position if visible
+          if (overlay.sprite?.visible) {
+            overlay.sprite.x = overlayX;
+            overlay.sprite.y = overlayY;
+          }
+
+          // Update text position if visible
+          if (overlay.text?.visible) {
+            overlay.text.x = overlayX;
+            overlay.text.y = overlayY;
+          }
+        }
+      } else {
+        // No animations - increment counter and remove ticker after a few idle frames
+        noAnimationFramesRef.current++;
+        if (noAnimationFramesRef.current > 5) {
+          try {
+            ticker.remove(onTick);
+          } catch (e) {
+            // Ticker may be destroyed
+          }
+          animationTickerRef.current = null;
+          noAnimationFramesRef.current = 0;
+        }
+      }
+    };
+
+    animationTickerRef.current = onTick;
+    ticker.add(onTick);
+  }, [app, npcAnimations, getNPCRenderPosition, TILE_SIZE, gridOffset]);
+
+  // Check for animations when npcAnimations changes and start ticker if needed
+  useEffect(() => {
+    if (!npcAnimations?.current) return;
+
+    const hasActiveAnimations = Object.values(npcAnimations.current).some(
+      anim => anim && anim.duration > 0
+    );
+    if (hasActiveAnimations) {
+      startAnimationTicker();
+    }
+  }, [npcAnimations, startAnimationTicker]);
+
+  // Cleanup animation ticker on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTickerRef.current && app?.ticker) {
+        try {
+          app.ticker.remove(animationTickerRef.current);
+        } catch (e) {
+          // Ticker may be destroyed
+        }
+        animationTickerRef.current = null;
+      }
+    };
+  }, [app]);
 
   // This component doesn't render any DOM elements
   return null;

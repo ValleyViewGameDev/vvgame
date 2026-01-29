@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container, Text } from 'pixi.js-legacy';
+import { renderPositions } from '../../PlayerMovement';
 
 /**
  * PixiRendererPCs - Player Character rendering for PixiJS renderer
@@ -20,12 +21,18 @@ const PixiRendererPCs = ({
   currentPlayer,          // Current player (for highlight + ID matching)
   TILE_SIZE,              // Tile size in pixels
   connectedPlayers,       // Set of online player IDs (for opacity)
+  gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
 }) => {
   const pcContainerRef = useRef(null);
 
   // Object pools for reuse - prevents memory leaks
   const textPoolRef = useRef([]);           // Pool of Text objects for PC icons
   const highlightGraphicRef = useRef(null); // Single Graphics for current player highlight
+
+  // Ref to track if animation ticker is running (on-demand pattern)
+  const animationTickerRef = useRef(null);
+  // Counter for consecutive frames with no animations (for ticker removal)
+  const noAnimationFramesRef = useRef(0);
 
   /**
    * Get the display icon for a PC based on state
@@ -128,8 +135,25 @@ const PixiRendererPCs = ({
     };
   }, [app]);
 
-  // Render PCs - reuses objects instead of creating new ones
-  useEffect(() => {
+  /**
+   * Get the render position for a PC, checking for animation overrides
+   * Animation positions are stored in renderPositions by playerId during smooth movement
+   */
+  const getPCRenderPosition = useCallback((pc) => {
+    const playerId = pc.playerId;
+    // Check if there's an animated position for this player
+    if (playerId && renderPositions[playerId]) {
+      return renderPositions[playerId];
+    }
+    // Fall back to the actual position
+    return pc.position;
+  }, []);
+
+  /**
+   * Render function that updates PC positions
+   * Called both on state changes and during animations via ticker
+   */
+  const renderPCs = useCallback(() => {
     const container = pcContainerRef.current;
     const highlightGraphic = highlightGraphicRef.current;
 
@@ -149,9 +173,10 @@ const PixiRendererPCs = ({
     const fontSize = TILE_SIZE * 0.8;
 
     for (const pc of pcs) {
-      // Skip PCs without valid position
-      const posX = pc.position?.x;
-      const posY = pc.position?.y;
+      // Get render position (may be animated)
+      const renderPos = getPCRenderPosition(pc);
+      const posX = renderPos?.x;
+      const posY = renderPos?.y;
 
       if (posX === undefined || posY === undefined) continue;
 
@@ -168,10 +193,11 @@ const PixiRendererPCs = ({
       const text = getTextFromPool(textsUsed);
 
       // Update text properties
+      // Apply grid offset for settlement zoom
       text.text = displayIcon;
       text.style.fontSize = fontSize;
-      text.x = posX * TILE_SIZE + TILE_SIZE / 2;
-      text.y = posY * TILE_SIZE + TILE_SIZE / 2;
+      text.x = gridOffset.x + posX * TILE_SIZE + TILE_SIZE / 2;
+      text.y = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
       text.alpha = isConnected ? 1.0 : 0.4;
 
       // Draw highlight for current player
@@ -187,8 +213,74 @@ const PixiRendererPCs = ({
 
     // Hide unused pool texts
     hideUnusedPoolTexts(textsUsed);
+  }, [pcs, currentPlayer, connectedPlayers, TILE_SIZE, gridOffset, getDisplayIcon, getTextFromPool, hideUnusedPoolTexts, getPCRenderPosition]);
 
-  }, [pcs, currentPlayer, connectedPlayers, TILE_SIZE, getDisplayIcon, getTextFromPool, hideUnusedPoolTexts]);
+  // Initial render and re-render on state changes
+  useEffect(() => {
+    renderPCs();
+  }, [renderPCs]);
+
+  // Start animation ticker on-demand when animations are detected
+  // This prevents continuous 60fps polling when PCs are idle
+  const startAnimationTicker = useCallback(() => {
+    if (animationTickerRef.current) return; // Already running
+    if (!app?.ticker) return;
+
+    const ticker = app.ticker;
+
+    const onTick = () => {
+      // Check if any PC has an active animation position
+      const hasActiveAnimations = pcs?.some(pc =>
+        pc.playerId && renderPositions[pc.playerId]
+      );
+
+      if (hasActiveAnimations) {
+        noAnimationFramesRef.current = 0;
+        renderPCs();
+      } else {
+        // No animations - increment counter and remove ticker after a few idle frames
+        noAnimationFramesRef.current++;
+        if (noAnimationFramesRef.current > 5) {
+          // Remove ticker when idle to save CPU
+          try {
+            ticker.remove(onTick);
+          } catch (e) {
+            // Ticker may be destroyed
+          }
+          animationTickerRef.current = null;
+          noAnimationFramesRef.current = 0;
+        }
+      }
+    };
+
+    animationTickerRef.current = onTick;
+    ticker.add(onTick);
+  }, [app, pcs, renderPCs]);
+
+  // Check for animations on each render and start ticker if needed
+  // This is triggered by parent re-renders when player moves
+  useEffect(() => {
+    const hasActiveAnimations = pcs?.some(pc =>
+      pc.playerId && renderPositions[pc.playerId]
+    );
+    if (hasActiveAnimations) {
+      startAnimationTicker();
+    }
+  }, [pcs, startAnimationTicker]);
+
+  // Cleanup animation ticker on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTickerRef.current && app?.ticker) {
+        try {
+          app.ticker.remove(animationTickerRef.current);
+        } catch (e) {
+          // Ticker may be destroyed
+        }
+        animationTickerRef.current = null;
+      }
+    };
+  }, [app]);
 
   // This component doesn't render any DOM elements
   return null;
