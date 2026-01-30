@@ -2,10 +2,15 @@
 
 .floating-text {
     position: absolute;
-    animation: float-up 1s ease-out; /* Change from undefined to explicit 1s */
+    animation: float-up 1.8s ease-out; /* Slower for better readability */
     color: var(--color-text-white);
     font-size: 16px;
-    text-shadow: 0px 0px 5px black;
+    font-weight: bold;
+    text-shadow:
+        0px 0px 3px black,
+        0px 0px 6px black,
+        1px 1px 2px black,
+        -1px -1px 2px black;
     pointer-events: none;
     z-index: 9999;
     transform-origin: center;
@@ -25,8 +30,11 @@
         transform: translateY(0);
         opacity: 1;
     }
+    70% {
+        opacity: 1; /* Stay fully visible longer */
+    }
     100% {
-        transform: translateY(-30px);
+        transform: translateY(-40px);
         opacity: 0;
     }
 }

@@ -4,13 +4,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { StatusBarProvider } from './UI/StatusBar/StatusBar';
-import { PanelProvider } from './UI/Panels/PanelContext'; 
+import { PanelProvider } from './UI/Panels/PanelContext';
 import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { UILockProvider } from './UI/UILockContext';
 import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
+import { TransitionProvider } from './UI/TransitionContext';
 
 console.warn("🔥 index.js evaluated again — app may remount");
 
@@ -53,19 +54,21 @@ if (!window.__app_rendered__) {
     <UILockProvider>
       <NPCOverlayProvider>
         <BulkOperationProvider>
-          <StringsProvider language={savedLanguage}>
-            <GridStateProvider>
-              <GridStatePCProvider>
-                <StatusBarProvider>
-                  <PanelProvider>
-                    <ModalProvider>
-                      <App />
-                    </ModalProvider>
-                  </PanelProvider>
-                </StatusBarProvider>
-              </GridStatePCProvider>
-            </GridStateProvider>
-          </StringsProvider>
+          <TransitionProvider>
+            <StringsProvider language={savedLanguage}>
+              <GridStateProvider>
+                <GridStatePCProvider>
+                  <StatusBarProvider>
+                    <PanelProvider>
+                      <ModalProvider>
+                        <App />
+                      </ModalProvider>
+                    </PanelProvider>
+                  </StatusBarProvider>
+                </GridStatePCProvider>
+              </GridStateProvider>
+            </StringsProvider>
+          </TransitionProvider>
         </BulkOperationProvider>
       </NPCOverlayProvider>
     </UILockProvider>

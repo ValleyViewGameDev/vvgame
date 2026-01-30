@@ -517,23 +517,32 @@ export const changePlayerLocation = async (
         // Get the updated state
         const updatedPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
         
-        playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
-          pcs: updatedPCState,
-          playersInGridLastUpdated: Date.now(),
-        }});
-        
+        playersInGridManager.setPlayersInGridReact(prev => ({
+          ...prev,
+          [toLocation.g]: {
+            pcs: updatedPCState,
+            playersInGridLastUpdated: Date.now(),
+          }
+        }));
+
         console.log('✅ [FINALIZATION] Player force-added to grid');
       } else {
-        playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
-          pcs: freshPCState,
-          playersInGridLastUpdated: Date.now(),
-        }});
+        playersInGridManager.setPlayersInGridReact(prev => ({
+          ...prev,
+          [toLocation.g]: {
+            pcs: freshPCState,
+            playersInGridLastUpdated: Date.now(),
+          }
+        }));
       }
 
-      NPCsInGridManager.setGridStateReact({ [toLocation.g]: {
-        npcs: freshGridState,
-        NPCsInGridLastUpdated: Date.now(),
-      }});
+      NPCsInGridManager.setGridStateReact(prev => ({
+        ...prev,
+        [toLocation.g]: {
+          npcs: freshGridState,
+          NPCsInGridLastUpdated: Date.now(),
+        }
+      }));
       
       console.log('✅ [FINALIZATION] NPCs and PCs initialized successfully');
     } catch (err) {
@@ -685,7 +694,24 @@ export const changePlayerLocation = async (
     }
 
     console.log('🎉 [GRID TRANSITION] Transactional grid change completed successfully');
-    
+
+    // Wait for PixiJS to render a few frames after camera is positioned
+    // This ensures the canvas is fully rendered before we fade out from black
+    console.log('🎨 [GRID TRANSITION] Waiting for PixiJS to render...');
+    await new Promise((resolve) => {
+      let frameCount = 0;
+      const waitForFrames = () => {
+        frameCount++;
+        if (frameCount >= 3) {
+          resolve();
+        } else {
+          requestAnimationFrame(waitForFrames);
+        }
+      };
+      requestAnimationFrame(waitForFrames);
+    });
+    console.log('🎨 [GRID TRANSITION] PixiJS render frames complete');
+
     // End fade transition - fade back to normal view
     if (transitionFadeControl?.endTransition) {
       transitionFadeControl.endTransition();

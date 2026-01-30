@@ -135,8 +135,7 @@ import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
 import StartScreenAnimation from './UI/StartScreenAnimation';
-import TransitionOverlay from './UI/TransitionOverlay';
-import { useTransitionFade } from './UI/useTransitionFade';
+import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
 import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
@@ -222,12 +221,14 @@ useEffect(() => {
   const [levelUpData, setLevelUpData] = useState({ currentLevel: 0, previousLevel: 0 });
   const bulkOperationContext = useBulkOperation();
   
-  // Initialize transition fade functionality
-  const { isTransitioning, startTransition, endTransition } = useTransitionFade();
+  // Initialize transition fade functionality via context
+  const { fadeToBlack, fadeFromBlack, isTransitioning } = useTransition();
+  // Create control object for backward compatibility with existing code
+  // Note: The new API is Promise-based, but we wrap it for sync callers
   const transitionFadeControl = {
-    startTransition,
-    endTransition,
-    isTransitioning: () => isTransitioning
+    startTransition: () => fadeToBlack(), // Returns Promise, callers can await if needed
+    endTransition: () => fadeFromBlack(), // Returns Promise, callers can await if needed
+    isTransitioning
   };
 
   // Mobile device detection: Show modal if on mobile
@@ -1372,17 +1373,31 @@ useEffect(() => {
   let cleanupBadges = null;
 
   const initializeAppWrapper = async () => {
-    console.log('🏁🏁🏁 App initialization begun.');
+    const initStartTime = Date.now();
+    console.log('🏁🏁🏁 [INIT] ========== App initialization begun ==========');
+    console.log(`🏁 [INIT] Timestamp: ${new Date().toISOString()}`);
+
     if (isInitializing) {
-      console.log('Initialization is already in progress. Skipping.');
+      console.log('🏁 [INIT] ⚠️ Initialization already in progress. Skipping.');
       return;
     }
     isInitializing = true;
 
+    // Start fade-to-black immediately for logged-in players
+    // This ensures we fade up on a fully-ready grid, hiding any async loading
+    // We await this to ensure the screen is fully black before continuing
+    console.log('🌑 [FADE] Calling fadeToBlack() to fade to black...');
+    await fadeToBlack();
+    console.log('🌑 [FADE] fadeToBlack() complete, screen is now black');
+
+    // Camera init function - set during player position calculation, called after isAppInitialized
+    let pendingCameraInit = null;
+
     try {
       // Step 1. Load tuning data
-      console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
+      console.log(`🏁 [INIT STEP 1] Loading tuning data... (+${Date.now() - initStartTime}ms)`);
       const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse, xpLevels, ftueSteps] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse(), loadMasterXPLevels(), loadFTUEsteps()]);
+      console.log(`🏁 [INIT STEP 1] ✅ Tuning data loaded (+${Date.now() - initStartTime}ms)`);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
@@ -1392,9 +1407,10 @@ useEffect(() => {
       setMasterWarehouse(warehouse);
       setMasterXPLevels(xpLevels);
       setMasterFTUEsteps(ftueSteps);
-      setIsMasterResourcesReady(true); // ✅ Mark ready
+      setIsMasterResourcesReady(true);
+
       // Step 2. Fetch stored player from localStorage
-      console.log('🏁✅ 2 InitAppWrapper; getting local player...');
+      console.log(`🏁 [INIT STEP 2] Getting local player... (+${Date.now() - initStartTime}ms)`);
       const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
@@ -1585,37 +1601,70 @@ useEffect(() => {
         console.log(`📷 [UNIFIED CAMERA INIT] Player tile: (${playerPosition.x}, ${playerPosition.y}), grid: (${gridPosition.row}, ${gridPosition.col}), settlement: (${settlementPosition.row}, ${settlementPosition.col})`);
         console.log(`📷 [UNIFIED CAMERA INIT] World position: (${worldPos.x}, ${worldPos.y}), scroll: (${scroll.x}, ${scroll.y}), zoomScale: ${initialZoomScale}`);
 
-        // Set scroll position directly using unified world model formula
+        // Camera centering function - will be called AFTER isAppInitialized is set
+        // so that PixiRenderer has rendered and container has scroll dimensions
+        const cameraStartTime = Date.now();
         const initCameraWithRetry = (retryCount = 0) => {
-          const gameContainer = document.querySelector(".homestead");
-          if (!gameContainer) {
-            if (retryCount < 10) {
-              console.log(`📷 [UNIFIED CAMERA INIT] Container not ready, retrying... (attempt ${retryCount + 1})`);
-              requestAnimationFrame(() => initCameraWithRetry(retryCount + 1));
+          return new Promise((resolve) => {
+            const gameContainer = document.querySelector(".homestead");
+            const elapsed = Date.now() - cameraStartTime;
+
+            if (!gameContainer) {
+              if (retryCount < 30) {
+                if (retryCount % 5 === 0) { // Log every 5 attempts
+                  console.log(`📷 [CAMERA] Container not found, retrying... (attempt ${retryCount + 1}, +${elapsed}ms)`);
+                }
+                requestAnimationFrame(() => {
+                  initCameraWithRetry(retryCount + 1).then(resolve);
+                });
+              } else {
+                console.warn(`📷 [CAMERA] ⚠️ Container not found after 30 retries (+${elapsed}ms)`);
+                resolve(false);
+              }
+              return;
             }
-            return;
-          }
 
-          // Clamp to valid scroll bounds
-          const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-          const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
+            // Clamp to valid scroll bounds
+            const scrollWidth = gameContainer.scrollWidth;
+            const scrollHeight = gameContainer.scrollHeight;
+            const clientWidth = gameContainer.clientWidth;
+            const clientHeight = gameContainer.clientHeight;
+            const maxScrollLeft = Math.max(0, scrollWidth - clientWidth);
+            const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
 
-          // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-          if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 10) {
-            console.log(`📷 [UNIFIED CAMERA INIT] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
-            requestAnimationFrame(() => initCameraWithRetry(retryCount + 1));
-            return;
-          }
+            // If container hasn't laid out yet (scroll dimensions are 0), retry
+            if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 30) {
+              if (retryCount % 5 === 0) { // Log every 5 attempts
+                console.log(`📷 [CAMERA] Container found but no scroll (scrollWidth=${scrollWidth}, clientWidth=${clientWidth}), retrying... (attempt ${retryCount + 1}, +${elapsed}ms)`);
+              }
+              requestAnimationFrame(() => {
+                initCameraWithRetry(retryCount + 1).then(resolve);
+              });
+              return;
+            }
 
-          const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
-          const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
+            const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
+            const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
 
-          console.log(`📷 [UNIFIED CAMERA INIT] Setting scroll to (${clampedX}, ${clampedY}), maxScroll: (${maxScrollLeft}, ${maxScrollTop})`);
-          gameContainer.scrollLeft = clampedX;
-          gameContainer.scrollTop = clampedY;
+            console.log(`📷 [CAMERA] Container ready! scrollWidth=${scrollWidth}, clientWidth=${clientWidth}, maxScroll=(${maxScrollLeft}, ${maxScrollTop})`);
+            console.log(`📷 [CAMERA] Target scroll: (${scroll.x}, ${scroll.y}), clamped: (${clampedX}, ${clampedY})`);
+            console.log(`📷 [CAMERA] Setting scroll position... (+${elapsed}ms, attempt ${retryCount + 1})`);
+
+            gameContainer.scrollLeft = clampedX;
+            gameContainer.scrollTop = clampedY;
+
+            // Verify the scroll was applied
+            const actualScrollLeft = gameContainer.scrollLeft;
+            const actualScrollTop = gameContainer.scrollTop;
+            console.log(`📷 [CAMERA] ✅ Scroll applied: actual=(${actualScrollLeft}, ${actualScrollTop}), expected=(${clampedX}, ${clampedY})`);
+
+            resolve(true);
+          });
         };
 
-        initCameraWithRetry();
+        // Store the camera init function to call after isAppInitialized is set
+        // This is needed because PixiRenderer must render before scroll dimensions exist
+        pendingCameraInit = initCameraWithRetry;
       }
 
       // Step 8. Resolve player location 
@@ -1747,18 +1796,52 @@ useEffect(() => {
 
       cleanupBadges = socketListenForBadgeUpdates(updatedPlayerData, setBadgeState, updateBadge);
 
-      console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
-
-      //setShowTimers(true);    // default "Happening In Town" details open (true) or closed (flase)
+      console.log(`🏁 [INIT] ========== Data initialization complete (+${Date.now() - initStartTime}ms) ==========`);
 
       const zoom = localStorage.getItem("initialZoomLevel");
       if (zoom) {
+        console.log(`🏁 [INIT] Restoring zoom level: ${zoom}`);
         setZoomLevel(zoom);
         localStorage.removeItem("initialZoomLevel");
       }
 
+      console.log(`🏁 [INIT] Setting isAppInitialized = true (PixiRenderer will now render)...`);
       setIsAppInitialized(true);
-      
+
+      // Now that PixiRenderer will render (isAppInitialized=true), wait for camera to center
+      // Everything is under the black overlay (from TransitionProvider) until we call fadeFromBlack()
+      if (pendingCameraInit) {
+        console.log(`📷 [CAMERA] Waiting for PixiRenderer to render before centering camera... (+${Date.now() - initStartTime}ms)`);
+        const cameraResult = await pendingCameraInit();
+        console.log(`📷 [CAMERA] Camera centering complete, result: ${cameraResult} (+${Date.now() - initStartTime}ms)`);
+      } else {
+        console.log(`📷 [CAMERA] ⚠️ No pendingCameraInit function - skipping camera centering`);
+      }
+
+      // Wait for PixiJS to render a few frames after camera is positioned
+      // This ensures the canvas is fully rendered before we fade out from black
+      console.log(`🎨 [RENDER] Waiting for PixiJS to render... (+${Date.now() - initStartTime}ms)`);
+      await new Promise((resolve) => {
+        // Wait for 3 animation frames to ensure PixiJS has rendered the scene
+        let frameCount = 0;
+        const waitForFrames = () => {
+          frameCount++;
+          if (frameCount >= 3) {
+            resolve();
+          } else {
+            requestAnimationFrame(waitForFrames);
+          }
+        };
+        requestAnimationFrame(waitForFrames);
+      });
+      console.log(`🎨 [RENDER] PixiJS render frames complete (+${Date.now() - initStartTime}ms)`);
+
+      // All initialization complete, camera centered, PixiJS rendered - fade up from black!
+      console.log(`🌕 [FADE] Calling fadeFromBlack() to fade up from black... (+${Date.now() - initStartTime}ms)`);
+      fadeFromBlack(); // Promise-based fade animation
+      console.log(`🌕 [FADE] fadeFromBlack() called, fade-out animation started`);
+      console.log(`🏁 [INIT] ========== INIT COMPLETE (+${Date.now() - initStartTime}ms) ==========`);
+
       // Store FTUE info but don't show yet - wait for grid to load
       if (updatedPlayerData.firsttimeuser === true && updatedPlayerData.ftuestep !== undefined && updatedPlayerData.ftuestep >= 0) {
         console.log('🎓 FTUE step detected for first-time user:', updatedPlayerData.ftuestep, ', will show after grid loads');
@@ -1767,7 +1850,10 @@ useEffect(() => {
 
     } catch (error) {
       console.error('Error during app initialization:', error);
-      
+
+      // End fade transition even on error to restore visibility
+      fadeFromBlack();
+
       // If player not found (404), clear local storage and show login panel
       if (error.response?.status === 404) {
         console.log('Player not found (possibly deleted). Clearing local storage and showing login panel.');
@@ -3612,8 +3698,8 @@ return (
         </div>
       )}
 
-      {/* Loading Screen - shown when we have a stored player but app isn't initialized yet */}
-      {/* This includes: 1) stored player in localStorage loading, 2) currentPlayer set but init incomplete */}
+      {/* Loading Screen - shown until app data is initialized */}
+      {/* TransitionProvider handles fade-to-black overlay while camera centers after this */}
       {!showKeyArt && !isAppInitialized && hasStoredPlayer && (
         <LoadingScreen message="Preparing your adventure..." />
       )}
@@ -4631,13 +4717,7 @@ return (
         />
       )}
 
-      {/* Location transition overlay */}
-      <TransitionOverlay 
-        isTransitioning={isTransitioning}
-        // onTransitionComplete={() => {
-        //   //console.log('🌟 [TRANSITION] Fade transition completed');
-        // }}
-      />
+      {/* Location transition overlay - now handled by TransitionProvider in index.js */}
 
       {/* Level Up Modal */}
       <LevelUpModal

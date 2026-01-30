@@ -484,7 +484,10 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
         updatedNPCs[npcId] = rehydrated;
         // ✅ Also patch live memory state for controller
         if (rehydrated instanceof NPC) {
-          NPCsInGridManager.NPCsInGrid[gridId].npcs[npcId] = rehydrated;
+          const gridState = NPCsInGridManager.NPCsInGrid[gridId];
+          if (gridState?.npcs) {
+            gridState.npcs[npcId] = rehydrated;
+          }
         } else {
           console.warn(`🛑 Tried to inject non-NPC instance into live NPCsInGrid for ${npcId}`);
         }

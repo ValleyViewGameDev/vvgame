@@ -302,13 +302,14 @@ async function isValidMove(targetX, targetY, masterResources,
     if (!direction) { console.warn(`⛔ Invalid movement direction from (${targetX}, ${targetY}).`); return false; }
 
     console.log(`📦 Attempting directional travel via: ${direction}`);
-    
-    // 🌑 Start fade transition IMMEDIATELY for responsive feel
+
+    // 🌑 Start fade transition and WAIT for it to complete before continuing
     if (transitionFadeControl?.startTransition) {
       console.log('🌑 [IMMEDIATE FADE] Starting fade transition for boundary crossing');
-      transitionFadeControl.startTransition();
+      await transitionFadeControl.startTransition();
+      console.log('🌑 [IMMEDIATE FADE] Fade to black complete, proceeding with travel');
     }
-    
+
     const skills = currentPlayer.skills;
 
     handleTransitSignpost(

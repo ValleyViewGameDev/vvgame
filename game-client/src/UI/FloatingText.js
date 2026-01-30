@@ -10,6 +10,10 @@ let globalForceUpdate = null;
 /**
  * Calculate world position for floating text
  * Works with both legacy canvas and PixiJS world model
+ *
+ * The TILE_SIZE parameter is often the base tile size (30), but we need to use the
+ * scaled tile size based on the current zoom level. We derive this from the
+ * pixi-container's actual pixel dimensions.
  */
 const calculateWorldPosition = (x, y, TILE_SIZE) => {
     // Try to get PixiJS container position (for unified world model)
@@ -20,17 +24,23 @@ const calculateWorldPosition = (x, y, TILE_SIZE) => {
         const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
         const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
 
-        // Calculate world position: grid offset + tile position + center offset
-        const worldX = gridOffsetX + (x * TILE_SIZE) + (TILE_SIZE / 2);
-        const worldY = gridOffsetY + (y * TILE_SIZE) + (TILE_SIZE / 2);
+        // Derive the scaled tile size from the container's actual dimensions
+        // The container width = 64 tiles * scaledTileSize
+        const containerWidth = parseFloat(pixiContainer.style.width) || (64 * TILE_SIZE);
+        const scaledTileSize = containerWidth / 64;
 
-        return { centerX: worldX, centerY: worldY };
+        // Calculate world position: grid offset + tile position + center offset
+        // Use scaledTileSize for correct positioning at all zoom levels
+        const worldX = gridOffsetX + (x * scaledTileSize) + (scaledTileSize / 2);
+        const worldY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize / 2);
+
+        return { centerX: worldX, centerY: worldY, scaledTileSize };
     }
 
     // Legacy fallback: simple tile calculation
     const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2) - 6;
     const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - 6;
-    return { centerX, centerY };
+    return { centerX, centerY, scaledTileSize: TILE_SIZE };
 };
 
 const FloatingTextManager = () => {
@@ -58,18 +68,19 @@ const FloatingTextManager = () => {
                 return;
             }
 
-            const { centerX, centerY } = calculateWorldPosition(x, y, TILE_SIZE);
+            const { centerX, centerY, scaledTileSize } = calculateWorldPosition(x, y, TILE_SIZE);
             const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
             // Edge detection and offset calculation
-            const EDGE_THRESHOLD = 100; // Distance from edge to trigger offset
-            const OFFSET_AMOUNT = 40; // How much to offset when near edge
+            // Scale thresholds based on zoom level for consistent visual behavior
+            const EDGE_THRESHOLD = 100 * (scaledTileSize / 30); // Scale with zoom
+            const OFFSET_AMOUNT = 40 * (scaledTileSize / 30); // Scale with zoom
 
             let finalX = centerX;
             let finalY = centerY;
 
-            // Get container dimensions (64x64 grid)
-            const gridSize = 64 * TILE_SIZE;
+            // Get container dimensions (64x64 grid) using scaled tile size
+            const gridSize = 64 * scaledTileSize;
 
             // For PixiJS world model, edge detection needs to account for grid offset
             const pixiContainer = document.querySelector('.pixi-container');
