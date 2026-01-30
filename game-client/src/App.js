@@ -1383,13 +1383,6 @@ useEffect(() => {
     }
     isInitializing = true;
 
-    // Start fade-to-black immediately for logged-in players
-    // This ensures we fade up on a fully-ready grid, hiding any async loading
-    // We await this to ensure the screen is fully black before continuing
-    console.log('🌑 [FADE] Calling fadeToBlack() to fade to black...');
-    await fadeToBlack();
-    console.log('🌑 [FADE] fadeToBlack() complete, screen is now black');
-
     // Camera init function - set during player position calculation, called after isAppInitialized
     let pendingCameraInit = null;
 
@@ -1414,12 +1407,21 @@ useEffect(() => {
       const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
+        // No stored player - show login screen WITHOUT black overlay
+        // The ValleyViewLoadScreen should be visible instead
         console.log('No stored player found, showing login screen.');
-        setisLoginPanelOpen(true);    
-        openPanel("LoginPanel");  
+        setisLoginPanelOpen(true);
+        openPanel("LoginPanel");
         setShowKeyArt(true);  // 👈 NEW STATE FLAG TO TRIGGER IMAGE
         return;
       }
+
+      // Start fade-to-black for logged-in players ONLY
+      // This ensures we fade up on a fully-ready grid, hiding any async loading
+      // We await this to ensure the screen is fully black before continuing
+      console.log('🌑 [FADE] Calling fadeToBlack() to fade to black...');
+      await fadeToBlack();
+      console.log('🌑 [FADE] fadeToBlack() complete, screen is now black');
       const parsedPlayer = JSON.parse(storedPlayer);
 
       // 2.1 Fetch the full player data from the server
