@@ -8271,7 +8271,8 @@
     "ingredient1qty": 3000,
     "gemcost": 392,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "filename": "npc-pig.svg"
   },
   {
     "type": "Brown Cow",

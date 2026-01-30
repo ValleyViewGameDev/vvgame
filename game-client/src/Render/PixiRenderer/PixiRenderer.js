@@ -233,6 +233,16 @@ const getResourceFilename = (resourceType, masterResources) => {
 };
 
 /**
+ * Get the SVG filename for an NPC type from masterResources
+ * NPCs are stored in masterResources with category: 'npc'
+ */
+const getNPCFilename = (npcType, masterResources) => {
+  if (!masterResources || !npcType) return null;
+  const masterResource = masterResources.find(r => r.type === npcType && r.category === 'npc');
+  return masterResource?.filename || null;
+};
+
+/**
  * PixiJS-based renderer for the game world.
  * Provides WebGL-accelerated rendering with Canvas 2D fallback.
  *
@@ -357,10 +367,14 @@ const PixiRenderer = ({
   // Uses direct display object position updates instead of React state
   // Animation data: { startPos, currentPos, targetPos, startTime, duration }
   const npcAnimations = useRef({});
-  // Map of NPC id -> Text display object for position updates
+  // Map of NPC id -> display object (Sprite for SVG, Text for emoji) for position updates
   const npcDisplayObjects = useRef({});
+  // Map of NPC id -> display type ('sprite' or 'text') to track what type of display object is used
+  const npcDisplayTypes = useRef({});
   // Ref to track if NPC animation ticker is currently running (for on-demand ticker pattern)
   const npcAnimationTickerRef = useRef(null);
+  // Render version tracking for NPC async renders
+  const npcRenderVersionRef = useRef(0);
 
   // Calculate crafting and trading status for dynamic overlays (same as RenderDynamicElements)
   // NOTE: Date.now() is calculated INSIDE useMemo to avoid dependency on every render.
@@ -849,7 +863,7 @@ const PixiRenderer = ({
     ticker.add(onTick);
   }, [TILE_SIZE]);
 
-  // Render NPCs with animation support (Phase 1 - Emoji symbols)
+  // Render NPCs with animation support (SVG with emoji fallback)
   // Uses object pooling and direct position updates for smooth animation
   // Note: Range indicators are now handled by PixiRendererVFX component
   useEffect(() => {
@@ -857,6 +871,10 @@ const PixiRenderer = ({
 
     const npcContainer = npcContainerRef.current;
     const fontSize = TILE_SIZE * 0.8;
+
+    // Increment render version to invalidate any in-flight async renders
+    npcRenderVersionRef.current += 1;
+    const thisRenderVersion = npcRenderVersionRef.current;
 
     // Track which NPC IDs are currently in the grid
     const currentNpcIds = new Set(npcs.map(npc => npc.id));
@@ -869,72 +887,121 @@ const PixiRenderer = ({
           displayObj.parent.removeChild(displayObj);
         }
         delete npcDisplayObjects.current[npcId];
+        delete npcDisplayTypes.current[npcId];
         delete npcAnimations.current[npcId];
       }
     }
 
-    // Update or create display objects for each NPC
-    for (const npc of npcs) {
-      if (!npc.symbol) continue;
+    // Async function to render NPCs with SVG texture support
+    const renderNPCs = async () => {
+      // Phase 1: Load all SVG textures in parallel for NPCs that have filenames
+      const npcTexturePromises = npcs.map(async (npc) => {
+        const filename = getNPCFilename(npc.type, masterResources);
+        const texture = filename ? await loadSVGTexture(filename) : null;
+        return { npc, texture, filename };
+      });
 
-      const targetPos = npc.position || { x: npc.x, y: npc.y };
-      if (targetPos?.x === undefined || targetPos?.y === undefined) continue;
+      const loadedNPCs = await Promise.all(npcTexturePromises);
 
-      // Check if we already have a display object for this NPC
-      let text = npcDisplayObjects.current[npc.id];
-      const currentAnimation = npcAnimations.current[npc.id];
+      // Check if render is still valid after async load
+      if (thisRenderVersion !== npcRenderVersionRef.current) return;
+      if (!npcContainerRef.current) return;
 
-      if (!text) {
-        // Create new display object
-        text = new Text(npc.symbol, {
-          fontSize: fontSize,
-          fontFamily: 'sans-serif',
-        });
-        text.resolution = 2;
-        text.anchor.set(0.5, 0.5);
-        npcContainer.addChild(text);
-        npcDisplayObjects.current[npc.id] = text;
+      // Phase 2: Update or create display objects for each NPC
+      for (const { npc, texture, filename } of loadedNPCs) {
+        if (!npc.symbol && !texture) continue;
 
-        // Initialize animation state at current position (no animation needed for first time)
-        npcAnimations.current[npc.id] = {
-          startPos: { ...targetPos },
-          currentPos: { ...targetPos },
-          targetPos: { ...targetPos },
-          startTime: Date.now(),
-          duration: 0
-        };
+        const targetPos = npc.position || { x: npc.x, y: npc.y };
+        if (targetPos?.x === undefined || targetPos?.y === undefined) continue;
 
-        // Set initial position
-        text.x = targetPos.x * TILE_SIZE + TILE_SIZE / 2;
-        text.y = targetPos.y * TILE_SIZE + TILE_SIZE / 2;
-      } else {
-        // Update existing display object
-        text.text = npc.symbol;
-        text.style.fontSize = fontSize;
+        // Check if we already have a display object for this NPC
+        let displayObj = npcDisplayObjects.current[npc.id];
+        const currentDisplayType = npcDisplayTypes.current[npc.id];
+        const currentAnimation = npcAnimations.current[npc.id];
 
-        // Check if position changed - start new animation
-        if (currentAnimation &&
-            (currentAnimation.targetPos.x !== targetPos.x ||
-             currentAnimation.targetPos.y !== targetPos.y)) {
-          // Position changed - start new animation from current interpolated position
-          npcAnimations.current[npc.id] = {
-            startPos: { ...currentAnimation.currentPos },
-            currentPos: { ...currentAnimation.currentPos },
-            targetPos: { ...targetPos },
-            startTime: Date.now(),
-            duration: NPC_ANIMATION_DURATION
-          };
-          // Start the animation ticker (on-demand pattern - only runs when needed)
-          startNPCAnimationTicker();
+        // Determine what type of display object we need
+        const needsSprite = texture && texture.valid !== false;
+        const newDisplayType = needsSprite ? 'sprite' : 'text';
+
+        // If display type changed, remove old display object
+        if (displayObj && currentDisplayType !== newDisplayType) {
+          if (displayObj.parent) {
+            displayObj.parent.removeChild(displayObj);
+          }
+          displayObj = null;
         }
 
-        // Get render position (may be mid-animation)
-        const renderPos = getNPCRenderPosition(npc);
-        text.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
-        text.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
+        if (!displayObj) {
+          // Create new display object
+          if (needsSprite) {
+            displayObj = new Sprite(texture);
+            displayObj.width = TILE_SIZE;
+            displayObj.height = TILE_SIZE;
+            displayObj.anchor.set(0.5, 0.5);
+          } else {
+            displayObj = new Text(npc.symbol, {
+              fontSize: fontSize,
+              fontFamily: 'sans-serif',
+            });
+            displayObj.resolution = 2;
+            displayObj.anchor.set(0.5, 0.5);
+          }
+
+          npcContainer.addChild(displayObj);
+          npcDisplayObjects.current[npc.id] = displayObj;
+          npcDisplayTypes.current[npc.id] = newDisplayType;
+
+          // Initialize animation state at current position (no animation needed for first time)
+          npcAnimations.current[npc.id] = {
+            startPos: { ...targetPos },
+            currentPos: { ...targetPos },
+            targetPos: { ...targetPos },
+            startTime: Date.now(),
+            duration: 0
+          };
+
+          // Set initial position
+          displayObj.x = targetPos.x * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = targetPos.y * TILE_SIZE + TILE_SIZE / 2;
+        } else {
+          // Update existing display object
+          if (newDisplayType === 'sprite') {
+            // Update sprite texture and size
+            displayObj.texture = texture;
+            displayObj.width = TILE_SIZE;
+            displayObj.height = TILE_SIZE;
+          } else {
+            // Update text content and style
+            displayObj.text = npc.symbol;
+            displayObj.style.fontSize = fontSize;
+          }
+
+          // Check if position changed - start new animation
+          if (currentAnimation &&
+              (currentAnimation.targetPos.x !== targetPos.x ||
+               currentAnimation.targetPos.y !== targetPos.y)) {
+            // Position changed - start new animation from current interpolated position
+            npcAnimations.current[npc.id] = {
+              startPos: { ...currentAnimation.currentPos },
+              currentPos: { ...currentAnimation.currentPos },
+              targetPos: { ...targetPos },
+              startTime: Date.now(),
+              duration: NPC_ANIMATION_DURATION
+            };
+            // Start the animation ticker (on-demand pattern - only runs when needed)
+            startNPCAnimationTicker();
+          }
+
+          // Get render position (may be mid-animation)
+          const renderPos = getNPCRenderPosition(npc);
+          displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
+        }
       }
-    }
-  }, [npcs, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker]);
+    };
+
+    renderNPCs();
+  }, [npcs, masterResources, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker]);
 
   // Cleanup NPC animation ticker on unmount
   useEffect(() => {
