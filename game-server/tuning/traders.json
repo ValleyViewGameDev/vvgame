@@ -206,7 +206,7 @@
     "relscore": 90,
     "requires1": "Portia's Secret",
     "requires1qty": 1,
-    "requires2": "Prospero's Secret",
+    "requires2": "Gertrude's Secret",
     "requires2qty": 1,
     "requires3": "Mermaid's Secret",
     "requires3qty": 1,
@@ -215,9 +215,7 @@
     "requires5": "Caliban's Secret",
     "requires5qty": 1,
     "requires6": "Titania's Secret",
-    "requires6qty": 1,
-    "requires7": "Gertrude's Secret",
-    "requires7qty": 1
+    "requires6qty": 1
   },
   {
     "trader": "Gertrude",
