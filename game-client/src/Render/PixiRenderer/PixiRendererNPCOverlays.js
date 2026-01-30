@@ -78,6 +78,7 @@ const loadOverlayTexture = async (filename, size) => {
             const pixiTexture = Texture.from(canvas);
             resolve(pixiTexture);
           } catch (error) {
+            console.warn(`⚠️ [NPC OVERLAY] Error creating texture: ${filename}`, error);
             resolve(null);
           } finally {
             URL.revokeObjectURL(url);

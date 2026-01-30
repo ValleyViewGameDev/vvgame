@@ -9,13 +9,13 @@
  *
  * SPILLOVER: To support the fixed player position camera model (player always at 200, 200),
  * we render 2 rows/columns of padding around the 8×8 frontier. This ensures players at edge
- * settlements have visible content at their fixed screen position. Padding uses grass green color.
+ * settlements have visible content at their fixed screen position. Padding uses gray color.
  *
  * Rendering strategy by settlement type:
  * - homesteadSet: 8×8 mini-grid showing 🏠 for owned homesteads, dirt bg for unowned
  * - valley0Set-3Set: 8×8 mini-grid of tree emojis (🌳 or 🌲)
  * - Current settlement: Skipped - rendered by PixiRendererSettlementGrids
- * - Padding settlements (row/col < 0 or >= 8): Solid grass green
+ * - Padding settlements (row/col < 0 or >= 8): Solid gray (not playable)
  */
 
 import React, { useMemo } from 'react';
@@ -32,7 +32,7 @@ const SETTLEMENT_COLORS = {
 };
 
 const GRASS_BORDER = '#5a8f3a';
-const SPILLOVER_COLOR = '#82bb4d';  // Grass green for padding/spillover areas
+const SPILLOVER_COLOR = '#6b6b6b';  // Gray for padding/spillover areas (not playable)
 
 // Current settlement glow color
 const CURRENT_SETTLEMENT_GLOW = '#ffd700';  // Gold/yellow

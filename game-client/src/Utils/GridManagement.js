@@ -117,8 +117,6 @@ export const changePlayerLocation = async (
   transitionFadeControl = null // ✅ Add transition fade control
 ) => {
 
-  console.log('🚀 [GRID TRANSITION] Starting transactional grid change...');
-  
   // Start fade to black immediately when location change is detected
   if (transitionFadeControl?.startTransition) {
     transitionFadeControl.startTransition();
@@ -144,19 +142,12 @@ export const changePlayerLocation = async (
 
   const canProceed = await locationChangeManager.requestLocationChange(changeRequest);
   if (!canProceed) {
-    console.log('🚫 Location change blocked - another change in progress');
     if (updateStatus) {
       updateStatus('Location change in progress, please wait...');
     }
     return false;
   }
 
-  // ================================
-  // PHASE 1: PREPARATION
-  // ================================
-  console.log('📋 [PHASE 1] PREPARATION - Disabling interaction and showing loading');
-
-  
   // Close all panels before transition
   if (closeAllPanels) {
     closeAllPanels();
@@ -177,11 +168,6 @@ export const changePlayerLocation = async (
   }
 
   try {
-    // ================================
-    // PHASE 2: CLEANUP
-    // ================================
-    console.log('🧹 [PHASE 2] CLEANUP - Removing from old grid and flushing updates');
-    
     if (updateStatus) {
       updateStatus('Leaving ...');
     }
@@ -191,29 +177,23 @@ export const changePlayerLocation = async (
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
     const fromPlayerState = inMemoryFromPlayerState || fromPCs[playerId] || {};
-    
-    console.log('💾 [CLEANUP] Preserving player state:', fromPlayerState);
 
     // Flush all pending updates BEFORE removing player
-    console.log('💾 [CLEANUP] Flushing pending position updates...');
     await Promise.all([
       NPCsInGridManager.flushGridPositionUpdates(fromLocation.g),
       playersInGridManager.flushGridPositionUpdates(fromLocation.g)
     ]);
-    
+
     // Stop all timers and intervals for the old grid to prevent memory accumulation
-    console.log('🕐 [CLEANUP] Stopping all timers and intervals for old grid...');
     try {
       NPCsInGridManager.stopGridTimer();
       playersInGridManager.stopBatchSaving();
       farmState.stopSeedTimer(); // Stop FarmState timer before grid change
-      console.log('✅ [CLEANUP] Timers stopped successfully');
     } catch (timerError) {
       console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
     }
 
     // Remove player from old grid with immediate DB persistence
-    console.log('🚫 [CLEANUP] Removing player from old grid...');
     await playersInGridManager.removePC(fromLocation.g, playerId);
 
     // Emit socket events for leaving
@@ -223,22 +203,15 @@ export const changePlayerLocation = async (
       username: currentPlayer.username,
     });
     socket.emit('leave-grid', fromLocation.g);
-    
-    // ================================
-    // PHASE 3: LOAD NEW DATA
-    // ================================
-    console.log('📦 [PHASE 3] LOAD - Loading new grid data completely');
-    
+
     if (updateStatus) {
       updateStatus('Loading ...');
     }
 
     // Load grid state data
-    console.log('📡 [LOAD] Fetching grid state data...');
     const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-    
+
     // Pre-load grid data to validate it exists, but don't apply to state yet
-    console.log('📡 [LOAD] Pre-loading grid data for validation...');
     const gridDataResponse = await axios.get(`${API_BASE}/api/load-grid/${toLocation.g}`);
     const newTilesData = gridDataResponse.data?.tiles || [];
     const newResourcesData = gridDataResponse.data?.resources || [];
@@ -246,17 +219,11 @@ export const changePlayerLocation = async (
     // Extract region from the new grid for region transition notifications
     const toRegion = gridDataResponse.data?.region || null;
     const fromRegion = currentPlayer.location?.region || null;
-    console.log(`🗺️ [LOAD] Region transition check: from "${fromRegion || 'none'}" to "${toRegion || 'none'}"`);
 
     const toPCs = toGridResponse.data?.playersInGrid?.pcs || {};
-    
+
     // Prepare player data with preserved combat stats
     const now = Date.now();
-    
-    console.log('👤 [LOAD] Preparing player data with preserved stats...');
-    console.log('  fromPlayerState.hp:', fromPlayerState.hp);
-    console.log('  fromPlayerState.maxhp:', fromPlayerState.maxhp);
-    
     const finalHp = fromPlayerState.hp ?? currentPlayer.hp ?? 25;
     const finalMaxHp = fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25;
     
@@ -277,73 +244,43 @@ export const changePlayerLocation = async (
       isinboat: fromPlayerState.isinboat ?? currentPlayer.isinboat ?? false,
       lastUpdated: now,
     };
-    
-    // ================================
-    // PHASE 4: VALIDATION
-    // ================================
-    console.log('✅ [PHASE 4] VALIDATION - Verifying all data loaded successfully');
-    
-    if (updateStatus) {
-      updateStatus('Validating ...');
-    }
-    
+
     // Validate that all required data was loaded
     const validationChecks = {
       tiles: Array.isArray(newTilesData) && newTilesData.length > 0,
       resources: Array.isArray(newResourcesData),
       gridState: toGridResponse.data && typeof toGridResponse.data === 'object',
-      playerData: playerData && 
-                  typeof playerData.playerId === 'string' && 
+      playerData: playerData &&
+                  typeof playerData.playerId === 'string' &&
                   typeof playerData.username === 'string' &&
                   playerData.playerId.length > 0 &&
                   playerData.username.length > 0
     };
-    
-    console.log('🔍 [VALIDATION] Data validation results:', validationChecks);
-    console.log('🔍 [VALIDATION] Player data details:', {
-      playerId: playerData.playerId,
-      username: playerData.username,
-      type: typeof playerData.playerId,
-      valid: validationChecks.playerData
-    });
-    
+
     const allValid = Object.values(validationChecks).every(check => check === true);
     if (!allValid) {
       throw new Error(`Validation failed: ${JSON.stringify(validationChecks)}`);
     }
-    
-    console.log('✅ [VALIDATION] All data validation checks passed');
-    
-    // ================================
-    // PHASE 5: COMMIT STATE ATOMICALLY
-    // ================================
-    console.log('🔄 [PHASE 5] COMMIT - Atomically swapping to new grid state');
-    
+
     if (updateStatus) {
       updateStatus('Entering ...');
     }
-    
-    // Step 1: Join socket room first (ensure socket is connected)
+
+    // Join socket room first (ensure socket is connected)
     if (socket.connected) {
       socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
-      console.log('📡 Emitted join-grid for grid transition:', toLocation.g);
     } else {
       console.warn('⚠️ Socket not connected during grid transition, waiting...');
       await new Promise((resolve) => {
         socket.once('connect', () => {
           socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
-          console.log('📡 Emitted join-grid after reconnect:', toLocation.g);
           resolve();
         });
       });
     }
-    
-    // Step 2: Add player to new grid database
-    console.log('📤 [COMMIT] Adding player to new grid database...');
+
+    // Add player to new grid database
     await playersInGridManager.addPC(toLocation.g, playerId, playerData);
-    
-    // Step 3: Update player location in database
-    console.log('📍 [COMMIT] Updating player location in database...');
     const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
       playerId: playerId,
       location: toLocation,
@@ -353,12 +290,6 @@ export const changePlayerLocation = async (
       throw new Error(`Failed to update player location: ${locationResponse.data.error}`);
     }
     
-    // Step 4: HYPOTHESIS TEST - Don't clear SVG cache to see if that's causing the issue
-    console.log('🧪 [COMMIT] HYPOTHESIS TEST: Keeping SVG cache (not clearing)');
-    
-    // Step 5: ATOMICALLY COMMIT ALL STATE CHANGES
-    console.log('⚡ [COMMIT] Atomically committing all state changes...');
-
     // Clear grid and resources (but NOT tileTypes - see note below)
     // IMPORTANT: We do NOT clear tileTypes here to prevent PixiRenderer from unmounting.
     // Clearing tileTypes causes tileTypes.length to become 0, which unmounts PixiRenderer,
@@ -384,68 +315,24 @@ export const changePlayerLocation = async (
     };
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
-    
-    // Now properly initialize the grid with tiles and resources using the correct function
-    console.log('🔄 [COMMIT] Initializing grid with proper tile loading...');
+
+    // Initialize the grid with tiles and resources
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources);
 
-    console.log('✅ [COMMIT] State successfully committed with proper grid initialization');
-
-    // ================================
-    // POST-INIT DIAGNOSTICS
-    // ================================
-    console.log('🔍 [POST-INIT] Running grid transition diagnostics...');
-
-    // Check tile state
-    const postInitTiles = GlobalGridStateTilesAndResources.getTiles();
+    // Get resources for SVG preloading
     const postInitResources = GlobalGridStateTilesAndResources.getResources();
 
-    console.log('🔍 [POST-INIT] Tile/Resource State:', {
-      tilesCount: postInitTiles?.length || 0,
-      tilesIsArray: Array.isArray(postInitTiles),
-      tilesFirstItem: postInitTiles?.[0],
-      resourcesCount: postInitResources?.length || 0,
-      resourcesIsArray: Array.isArray(postInitResources),
-      resourcesFirstItem: postInitResources?.[0],
-      resourcesWithFilename: postInitResources?.filter(r => {
-        const master = masterResources?.find(m => m.type === r.type);
-        return master?.filename;
-      })?.length || 0
-    });
-
-    // Check SVG cache state
-    const svgDiagnosis = SVGAssetManager.diagnoseLoadingState();
-    console.log('🔍 [POST-INIT] SVG Cache Health:', svgDiagnosis);
-
-    // Log if there are resources that need SVGs but SVG cache is empty
-    if (postInitResources?.length > 0 && svgDiagnosis.textures === 0) {
-      console.warn('⚠️ [POST-INIT] WARNING: Resources exist but SVG texture cache is empty!');
-      console.warn('⚠️ [POST-INIT] This may cause blank resource rendering.');
-    }
-
-    // ================================
-    // SVG PRELOADING
-    // ================================
     // Preload SVGs to ensure they're ready before we fade in
     if (masterResources && postInitResources?.length > 0) {
-      console.log('🖼️ [SVG PRELOAD] Preloading SVGs for grid resources...');
       if (updateStatus) {
         updateStatus('Loading assets...');
       }
 
-      const preloadResult = await SVGAssetManager.preloadResourceSVGs(
+      await SVGAssetManager.preloadResourceSVGs(
         postInitResources,
         masterResources,
         TILE_SIZE
       );
-
-      if (!preloadResult.success) {
-        console.warn('⚠️ [SVG PRELOAD] Some SVGs failed to load:', preloadResult.results);
-      } else {
-        console.log('✅ [SVG PRELOAD] All SVGs preloaded successfully');
-      }
-    } else {
-      console.log('🖼️ [SVG PRELOAD] Skipping preload - no masterResources or no resources');
     }
 
     // ✅ CHECK: First time visiting valley - award trophy and show notification

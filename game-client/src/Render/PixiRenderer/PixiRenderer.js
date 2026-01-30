@@ -34,6 +34,51 @@ import { isResourceAnimating, getAnimationVersion, registerForceRender } from '.
 const svgTextureCache = new Map();
 const svgLoadingPromises = new Map();
 
+// Global reference to the current PixiJS renderer for texture creation validation
+// This ensures textures are only created when a valid WebGL context exists
+let activePixiRenderer = null;
+
+// Global FPS cap state and toggle function for debug panel
+// Note: PixiJS has a bug where exact values like 30 or 60 don't work reliably
+// on high refresh rate displays. Using slightly lower values (29.97, 59.97) works around this.
+// See: https://github.com/pixijs/pixijs/issues/5741
+let currentMaxFPS = 30;
+
+const getActualMaxFPS = (targetFPS) => {
+  // Use slightly lower value to work around PixiJS maxFPS bug
+  return targetFPS - 0.03;
+};
+
+export const toggleFPSCap = () => {
+  currentMaxFPS = currentMaxFPS === 30 ? 60 : 30;
+  if (activePixiRenderer?.ticker) {
+    activePixiRenderer.ticker.maxFPS = getActualMaxFPS(currentMaxFPS);
+  }
+  return currentMaxFPS;
+};
+
+export const getCurrentFPSCap = () => currentMaxFPS;
+
+// FPS sampling for smooth average (ticker.FPS is instantaneous and fluctuates)
+const fpsSamples = [];
+const FPS_SAMPLE_COUNT = 10;
+
+// Get smoothed average FPS from PixiJS ticker (for debug panel)
+export const getPixiActualFPS = () => {
+  if (activePixiRenderer?.ticker) {
+    // Add current sample
+    fpsSamples.push(activePixiRenderer.ticker.FPS);
+    // Keep only recent samples
+    if (fpsSamples.length > FPS_SAMPLE_COUNT) {
+      fpsSamples.shift();
+    }
+    // Return average
+    const avg = fpsSamples.reduce((a, b) => a + b, 0) / fpsSamples.length;
+    return Math.round(avg);
+  }
+  return 0;
+};
+
 /**
  * Clear all cached textures (called on unmount or WebGL context loss)
  * Properly destroys PixiJS textures before clearing the cache
@@ -130,6 +175,14 @@ const loadSVGTexture = async (filename, isOverlay = false) => {
         img.onload = () => {
           clearTimeout(loadTimeout);
           try {
+            // Validate that WebGL context is still valid before creating texture
+            if (!activePixiRenderer || !activePixiRenderer.renderer) {
+              console.warn(`⚠️ [SVG] Skipping texture creation - no valid renderer: ${filename}`);
+              URL.revokeObjectURL(url);
+              resolve(null);
+              return;
+            }
+
             ctx.drawImage(img, 0, 0, renderSize, renderSize);
             // Create PixiJS texture from canvas
             // v7: Use Texture.from() with canvas
@@ -425,6 +478,14 @@ const PixiRenderer = ({
       // Store app reference
       appRef.current = app;
 
+      // Set global reference for texture creation validation
+      // This ensures loadSVGTexture can check if the renderer is still valid
+      activePixiRenderer = app;
+
+      // Set default FPS cap to 30 for power efficiency
+      // This reduces GPU/CPU usage significantly without noticeable impact for casual games
+      app.ticker.maxFPS = getActualMaxFPS(currentMaxFPS);
+
       // Add canvas to DOM (v7 uses app.view, not app.canvas)
       containerRef.current.appendChild(app.view);
 
@@ -503,6 +564,9 @@ const PixiRenderer = ({
 
     // Cleanup on unmount
     return () => {
+      // Clear global renderer reference FIRST to prevent texture creation during cleanup
+      activePixiRenderer = null;
+
       if (appRef.current) {
         // Remove context loss handlers
         const canvas = appRef.current.view;
@@ -532,11 +596,9 @@ const PixiRenderer = ({
       if (document.hidden) {
         // Tab is hidden - stop the ticker to save CPU
         appRef.current.ticker.stop();
-        console.log('⏸️ PixiJS ticker paused (tab hidden)');
       } else {
         // Tab is visible - resume the ticker
         appRef.current.ticker.start();
-        console.log('▶️ PixiJS ticker resumed (tab visible)');
       }
     };
 
@@ -606,6 +668,9 @@ const PixiRenderer = ({
 
         // Generate texture with details and corner rounding
         const texture = generateTileTexture(tileType, row, col, tileTypes);
+
+        // Skip if texture creation failed (e.g., WebGL context issue)
+        if (!texture) continue;
 
         // Create sprite and position it
         const sprite = new Sprite(texture);

@@ -11,6 +11,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, createSingleValleyGrid } from './WorldGeneration';
 import { updatePlayerSettings } from '../settings';
+import { toggleFPSCap, getCurrentFPSCap, getPixiActualFPS } from '../Render/PixiRenderer/PixiRenderer';
 
 const DebugPanel = ({
   onClose,
@@ -36,6 +37,7 @@ const DebugPanel = ({
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
   const [orphanedGridId, setOrphanedGridId] = useState('');
+  const [fpsCap, setFpsCap] = useState(getCurrentFPSCap());
 
   // PixiJS is now the only renderer - legacy V2 tiles and PixiJS toggles removed
   
@@ -123,58 +125,49 @@ const DebugPanel = ({
 
   // Performance monitoring useEffect
   useEffect(() => {
-    let frameCount = 0;
-    let lastTime = performance.now();
-    let animationFrameId;
+    let intervalId;
 
     const measurePerformance = () => {
-      frameCount++;
-      const currentTime = performance.now();
-      
-      // Calculate FPS every second
-      if (currentTime - lastTime >= 1000) {
-        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-        
-        // Count DOM elements
-        const domElementCount = document.querySelectorAll('*').length;
-        
-        // Detect render mode by checking for canvas vs DOM tiles
-        const hasCanvasTiles = document.querySelector('canvas[style*="position: absolute"]') !== null;
-        const hasDOMTiles = document.querySelector('.tile-g, .tile-s, .tile-d, .tile-w, .tile-l, .tile-p, .tile-n, .tile-o') !== null;
-        let renderMode = 'Unknown';
-        if (hasCanvasTiles && !hasDOMTiles) {
-          renderMode = 'Canvas';
-        } else if (!hasCanvasTiles && hasDOMTiles) {
-          renderMode = 'DOM';
-        } else if (hasCanvasTiles && hasDOMTiles) {
-          renderMode = 'Mixed';
-        }
-        
-        // Get memory usage if available
-        let memoryUsage = 0;
-        if (performance.memory) {
-          memoryUsage = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024); // MB
-        }
-        
-        setPerformanceMetrics({
-          fps,
-          domElementCount,
-          memoryUsage,
-          renderMode
-        });
-        
-        frameCount = 0;
-        lastTime = currentTime;
+      // Get FPS directly from PixiJS ticker (reflects actual render rate with maxFPS cap)
+      const fps = getPixiActualFPS();
+
+      // Count DOM elements
+      const domElementCount = document.querySelectorAll('*').length;
+
+      // Detect render mode by checking for canvas vs DOM tiles
+      const hasCanvasTiles = document.querySelector('canvas[style*="position: absolute"]') !== null;
+      const hasDOMTiles = document.querySelector('.tile-g, .tile-s, .tile-d, .tile-w, .tile-l, .tile-p, .tile-n, .tile-o') !== null;
+      let renderMode = 'Unknown';
+      if (hasCanvasTiles && !hasDOMTiles) {
+        renderMode = 'Canvas';
+      } else if (!hasCanvasTiles && hasDOMTiles) {
+        renderMode = 'DOM';
+      } else if (hasCanvasTiles && hasDOMTiles) {
+        renderMode = 'Mixed';
       }
-      
-      animationFrameId = requestAnimationFrame(measurePerformance);
+
+      // Get memory usage if available
+      let memoryUsage = 0;
+      if (performance.memory) {
+        memoryUsage = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024); // MB
+      }
+
+      setPerformanceMetrics({
+        fps,
+        domElementCount,
+        memoryUsage,
+        renderMode
+      });
     };
-    
-    animationFrameId = requestAnimationFrame(measurePerformance);
-    
+
+    // Update every second
+    intervalId = setInterval(measurePerformance, 1000);
+    // Initial measurement
+    measurePerformance();
+
     return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
   }, []);
@@ -1067,6 +1060,19 @@ const handleGetRich = async () => {
           {/* Row 4: Values */}
           <div>{performanceMetrics.domElementCount.toLocaleString()}</div>
           <div>{performanceMetrics.memoryUsage > 0 ? `${performanceMetrics.memoryUsage} MB` : 'N/A'}</div>
+        </div>
+        {/* FPS Cap Toggle */}
+        <div style={{ marginTop: '8px', borderTop: '1px solid #ccc', paddingTop: '8px' }}>
+          <button
+            className="btn-basic btn-neutral"
+            onClick={() => {
+              const newCap = toggleFPSCap();
+              setFpsCap(newCap);
+            }}
+            style={{ width: '100%', fontSize: '11px' }}
+          >
+            FPS Cap: {fpsCap} → Toggle to {fpsCap === 30 ? 60 : 30}
+          </button>
         </div>
       </div>
       

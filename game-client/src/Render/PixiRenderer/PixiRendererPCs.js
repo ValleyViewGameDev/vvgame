@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Graphics, Container, Text } from 'pixi.js-legacy';
+import { Container, Text } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
 
 // FTUE Cave dungeon grid ID - players in this grid should only see themselves
@@ -10,7 +10,6 @@ const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
  *
  * Handles rendering of:
  * - PC icons (emoji-based, with state modifications)
- * - Current player highlight (yellow circle)
  * - Offline player transparency
  * - State-based icon changes (dead, low health, camping, in boat)
  * - FTUE isolation (hides other PCs in tutorial dungeon)
@@ -32,7 +31,6 @@ const PixiRendererPCs = ({
 
   // Object pools for reuse - prevents memory leaks
   const textPoolRef = useRef([]);           // Pool of Text objects for PC icons
-  const highlightGraphicRef = useRef(null); // Single Graphics for current player highlight
 
   // Ref to track if animation ticker is running (on-demand pattern)
   const animationTickerRef = useRef(null);
@@ -117,13 +115,6 @@ const PixiRendererPCs = ({
 
     pcContainerRef.current = pcContainer;
 
-    // Create persistent highlight graphic (only one current player)
-    if (!highlightGraphicRef.current) {
-      highlightGraphicRef.current = new Graphics();
-      // Add highlight first so it renders behind text
-      pcContainer.addChildAt(highlightGraphicRef.current, 0);
-    }
-
     // Add any existing pool texts to the container
     textPoolRef.current.forEach(t => {
       if (!t.parent) {
@@ -134,7 +125,6 @@ const PixiRendererPCs = ({
     return () => {
       // Cleanup on unmount
       // NOTE: Don't call .destroy() - parent PixiRenderer handles that
-      highlightGraphicRef.current = null;
       textPoolRef.current = [];
       pcContainerRef.current = null;
     };
@@ -160,13 +150,8 @@ const PixiRendererPCs = ({
    */
   const renderPCs = useCallback(() => {
     const container = pcContainerRef.current;
-    const highlightGraphic = highlightGraphicRef.current;
 
-    if (!container || !highlightGraphic) return;
-
-    // Clear highlight (will redraw if needed)
-    highlightGraphic.clear();
-    highlightGraphic.visible = false;
+    if (!container) return;
 
     let textsUsed = 0;
 
@@ -210,14 +195,6 @@ const PixiRendererPCs = ({
       text.y = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
       text.alpha = isConnected ? 1.0 : 0.4;
 
-      // Draw highlight for current player
-      if (isCurrentPlayer) {
-        highlightGraphic.beginFill(0xFFFF00, 0.3); // Yellow with 30% opacity
-        highlightGraphic.drawCircle(text.x, text.y, TILE_SIZE * 0.45);
-        highlightGraphic.endFill();
-        highlightGraphic.visible = true;
-      }
-
       textsUsed++;
     }
 
@@ -230,15 +207,14 @@ const PixiRendererPCs = ({
     renderPCs();
   }, [renderPCs]);
 
-  // Start animation ticker on-demand when animations are detected
-  // This prevents continuous 60fps polling when PCs are idle
+  // Start animation loop on-demand when animations are detected
+  // IMPORTANT: Uses requestAnimationFrame instead of PixiJS ticker to ensure smooth
+  // PC movement even when the main render is capped at 30fps. This decouples
+  // PC position updates from the scene render rate.
   const startAnimationTicker = useCallback(() => {
     if (animationTickerRef.current) return; // Already running
-    if (!app?.ticker) return;
 
-    const ticker = app.ticker;
-
-    const onTick = () => {
+    const onFrame = () => {
       // Check if any PC has an active animation position
       const hasActiveAnimations = pcs?.some(pc =>
         pc.playerId && renderPositions[pc.playerId]
@@ -247,25 +223,24 @@ const PixiRendererPCs = ({
       if (hasActiveAnimations) {
         noAnimationFramesRef.current = 0;
         renderPCs();
+        // Continue the animation loop
+        animationTickerRef.current = requestAnimationFrame(onFrame);
       } else {
-        // No animations - increment counter and remove ticker after a few idle frames
+        // No animations - increment counter and stop after a few idle frames
         noAnimationFramesRef.current++;
         if (noAnimationFramesRef.current > 5) {
-          // Remove ticker when idle to save CPU
-          try {
-            ticker.remove(onTick);
-          } catch (e) {
-            // Ticker may be destroyed
-          }
+          // Stop the animation loop when idle to save CPU
           animationTickerRef.current = null;
           noAnimationFramesRef.current = 0;
+        } else {
+          // Keep checking for a few more frames
+          animationTickerRef.current = requestAnimationFrame(onFrame);
         }
       }
     };
 
-    animationTickerRef.current = onTick;
-    ticker.add(onTick);
-  }, [app, pcs, renderPCs]);
+    animationTickerRef.current = requestAnimationFrame(onFrame);
+  }, [pcs, renderPCs]);
 
   // Check for animations on each render and start ticker if needed
   // This is triggered by parent re-renders when player moves
@@ -278,19 +253,15 @@ const PixiRendererPCs = ({
     }
   }, [pcs, startAnimationTicker]);
 
-  // Cleanup animation ticker on unmount
+  // Cleanup animation loop on unmount
   useEffect(() => {
     return () => {
-      if (animationTickerRef.current && app?.ticker) {
-        try {
-          app.ticker.remove(animationTickerRef.current);
-        } catch (e) {
-          // Ticker may be destroyed
-        }
+      if (animationTickerRef.current) {
+        cancelAnimationFrame(animationTickerRef.current);
         animationTickerRef.current = null;
       }
     };
-  }, [app]);
+  }, []);
 
   // This component doesn't render any DOM elements
   return null;

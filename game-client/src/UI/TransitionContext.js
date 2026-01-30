@@ -51,12 +51,10 @@ export const TransitionProvider = ({ children }) => {
   const fadeToBlack = useCallback(() => {
     return new Promise((resolve) => {
       if (isLockedRef.current) {
-        console.log('🎬 [TRANSITION] Already locked, resolving immediately');
         resolve();
         return;
       }
 
-      console.log('🎬 [TRANSITION] fadeToBlack starting');
       isLockedRef.current = true;
       setIsVisible(true);
 
@@ -73,7 +71,6 @@ export const TransitionProvider = ({ children }) => {
               }
               // Wait for CSS transition to complete
               setTimeout(() => {
-                console.log('🎬 [TRANSITION] fadeToBlack complete');
                 resolve();
               }, FADE_TO_BLACK_DURATION);
             });
@@ -91,12 +88,10 @@ export const TransitionProvider = ({ children }) => {
   const fadeFromBlack = useCallback(() => {
     return new Promise((resolve) => {
       if (!isLockedRef.current) {
-        console.log('🎬 [TRANSITION] Not locked, nothing to fade from');
         resolve();
         return;
       }
 
-      console.log('🎬 [TRANSITION] fadeFromBlack starting');
       if (overlayRef.current) {
         // Set transition duration for fade-from-black
         overlayRef.current.style.transition = `opacity ${FADE_FROM_BLACK_DURATION / 1000}s ease-in-out`;
@@ -105,7 +100,6 @@ export const TransitionProvider = ({ children }) => {
 
       // Wait for CSS transition to complete
       setTimeout(() => {
-        console.log('🎬 [TRANSITION] fadeFromBlack complete');
         setIsVisible(false);
         isLockedRef.current = false;
         resolve();

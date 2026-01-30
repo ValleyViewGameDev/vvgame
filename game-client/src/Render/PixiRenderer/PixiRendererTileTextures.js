@@ -980,11 +980,15 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
     }
   }
 
-  // Convert to PixiJS texture
-  const texture = Texture.from(canvas);
-  tileTextureCache.set(cacheKey, texture);
-
-  return texture;
+  // Convert to PixiJS texture with error handling
+  try {
+    const texture = Texture.from(canvas);
+    tileTextureCache.set(cacheKey, texture);
+    return texture;
+  } catch (error) {
+    console.warn(`⚠️ [TILE TEXTURE] Error creating texture for ${tileType} at (${row}, ${col}):`, error);
+    return null;
+  }
 }
 
 /**
