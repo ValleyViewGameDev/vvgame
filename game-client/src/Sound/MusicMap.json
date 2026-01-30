@@ -1,11 +1,19 @@
 [
   {
-    "music": "homestead",
+    "music": [ "homestead", "homestead2" ],
     "gtype": "homestead"
   },
   {
     "music": "valley1",
     "gtype": "valley1"
+  },
+  {
+    "music": "valley2",
+    "gtype": "valley2"
+  },  
+  {
+    "music": "town1",
+    "gtype": "town"
   },
   {
     "music": "scary",

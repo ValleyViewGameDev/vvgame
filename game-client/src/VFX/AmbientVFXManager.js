@@ -9,11 +9,17 @@ class AmbientVFXManager {
     this.currentEffectName = null;
     this.app = null;
     this.worldContainer = null;
+    this.enabled = true; // Whether ambient VFX are enabled
     // Store pending location if onGridEnter is called before PixiJS is ready
     this.pendingLocation = null;
     this.pendingGridWidth = null;
     this.pendingGridHeight = null;
     this.pendingTileSize = null;
+    // Store current location info for re-enabling
+    this.currentLocation = null;
+    this.currentGridWidth = null;
+    this.currentGridHeight = null;
+    this.currentTileSize = null;
   }
 
   setPixiApp(app) {
@@ -92,6 +98,12 @@ class AmbientVFXManager {
    * Actually start the effect (called when PixiJS is ready)
    */
   startEffect(location, gridWidth, gridHeight, TILE_SIZE) {
+    // Store location info for re-enabling later
+    this.currentLocation = location;
+    this.currentGridWidth = gridWidth;
+    this.currentGridHeight = gridHeight;
+    this.currentTileSize = TILE_SIZE;
+
     const { gtype, region } = location;
     const effectName = this.getEffectForLocation(gtype, region);
 
@@ -110,6 +122,13 @@ class AmbientVFXManager {
       });
       this.currentEffect = null;
       this.currentEffectName = null;
+    }
+
+    // Don't start new effect if disabled
+    if (!this.enabled) {
+      this.currentEffectName = effectName; // Store what would play
+      console.log(`AmbientVFX: Disabled, not starting '${effectName}'`);
+      return;
     }
 
     // Start new effect if applicable
@@ -159,6 +178,42 @@ class AmbientVFXManager {
    */
   getCurrentEffectName() {
     return this.currentEffectName;
+  }
+
+  /**
+   * Enable or disable ambient VFX
+   */
+  setEnabled(enabled) {
+    this.enabled = enabled;
+
+    if (!enabled) {
+      // Fade out and stop current effect
+      if (this.currentEffect) {
+        const oldEffect = this.currentEffect;
+        oldEffect.fadeOut(() => {
+          oldEffect.destroy();
+        });
+        this.currentEffect = null;
+        // Keep currentEffectName so we know what to restore
+      }
+    } else {
+      // Re-enable: restart the effect if we have location info
+      if (this.currentLocation && this.app && this.worldContainer) {
+        this.startEffect(
+          this.currentLocation,
+          this.currentGridWidth,
+          this.currentGridHeight,
+          this.currentTileSize
+        );
+      }
+    }
+  }
+
+  /**
+   * Check if ambient VFX are enabled
+   */
+  isEnabled() {
+    return this.enabled;
   }
 }
 

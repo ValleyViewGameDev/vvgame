@@ -14,24 +14,50 @@ class SoundManager {
     this.fadeInterval = null;
     this.pendingTrack = null; // Track to play after current fade out
     this.soundEffectsEnabled = true; // Sound effects on by default
+
+    // Playlist cycling
+    this.currentPlaylist = null; // Array of track names for current location
+    this.currentPlaylistIndex = 0; // Current position in playlist
   }
 
   /**
-   * Determine which music track to play based on gtype and region
+   * Determine which music track(s) to play based on gtype and region
    * More specific matches (gtype + region) take priority
+   * Returns an array of track names (normalizes single track to array)
    */
-  getTrackForLocation(gtype, region) {
+  getTracksForLocation(gtype, region) {
     // First look for specific gtype + region match
     const specificMatch = MusicMap.find(
       entry => entry.gtype === gtype && entry.region === region
     );
-    if (specificMatch) return specificMatch.music;
+    if (specificMatch) {
+      return this.normalizeToArray(specificMatch.music);
+    }
 
     // Fall back to gtype-only match (no region specified in map)
     const gtypeMatch = MusicMap.find(
       entry => entry.gtype === gtype && !entry.region
     );
-    return gtypeMatch?.music || null;
+    return gtypeMatch ? this.normalizeToArray(gtypeMatch.music) : null;
+  }
+
+  /**
+   * Normalize a track definition to an array
+   * Handles both single string and array of strings
+   */
+  normalizeToArray(music) {
+    if (!music) return null;
+    return Array.isArray(music) ? music : [music];
+  }
+
+  /**
+   * Check if two playlists are the same
+   */
+  playlistsMatch(a, b) {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    return a.every((track, i) => track === b[i]);
   }
 
   /**
@@ -44,32 +70,78 @@ class SoundManager {
     }
 
     const { gtype, region } = location;
-    const trackName = this.getTrackForLocation(gtype, region);
+    const tracks = this.getTracksForLocation(gtype, region);
 
-    console.log(`SoundManager: Looking for track - gtype: '${gtype}', region: '${region}', found: '${trackName}'`);
+    console.log(`SoundManager: Looking for tracks - gtype: '${gtype}', region: '${region}', found:`, tracks);
 
-    // If same track is already playing, keep it
-    if (trackName === this.currentTrackName && this.currentAudio) {
+    // If same playlist is already playing, keep it
+    if (this.playlistsMatch(tracks, this.currentPlaylist) && this.currentAudio) {
       return;
     }
 
-    // If we have a current track, fade it out first, then play new track
+    // If we have a current track, fade it out first, then start new playlist
     if (this.currentAudio) {
-      this.pendingTrack = trackName;
+      this.pendingTrack = tracks;
       this.fadeOut(() => {
-        this.playTrack(this.pendingTrack);
+        this.startPlaylist(this.pendingTrack);
         this.pendingTrack = null;
       });
     } else {
-      // No current track, just play the new one
-      this.playTrack(trackName);
+      // No current track, just start the new playlist
+      this.startPlaylist(tracks);
     }
   }
 
   /**
-   * Play a music track with fade in
+   * Start playing a playlist of tracks
    */
-  playTrack(trackName) {
+  startPlaylist(tracks) {
+    if (!tracks || tracks.length === 0) {
+      console.log('SoundManager: No tracks to play');
+      this.currentPlaylist = null;
+      this.currentPlaylistIndex = 0;
+      this.currentTrackName = null;
+      return;
+    }
+
+    this.currentPlaylist = tracks;
+    this.currentPlaylistIndex = 0;
+    this.playCurrentPlaylistTrack();
+  }
+
+  /**
+   * Play the current track in the playlist
+   */
+  playCurrentPlaylistTrack() {
+    if (!this.currentPlaylist || this.currentPlaylist.length === 0) return;
+
+    const trackName = this.currentPlaylist[this.currentPlaylistIndex];
+    this.playTrack(trackName, false); // Don't loop - we handle cycling ourselves
+  }
+
+  /**
+   * Called when a track ends - advance to next in playlist
+   */
+  onTrackEnded() {
+    if (!this.currentPlaylist || this.currentPlaylist.length === 0) return;
+
+    // Move to next track in playlist (cycling back to start)
+    this.currentPlaylistIndex = (this.currentPlaylistIndex + 1) % this.currentPlaylist.length;
+
+    console.log(`SoundManager: Track ended, cycling to index ${this.currentPlaylistIndex} of ${this.currentPlaylist.length}`);
+
+    // Fade out current, then fade in next
+    this.fadeOut(() => {
+      this.playCurrentPlaylistTrack();
+    });
+  }
+
+  /**
+   * Play a music track with fade in
+   * @param {string} trackName - Name of the track to play
+   * @param {boolean} loop - Whether to loop (default false for playlist mode)
+   */
+  playTrack(trackName, loop = false) {
     if (!trackName) {
       console.log('SoundManager: No track to play');
       this.currentTrackName = null;
@@ -81,14 +153,26 @@ class SoundManager {
 
     try {
       const audio = new Audio(audioPath);
-      audio.loop = true;
+      audio.loop = loop;
       audio.volume = 0; // Start silent for fade in
+
+      // Handle track end for playlist cycling
+      audio.onended = () => {
+        if (!audio.loop && this.currentAudio === audio) {
+          this.onTrackEnded();
+        }
+      };
 
       // Handle load errors
       audio.onerror = (e) => {
         console.error(`SoundManager: Failed to load track '${trackName}'`, e);
         this.currentAudio = null;
         this.currentTrackName = null;
+        // Try next track in playlist if available
+        if (this.currentPlaylist && this.currentPlaylist.length > 1) {
+          this.currentPlaylistIndex = (this.currentPlaylistIndex + 1) % this.currentPlaylist.length;
+          this.playCurrentPlaylistTrack();
+        }
       };
 
       // Start playing once loaded
@@ -276,6 +360,8 @@ class SoundManager {
       this.currentAudio = null;
       this.currentTrackName = null;
     }
+    this.currentPlaylist = null;
+    this.currentPlaylistIndex = 0;
   }
 
   /**
@@ -290,6 +376,18 @@ class SoundManager {
    */
   getCurrentTrackName() {
     return this.currentTrackName;
+  }
+
+  /**
+   * Get info about current playlist for debug
+   */
+  getPlaylistInfo() {
+    if (!this.currentPlaylist) return null;
+    return {
+      tracks: this.currentPlaylist,
+      currentIndex: this.currentPlaylistIndex,
+      total: this.currentPlaylist.length
+    };
   }
 
   /**

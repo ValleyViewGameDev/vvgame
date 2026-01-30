@@ -126,6 +126,10 @@ export const initializeGrid = async (
     // Trigger ambient VFX and music for the new grid
     const gridWidth = tiles?.[0]?.length || 24;
     const gridHeight = tiles?.length || 24;
+
+    // Respect player's VFX setting for ambient effects
+    const toggleVFX = DBPlayerData?.settings?.toggleVFX ?? true;
+    ambientVFXManager.setEnabled(toggleVFX);
     ambientVFXManager.onGridEnter(DBPlayerData?.location, gridWidth, gridHeight, TILE_SIZE);
 
     // Respect player's audio settings

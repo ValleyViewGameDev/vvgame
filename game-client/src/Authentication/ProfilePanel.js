@@ -14,6 +14,7 @@ import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
+import ambientVFXManager from '../VFX/AmbientVFXManager';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -100,6 +101,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
       if (key === 'soundEffectsOn') {
         soundManager.setSoundEffectsEnabled(updatedSettings.soundEffectsOn);
+      }
+
+      // Handle ambient VFX toggle
+      if (key === 'toggleVFX') {
+        ambientVFXManager.setEnabled(updatedSettings.toggleVFX);
       }
 
       return updatedSettings;

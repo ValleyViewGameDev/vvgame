@@ -415,8 +415,7 @@ class BirdsEffect extends AmbientEffect {
   constructor(app, gridWidth, gridHeight, TILE_SIZE) {
     super(app, gridWidth, gridHeight, TILE_SIZE);
     this.flocks = [];
-    this.flockCount = 3; // Number of flocks
-    this.birdsPerFlock = 3;
+    this.flockCount = 6; // More flocks for more frequent birds
     this.init();
   }
 
@@ -425,6 +424,10 @@ class BirdsEffect extends AmbientEffect {
     const worldHeight = this.gridHeight * this.TILE_SIZE;
 
     for (let f = 0; f < this.flockCount; f++) {
+      // 50% single birds, 50% flocks of 3
+      const isSingleBird = Math.random() < 0.5;
+      const birdsInThisFlock = isSingleBird ? 1 : 3;
+
       // Each flock has a leader position and shared direction
       const flockLeaderX = Math.random() * worldWidth;
       const flockLeaderY = Math.random() * worldHeight * 0.6;
@@ -443,8 +446,8 @@ class BirdsEffect extends AmbientEffect {
         birds: []
       };
 
-      // Create birds in a loose V formation
-      for (let i = 0; i < this.birdsPerFlock; i++) {
+      // Create birds in a loose V formation (or just one for single birds)
+      for (let i = 0; i < birdsInThisFlock; i++) {
         const bird = this.createBird();
 
         // Position in V formation relative to leader
