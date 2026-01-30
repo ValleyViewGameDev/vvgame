@@ -18,7 +18,8 @@ export const initializeGrid = async (
   setTileTypes,
   updateStatus,
   DBPlayerData,
-  masterResources
+  masterResources,
+  pixiBaseTileSize = null // PixiJS base tile size for ambient VFX (constant, not zoom-dependent)
 ) => {
   try {
     if (!gridId) {
@@ -26,21 +27,9 @@ export const initializeGrid = async (
       return;
     }
 
-    console.log('🔄 Initializing grid for gridId:', gridId);
-
     const gridData = await fetchGridData(gridId, updateStatus, DBPlayerData);
     const { tiles, resources } = gridData;
-    
-    console.log('🔍 [DEBUG] fetchGridData result:', {
-      gridDataKeys: Object.keys(gridData || {}),
-      tilesLength: tiles?.length || 0,
-      resourcesLength: resources?.length || 0,
-      tilesType: typeof tiles,
-      resourcesType: typeof resources,
-      firstTile: tiles?.[0],
-      firstResource: resources?.[0]
-    });
-    
+
 
     // Process resources to add shadow tiles for multi-tile buildings
     const processedResources = [];
@@ -88,14 +77,6 @@ export const initializeGrid = async (
       }
     }
 
-    console.log('🔧 [DEBUG] Setting state:', {
-      tilesLength: (tiles || []).length,
-      processedResourcesLength: processedResources.length,
-      aboutToSetGrid: true,
-      aboutToSetResources: true,
-      aboutToSetTileTypes: true
-    });
-
     setGrid(tiles || []);
     setResources(processedResources);
     setTileTypes(tiles || []);
@@ -104,16 +85,9 @@ export const initializeGrid = async (
     GlobalGridStateTilesAndResources.setTiles(tiles || []);
     GlobalGridStateTilesAndResources.setResources(processedResources);
 
-    console.log('✅ Grid, tiles, and resources initialized for gridId:', gridId);
-    console.log('🔍 [DEBUG] Final verification in AppInit:', {
-      globalTilesLength: GlobalGridStateTilesAndResources.getTiles().length,
-      globalResourcesLength: GlobalGridStateTilesAndResources.getResources().length
-    });
-
     // Initialize FarmState with enriched resources - this happens AFTER resources are set
     // to ensure FarmState sees the fully enriched data with master properties like 'output'
     if (masterResources && masterResources.length > 0 && processedResources.length > 0) {
-      console.log('🌾 [AppInit] Initializing FarmState for grid:', gridId);
       await farmState.initializeAndProcessCompleted({
         resources: processedResources,
         gridId,
@@ -127,10 +101,15 @@ export const initializeGrid = async (
     const gridWidth = tiles?.[0]?.length || 24;
     const gridHeight = tiles?.length || 24;
 
+    // Ambient VFX uses the PixiJS base tile size, NOT the zoom-dependent activeTileSize.
+    // PixiJS renders at a fixed base tile size and applies zoom via CSS transform.
+    // If pixiBaseTileSize wasn't passed, fall back to TILE_SIZE (for backward compatibility).
+    const ambientTileSize = pixiBaseTileSize || TILE_SIZE;
+
     // Respect player's VFX setting for ambient effects
     const toggleVFX = DBPlayerData?.settings?.toggleVFX ?? true;
     ambientVFXManager.setEnabled(toggleVFX);
-    ambientVFXManager.onGridEnter(DBPlayerData?.location, gridWidth, gridHeight, TILE_SIZE);
+    ambientVFXManager.onGridEnter(DBPlayerData?.location, gridWidth, gridHeight, ambientTileSize);
 
     // Respect player's audio settings
     const musicOn = DBPlayerData?.settings?.musicOn ?? true;

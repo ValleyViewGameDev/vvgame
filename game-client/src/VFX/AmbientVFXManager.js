@@ -9,17 +9,16 @@ class AmbientVFXManager {
     this.currentEffectName = null;
     this.app = null;
     this.worldContainer = null;
+    this.baseTileSize = null; // The constant base tile size from PixiJS (not zoom-dependent)
     this.enabled = true; // Whether ambient VFX are enabled
     // Store pending location if onGridEnter is called before PixiJS is ready
     this.pendingLocation = null;
     this.pendingGridWidth = null;
     this.pendingGridHeight = null;
-    this.pendingTileSize = null;
     // Store current location info for re-enabling
     this.currentLocation = null;
     this.currentGridWidth = null;
     this.currentGridHeight = null;
-    this.currentTileSize = null;
   }
 
   setPixiApp(app) {
@@ -28,8 +27,17 @@ class AmbientVFXManager {
     this.tryStartPendingEffect();
   }
 
-  setWorldContainer(worldContainer) {
+  /**
+   * Set the world container and base tile size for ambient VFX.
+   * The baseTileSize should be the constant PixiJS rendering tile size (e.g., 40 from globalTuning.closeZoom),
+   * NOT the zoom-dependent activeTileSize. This ensures effects render at the correct world coordinates
+   * regardless of the current zoom level.
+   */
+  setWorldContainer(worldContainer, baseTileSize = null) {
     this.worldContainer = worldContainer;
+    if (baseTileSize) {
+      this.baseTileSize = baseTileSize;
+    }
     // If we have a pending location, start the effect now
     this.tryStartPendingEffect();
   }
@@ -38,19 +46,16 @@ class AmbientVFXManager {
    * Try to start the pending effect if both app and worldContainer are ready
    */
   tryStartPendingEffect() {
-    if (this.pendingLocation && this.app && this.worldContainer) {
-      console.log('AmbientVFX: PixiJS ready, starting pending effect...');
+    if (this.pendingLocation && this.app && this.worldContainer && this.baseTileSize) {
       this.startEffect(
         this.pendingLocation,
         this.pendingGridWidth,
-        this.pendingGridHeight,
-        this.pendingTileSize
+        this.pendingGridHeight
       );
       // Clear pending state
       this.pendingLocation = null;
       this.pendingGridWidth = null;
       this.pendingGridHeight = null;
-      this.pendingTileSize = null;
     }
   }
 
@@ -73,41 +78,38 @@ class AmbientVFXManager {
   }
 
   /**
-   * Called when player enters a new grid
+   * Called when player enters a new grid.
+   * Note: The TILE_SIZE parameter is ignored - we always use the stored baseTileSize
+   * to ensure consistent rendering regardless of current zoom level.
    */
   onGridEnter(location, gridWidth, gridHeight, TILE_SIZE) {
     if (!location) {
-      console.warn('AmbientVFXManager: No location provided');
       return;
     }
 
     // If PixiJS isn't ready yet, store the location and wait
-    if (!this.app || !this.worldContainer) {
-      console.log('AmbientVFX: PixiJS not ready, storing pending location:', location.gtype);
+    if (!this.app || !this.worldContainer || !this.baseTileSize) {
       this.pendingLocation = location;
       this.pendingGridWidth = gridWidth;
       this.pendingGridHeight = gridHeight;
-      this.pendingTileSize = TILE_SIZE;
       return;
     }
 
-    this.startEffect(location, gridWidth, gridHeight, TILE_SIZE);
+    this.startEffect(location, gridWidth, gridHeight);
   }
 
   /**
-   * Actually start the effect (called when PixiJS is ready)
+   * Actually start the effect (called when PixiJS is ready).
+   * Always uses this.baseTileSize for consistent world coordinates.
    */
-  startEffect(location, gridWidth, gridHeight, TILE_SIZE) {
+  startEffect(location, gridWidth, gridHeight) {
     // Store location info for re-enabling later
     this.currentLocation = location;
     this.currentGridWidth = gridWidth;
     this.currentGridHeight = gridHeight;
-    this.currentTileSize = TILE_SIZE;
 
     const { gtype, region } = location;
     const effectName = this.getEffectForLocation(gtype, region);
-
-    console.log(`AmbientVFX: Looking for effect - gtype: '${gtype}', region: '${region}', found: '${effectName}'`);
 
     // If same effect is already playing, keep it
     if (effectName === this.currentEffectName && this.currentEffect) {
@@ -127,13 +129,12 @@ class AmbientVFXManager {
     // Don't start new effect if disabled
     if (!this.enabled) {
       this.currentEffectName = effectName; // Store what would play
-      console.log(`AmbientVFX: Disabled, not starting '${effectName}'`);
       return;
     }
 
-    // Start new effect if applicable
-    if (effectName && this.app) {
-      this.currentEffect = createAmbientEffect(effectName, this.app, gridWidth, gridHeight, TILE_SIZE);
+    // Start new effect if applicable - always use baseTileSize for consistent rendering
+    if (effectName && this.app && this.baseTileSize) {
+      this.currentEffect = createAmbientEffect(effectName, this.app, gridWidth, gridHeight, this.baseTileSize);
       if (this.currentEffect) {
         this.currentEffectName = effectName;
 
@@ -143,11 +144,7 @@ class AmbientVFXManager {
 
         this.currentEffect.fadeIn();
         this.currentEffect.start();
-
-        console.log(`AmbientVFX: Started '${effectName}' effect for ${gtype}${region ? ` (${region})` : ''}`);
       }
-    } else if (!effectName) {
-      console.log(`AmbientVFX: No effect defined for gtype '${gtype}'${region ? ` region '${region}'` : ''}`);
     }
   }
 
@@ -198,12 +195,11 @@ class AmbientVFXManager {
       }
     } else {
       // Re-enable: restart the effect if we have location info
-      if (this.currentLocation && this.app && this.worldContainer) {
+      if (this.currentLocation && this.app && this.worldContainer && this.baseTileSize) {
         this.startEffect(
           this.currentLocation,
           this.currentGridWidth,
-          this.currentGridHeight,
-          this.currentTileSize
+          this.currentGridHeight
         );
       }
     }

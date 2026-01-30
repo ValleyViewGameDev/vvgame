@@ -14,6 +14,7 @@ import { updatePlayerSettings } from '../settings';
 import { toggleFPSCap, getCurrentFPSCap, getPixiActualFPS } from '../Render/PixiRenderer/PixiRenderer';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
+import debugTravelShortcuts from './debugTravelShortcuts.json';
 
 const DebugPanel = ({
   onClose,
@@ -1084,6 +1085,19 @@ const handleGetRich = async () => {
       </div>
       
         <h3>Teleport to Another Grid</h3>
+        <select
+          onChange={(e) => {
+            if (e.target.value) {
+              setToGridCoord(e.target.value);
+            }
+          }}
+          style={{ width: '100%', marginBottom: '8px', padding: '4px' }}
+        >
+          <option value="">-- Quick Travel --</option>
+          {Object.entries(debugTravelShortcuts[0]).map(([name, gridCoord]) => (
+            <option key={name} value={gridCoord}>{name}</option>
+          ))}
+        </select>
         <input
           type="text"
           placeholder="Enter GridCoord"

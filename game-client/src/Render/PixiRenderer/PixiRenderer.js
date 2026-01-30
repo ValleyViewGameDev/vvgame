@@ -540,8 +540,10 @@ const PixiRenderer = ({
       overlayContainerRef.current = overlayContainer;
 
       // Wire up AmbientVFXManager with PixiJS app and world container
+      // Pass TILE_SIZE as the base tile size - this is the constant rendering size (e.g., 40)
+      // that doesn't change with zoom, ensuring ambient effects render at correct world coordinates
       ambientVFXManager.setPixiApp(app);
-      ambientVFXManager.setWorldContainer(worldContainer);
+      ambientVFXManager.setWorldContainer(worldContainer, TILE_SIZE);
 
       // v7: RENDERER_TYPE.WEBGL = 1, RENDERER_TYPE.CANVAS = 2
       // PixiJS initialized with WebGL or Canvas fallback renderer

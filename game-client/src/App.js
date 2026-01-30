@@ -1540,6 +1540,9 @@ useEffect(() => {
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
+      // Use globalTuningData directly for tile size since React state hasn't updated yet
+      // PIXI_BASE_TILE_SIZE still uses fallback values at this point
+      const pixiBaseTileSizeFromTuning = globalTuningData?.closeZoom || 40;
       await initializeGrid(
         activeTileSize,
         initialGridId,
@@ -1548,7 +1551,8 @@ useEffect(() => {
         setTileTypes,
         updateStatus,
         DBPlayerData,
-        resources // Use locally loaded resources, not state (which hasn't updated yet)
+        resources, // Use locally loaded resources, not state (which hasn't updated yet)
+        pixiBaseTileSizeFromTuning // Pass tile size from globalTuningData directly
       );
 
       // Step 6. Initialize NPCs

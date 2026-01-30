@@ -321,7 +321,8 @@ export const changePlayerLocation = async (
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 
     // Initialize the grid with tiles and resources
-    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources);
+    // TILE_SIZE passed here is the pixiBaseTileSize (from globalTuning.closeZoom)
+    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources, TILE_SIZE);
 
     // Get resources for SVG preloading
     const postInitResources = GlobalGridStateTilesAndResources.getResources();
