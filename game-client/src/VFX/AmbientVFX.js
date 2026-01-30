@@ -101,7 +101,7 @@ class ButterfliesEffect extends AmbientEffect {
   constructor(app, gridWidth, gridHeight, TILE_SIZE) {
     super(app, gridWidth, gridHeight, TILE_SIZE);
     this.packs = [];
-    this.packCount = 8; // Number of packs
+    this.packCount = 16; // Number of packs (doubled for more butterflies)
     this.colors = [0xFFB347, 0xFF6B6B, 0x87CEEB, 0xDDA0DD, 0x98FB98, 0xFFD700];
     this.init();
   }

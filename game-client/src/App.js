@@ -3369,17 +3369,43 @@ return (
           </button>
 
 
-          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+          <button className="header-link" disabled={!currentPlayer} onClick={() => {
+            if (currentPlayer) {
+              const currentPC = {
+                playerId: currentPlayer._id,
+                username: currentPlayer.username,
+                icon: currentPlayer.icon,
+                hp: currentPlayer.hp || 100,
+                position: { x: 0, y: 0 },
+                iscamping: currentPlayer.iscamping,
+                isinboat: currentPlayer.isinboat
+              };
+              handlePCClick(currentPC);
+            }
+          }}>
             {strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}
-          </span>
+          </button>
           <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
             {strings[10103]}
           </button>
           {/* Row 2 */}
           <span></span>
-          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+          <button className="header-link" disabled={!currentPlayer} onClick={() => {
+            if (currentPlayer) {
+              const currentPC = {
+                playerId: currentPlayer._id,
+                username: currentPlayer.username,
+                icon: currentPlayer.icon,
+                hp: currentPlayer.hp || 100,
+                position: { x: 0, y: 0 },
+                iscamping: currentPlayer.iscamping,
+                isinboat: currentPlayer.isinboat
+              };
+              handlePCClick(currentPC);
+            }
+          }}>
             {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"}/{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
-          </span>
+          </button>
           <div className="header-currency-group">
             <button className="header-link" onClick={() => openPanel('HowToGemsPanel')}>
               💎 {Array.isArray(currentPlayer?.inventory)

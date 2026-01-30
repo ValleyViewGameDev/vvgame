@@ -308,7 +308,7 @@ body {
   font-size: 15px;
   font-weight: bold;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
   padding: 0;
   display: inline-flex;
   align-items: center;
