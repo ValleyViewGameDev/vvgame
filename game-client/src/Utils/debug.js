@@ -12,6 +12,8 @@ import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, createSingleValleyGrid } from './WorldGeneration';
 import { updatePlayerSettings } from '../settings';
 import { toggleFPSCap, getCurrentFPSCap, getPixiActualFPS } from '../Render/PixiRenderer/PixiRenderer';
+import ambientVFXManager from '../VFX/AmbientVFXManager';
+import soundManager from '../Sound/SoundManager';
 
 const DebugPanel = ({
   onClose,
@@ -1073,6 +1075,11 @@ const handleGetRich = async () => {
           >
             FPS Cap: {fpsCap} → Toggle to {fpsCap === 30 ? 60 : 30}
           </button>
+        </div>
+        {/* Ambient Systems Debug */}
+        <div style={{ marginTop: '8px', borderTop: '1px solid #ccc', paddingTop: '8px' }}>
+          <div><strong>AmbientVFX:</strong> {ambientVFXManager.getCurrentEffectName() || 'none'}</div>
+          <div><strong>Music:</strong> {soundManager.getCurrentTrackName() || 'none'}</div>
         </div>
       </div>
       

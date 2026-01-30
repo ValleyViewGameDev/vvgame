@@ -13,6 +13,7 @@ import { StatusBarContext } from '../UI/StatusBar/StatusBar';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
+import soundManager from '../Sound/SoundManager';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -38,6 +39,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     isTeleportEnabled: false,
     toggleVFX: true,
     seasonOverride: 'None',
+    musicOn: true,
+    soundEffectsOn: true,
   });
 
   // Initialize form fields and local settings
@@ -50,6 +53,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         toggleVFX: settings?.toggleVFX ?? true,
         rangeOn: settings?.rangeOn ?? true,
         seasonOverride: settings?.seasonOverride ?? 'None',
+        musicOn: settings?.musicOn ?? true,
+        soundEffectsOn: settings?.soundEffectsOn ?? true,
       });
   
       setFormData({
@@ -83,6 +88,20 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
       // ✅ Call the centralized function to update local and server settings
       updatePlayerSettings(updatedSettings, currentPlayer, setCurrentPlayer);
+
+      // Handle audio toggles immediately
+      if (key === 'musicOn') {
+        if (updatedSettings.musicOn) {
+          soundManager.unmute();
+        } else {
+          soundManager.mute();
+        }
+      }
+
+      if (key === 'soundEffectsOn') {
+        soundManager.setSoundEffectsEnabled(updatedSettings.soundEffectsOn);
+      }
+
       return updatedSettings;
     });
   };
@@ -356,6 +375,24 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <div className="shared-buttons">
           <button className="btn-basic btn-success" onClick={handleLanguage}>
             🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer.language)?.label || 'Language'}
+          </button>
+        </div>
+
+        <div className="shared-buttons">
+          <button
+            className={`btn-basic ${localSettings.musicOn ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => handleToggleChange('musicOn')}
+          >
+            Music: {localSettings.musicOn ? 'is ON' : 'is OFF'}
+          </button>
+        </div>
+
+        <div className="shared-buttons">
+          <button
+            className={`btn-basic ${localSettings.soundEffectsOn ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => handleToggleChange('soundEffectsOn')}
+          >
+            Sound Effects: {localSettings.soundEffectsOn ? 'is ON' : 'is OFF'}
           </button>
         </div>
 

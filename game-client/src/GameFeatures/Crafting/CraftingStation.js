@@ -337,7 +337,8 @@ const CraftingStation = ({
             setNpcRefreshKey(prev => prev + 1);
           }
           // Show floating text for NPCs immediately since they don't need inventory space
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          const npcSymbol = craftedResource?.symbol || '🎁';
+          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${npcSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         } else {
           // Only add non-NPC items to inventory
           // Update inventory with buffed quantity
@@ -361,9 +362,11 @@ const CraftingStation = ({
             console.error('❌ Failed to add buffed crafted item to inventory.');
             return; // Exit early - don't clear crafting state if we couldn't collect
           }
-          
+
           // Show floating text only after successful collection
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          const collectedItemResource = masterResources.find(r => r.type === collectedItem);
+          const collectedSymbol = collectedItemResource?.symbol || '🎁';
+          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         }
 
         // Only clear crafting state if we successfully collected (or it's an NPC)

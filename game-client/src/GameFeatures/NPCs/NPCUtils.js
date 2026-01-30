@@ -151,7 +151,9 @@ async function handleProtectedFarmAnimalCollection(
       if (gained === true) {
         // Visual feedback - poof effect and floating text
         createCollectEffect(col, row, TILE_SIZE);
-        FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
+        const collectedResource = masterResources.find(r => r.type === collectedItem);
+        const collectedSymbol = collectedResource?.symbol || '🎁';
+        FloatingTextManager.addFloatingText(`+${collectedQuantity} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
         
         // Calculate skill info for formatting
         const skillInfo = calculateSkillMultiplier(collectedItem, currentPlayer.skills || [], masterSkills);

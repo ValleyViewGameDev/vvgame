@@ -27,6 +27,7 @@ import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import StoryModal from '../../UI/Modals/StoryModal';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
+import FloatingTextManager from '../../UI/FloatingText';
 
 const NPCPanel = ({
   onClose,
@@ -359,6 +360,28 @@ const NPCPanel = ({
     }
   };
 
+// Helper to get NPC position for FloatingText
+const getQuestNPCPosition = () => {
+  const gridId = currentPlayer?.location?.g;
+  if (!gridId) return null;
+  const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+  if (!npcsInGrid || !npcData?.id) return null;
+  const npcInGrid = npcsInGrid[npcData.id];
+  return npcInGrid?.position || null;
+};
+
+// Show floating text for quest reward collection
+const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, xpAmount) => {
+  const npcPos = getQuestNPCPosition();
+  if (!npcPos) return;
+  // Show reward item first (emoji + localized name)
+  FloatingTextManager.addFloatingText(`+${rewardQuantity} ${rewardSymbol} ${rewardName}`, npcPos.x, npcPos.y, TILE_SIZE);
+  // Show XP after delay, same position so it follows the same path
+  setTimeout(() => {
+    FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, npcPos.x, npcPos.y, TILE_SIZE);
+  }, 500);
+};
+
 const handleGetReward = async (quest) => {
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
@@ -385,6 +408,16 @@ const handleGetReward = async (quest) => {
       });
       // Check if gainIngredients failed (returns object with success: false, or falsy value)
       if (success !== true && (!success || success.success === false)) return;
+
+      // Get reward details for FloatingText and calculate XP to show
+      const rewardResource = masterResources.find(r => r.type === quest.reward);
+      const rewardSymbol = rewardResource?.symbol || '🎁';
+      const rewardName = getLocalizedString(quest.reward, strings);
+      const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+      const xpForFloatingText = quest.xp ?? npcResourceForXP?.xp ?? 1;
+
+      // Show floating text for reward and XP
+      showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText);
 
       // Award trophies for specific quest rewards
       try {
@@ -425,9 +458,8 @@ const handleGetReward = async (quest) => {
       // Track quest progress for "Collect" type quests (use multiplied quantity)
       await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);
 
-      // Award XP for completing quest (use quest-specific XP if available, else fall back to NPC's XP)
-      const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-      const xpToAward = quest.xp ?? npcResourceForXP?.xp ?? 1;
+      // Award XP for completing quest (reuses xpForFloatingText calculated above)
+      const xpToAward = xpForFloatingText;
       try {
         const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
           playerId: currentPlayer.playerId,

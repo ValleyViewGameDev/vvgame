@@ -3,6 +3,8 @@ import axios from 'axios';
 import { fetchGridData } from './Utils/GridManagement'; // Utility for fetching grid data
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import farmState from './FarmState';
+import ambientVFXManager from './VFX/AmbientVFXManager';
+import soundManager from './Sound/SoundManager';
 
 /**
  * Grid Initialization (Runs on Refresh or Login)
@@ -120,6 +122,20 @@ export const initializeGrid = async (
       });
       farmState.startSeedTimer({ gridId, setResources, masterResources });
     }
+
+    // Trigger ambient VFX and music for the new grid
+    const gridWidth = tiles?.[0]?.length || 24;
+    const gridHeight = tiles?.length || 24;
+    ambientVFXManager.onGridEnter(DBPlayerData?.location, gridWidth, gridHeight, TILE_SIZE);
+
+    // Respect player's audio settings
+    const musicOn = DBPlayerData?.settings?.musicOn ?? true;
+    const soundEffectsOn = DBPlayerData?.settings?.soundEffectsOn ?? true;
+    if (!musicOn) {
+      soundManager.mute();
+    }
+    soundManager.setSoundEffectsEnabled(soundEffectsOn);
+    soundManager.onGridEnter(DBPlayerData?.location);
   } catch (error) {
     console.error('Error initializing grid:', error);
   }

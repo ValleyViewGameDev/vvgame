@@ -315,7 +315,8 @@ const PetPanel = ({
             return;
         }
         
-        FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
+        const rewardSymbol = rewardResource?.symbol || '🎁';
+        FloatingTextManager.addFloatingText(`+${collectedQty} ${rewardSymbol} ${getLocalizedString(collectedItem, strings)}`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
 
         // Award XP for collecting from pet
         const petResourceForXP = masterResources.find(res => res.type === petName);
@@ -332,6 +333,11 @@ const PetPanel = ({
               ...prev,
               xp: xpResponse.data.newXP
             }));
+
+            // Show XP floating text with delay, same position so it follows the same path
+            setTimeout(() => {
+              FloatingTextManager.addFloatingText(`+${xpToAward} 🔷 XP`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
+            }, 500);
           }
         } catch (error) {
           console.error('❌ Error awarding XP for pet collection:', error);

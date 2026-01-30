@@ -321,7 +321,7 @@ export async function handleDooberClick(
 
   // Show VFX and floating text immediately for responsiveness
   createCollectEffect(col, row, TILE_SIZE);
-  FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE);
+  FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.symbol} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE);
 
   // Perform server validation
   try {

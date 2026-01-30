@@ -169,6 +169,8 @@ const playerSchema = new mongoose.Schema({
     toggleVFX: { type: Boolean, default: true },
     hasDied: { type: Boolean, default: false },
     rangeOn: { type: Boolean, default: true },
+    musicOn: { type: Boolean, default: true },
+    soundEffectsOn: { type: Boolean, default: true },
     equippedWeapon: { type: String, default: null },
     equippedArmor: { type: String, default: null },
     plantWithCursor: { type: Boolean, default: true },

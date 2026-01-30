@@ -22,6 +22,7 @@ import {
   getGridWorldPixelPosition,
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
+import ambientVFXManager from '../../VFX/AmbientVFXManager';
 // Note: pixi-viewport v6 requires PixiJS v8. For v7, we'd need pixi-viewport v5.
 // For Phase 1, we'll skip the viewport and render directly to stage.
 // Smooth zooming can be added in a later phase.
@@ -537,6 +538,10 @@ const PixiRenderer = ({
       overlayContainer.name = 'overlays';
       worldContainer.addChild(overlayContainer);
       overlayContainerRef.current = overlayContainer;
+
+      // Wire up AmbientVFXManager with PixiJS app and world container
+      ambientVFXManager.setPixiApp(app);
+      ambientVFXManager.setWorldContainer(worldContainer);
 
       // v7: RENDERER_TYPE.WEBGL = 1, RENDERER_TYPE.CANVAS = 2
       // PixiJS initialized with WebGL or Canvas fallback renderer

@@ -1,0 +1,15 @@
+[
+  {
+    "music": "homestead",
+    "gtype": "homestead"
+  },
+  {
+    "music": "valley1",
+    "gtype": "valley1"
+  },
+  {
+    "music": "scary",
+    "gtype": "valley1",
+    "region": "Yorick's Hollow"
+  }
+]

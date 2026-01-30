@@ -12,6 +12,11 @@ import './Kent.css'; // Kent-specific styles
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import FloatingTextManager from '../../UI/FloatingText';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+
+// Base tile size for FloatingText positioning (FloatingText.js derives scaled size from pixi-container)
+const TILE_SIZE = 30;
 
 function KentPanel({
     onClose,
@@ -230,8 +235,14 @@ function KentPanel({
               // Don't fail the trade if XP award fails, just log it
             }
 
+            // Show floating text over Kent NPC for the sale
+            // Find Money reward amount from the original offer
+            const moneyReward = originalOffer?.rewards?.find(r => r.item === 'Money');
+            const moneyAmount = moneyReward?.quantity || offer.qtyGiven || 0;
+            showSaleFloatingText(moneyAmount, xpToAward);
+
             // Create status message for multiple rewards
-            const rewardText = originalOffer && originalOffer.rewards 
+            const rewardText = originalOffer && originalOffer.rewards
               ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
               : `${offer.qtyGiven} ${offer.itemGiven}`;
 
@@ -391,6 +402,34 @@ function KentPanel({
         const resource = masterResources.find(res => res.type === offer.item);
         const baseXP = resource?.xp || 1; // Default to 1 XP if no xp value defined
         return baseXP * 2; // 2x Kent multiplier
+    };
+
+    // Helper to get Kent NPC position for floating text
+    const getKentPosition = () => {
+        const gridId = currentPlayer?.location?.g;
+        if (!gridId) return null;
+
+        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+        if (!npcsInGrid) return null;
+
+        // Find Kent NPC in the grid
+        const kentNPC = Object.values(npcsInGrid).find(npc => npc && npc.type === 'Kent');
+        return kentNPC?.position || null;
+    };
+
+    // Show floating text over Kent NPC for sale rewards
+    // Uses same positioning as farm animal collection (NPCUtils.js) - directly at NPC position
+    const showSaleFloatingText = (moneyAmount, xpAmount) => {
+        const kentPos = getKentPosition();
+        if (!kentPos) return;
+
+        // Show money first at NPC position (emoji + localized name)
+        FloatingTextManager.addFloatingText(`+${moneyAmount.toLocaleString()} 💰 ${getLocalizedString('Money', strings)}`, kentPos.x, kentPos.y, TILE_SIZE);
+
+        // Show XP with delay, same position so it follows the same path
+        setTimeout(() => {
+            FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, kentPos.x, kentPos.y, TILE_SIZE);
+        }, 500);
     };
 
     return (

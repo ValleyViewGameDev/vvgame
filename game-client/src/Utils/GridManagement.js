@@ -16,6 +16,8 @@ import SVGAssetManager from '../Render/SVGAssetManager';
 import { isGridVisited } from './gridsVisitedUtils';
 import farmState from '../FarmState';
 import { parseGridCoord } from '../Render/PixiRenderer/UnifiedCamera';
+import ambientVFXManager from '../VFX/AmbientVFXManager';
+import soundManager from '../Sound/SoundManager';
 
 export const updateGridResource = async (
   gridId,
@@ -189,6 +191,8 @@ export const changePlayerLocation = async (
       NPCsInGridManager.stopGridTimer();
       playersInGridManager.stopBatchSaving();
       farmState.stopSeedTimer(); // Stop FarmState timer before grid change
+      ambientVFXManager.onGridLeave(); // Fade out ambient VFX
+      soundManager.onGridLeave(); // Fade out music
     } catch (timerError) {
       console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
     }

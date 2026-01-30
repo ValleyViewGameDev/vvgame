@@ -1,0 +1,19 @@
+[
+  {
+    "ambientVFX": "butterflies",
+    "gtype": "homestead"
+  },
+  {
+    "ambientVFX": "birds",
+    "gtype": "town"
+  },
+  {
+    "ambientVFX": "clouds",
+    "gtype": "valley1"
+  },
+  {
+    "ambientVFX": "darkClouds",
+    "gtype": "valley1",
+    "region": "Yorick's Hollow"
+  }
+]
