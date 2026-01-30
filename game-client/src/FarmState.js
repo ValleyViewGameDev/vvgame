@@ -27,6 +27,7 @@ class FarmState {
      * Initialize farm state and immediately process any already-completed farmplots.
      * This handles the case where a player returns to their homestead after farmplots
      * have finished growing while they were away.
+     * Also handles farmplots with NO growEnd (e.g., editor-placed) - these are treated as ready.
      */
     async initializeAndProcessCompleted({ resources, gridId, setResources, masterResources }) {
       // Build a lookup map of farmplot types from masterResources
@@ -38,27 +39,40 @@ class FarmState {
         }
       }
 
-      // Find all farmplots with growEnd by looking up their type in masterResources
+      // Find all farmplots by looking up their type in masterResources
       // This handles both enriched resources (with category) and raw DB resources (without)
       const farmplotsWithGrowEnd = [];
-      for (const res of resources) {
-        if (!res.growEnd) continue;
+      const farmplotsWithoutGrowEnd = []; // Farmplots with no timer (e.g., editor-placed)
 
+      for (const res of resources) {
         // Check if this resource is a farmplot (either by category or by type lookup)
         const isFarmplot = res.category === 'farmplot' || farmplotMasterMap.has(res.type);
-        if (isFarmplot) {
-          // Enrich with master data if needed (especially 'output' field)
-          const masterData = farmplotMasterMap.get(res.type);
-          const enrichedRes = masterData ? { ...masterData, ...res } : res;
+        if (!isFarmplot) continue;
+
+        // Enrich with master data if needed (especially 'output' field)
+        const masterData = farmplotMasterMap.get(res.type);
+        const enrichedRes = masterData ? { ...masterData, ...res } : res;
+
+        if (res.growEnd) {
           farmplotsWithGrowEnd.push(enrichedRes);
+        } else {
+          // No growEnd means it's ready immediately (e.g., placed via editor)
+          farmplotsWithoutGrowEnd.push(enrichedRes);
         }
       }
 
       this.farmState = farmplotsWithGrowEnd;
       console.log(`🌾 [FarmState] Found ${this.farmState.length} farmplots with growEnd timers`);
+      if (farmplotsWithoutGrowEnd.length > 0) {
+        console.log(`🌾 [FarmState] Found ${farmplotsWithoutGrowEnd.length} farmplots WITHOUT growEnd (treating as ready)`);
+      }
 
       const now = Date.now();
-      const alreadyCompleted = this.farmState.filter((seed) => seed.growEnd <= now);
+      // Farmplots are ready if: growEnd has passed OR they have no growEnd at all
+      const alreadyCompleted = [
+        ...this.farmState.filter((seed) => seed.growEnd <= now),
+        ...farmplotsWithoutGrowEnd
+      ];
 
       if (alreadyCompleted.length > 0) {
         console.log(`🌾 [FarmState] Found ${alreadyCompleted.length} farmplots ready to convert on load`);

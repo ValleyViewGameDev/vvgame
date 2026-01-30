@@ -652,13 +652,14 @@ class BirdsEffect extends AmbientEffect {
 }
 
 /**
- * Dark clouds effect - ominous slow-moving clouds
+ * Dark clouds effect - ominous gray clouds drifting across the grid
+ * Mirror of CloudsEffect but with gray colors instead of white
  */
 class DarkCloudsEffect extends AmbientEffect {
   constructor(app, gridWidth, gridHeight, TILE_SIZE) {
     super(app, gridWidth, gridHeight, TILE_SIZE);
     this.clouds = [];
-    this.cloudCount = 8;
+    this.cloudCount = 15; // Higher frequency than white clouds
     this.init();
   }
 
@@ -669,9 +670,15 @@ class DarkCloudsEffect extends AmbientEffect {
     for (let i = 0; i < this.cloudCount; i++) {
       const cloud = this.createDarkCloud();
       cloud.x = Math.random() * worldWidth;
-      cloud.y = Math.random() * worldHeight * 0.7;
-      cloud.vx = 0.05 + Math.random() * 0.1;
-      cloud.alpha = 0.4 + Math.random() * 0.3;
+      cloud.y = Math.random() * worldHeight; // Clouds across full height
+
+      // Randomly move left or right
+      const movesRight = Math.random() > 0.5;
+      cloud.vx = (movesRight ? 1 : -1) * (0.25 + Math.random() * 0.2); // Moderate drift
+
+      // Semi-transparent (store target alpha for fading)
+      cloud.targetAlpha = 0.30 + Math.random() * 0.20;
+      cloud.alpha = cloud.targetAlpha; // Start fully visible
 
       this.clouds.push(cloud);
       this.container.addChild(cloud);
@@ -680,21 +687,47 @@ class DarkCloudsEffect extends AmbientEffect {
 
   createDarkCloud() {
     const container = new Container();
-    const numPuffs = 5 + Math.floor(Math.random() * 4);
-    const baseSize = 40 + Math.random() * 50;
+    // More puffs for billowy look
+    const numPuffs = 6 + Math.floor(Math.random() * 5);
+    const baseSize = 50 + Math.random() * 70; // Larger clouds
 
+    // Base gray value for this cloud (slight variation between clouds)
+    const baseGray = 0x55 + Math.floor(Math.random() * 0x15); // 0x55-0x6a range
+
+    // Create overlapping circles for billowy effect
     for (let i = 0; i < numPuffs; i++) {
       const puff = new Graphics();
-      const grayValue = 0x2a2a2a + Math.floor(Math.random() * 0x202020);
-      puff.beginFill(grayValue, 0.7);
+      // Subtle gray variation within the cloud (±0x0a from base)
+      const grayVariation = Math.floor((Math.random() - 0.5) * 0x14);
+      const grayValue = Math.max(0x45, Math.min(0x75, baseGray + grayVariation));
+      const grayColor = (grayValue << 16) | (grayValue << 8) | grayValue;
+      puff.beginFill(grayColor, 0.5 + Math.random() * 0.2);
       const puffSize = baseSize * (0.5 + Math.random() * 0.5);
+      // More spread out for billowy appearance
       puff.drawCircle(
-        (i - numPuffs / 2) * baseSize * 0.4,
-        (Math.random() - 0.5) * baseSize * 0.4,
+        (i - numPuffs / 2) * baseSize * 0.4 + (Math.random() - 0.5) * baseSize * 0.3,
+        (Math.random() - 0.5) * baseSize * 0.5,
         puffSize
       );
       puff.endFill();
       container.addChild(puff);
+    }
+
+    // Add extra smaller puffs on top for texture
+    for (let i = 0; i < 3; i++) {
+      const smallPuff = new Graphics();
+      // Slightly lighter gray for highlights
+      const highlightGray = Math.min(0x80, baseGray + 0x10);
+      const highlightColor = (highlightGray << 16) | (highlightGray << 8) | highlightGray;
+      smallPuff.beginFill(highlightColor, 0.4);
+      const smallSize = baseSize * (0.3 + Math.random() * 0.3);
+      smallPuff.drawCircle(
+        (Math.random() - 0.5) * baseSize * 1.5,
+        (Math.random() - 0.5) * baseSize * 0.4,
+        smallSize
+      );
+      smallPuff.endFill();
+      container.addChild(smallPuff);
     }
 
     return container;
@@ -714,13 +747,43 @@ class DarkCloudsEffect extends AmbientEffect {
     this.lastTime = now;
 
     const worldWidth = this.gridWidth * this.TILE_SIZE;
+    const margin = 150;
+    const fadeZone = 100; // Distance over which clouds fade in/out
+    const fadeSpeed = 0.03; // How fast clouds fade
 
     for (const cloud of this.clouds) {
       cloud.x += cloud.vx * delta;
 
-      if (cloud.x > worldWidth + 150) {
-        cloud.x = -150;
+      // Wrap around based on direction
+      if (cloud.vx > 0 && cloud.x > worldWidth + margin) {
+        cloud.x = -margin;
+        cloud.alpha = 0; // Start invisible after wrap
+      } else if (cloud.vx < 0 && cloud.x < -margin) {
+        cloud.x = worldWidth + margin;
+        cloud.alpha = 0; // Start invisible after wrap
       }
+
+      // Calculate target alpha based on position (fade near edges)
+      let edgeFade = 1;
+      if (cloud.vx > 0) {
+        // Moving right: fade in from left edge, fade out at right edge
+        if (cloud.x < fadeZone) {
+          edgeFade = Math.max(0, cloud.x / fadeZone);
+        } else if (cloud.x > worldWidth - fadeZone) {
+          edgeFade = Math.max(0, (worldWidth - cloud.x) / fadeZone);
+        }
+      } else {
+        // Moving left: fade in from right edge, fade out at left edge
+        if (cloud.x > worldWidth - fadeZone) {
+          edgeFade = Math.max(0, (worldWidth - cloud.x) / fadeZone + 1);
+        } else if (cloud.x < fadeZone) {
+          edgeFade = Math.max(0, cloud.x / fadeZone);
+        }
+      }
+
+      // Smoothly interpolate alpha towards target
+      const targetAlpha = cloud.targetAlpha * edgeFade;
+      cloud.alpha += (targetAlpha - cloud.alpha) * fadeSpeed * delta;
     }
 
     this.animationFrame = requestAnimationFrame(() => this.animate());

@@ -1548,7 +1548,7 @@ useEffect(() => {
         setTileTypes,
         updateStatus,
         DBPlayerData,
-        masterResources
+        resources // Use locally loaded resources, not state (which hasn't updated yet)
       );
 
       // Step 6. Initialize NPCs
