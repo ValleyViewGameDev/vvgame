@@ -464,7 +464,8 @@
     "maxprice": 1,
     "gemcost": 1,
     "crafttime": 5,
-    "totalnestedtime": 5
+    "totalnestedtime": 5,
+    "filename": "wood.svg"
   },
   {
     "type": "Rocks",
