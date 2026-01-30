@@ -358,16 +358,20 @@ export const changePlayerLocation = async (
     
     // Step 5: ATOMICALLY COMMIT ALL STATE CHANGES
     console.log('⚡ [COMMIT] Atomically committing all state changes...');
-    
-    // Clear old state first
+
+    // Clear grid and resources (but NOT tileTypes - see note below)
+    // IMPORTANT: We do NOT clear tileTypes here to prevent PixiRenderer from unmounting.
+    // Clearing tileTypes causes tileTypes.length to become 0, which unmounts PixiRenderer,
+    // destroying the WebGL context. When new tileTypes arrive moments later, PixiRenderer
+    // remounts with a new WebGL context. This rapid destroy/create cycle can exhaust GPU
+    // resources and cause "Could not initialize shader" errors.
+    // The old tiles remain visible but are hidden behind the black transition overlay
+    // until new tiles are loaded by initializeGrid().
     setGrid([]);
     setResources([]);
-    setTileTypes([]);
+    // setTileTypes([]); - REMOVED to prevent PixiRenderer unmount
     GlobalGridStateTilesAndResources.setTiles([]);
     GlobalGridStateTilesAndResources.setResources([]);
-    
-    // Small delay to ensure clearing completes
-    await new Promise(resolve => setTimeout(resolve, 10));
     
     // Update grid ID and player state first
     setGridId(toLocation.g);
