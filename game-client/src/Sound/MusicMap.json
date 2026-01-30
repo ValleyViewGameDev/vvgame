@@ -1,23 +1,34 @@
 [
   {
-    "music": [ "homestead", "homestead2" ],
-    "gtype": "homestead"
+    "gtype": "homestead",
+    "music1": "homestead",
+    "music2": "homestead2"
   },
   {
-    "music": "valley1",
-    "gtype": "valley1"
-  },
-  {
-    "music": "valley2",
-    "gtype": "valley2"
-  },  
-  {
-    "music": "town1",
-    "gtype": "town"
-  },
-  {
-    "music": "scary",
     "gtype": "valley1",
-    "region": "Yorick's Hollow"
+    "music1": "valley1_1",
+    "music2": "valley1_2"
+  },
+  {
+    "gtype": "valley2",
+    "music1": "valley1_1",
+    "music2": "valley1_2"
+  },
+  {
+    "gtype": "valley3",
+    "music1": "valley1_1",
+    "music2": "valley1_2"
+  },
+  {
+    "gtype": "town",
+    "music1": "town1"
+  },
+  {
+    "region": "Yorick's Hollow",
+    "music1": "scary"
+  },
+  {
+    "region": "Angelo's Keep",
+    "music1": "combat"
   }
 ]

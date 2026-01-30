@@ -61,20 +61,24 @@ class AmbientVFXManager {
 
   /**
    * Determine which effect to play based on gtype and region
-   * More specific matches (gtype + region) take priority
+   * Region takes priority - if player has a region, check for region match first
    */
   getEffectForLocation(gtype, region) {
-    // First look for specific gtype + region match
-    const specificMatch = VFXMap.find(
-      entry => entry.gtype === gtype && entry.region === region
-    );
-    if (specificMatch) return specificMatch.ambientVFX;
+    // If player has a region, check for region-specific VFX first
+    if (region) {
+      const regionMatch = VFXMap.find(entry => entry.region === region);
+      if (regionMatch) return regionMatch.ambientVFX;
+    }
 
-    // Fall back to gtype-only match (no region specified in map)
-    const gtypeMatch = VFXMap.find(
-      entry => entry.gtype === gtype && !entry.region
-    );
-    return gtypeMatch?.ambientVFX || null;
+    // Fall back to gtype-only match
+    if (gtype) {
+      const gtypeMatch = VFXMap.find(
+        entry => entry.gtype === gtype && !entry.region
+      );
+      if (gtypeMatch) return gtypeMatch.ambientVFX;
+    }
+
+    return null;
   }
 
   /**

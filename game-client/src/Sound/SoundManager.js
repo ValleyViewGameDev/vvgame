@@ -22,32 +22,60 @@ class SoundManager {
 
   /**
    * Determine which music track(s) to play based on gtype and region
-   * More specific matches (gtype + region) take priority
-   * Returns an array of track names (normalizes single track to array)
+   * More specific matches (region-only or gtype + region) take priority
+   * Returns an array of track names extracted from music1, music2, etc. keys
    */
   getTracksForLocation(gtype, region) {
-    // First look for specific gtype + region match
-    const specificMatch = MusicMap.find(
-      entry => entry.gtype === gtype && entry.region === region
-    );
-    if (specificMatch) {
-      return this.normalizeToArray(specificMatch.music);
+    // First look for specific region-only match (highest priority for region-specific music)
+    if (region) {
+      const regionOnlyMatch = MusicMap.find(
+        entry => entry.region === region && !entry.gtype
+      );
+      if (regionOnlyMatch) {
+        return this.extractMusicTracks(regionOnlyMatch);
+      }
+    }
+
+    // Then look for specific gtype + region match
+    if (gtype && region) {
+      const specificMatch = MusicMap.find(
+        entry => entry.gtype === gtype && entry.region === region
+      );
+      if (specificMatch) {
+        return this.extractMusicTracks(specificMatch);
+      }
     }
 
     // Fall back to gtype-only match (no region specified in map)
-    const gtypeMatch = MusicMap.find(
-      entry => entry.gtype === gtype && !entry.region
-    );
-    return gtypeMatch ? this.normalizeToArray(gtypeMatch.music) : null;
+    if (gtype) {
+      const gtypeMatch = MusicMap.find(
+        entry => entry.gtype === gtype && !entry.region
+      );
+      if (gtypeMatch) {
+        return this.extractMusicTracks(gtypeMatch);
+      }
+    }
+
+    return null;
   }
 
   /**
-   * Normalize a track definition to an array
-   * Handles both single string and array of strings
+   * Extract all music tracks from an entry
+   * Looks for music1, music2, music3, etc. keys and returns them as an array
    */
-  normalizeToArray(music) {
-    if (!music) return null;
-    return Array.isArray(music) ? music : [music];
+  extractMusicTracks(entry) {
+    if (!entry) return null;
+
+    const tracks = [];
+    let i = 1;
+
+    // Keep looking for musicN keys until we don't find one
+    while (entry[`music${i}`]) {
+      tracks.push(entry[`music${i}`]);
+      i++;
+    }
+
+    return tracks.length > 0 ? tracks : null;
   }
 
   /**
@@ -94,6 +122,7 @@ class SoundManager {
 
   /**
    * Start playing a playlist of tracks
+   * If multiple tracks, starts at a random position for variety
    */
   startPlaylist(tracks) {
     if (!tracks || tracks.length === 0) {
@@ -105,7 +134,15 @@ class SoundManager {
     }
 
     this.currentPlaylist = tracks;
-    this.currentPlaylistIndex = 0;
+
+    // Pick a random starting track if there's more than one
+    if (tracks.length > 1) {
+      this.currentPlaylistIndex = Math.floor(Math.random() * tracks.length);
+      console.log(`SoundManager: Starting playlist at random index ${this.currentPlaylistIndex} of ${tracks.length}`);
+    } else {
+      this.currentPlaylistIndex = 0;
+    }
+
     this.playCurrentPlaylistTrack();
   }
 

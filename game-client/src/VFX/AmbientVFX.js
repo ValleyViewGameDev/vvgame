@@ -3,6 +3,9 @@
 import { Container, Graphics } from 'pixi.js-legacy';
 
 const FADE_DURATION_MS = 1000;
+// Use setInterval at ~20fps for VFX animations to avoid scroll interference
+// requestAnimationFrame at 60fps was causing scroll "fighting"
+const VFX_UPDATE_INTERVAL_MS = 50; // 20fps - smooth enough for ambient effects
 
 /**
  * Base class for ambient effects
@@ -15,8 +18,11 @@ class AmbientEffect {
     this.TILE_SIZE = TILE_SIZE;
     this.container = new Container();
     this.container.alpha = 0;
+    // Disable interactivity on VFX container to prevent hit testing
+    this.container.interactiveChildren = false;
+    this.container.eventMode = 'none';
     this.isActive = false;
-    this.animationFrame = null;
+    this.updateInterval = null;
     this.fadeAnimationFrame = null;
   }
 
@@ -69,9 +75,9 @@ class AmbientEffect {
 
   stop() {
     this.isActive = false;
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-      this.animationFrame = null;
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = null;
     }
   }
 
@@ -185,14 +191,15 @@ class ButterfliesEffect extends AmbientEffect {
   start() {
     super.start();
     this.lastTime = Date.now();
-    this.animate();
+    // Use setInterval at lower frequency to avoid scroll interference
+    this.updateInterval = setInterval(() => this.animate(), VFX_UPDATE_INTERVAL_MS);
   }
 
   animate() {
     if (!this.isActive) return;
 
     const now = Date.now();
-    const delta = (now - this.lastTime) / 16.67; // Normalize to ~60fps
+    const delta = (now - this.lastTime) / 16.67; // Normalize to ~60fps equivalent
     this.lastTime = now;
 
     const worldWidth = this.gridWidth * this.TILE_SIZE;
@@ -211,7 +218,7 @@ class ButterfliesEffect extends AmbientEffect {
       pack.vy = Math.sin(newAngle) * speed;
 
       // Occasional larger direction change for the whole pack
-      if (Math.random() < 0.001) {
+      if (Math.random() < 0.003) { // Adjusted for lower update rate
         const newPackAngle = Math.random() * Math.PI * 2;
         const newPackSpeed = 0.3 + Math.random() * 0.3;
         pack.vx = Math.cos(newPackAngle) * newPackSpeed;
@@ -274,8 +281,6 @@ class ButterfliesEffect extends AmbientEffect {
         butterfly.rotation += rotationDiff * rotationSpeed;
       }
     }
-
-    this.animationFrame = requestAnimationFrame(() => this.animate());
   }
 }
 
@@ -375,7 +380,8 @@ class BaseCloudEffect extends AmbientEffect {
 
   createCloud(config) {
     const container = new Container();
-    const numPuffs = 6 + Math.floor(Math.random() * 5);
+    // Reduced from 6-10 puffs to 3-5 for better performance
+    const numPuffs = 3 + Math.floor(Math.random() * 3);
     const baseSize = 50 + Math.random() * 70;
 
     // Create overlapping circles for billowy effect
@@ -393,20 +399,18 @@ class BaseCloudEffect extends AmbientEffect {
       container.addChild(puff);
     }
 
-    // Add extra smaller puffs on top for texture
-    for (let i = 0; i < 3; i++) {
-      const smallPuff = new Graphics();
-      const highlightColor = config.highlightColors[Math.floor(Math.random() * config.highlightColors.length)];
-      smallPuff.beginFill(highlightColor, 0.4);
-      const smallSize = baseSize * (0.3 + Math.random() * 0.3);
-      smallPuff.drawCircle(
-        (Math.random() - 0.5) * baseSize * 1.5,
-        (Math.random() - 0.5) * baseSize * 0.4,
-        smallSize
-      );
-      smallPuff.endFill();
-      container.addChild(smallPuff);
-    }
+    // Add 1 smaller puff on top for texture (reduced from 3)
+    const smallPuff = new Graphics();
+    const highlightColor = config.highlightColors[Math.floor(Math.random() * config.highlightColors.length)];
+    smallPuff.beginFill(highlightColor, 0.4);
+    const smallSize = baseSize * (0.3 + Math.random() * 0.3);
+    smallPuff.drawCircle(
+      (Math.random() - 0.5) * baseSize * 1.5,
+      (Math.random() - 0.5) * baseSize * 0.4,
+      smallSize
+    );
+    smallPuff.endFill();
+    container.addChild(smallPuff);
 
     return container;
   }
@@ -414,7 +418,8 @@ class BaseCloudEffect extends AmbientEffect {
   start() {
     super.start();
     this.lastTime = Date.now();
-    this.animate();
+    // Use setInterval at lower frequency to avoid scroll interference
+    this.updateInterval = setInterval(() => this.animate(), VFX_UPDATE_INTERVAL_MS);
   }
 
   animate() {
@@ -464,8 +469,6 @@ class BaseCloudEffect extends AmbientEffect {
       const targetAlpha = cloud.targetAlpha * edgeFade;
       cloud.alpha += (targetAlpha - cloud.alpha) * fadeSpeed * delta;
     }
-
-    this.animationFrame = requestAnimationFrame(() => this.animate());
   }
 }
 
@@ -640,14 +643,15 @@ class BirdsEffect extends AmbientEffect {
   start() {
     super.start();
     this.lastTime = Date.now();
-    this.animate();
+    // Use setInterval at lower frequency to avoid scroll interference
+    this.updateInterval = setInterval(() => this.animate(), VFX_UPDATE_INTERVAL_MS);
   }
 
   animate() {
     if (!this.isActive) return;
 
     const now = Date.now();
-    const delta = (now - this.lastTime) / 16.67;
+    const delta = (now - this.lastTime) / 16.67; // Normalize to ~60fps equivalent
     this.lastTime = now;
 
     const worldWidth = this.gridWidth * this.TILE_SIZE;
@@ -726,8 +730,6 @@ class BirdsEffect extends AmbientEffect {
         bird.rotation += rotationDiff * rotationSpeed;
       }
     }
-
-    this.animationFrame = requestAnimationFrame(() => this.animate());
   }
 }
 
@@ -747,14 +749,14 @@ class DarkCloudsEffect extends BaseCloudEffect {
     }
 
     return {
-      densityMultiplier: 2.0,  // 2x density: 32 clouds
+      densityMultiplier: 3.0,  // 3x density: 48 clouds for heavy overcast sky
       speedMin: 0.25,
       speedMax: 0.2,
-      alphaMin: 0.30,
-      alphaMax: 0.20,
+      alphaMin: 0.35,
+      alphaMax: 0.25,
       baseColors: grayColors,
       highlightColors: grayHighlights,
-      puffAlphaMin: 0.5,
+      puffAlphaMin: 0.55,
       puffAlphaVariation: 0.2
     };
   }

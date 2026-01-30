@@ -12,16 +12,15 @@
     "gtype": "valley1"
   },
   {
-    "ambientVFX": "lavaClouds",
-    "region": "Acheron"
+    "ambientVFX": "darkClouds",
+    "region": "Yorick's Hollow"
   },
   {
     "ambientVFX": "poisonClouds",
     "region": "Golgotha"
   },
   {
-    "ambientVFX": "darkClouds",
-    "gtype": "valley1",
-    "region": "Yorick's Hollow"
+    "ambientVFX": "lavaClouds",
+    "region": "Acheron"
   }
 ]

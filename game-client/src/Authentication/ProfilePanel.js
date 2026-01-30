@@ -231,9 +231,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
 
 
-
-
-
+/////////
+//  Render the Profile Panel UI
+////////
   
   return (
     <Panel
@@ -245,10 +245,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         }
         onClose();
       }}
-      titleKey="1119"
-      panelName="ProfilePanel"
+      titleKey="1119" panelName="ProfilePanel"
     >
       <div className="standard-panel">
+
+        <p>{strings[4058]} {currentPlayer?.playerId || 'N/A'}</p>
 
         <div className="shared-buttons">
           <button className="btn-basic btn-success" onClick={() => {
@@ -324,44 +325,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
           </button>
         </div>
-        <div className="shared-buttons">
-          <button className="btn-basic btn-danger" onClick={handleLogout}>
-            {strings[4056]}
-          </button>
-        </div>
-        <div className="shared-buttons">
-          <button
-            className="btn-basic btn-danger"
-            onClick={async () => {
-              const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
-              if (!confirmed) return;
-
-              try {
-                const response = await axios.post(`${API_BASE}/api/delete-player`, {
-                  playerId: currentPlayer.playerId,
-                });
-
-                if (response.data.success) {
-                  alert("Account deleted successfully.");
-                  localStorage.removeItem('player');
-                  window.location.reload();
-                } else {
-                  alert("Failed to delete account.");
-                }
-              } catch (err) {
-                console.error("Error deleting account:", err);
-                alert("An error occurred while trying to delete your account.");
-              }
-            }}
-          >
-            {strings[4057]}
-          </button>
-        </div>
-        <p>{strings[4058]} {currentPlayer?.playerId || 'N/A'}</p>
-        <p>Home Settlement ID: {currentPlayer?.settlementId || 'N/A'}</p>
-
+      
         <br/>
-
 
         {/* Relocation Controls */}
 
@@ -431,9 +396,48 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         </div>
 
+        <br/>
+
+        <div className="shared-buttons">
+          <button className="btn-basic btn-danger" onClick={handleLogout}>
+            {strings[4056]}
+          </button>
+        </div>
+      
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+              if (!confirmed) return;
+
+              try {
+                const response = await axios.post(`${API_BASE}/api/delete-player`, {
+                  playerId: currentPlayer.playerId,
+                });
+
+                if (response.data.success) {
+                  alert("Account deleted successfully.");
+                  localStorage.removeItem('player');
+                  window.location.reload();
+                } else {
+                  alert("Failed to delete account.");
+                }
+              } catch (err) {
+                console.error("Error deleting account:", err);
+                alert("An error occurred while trying to delete your account.");
+              }
+            }}
+          >
+            {strings[4057]}
+          </button>
+        </div>
+
+        <br/>
+
         {isDeveloper && (
           <>
-            <h4>Season Override</h4>
+            <h4>Season Override (dev only)</h4>
             <div className="season-override-options">
               <label style={{ display: 'block', marginBottom: '10px' }}>
                 <input
