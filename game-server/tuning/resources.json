@@ -6862,6 +6862,7 @@
     "ingredient2": "Furniture",
     "ingredient2qty": 10,
     "gemcost": 2135,
+    "filename": "school.svg",
     "crafttime": 0,
     "totalnestedtime": 432000
   },
