@@ -9,6 +9,7 @@ import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { showNotification } from './UI/Notifications/Notifications';
 import { createCollectEffect, createSourceConversionEffect, createPlantGrowEffect, calculateTileCenter } from './VFX/VFX';
+import soundManager from './Sound/SoundManager';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
@@ -18,7 +19,7 @@ import { checkAndDropWarehouseIngredient } from './Utils/WarehouseMaterials';
 import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange } from './Utils/worldHelpers';
-import { enrichResourceFromMaster } from './Utils/ResourceHelpers';
+import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
 
  
  // Handles resource click actions based on category. //
@@ -223,6 +224,28 @@ export async function handleDooberClick(
   }
   window._processingDoobers.add(dooberId);
 
+  // Check for Pickaxe/Better Pickaxe requirement on doobers (unique to mining doobers)
+  const requiresPickaxe = resource.requires === 'Pickaxe' || resource.requires === 'Better Pickaxe';
+  if (requiresPickaxe) {
+    const hasRequiredPickaxe = currentPlayer?.skills?.some(
+      (skill) => skill.type === resource.requires && skill.quantity > 0
+    );
+    if (!hasRequiredPickaxe) {
+      addFloatingText(`${resource.requires} Required`, col, row, TILE_SIZE);
+      // Show notification about missing pickaxe
+      showNotification('FTUE', {
+        title: strings[7049],
+        message: strings[7058], // Pickaxe required message
+        icon: '💪'
+      });
+      // Clear processing flag
+      if (window._processingDoobers) {
+        window._processingDoobers.delete(dooberId);
+      }
+      return;
+    }
+  }
+
   console.log('MasterSkills:', masterSkills);
   // Extract player skills from inventory
   const playerBuffs = skills
@@ -322,6 +345,17 @@ export async function handleDooberClick(
   // Show VFX and floating text immediately for responsiveness
   createCollectEffect(col, row, TILE_SIZE);
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.symbol} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE);
+
+  // Play collection SFX based on resource type
+  if (requiresPickaxe) {
+    soundManager.playSFX('stoneCut');
+  } else if (isCurrencyItem) {
+    soundManager.playSFX('collect_money');
+  } else if (isACrop(resource.type, masterResources)) {
+    soundManager.playSFX('collect_crop');
+  } else {
+    soundManager.playSFX('collect_item');
+  }
 
   // Perform server validation
   try {
@@ -663,6 +697,13 @@ export async function handleSourceConversion(
   }
 
     createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+
+    // Play SFX based on tool used
+    if (requirement === 'Axe') {
+      soundManager.playSFX('treeCut');
+    } else if (requirement === 'Pickaxe') {
+      soundManager.playSFX('stoneCut');
+    }
 
   // Check if the object should disappear (output is null/empty) or transform
   const shouldDisappear = !resource.output || resource.output === 'null' || !targetResource;

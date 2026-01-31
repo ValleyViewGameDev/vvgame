@@ -2,6 +2,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import FloatingTextManager from "../../UI/FloatingText";
+import soundManager from '../../Sound/SoundManager';
 
 /** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
 function getLineOfSightTiles(start, end) {
@@ -324,6 +325,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         try {
           const newHP = Math.max(0, this.targetPC.hp + amountToMod);
           FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
+          soundManager.playSFX('take_damage');
           playersInGridManager.updatePC(gridId, this.targetPC.playerId, {
             hp: newHP,
             lastUpdated: Date.now()

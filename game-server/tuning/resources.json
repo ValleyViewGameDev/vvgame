@@ -464,8 +464,7 @@
     "maxprice": 1,
     "gemcost": 1,
     "crafttime": 5,
-    "totalnestedtime": 5,
-    "filename": "wood.svg"
+    "totalnestedtime": 5
   },
   {
     "type": "Rocks",
@@ -529,6 +528,7 @@
     "source": "Rocks",
     "passable": true,
     "repeatable": true,
+    "requires": "Pickaxe",
     "qtycollected": 3,
     "level": 2,
     "pricemod": 1,
@@ -614,6 +614,7 @@
     "source": "Mud Pit",
     "passable": true,
     "repeatable": true,
+    "requires": "Better Pickaxe",
     "qtycollected": 3,
     "level": 2,
     "scrollqty": 40,
@@ -8271,8 +8272,7 @@
     "ingredient1qty": 3000,
     "gemcost": 392,
     "crafttime": 28800,
-    "totalnestedtime": 28800,
-    "filename": "npc-pig.svg"
+    "totalnestedtime": 28800
   },
   {
     "type": "Brown Cow",
@@ -8451,7 +8451,7 @@
     "action": "heal",
     "output": "hp",
     "passable": true,
-    "qtycollected": 25,
+    "qtycollected": 75,
     "xp": 4,
     "range": 3,
     "maxhp": 100,

@@ -1,9 +1,11 @@
 // SoundManager.js - Ambient music system based on player location
 
 import MusicMap from './MusicMap.json';
+import SFXMap from './SFXMap.json';
 
 const FADE_DURATION_MS = 2000; // 2 second fade for music
-const MUSIC_BASE_PATH = '/sound/';
+const MUSIC_BASE_PATH = '/sound/music/';
+const SFX_BASE_PATH = '/sound/sfx/';
 
 class SoundManager {
   constructor() {
@@ -175,7 +177,7 @@ class SoundManager {
 
   /**
    * Play a music track with fade in
-   * @param {string} trackName - Name of the track to play
+   * @param {string} trackName - Name of the track to play (can include extension like .mp3 or .m4a)
    * @param {boolean} loop - Whether to loop (default false for playlist mode)
    */
   playTrack(trackName, loop = false) {
@@ -185,7 +187,11 @@ class SoundManager {
       return;
     }
 
-    const audioPath = `${MUSIC_BASE_PATH}${trackName}.mp3`;
+    // If trackName already has an extension, use it as-is; otherwise append .mp3
+    const hasExtension = /\.(mp3|m4a|ogg|wav|webm)$/i.test(trackName);
+    const audioPath = hasExtension
+      ? `${MUSIC_BASE_PATH}${trackName}`
+      : `${MUSIC_BASE_PATH}${trackName}.mp3`;
     console.log(`SoundManager: Playing track '${trackName}' from ${audioPath}`);
 
     try {
@@ -455,6 +461,54 @@ class SoundManager {
    */
   areSoundEffectsEnabled() {
     return this.soundEffectsEnabled;
+  }
+
+  // ========== Sound Effects Playback ==========
+
+  /**
+   * Play a sound effect by event name
+   * Looks up the event in SFXMap.json, picks a random file if multiple exist
+   * @param {string} eventName - The event name (e.g., 'treeCut', 'stoneCut', 'collect_item')
+   */
+  playSFX(eventName) {
+    if (!this.soundEffectsEnabled) {
+      return;
+    }
+
+    // Find the SFX entry for this event
+    const sfxEntry = SFXMap.find(entry => entry.event === eventName);
+    if (!sfxEntry) {
+      console.warn(`SoundManager: No SFX found for event '${eventName}'`);
+      return;
+    }
+
+    // Extract all file options (file1, file2, file3, etc.)
+    const files = [];
+    let i = 1;
+    while (sfxEntry[`file${i}`]) {
+      files.push(sfxEntry[`file${i}`]);
+      i++;
+    }
+
+    if (files.length === 0) {
+      console.warn(`SoundManager: No files defined for SFX event '${eventName}'`);
+      return;
+    }
+
+    // Pick a random file if multiple exist
+    const selectedFile = files[Math.floor(Math.random() * files.length)];
+    const audioPath = `${SFX_BASE_PATH}${selectedFile}`;
+
+    try {
+      const audio = new Audio(audioPath);
+      audio.volume = 0.5; // SFX volume (can be made configurable later)
+      audio.play().catch(err => {
+        // Autoplay may be blocked - silently fail for SFX
+        console.warn(`SoundManager: Could not play SFX '${eventName}'`, err);
+      });
+    } catch (err) {
+      console.error(`SoundManager: Error creating SFX audio for '${eventName}'`, err);
+    }
   }
 }
 

@@ -28,6 +28,7 @@ import HealerInteraction from './HealerInteraction';
 import StoryModal from '../../UI/Modals/StoryModal';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
+import soundManager from '../../Sound/SoundManager';
 
 const NPCPanel = ({
   onClose,
@@ -627,7 +628,8 @@ const handleHeal = async (recipe) => {
       setCurrentPlayer((prev) => ({
         ...prev,
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
-      }));  
+      }));
+      soundManager.playSFX('heal');
       updateStatus(`${strings[405]}${amountToMod}`);
 
       // Deduct 1 HP from the healer NPC

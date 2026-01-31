@@ -1,0 +1,89 @@
+[
+  {
+    "event": "treeCut",
+    "file1": "sfx_chop_1.m4a",
+    "file2": "sfx_chop_2.m4a"
+  },
+  {
+    "event": "stoneCut",
+    "file1": "sfx_pickaxe.m4a"
+  },
+  {
+    "event": "collect_item",
+    "file1": "sfx_collect_item.mp3"
+  },
+  {
+    "event": "collect_money",
+    "file1": "sfx_collect_money.mp3"
+  },
+  {
+    "event": "collect_crop",
+    "file1": "sfx_collect_crop.mp3"
+  },
+  {
+    "event": "attack_range",
+    "file1": "sfx_swish.mp3"
+  },
+  {
+    "event": "attack_melee",
+    "file1": "sfx_swish.mp3"
+  },
+  {
+    "event": "tent_on",
+    "file1": "sfx_tent.mp3"
+  },
+  {
+    "event": "tent_off",
+    "file1": "sfx_tent.mp3"
+  },
+  {
+    "event": "boat_on",
+    "file1": "sfx_boat_on.mp3"
+  },
+  {
+    "event": "boat_off",
+    "file1": "sfx_collect_item.mp3"
+  },
+  {
+    "event": "take_damage",
+    "file1": "sfx_ouch.mp3"
+  },
+  {
+    "event": "levelup",
+    "file1": "sfx_levelup.mp3"
+  },
+  {
+    "event": "heal",
+    "file1": "sfx_heal1.m4a",
+    "file2": "sfx_heal2.mp3"
+  },
+  {
+    "event": "equip",
+    "file1": "sfx_equip_item.mp3"
+  },
+  {
+    "event": "button_press",
+    "file1": "sfx_button_click.mp3"
+  },
+  {
+    "event": "plant",
+    "file1": "sfx_plant.mp3",
+    "file2": "sfx_plant2.mp3"
+  },
+  {
+    "event": "terraform",
+    "file1": "sfx_plant.mp3"
+  },
+  {
+    "event": "place",
+    "file1": "sfx_place.mp3"
+  },
+  {
+    "event": "skill_earned",
+    "file1": "sfx_earn_skill.mp3"
+  },
+  {
+    "event": "succes",
+    "file1": "sfx_success.mp3"
+  }
+]

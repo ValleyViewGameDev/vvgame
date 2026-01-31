@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useStrings } from '../../UI/StringsContext';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
 import HopeQuest from './HopeQuest';
+import soundManager from '../../Sound/SoundManager';
 
 const PlayerPanel = ({
   currentPlayer,
@@ -93,6 +94,7 @@ const PlayerPanel = ({
       }
 
       console.log('⛺️ iscamping: updated profile successfully');
+      soundManager.playSFX('tent_on');
       updateStatus(28);
       
       // Award Adventurer trophy for first time camping
@@ -134,6 +136,7 @@ const PlayerPanel = ({
       });
 
       if (response.data.success) {
+        soundManager.playSFX('tent_off');
         updateStatus(30);
 
         // Update PlayersInGrid directly
@@ -176,8 +179,9 @@ const PlayerPanel = ({
       });
 
       if (response.data.success) {
+        soundManager.playSFX('boat_on');
         updateStatus("You got in your boat."); // TODO: Add proper string ID
-        
+
         // Update PlayersInGrid directly
         const gridId = currentPlayer?.location?.g;
         if (gridId) {
@@ -214,8 +218,9 @@ const PlayerPanel = ({
       });
 
       if (response.data.success) {
+        soundManager.playSFX('boat_off');
         updateStatus("You got out of your boat."); // TODO: Add proper string ID
-        
+
         // Update PlayersInGrid directly
         const gridId = currentPlayer?.location?.g;
         if (gridId) {

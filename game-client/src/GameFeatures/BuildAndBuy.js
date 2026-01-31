@@ -10,6 +10,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { createCollectEffect } from '../VFX/VFX';
+import soundManager from '../Sound/SoundManager';
 
 export const handleConstructionWithGems = async (params) => {
   // Wrapper function that uses a modified recipe if provided
@@ -183,6 +184,7 @@ export const handleConstruction = async ({
     // Show VFX and floating text for NPC purchase
     createCollectEffect(x, y, TILE_SIZE);
     FloatingTextManager.addFloatingText(300, x, y, TILE_SIZE);
+    soundManager.playSFX('place');
     
     // Show status message with purchase details
     updateStatus(`${selectedResource.type} purchased for ${costString}.`);
@@ -246,6 +248,7 @@ export const handleConstruction = async ({
       // Show VFX and floating text for resource placement
       createCollectEffect(x, y, TILE_SIZE);
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+      soundManager.playSFX('place');
       
       // Show status message with purchase details
       updateStatus(`${selectedItem} purchased for ${costString}.`);

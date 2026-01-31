@@ -77,6 +77,7 @@ import LANGUAGE_OPTIONS from './UI/Languages.json';
 import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
 import { getDerivedLevel } from './Utils/playerManagement';
+import soundManager from './Sound/SoundManager';
 
 import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
@@ -2181,6 +2182,7 @@ useEffect(() => {
         currentLevel: newLevel,
         previousLevel: currentLevel
       });
+      soundManager.playSFX('levelup');
       setIsLevelUpModalOpen(true);
     }
     
@@ -2188,6 +2190,26 @@ useEffect(() => {
     setCurrentLevel(newLevel);
   }
 }, [currentPlayer?.xp, masterXPLevels, currentLevel]);
+
+// Global button click SFX - plays sound when any button is clicked
+useEffect(() => {
+  const handleButtonClick = (event) => {
+    // Check if clicked element is a button or has btn- class
+    const target = event.target;
+    const isButton = target.tagName === 'BUTTON' ||
+                     target.classList.contains('btn-basic') ||
+                     target.classList.contains('btn-success') ||
+                     target.classList.contains('btn-danger') ||
+                     target.closest('button');
+
+    if (isButton) {
+      soundManager.playSFX('button_press');
+    }
+  };
+
+  document.addEventListener('click', handleButtonClick);
+  return () => document.removeEventListener('click', handleButtonClick);
+}, []);
 
 // FARM STATE - Now initialized in initializeGrid (AppInit.js) for clean sequential flow
 // FarmState timer is stopped in changePlayerLocation CLEANUP phase (GridManagement.js)  

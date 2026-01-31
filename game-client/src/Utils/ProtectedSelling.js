@@ -1,6 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import { createCollectEffect } from '../VFX/VFX';
+import soundManager from '../Sound/SoundManager';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { updateGridResource } from './GridManagement';
 import { checkDeveloperStatus } from './appUtils';
@@ -114,6 +115,7 @@ export async function handleProtectedSelling({
 
       // Visual feedback
       createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+      soundManager.playSFX('collect_money');
 
       // Build refund summary showing all ingredients
       const refundSummary = refundIngredients && refundIngredients.length > 0

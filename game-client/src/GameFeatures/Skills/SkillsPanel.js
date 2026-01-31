@@ -17,6 +17,7 @@ import { createCollectEffect } from '../../VFX/VFX';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import soundManager from '../../Sound/SoundManager';
 
 const SkillsPanel = ({
     onClose,
@@ -221,6 +222,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       });
       await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
       await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
+      soundManager.playSFX('skill_earned');
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
       // Instead of re-fetching, update the acquire list locally

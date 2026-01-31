@@ -8,6 +8,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
+import soundManager from '../../Sound/SoundManager';
 import './AnimalPanel.css';
 
 const AnimalPanel = ({
@@ -172,6 +173,7 @@ const AnimalPanel = ({
 
       console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
       updateStatus(`Sold ${getLocalizedString(stationType, strings)} for ${totalRefund} ${getLocalizedString('Money', strings)}.`);
+      soundManager.playSFX('collect_money');
       onClose();
     } catch (error) {
       console.error('Error selling the stall:', error);

@@ -11,6 +11,7 @@ import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
+import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 
 function BankPanel({
@@ -127,6 +128,7 @@ function BankPanel({
 
         await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
 
+        soundManager.playSFX('collect_money');
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 

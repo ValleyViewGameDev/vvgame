@@ -55,22 +55,25 @@ class LocationChangeManager {
       ...completedChange,
       completedAt: Date.now()
     };
-    
+
     console.log('✅ Location change completed successfully');
-    
-    // Process any pending change after a brief delay to ensure state is stable
+
+    // CRITICAL FIX: Do NOT process queued location changes after a successful transition.
+    //
+    // The player has already moved to the destination grid. Processing a queued change
+    // would cause a SECOND transition where:
+    // 1. The player's combat stats no longer exist in the "from" grid (already removed)
+    // 2. addPC() falls back to default values (HP: 25, maxHP: 25)
+    // 3. Player loses all their combat stats
+    //
+    // This race condition was caused by rapid signpost clicks queuing multiple transitions.
+    // The safe behavior is to discard queued transitions - the player is already where they
+    // need to be, and trying again would corrupt their data.
     if (this.pendingLocationChange) {
-      const pending = this.pendingLocationChange;
+      console.log('🚫 Discarding queued location change - player already transitioned successfully');
+      console.log('   Queued destination was:', this.pendingLocationChange.to?.g);
+      console.log('   Completed destination:', completedChange?.to?.g || completedChange?.gridId);
       this.pendingLocationChange = null;
-      
-      console.log('🔄 Processing queued location change after completion');
-      
-      // Use setTimeout to ensure current call stack completes before processing
-      setTimeout(() => {
-        if (pending.retryCallback) {
-          pending.retryCallback();
-        }
-      }, 100);
     }
   }
 

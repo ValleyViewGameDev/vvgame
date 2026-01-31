@@ -10,6 +10,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from "../../VFX/VFX";
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import soundManager from '../../Sound/SoundManager';
 
 
 /** Helper to check if target is in range and validate positions **/
@@ -99,6 +100,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
     const damage = calculateDamage(player);
     FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
     createCollectEffect(freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
+    soundManager.playSFX('attack_melee');
 
     freshNPC.hp -= damage;
     await NPCsInGridManager.updateNPC(gridId, freshNPC.id, {

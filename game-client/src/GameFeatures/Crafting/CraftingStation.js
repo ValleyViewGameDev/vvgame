@@ -18,6 +18,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
+import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
@@ -339,6 +340,7 @@ const CraftingStation = ({
           // Show floating text for NPCs immediately since they don't need inventory space
           const npcSymbol = craftedResource?.symbol || '🎁';
           FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${npcSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          soundManager.playSFX('collect_item');
         } else {
           // Only add non-NPC items to inventory
           // Update inventory with buffed quantity
@@ -367,6 +369,7 @@ const CraftingStation = ({
           const collectedItemResource = masterResources.find(r => r.type === collectedItem);
           const collectedSymbol = collectedItemResource?.symbol || '🎁';
           FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          soundManager.playSFX('collect_item');
         }
 
         // Only clear crafting state if we successfully collected (or it's an NPC)

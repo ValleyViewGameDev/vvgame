@@ -8,6 +8,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
+import soundManager from '../../Sound/SoundManager';
 
 const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
   const strings = useStrings();
@@ -50,14 +51,14 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
         playerId: currentPlayer.playerId,
         updates: { settings: updatedSettings }
       });
-      
+
       // Update player state first
       const updatedPlayer = {
         ...currentPlayer,
         settings: updatedSettings
       };
       setCurrentPlayer(updatedPlayer);
-      
+
       // Wait a moment for state to settle, then refresh with updated player data
       setTimeout(() => {
         refreshCombatStatsWithPlayer(updatedPlayer);
@@ -67,7 +68,8 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
           setPlayerStats(stats);
         }
       }, 100);
-      
+
+      soundManager.playSFX('equip');
       updateStatus(weaponType ? `Equipped ${weaponType}` : 'Unequipped weapon');
     } catch (error) {
       console.error('Error equipping weapon:', error);
@@ -91,14 +93,14 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
         playerId: currentPlayer.playerId,
         updates: { settings: updatedSettings }
       });
-      
+
       // Update player state first
       const updatedPlayer = {
         ...currentPlayer,
         settings: updatedSettings
       };
       setCurrentPlayer(updatedPlayer);
-      
+
       // Wait a moment for state to settle, then refresh with updated player data
       setTimeout(() => {
         refreshCombatStatsWithPlayer(updatedPlayer);
@@ -108,7 +110,8 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
           setPlayerStats(stats);
         }
       }, 100);
-      
+
+      soundManager.playSFX('equip');
       updateStatus(armorType ? `Equipped ${armorType}` : 'Unequipped armor');
     } catch (error) {
       console.error('Error equipping armor:', error);

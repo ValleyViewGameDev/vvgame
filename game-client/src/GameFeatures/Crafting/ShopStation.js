@@ -14,6 +14,7 @@ import TransactionButton from '../../UI/Buttons/TransactionButton';
 import '../../UI/Buttons/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import soundManager from '../../Sound/SoundManager';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
@@ -220,6 +221,7 @@ const ShopStation = ({
         ...prev,
         powers: updatedPowers,
       }));
+      soundManager.playSFX('skill_earned');
       // Helper functions to categorize powers
       const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
       const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
@@ -277,6 +279,13 @@ const ShopStation = ({
       if (!gainSuccess) {
         console.warn(`Failed to gain ${recipe.type}`);
         return;
+      }
+
+      // Play skill_earned SFX for skill purchases
+      // Check both recipe.category and masterResources lookup for robustness
+      const resourceDef = masterResources?.find(r => r.type === recipe.type);
+      if (recipe.category === 'skill' || resourceDef?.category === 'skill') {
+        soundManager.playSFX('skill_earned');
       }
     }
 

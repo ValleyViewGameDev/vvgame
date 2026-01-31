@@ -11,6 +11,7 @@ import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import { createCollectEffect, createPlantGrowEffect } from '../../VFX/VFX';
+import soundManager from '../../Sound/SoundManager';
 
 /**
  * Determines the appropriate error string for an invalid planting attempt.
@@ -174,6 +175,7 @@ export const handleFarmPlotPlacement = async ({
       // PixiRenderer skips rendering the resource during animation
       createCollectEffect(tileX, tileY, TILE_SIZE);
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
+      soundManager.playSFX('plant');
 
       // Track quest progress for "Plant" actions
       // Use the output (crop) name instead of the plot name for quest tracking
@@ -271,5 +273,6 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
 
   // Show VFX for terraforming
   createCollectEffect(tileX, tileY, TILE_SIZE);
+  soundManager.playSFX('terraform');
   return true; // Success
 };
