@@ -61,7 +61,9 @@ const ResourceButton = ({
   // SVG filename - when provided, shows SVG image instead of emoji symbol
   filename = null,
   // Resource type - used for data attribute to enable CSS selector targeting
-  resourceType = null
+  resourceType = null,
+  // When true, suppresses the global button_press SFX (use when button has its own SFX)
+  noClickSfx = false
 }) => { 
   const strings = useStrings();
   const { openPanel } = usePanelContext();
@@ -171,6 +173,7 @@ const ResourceButton = ({
           className={`resource-button ${disabled || isProcessing ? 'disabled' : ''} ${className || ''} ${isProcessing ? 'processing' : ''} ${devOnly ? 'dev-only' : ''}`}
           onClick={handleClick}
           disabled={disabled || isProcessing}
+          data-no-click-sfx={noClickSfx ? 'true' : undefined}
           style={{
             opacity: (disabled || isProcessing) ? 0.6 : 1,
             cursor: (disabled || isProcessing) ? 'not-allowed' : 'pointer',

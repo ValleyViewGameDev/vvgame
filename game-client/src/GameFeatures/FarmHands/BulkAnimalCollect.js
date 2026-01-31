@@ -6,6 +6,7 @@ import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 
 // Component for the bulk animal collection selection modal
@@ -163,7 +164,10 @@ export async function executeBulkAnimalCollect({
     // Check if collection was successful
     if (result && result.type === 'success' && result.collectedItem) {
       const { collectedItem, collectedQuantity, skillsApplied } = result;
-      
+
+      // Play collect sound for each successful collection
+      soundManager.playSFX('collect_item');
+
       // Track successful collects
       successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + collectedQuantity;
       

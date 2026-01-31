@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from '../../UI/Modals/Modal';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 import './BulkHarvestResultsModal.css';
 
@@ -15,12 +16,19 @@ export function BulkHarvestResultsModal({
   strings,
   masterResources
 }) {
+  // Play success sound when modal opens
+  useEffect(() => {
+    if (isOpen && results) {
+      soundManager.playSFX('success');
+    }
+  }, [isOpen, results]);
+
   if (!isOpen || !results) return null;
 
-  const { 
-    harvestResults = {}, 
-    replantInfo = {}, 
-    harvestSkillsInfo = {}, 
+  const {
+    harvestResults = {},
+    replantInfo = {},
+    harvestSkillsInfo = {},
     warehouseDrops = {},
     seedsUsed = {}
   } = results;

@@ -21,6 +21,7 @@ import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './
 import BulkHarvestResultsModal from './BulkHarvestResultsModal';
 import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
+import BulkCraftingResultsModal from './BulkCraftingResultsModal';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
@@ -65,6 +66,8 @@ const FarmHandPanel = ({
   const [selectedCraftingStations, setSelectedCraftingStations] = useState({});
   const [selectedRestartStations, setSelectedRestartStations] = useState({});
   const [availableCraftingStations, setAvailableCraftingStations] = useState([]);
+  const [bulkCraftingResults, setBulkCraftingResults] = useState(null);
+  const [isCraftingResultsModalOpen, setIsCraftingResultsModalOpen] = useState(false);
   const skills = currentPlayer.skills || [];
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
@@ -729,7 +732,7 @@ const FarmHandPanel = ({
   async function executeSelectiveCrafting(selectedGroups, selectedRestartStations) {
     setIsCraftingModalOpen(false);
     setErrorMessage('');
-    
+
     // Find the appropriate worker NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
     const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
@@ -743,7 +746,7 @@ const FarmHandPanel = ({
 
     // Execute bulk operation with shared function
     await executeBulkOperation('bulk-crafting', operationId, workerNPC, async () => {
-      return await executeBulkCrafting({
+      const result = await executeBulkCrafting({
         selectedGroups,
         selectedRestartStations,
         hasBulkRestartCraft,
@@ -761,9 +764,22 @@ const FarmHandPanel = ({
         updateStatus,
         globalTuning
       });
+
+      // Handle the new results format
+      if (result.success) {
+        // Store results for modal display
+        setBulkCraftingResults(result);
+        // Show results modal after a brief delay
+        setTimeout(() => {
+          setIsCraftingResultsModalOpen(true);
+        }, 500);
+        // Return status message for any fallback displays
+        return result.statusMessage;
+      } else {
+        // Return error message
+        return result.error;
+      }
     });
-    
-    onClose();
   }
 
   async function restartCrafting(station, recipe, strings) {
@@ -1057,6 +1073,19 @@ const FarmHandPanel = ({
           setBulkHarvestResults(null);
         }}
         results={bulkHarvestResults}
+        strings={strings}
+        masterResources={masterResources}
+      />
+
+      {/* Bulk Crafting Results Modal */}
+      <BulkCraftingResultsModal
+        isOpen={isCraftingResultsModalOpen}
+        onClose={() => {
+          setIsCraftingResultsModalOpen(false);
+          setBulkCraftingResults(null);
+          onClose();
+        }}
+        results={bulkCraftingResults}
         strings={strings}
         masterResources={masterResources}
       />

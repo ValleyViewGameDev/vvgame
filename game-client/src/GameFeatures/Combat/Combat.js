@@ -136,7 +136,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
                         // Show XP earned with a delay
                         setTimeout(() => {
                             FloatingTextManager.addFloatingText(`+${npcResource.xp} XP`, freshNPC.position.x, freshNPC.position.y-1.2, TILE_SIZE);
-                        }, 500);
+                        }, 800);
                         
                         console.log(`🎯 Awarded ${npcResource.xp} XP for killing ${freshNPC.type}`);
                     }

@@ -12,6 +12,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
+import soundManager from '../../Sound/SoundManager';
 
 function Mailbox({ 
   onClose, 
@@ -124,6 +125,7 @@ function Mailbox({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
+        soundManager.playSFX('collect_money');
         updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
       }
     } catch (error) {

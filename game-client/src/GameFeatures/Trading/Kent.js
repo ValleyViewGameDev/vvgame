@@ -14,6 +14,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import soundManager from '../../Sound/SoundManager';
 
 // Base tile size for FloatingText positioning (FloatingText.js derives scaled size from pixi-container)
 const TILE_SIZE = 30;
@@ -241,6 +242,9 @@ function KentPanel({
             const moneyAmount = moneyReward?.quantity || offer.qtyGiven || 0;
             showSaleFloatingText(moneyAmount, xpToAward);
 
+            // Play sound effect for successful sale
+            soundManager.playSFX('collect_money');
+
             // Create status message for multiple rewards
             const rewardText = originalOffer && originalOffer.rewards
               ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
@@ -423,13 +427,13 @@ function KentPanel({
         const kentPos = getKentPosition();
         if (!kentPos) return;
 
-        // Show money first at NPC position (emoji + localized name)
-        FloatingTextManager.addFloatingText(`+${moneyAmount.toLocaleString()} 💰 ${getLocalizedString('Money', strings)}`, kentPos.x, kentPos.y, TILE_SIZE);
+        // Show money first at NPC position (emoji only, no text needed)
+        FloatingTextManager.addFloatingText(`+${moneyAmount.toLocaleString()} 💰`, kentPos.x, kentPos.y, TILE_SIZE);
 
         // Show XP with delay, same position so it follows the same path
         setTimeout(() => {
             FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, kentPos.x, kentPos.y, TILE_SIZE);
-        }, 500);
+        }, 800);
     };
 
     return (
@@ -478,6 +482,7 @@ function KentPanel({
                               ingredient1qty: convertedOffer.qtyBought
                             }, inventory, backpack, 1)}
                             hideInfo={true}
+                            noClickSfx={true}
                           >
                             <div className="resource-details">
                               <div className="kent-offer-content">

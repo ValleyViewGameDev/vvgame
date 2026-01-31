@@ -380,7 +380,7 @@ const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, x
   // Show XP after delay, same position so it follows the same path
   setTimeout(() => {
     FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, npcPos.x, npcPos.y, TILE_SIZE);
-  }, 500);
+  }, 800);
 };
 
 const handleGetReward = async (quest) => {
@@ -419,6 +419,9 @@ const handleGetReward = async (quest) => {
 
       // Show floating text for reward and XP
       showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText);
+
+      // Play sound effect for collecting quest reward
+      soundManager.playSFX('skill_earned');
 
       // Award trophies for specific quest rewards
       try {
@@ -1135,6 +1138,7 @@ const handleHeal = async (recipe) => {
                 xpReward={xpToAward}
                 level={quest.level}
                 meetsLevelRequirement={questMeetsLevel}
+                noClickSfx={state === 'reward'}
               />
             );
               })}

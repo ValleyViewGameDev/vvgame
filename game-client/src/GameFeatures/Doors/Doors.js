@@ -4,6 +4,29 @@
  */
 
 import FloatingTextManager from '../../UI/FloatingText';
+import soundManager from '../../Sound/SoundManager';
+
+/**
+ * Get the sound event name for a door based on its required key
+ * @param {string} requiredItem - The item required to open the door
+ * @returns {string} - The sound event name
+ */
+function getDoorSoundEvent(requiredItem) {
+  switch (requiredItem) {
+    case 'Town Key':
+      return 'door_town';
+    case 'Dungeon Key':
+      return 'door_dungeon';
+    case 'Golden Key':
+      return 'door_gold';
+    case 'Mirror Key':
+      return 'door_mirror';
+    case 'Skeleton Key':
+      return 'door_skeleton';
+    default:
+      return 'door_town'; // Default door sound
+  }
+}
 
 /**
  * Check if player has a specific item in their inventory or backpack
@@ -95,11 +118,11 @@ export function checkDoorAccess(door, currentPlayer, strings) {
 export function canPassThroughDoor(resource, currentPlayer, updateStatus, strings, TILE_SIZE) {
   // Check if it's a door
   if (resource.action !== 'door') return false;
-  
+
   // Check door access
   const accessResult = checkDoorAccess(resource, currentPlayer, strings);
-  
-  // If no access and we have updateStatus, show the message
+
+  // If no access and we have updateStatus, show the message and play locked sound
   if (!accessResult.hasAccess && updateStatus) {
     updateStatus(accessResult.message);
     if (TILE_SIZE && resource.x !== undefined && resource.y !== undefined) {
@@ -110,8 +133,16 @@ export function canPassThroughDoor(resource, currentPlayer, updateStatus, string
         TILE_SIZE
       );
     }
+    // Play door locked sound
+    soundManager.playSFX('door_locked');
   }
-  
+
+  // If player has access, play the appropriate door sound
+  if (accessResult.hasAccess && resource.requires) {
+    const doorSound = getDoorSoundEvent(resource.requires);
+    soundManager.playSFX(doorSound);
+  }
+
   return accessResult.hasAccess;
 }
 

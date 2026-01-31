@@ -85,5 +85,29 @@
   {
     "event": "succes",
     "file1": "sfx_success.mp3"
+  },
+  {
+    "event": "door_town",
+    "file1": "sfx_door_town.mp3"
+  },
+  {
+    "event": "door_dungeon",
+    "file1": "sfx_door_dungeon.mp3"
+  },
+  {
+    "event": "door_skeleton",
+    "file1": "sfx_door_town.mp3"
+  },
+  {
+    "event": "door_gold",
+    "file1": "sfx_door_town.mp3"
+  },
+  {
+    "event": "door_mirror",
+    "file1": "sfx_door_town.mp3"
+  },
+  {
+    "event": "door_locked",
+    "file1": "sfx_door_locked.mp3"
   }
 ]

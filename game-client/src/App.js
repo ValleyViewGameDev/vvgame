@@ -2192,17 +2192,22 @@ useEffect(() => {
 }, [currentPlayer?.xp, masterXPLevels, currentLevel]);
 
 // Global button click SFX - plays sound when any button is clicked
+// Buttons can opt-out by adding data-no-click-sfx="true" attribute
 useEffect(() => {
   const handleButtonClick = (event) => {
     // Check if clicked element is a button or has btn- class
     const target = event.target;
-    const isButton = target.tagName === 'BUTTON' ||
-                     target.classList.contains('btn-basic') ||
-                     target.classList.contains('btn-success') ||
-                     target.classList.contains('btn-danger') ||
-                     target.closest('button');
+    const buttonElement = target.tagName === 'BUTTON' ? target :
+                          target.closest('button') ||
+                          (target.classList.contains('btn-basic') ||
+                           target.classList.contains('btn-success') ||
+                           target.classList.contains('btn-danger') ? target : null);
 
-    if (isButton) {
+    if (buttonElement) {
+      // Check if button has opted out of click SFX
+      if (buttonElement.dataset.noClickSfx === 'true') {
+        return;
+      }
       soundManager.playSFX('button_press');
     }
   };

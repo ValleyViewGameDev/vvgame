@@ -31,7 +31,7 @@ const QuestButton = ({ quest, state, onClick }) => {
   );
 };
 
-const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRequirement = true }) => {
+const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRequirement = true, noClickSfx = false }) => {
   const strings = useStrings();
   const { symbol, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
@@ -70,7 +70,7 @@ const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRe
       {xpReward && state === 'reward' && (
         <p style={{ color: '#4CAF50', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
       )}
-      <button className="quest-giver-button">{buttonText}</button>
+      <button className="quest-giver-button" data-no-click-sfx={noClickSfx ? 'true' : undefined}>{buttonText}</button>
     </div>
   );
 };

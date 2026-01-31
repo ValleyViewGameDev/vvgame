@@ -517,31 +517,44 @@ export async function executeBulkCrafting({
       const hasCollections = Object.keys(successfulCollects).length > 0;
       const hasRestarts = Object.keys(successfulRestarts).length > 0;
       const totalProcessed = results.filter(r => r.collected || r.success).length;
-      
+
       if (hasCollections || hasRestarts) {
         const parts = [];
-        
+
         if (hasCollections) {
           parts.push(formatCollectionResults('craft', successfulCollects, appliedSkillsInfo, null, strings, getLocalizedString));
         }
-        
+
         if (hasRestarts) {
           parts.push(formatRestartResults(successfulRestarts, 'craft', strings, getLocalizedString));
         }
-        
-        return parts.join(' | ');
+
+        // Return results object for modal display
+        return {
+          success: true,
+          collectResults: successfulCollects,
+          restartInfo: successfulRestarts,
+          craftSkillsInfo: appliedSkillsInfo,
+          statusMessage: parts.join(' | ')
+        };
       } else if (totalProcessed > 0) {
         // Items were processed but maybe all were NPCs
-        return `Collected from ${totalProcessed} crafting station${totalProcessed > 1 ? 's' : ''}.`;
+        return {
+          success: true,
+          collectResults: {},
+          restartInfo: {},
+          craftSkillsInfo: {},
+          statusMessage: `Collected from ${totalProcessed} crafting station${totalProcessed > 1 ? 's' : ''}.`
+        };
       } else {
-        return 'Failed to collect any crafted items.';
+        return { success: false, error: 'Failed to collect any crafted items.' };
       }
     } else {
-      return 'Failed to collect crafted items.';
+      return { success: false, error: 'Failed to collect crafted items.' };
     }
   } catch (error) {
     console.error('🏭 Bulk crafting error:', error);
-    return error.response?.data?.message || error.message || 'Bulk crafting failed';
+    return { success: false, error: error.response?.data?.message || error.message || 'Bulk crafting failed' };
   }
 }
 

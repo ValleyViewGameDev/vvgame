@@ -225,6 +225,7 @@ function BankPanel({
                             ingredient1qty: offer.qtyBought
                           }, inventory, backpack, 1)}
                           hideInfo={true}
+                          noClickSfx={true}
                         >
                           <div className="resource-details">
                             <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
