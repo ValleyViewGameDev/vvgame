@@ -1340,9 +1340,9 @@
     "7061": "Ahora viaja al Pueblo para obtener tu Llave del Pueblo del Alguacil Elbow. Usa el 🏛️ Señalizador del Pueblo para viajar allí.",
     "7062": "¡Buen trabajo! Soy la Pastora, y te ayudaré con tu ✅ Lista de Tareas. Vuelve a verme cuando completes las tareas.",
 
-    "740": "Desperté de una extraña pesadilla, para encontrarme en un bosque oscuro, frente a la entrada de una cueva.",
-    "741": "Usa las teclas A-W-S-D (o las flechas) para mover tu personaje y encuentra la salida de la cueva.",
-    "742": "Esto parece la entrada a un pueblo. Saluda al Alguacil que guarda la puerta.",
+    "740": "¡Bienvenido a Elsinore, {username}! Puedes adquirir una Escritura de Propiedad del Alguacil para comenzar tu aventura.",
+    "741": "Usa las teclas A-W-S-D (o las flechas) para mover tu personaje. HAZ CLIC en Constable Elbow.",
+    "742": "Haz clic en el Poste indicador para viajar a tu nueva Granja.",
 
     "armorclass": "Capacidad de la Mochila",
     "attackbonus": "Daño",

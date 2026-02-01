@@ -1341,9 +1341,9 @@
     "7061": "Reise jetzt in die Stadt, um deinen Stadtschlüssel von Constable Elbow zu bekommen. Benutze den 🏛️ Wegweiser Stadt, um dorthin zu reisen.",
     "7062": "Gut gemacht! Ich bin die Hirtin, und ich helfe dir mit deiner ✅ Aufgabenliste. Komm zu mir zurück, wenn Aufgaben erledigt sind.",
 
-    "740": "Ich erwachte aus einem seltsamen Albtraum und fand mich in einem dunklen Wald, vor dem Eingang einer Höhle.",
-    "741": "Benutze die Tasten A-W-S-D (oder die Pfeiltasten), um deine Figur zu bewegen, und finde den Ausgang aus der Höhle.",
-    "742": "Das sieht aus wie der Eingang zu einer Stadt. Begrüße den Constable, der das Tor bewacht.",
+    "740": "Willkommen in Elsinore, {username}! Du kannst beim Constable eine Hausurkunde erwerben, um dein Abenteuer zu beginnen.",
+    "741": "Benutze die Tasten A-W-S-D (oder die Pfeiltasten), um deine Figur zu bewegen. KLICKE auf Constable Elbow.",
+    "742": "Klicke auf den Wegweiser, um zu deinem neuen Heimathof zu reisen.",
 
     "armorclass": "Rüstungsklasse",
     "attackbonus": "Angriffsbonus",

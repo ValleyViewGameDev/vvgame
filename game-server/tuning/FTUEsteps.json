@@ -34,9 +34,9 @@
       "trigger": "BoughtHomeDeed",
       "doinker": true,
       "doinkerType": "resource",
-      "doinkerTarget": "Dungeon Exit",
+      "doinkerTarget": "Signpost Home",
       "notificationKey": 742,
-      "notificationIcon": "⬆️",
+      "notificationIcon": "🏠",
       "addQuests": []
     },
     {

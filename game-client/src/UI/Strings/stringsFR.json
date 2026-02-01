@@ -1341,9 +1341,9 @@
     "7061": "Voyagez maintenant vers la Ville pour obtenir votre Clé de la Ville auprès du Constable Elbow. Utilisez le 🏛️ Panneau Ville pour vous y rendre.",
     "7062": "Bon travail ! Je suis la Bergère, et je vous aiderai avec votre ✅ Liste de Tâches. Revenez me voir quand les tâches sont terminées.",
 
-    "740": "Je me suis réveillé d'un étrange cauchemar, pour me retrouver dans une forêt sombre, devant l'entrée d'une grotte.",
-    "741": "Utilisez les touches A-W-S-D (ou les flèches) pour déplacer votre personnage et trouvez la sortie de la grotte.",
-    "742": "Cela ressemble à l'entrée d'une ville. Saluez le Constable qui garde la porte.",
+    "740": "Bienvenue à Elsinore, {username} ! Vous pouvez acquérir un Titre de Propriété auprès du Constable pour commencer votre aventure.",
+    "741": "Utilisez les touches A-W-S-D (ou les flèches) pour déplacer votre personnage. CLIQUEZ sur Constable Elbow.",
+    "742": "Cliquez sur le Panneau indicateur pour voyager vers votre nouveau Domaine.",
 
     "armorclass": "Armor Class",
     "attackbonus": "Attack Bonus",
