@@ -50,7 +50,7 @@
   },
   {
     "event": "levelup",
-    "file1": "sfx_levelup.mp3"
+    "file1": "sfx_success.mp3"
   },
   {
     "event": "heal",
@@ -83,7 +83,7 @@
     "file1": "sfx_earn_skill.mp3"
   },
   {
-    "event": "succes",
+    "event": "success",
     "file1": "sfx_success.mp3"
   },
   {
@@ -93,10 +93,6 @@
   {
     "event": "door_dungeon",
     "file1": "sfx_door_dungeon.mp3"
-  },
-  {
-    "event": "door_skeleton",
-    "file1": "sfx_door_town.mp3"
   },
   {
     "event": "door_gold",

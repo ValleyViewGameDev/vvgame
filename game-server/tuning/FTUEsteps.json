@@ -41,7 +41,7 @@
     },
     {
       "step": 5,
-      "trigger": "ExitedCave",
+      "trigger": "FirstHomesteadVisit",
       "doinker": true,
       "doinkerType": "resource",
       "doinkerTarget": ["Wheat", "Kent"],

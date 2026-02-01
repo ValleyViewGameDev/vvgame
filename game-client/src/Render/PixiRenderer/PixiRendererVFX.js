@@ -205,9 +205,10 @@ const PixiRendererVFX = ({
           playerInteractionGraphic.visible = true;
         }
 
-        // 2. Attack range indicator (red dotted circle)
+        // 2. Attack range indicator (red dotted circle) - only show if weapon is equipped
+        const hasWeaponEquipped = currentPlayer?.settings?.equippedWeapon != null;
         const attackRange = currentPC.attackrange || currentPlayer?.attackrange;
-        if (attackRange && attackRange > 0) {
+        if (hasWeaponEquipped && attackRange && attackRange > 0) {
           const attackRadius = attackRange * TILE_SIZE;
 
           drawDashedCircle(playerAttackGraphic, playerCenterX, playerCenterY, attackRadius, 0xFF0000, 0.4, 3);
