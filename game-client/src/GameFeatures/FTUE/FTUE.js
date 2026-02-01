@@ -388,12 +388,14 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     return null;
   }
 
-  // Standard render for steps with showModal: true - use StoryModal with player icon
+  // Standard render for steps with showModal: true - use StoryModal
+  // Use modalIcon from step data if specified, otherwise fall back to player icon
+  const modalSymbol = currentStepData?.modalIcon || currentPlayer?.icon || '😀';
   return (
     <StoryModal
       isOpen={true}
       onClose={handleOK}
-      symbol={currentPlayer?.icon || '😀'}
+      symbol={modalSymbol}
       dialogKey={currentStepData.bodyKey}
       relationshipType="FTUE"
       username={currentPlayer?.username}

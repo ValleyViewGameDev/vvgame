@@ -78,6 +78,9 @@ const NPCPanel = ({
   // Ref to track relationship status before an interaction
   const preInteractionRelationshipRef = useRef(null);
 
+  // Hide relationship UI for FTUE users interacting with Constable Elbow
+  // This simplifies the UI during the tutorial to focus on trading for the Home Deed
+  const hideFTUERelationshipUI = currentPlayer?.firsttimeuser && npcData?.type === 'Constable Elbow';
 
   // Ensure npcData has default values
   if (!npcData) {
@@ -1235,7 +1238,8 @@ const handleHeal = async (recipe) => {
         <div className="trade-options">
 
           {/* NPC Interests Section - only show if player has met this NPC */}
-          {(() => {
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && (() => {
             // Check if player has met this NPC
             const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
             if (!playerRelationship?.met) return null;
@@ -1269,7 +1273,8 @@ const handleHeal = async (recipe) => {
 
           {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
           {/* Only show if player has met this NPC */}
-          {(() => {
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && (() => {
             // Check if player has met this NPC
             const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
             if (!playerRelationship?.met) return null;
@@ -1328,7 +1333,8 @@ const handleHeal = async (recipe) => {
           })()}
 
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
-          {(() => {
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && (() => {
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
             const shouldHideRelationship = npcResource?.output === 'noRel';
 
@@ -1452,7 +1458,8 @@ const handleHeal = async (recipe) => {
           )}
 
           {/* Show message if some trades are hidden due to relationship requirements */}
-          {canTrade && hasHiddenTrades && (
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && canTrade && hasHiddenTrades && (
             <div style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
@@ -1578,10 +1585,14 @@ const handleHeal = async (recipe) => {
           )}
 
           {/* Separator bar before story quote */}
-          <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--color-border, #444)' }} />
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && (
+            <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--color-border, #444)' }} />
+          )}
 
           {/* Trader story text - only shown if player has met this NPC */}
-          {(() => {
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+          {!hideFTUERelationshipUI && (() => {
             // Check if player has met this NPC
             const relationship = currentPlayer.relationships?.find(r => r.name === npcData.type);
             if (!relationship?.met) return null;

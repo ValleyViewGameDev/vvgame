@@ -46,6 +46,7 @@ import {
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
+import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -1286,6 +1287,12 @@ useEffect(() => {
 
 const handleNPCPanel = (npc) => {
   console.log('App.js: Handling an NPC Panel:', npc, npc.action);
+
+  // FTUE trigger: Clicking on Constable Elbow
+  if (npc.type === 'Constable Elbow' && currentPlayer?.firsttimeuser) {
+    tryAdvanceFTUEByTrigger('ClickedConstableElbow', currentPlayer._id, currentPlayer, setCurrentPlayer);
+  }
+
   switch (npc.action) {
     case 'quest':
     case 'trade':

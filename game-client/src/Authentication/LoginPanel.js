@@ -1,5 +1,5 @@
 import API_BASE from '../config';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panels/Panel';
 import CreateAccount from './CreateAccount';
@@ -8,6 +8,7 @@ import '../UI/Buttons/SharedButtons.css';
 import './Authentication.css';
 
 import { useStrings } from '../UI/StringsContext';
+import soundManager from '../Sound/SoundManager';
 
 const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess }) => {
   const strings = useStrings();
@@ -15,6 +16,14 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(false);
+
+  // Play login screen music on mount, stop on unmount
+  useEffect(() => {
+    soundManager.playTrack('valley1_1.mp3', true);
+    return () => {
+      soundManager.stop();
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

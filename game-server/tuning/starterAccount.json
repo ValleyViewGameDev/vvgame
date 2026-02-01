@@ -10,7 +10,7 @@
       "baseAttackbonus": 10,
       "baseDamage": 15,
       "baseSpeed": 5,
-      "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Cloth", "quantity": 1 },{ "type": "Home Deed", "quantity": 1 },{ "type": "Gem", "quantity": 1 }],
+      "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Cloth", "quantity": 1 },{ "type": "Gem", "quantity": 1 }],
       "backpack": [],
       "skills": [{ "type": "Horse", "quantity": 1 },{ "type": "Grower", "quantity": 1 }],
       "powers": [{ "type": "Knife", "quantity": 1 }],
@@ -44,6 +44,11 @@
         },
         {
           "name": "The Shepherd",
+          "relscore": 30,
+          "met": true
+        },
+        {
+          "name": "Constable Elbow",
           "relscore": 30,
           "met": true
         }

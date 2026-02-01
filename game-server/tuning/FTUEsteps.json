@@ -3,6 +3,7 @@
       "step": 1,
       "trigger": "StartedFTUE",
       "showModal": true,
+      "modalIcon": "🧔🏼‍♂️",
       "bodyKey": 740,
       "continue": true,
       "addQuests": []
@@ -12,13 +13,34 @@
       "trigger": "ContinuedFromStep1",
       "doinker": true,
       "doinkerType": "resource",
-      "doinkerTarget": "Dungeon Exit",
+      "doinkerTarget": "Constable Elbow",
       "notificationKey": 741,
-      "notificationIcon": "😀",
+      "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
     {
       "step": 3,
+      "trigger": "ClickedConstableElbow",
+      "showModal": false,
+      "openPanel": "NPCPanel",
+      "panelTargetNPC": "Constable Elbow",
+      "doinker": true,
+      "doinkerType": "button",
+      "doinkerTarget": ".trade-options .resource-button",
+      "addQuests": []
+    },
+    {
+      "step": 4,
+      "trigger": "BoughtHomeDeed",
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "Dungeon Exit",
+      "notificationKey": 742,
+      "notificationIcon": "⬆️",
+      "addQuests": []
+    },
+    {
+      "step": 5,
       "trigger": "ExitedCave",
       "doinker": true,
       "doinkerType": "resource",
@@ -28,7 +50,7 @@
       "addQuests": []
     },
     {
-      "step": 4,
+      "step": 6,
       "trigger": "SoldToKent",
       "openPanel": "FarmingPanel",
       "showFeedbackModalAfter": true,
@@ -42,7 +64,7 @@
       "addQuests": [6]
     },
     {
-      "step": 5,
+      "step": 7,
       "trigger": "PlantedFirstCrop",
       "showModal": false,
       "continue": false,
@@ -54,7 +76,7 @@
       "addQuests": []
     },
     {
-      "step": 6,
+      "step": 8,
       "trigger": "CollectedQuest",
       "doinker": true,
       "doinkerType": "resource",
@@ -64,7 +86,7 @@
       "addQuests": [5]
     },
     {
-      "step": 7,
+      "step": 9,
       "trigger": "FirstTownVisit",
       "doinker": true,
       "doinkerType": "resource",
@@ -74,7 +96,7 @@
       "addQuests": []
     },
     {
-      "step": 8,
+      "step": 10,
       "trigger": "MetConstableElbow",
       "showModal": false,
       "openPanel": "NPCPanel",
@@ -87,7 +109,7 @@
       "addQuests": [2, 14]
     },
     {
-      "step": 9,
+      "step": 11,
       "trigger": "AcquiredTownKey",
       "showModal": false,
       "continue": false,
