@@ -122,7 +122,20 @@ export async function handleTransitSignpost(
         const signpostPosition = await fetchHomesteadSignpostPosition(currentPlayer.gridId);
 
         // Get the homestead's actual gridCoord from the player's stored homesteadGridCoord
-        const homesteadGridCoord = currentPlayer.homesteadGridCoord;
+        // If not available (e.g., FTUE user just claimed homestead), fetch it from the API
+        let homesteadGridCoord = currentPlayer.homesteadGridCoord;
+        if (homesteadGridCoord == null && currentPlayer.gridId) {
+          try {
+            console.log('🏠 homesteadGridCoord not set, fetching from API for gridId:', currentPlayer.gridId);
+            const gridCoordResponse = await axios.get(`${API_BASE}/api/homestead-gridcoord/${currentPlayer.gridId}`);
+            if (gridCoordResponse.data.gridCoord != null) {
+              homesteadGridCoord = gridCoordResponse.data.gridCoord;
+              console.log('🏠✅ Fetched homesteadGridCoord:', homesteadGridCoord);
+            }
+          } catch (err) {
+            console.warn('🏠⚠️ Could not fetch homesteadGridCoord:', err.message);
+          }
+        }
 
         // Place player at x+1 offset from Signpost Town
         const newPlayerPosition = {
