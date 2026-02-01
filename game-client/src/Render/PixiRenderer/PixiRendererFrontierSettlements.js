@@ -75,8 +75,10 @@ function getValleyTreeEmoji(settlementType) {
  * @param {Object} currentPlayer - Current player data
  * @param {number} settlementRow - Settlement row position (0-7)
  * @param {number} settlementCol - Settlement col position (0-7)
+ * @param {Function} onGridClick - Callback when a grid cell is clicked (gridData, gridRow, gridCol, settlementRow, settlementCol)
+ * @param {boolean} isRelocating - Whether in relocation mode (enables grid-level clicks)
  */
-function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol) {
+function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating) {
   const cells = [];
   const grids = settlementGridData?.grid?.flat() || [];
   const isValley = settlement?.settlementType?.startsWith('valley');
@@ -116,15 +118,27 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
         cellBg = '#c0834a';
       }
 
+      // During relocation, make grid cells clickable
+      const isClickable = isRelocating && onGridClick && grid;
+      const handleClick = isClickable
+        ? (e) => {
+            e.stopPropagation(); // Prevent settlement-level click
+            onGridClick(grid, row, col, settlementRow, settlementCol);
+          }
+        : undefined;
+
       cells.push(
         <div
           key={`${row}-${col}`}
+          onClick={handleClick}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: cellBg,
             overflow: 'hidden',
+            cursor: isClickable ? 'pointer' : 'default',
+            pointerEvents: isClickable ? 'auto' : 'none',
           }}
         >
           <span style={{ fontSize: 'inherit', lineHeight: 1 }}>{content}</span>
@@ -138,7 +152,7 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
 /**
  * Settlement cell component - renders one settlement as an 8×8 mini-grid
  */
-const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, settlementRow, settlementCol }) => {
+const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, settlementRow, settlementCol, onGridClick, isRelocating = false }) => {
   const scaledSize = size * zoomScale;
   const bgColor = getSettlementBackgroundColor(settlement?.settlementType);
   // Font size for emojis in the 8x8 mini-grid (each cell is scaledSize/8)
@@ -160,9 +174,11 @@ const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, cu
         gridTemplateColumns: 'repeat(8, 1fr)',
         gridTemplateRows: 'repeat(8, 1fr)',
         fontSize: fontSize,
+        // Enable pointer events when relocating so grid cells can be clicked
+        pointerEvents: isRelocating ? 'auto' : 'none',
       }}
     >
-      {renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol)}
+      {renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating)}
     </div>
   );
 };
@@ -195,8 +211,9 @@ const PixiRendererFrontierSettlements = ({
   currentPlayer,               // For determining player location (includes gridsVisited for visited check)
   settlementPixelSize,         // Size of one settlement in pixels (before zoomScale)
   zoomScale = 1,               // CSS zoom scale for frontier view
-  onSettlementClick,           // Callback when a settlement is clicked
+  onGridClick,                 // Callback when a grid cell is clicked during relocation (gridData, gridRow, gridCol, settlementRow, settlementCol)
   paddingOffset = 0,           // Offset from parent's padding (in pixels, already scaled)
+  isRelocating = false,        // true when in relocation mode (enables clicking on grid cells)
 }) => {
   const currentRow = currentSettlementPosition?.row ?? 3;
   const currentCol = currentSettlementPosition?.col ?? 3;
@@ -295,6 +312,8 @@ const PixiRendererFrontierSettlements = ({
             zoomScale={zoomScale}
             settlementRow={row}
             settlementCol={col}
+            onGridClick={onGridClick}
+            isRelocating={isRelocating}
           />
         );
       }
@@ -302,7 +321,7 @@ const PixiRendererFrontierSettlements = ({
 
     // Renders 8×8 settlements plus spillover padding for fixed player position camera
     return cells;
-  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale]);
+  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, isRelocating, onGridClick]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders

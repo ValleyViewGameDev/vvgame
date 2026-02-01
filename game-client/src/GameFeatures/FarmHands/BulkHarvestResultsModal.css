@@ -136,34 +136,37 @@
 .crop-symbol, .replant-symbol {
   font-size: 18px;
   min-width: 24px;
-  text-align: center;
-}
-
-.crop-name, .replant-name {
-  font-weight: bold;
-  min-width: 80px;
+  text-align: left;
+  order: 1;
 }
 
 .crop-quantity, .replant-quantity {
   font-weight: bold;
   color: #4CAF50;
-  min-width: 60px;
+  min-width: 50px;
+  text-align: left;
+  order: 2;
 }
 
-.crop-skills {
-  color: #2196F3;
-  font-size: 14px;
-  font-style: italic;
+.crop-name, .replant-name {
+  font-weight: bold;
+  min-width: 80px;
+  flex: 1.2;
+  text-align: left;
+  order: 3;
 }
 
-.replant-seeds-used {
+.crop-skills, .replant-seeds-used {
   color: #2196F3;
-  font-size: 14px;
+  font-size: 12px;
   font-style: italic;
+  flex: 1;
+  text-align: left;
+  order: 4;
 }
 
 /* Modal container adjustments for better sizing */
 .bulk-harvest-results-modal .modal-container {
-  max-width: 600px;
+  max-width: 500px;
   min-width: 500px;
 }

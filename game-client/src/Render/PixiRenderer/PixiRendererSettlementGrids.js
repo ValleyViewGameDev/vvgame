@@ -419,6 +419,9 @@ const PixiRendererSettlementGrids = ({
   settlementOffset = { x: 0, y: 0 }, // Offset for positioning within frontier (in pixels before zoomScale)
   isFrontierZoom = false,      // true when at frontier zoom level (hide borders)
   isDeveloper = false,         // true to enable clicking on grids to travel (developer mode)
+  isRelocating = false,        // true when in relocation mode (enables clicking on grids)
+  onRelocationGridClick,       // Callback when a grid is clicked during relocation (gridData, row, col, settlementRow, settlementCol)
+  currentSettlementPosition,   // { row, col } of current settlement in frontier (for relocation callback)
 }) => {
   const currentRow = currentGridPosition?.row ?? 3;
   const currentCol = currentGridPosition?.col ?? 3;
@@ -454,11 +457,25 @@ const PixiRendererSettlementGrids = ({
         const gridData = settlementData?.[row]?.[col];
         const key = `grid-${row}-${col}`;
 
-        // Create click handler for developer mode grid travel
-        const handleGridClick = isDeveloper && onGridClick && gridData
-          ? () => onGridClick(gridData, row, col)
+        // Create click handler for developer mode OR relocation mode
+        // Developer mode: uses onGridClick for grid travel
+        // Relocation mode: uses onRelocationGridClick to select new homestead location
+        const canClickDeveloper = isDeveloper && onGridClick && gridData;
+        const canClickRelocation = isRelocating && isFrontierZoom && onRelocationGridClick && gridData;
+        const canClick = canClickDeveloper || canClickRelocation;
+        const handleGridClick = canClick
+          ? () => {
+              if (canClickRelocation) {
+                // During relocation, pass settlement position for consistency with frontier click handler
+                const settlementRow = currentSettlementPosition?.row ?? 0;
+                const settlementCol = currentSettlementPosition?.col ?? 0;
+                onRelocationGridClick(gridData, row, col, settlementRow, settlementCol);
+              } else if (canClickDeveloper) {
+                onGridClick(gridData, row, col);
+              }
+            }
           : undefined;
-        const isClickable = isDeveloper && !!onGridClick && !!gridData;
+        const isClickable = canClick;
 
         if (!gridData) {
           cells.push(
@@ -570,7 +587,7 @@ const PixiRendererSettlementGrids = ({
     }
 
     return cells;
-  }, [currentRow, currentCol, gridPixelSize, settlementData, visitedGridTiles, players, zoomScale, masterResources, strings, isFrontierZoom, isActive, isDeveloper, onGridClick]);
+  }, [currentRow, currentCol, gridPixelSize, settlementData, visitedGridTiles, players, zoomScale, masterResources, strings, isFrontierZoom, isActive, isDeveloper, onGridClick, isRelocating, onRelocationGridClick, currentSettlementPosition]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders
@@ -589,6 +606,9 @@ const PixiRendererSettlementGrids = ({
   const containerTop = settlementOffset.y * zoomScale;
   const containerLeft = settlementOffset.x * zoomScale;
 
+  // Enable pointer events when in relocation mode at frontier zoom, or developer mode
+  const enablePointerEvents = (isRelocating && isFrontierZoom) || isDeveloper;
+
   return (
     <div
       style={{
@@ -598,7 +618,7 @@ const PixiRendererSettlementGrids = ({
         width: fullSettlementSize,
         height: fullSettlementSize,
         zIndex: 0,
-        pointerEvents: 'none',
+        pointerEvents: enablePointerEvents ? 'auto' : 'none',
         // Use CSS visibility instead of conditional rendering
         // This keeps DOM elements pre-created to avoid layout thrash on first zoom
         visibility: isActive ? 'visible' : 'hidden',

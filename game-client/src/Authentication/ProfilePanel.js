@@ -15,6 +15,7 @@ import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
+import { showNotification } from '../UI/Notifications/Notifications';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -225,7 +226,27 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       updateStatus(0);
     } else {
       setIsRelocating(true);
-      setZoomLevel('frontier');
+      // If not already at settlement or frontier zoom, first go to settlement zoom
+      // to ensure settlement data is fetched (needed for current settlement rendering)
+      if (zoomLevel !== 'settlement' && zoomLevel !== 'frontier') {
+        setZoomLevel('settlement');
+        // Wait for settlement data to load before transitioning to frontier
+        setTimeout(() => {
+          setZoomLevel('frontier');
+          showNotification('Message', {
+            title: strings[10133],
+            message: strings[10134],
+            icon: '🏠'
+          });
+        }, 1000);
+      } else {
+        setZoomLevel('frontier');
+        showNotification('Message', {
+          title: strings[10133],
+          message: strings[10134],
+          icon: '🏠'
+        });
+      }
     }
   };
 

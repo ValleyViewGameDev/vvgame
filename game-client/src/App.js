@@ -8,7 +8,7 @@ import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
-import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
+import { registerNotificationClickHandler, showNotification } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
 // LEGACY RENDERING - COMMENTED OUT (PixiJS is now the only renderer)
@@ -145,6 +145,7 @@ import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/Re
 import { fetchHomesteadOwner, calculateDistance, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
+import { processRelocation } from './Utils/Relocation';
 import Redirect, { shouldRedirect } from './Redirect';
 
 // FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
@@ -3895,11 +3896,66 @@ return (
           frontierSettlementGrids={frontierSettlementGrids}
           currentSettlementPosition={currentSettlementPosition}
           isVisuallyInFrontier={isVisuallyInFrontier}
-          onFrontierSettlementClick={(row, col) => {
-            // TODO: Implement navigation to clicked settlement
+          onFrontierSettlementClick={(settlement, row, col) => {
             console.log(`🌍 Clicked frontier settlement at (${row}, ${col})`);
           }}
+          onFrontierGridClick={async (gridData, gridRow, gridCol, settlementRow, settlementCol) => {
+            // Handle grid clicks from other settlements at frontier zoom during relocation
+            if (!isRelocating) return;
+
+            if (!gridData) {
+              console.log(`🏠 Relocation: Grid click ignored (no grid data at settlement ${settlementRow},${settlementCol} grid ${gridRow},${gridCol})`);
+              return;
+            }
+
+            const gridType = gridData.gridType || gridData.type || 'unknown';
+
+            // Can only relocate to unoccupied homesteads
+            if (gridType !== 'homestead') {
+              updateStatus(`Cannot relocate here - this is a ${gridType}, not a homestead`);
+              console.log(`🏠 Relocation: Cannot relocate to ${gridType}`);
+              return;
+            }
+
+            if (!gridData.available) {
+              updateStatus(`This homestead is already occupied`);
+              console.log(`🏠 Relocation: Homestead is occupied`);
+              return;
+            }
+
+            console.log(`🏠 Relocation: Processing relocation to grid at settlement (${settlementRow},${settlementCol}) grid (${gridRow},${gridCol}):`, gridData);
+
+            try {
+              const result = await processRelocation(
+                currentPlayer,
+                setCurrentPlayer,
+                currentPlayer.location?.g,  // fromGridId (current homestead)
+                gridData.gridCoord,         // targetGridCoord
+                gridData                    // settlementGrid
+              );
+
+              if (result.success) {
+                showNotification('Tip', {
+                  title: strings[10133],
+                  message: strings[10142],
+                  icon: '🏠'
+                });
+                console.log(`🏠 Relocation successful:`, result);
+              } else {
+                updateStatus(`❌ Relocation failed: ${result.error || 'Unknown error'}`);
+                console.error(`🏠 Relocation failed:`, result);
+              }
+            } catch (error) {
+              console.error('🏠 Relocation error:', error);
+              updateStatus(`❌ Relocation failed: ${error.message}`);
+            }
+
+            // Reset relocation state and zoom back to close view
+            setIsRelocating(false);
+            setZoomLevel('close');
+          }}
           isZoomAnimating={isZoomAnimating || isZoomAnimatingRef.current}
+          isRelocating={isRelocating}
           // FTUE Doinker props
           doinkerTargets={doinkerTargets}
           doinkerType={doinkerType}

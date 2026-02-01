@@ -305,7 +305,9 @@ const PixiRenderer = ({
   currentSettlementPosition, // { row, col } of current settlement within frontier (0-7, 0-7)
   isVisuallyInFrontier = false, // True when visually showing frontier
   onFrontierSettlementClick, // Callback when clicking a different settlement at frontier zoom
+  onFrontierGridClick,       // Callback when clicking a grid in a different settlement at frontier zoom during relocation
   isZoomAnimating = false, // True during zoom animation - skip CSS transform updates to avoid conflicts
+  isRelocating = false, // True when player is in homestead relocation mode
   // FTUE Doinker props
   doinkerTargets,         // Resource/NPC type(s) to point doinker at
   doinkerType,            // 'resource' or 'button'
@@ -1243,6 +1245,24 @@ const PixiRenderer = ({
     const col = Math.floor(worldX / TILE_SIZE);
     const row = Math.floor(worldY / TILE_SIZE);
 
+    // At frontier zoom during relocation, clicking on the current settlement should
+    // trigger a grid-level click (same as other settlements)
+    // Convert tile position (0-63) to grid position (0-7) within the settlement
+    if (isFrontierZoom && isRelocating && onFrontierGridClick) {
+      const TILES_PER_GRID_SIDE = 64; // Each grid is 64x64 tiles
+      const GRIDS_PER_SETTLEMENT = 8;  // Each settlement is 8x8 grids
+      const tilesPerGrid = TILES_PER_GRID_SIDE / GRIDS_PER_SETTLEMENT; // 8 tiles per grid cell
+      const gridRow = Math.floor(row / tilesPerGrid);
+      const gridCol = Math.floor(col / tilesPerGrid);
+
+      // Get grid data from settlementData
+      const gridData = settlementData?.[gridRow]?.[gridCol];
+      if (gridData) {
+        onFrontierGridClick(gridData, gridRow, gridCol, currentSettlementPosition?.row, currentSettlementPosition?.col);
+        return;
+      }
+    }
+
     // Bounds check - grid is TILES_PER_GRID×TILES_PER_GRID tiles
     if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) return;
 
@@ -1302,7 +1322,8 @@ const PixiRenderer = ({
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, onPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
-      setActiveStation, isDeveloper]);
+      setActiveStation, isDeveloper, isFrontierZoom, isRelocating, onFrontierGridClick,
+      settlementData, currentSettlementPosition]);
 
   // Handle mouse move for tooltips and cursor highlight
   // Throttled to ~20 updates/sec for performance
@@ -1513,8 +1534,9 @@ const PixiRenderer = ({
         currentPlayer={currentPlayer}
         settlementPixelSize={singleSettlementPixelSizeBase}
         zoomScale={zoomScale}
-        onSettlementClick={onFrontierSettlementClick}
+        onGridClick={onFrontierGridClick}
         paddingOffset={paddingSize}
+        isRelocating={isRelocating}
       />
       {/* Settlement grid previews (rendered as HTML behind current grid content) */}
       {/* At frontier zoom, settlement grids are positioned within the larger frontier */}
@@ -1533,6 +1555,9 @@ const PixiRenderer = ({
         settlementOffset={settlementOffset}
         isFrontierZoom={isFrontierZoom}
         isDeveloper={isDeveloper}
+        isRelocating={isRelocating}
+        onRelocationGridClick={onFrontierGridClick}
+        currentSettlementPosition={currentSettlementPosition}
       />
       {/* Cursor highlight for placement modes */}
       <PixiRendererCursor

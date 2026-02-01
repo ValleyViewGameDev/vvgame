@@ -40,7 +40,7 @@ export function BulkCraftingResultsModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={strings[479] || "Bulk Crafting Results"}
+      title={strings[467] || "Bulk Crafting"}
       size="medium"
       className="bulk-harvest-results-modal"
     >
@@ -82,7 +82,7 @@ export function BulkCraftingResultsModal({
         {hasRestartInfo && (
           <div className="results-section">
             <h3 className="results-section-header replanting">
-              🔄 {strings[481] || "Crafts Restarted"}
+              🔄 {strings[468] || "Restarted: "}
             </h3>
             <div className="replant-rows">
               {Object.entries(restartInfo).map(([itemType, count]) => {
