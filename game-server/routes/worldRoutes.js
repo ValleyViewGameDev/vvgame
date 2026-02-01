@@ -1008,11 +1008,22 @@ router.post('/relocate-homestead', async (req, res) => {
       for (const row of settlement.grids) {
         for (const cell of row) {
           if (cell.gridId && String(cell.gridId) === String(fromGridId)) {
+            // CRITICAL: Only allow clearing homestead cells, never towns or other types
+            if (cell.gridType !== 'homestead') {
+              console.error(`❌ BLOCKED: Attempted to relocate FROM non-homestead cell (gridType: ${cell.gridType}, gridId: ${cell.gridId})`);
+              return res.status(400).json({ error: `Cannot relocate from a ${cell.gridType} cell. The source grid must be a homestead.` });
+            }
+            // Clear the source homestead cell
             cell.gridId = null;
             cell.available = true;
             fromSettlement = settlement;
             updated = true;
           } else if (String(cell.gridCoord) === String(targetGridCoord)) {
+            // CRITICAL: Only allow relocation to homestead cells, never towns or other types
+            if (cell.gridType !== 'homestead') {
+              console.error(`❌ BLOCKED: Attempted to relocate to non-homestead cell (gridType: ${cell.gridType}, gridCoord: ${cell.gridCoord})`);
+              return res.status(400).json({ error: `Cannot relocate to a ${cell.gridType} cell. Only homestead cells are valid targets.` });
+            }
             cell.gridId = fromGridId;
             cell.available = false;
             targetSettlement = settlement;
@@ -1031,12 +1042,12 @@ router.post('/relocate-homestead', async (req, res) => {
     // Ensure the gridId/available state is correct for both settlements
     for (const row of fromSettlement.grids) {
       for (const cell of row) {
-        if (cell.gridCoord === targetGridCoord) {
-          console.log(`✅ Updating target cell: gridCoord=${cell.gridCoord}`);
+        if (cell.gridCoord === targetGridCoord && cell.gridType === 'homestead') {
+          console.log(`✅ Updating target cell: gridCoord=${cell.gridCoord}, gridType=${cell.gridType}`);
           cell.gridId = fromGridId;
           cell.available = false;
-        } else if (cell.gridId && String(cell.gridId) === fromGridId) {
-          console.log(`✅ Clearing source cell: gridId=${cell.gridId}`);
+        } else if (cell.gridId && String(cell.gridId) === fromGridId && cell.gridType === 'homestead') {
+          console.log(`✅ Clearing source cell: gridId=${cell.gridId}, gridType=${cell.gridType}`);
           cell.gridId = null;
           cell.available = true;
         }
@@ -1085,20 +1096,26 @@ router.post('/relocate-homestead', async (req, res) => {
       if (player) {
         // Update their home settlement reference
         player.settlementId = targetSettlement._id;
-        
+
+        // CRITICAL: Update homesteadGridCoord to the new location
+        // This is used for camera centering when traveling home
+        player.homesteadGridCoord = targetGridCoord;
+        console.log(`✅ Player ${player.username} homesteadGridCoord updated to ${targetGridCoord}`);
+
         // If they're currently at their homestead, update their current location too
         if (player.location.g?.toString() === fromGridId.toString()) {
           player.location.s = targetSettlement._id;
-          console.log(`✅ Player ${player.username} is at homestead, updating location.s to ${targetSettlement._id}`);
+          player.location.gridCoord = targetGridCoord;
+          console.log(`✅ Player ${player.username} is at homestead, updating location.s to ${targetSettlement._id} and location.gridCoord to ${targetGridCoord}`);
         } else {
-          console.log(`⚠️ Player ${player.username} is not at homestead (at ${player.location.g}), only updating settlementId`);
+          console.log(`⚠️ Player ${player.username} is not at homestead (at ${player.location.g}), only updating settlementId and homesteadGridCoord`);
         }
-        
+
         // Decrement relocation count
         if (player.relocations > 0) {
           player.relocations -= 1;
         }
-        
+
         await player.save();
         console.log(`✅ Player ${player.username} homestead relocated to settlement ${targetSettlement._id}`);
       } else {

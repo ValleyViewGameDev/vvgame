@@ -577,9 +577,27 @@ useEffect(() => {
   }
 
   // UNIFIED WORLD MODEL: Calculate positions ONCE at animation start
-  // Use REFS because the useMemo definitions come later in the file
-  const gridPos = currentGridPositionRef.current || { row: 0, col: 0 };
-  const settlementPos = currentSettlementPositionRef.current || { row: 0, col: 0 };
+  // CRITICAL FIX: Parse gridCoord directly from currentPlayer.location to get FRESH position data.
+  // The refs (currentGridPositionRef, currentSettlementPositionRef) may not be updated yet
+  // when zoom animation triggers during a grid transition. Parsing directly from location
+  // ensures we use the player's actual current position, not stale ref data.
+  let gridPos = currentGridPositionRef.current || { row: 0, col: 0 };
+  let settlementPos = currentSettlementPositionRef.current || { row: 0, col: 0 };
+
+  // Parse fresh position from gridCoord if available (overrides potentially stale refs)
+  const gridCoord = currentPlayer?.location?.gridCoord ?? currentPlayer?.homesteadGridCoord;
+  if (gridCoord !== null && gridCoord !== undefined) {
+    const parsed = parseGridCoord(gridCoord);
+    if (parsed) {
+      gridPos = { row: parsed.gridRow, col: parsed.gridCol };
+      settlementPos = { row: parsed.settlementRow, col: parsed.settlementCol };
+      // Update refs to keep them in sync
+      currentGridPositionRef.current = gridPos;
+      currentSettlementPositionRef.current = settlementPos;
+      console.log(`🎬 [ZOOM ANIMATION] Parsed position from gridCoord ${gridCoord}: grid=(${gridPos.row}, ${gridPos.col}), settlement=(${settlementPos.row}, ${settlementPos.col})`);
+    }
+  }
+
   const worldPos = getPlayerWorldPosition(
     playerPos || { x: 0, y: 0 },
     gridPos,
@@ -3936,7 +3954,7 @@ return (
               const result = await processRelocation(
                 currentPlayer,
                 setCurrentPlayer,
-                currentPlayer.location?.g,  // fromGridId (current homestead)
+                currentPlayer.gridId,       // fromGridId - player's HOMESTEAD gridId, NOT current location
                 gridData.gridCoord,         // targetGridCoord
                 gridData                    // settlementGrid
               );
@@ -3956,6 +3974,14 @@ return (
               console.error('🏠 Relocation error:', error);
               updateStatus(`❌ Relocation failed: ${error.message}`);
             }
+
+            // Clear cached settlement and frontier data to force re-fetch
+            // This ensures the new settlement shows correct grid data after relocation
+            setSettlementData(null);
+            setSettlementPlayers(null);
+            setVisitedGridTiles(null);
+            setFrontierData(null);
+            setFrontierSettlementGrids({});
 
             // Reset relocation state and zoom back to close view
             setIsRelocating(false);

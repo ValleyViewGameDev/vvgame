@@ -20,6 +20,11 @@ class SoundManager {
     // Playlist cycling
     this.currentPlaylist = null; // Array of track names for current location
     this.currentPlaylistIndex = 0; // Current position in playlist
+
+    // Generation counter to prevent stale async handlers from acting
+    // Each call to playTrack increments this, and handlers check if their
+    // generation matches before taking action
+    this.audioGeneration = 0;
   }
 
   /**
@@ -187,12 +192,16 @@ class SoundManager {
       return;
     }
 
+    // Increment generation counter - any handlers with old generation will be ignored
+    this.audioGeneration++;
+    const thisGeneration = this.audioGeneration;
+
     // If trackName already has an extension, use it as-is; otherwise append .mp3
     const hasExtension = /\.(mp3|m4a|ogg|wav|webm)$/i.test(trackName);
     const audioPath = hasExtension
       ? `${MUSIC_BASE_PATH}${trackName}`
       : `${MUSIC_BASE_PATH}${trackName}.mp3`;
-    console.log(`SoundManager: Playing track '${trackName}' from ${audioPath}`);
+    console.log(`SoundManager: Playing track '${trackName}' from ${audioPath} (gen ${thisGeneration})`);
 
     try {
       const audio = new Audio(audioPath);
@@ -201,13 +210,19 @@ class SoundManager {
 
       // Handle track end for playlist cycling
       audio.onended = () => {
-        if (!audio.loop && this.currentAudio === audio) {
+        if (!audio.loop && this.currentAudio === audio && this.audioGeneration === thisGeneration) {
           this.onTrackEnded();
         }
       };
 
       // Handle load errors
       audio.onerror = (e) => {
+        // Only act if this is still the current generation (not superseded by a new track)
+        // This prevents stale error handlers from affecting the new playlist
+        if (this.audioGeneration !== thisGeneration) {
+          console.log(`SoundManager: Ignoring stale error for '${trackName}' (gen ${thisGeneration}, current ${this.audioGeneration})`);
+          return;
+        }
         console.error(`SoundManager: Failed to load track '${trackName}'`, e);
         this.currentAudio = null;
         this.currentTrackName = null;
@@ -220,6 +235,13 @@ class SoundManager {
 
       // Start playing once loaded
       audio.oncanplaythrough = () => {
+        // Check if this audio is still the expected one (generation hasn't changed)
+        if (this.audioGeneration !== thisGeneration) {
+          console.log(`SoundManager: Ignoring stale canplaythrough for '${trackName}' (gen ${thisGeneration}, current ${this.audioGeneration})`);
+          audio.pause();
+          audio.src = '';
+          return;
+        }
         if (this.isMuted) {
           audio.volume = 0;
         }

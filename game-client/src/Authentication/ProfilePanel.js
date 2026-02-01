@@ -225,6 +225,15 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       setZoomLevel('close');
       updateStatus(0);
     } else {
+      // Check if player is at their own homestead before allowing relocation
+      const currentLocationGridId = currentPlayer?.location?.g;
+      const homesteadGridId = currentPlayer?.gridId;
+      const isAtOwnHomestead = String(currentLocationGridId) === String(homesteadGridId);
+      if (!isAtOwnHomestead) {
+        updateStatus(strings[10143] || 'You must be at your homestead to relocate.');
+        return;
+      }
+
       setIsRelocating(true);
       // If not already at settlement or frontier zoom, first go to settlement zoom
       // to ensure settlement data is fetched (needed for current settlement rendering)
