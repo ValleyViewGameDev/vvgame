@@ -236,7 +236,8 @@ export async function handleDooberClick(
       showNotification('FTUE', {
         title: strings[7049],
         message: strings[7058], // Pickaxe required message
-        icon: '💪'
+        icon: '💪',
+        username: currentPlayer?.username
       });
       // Clear processing flag
       if (window._processingDoobers) {
@@ -689,7 +690,8 @@ export async function handleSourceConversion(
         showNotification('FTUE', {
           title: strings[7049],
           message: strings[messageKey],
-          icon: '💪'
+          icon: '💪',
+          username: currentPlayer?.username
         });
       }
       return;

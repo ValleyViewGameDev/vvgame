@@ -38,6 +38,12 @@ function Notification({ type, data, onDismiss, onClick }) {
         // Remove onDismiss from dependencies to prevent re-running effect
     }, [type]);
     
+    // Helper function to replace {username} placeholder in text
+    const replaceUsername = (text) => {
+        if (!text || typeof text !== 'string') return text;
+        return text.replace(/\{username\}/gi, data.username || 'Adventurer');
+    };
+
     // Render different content based on notification type
     const renderContent = () => {
         switch (type) {
@@ -133,7 +139,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7049]}</div>
-                            <div className="notification-name">{data.message}</div>
+                            <div className="notification-name">{replaceUsername(data.message)}</div>
                         </div>
                     </>
                 );

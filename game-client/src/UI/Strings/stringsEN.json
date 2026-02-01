@@ -382,6 +382,7 @@
     "785": "I like the visuals",
     "786": "I like farming",
     "787": "I look forward to collaborating with others",
+    "788": "I want to explore the world",
     "790": "I couldn't figure it out",
     "791": "I don't like the visuals",
     "792": "I had a technical issue",
@@ -1384,5 +1385,6 @@
 
 "740": "Welcome to Elsinore, {username}! You may acquire a Home Deed from the Constable to begin your adventure.",
 "741": "Use the A-W-S-D (or arrow) keys to move your character around. CLICK on Constable Elbow.",
-"742": "Click the Signpost to travel to your new Homestead."
+"742": "Click the Signpost to travel to your new Homestead.",
+"743": "Good to see you again, {username}! You'll need a key to access the Town."
 }

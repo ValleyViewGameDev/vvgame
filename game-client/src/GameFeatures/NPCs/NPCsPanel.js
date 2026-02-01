@@ -864,6 +864,9 @@ const handleHeal = async (recipe) => {
 
           {/* NPC Interests Section - only show if player has met this NPC */}
           {(() => {
+            // Hide for NPCs without relationship system (e.g., The Shepherd)
+            if (hideRelationshipUI) return null;
+
             // Check if player has met this NPC
             const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
             if (!playerRelationship?.met) return null;
@@ -898,6 +901,9 @@ const handleHeal = async (recipe) => {
           {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
           {/* Only show if player has met this NPC */}
           {(() => {
+            // Hide for NPCs without relationship system (e.g., The Shepherd)
+            if (hideRelationshipUI) return null;
+
             // Check if player has met this NPC
             const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
             if (!playerRelationship?.met) return null;
@@ -957,6 +963,9 @@ const handleHeal = async (recipe) => {
 
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {(() => {
+            // Hide for NPCs without relationship system (e.g., The Shepherd)
+            if (hideRelationshipUI) return null;
+
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
             const shouldHideRelationship = npcResource?.output === 'noRel';
 

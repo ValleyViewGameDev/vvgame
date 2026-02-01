@@ -60,6 +60,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       showNotification('FTUE', {
         title: strings[7049],
         message: strings[currentStepData.notificationKey],
+        username: currentPlayer?.username,
         ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon })
       });
     }
@@ -144,6 +145,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         showNotification('FTUE', {
           title: strings[7049],
           message: strings[stepData.notificationKey],
+          username: currentPlayer?.username,
           ...(stepData.notificationIcon && { icon: stepData.notificationIcon })
         });
       }
@@ -314,12 +316,20 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
                   {strings[786]}
                 </label>
                 <label className="ftue-checkbox-label">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={positiveReasons.includes(787)}
                     onChange={() => toggleReason(787, true)}
                   />
                   {strings[787]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={positiveReasons.includes(788)}
+                    onChange={() => toggleReason(788, true)}
+                  />
+                  {strings[788]}
                 </label>
               </div>
               <button
