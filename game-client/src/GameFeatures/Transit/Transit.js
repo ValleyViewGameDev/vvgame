@@ -9,6 +9,9 @@ import FloatingTextManager from "../../UI/FloatingText";
 import { earnTrophy } from "../Trophies/TrophyUtils";
 import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
 
+// FTUE Cave grid ID - used to trigger ExitedCave when clicking Signpost Home
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+
 export async function handleTransitSignpost(
   currentPlayer,
   resourceType,
@@ -79,6 +82,13 @@ export async function handleTransitSignpost(
 
     // Signpost Home
     if (resourceType === "Signpost Home") {
+      // FTUE trigger: First-time user clicking Signpost Home in the FTUE cave
+      const isInFTUECave = currentPlayer?.location?.g?.toString() === FTUE_CAVE_GRID_ID;
+      if (currentPlayer?.firsttimeuser && isInFTUECave) {
+        console.log('🎓 First-time user clicked Signpost Home in FTUE Cave - triggering ExitedCave');
+        await tryAdvanceFTUEByTrigger('ExitedCave', currentPlayer._id, currentPlayer, setCurrentPlayer);
+      }
+
       // First check if player has Home Deed in backpack or inventory (warehouse)
       const hasHomeDeedInBackpack = currentPlayer.backpack?.some(item => item.type === "Home Deed" && item.quantity > 0);
       const hasHomeDeedInInventory = currentPlayer.inventory?.some(item => item.type === "Home Deed" && item.quantity > 0);

@@ -143,8 +143,9 @@ const FrontierMiniMap = ({
 
   // Compute the display title based on location
   const displayTitle = useMemo(() => {
-    // 1. If in a dungeon, show "In a Dungeon"
-    if (isInDungeon) {
+    // 1. If in a dungeon, show "In a Dungeon" (but not for the FTUE Cave)
+    const isInFTUECave = currentPlayer?.location?.g?.toString() === FTUE_CAVE_GRID_ID;
+    if (isInDungeon && !isInFTUECave) {
       return strings[10186] || 'In a Dungeon';
     }
 

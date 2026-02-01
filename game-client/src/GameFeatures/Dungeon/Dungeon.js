@@ -222,13 +222,8 @@ export async function handleDungeonExit(
       }));
     }
 
-    // FTUE: Check if first-time user just exited the FTUE Cave and entered homestead
-    const wasInFTUECave = fromLocation.g === FTUE_CAVE_GRID_ID;
-    const enteredHomestead = toLocation.gtype === 'homestead';
-    if (currentPlayer?.firsttimeuser && wasInFTUECave && enteredHomestead) {
-      console.log('🎓 First-time user exited FTUE Cave into homestead - triggering ExitedCave');
-      await tryAdvanceFTUEByTrigger('ExitedCave', currentPlayer._id, currentPlayer, setCurrentPlayer);
-    }
+    // Note: ExitedCave FTUE trigger has been moved to Transit.js (Signpost Home click)
+    // The FTUE cave now uses Signpost Home instead of Dungeon Exit
 
     // Show success message
     const successMessage = strings?.["10203"] || "You have exited the dungeon";
