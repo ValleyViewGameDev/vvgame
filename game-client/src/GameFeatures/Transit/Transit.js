@@ -111,6 +111,17 @@ export async function handleTransitSignpost(
         return;
       }
 
+      // Check if player has a homestead created yet
+      // Homestead is created when player buys Home Deed, but there may be a race condition
+      // where they have the deed but homestead creation hasn't completed yet
+      if (!currentPlayer.gridId) {
+        updateStatus(113); // "Your homestead is being prepared..."
+        if (transitionFadeControl?.endTransition) {
+          transitionFadeControl.endTransition();
+        }
+        return;
+      }
+
       console.log("🏠 Traveling to homestead:", {
         gridId: currentPlayer.gridId,
         settlementId: currentPlayer.settlementId,

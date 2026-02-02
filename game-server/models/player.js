@@ -150,9 +150,9 @@ const playerSchema = new mongoose.Schema({
   ],
   completedQuests: [ { questId: { type: String }, timestamp: { type: Number } } ],
 
-  frontierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier', required: true }, // Where the user's homestead is
-  settlementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Settlement', required: true }, // Where the user's homestead is
-  gridId: { type: mongoose.Schema.Types.ObjectId, ref: 'Grid', required: true }, // THe ID of the homestead owned by the user
+  frontierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier', required: true }, // Which frontier the player registered in
+  settlementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Settlement', default: null }, // Where the user's homestead is (set when homestead created)
+  gridId: { type: mongoose.Schema.Types.ObjectId, ref: 'Grid', default: null }, // The ID of the homestead owned by the user (set when homestead created)
   homesteadGridCoord: { type: Number, default: null }, // The gridCoord of the homestead for FrontierMiniMap display
   sourceGridBeforeDungeon: { type: String, default: null }, // Stores the grid ID where player was before entering dungeon
   gridsVisited: { type: Buffer, default: () => Buffer.alloc(512) }, // 512-byte bit-packed buffer for 4096 grid visit flags

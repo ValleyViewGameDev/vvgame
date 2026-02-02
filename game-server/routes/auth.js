@@ -13,16 +13,17 @@ const starterAccountPath = path.resolve(__dirname, '../tuning/starterAccount.jso
 const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
-const { performGridCreation, claimHomestead } = require('../utils/createGridLogic');
 
 
-// POST /register-new-player (Atomic registration + grid creation)
+// POST /register-new-player
+// Player registration - homestead is NOT created here. It's created when player buys Home Deed.
+// This allows us to avoid creating homesteads for players who churn before completing the tutorial.
 
 router.post('/register-new-player', async (req, res) => {
-  const { username, password, language, location, browser, os, diagnostics } = req.body;
-  console.log('POST /register-new-player:', { username, location, browser, os, diagnostics });
+  const { username, password, language, frontierId, browser, os, diagnostics } = req.body;
+  console.log('POST /register-new-player:', { username, frontierId, browser, os, diagnostics });
 
-  if (!username || !password || !language || !location || !location.gridCoord || !location.settlementId || !location.frontierId || !location.gtype) {
+  if (!username || !password || !language || !frontierId) {
     return res.status(400).json({ error: 'Missing required fields for registration.' });
   }
   try {
@@ -32,21 +33,7 @@ router.post('/register-new-player', async (req, res) => {
       return res.status(400).json({ error: 'Username already exists.' });
     }
 
-    // Step 1: Create grid for homestead
-    const gridResult = await performGridCreation({
-      gridCoord: location.gridCoord,
-      gridType: 'homestead',
-      settlementId: location.settlementId,
-      frontierId: location.frontierId,
-    });
-
-    if (!gridResult?.success) {
-      return res.status(500).json({ error: 'Grid creation failed.' });
-    }
-
-    const gridId = gridResult.gridId;
-
-    // Step 2: Hash the password
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Step 3: Load starter attributes
@@ -79,8 +66,9 @@ router.post('/register-new-player', async (req, res) => {
       kentOffers,
     } = starterAccount.defaultAttributes;
 
-    // Step 4: Create the new player
-    // FTUE: New players start in the Cave dungeon instead of their homestead
+    // Create the new player
+    // FTUE: New players start in the Cave dungeon
+    // Homestead will be created when they buy the Home Deed
     const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
     const FTUE_CAVE_START_X = 4; // 2 tiles right of original position
     const FTUE_CAVE_START_Y = 9;
@@ -135,8 +123,8 @@ router.post('/register-new-player', async (req, res) => {
       // FTUE: Start new players in the Cave dungeon
       location: {
         g: FTUE_CAVE_GRID_ID,
-        s: location.settlementId,
-        f: location.frontierId,
+        s: null, // No settlement until homestead is created
+        f: frontierId,
         gridCoord: null, // Dungeons don't have gridCoord
         x: FTUE_CAVE_START_X,
         y: FTUE_CAVE_START_Y,
@@ -144,39 +132,26 @@ router.post('/register-new-player', async (req, res) => {
       },
       relocations,
       iscamping,
-      gridId, // Keep reference to their homestead grid
-      settlementId: location.settlementId,
-      frontierId: location.frontierId,
+      // gridId and settlementId are NOT set - they'll be set when player buys Home Deed
+      frontierId,
       settings,
     });
 
     await newPlayer.save();
 
-    // Claim homestead for the new player
-    try {
-      const claimResult = await claimHomestead(gridId, newPlayer._id);
-      console.log('🏡 Homestead claim result:', claimResult);
-    } catch (claimErr) {
-      console.error('❌ Failed to claim homestead:', claimErr);
-    }
-
     newPlayer.playerId = newPlayer._id;
     await newPlayer.save();
 
-    // Increment settlement population
-    await Settlement.findByIdAndUpdate(
-      location.settlementId,
-      { $inc: { population: 1 } },
-      { new: true }
-    );
+    // Note: Settlement population is NOT incremented here
+    // It will be incremented when the player actually claims a homestead (buys Home Deed)
 
-    console.log(`✅ New player created with grid ${gridId}: ${username}`);
+    console.log(`✅ New player created: ${username} (homestead will be created when Home Deed is purchased)`);
     sendNewUserEmail(newPlayer);
 
     res.status(201).json({ success: true, player: newPlayer });
   } catch (err) {
     console.error('❌ Error in /register-new-player:', err);
-    res.status(500).json({ error: 'Failed to register player and create homestead.' });
+    res.status(500).json({ error: 'Failed to register player.' });
   }
 });
 

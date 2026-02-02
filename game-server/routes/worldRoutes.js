@@ -11,7 +11,7 @@ const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Adjust the path to match your project structure
 const { getFrontierId, getSettlementId, getgridId } = require('../utils/IDs');
-const { performGridCreation } = require('../utils/createGridLogic');
+const { performGridCreation, claimHomestead } = require('../utils/createGridLogic');
 const { performGridReset } = require('../utils/resetGridLogic');
 const { generateGrid, generateResources } = require('../utils/worldUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
@@ -335,6 +335,147 @@ router.post('/claim-homestead/:gridId', async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Failed to claim homestead.' });
+  }
+});
+
+// Create homestead for player when they purchase Home Deed
+// This is called during FTUE when player buys Home Deed from Constable Elbow
+router.post('/create-homestead', async (req, res) => {
+  const { playerId } = req.body;
+
+  if (!playerId) {
+    return res.status(400).json({ error: 'No playerId provided.' });
+  }
+
+  console.log(`🏠 Creating homestead for player: ${playerId}`);
+
+  try {
+    // 1. Verify player exists and doesn't already have a homestead
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    if (player.gridId) {
+      console.log(`🏠 Player ${playerId} already has homestead: ${player.gridId}`);
+      return res.json({
+        success: true,
+        gridId: player.gridId,
+        settlementId: player.settlementId,
+        homesteadGridCoord: player.homesteadGridCoord,
+        message: 'Player already has homestead'
+      });
+    }
+
+    // 2. Verify player has Home Deed in inventory or backpack
+    const hasHomeDeedInInventory = player.inventory?.some(i => i.type === 'Home Deed' && i.quantity > 0);
+    const hasHomeDeedInBackpack = player.backpack?.some(i => i.type === 'Home Deed' && i.quantity > 0);
+
+    if (!hasHomeDeedInInventory && !hasHomeDeedInBackpack) {
+      return res.status(400).json({ error: 'Player does not have Home Deed.' });
+    }
+
+    // 3. Find available homestead slot in any settlement in player's frontier
+    const frontier = await Frontier.findById(player.frontierId);
+    if (!frontier) {
+      return res.status(404).json({ error: 'Frontier not found.' });
+    }
+
+    let availableSlot = null;
+    let targetSettlement = null;
+
+    // Search all settlements in the frontier for an available homestead slot
+    for (const settlementRow of frontier.settlements) {
+      for (const settlementEntry of settlementRow) {
+        if (!settlementEntry.settlementId) continue;
+
+        const settlement = await Settlement.findById(settlementEntry.settlementId);
+        if (!settlement) continue;
+
+        // Search this settlement's grids for an available homestead
+        for (const row of settlement.grids) {
+          for (const cell of row) {
+            if (cell.available === true && cell.gridType === 'homestead') {
+              availableSlot = cell;
+              targetSettlement = settlement;
+              break;
+            }
+          }
+          if (availableSlot) break;
+        }
+        if (availableSlot) break;
+      }
+      if (availableSlot) break;
+    }
+
+    if (!availableSlot || !targetSettlement) {
+      console.error(`❌ No available homestead slots in frontier ${player.frontierId}`);
+      return res.status(409).json({ error: 'No available homesteads in frontier.' });
+    }
+
+    console.log(`🏠 Found available slot at gridCoord ${availableSlot.gridCoord} in settlement ${targetSettlement.name}`);
+
+    // 4. Create the homestead grid
+    const gridResult = await performGridCreation({
+      gridCoord: availableSlot.gridCoord,
+      gridType: 'homestead',
+      settlementId: targetSettlement._id,
+      frontierId: player.frontierId,
+    });
+
+    if (!gridResult?.success || !gridResult.gridId) {
+      console.error('❌ Failed to create homestead grid');
+      return res.status(500).json({ error: 'Failed to create homestead grid.' });
+    }
+
+    console.log(`🏠 Created homestead grid: ${gridResult.gridId}`);
+
+    // 5. Claim the homestead for this player
+    await claimHomestead(gridResult.gridId, playerId);
+    console.log(`🏠 Claimed homestead for player ${playerId}`);
+
+    // 6. Update player with gridId, settlementId, and homesteadGridCoord atomically
+    const updatedPlayer = await Player.findOneAndUpdate(
+      { _id: playerId, gridId: null }, // Atomic check prevents race condition
+      {
+        gridId: gridResult.gridId,
+        settlementId: targetSettlement._id,
+        homesteadGridCoord: availableSlot.gridCoord
+      },
+      { new: true }
+    );
+
+    if (!updatedPlayer) {
+      // Race condition - another request already created the homestead
+      console.log(`🏠 Race condition detected, player ${playerId} already has homestead`);
+      const refreshedPlayer = await Player.findById(playerId);
+      return res.json({
+        success: true,
+        gridId: refreshedPlayer.gridId,
+        settlementId: refreshedPlayer.settlementId,
+        homesteadGridCoord: refreshedPlayer.homesteadGridCoord,
+        message: 'Homestead already created'
+      });
+    }
+
+    // 7. Increment settlement population
+    await Settlement.findByIdAndUpdate(
+      targetSettlement._id,
+      { $inc: { population: 1 } }
+    );
+
+    console.log(`✅ Homestead created successfully for player ${playerId}`);
+
+    return res.json({
+      success: true,
+      gridId: gridResult.gridId,
+      settlementId: targetSettlement._id,
+      homesteadGridCoord: availableSlot.gridCoord
+    });
+
+  } catch (err) {
+    console.error('❌ Error creating homestead:', err);
+    return res.status(500).json({ error: 'Failed to create homestead.' });
   }
 });
 

@@ -761,6 +761,34 @@ const handleHeal = async (recipe) => {
     // Award trophies for specific trade rewards
     try {
       if (recipe.type === "Home Deed") {
+        // Create homestead if player doesn't have one yet
+        if (!currentPlayer.gridId) {
+          console.log(`🏠 Creating homestead for player ${currentPlayer.playerId}`);
+          try {
+            const homesteadResponse = await axios.post(`${API_BASE}/api/create-homestead`, {
+              playerId: currentPlayer.playerId
+            });
+
+            if (homesteadResponse.data.success) {
+              console.log(`✅ Homestead created: gridId=${homesteadResponse.data.gridId}, settlementId=${homesteadResponse.data.settlementId}`);
+              // Update local player state with new homestead info
+              setCurrentPlayer(prev => ({
+                ...prev,
+                gridId: homesteadResponse.data.gridId,
+                settlementId: homesteadResponse.data.settlementId,
+                homesteadGridCoord: homesteadResponse.data.homesteadGridCoord
+              }));
+            } else {
+              console.error('❌ Homestead creation failed:', homesteadResponse.data);
+              updateStatus('Failed to create homestead. Please try again.');
+            }
+          } catch (homesteadError) {
+            console.error('❌ Error creating homestead:', homesteadError);
+            updateStatus('Failed to create homestead. Please try again.');
+            // Don't return - still award trophy and advance FTUE even if homestead fails
+          }
+        }
+
         console.log(`🏆 Awarding Homesteader trophy for trading Home Deed`);
         await earnTrophy(currentPlayer.playerId, "Homesteader", 1, currentPlayer, masterTrophies, setCurrentPlayer);
         // Try to advance FTUE if this is the player's first Home Deed purchase

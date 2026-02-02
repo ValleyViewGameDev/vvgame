@@ -181,77 +181,20 @@ const handleCreateAccount = async (e) => {
     if (!frontierResponse.data || frontierResponse.data.length === 0) throw new Error('Frontier not found');
     const frontier = frontierResponse.data[0];
 
-    // 2. Locate an available homestead and town grid in a settlement
-    let assignedSettlementId = null;
-    let homesteadGridCoord = null;
-    let townGridId = null;
+    // Note: We no longer search for available homesteads at registration time.
+    // Homestead is created when player buys Home Deed from Constable Elbow.
+    // Player starts in the Cave dungeon for FTUE.
 
-    for (const settlementRow of frontier.settlements || []) {
-      for (const settlement of settlementRow) {
-        if (settlement.available !== true) continue;
-
-        const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlement.settlementId}`);
-        const settlementData = settlementResponse.data;
-
-        const flatGrids = settlementData.grids.flat();
-        const availableHomestead = flatGrids.find((grid) => grid.available === true && grid.gridType === 'homestead');
-        const townGrid = flatGrids.find((grid) => grid.gridType === 'town');
-
-        if (availableHomestead && townGrid) {
-          assignedSettlementId = settlement.settlementId;
-          homesteadGridCoord = availableHomestead.gridCoord;
-          townGridId = townGrid.gridId;
-          break;
-        }
-      }
-      if (homesteadGridCoord) break;
-    }
-
-    if (!assignedSettlementId || !homesteadGridCoord || !townGridId) {
-      throw new Error('No available sub-grids in the Frontier.');
-    }
-
-    // 3. Find the Signpost Home position in the town grid
-    let startX = 30;
-    let startY = 33;
-    try {
-      const townGridResponse = await axios.get(`${API_BASE}/api/load-grid/${townGridId}`);
-      const townGridData = townGridResponse.data;
-
-      if (townGridData.resources && Array.isArray(townGridData.resources)) {
-        const signpostHome = townGridData.resources.find(res => res.type === "Signpost Home");
-        if (signpostHome) {
-          startX = signpostHome.x;
-          startY = signpostHome.y + 1; // One tile down from the signpost
-          console.log(`✅ Found Signpost Home at (${signpostHome.x}, ${signpostHome.y}), placing new player at (${startX}, ${startY})`);
-        } else {
-          console.warn('⚠️ Signpost Home not found in town grid, using default position');
-        }
-      }
-    } catch (err) {
-      console.warn('⚠️ Could not load town grid for spawn position, using default:', err.message);
-    }
-
-    // 4. Gather diagnostics (includes latency ping)
+    // 2. Gather diagnostics (includes latency ping)
     const diagnostics = await getDiagnostics();
 
-    // 5. Register player using unified endpoint (server will create the homestead grid)
+    // 3. Register player - server handles starting location (Cave dungeon)
     const registerPayload = {
       username,
       password,
       language,
       icon: selectedIcon,
-      location: {
-        x: startX,
-        y: startY,
-        gridCoord: homesteadGridCoord,
-        settlementId: assignedSettlementId,
-        frontierId: frontier._id,
-        gtype: 'homestead',
-      },
-      // Tell server the player should start in town
-      startInTown: true,
-      townGridId: townGridId,
+      frontierId: frontier._id,
       // Browser and OS detection for analytics
       browser: getBrowserType(),
       os: getOSType(),
