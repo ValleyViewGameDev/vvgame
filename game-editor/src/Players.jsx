@@ -30,6 +30,8 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const [pendingPowerDeletions, setPendingPowerDeletions] = useState(new Set());
   const [editingItem, setEditingItem] = useState(null); // { section: 'wallet'/'inventory', type: 'itemType' }
   const [hoveredDiagnostics, setHoveredDiagnostics] = useState(null); // Player ID for diagnostics tooltip
+  const [xpLevels, setXpLevels] = useState([]); // XP thresholds for level calculation
+  const [masterResources, setMasterResources] = useState([]); // Resources for skill bonus calculation
 
   // Function to get settlement name by ID
   const getSettlementName = (settlementId) => {
@@ -91,11 +93,53 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   // Helper function to calculate warehouse usage (excluding currencies)
   const getWarehouseUsage = (inventory) => {
     if (!inventory || !Array.isArray(inventory)) return 0;
-    
+
     const currencyTypes = ['Money', 'Gem', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
     return inventory
       .filter(item => !currencyTypes.includes(item.type))
       .reduce((total, item) => total + (item.quantity || 0), 0);
+  };
+
+  // Helper function to calculate derived level based on player XP
+  // xpLevels is an array of XP thresholds: [40, 100, 180, 270, ...]
+  const getDerivedLevel = (player) => {
+    const playerXP = player?.xp || 0;
+
+    if (!xpLevels || xpLevels.length === 0) {
+      return 1; // Default level if no data available
+    }
+
+    // Find the highest level the player has reached
+    let level = 1;
+    for (let i = 0; i < xpLevels.length; i++) {
+      if (playerXP >= xpLevels[i]) {
+        level = i + 2; // Level is index + 2 (Level 1 = 0 XP, Level 2 = 40 XP at index 0, etc.)
+      } else {
+        break;
+      }
+    }
+
+    return level;
+  };
+
+  // Helper function to calculate derived backpack capacity including skill bonuses
+  const getDerivedBackpackCapacity = (player) => {
+    const baseCapacity = player?.backpackCapacity || 0;
+
+    if (!player?.skills || !masterResources || masterResources.length === 0) {
+      return baseCapacity;
+    }
+
+    // Find skills that boost backpackCapacity
+    let skillBonus = 0;
+    player.skills.forEach(skill => {
+      const skillDetails = masterResources.find(res => res.type === skill.type);
+      if (skillDetails && skillDetails.output === 'backpackCapacity') {
+        skillBonus += skillDetails.qtycollected || 0;
+      }
+    });
+
+    return baseCapacity + skillBonus;
   };
 
   // Fetch players from the database
@@ -115,10 +159,32 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     }
   };
 
-  // Fetch players when component mounts or when activePanel changes to 'players'
+  // Fetch XP levels for level calculation
+  const fetchXpLevels = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/xp-levels`);
+      setXpLevels(response.data || []);
+    } catch (error) {
+      console.error('❌ Failed to fetch XP levels:', error);
+    }
+  };
+
+  // Fetch master resources for skill bonus calculation
+  const fetchMasterResources = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/resources`);
+      setMasterResources(response.data || []);
+    } catch (error) {
+      console.error('❌ Failed to fetch master resources:', error);
+    }
+  };
+
+  // Fetch players and supporting data when component mounts or when activePanel changes to 'players'
   useEffect(() => {
     if (activePanel === 'players') {
       fetchPlayers();
+      fetchXpLevels();
+      fetchMasterResources();
     }
   }, [activePanel]);
 
@@ -856,14 +922,20 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
             {/* Player Stats */}
             <div className="player-stats">
               <p><strong>First time user?:</strong> {selectedPlayer.firsttimeuser === true ? 'true' : 'false'}</p>
+              <p><strong>XP:</strong> {selectedPlayer.xp?.toLocaleString() || 0} (Level {getDerivedLevel(selectedPlayer)})</p>
+              <p><strong>Warehouse Level:</strong> {selectedPlayer.warehouseLevel || 1}</p>
               <p><strong>Active Quests:</strong> {selectedPlayer.activeQuests?.length || 0}</p>
               <p><strong>Completed Quests:</strong> {selectedPlayer.completedQuests?.length || 0}</p>
               <p><strong>Warehouse Capacity:</strong> {
-                selectedPlayer.warehouseCapacity 
+                selectedPlayer.warehouseCapacity
                   ? `${selectedPlayer.warehouseCapacity.toLocaleString()} (${getWarehouseUsage(selectedPlayer.inventory).toLocaleString()} used)`
                   : 'N/A'
               }</p>
-              <p><strong>Backpack Capacity:</strong> {selectedPlayer.backpackCapacity?.toLocaleString() || 'N/A'}</p>
+              <p><strong>Backpack Capacity:</strong> {getDerivedBackpackCapacity(selectedPlayer).toLocaleString()}{
+                getDerivedBackpackCapacity(selectedPlayer) !== (selectedPlayer.backpackCapacity || 0)
+                  ? ` (base: ${(selectedPlayer.backpackCapacity || 0).toLocaleString()})`
+                  : ''
+              }</p>
               
               {/* Wallet Section */}
               {(() => {
