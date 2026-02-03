@@ -1083,7 +1083,41 @@ const handleGetRich = async () => {
           <div><strong>Music:</strong> {soundManager.getCurrentTrackName() || 'none'}</div>
         </div>
       </div>
-      
+
+      {/* Add XP Debug Button */}
+      <div className="shared-buttons">
+        <button
+          className="btn-basic btn-success"
+          onClick={async () => {
+            try {
+              const playerId = currentPlayer?.playerId;
+              if (!playerId) {
+                console.error('No player ID found. Cannot add XP.');
+                return;
+              }
+              const response = await axios.post(`${API_BASE}/api/addXP`, {
+                playerId,
+                xpAmount: 10
+              });
+              if (response.data.success) {
+                // Update current player's XP locally
+                setCurrentPlayer(prev => ({
+                  ...prev,
+                  xp: response.data.newXP
+                }));
+                console.log(`✅ Added 10 XP. New XP: ${response.data.newXP}`);
+                updateStatus(`✅ Added 10 XP. Total: ${response.data.newXP}`);
+              }
+            } catch (error) {
+              console.error('❌ Error adding XP:', error);
+              updateStatus('❌ Failed to add XP.');
+            }
+          }}
+        >
+          Add 10 XP
+        </button>
+      </div>
+
         <h3>Teleport to Another Grid</h3>
         <select
           onChange={(e) => {
