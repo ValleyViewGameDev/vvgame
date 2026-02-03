@@ -25,6 +25,7 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 const FarmHouse = ({
   onClose,
@@ -41,6 +42,7 @@ const FarmHouse = ({
   masterResources,
   masterSkills,
   masterTrophies,
+  masterXPLevels,
   TILE_SIZE,
   isDeveloper,
   globalTuning,
@@ -167,6 +169,13 @@ const FarmHouse = ({
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
+  };
+
+  // Check if player meets the level requirement
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
   };
 
 
@@ -558,8 +567,11 @@ const FarmHouse = ({
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, allResources || []);
               const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
-              const requirementsMet = hasRequiredSkill(recipe.requires);
-              const skillColor = requirementsMet ? 'green' : 'red';
+              const meetsSkillRequirement = hasRequiredSkill(recipe.requires);
+              const meetsLevel = meetsLevelRequirement(recipe.level);
+              const requirementsMet = meetsSkillRequirement && meetsLevel;
+              const skillColor = meetsSkillRequirement ? 'green' : 'red';
+              const levelColor = meetsLevel ? 'green' : 'red';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
               
@@ -655,6 +667,7 @@ const FarmHouse = ({
                   details={
                     isCrafting ? craftTimeText :
                     (
+                      (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
                       (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
                       `${craftTimeText}<br>` +
                       (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)

@@ -7108,12 +7108,10 @@
     "ingredient1qty": 400,
     "ingredient2": "Wood",
     "ingredient2qty": 75,
-    "ingredient3": "Stone",
-    "ingredient3qty": 75,
-    "gemcost": 200,
+    "gemcost": 125,
     "filename": "mill.svg",
     "crafttime": 0,
-    "totalnestedtime": 750
+    "totalnestedtime": 375
   },
   {
     "type": "Dairy",
@@ -7182,10 +7180,12 @@
     "ingredient1qty": 200,
     "ingredient2": "Wood",
     "ingredient2qty": 70,
-    "gemcost": 95,
+    "ingredient3": "Stone",
+    "ingredient3qty": 30,
+    "gemcost": 125,
     "filename": "loom.svg",
     "crafttime": 0,
-    "totalnestedtime": 350
+    "totalnestedtime": 500
   },
   {
     "type": "Chicken Coop",
@@ -9235,7 +9235,7 @@
     "repeatable": false,
     "requires": "Grower",
     "qtycollected": 1,
-    "level": 3,
+    "level": 5,
     "validong": false,
     "validond": false,
     "validons": false,
@@ -9268,7 +9268,7 @@
     "repeatable": false,
     "requires": "Husbandry",
     "qtycollected": 1,
-    "level": 5,
+    "level": 7,
     "validong": false,
     "validond": false,
     "validons": false,
@@ -9301,7 +9301,7 @@
     "repeatable": false,
     "requires": "Axe",
     "qtycollected": 1,
-    "level": 7,
+    "level": 8,
     "validong": false,
     "validond": false,
     "validons": false,
@@ -9981,7 +9981,7 @@
     "category": "skill",
     "source": "General Store",
     "qtycollected": 1,
-    "level": 2,
+    "level": 3,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 7
@@ -9993,7 +9993,7 @@
     "category": "skill",
     "source": "General Store",
     "qtycollected": 1,
-    "level": 4,
+    "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 75,
     "gemcost": 10
@@ -10021,22 +10021,10 @@
     "source": "General Store",
     "requires": "Pickaxe",
     "qtycollected": 1,
-    "level": 6,
+    "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
     "gemcost": 750
-  },
-  {
-    "type": "Bulk Animal Collect",
-    "symbol": "🐮",
-    "layoutkey": "sk04",
-    "category": "skill",
-    "source": "Farm Hand",
-    "qtycollected": 1,
-    "level": 3,
-    "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
   },
   {
     "type": "Bulk Harvest",
@@ -10045,7 +10033,7 @@
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
-    "level": 2,
+    "level": 5,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 7
@@ -10058,10 +10046,22 @@
     "source": "Farm Hand",
     "requires": "Bulk Harvest",
     "qtycollected": 1,
-    "level": 2,
+    "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "gemcost": 625
+  },
+  {
+    "type": "Bulk Animal Collect",
+    "symbol": "🐮",
+    "layoutkey": "sk04",
+    "category": "skill",
+    "source": "Farm Hand",
+    "qtycollected": 1,
+    "level": 7,
+    "ingredient1": "Money",
+    "ingredient1qty": 50,
+    "gemcost": 7
   },
   {
     "type": "Logging",
@@ -10071,7 +10071,7 @@
     "source": "Farm Hand",
     "requires": "Axe",
     "qtycollected": 5,
-    "level": 4,
+    "level": 8,
     "ingredient1": "Wood",
     "ingredient1qty": 50,
     "gemcost": 50
@@ -10084,7 +10084,7 @@
     "source": "Farm Hand",
     "requires": "Logging",
     "qtycollected": 5,
-    "level": 4,
+    "level": 9,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 1250
@@ -10096,7 +10096,7 @@
     "category": "skill",
     "source": "Crafter",
     "qtycollected": 1,
-    "level": 5,
+    "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 7

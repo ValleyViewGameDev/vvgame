@@ -4447,9 +4447,11 @@ return (
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           masterTrophies={masterTrophies}
+          masterXPLevels={masterXPLevels}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'ShopStation' && (

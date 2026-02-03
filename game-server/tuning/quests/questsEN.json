@@ -90,24 +90,10 @@
     "goal3qty": 6
   },
   {
-    "index": 10,
-    "title": "Wood Master",
-    "symbol": "👵🏻",
-    "level": 2,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Wood",
-    "rewardqty": 10,
-    "xp": 10,
-    "goal1action": "Acquire",
-    "goal1item": "Axe",
-    "goal1qty": 1
-  },
-  {
     "index": 11,
     "title": "Saw You Not That?",
     "symbol": "👵🏻",
-    "level": 2,
+    "level": 3,
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
@@ -136,6 +122,20 @@
     "goal3action": "Collect",
     "goal3item": "Garlic",
     "goal3qty": 8
+  },
+  {
+    "index": 10,
+    "title": "Wood Master",
+    "symbol": "👵🏻",
+    "level": 3,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Wood",
+    "rewardqty": 10,
+    "xp": 10,
+    "goal1action": "Acquire",
+    "goal1item": "Axe",
+    "goal1qty": 1
   },
   {
     "index": 16,
