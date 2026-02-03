@@ -7267,7 +7267,7 @@
     "action": "openUI",
     "source": "Build",
     "passable": true,
-    "requires": "Keeper",
+    "requires": "Builder",
     "qtycollected": 1,
     "level": 13,
     "validong": true,
@@ -10315,7 +10315,7 @@
   },
   {
     "type": "Keeper",
-    "symbol": "🐝",
+    "symbol": "🧤",
     "layoutkey": "sk57",
     "category": "skill",
     "source": "Agriculture Center",
