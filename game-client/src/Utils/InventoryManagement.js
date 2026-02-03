@@ -324,10 +324,11 @@ export async function gainIngredients({
     setBackpack(!isCurrencyItem && !isHomestead ? target : backpack);
     
     // Update currentPlayer with new inventory to ensure UI updates properly
+    // Use prev.inventory/prev.backpack to preserve other state updates (e.g., gem deductions)
     setCurrentPlayer(prev => ({
       ...prev,
-      inventory: isCurrencyItem || isHomestead ? target : inventory,
-      backpack: !isCurrencyItem && !isHomestead ? target : backpack
+      inventory: isCurrencyItem || isHomestead ? target : prev.inventory,
+      backpack: !isCurrencyItem && !isHomestead ? target : prev.backpack
     }));
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
     return true;

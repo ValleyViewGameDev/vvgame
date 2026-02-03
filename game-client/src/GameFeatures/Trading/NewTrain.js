@@ -9,6 +9,7 @@ import { generateCompleteTrainData } from './TrainOfferLogic';
 import './Train.css';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
+import soundManager from '../../Sound/SoundManager';
 
 function NewTrainPanel({
   onClose,
@@ -589,8 +590,12 @@ function NewTrainPanel({
           ...prev,
           train: updatedTrainData
         }));
-        
+
         setCurrentTrainOffers(updatedCurrentOffers);
+
+        // Play sound effect for successful sale
+        soundManager.playSFX('collect_money');
+
         updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for ${getSymbol('Money')} ${moneyReward.toLocaleString()}.`);
       }
     } catch (error) {
@@ -711,6 +716,7 @@ function NewTrainPanel({
                 onClick={() => !isTrading && affordable && !isCompleted ? handleFulfillOffer(offer) : null}
                 disabled={isCompleted || !affordable || isTrading}
                 details={details}
+                noClickSfx={true}
               >
                 {buttonText}
               </ResourceButton>

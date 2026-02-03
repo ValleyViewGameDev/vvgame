@@ -214,7 +214,8 @@ const BuyDecoPanel = ({
                       });
                     }
                   }}
-                  gemCost={item.gemcost || null}
+                  // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
+                  gemCost={null}
                   onGemPurchase={(item.gemcost && isDisabled) ? handleGemPurchase : null}
                   resource={item}
                   inventory={inventory}

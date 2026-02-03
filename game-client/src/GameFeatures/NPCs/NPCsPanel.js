@@ -1253,8 +1253,8 @@ const handleHeal = async (recipe) => {
                   onClick={() => handleHeal(recipe)}
                   className={isCoolingDown ? 'cooldown' : ''}
                   style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-                  // Gem purchase props
-                  gemCost={recipe.gemcost || null}
+                  // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
+                  gemCost={null}
                   onGemPurchase={(recipe.gemcost && !affordable && !isHealing && !isCoolingDown && !healerOutOfHP) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
                   resource={recipe}
                   inventory={inventory}
@@ -1606,8 +1606,8 @@ const handleHeal = async (recipe) => {
                       details={details}
                       disabled={isDisabled}
                       onClick={() => handleTrade(recipe)}
-                      // Gem purchase props
-                      gemCost={recipe.gemcost || null}
+                      // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
+                      gemCost={null}
                       onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet)) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}
                       meetsLevelRequirement={meetsLevel}
                       resource={recipe}
