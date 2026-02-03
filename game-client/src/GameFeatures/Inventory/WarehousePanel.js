@@ -8,8 +8,8 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
-import { handlePurchase } from '../../Store/Store';
-import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal';
+// import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
+// import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT - Gold Pass
 import './WarehousePanel.css';
 
 const WarehousePanel = ({
@@ -27,7 +27,7 @@ const WarehousePanel = ({
   const [currentLevel, setCurrentLevel] = useState(0);
   const [nextLevel, setNextLevel] = useState(null);
   const [needsLevelMigration, setNeedsLevelMigration] = useState(false);
-  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
+  // const [showBenefitsModal, setShowBenefitsModal] = useState(false); // COMMENTED OUT - Gold Pass
 
   // Calculate current warehouse level and handle backward compatibility
   useEffect(() => {
@@ -246,7 +246,7 @@ const WarehousePanel = ({
           </div>
         )}
 
-        {/* Gold Pass promotion for non-Gold users */}
+        {/* Gold Pass promotion for non-Gold users - COMMENTED OUT
         {currentPlayer?.accountStatus !== 'Gold' && (
           <>
             <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '20px 0' }}>
@@ -262,8 +262,9 @@ const WarehousePanel = ({
             </div>
           </>
         )}
+        */}
 
-        {/* Link to view Gold Pass benefits */}
+        {/* Link to view Gold Pass benefits - COMMENTED OUT
         <div style={{ textAlign: 'center', marginTop: '10px' }}>
           <button
             onClick={() => setShowBenefitsModal(true)}
@@ -279,14 +280,16 @@ const WarehousePanel = ({
             {strings[10131] || "Gold Pass Benefits"}
           </button>
         </div>
+        */}
 
       </div>
 
-      {/* Gold Pass Benefits Modal */}
+      {/* Gold Pass Benefits Modal - COMMENTED OUT
       <GoldPassBenefitsModal
         isOpen={showBenefitsModal}
         onClose={() => setShowBenefitsModal(false)}
       />
+      */}
     </Panel>
   );
 };

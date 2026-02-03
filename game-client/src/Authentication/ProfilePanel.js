@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext } from 'react';
 import ChangeIconModal from '../UI/Modals/ChangeIconModal';
-import GoldPassBenefitsModal from '../UI/Modals/GoldPassBenefitsModal';
+// import GoldPassBenefitsModal from '../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT
 import axios from 'axios';
 import '../UI/Panels/Panel.css'; // Use the standardized styles
 import '../UI/Buttons/SharedButtons.css'; // Use the standardized buttons
@@ -21,7 +21,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
   const strings = useStrings();
 
   const [showChangeIconModal, setShowChangeIconModal] = useState(false);
-  const [showGoldBenefitsModal, setShowGoldBenefitsModal] = useState(false);
+  // const [showGoldBenefitsModal, setShowGoldBenefitsModal] = useState(false); // COMMENTED OUT
 
   const [formData, setFormData] = useState({
     username: '',
@@ -350,11 +350,13 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <br />
 
+        {/* Gold Pass Benefits button - COMMENTED OUT
         <div className="shared-buttons">
           <button className="btn-basic btn-gold" onClick={() => setShowGoldBenefitsModal(true)}>
             {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
           </button>
         </div>
+        */}
       
         <br/>
 
@@ -572,10 +574,12 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           />
         )}
 
+        {/* Gold Pass Benefits Modal - COMMENTED OUT
         <GoldPassBenefitsModal
           isOpen={showGoldBenefitsModal}
           onClose={() => setShowGoldBenefitsModal(false)}
         />
+        */}
       </div>
     </Panel>
     

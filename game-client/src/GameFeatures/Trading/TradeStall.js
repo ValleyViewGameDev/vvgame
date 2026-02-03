@@ -14,7 +14,7 @@ import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
-import { handlePurchase } from '../../Store/Store';
+// import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 import GlobalMarketModal from './GlobalMarketModal';
 
 function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources }) {
@@ -1012,11 +1012,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 </div>
 
                 {/* 2. BUTTON CONTAINER */}
+                {/* Gold Pass purchase button - COMMENTED OUT
                 {(index >= 4 && currentPlayer.accountStatus !== 'Gold' && isOwnStall) ? (
                   // Show Gold Pass purchase button for slots 5-6
                   <div className="trade-button-container">
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <button 
+                      <button
                         className="btn-basic btn-gold"
                         style={{ width: '100%' }}
                         onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
@@ -1025,7 +1026,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       </button>
                     </div>
                   </div>
-                ) : (!slotUnlocked && isOwnStall) ? (
+                ) : */}
+                {(!slotUnlocked && isOwnStall) ? (
                   // Show unlock button for locked non-Gold Pass slots
                   <div className="trade-button-container">
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -1103,6 +1105,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 </div>
 
                 {/* 2. BUTTON CONTAINER */}
+                {/* Gold Pass purchase button - COMMENTED OUT
                 {(config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') ? (
                   // Show Gold Pass purchase button
                   <div className="trade-button-container">
@@ -1116,7 +1119,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       </button>
                     </div>
                   </div>
-                ) : (!slotUnlocked) ? (
+                ) : */}
+                {(!slotUnlocked) ? (
                   // Show unlock button for locked slots
                   <div className="trade-button-container">
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>

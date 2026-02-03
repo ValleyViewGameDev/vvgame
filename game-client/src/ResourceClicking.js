@@ -632,6 +632,17 @@ async function handleReplant(
     if (gridUpdateResponse?.success) {
       console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
       // Grow animation already started before state update (see above)
+
+      // Add to FarmState so the timer tracks this farmplot for conversion
+      const farmState = (await import('./FarmState')).default;
+      farmState.addSeed({
+        type: farmplotResource.type,
+        x: col,
+        y: row,
+        growEnd: growEndTime,
+        output: farmplotResource.output, // Required for crop conversion
+      });
+      console.log(`🌱 handleReplant: Added ${farmplotResource.type} to FarmState for timer tracking`);
     } else {
       throw new Error('Server failed to confirm the replant.');
     }

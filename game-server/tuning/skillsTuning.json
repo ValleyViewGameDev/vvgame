@@ -85,6 +85,12 @@
     "Fowler": {
       "Chicken Coop": 3
     },
+    "Shepherding": {
+      "Wool": 2
+    },
+    "Beekeeper": {
+      "Beehive": 2
+    },
     "Apiarch": {
       "Beehive": 3
     },
@@ -98,8 +104,8 @@
       "Stone": 3,
       "Clay": 2
     },
-    "Husbandry": {
-      "Milk": 3,
+    "Livestock": {
+      "Milk": 2,
       "Wool": 2,
       "Bacon": 2
     }     
