@@ -4515,6 +4515,7 @@ return (
           gridId={gridId}
           masterResources={masterResources}
           masterSkills={masterSkills}
+          masterXPLevels={masterXPLevels}
           updateStatus={updateStatus}
           currentSeason={seasonData?.type}
           isDeveloper={isDeveloper}

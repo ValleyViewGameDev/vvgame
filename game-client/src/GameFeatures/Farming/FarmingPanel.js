@@ -10,6 +10,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { formatDuration } from '../../UI/Timers';
 import { updatePlayerSettings } from '../../settings';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
@@ -29,6 +30,7 @@ const FarmingPanel = ({
   gridId,
   masterResources,
   masterSkills,
+  masterXPLevels,
   updateStatus,
   currentSeason,
   isDeveloper,
@@ -111,6 +113,13 @@ const FarmingPanel = ({
   // Local wrapper for the utility function
   const hasRequiredSkill = (requiredSkill) => checkRequiredSkill(requiredSkill, currentPlayer);
 
+  // Check if player meets the level requirement
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
+  };
+
 
   // Wrap for Farm Plot Placement
   const handleFarmPlacementWithCooldown = async (item) => {
@@ -192,7 +201,9 @@ const FarmingPanel = ({
             {farmPlots.map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, backpack, 1);
-              const requirementsMet = hasRequiredSkill(item.requires);
+              const meetsSkillRequirement = hasRequiredSkill(item.requires);
+              const meetsLevel = meetsLevelRequirement(item.level);
+              const requirementsMet = meetsSkillRequirement && meetsLevel;
               const isOffSeason = item.isOffSeason;
 
               const symbol = item.symbol || '';
@@ -226,9 +237,11 @@ const FarmingPanel = ({
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = requirementsMet ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'green' : 'red';
+              const levelColor = meetsLevel ? 'green' : 'red';
 
               const details =
+                (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
                 (item.growtime ? `${strings[458]}${formatDuration(item.growtime)}<br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
