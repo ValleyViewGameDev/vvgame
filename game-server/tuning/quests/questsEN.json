@@ -146,20 +146,6 @@
     "goal1qty": 30
   },
   {
-    "index": 22,
-    "title": "Hire Rancher",
-    "symbol": "👵🏻",
-    "level": 3,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Sugarcane",
-    "rewardqty": 6,
-    "xp": 10,
-    "goal1action": "Craft",
-    "goal1item": "Rancher",
-    "goal1qty": 1
-  },
-  {
     "index": 14,
     "title": "Backpack",
     "symbol": "👵🏻",
@@ -261,6 +247,20 @@
     "xp": 20,
     "goal1action": "Acquire",
     "goal1item": "Masonry",
+    "goal1qty": 1
+  },
+  {
+    "index": 22,
+    "title": "Hire Rancher",
+    "symbol": "👵🏻",
+    "level": 7,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Sugarcane",
+    "rewardqty": 6,
+    "xp": 10,
+    "goal1action": "Craft",
+    "goal1item": "Rancher",
     "goal1qty": 1
   },
   {

@@ -125,6 +125,8 @@
       "doinker": true,
       "doinkerType": "resource",
       "doinkerTarget": "Signpost Home",
+      "notificationKey": 7059,
+      "notificationIcon": "🏠",
       "addQuests": []
     },
     {

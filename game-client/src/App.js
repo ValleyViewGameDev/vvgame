@@ -46,7 +46,7 @@ import {
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
-import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
+import { tryAdvanceFTUEByTrigger, incrementFTUEStep } from './GameFeatures/FTUE/FTUEutils';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -3155,6 +3155,10 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           // FTUE trigger: Clicking on Mailbox
           if (currentPlayer?.firsttimeuser) {
             tryAdvanceFTUEByTrigger('ClickedMailbox', currentPlayer._id, currentPlayer, setCurrentPlayer);
+            // If mailbox is empty, skip ahead (no messages to interact with)
+            if (!currentPlayer?.messages?.length) {
+              incrementFTUEStep(currentPlayer._id, currentPlayer, setCurrentPlayer);
+            }
           }
           break;
         case 'Warehouse':
