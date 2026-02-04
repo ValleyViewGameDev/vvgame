@@ -3,7 +3,7 @@
       "step": 1,
       "trigger": "StartedFTUE",
       "showModal": true,
-      "modalIcon": "🧔🏼‍♂️",
+      "modalIcon": "👸",
       "bodyKey": 740,
       "continue": true,
       "addQuests": []
@@ -83,7 +83,7 @@
       "doinkerTarget": ["Signpost Town"],
       "notificationKey": 7061,
       "notificationIcon": "🏛️",
-      "addQuests": [5]
+      "addQuests": [7]
     },
     {
       "step": 9,
@@ -98,12 +98,30 @@
     {
       "step": 10,
       "trigger": "AcquiredTownKey",
-      "showModal": true,
-      "modalIcon": "🧔🏼‍♂️",
-      "bodyKey": 16019,
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "Agriculture Center",
       "continue": false,
       "notificationKey": 7056,
       "notificationIcon": "🗝️",
       "addQuests": [7]
+    },
+    {
+      "step": 11,
+      "trigger": "ClickedAgricultureCenter",
+      "showModal": false,
+      "doinker": true,
+      "doinkerType": "button",
+      "doinkerTarget": "[data-resource-type=\"Grower\"] .resource-button",
+      "addQuests": []
+    },
+    {
+      "step": 12,
+      "trigger": "AcquiredGrower",
+      "showModal": true,
+      "modalIcon": "🧔🏼‍♂️",
+      "bodyKey": 16021,
+      "continue": false,
+      "addQuests": []
     }
 ]

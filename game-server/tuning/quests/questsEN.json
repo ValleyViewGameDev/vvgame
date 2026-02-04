@@ -42,20 +42,6 @@
     "goal1qty": 1
   },
   {
-    "index": 14,
-    "title": "Backpack",
-    "symbol": "👵🏻",
-    "level": 2,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Money",
-    "rewardqty": 150,
-    "xp": 5,
-    "goal1action": "Acquire",
-    "goal1item": "Backpack",
-    "goal1qty": 1
-  },
-  {
     "index": 7,
     "title": "Grower",
     "symbol": "👵🏻",
@@ -174,10 +160,24 @@
     "goal1qty": 1
   },
   {
+    "index": 14,
+    "title": "Backpack",
+    "symbol": "👵🏻",
+    "level": 4,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Money",
+    "rewardqty": 150,
+    "xp": 5,
+    "goal1action": "Acquire",
+    "goal1item": "Backpack",
+    "goal1qty": 1
+  },
+  {
     "index": 25,
     "title": "Foundations of Stone",
     "symbol": "👵🏻",
-    "level": 3,
+    "level": 4,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Honey",
@@ -199,20 +199,6 @@
     "xp": 5,
     "goal1action": "Buy",
     "goal1item": "Sheep",
-    "goal1qty": 1
-  },
-  {
-    "index": 12,
-    "title": "Mechanics",
-    "symbol": "👵🏻",
-    "level": 4,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Olive",
-    "rewardqty": 4,
-    "xp": 15,
-    "goal1action": "Acquire",
-    "goal1item": "Mechanics",
     "goal1qty": 1
   },
   {
@@ -275,6 +261,20 @@
     "xp": 20,
     "goal1action": "Acquire",
     "goal1item": "Masonry",
+    "goal1qty": 1
+  },
+  {
+    "index": 12,
+    "title": "Mechanics",
+    "symbol": "👵🏻",
+    "level": 7,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Olive",
+    "rewardqty": 4,
+    "xp": 15,
+    "goal1action": "Acquire",
+    "goal1item": "Mechanics",
     "goal1qty": 1
   },
   {
@@ -435,20 +435,6 @@
     "goal1qty": 24
   },
   {
-    "index": 38,
-    "title": "The Cook's Flame",
-    "symbol": "🧑🏻‍🍳",
-    "level": 7,
-    "repeatable": false,
-    "giver": "Mistress Quickly",
-    "reward": "Money",
-    "rewardqty": 100,
-    "xp": 15,
-    "goal1action": "Acquire",
-    "goal1item": "Cooking",
-    "goal1qty": 1
-  },
-  {
     "index": 37,
     "title": "Kitchen Confidential",
     "symbol": "🧑🏻‍🍳",
@@ -497,6 +483,34 @@
     "goal3action": "Craft",
     "goal3item": "Olive Bread",
     "goal3qty": 16
+  },
+  {
+    "index": 103,
+    "title": "Baker's Bible",
+    "symbol": "🧑🏻‍🍳",
+    "level": 11,
+    "repeatable": false,
+    "giver": "Mistress Quickly",
+    "reward": "Lemon Cookie",
+    "rewardqty": 3,
+    "xp": 15,
+    "goal1action": "Acquire",
+    "goal1item": "Baker",
+    "goal1qty": 1
+  },
+  {
+    "index": 38,
+    "title": "The Cook's Flame",
+    "symbol": "🧑🏻‍🍳",
+    "level": 15,
+    "repeatable": false,
+    "giver": "Mistress Quickly",
+    "reward": "Omelette",
+    "rewardqty": 2,
+    "xp": 20,
+    "goal1action": "Acquire",
+    "goal1item": "Cooking",
+    "goal1qty": 1
   },
   {
     "index": 90,
@@ -621,36 +635,6 @@
     "goal1qty": 12
   },
   {
-    "index": 50,
-    "title": "A Thread Most Fine",
-    "symbol": "👨🏽‍🎨",
-    "level": 5,
-    "repeatable": false,
-    "giver": "Feste",
-    "reward": "Ink",
-    "rewardqty": 12,
-    "xp": 25,
-    "goal1action": "Acquire",
-    "goal1item": "Textiles",
-    "goal1qty": 1
-  },
-  {
-    "index": 53,
-    "title": "Art for Artistry’s Sake",
-    "symbol": "👨🏽‍🎨",
-    "level": 7,
-    "repeatable": false,
-    "giver": "Feste",
-    "rel": "friend",
-    "relscore": 70,
-    "reward": "Money",
-    "rewardqty": 10000,
-    "xp": 25,
-    "goal1action": "Acquire",
-    "goal1item": "Artistry",
-    "goal1qty": 1
-  },
-  {
     "index": 54,
     "title": "The Fine Cut",
     "symbol": "👨🏽‍🎨",
@@ -666,20 +650,6 @@
     "goal2action": "Craft",
     "goal2item": "Runic Tunic",
     "goal2qty": 3
-  },
-  {
-    "index": 55,
-    "title": "Needle and Nobility",
-    "symbol": "👨🏽‍🎨",
-    "level": 7,
-    "repeatable": false,
-    "giver": "Feste",
-    "reward": "Money",
-    "rewardqty": 1000,
-    "xp": 25,
-    "goal1action": "Acquire",
-    "goal1item": "Tailor",
-    "goal1qty": 1
   },
   {
     "index": 56,
@@ -698,6 +668,36 @@
     "goal2action": "Craft",
     "goal2item": "Heavy Jacket",
     "goal2qty": 3
+  },
+  {
+    "index": 50,
+    "title": "A Thread Most Fine",
+    "symbol": "👨🏽‍🎨",
+    "level": 8,
+    "repeatable": false,
+    "giver": "Feste",
+    "reward": "Ink",
+    "rewardqty": 12,
+    "xp": 25,
+    "goal1action": "Acquire",
+    "goal1item": "Textiles",
+    "goal1qty": 1
+  },
+  {
+    "index": 53,
+    "title": "Art for Artistry’s Sake",
+    "symbol": "👨🏽‍🎨",
+    "level": 10,
+    "repeatable": false,
+    "giver": "Feste",
+    "rel": "friend",
+    "relscore": 70,
+    "reward": "Money",
+    "rewardqty": 10000,
+    "xp": 25,
+    "goal1action": "Acquire",
+    "goal1item": "Artistry",
+    "goal1qty": 1
   },
   {
     "index": 47,
@@ -771,31 +771,17 @@
     "goal1qty": 20
   },
   {
-    "index": 102,
-    "title": "The Long Blade",
-    "symbol": "💂",
-    "level": 2,
+    "index": 55,
+    "title": "Needle and Nobility",
+    "symbol": "👨🏽‍🎨",
+    "level": 12,
     "repeatable": false,
-    "giver": "Hotspur",
-    "reward": "Pelt",
-    "rewardqty": 15,
-    "xp": 10,
+    "giver": "Feste",
+    "reward": "Money",
+    "rewardqty": 1000,
+    "xp": 25,
     "goal1action": "Acquire",
-    "goal1item": "Long Sword",
-    "goal1qty": 1
-  },
-  {
-    "index": 59,
-    "title": "Eyes Like a Falcon",
-    "symbol": "💂",
-    "level": 5,
-    "repeatable": false,
-    "giver": "Hotspur",
-    "reward": "Cloth",
-    "rewardqty": 12,
-    "xp": 10,
-    "goal1action": "Acquire",
-    "goal1item": "Scout",
+    "goal1item": "Tailor",
     "goal1qty": 1
   },
   {
@@ -824,6 +810,34 @@
     "xp": 40,
     "goal1action": "Acquire",
     "goal1item": "Fortitude",
+    "goal1qty": 1
+  },
+  {
+    "index": 59,
+    "title": "Eyes Like a Falcon",
+    "symbol": "💂",
+    "level": 8,
+    "repeatable": false,
+    "giver": "Hotspur",
+    "reward": "Cloth",
+    "rewardqty": 12,
+    "xp": 10,
+    "goal1action": "Acquire",
+    "goal1item": "Scout",
+    "goal1qty": 1
+  },
+  {
+    "index": 102,
+    "title": "The Long Blade",
+    "symbol": "💂",
+    "level": 9,
+    "repeatable": false,
+    "giver": "Hotspur",
+    "reward": "Pelt",
+    "rewardqty": 15,
+    "xp": 10,
+    "goal1action": "Acquire",
+    "goal1item": "Long Sword",
     "goal1qty": 1
   },
   {
@@ -885,6 +899,21 @@
     "goal1qty": 10
   },
   {
+    "index": 68,
+    "title": "Eight-Legged Wretches",
+    "symbol": "🧝",
+    "level": 2,
+    "repeatable": true,
+    "giver": "Cassio",
+    "rel": "friend",
+    "reward": "Book",
+    "rewardqty": 1,
+    "xp": 2,
+    "goal1action": "Kill",
+    "goal1item": "Spider",
+    "goal1qty": 15
+  },
+  {
     "index": 67,
     "title": "Blood for Juliet",
     "symbol": "🧝",
@@ -899,21 +928,6 @@
     "goal1action": "Kill",
     "goal1item": "Duke Angelo",
     "goal1qty": 1
-  },
-  {
-    "index": 68,
-    "title": "Eight-Legged Wretches",
-    "symbol": "🧝",
-    "level": 2,
-    "repeatable": true,
-    "giver": "Cassio",
-    "rel": "friend",
-    "reward": "Book",
-    "rewardqty": 1,
-    "xp": 2,
-    "goal1action": "Kill",
-    "goal1item": "Spider",
-    "goal1qty": 15
   },
   {
     "index": 69,
@@ -1004,21 +1018,6 @@
     "goal1qty": 1
   },
   {
-    "index": 72,
-    "title": "Raiment of Stars",
-    "symbol": "🧝‍♀️",
-    "level": 30,
-    "repeatable": false,
-    "giver": "Titania",
-    "rel": "friend",
-    "reward": "Gem",
-    "rewardqty": 15,
-    "xp": 20,
-    "goal1action": "Acquire",
-    "goal1item": "Unbreakable",
-    "goal1qty": 1
-  },
-  {
     "index": 100,
     "title": "Titania's Secret",
     "symbol": "🧝‍♀️",
@@ -1035,17 +1034,18 @@
     "goal1qty": 5
   },
   {
-    "index": 76,
-    "title": "A Mind for the Realm",
-    "symbol": "👩🏻‍⚖️",
-    "level": 4,
+    "index": 72,
+    "title": "Raiment of Stars",
+    "symbol": "🧝‍♀️",
+    "level": 35,
     "repeatable": false,
-    "giver": "Portia",
+    "giver": "Titania",
+    "rel": "friend",
     "reward": "Gem",
-    "rewardqty": 1,
-    "xp": 10,
+    "rewardqty": 15,
+    "xp": 20,
     "goal1action": "Acquire",
-    "goal1item": "Politics",
+    "goal1item": "Unbreakable",
     "goal1qty": 1
   },
   {
@@ -1060,48 +1060,6 @@
     "xp": 40,
     "goal1action": "Vote",
     "goal1item": "Election",
-    "goal1qty": 1
-  },
-  {
-    "index": 79,
-    "title": "By Letter of Law",
-    "symbol": "👩🏻‍⚖️",
-    "level": 5,
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 3,
-    "xp": 30,
-    "goal1action": "Acquire",
-    "goal1item": "Law",
-    "goal1qty": 1
-  },
-  {
-    "index": 80,
-    "title": "A Tonic for the State",
-    "symbol": "👩🏻‍⚖️",
-    "level": 5,
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 2,
-    "xp": 40,
-    "goal1action": "Acquire",
-    "goal1item": "Medicine",
-    "goal1qty": 1
-  },
-  {
-    "index": 81,
-    "title": "The Knife’s Mercy",
-    "symbol": "👩🏻‍⚖️",
-    "level": 5,
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 3,
-    "xp": 50,
-    "goal1action": "Acquire",
-    "goal1item": "Surgery",
     "goal1qty": 1
   },
   {
@@ -1161,6 +1119,48 @@
     "goal1qty": 5
   },
   {
+    "index": 76,
+    "title": "A Mind for the Realm",
+    "symbol": "👩🏻‍⚖️",
+    "level": 6,
+    "repeatable": false,
+    "giver": "Portia",
+    "reward": "Gem",
+    "rewardqty": 1,
+    "xp": 10,
+    "goal1action": "Acquire",
+    "goal1item": "Politics",
+    "goal1qty": 1
+  },
+  {
+    "index": 79,
+    "title": "By Letter of Law",
+    "symbol": "👩🏻‍⚖️",
+    "level": 7,
+    "repeatable": false,
+    "giver": "Portia",
+    "reward": "Gem",
+    "rewardqty": 3,
+    "xp": 30,
+    "goal1action": "Acquire",
+    "goal1item": "Law",
+    "goal1qty": 1
+  },
+  {
+    "index": 80,
+    "title": "A Tonic for the State",
+    "symbol": "👩🏻‍⚖️",
+    "level": 7,
+    "repeatable": false,
+    "giver": "Portia",
+    "reward": "Gem",
+    "rewardqty": 2,
+    "xp": 40,
+    "goal1action": "Acquire",
+    "goal1item": "Medicine",
+    "goal1qty": 1
+  },
+  {
     "index": 86,
     "title": "Portia's Secret",
     "symbol": "👩🏻‍⚖️",
@@ -1175,6 +1175,20 @@
     "goal1action": "Craft",
     "goal1item": "Furniture",
     "goal1qty": 200
+  },
+  {
+    "index": 81,
+    "title": "The Knife’s Mercy",
+    "symbol": "👩🏻‍⚖️",
+    "level": 25,
+    "repeatable": false,
+    "giver": "Portia",
+    "reward": "Gem",
+    "rewardqty": 3,
+    "xp": 50,
+    "goal1action": "Acquire",
+    "goal1item": "Surgery",
+    "goal1qty": 1
   },
   {
     "index": 87,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import DoinkerArrow from './DoinkerArrow';
 import './FTUE.css';
 
 /**
@@ -186,29 +187,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
           height: `${arrowHeight}px`,
         }}
       >
-        {/* SVG Arrow pointing down */}
-        <svg
-          width={arrowWidth}
-          height={arrowHeight}
-          viewBox="0 0 40 60"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="ftue-doinker-arrow"
-        >
-          {/* Arrow body */}
-          <path
-            d="M15 0 L15 35 L5 35 L20 60 L35 35 L25 35 L25 0 Z"
-            fill="#e53935"
-            stroke="#b71c1c"
-            strokeWidth="2"
-          />
-          {/* Highlight */}
-          <path
-            d="M17 2 L17 33 L20 33 L20 2 Z"
-            fill="#ff6f60"
-            opacity="0.6"
-          />
-        </svg>
+        <DoinkerArrow width={arrowWidth} height={arrowHeight} />
       </div>,
       document.body
     );
@@ -239,29 +218,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
               height: `${arrowHeight}px`,
             }}
           >
-            {/* SVG Arrow pointing down */}
-            <svg
-              width={arrowWidth}
-              height={arrowHeight}
-              viewBox="0 0 40 60"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="ftue-doinker-arrow"
-            >
-              {/* Arrow body */}
-              <path
-                d="M15 0 L15 35 L5 35 L20 60 L35 35 L25 35 L25 0 Z"
-                fill="#e53935"
-                stroke="#b71c1c"
-                strokeWidth="2"
-              />
-              {/* Highlight */}
-              <path
-                d="M17 2 L17 33 L20 33 L20 2 Z"
-                fill="#ff6f60"
-                opacity="0.6"
-              />
-            </svg>
+            <DoinkerArrow width={arrowWidth} height={arrowHeight} />
           </div>
         );
       })}

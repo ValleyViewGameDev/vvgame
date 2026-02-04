@@ -939,6 +939,7 @@
 "16018": "Bienvenue {username}. Félicitations, car tu as parcouru une grande distance. Je sens l'héroïsme en toi. Apporte-moi les sept artefacts qui lient ces peuples, et je te donnerai l'Espoir pour restaurer l'Âge d'Or !",
 "16019": "Salutations {username} ! Pendant des siècles, les gentils habitants d'Elsinore vivaient en harmonie, gouvernés par le bienveillant Roi Leontes. Mais depuis peu, un fléau maléfique grandit dans la Vallée et menace nos voies paisibles. On dit qu'une seule Quête peut restaurer l'Espoir dans ces terres et repousser les ténèbres. Cherche l'Oracle dans la Vallée, aventurier, et apporte-nous l'Espoir !",
 "16020": "Bien rencontré, chasseur ! As-tu des peaux à échanger ? Je te paierai un juste prix pour toutes les fourrures que les terres sauvages de la vallée ont cédées à ton talent. Les mois froids approchent, et les gens cherchent la chaleur. Ta chasse remplit mes coffres ; mes pièces remplissent ta bourse. C'est un marché aussi douillet que le nom que je porte !",
+"16021": "Félicitations pour ta compétence de Cultivateur, {username}. Tu découvriras que de nombreuses Compétences peuvent être gagnées en Ville. Choisis judicieusement alors que tu commences à te spécialiser dans l'Agriculture, la Cuisine, les Animaux, l'Aventure et plus encore.",
 
 "16101": "",
 "16102": "",
@@ -1340,10 +1341,10 @@
     "7056": "Vous êtes maintenant bienvenu en Ville ! Explorez tout ce que la Ville a à offrir, y compris développer plus de Compétences, rencontrer les Habitants, et plus de moyens de gagner de l'Argent.",
     "7057": "Rendez-vous au 🏪 Magasin Général en ville pour acquérir une Hache.",
     "7058": "Rendez-vous au 🏪 Magasin Général en ville pour acquérir une Pioche.",
-    "7061": "Voyagez maintenant vers la Ville pour obtenir votre Clé de la Ville auprès du Constable Elbow. Utilisez le 🏛️ Panneau Ville pour vous y rendre.",
+    "7061": "Vous devrez vous rendre en Ville pour développer vos Compétences. Achetez une Clé de la Ville auprès du Constable Elbow. Utilisez le Panneau indicateur pour voyager.",
     "7062": "Bon travail ! Je suis la Bergère, et je vous aiderai avec votre ✅ Liste de Tâches. Revenez me voir quand les tâches sont terminées.",
 
-    "740": "Bienvenue à Elsinore, {username} ! Vous pouvez acquérir un Titre de Propriété auprès du Constable pour commencer votre aventure.",
+    "740": "Bienvenue à Elsinore, {username}. Obtenez un Titre de Propriété auprès du Constable pour sécuriser votre terrain. Votre aventure commence !",
     "741": "Utilisez les touches A-W-S-D (ou les flèches) pour déplacer votre personnage. CLIQUEZ sur Constable Elbow.",
     "742": "Cliquez sur le Panneau indicateur pour voyager vers votre nouveau Domaine.",
 

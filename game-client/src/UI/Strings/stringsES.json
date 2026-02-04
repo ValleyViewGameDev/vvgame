@@ -940,6 +940,7 @@
 "16018": "Bienvenido {username}. Felicitaciones, pues has recorrido una gran distancia. Siento el heroísmo en ti. Tráeme los siete artefactos que unen a estos pueblos, ¡y te daré la Esperanza para restaurar la Edad Dorada!",
 "16019": "¡Saludos {username}! Durante siglos, la gentil gente de Elsinore vivió en armonía, gobernada por el benevolente Rey Leontes. Pero últimamente un flagelo maligno crece en el Valle y amenaza nuestros caminos pacíficos. Se dice que una sola Misión puede restaurar la Esperanza en estas tierras y hacer retroceder la oscuridad. ¡Busca al Oráculo en el Valle, aventurero, y tráenos Esperanza!",
 "16020": "¡Bien hallado, cazador! ¿Tienes pieles para comerciar? Te pagaré monedas justas por cualquier piel que las tierras salvajes del valle hayan cedido a tu habilidad. Los meses fríos se acercan, y la gente busca calor. Tu caza llena mis arcas; mis monedas llenan tu bolsa. ¡Es un trato tan acogedor como el nombre que llevo!",
+"16021": "Felicitaciones por tu habilidad de Cultivador, {username}. Descubrirás que muchas Habilidades se pueden ganar en el Pueblo. Elige sabiamente mientras comienzas a especializarte en Agricultura, Cocina, Animales, Aventura y más.",
 "16101": "",
 "16102": "",
 "16103": "",
@@ -1339,10 +1340,10 @@
     "7056": "¡Ahora eres bienvenido al Pueblo! Explora todo lo que el Pueblo tiene para ofrecer, incluyendo desarrollar más Habilidades, conocer a los Habitantes, y más formas de ganar Dinero.",
     "7057": "Ve a la 🏪 Tienda General en el pueblo para adquirir un Hacha.",
     "7058": "Ve a la 🏪 Tienda General en el pueblo para adquirir un Pico.",
-    "7061": "Ahora viaja al Pueblo para obtener tu Llave del Pueblo del Alguacil Elbow. Usa el 🏛️ Señalizador del Pueblo para viajar allí.",
+    "7061": "Necesitarás viajar al Pueblo para desarrollar tus Habilidades. Compra una Llave del Pueblo del Alguacil Elbow. Usa el Poste indicador para viajar.",
     "7062": "¡Buen trabajo! Soy la Pastora, y te ayudaré con tu ✅ Lista de Tareas. Vuelve a verme cuando completes las tareas.",
 
-    "740": "¡Bienvenido a Elsinore, {username}! Puedes adquirir una Escritura de Propiedad del Alguacil para comenzar tu aventura.",
+    "740": "Bienvenido a Elsinore, {username}. Adquiere una Escritura de Propiedad del Alguacil para asegurar tu terreno. ¡Tu aventura comienza!",
     "741": "Usa las teclas A-W-S-D (o las flechas) para mover tu personaje. HAZ CLIC en Constable Elbow.",
     "742": "Haz clic en el Poste indicador para viajar a tu nueva Granja.",
 

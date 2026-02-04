@@ -3090,6 +3090,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     else if (resource.category === 'training' || resource.category === 'trainingAndShop') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, category: resource.category });
       openPanel('SkillsPanel');
+
+      // FTUE trigger: Clicking on Agriculture Center
+      if (resource.type === 'Agriculture Center' && currentPlayer?.firsttimeuser) {
+        tryAdvanceFTUEByTrigger('ClickedAgricultureCenter', currentPlayer._id, currentPlayer, setCurrentPlayer);
+      }
     }
     else if (resource.category === 'crafting') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });

@@ -18,6 +18,7 @@ import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
+import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
 const SkillsPanel = ({
     onClose,
@@ -223,6 +224,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
       await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
       soundManager.playSFX('skill_earned');
+
+      // FTUE: Trigger AcquiredGrower when player acquires the Grower skill
+      if (resource.type === 'Grower') {
+        await tryAdvanceFTUEByTrigger('AcquiredGrower', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      }
+
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
       // Instead of re-fetching, update the acquire list locally
@@ -403,6 +410,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                       key={resource.type}
                       symbol={resource.symbol}
                       name={getLocalizedString(resource.type, strings)}
+                      resourceType={resource.type}
                       details={details}
                       info={info}
                       disabled={!affordable || !requirementsMet}

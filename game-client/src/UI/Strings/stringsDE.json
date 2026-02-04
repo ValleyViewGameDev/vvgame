@@ -939,6 +939,7 @@
 "16018": "Willkommen {username}. Herzlichen Glückwunsch, denn du hast eine weite Strecke zurückgelegt. Ich spüre den Heldenmut in dir. Bring mir die sieben Artefakte, die diese Völker verbinden, und ich werde dir die Hoffnung geben, das Goldene Zeitalter wiederherzustellen!",
 "16019": "Grüße {username}! Jahrhundertelang lebten die freundlichen Menschen von Elsinore in Harmonie, regiert vom wohlwollenden König Leontes. Doch seit kurzem wächst eine böse Plage im Tal und bedroht unsere friedlichen Wege. Es heißt, eine einzige Quest kann die Hoffnung in diese Lande zurückbringen und die Dunkelheit zurückdrängen. Suche das Orakel im Tal, Abenteurer, und bring uns Hoffnung!",
 "16020": "Sei gegrüßt, Jäger! Hast du Felle zum Handeln? Ich zahle dir faire Münzen für alle Pelze, die die Wildnis des Tals deinem Geschick überlassen hat. Die kälteren Monate nahen, und die Leute suchen Wärme. Deine Jagd füllt meine Truhen; meine Münzen füllen deinen Beutel. Das ist ein Handel so gemütlich wie der Name, den ich trage!",
+"16021": "Herzlichen Glückwunsch zu deiner Anbauer-Fähigkeit, {username}. Du wirst feststellen, dass viele Fähigkeiten in der Stadt erworben werden können. Wähle weise, wenn du beginnst, dich auf Landwirtschaft, Kochen, Tiere, Abenteuer und mehr zu spezialisieren.",
 
 "16101": "",
 "16102": "",
@@ -1340,10 +1341,10 @@
     "7056": "Du bist jetzt in der Stadt willkommen! Erkunde alles, was die Stadt zu bieten hat, einschließlich mehr Fähigkeiten aufbauen, Stadtbewohner treffen und mehr Möglichkeiten, Geld zu verdienen.",
     "7057": "Gehe zum 🏪 Gemischtwarenladen in der Stadt, um eine Axt zu erwerben.",
     "7058": "Gehe zum 🏪 Gemischtwarenladen in der Stadt, um eine Spitzhacke zu erwerben.",
-    "7061": "Reise jetzt in die Stadt, um deinen Stadtschlüssel von Constable Elbow zu bekommen. Benutze den 🏛️ Wegweiser Stadt, um dorthin zu reisen.",
+    "7061": "Du musst in die Stadt reisen, um deine Fähigkeiten auszubauen. Kaufe einen Stadtschlüssel von Constable Elbow. Benutze den Wegweiser zum Reisen.",
     "7062": "Gut gemacht! Ich bin die Hirtin, und ich helfe dir mit deiner ✅ Aufgabenliste. Komm zu mir zurück, wenn Aufgaben erledigt sind.",
 
-    "740": "Willkommen in Elsinore, {username}! Du kannst beim Constable eine Hausurkunde erwerben, um dein Abenteuer zu beginnen.",
+    "740": "Willkommen in Elsinore, {username}. Erwerbe eine Hausurkunde beim Constable, um dein Land zu sichern. Dein Abenteuer beginnt!",
     "741": "Benutze die Tasten A-W-S-D (oder die Pfeiltasten), um deine Figur zu bewegen. KLICKE auf Constable Elbow.",
     "742": "Klicke auf den Wegweiser, um zu deinem neuen Heimathof zu reisen.",
 
