@@ -14,7 +14,7 @@
       "backpack": [],
       "skills": [{ "type": "Horse", "quantity": 1 }],
       "powers": [{ "type": "Knife", "quantity": 1 }],
-      "warehouseCapacity": 600,
+      "warehouseCapacity": 300,
       "warehouseLevel": 0,
       "backpackCapacity": 10,
       "accountStatus": "Free",

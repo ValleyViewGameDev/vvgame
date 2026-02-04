@@ -77,7 +77,8 @@ import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
 import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
-import { getDerivedLevel } from './Utils/playerManagement';
+import { getDerivedLevel, getXpForNextLevel } from './Utils/playerManagement';
+import { isCurrency, deriveWarehouseAndBackpackCapacity } from './Utils/InventoryManagement';
 import soundManager from './Sound/SoundManager';
 
 import ProfilePanel from './Authentication/ProfilePanel';
@@ -3455,7 +3456,40 @@ return (
           <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
             {strings[10103]}
           </button>
-          {/* Row 2 */}
+          {/* Row 2 - Progress bars (4px tall) */}
+          <span></span>
+          {/* XP Progress Bar - thin bar below Level */}
+          {(() => {
+            const playerXP = currentPlayer?.xp || 0;
+            const currentLevelVal = getDerivedLevel(currentPlayer, masterXPLevels);
+            const prevLevelXP = currentLevelVal > 1 ? (masterXPLevels?.[currentLevelVal - 2] || 0) : 0;
+            const nextLevelXP = getXpForNextLevel(currentPlayer, masterXPLevels);
+            const xpIntoLevel = playerXP - prevLevelXP;
+            const xpNeededForLevel = nextLevelXP - prevLevelXP;
+            const progressPercent = xpNeededForLevel > 0 ? Math.min(100, (xpIntoLevel / xpNeededForLevel) * 100) : 100;
+            return (
+              <div className="header-xp-bar" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
+                <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#fff' }} />
+              </div>
+            );
+          })()}
+          {/* Inventory Capacity Progress Bar - thin bar below Inventory */}
+          {(() => {
+            const inventory = currentPlayer?.inventory || [];
+            const currentUsage = inventory
+              .filter(item => item && !isCurrency(item.type))
+              .reduce((total, item) => total + (item.quantity || 0), 0);
+            const capacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
+            const maxCapacity = capacities.warehouse || 1;
+            const usagePercent = Math.min(100, Math.max(0, (currentUsage / maxCapacity) * 100));
+            const barColor = usagePercent >= 90 ? '#ff4444' : '#fff';
+            return (
+              <div className="header-inventory-bar" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
+                <div style={{ width: `${usagePercent}%`, height: '100%', backgroundColor: barColor, transition: 'width 0.3s ease, background-color 0.3s ease' }} />
+              </div>
+            );
+          })()}
+          {/* Row 3 - Second content row */}
           <span></span>
           <button className="header-link" disabled={!currentPlayer} onClick={() => {
             if (currentPlayer) {
@@ -3471,7 +3505,7 @@ return (
               handlePCClick(currentPC);
             }
           }}>
-            {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"}/{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
+            {strings[10112]}
           </button>
           <div className="header-currency-group">
             <button className="header-link" onClick={() => openPanel('HowToGemsPanel')}>
@@ -3485,6 +3519,21 @@ return (
                 : "..."}
             </button>
           </div>
+          {/* Row 4 - Progress bars (4px tall) */}
+          <span></span>
+          {/* Health Progress Bar - thin bar below Health */}
+          {(() => {
+            const currentHp = currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? 0 : 0;
+            const maxHp = currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? 1 : 1;
+            const hpPercent = Math.min(100, Math.max(0, (currentHp / maxHp) * 100));
+            const barColor = hpPercent <= 10 ? '#ff4444' : '#74ee66';
+            return (
+              <div className="header-hp-bar" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
+                <div style={{ width: `${hpPercent}%`, height: '100%', backgroundColor: barColor, transition: 'width 0.3s ease, background-color 0.3s ease' }} />
+              </div>
+            );
+          })()}
+          <span></span>
         </div>
 
         <div className="header-controls-center">
@@ -4277,6 +4326,7 @@ return (
           globalTuning={globalTuning}
           currentSeason={timers.seasons?.type || "Unknown"}
           masterXPLevels={masterXPLevels}
+          isDeveloper={isDeveloper}
         />
       )}
      {activePanel === 'NewTrainPanel' && (

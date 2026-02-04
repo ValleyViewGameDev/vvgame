@@ -23,16 +23,6 @@
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "carnivalRewards": [ "Gem", "Scroll", "Gold", "Honey", "Purple Heart", "Tulip", "Sunflower", "XP" ],
-        "seasonTiles": {
-            "g": 80,
-            "s": 0,
-            "d": 20,
-            "w": 0,
-            "p": 0,
-            "l": 0,
-            "n": 0,
-            "o": 0
-        },
         "seasonTownCrops": {
             "Money": 12,
 
@@ -114,16 +104,6 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Feverfew", "XP" ],
-        "seasonTiles": {
-            "g": 20,
-            "s": 0,
-            "d": 80,
-            "w": 0,
-            "p": 0,
-            "l": 0,
-            "n": 0,
-            "o": 0
-        },
         "seasonTownCrops": {
             "Money": 12,
 
@@ -205,16 +185,6 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Sunflower", "XP" ],
-        "seasonTiles": {
-            "g": 100,
-            "s": 0,
-            "d": 0,
-            "w": 0,
-            "p": 0,
-            "l": 0,
-            "n": 0,
-            "o": 0
-        },
         "seasonTownCrops": {
             "Money": 12,
 
@@ -296,16 +266,6 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Mushroom", "XP" ],
-        "seasonTiles": {
-            "g": 0,
-            "s": 0,
-            "d": 0,
-            "w": 0,
-            "p": 0,
-            "l": 0,
-            "n": 0,
-            "o": 100
-        },
         "seasonTownCrops": {
             "Money": 12,
 

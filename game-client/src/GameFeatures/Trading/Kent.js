@@ -31,7 +31,8 @@ function KentPanel({
     masterResources,
     globalTuning,
     currentSeason,
-    masterXPLevels }) 
+    masterXPLevels,
+    isDeveloper }) 
 {
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
@@ -308,14 +309,18 @@ function KentPanel({
             const kentRefreshSeconds = globalTuning?.kentRefreshTimerSeconds || 5;
             const newEndTime = Date.now() + (kentRefreshSeconds * 1000);
 
-            // Generate completely new offers (pass empty kentOffers to generate fresh set)
+            // Remember how many offers we had before discarding
+            const previousOfferCount = kentOffers.length;
+
+            // Generate completely new offers, replacing the same number we had before
             const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
             const newOffers = generateNewKentOffers(
                 playerWithEmptyOffers,
                 masterResources,
                 globalTuning,
                 currentSeason,
-                masterXPLevels
+                masterXPLevels,
+                previousOfferCount // Pass target count to replace all discarded offers
             );
 
             const updatedKentOffers = {
@@ -341,6 +346,58 @@ function KentPanel({
         } catch (error) {
             console.error('❌ Error dismissing all Kent offers:', error);
             updateStatus('❌ Failed to dismiss offers. Please try again.');
+        } finally {
+            setIsTrading(false);
+        }
+    };
+
+    // 🔧 Debug: Refresh offers without resetting timer (dev only)
+    const handleDebugRefresh = async () => {
+        if (!currentPlayer || isTrading) return;
+
+        setIsTrading(true);
+
+        try {
+            // Keep the existing timer - don't reset it
+            const existingEndTime = currentPlayer?.kentOffers?.endTime || Date.now();
+
+            // Remember how many offers we had before
+            const previousOfferCount = kentOffers.length || 6;
+
+            // Generate completely new offers
+            const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
+            const newOffers = generateNewKentOffers(
+                playerWithEmptyOffers,
+                masterResources,
+                globalTuning,
+                currentSeason,
+                masterXPLevels,
+                previousOfferCount
+            );
+
+            const updatedKentOffers = {
+                endTime: existingEndTime, // Keep existing timer
+                offers: newOffers
+            };
+
+            // Update player's kentOffers
+            const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
+                playerId: currentPlayer.playerId,
+                updates: { kentOffers: updatedKentOffers }
+            });
+
+            if (updateResponse.data.success) {
+                setCurrentPlayer(prev => ({
+                    ...prev,
+                    kentOffers: updatedKentOffers
+                }));
+                setKentOffers(updatedKentOffers.offers || []);
+            }
+
+            updateStatus(`🔧 Debug: Refreshed ${newOffers.length} offers (timer unchanged).`);
+        } catch (error) {
+            console.error('❌ Error in debug refresh:', error);
+            updateStatus('❌ Debug refresh failed.');
         } finally {
             setIsTrading(false);
         }
@@ -529,6 +586,20 @@ function KentPanel({
                   >
                     {strings[190] || "Dismiss all"}
                   </div>
+                  {/* Debug refresh button - dev only */}
+                  {isDeveloper && (
+                    <div
+                      className={`kent-dismiss-all-link ${isTrading ? 'disabled' : ''}`}
+                      onClick={() => {
+                        if (!isTrading) {
+                          handleDebugRefresh();
+                        }
+                      }}
+                      style={{ color: '#ff9800', marginTop: '4px' }}
+                    >
+                      🔧 Debug Refresh (no timer)
+                    </div>
+                  )}
                 </>
               ) : (
                 <p>No offers available from Kent.</p>

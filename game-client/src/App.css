@@ -222,7 +222,7 @@ body {
 .app-header {
   background-color: var(--color-primary-green);
   color: var(--color-text-white);
-  padding: 4px 10px 4px 70px; /* top right bottom left - aligns with base panel content (60px nav + 10px padding) */
+  padding: 2px 10px 6px 70px; /* top right bottom left - aligns with base panel content (60px nav + 10px padding) */
   position: fixed;
   top: 0;
   left: 0;
@@ -248,15 +248,16 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
+  gap: 7px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
 }
 
 /* Left header uses CSS Grid for precise column alignment */
 .header-controls-left.header-grid {
   display: grid;
   grid-template-columns: auto auto auto; /* 3 columns: Username, Level/Health, Inventory+Currency */
+  grid-template-rows: auto 4px auto 4px; /* 4 rows: content, progress bars, content, progress bars */
   column-gap: 30px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  row-gap: 2px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
   align-items: center;
   justify-content: start; /* Pack columns to left, don't spread across container */
   flex: 1;
@@ -282,7 +283,7 @@ body {
   display: grid;
   grid-template-columns: auto auto auto; /* 3 columns */
   column-gap: 40px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  row-gap: 7px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
   align-items: center;
   justify-items: start; /* Left-align items within each column */
   justify-content: end; /* Right-align the grid itself */

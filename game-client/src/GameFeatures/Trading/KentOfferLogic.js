@@ -3,22 +3,19 @@ import { selectWeightedRandomItem } from '../../Economy/DropRates';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
 /**
- * Generates new Kent offers based on player skills and available resources
+ * Generates new Kent offers based on player level and available resources
  * @param {Object} currentPlayer - The current player object
  * @param {Array} masterResources - Array of all available resources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season (Spring, Summer, Fall, Winter)
  * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
+ * @param {number} targetOfferCount - Optional: generate exactly this many offers (used for discard all)
  * @returns {Array} Array of new Kent offers
  */
-export function generateNewKentOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels) {
-    const playerSkills = currentPlayer?.skills || [];
-    const playerSkillTypes = playerSkills.map(skill => skill.type);
+export function generateNewKentOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels, targetOfferCount = null) {
     const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
 
     console.log('🤠 Kent offer generation:', {
-        isFirstTimeUser: currentPlayer?.firsttimeuser,
-        playerSkills: playerSkillTypes,
         playerLevel: playerLevel
     });
     
@@ -29,12 +26,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         
         // Exclude resources with noBank output
         if (resource.output === 'noBank') return false;
-        
-        // Check if player has required skills
-        if (resource.requires && !playerSkillTypes.includes(resource.requires)) {
-            return false;
-        }
-        
+
         // Check if resource is seasonal and matches current season
         if (resource.season && resource.season !== currentSeason) {
             return false;
@@ -43,27 +35,17 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         // Check if any ingredients are out of season
         const ingredients = [
             resource.ingredient1,
-            resource.ingredient2, 
+            resource.ingredient2,
             resource.ingredient3,
             resource.ingredient4
         ].filter(Boolean);
-        
+
         for (const ingredient of ingredients) {
             const ingredientResource = masterResources.find(r => r.type === ingredient);
             if (ingredientResource && ingredientResource.season && ingredientResource.season !== currentSeason) {
                 return false;
             }
         }
-        
-        // === FIRST-TIME USER ONLY FILTERS ===
-        // If player is first time user, only show crops
-        if (currentPlayer?.firsttimeuser === true) {
-            if (!isACrop(resource.type, masterResources)) {
-                return false;
-            }
-        }
-        
-        // === FILTERS FOR ALL USERS (including first-time users) ===
         // Filter out epic and legendary scroll chance items
         if (resource.scrollchance === 'epic' || resource.scrollchance === 'legendary') {
             return false;
@@ -73,25 +55,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         if (resource.source === 'valley') {
             return false;
         }
-        
-        // Filter out resources where the source requires skills the player doesn't have
-        const sourceResource = masterResources.find(r => r.type === resource.source);
-        
-        console.log(`🔍 Checking ${resource.type} (source: ${resource.source}):`, {
-            foundSourceResource: !!sourceResource,
-            sourceType: sourceResource?.type,
-            sourceRequires: sourceResource?.requires,
-            playerSkills: playerSkillTypes,
-            hasRequiredSkill: sourceResource?.requires ? playerSkillTypes.includes(sourceResource.requires) : 'N/A',
-            shouldFilter: sourceResource && sourceResource.requires && !playerSkillTypes.includes(sourceResource.requires)
-        });
-        
-        // If source resource exists and requires a skill the player doesn't have, exclude
-        if (sourceResource && sourceResource.requires && !playerSkillTypes.includes(sourceResource.requires)) {
-            console.log(`❌ Filtering out ${resource.type} - source ${resource.source} requires ${sourceResource.requires} skill`);
-            return false;
-        }
-        
+
         // Filter out resources that are outputs of attack resources if player doesn't have "Explore the Valley" trophy
         const hasExploreValleyTrophy = currentPlayer?.trophies?.some(trophy => trophy.title === "Explore the Valley");
         if (!hasExploreValleyTrophy) {
@@ -110,6 +74,13 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             return false;
         }
 
+        // Filter out resources where the source resource's level is above the player's level
+        // e.g., if Milk comes from Cow, and Cow is level 3, don't offer Milk until level 3
+        const sourceResource = masterResources.find(r => r.type === resource.source);
+        if (sourceResource && sourceResource.level && sourceResource.level > playerLevel) {
+            return false;
+        }
+
         return true;
     });
     
@@ -121,16 +92,36 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     const newOffers = [];
     const maxOffers = globalTuning?.maxKentOffers || 6;
     const currentOfferCount = currentPlayer?.kentOffers?.offers?.length || 0;
-    
+
     // Determine how many new offers to generate
-    let offersToGenerate = 2; // Default to 2
-    if (currentOfferCount + 2 > maxOffers) {
-        offersToGenerate = Math.max(0, maxOffers - currentOfferCount);
+    let offersToGenerate;
+    if (targetOfferCount !== null) {
+        // If targetOfferCount is specified (e.g., discard all), generate exactly that many
+        offersToGenerate = Math.min(targetOfferCount, maxOffers);
+    } else {
+        // Default behavior: generate 2 new offers, but ensure we reach at least 3 total
+        // This helps new players ramp up faster from the initial 1 offer
+        const minTotalOffers = 3;
+        const neededToReachMin = Math.max(0, minTotalOffers - currentOfferCount);
+        offersToGenerate = Math.max(2, neededToReachMin);
+
+        // Cap by maxOffers
+        if (currentOfferCount + offersToGenerate > maxOffers) {
+            offersToGenerate = Math.max(0, maxOffers - currentOfferCount);
+        }
     }
     
-    // For players under level 10, ensure half the offers are crops
-    const requireCropBalance = playerLevel < 10;
-    const cropOffersNeeded = requireCropBalance ? Math.ceil(offersToGenerate / 2) : 0;
+    // Crop balance sliding scale based on player level
+    // Level 1-3: 70% crops, Level 4: 40% crops, Level 5+: random
+    let cropPercentage = 0;
+    if (playerLevel <= 3) {
+        cropPercentage = 0.7;
+    } else if (playerLevel === 4) {
+        cropPercentage = 0.4;
+    }
+    // Level 5+ has cropPercentage = 0 (no enforcement)
+
+    const cropOffersNeeded = Math.ceil(offersToGenerate * cropPercentage);
     let cropOffersGenerated = 0;
 
     for (let i = 0; i < offersToGenerate; i++) {
@@ -148,8 +139,8 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             (resourceCounts[resource.type] || 0) < 2
         );
 
-        // If player is under level 10, enforce crop balance
-        if (requireCropBalance) {
+        // Enforce crop balance if needed
+        if (cropOffersNeeded > 0) {
             const remainingOffers = offersToGenerate - i;
             const cropOffersStillNeeded = cropOffersNeeded - cropOffersGenerated;
 
@@ -175,17 +166,40 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             cropOffersGenerated++;
         }
         
-        // Determine quantity based on crop status and first-time user status
+        // Determine quantity based on crop status and player level
+        // Quantities scale up as players level, with both min and max increasing
         let quantity;
+        let minQty, maxQty;
+
         if (isACrop(randomResource.type, masterResources)) {
-            if (currentPlayer?.firsttimeuser === true) {
-                quantity = Math.floor(Math.random() * 9) + 4; // Random from 4 to 12 for first-time users
+            // Crop quantity ranges by level
+            if (playerLevel <= 2) {
+                minQty = 2; maxQty = 3;
+            } else if (playerLevel <= 5) {
+                minQty = 3; maxQty = 8;
+            } else if (playerLevel <= 7) {
+                minQty = 5; maxQty = 15;
+            } else if (playerLevel <= 10) {
+                minQty = 10; maxQty = 30;
             } else {
-                quantity = Math.floor(Math.random() * 37) + 4; // Random from 4 to 40 for regular users
+                minQty = 15; maxQty = 50;
             }
         } else {
-            quantity = Math.floor(Math.random() * 10) + 1; // Random from 1 to 10
+            // Non-crop quantity ranges by level
+            if (playerLevel <= 2) {
+                minQty = 1; maxQty = 2;
+            } else if (playerLevel <= 5) {
+                minQty = 1; maxQty = 3;
+            } else if (playerLevel <= 7) {
+                minQty = 4; maxQty = 8;
+            } else if (playerLevel <= 10) {
+                minQty = 5; maxQty = 10;
+            } else {
+                minQty = 8; maxQty = 20;
+            }
         }
+
+        quantity = Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty;
         
         // Calculate primary reward (Money = maxprice * quantity)
         const rewardAmount = (randomResource.maxprice || 100) * quantity;
@@ -197,17 +211,19 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             }
         ];
 
-        // Check for bonus valley resource reward (same method as warehouse ingredients)
-        const dropRate = globalTuning?.harvestDropRate || 0.1; // Use same drop rate as warehouse ingredients
-        const bonusRoll = Math.random();
-        
-        console.log(`🤠 Kent bonus reward check for ${randomResource.type}:`);
-        console.log(`   globalTuning.harvestDropRate: ${globalTuning?.harvestDropRate}`);
-        console.log(`   Resolved drop rate: ${dropRate} (${(dropRate * 100).toFixed(1)}%)`);
-        console.log(`   Roll: ${bonusRoll.toFixed(3)}`);
-        console.log(`   Success: ${bonusRoll <= dropRate ? 'YES' : 'NO'}`);
-        
-        if (bonusRoll <= dropRate) {
+        // Check for bonus valley resource reward (only for level 11+)
+        // This prevents early-game players from getting too many valley resources
+        if (playerLevel >= 11) {
+            const dropRate = globalTuning?.harvestDropRate || 0.1;
+            const bonusRoll = Math.random();
+
+            console.log(`🤠 Kent bonus reward check for ${randomResource.type}:`);
+            console.log(`   Player level: ${playerLevel} (bonus rewards enabled)`);
+            console.log(`   Drop rate: ${dropRate} (${(dropRate * 100).toFixed(1)}%)`);
+            console.log(`   Roll: ${bonusRoll.toFixed(3)}`);
+            console.log(`   Success: ${bonusRoll <= dropRate ? 'YES' : 'NO'}`);
+
+            if (bonusRoll <= dropRate) {
             console.log(`🎉 Kent bonus reward roll succeeded!`);
             
             // Get all valley resources from masterResources
@@ -254,10 +270,9 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             } else {
                 console.log(`❌ No valley resources found with scrollchance`);
             }
-        } else {
-            console.log(`❌ Kent bonus reward roll failed: ${bonusRoll.toFixed(3)} > ${dropRate}`);
+            }
         }
-        
+
         const newOffer = {
             item: randomResource.type,
             quantity: quantity,
