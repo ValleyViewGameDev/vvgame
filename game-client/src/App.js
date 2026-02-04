@@ -3151,7 +3151,12 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('OutpostPanel'); 
           break;
         case 'Mailbox':
-          openModal('Mailbox'); break;
+          openModal('Mailbox');
+          // FTUE trigger: Clicking on Mailbox
+          if (currentPlayer?.firsttimeuser) {
+            tryAdvanceFTUEByTrigger('ClickedMailbox', currentPlayer._id, currentPlayer, setCurrentPlayer);
+          }
+          break;
         case 'Warehouse':
           openPanel('WarehousePanel'); break;
         case 'Train':

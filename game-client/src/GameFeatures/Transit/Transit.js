@@ -184,10 +184,13 @@ export async function handleTransitSignpost(
           t => t.type === "TraveledToHomestead" && t.progress > 0
         );
         if (!hasTraveledToHomesteadTrophy && currentPlayer?.playerId) {
-          console.log("🏠 First time traveling to homestead - awarding trophy and advancing FTUE");
+          console.log("🏠 First time traveling to homestead - awarding trophy");
           await earnTrophy(currentPlayer.playerId, "TraveledToHomestead", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          // Try to advance FTUE if player is at the correct step for FirstHomesteadVisit
-          await tryAdvanceFTUEByTrigger('FirstHomesteadVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
+
+        // Try to advance FTUE on homestead visits (reusable trigger for multiple steps)
+        if (currentPlayer?.firsttimeuser) {
+          await tryAdvanceFTUEByTrigger('HomesteadVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
 
       } catch (error) {

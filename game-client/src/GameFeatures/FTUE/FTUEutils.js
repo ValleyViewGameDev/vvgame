@@ -33,19 +33,16 @@ export const tryAdvanceFTUEByTrigger = async (triggerKey, playerId, currentPlaye
     return currentPlayer?.ftuestep || 0;
   }
 
-  // Find the step that has this trigger
-  const triggerStep = getFTUEsteps().find(step => step.trigger === triggerKey);
-  if (!triggerStep) {
-    console.log(`🎓 No FTUE step found with trigger: ${triggerKey}`);
-    return currentPlayer?.ftuestep || 0;
-  }
-
   const currentStep = currentPlayer?.ftuestep || 0;
-  const expectedStep = triggerStep.step - 1; // Player should be at the step before
 
-  // Only advance if player is at the expected step
-  if (currentStep !== expectedStep) {
-    console.log(`🎓 Trigger "${triggerKey}" requires step ${expectedStep}, but player is at step ${currentStep}. Skipping.`);
+  // Find a step that has this trigger AND where the player is at the expected step
+  // This allows the same trigger to be reused across multiple steps
+  const triggerStep = getFTUEsteps().find(step =>
+    step.trigger === triggerKey && step.step === currentStep + 1
+  );
+
+  if (!triggerStep) {
+    console.log(`🎓 No FTUE step found with trigger: ${triggerKey} for current step ${currentStep}`);
     return currentStep;
   }
 

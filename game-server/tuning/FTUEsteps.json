@@ -41,7 +41,7 @@
     },
     {
       "step": 5,
-      "trigger": "FirstHomesteadVisit",
+      "trigger": "HomesteadVisit",
       "doinker": true,
       "doinkerType": "resource",
       "doinkerTarget": ["Wheat", "Kent"],
@@ -104,7 +104,7 @@
       "continue": false,
       "notificationKey": 7056,
       "notificationIcon": "🗝️",
-      "addQuests": [7]
+      "addQuests": []
     },
     {
       "step": 11,
@@ -121,6 +121,24 @@
       "showModal": true,
       "modalIcon": "🧔🏼‍♂️",
       "bodyKey": 16021,
+      "continue": false,
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "Signpost Home",
+      "addQuests": []
+    },
+    {
+      "step": 13,
+      "trigger": "HomesteadVisit",
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "Mailbox",
+      "continue": false,
+      "addQuests": []
+    },
+    {
+      "step": 14,
+      "trigger": "ClickedMailbox",
       "continue": false,
       "addQuests": []
     }
