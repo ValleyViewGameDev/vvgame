@@ -7928,7 +7928,7 @@
     "type": "Carnival",
     "symbol": "🎡",
     "layoutkey": "Cv",
-    "size": 3,
+    "size": 4,
     "category": "station",
     "action": "openUI",
     "source": "Build",
