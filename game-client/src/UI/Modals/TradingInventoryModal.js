@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import TransactionButton from '../Buttons/TransactionButton';
 import { useStrings } from '../StringsContext';
+import { isCurrency } from '../../Utils/InventoryManagement';
 import './TradingInventoryModal.css';
 
 const TradingInventoryModal = ({
@@ -24,7 +25,7 @@ const TradingInventoryModal = ({
 
   // Sort inventory data
   const sortedInventory = useMemo(() => {
-    const filtered = inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem');
+    const filtered = inventory.filter(item => !isCurrency(item.type));
     
     return filtered.sort((a, b) => {
       let aValue, bValue;

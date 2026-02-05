@@ -115,9 +115,9 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     // Level 1-3: 70% crops, Level 4: 40% crops, Level 5+: random
     let cropPercentage = 0;
     if (playerLevel <= 3) {
-        cropPercentage = 0.7;
-    } else if (playerLevel === 4) {
-        cropPercentage = 0.4;
+        cropPercentage = 0.8;
+    } else if (playerLevel <= 7) {
+        cropPercentage = 0.5;
     }
     // Level 5+ has cropPercentage = 0 (no enforcement)
 
@@ -134,10 +134,14 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             resourceCounts[offer.item] = (resourceCounts[offer.item] || 0) + 1;
         });
 
-        // Filter out resources that already have 2 or more offers
-        let availableResources = eligibleResources.filter(resource =>
-            (resourceCounts[resource.type] || 0) < 2
-        );
+        // Filter out resources that already have too many offers
+        // Resources at the player's current level are limited to 1 offer (newly unlocked)
+        // All other resources are limited to 2 offers
+        let availableResources = eligibleResources.filter(resource => {
+            const count = resourceCounts[resource.type] || 0;
+            const maxAllowed = (resource.level && resource.level === playerLevel) ? 1 : 2;
+            return count < maxAllowed;
+        });
 
         // Enforce crop balance if needed
         if (cropOffersNeeded > 0) {

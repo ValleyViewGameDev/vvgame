@@ -8,6 +8,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
+import soundManager from '../../Sound/SoundManager';
 // import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 // import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT - Gold Pass
 import './WarehousePanel.css';
@@ -155,6 +156,7 @@ const WarehousePanel = ({
           warehouseLevel: newLevel
         });
 
+        soundManager.playSFX('upgrade');
         updateStatus(`${strings[197] || "Warehouse upgraded"}`);
       }
     } catch (error) {

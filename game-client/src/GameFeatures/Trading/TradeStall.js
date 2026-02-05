@@ -43,8 +43,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       maxAmount: 50,
       sellWaitTime: 300000,
       unlocked: slotIndex === 0,
-      unlockCost: 0,
-      requiresGoldPass: false
+      unlockCost: 0
     };
   };
 
@@ -54,14 +53,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     return config || {
       maxAmount: 10,
       unlocked: slotIndex === 0,
-      unlockCost: 0,
-      requiresGoldPass: false
+      unlockCost: 0
     };
   };
 
   const isRequestSlotUnlocked = (slotIndex) => {
     const slot = requestSlots[slotIndex];
-    const config = getRequestSlotConfig(slotIndex);
 
     if (!slot) return false;
 
@@ -71,9 +68,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     }
 
     if (slot.locked === true) {
-      if (config.requiresGoldPass && currentPlayer.accountStatus === 'Gold') {
-        return true;
-      }
       return false;
     }
 
@@ -82,13 +76,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   
   const isSlotUnlocked = (slotIndex) => {
     const slot = tradeSlots[slotIndex];
-    const config = getSlotConfig(slotIndex);
-    
+
     // If slot doesn't exist
     if (!slot) {
       return false;
     }
-    
+
     // Handle backward compatibility - if locked field is undefined
     if (slot.locked === undefined) {
       // For backward compatibility: slots with items are considered unlocked
@@ -98,22 +91,18 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       // Otherwise, only first slot is unlocked by default
       return slotIndex === 0;
     }
-    
+
     // If slot is explicitly locked
     if (slot.locked === true) {
-      // Check if it's a Gold Pass slot and user has Gold Pass
-      if (config.requiresGoldPass && currentPlayer.accountStatus === 'Gold') {
-        return true; // Gold Pass overrides the locked state
-      }
       return false;
     }
-    
+
     return true; // If not locked, it's unlocked
   };
   
   const handleUnlockSlot = async (slotIndex) => {
     const config = getSlotConfig(slotIndex);
-    if (!config || config.requiresGoldPass) return;
+    if (!config) return;
     
     try {
       // First, use spendIngredients to handle the wood cost properly
@@ -198,11 +187,10 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         params: { playerId: currentPlayer.playerId },
       });
 
-      // Always show all 6 slots
       const serverSlots = tradeStallResponse.data.tradeStall || [];
 
-      // Ensure we have exactly 6 slots from server, preserve existing slot data
-      const allSlots = Array.from({ length: 6 }, (_, index) => {
+      // Ensure we have exactly 4 slots from server, preserve existing slot data
+      const allSlots = Array.from({ length: 4 }, (_, index) => {
         const existingSlot = serverSlots.find(slot => slot && slot.slotIndex === index);
         if (existingSlot) {
           // Preserve all existing slot data including locked state
@@ -229,7 +217,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       });
 
       const serverRequestSlots = requestSlotsResponse.data.tradeStallRequests || [];
-      const allRequestSlots = Array.from({ length: 3 }, (_, index) => {
+      const allRequestSlots = Array.from({ length: 1 }, (_, index) => {
         const existingSlot = serverRequestSlots.find(slot => slot && slot.slotIndex === index);
         if (existingSlot) {
           return existingSlot;
@@ -406,19 +394,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const slot = tradeSlots[index];
     const isEmpty = !slot?.resource;
     const slotUnlocked = isSlotUnlocked(index);
-    const config = getSlotConfig(index);
-    
+
     console.log('Slot clicked:', index, 'Is unlocked:', slotUnlocked, 'Is empty:', isEmpty);
 
-    // If slot is locked
+    // If slot is locked, do nothing - button will handle unlock
     if (!slotUnlocked) {
-      if (config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') {
-        // Gold Pass required - do nothing, button will handle it
-        return;
-      } else if (!config.requiresGoldPass) {
-        // Regular unlock with wood - do nothing, button will handle it
-        return;
-      }
+      return;
     }
     
     // Only allow slot clicks for empty, unlocked slots
@@ -822,7 +803,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   // Handle unlocking a request slot
   const handleUnlockRequestSlot = async (slotIndex) => {
     const config = getRequestSlotConfig(slotIndex);
-    if (!config || config.requiresGoldPass) return;
+    if (!config) return;
 
     try {
       const tempRecipe = {
@@ -936,7 +917,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
               <div className="trade-slot-container">
                 {/* 1. SLOT DISPLAY */}
                 <div
-                  className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty && !isPurchased && !isReadyToSell ? 'filled' : ''} ${isPurchased ? 'btn-collect' : ''} ${!slotUnlocked && index >= 4 ? 'locked gold-slot btn-gold' : !slotUnlocked ? 'locked' : ''} ${isReadyToSell && !isPurchased ? 'btn-sell' : ''}`}
+                  className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty && !isPurchased && !isReadyToSell ? 'filled' : ''} ${isPurchased ? 'btn-collect' : ''} ${!slotUnlocked ? 'locked' : ''} ${isReadyToSell && !isPurchased ? 'btn-sell' : ''}`}
                   onClick={() => {
                     if (isOwnStall && isEmpty && slotUnlocked) {
                       handleSlotClick(index);
@@ -949,19 +930,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                     }
                   }}
                 >
-                  {(index >= 4 && currentPlayer.accountStatus !== 'Gold' && isOwnStall) ? (
-                    // Always show Gold Pass required for slots 5-6 for non-Gold users
-                    <div className="trade-slot-locked">
-                      <div className="trade-slot-lock-icon">🔒</div>
-                      <div className="trade-slot-lock-text">{strings[171]}</div>
-                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
-                      </div>
-                      <div style={{ fontSize: '0.8rem' }}>
-                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
-                      </div>
-                    </div>
-                  ) : (!slotUnlocked && isOwnStall) ? (
+                  {(!slotUnlocked && isOwnStall) ? (
                     // Show unlock UI for locked slots on own stall
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
@@ -1012,23 +981,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 </div>
 
                 {/* 2. BUTTON CONTAINER */}
-                {/* Gold Pass purchase button - COMMENTED OUT
-                {(index >= 4 && currentPlayer.accountStatus !== 'Gold' && isOwnStall) ? (
-                  // Show Gold Pass purchase button for slots 5-6
-                  <div className="trade-button-container">
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <button
-                        className="btn-basic btn-gold"
-                        style={{ width: '100%' }}
-                        onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
-                      >
-                        {strings[9061]}
-                      </button>
-                    </div>
-                  </div>
-                ) : */}
                 {(!slotUnlocked && isOwnStall) ? (
-                  // Show unlock button for locked non-Gold Pass slots
+                  // Show unlock button for locked slots
                   <div className="trade-button-container">
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                       <button 
@@ -1061,23 +1015,14 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
               <div className="trade-slot-container">
                 {/* 1. SLOT DISPLAY */}
                 <div
-                  className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty ? 'filled' : ''} ${!slotUnlocked && config.requiresGoldPass ? 'locked gold-slot btn-gold' : !slotUnlocked ? 'locked' : ''}`}
+                  className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty ? 'filled' : ''} ${!slotUnlocked ? 'locked' : ''}`}
                   onClick={() => {
                     if (isEmpty && slotUnlocked) {
                       handleRequestSlotClick(index);
                     }
                   }}
                 >
-                  {(config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') ? (
-                    // Gold Pass required
-                    <div className="trade-slot-locked">
-                      <div className="trade-slot-lock-icon">🔒</div>
-                      <div className="trade-slot-lock-text">{strings[171]}</div>
-                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
-                      </div>
-                    </div>
-                  ) : (!slotUnlocked) ? (
+                  {(!slotUnlocked) ? (
                     // Show unlock UI for locked slots
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
@@ -1105,21 +1050,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 </div>
 
                 {/* 2. BUTTON CONTAINER */}
-                {/* Gold Pass purchase button - COMMENTED OUT
-                {(config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') ? (
-                  // Show Gold Pass purchase button
-                  <div className="trade-button-container">
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <button
-                        className="btn-basic btn-gold"
-                        style={{ width: '100%' }}
-                        onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
-                      >
-                        {strings[9061]}
-                      </button>
-                    </div>
-                  </div>
-                ) : */}
                 {(!slotUnlocked) ? (
                   // Show unlock button for locked slots
                   <div className="trade-button-container">

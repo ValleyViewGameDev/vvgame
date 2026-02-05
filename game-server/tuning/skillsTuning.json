@@ -8,20 +8,15 @@
       "Tomato": 2,
       "Garlic": 2,
       "Pumpkin": 2,
-      "Grapes": 2,
       "Potato": 2,
       "Lettuce": 2,
       "Pepper": 2,
-      "Peach": 2,
-      "Cherry": 2,
-      "Pear": 2,
       "Ginger": 2,
       "Green Bean": 2,
-      "Coconut": 2,
       "Onion": 2,
       "Coffee Bean": 2
     },
-    "Green Thumb": {
+    "Cultivation": {
       "Wheat": 2,
       "Corn": 2,
       "Carrot": 2,
@@ -95,7 +90,8 @@
       "Beehive": 3
     },
     "Vintner": {   
-      "Winery": 4
+      "Winery": 4,
+      "Grapes": 2
     },
     "Better Axe": {
       "Wood": 2

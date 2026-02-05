@@ -20,7 +20,7 @@
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 16,
-  "kentRefreshTimerSeconds": 30,
+  "kentRefreshTimerSeconds": 20,
   "maxKentOffers": 6,
   "tradeStallSlots": [
     {
@@ -54,22 +54,6 @@
       "unlocked": false,
       "unlockCost": 150,
       "requiresGoldPass": false
-    },
-    {
-      "slotIndex": 4,
-      "maxAmount": 200,
-      "sellWaitTime": 600000,
-      "unlocked": false,
-      "unlockCost": 0,
-      "requiresGoldPass": true
-    },
-    {
-      "slotIndex": 5,
-      "maxAmount": 200,
-      "sellWaitTime": 600000,
-      "unlocked": false,
-      "unlockCost": 0,
-      "requiresGoldPass": true
     }
   ],
   "tradeStallRequests": [
@@ -79,20 +63,6 @@
       "unlocked": true,
       "unlockCost": 5,
       "requiresGoldPass": false
-    },
-    {
-      "slotIndex": 1,
-      "maxAmount": 75,
-      "unlocked": false,
-      "unlockCost": 50,
-      "requiresGoldPass": true
-    },
-    {
-      "slotIndex": 2,
-      "maxAmount": 100,
-      "unlocked": false,
-      "unlockCost": 100,
-      "requiresGoldPass": true
     }
   ],
   "taxes": {

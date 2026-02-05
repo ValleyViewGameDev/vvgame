@@ -676,47 +676,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         warehouseAmounts={warehouseAmounts}
                         setWarehouseAmounts={setWarehouseAmounts}
                         handleAmountChange={handleAmountChange}
-                        handleDiscardWarehouseItem={handleDiscardWarehouseItem}
-                        handleSecondAction={handleTransferToBackpack}
-                        secondActionButtonText={strings[180]}
-                        secondActionButtonClass="btn-success"
+                        handleDiscardWarehouseItem={handleTransferToBackpack}
+                        actionButtonText={strings[180]}
+                        actionButtonClass="btn-success"
                         strings={strings}
                     />
-
-                    <div className="modal-buttons shared-buttons">
-                        <button 
-                            className="btn-basic btn-modal btn-danger" 
-                            onClick={() => {
-                            setModalContent({
-                                title: "Are you sure?",
-                                message: "This will permanently discard ALL items in your warehouse!",
-                                message2: "This action cannot be undone.",
-                                custom: (
-                                    <div className="shared-buttons" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                                        <button
-                                            className="btn-basic btn-modal btn-danger"
-                                            onClick={() => {
-                                                handleDiscardAllWarehouse();
-                                                setIsModalOpen(false);
-                                            }}
-                                        >
-                                            Yes, Discard All
-                                        </button>
-                                        <button
-                                            className="btn-basic btn-modal btn-success"
-                                            onClick={() => setIsModalOpen(false)}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                )
-                            });
-                            setIsModalOpen(true);
-                        }}
-                        >
-                            {strings[190]}
-                        </button>
-                    </div>
                     </div>
                 </div>
             )}

@@ -83,6 +83,10 @@
     "file1": "sfx_earn_skill.mp3"
   },
   {
+    "event": "upgrade",
+    "file1": "sfx_earn_skill.mp3"
+  },
+  {
     "event": "success",
     "file1": "sfx_success.mp3"
   },
