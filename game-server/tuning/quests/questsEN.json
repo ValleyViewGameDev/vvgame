@@ -236,6 +236,34 @@
     "goal1qty": 1
   },
   {
+    "index": 2,
+    "title": "Sweet Harvest",
+    "symbol": "👵🏻",
+    "level": 6,
+    "repeatable": true,
+    "giver": "The Shepherd",
+    "reward": "Sugar",
+    "rewardqty": 1,
+    "xp": 2,
+    "goal1action": "Plant",
+    "goal1item": "Sugarcane",
+    "goal1qty": 30
+  },
+  {
+    "index": 9,
+    "title": "Hire Farm Hand",
+    "symbol": "👵🏻",
+    "level": 6,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Wheat",
+    "rewardqty": 12,
+    "xp": 8,
+    "goal1action": "Craft",
+    "goal1item": "Farm Hand",
+    "goal1qty": 1
+  },
+  {
     "index": 26,
     "title": "Master Mason",
     "symbol": "👵🏻",
@@ -289,6 +317,20 @@
     "xp": 15,
     "goal1action": "Build",
     "goal1item": "Chicken Coop",
+    "goal1qty": 1
+  },
+  {
+    "index": 13,
+    "title": "Hire Lumberjack",
+    "symbol": "👵🏻",
+    "level": 9,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Wood",
+    "rewardqty": 6,
+    "xp": 8,
+    "goal1action": "Craft",
+    "goal1item": "Lumberjack",
     "goal1qty": 1
   },
   {

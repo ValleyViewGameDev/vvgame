@@ -144,6 +144,18 @@ export const handleConstruction = async ({
         return false;
       }
     }
+
+    // Crafting station per-type limit check
+    if (selectedResource.category === 'crafting') {
+      const maxPerType = globalTuning.maxCraftingStationsPerType || 4;
+      const currentCount = resources.filter(r => r.type === selectedItem).length;
+
+      if (currentCount >= maxPerType) {
+        console.warn(`Cannot build ${selectedItem} - crafting station per-type limit (${maxPerType}) reached.`);
+        FloatingTextManager.addFloatingText(407, x, y, TILE_SIZE);
+        return false;
+      }
+    }
   }
 
   const success = await spendIngredients({

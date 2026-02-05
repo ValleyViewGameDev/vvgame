@@ -10,6 +10,7 @@ const ResourceSchema = new mongoose.Schema({
   craftedItem: { type: String, default: null }, // ✅ NEW FIELD TO TRACK WHAT WAS CRAFTED
   qty: { type: Number, default: 1 },
   size: { type: Number, default: 1 },
+  level: { type: Number, default: 1 },
   occupied: { type: Boolean, default: false },
 });
 

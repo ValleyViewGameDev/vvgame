@@ -210,6 +210,18 @@ const BuildPanel = ({
   const maxTownBuildings = globalTuning?.maxTownBuildings || 500; // Default to 50 if not set
   const currentTownBuildings = countTownBuildings();
 
+  // Count crafting stations by type on the current grid
+  const maxCraftingStationsPerType = globalTuning?.maxCraftingStationsPerType || 4;
+  const craftingStationCounts = {};
+  if (resources && allResources) {
+    resources.forEach(resource => {
+      const masterResource = allResources.find(mr => mr.type === resource.type);
+      if (masterResource && masterResource.category === 'crafting') {
+        craftingStationCounts[resource.type] = (craftingStationCounts[resource.type] || 0) + 1;
+      }
+    });
+  }
+
   const handleGemPurchase = async (modifiedRecipe) => {
     // This is called by the gem button with a recipe modified to include gems
     return handleConstructionWithGems({
@@ -269,7 +281,12 @@ const BuildPanel = ({
               // Check if this is a BuildTown building and if we've hit the limit
               const isTownBuilding = item.source === 'BuildTown' && currentPlayer.location.gtype !== 'homestead';
               const townBuildingLimitReached = isTownBuilding && currentTownBuildings >= maxTownBuildings;
-              const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached;
+
+              // Check if this is a crafting station and if we've hit the per-type limit
+              const isCraftingStation = item.category === 'crafting';
+              const craftingStationLimitReached = isCraftingStation && (craftingStationCounts[item.type] || 0) >= maxCraftingStationsPerType;
+
+              const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached || craftingStationLimitReached;
               const isSelectedForCursor = cursorMode?.type === 'build' && cursorMode?.item === item.type;
 
               // Build className based on state
@@ -291,11 +308,12 @@ const BuildPanel = ({
 
               const skillColor = meetsSkillRequirement ? 'green' : 'red';
               const levelColor = meetsLevel ? 'green' : 'red';
-              const details =
-                (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span>` : '') +
-                (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
-                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
-                `${strings[461]}<div>${formattedCosts}</div>`;
+              const details = craftingStationLimitReached
+                ? `<span style="color: red;">${strings[407]} (${maxCraftingStationsPerType})</span>`
+                : (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span>` : '') +
+                  (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
+                  (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
+                  `${strings[461]}<div>${formattedCosts}</div>`;
 
               const info = `
                 ${strings[820]}${
@@ -340,7 +358,7 @@ const BuildPanel = ({
                       });
                     }
                   }}
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached && !craftingStationLimitReached) ? handleGemPurchase : null}
                   meetsLevelRequirement={meetsLevel}
                   resource={item}
                   inventory={inventory}

@@ -91,7 +91,8 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     
     const newOffers = [];
     const maxOffers = globalTuning?.maxKentOffers || 6;
-    const currentOfferCount = currentPlayer?.kentOffers?.offers?.length || 0;
+    const existingOffers = currentPlayer?.kentOffers?.offers || [];
+    const currentOfferCount = existingOffers.length;
 
     // Determine how many new offers to generate
     let offersToGenerate;
@@ -99,34 +100,48 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         // If targetOfferCount is specified (e.g., discard all), generate exactly that many
         offersToGenerate = Math.min(targetOfferCount, maxOffers);
     } else {
-        // Default behavior: generate 2 new offers, but ensure we reach at least 3 total
-        // This helps new players ramp up faster from the initial 1 offer
+        // Default: generate 1 replacement offer
+        // Exception: if player has fewer than 3, generate enough to reach 3 (FTUE ramp-up)
         const minTotalOffers = 3;
         const neededToReachMin = Math.max(0, minTotalOffers - currentOfferCount);
-        offersToGenerate = Math.max(2, neededToReachMin);
+        offersToGenerate = Math.max(1, neededToReachMin);
 
         // Cap by maxOffers
         if (currentOfferCount + offersToGenerate > maxOffers) {
             offersToGenerate = Math.max(0, maxOffers - currentOfferCount);
         }
     }
-    
+
     // Crop balance sliding scale based on player level
-    // Level 1-3: 70% crops, Level 4: 40% crops, Level 5+: random
+    // Level 1-3: 80% crops, Level 4-7: 50% crops, Level 8+: no enforcement
+    // Applied across ALL offers (existing + new), not just new ones
     let cropPercentage = 0;
     if (playerLevel <= 3) {
         cropPercentage = 0.8;
     } else if (playerLevel <= 7) {
         cropPercentage = 0.5;
     }
-    // Level 5+ has cropPercentage = 0 (no enforcement)
 
-    const cropOffersNeeded = Math.ceil(offersToGenerate * cropPercentage);
+    // Count crops already in existing offers to enforce ratio across all offers
+    let existingCropCount = 0;
+    if (cropPercentage > 0) {
+        existingOffers.forEach(offer => {
+            if (isACrop(offer.item, masterResources)) {
+                existingCropCount++;
+            }
+        });
+    }
+
+    // Calculate how many crops we want across ALL offers (existing + new)
+    const totalOffersAfter = currentOfferCount + offersToGenerate;
+    const totalCropsWanted = Math.ceil(totalOffersAfter * cropPercentage);
+    const cropOffersNeeded = Math.max(0, totalCropsWanted - existingCropCount);
+    const nonCropOffersNeeded = offersToGenerate - cropOffersNeeded;
     let cropOffersGenerated = 0;
 
     for (let i = 0; i < offersToGenerate; i++) {
         // Get all existing Kent offers to check for duplicates
-        const allExistingOffers = [...(currentPlayer?.kentOffers?.offers || []), ...newOffers];
+        const allExistingOffers = [...existingOffers, ...newOffers];
 
         // Count how many offers already exist for each resource type
         const resourceCounts = {};
@@ -143,16 +158,23 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             return count < maxAllowed;
         });
 
-        // Enforce crop balance if needed
-        if (cropOffersNeeded > 0) {
-            const remainingOffers = offersToGenerate - i;
+        // Enforce crop balance across all offers (existing + new)
+        if (cropPercentage > 0) {
             const cropOffersStillNeeded = cropOffersNeeded - cropOffersGenerated;
+            const nonCropOffersGenerated = i - cropOffersGenerated;
+            const nonCropOffersStillNeeded = nonCropOffersNeeded - nonCropOffersGenerated;
 
-            // If we still need crop offers and this is one of the slots for crops, filter to crops only
-            if (cropOffersStillNeeded > 0 && cropOffersStillNeeded >= remainingOffers - (remainingOffers - cropOffersStillNeeded)) {
+            if (cropOffersStillNeeded > 0) {
+                // Still need crops — force crops only
                 const cropResources = availableResources.filter(r => isACrop(r.type, masterResources));
                 if (cropResources.length > 0) {
                     availableResources = cropResources;
+                }
+            } else if (nonCropOffersStillNeeded > 0) {
+                // Crop quota met, still need non-crops — force non-crops only
+                const nonCropResources = availableResources.filter(r => !isACrop(r.type, masterResources));
+                if (nonCropResources.length > 0) {
+                    availableResources = nonCropResources;
                 }
             }
         }

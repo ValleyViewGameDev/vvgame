@@ -4,6 +4,7 @@
   "maxCrops": 1000,
   "maxFarmAnimals": 50,
   "maxTownBuildings": 800,
+  "maxCraftingStationsPerType": 4,
   "doctorsPerHospital": 10,
   "warehouseCapacityGold": 100000,
   "backpackCapacityGold": 4000,
@@ -21,12 +22,13 @@
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 16,
   "kentRefreshTimerSeconds": 20,
+  "kentCardCooldownSeconds": 30,
   "maxKentOffers": 6,
   "tradeStallSlots": [
     {
       "slotIndex": 0,
       "maxAmount": 10,
-      "sellWaitTime": 5000,
+      "sellWaitTime": 300000,
       "unlocked": true,
       "unlockCost": 5,
       "requiresGoldPass": false
@@ -34,7 +36,7 @@
     {
       "slotIndex": 1,
       "maxAmount": 75,
-      "sellWaitTime": 300000,
+      "sellWaitTime": 28800000,
       "unlocked": false,
       "unlockCost": 50,
       "requiresGoldPass": false
@@ -42,17 +44,17 @@
     {
       "slotIndex": 2,
       "maxAmount": 100,
-      "sellWaitTime": 600000,
+      "sellWaitTime": 86400000,
       "unlocked": false,
-      "unlockCost": 100,
+      "unlockCost": 500,
       "requiresGoldPass": false
     },
     {
       "slotIndex": 3,
       "maxAmount": 200,
-      "sellWaitTime": 1800000,
+      "sellWaitTime": 86400000,
       "unlocked": false,
-      "unlockCost": 150,
+      "unlockCost": 1000,
       "requiresGoldPass": false
     }
   ],

@@ -4880,12 +4880,15 @@ return (
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           globalTuning={globalTuning}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'OutpostPanel' && (

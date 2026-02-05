@@ -22,11 +22,11 @@
   font-size: 16px !important;
   font-weight: bold !important;
   padding: 4px 15px !important;
-  margin: 3px 0 !important;
+  margin: 4px 0 !important;
   border-radius: 8px !important;
   cursor: pointer !important;
   transition: top 0.1s ease, box-shadow 0.1s ease !important;
-  min-height: 65px !important;
+  height: 90px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -98,7 +98,13 @@
   cursor: not-allowed !important;
 }
 
-/* Remove default margins from resource-details inside Kent buttons */
+/* Hide ResourceButton's built-in title/details spans — Kent buttons only use children */
+.kent-offer-button > .resource-title,
+.kent-offer-button > span.resource-details {
+  display: none !important;
+}
+
+/* Kent buttons use children's resource-details div for content */
 .kent-offer-button .resource-details {
   margin: 0 !important;
   padding: 0 !important;
@@ -192,6 +198,13 @@
 .kent-dismiss-all-link.disabled {
   color: #95a5a6;
   cursor: not-allowed;
+}
+
+/* Per-card cooldown timer text - shown inside the same resource-details structure */
+.kent-card-cooldown-timer {
+  font-size: 22px;
+  font-weight: bold;
+  color: #7f8c8d;
 }
 
 /* Responsive adjustments */

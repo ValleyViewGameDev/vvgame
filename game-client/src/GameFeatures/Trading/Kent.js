@@ -7,8 +7,8 @@ import { spendIngredients, gainIngredients, canAfford } from '../../Utils/Invent
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade, generateNewKentOffers } from './KentOfferLogic';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
-import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
-import './Kent.css'; // Kent-specific styles
+import '../../UI/Buttons/ResourceButton.css';
+import './Kent.css';
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -32,14 +32,40 @@ function KentPanel({
     globalTuning,
     currentSeason,
     masterXPLevels,
-    isDeveloper }) 
+    isDeveloper })
 {
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
     const [kentOffers, setKentOffers] = useState([]);
     const [kentTimer, setKentTimer] = useState("");
     const [kentPhase, setKentPhase] = useState("");
-    const [isTrading, setIsTrading] = useState(false); 
+    const [isTrading, setIsTrading] = useState(false);
+    // Per-card cooldowns: { [offerIndex]: endTime (ms) } — persisted in localStorage
+    const cooldownStorageKey = `kentCardCooldowns_${currentPlayer?.playerId}`;
+    const [cardCooldowns, setCardCooldowns] = useState(() => {
+        try {
+            const stored = localStorage.getItem(`kentCardCooldowns_${currentPlayer?.playerId}`);
+            if (!stored) return {};
+            const parsed = JSON.parse(stored);
+            // Filter out expired cooldowns on load
+            const now = Date.now();
+            const active = {};
+            for (const [key, endTime] of Object.entries(parsed)) {
+                if (endTime > now) active[key] = endTime;
+            }
+            return active;
+        } catch { return {}; }
+    });
+    // Force re-render for countdown display
+    const [, setTick] = useState(0);
+
+    // Persist cooldowns to localStorage whenever they change
+    useEffect(() => {
+        if (!currentPlayer?.playerId) return;
+        try {
+            localStorage.setItem(cooldownStorageKey, JSON.stringify(cardCooldowns));
+        } catch { /* ignore storage errors */ }
+    }, [cardCooldowns, cooldownStorageKey]);
 
     // Generate fallback Kent offer and save to DB
     const generateFallbackKentOffer = async () => {
@@ -47,7 +73,7 @@ function KentPanel({
             // Find Wheat's maxprice from masterResources
             const wheatResource = masterResources.find(res => res.type === 'Wheat');
             const wheatMaxPrice = wheatResource?.maxprice || 100; // fallback to 100 if not found
-            
+
             const fallbackKentOffers = {
                 endTime: 0, // Available immediately
                 offers: [{
@@ -59,7 +85,7 @@ function KentPanel({
                     }]
                 }]
             };
-            
+
             // Save to player's kentOffers in DB
             const response = await axios.post(`${API_BASE}/api/update-profile`, {
                 playerId: currentPlayer.playerId,
@@ -87,7 +113,7 @@ function KentPanel({
         try {
             // Get Kent offers from currentPlayer data
             const kentData = currentPlayer?.kentOffers;
-            
+
             // If no kentOffers exist or offers array is empty, generate fallback
             if (!kentData || !kentData.offers || kentData.offers.length === 0) {
                 console.log('🔄 No Kent offers found, generating fallback...');
@@ -96,7 +122,7 @@ function KentPanel({
             } else {
                 setKentOffers(kentData.offers || []);
             }
-            
+
             setKentPhase('active'); // Kent is always active
         } catch (error) {
             console.error('❌ Error fetching Kent offers:', error);
@@ -105,9 +131,9 @@ function KentPanel({
         }
     };
 
-    // Kent timer logic
+    // Kent timer logic + per-card cooldown ticks
     useEffect(() => {
-        const updateKentTimer = () => {
+        const updateTimers = () => {
             const now = Date.now();
             const kentData = currentPlayer?.kentOffers;
             const endTime = kentData?.endTime || 0;
@@ -121,10 +147,13 @@ function KentPanel({
                 setKentTimer(strings[45]);
                 setKentPhase('active');
             }
+
+            // Tick for per-card countdown display
+            setTick(t => t + 1);
         };
 
-        updateKentTimer();
-        const interval = setInterval(updateKentTimer, 1000);
+        updateTimers();
+        const interval = setInterval(updateTimers, 1000);
         return () => clearInterval(interval);
     }, [currentPlayer?.kentOffers?.endTime]);
 
@@ -135,20 +164,35 @@ function KentPanel({
         }
     }, [currentPlayer?.playerId]);
 
-    // ✅ Handle trade transaction with protection against spam clicking
+    // Check if a specific card is on cooldown
+    const isCardOnCooldown = (index) => {
+        const endTime = cardCooldowns[index];
+        if (!endTime) return false;
+        return endTime > Date.now();
+    };
+
+    // Get remaining seconds for a card cooldown
+    const getCardCooldownRemaining = (index) => {
+        const endTime = cardCooldowns[index];
+        if (!endTime) return 0;
+        const remaining = endTime - Date.now();
+        return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
+    };
+
+    // Handle trade transaction with protection against spam clicking
     const handleTrade = async (offer) => {
         if (!offer || !currentPlayer || isTrading) return;
-        
-        // ✅ EXPLOIT FIX: Check Kent timer before allowing any trade
+
+        // Check Kent timer before allowing any trade
         if (isKentOnCooldown()) {
             console.log('🚫 Kent trade blocked: Timer still active');
             updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
             return;
         }
-        
+
         // Set trading flag to prevent spam clicks
         setIsTrading(true);
-        
+
         try {
 
             // Spend ingredients
@@ -170,10 +214,10 @@ function KentPanel({
 
             // Gain all rewards
             let allRewardsSuccess = true;
-            const originalOffer = kentOffers.find(kentOffer => 
+            const originalOffer = kentOffers.find(kentOffer =>
               kentOffer.item === offer.itemBought && kentOffer.quantity === offer.qtyBought
             );
-            
+
             if (originalOffer && originalOffer.rewards) {
               for (const reward of originalOffer.rewards) {
                 const gainSuccess = await gainIngredients({
@@ -190,7 +234,7 @@ function KentPanel({
                   masterResources,
                   globalTuning,
                 });
-                
+
                 if (!gainSuccess) {
                   allRewardsSuccess = false;
                   break;
@@ -224,7 +268,7 @@ function KentPanel({
                 playerId: currentPlayer.playerId,
                 xpAmount: xpToAward
               });
-              
+
               if (xpResponse.data.success) {
                 // Update current player's XP locally
                 setCurrentPlayer(prev => ({
@@ -266,69 +310,32 @@ function KentPanel({
         }
     };
 
-    // ✅ Handle dismissing an offer without trading
-    const handleDismiss = async (offer) => {
+    // Handle dismissing an individual offer — generates replacement immediately with per-card cooldown
+    // Dismiss works even when Kent is "away" (overall timer active) — only blocked by per-card cooldown
+    const handleDismiss = async (offer, offerIndex) => {
         if (!offer || !currentPlayer || isTrading) return;
 
-        // ✅ EXPLOIT FIX: Check Kent timer before allowing any dismiss
-        if (isKentOnCooldown()) {
-            console.log('🚫 Kent dismiss blocked: Timer still active');
-            updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
-            return;
-        }
+        // Block if this card is already on cooldown
+        if (isCardOnCooldown(offerIndex)) return;
 
         // Set trading flag to prevent spam clicks
         setIsTrading(true);
 
         try {
-            await refreshOffersAndSetTimer(offer, `❌ Dismissed offer for ${offer.itemBought}.`);
-        } catch (error) {
-            console.error('❌ Error dismissing Kent offer:', error);
-            updateStatus('❌ Failed to dismiss offer. Please try again.');
-        } finally {
-            // Always clear the trading flag
-            setIsTrading(false);
-        }
-    };
-
-    // ✅ Handle dismissing all offers at once
-    const handleDismissAll = async () => {
-        if (!currentPlayer || isTrading || kentOffers.length === 0) return;
-
-        // Check Kent timer before allowing dismiss
-        if (isKentOnCooldown()) {
-            console.log('🚫 Kent dismiss all blocked: Timer still active');
-            updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
-            return;
-        }
-
-        setIsTrading(true);
-
-        try {
-            // Reset Kent timer
-            const kentRefreshSeconds = globalTuning?.kentRefreshTimerSeconds || 5;
-            const newEndTime = Date.now() + (kentRefreshSeconds * 1000);
-
-            // Remember how many offers we had before discarding
-            const previousOfferCount = kentOffers.length;
-
-            // Generate completely new offers, replacing the same number we had before
-            const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
-            const newOffers = generateNewKentOffers(
-                playerWithEmptyOffers,
+            // Generate new offer immediately (remove old, add replacement)
+            const updatedKentOffers = updateKentOffersAfterTrade(
+                currentPlayer,
+                offer,
                 masterResources,
                 globalTuning,
                 currentSeason,
-                masterXPLevels,
-                previousOfferCount // Pass target count to replace all discarded offers
+                masterXPLevels
             );
 
-            const updatedKentOffers = {
-                endTime: newEndTime,
-                offers: newOffers
-            };
+            // Keep the existing overall timer (no reset for dismiss)
+            updatedKentOffers.endTime = currentPlayer?.kentOffers?.endTime || 0;
 
-            // Update player's kentOffers
+            // Save to DB
             const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
                 playerId: currentPlayer.playerId,
                 updates: { kentOffers: updatedKentOffers }
@@ -340,18 +347,85 @@ function KentPanel({
                     kentOffers: updatedKentOffers
                 }));
                 setKentOffers(updatedKentOffers.offers || []);
+
+                // Start per-card cooldown on the slot where the new offer was inserted
+                const cardCooldownSeconds = globalTuning?.kentCardCooldownSeconds || 30;
+                const cooldownEndTime = Date.now() + (cardCooldownSeconds * 1000);
+                setCardCooldowns(prev => ({
+                    ...prev,
+                    [offerIndex]: cooldownEndTime
+                }));
             }
 
-            updateStatus(`❌ Dismissed all offers.`);
         } catch (error) {
-            console.error('❌ Error dismissing all Kent offers:', error);
-            updateStatus('❌ Failed to dismiss offers. Please try again.');
+            console.error('❌ Error dismissing Kent offer:', error);
         } finally {
             setIsTrading(false);
         }
     };
 
-    // 🔧 Debug: Refresh offers without resetting timer (dev only)
+    // Handle dismissing all offers at once — all cards get per-card cooldowns
+    // Handle dismissing all offers — works even when Kent is "away", only blocked by per-card cooldowns
+    const handleDismissAll = async () => {
+        if (!currentPlayer || isTrading || kentOffers.length === 0) return;
+
+        // Check if any cards are on cooldown
+        const anyOnCooldown = kentOffers.some((_, index) => isCardOnCooldown(index));
+        if (anyOnCooldown) return;
+
+        setIsTrading(true);
+
+        try {
+            // Remember how many offers we had before discarding
+            const previousOfferCount = kentOffers.length;
+
+            // Generate completely new offers, replacing the same number we had before
+            const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
+            const newOffers = generateNewKentOffers(
+                playerWithEmptyOffers,
+                masterResources,
+                globalTuning,
+                currentSeason,
+                masterXPLevels,
+                previousOfferCount
+            );
+
+            const updatedKentOffers = {
+                endTime: currentPlayer?.kentOffers?.endTime || 0, // Keep existing overall timer
+                offers: newOffers
+            };
+
+            // Save to DB
+            const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
+                playerId: currentPlayer.playerId,
+                updates: { kentOffers: updatedKentOffers }
+            });
+
+            if (updateResponse.data.success) {
+                setCurrentPlayer(prev => ({
+                    ...prev,
+                    kentOffers: updatedKentOffers
+                }));
+                setKentOffers(updatedKentOffers.offers || []);
+
+                // Start per-card cooldown on ALL cards
+                const cardCooldownSeconds = globalTuning?.kentCardCooldownSeconds || 30;
+                const cooldownEndTime = Date.now() + (cardCooldownSeconds * 1000);
+                const newCooldowns = {};
+                for (let i = 0; i < newOffers.length; i++) {
+                    newCooldowns[i] = cooldownEndTime;
+                }
+                setCardCooldowns(newCooldowns);
+            }
+
+        } catch (error) {
+            console.error('❌ Error dismissing all Kent offers:', error);
+        } finally {
+            setIsTrading(false);
+        }
+    };
+
+    // Debug: Refresh offers without resetting timer (dev only)
     const handleDebugRefresh = async () => {
         if (!currentPlayer || isTrading) return;
 
@@ -392,6 +466,8 @@ function KentPanel({
                     kentOffers: updatedKentOffers
                 }));
                 setKentOffers(updatedKentOffers.offers || []);
+                // Clear all card cooldowns on debug refresh
+                setCardCooldowns({});
             }
 
             updateStatus(`🔧 Debug: Refreshed ${newOffers.length} offers (timer unchanged).`);
@@ -403,12 +479,12 @@ function KentPanel({
         }
     };
 
-    // ✅ Shared function to refresh offers and set timer
+    // Shared function to refresh offers and set timer (used by trade only)
     const refreshOffersAndSetTimer = async (offer, statusMessage) => {
         // Reset Kent timer and update offers
         const kentRefreshSeconds = globalTuning?.kentRefreshTimerSeconds || 5;
         const newEndTime = Date.now() + (kentRefreshSeconds * 1000);
-        
+
         // Update Kent offers: remove completed offer and add new ones
         const updatedKentOffers = updateKentOffersAfterTrade(
             currentPlayer,
@@ -418,23 +494,23 @@ function KentPanel({
             currentSeason,
             masterXPLevels
         );
-        
+
         // Set the new timer
         updatedKentOffers.endTime = newEndTime;
-        
+
         // Update player's kentOffers with new timer
         const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
             playerId: currentPlayer.playerId,
             updates: { kentOffers: updatedKentOffers }
         });
-        
+
         if (updateResponse.data.success) {
             // Update local player state
             setCurrentPlayer(prev => ({
                 ...prev,
                 kentOffers: updatedKentOffers
             }));
-            
+
             // Update local kentOffers display
             setKentOffers(updatedKentOffers.offers || []);
         }
@@ -443,7 +519,7 @@ function KentPanel({
     };
 
 
-    // ✅ Helper function to check if Kent is currently on cooldown
+    // Helper function to check if Kent is currently on cooldown
     const isKentOnCooldown = () => {
         const now = Date.now();
         const kentData = currentPlayer?.kentOffers;
@@ -451,7 +527,7 @@ function KentPanel({
         return endTime > now;
     };
 
-    // ✅ Lookup function for symbols from `masterResources`
+    // Lookup function for symbols from `masterResources`
     const getSymbol = (resourceType) => {
         const resource = masterResources.find(res => res.type === resourceType);
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
@@ -493,6 +569,9 @@ function KentPanel({
         }, 800);
     };
 
+    // Check if any card has an active cooldown (for Dismiss All button)
+    const anyCardOnCooldown = kentOffers.some((_, index) => isCardOnCooldown(index));
+
     return (
       <Panel onClose={onClose}  titleKey="1138" panelName="KentPanel">
         {isContentLoading ? (
@@ -507,12 +586,20 @@ function KentPanel({
                 <h2 className="countdown-timer">{kentTimer}</h2>
               )}
             </div>
-            
+
             {/* Always show offers, but disable during cooldown */}
             <>
               {kentOffers.length > 0 ? (
                 <>
                   {kentOffers.map((offer, index) => {
+                      const cardOnCooldown = isCardOnCooldown(index);
+                      const cardCooldownSeconds = getCardCooldownRemaining(index);
+
+                      // Check if Kent panel is locked (use both phase state and real-time check)
+                      const isKentLocked = kentPhase === 'locked' || isKentOnCooldown();
+                      // Card is inactive if Kent is locked OR this card is on cooldown
+                      const isCardInactive = isKentLocked || cardOnCooldown;
+
                       // Calculate player's total quantity from inventory and backpack
                       const inventoryQty = inventory?.find(item => item.type === offer.item)?.quantity || 0;
                       const backpackQty = backpack?.find(item => item.type === offer.item)?.quantity || 0;
@@ -526,15 +613,12 @@ function KentPanel({
                           qtyGiven: offer.rewards[0]?.quantity || 0
                       };
 
-                      // Check if Kent panel is locked (use both phase state and real-time check)
-                      const isLocked = kentPhase === 'locked' || isKentOnCooldown();
-
                       return (
                         <div key={index} className="kent-offer-wrapper">
                           <ResourceButton
-                            className={`kent-offer-button ${isLocked ? 'disabled' : ''}`}
-                            onClick={() => !isLocked && !isTrading && handleTrade(convertedOffer)}
-                            disabled={isLocked || isTrading || !canAfford({
+                            className={`kent-offer-button ${isCardInactive ? 'disabled' : ''}`}
+                            onClick={() => !isCardInactive && !isTrading && handleTrade(convertedOffer)}
+                            disabled={isCardInactive || isTrading || !canAfford({
                               ingredient1: convertedOffer.itemBought,
                               ingredient1qty: convertedOffer.qtyBought
                             }, inventory, backpack, 1)}
@@ -543,30 +627,36 @@ function KentPanel({
                           >
                             <div className="resource-details">
                               <div className="kent-offer-content">
-                                <div className="kent-offer-symbol">
-                                  {getSymbol(convertedOffer.itemBought)}
-                                </div>
-                                <div className="kent-offer-details">
-                                  <div className="kent-offer-requirement">
-                                    <span className={`kent-offer-item ${playerQty < convertedOffer.qtyBought ? 'insufficient' : 'sufficient'}`}>
-                                      {getLocalizedString(convertedOffer.itemBought, strings)} x{convertedOffer.qtyBought} / {playerQty}
-                                    </span>
-                                  </div>
-                                  <div className="kent-offer-reward">
-                                    {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
-                                      `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                    ).join('')}, 🔷 {calculateKentXP(offer)}
-                                  </div>
-                                </div>
+                                {cardOnCooldown ? (
+                                  <div className="kent-card-cooldown-timer">{cardCooldownSeconds}s</div>
+                                ) : (
+                                  <>
+                                    <div className="kent-offer-symbol">
+                                      {getSymbol(convertedOffer.itemBought)}
+                                    </div>
+                                    <div className="kent-offer-details">
+                                      <div className="kent-offer-requirement">
+                                        <span className={`kent-offer-item ${playerQty < convertedOffer.qtyBought ? 'insufficient' : 'sufficient'}`}>
+                                          {getLocalizedString(convertedOffer.itemBought, strings)} x{convertedOffer.qtyBought} / {playerQty}
+                                        </span>
+                                      </div>
+                                      <div className="kent-offer-reward">
+                                        {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
+                                          `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
+                                        ).join('')}, 🔷 {calculateKentXP(offer)}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </ResourceButton>
                           <div
-                            className={`kent-dismiss-button ${isLocked || isTrading ? 'disabled' : ''}`}
+                            className={`kent-dismiss-button ${cardOnCooldown ? 'disabled' : ''}`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (!isLocked && !isTrading) {
-                                handleDismiss(convertedOffer);
+                              if (!cardOnCooldown) {
+                                handleDismiss(convertedOffer, index);
                               }
                             }}
                           >
@@ -577,9 +667,9 @@ function KentPanel({
                   })}
                   {/* Dismiss all link */}
                   <div
-                    className={`kent-dismiss-all-link ${(kentPhase === 'locked' || isKentOnCooldown() || isTrading) ? 'disabled' : ''}`}
+                    className={`kent-dismiss-all-link ${(isTrading || anyCardOnCooldown) ? 'disabled' : ''}`}
                     onClick={() => {
-                      if (!(kentPhase === 'locked' || isKentOnCooldown() || isTrading)) {
+                      if (!(isTrading || anyCardOnCooldown)) {
                         handleDismissAll();
                       }
                     }}
