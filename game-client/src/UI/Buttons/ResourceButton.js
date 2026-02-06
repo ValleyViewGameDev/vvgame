@@ -171,27 +171,28 @@ const ResourceButton = ({
           }}
         >
 
-          {/* ✅ Ensure default content is displayed */}
+          {/* ✅ Ensure default content is displayed - keep visible during processing */}
           <span className="resource-title">
-            {isProcessing ? '⏳' : (
-              filename ? (
-                <img
-                  src={`/assets/resources/${filename}`}
-                  alt={name}
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    verticalAlign: 'middle',
-                    marginRight: '4px'
-                  }}
-                />
-              ) : symbol
-            )} {isProcessing ? 'Processing...' : name}
+            {filename ? (
+              <img
+                src={`/assets/resources/${filename}`}
+                alt={name}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  verticalAlign: 'middle',
+                  marginRight: '4px'
+                }}
+              />
+            ) : symbol} {name}
           </span>
-          {!isProcessing && (
-            <span className="resource-details" dangerouslySetInnerHTML={{
-              __html: details ? formatDetailsForDisplay(details) : details
-            }} />
+          <span className="resource-details" dangerouslySetInnerHTML={{
+            __html: details ? formatDetailsForDisplay(details) : details
+          }} />
+
+          {/* Processing overlay - hourglass centered on button */}
+          {isProcessing && (
+            <span className="resource-button-processing-overlay">⏳</span>
           )}
 
 

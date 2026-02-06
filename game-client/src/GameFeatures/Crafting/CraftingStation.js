@@ -60,6 +60,10 @@ const CraftingStation = ({
   const [outputTooltip, setOutputTooltip] = useState({ show: false, top: 0, left: 0 });
   // Per-slot countdown timers (keyed by slot index)
   const [slotCountdowns, setSlotCountdowns] = useState({});
+  // Slot index showing "Added" floating text animation (null when none)
+  const [slotAddedAnimation, setSlotAddedAnimation] = useState(null);
+  // Slot collection animation state: { slotIndex, text } or null
+  const [slotCollectedAnimation, setSlotCollectedAnimation] = useState(null);
 
   // Tooltip position update function (similar to ResourceButton)
   const updateSlotTooltipPosition = (event, slotIndex) => {
@@ -346,7 +350,10 @@ const CraftingStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        // Show "Added" floating text on the slot
+        setSlotAddedAnimation(slotIndex);
+        setTimeout(() => setSlotAddedAnimation(null), 1800); // Clear after animation (matches 1.8s CSS duration)
+
         updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
 
         console.log(`✅ ${recipe.type} crafting started in slot ${slotIndex}.`);
@@ -412,7 +419,9 @@ const CraftingStation = ({
             setNpcRefreshKey(prev => prev + 1);
           }
           const npcSymbol = craftedResource?.symbol || '🎁';
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${npcSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          // Show floating text on the slot instead of the grid
+          setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${npcSymbol} ${getLocalizedString(collectedItem, strings)}` });
+          setTimeout(() => setSlotCollectedAnimation(null), 1800);
           soundManager.playSFX('collect_item');
         } else {
           // Add non-NPC items to inventory
@@ -438,7 +447,9 @@ const CraftingStation = ({
 
           const collectedItemResource = masterResources.find(r => r.type === collectedItem);
           const collectedSymbol = collectedItemResource?.symbol || '🎁';
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          // Show floating text on the slot instead of the grid
+          setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}` });
+          setTimeout(() => setSlotCollectedAnimation(null), 1800);
           soundManager.playSFX('collect_item');
         }
 
@@ -748,13 +759,21 @@ const CraftingStation = ({
                                     {slotIsReady && <span className="crafting-slot-ready-badge">&#x2705;</span>}
                                   </>
                                 )}
+                                {/* "Added" floating text animation on slot */}
+                                {slotAddedAnimation === i && (
+                                  <span className="crafting-slot-added-text">{strings[300]}</span>
+                                )}
+                                {/* "Collected" floating text animation on slot */}
+                                {slotCollectedAnimation?.slotIndex === i && (
+                                  <span className="crafting-slot-collected-text">{slotCollectedAnimation.text}</span>
+                                )}
+                                {/* Countdown timer overlay at bottom of slot */}
+                                {slotIsCrafting && slotCountdowns[i] !== undefined && (
+                                  <span className="crafting-slot-timer">
+                                    {formatCompactCountdown(slot.craftEnd, Date.now())}
+                                  </span>
+                                )}
                               </div>
-                              {/* Countdown timer below slot */}
-                              {slotIsCrafting && slotCountdowns[i] !== undefined && (
-                                <div className="crafting-slot-timer">
-                                  {formatCompactCountdown(slot.craftEnd, Date.now())}
-                                </div>
-                              )}
                             </div>
                           );
                         })}
@@ -908,18 +927,22 @@ const CraftingStation = ({
             }}
           >
             {!isUnlocked ? (
-              // Locked slot - show unlock costs
+              // Locked slot - show unlock costs with have/need format
               <div>
-                <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>{strings[175] || 'Unlock'} for:</div>
+                <div style={{ marginBottom: '4px', fontWeight: 'bold' }}>{strings[175] || 'Unlock'}:</div>
                 {globalTuning?.craftingStationSlotCosts?.[`slot${idx}`] &&
                   Object.entries(globalTuning.craftingStationSlotCosts[`slot${idx}`])
                     .filter(([, v]) => v > 0)
                     .map(([resourceType, qty]) => {
                       const resourceInfo = masterResources?.find(r => r.type === resourceType);
                       const symbol = resourceInfo?.symbol || '';
+                      const inventoryQty = inventory?.find(item => item.type === resourceType)?.quantity || 0;
+                      const backpackQty = backpack?.find(item => item.type === resourceType)?.quantity || 0;
+                      const playerQty = inventoryQty + backpackQty;
+                      const hasEnough = playerQty >= qty;
                       return (
-                        <div key={resourceType}>
-                          {symbol} {getLocalizedString(resourceType, strings)}: {qty}
+                        <div key={resourceType} style={{ color: hasEnough ? 'green' : 'red' }}>
+                          {symbol} {getLocalizedString(resourceType, strings)}: {playerQty} / {qty}
                         </div>
                       );
                     })}

@@ -72,7 +72,7 @@
 .kent-dismiss-button {
   position: absolute !important;
   top: 5px !important;
-  right: 5px !important;
+  right: 0px !important;
   width: 20px !important;
   height: 20px !important;
   background-color: #ba200f !important;
@@ -207,6 +207,71 @@
   color: #7f8c8d;
 }
 
+/* Multi-item offer styles - same height as single-item */
+.kent-offer-content.multi-item {
+  gap: 2px;
+}
+
+/* Row containing multiple items side by side */
+.kent-multi-item-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Individual item cell in multi-item offer */
+.kent-multi-item-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.kent-multi-item-cell .kent-offer-symbol {
+  font-size: 24px !important;
+}
+
+/* Quantity text below symbol for multi-item offers */
+.kent-multi-item-qty {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.kent-multi-item-qty.sufficient {
+  color: #27ae60;
+}
+
+.kent-multi-item-qty.insufficient {
+  color: #e74c3c;
+}
+
+/* Single-item offer cell - centered with tooltip */
+.kent-single-item-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Quantity text below symbol for single-item offers */
+.kent-single-item-qty {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.kent-single-item-qty.sufficient {
+  color: #27ae60;
+}
+
+.kent-single-item-qty.insufficient {
+  color: #e74c3c;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .kent-offer-symbol {
@@ -219,5 +284,13 @@
 
   .kent-offer-reward {
     font-size: 14px;
+  }
+
+  .kent-multi-item-cell .kent-offer-symbol {
+    font-size: 20px !important;
+  }
+
+  .kent-multi-item-qty {
+    font-size: 12px;
   }
 }

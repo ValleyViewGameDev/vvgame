@@ -1,9 +1,10 @@
 import API_BASE from '../../config.js';
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade, generateNewKentOffers } from './KentOfferLogic';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
@@ -58,6 +59,8 @@ function KentPanel({
     });
     // Force re-render for countdown display
     const [, setTick] = useState(0);
+    // Tooltip for multi-item offer symbols
+    const [itemTooltip, setItemTooltip] = useState({ show: false, itemName: '', top: 0, left: 0 });
 
     // Persist cooldowns to localStorage whenever they change
     useEffect(() => {
@@ -194,29 +197,66 @@ function KentPanel({
         setIsTrading(true);
 
         try {
+            // Handle both multi-item and single-item offers
+            if (offer.itemsBought && offer.itemsBought.length > 0) {
+                // Multi-item offer: spend each item
+                for (const itemToBuy of offer.itemsBought) {
+                    const success = await spendIngredients({
+                        playerId: currentPlayer.playerId,
+                        recipe: {
+                            ingredient1: itemToBuy.item,
+                            ingredient1qty: itemToBuy.quantity,
+                        },
+                        inventory,
+                        backpack,
+                        setInventory,
+                        setBackpack,
+                        setCurrentPlayer,
+                        updateStatus,
+                    });
 
-            // Spend ingredients
-            const success = await spendIngredients({
-              playerId: currentPlayer.playerId,
-              recipe: {
-                ingredient1: offer.itemBought,
-                ingredient1qty: offer.qtyBought,
-              },
-              inventory,
-              backpack,
-              setInventory,
-              setBackpack,
-              setCurrentPlayer,
-              updateStatus,
-            });
+                    if (!success) {
+                        setIsTrading(false);
+                        return;
+                    }
+                }
+            } else {
+                // Single-item offer (legacy)
+                const success = await spendIngredients({
+                    playerId: currentPlayer.playerId,
+                    recipe: {
+                        ingredient1: offer.itemBought,
+                        ingredient1qty: offer.qtyBought,
+                    },
+                    inventory,
+                    backpack,
+                    setInventory,
+                    setBackpack,
+                    setCurrentPlayer,
+                    updateStatus,
+                });
 
-            if (!success) return;
+                if (!success) {
+                    setIsTrading(false);
+                    return;
+                }
+            }
 
             // Gain all rewards
             let allRewardsSuccess = true;
-            const originalOffer = kentOffers.find(kentOffer =>
-              kentOffer.item === offer.itemBought && kentOffer.quantity === offer.qtyBought
-            );
+            // Find original offer - handle both multi-item and single-item
+            const originalOffer = kentOffers.find(kentOffer => {
+                if (offer.itemsBought && kentOffer.items) {
+                    // Multi-item comparison
+                    if (offer.itemsBought.length !== kentOffer.items.length) return false;
+                    return offer.itemsBought.every((bought, idx) =>
+                        kentOffer.items[idx]?.item === bought.item && kentOffer.items[idx]?.quantity === bought.quantity
+                    );
+                } else {
+                    // Legacy single-item comparison
+                    return kentOffer.item === offer.itemBought && kentOffer.quantity === offer.qtyBought;
+                }
+            });
 
             if (originalOffer && originalOffer.rewards) {
               for (const reward of originalOffer.rewards) {
@@ -295,8 +335,21 @@ function KentPanel({
               ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
               : `${offer.qtyGiven} ${offer.itemGiven}`;
 
-            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${rewardText} and +${xpToAward} XP.`);
-            await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
+            // Create sold items text for multi-item offers
+            const soldText = offer.itemsBought && offer.itemsBought.length > 1
+              ? offer.itemsBought.map(item => `${item.quantity} ${item.item}`).join(' + ')
+              : `${offer.qtyBought} ${offer.itemBought}`;
+
+            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${soldText} for ${rewardText} and +${xpToAward} XP.`);
+
+            // Track quest progress for each item sold
+            if (offer.itemsBought && offer.itemsBought.length > 0) {
+                for (const item of offer.itemsBought) {
+                    await trackQuestProgress(currentPlayer, 'Sell', item.item, item.quantity, setCurrentPlayer);
+                }
+            } else {
+                await trackQuestProgress(currentPlayer, 'Sell', offer.itemBought, offer.qtyBought, setCurrentPlayer);
+            }
 
             // Try to advance FTUE if this is the player's first sale to Kent
             await tryAdvanceFTUEByTrigger('SoldToKent', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -535,10 +588,21 @@ function KentPanel({
 
     // Calculate XP for Kent offer based on resource.xp value
     const calculateKentXP = (offer) => {
-        // Find the resource being sold and get its XP value
-        const resource = masterResources.find(res => res.type === offer.item);
-        const baseXP = resource?.xp || 1; // Default to 1 XP if no xp value defined
-        return baseXP * 2; // 2x Kent multiplier
+        // Handle both multi-item and single-item offers
+        if (offer.items && offer.items.length > 0) {
+            // Sum XP from all items in multi-item offer
+            let totalXP = 0;
+            for (const item of offer.items) {
+                const resource = masterResources.find(res => res.type === item.item);
+                totalXP += (resource?.xp || 1);
+            }
+            return totalXP * 2; // 2x Kent multiplier
+        } else {
+            // Single-item offer (legacy)
+            const resource = masterResources.find(res => res.type === offer.item);
+            const baseXP = resource?.xp || 1; // Default to 1 XP if no xp value defined
+            return baseXP * 2; // 2x Kent multiplier
+        }
     };
 
     // Helper to get Kent NPC position for floating text
@@ -573,6 +637,7 @@ function KentPanel({
     const anyCardOnCooldown = kentOffers.some((_, index) => isCardOnCooldown(index));
 
     return (
+      <>
       <Panel onClose={onClose}  titleKey="1138" panelName="KentPanel">
         {isContentLoading ? (
           <p>{strings[98]}</p>
@@ -600,51 +665,111 @@ function KentPanel({
                       // Card is inactive if Kent is locked OR this card is on cooldown
                       const isCardInactive = isKentLocked || cardOnCooldown;
 
-                      // Calculate player's total quantity from inventory and backpack
-                      const inventoryQty = inventory?.find(item => item.type === offer.item)?.quantity || 0;
-                      const backpackQty = backpack?.find(item => item.type === offer.item)?.quantity || 0;
-                      const playerQty = inventoryQty + backpackQty;
+                      // Determine if this is a multi-item offer
+                      const isMultiItem = offer.items && offer.items.length > 1;
+                      const offerItems = offer.items || [{ item: offer.item, quantity: offer.quantity }];
+
+                      // Calculate player quantities for each item
+                      const itemsWithQty = offerItems.map(offerItem => {
+                          const inventoryQty = inventory?.find(item => item.type === offerItem.item)?.quantity || 0;
+                          const backpackQty = backpack?.find(item => item.type === offerItem.item)?.quantity || 0;
+                          const playerQty = inventoryQty + backpackQty;
+                          return { ...offerItem, playerQty, hasEnough: playerQty >= offerItem.quantity };
+                      });
+
+                      // Check if player can afford all items
+                      const canAffordAll = itemsWithQty.every(item => item.hasEnough);
 
                       // Convert Kent offer format to bank offer format for compatibility
-                      const convertedOffer = {
-                          itemBought: offer.item,
-                          qtyBought: offer.quantity,
-                          itemGiven: offer.rewards[0]?.item || 'Money',
-                          qtyGiven: offer.rewards[0]?.quantity || 0
-                      };
+                      const convertedOffer = isMultiItem
+                          ? {
+                              itemsBought: offerItems,
+                              itemGiven: offer.rewards[0]?.item || 'Money',
+                              qtyGiven: offer.rewards[0]?.quantity || 0
+                            }
+                          : {
+                              itemBought: offer.item,
+                              qtyBought: offer.quantity,
+                              itemGiven: offer.rewards[0]?.item || 'Money',
+                              qtyGiven: offer.rewards[0]?.quantity || 0
+                            };
 
                       return (
                         <div key={index} className="kent-offer-wrapper">
                           <ResourceButton
-                            className={`kent-offer-button ${isCardInactive ? 'disabled' : ''}`}
+                            className={`kent-offer-button ${isCardInactive ? 'disabled' : ''} ${isMultiItem ? 'multi-item' : ''}`}
                             onClick={() => !isCardInactive && !isTrading && handleTrade(convertedOffer)}
-                            disabled={isCardInactive || isTrading || !canAfford({
-                              ingredient1: convertedOffer.itemBought,
-                              ingredient1qty: convertedOffer.qtyBought
-                            }, inventory, backpack, 1)}
+                            disabled={isCardInactive || isTrading || !canAffordAll}
                             hideInfo={true}
                             noClickSfx={true}
                           >
                             <div className="resource-details">
-                              <div className="kent-offer-content">
+                              <div className={`kent-offer-content ${isMultiItem ? 'multi-item' : ''}`}>
                                 {cardOnCooldown ? (
                                   <div className="kent-card-cooldown-timer">{cardCooldownSeconds}s</div>
+                                ) : isMultiItem ? (
+                                  <>
+                                    <div className="kent-multi-item-row">
+                                      {itemsWithQty.map((item, itemIdx) => (
+                                        <div
+                                          key={itemIdx}
+                                          className="kent-multi-item-cell"
+                                          onMouseEnter={(e) => setItemTooltip({
+                                            show: true,
+                                            itemName: getLocalizedString(item.item, strings),
+                                            top: e.clientY + window.scrollY + 10,
+                                            left: e.clientX + window.scrollX + 15
+                                          })}
+                                          onMouseMove={(e) => setItemTooltip(prev => ({
+                                            ...prev,
+                                            top: e.clientY + window.scrollY + 10,
+                                            left: e.clientX + window.scrollX + 15
+                                          }))}
+                                          onMouseLeave={() => setItemTooltip({ show: false, itemName: '', top: 0, left: 0 })}
+                                        >
+                                          <div className="kent-offer-symbol">
+                                            {getSymbol(item.item)}
+                                          </div>
+                                          <div className={`kent-multi-item-qty ${item.hasEnough ? 'sufficient' : 'insufficient'}`}>
+                                            x{item.quantity} / {item.playerQty}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="kent-offer-reward">
+                                      {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
+                                        `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
+                                      ).join('')}, 🔷 {calculateKentXP(offer)}
+                                    </div>
+                                  </>
                                 ) : (
                                   <>
-                                    <div className="kent-offer-symbol">
-                                      {getSymbol(convertedOffer.itemBought)}
+                                    <div
+                                      className="kent-single-item-cell"
+                                      onMouseEnter={(e) => setItemTooltip({
+                                        show: true,
+                                        itemName: getLocalizedString(itemsWithQty[0].item, strings),
+                                        top: e.clientY + window.scrollY + 10,
+                                        left: e.clientX + window.scrollX + 15
+                                      })}
+                                      onMouseMove={(e) => setItemTooltip(prev => ({
+                                        ...prev,
+                                        top: e.clientY + window.scrollY + 10,
+                                        left: e.clientX + window.scrollX + 15
+                                      }))}
+                                      onMouseLeave={() => setItemTooltip({ show: false, itemName: '', top: 0, left: 0 })}
+                                    >
+                                      <div className="kent-offer-symbol">
+                                        {getSymbol(itemsWithQty[0].item)}
+                                      </div>
+                                      <div className={`kent-single-item-qty ${itemsWithQty[0].hasEnough ? 'sufficient' : 'insufficient'}`}>
+                                        x{itemsWithQty[0].quantity} / {itemsWithQty[0].playerQty}
+                                      </div>
                                     </div>
-                                    <div className="kent-offer-details">
-                                      <div className="kent-offer-requirement">
-                                        <span className={`kent-offer-item ${playerQty < convertedOffer.qtyBought ? 'insufficient' : 'sufficient'}`}>
-                                          {getLocalizedString(convertedOffer.itemBought, strings)} x{convertedOffer.qtyBought} / {playerQty}
-                                        </span>
-                                      </div>
-                                      <div className="kent-offer-reward">
-                                        {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
-                                          `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                        ).join('')}, 🔷 {calculateKentXP(offer)}
-                                      </div>
+                                    <div className="kent-offer-reward">
+                                      {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
+                                        `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
+                                      ).join('')}, 🔷 {calculateKentXP(offer)}
                                     </div>
                                   </>
                                 )}
@@ -698,6 +823,22 @@ function KentPanel({
           </>
         )}
       </Panel>
+
+      {/* Tooltip portal for multi-item offer symbols */}
+      {itemTooltip.show && ReactDOM.createPortal(
+        <div
+          className="info-toaster"
+          style={{
+            top: itemTooltip.top,
+            left: itemTooltip.left,
+            position: 'absolute',
+          }}
+        >
+          {itemTooltip.itemName}
+        </div>,
+        document.body
+      )}
+      </>
     );
 }
 
