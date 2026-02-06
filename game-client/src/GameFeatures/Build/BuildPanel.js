@@ -223,7 +223,21 @@ const BuildPanel = ({
   }
 
   const handleGemPurchase = async (modifiedRecipe) => {
-    // This is called by the gem button with a recipe modified to include gems
+    // If placeWithCursor is enabled, put the gem-modified item into cursor mode
+    if (placeWithCursor) {
+      const item = buildOptions.find(opt => opt.type === modifiedRecipe.type) || modifiedRecipe;
+      setCursorMode({
+        type: 'build',
+        item: modifiedRecipe.type,
+        emoji: item.symbol || '🏗️',
+        filename: item.filename || null,
+        size: item.size || 1,
+        buildOptions: buildOptions,
+        modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
+      });
+      return;
+    }
+    // Normal mode: build at player position immediately with gems
     return handleConstructionWithGems({
       TILE_SIZE,
       selectedItem: modifiedRecipe.type,

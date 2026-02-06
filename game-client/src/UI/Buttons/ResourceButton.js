@@ -3,18 +3,8 @@ import ReactDOM from 'react-dom';
 import { calculateGemPurchase } from '../../Economy/GemCosts';
 import { useStrings } from '../StringsContext';
 import { usePanelContext } from '../Panels/PanelContext';
+import { formatNumber } from '../Timers';
 import './ResourceButton.css';
-
-// Utility function to format numbers with locale-specific comma separators
-const formatNumber = (number) => {
-  if (typeof number === 'number') {
-    return number.toLocaleString();
-  }
-  if (typeof number === 'string' && !isNaN(Number(number))) {
-    return Number(number).toLocaleString();
-  }
-  return number; // Return as-is if it's not a number
-};
 
 // Function to format numbers in HTML details strings
 const formatDetailsForDisplay = (details) => {

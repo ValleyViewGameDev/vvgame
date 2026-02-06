@@ -178,6 +178,7 @@
     "403": "⚠️ Youre inventory is full.",
     "404": "Working...",
     "405": "❤️‍🩹 Hit Points healed by +",
+    "409": "⚠️ All crafting slots are full.",
     "410": "🏕️ To use a purchased tent, click on your own player icon.",
     "420": "will trade you:",
     "421": "Used In:",
@@ -334,6 +335,7 @@
     "803": " to increase the output of this station by ",
     "805": "Your ",
     "806": " Skill increases the base output of this station by ",
+    "807": "Output",
 
     "810": "You can also purchase this skill directly: ",
 

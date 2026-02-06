@@ -210,6 +210,10 @@ export const handleConstruction = async ({
     console.log('🔍 Existing resource at location before setResources:', debugBefore);
 
     const rawResource = { type: selectedItem, x, y };
+    // Set initial stationLevel for crafting stations
+    if (selectedResource.category === 'crafting') {
+      rawResource.stationLevel = 0;
+    }
     const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
 
     // Ensure size is included for multi-tile resources

@@ -100,16 +100,16 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         // If targetOfferCount is specified (e.g., discard all), generate exactly that many
         offersToGenerate = Math.min(targetOfferCount, maxOffers);
     } else {
-        // Default: generate 1 replacement offer
-        // Exception: if player has fewer than 3, generate enough to reach 3 (FTUE ramp-up)
-        const minTotalOffers = 3;
-        const neededToReachMin = Math.max(0, minTotalOffers - currentOfferCount);
-        offersToGenerate = Math.max(1, neededToReachMin);
-
-        // Cap by maxOffers
-        if (currentOfferCount + offersToGenerate > maxOffers) {
-            offersToGenerate = Math.max(0, maxOffers - currentOfferCount);
-        }
+        // Default behavior: replace the completed offer AND add 1 more slot (growth)
+        // This means each trade grows the total offer count by 1, until maxOffers is reached.
+        // Example: 1 offer -> complete trade -> now have 2 offers
+        //          3 offers -> complete trade -> now have 4 offers (until max 6)
+        //
+        // After the offer is removed, currentOfferCount reflects remaining offers.
+        // To grow: we need (currentOfferCount + 2) total = +1 to replace, +1 to grow
+        // But capped at maxOffers.
+        const desiredTotal = Math.min(currentOfferCount + 2, maxOffers);
+        offersToGenerate = desiredTotal - currentOfferCount;
     }
 
     // Crop balance sliding scale based on player level
@@ -207,8 +207,10 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
                 minQty = 5; maxQty = 15;
             } else if (playerLevel <= 10) {
                 minQty = 10; maxQty = 30;
+            } else if (playerLevel <= 20) {
+                minQty = 20; maxQty = 40;
             } else {
-                minQty = 15; maxQty = 50;
+                minQty = 25; maxQty = 50;
             }
         } else {
             // Non-crop quantity ranges by level
@@ -220,8 +222,10 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
                 minQty = 4; maxQty = 8;
             } else if (playerLevel <= 10) {
                 minQty = 5; maxQty = 10;
-            } else {
+            } else if (playerLevel <= 20) {
                 minQty = 8; maxQty = 20;
+            } else {
+                minQty = 15; maxQty = 35;
             }
         }
 

@@ -141,6 +141,7 @@
     {
       "step": 14,
       "trigger": "ClickedMailbox",
+      "showModal": false,
       "continue": false,
       "addQuests": []
     }

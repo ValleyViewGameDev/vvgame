@@ -8,7 +8,6 @@
 "shelflifeDays":		7		,			
 "rewards": [							
 { "item":"Money","qty":	20000	},
-{ "item":"Horse","qty":	1	},
 { "item":"Backpack","qty":	1	},
 { "item":"Axe","qty":	1	},
 { "item":"Pickaxe","qty":	1	},
@@ -30,15 +29,15 @@
 "shelflifeDays":		7		,			
 "rewards": [							
 { "item":"Money","qty":	20000	},
-{ "item":"Horse","qty":	1	},
 { "item":"Backpack","qty":	1	},
 { "item":"Axe","qty":	1	},
+{ "item":"Better Axe","qty":	1	},
 { "item":"Pickaxe","qty":	1	},
+{ "item":"Better Pickaxe","qty":	1	},
 { "item":"Grower","qty":	1	},
 { "item":"Builder","qty":	1	},
-{ "item":"Combat","qty":	1	},
-{ "item":"Gem","qty":	2	},
-{ "item":"Potion C","qty":	3	},
+{ "item":"Gem","qty":	5	},
+{ "item":"Potion A","qty":	10	},
 { "item":"Book","qty":	5	},
 { "item":"Wheat","qty":	75	},
 { "item":"Carrot","qty":	75	},
@@ -50,8 +49,8 @@
 "id":		6		,			
 "title":	"100 Gems"	,			
 "body":	"No brainer! Instantly adds 100 Gems."	,			
-"price":		1.00		,			
-"priceInCents":		100		,			
+"price":		2.00		,			
+"priceInCents":		200		,			
 "rewards": [							
 { "item":"Gem","qty":	100	}
 ]							
@@ -88,18 +87,7 @@
 { "item":"Money","qty":	100000	}
 ]							
 },							
-							
-{							
-"id":		10		,			
-"title":	"Relocations Pack"	,			
-"body":	"Additional homestead relocations. Move your entire homestead elsewhere in the frontier."	,			
-"price":		5.00		,			
-"priceInCents":		500		,			
-"rewards": [							
-{ "item":"Relocations","qty":	5	}
-]							
-},							
-							
+
 {							
 "id":		20		,			
 "title":	"Adventurer's Pack"	,			
@@ -109,6 +97,7 @@
 "rewards": [							
 { "item":"Backpack","qty":	1	},
 { "item":"Rucksack","qty":	1	},
+{ "item":"Side Pack","qty":	1	},
 { "item":"Book","qty":	20	},
 { "item":"Tent","qty":	5	}
 ]							
@@ -121,9 +110,10 @@
 "price":		6.00		,			
 "priceInCents":		600		,			
 "rewards": [							
-{ "item":"Gem","qty":	10	},
+{ "item":"Gem","qty":	20	},
 { "item":"Husbandry","qty":	1	},
 { "item":"Politics","qty":	1	},
+{ "item":"Law","qty":	1	},
 { "item":"Lumber","qty":	50	}
 ]							
 },							
@@ -135,10 +125,13 @@
 "price":		8.00		,			
 "priceInCents":		800		,			
 "rewards": [							
+{ "item":"Potion A","qty":	20	},
+{ "item":"Potion B","qty":	20	},
 { "item":"Potion C","qty":	20	},
 { "item":"Grower","qty":	1	},
-{ "item":"Farmer","qty":	1	},
-{ "item":"Lumber","qty":	50	}
+{ "item":"Green Thumb","qty":	1	},
+{ "item":"Livestock","qty":	1	},
+{ "item":"Corn","qty":	50	}
 ]							
 },							
 							
@@ -165,6 +158,17 @@
 },							
 							
 {							
+"id":		10		,			
+"title":	"Relocations Pack"	,			
+"body":	"Additional homestead relocations. Move your entire homestead elsewhere in the frontier."	,			
+"price":		5.00		,			
+"priceInCents":		500		,			
+"rewards": [							
+{ "item":"Relocations","qty":	5	}
+]							
+},							
+							
+{							
 "id":		70		,			
 "title":	"Mega Money Pack"	,			
 "body":	"Five million Money credits."	,			
@@ -174,5 +178,6 @@
 { "item":"Money","qty":	5000000	}
 ]							
 }							
-							
+
+
 ]							

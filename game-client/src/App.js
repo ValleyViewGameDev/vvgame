@@ -138,6 +138,7 @@ import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
 import StartScreenAnimation from './UI/StartScreenAnimation';
+import LoginScreenButterflies from './UI/LoginScreenButterflies';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
@@ -2916,25 +2917,46 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       isProcessing = false;
       return;
     }
-    const { handleConstruction } = await import('./GameFeatures/BuildAndBuy');
-    await handleConstruction({
-      TILE_SIZE: activeTileSize,
-      selectedItem: cursorMode.item,
-      buildOptions: cursorMode.buildOptions,
-      inventory,
-      setInventory,
-      backpack,
-      setBackpack,
-      resources,
-      setResources,
-      currentPlayer,
-      setCurrentPlayer,
-      gridId,
-      updateStatus,
-      overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
-      globalTuning,
-      masterResources,
-    });
+    const { handleConstruction, handleConstructionWithGems } = await import('./GameFeatures/BuildAndBuy');
+    // Check if this is a gem-modified purchase (modifiedRecipe is present)
+    if (cursorMode.modifiedRecipe) {
+      await handleConstructionWithGems({
+        TILE_SIZE: activeTileSize,
+        selectedItem: cursorMode.item,
+        buildOptions: cursorMode.buildOptions,
+        inventory,
+        setInventory,
+        backpack,
+        setBackpack,
+        resources,
+        setResources,
+        currentPlayer,
+        setCurrentPlayer,
+        gridId,
+        updateStatus,
+        modifiedRecipe: cursorMode.modifiedRecipe,
+        overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+      });
+    } else {
+      await handleConstruction({
+        TILE_SIZE: activeTileSize,
+        selectedItem: cursorMode.item,
+        buildOptions: cursorMode.buildOptions,
+        inventory,
+        setInventory,
+        backpack,
+        setBackpack,
+        resources,
+        setResources,
+        currentPlayer,
+        setCurrentPlayer,
+        gridId,
+        updateStatus,
+        overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+        globalTuning,
+        masterResources,
+      });
+    }
     isProcessing = false;
     return;
   }
@@ -3842,6 +3864,7 @@ return (
             alt="Valley View Key Art"
             className="keyart-image"
           />
+          <LoginScreenButterflies />
           <StartScreenAnimation />
         </div>
       )}

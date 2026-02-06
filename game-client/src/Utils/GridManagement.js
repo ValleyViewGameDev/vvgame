@@ -27,8 +27,8 @@ export const updateGridResource = async (
   //console.log('UPDATE GRID RESOURCE; resource = ', resource);
 
   try {
-    const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
-    
+    const { x, y, growEnd, craftEnd, craftedItem, type, stationLevel, slots } = resource;
+
     // ✅ 1. Flat payload — no "newResource" key
     const payload = {
       resource: {
@@ -38,6 +38,8 @@ export const updateGridResource = async (
         ...(growEnd !== undefined && { growEnd }),
         ...(craftEnd !== undefined && { craftEnd }),
         ...(craftedItem !== undefined && { craftedItem }),
+        ...(stationLevel !== undefined && { stationLevel }),
+        ...(slots !== undefined && { slots }),
       },
       broadcast, // optional - depending on your server usage
     };

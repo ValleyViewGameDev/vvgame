@@ -1,3 +1,55 @@
+/* Store Modal - Celebratory theme similar to LevelUpModal */
+.store-modal {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 3px solid #4caf50;
+  animation: storeModalBounce 0.5s ease-out;
+}
+
+@keyframes storeModalBounce {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Style the modal title for store */
+.store-modal .modal-title {
+  color: #2e7d32;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  animation: storeTitleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes storeTitleGlow {
+  from {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    text-shadow: 2px 2px 8px rgba(76, 175, 80, 0.5);
+  }
+}
+
+/* Store header text styling */
+.store-modal h3 {
+  color: #1b5e20;
+  font-size: 18px;
+  margin: 0 0 8px 0;
+}
+
+.store-modal h4 {
+  color: #388e3c;
+  font-size: 14px;
+  font-weight: normal;
+  margin: 4px 0;
+}
+
 .store-offers {
     display: flex;
     flex-direction: column;
@@ -11,11 +63,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     padding: 12px 16px;
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.85);
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .store-offer-card-gold {
@@ -42,9 +95,11 @@
   
   .store-offer-left h3 {
     margin: 0 0 4px;
-    font-size: 1.1em;
+    font-family: var(--font-title-3-family);
+    font-size: var(--font-title-3-size);
+    font-weight: var(--font-title-3-weight);
+    color: var(--font-title-3-color);
     text-align: left;
-
   }
   
   .store-offer-left p {
@@ -106,11 +161,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     padding: 12px 16px;
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.85);
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   /* Third-width cards for 3-column layout */
@@ -118,11 +174,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 6px;
     padding: 12px 16px;
-    background: #f9f9f9;
+    background: rgba(255, 255, 255, 0.85);
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   /* Adjust layout for third-width cards */

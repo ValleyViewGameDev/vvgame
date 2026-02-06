@@ -75,7 +75,7 @@
       "id": 1000,
       "title": "👸 Thanks for playing Secrets of Elsinore!",
       "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
-      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Honey", "qty": 5 }, { "item": "Sugarcane", "qty": 15 }],
+      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Honey", "qty": 15 }, { "item": "Sugarcane", "qty": 20 }],
       "everyoneRewards": true,
       "neverPurge": false
     },

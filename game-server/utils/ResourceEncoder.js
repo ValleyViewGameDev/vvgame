@@ -3,22 +3,25 @@
 
 const PROPERTY_FLAGS = {
   GROW_END: 1,        // 0000 0001
-  CRAFT_END: 2,       // 0000 0010  
+  CRAFT_END: 2,       // 0000 0010
   CRAFTED_ITEM: 4,    // 0000 0100
   QTY: 8,             // 0000 1000
   SIZE: 16,           // 0001 0000
   OCCUPIED: 32,       // 0010 0000
-  // Room for 2 more flags in single byte: 64, 128
+  STATION_LEVEL: 64,  // 0100 0000
+  SLOTS: 128,         // 1000 0000 - array of crafting slot states
 };
 
 // Property order (must match flag order for decoding)
 const PROPERTY_ORDER = [
   'growEnd',     // flag 1
-  'craftEnd',    // flag 2  
+  'craftEnd',    // flag 2
   'craftedItem', // flag 4
   'qty',         // flag 8
   'size',        // flag 16
-  'occupied'     // flag 32
+  'occupied',    // flag 32
+  'stationLevel', // flag 64
+  'slots'        // flag 128
 ];
 
 class UltraCompactResourceEncoder {
@@ -69,7 +72,7 @@ class UltraCompactResourceEncoder {
     PROPERTY_ORDER.forEach((propName, index) => {
       const flagValue = 1 << index; // 2^index
       let value = resourceObj[propName];
-      
+
       if (value !== undefined && value !== null) {
         // Special handling for craftedItem: convert type to layoutKey
         if (propName === 'craftedItem' && typeof value === 'string') {
@@ -80,7 +83,23 @@ class UltraCompactResourceEncoder {
             console.warn(`⚠️ No layoutKey found for craftedItem type: ${value}, using original value`);
           }
         }
-        
+
+        // Special handling for slots array: convert craftedItem in each slot to layoutKey, then JSON stringify
+        if (propName === 'slots' && Array.isArray(value)) {
+          const encodedSlots = value.map(slot => {
+            if (!slot) return null;
+            const encodedSlot = { ...slot };
+            if (encodedSlot.craftedItem) {
+              const slotItemLayoutKey = this.typeToLayoutKey.get(encodedSlot.craftedItem);
+              if (slotItemLayoutKey) {
+                encodedSlot.craftedItem = slotItemLayoutKey;
+              }
+            }
+            return encodedSlot;
+          });
+          value = JSON.stringify(encodedSlots);
+        }
+
         flags |= flagValue; // Set the bit
         values.push(value);
       }
@@ -137,7 +156,7 @@ class UltraCompactResourceEncoder {
         if (flags & flagValue) { // Check if bit is set
           if (valueIndex < resourceArray.length) {
             let value = resourceArray[valueIndex++];
-            
+
             // Special handling for craftedItem: convert layoutKey back to type
             if (propName === 'craftedItem' && typeof value === 'string') {
               const craftedItemType = this.layoutKeyToType.get(value);
@@ -147,7 +166,28 @@ class UltraCompactResourceEncoder {
                 console.warn(`⚠️ No type found for craftedItem layoutKey: ${value}, using original value`);
               }
             }
-            
+
+            // Special handling for slots: parse JSON and convert craftedItem layoutKeys back to types
+            if (propName === 'slots' && typeof value === 'string') {
+              try {
+                const parsedSlots = JSON.parse(value);
+                value = parsedSlots.map(slot => {
+                  if (!slot) return null;
+                  const decodedSlot = { ...slot };
+                  if (decodedSlot.craftedItem) {
+                    const slotItemType = this.layoutKeyToType.get(decodedSlot.craftedItem);
+                    if (slotItemType) {
+                      decodedSlot.craftedItem = slotItemType;
+                    }
+                  }
+                  return decodedSlot;
+                });
+              } catch (e) {
+                console.warn(`⚠️ Failed to parse slots JSON: ${e.message}`);
+                value = [];
+              }
+            }
+
             result[propName] = value;
           }
         }

@@ -1,0 +1,176 @@
+/* CraftingStation.css - Styles for crafting station panel and slots */
+
+/* Station panel layout - pin sell button to bottom and skills header to top */
+.station-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+}
+
+.station-panel-header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.station-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.station-panel-footer {
+  margin-top: auto;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Center the button container */
+.station-panel-footer .standard-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+/* Ensure button text is centered */
+.station-panel-footer .standard-buttons button {
+  text-align: center;
+  min-width: 150px; /* Give it a minimum width for better appearance */
+}
+
+/* Output multiplier text - uses theme font-title-3 to match other stations */
+.output-multiplier-badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: var(--font-title-3-family);
+  font-size: var(--font-title-3-size);
+  font-weight: var(--font-title-3-weight);
+  color: var(--font-title-3-color);
+  cursor: help;
+}
+
+/* Crafting Station Slots */
+.crafting-slots-container {
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background-color: var(--color-bg-light);
+  border-radius: 5px;
+}
+
+.crafting-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.crafting-slot {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-size: 20px;
+  cursor: default;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  min-width: 40px;
+  min-height: 40px;
+  position: relative;
+}
+
+.crafting-slot.unlocked {
+  background-color: #d5f5e3;
+  border: 2px solid #27ae60;
+}
+
+.crafting-slot.locked {
+  background-color: #e9e9e9;
+  border: 2px dashed #c0c0c0;
+}
+
+.crafting-slot.locked.clickable {
+  cursor: pointer;
+}
+
+.crafting-slot.locked.affordable {
+  background-color: #fef9e7;
+  border: 2px dashed #f39c12;
+}
+
+.crafting-slot.locked.affordable:hover {
+  background-color: #fdebd0;
+  transform: scale(1.05);
+}
+
+.crafting-slot.locked.affordable:active {
+  transform: scale(0.95);
+}
+
+.crafting-slot-icon.locked {
+  font-size: 22px;
+}
+
+.crafting-slot-icon {
+  font-size: 28px;
+}
+
+/* Slot wrapper for timer positioning */
+.crafting-slot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Crafting state - item being made */
+.crafting-slot.crafting {
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  cursor: default;
+}
+
+/* Ready state - item ready to collect */
+.crafting-slot.ready {
+  background-color: #d4edda;
+  border: 2px solid #28a745;
+  cursor: pointer;
+  animation: readyPulse 1.5s ease-in-out infinite;
+}
+
+.crafting-slot.ready:hover {
+  transform: scale(1.05);
+}
+
+/* Ready badge (small checkmark in corner) */
+.crafting-slot-ready-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 12px;
+}
+
+/* Timer below slot */
+.crafting-slot-timer {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* Ready pulse animation */
+@keyframes readyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+  50% { box-shadow: 0 0 8px 2px rgba(40, 167, 69, 0.6); }
+}
+
+/* Healer HP display text */
+.healer-hp-text {
+  text-align: center;
+  margin-top: 5px;
+  font-family: var(--font-text-1-family);
+  font-size: var(--font-text-1-size);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}

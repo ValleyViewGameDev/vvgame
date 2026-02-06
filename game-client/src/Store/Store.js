@@ -8,6 +8,7 @@ import { StatusBarContext } from '../UI/StatusBar/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';
 import { useStrings } from '../UI/StringsContext';
+import { formatNumber } from '../UI/Timers';
 
 export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
   try {
@@ -109,6 +110,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         onClose();
       }}
       title={strings[1701]}
+      className="store-modal"
     >
         <h3>{strings[1702]}</h3>
         <h4>{strings[1703]}</h4>
@@ -141,7 +143,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                         <p className="store-reward-line">
                           {offer3.rewards.map(r => {
                             const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${r.qty} ${r.item}`;
+                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                           }).join(", ")}
                         </p>
                       </div>
@@ -161,7 +163,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                         <p className="store-reward-line">
                           {offer4.rewards.map(r => {
                             const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${r.qty} ${r.item}`;
+                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                           }).join(", ")}
                         </p>
                       </div>
@@ -197,7 +199,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                         <p className="store-reward-line">
                           {offer6.rewards.map(r => {
                             const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${r.qty} ${r.item}`;
+                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                           }).join(", ")}
                         </p>
                       </div>
@@ -217,7 +219,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                         <p className="store-reward-line">
                           {offer7.rewards.map(r => {
                             const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${r.qty} ${r.item}`;
+                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                           }).join(", ")}
                         </p>
                       </div>
@@ -237,7 +239,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                         <p className="store-reward-line">
                           {offer8.rewards.map(r => {
                             const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${r.qty} ${r.item}`;
+                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                           }).join(", ")}
                         </p>
                       </div>
@@ -264,7 +266,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                   <p className="store-reward-line">
                     {offer.rewards.map(r => {
                       const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                      return `${symbol} ${r.qty} ${r.item}`;
+                      return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
                     }).join(", ")}
                   </p>
                 </div>

@@ -9,6 +9,48 @@
   "warehouseCapacityGold": 100000,
   "backpackCapacityGold": 4000,
   "harvestDropRate": 0.1,
+  "maxCraftingStationSlots": 12,
+  "craftingStationSlotCosts": 
+    {
+      "slot0": {
+        "Money": 0
+      },
+      "slot1": {
+        "Money": 2000,
+        "Wood": 25,
+        "Saw": 1
+      },
+      "slot2": {
+        "Gem": 5
+      },
+      "slot3": {
+        "Gem": 10
+      },
+      "slot4": {
+        "Gem": 20
+      },
+      "slot5": {
+        "Gem": 30
+      },
+      "slot6": {
+        "Gem": 40
+      },
+      "slot7": {
+        "Gem": 50
+      },
+      "slot8": {
+        "Gem": 60
+      },
+      "slot9": {
+        "Gem": 70
+      },
+      "slot10": {
+        "Gem": 80
+      },
+      "slot11": {
+        "Gem": 90
+      }
+    },
   "closerZoom": 65,
   "closeZoom": 40,
   "farishZoom": 25,

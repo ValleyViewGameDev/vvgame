@@ -388,12 +388,24 @@ const PixiRenderer = ({
     const now = Date.now(); // Calculate inside useMemo, not as external dependency
 
     return resources.reduce((acc, res) => {
-      if ((res.category === 'crafting' || res.category === 'farmhouse') && res.craftEnd) {
+      if (res.category === 'crafting' || res.category === 'farmhouse') {
         const key = `${res.x}-${res.y}`;
-        if (res.craftEnd < now) {
-          acc.ready.push(key);
-        } else {
-          acc.inProgress.push(key);
+        // Check slots array for multi-slot crafting stations
+        if (res.slots && res.slots.length > 0) {
+          const hasReady = res.slots.some(slot => slot?.craftedItem && slot?.craftEnd && slot.craftEnd < now);
+          const hasInProgress = res.slots.some(slot => slot?.craftEnd && slot.craftEnd >= now);
+          if (hasReady) {
+            acc.ready.push(key);
+          } else if (hasInProgress) {
+            acc.inProgress.push(key);
+          }
+        } else if (res.craftEnd) {
+          // Legacy single-slot fallback
+          if (res.craftEnd < now) {
+            acc.ready.push(key);
+          } else {
+            acc.inProgress.push(key);
+          }
         }
       } else if (res.category === 'farmplot' && res.isSearching) {
         const key = `${res.x}-${res.y}`;

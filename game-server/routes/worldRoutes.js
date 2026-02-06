@@ -489,7 +489,7 @@ router.patch('/update-grid/:gridId', (req, res) => {
     return res.status(400).json({ error: 'Missing resource in request body.' });
   }
 
-  const { type, x, y, growEnd, craftEnd, craftedItem } = resource;
+  const { type, x, y, growEnd, craftEnd, craftedItem, stationLevel } = resource;
 
 
   if (!mongoose.Types.ObjectId.isValid(gridId)) {
@@ -550,7 +550,14 @@ router.patch('/update-grid/:gridId', (req, res) => {
               updatedResource.craftedItem = craftedItem;
             }
           }
-          
+          if (stationLevel !== undefined) {
+            if (stationLevel === null) {
+              delete updatedResource.stationLevel;
+            } else {
+              updatedResource.stationLevel = stationLevel;
+            }
+          }
+
           // Use GridResourceManager to update the resource
           gridResourceManager.updateResource(grid, updatedResource);
 
@@ -576,6 +583,7 @@ router.patch('/update-grid/:gridId', (req, res) => {
             ...(growEnd !== undefined && { growEnd }),
             ...(craftEnd !== undefined && { craftEnd }),
             ...(craftedItem !== undefined && { craftedItem }),
+            ...(stationLevel !== undefined && { stationLevel }),
           };
           gridResourceManager.updateResource(grid, newResource);
         }
@@ -1312,9 +1320,9 @@ router.post('/get-grids-by-id-array', async (req, res) => {
 
 // Protected crafting collection endpoint
 router.post('/crafting/collect-item', async (req, res) => {
-  const { playerId, gridId, stationX, stationY, craftedItem, transactionId, transactionKey } = req.body;
-  
-  if (!playerId || !gridId || stationX === undefined || stationY === undefined || !craftedItem || !transactionId || !transactionKey) {
+  const { playerId, gridId, stationX, stationY, craftedItem, slotIndex, transactionId, transactionKey } = req.body;
+
+  if (!playerId || !gridId || stationX === undefined || stationY === undefined || !craftedItem || slotIndex === undefined || !transactionId || !transactionKey) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -1362,17 +1370,52 @@ router.post('/crafting/collect-item', async (req, res) => {
     // Find the station resource using GridResourceManager
     const currentResources = gridResourceManager.getResources(grid);
     const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
-    if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
+    if (!stationResource) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
-      return res.status(400).json({ error: 'No crafted item ready at this location' });
+      return res.status(400).json({ error: 'Crafting station not found' });
     }
 
-    // Validate the item matches and is ready
-    if (stationResource.craftedItem !== craftedItem || stationResource.craftEnd > Date.now()) {
+    // Migrate legacy single-slot data to slots array if needed
+    if ((stationResource.craftEnd || stationResource.craftedItem) && !stationResource.slots) {
+      stationResource.slots = [{
+        craftEnd: stationResource.craftEnd,
+        craftedItem: stationResource.craftedItem,
+        qty: stationResource.qty || 1
+      }];
+      // Clear legacy fields via update (preserve stationLevel)
+      gridResourceManager.updateResource(grid, {
+        type: stationResource.type,
+        x: stationX,
+        y: stationY,
+        stationLevel: stationResource.stationLevel ?? 0,
+        slots: stationResource.slots,
+        craftEnd: null,
+        craftedItem: null
+      });
+      console.log(`🔄 Migrated legacy crafting data to slots array at (${stationX}, ${stationY})`);
+    }
+
+    // Validate the slot exists and has a ready item
+    const slots = stationResource.slots || [];
+    const slot = slots[slotIndex];
+
+    if (!slot || !slot.craftedItem) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
-      return res.status(400).json({ error: 'Item not ready for collection' });
+      return res.status(400).json({ error: 'No item in this slot' });
+    }
+
+    if (slot.craftedItem !== craftedItem) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Item mismatch in slot' });
+    }
+
+    if (slot.craftEnd > Date.now()) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Item not ready yet' });
     }
 
     // Get item details for processing
@@ -1390,17 +1433,20 @@ router.post('/crafting/collect-item', async (req, res) => {
     }
     // Don't add items to inventory here - let client handle with skill buffs via gainIngredients
 
-    // Clear the crafting state from the station using GridResourceManager
+    // Clear only the specific slot
+    const newSlots = [...slots];
+    newSlots[slotIndex] = { craftEnd: null, craftedItem: null, qty: 1 };
+
     const resourceUpdate = {
       type: stationResource.type, // Keep the station type
       x: stationX,
       y: stationY,
-      craftEnd: null,     // Remove craftEnd
-      craftedItem: null   // Remove craftedItem
+      stationLevel: stationResource.stationLevel ?? 0, // Preserve stationLevel
+      slots: newSlots
     };
-    
+
     gridResourceManager.updateResource(grid, resourceUpdate);
-    console.log(`✅ Cleared crafting state at (${stationX}, ${stationY})`);
+    console.log(`✅ Cleared crafting state in slot ${slotIndex} at (${stationX}, ${stationY}), stationLevel: ${resourceUpdate.stationLevel}`);
 
     // Save changes
     await grid.save();
@@ -1415,10 +1461,12 @@ router.post('/crafting/collect-item', async (req, res) => {
     // Get the updated station resource
     const updatedResources = gridResourceManager.getResources(grid);
     const updatedStation = updatedResources.find(res => res.x === stationX && res.y === stationY);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       collectedItem: craftedItem,
+      slotIndex,
+      slots: updatedStation?.slots || newSlots,
       isNPC: itemResource.category === 'npc',
       inventory: player.inventory,
       updatedStation: updatedStation
@@ -1502,11 +1550,44 @@ router.post('/crafting/start-craft', async (req, res) => {
       return res.status(400).json({ error: 'Crafting station not found' });
     }
 
-    // Check if station is already crafting
-    if (stationResource.craftEnd && stationResource.craftEnd > Date.now()) {
+    // Migrate legacy single-slot data to slots array if needed
+    if ((stationResource.craftEnd || stationResource.craftedItem) && !stationResource.slots) {
+      stationResource.slots = [{
+        craftEnd: stationResource.craftEnd,
+        craftedItem: stationResource.craftedItem,
+        qty: stationResource.qty || 1
+      }];
+      // Clear legacy fields via update (preserve stationLevel)
+      gridResourceManager.updateResource(grid, {
+        type: stationResource.type,
+        x: stationX,
+        y: stationY,
+        stationLevel: stationResource.stationLevel ?? 0,
+        slots: stationResource.slots,
+        craftEnd: null,
+        craftedItem: null
+      });
+      console.log(`🔄 Migrated legacy crafting data to slots array at (${stationX}, ${stationY})`);
+    }
+
+    // Find first available slot
+    const slots = stationResource.slots || [];
+    const unlockedSlotCount = (stationResource.stationLevel ?? 0) + 1;
+
+    let targetSlotIndex = -1;
+    for (let i = 0; i < unlockedSlotCount; i++) {
+      const slot = slots[i];
+      // Slot is available if: empty, OR has no craftedItem (already collected)
+      if (!slot || !slot.craftedItem) {
+        targetSlotIndex = i;
+        break;
+      }
+    }
+
+    if (targetSlotIndex === -1) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
-      return res.status(400).json({ error: 'Station is already crafting' });
+      return res.status(400).json({ error: 'All crafting slots are full', code: 'SLOTS_FULL' });
     }
 
     // Check if player can afford the recipe (server-side validation)
@@ -1573,20 +1654,28 @@ router.post('/crafting/start-craft', async (req, res) => {
     player.inventory = inventory;
     player.backpack = backpack;
 
-    // Set up crafting on the station using GridResourceManager
+    // Set up crafting on the station using GridResourceManager (slot-based)
     const craftTime = recipe.crafttime || 60;
     const craftEnd = Date.now() + craftTime * 1000;
-    
+
+    // Build new slots array with the craft in the target slot
+    const newSlots = [...slots];
+    newSlots[targetSlotIndex] = {
+      craftEnd: craftEnd,
+      craftedItem: recipe.type,
+      qty: 1
+    };
+
     const resourceUpdate = {
       type: stationResource.type, // Keep the station type
       x: stationX,
       y: stationY,
-      craftEnd: craftEnd,
-      craftedItem: recipe.type
+      stationLevel: stationResource.stationLevel ?? 0, // Preserve stationLevel
+      slots: newSlots
     };
-    
+
     gridResourceManager.updateResource(grid, resourceUpdate);
-    console.log(`✅ Set crafting state at (${stationX}, ${stationY})`);
+    console.log(`✅ Set crafting state in slot ${targetSlotIndex} at (${stationX}, ${stationY}), stationLevel: ${resourceUpdate.stationLevel}`);
 
     // Save changes
     await grid.save();
@@ -1601,10 +1690,15 @@ router.post('/crafting/start-craft', async (req, res) => {
     // Get updated resources
     const updatedResources = gridResourceManager.getResources(grid);
     
-    res.json({ 
-      success: true, 
+    // Get the updated station to return its slots
+    const updatedStation = updatedResources.find(res => res.x === stationX && res.y === stationY);
+
+    res.json({
+      success: true,
       craftEnd,
       craftedItem: recipe.type,
+      slotIndex: targetSlotIndex,
+      slots: updatedStation?.slots || newSlots,
       updatedResources: updatedResources,
       inventory: player.inventory,
       backpack: player.backpack
@@ -1627,6 +1721,173 @@ router.post('/crafting/start-craft', async (req, res) => {
     }
     console.error('Error starting crafting:', error);
     res.status(500).json({ error: 'Failed to start crafting' });
+  }
+});
+
+// Protected crafting station upgrade endpoint
+router.post('/crafting/upgrade-station', async (req, res) => {
+  const { playerId, gridId, stationX, stationY, targetLevel, transactionId, transactionKey } = req.body;
+
+  if (!playerId || !gridId || stationX === undefined || stationY === undefined || targetLevel === undefined || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Station already upgraded' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid and station
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    const currentResources = gridResourceManager.getResources(grid);
+    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
+    if (!stationResource) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Crafting station not found' });
+    }
+
+    // Validate level upgrade
+    const currentLevel = stationResource.stationLevel ?? 0;
+    const maxSlots = globalTuning.maxCraftingStationSlots || 4;
+    if (targetLevel <= currentLevel || targetLevel >= maxSlots) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Invalid target level' });
+    }
+
+    // Get slot cost from globalTuning
+    const slotKey = `slot${targetLevel}`;
+    const slotCosts = globalTuning.craftingStationSlotCosts?.[slotKey];
+    if (!slotCosts) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'No cost defined for this slot' });
+    }
+
+    // Validate player can afford and deduct ingredients
+    const inventory = player.inventory || [];
+    const backpack = player.backpack || [];
+
+    for (const [resourceType, qty] of Object.entries(slotCosts)) {
+      if (qty <= 0) continue;
+      const inventoryQty = inventory.find(item => item.type === resourceType)?.quantity || 0;
+      const backpackQty = backpack.find(item => item.type === resourceType)?.quantity || 0;
+      if (inventoryQty + backpackQty < qty) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+        return res.status(400).json({ error: `Insufficient ${resourceType}` });
+      }
+    }
+
+    // Deduct ingredients (inventory first, then backpack)
+    for (const [resourceType, qty] of Object.entries(slotCosts)) {
+      if (qty <= 0) continue;
+      let remaining = qty;
+
+      const inventoryItem = inventory.find(item => item.type === resourceType);
+      if (inventoryItem && remaining > 0) {
+        const take = Math.min(inventoryItem.quantity, remaining);
+        inventoryItem.quantity -= take;
+        remaining -= take;
+        if (inventoryItem.quantity <= 0) {
+          const idx = inventory.findIndex(item => item.type === resourceType);
+          inventory.splice(idx, 1);
+        }
+      }
+
+      if (remaining > 0) {
+        const backpackItem = backpack.find(item => item.type === resourceType);
+        if (backpackItem) {
+          const take = Math.min(backpackItem.quantity, remaining);
+          backpackItem.quantity -= take;
+          remaining -= take;
+          if (backpackItem.quantity <= 0) {
+            const idx = backpack.findIndex(item => item.type === resourceType);
+            backpack.splice(idx, 1);
+          }
+        }
+      }
+    }
+
+    // Update player inventory
+    player.inventory = inventory;
+    player.backpack = backpack;
+
+    // Update station level via GridResourceManager
+    const resourceUpdate = {
+      ...stationResource,
+      stationLevel: targetLevel
+    };
+    gridResourceManager.updateResource(grid, resourceUpdate);
+
+    // Save changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    console.log(`✅ Crafting station at (${stationX}, ${stationY}) upgraded to level ${targetLevel}`);
+
+    res.json({
+      success: true,
+      newLevel: targetLevel,
+      inventory: player.inventory,
+      backpack: player.backpack
+    });
+
+  } catch (error) {
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed upgrade transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Upgrade already in progress' });
+    }
+    console.error('Error upgrading crafting station:', error);
+    res.status(500).json({ error: 'Failed to upgrade crafting station' });
   }
 });
 
