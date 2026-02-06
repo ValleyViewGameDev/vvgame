@@ -387,7 +387,8 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         }
 
         items.push({ item: firstPick.resource.type, quantity: firstPick.quantity });
-        totalRewardAmount += (firstPick.resource.maxprice || 100) * firstPick.quantity;
+        const firstMaxPrice = firstPick.resource.maxprice || firstPick.resource.minprice || 10;
+        totalRewardAmount += firstMaxPrice * firstPick.quantity;
 
         // Track crop offers generated (based on first item for crop balance)
         if (isACrop(firstPick.resource.type, masterResources)) {
@@ -404,9 +405,9 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
                 const secondPick = pickItemWithQuantity(availableForSecond, playerLevel, masterResources);
                 if (secondPick) {
                     items.push({ item: secondPick.resource.type, quantity: secondPick.quantity });
-                    totalRewardAmount += (secondPick.resource.maxprice || 100) * secondPick.quantity;
+                    const secondMaxPrice = secondPick.resource.maxprice || secondPick.resource.minprice || 10;
+                    totalRewardAmount += secondMaxPrice * secondPick.quantity;
                     multiItemOffersGenerated++;
-                    console.log(`🤠 Multi-item offer: ${firstPick.resource.type} x${firstPick.quantity} + ${secondPick.resource.type} x${secondPick.quantity}`);
                 }
             }
         }

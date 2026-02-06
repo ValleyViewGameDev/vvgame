@@ -373,7 +373,7 @@ const CraftingStation = ({
   };
 
 
-  // Slot-based collection function
+  // Slot-based collection function - uses optimistic UI pattern for responsiveness
   const handleCollectSlot = async (slotIndex) => {
     const slot = effectiveSlots?.[slotIndex];
     if (!slot?.craftedItem) {
@@ -385,12 +385,55 @@ const CraftingStation = ({
       return;
     }
 
+    // Prevent double-clicks on the same slot
+    const collectId = `collect-slot-${slotIndex}-${currentStationPosition.x}-${currentStationPosition.y}`;
+    if (window._processingSlotCollects && window._processingSlotCollects.has(collectId)) {
+      console.log("Already processing this slot collection, ignoring duplicate click");
+      return;
+    }
+    if (!window._processingSlotCollects) {
+      window._processingSlotCollects = new Set();
+    }
+    window._processingSlotCollects.add(collectId);
+
     const craftedItemType = slot.craftedItem;
     const transactionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const transactionKey = `crafting-collect-slot-${slotIndex}-${currentStationPosition.x}-${currentStationPosition.y}`;
 
     console.log(`🔒 [PROTECTED CRAFTING] Collecting from slot ${slotIndex}: ${craftedItemType}`);
 
+    // Calculate quantities and info BEFORE optimistic update
+    const skillInfo = calculateSkillMultiplier(stationType, currentPlayer.skills || [], masterSkills);
+    const baseQtyCollected = slot.qty || 1;
+    const finalQtyCollected = applySkillMultiplier(baseQtyCollected, skillInfo.multiplier);
+    const craftedItemResource = masterResources.find(r => r.type === craftedItemType);
+    const craftedSymbol = craftedItemResource?.symbol || '🎁';
+
+    // Save original slot state for potential rollback
+    const originalSlots = [...(station?.slots || [])];
+
+    // ===== OPTIMISTIC UI: Show feedback immediately =====
+    // 1. Play sound immediately
+    soundManager.playSFX('collect_item');
+
+    // 2. Show floating text animation immediately
+    setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${craftedSymbol} ${getLocalizedString(craftedItemType, strings)}` });
+    setTimeout(() => setSlotCollectedAnimation(null), 1800);
+
+    // 3. Optimistically clear the slot visually
+    const optimisticSlots = originalSlots.map((s, i) =>
+      i === slotIndex ? { craftEnd: null, craftedItem: null, qty: null } : s
+    );
+    const optimisticGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        ? { ...res, slots: optimisticSlots }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(optimisticGlobalResources);
+    setResources(optimisticGlobalResources);
+    setStationRefreshKey(prev => prev + 1);
+
+    // ===== SERVER VALIDATION =====
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
         playerId: currentPlayer.playerId,
@@ -406,11 +449,6 @@ const CraftingStation = ({
       if (response.data.success) {
         const { collectedItem, slots: newSlots, isNPC } = response.data;
 
-        // Apply skill buffs to crafted collection (station-based)
-        const skillInfo = calculateSkillMultiplier(stationType, currentPlayer.skills || [], masterSkills);
-        const baseQtyCollected = slot.qty || 1;
-        const finalQtyCollected = applySkillMultiplier(baseQtyCollected, skillInfo.multiplier);
-
         // Handle NPC spawning client-side
         if (isNPC) {
           const craftedResource = allResources.find(res => res.type === collectedItem);
@@ -418,11 +456,6 @@ const CraftingStation = ({
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
             setNpcRefreshKey(prev => prev + 1);
           }
-          const npcSymbol = craftedResource?.symbol || '🎁';
-          // Show floating text on the slot instead of the grid
-          setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${npcSymbol} ${getLocalizedString(collectedItem, strings)}` });
-          setTimeout(() => setSlotCollectedAnimation(null), 1800);
-          soundManager.playSFX('collect_item');
         } else {
           // Add non-NPC items to inventory
           const gained = await gainIngredients({
@@ -441,22 +474,27 @@ const CraftingStation = ({
           });
 
           if (gained !== true && (!gained || gained.success === false)) {
-            console.error('❌ Failed to add crafted item to inventory.');
+            console.error('❌ Failed to add crafted item to inventory - rolling back');
+            // Rollback the optimistic slot update
+            const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+              res.x === currentStationPosition.x && res.y === currentStationPosition.y
+                ? { ...res, slots: originalSlots }
+                : res
+            );
+            GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
+            setResources(rollbackGlobalResources);
+            setStationRefreshKey(prev => prev + 1);
+            if (window._processingSlotCollects) {
+              window._processingSlotCollects.delete(collectId);
+            }
             return;
           }
-
-          const collectedItemResource = masterResources.find(r => r.type === collectedItem);
-          const collectedSymbol = collectedItemResource?.symbol || '🎁';
-          // Show floating text on the slot instead of the grid
-          setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${collectedSymbol} ${getLocalizedString(collectedItem, strings)}` });
-          setTimeout(() => setSlotCollectedAnimation(null), 1800);
-          soundManager.playSFX('collect_item');
         }
 
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
-        // Update station with new slots array
+        // Update station with authoritative server slots array
         console.log(`🔄 [COLLECT] Cleared slot ${slotIndex}`);
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
@@ -478,13 +516,40 @@ const CraftingStation = ({
         updateStatus(statusMessage);
 
         console.log(`✅ ${collectedItem} collected from slot ${slotIndex}.`);
+      } else {
+        // Server returned success: false - rollback
+        console.error('❌ Server rejected collection - rolling back');
+        const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? { ...res, slots: originalSlots }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
+        setResources(rollbackGlobalResources);
+        setStationRefreshKey(prev => prev + 1);
+        updateStatus('❌ Failed to collect item');
       }
     } catch (error) {
       console.error('Error collecting from slot:', error);
+      // Rollback the optimistic slot update
+      const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+        res.x === currentStationPosition.x && res.y === currentStationPosition.y
+          ? { ...res, slots: originalSlots }
+          : res
+      );
+      GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
+      setResources(rollbackGlobalResources);
+      setStationRefreshKey(prev => prev + 1);
+
       if (error.response?.status === 429) {
         updateStatus(471);
       } else {
         updateStatus('❌ Failed to collect item');
+      }
+    } finally {
+      // Clear the processing flag
+      if (window._processingSlotCollects) {
+        window._processingSlotCollects.delete(collectId);
       }
     }
   };

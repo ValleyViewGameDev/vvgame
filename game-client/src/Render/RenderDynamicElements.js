@@ -240,20 +240,31 @@ export const checkTradeNPCStatus = (npc, masterResources) => {
  */
 export const checkKentNPCStatus = (npc, currentPlayer) => {
   if (npc.type !== 'Kent' || !currentPlayer) return null;
-  
+
   try {
     const kentOffers = currentPlayer?.kentOffers?.offers || [];
-    
+
     // Check if player can afford any of Kent's offers
     const canAffordAny = kentOffers.some(offer => {
-      // Calculate player's total quantity from inventory and backpack
+      // Handle multi-item offers (items array with multiple items)
+      if (offer.items && offer.items.length > 0) {
+        // Must be able to afford ALL items in the offer
+        return offer.items.every(item => {
+          const inventoryQty = currentPlayer?.inventory?.find(i => i.type === item.item)?.quantity || 0;
+          const backpackQty = currentPlayer?.backpack?.find(i => i.type === item.item)?.quantity || 0;
+          const playerQty = inventoryQty + backpackQty;
+          return playerQty >= item.quantity;
+        });
+      }
+
+      // Legacy single-item offer format
       const inventoryQty = currentPlayer?.inventory?.find(item => item.type === offer.item)?.quantity || 0;
       const backpackQty = currentPlayer?.backpack?.find(item => item.type === offer.item)?.quantity || 0;
       const playerQty = inventoryQty + backpackQty;
-      
+
       return playerQty >= offer.quantity;
     });
-    
+
     return canAffordAny ? 'completed' : null;
   } catch (error) {
     console.error('Error checking Kent status:', error);
