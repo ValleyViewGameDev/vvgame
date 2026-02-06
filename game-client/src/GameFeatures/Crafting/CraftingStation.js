@@ -942,7 +942,7 @@ const CraftingStation = ({
                       const hasEnough = playerQty >= qty;
                       return (
                         <div key={resourceType} style={{ color: hasEnough ? 'green' : 'red' }}>
-                          {symbol} {getLocalizedString(resourceType, strings)}: {playerQty} / {qty}
+                          {symbol} {getLocalizedString(resourceType, strings)}: {qty} / {playerQty}
                         </div>
                       );
                     })}

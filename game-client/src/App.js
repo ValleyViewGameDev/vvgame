@@ -3252,12 +3252,20 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       });
     }
   } else {
+    // Check if clicked tile is dirt - auto-open FarmingPanel (only on own homestead)
+    const clickedTileType = tileTypes?.[rowIndex]?.[colIndex];
+    if (clickedTileType === 'd' && isOnOwnHomestead) {
+      openPanel('FarmingPanel');
+      isProcessing = false;
+      return;
+    }
+
     console.log('isTeleportEnabled:', currentPlayer?.settings?.isTeleportEnabled);
-  
+
     if (currentPlayer?.settings?.isTeleportEnabled) {
       const targetPosition = { x: colIndex, y: rowIndex };
       console.log('📍 Player teleporting to grid position:', targetPosition);
-  
+
       // Update currentPlayer state
       const updatedPlayer = {
         ...currentPlayer,
@@ -3265,7 +3273,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       };
       setCurrentPlayer(updatedPlayer);
       localStorage.setItem('player', JSON.stringify(updatedPlayer));
-  
+
       // Multiplayer sync — update PC in grid
       if (currentPlayer?._id) {
         playersInGridManager.updatePC(gridId, currentPlayer._id, {

@@ -6,14 +6,15 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 // TUNING CONSTANTS - Adjust these to balance Kent offers
 // ============================================================================
 
-// Multi-item offer probability by player level
-// { maxLevel: probability } - checked in order, first match wins
-const MULTI_ITEM_PROBABILITY = [
-    { maxLevel: 5, probability: 0 },       // Levels 1-5: 0% multi-item
-    { maxLevel: 6, probability: 1 / 6 },  
-    { maxLevel: 7, probability: 2 / 6 },  
-    { maxLevel: 9, probability: 3 / 6 }, 
-    { maxLevel: Infinity, probability: 5 / 6 } // Levels 11+: 
+// Multi-item offer target counts by player level (out of 6 offers)
+// { maxLevel, min, target, max } - min/max are hard limits, target is the center of the bell curve
+// The system picks a random count weighted toward 'target', within [min, max]
+const MULTI_ITEM_TARGET_COUNTS = [
+    { maxLevel: 5, min: 0, target: 0, max: 0 },    // Levels 1-5: always 0 multi-item
+    { maxLevel: 6, min: 0, target: 1, max: 2 },    // Level 6: usually 1, sometimes 0 or 2
+    { maxLevel: 7, min: 1, target: 2, max: 3 },    // Level 7: usually 2, sometimes 1 or 3, never 0
+    { maxLevel: 9, min: 1, target: 3, max: 4 },    // Levels 8-9: usually 3, sometimes 2 or 4
+    { maxLevel: Infinity, min: 3, target: 5, max: 6 } // Levels 10+: usually 5, sometimes 4 or 6
 ];
 
 // Crop percentage enforcement by player level
@@ -189,18 +190,34 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     const existingOffers = currentPlayer?.kentOffers?.offers || [];
     const currentOfferCount = existingOffers.length;
 
-    // Determine multi-item offer probability based on player level
-    let multiItemProbability = 0;
-    for (const tier of MULTI_ITEM_PROBABILITY) {
+    // Determine multi-item offer target count based on player level
+    // Uses a weighted random to pick a count between min and max, centered on target
+    let multiItemTargetConfig = { min: 0, target: 0, max: 0 };
+    for (const tier of MULTI_ITEM_TARGET_COUNTS) {
         if (playerLevel <= tier.maxLevel) {
-            multiItemProbability = tier.probability;
+            multiItemTargetConfig = tier;
             break;
         }
     }
 
-    console.log('🤠 Multi-item offer probability:', {
+    // Pick a random count weighted toward target using triangular distribution
+    // This gives: sometimes min, usually target, sometimes max
+    const { min: multiMin, target: multiTarget, max: multiMax } = multiItemTargetConfig;
+    let targetMultiItemCount;
+    if (multiMin === multiMax) {
+        targetMultiItemCount = multiMin;
+    } else {
+        // Triangular distribution: pick two random numbers and use the one closer to target
+        const rand1 = Math.floor(Math.random() * (multiMax - multiMin + 1)) + multiMin;
+        const rand2 = Math.floor(Math.random() * (multiMax - multiMin + 1)) + multiMin;
+        // Pick whichever is closer to target (weighted toward center)
+        targetMultiItemCount = Math.abs(rand1 - multiTarget) <= Math.abs(rand2 - multiTarget) ? rand1 : rand2;
+    }
+
+    console.log('🤠 Multi-item offer target:', {
         playerLevel,
-        probability: `${(multiItemProbability * 100).toFixed(1)}%`
+        config: `min=${multiMin}, target=${multiTarget}, max=${multiMax}`,
+        selectedCount: targetMultiItemCount
     });
 
     // Determine how many new offers to generate
@@ -231,20 +248,35 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         }
     }
 
-    // Count crops already in existing offers to enforce ratio across all offers
+    // Count crops and multi-item offers already in existing offers
     let existingCropCount = 0;
-    if (cropPercentage > 0) {
-        existingOffers.forEach(offer => {
-            if (isACrop(offer.item, masterResources)) {
-                existingCropCount++;
-            }
-        });
-    }
+    let existingMultiItemCount = 0;
+    existingOffers.forEach(offer => {
+        if (cropPercentage > 0 && isACrop(offer.item, masterResources)) {
+            existingCropCount++;
+        }
+        // Check if this is a multi-item offer
+        if (offer.items && offer.items.length > 1) {
+            existingMultiItemCount++;
+        }
+    });
 
     // Calculate how many crops we want across ALL offers (existing + new)
     const totalOffersAfter = currentOfferCount + offersToGenerate;
     const totalCropsWanted = Math.ceil(totalOffersAfter * cropPercentage);
     const cropOffersNeeded = Math.max(0, totalCropsWanted - existingCropCount);
+
+    // Calculate how many multi-item offers we need among the NEW offers
+    // Target is for all offers combined, so subtract existing multi-item count
+    const multiItemOffersNeeded = Math.max(0, targetMultiItemCount - existingMultiItemCount);
+    let multiItemOffersGenerated = 0;
+
+    console.log('🤠 Multi-item balance:', {
+        existingMultiItem: existingMultiItemCount,
+        targetTotal: targetMultiItemCount,
+        neededInNew: multiItemOffersNeeded,
+        offersToGenerate
+    });
     const nonCropOffersNeeded = offersToGenerate - cropOffersNeeded;
     let cropOffersGenerated = 0;
 
@@ -309,8 +341,19 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             break;
         }
 
-        // Determine if this should be a multi-item offer
-        const isMultiItem = Math.random() < multiItemProbability;
+        // Determine if this should be a multi-item offer based on how many we still need
+        const multiItemStillNeeded = multiItemOffersNeeded - multiItemOffersGenerated;
+        const singleItemStillNeeded = offersToGenerate - i - multiItemStillNeeded;
+        // Force multi-item if we need more and don't have room for singles, otherwise random choice weighted by need
+        let isMultiItem;
+        if (multiItemStillNeeded > 0 && singleItemStillNeeded <= 0) {
+            isMultiItem = true;
+        } else if (multiItemStillNeeded <= 0) {
+            isMultiItem = false;
+        } else {
+            // Random choice weighted by remaining need
+            isMultiItem = Math.random() < (multiItemStillNeeded / (offersToGenerate - i));
+        }
 
         // For single-item offers, filter out items that already have a single-item offer
         // (to avoid duplicate single-item offers for the same resource)
@@ -362,6 +405,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
                 if (secondPick) {
                     items.push({ item: secondPick.resource.type, quantity: secondPick.quantity });
                     totalRewardAmount += (secondPick.resource.maxprice || 100) * secondPick.quantity;
+                    multiItemOffersGenerated++;
                     console.log(`🤠 Multi-item offer: ${firstPick.resource.type} x${firstPick.quantity} + ${secondPick.resource.type} x${secondPick.quantity}`);
                 }
             }
