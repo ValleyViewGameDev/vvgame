@@ -669,6 +669,17 @@ function KentPanel({
                       const isMultiItem = offer.items && offer.items.length > 1;
                       const offerItems = offer.items || [{ item: offer.item, quantity: offer.quantity }];
 
+                      // Debug: Log offer structure to catch data corruption issues
+                      console.log(`🎯 Kent offer ${index}:`, {
+                          hasItemsArray: !!offer.items,
+                          itemsLength: offer.items?.length,
+                          items: offer.items?.map(i => `${i.item} x${i.quantity}`),
+                          legacyItem: offer.item,
+                          legacyQty: offer.quantity,
+                          rewards: offer.rewards?.map(r => `${r.item}: ${r.quantity}`),
+                          isMultiItem
+                      });
+
                       // Calculate player quantities for each item
                       const itemsWithQty = offerItems.map(offerItem => {
                           const inventoryQty = inventory?.find(item => item.type === offerItem.item)?.quantity || 0;
@@ -739,7 +750,7 @@ function KentPanel({
                                     <div className="kent-offer-reward">
                                       {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
                                         `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                      ).join('')}, 🔷 {calculateKentXP(offer)}
+                                      ).join('')} 🔷 {calculateKentXP(offer)}
                                     </div>
                                   </>
                                 ) : (
@@ -769,7 +780,7 @@ function KentPanel({
                                     <div className="kent-offer-reward">
                                       {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
                                         `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                      ).join('')}, 🔷 {calculateKentXP(offer)}
+                                      ).join('')} 🔷 {calculateKentXP(offer)}
                                     </div>
                                   </>
                                 )}

@@ -66,10 +66,7 @@ async function handleProtectedFarmAnimalCollection(
   const baseQuantity = animalResource?.outputqty || 1;
   const expectedQuantity = applySkillMultiplier(baseQuantity, skillInfo.multiplier);
 
-  // Save original NPC state for potential rollback
-  const originalNPCState = { ...npc };
-
-  // ===== OPTIMISTIC UI: Show feedback immediately =====
+  // ===== OPTIMISTIC UI: Show visual feedback immediately =====
   // 1. Play sound immediately
   soundManager.playSFX('collect_item');
 
@@ -77,13 +74,10 @@ async function handleProtectedFarmAnimalCollection(
   createCollectEffect(col, row, TILE_SIZE);
   FloatingTextManager.addFloatingText(`+${expectedQuantity} ${expectedSymbol} ${getLocalizedString(expectedItem, strings)}`, col, row, TILE_SIZE);
 
-  // 3. Optimistically update NPC state to 'grazing' (collected, starting new cycle)
-  await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
-    state: 'grazing',
-    grazeEnd: null
-  });
+  // NOTE: Do NOT update NPC state here - the server needs to see the NPC in 'processing' state
+  // to validate the collection. We'll update the state after server confirms.
 
-  // 4. Show optimistic status message
+  // 3. Show optimistic status message
   const statusMessage = formatSingleCollection('animal', expectedItem, expectedQuantity,
     skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
   updateStatus(statusMessage);
@@ -127,9 +121,15 @@ async function handleProtectedFarmAnimalCollection(
         FloatingTextManager.addFloatingText(strings["41"] || "You're full", col, row, TILE_SIZE);
       }
 
-      // Update NPC with authoritative server state
+      // Update NPC with authoritative server state (or fallback to grazing)
       if (updatedNPC) {
         await NPCsInGridManager.updateNPC(currentGridId, npc.id, updatedNPC);
+      } else {
+        // Fallback: set to grazing state if server didn't provide updated state
+        await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
+          state: 'grazing',
+          grazeEnd: null
+        });
       }
 
       // Track quest progress
@@ -149,9 +149,8 @@ async function handleProtectedFarmAnimalCollection(
         collectedQuantity
       };
     } else {
-      // Server returned success: false - rollback
-      console.error('❌ Server rejected collection - rolling back');
-      await NPCsInGridManager.updateNPC(currentGridId, npc.id, originalNPCState);
+      // Server returned success: false
+      console.error('❌ Server rejected collection');
       updateStatus('❌ Failed to collect from animal');
 
       if (window._processingAnimalCollects) {
@@ -162,8 +161,8 @@ async function handleProtectedFarmAnimalCollection(
   } catch (error) {
     console.error('Error in protected farm animal collection:', error);
 
-    // ===== ROLLBACK on error =====
-    await NPCsInGridManager.updateNPC(currentGridId, npc.id, originalNPCState);
+    // Note: No rollback needed since we didn't change NPC state optimistically
+    // Visual feedback (sound, floating text) already played but that's acceptable UX
 
     if (error.response?.status === 429) {
       updateStatus(471);
