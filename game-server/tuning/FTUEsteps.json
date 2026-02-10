@@ -78,11 +78,6 @@
     {
       "step": 8,
       "trigger": "CollectedQuest",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": ["Signpost Town"],
-      "notificationKey": 7061,
-      "notificationIcon": "🏛️",
       "addQuests": [7]
     },
     {
