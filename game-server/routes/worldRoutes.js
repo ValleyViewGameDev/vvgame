@@ -2566,29 +2566,52 @@ router.post('/crafting/collect-bulk', async (req, res) => {
     const updatedInventory = [...player.inventory];
     const updatedBackpack = [...player.backpack];
     
-    // Process each station
+    // Process each station/slot
     for (const station of stations) {
-      const { x, y, craftedItem, transactionId, shouldRestart, restartRecipe } = station;
-      
+      const { x, y, craftedItem, slotIndex, transactionId, shouldRestart, restartRecipe } = station;
+      const targetSlotIndex = slotIndex ?? 0;
+
       try {
         // Find the station resource using GridResourceManager
         const currentResources = gridResourceManager.getResources(grid);
         const stationResource = currentResources.find(res => res.x === x && res.y === y);
-        if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
-          results.push({ 
-            success: false, 
-            station, 
-            error: 'No crafted item ready at this location' 
+        if (!stationResource) {
+          results.push({
+            success: false,
+            station,
+            error: 'No station at this location'
+          });
+          continue;
+        }
+
+        // Migrate legacy single-slot data to slots array if needed
+        if ((stationResource.craftEnd || stationResource.craftedItem) && !stationResource.slots) {
+          stationResource.slots = [{
+            craftEnd: stationResource.craftEnd,
+            craftedItem: stationResource.craftedItem,
+            qty: stationResource.qty || 1
+          }];
+        }
+
+        // Get the slot to collect from
+        const slots = stationResource.slots || [];
+        const slot = slots[targetSlotIndex];
+
+        if (!slot || !slot.craftedItem) {
+          results.push({
+            success: false,
+            station,
+            error: 'No item in this slot'
           });
           continue;
         }
 
         // Validate the item matches and is ready
-        if (stationResource.craftedItem !== craftedItem || stationResource.craftEnd > Date.now()) {
-          results.push({ 
-            success: false, 
-            station, 
-            error: 'Item not ready for collection' 
+        if (slot.craftedItem !== craftedItem || slot.craftEnd > Date.now()) {
+          results.push({
+            success: false,
+            station,
+            error: 'Item not ready for collection'
           });
           continue;
         }
@@ -2596,77 +2619,81 @@ router.post('/crafting/collect-bulk', async (req, res) => {
         // Get item details
         const itemResource = masterResources.find(res => res.type === craftedItem);
         if (!itemResource) {
-          results.push({ 
-            success: false, 
-            station, 
-            error: 'Invalid crafted item' 
+          results.push({
+            success: false,
+            station,
+            error: 'Invalid crafted item'
           });
           continue;
         }
 
         // Handle NPCs vs regular items
         const isNPC = itemResource.category === 'npc';
-        
-        // Don't add items to inventory on server - let client handle with skill buffs
-        // This matches how individual crafting collection works
 
-        // Clear the crafting state from the station using GridResourceManager
-        const clearCraftingUpdate = {
-          type: stationResource.type, // Keep the station type
-          x: x,
-          y: y,
-          craftEnd: null,     // Remove craftEnd
-          craftedItem: null   // Remove craftedItem
-        };
-        gridResourceManager.updateResource(grid, clearCraftingUpdate);
+        // Build the new slots array with this slot cleared
+        const newSlots = [...slots];
+        // Ensure array is long enough
+        while (newSlots.length <= targetSlotIndex) {
+          newSlots.push({ craftEnd: null, craftedItem: null, qty: 1 });
+        }
+        newSlots[targetSlotIndex] = { craftEnd: null, craftedItem: null, qty: 1 };
 
         // Handle restart if requested
         let restarted = false;
         let newCraftEnd = null;
         let newCraftedItem = null;
-        
+
         if (shouldRestart && restartRecipe && !isNPC) {
           // Check skill requirements first
-          const hasRequiredSkill = !restartRecipe.requires || 
+          const hasRequiredSkill = !restartRecipe.requires ||
             (player.skills && player.skills.some(skill => skill.type === restartRecipe.requires));
-          
+
           if (!hasRequiredSkill) {
             console.log(`Player missing required skill ${restartRecipe.requires} for ${restartRecipe.type}`);
           } else {
             // Check if player can afford the recipe
             const canAfford = checkCanAfford(restartRecipe, updatedInventory, updatedBackpack);
-            
+
             if (canAfford) {
               // Spend ingredients
               const spent = spendIngredients(restartRecipe, updatedInventory, updatedBackpack);
-              
+
               if (spent) {
                 // Get craft time from masterResources (in seconds)
                 const craftedResource = masterResources.find(r => r.type === restartRecipe.type);
                 const craftTimeSeconds = craftedResource?.crafttime || restartRecipe.crafttime || 60;
                 newCraftEnd = Date.now() + (craftTimeSeconds * 1000);
                 newCraftedItem = restartRecipe.type;
-                
-                // Set new craft on station using GridResourceManager
-                const restartCraftingUpdate = {
-                  type: stationResource.type, // Keep the station type
-                  x: x,
-                  y: y,
+
+                // Update the slot with new craft
+                newSlots[targetSlotIndex] = {
                   craftEnd: newCraftEnd,
-                  craftedItem: newCraftedItem
+                  craftedItem: newCraftedItem,
+                  qty: 1
                 };
-                gridResourceManager.updateResource(grid, restartCraftingUpdate);
-                
+
                 restarted = true;
               }
             }
           }
         }
 
-        results.push({ 
-          success: true, 
+        // Update station with new slots array using GridResourceManager
+        const resourceUpdate = {
+          type: stationResource.type,
+          x: x,
+          y: y,
+          stationLevel: stationResource.stationLevel ?? 0,
+          slots: newSlots
+        };
+        gridResourceManager.updateResource(grid, resourceUpdate);
+
+        results.push({
+          success: true,
           station,
           collectedItem: craftedItem,
+          slotIndex: targetSlotIndex,
+          slots: newSlots,
           isNPC,
           restarted,
           newCraftEnd,
