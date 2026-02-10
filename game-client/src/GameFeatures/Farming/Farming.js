@@ -67,44 +67,85 @@ export const handleFarmPlotPlacement = async ({
   masterSkills,
   updateStatus,
   overridePosition, // Optional: { x, y } to plant at a specific tile instead of player position
+  strings = {},
 }) => {
+  let tileX, tileY;
+  if (overridePosition) {
+    tileX = overridePosition.x;
+    tileY = overridePosition.y;
+  } else {
+    const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+    if (!coords) return false;
+    tileX = coords.tileX;
+    tileY = coords.tileY;
+  }
+
+  // ===== DOUBLE-CLICK PROTECTION =====
+  const plantId = `plant-${tileX}-${tileY}-${gridId}`;
+  if (window._processingPlants && window._processingPlants.has(plantId)) {
+    console.log("Already processing planting at this location, ignoring duplicate");
+    return false;
+  }
+  if (!window._processingPlants) {
+    window._processingPlants = new Set();
+  }
+  window._processingPlants.add(plantId);
+
   try {
-    console.log(masterResources);
-
-    let tileX, tileY;
-    if (overridePosition) {
-      // Use the override position (from cursor mode click)
-      tileX = overridePosition.x;
-      tileY = overridePosition.y;
-    } else {
-      // Use player's current position
-      const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-      if (!coords) return false;
-      tileX = coords.tileX;
-      tileY = coords.tileY;
-    }
-
+    // ===== VALIDATION (before any state changes) =====
     const tileOccupied = resources.find((res) => res.x === tileX && res.y === tileY);
     if (tileOccupied) {
       FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Occupied"
+      window._processingPlants.delete(plantId);
       return false;
     }
 
-    // Use local tile data instead of async server call for instant response
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const tileType = tiles?.[tileY]?.[tileX];
-
-    // Check if the tile type is valid for this farmplot using validon[x] fields
     const validonField = `validon${tileType}`;
     const isValidTile = selectedItem[validonField] === true;
 
     if (!tileType || !isValidTile) {
-      // Determine appropriate error message based on valid tile types for this farmplot
       const errorStringId = getPlantingErrorString(selectedItem);
       FloatingTextManager.addFloatingText(errorStringId, tileX, tileY, TILE_SIZE);
+      window._processingPlants.delete(plantId);
       return false;
     }
 
+    // ===== OPTIMISTIC UI: Show feedback immediately =====
+    // 1. Play sound immediately
+    soundManager.playSFX('plant');
+
+    // 2. Timer setup
+    const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;
+    console.log(`⏱️ Planting ${selectedItem.type}: growtime = ${selectedItem.growtime}, growEndTime = ${growEndTime}`);
+
+    // 3. Prepare enriched resource for optimistic placement
+    const enrichedNewResource = enrichResourceFromMaster(
+      {
+        type: selectedItem.type,
+        x: tileX,
+        y: tileY,
+        growEnd: growEndTime,
+      },
+      masterResources
+    );
+    console.log("🌾 Enriched resource for optimistic placement:", enrichedNewResource);
+
+    // 4. Start grow animation BEFORE updating state so PixiRenderer skips rendering
+    if (enrichedNewResource.symbol) {
+      createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
+    }
+
+    // 5. Show VFX and floating text immediately
+    createCollectEffect(tileX, tileY, TILE_SIZE);
+    FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
+
+    // 6. Save original inventory state for potential rollback
+    const originalInventory = inventory ? [...inventory] : [];
+    const originalBackpack = backpack ? [...backpack] : [];
+
+    // 7. Optimistically spend ingredients (this updates inventory state)
     const didSpend = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe: selectedItem,
@@ -117,80 +158,81 @@ export const handleFarmPlotPlacement = async ({
     });
     if (!didSpend) {
       FloatingTextManager.addFloatingText(305, tileX, tileY, TILE_SIZE); // "Missing ingredients"
+      window._processingPlants.delete(plantId);
       return false;
     }
 
-    // Timer setup
-    const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;
-    console.log(`⏱️ Planting ${selectedItem.type}: growtime = ${selectedItem.growtime}, growEndTime = ${growEndTime}, secondsFromNow = ${(growEndTime - Date.now()) / 1000}`);
+    // 8. Optimistically update local resources (add the new plant)
+    const existingResources = GlobalGridStateTilesAndResources.getResources() || [];
+    GlobalGridStateTilesAndResources.setResources([...existingResources, enrichedNewResource]);
+    setResources([...existingResources, enrichedNewResource]);
 
-    // Lookup from masterResources for enrichment
-    console.log("🌱 Attempting to plant:", selectedItem.type, "at", tileX, tileY);
-    const enrichedNewResource = enrichResourceFromMaster(
-      {
-        type: selectedItem.type,
-        x: tileX,
-        y: tileY,
-        growEnd: growEndTime,
-      },
-      masterResources
-    );
-    console.log("🌾 Enriched resource before setResources:", enrichedNewResource);
+    // ===== SERVER VALIDATION =====
+    try {
+      const gridUpdateResponse = await updateGridResource(
+        gridId,
+        {
+          type: selectedItem.type,
+          x: tileX,
+          y: tileY,
+          growEnd: growEndTime,
+        },
+        true
+      );
 
-    // Start grow animation BEFORE updating state so PixiRenderer skips rendering this resource
-    // This prevents the resource from appearing before the animation plays
-    if (enrichedNewResource.symbol) {
-      createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
-    }
+      if (gridUpdateResponse?.success) {
+        // Server confirmed - add to farmState for timer tracking
+        farmState.addSeed({
+          type: selectedItem.type,
+          x: tileX,
+          y: tileY,
+          growEnd: growEndTime,
+          output: selectedItem.output,
+        });
 
-    // Optimistically update local client state (after VFX marks resource as animating)
-    const existing = GlobalGridStateTilesAndResources.getResources() || [];
-    GlobalGridStateTilesAndResources.setResources([...existing, enrichedNewResource]);
-    console.log("🧪 Global resources after planting:", GlobalGridStateTilesAndResources.getResources());
-    setResources([...existing, enrichedNewResource]);
+        // Track quest progress
+        const cropName = selectedItem.output || selectedItem.type;
+        await trackQuestProgress(currentPlayer, 'Plant', cropName, 1, setCurrentPlayer);
 
-    // Update server and all clients
-    const gridUpdateResponse = await updateGridResource(
-      gridId,
-      {
-        type: selectedItem.type,
-        x: tileX,
-        y: tileY,
-        growEnd: growEndTime,
-      },
-      true
-    );
+        // Try to advance FTUE if this is the player's first crop planted
+        await tryAdvanceFTUEByTrigger('PlantedFirstCrop', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
 
-    if (gridUpdateResponse?.success) {
-      farmState.addSeed({
-        type: selectedItem.type,
-        x: tileX,
-        y: tileY,
-        growEnd: growEndTime,
-        output: selectedItem.output, // ✅ required for crop conversion
-      });
+        console.log(`✅ Planting confirmed by server: ${selectedItem.type} at (${tileX}, ${tileY})`);
+        window._processingPlants.delete(plantId);
+        return true;
+      } else {
+        throw new Error('Server rejected planting');
+      }
+    } catch (serverError) {
+      // ===== ROLLBACK: Server failed, undo optimistic changes =====
+      console.error('❌ Server rejected planting, rolling back:', serverError);
 
-      // Show collect VFX and floating text for planting
-      // Note: createPlantGrowEffect is called earlier (before setResources) to ensure
-      // PixiRenderer skips rendering the resource during animation
-      createCollectEffect(tileX, tileY, TILE_SIZE);
-      FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
-      soundManager.playSFX('plant');
+      // Rollback resources - remove the optimistically placed plant
+      const currentResources = GlobalGridStateTilesAndResources.getResources() || [];
+      const rolledBackResources = currentResources.filter(
+        (res) => !(res.x === tileX && res.y === tileY && res.type === selectedItem.type)
+      );
+      GlobalGridStateTilesAndResources.setResources(rolledBackResources);
+      setResources(rolledBackResources);
 
-      // Track quest progress for "Plant" actions
-      // Use the output (crop) name instead of the plot name for quest tracking
-      const cropName = selectedItem.output || selectedItem.type;
-      await trackQuestProgress(currentPlayer, 'Plant', cropName, 1, setCurrentPlayer);
+      // Rollback inventory - restore original state
+      setInventory(originalInventory);
+      setBackpack(originalBackpack);
+      setCurrentPlayer(prev => ({
+        ...prev,
+        inventory: originalInventory,
+        backpack: originalBackpack
+      }));
 
-      // Try to advance FTUE if this is the player's first crop planted
-      await tryAdvanceFTUEByTrigger('PlantedFirstCrop', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      // Show error feedback
+      FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Can't plant here"
 
-      return true; // Success!
-    } else {
-      throw new Error('Server update failed.');
+      window._processingPlants.delete(plantId);
+      return false;
     }
   } catch (error) {
     console.error('❌ Error in handleFarmPlotPlacement:', error);
+    window._processingPlants.delete(plantId);
     return false;
   }
 };
