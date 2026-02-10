@@ -12,205 +12,172 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import '../../UI/Buttons/SharedButtons.css';
 
 // Component for the bulk crafting selection modal
-export function BulkCraftingModal({ 
-  isOpen, 
-  onClose, 
-  stationGroups, 
+// NEW: stationGroups is now an array of stations, each with readySlots[] inside
+export function BulkCraftingModal({
+  isOpen,
+  onClose,
+  stationGroups,  // Array of { x, y, stationType, stationSymbol, readySlots: [...] }
   onExecute,
   hasBulkRestartCraft,
   strings,
   masterResources,
   inventory,
-  backpack 
+  backpack
 }) {
-  const [selectedGroups, setSelectedGroups] = useState([]);
-  const [selectedRestartStations, setSelectedRestartStations] = useState({});
+  // Per-slot selection: key = "x-y-slotIndex", value = { collect: boolean, restart: boolean }
+  const [selectedSlots, setSelectedSlots] = useState({});
 
   // Initialize selections when modal opens
   React.useEffect(() => {
     if (isOpen && stationGroups.length > 0) {
-      // Select all station groups by default
-      setSelectedGroups(stationGroups);
-      
-      // Select all restart options by default (if bulk restart skill is available)
-      if (hasBulkRestartCraft) {
-        const defaultRestartSelection = {};
-        stationGroups.forEach(group => {
-          if (group.canRestart) {
-            const key = `${group.stationType}-${group.craftedItem}`;
-            defaultRestartSelection[key] = true;
-          }
+      const defaultSelections = {};
+      stationGroups.forEach(station => {
+        station.readySlots.forEach(slot => {
+          const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+          defaultSelections[slotKey] = {
+            collect: true,  // All slots selected for collection by default
+            restart: hasBulkRestartCraft && slot.affordable  // Auto-check restart if affordable
+          };
         });
-        setSelectedRestartStations(defaultRestartSelection);
-      }
+      });
+      setSelectedSlots(defaultSelections);
     }
   }, [isOpen, stationGroups, hasBulkRestartCraft]);
 
-  const handleToggleGroup = (group) => {
-    setSelectedGroups(prev => {
-      const isSelected = prev.some(g => 
-        g.stationType === group.stationType && g.craftedItem === group.craftedItem
-      );
-      
-      if (isSelected) {
-        // If unchecking collect, also uncheck restart
-        const key = `${group.stationType}-${group.craftedItem}`;
-        setSelectedRestartStations(restartPrev => ({
-          ...restartPrev,
-          [key]: false
-        }));
-        
-        return prev.filter(g => 
-          !(g.stationType === group.stationType && g.craftedItem === group.craftedItem)
-        );
-      } else {
-        return [...prev, group];
-      }
+  const handleToggleCollect = (slotKey) => {
+    setSelectedSlots(prev => {
+      const current = prev[slotKey] || { collect: false, restart: false };
+      const newCollect = !current.collect;
+      return {
+        ...prev,
+        [slotKey]: {
+          collect: newCollect,
+          restart: newCollect ? current.restart : false  // Uncheck restart if unchecking collect
+        }
+      };
     });
   };
 
-  const handleToggleRestart = (group) => {
-    const key = `${group.stationType}-${group.craftedItem}`;
-    setSelectedRestartStations(prev => {
-      const newValue = !prev[key];
-      // If checking restart, also check collect
-      if (newValue) {
-        setSelectedGroups(groupsPrev => {
-          const isAlreadySelected = groupsPrev.some(g => 
-            g.stationType === group.stationType && g.craftedItem === group.craftedItem
-          );
-          if (!isAlreadySelected) {
-            return [...groupsPrev, group];
-          }
-          return groupsPrev;
-        });
-      }
+  const handleToggleRestart = (slotKey) => {
+    setSelectedSlots(prev => {
+      const current = prev[slotKey] || { collect: false, restart: false };
+      const newRestart = !current.restart;
       return {
         ...prev,
-        [key]: newValue
+        [slotKey]: {
+          collect: newRestart ? true : current.collect,  // Auto-check collect if checking restart
+          restart: newRestart
+        }
       };
     });
   };
 
   const handleExecute = () => {
-    onExecute(selectedGroups, selectedRestartStations);
-  };
-
-  const isGroupSelected = (group) => {
-    return selectedGroups.some(g => 
-      g.stationType === group.stationType && g.craftedItem === group.craftedItem
-    );
+    onExecute(stationGroups, selectedSlots);
   };
 
   if (!isOpen) return null;
 
-  const getRestartLabel = (group) => {
-    if (!hasBulkRestartCraft) {
-      return strings[345] || 'Requires skill';
-    }
-    if (!group.canRestart) {
-      return strings[346] || 'Locked';
-    }
-    if (!group.affordable) {
-      return null;  // Don't show text for insufficient ingredients
-    }
-    return null;
-  };
-
-  const isRestartDisabled = (group) => {
-    return !hasBulkRestartCraft || !group.canRestart || !group.affordable;
-  };
-
-  // Calculate total ingredient needs for a group
-  const calculateGroupNeeds = (group) => {
-    if (!group.recipe || !group.stationCount) return null;
-    
+  // Calculate ingredient needs for a single slot's recipe
+  const calculateSlotNeeds = (slot) => {
+    if (!slot.recipe) return null;
     const needs = {};
-    
-    // Calculate needs for each ingredient
     for (let i = 1; i <= 4; i++) {
-      const ingredientType = group.recipe[`ingredient${i}`];
-      const ingredientQty = group.recipe[`ingredient${i}qty`];
-      
+      const ingredientType = slot.recipe[`ingredient${i}`];
+      const ingredientQty = slot.recipe[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {
-        const totalNeeded = ingredientQty * group.stationCount;
         const inventoryQty = inventory?.find(item => item.type === ingredientType)?.quantity || 0;
         const backpackQty = backpack?.find(item => item.type === ingredientType)?.quantity || 0;
         const totalAvailable = inventoryQty + backpackQty;
-        
         needs[ingredientType] = {
-          needed: totalNeeded,
+          needed: ingredientQty,
           available: totalAvailable,
           symbol: masterResources.find(r => r.type === ingredientType)?.symbol || ''
         };
       }
     }
-    
-    return needs;
+    return Object.keys(needs).length > 0 ? needs : null;
   };
 
-  const selectAll = () => {
-    setSelectedGroups(stationGroups);
+  const selectAllCollect = () => {
+    setSelectedSlots(prev => {
+      const updated = { ...prev };
+      stationGroups.forEach(station => {
+        station.readySlots.forEach(slot => {
+          const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+          updated[slotKey] = { ...updated[slotKey], collect: true };
+        });
+      });
+      return updated;
+    });
   };
 
-  const selectNone = () => {
-    setSelectedGroups([]);
-    // When deselecting all collections, also deselect all restarts
-    setSelectedRestartStations({});
+  const selectNoneCollect = () => {
+    setSelectedSlots(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        updated[key] = { collect: false, restart: false };
+      });
+      return updated;
+    });
   };
 
   const selectAllRestarts = () => {
-    const allRestartSelection = {};
-    const groupsToSelect = [];
-    stationGroups.forEach(group => {
-      if (group.canRestart && group.affordable) {
-        const key = `${group.stationType}-${group.craftedItem}`;
-        allRestartSelection[key] = true;
-        // Also select the group for collection
-        if (!isGroupSelected(group)) {
-          groupsToSelect.push(group);
-        }
-      }
+    setSelectedSlots(prev => {
+      const updated = { ...prev };
+      stationGroups.forEach(station => {
+        station.readySlots.forEach(slot => {
+          if (slot.affordable) {
+            const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+            updated[slotKey] = { collect: true, restart: true };
+          }
+        });
+      });
+      return updated;
     });
-    setSelectedRestartStations(prev => ({
-      ...prev,
-      ...allRestartSelection
-    }));
-    setSelectedGroups(prev => [...prev, ...groupsToSelect]);
   };
 
   const selectNoneRestarts = () => {
-    setSelectedRestartStations({});
+    setSelectedSlots(prev => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach(key => {
+        updated[key] = { ...updated[key], restart: false };
+      });
+      return updated;
+    });
   };
 
+  // Count selected slots for the Collect button
+  const selectedCount = Object.values(selectedSlots).filter(s => s.collect).length;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={strings[341] || "Select Crafting Stations to Collect:"} size="large">
+    <Modal isOpen={isOpen} onClose={onClose} title={strings[1109] || "Bulk Crafting"} size="large">
       <div style={{ padding: '20px', fontSize: '16px' }}>
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
           <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
-            <button 
+            <button
               className="btn-basic btn-success btn-modal-small"
-              onClick={selectAll}
+              onClick={selectAllCollect}
             >
               {strings[316] || 'Select All'}
             </button>
-            <button 
+            <button
               className="btn-basic btn-neutral btn-modal-small"
-              onClick={selectNone}
+              onClick={selectNoneCollect}
             >
               {strings[317] || 'Deselect All'}
             </button>
           </div>
-          
+
           {hasBulkRestartCraft && (
             <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto', marginRight: '20px' }}>
-              <button 
+              <button
                 className="btn-basic btn-success btn-modal-small"
                 onClick={selectAllRestarts}
               >
                 {strings[316] || 'Select All'}
               </button>
-              <button 
+              <button
                 className="btn-basic btn-neutral btn-modal-small"
                 onClick={selectNoneRestarts}
               >
@@ -219,84 +186,120 @@ export function BulkCraftingModal({
             </div>
           )}
         </div>
-        
+
+        {/* Header row */}
         <div style={{ display: 'flex', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-          <div style={{ width: '60px', textAlign: 'center' }}>{strings[346] || 'Collect?'}</div>
-          <div style={{ width: '200px', textAlign: 'left', paddingLeft: '10px' }}>{strings[476] || 'Station'}</div>
-          <div style={{ width: '270px', textAlign: 'left' }}>{strings[161] || 'Item'}</div>
+          <div style={{ width: '50px', textAlign: 'center' }}>{strings[346] || 'Collect'}</div>
+          <div style={{ width: '180px', textAlign: 'left', paddingLeft: '10px' }}>{strings[476] || 'Station'}</div>
+          <div style={{ flex: 1, textAlign: 'left' }}>{strings[161] || 'Item'}</div>
           {hasBulkRestartCraft && (
-            <div style={{ width: '80px', textAlign: 'center' }}>{strings[475]}</div>
+            <div style={{ width: '60px', textAlign: 'center' }}>{strings[475] || 'Restart'}</div>
           )}
-          <div style={{ width: '150px', textAlign: 'center' }}>{strings[177]}</div>
+          <div style={{ width: '150px', textAlign: 'center' }}>{strings[177] || 'Cost'}</div>
         </div>
-        
+
+        {/* Station list with slot rows */}
         <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {stationGroups.map((group, index) => {
-            const key = `${group.stationType}-${group.craftedItem}`;
-            const needs = calculateGroupNeeds(group);
+          {stationGroups.map((station) => {
+            const stationKey = `${station.x}-${station.y}`;
             return (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', padding: '5px', borderBottom: '1px solid #eee' }}>
-                <div style={{ width: '60px', textAlign: 'center' }}>
-                  <input
-                    type="checkbox"
-                    checked={isGroupSelected(group)}
-                    onChange={() => handleToggleGroup(group)}
-                    style={{ width: '20px' }}
-                  />
-                </div>
-                <div style={{ width: '200px', textAlign: 'left', fontWeight: 'bold', paddingLeft: '10px' }}>
-                  {group.stationSymbol} {getLocalizedString(group.stationType, strings)}
-                </div>
-                <div style={{ width: '270px', textAlign: 'left' }}>
-                  {group.craftedSymbol} {getLocalizedString(group.craftedItem, strings)} ({group.stationCount})
-                </div>
-                {hasBulkRestartCraft ? (() => {
-                  const restartLabel = getRestartLabel(group);
+              <div key={stationKey} style={{ marginBottom: '8px', borderBottom: '1px solid #eee' }}>
+                {/* Each ready slot gets its own row */}
+                {station.readySlots.map((slot, slotIdx) => {
+                  const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+                  const selection = selectedSlots[slotKey] || { collect: false, restart: false };
+                  const needs = calculateSlotNeeds(slot);
+
                   return (
-                    <div style={{ marginLeft: '0px', width: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedRestartStations[key] || false}
-                        onChange={() => !isRestartDisabled(group) && handleToggleRestart(group)}
-                        disabled={isRestartDisabled(group)}
-                        style={{ 
-                          width: '20px',
-                          opacity: isRestartDisabled(group) ? 0.5 : 1,
-                          cursor: isRestartDisabled(group) ? 'not-allowed' : 'pointer'
-                        }}
-                        title={restartLabel || ''}
-                      />
-                      {restartLabel && (
-                        <span style={{ fontSize: '11px', color: 'red', marginTop: '2px' }}>
-                          {restartLabel}
-                        </span>
+                    <div
+                      key={slotKey}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '4px 5px',
+                        backgroundColor: slotIdx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)'
+                      }}
+                    >
+                      {/* Collect checkbox */}
+                      <div style={{ width: '50px', textAlign: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={selection.collect}
+                          onChange={() => handleToggleCollect(slotKey)}
+                          style={{ width: '18px', height: '18px' }}
+                        />
+                      </div>
+
+                      {/* Station name (only show on first slot row) */}
+                      <div style={{ width: '180px', textAlign: 'left', fontWeight: 'bold', paddingLeft: '10px' }}>
+                        {slotIdx === 0 ? (
+                          <>
+                            {station.stationSymbol} {getLocalizedString(station.stationType, strings)}
+                            {station.readySlots.length > 1 && (
+                              <span style={{ fontSize: '11px', color: '#666', marginLeft: '4px' }}>
+                                ({station.readySlots.length} slots)
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span style={{ color: '#999', fontSize: '12px', paddingLeft: '20px' }}>└ slot {slot.slotIndex + 1}</span>
+                        )}
+                      </div>
+
+                      {/* Crafted item */}
+                      <div style={{ flex: 1, textAlign: 'left' }}>
+                        {slot.craftedSymbol} {getLocalizedString(slot.craftedItem, strings)}
+                      </div>
+
+                      {/* Restart checkbox */}
+                      {hasBulkRestartCraft && (
+                        <div style={{ width: '60px', textAlign: 'center' }}>
+                          {slot.canRestart ? (
+                            <input
+                              type="checkbox"
+                              checked={selection.restart}
+                              onChange={() => slot.affordable && handleToggleRestart(slotKey)}
+                              disabled={!slot.affordable}
+                              style={{
+                                width: '18px',
+                                height: '18px',
+                                opacity: slot.affordable ? 1 : 0.4,
+                                cursor: slot.affordable ? 'pointer' : 'not-allowed'
+                              }}
+                              title={slot.affordable ? '' : (strings[347] || 'Not enough resources')}
+                            />
+                          ) : (
+                            <span style={{ fontSize: '10px', color: '#999' }}>{strings[346] || 'Locked'}</span>
+                          )}
+                        </div>
                       )}
+
+                      {/* Cost/Needs column */}
+                      <div style={{ width: '150px', textAlign: 'center', fontSize: '11px' }}>
+                        {needs && Object.entries(needs).map(([type, data], idx) => {
+                          const hasEnough = data.available >= data.needed;
+                          return (
+                            <span key={idx} style={{ color: hasEnough ? 'green' : 'red', marginRight: '6px' }}>
+                              {data.symbol}{data.needed}
+                            </span>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
-                })() : null}
-                {/* Needs column */}
-                <div style={{ width: '150px', textAlign: 'center', fontSize: '12px' }}>
-                  {needs && Object.entries(needs).map(([type, data], idx) => {
-                    const color = data.available >= data.needed ? 'green' : 'red';
-                    return (
-                      <div key={idx} style={{ color }}>
-                        {data.symbol} {data.needed}/{data.available}
-                      </div>
-                    );
-                  })}
-                </div>
+                })}
               </div>
             );
           })}
         </div>
-        
-        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
-          <button 
+
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
+          <button
             className="btn-basic btn-success btn-modal"
             onClick={handleExecute}
-            disabled={selectedGroups.length === 0}
+            disabled={selectedCount === 0}
           >
-            {strings[318] || 'Collect'}
+            {strings[318] || 'Collect'} ({selectedCount})
           </button>
         </div>
       </div>
@@ -305,9 +308,10 @@ export function BulkCraftingModal({
 }
 
 // Main function to execute bulk crafting collection
+// NEW: stationGroups is array of stations with readySlots[], selectedSlots is { "x-y-slotIndex": { collect, restart } }
 export async function executeBulkCrafting({
-  selectedGroups,
-  selectedRestartStations,
+  stationGroups,        // NEW: array of stations, each with readySlots[]
+  selectedSlots,        // NEW: { "x-y-slotIndex": { collect: boolean, restart: boolean } }
   hasBulkRestartCraft,
   currentPlayer,
   setCurrentPlayer,
@@ -323,39 +327,41 @@ export async function executeBulkCrafting({
   updateStatus,
   globalTuning
 }) {
-  if (selectedGroups.length === 0) {
+  // Flatten stations and filter to only slots selected for collection
+  const slotsToCollect = [];
+  stationGroups.forEach(station => {
+    station.readySlots.forEach(slot => {
+      const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+      const selection = selectedSlots[slotKey];
+      if (selection?.collect) {
+        slotsToCollect.push({
+          x: station.x,
+          y: station.y,
+          stationType: station.stationType,
+          slotIndex: slot.slotIndex,
+          craftedItem: slot.craftedItem,
+          recipe: slot.recipe,
+          shouldRestart: hasBulkRestartCraft && selection.restart && slot.recipe
+        });
+      }
+    });
+  });
+
+  if (slotsToCollect.length === 0) {
     return 'No crafting stations selected for collection.';
   }
 
-  // Flatten all selected stations
-  const stationsToCollect = selectedGroups.flatMap(group => group.stations);
-  
-  // Prepare batch data for all stations
-  const batchStations = stationsToCollect.map(station => {
-    const key = `${station.type}-${station.craftedItem}`;
-    const shouldRestart = hasBulkRestartCraft && selectedRestartStations[key];
-    
-    // Find the recipe if we need to restart
-    let restartRecipe = null;
-    if (shouldRestart) {
-      const stationGroup = selectedGroups.find(g => 
-        g.stationType === station.type && g.craftedItem === station.craftedItem
-      );
-      if (stationGroup && stationGroup.recipe && stationGroup.affordable) {
-        restartRecipe = stationGroup.recipe;
-      }
-    }
-    
-    return {
-      x: station.x,
-      y: station.y,
-      type: station.type,
-      craftedItem: station.craftedItem,
-      transactionId: `bulk-craft-collect-${Date.now()}-${Math.random()}`,
-      shouldRestart: shouldRestart && restartRecipe !== null,
-      restartRecipe: restartRecipe
-    };
-  });
+  // Prepare batch data for all slots
+  const batchStations = slotsToCollect.map(slot => ({
+    x: slot.x,
+    y: slot.y,
+    type: slot.stationType,
+    craftedItem: slot.craftedItem,
+    slotIndex: slot.slotIndex,
+    transactionId: `bulk-craft-collect-${Date.now()}-${Math.random()}`,
+    shouldRestart: slot.shouldRestart,
+    restartRecipe: slot.shouldRestart ? slot.recipe : null
+  }));
   
   const transactionId = `bulk-craft-collect-${currentPlayer._id}-${Date.now()}`;
   const transactionKey = `bulk-craft-collect-${gridId}`;
@@ -380,29 +386,47 @@ export async function executeBulkCrafting({
       const successfulRestarts = {};
       const appliedSkillsInfo = {};
       
-      // Process each result and build a map of station updates
+      // Process each result and build a map of station slot updates
+      // Key: "x-y", Value: { slots: [...updated slots array] }
       const stationUpdates = {};
-      
+
       for (const result of results) {
         if (result.collected || result.success) {
-          const { station, collectedItem, craftedItem, isNPC } = result;
+          const { station, collectedItem, craftedItem, isNPC, slotIndex, slots } = result;
           const itemCollected = collectedItem || craftedItem;
           const key = `${station.x}-${station.y}`;
-          
-          if (result.restarted && result.newCraftEnd) {
-            // Restarted - update with new craft state
-            stationUpdates[key] = { 
-              craftEnd: result.newCraftEnd, 
-              craftedItem: result.newCraftedItem || itemCollected 
-            };
+
+          // Use the slots array returned by the server if available
+          if (slots) {
+            stationUpdates[key] = { slots };
           } else {
-            // Just collected - clear craft state
-            stationUpdates[key] = { 
-              craftEnd: undefined, 
-              craftedItem: undefined 
-            };
+            // Fallback: manually update the specific slot
+            const targetSlotIndex = slotIndex ?? station.slotIndex ?? 0;
+            if (!stationUpdates[key]) {
+              // Find the current resource to get existing slots
+              const currentRes = updatedResources.find(r => r.x === station.x && r.y === station.y);
+              stationUpdates[key] = { slots: currentRes?.slots ? [...currentRes.slots] : [] };
+            }
+            // Ensure the slots array is long enough
+            while (stationUpdates[key].slots.length <= targetSlotIndex) {
+              stationUpdates[key].slots.push({ craftEnd: null, craftedItem: null, qty: 1 });
+            }
+            // Update the specific slot
+            if (result.restarted && result.newCraftEnd) {
+              stationUpdates[key].slots[targetSlotIndex] = {
+                craftEnd: result.newCraftEnd,
+                craftedItem: result.newCraftedItem || itemCollected,
+                qty: 1
+              };
+            } else {
+              stationUpdates[key].slots[targetSlotIndex] = {
+                craftEnd: null,
+                craftedItem: null,
+                qty: 1
+              };
+            }
           }
-          
+
           // Calculate skill info
           const stationType = station.stationType || station.type;
           const playerBuffs = (currentPlayer.skills || [])
@@ -559,60 +583,126 @@ export async function executeBulkCrafting({
 }
 
 // Function to prepare crafting station data for the modal
+// NEW STRUCTURE: Groups by station position, with ready slots listed within each station
 export function prepareBulkCraftingData(masterResources, inventory, backpack, currentPlayer, hasRequiredSkill) {
   const now = Date.now();
   const resources = GlobalGridStateTilesAndResources.getResources() || [];
-  
-  // Find all crafting stations with completed crafts
-  const readyStations = resources.filter(res => {
-    // Check if this is a crafting station
-    const stationDef = masterResources.find(r => r.type === res.type);
-    if (!stationDef || stationDef.category !== 'crafting') return false;
-    
-    // Check if it has a completed craft
-    return res.craftEnd && res.craftEnd <= now && res.craftedItem;
-  });
 
-  // Group stations by type and crafted item
-  const stationGroups = {};
-  readyStations.forEach(station => {
-    const key = `${station.type}-${station.craftedItem}`;
-    if (!stationGroups[key]) {
-      const stationResource = masterResources.find(r => r.type === station.type);
-      const craftedResource = masterResources.find(r => r.type === station.craftedItem);
-      // Find the recipe that produces this item from this station
-      const recipe = masterResources.find(r => 
-        r.source === station.type && r.type === station.craftedItem
-      );
-      stationGroups[key] = {
-        stationType: station.type,
-        stationSymbol: stationResource?.symbol || '🏭',
-        craftedItem: station.craftedItem,
-        craftedSymbol: craftedResource?.symbol || '📦',
-        stations: [],
-        recipe: recipe,
-        canRestart: !!recipe && hasRequiredSkill(recipe?.requires),
-        affordable: recipe ? canAfford(recipe, inventory, backpack, 1) : false
-      };
+  // Clone inventory for affordability simulation (we simulate spending as we go)
+  const simInventory = inventory ? inventory.map(i => ({ ...i })) : [];
+  const simBackpack = backpack ? backpack.map(i => ({ ...i })) : [];
+
+  // Helper to simulate spending ingredients
+  const simulateSpend = (recipe) => {
+    for (let j = 1; j <= 4; j++) {
+      const ingType = recipe[`ingredient${j}`];
+      const ingQty = recipe[`ingredient${j}qty`];
+      if (ingType && ingQty) {
+        let remaining = ingQty;
+        const simInvItem = simInventory.find(x => x.type === ingType);
+        if (simInvItem) {
+          const take = Math.min(simInvItem.quantity, remaining);
+          simInvItem.quantity -= take;
+          remaining -= take;
+        }
+        if (remaining > 0) {
+          const simBpItem = simBackpack.find(x => x.type === ingType);
+          if (simBpItem) {
+            simBpItem.quantity -= Math.min(simBpItem.quantity, remaining);
+          }
+        }
+      }
     }
-    stationGroups[key].stations.push(station);
+  };
+
+  // Build list of stations with ready slots
+  const stationsWithReadySlots = [];
+
+  resources.forEach(res => {
+    const stationDef = masterResources.find(r => r.type === res.type);
+    if (!stationDef || stationDef.category !== 'crafting') return;
+
+    const readySlots = [];
+
+    // Check slots array first (new format)
+    if (res.slots && res.slots.length > 0) {
+      res.slots.forEach((slot, slotIndex) => {
+        if (slot && slot.craftEnd && slot.craftEnd <= now && slot.craftedItem) {
+          // Find the recipe for this slot's crafted item
+          const recipe = masterResources.find(r =>
+            r.source === res.type && r.type === slot.craftedItem
+          );
+          const craftedResource = masterResources.find(r => r.type === slot.craftedItem);
+          const canRestart = !!recipe && hasRequiredSkill(recipe?.requires);
+
+          // Check affordability (simulate sequential spending)
+          let affordable = false;
+          if (canRestart && recipe && canAfford(recipe, simInventory, simBackpack, 1)) {
+            affordable = true;
+            simulateSpend(recipe); // Deduct from simulation
+          }
+
+          readySlots.push({
+            slotIndex,
+            craftedItem: slot.craftedItem,
+            craftedSymbol: craftedResource?.symbol || '📦',
+            craftEnd: slot.craftEnd,
+            qty: slot.qty || 1,
+            recipe,
+            canRestart,
+            affordable
+          });
+        }
+      });
+    }
+    // Fallback: legacy format (craftEnd/craftedItem on station itself)
+    else if (res.craftEnd && res.craftEnd <= now && res.craftedItem) {
+      const recipe = masterResources.find(r =>
+        r.source === res.type && r.type === res.craftedItem
+      );
+      const craftedResource = masterResources.find(r => r.type === res.craftedItem);
+      const canRestart = !!recipe && hasRequiredSkill(recipe?.requires);
+
+      let affordable = false;
+      if (canRestart && recipe && canAfford(recipe, simInventory, simBackpack, 1)) {
+        affordable = true;
+        simulateSpend(recipe);
+      }
+
+      readySlots.push({
+        slotIndex: 0,
+        craftedItem: res.craftedItem,
+        craftedSymbol: craftedResource?.symbol || '📦',
+        craftEnd: res.craftEnd,
+        qty: res.qty || 1,
+        recipe,
+        canRestart,
+        affordable
+      });
+    }
+
+    // Only include stations with at least one ready slot
+    if (readySlots.length > 0) {
+      const stationResource = masterResources.find(r => r.type === res.type);
+      stationsWithReadySlots.push({
+        x: res.x,
+        y: res.y,
+        stationType: res.type,
+        stationSymbol: stationResource?.symbol || '🏭',
+        readySlots: readySlots,
+        // Station-level: has at least one affordable restart
+        hasAffordableRestart: readySlots.some(s => s.affordable)
+      });
+    }
   });
 
-  // Convert to array and add counts
-  const groupsArray = Object.values(stationGroups).map(group => ({
-    ...group,
-    stationCount: group.stations.length
-  }));
-  
-  // Sort by station type first (alphabetically), then by crafted item (alphabetically)
-  groupsArray.sort((a, b) => {
-    // First compare station types
-    const stationCompare = a.stationType.localeCompare(b.stationType);
-    if (stationCompare !== 0) return stationCompare;
-    
-    // If same station type, compare crafted items
-    return a.craftedItem.localeCompare(b.craftedItem);
+  // Sort by station type, then by position
+  stationsWithReadySlots.sort((a, b) => {
+    const typeCompare = a.stationType.localeCompare(b.stationType);
+    if (typeCompare !== 0) return typeCompare;
+    if (a.x !== b.x) return a.x - b.x;
+    return a.y - b.y;
   });
-  
-  return groupsArray;
+
+  return stationsWithReadySlots;
 }

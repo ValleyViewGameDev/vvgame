@@ -63,8 +63,6 @@ const FarmHandPanel = ({
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
   const [availableAnimals, setAvailableAnimals] = useState([]);
   const [isCraftingModalOpen, setIsCraftingModalOpen] = useState(false);
-  const [selectedCraftingStations, setSelectedCraftingStations] = useState({});
-  const [selectedRestartStations, setSelectedRestartStations] = useState({});
   const [availableCraftingStations, setAvailableCraftingStations] = useState([]);
   const [bulkCraftingResults, setBulkCraftingResults] = useState(null);
   const [isCraftingResultsModalOpen, setIsCraftingResultsModalOpen] = useState(false);
@@ -669,67 +667,22 @@ const FarmHandPanel = ({
 
   function handleBulkCrafting() {
     console.log('🛖 Opening selective crafting modal');
-    
+
+    // NEW: prepareBulkCraftingData now returns array of stations with readySlots[]
     const stationGroups = prepareBulkCraftingData(masterResources, inventory, backpack, currentPlayer, hasRequiredSkill);
-    
+
     if (stationGroups.length === 0) {
       updateStatus(strings[466] || 'No crafting stations ready to collect.');
       return;
     }
-    
-    const stationsWithDetails = stationGroups;
-    setAvailableCraftingStations(stationsWithDetails);
-    
-    // Select all stations by default
-    const defaultSelection = {};
-    stationsWithDetails.forEach(group => {
-      defaultSelection[`${group.stationType}-${group.craftedItem}`] = true;
-    });
-    setSelectedCraftingStations(defaultSelection);
-    
-    // If player has Bulk Restart Craft skill, pre-select restart options only if player has enough ingredients
-    if (hasBulkRestartCraft) {
-      const defaultRestartSelection = {};
-      const playerInventory = {};
-      
-      // Combine inventory and backpack
-      [...(inventory || []), ...(backpack || [])].forEach(item => {
-        playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
-      });
-      
-      stationsWithDetails.forEach(group => {
-        const craftedResource = masterResources.find(r => r.type === group.craftedItem);
-        if (craftedResource) {
-          // Check if player has all ingredients
-          let hasAllIngredients = true;
-          for (let i = 1; i <= 5; i++) {
-            const ingredientType = craftedResource[`ingredient${i}`];
-            const ingredientQty = craftedResource[`ingredient${i}qty`] || 1;
-            if (ingredientType) {
-              const needed = ingredientQty * group.count;
-              const has = playerInventory[ingredientType] || 0;
-              if (has < needed) {
-                hasAllIngredients = false;
-                break;
-              }
-            }
-          }
-          
-          // Only pre-select if player has all ingredients
-          if (hasAllIngredients) {
-            defaultRestartSelection[`${group.stationType}-${group.craftedItem}`] = true;
-          }
-        }
-      });
-      setSelectedRestartStations(defaultRestartSelection);
-    } else {
-      setSelectedRestartStations({});
-    }
-    
+
+    setAvailableCraftingStations(stationGroups);
+    // Note: Selection state is now managed inside BulkCraftingModal via its useEffect
     setIsCraftingModalOpen(true);
   }
 
-  async function executeSelectiveCrafting(selectedGroups, selectedRestartStations) {
+  // NEW: stationGroups is array of stations with readySlots[], selectedSlots is { "x-y-slotIndex": { collect, restart } }
+  async function executeSelectiveCrafting(stationGroups, selectedSlots) {
     setIsCraftingModalOpen(false);
     setErrorMessage('');
 
@@ -747,8 +700,8 @@ const FarmHandPanel = ({
     // Execute bulk operation with shared function
     await executeBulkOperation('bulk-crafting', operationId, workerNPC, async () => {
       const result = await executeBulkCrafting({
-        selectedGroups,
-        selectedRestartStations,
+        stationGroups,
+        selectedSlots,
         hasBulkRestartCraft,
         currentPlayer,
         setCurrentPlayer,
