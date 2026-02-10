@@ -1,4 +1,4 @@
-import API_BASE from '../../config'; 
+import API_BASE from '../../config';
 import React, { useState, useEffect, useMemo } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
@@ -12,6 +12,52 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
+
+// Farm Animals Progress Bar Component
+const FarmAnimalsProgressBar = ({ currentFarmAnimals, maxFarmAnimals }) => {
+  const percentage = Math.min((currentFarmAnimals / maxFarmAnimals) * 100, 100);
+  const isFull = currentFarmAnimals >= maxFarmAnimals;
+
+  return (
+    <div style={{
+      marginBottom: '15px',
+      padding: '0 2px'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        {/* Progress bar */}
+        <div style={{
+          flex: 1,
+          height: '8px',
+          backgroundColor: '#a5a1a1',
+          borderRadius: '4px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            height: '100%',
+            width: `${percentage}%`,
+            backgroundColor: isFull ? '#e57373' : '#5acb60',
+            transition: 'width 0.3s ease'
+          }} />
+        </div>
+
+        {/* Count display */}
+        <span style={{
+          fontSize: '12px',
+          fontWeight: 'bold',
+          color: isFull ? '#e57373' : '#5acb60',
+          minWidth: '40px',
+          textAlign: 'right'
+        }}>
+          {currentFarmAnimals}/{maxFarmAnimals}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 const BuyPanel = ({
   TILE_SIZE,
@@ -43,6 +89,8 @@ const BuyPanel = ({
   const [placeWithCursor, setPlaceWithCursor] = useState(
     currentPlayer?.settings?.plantWithCursor ?? false
   );
+  // Track which item is currently being processed (for cursor mode lock)
+  const [processingItem, setProcessingItem] = useState(null);
 
   // Toggle handler - persists to player settings
   const handleToggleChange = (checked) => {
@@ -55,14 +103,62 @@ const BuyPanel = ({
   };
 
   // Handle selecting an item for cursor mode
-  const handleCursorModeSelect = (item) => {
+  // Note: item passed here is already the effectiveItem with scaled costs for display
+  const handleCursorModeSelect = (effectiveItem) => {
+    // Build effective options with scaled costs for this item (for initial display)
+    const effectiveBuildOptions = buyOptions.map(opt =>
+      opt.type === effectiveItem.type ? effectiveItem : opt
+    );
+    // Capture the original (unscaled) item for fresh cost calculation
+    const originalItem = buyOptions.find(opt => opt.type === effectiveItem.type);
+
     setCursorMode({
       type: 'build',
-      item: item.type,
-      emoji: item.symbol || '🐮',
-      filename: item.filename || null,
-      size: item.size || 1,
-      buildOptions: buyOptions,
+      item: effectiveItem.type,
+      emoji: effectiveItem.symbol || '🐮',
+      filename: effectiveItem.filename || null,
+      size: effectiveItem.size || 1,
+      buildOptions: effectiveBuildOptions,
+      // Spam-click protection for cursor mode
+      isProcessing: false,
+      setProcessing: (processing) => {
+        setProcessingItem(processing ? effectiveItem.type : null);
+        // Update cursorMode's isProcessing flag
+        setCursorMode(prev => prev ? { ...prev, isProcessing: processing } : null);
+      },
+      // Callback to get fresh scaled costs before each purchase
+      // This reads fresh from NPCsInGrid at execution time to get current animal count
+      getEffectiveBuildOptions: () => {
+        // Count animals fresh from NPCsInGrid at time of click
+        const freshAnimalCount = NPCsInGrid?.[gridId]?.npcs
+          ? Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length
+          : 0;
+        const inflation = globalTuning?.farmAnimalInflation || 0.1;
+
+        // Calculate fresh effective item with current animal count
+        const freshEffectiveItem = originalItem ? (() => {
+          if (!originalItem.passable || originalItem.action !== 'graze') return originalItem;
+          const scaledItem = { ...originalItem };
+          for (let i = 1; i <= 4; i++) {
+            const ingredientKey = `ingredient${i}`;
+            const qtyKey = `ingredient${i}qty`;
+            if (scaledItem[ingredientKey] === 'Money' && scaledItem[qtyKey]) {
+              if (freshAnimalCount === 0) {
+                // No scaling needed
+              } else {
+                const multiplier = Math.pow(1 + inflation, freshAnimalCount);
+                const scaledCost = scaledItem[qtyKey] * multiplier;
+                scaledItem[qtyKey] = Math.ceil(scaledCost / 50) * 50;
+              }
+            }
+          }
+          return scaledItem;
+        })() : effectiveItem;
+
+        return buyOptions.map(opt =>
+          opt.type === effectiveItem.type ? freshEffectiveItem : opt
+        );
+      },
     });
   };
 
@@ -116,6 +212,37 @@ const BuyPanel = ({
     return playerLevel >= resourceLevel;
   };
 
+  // Handle direct purchase (non-cursor mode) with spam-click protection
+  const handleDirectPurchase = async (transactionId, transactionKey, item) => {
+    console.log(`🔒 [BUY_PANEL] Starting protected purchase for ${item.type}`);
+    // Count animals fresh from NPCsInGrid at time of purchase
+    const freshAnimalCount = NPCsInGrid?.[gridId]?.npcs
+      ? Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length
+      : 0;
+    // Get fresh effective item with current scaled costs using fresh count
+    const effectiveItem = getEffectiveItem(item, freshAnimalCount);
+    const effectiveBuildOptions = buyOptions.map(opt =>
+      opt.type === item.type ? effectiveItem : opt
+    );
+    await handleConstruction({
+      TILE_SIZE,
+      selectedItem: item.type,
+      buildOptions: effectiveBuildOptions,
+      inventory,
+      setInventory,
+      backpack,
+      setBackpack,
+      resources,
+      setResources,
+      setErrorMessage: console.error,
+      currentPlayer,
+      setCurrentPlayer,
+      gridId,
+      updateStatus,
+    });
+    console.log(`✅ [BUY_PANEL] Purchase completed for ${item.type}`);
+  };
+
   const handleGemPurchase = async (modifiedRecipe) => {
     // If placeWithCursor is enabled, put the gem-modified item into cursor mode
     if (placeWithCursor) {
@@ -128,6 +255,12 @@ const BuyPanel = ({
         size: item.size || 1,
         buildOptions: buyOptions,
         modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
+        // Spam-click protection for cursor mode
+        isProcessing: false,
+        setProcessing: (processing) => {
+          setProcessingItem(processing ? modifiedRecipe.type : null);
+          setCursorMode(prev => prev ? { ...prev, isProcessing: processing } : null);
+        },
       });
       return;
     }
@@ -151,13 +284,45 @@ const BuyPanel = ({
   };
 
   // Count current farm animals on the grid
+  // This function reads fresh from NPCsInGrid each time it's called
   const countFarmAnimals = () => {
     if (!NPCsInGrid?.[gridId]?.npcs) return 0;
     return Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length;
   };
-  
+
   const maxFarmAnimals = globalTuning?.maxFarmAnimals || 10; // Default to 10 if not set
   const currentFarmAnimals = countFarmAnimals();
+  const farmAnimalInflation = globalTuning?.farmAnimalInflation || 0.1; // Default 10% increase per animal
+
+  // Calculate scaled Money cost for farm animals based on existing animals on grid
+  // Takes animalCount as parameter to avoid stale closure issues
+  const getScaledMoneyCost = (baseCost, animalCount) => {
+    if (animalCount === 0) return baseCost;
+    // Each existing animal compounds the cost by farmAnimalInflation (e.g., 10%)
+    // Example with 10%: 0 animals = 500, 1 = 550, 2 = 605 → 650, 3 = 665 → 700
+    const multiplier = Math.pow(1 + farmAnimalInflation, animalCount);
+    const scaledCost = baseCost * multiplier;
+    // Round up to nearest 50
+    return Math.ceil(scaledCost / 50) * 50;
+  };
+
+  // Get the effective item with scaled Money cost for farm animals
+  // Takes optional animalCount parameter - if not provided, uses current count
+  const getEffectiveItem = (item, animalCount = currentFarmAnimals) => {
+    // Only apply scaling to farm animals (graze action)
+    if (!item.passable || item.action !== 'graze') return item;
+
+    // Create a copy with scaled Money costs
+    const scaledItem = { ...item };
+    for (let i = 1; i <= 4; i++) {
+      const ingredientKey = `ingredient${i}`;
+      const qtyKey = `ingredient${i}qty`;
+      if (scaledItem[ingredientKey] === 'Money' && scaledItem[qtyKey]) {
+        scaledItem[qtyKey] = getScaledMoneyCost(scaledItem[qtyKey], animalCount);
+      }
+    }
+    return scaledItem;
+  };
 
   return (
     <Panel onClose={closePanel} descriptionKey="1003" titleKey="1103" panelName="BuyPanel">
@@ -182,13 +347,21 @@ const BuyPanel = ({
           />
         </div>
 
+        {/* Farm Animals Progress Bar */}
+        <FarmAnimalsProgressBar
+          currentFarmAnimals={currentFarmAnimals}
+          maxFarmAnimals={maxFarmAnimals}
+        />
+
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
           <>
             {buyOptions.map((item) => {
-              const ingredients = getIngredientDetails(item, allResources);
-              const affordable = canAfford(item, inventory);
+              // Get effective item with scaled costs for farm animals
+              const effectiveItem = getEffectiveItem(item);
+              const ingredients = getIngredientDetails(effectiveItem, allResources);
+              const affordable = canAfford(effectiveItem, inventory);
               const meetsSkillRequirement = hasRequiredSkill(item.requires);
               const meetsLevel = meetsLevelRequirement(item.level);
               const requirementsMet = meetsSkillRequirement && meetsLevel;
@@ -204,8 +377,8 @@ const BuyPanel = ({
               if (isSelectedForCursor) buttonClassName += 'cursor-selected ';
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {
-                const type = item[`ingredient${i}`];
-                const qty = item[`ingredient${i}qty`];
+                const type = effectiveItem[`ingredient${i}`];
+                const qty = effectiveItem[`ingredient${i}qty`];
                 if (!type || !qty) return '';
 
                 const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
@@ -232,6 +405,9 @@ const BuyPanel = ({
                 </div>
               );
 
+              // Check if this item is currently processing in cursor mode
+              const isCursorProcessing = processingItem === item.type;
+
               return (
                 <ResourceButton
                   key={item.type}
@@ -241,34 +417,21 @@ const BuyPanel = ({
                   info={info}
                   disabled={isDisabled}
                   className={buttonClassName}
-                  onClick={() => {
-                    if (isDisabled) return;
-                    if (placeWithCursor) {
-                      // In cursor mode: select this item for placing via clicks
-                      handleCursorModeSelect(item);
-                    } else {
-                      // Normal mode: buy at player position immediately
-                      handleConstruction({
-                        TILE_SIZE,
-                        selectedItem: item.type,
-                        buildOptions: buyOptions,
-                        inventory,
-                        setInventory,
-                        backpack,
-                        setBackpack,
-                        resources,
-                        setResources,
-                        setErrorMessage: console.error,
-                        currentPlayer,
-                        setCurrentPlayer,
-                        gridId,
-                        updateStatus,
-                      });
+                  onClick={placeWithCursor ? () => {
+                    // In cursor mode: select this item for placing via clicks
+                    if (!isDisabled && !isCursorProcessing) {
+                      handleCursorModeSelect(effectiveItem);
                     }
-                  }}
+                  } : undefined}
+                  // Transaction mode for direct purchases (non-cursor mode)
+                  isTransactionMode={!placeWithCursor}
+                  transactionKey={`buy-${item.type}-${gridId}`}
+                  onTransactionAction={!placeWithCursor ? (txId, txKey) => handleDirectPurchase(txId, txKey, item) : undefined}
+                  // External processing state for cursor mode (shows yellow + hourglass)
+                  externalProcessing={isCursorProcessing}
                   onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !farmAnimalLimitReached) ? handleGemPurchase : null}
                   meetsLevelRequirement={meetsLevel}
-                  resource={item}
+                  resource={effectiveItem}
                   inventory={inventory}
                   backpack={backpack}
                   masterResources={masterResources || allResources}

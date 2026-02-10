@@ -114,13 +114,61 @@ const AnimalPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
+  // Count current farm animals on the grid for inflation calculation
+  const countFarmAnimals = () => {
+    const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (!npcsInGrid) return 0;
+    return Object.values(npcsInGrid).filter(npc => npc.action === 'graze').length;
+  };
+
+  // Calculate scaled Money cost based on animal count (same formula as BuyPanel)
+  const getScaledMoneyCost = (baseCost, animalCount) => {
+    if (animalCount === 0) return baseCost;
+    const inflation = globalTuning?.farmAnimalInflation || 0.1;
+    const multiplier = Math.pow(1 + inflation, animalCount);
+    const scaledCost = baseCost * multiplier;
+    // Round up to nearest 50
+    return Math.ceil(scaledCost / 50) * 50;
+  };
+
+  // Calculate the refund amount for display in the button
+  const getRefundAmount = () => {
+    if (!stallDetails) return 0;
+    const currentAnimalCount = countFarmAnimals();
+    const animalCountAtPurchase = Math.max(0, currentAnimalCount - 1);
+
+    let totalRefund = 0;
+    for (let i = 1; i <= 3; i++) {
+      const ingredientType = stallDetails[`ingredient${i}`];
+      const ingredientQty = stallDetails[`ingredient${i}qty`];
+      if (ingredientType === 'Money' && ingredientQty && stallDetails.action === 'graze') {
+        totalRefund += getScaledMoneyCost(ingredientQty, animalCountAtPurchase);
+      } else if (ingredientType === 'Money' && ingredientQty) {
+        totalRefund += ingredientQty;
+      }
+    }
+    return totalRefund;
+  };
+
   const handleSellStation = async (transactionId, transactionKey) => {
+    // Count current animals to calculate inflated refund
+    // Use currentCount - 1 because we're refunding what they paid when they bought this animal
+    // (i.e., when there was one fewer animal on the grid)
+    const currentAnimalCount = countFarmAnimals();
+    const animalCountAtPurchase = Math.max(0, currentAnimalCount - 1);
+
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
       const ingredientType = stallDetails[`ingredient${i}`];
       const ingredientQty = stallDetails[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {
-        ingredients.push({ type: ingredientType, quantity: ingredientQty });
+        // Apply inflation scaling only to Money ingredients
+        if (ingredientType === 'Money' && stallDetails.action === 'graze') {
+          const scaledQty = getScaledMoneyCost(ingredientQty, animalCountAtPurchase);
+          ingredients.push({ type: ingredientType, quantity: scaledQty });
+        } else {
+          ingredients.push({ type: ingredientType, quantity: ingredientQty });
+        }
       }
     }
     if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
@@ -206,7 +254,7 @@ const AnimalPanel = ({
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >
-                {strings[425]}
+                {strings[425]} (💰 {getRefundAmount()})
               </TransactionButton>
             </div>
           </div>

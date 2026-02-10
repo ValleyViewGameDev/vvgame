@@ -53,13 +53,17 @@ const ResourceButton = ({
   // Resource type - used for data attribute to enable CSS selector targeting
   resourceType = null,
   // When true, suppresses the global button_press SFX (use when button has its own SFX)
-  noClickSfx = false
-}) => { 
+  noClickSfx = false,
+  // External processing state - used for cursor mode where processing happens outside the button
+  externalProcessing = false
+}) => {
   const strings = useStrings();
   const { openPanel } = usePanelContext();
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [internalProcessing, setInternalProcessing] = useState(false);
+  // Combined processing state - either internal (transaction mode) or external (cursor mode)
+  const isProcessing = internalProcessing || externalProcessing;
   const [transactionId, setTransactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const [showGemTooltip, setShowGemTooltip] = useState(false);
   const [gemTooltipPosition, setGemTooltipPosition] = useState({ top: 0, left: 0 });
@@ -119,7 +123,7 @@ const ResourceButton = ({
       e.stopPropagation();
       
       console.log(`🔒 [RESOURCE_BUTTON] Setting processing state for ${transactionKey}`);
-      setIsProcessing(true);
+      setInternalProcessing(true);
       try {
         await onTransactionAction(transactionId, transactionKey);
         console.log(`✅ [RESOURCE_BUTTON] Transaction completed for ${transactionKey}`);
@@ -129,7 +133,7 @@ const ResourceButton = ({
         console.error('Transaction failed:', error);
       } finally {
         console.log(`🔓 [RESOURCE_BUTTON] Clearing processing state for ${transactionKey}`);
-        setIsProcessing(false);
+        setInternalProcessing(false);
       }
     } else if (onClick) {
       // Normal mode

@@ -2911,51 +2911,76 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // Handle build cursor mode (Build, Buy, BuyDeco, and Pets panels)
   if (cursorMode?.type === 'build' && cursorMode.item && cursorMode.buildOptions) {
+    // Spam-click protection: block if already processing
+    if (cursorMode.isProcessing) {
+      console.log('🔒 [CURSOR_MODE] Blocked - already processing');
+      isProcessing = false;
+      return;
+    }
     // Range check for cursor placement (skipped on own homestead)
     if (!isInRange()) {
       FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
       isProcessing = false;
       return;
     }
-    const { handleConstruction, handleConstructionWithGems } = await import('./GameFeatures/BuildAndBuy');
-    // Check if this is a gem-modified purchase (modifiedRecipe is present)
-    if (cursorMode.modifiedRecipe) {
-      await handleConstructionWithGems({
-        TILE_SIZE: activeTileSize,
-        selectedItem: cursorMode.item,
-        buildOptions: cursorMode.buildOptions,
-        inventory,
-        setInventory,
-        backpack,
-        setBackpack,
-        resources,
-        setResources,
-        currentPlayer,
-        setCurrentPlayer,
-        gridId,
-        updateStatus,
-        modifiedRecipe: cursorMode.modifiedRecipe,
-        overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
-      });
-    } else {
-      await handleConstruction({
-        TILE_SIZE: activeTileSize,
-        selectedItem: cursorMode.item,
-        buildOptions: cursorMode.buildOptions,
-        inventory,
-        setInventory,
-        backpack,
-        setBackpack,
-        resources,
-        setResources,
-        currentPlayer,
-        setCurrentPlayer,
-        gridId,
-        updateStatus,
-        overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
-        globalTuning,
-        masterResources,
-      });
+
+    // Set processing state if callback is available (for spam-click protection)
+    if (cursorMode.setProcessing) {
+      cursorMode.setProcessing(true);
+    }
+
+    try {
+      const { handleConstruction, handleConstructionWithGems } = await import('./GameFeatures/BuildAndBuy');
+
+      // Get fresh build options with current scaled costs if callback is available
+      const effectiveBuildOptions = cursorMode.getEffectiveBuildOptions
+        ? cursorMode.getEffectiveBuildOptions()
+        : cursorMode.buildOptions;
+
+      // Check if this is a gem-modified purchase (modifiedRecipe is present)
+      if (cursorMode.modifiedRecipe) {
+        await handleConstructionWithGems({
+          TILE_SIZE: activeTileSize,
+          selectedItem: cursorMode.item,
+          buildOptions: effectiveBuildOptions,
+          inventory,
+          setInventory,
+          backpack,
+          setBackpack,
+          resources,
+          setResources,
+          currentPlayer,
+          setCurrentPlayer,
+          gridId,
+          updateStatus,
+          modifiedRecipe: cursorMode.modifiedRecipe,
+          overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+        });
+      } else {
+        await handleConstruction({
+          TILE_SIZE: activeTileSize,
+          selectedItem: cursorMode.item,
+          buildOptions: effectiveBuildOptions,
+          inventory,
+          setInventory,
+          backpack,
+          setBackpack,
+          resources,
+          setResources,
+          currentPlayer,
+          setCurrentPlayer,
+          gridId,
+          updateStatus,
+          overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+          globalTuning,
+          masterResources,
+        });
+      }
+    } finally {
+      // Clear processing state
+      if (cursorMode.setProcessing) {
+        cursorMode.setProcessing(false);
+      }
     }
     isProcessing = false;
     return;
@@ -4839,13 +4864,15 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
-          gridId={activeStation?.gridId} 
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
+          gridId={activeStation?.gridId}
           npcId={activeStation?.npcId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          globalTuning={globalTuning}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'CropPanel' && (
