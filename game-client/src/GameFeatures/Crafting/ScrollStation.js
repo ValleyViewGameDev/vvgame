@@ -41,12 +41,10 @@ const ScrollStation = ({
   masterTrophies,
   TILE_SIZE,
   isDeveloper,
-  currentSeason,
   globalTuning,
 }) => {
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
-  const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const { updateStatus } = useContext(StatusBarContext);
@@ -56,7 +54,6 @@ const ScrollStation = ({
   const [craftingCountdown, setCraftingCountdown] = useState(null);
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
-  const [npcRefreshKey, setNpcRefreshKey] = useState(0);
   const [scrollCount, setScrollCount] = useState(0);
   const [revealedItemQty, setRevealedItemQty] = useState(1);
   const [isCollecting, setIsCollecting] = useState(false);
@@ -166,44 +163,10 @@ const ScrollStation = ({
     setScrollCount(scrolls?.quantity || 0);
   }, [inventory, backpack]);
 
-  // Fetch recipes and resources (refactored: use masterResources directly)
+  // Fetch station details and resources
+  // Note: ScrollStation doesn't display recipes - scroll reveals are random
   useEffect(() => {
     try {
-      let filteredRecipes = masterResources.filter((resource) => {
-        // Check if resource source matches station type
-        if (resource.source !== stationType) return false;
-        
-        // Check seasonal restriction
-        if (resource.season && currentSeason && resource.season !== currentSeason) {
-          return false;
-        }
-        
-        return true;
-      });
-      
-      // Filter out non-repeatable resources that already exist on the grid
-      const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-      if (npcsInGrid) {
-        // Get all NPC types currently on the grid
-        // NPCs are stored directly under NPCsInGrid with their ID as the key
-        const existingNPCTypes = Object.values(npcsInGrid)
-          .filter(npc => npc && npc.type) // Filter out any null/undefined entries
-          .map(npc => npc.type);
-        
-        console.log('Existing NPC types on grid:', existingNPCTypes);
-        
-        // Filter out non-repeatable recipes that already exist
-        filteredRecipes = filteredRecipes.filter(recipe => {
-          // If it's not repeatable and already exists, filter it out
-          if (recipe.repeatable === false && existingNPCTypes.includes(recipe.type)) {
-            console.log(`Filtering out non-repeatable ${recipe.type} - already exists on grid`);
-            return false;
-          }
-          return true;
-        });
-      }
-      
-      setRecipes(filteredRecipes);
       const stationResource = masterResources.find((resource) => resource.type === stationType);
       setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
@@ -211,17 +174,7 @@ const ScrollStation = ({
     } catch (error) {
       console.error('Error processing masterResources:', error);
     }
-  }, [stationType, masterResources, gridId, npcRefreshKey]);
-  
-  // Periodically refresh to check for NPC changes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNpcRefreshKey(prev => prev + 1);
-    }, 2000); // Check every 2 seconds
-    
-    return () => clearInterval(interval);
-  }, []);
-
+  }, [stationType, masterResources]);
 
   const handleSellStation = async (transactionId, transactionKey) => {
     await handleProtectedSelling({

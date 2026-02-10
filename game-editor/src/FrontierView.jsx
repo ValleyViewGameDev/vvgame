@@ -88,6 +88,25 @@ console.log("📜 settlements.length:", settlements?.length);
     }
   };
 
+  // Get selected grids that have NO layout (eligible for batch create)
+  const getGridsWithoutLayout = () => {
+    return selectedCells.filter(coord => {
+      const hasLayout = layoutCache.has(Number(coord));
+      const gridType = gridMap.get(Number(coord))?.gridType;
+      // Exclude homestead/town types
+      if (['homestead', 'town'].includes(gridType)) return false;
+      return !hasLayout;
+    });
+  };
+
+  // Get selected grids that HAVE a database entry (eligible for batch reset)
+  const getGridsWithDatabaseEntry = () => {
+    return selectedCells.filter(coord => {
+      const grid = gridMap.get(Number(coord));
+      return grid?.gridId; // Has been created in database
+    });
+  };
+
   // Save region for multiple grids (bulk update)
   const handleBulkSaveRegion = async () => {
     if (selectedCells.length === 0) return;
@@ -489,11 +508,154 @@ const handleResetGridLive = async () => {
     window.dispatchEvent(new CustomEvent('refresh-frontier-data'));
     setModalMessage('Refreshing settlements data...');
     setShowModal(true);
-    
+
     // Auto-close modal after 2 seconds
     setTimeout(() => {
       setShowModal(false);
     }, 2000);
+  };
+
+  // Batch create grids in live game
+  const handleBulkCreateGridsLive = async () => {
+    const eligibleGrids = getGridsWithoutLayout();
+    if (eligibleGrids.length === 0) return;
+
+    const confirmed = window.confirm(
+      `Create ${eligibleGrids.length} grids in the live game?\n\n` +
+      `This will create real grids in the game database.`
+    );
+    if (!confirmed) return;
+
+    setModalMessage(`Creating grids: 0/${eligibleGrids.length}`);
+    setShowModal(true);
+
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      // Fetch settlements once for all grids
+      const settlementsResponse = await axios.get(`${API_BASE}/api/settlements`);
+      const allSettlements = settlementsResponse.data;
+
+      for (let i = 0; i < eligibleGrids.length; i++) {
+        const gridCoord = eligibleGrids[i];
+        setModalMessage(`Creating grids: ${i + 1}/${eligibleGrids.length}`);
+
+        try {
+          // Find grid details from settlements
+          let foundGrid = null;
+          let foundSettlementId = null;
+          let foundFrontierId = null;
+
+          for (const settlement of allSettlements) {
+            if (!settlement.grids) continue;
+            for (const row of settlement.grids) {
+              for (const grid of row) {
+                if (String(grid.gridCoord) === String(gridCoord)) {
+                  foundGrid = grid;
+                  foundSettlementId = settlement._id;
+                  foundFrontierId = settlement.frontierId;
+                  break;
+                }
+              }
+              if (foundGrid) break;
+            }
+            if (foundGrid) break;
+          }
+
+          if (!foundGrid) {
+            console.warn(`GridCoord ${gridCoord} not found in settlements`);
+            failCount++;
+            continue;
+          }
+
+          await axios.post(`${API_BASE}/api/create-grid`, {
+            gridCoord,
+            gridType: foundGrid.gridType,
+            settlementId: foundSettlementId,
+            frontierId: foundFrontierId,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to create grid ${gridCoord}:`, error);
+          failCount++;
+        }
+      }
+
+      setModalMessage(`Created ${successCount} grids.${failCount > 0 ? ` Failed: ${failCount}` : ''}`);
+      setTimeout(() => handleRefreshData(), 1500);
+    } catch (error) {
+      console.error('Failed to fetch settlements for bulk create:', error);
+      setModalMessage('Failed to fetch settlements data.');
+    }
+  };
+
+  // Batch reset grids in live game
+  const handleBulkResetGridsLive = async () => {
+    const eligibleGrids = getGridsWithDatabaseEntry();
+    if (eligibleGrids.length === 0) return;
+
+    const confirmed = window.confirm(
+      `Reset ${eligibleGrids.length} grids in the live game?\n\n` +
+      `This will reset all resources and tiles for these grids.`
+    );
+    if (!confirmed) return;
+
+    setModalMessage(`Resetting grids: 0/${eligibleGrids.length}`);
+    setShowModal(true);
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < eligibleGrids.length; i++) {
+      const gridCoord = eligibleGrids[i];
+      const foundGrid = gridMap.get(Number(gridCoord));
+      setModalMessage(`Resetting grids: ${i + 1}/${eligibleGrids.length}`);
+
+      try {
+        // Find settlement/frontier IDs
+        let foundSettlementId = null;
+        let foundFrontierId = null;
+
+        for (const settlement of settlements) {
+          const sid = settlement.frontierId?.toString();
+          if (sid === selectedFrontier?.toString()) {
+            const grids = Array.isArray(settlement.grids) && settlement.grids.every(row => Array.isArray(row))
+              ? settlement.grids.flatMap(row => row)
+              : [];
+            for (const grid of grids) {
+              if (grid.gridCoord === Number(gridCoord)) {
+                foundSettlementId = settlement._id;
+                foundFrontierId = settlement.frontierId;
+                break;
+              }
+            }
+          }
+          if (foundSettlementId) break;
+        }
+
+        if (!foundSettlementId || !foundFrontierId) {
+          console.error(`Could not find settlement for grid ${gridCoord}`);
+          failCount++;
+          continue;
+        }
+
+        await axios.post(`${API_BASE}/api/reset-grid`, {
+          gridCoord,
+          gridId: foundGrid.gridId,
+          gridType: foundGrid.gridType,
+          settlementId: foundSettlementId,
+          frontierId: foundFrontierId,
+        });
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to reset grid ${gridCoord}:`, error);
+        failCount++;
+      }
+    }
+
+    setModalMessage(`Reset ${successCount} grids.${failCount > 0 ? ` Failed: ${failCount}` : ''}`);
+    setTimeout(() => handleRefreshData(), 1500);
   };
 
   return (
@@ -510,7 +672,7 @@ const handleResetGridLive = async () => {
         <div className="selected-cell-info">
           {/* Multi-select UI */}
           {selectedCells.length > 1 && (
-            <div className="multi-select-info" style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
+            <div className="multi-select-info" style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e3f2fd', borderRadius: '4px', color: '#000' }}>
               <p><strong>{selectedCells.length} cells selected</strong></p>
               <p style={{ fontSize: '12px', color: '#666' }}>
                 (Shift+click to toggle, drag to select range)
@@ -538,6 +700,28 @@ const handleResetGridLive = async () => {
                   </button>
                 </div>
               </div>
+
+              {/* Batch Create Grids button - only if ALL selected grids have NO layout */}
+              {getGridsWithoutLayout().length === selectedCells.length &&
+               getGridsWithoutLayout().length > 0 && (
+                <button
+                  onClick={handleBulkCreateGridsLive}
+                  style={{ marginTop: '10px', padding: '4px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer', display: 'block', width: '100%' }}
+                >
+                  Create Grids in Live Game ({selectedCells.length} grids)
+                </button>
+              )}
+
+              {/* Batch Reset Grids button - only if ALL selected grids have database entries */}
+              {getGridsWithDatabaseEntry().length === selectedCells.length &&
+               getGridsWithDatabaseEntry().length > 0 && (
+                <button
+                  onClick={handleBulkResetGridsLive}
+                  style={{ marginTop: '10px', padding: '4px 12px', backgroundColor: '#ff9800', color: 'white', border: 'none', cursor: 'pointer', display: 'block', width: '100%' }}
+                >
+                  Reset Grids Live Game ({selectedCells.length} grids)
+                </button>
+              )}
 
               <button
                 onClick={() => { setSelectedCells([]); }}
