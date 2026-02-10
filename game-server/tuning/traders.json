@@ -243,7 +243,7 @@
     "trader": "Gertrude",
     "index": 3,
     "gives": "Money",
-    "givesqty": 10000,
+    "givesqty": 25000,
     "xp": 75,
     "repeat": true,
     "rel": "friend",

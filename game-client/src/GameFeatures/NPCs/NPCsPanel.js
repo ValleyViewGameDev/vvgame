@@ -1599,9 +1599,6 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       isTransactionMode={true}
                       transactionKey={`npc-trade-${npcData.type}-${recipe.type}-${recipe.index}`}
                       onTransactionAction={(transactionId, transactionKey) => handleTrade(transactionId, transactionKey, recipe)}
-                      // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
-                      gemCost={null}
-                      onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet)) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}
                       meetsLevelRequirement={meetsLevel}
                       resource={recipe}
                       inventory={inventory}
