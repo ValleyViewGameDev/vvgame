@@ -240,9 +240,6 @@ export const handleFarmPlotPlacement = async ({
 
 
 export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition, isDeveloper }) => {
-
-  console.log("handleTerraform;  currentPlayer = ",currentPlayer);
-
   if (!currentPlayer?.location) {
     console.error("❌ handleTerraform: Missing currentPlayer location.");
     return false;
@@ -260,29 +257,43 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
     tileY = coords.tileY;
   }
 
-  const tile = tileTypes?.[tileY]?.[tileX];
-  console.log("tile at ",tileY,", ",tileX," = ",tile);
+  // ===== DOUBLE-CLICK PROTECTION =====
+  const terraformId = `terraform-${tileX}-${tileY}-${gridId}`;
+  if (window._processingTerraforms && window._processingTerraforms.has(terraformId)) {
+    console.log("Already processing terraforming at this location, ignoring duplicate");
+    return false;
+  }
+  if (!window._processingTerraforms) {
+    window._processingTerraforms = new Set();
+  }
+  window._processingTerraforms.add(terraformId);
 
-  if (!tile) {
+  // ===== VALIDATION =====
+  // Read from GlobalGridStateTilesAndResources for consistent state (not stale React props)
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  const originalTileType = tiles?.[tileY]?.[tileX];
+
+  if (!originalTileType) {
     console.error("❌ handleTerraform: Could not find tile at given coordinates.");
+    window._processingTerraforms.delete(terraformId);
     return false;
   }
-  if (tile === 'l' && !isDeveloper) {
-      FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
+  if (originalTileType === 'l' && !isDeveloper) {
+    FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
+    window._processingTerraforms.delete(terraformId);
     return false;
   }
-  if (tile === 'w' && !isDeveloper) {
-      FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE); // Same message as lava for now
+  if (originalTileType === 'w' && !isDeveloper) {
+    FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
+    window._processingTerraforms.delete(terraformId);
     return false;
   }
 
+  // Determine the new tile type
   let newType;
-
-  // If tileType is directly provided, use it (new dynamic approach)
   if (tileType) {
     newType = tileType;
   } else {
-    // Legacy: Determine the new tile type based on the action (for backwards compatibility)
     switch (actionType) {
       case "till":
         newType = "d";
@@ -304,17 +315,35 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
         break;
       default:
         console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
+        window._processingTerraforms.delete(terraformId);
         return false;
     }
   }
 
-  console.log(`🌱 handleTerraform: Changing tile at (${tileX}, ${tileY}) to "${newType}"`);
+  console.log(`🌱 handleTerraform: Changing tile at (${tileX}, ${tileY}) from "${originalTileType}" to "${newType}"`);
 
-  // Call convertTileType to update the tile in the database and emit the change
+  // ===== OPTIMISTIC UI: Show feedback immediately =====
+  // 1. Play sound immediately
+  soundManager.playSFX('terraform');
+
+  // 2. Show VFX immediately
+  createCollectEffect(tileX, tileY, TILE_SIZE);
+
+  // 3. Update GlobalGridStateTilesAndResources immediately for visual feedback
+  if (tiles?.[tileY]) {
+    const updatedRow = [...tiles[tileY]];
+    updatedRow[tileX] = newType;
+    const updatedTiles = [...tiles];
+    updatedTiles[tileY] = updatedRow;
+    GlobalGridStateTilesAndResources.setTiles(updatedTiles);
+  }
+
+  // ===== SERVER UPDATE =====
+  // Call convertTileType for server update, React state sync, and socket broadcast
+  // Pass setTileTypes so it updates React state after server confirms
   await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
 
-  // Show VFX for terraforming
-  createCollectEffect(tileX, tileY, TILE_SIZE);
-  soundManager.playSFX('terraform');
-  return true; // Success
+  console.log(`✅ Terraform completed: (${tileX}, ${tileY}) → "${newType}"`);
+  window._processingTerraforms.delete(terraformId);
+  return true;
 };

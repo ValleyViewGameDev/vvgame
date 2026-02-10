@@ -183,11 +183,10 @@ const ToolsPanel = ({
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '2px 12px',
-          marginBottom: '6px',
-          backgroundColor: 'var(--color-bg-tertiary)',
-          borderRadius: '8px'
+          justifyContent: 'flex-start',
+          gap: '8px',
+          marginBottom: '10px',
+          padding: '5px 0'
         }}>
           <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
             {strings[10187] || 'Use with cursor'}

@@ -67,9 +67,9 @@ const NPCPanel = ({
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
   const [hasHiddenTrades, setHasHiddenTrades] = useState(false);
-  const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
-  const [coolingDownItems, setCoolingDownItems] = useState(new Set());
-  const COOLDOWN_DURATION = 1500; // 1500ms cooldown (3x longer than terraform)
+  // Note: Spam-click protection is now handled by ResourceButton's isTransactionMode
+  // isHealingAnimation is only used to trigger the prayer bubble visual effect
+  const [isHealingAnimation, setIsHealingAnimation] = useState(false);
 
   // StoryModal state for relationship milestone dialogs
   const [storyModalOpen, setStoryModalOpen] = useState(false);
@@ -297,7 +297,8 @@ const NPCPanel = ({
     }
   };
 
-  const handleAcceptQuest = async (questTitle) => {
+  const handleAcceptQuest = async (transactionId, transactionKey, questTitle) => {
+    console.log(`🔒 [PROTECTED QUEST] Starting accept quest for ${questTitle}`);
     if (!questTitle) return;
     // Find the accepted quest in questList
     const acceptedQuest = questList.find(q => q.title === questTitle);
@@ -389,7 +390,8 @@ const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, x
   }, 800);
 };
 
-const handleGetReward = async (quest) => {
+const handleGetReward = async (transactionId, transactionKey, quest) => {
+    console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
       const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
@@ -546,68 +548,56 @@ const handleGetReward = async (quest) => {
 const handleGemPurchase = async (modifiedRecipe, actionType) => {
     // This is called by the gem button with a recipe modified to include gems
     // Route to the appropriate handler based on action type
+    // Generate a transaction ID for gem purchases (these bypass the normal transaction mode)
+    const gemTransactionId = `gem-${actionType}-${Date.now()}`;
+    const gemTransactionKey = `gem-${actionType}-${modifiedRecipe.type}`;
     if (actionType === 'heal') {
-      return handleHeal(modifiedRecipe);
+      return handleHeal(gemTransactionId, gemTransactionKey, modifiedRecipe);
     } else if (actionType === 'trade') {
-      return handleTrade(modifiedRecipe);
+      return handleTrade(gemTransactionId, gemTransactionKey, modifiedRecipe);
     }
   };
 
-const handleHeal = async (recipe) => {
+// Protected function to execute healing using transaction system
+  const handleHeal = async (transactionId, transactionKey, recipe) => {
+    console.log(`🔒 [PROTECTED HEAL] Starting protected heal for ${recipe.type}`);
     setErrorMessage('');
 
-    const itemKey = `heal-${recipe.type}`;
-    if (!recipe || isHealing || coolingDownItems.has(itemKey)) {
-      if (!recipe) setErrorMessage('Invalid healing recipe selected.');
+    // Trigger prayer bubble animation
+    setIsHealingAnimation(true);
+    setTimeout(() => setIsHealingAnimation(false), 1500);
+
+    if (!recipe) {
+      setErrorMessage('Invalid healing recipe selected.');
       return;
     }
-    
-    // Set healing flag and cooldown to prevent spam clicks
-    setIsHealing(true);
-    setCoolingDownItems(prev => new Set(prev).add(itemKey));
-    
-    // Set timeout for cooldown removal
-    setTimeout(() => {
-      setCoolingDownItems(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(itemKey);
-        return newSet;
-      });
-    }, COOLDOWN_DURATION);
+
     // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
     const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     if (!playerInGridState) {
-      console.error(`Player ${currentPlayer.username} not found in NPCsInGrid.`);
-      setTimeout(() => {
-        setIsHealing(false);
-      }, COOLDOWN_DURATION);
+      console.error(`Player ${currentPlayer.username} not found in grid state.`);
       return;
     }
     const currentHp = playerInGridState.hp;
     const maxHp = playerInGridState.maxhp;
-  
+
     // Check if healer has HP remaining
     const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
     if (healerInGrid && healerInGrid.hp !== undefined && healerInGrid.hp <= 0) {
       updateStatus(`${getLocalizedString(npcData.type, strings)} has no heals remaining.`);
-      setTimeout(() => {
-        setIsHealing(false);
-      }, COOLDOWN_DURATION);
       return;
     }
-    
+
     // Healing logic with NPCsInGrid HP
     if (npcData.output === 'hp') {
       if (currentHp >= maxHp) {
         updateStatus(401);  // Player is already at full HP
-        setTimeout(() => {
-          setIsHealing(false);
-        }, COOLDOWN_DURATION);
         return;
       }
     }
+
     const spendResult = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
@@ -619,12 +609,9 @@ const handleHeal = async (recipe) => {
       updateStatus,
     });
     if (!spendResult) {
-      setTimeout(() => {
-        setIsHealing(false);
-      }, COOLDOWN_DURATION);
       return;
     }
-    
+
     // Refresh player to update money display
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
@@ -642,10 +629,10 @@ const handleHeal = async (recipe) => {
       updateStatus(`${strings[405]}${amountToMod}`);
 
       // Deduct 1 HP from the healer NPC
-      const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
-      if (healerInGrid && healerInGrid.hp !== undefined) {
-        const newHealerHP = healerInGrid.hp - 1;
-        
+      const currentHealerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+      if (currentHealerInGrid && currentHealerInGrid.hp !== undefined) {
+        const newHealerHP = currentHealerInGrid.hp - 1;
+
         if (newHealerHP <= 0) {
           // Remove the healer from the grid when HP reaches 0
           await NPCsInGridManager.removeNPC(gridId, npcData.id);
@@ -657,18 +644,15 @@ const handleHeal = async (recipe) => {
         }
       }
 
+      console.log(`✅ Heal completed: +${amountToMod} HP`);
     } catch (error) {
       console.error('Error applying healing:', error);
-    } finally {
-      // Clear the healing flag after cooldown duration to sync with animation
-      setTimeout(() => {
-        setIsHealing(false);
-      }, COOLDOWN_DURATION);
     }
-
   };
 
-  const handleTrade = async (recipe) => {
+  // Protected function to execute trades using transaction system
+  const handleTrade = async (transactionId, transactionKey, recipe) => {
+    console.log(`🔒 [PROTECTED TRADE] Starting protected trade for ${recipe.type}`);
     setErrorMessage('');
     if (!recipe) {
       setErrorMessage('Invalid recipe selected.');
@@ -1156,13 +1140,15 @@ const handleHeal = async (recipe) => {
 
             const state = isRewardable ? 'reward' : 'accept';
             const questMeetsLevel = meetsLevelRequirement(quest.level);
-            const onClick = state === 'reward'
-              ? () => handleGetReward(quest)
-              : () => handleAcceptQuest(quest.title);
 
             // Get XP for this quest (use quest-specific XP if available, else fall back to NPC's XP)
             const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
             const xpToAward = quest.xp ?? npcResourceForXP?.xp ?? 1;
+
+            // Transaction key for spam-click protection
+            const transactionKey = state === 'reward'
+              ? `quest-reward-${npcData.type}-${quest.title}`
+              : `quest-accept-${npcData.type}-${quest.title}`;
 
             return (
               <QuestGiverButton
@@ -1180,7 +1166,13 @@ const handleHeal = async (recipe) => {
                   rewardqty: quest.rewardqty,
                 }}
                 state={state}
-                onClick={onClick}
+                isTransactionMode={true}
+                transactionKey={transactionKey}
+                onTransactionAction={(txId, txKey) =>
+                  state === 'reward'
+                    ? handleGetReward(txId, txKey, quest)
+                    : handleAcceptQuest(txId, txKey, quest.title)
+                }
                 xpReward={xpToAward}
                 level={quest.level}
                 meetsLevelRequirement={questMeetsLevel}
@@ -1201,11 +1193,11 @@ const handleHeal = async (recipe) => {
         <div className="heal-options">
           {/* Render healer interaction animation when healing */}
           <HealerInteraction
-            isHealing={isHealing}
+            isHealing={isHealingAnimation}
             currentPlayer={currentPlayer}
             TILE_SIZE={TILE_SIZE}
             healAmount={npcData.qtycollected}
-            onHealingComplete={() => setIsHealing(false)}
+            onHealingComplete={() => setIsHealingAnimation(false)}
           />
 <br />
           {/* Fetch and display player's HP from playersInGridManager */}
@@ -1230,18 +1222,15 @@ const handleHeal = async (recipe) => {
             const affordable = canAfford(recipe, inventory, 1);
             const healAmount = recipe.qtycollected; // Healing value
 
-            const itemKey = `heal-${recipe.type}`;
-            const isCoolingDown = coolingDownItems.has(itemKey);
-            
             // Check if healer has HP remaining
             const gridId = currentPlayer?.location?.g;
             const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
             const healerOutOfHP = healerInGrid && healerInGrid.hp !== undefined && healerInGrid.hp <= 0;
-            
+
             // Get the NPC template from masterResources to find maxhp
             const npcTemplate = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
             const totalHeals = npcTemplate?.maxhp || 'Unknown';
-            
+
             return (
               <div key={recipe.type}>
                 <ResourceButton
@@ -1249,13 +1238,14 @@ const handleHeal = async (recipe) => {
                   name={getLocalizedString(recipe.type, strings)}
                   details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
                   info={`${strings[51]}${totalHeals}`}
-                  disabled={!affordable || isHealing || isCoolingDown || healerOutOfHP}
-                  onClick={() => handleHeal(recipe)}
-                  className={isCoolingDown ? 'cooldown' : ''}
-                  style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+                  disabled={!affordable || healerOutOfHP}
+                  onClick={undefined}
+                  isTransactionMode={true}
+                  transactionKey={`npc-heal-${npcData.type}-${recipe.type}`}
+                  onTransactionAction={(transactionId, transactionKey) => handleHeal(transactionId, transactionKey, recipe)}
                   // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
                   gemCost={null}
-                  onGemPurchase={(recipe.gemcost && !affordable && !isHealing && !isCoolingDown && !healerOutOfHP) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
+                  onGemPurchase={(recipe.gemcost && !affordable && !healerOutOfHP) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
                   resource={recipe}
                   inventory={inventory}
                   backpack={backpack}
@@ -1605,7 +1595,10 @@ const handleHeal = async (recipe) => {
                       name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
                       details={details}
                       disabled={isDisabled}
-                      onClick={() => handleTrade(recipe)}
+                      onClick={undefined}
+                      isTransactionMode={true}
+                      transactionKey={`npc-trade-${npcData.type}-${recipe.type}-${recipe.index}`}
+                      onTransactionAction={(transactionId, transactionKey) => handleTrade(transactionId, transactionKey, recipe)}
                       // Gem purchase props - gemCost=null so dynamic calculation is used for missing ingredients
                       gemCost={null}
                       onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet)) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}

@@ -73,6 +73,20 @@
   box-shadow: 0 6px 0 var(--color-shadow-button);
 }
 
+/* Processing state - yellow background like ResourceButton */
+.quest-item.processing {
+  background-color: var(--color-processing, #ffd700) !important;
+  cursor: not-allowed;
+}
+.quest-item.processing:hover {
+  background-color: var(--color-processing, #ffd700) !important;
+  transform: none;
+}
+.quest-item.processing:active {
+  transform: none;
+  box-shadow: 0 6px 0 var(--color-shadow-button);
+}
+
 /* ////////////// TEXT /////////////// */
 
 /* Title styling for all buttons - high specificity to override Panel.css */
@@ -111,6 +125,17 @@
 /* Hover state for QuestGiver button */
 .quest-giver-button:hover {
   background-color: var(--color-quest-action-hover);
+}
+
+/* Processing state for QuestGiver button - shows hourglass */
+.quest-giver-button.processing {
+  background-color: var(--color-processing, #ffd700);
+  color: var(--color-text-dark, #333);
+  cursor: not-allowed;
+}
+.quest-giver-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
 }
 
 /* Quest header with symbol and checkmark */

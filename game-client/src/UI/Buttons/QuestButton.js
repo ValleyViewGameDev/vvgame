@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './QuestButton.css';
 import { useStrings } from '../StringsContext';
 
@@ -31,23 +31,62 @@ const QuestButton = ({ quest, state, onClick }) => {
   );
 };
 
-const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRequirement = true, noClickSfx = false }) => {
+const QuestGiverButton = ({
+  quest,
+  state,
+  onClick,
+  xpReward,
+  level,
+  meetsLevelRequirement = true,
+  noClickSfx = false,
+  // Transaction mode props
+  isTransactionMode = false,
+  transactionKey,
+  onTransactionAction
+}) => {
   const strings = useStrings();
   const { symbol, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
   const isDisabled = !meetsLevelRequirement;
 
-  const handleClick = () => {
-    if (!isDisabled && onClick) {
+  // Transaction mode state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [transactionId, setTransactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+
+  const handleClick = async (e) => {
+    if (isDisabled || isProcessing) return;
+
+    if (isTransactionMode && onTransactionAction && transactionKey) {
+      // Transaction mode - prevent multiple clicks
+      e.preventDefault();
+      e.stopPropagation();
+
+      console.log(`🔒 [QUEST_BUTTON] Setting processing state for ${transactionKey}`);
+      setIsProcessing(true);
+      try {
+        await onTransactionAction(transactionId, transactionKey);
+        console.log(`✅ [QUEST_BUTTON] Transaction completed for ${transactionKey}`);
+        // Generate a new transactionId for the next transaction
+        setTransactionId(`${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+      } catch (error) {
+        console.error(`❌ [QUEST_BUTTON] Transaction failed for ${transactionKey}:`, error);
+      } finally {
+        setIsProcessing(false);
+      }
+    } else if (onClick) {
       onClick();
     }
   };
 
   return (
     <div
-      className={`quest-item ${state}${isDisabled ? ' disabled' : ''}`}
+      className={`quest-item ${state}${isDisabled ? ' disabled' : ''}${isProcessing ? ' processing' : ''}`}
       onClick={handleClick}
-      style={isDisabled ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+      style={{
+        opacity: (isDisabled || isProcessing) ? 0.6 : 1,
+        cursor: (isDisabled || isProcessing) ? 'not-allowed' : 'pointer',
+        position: 'relative'
+      }}
     >
       <div className="quest-header">
         <h2>{symbol}</h2>
@@ -70,7 +109,13 @@ const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRe
       {xpReward && state === 'reward' && (
         <p style={{ color: '#4CAF50', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
       )}
-      <button className="quest-giver-button" data-no-click-sfx={noClickSfx ? 'true' : undefined}>{buttonText}</button>
+      <button
+        className={`quest-giver-button${isProcessing ? ' processing' : ''}`}
+        data-no-click-sfx={noClickSfx ? 'true' : undefined}
+        disabled={isDisabled || isProcessing}
+      >
+        {isProcessing ? '⏳' : buttonText}
+      </button>
     </div>
   );
 };
