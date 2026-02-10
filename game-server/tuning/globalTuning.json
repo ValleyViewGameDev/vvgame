@@ -3,6 +3,7 @@
   "percentageToRevive": 0.25,
   "maxCrops": 1000,
   "maxFarmAnimals": 50,
+  "farmAnimalInflation": 0.1,
   "maxTownBuildings": 800,
   "maxCraftingStationsPerType": 4,
   "doctorsPerHospital": 10,
