@@ -386,6 +386,7 @@ body {
   background-color: var(--settlement-gridline-color, #82bb4dff); /* Match settlement grid background */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
   overscroll-behavior: contain; /* Prevent scroll chaining and reduce bounce effect */
+  touch-action: pan-x pan-y; /* Enable smooth trackpad scrolling on Windows */
 }
 
 

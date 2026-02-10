@@ -61,6 +61,7 @@
   font-size: 12px;
   flex: 1;
   overflow-y: auto; /* Allows scrolling */
+  touch-action: pan-y; /* Enable smooth trackpad scrolling on Windows */
 }
 
 /* Reduce vertical spacing for headings and paragraphs inside the Courthouse panel */
