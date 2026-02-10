@@ -62,6 +62,7 @@ const ScrollStation = ({
   const [isCollecting, setIsCollecting] = useState(false);
 
    // ✅ Check for active crafting timers or revealed items
+   // Updated to support slots-based crafting (uses slot 0 for scroll reveals)
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
 
@@ -69,16 +70,35 @@ const ScrollStation = ({
       const station = GlobalGridStateTilesAndResources.getResources()?.find(
         (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
       );
-      
 
-      if (station && station.craftEnd && station.craftedItem) {
+      // Check for crafting data - support both slots array (new) and legacy fields
+      let craftEndValue = null;
+      let craftedItemValue = null;
+      let qty = 1;
+
+      if (station) {
+        // Check slots array first (new format)
+        if (station.slots && station.slots[0] && station.slots[0].craftedItem) {
+          craftEndValue = station.slots[0].craftEnd;
+          craftedItemValue = station.slots[0].craftedItem;
+          qty = station.slots[0].qty || 1;
+        }
+        // Fallback to legacy fields
+        else if (station.craftEnd && station.craftedItem) {
+          craftEndValue = station.craftEnd;
+          craftedItemValue = station.craftedItem;
+          qty = station.qty || 1;
+        }
+      }
+
+      if (craftEndValue && craftedItemValue) {
           // Check if this is a revealed item (craftEnd in the past)
           const now = Date.now();
-          const isRevealed = station.craftEnd < now;
-          
-          setCraftedItem(station.craftedItem);
-          setRevealedItemQty(station.qty || 1);
-          
+          const isRevealed = craftEndValue < now;
+
+          setCraftedItem(craftedItemValue);
+          setRevealedItemQty(qty);
+
           if (isRevealed) {
               setIsCrafting(false);
               setIsReadyToCollect(true);
@@ -88,10 +108,10 @@ const ScrollStation = ({
               // Normal crafting timer
               setIsCrafting(true);
               setActiveTimer(true);
-              
-              const remainingTime = Math.max(0, Math.floor((station.craftEnd - now) / 1000));
+
+              const remainingTime = Math.max(0, Math.floor((craftEndValue - now) / 1000));
               setCraftingCountdown(remainingTime);
-              
+
               if (remainingTime === 0) {
                   setIsCrafting(false);
                   setIsReadyToCollect(true);
@@ -340,12 +360,15 @@ const ScrollStation = ({
           setCurrentPlayer(prev => ({ ...prev, backpack }));
         }
 
-        // Update station resource in global state with qty
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd, craftedItem, qty: reward.quantity }
-            : res
-        );
+        // Update station resource in global state using slots format
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res => {
+          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) {
+            const newSlots = res.slots ? [...res.slots] : [];
+            newSlots[0] = { craftEnd, craftedItem, qty: reward.quantity };
+            return { ...res, slots: newSlots };
+          }
+          return res;
+        });
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         setResources(updatedGlobalResources);
 
@@ -390,6 +413,7 @@ const ScrollStation = ({
         stationX: currentStationPosition.x,
         stationY: currentStationPosition.y,
         craftedItem,
+        slotIndex: 0, // Ancient Temple always uses slot 0
         transactionId,
         transactionKey
       });
@@ -515,12 +539,15 @@ const ScrollStation = ({
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
 
-        // Clear station state
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1 }
-            : res
-        );
+        // Clear station state using slots format
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res => {
+          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) {
+            const newSlots = res.slots ? [...res.slots] : [];
+            newSlots[0] = { craftEnd: null, craftedItem: null, qty: 1 };
+            return { ...res, slots: newSlots };
+          }
+          return res;
+        });
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         setResources(updatedGlobalResources);
 
