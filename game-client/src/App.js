@@ -128,7 +128,7 @@ import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
 import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
-
+import PlayerIcons from './Authentication/PlayerIcons.json';
 import { usePanelContext } from './UI/Panels/PanelContext';
 import { useModalContext } from './UI/ModalContext';
 import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
@@ -150,6 +150,22 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
 import Redirect, { shouldRedirect } from './Redirect';
+
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Build a static lookup map from emoji value to SVG filename (created once at module load)
+const playerIconToSvgMap = new Map();
+['free', 'paid', 'platinum'].forEach(tier => {
+  (PlayerIcons[tier] || []).forEach(icon => {
+    if (icon.filename) {
+      playerIconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
+    }
+  });
+});
 
 // FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
 const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
@@ -3488,7 +3504,15 @@ return (
               handlePCClick(currentPC);
             }
           }}>
-            {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
+            {(() => {
+              const icon = currentPlayer?.icon || '😊';
+              const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
+              if (svgFilename) {
+                return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} />;
+              }
+              return icon + ' ';
+            })()}
+            {currentPlayer?.username || 'Loading...'}
           </button>
 
 
@@ -3687,7 +3711,16 @@ return (
             handlePCClick(currentPC);
           }
         }}
-      >{currentPlayer?.icon || '😊'}</button>
+      >
+        {(() => {
+          const icon = currentPlayer?.icon || '😊';
+          const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
+          if (svgFilename) {
+            return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />;
+          }
+          return icon;
+        })()}
+      </button>
       <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>{renderNavIcon('QuestPanel', '✅')}</button>
 
       {/* Hide these panels during early FTUE steps (1-2) */}
