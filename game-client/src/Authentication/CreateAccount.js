@@ -12,6 +12,22 @@ import './Authentication.css';
 import '../GameFeatures/FTUE/FTUE.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Build a static lookup map from emoji value to SVG filename (created once at module load)
+const iconToSvgMap = new Map();
+['free', 'paid', 'platinum'].forEach(tier => {
+  (PlayerIcons[tier] || []).forEach(icon => {
+    if (icon.filename) {
+      iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
+    }
+  });
+});
+
 // Detect browser type from userAgent
 const getBrowserType = () => {
   const userAgent = navigator.userAgent;
@@ -325,17 +341,28 @@ return (
             className="avatar-icons-container"
             style={{ transform: `translateX(-${iconScrollIndex * 45}px)` }}
           >
-            {freeIcons.map((icon) => (
-              <button
-                key={icon.value}
-                type="button"
-                className={`avatar-icon-btn ${selectedIcon === icon.value ? 'selected' : ''}`}
-                onClick={() => setSelectedIcon(icon.value)}
-                title={icon.label}
-              >
-                {icon.value}
-              </button>
-            ))}
+            {freeIcons.map((icon) => {
+              const svgFilename = iconToSvgMap.get(normalizeEmoji(icon.value));
+              return (
+                <button
+                  key={icon.value}
+                  type="button"
+                  className={`avatar-icon-btn ${selectedIcon === icon.value ? 'selected' : ''}`}
+                  onClick={() => setSelectedIcon(icon.value)}
+                  title={icon.label}
+                >
+                  {svgFilename ? (
+                    <img
+                      src={`/assets/playerIcons/${svgFilename}`}
+                      alt={icon.label}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  ) : (
+                    icon.value
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
         <button

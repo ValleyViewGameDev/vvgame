@@ -1599,6 +1599,7 @@ const PixiRenderer = ({
         TILE_SIZE={TILE_SIZE}
         masterResources={masterResources}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
+        getNPCRenderPosition={getNPCRenderPosition}
       />
       {/* PC layer with state-based icons */}
       <PixiRendererPCs

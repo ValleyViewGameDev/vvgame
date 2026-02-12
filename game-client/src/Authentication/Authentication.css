@@ -166,8 +166,10 @@
 
 .avatar-icons-viewport {
   width: 135px; /* 3 icons * 40px + 2 gaps * 5px + some padding */
-  overflow: hidden;
+  overflow-x: hidden; /* Hide horizontal overflow for carousel effect */
+  overflow-y: visible; /* Allow vertical overflow so scaled icons aren't clipped */
   flex-shrink: 0;
+  padding: 8px 0; /* Extra vertical padding to accommodate scaled icons (1.2x) */
 }
 
 .avatar-icons-container {

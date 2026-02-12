@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
 import { getDerivedRange } from '../../Utils/worldHelpers';
+import { renderPositions } from '../../PlayerMovement';
 
 /**
  * PixiRendererVFX - Visual effects layer for the PixiJS renderer
@@ -23,6 +24,7 @@ const PixiRendererVFX = ({
   TILE_SIZE,              // Current tile size
   masterResources,        // Master resources list (for getDerivedRange calculation)
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
+  getNPCRenderPosition,   // Function to get interpolated NPC position from parent
 }) => {
   const vfxContainerRef = useRef(null);
 
@@ -154,8 +156,24 @@ const PixiRendererVFX = ({
     };
   }, [app]);
 
-  // Render range indicators - reuses Graphics objects instead of creating new ones
-  useEffect(() => {
+  /**
+   * Get the render position for a PC, using interpolated position if available
+   */
+  const getPCRenderPosition = useCallback((pc) => {
+    if (!pc) return null;
+    const playerId = pc.playerId;
+    // Check for interpolated animation position (PCs use renderPositions)
+    if (playerId && renderPositions[playerId]) {
+      return renderPositions[playerId];
+    }
+    // Fall back to grid position
+    return pc.position || { x: pc.x, y: pc.y };
+  }, []);
+
+  /**
+   * Render function for range indicators - called on state changes and during animations
+   */
+  const renderRangeIndicators = useCallback(() => {
     const container = vfxContainerRef.current;
     const playerInteractionGraphic = playerInteractionGraphicRef.current;
     const playerAttackGraphic = playerAttackGraphicRef.current;
@@ -183,36 +201,40 @@ const PixiRendererVFX = ({
       pc && String(pc.playerId) === String(currentPlayer?._id)
     );
 
-    if (currentPC?.position) {
-      const playerPosX = currentPC.position.x;
-      const playerPosY = currentPC.position.y;
-      // Apply grid offset for settlement zoom
-      const playerCenterX = gridOffset.x + (playerPosX + 0.5) * TILE_SIZE;
-      const playerCenterY = gridOffset.y + (playerPosY + 0.5) * TILE_SIZE;
+    if (currentPC) {
+      // Use interpolated render position for smooth animation
+      const renderPos = getPCRenderPosition(currentPC);
+      if (renderPos) {
+        const playerPosX = renderPos.x;
+        const playerPosY = renderPos.y;
+        // Apply grid offset for settlement zoom
+        const playerCenterX = gridOffset.x + (playerPosX + 0.5) * TILE_SIZE;
+        const playerCenterY = gridOffset.y + (playerPosY + 0.5) * TILE_SIZE;
 
-      // Check if player is on their own homestead
-      const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+        // Check if player is on their own homestead
+        const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
 
-      if (!isOnOwnHomestead) {
-        // 1. Interaction range indicator (gray filled circle)
-        const derivedRange = getDerivedRange(currentPlayer, masterResources);
-        if (derivedRange > 1) {
-          const interactionRadius = derivedRange * TILE_SIZE;
+        if (!isOnOwnHomestead) {
+          // 1. Interaction range indicator (gray filled circle)
+          const derivedRange = getDerivedRange(currentPlayer, masterResources);
+          if (derivedRange > 1) {
+            const interactionRadius = derivedRange * TILE_SIZE;
 
-          playerInteractionGraphic.beginFill(0x808080, 0.12);
-          playerInteractionGraphic.drawCircle(playerCenterX, playerCenterY, interactionRadius);
-          playerInteractionGraphic.endFill();
-          playerInteractionGraphic.visible = true;
-        }
+            playerInteractionGraphic.beginFill(0x808080, 0.12);
+            playerInteractionGraphic.drawCircle(playerCenterX, playerCenterY, interactionRadius);
+            playerInteractionGraphic.endFill();
+            playerInteractionGraphic.visible = true;
+          }
 
-        // 2. Attack range indicator (red dotted circle) - only show if weapon is equipped
-        const hasWeaponEquipped = currentPlayer?.settings?.equippedWeapon != null;
-        const attackRange = currentPC.attackrange || currentPlayer?.attackrange;
-        if (hasWeaponEquipped && attackRange && attackRange > 0) {
-          const attackRadius = attackRange * TILE_SIZE;
+          // 2. Attack range indicator (red dotted circle) - only show if weapon is equipped
+          const hasWeaponEquipped = currentPlayer?.settings?.equippedWeapon != null;
+          const attackRange = currentPC.attackrange || currentPlayer?.attackrange;
+          if (hasWeaponEquipped && attackRange && attackRange > 0) {
+            const attackRadius = attackRange * TILE_SIZE;
 
-          drawDashedCircle(playerAttackGraphic, playerCenterX, playerCenterY, attackRadius, 0xFF0000, 0.4, 3);
-          playerAttackGraphic.visible = true;
+            drawDashedCircle(playerAttackGraphic, playerCenterX, playerCenterY, attackRadius, 0xFF0000, 0.4, 3);
+            playerAttackGraphic.visible = true;
+          }
         }
       }
     }
@@ -228,8 +250,10 @@ const PixiRendererVFX = ({
       );
 
       for (const npc of attackNPCs) {
-        const posX = npc.position?.x ?? npc.x;
-        const posY = npc.position?.y ?? npc.y;
+        // Use interpolated render position for smooth animation (from parent's npcAnimations)
+        const renderPos = getNPCRenderPosition ? getNPCRenderPosition(npc) : (npc.position || { x: npc.x, y: npc.y });
+        const posX = renderPos?.x;
+        const posY = renderPos?.y;
 
         if (posX === undefined || posY === undefined) continue;
 
@@ -250,7 +274,32 @@ const PixiRendererVFX = ({
     hideUnusedPoolGraphics(npcGraphicsUsed);
     activeNpcGraphicsCount.current = npcGraphicsUsed;
 
-  }, [npcs, pcs, currentPlayer, masterResources, TILE_SIZE, gridOffset, drawDashedCircle, getNpcGraphicFromPool, hideUnusedPoolGraphics]);
+  }, [npcs, pcs, currentPlayer, masterResources, TILE_SIZE, gridOffset, drawDashedCircle, getNpcGraphicFromPool, hideUnusedPoolGraphics, getPCRenderPosition, getNPCRenderPosition]);
+
+  // Initial render and re-render on state changes
+  useEffect(() => {
+    renderRangeIndicators();
+  }, [renderRangeIndicators]);
+
+  // Animation loop for smooth range indicator movement during PC/NPC animations
+  // Always renders every frame to ensure smooth animation - the render function
+  // uses getNPCRenderPosition and getPCRenderPosition which handle interpolation
+  useEffect(() => {
+    let frameId;
+
+    const animate = () => {
+      renderRangeIndicators();
+      frameId = requestAnimationFrame(animate);
+    };
+
+    frameId = requestAnimationFrame(animate);
+
+    return () => {
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }, [renderRangeIndicators]);
 
   // This component doesn't render any DOM elements
   return null;

@@ -6,6 +6,22 @@ import ICON_OPTIONS from '../../Authentication/PlayerIcons.json';
 import { handlePurchase } from '../../Store/Store';
 import { useStrings } from '../StringsContext';
 
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Build a static lookup map from emoji value to SVG filename (created once at module load)
+const iconToSvgMap = new Map();
+['free', 'paid', 'platinum'].forEach(tier => {
+  (ICON_OPTIONS[tier] || []).forEach(icon => {
+    if (icon.filename) {
+      iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
+    }
+  });
+});
+
 export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen  }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
   const strings = useStrings();
@@ -36,16 +52,27 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
         <br />
 
         <div className="icon-grid">
-          {freeIcons.map(icon => (
-            <button
-              key={icon.value}
-              className={`icon-button ${selectedIcon === icon.value ? 'selected' : ''}`}
-              onClick={() => setSelectedIcon(icon.value)}
-              disabled={false}
-            >
-              {icon.value}
-            </button>
-          ))}
+          {freeIcons.map(icon => {
+            const svgFilename = iconToSvgMap.get(normalizeEmoji(icon.value));
+            return (
+              <button
+                key={icon.value}
+                className={`icon-button ${selectedIcon === icon.value ? 'selected' : ''}`}
+                onClick={() => setSelectedIcon(icon.value)}
+                disabled={false}
+              >
+                {svgFilename ? (
+                  <img
+                    src={`/assets/playerIcons/${svgFilename}`}
+                    alt={icon.label}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  icon.value
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <h3>Premium Avatars</h3>
@@ -59,6 +86,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
         <div className="icon-grid">
           {paidIcons.map(icon => {
             const locked = !isGold;
+            const svgFilename = iconToSvgMap.get(normalizeEmoji(icon.value));
             return (
               <button
                 key={icon.value}
@@ -68,7 +96,15 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
                   if (!locked) setSelectedIcon(icon.value);
                 }}
               >
-                {icon.value}
+                {svgFilename ? (
+                  <img
+                    src={`/assets/playerIcons/${svgFilename}`}
+                    alt={icon.label}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  icon.value
+                )}
               </button>
             );
           })}

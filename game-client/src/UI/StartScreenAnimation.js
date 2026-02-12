@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Static mapping of emojis to SVG filenames for the start screen animation characters
+// These are NPC characters from resources.json that have SVG files
+const emojiToSvgMap = {
+  '👸': 'npc-gertrude.svg',  // Gertrude (princess)
+  '🤠': 'npc-kent.svg',      // Kent (cowboy)
+  // Note: 🐺 (Coyote) does not have an SVG file yet
+};
+
 // Individual animated emoji component
-const AnimatedEmoji = ({ emoji, initialX, initialY }) => {
+const AnimatedEmoji = ({ emoji, svgFilename, initialX, initialY }) => {
   const [position, setPosition] = useState({ x: initialX, y: initialY });
   const [targetPosition, setTargetPosition] = useState({ x: initialX, y: initialY });
   const [duration, setDuration] = useState(0);
@@ -67,12 +81,22 @@ const AnimatedEmoji = ({ emoji, initialX, initialY }) => {
         left: `${targetPosition.x}px`,
         top: `${targetPosition.y}px`,
         fontSize: '30px',
+        width: svgFilename ? '50px' : 'auto',
+        height: svgFilename ? '50px' : 'auto',
         transition: duration > 0 ? `all ${duration}s linear` : 'none',
         zIndex: 10,
         userSelect: 'none'
       }}
     >
-      {emoji}
+      {svgFilename ? (
+        <img
+          src={`/assets/resources/${svgFilename}`}
+          alt={emoji}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      ) : (
+        emoji
+      )}
     </div>
   );
 };
@@ -88,14 +112,19 @@ const START_SCREEN_EMOJIS = [
 const StartScreenAnimation = () => {
   return (
     <>
-      {START_SCREEN_EMOJIS.map((config, index) => (
-        <AnimatedEmoji
-          key={index}
-          emoji={config.emoji}
-          initialX={config.initialX}
-          initialY={config.initialY}
-        />
-      ))}
+      {START_SCREEN_EMOJIS.map((config, index) => {
+        const normalizedEmoji = normalizeEmoji(config.emoji);
+        const svgFilename = emojiToSvgMap[normalizedEmoji];
+        return (
+          <AnimatedEmoji
+            key={index}
+            emoji={config.emoji}
+            svgFilename={svgFilename}
+            initialX={config.initialX}
+            initialY={config.initialY}
+          />
+        );
+      })}
     </>
   );
 };
