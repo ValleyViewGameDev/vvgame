@@ -30,6 +30,7 @@
   margin-bottom: 16px;
   font-size: 1.8em;
   font-family: var(--font-title-2-family);
+  font-weight: normal;
 }
 
 .language-list {

@@ -36,6 +36,7 @@
 .username {
   font-family: var(--font-title-2-family);
   font-size: 1.4rem; /* Customize the font size */
+  font-weight: normal;
 }
 
 .username.clickable:hover {
@@ -64,6 +65,7 @@
   cursor: pointer;
   font-family: var(--font-title-2-family);
   font-size: 1.1rem; /* Slightly smaller than the 1.4rem used for main username */
+  font-weight: normal;
   border-bottom: 1px solid #eee;
   display: flex;
   flex-direction: column;

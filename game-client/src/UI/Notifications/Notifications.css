@@ -112,6 +112,7 @@
 .notification-title {
     font-family: var(--font-title-2-family);
     font-size: var(--font-title-3-size);
+    font-weight: normal;
     color: var(--color-text-muted);
     text-transform: none;
     letter-spacing: normal;

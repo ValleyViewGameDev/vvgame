@@ -46,6 +46,7 @@
 .panel-title {
   font-family: var(--font-title-2-family);
   font-size: var(--font-title-2-size);
+  font-weight: normal;
   color: var(--font-title-2-color);
   margin: 0;
   padding: 4px;
@@ -72,6 +73,7 @@
 }
 .panel-container .panel-content h2 {
   font-family: var(--font-title-2-family);
+  font-weight: normal;
   margin-top: 4px; /* Reduce space above */
   margin-bottom: 4px; /* Reduce space below */
   color: var(--font-title-2-color);

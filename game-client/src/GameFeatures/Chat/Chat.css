@@ -33,6 +33,7 @@
 .chat-panel-header h3 {
   font-family: var(--font-title-2-family);
   font-size: var(--font-title-2-size);
+  font-weight: normal;
   color: var(--font-title-2-color);
   margin: 0;
   padding: 8px 0;
