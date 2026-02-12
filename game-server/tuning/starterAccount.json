@@ -120,11 +120,11 @@
         "offers": [
           {
             "item": "Wheat",
-            "quantity": 4,
+            "quantity": 2,
             "rewards": [
               {
                 "item": "Money",
-                "quantity": 32
+                "quantity": 16
               }
             ]
           }
