@@ -4524,6 +4524,7 @@ return (
           onClose={closePanel}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'SkillsPanel' && (

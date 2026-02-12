@@ -1194,6 +1194,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                 level={quest.level}
                 meetsLevelRequirement={questMeetsLevel}
                 noClickSfx={state === 'reward'}
+                masterResources={masterResources}
               />
             );
               })}

@@ -7,7 +7,7 @@ import '../../UI/Buttons/ResourceButton.css';
 import '../../UI/Buttons/QuestButton.css';
 import { useStrings } from '../../UI/StringsContext';
 
-function QuestPanel({ onClose, currentPlayer }) {
+function QuestPanel({ onClose, currentPlayer, masterResources }) {
   const strings = useStrings();
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
@@ -151,6 +151,7 @@ function QuestPanel({ onClose, currentPlayer }) {
                 }}
                 state={quest.completed ? 'reward' : 'in-progress'}
                 onClick={null}
+                masterResources={masterResources}
               />
             );
           })}

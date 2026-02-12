@@ -2,7 +2,38 @@ import React, { useState } from 'react';
 import './QuestButton.css';
 import { useStrings } from '../StringsContext';
 
-const QuestButton = ({ quest, state, onClick }) => {
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Helper to find SVG filename for a symbol from masterResources
+const getSvgFilenameForSymbol = (symbol, masterResources) => {
+  if (!symbol || !masterResources || !Array.isArray(masterResources)) return null;
+  const normalizedSymbol = normalizeEmoji(symbol);
+  const resource = masterResources.find(r =>
+    r.symbol && normalizeEmoji(r.symbol) === normalizedSymbol && r.filename
+  );
+  return resource?.filename || null;
+};
+
+// Helper component to render symbol (SVG or emoji)
+const SymbolDisplay = ({ symbol, masterResources, size = 32 }) => {
+  const svgFilename = getSvgFilenameForSymbol(symbol, masterResources);
+  if (svgFilename) {
+    return (
+      <img
+        src={`/assets/resources/${svgFilename}`}
+        alt={symbol}
+        style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain' }}
+      />
+    );
+  }
+  return symbol;
+};
+
+const QuestButton = ({ quest, state, onClick, masterResources }) => {
   const strings = useStrings();
   const { symbol, title, completed, goals = [], reward, rewardqty } = quest;
 
@@ -12,7 +43,7 @@ const QuestButton = ({ quest, state, onClick }) => {
       onClick={onClick}
     >
       <div className="quest-header">
-        <h2>{symbol}</h2>
+        <h2><SymbolDisplay symbol={symbol} masterResources={masterResources} /></h2>
         {state === 'reward' && <span className="quest-checkmark">✅</span>}
       </div>
       <h2>{title}</h2>
@@ -39,6 +70,7 @@ const QuestGiverButton = ({
   level,
   meetsLevelRequirement = true,
   noClickSfx = false,
+  masterResources,
   // Transaction mode props
   isTransactionMode = false,
   transactionKey,
@@ -89,7 +121,7 @@ const QuestGiverButton = ({
       }}
     >
       <div className="quest-header">
-        <h2>{symbol}</h2>
+        <h2><SymbolDisplay symbol={symbol} masterResources={masterResources} /></h2>
         {state === 'reward' && <span className="quest-checkmark">✅</span>}
       </div>
       <h2>{title}</h2>
