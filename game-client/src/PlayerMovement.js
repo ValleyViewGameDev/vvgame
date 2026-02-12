@@ -95,6 +95,13 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   // Use event.key for all other keys (handles WASD, arrows, etc.)
   const isNumpadKey = event.code && event.code.startsWith('Numpad');
   const keyToTrack = isNumpadKey ? event.code : event.key;
+
+  // Prevent default browser scrolling for numpad navigation keys (when NumLock is off)
+  // Numpad 1,3,7,9 send Home/End/PageUp/PageDown which scroll the page
+  if (isNumpadKey) {
+    event.preventDefault();
+  }
+
   pressedKeys.add(keyToTrack);
 
   // Check cooldown - if in cooldown, just track the key but don't schedule movement
