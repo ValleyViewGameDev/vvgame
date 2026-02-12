@@ -149,3 +149,17 @@
   --base-panel-width: 220px;
   --header-height: 60px;
 }
+
+/* ========== GLOBAL FONT RENDERING ========== */
+/* Improves font rendering consistency across platforms (especially Windows) */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ensure decorative fonts render crisply */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
