@@ -239,7 +239,7 @@ body {
   width: 230px;
   flex-shrink: 0;
   display: flex;
-  font-size: 16px;
+  font-size: 17px;
   align-items: center;
 }
 
@@ -336,6 +336,7 @@ body {
   margin: 0;
   padding-right: 0;
   font-size: 1.6em;
+  font-weight: normal;
   color: var(--color-text-white);
   text-align: left;
   text-shadow: var(--color-shadow) 2px 2px 3px;

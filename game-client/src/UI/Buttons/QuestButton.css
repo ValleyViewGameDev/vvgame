@@ -96,6 +96,7 @@
 .quest-giver-item h2 {
   font-family: var(--font-title-4-family);
   font-size: var(--font-title-4-size);
+  font-weight: normal;
   color: var(--font-title-4-color);
 }
 
