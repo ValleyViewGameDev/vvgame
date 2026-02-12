@@ -198,7 +198,13 @@ const loadSVGTexture = async (filename, isOverlay = false) => {
             ctx.drawImage(img, 0, 0, renderSize, renderSize);
             // Create PixiJS texture from canvas
             // v7: Use Texture.from() with canvas
+            // Set resolution on baseTexture so PixiJS knows the texture is rendered at high DPI
+            // This prevents blurry sprites when scaling down on high-DPI displays
             const pixiTexture = Texture.from(canvas);
+            if (pixiTexture.baseTexture) {
+              pixiTexture.baseTexture.resolution = devicePixelRatio;
+              pixiTexture.baseTexture.update();
+            }
             resolve(pixiTexture);
           } catch (error) {
             console.error('Error creating texture from SVG:', error);
