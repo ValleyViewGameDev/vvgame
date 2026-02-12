@@ -89,6 +89,7 @@ const playerSchema = new mongoose.Schema({
     enum: ['Free', 'Bronze', 'Silver', 'Gold'],
     default: 'Free',
   },
+  avatarsUnlocked: { type: Boolean, default: false }, // Premium avatars unlocked via gem purchase
   role: {
     type: String,
     enum: ['Citizen', 'Mayor', 'Governor', 'President'],
