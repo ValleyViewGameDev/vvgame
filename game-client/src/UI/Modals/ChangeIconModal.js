@@ -65,7 +65,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
                   <img
                     src={`/assets/playerIcons/${svgFilename}`}
                     alt={icon.label}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                   />
                 ) : (
                   icon.value
@@ -100,7 +100,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
                   <img
                     src={`/assets/playerIcons/${svgFilename}`}
                     alt={icon.label}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    style={{ width: '32px', height: '32px', objectFit: 'contain' }}
                   />
                 ) : (
                   icon.value
