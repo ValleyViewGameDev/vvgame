@@ -254,7 +254,7 @@ const PlayerPanel = ({
           className="btn-basic btn-success" 
           onClick={() => setShowChangeIconModal(true)}
         >
-          {currentPlayer.icon || '🙂'} {strings[4065]}
+          {strings[4065]}
         </button>
       </div>
 
