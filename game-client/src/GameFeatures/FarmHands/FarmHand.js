@@ -940,6 +940,41 @@ const FarmHandPanel = ({
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       </div>
+
+      {/* Pinned footer with remove NPC button (dev only) */}
+      {isDeveloper && npc && (
+        <div className="station-panel-footer">
+          <div className="shared-buttons">
+            <button
+              className="btn-basic btn-danger"
+              onClick={async () => {
+                if (!window.confirm(`Are you sure you want to remove this ${npc.type} from the grid?`)) {
+                  return;
+                }
+                try {
+                  // Remove from NPCsInGridManager
+                  const npcId = npc.id || npc._id;
+                  NPCsInGridManager.removeNPC(gridId, npcId);
+
+                  // Remove from server
+                  await axios.post(`${API_BASE}/api/remove-single-npc`, {
+                    gridId,
+                    npcId,
+                  });
+
+                  updateStatus(`${npc.type} removed from grid.`);
+                  onClose();
+                } catch (error) {
+                  console.error('Failed to remove NPC:', error);
+                  setErrorMessage('Failed to remove NPC.');
+                }
+              }}
+            >
+              {strings[490]}
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Selective Harvest Modal */}
 

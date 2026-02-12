@@ -61,22 +61,28 @@ const FarmHouse = ({
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
 
    // ✅ Check for active crafting timers
+   // Supports both legacy format (station.craftEnd) and new slots format (station.slots[0].craftEnd)
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
-    
+
     const station = GlobalGridStateTilesAndResources.getResources()?.find(
       (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
     );
 
-    if (station && station.craftEnd) {
-        console.log(`⏳ Active crafting found: ${station.craftedItem} until ${new Date(station.craftEnd).toLocaleTimeString()}`);
-        
-        setCraftedItem(station.craftedItem);
+    // Support both legacy format and new slots format
+    const slot = station?.slots?.[0];
+    const craftEnd = slot?.craftEnd || station?.craftEnd;
+    const craftedItemValue = slot?.craftedItem || station?.craftedItem;
+
+    if (station && craftEnd) {
+        console.log(`⏳ Active crafting found: ${craftedItemValue} until ${new Date(craftEnd).toLocaleTimeString()}`);
+
+        setCraftedItem(craftedItemValue);
         setIsCrafting(true);
         setActiveTimer(true);  // ✅ Ensure UI treats this as an active timer
 
         const updateCountdown = () => {
-          const remainingTime = Math.max(0, Math.floor((station.craftEnd - Date.now()) / 1000));
+          const remainingTime = Math.max(0, Math.floor((craftEnd - Date.now()) / 1000));
           setCraftingCountdown(remainingTime);
 
           if (remainingTime === 0) {
@@ -276,6 +282,7 @@ const FarmHouse = ({
         stationX: currentStationPosition.x,
         stationY: currentStationPosition.y,
         craftedItem,
+        slotIndex: 0, // Farm House is a single-slot station
         transactionId,
         transactionKey
       });
@@ -400,10 +407,11 @@ const FarmHouse = ({
       }
     } catch (error) {
       console.error('Error in protected crafting collection:', error);
+      console.error('Server error response:', error.response?.data);
       if (error.response?.status === 429) {
         updateStatus(471);
       } else {
-        updateStatus(454);
+        updateStatus(error.response?.data?.error || 454);
       }
     }
   };
