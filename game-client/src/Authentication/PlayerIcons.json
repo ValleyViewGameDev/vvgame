@@ -1,6 +1,6 @@
 {
   "free": [
-    { "label": "Grinning Face", "value": "😀" },
+    { "label": "Grinning Face", "value": "😀", "filename": "pc-basic.svg" },
     { "label": "Heart Eyes", "value": "😍" },
     { "label": "Innocent Face", "value": "😇" },
     { "label": "Screaming Face", "value": "😱" },

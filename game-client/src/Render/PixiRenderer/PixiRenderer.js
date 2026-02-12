@@ -141,7 +141,7 @@ const loadSVGTexture = async (filename, isOverlay = false) => {
         return null;
       }
 
-      const svgText = await response.text();
+      let svgText = await response.text();
 
       // Create canvas and render SVG at fixed base size
       const baseSize = isOverlay ? OVERLAY_TEXTURE_SIZE : BASE_TEXTURE_SIZE;
@@ -159,6 +159,17 @@ const loadSVGTexture = async (filename, isOverlay = false) => {
 
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
+
+      // Modify SVG to render at target resolution (prevents blurry upscaling)
+      // This ensures the browser rasterizes the SVG at the desired size, not its intrinsic size
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+      const svgElement = svgDoc.documentElement;
+      if (svgElement && svgElement.tagName === 'svg') {
+        svgElement.setAttribute('width', renderSize);
+        svgElement.setAttribute('height', renderSize);
+        svgText = new XMLSerializer().serializeToString(svgDoc);
+      }
 
       // Convert SVG to image
       const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });

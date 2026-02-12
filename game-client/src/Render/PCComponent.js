@@ -3,6 +3,25 @@ import ConversationManager from '../GameFeatures/Relationships/ConversationManag
 import { getDerivedRange } from '../Utils/worldHelpers';
 import { renderPositions } from '../PlayerMovement';
 import './PCComponent.css';
+import playerIconsData from '../Authentication/PlayerIcons.json';
+
+// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+const normalizeEmoji = (emoji) => {
+  if (!emoji) return emoji;
+  // Remove variation selector-16 (U+FE0F) which is often appended to emojis
+  return emoji.replace(/\uFE0F/g, '');
+};
+
+// Build a static lookup map from emoji value to SVG filename (created once at module load)
+const iconToSvgMap = new Map();
+['free', 'paid', 'platinum'].forEach(tier => {
+  (playerIconsData[tier] || []).forEach(icon => {
+    if (icon.filename) {
+      // Store with normalized emoji key
+      iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
+    }
+  });
+});
 
 const PCComponent = ({
   pc,
@@ -198,7 +217,24 @@ const PCComponent = ({
     >
       {/* Player icon with modifiers */}
       <span className="pc-icon">
-        {pc.hp === 0 ? '💀' : pc.hp < 100 ? '🤢' : isCamping ? '🏕️' : isInBoat ? '🛶' : pc.icon}
+        {(() => {
+          // Determine which icon/emoji to display based on status
+          const displayIcon = pc.hp === 0 ? '💀' : pc.hp < 100 ? '🤢' : isCamping ? '🏕️' : isInBoat ? '🛶' : pc.icon;
+          // Check if this icon has an SVG file (normalize to handle variation selectors)
+          const normalizedIcon = normalizeEmoji(displayIcon);
+          const svgFilename = iconToSvgMap.get(normalizedIcon);
+
+          if (svgFilename) {
+            return (
+              <img
+                src={`/assets/playerIcons/${svgFilename}`}
+                alt={displayIcon}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            );
+          }
+          return displayIcon;
+        })()}
       </span>
 
       {/* Conversation speech bubble - Moved to RenderDynamicElements */}

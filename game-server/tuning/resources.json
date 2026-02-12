@@ -8335,6 +8335,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 3000,
     "gemcost": 392,
+    "filename": "npc-pig.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800
   },
@@ -8440,6 +8441,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 24,
+    "filename": "npc-doctor.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800
   },
@@ -8475,6 +8477,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 150,
     "gemcost": 39,
+    "filename": "npc-surgeon.svg",
     "crafttime": 43200,
     "totalnestedtime": 43200
   },
@@ -8505,7 +8508,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 300
+    "ingredient1qty": 300,
+    "filename": "npc-nurse.svg"
   },
   {
     "type": "Fairy",
@@ -8565,6 +8569,7 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
+    "filename": "npc-kent.svg",
     "crafttime": 3,
     "totalnestedtime": 3
   },
@@ -8591,7 +8596,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-portia.svg"
   },
   {
     "type": "The Shepherd",
@@ -8619,6 +8625,7 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
+    "filename": "npc-shepherd.svg",
     "crafttime": 3,
     "totalnestedtime": 3
   },
@@ -8645,7 +8652,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-hotspur.svg"
   },
   {
     "type": "Cassio",
@@ -8670,7 +8678,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-cassio.svg"
   },
   {
     "type": "Mistress Quickly",
@@ -8695,7 +8704,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-chef.svg"
   },
   {
     "type": "Feste",
@@ -8720,7 +8730,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-feste.svg"
   },
   {
     "type": "Helena",
@@ -8745,7 +8756,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-helena.svg"
   },
   {
     "type": "Titania",
@@ -8770,7 +8782,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-titania.svg"
   },
   {
     "type": "Vampire",
@@ -8795,7 +8808,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-vampire.svg"
   },
   {
     "type": "Santa Claus",
@@ -8843,7 +8857,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-prospero.svg"
   },
   {
     "type": "Constable Elbow",
@@ -8868,7 +8883,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-elbow.svg"
   },
   {
     "type": "Snug",
@@ -8893,7 +8909,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-snug.svg"
   },
   {
     "type": "Falstaff",
@@ -8918,7 +8935,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-falstaff.svg"
   },
   {
     "type": "Apothecary",
@@ -8943,7 +8961,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-apothecary.svg"
   },
   {
     "type": "Iago",
@@ -8968,7 +8987,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-iago.svg"
   },
   {
     "type": "Gertrude",
@@ -8993,7 +9013,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-gertrude.svg"
   },
   {
     "type": "Leontes",
@@ -9018,7 +9039,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-leontes.svg"
   },
   {
     "type": "Caliban",
@@ -9043,7 +9065,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-caliban.svg"
   },
   {
     "type": "Juliet",
@@ -9068,7 +9091,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-juliet.svg"
   },
   {
     "type": "Mermaid",
@@ -9093,7 +9117,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-mermaid.svg"
   },
   {
     "type": "Oracle",
@@ -9173,6 +9198,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 1255,
+    "filename": "npc-farmhand.svg",
     "crafttime": 1800,
     "totalnestedtime": 1800
   },
@@ -9206,6 +9232,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 1262,
+    "filename": "npc-rancher.svg",
     "crafttime": 14400,
     "totalnestedtime": 14400
   },
@@ -9239,6 +9266,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 1267,
+    "filename": "npc-lumberjack.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800
   },
@@ -9272,6 +9300,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 1272,
+    "filename": "npc-crafter.svg",
     "crafttime": 57600,
     "totalnestedtime": 57600
   },
@@ -9561,7 +9590,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "npc-angelo.svg"
   },
   {
     "type": "Dragon",
