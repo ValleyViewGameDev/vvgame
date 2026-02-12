@@ -20,7 +20,6 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/SharedButtons.css';
-import workerPlacementData from './WorkerPlacement.json';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
@@ -321,24 +320,37 @@ const FarmHouse = ({
         if (isNPC) {
           const craftedResource = allResources.find(res => res.type === collectedItem);
           if (craftedResource) {
-            // Get placement offset from WorkerPlacement.json
-            const placementData = workerPlacementData.find(data => data.workerType === collectedItem);
-            const offsetX = placementData?.offsetX || 0;
-            const offsetY = placementData?.offsetY || 0;
-            
-            const spawnPosition = {
-              x: currentStationPosition.x + offsetX,
-              y: currentStationPosition.y + offsetY
-            };
-            
-            console.log(`Spawning ${collectedItem} at offset (${offsetX}, ${offsetY}) from Farm House, final position: (${spawnPosition.x}, ${spawnPosition.y})`);
+            // Find the next available Worker Slot on the grid
+            const currentResources = GlobalGridStateTilesAndResources.getResources();
+            const workerSlot = currentResources.find(res => res.type === 'Worker Slot');
+
+            if (!workerSlot) {
+              console.error('❌ No Worker Slot available on the grid');
+              updateStatus('No worker slot available!');
+              return;
+            }
+
+            const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
+            console.log(`Spawning ${collectedItem} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
+
+            // Remove the Worker Slot from the grid (client-side)
+            const filteredResources = currentResources.filter(
+              res => !(res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot')
+            );
+            GlobalGridStateTilesAndResources.setResources(filteredResources);
+            setResources(filteredResources);
+
+            // Remove the Worker Slot from the database
+            await updateGridResource(gridId, { type: null, x: workerSlot.x, y: workerSlot.y }, true);
+
+            // Spawn the NPC at the Worker Slot's position
             NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
-            
+
             // Check for First Farm Worker trophy
             if (craftedResource.action === 'worker') {
               await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
             }
-            
+
             // Trigger refresh to update available recipes
             setNpcRefreshKey(prev => prev + 1);
           }
@@ -522,35 +534,47 @@ const FarmHouse = ({
     // For gem purchases with NPCs, spawn them immediately
     const craftedResource = allResources.find(res => res.type === modifiedRecipe.type);
     if (craftedResource && craftedResource.category === 'npc') {
-      // Get placement offset from WorkerPlacement.json
-      const placementData = workerPlacementData.find(data => data.workerType === modifiedRecipe.type);
-      const offsetX = placementData?.offsetX || 0;
-      const offsetY = placementData?.offsetY || 0;
-      
-      const spawnPosition = {
-        x: currentStationPosition.x + offsetX,
-        y: currentStationPosition.y + offsetY
-      };
-      
-      console.log(`Spawning ${modifiedRecipe.type} at offset (${offsetX}, ${offsetY}) from Farm House`);
+      // Find the next available Worker Slot on the grid
+      const currentResources = GlobalGridStateTilesAndResources.getResources();
+      const workerSlot = currentResources.find(res => res.type === 'Worker Slot');
+
+      if (!workerSlot) {
+        console.error('❌ No Worker Slot available on the grid');
+        updateStatus('No worker slot available!');
+        return;
+      }
+
+      const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
+      console.log(`Spawning ${modifiedRecipe.type} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
+
+      // Remove the Worker Slot from the grid (client-side)
+      const filteredResources = currentResources.filter(
+        res => !(res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot')
+      );
+      GlobalGridStateTilesAndResources.setResources(filteredResources);
+      setResources(filteredResources);
+
+      // Remove the Worker Slot from the database
+      await updateGridResource(gridId, { type: null, x: workerSlot.x, y: workerSlot.y }, true);
+
+      // Spawn the NPC at the Worker Slot's position
       NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
-      
+
       // Check for First Farm Worker trophy
       if (craftedResource.action === 'worker') {
         await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
       }
-      
+
       // Track quest progress
       await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
-      
-      
+
       // Update status and effects
       updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} hired instantly!`);
       FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-      
+
       // Trigger refresh
       setNpcRefreshKey(prev => prev + 1);
-      
+
       // Refresh player data
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     } else {

@@ -864,8 +864,25 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   };
 
 
+  // Look up the full NPC resource definition to get filename if available
+  const npcResourceDef = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
+
+  // Build the title with either SVG image or emoji
+  const panelTitle = npcResourceDef?.filename ? (
+    <>
+      <img
+        src={`/assets/resources/${npcResourceDef.filename}`}
+        alt={npcData.type}
+        style={{ width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '6px' }}
+      />
+      {getLocalizedString(npcData.type, strings)}
+    </>
+  ) : (
+    `${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`
+  );
+
   return (
-    <Panel onClose={onClose} descriptionKey="1013" title={`${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`} panelName="NPCPanel">
+    <Panel onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
 

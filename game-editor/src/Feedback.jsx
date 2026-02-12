@@ -18,9 +18,10 @@ const Feedback = ({ activePanel }) => {
   // String mappings for feedback options
   const feedbackStrings = {
     784: "Looks fun",
-    785: "I like the visuals", 
+    785: "I like the visuals",
     786: "I like farming",
     787: "I look forward to collaborating with others",
+    788: "I want to explore the world",
     790: "I couldn't figure it out",
     791: "I don't like the visuals",
     792: "I had a technical issue",
@@ -79,7 +80,7 @@ const Feedback = ({ activePanel }) => {
     // Initialize counts for all possible feedback options
     Object.keys(feedbackStrings).forEach(key => {
       const index = parseInt(key);
-      if (index >= 784 && index <= 787) {
+      if (index >= 784 && index <= 788) {
         aggregatedFeedback.positive[index] = 0;
       } else {
         aggregatedFeedback.negative[index] = 0;
