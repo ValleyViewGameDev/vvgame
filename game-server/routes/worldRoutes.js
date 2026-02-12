@@ -489,7 +489,7 @@ router.patch('/update-grid/:gridId', (req, res) => {
     return res.status(400).json({ error: 'Missing resource in request body.' });
   }
 
-  const { type, x, y, growEnd, craftEnd, craftedItem, stationLevel } = resource;
+  const { type, x, y, growEnd, craftEnd, craftedItem, stationLevel, slots } = resource;
 
 
   if (!mongoose.Types.ObjectId.isValid(gridId)) {
@@ -557,6 +557,13 @@ router.patch('/update-grid/:gridId', (req, res) => {
               updatedResource.stationLevel = stationLevel;
             }
           }
+          if (slots !== undefined) {
+            if (slots === null) {
+              delete updatedResource.slots;
+            } else {
+              updatedResource.slots = slots;
+            }
+          }
 
           // Use GridResourceManager to update the resource
           gridResourceManager.updateResource(grid, updatedResource);
@@ -584,6 +591,7 @@ router.patch('/update-grid/:gridId', (req, res) => {
             ...(craftEnd !== undefined && { craftEnd }),
             ...(craftedItem !== undefined && { craftedItem }),
             ...(stationLevel !== undefined && { stationLevel }),
+            ...(slots !== undefined && { slots }),
           };
           gridResourceManager.updateResource(grid, newResource);
         }

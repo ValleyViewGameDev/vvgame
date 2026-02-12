@@ -226,9 +226,11 @@ const FarmHouse = ({
         }
 
         // Update only the specific station resource in global state
+        // Include both slots format and legacy format for consistency
+        const craftSlot = { craftEnd, craftedItem };
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd, craftedItem }
+            ? { ...res, slots: [craftSlot], craftEnd, craftedItem }
             : res
         );
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
@@ -387,9 +389,10 @@ const FarmHouse = ({
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
         // Update grid resources to remove crafting state
+        // Clear both slots format and legacy format
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined }
+            ? { ...res, slots: undefined, craftEnd: undefined, craftedItem: undefined }
             : res
         );
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
@@ -475,13 +478,21 @@ const FarmHouse = ({
       }
 
       // Update the station in the database to mark crafting as complete
+      // Use slots format to match server expectations
+      const completedSlot = {
+        craftEnd: Date.now(), // Set to current time to complete immediately
+        craftedItem
+      };
+
       const updateResponse = await updateGridResource(
         gridId,
         {
           type: stationType,
           x: currentStationPosition.x,
           y: currentStationPosition.y,
-          craftEnd: Date.now(), // Set to current time to complete immediately
+          slots: [completedSlot],
+          // Also include legacy format for backward compatibility
+          craftEnd: Date.now(),
           craftedItem
         },
         true
@@ -489,9 +500,10 @@ const FarmHouse = ({
 
       if (updateResponse?.success) {
         // Update global state to reflect the database change
+        // Include both slots format and legacy format for consistency
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd: Date.now(), craftedItem }
+            ? { ...res, slots: [completedSlot], craftEnd: Date.now(), craftedItem }
             : res
         );
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
