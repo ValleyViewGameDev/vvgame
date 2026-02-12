@@ -189,7 +189,7 @@ const FrontierMiniMap = ({
   return (
     <div className="frontier-mini-map">
       {/* Title row - show computed display title */}
-      <h3 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', margin: '0 0 8px 0' }}>
+      <h3 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', fontWeight: 'normal', margin: '0 0 8px 0' }}>
         {displayTitle}
       </h3>
 
