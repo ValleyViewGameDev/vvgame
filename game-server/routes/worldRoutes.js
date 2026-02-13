@@ -111,7 +111,7 @@ router.post('/create-grid', async (req, res) => {
   }
 });
 
-// reset-grid 
+// reset-grid
 router.post('/reset-grid', async (req, res) => {
   const { gridCoord, gridId, gridType } = req.body;
   console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
@@ -127,6 +127,25 @@ router.post('/reset-grid', async (req, res) => {
   } catch (error) {
     console.error('Error resetting grid:', error);
     res.status(500).json({ error: 'Failed to reset grid.' });
+  }
+});
+
+// plant-new-trees - Replant trees on a valley grid
+router.post('/plant-new-trees/:gridId', async (req, res) => {
+  const { gridId } = req.params;
+  console.log('Reached plant-new-trees; gridId =', gridId);
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'gridId is required.' });
+  }
+
+  try {
+    const { plantNewTrees } = require('../utils/plantNewTreesLogic');
+    const result = await plantNewTrees(gridId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error planting new trees:', error);
+    res.status(500).json({ error: error.message || 'Failed to plant new trees.' });
   }
 });
 

@@ -18,17 +18,17 @@
     { "label": "Poop", "value": "💩", "filename": "pc-poop.svg" },
     { "label": "Space Invader", "value": "👾", "filename": "pc-retro-alien.svg" },
     { "label": "Octopus", "value": "🐙", "filename": "pc-octopus.svg" },
-    { "label": "Monkey", "value": "🐵" },
-    { "label": "Panda", "value": "🐼" },
-    { "label": "Cat", "value": "🐱" },
-    { "label": "Mask", "value": "👺" },
-    { "label": "Puppy Dog", "value": "🐶" },
-    { "label": "Fox", "value": "🦊" },
-    { "label": "Mouse", "value": "🐭" },
-    { "label": "Frog", "value": "🐸" },
-    { "label": "Bunny", "value": "🐰" }
+    { "label": "Monkey", "value": "🐵", "filename": "pc-monkey.svg" },
+    { "label": "Panda", "value": "🐼", "filename": "pc-panda.svg" },
+    { "label": "Cat", "value": "🐱", "filename": "pc-kitty.svg" },
+    { "label": "Mask", "value": "👺", "filename": "pc-mask.svg" },
+    { "label": "Puppy Dog", "value": "🐶", "filename": "pc-puppy.svg" },
+    { "label": "Fox", "value": "🦊", "filename": "pc-fox.svg" },
+    { "label": "Mouse", "value": "🐭", "filename": "pc-mouse.svg" },
+    { "label": "Frog", "value": "🐸", "filename": "pc-frog.svg" },
+    { "label": "Bunny", "value": "🐰", "filename": "pc-octopus.svg" }
   ],
   "platinum": [
-    { "label": "Unicorn", "value": "🦄" }
+    { "label": "Unicorn", "value": "🦄", "filename": "pc-unicorn.svg" }
   ]
 }

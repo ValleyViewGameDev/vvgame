@@ -178,6 +178,36 @@ const DebugPanel = ({
 
 
 
+  const handlePlantNewTrees = async () => {
+    if (!currentGridId) {
+      console.error('currentGridId is not defined.');
+      return;
+    }
+
+    // Check if this is a valley grid
+    const gridType = currentPlayer?.location?.gtype;
+    if (!gridType || !gridType.startsWith('valley')) {
+      alert('Plant New Trees only works on valley grids.');
+      return;
+    }
+
+    try {
+      console.log('Planting new trees on grid:', currentGridId);
+      const response = await axios.post(`${API_BASE}/api/plant-new-trees/${currentGridId}`);
+
+      console.log('Plant New Trees response:', response.data);
+      updateStatus(`Planted ${response.data.oakTreesAdded} Oak + ${response.data.pineTreesAdded} Pine trees. Removed ${response.data.woodRemoved} Wood.`);
+
+      // Reload to see changes
+      window.location.reload();
+    } catch (error) {
+      console.error('Error planting trees:', error);
+      const errorMsg = error.response?.data?.error || 'Failed to plant trees.';
+      updateStatus(errorMsg);
+      alert(errorMsg);
+    }
+  };
+
   const handleResetGrid = async () => {
     if (!currentGridId) { console.error('currentGridId is not defined.'); return; }
     console.log('handleResetGrid: gridId:', currentGridId);
@@ -1199,6 +1229,9 @@ const handleGetRich = async () => {
         </button>
       <div className="shared-buttons">
         <button className="btn-basic btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handlePlantNewTrees}> Plant New Trees </button>
       </div>
 
     <br />
