@@ -114,16 +114,23 @@ const PetPanel = ({
       const pet = GlobalGridStateTilesAndResources.getResources()?.find(
         (res) => res.x === currentPetPosition.x && res.y === currentPetPosition.y
       );
-      
-      if (pet && pet.craftEnd && pet.craftedItem) {
+
+      // Check for crafting data in either top-level fields (legacy/client-side) or slots array (server-side)
+      const slot = pet?.slots?.[0];
+      const craftEnd = pet?.craftEnd || slot?.craftEnd;
+      const craftedItem = pet?.craftedItem || slot?.craftedItem;
+      const qty = pet?.qty || slot?.qty || 1;
+      const petRarity = pet?.rarity || slot?.rarity || 'common';
+
+      if (pet && craftEnd && craftedItem) {
         // Check if this is a revealed reward (craftEnd in the past)
         const now = Date.now();
-        const isRevealed = pet.craftEnd < now;
-        
-        setRewardItem(pet.craftedItem);
-        setRevealedRewardQty(pet.qty || 1);
-        setRevealedRewardRarity(pet.rarity || 'common');
-        
+        const isRevealed = craftEnd < now;
+
+        setRewardItem(craftedItem);
+        setRevealedRewardQty(qty);
+        setRevealedRewardRarity(petRarity);
+
         if (isRevealed) {
           setIsFeeding(false);
           setIsReadyToCollect(true);
@@ -133,8 +140,8 @@ const PetPanel = ({
           // Pet is still searching for rewards
           setIsFeeding(true);
           setActiveTimer(true);
-          
-          const remainingTime = Math.max(0, Math.floor((pet.craftEnd - now) / 1000));
+
+          const remainingTime = Math.max(0, Math.floor((craftEnd - now) / 1000));
           setFeedingCountdown(remainingTime);
           
           if (remainingTime === 0) {
@@ -283,6 +290,7 @@ const PetPanel = ({
         stationX: currentPetPosition.x,
         stationY: currentPetPosition.y,
         craftedItem: rewardItem,
+        slotIndex: 0, // Pets always use slot 0
         transactionId,
         transactionKey
       });

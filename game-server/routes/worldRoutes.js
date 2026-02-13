@@ -1492,6 +1492,7 @@ router.post('/crafting/collect-item', async (req, res) => {
     res.json({
       success: true,
       collectedItem: craftedItem,
+      collectedQty: slot.qty || 1, // Return quantity from slot for pets and special crafting
       slotIndex,
       slots: updatedStation?.slots || newSlots,
       isNPC: itemResource.category === 'npc',
@@ -1521,7 +1522,7 @@ router.post('/crafting/collect-item', async (req, res) => {
 
 // Protected crafting start endpoint
 router.post('/crafting/start-craft', async (req, res) => {
-  const { playerId, gridId, stationX, stationY, recipe, transactionId, transactionKey } = req.body;
+  const { playerId, gridId, stationX, stationY, recipe, qty, rarity, transactionId, transactionKey } = req.body;
   
   if (!playerId || !gridId || stationX === undefined || stationY === undefined || !recipe || !transactionId || !transactionKey) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -1686,11 +1687,13 @@ router.post('/crafting/start-craft', async (req, res) => {
     const craftEnd = Date.now() + craftTime * 1000;
 
     // Build new slots array with the craft in the target slot
+    // Use qty and rarity from request body if provided (for pets and other special crafting)
     const newSlots = [...slots];
     newSlots[targetSlotIndex] = {
       craftEnd: craftEnd,
       craftedItem: recipe.type,
-      qty: 1
+      qty: qty || 1,
+      ...(rarity && { rarity }) // Only include rarity if provided
     };
 
     const resourceUpdate = {
