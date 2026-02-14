@@ -137,7 +137,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 13px;
+  gap: 4px; /* Reduced gap between arrows and icons */
   margin: 2px 0;
   width: 100%;
   max-width: 100%;
@@ -166,11 +166,10 @@
 }
 
 .avatar-icons-viewport {
-  width: 135px; /* 3 icons * 40px + 2 gaps * 5px + some padding */
-  overflow-x: hidden; /* Hide horizontal overflow for carousel effect */
-  overflow-y: visible; /* Allow vertical overflow so scaled icons aren't clipped */
+  width: 150px; /* 3 icons * 40px + 2 gaps * 5px + 10px padding for scaled icons */
+  overflow: hidden; /* Clip horizontal overflow for carousel effect */
   flex-shrink: 0;
-  padding: 8px 0; /* Extra vertical padding to accommodate scaled icons (1.2x) */
+  padding: 8px 0; /* Vertical padding to accommodate scaled icons (1.2x) */
 }
 
 .avatar-icons-container {
@@ -178,6 +177,7 @@
   gap: 5px;
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  padding-left: 5px; /* Extra space on left for scaled first icon */
 }
 
 .avatar-icon-btn {
