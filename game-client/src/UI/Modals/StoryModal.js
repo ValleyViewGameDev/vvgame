@@ -20,8 +20,9 @@ import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMat
  * @param {string} username - The player's username to replace {username} placeholders
  * @param {string} symbol - Direct symbol to display (overrides NPC lookup, useful for PC icon in FTUE)
  * @param {number|string} dialogKey - Direct string ID for dialog text (overrides NPC dialog lookup)
+ * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-portia.svg") - used instead of emoji if provided
  */
-function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, dialogKey: directDialogKey }) {
+function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, dialogKey: directDialogKey, npcFilename }) {
   const strings = useStrings();
   const [currentPage, setCurrentPage] = useState(0);
   const [pages, setPages] = useState([]);
@@ -192,9 +193,17 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
           &times;
         </button>
 
-        {/* Character Symbol (NPC or PC) */}
+        {/* Character Symbol (NPC or PC) - use SVG if filename provided, otherwise emoji */}
         <div className="story-modal-symbol">
-          {displaySymbol}
+          {npcFilename ? (
+            <img
+              src={`/assets/resources/${npcFilename}`}
+              alt={npcName || 'Character'}
+              className="story-modal-svg"
+            />
+          ) : (
+            displaySymbol
+          )}
         </div>
 
         {/* Dialog Content */}

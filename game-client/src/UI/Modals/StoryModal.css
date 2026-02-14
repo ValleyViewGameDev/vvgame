@@ -24,6 +24,13 @@
   line-height: 1;
 }
 
+/* SVG image for NPCs with custom art */
+.story-modal-svg {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
 /* Dialog content area - fixed height to prevent expansion during animation */
 .story-modal-content {
   padding: 8px 0;

@@ -1695,6 +1695,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         npcName={npcData?.type}
         relationshipType={storyRelationshipType}
         username={currentPlayer?.username}
+        npcFilename={npcData?.filename}
       />
     </Panel>
   );

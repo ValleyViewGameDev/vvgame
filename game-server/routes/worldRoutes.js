@@ -133,7 +133,8 @@ router.post('/reset-grid', async (req, res) => {
 // plant-new-trees - Replant trees on a valley grid
 router.post('/plant-new-trees/:gridId', async (req, res) => {
   const { gridId } = req.params;
-  console.log('Reached plant-new-trees; gridId =', gridId);
+  const { gridCoord } = req.body; // Accept gridCoord in body for valleyFixedCoord lookup
+  console.log('Reached plant-new-trees; gridId =', gridId, ', gridCoord =', gridCoord);
 
   if (!gridId) {
     return res.status(400).json({ error: 'gridId is required.' });
@@ -141,7 +142,7 @@ router.post('/plant-new-trees/:gridId', async (req, res) => {
 
   try {
     const { plantNewTrees } = require('../utils/plantNewTreesLogic');
-    const result = await plantNewTrees(gridId);
+    const result = await plantNewTrees(gridId, gridCoord);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error planting new trees:', error);

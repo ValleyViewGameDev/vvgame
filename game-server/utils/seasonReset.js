@@ -8,7 +8,7 @@ const masterResources = require("../tuning/resources.json");
 const fs = require("fs");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const { relocatePlayersHome } = require('./relocatePlayersHome');
-const { performGridReset } = require('./resetGridLogic');
+const { plantNewTrees } = require('./plantNewTreesLogic');
   
 
 async function seasonReset(frontierId, nextSeasonType = null) {
@@ -44,19 +44,21 @@ async function seasonReset(frontierId, nextSeasonType = null) {
         console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
       }
 
-// ✅ STEP 2: Reset All Grids (including towns, valley)
+// ✅ STEP 2: Plant new trees on valley grids (replaces full grid reset)
+      // Note: We no longer do full grid resets. Instead:
+      // - Valley grids get trees planted (replaces harvested trees, removes Wood doobers)
+      // - Town grids only get snow/melt (handled in Step 2.5)
+      // - Homesteads only get snow/melt (no changes to player-placed resources)
 
-      console.log("🏠 STEP 2: Resetting grids: towns and valleys");
-      // ✅ Query ONLY town and valley grids instead of loading all 882 grids
-      const publicGrids = await Grid.find({
+      console.log("🌳 STEP 2: Planting trees on valley grids...");
+
+      // Query ONLY valley grids (not towns - they don't need tree planting)
+      const valleyGrids = await Grid.find({
         frontierId,
-        $or: [
-          { gridType: "town" },
-          { gridType: /^valley/ } // Regex for valley*
-        ]
+        gridType: /^valley/ // Regex for valley*
       }, { _id: 1, gridType: 1 }); // Only load _id and gridType fields
 
-      console.log(`🔁 Found ${publicGrids.length} public grids to reset (towns/valleys only)`);
+      console.log(`🌳 Found ${valleyGrids.length} valley grids for tree planting`);
 
       // Build gridCoord lookup map from settlements
       const gridIdToCoordMap = {};
@@ -68,21 +70,31 @@ async function seasonReset(frontierId, nextSeasonType = null) {
         });
       });
 
-      // Reset each public grid
-      for (const grid of publicGrids) {
+      // Plant trees on each valley grid
+      let treesPlantedCount = 0;
+      let totalOakAdded = 0;
+      let totalPineAdded = 0;
+      let totalWoodRemoved = 0;
+
+      for (const grid of valleyGrids) {
         try {
           const gridCoord = gridIdToCoordMap[grid._id.toString()];
-          console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${gridCoord})`);
-          await performGridReset(grid._id, grid.gridType, gridCoord);
-          console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
+          const result = await plantNewTrees(grid._id.toString(), gridCoord);
+          treesPlantedCount++;
+          totalOakAdded += result.oakTreesAdded || 0;
+          totalPineAdded += result.pineTreesAdded || 0;
+          totalWoodRemoved += result.woodRemoved || 0;
+          console.log(`🌳 Planted trees on ${grid.gridType} (${gridCoord}): +${result.oakTreesAdded} Oak, +${result.pineTreesAdded} Pine, -${result.woodRemoved} Wood (${result.layoutSource})`);
         } catch (err) {
-          console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
+          console.error(`❌ Error planting trees on grid ${grid._id}:`, err.message);
         }
       }
 
+      console.log(`✅ Planted trees on ${treesPlantedCount} valley grids: +${totalOakAdded} Oak, +${totalPineAdded} Pine, -${totalWoodRemoved} Wood removed`);
+
       // 🔁 Update the seasonlog
       console.log("Updating seasonlog...");
-      const gridsResetCount = publicGrids.length;
+      const gridsResetCount = treesPlantedCount; // Now tracking valley grids with trees planted
       if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
         if (logIndex !== -1) {

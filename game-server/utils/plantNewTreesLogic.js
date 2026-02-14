@@ -6,27 +6,32 @@ const gridResourceManager = require('./GridResourceManager');
 const masterResources = require('../tuning/resources.json');
 const randomValleyGridLayouts = require('../layouts/gridLayouts/randomValleyGridLayouts.json');
 const TileEncoder = require('./TileEncoder');
+const fs = require('fs');
+const path = require('path');
+const { readJSON } = require('./fileUtils');
 
 /**
  * Plant new trees on a valley grid to replace harvested ones.
  *
  * Algorithm:
- * 1. Verify grid is a valley type (valley1, valley2, valley3)
+ * 1. Verify grid is a valley type
  * 2. Remove all Wood doobers from the grid
- * 3. Look up the valley type's Oak Tree and Pine Tree quantities from randomValleyGridLayouts.json
- *    - Find first matching layout for this valleyType (variant 1)
- *    - Extract r1qty (Oak Tree) and r2qty (Pine Tree) values
+ * 3. Determine target tree counts:
+ *    a. Check if valleyFixedCoord/{gridCoord}.json exists
+ *    b. If yes: COUNT actual Oak Tree ("OT") and Pine Tree ("PT") entries in resources array
+ *    c. If no: Use randomValleyGridLayouts.json r1qty/r2qty for this valley type
  * 4. Count existing Oak Trees and Pine Trees on the grid
  * 5. Calculate how many new trees are needed
- * 6. Find valid placement positions (grass 'g', dirt 'd', snow 'o' tiles without resources)
+ * 6. Find valid placement positions
  * 7. Place new trees at valid positions
  * 8. Save grid to database
  *
  * @param {string} gridId - MongoDB ObjectId of the grid
+ * @param {number} gridCoord - The grid coordinate (for valleyFixedCoord lookup)
  * @returns {Object} Result with counts of trees added and wood removed
  */
-async function plantNewTrees(gridId) {
-  console.log(`🌳 plantNewTrees called for gridId: ${gridId}`);
+async function plantNewTrees(gridId, gridCoord) {
+  console.log(`🌳 plantNewTrees called for gridId: ${gridId}, gridCoord: ${gridCoord}`);
 
   // Load grid
   const grid = await Grid.findById(gridId);
@@ -55,19 +60,52 @@ async function plantNewTrees(gridId) {
     return true;
   });
 
-  // Step 2: Find target tree quantities from randomValleyGridLayouts.json
-  // Get the first layout matching this valley type (variant 1)
-  const layoutConfig = randomValleyGridLayouts.find(l => l.valleyType === gridType && l.variant === 1);
-  if (!layoutConfig) {
-    throw new Error(`No layout config found for valley type: ${gridType}`);
+  // Step 2: Determine target tree quantities
+  let targetOakTrees = 0;
+  let targetPineTrees = 0;
+  let layoutSource = 'random';
+
+  // Check for valleyFixedCoord layout first
+  if (gridCoord) {
+    const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
+
+    if (fs.existsSync(fixedCoordPath)) {
+      // Count actual trees from the fixed layout's resources array
+      const fixedLayout = readJSON(fixedCoordPath);
+
+      if (fixedLayout && fixedLayout.resources) {
+        layoutSource = 'fixedCoord';
+
+        // Count OT (Oak Tree) and PT (Pine Tree) entries in resources array
+        fixedLayout.resources.forEach(row => {
+          row.forEach(cell => {
+            if (cell === 'OT') targetOakTrees++;
+            if (cell === 'PT') targetPineTrees++;
+          });
+        });
+
+        console.log(`📌 Using valleyFixedCoord/${gridCoord}.json: Oak=${targetOakTrees}, Pine=${targetPineTrees}`);
+      }
+    }
   }
 
-  const targetOakTrees = layoutConfig.r1qty || 0;  // Oak Tree is typically r1
-  const targetPineTrees = layoutConfig.r2qty || 0; // Pine Tree is typically r2
+  // Fall back to randomValleyGridLayouts if no fixed layout
+  if (layoutSource === 'random') {
+    const layoutConfig = randomValleyGridLayouts.find(l => l.valleyType === gridType && l.variant === 1);
 
-  // Verify r1 and r2 are Oak/Pine trees
-  if (layoutConfig.r1 !== 'Oak Tree' || layoutConfig.r2 !== 'Pine Tree') {
-    console.warn(`⚠️ Layout r1/r2 are not Oak/Pine Trees: r1=${layoutConfig.r1}, r2=${layoutConfig.r2}`);
+    if (!layoutConfig) {
+      throw new Error(`No layout config found for valley type: ${gridType}`);
+    }
+
+    targetOakTrees = layoutConfig.r1qty || 0;
+    targetPineTrees = layoutConfig.r2qty || 0;
+
+    // Verify r1 and r2 are Oak/Pine trees
+    if (layoutConfig.r1 !== 'Oak Tree' || layoutConfig.r2 !== 'Pine Tree') {
+      console.warn(`⚠️ Layout r1/r2 are not Oak/Pine Trees: r1=${layoutConfig.r1}, r2=${layoutConfig.r2}`);
+    }
+
+    console.log(`📦 Using randomValleyGridLayouts (${gridType}): Oak=${targetOakTrees}, Pine=${targetPineTrees}`);
   }
 
   // Step 3: Count existing trees
@@ -86,7 +124,6 @@ async function plantNewTrees(gridId) {
   console.log(`🌳 Trees needed: Oak +${oakTreesNeeded}, Pine +${pineTreesNeeded}`);
 
   // Step 5: Find valid placement positions
-  // Trees are valid on: grass 'g', dirt 'd', snow 'o'
   const oakTreeDef = masterResources.find(r => r.type === 'Oak Tree');
 
   // Build set of occupied positions
@@ -103,7 +140,6 @@ async function plantNewTrees(gridId) {
       if (occupiedPositions.has(posKey)) continue;
 
       const tileType = tiles[y][x];
-      // Check if Oak Tree is valid here (same rules for Pine Tree)
       const validKey = `validon${tileType}`;
       if (oakTreeDef && oakTreeDef[validKey] === true) {
         validPositions.push({ x, y });
@@ -118,14 +154,12 @@ async function plantNewTrees(gridId) {
   let oakTreesAdded = 0;
   let pineTreesAdded = 0;
 
-  // Place Oak Trees first
   for (let i = 0; i < oakTreesNeeded && validPositions.length > 0; i++) {
     const pos = validPositions.pop();
     filteredResources.push({ type: 'Oak Tree', x: pos.x, y: pos.y });
     oakTreesAdded++;
   }
 
-  // Place Pine Trees
   for (let i = 0; i < pineTreesNeeded && validPositions.length > 0; i++) {
     const pos = validPositions.pop();
     filteredResources.push({ type: 'Pine Tree', x: pos.x, y: pos.y });
@@ -141,6 +175,7 @@ async function plantNewTrees(gridId) {
   return {
     success: true,
     gridType,
+    layoutSource,
     woodRemoved,
     oakTreesAdded,
     pineTreesAdded,

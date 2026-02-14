@@ -191,12 +191,17 @@ const DebugPanel = ({
       return;
     }
 
+    // Get gridCoord from player location for valleyFixedCoord lookup
+    const gridCoord = currentPlayer?.location?.gridCoord;
+
     try {
-      console.log('Planting new trees on grid:', currentGridId);
-      const response = await axios.post(`${API_BASE}/api/plant-new-trees/${currentGridId}`);
+      console.log('Planting new trees on grid:', currentGridId, 'gridCoord:', gridCoord);
+      const response = await axios.post(`${API_BASE}/api/plant-new-trees/${currentGridId}`, {
+        gridCoord // Pass gridCoord in body for valleyFixedCoord lookup
+      });
 
       console.log('Plant New Trees response:', response.data);
-      updateStatus(`Planted ${response.data.oakTreesAdded} Oak + ${response.data.pineTreesAdded} Pine trees. Removed ${response.data.woodRemoved} Wood.`);
+      updateStatus(`Planted ${response.data.oakTreesAdded} Oak + ${response.data.pineTreesAdded} Pine trees. Removed ${response.data.woodRemoved} Wood. (${response.data.layoutSource})`);
 
       // Reload to see changes
       window.location.reload();

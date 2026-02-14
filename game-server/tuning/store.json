@@ -58,9 +58,9 @@
 {							
 "id":		7		,			
 "title":	"500 Gems"	,			
-"body":	"Best value! Instantly adds 500 Gems for the price of 400."	,			
-"price":		4.00		,			
-"priceInCents":		400		,			
+"body":	"Best value! Instantly adds 500 Gems at 50% off."	,			
+"price":		5.00		,			
+"priceInCents":		500		,			
 "rewards": [							
 { "item":"Gem","qty":	500	}
 ]							
@@ -69,13 +69,13 @@
 {							
 "id":		8		,			
 "title":	"1000 Gems"	,			
-"body":	"Most popular! Instantly adds 1000 Gems for the price of 800."	,			
-"price":		8.00		,			
-"priceInCents":		800		,			
+"body":	"Most popular! Instantly adds 1000 Gems at 50% off."	,			
+"price":		10.00		,			
+"priceInCents":		1000		,			
 "rewards": [							
 { "item":"Gem","qty":	1000	}
 ]							
-},			
+},
 
 {							
 "id":		9		,			
