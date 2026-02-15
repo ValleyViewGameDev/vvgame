@@ -228,6 +228,7 @@ useEffect(() => {
 
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
+  const [mobileOK, setMobileOK] = useState(false); // Secret bypass for mobile testing
   // Canvas rendering mode variables removed - now forced to Canvas mode
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -252,23 +253,42 @@ useEffect(() => {
     isTransitioning
   };
 
-  // Mobile device detection: Show modal if on mobile
+  // Mobile device detection: Show modal if on mobile (unless mobileOK bypass is set)
   useEffect(() => {
-    if (isMobile()) {
+    if (isMobile() && !mobileOK) {
       setModalContent({
         title: 'Unsupported Device',
         size: 'small',
         children: (
-          <div style={{ fontSize: '1rem', textAlign: 'center', padding: '1rem' }}>
+          <div style={{ fontSize: '1rem', textAlign: 'center', padding: '1rem', position: 'relative' }}>
             🚫 This game is intended for desktop browsers only.<br /><br />
             Please revisit on a laptop or desktop computer.
+            {/* Secret invisible button in lower-left corner for dev testing */}
+            <button
+              onClick={() => {
+                setMobileOK(true);
+                setIsModalOpen(false);
+              }}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '40px',
+                height: '40px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'default',
+                opacity: 0,
+              }}
+              aria-hidden="true"
+            />
           </div>
         ),
         onClose: () => {},
       });
       setIsModalOpen(true);
     }
-  }, []);
+  }, [mobileOK]);
   const openMailbox = () => openModal && openModal('Mailbox');
 
   // Store purchase fulfillment effect
