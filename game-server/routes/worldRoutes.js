@@ -1994,6 +1994,10 @@ router.post('/farm-animal/collect', async (req, res) => {
     const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
     
     const npcDefinition = masterResources.find(res => res.type === npc.type);
+
+    // DEBUG: Log NPC type lookup for Brown Cow issue investigation
+    console.log(`🐄 Farm animal collect - npc.type: "${npc.type}", npcDefinition found: ${!!npcDefinition}, qtycollected: ${npcDefinition?.qtycollected}`);
+
     if (!npcDefinition) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
@@ -2006,6 +2010,9 @@ router.post('/farm-animal/collect', async (req, res) => {
 
     // Calculate collection quantity with skill buffs
     const baseQuantity = npcDefinition.qtycollected || 1;
+
+    // DEBUG: Log base quantity calculation
+    console.log(`🐄 Farm animal collect - baseQuantity: ${baseQuantity}, output: ${npcDefinition.output}`);
     const playerSkills = player.skills || [];
     
     // Find applicable skill buffs

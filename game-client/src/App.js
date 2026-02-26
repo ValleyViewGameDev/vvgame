@@ -633,11 +633,6 @@ useEffect(() => {
     + settlementPos.row * TILES_PER_SETTLEMENT
     + gridPos.row * TILES_PER_GRID;
 
-  console.log(`🎬 [ZOOM ANIMATION] Starting zoom: ${currentZoomScaleRef.current.toFixed(3)} → ${pixiZoomScale.toFixed(3)}`);
-  console.log(`🎬 [ZOOM ANIMATION] Player world position (tiles): (${worldPos.x}, ${worldPos.y})`);
-  console.log(`🎬 [ZOOM ANIMATION] Grid world position (tiles): (${gridWorldTileX}, ${gridWorldTileY})`);
-  console.log(`🎬 [ZOOM ANIMATION] DOM elements found: gameContainer=${!!gameContainer}, pixiCanvasContainer=${!!pixiCanvasContainer}, pixiCanvas=${!!pixiCanvas}, worldContainer=${!!worldContainer}`);
-
   const animate = () => {
     const current = currentZoomScaleRef.current;
     const target = targetZoomScaleRef.current;
@@ -836,7 +831,6 @@ useEffect(() => {
 
   const fetchSettlementData = async () => {
     try {
-      console.log('📦 [PixiRenderer] Fetching settlement bundle for settlement zoom');
       const response = await axios.post(`${API_BASE}/api/get-settlement-bundle`, {
         settlementId: visibleSettlementId
       });
@@ -944,7 +938,6 @@ useEffect(() => {
 
   const fetchFrontierData = async () => {
     try {
-      console.log('🌍 [PixiRenderer] Fetching frontier bundle for frontier zoom');
       const response = await axios.get(
         `${API_BASE}/api/frontier-bundle/${currentPlayer.location.f}?playerSettlementId=${currentPlayer.location.s}`
       );
@@ -952,7 +945,6 @@ useEffect(() => {
 
       setFrontierData(frontierGrid);
       setFrontierSettlementGrids(settlementGrids);
-      console.log('🌍 [PixiRenderer] Frontier data loaded:', frontierGrid?.length, 'x', frontierGrid?.[0]?.length, 'settlements');
     } catch (err) {
       console.error('[PixiRenderer] Error fetching frontier data:', err);
     }
@@ -1193,7 +1185,6 @@ useEffect(() => {
 const prevZoomRef = useRef(zoomLevel);
 useEffect(() => {
   if (prevZoomRef.current !== zoomLevel) {
-    console.log(`📷 [ZOOM] Level changed: ${prevZoomRef.current} -> ${zoomLevel}`);
     prevZoomRef.current = zoomLevel;
   }
 }, [zoomLevel]);
@@ -1621,7 +1612,6 @@ useEffect(() => {
         : (DBPlayerData.location?.x != null && DBPlayerData.location?.y != null)
           ? { x: DBPlayerData.location.x, y: DBPlayerData.location.y }
           : null;
-      console.log('📍 Player position for centering:', playerPosition, '(from grid:', playerPositionFromGrid, ', from DB:', DBPlayerData.location, ')');
       if (playerPosition) {
         // Check for stored zoom level to use correct TILE_SIZE for initial centering
         // Use globalTuningData directly since React state hasn't updated yet
@@ -1643,14 +1633,9 @@ useEffect(() => {
         const parsed = gridCoord != null ? parseGridCoord(gridCoord) : null;
         const gridPosition = parsed ? { row: parsed.gridRow, col: parsed.gridCol } : { row: 0, col: 0 };
         const settlementPosition = parsed ? { row: parsed.settlementRow, col: parsed.settlementCol } : { row: 0, col: 0 };
-        console.log(`📷 [UNIFIED CAMERA INIT] Using gridCoord: ${gridCoord} (from location: ${DBPlayerData.location?.gridCoord}, homestead: ${DBPlayerData.homesteadGridCoord})`);
-
         // Calculate full world position (includes padding + settlement offset + grid offset + tile position)
         const worldPos = getPlayerWorldPosition(playerPosition, gridPosition, settlementPosition);
         const scroll = getScrollPosition(worldPos, initialZoomScale, baseTileSize, PLAYER_FIXED_POSITION);
-
-        console.log(`📷 [UNIFIED CAMERA INIT] Player tile: (${playerPosition.x}, ${playerPosition.y}), grid: (${gridPosition.row}, ${gridPosition.col}), settlement: (${settlementPosition.row}, ${settlementPosition.col})`);
-        console.log(`📷 [UNIFIED CAMERA INIT] World position: (${worldPos.x}, ${worldPos.y}), scroll: (${scroll.x}, ${scroll.y}), zoomScale: ${initialZoomScale}`);
 
         // Camera centering function - will be called AFTER isAppInitialized is set
         // so that PixiRenderer has rendered and container has scroll dimensions

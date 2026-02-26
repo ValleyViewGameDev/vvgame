@@ -57,13 +57,17 @@ async function handleProtectedFarmAnimalCollection(
   // ===== CALCULATE EXPECTED VALUES UPFRONT =====
   // Get the animal's output item from masterResources
   const animalResource = masterResources.find(r => r.type === npc.type);
+
+  // DEBUG: Log NPC type lookup for Brown Cow investigation
+  console.log(`🐄 Farm animal collection - npc.type: "${npc.type}", animalResource found: ${!!animalResource}, qtycollected: ${animalResource?.qtycollected}`);
+
   const expectedItem = animalResource?.output || npc.type;
   const expectedResource = masterResources.find(r => r.type === expectedItem);
   const expectedSymbol = expectedResource?.symbol || '🎁';
 
   // Calculate expected quantity with skill multiplier
   const skillInfo = calculateSkillMultiplier(expectedItem, currentPlayer.skills || [], masterSkills);
-  const baseQuantity = animalResource?.outputqty || 1;
+  const baseQuantity = animalResource?.qtycollected || 1;  // Fixed: was outputqty, should be qtycollected
   const expectedQuantity = applySkillMultiplier(baseQuantity, skillInfo.multiplier);
 
   // ===== OPTIMISTIC UI: Show visual feedback immediately =====
