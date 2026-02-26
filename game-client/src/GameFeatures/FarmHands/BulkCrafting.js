@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
-import { canAfford, spendIngredients, gainIngredients, calculateSkillMultiplier } from '../../Utils/InventoryManagement';
+import { canAfford, gainIngredients, deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
 import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -348,7 +348,50 @@ export async function executeBulkCrafting({
   });
 
   if (slotsToCollect.length === 0) {
-    return 'No crafting stations selected for collection.';
+    return { success: false, error: 'No crafting stations selected for collection.' };
+  }
+
+  // Check warehouse capacity BEFORE making the API call
+  // This prevents items from being lost if the warehouse is full
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+
+  if (isHomestead) {
+    // Calculate total items to collect (excluding NPCs which don't go to warehouse)
+    let totalItemsToCollect = 0;
+    for (const slot of slotsToCollect) {
+      const itemResource = masterResources.find(r => r.type === slot.craftedItem);
+      const isNPC = itemResource?.category === 'npc';
+      if (!isNPC && !isCurrency(slot.craftedItem)) {
+        // Calculate skill multiplier for this item
+        const stationType = slot.stationType;
+        const playerBuffs = (currentPlayer.skills || [])
+          .filter((item) => {
+            const resourceDetails = masterResources.find((res) => res.type === item.type);
+            const isSkill = resourceDetails?.category === 'skill';
+            const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
+            return isSkill && appliesToStation;
+          });
+        const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
+          const buffValue = masterSkills?.[buff.type]?.[stationType] || 1;
+          return multiplier * buffValue;
+        }, 1);
+        totalItemsToCollect += skillMultiplier; // Base qty is 1, multiplied by skill
+      }
+    }
+
+    // Check warehouse capacity
+    const { warehouse: warehouseCapacity } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || [], globalTuning);
+    const currentWarehouseItems = (inventory || [])
+      .filter(item => item && !isCurrency(item.type) && typeof item.quantity === 'number')
+      .reduce((acc, item) => acc + item.quantity, 0);
+
+    if (currentWarehouseItems + totalItemsToCollect > warehouseCapacity) {
+      const spaceAvailable = warehouseCapacity - currentWarehouseItems;
+      return {
+        success: false,
+        error: `Warehouse is full! You have space for ${spaceAvailable} items but are trying to collect ${totalItemsToCollect}. Please make room in your warehouse first.`
+      };
+    }
   }
 
   // Prepare batch data for all slots
