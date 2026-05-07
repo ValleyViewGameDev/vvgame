@@ -80,6 +80,13 @@ export default function PrivacyPolicyModal({ onClose }) {
           If you have any questions about this Privacy Policy or how your information is handled,
           please contact us through the support channels listed in the game.
         </p>
+
+        <p style={{ marginTop: '16px', fontSize: '13px', color: '#666' }}>
+          You can also view this policy on the web at{' '}
+          <a href="https://www.secretsofelsinore.com/privacy" target="_blank" rel="noopener noreferrer">
+            secretsofelsinore.com/privacy
+          </a>.
+        </p>
       </div>
 
       <div className="modal-buttons shared-buttons">
