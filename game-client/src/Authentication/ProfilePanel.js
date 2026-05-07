@@ -428,6 +428,12 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         </div>
 
+        <div className="shared-buttons">
+          <button className="btn-basic btn-neutral" onClick={() => setActiveModal('PrivacyPolicy')}>
+            Privacy Policy
+          </button>
+        </div>
+
         <br/>
 
         <div className="shared-buttons">

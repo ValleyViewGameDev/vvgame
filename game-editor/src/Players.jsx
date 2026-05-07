@@ -188,7 +188,9 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     }
   }, [activePanel]);
 
-  // Memoized filtered players based on current frontier/settlement selection
+  // Memoized filtered players based on current frontier/settlement selection.
+  // Players without a settlementId (no homestead yet) are always included — they
+  // have no scope to belong to but should still be visible/manageable.
   const filteredPlayers = useMemo(() => {
     let filtered = players;
 
@@ -196,17 +198,17 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     if (selectedFrontier) {
       const frontierSettlements = settlements
         .filter(s => String(s.frontierId?._id || s.frontierId) === String(selectedFrontier))
-        .map(s => s._id);
+        .map(s => String(s._id));
 
-      filtered = filtered.filter(player => 
-        frontierSettlements.includes(player.settlementId)
+      filtered = filtered.filter(player =>
+        !player.settlementId || frontierSettlements.includes(String(player.settlementId))
       );
     }
 
     // Further filter by settlement if one is selected
     if (selectedSettlement) {
-      filtered = filtered.filter(player => 
-        String(player.settlementId) === String(selectedSettlement)
+      filtered = filtered.filter(player =>
+        !player.settlementId || String(player.settlementId) === String(selectedSettlement)
       );
     }
 

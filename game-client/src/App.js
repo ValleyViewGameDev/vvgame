@@ -73,6 +73,7 @@ import Modal from './UI/Modals/Modal';
 import RevivalModal from './UI/Modals/RevivalModal';
 import LevelUpModal from './UI/Modals/LevelUpModal';
 import LanguagePickerModal from './UI/Modals/LanguagePickerModal';
+import PrivacyPolicyModal from './UI/Modals/PrivacyPolicyModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
 import panelIconsData from './UI/Icons.json';
@@ -4252,6 +4253,9 @@ return (
           onClose={() => setActiveModal(null)}
           onSave={() => setActiveModal(null)}
         />
+      )}
+      {activeModal === 'PrivacyPolicy' && (
+        <PrivacyPolicyModal onClose={() => setActiveModal(null)} />
       )}
       {activeModal === "Store" && (
         <Store
