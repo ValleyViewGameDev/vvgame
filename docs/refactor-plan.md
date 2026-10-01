@@ -1,0 +1,335 @@
+# Refactor plan: Secrets of Elsinore as a single-player game with async multiplayer
+
+Status: **Decisions D1-D5 confirmed by the owner on 2026-10-01**; D7-D9 proceed on the recommendation. Nothing in this plan has been built yet.
+Baseline facts come from `audits/` (cited as `audits/<file> §n`) and a read-only count of the
+production database taken on 2026-10-01.
+
+## 0. Goals, in priority order
+
+1. Better client performance.
+2. A lot less server activity.
+3. A single-player game with **asynchronous** multiplayer components (leaderboards, Train, Carnival, elections, market, settlement view).
+4. Minimal, purpose-specific use of sockets (chat, notifications).
+
+Non-goals: new gameplay, new art, new content. Player data is preserved where cheap; **Oberon and
+moehong are preserved unconditionally** (both are in settlement `684743fab301fcbdbcb77255`).
+
+## 1. Where we are (numbers that justify the plan)
+
+| Measure | Today | Source |
+|---|---|---|
+| Production data | 11 players, 1,063 grids (73 MB; 1,034 are unowned valley grids), 64 settlements, 1 frontier, DB `test` | DB count 2026-10-01 |
+| Client socket surface | 25 emits (21 grid-sync, 9 with no server handler), 21 listeners (16 grid-sync) | `audits/client-sockets-and-grid-state.md` §1 |
+| Server socket emits outside `server.js` | 3 (one `player-left-sync`, one `mailbox-badge-update`, one debug) | `audits/server-routes.md` §4 |
+| Grid change cost | 10-14 HTTP calls + 6-8 socket emits; destination fetched 5 times | `audits/views-transit-dungeons-ftue.md` §3 |
+| Doober harvest cost | 5-7 HTTP calls, 2-3 of them `GET /api/player` | `audits/client-npc-and-rendering.md` §C4 |
+| NPC persistence | `POST /save-single-npc` on every state change, positions every 10 s, 2 socket emits per step | §A5 |
+| Idle server load | 2,160 Frontier reads/hour per frontier from the scheduler loop; +60/hour per connected client | `audits/schedulers-and-async-features.md` §5 |
+| Client re-render cadence | whole-App re-render every 1 s (NPC loop + countdowns), up to 16/s while moving, 20 Hz on mouse move | `audits/client-npc-and-rendering.md` §B3 |
+| Render loop waste | VFX layer runs a 60 fps rAF clearing/redrawing Graphics; 4,096 tile sprites drawn with no culling; tile-texture cache grows ~4,096 entries per grid visited | §B2, §B4 |
+| Authority | client already authoritative for resources/tiles/inventory/XP (server trusts the payload) | `audits/server-routes.md` §5 |
+| Render code | 1 live pipeline (Pixi), 3 dead generations still in the tree | `audits/client-npc-and-rendering.md` §B1 |
+
+Two things make this refactor smaller than it sounds:
+
+- The async features (Train, Carnival, Bank, Courthouse, Mailbox, Trade Stall) already keep their data on `Settlement`/`Frontier`/`Player`. The station on the grid is only a door that opens a panel. Per-player towns keep every door. (`audits/schedulers-and-async-features.md` §4)
+- Grids are already materialised lazily, the dungeon reset is already lazy-on-entry, and `gridsVisited` already indexes all 4,096 coords per player. The per-player model is an extension of patterns that exist. (`audits/grid-lifecycle-and-data-model.md` §1, §3)
+
+## 2. Target architecture
+
+### 2.1 World model
+
+```
+Frontier (shared)      timers, season log, dungeon TEMPLATE registry keyed by entrance gridCoord
+ └─ Settlement (shared) cells {gridCoord, gridType, available, gridId(homesteads only)}, roles, votes, logs, carnival offers
+     ├─ Homestead Grid (shared, ownerId = owner)      one document, visible to neighbours as a snapshot
+     ├─ Town Grid     (PER PLAYER, ownerId = viewer)   created from town<Dir>.json on first entry
+     ├─ Valley Grid   (PER PLAYER, ownerId = viewer)   created from valleyFixedCoord/<coord>.json or a random layout on first entry
+     └─ Dungeon Grid  (PER PLAYER, ownerId = viewer)   created from the template registry on first entry; FTUE cave instanced at registration
+```
+
+- `Grid` gains `gridCoord: Number`, `templateKey: String`, `seasonNumber: Number`, `resetEpoch: Date`; `ownerId` becomes required for town/valley/dungeon. Unique index `{ownerId, gridCoord}`.
+- `Settlement.grids[].gridId` stays meaningful for homesteads only. Town/valley cells keep `gridCoord` + `gridType` as the shared "map"; `gridId` is null or points at an `ownerId: null` **template instance** the editor can inspect.
+- `Grid.playersInGrid` is removed. `Player.location` is the only record of where a player is.
+
+### 2.2 Authority
+
+| State | Owner | Persisted | Validated |
+|---|---|---|---|
+| Player position, camera, timers, VFX | client | `location` on grid change + heartbeat on unload | no |
+| NPC AI, positions, states | client (every client is the controller of its own grid) | one NPC snapshot per grid on leave/unload/every few minutes | only facts that pay out (kill, collect) at the transactional call |
+| Resources / tiles in the player's own grids | client-authoritative for cosmetics; **server validates economic actions** against the player's own copy | server writes the copy inside the transactional call; cosmetic changes ride the snapshot | yes, inside action routes |
+| Inventory, XP, skills, quests, trophies, messages, money | server (one action route per economic event, returns the player delta) | same call | yes |
+| Homestead grid | owner's client, same rules as above; neighbours read-only | same | ownerId check on every write |
+| Settlement / Frontier shared state (votes, offers, logs, timers) | server | schedulers + existing routes | existing checks, plus mayor/role checks |
+
+The guiding rule: **every economic action is one server call that validates against the player's own grid copy and returns the player delta.** That replaces today's 5-7 calls per harvest with 1, and closes the trusted-delta routes at the same time. Non-economic state is snapshotted.
+
+### 2.3 Networking
+
+- HTTP for all gameplay. One bundle call per grid entry, one call per economic action, one snapshot per grid leave.
+- socket.io stays, reduced to: `connect`/`disconnect`, `join-player-room`, `join-chat-rooms` (settlement + frontier scopes only; grid scope dropped), `send-chat-message`/`receive-chat-message`, `chat-badge-update`, `mailbox-badge-update`, `store-badge-update`, `force-refresh` (server-pushed reload for deploys/phase flips). No grid rooms, no controller election, no state sync.
+- Phase changes (train arriving, carnival, season end) can be pushed over the player room socket as a `timers-changed` event so the 60 s poll goes away. Optional; the 1 s local countdown already handles it.
+
+### 2.4 Async multiplayer, feature by feature
+
+| Feature | Verdict | Change |
+|---|---|---|
+| Train | keep | Already per-player (`Player.train`) with a station on the homestead. Remove the town copy of the station or leave both doors. |
+| Carnival | keep | Station exists in every town copy. Fix the population source (`Player.countDocuments({'location.s'})` becomes residents by `settlementId`). |
+| Bank, Courthouse, elections, taxes | keep | Unchanged; add mayor/role checks on `/update-settlement`. |
+| Leaderboard / net worth | keep | Net worth reads the homestead grid only (shared). Add a server `GET /leaderboard/:frontierId` top-N instead of 11 full player fetches. |
+| Trade stall | keep | Per-player already. |
+| Global market | keep | One `GET /market/:settlementId` route returning all residents' stalls; make the buy atomic. |
+| Outpost | **cut** (D5) | Removed entirely. Global Market covers remote selling. |
+| Mailbox | keep | Server-only message creation; client stops overwriting `messages[]`. |
+| Settlement view | keep | Homestead cards unchanged; town/valley thumbnails resolve to the viewer's own copies; drop the dead `gridStates` payload; optionally show neighbours' homestead tile thumbnails. |
+| Visiting a neighbour's homestead | read-only snapshot (D6) | Today it is a live visit (you are written into their grid). Replaced by a read-only snapshot view reached from the settlement screen. |
+| Chat | keep | Settlement + frontier scopes. Grid scope dropped. |
+| Dungeon timer | keep as a clock | Resets become per-player lazy (`resetEpoch` compare). The "auto-eject everyone" client logic goes. |
+
+## 3. Design decisions
+
+D1-D5 were decided by the owner on 2026-10-01 (marked **DECIDED**). D7-D9 proceed on the recommendation unless revisited.
+
+**D1. Per-player grid storage: full copies vs deltas. DECIDED: full copies.**
+Use **full per-player `Grid` documents** (same collection, same shape, `ownerId` + `gridCoord`). Rationale: it is what the current code already does for homesteads, so creation/reset/plantNewTrees/encoders/routes keep working with `gridId` as the handle; random valley layouts need no seeded RNG; the migration is "clone on first entry". Cost: 40-75 KB per visited grid, so a player who has seen 50 grids holds 2-4 MB. At today's scale (11 players) that is nothing; at 1,000 players × 50 grids it is 2-4 GB, which is when the delta/overlay option in `audits/grid-lifecycle-and-data-model.md` §4(c) becomes worth building behind the same `enter-grid` resolver. **Future optimisation note:** design the resolver so the storage format can change without touching the client; the trigger to revisit is `grids` collection size approaching the Atlas tier limit or write latency on harvest exceeding ~200 ms. Until then, full copies.
+
+**D2. Season behaviour for per-player valleys. DECIDED: lazy tree top-up.**
+Today the season end only tops up trees on valleys and snows/melts tiles; towns and homesteads keep their resources. Keep that semantics but apply it **lazily**: when a player enters a valley copy whose `seasonNumber < frontier.seasons.seasonNumber`, run `plantNewTrees` + snow/melt on that copy and stamp it. No sweeps. (Rejected alternative: regenerate valley copies from template every season; it would lose player-built valley structures.)
+
+**D3. Dungeons: persistent per-player copy vs fresh run. DECIDED: per-player copy with lazy reset.**
+Each player's dungeon copy is **reset lazily** when `grid.resetEpoch < frontier.dungeon.startTime` (the existing `needsReset` pattern with the flag moved onto the copy). The reset exists to prevent grinding: a cleared dungeon stays cleared until the frontier-wide 48 h dungeon clock rolls over, so loot and enemies cannot be farmed by leaving and re-entering. (Rejected alternative: regenerate on every entry, which would make grinding trivial.)
+
+**D4. FTUE cave.** Instance `opening.json` per player at registration (`templateKey: 'ftue-cave'` flag replaces the hard-coded id in 8 files). Required for single-player; no alternative.
+
+**D5. Outpost. DECIDED: cut the feature.**
+Remove the Outpost entirely: the `/outpost/*` routes in `tradingRoutes.js`, `Grid.outpostTradeStall`, `GameFeatures/Trading/Outpost.js` and its panel wiring in `App.js`, the Outpost resource in `tuning/resources.json` and any layout placements, and the related strings. Global Market covers remote selling. Any items sitting in a live outpost stall at migration time are returned to the seller's warehouse by the migration script. (Rejected alternative: re-key the stall to a settlement-level document.)
+
+**D6. Visiting neighbours' homesteads. DECIDED: read-only snapshot mode.**
+Build a **read-only snapshot mode** reached from the settlement view (new `GET /homestead-snapshot/:gridId`, renderer `viewMode` with movement/clicks/timers disabled). Live entry into another homestead is removed from Transit. Defer to Phase 6; it is polish.
+
+**D7. NPC persistence granularity.** Recommend one snapshot per grid (`saveGridStateNPCs` already serialises the right subset) on leave, on `beforeunload`, and every 2 minutes while in a grid, plus server-side derivation of `grazing/processing` from `grazeEnd` on load. Economic NPC events (farm-animal collect, kill rewards) stay transactional.
+
+**D8. Socket lifetime.** Recommend connect on login and keep alive (one heartbeat per ~25 s is cheap and lets badges/notifications arrive). Alternative: connect only while the Chat panel is open.
+
+**D9. Anti-cheat depth.** Recommend closing the routes that mint value directly (`update-profile` allowlist, inventory/XP/quest routes replaced by action routes, mailbox creation server-only, trade-stall escrow, Stripe verification) and leaving cosmetic trust (tile paint, NPC positions) alone. Full server simulation is out of scope.
+
+## 4. Phases
+
+Each phase is independently shippable and leaves the game playable. Phases 3 and 4 are independent of each other and can interleave. Estimates are in working days for one developer with Claude; they are rough.
+
+### Phase 0: Prep (1-2 days)
+
+- Docs: this plan, `architecture.md`, `known-issues.md`, `audits/`, `CLAUDE.md`. **Done.**
+- Backup: a node script (`game-server/scripts/backup.js`) that dumps `players`, `grids`, `settlements`, `frontiers` to JSON with a timestamp. `mongodump` is not installed locally. Run it before every migration.
+- Dev safety: the socket URL in `socketManager.js:12` is hard-coded to production; route it through `config.js`. Point `game-editor/src/FrontierView.jsx` at the shared `API_BASE`.
+- **Service status + the two modals** (built here, used through Phase 2). Server env `SERVICE_MODE=normal|notice|maintenance` plus `SERVICE_MESSAGE`; `GET /api/status` returns `{mode, message, version}`. Client: revive the dead `checkServer` loop in `App.js:324-352` as a poll of `/status` at boot and every 60 s, and the server emits `force-refresh` on the player rooms whenever the mode flips so open sessions react within seconds.
+  - **`notice` mode (Phases 0 and 1):** a **dismissable** modal that appears on **every app load/refresh** (never remembered in localStorage), shown to developers and non-developers alike, gameplay untouched. Text (English; add to `stringsEN.json`, translate or fall back to English in the other nine files):
+    > Thank you for playing Secrets of Elsinore! We are undergoing a major game update. You can still play for now, but soon expect a maintenance window, after which the synchronous play will be removed in favor of a better single-player experience. Asynchronous multiplayer will remain. Thank you for your patience during these updates.
+  - **`maintenance` mode (the Phase 2 window):** a **blocking** full-screen modal, no dismiss, no gameplay. Server returns 503 on every gameplay route for non-developer players (login and `/status` stay open) so a modified client cannot play through it. **Developer bypass:** when `isDeveloper` is true (`/check-developer-status`, `tuning/developerUsernames.json`) the modal shows an extra "Ignore (developer)" button that dismisses it, and the server exempts developer usernames from the 503 so devs can play and test the migrated world while everyone else is held at the modal.
+  - **`normal` mode:** nothing shown.
+- **Notice channels**: a `notices.json` on the server with a dated list of short player-facing notes; the login/start screen shows the latest one ("What's new"); a new mailbox template id 1002 "Release Notes" in `tuning/messages.json` sent with `/send-mailbox-message-all` after each production push; `TownNews` shows the latest notice too.
+- Delete dead code with zero callers (list in `known-issues.md`): the three dead render generations, `ZoomedOut/*` except the minimap, dead server routes/models/layout dirs. Pure deletion, big readability win, no behaviour change.
+- Remove the Outpost feature (D5): routes, model field, client panel, resource entry, strings. Do it here, before Phase 2, so the per-player grid work never has to carry it.
+- Done when: the client builds, the server boots, the backup script produces a restorable dump, all three service modes work end to end against a local client (notice modal every refresh for everyone; maintenance modal blocks a non-dev account and shows the Ignore button to a dev account; server 503s a non-dev gameplay call and allows a dev one).
+- **Ship:** live, no maintenance. Branch `refactor/phase-0`, squash-merge to `main` (Render auto-deploys both services from `main`). Deploy server first, then client, then set `SERVICE_MODE=notice` so the dismissable update notice starts appearing on every refresh. Mailbox note 1002: "Outpost retired; Global Market covers remote selling. More changes coming, the game stays up."
+
+### Phase 1: Sockets out, every client is its own controller (3-4 days)
+
+Scope: remove all grid-sync networking while grids are still shared. (With two active players this is safe; they would only conflict if both stood in the same town, and today they would conflict anyway.)
+
+Client:
+- `socketManager.js`: delete everything except connect/disconnect, `join-player-room` (fix the bare-string call at `App.js:1396`), chat, badges, `force-refresh`. Register listeners once, keyed on `playerId`, not on every `currentPlayer` change.
+- Delete `GridState/NPCController.js`, `controllerUsername` state and props, the relinquish branch, the `set-username`/`request-npc-controller`/`join-grid`/`leave-grid`/`player-joined-grid`/`player-left-grid`/`player-moved` emits. `App.js:2265` becomes unconditional.
+- `GridStateNPCs.js`: drop all `socket.emit` blocks and `moveOneTile`'s 1,200 ms promise.
+- `PlayersInGrid.js`: collapse to a single-PC store (`addPlayer`/`addPC`/`updatePCLocal` become one constructor; `removePC`-of-others, `setAllPCs`, socket emits go). Keep the `getPlayersInGrid(gridId)[playerId]` read contract so the ~40 call sites do not churn.
+- `PixiRendererPCs.js`: render only `currentPlayer`; remove `connectedPlayers`, PC hit-test, PC tooltip, the FTUE-cave hide hack. `SocialPanel` loses its "other player in grid" mode (the Leaderboard remains the way to see others).
+- NPC behaviours: `pcs` becomes `[currentPC]` in enemy/quest/heal/spawner scans.
+- `GridManagement.changePlayerLocation`: drop the leave/join emits and the `load-grid-state` of the source grid.
+
+Server:
+- `server.js`: delete grid rooms, `gridControllers`, `connectedPlayersByGrid`, `cleanupMemoryMaps`, and the sync handlers. Keep `join-player-room`, chat (settlement/frontier only), badges. Add a `force-refresh` emit helper.
+- Delete `playerRoutes.js` `/send-player-home`'s socket emit (the route stays for the editor).
+- `gridRoutes.js`: `/save-grid-state-pcs`, `/batch-update-pc-positions`, `/remove-single-pc`, `/save-single-pc` become no-ops or are deleted once the client stops calling them; `/load-grid-state` stops returning `playersInGrid`.
+
+Done when: a full play session (homestead, town, valley, dungeon, Train, Carnival, Chat) works with the socket showing only chat/badge traffic in the network tab; `grep -r "socket.emit" game-client/src` lists only the keep-set.
+
+**Ship:** live, no maintenance; `SERVICE_MODE` stays `notice` (the dismissable update modal keeps appearing on every refresh). The old client against the new server is harmless (its grid-sync emits are ignored), so deploy server first, then client, then emit `force-refresh` so any open session reloads onto the new client. Mailbox 1002: "Other players no longer appear in your town or valleys. Chat still works. Smoother NPCs."
+
+### Phase 2: Per-player Towns, Valleys, Dungeons (5-7 days)
+
+Scope: the data model change and the single resolver. This is the heart of the refactor.
+
+Server:
+- Schema: add `gridCoord`, `templateKey`, `seasonNumber`, `resetEpoch` to `Grid`; unique index `{ownerId, gridCoord}`; drop `playersInGrid`. Add `isTemplate` (or treat `ownerId: null` + non-homestead as the template instance).
+- New `POST /api/enter-grid { playerId, target }` where `target` is `{gridCoord}` | `'home'` | `'town'` | `{dungeonEntranceGridCoord}` | `'exit-dungeon'`. It: resolves the player's copy (find by `{ownerId, gridCoord}`, else create from template via `performGridCreation`), applies lazy season/reset catch-up (D2, D3), computes the spawn position (signpost/entrance/exit), writes `Player.location`, and returns one bundle `{ grid: {tiles, resources (enriched), npcs, gridType, region, ownerId}, location, spawn }`. This single route replaces `/load-grid`, `/load-grid-state`, `/update-player-location`, `/enter-dungeon`, `/exit-dungeon`, `/get-settlement-by-coords` + Transit math, `/homestead-gridcoord`, and the settlement scans.
+- `templateUtils`/`createGridLogic`: cache the 384 fixed layouts + random layouts at boot (today each create re-reads JSON). `performGridReset` for dungeons takes the template name as a parameter instead of reading `frontier.dungeons`.
+- `Frontier.dungeons` becomes a template registry keyed by **entrance gridCoord** (`{templateUsed}`); `entranceGrids` as gridIds goes away.
+- Registration creates the FTUE cave instance (D4). `exit-dungeon` logic keys on `templateKey === 'ftue-cave'`.
+- `/grids-tiles` (settlement thumbnails) resolves `(viewerId, gridCoord)`; `/get-settlement-bundle` drops `gridStates`.
+- `seasonReset`: STEP 1 becomes `Player.updateMany` location=home + HP restore; STEP 2/2.5 become lazy stamps (D2); homestead snow/melt sweep stays (12 docs today). `dungeonScheduler` becomes a no-op (the timer's `startTime` is the epoch).
+- Net worth: unchanged (homestead only).
+- Editor: `/api/grids` and the Dungeons tab filter to template instances; `/create-grid` / `/reset-grid` / `/update-grid-region` target the template instance; region moves to the Settlement cell or template. `AtlasView` thumbnails read template instances.
+
+Client:
+- `changePlayerLocation` takes the bundle from `enter-grid`. Transit.js, `playerManagement.js` (death respawn), `Dungeon.js`, `FrontierMiniMap` Home/Town buttons, and the dev click handler shrink to "compute the target and call enter-grid". The five `gridCoord` parsers collapse into one helper.
+- `AppInit.initializeGrid` consumes the bundle (no second `load-grid`, no `load-grid-state` fetches).
+- Settlement/frontier views: no change except the resolver on the server side.
+
+Migration (one-time script, `game-server/scripts/migrate-per-player-grids.js`, run after the backup):
+1. For every player: set `location` to their homestead signpost (everyone goes home; both active players are mid-session in town/homestead and will re-enter on next login).
+2. For Oberon and moehong (and any player with `location.gtype === 'town'`): clone their settlement's current town Grid as their personal copy (`ownerId`, `gridCoord`, `templateKey`) so anything built in town survives. Towns for everyone else are created lazily from the template on first entry.
+3. Mark existing shared town/valley/dungeon Grid docs `isTemplate: true` (`ownerId: null`). Optionally delete the 1,034 valley docs (they regenerate from layouts; ~70 MB reclaimed) after a week of soak.
+4. Drop `playersInGrid` and `outpostTradeStall` from all grids (returning any stocked outpost items to their sellers' warehouses first); drop the empty `resources` collection; create the `{ownerId, gridCoord}` index.
+5. Create each existing player's FTUE cave instance only if `firsttimeuser` is still true.
+
+Done when: two accounts can be in "the same" town at once with independent state; a fresh account runs the full FTUE in its own cave and town; `grids` count equals homesteads + templates + per-player copies; settlement view shows the viewer's own valley thumbnails; the editor still lists and edits templates.
+
+**Ship: the one maintenance window (see §8.3).** Code and migration are rehearsed against a restored backup locally before the window. Target under 2 hours of downtime; the season restart adds the existing 25-minute off-season modal on top.
+
+### Phase 3: Server activity diet (3-4 days)
+
+- Scheduler: `mainScheduler` sleeps until `endTime` (+ a 5-minute resync) instead of polling every 15 s. Idle load drops from 2,160 reads/hour to ~12.
+- NPC persistence: replace `save-single-npc` per transition and the 10 s position batch with the per-grid snapshot (D7). Server derives `grazing/processing` from `grazeEnd` on load. `spawnNPC` uses the cached master resources.
+- Player refresh: action routes return the updated inventory/backpack/xp slice; `refreshPlayerAfterInventoryUpdate`'s `GET /api/player` after every gain/spend goes away. `GET /api/player` stays for login and panel opens only.
+- Timers: client polls `get-frontier` only on phase expiry (and on a `timers-changed` socket push if built); add `GET /api/timers/:frontierId` returning the nine `{phase,endTime}` pairs instead of the full Frontier doc with populated settlements.
+- `TownNews` fetches once on open, not every second. `checkServer` 2 s interval deleted. FarmState maturation writes batch into one `PATCH` per tick.
+- Leaderboard, Global Market, Season panel: single server routes with projections (see §2.4).
+- Done when: an idle client makes zero HTTP calls per minute; a 10-minute play session shows under ~60 HTTP calls; the server log at idle shows one scheduler read per phase expiry.
+- **Ship:** live, in slices. Each slice adds the new route, deploys server, deploys client, then deletes the old route in the next slice. Never remove a route the live client still calls. Mailbox 1002 once at the end of the phase, not per slice.
+
+### Phase 4: Client performance (4-6 days, interleaves with Phase 3)
+
+From `audits/client-npc-and-rendering.md` §B5, in order of payoff:
+1. Stop re-rendering `App` every second: NPC loop writes only to `NPCsInGridManager`; Pixi's NPC layer subscribes to the manager; `setCountdowns` moves into a leaf component.
+2. `PixiRendererVFX`: on-demand ticker like the PC layer; pre-drawn range circles.
+3. Memoise `pcs` and the five `gridOffset` literals (`gridOffset` is always `{0,0}`).
+4. Tile layer: one `RenderTexture` + one sprite per grid (1 draw call instead of 4,096 display objects); clear `tileTextureCache` on grid change.
+5. Resource layer: diff by `"x,y"` key, pool `Text`, stop bumping `animationVersion` for grow VFX.
+6. Collapse `App.js` intervals to one with `[]` deps reading managers through refs; depend on `playerId` not `currentPlayer` for listener/keyboard effects.
+7. Tooltip/hovered-tile state out of `App` (ref + leaf component).
+8. Unmount the hidden settlement/frontier DOM (~16.6k nodes) when not zoomed out; collapse `PixiRendererPadding` (256 divs) to one gradient; drop `SVGAssetManager.preloadResourceSVGs` from the grid-change path.
+9. Index world lookups: `Map<"x,y", resource>` and `Map<type, masterResource>` used by movement, AI, LOS, hit-tests.
+10. Strip `console.log` from per-tick/per-step paths.
+- Done when: React DevTools shows no `App` commits while idle; grid-change fade is under ~300 ms on a mid phone; memory is flat across 20 grid changes.
+- **Ship:** live, client-only pushes, one perf item per merge so a regression is bisectable. Players notice this phase most; say so in the notice.
+
+### Phase 5: Transaction hardening (4-6 days, incremental)
+
+Introduce action routes that do the grid mutation and the player reward in one validated step, each with the existing `transactionId` idempotency guard, and retire the trusted routes behind them:
+
+| New route | Replaces | Validates |
+|---|---|---|
+| `POST /action/harvest {gridId, x, y}` | `update-grid` + `update-inventory-delta` + `addXP` + quest progress | resource exists in the player's copy and is harvestable; yield from master resources + skills; capacity |
+| `POST /action/place {gridId, x, y, type}` | `update-grid` (build/buy/plant/deco) | cost from master resources; placement rules; limits from `globalTuning` |
+| `POST /action/terraform {gridId, x, y, tile}` | `update-tile` | cost |
+| `POST /action/npc-kill {gridId, npcId}` | `remove-single-npc` + `addXP` + drops | NPC existed with hp ≤ 0 in the snapshot or the server's last known state |
+| existing `/crafting/*`, `/bulk-harvest`, `/farm-animal/collect` | keep; make them grant the item server-side (today they leave the grant to the client) and look up recipes/yield from master data instead of the payload | |
+| `update-profile` | keep with a field **allowlist** (settings, language, icon, ftuestep, aspiration, feedback) | |
+| mailbox | message creation server-only; delete `/update-player-messages` and `customRewards` | |
+| trade stall / requests | deduct stock on list, escrow `moneyCommitted` on request, atomic buy | |
+| store | verify the Stripe Checkout session server-side before granting | |
+| settlement | mayor/role checks on `/update-settlement`, `/update-settlement-role` | |
+
+Done when: `grep` finds no client call to `update-inventory-delta`, `update-inventory`, `addXP`, `update-skills`, `update-player-quests`, `update-player-messages`; a tampered client cannot mint money or items through any route in `audits/server-routes.md` §5.
+
+**Ship:** live, route by route, same add-then-remove rule as Phase 3. No player-visible change, so no notice unless a bug slips.
+
+### Phase 6: Async multiplayer polish (2-4 days)
+
+- Read-only homestead snapshot view from the settlement screen (D6).
+- Homestead tile thumbnails for neighbours in settlement view.
+- Carnival population source. Global Market single route + atomic buy. Leaderboard top-N route.
+- Optional `timers-changed` socket push.
+- **Ship:** live. Mailbox 1002: "You can now visit your neighbours' homesteads from the settlement view."
+
+## 5. API after the refactor (shape, not the full list)
+
+Kept as-is: auth, tuning/content GETs, trade stall, crafting, bulk harvest, farm-animal collect, mailbox collect, trophies, relationships, settlement/frontier reads, elections, carnival offers, payments (with verification), analytics, editor routes (re-pointed at templates).
+
+New: `POST /enter-grid`, `POST /grid-snapshot` (NPC + cosmetic state on leave), `POST /action/*`, `GET /timers/:frontierId`, `GET /leaderboard/:frontierId`, `GET /market/:settlementId`, `GET /homestead-snapshot/:gridId`.
+
+Deleted: every `gridRoutes.js` PC/NPC route except `load-grid-state` (folded into `enter-grid`), `update-player-location`, `enter-dungeon`, `exit-dungeon`, `load-grid` (client; editor keeps it), `update-grid`, `update-tile`, `update-inventory*`, `addXP`, `update-skills`, `update-powers`, `update-player-quests`, `update-player-messages`, `send-player-home` socket emit, all dead routes in `known-issues.md`.
+
+## 6. Socket contract after the refactor
+
+| Direction | Event | Payload | Purpose |
+|---|---|---|---|
+| client → server | `join-player-room` | `{playerId}` | private notifications |
+| client → server | `join-chat-rooms` | `{settlementId, frontierId}` | chat scopes |
+| client → server | `send-chat-message` | `{playerId, username, message, scope, scopeId}` | chat |
+| server → room | `receive-chat-message` | message | chat |
+| server → room | `chat-badge-update` | `{hasUpdate}` | badge |
+| server → player | `mailbox-badge-update`, `store-badge-update` | `{playerId}` | badges |
+| server → player/all | `force-refresh` | `{reason}` | deploy / season flip |
+| server → player (optional) | `timers-changed` | `{feature, phase, endTime}` | replaces the 60 s poll |
+
+## 7. Risks
+
+- **Scope creep inside Phase 2.** The resolver touches Transit, dungeons, FTUE, settlement view, season reset, and the editor at once. Mitigation: land the schema + resolver first with the old routes still mounted, switch callers one at a time, delete routes last.
+- **Template drift.** Per-player copies freeze the template at creation. Editor fixes to a town layout will not reach existing copies. Mitigation: `templateKey` + a `templateVersion` stamp; offer a "regenerate my town" dev action; accept the drift for valleys (they are consumable).
+- **Storage growth** (D1). Measured, not a problem until ~1,000 active players; the resolver isolates a later switch to deltas.
+- **Client-side trust remains between Phases 2 and 5.** No worse than today. Phase 5 closes it.
+- **Data loss for inactive players.** Everyone is sent home in the migration; only town copies of players standing in town are cloned. Acceptable per the brief; backup first.
+- **Hard-coded production URLs** in the client socket and the editor mean local testing has been hitting production. Fix in Phase 0 before anything else.
+- **`NODE_ENV=production` locally** would run the schedulers against the live Frontier. Never set it locally.
+
+## 8. Delivery: branches, deploys, the maintenance window, communication
+
+### 8.1 Branching and commits
+
+- `main` is production. Render auto-deploys both services from it, so **a push to `main` is a deploy**. Never push work in progress to `main`.
+- One branch per phase (`refactor/phase-1-sockets`, `refactor/phase-2-per-player-grids`, ...). Commit often on the branch with real messages (the history to date is placeholders). Squash-merge to `main` when the phase's done-criteria pass locally against production data, then tag `v2.<phase>`.
+- Phases 3-5 ship as several merges each (one route or one perf item per merge). Phase 2 ships as one merge inside the maintenance window.
+- Server and client are separate Render services. Deploy order is always **server first, then client**, and every server change must tolerate the previous client for the few minutes between (keep old routes mounted until the new client is live).
+
+### 8.2 Keeping the game live
+
+Only Phase 2 needs downtime, because it changes the Grid schema and runs a migration. Everything else is additive or deletes code the live client no longer calls. The rule for live phases: a change is safe to push if the current production client keeps working against the new server. Verify that locally by running the new server against the built old client before merging.
+
+For the two active players: `force-refresh` after each client deploy reloads any open session onto the new build. A mailbox note (template 1002) after each phase tells them what changed, and from the Phase 0 deploy until the maintenance window the dismissable update notice greets every refresh so nobody is surprised by the downtime.
+
+### 8.3 The maintenance window (Phase 2) and the Winter restart
+
+Pre-window, on the branch:
+1. Rehearse: run the backup script against production, restore it into a local database, run the migration against the restore, play through as Oberon's clone and a fresh account. Fix, repeat until clean.
+2. Draft the notices: login-screen banner 48 h ahead ("Maintenance <date> <time> ET, about 2 hours. Fall ends; Winter starts fresh."), mailbox 1002 to all with the same text.
+
+Window (target under 2 hours):
+1. Set `SERVICE_MODE=maintenance` on the Render server service; emit `force-refresh`. Non-developer clients show the blocking maintenance modal and their gameplay routes return 503; developer accounts get the "Ignore (developer)" button and keep full access for testing.
+2. Run the backup script (keep the file).
+3. Merge `refactor/phase-2-*` to `main`; wait for both Render deploys.
+4. Run `scripts/migrate-per-player-grids.js` against production (everyone home, clone the town for players standing in it, mark templates, drop `playersInGrid` / `outpostTradeStall`, build the index).
+5. Smoke test with a developer account (Ignore the modal; dev usernames bypass the 503): homestead, town, valley, dungeon, Train, Carnival, chat; then FTUE on a brand-new account temporarily added to `developerUsernames.json`.
+6. **Winter restart:** `POST /api/force-end-phase {frontierId, event:'seasons'}`. The season chain runs `seasonFinalizer` (Fall rewards mailed, season log written) and the Phase 2 `seasonReset` (everyone home, lazy stamps), then 25 minutes later flips to `onSeason` as season 38, Winter. The off-season modal covers that gap for anyone who logs in early. Season 37 was Fall and would otherwise run to 2026-11-27, so no tuning change is needed to land on Winter.
+7. Set `SERVICE_MODE=normal`; emit `force-refresh`. Mailbox 1002 to all: "We're back. Winter has begun. Towns and valleys are now yours alone; neighbours are still next door."
+
+Rollback: if step 5 fails, redeploy the previous `main` tag to both services, restore the backup (players, grids, settlements, frontiers), set `SERVICE_MODE=notice`. The migration script writes only the four collections the backup covers.
+
+### 8.4 Communication plan
+
+| Channel | Exists today | Use |
+|---|---|---|
+| Mailbox to all (`/send-mailbox-message-all`, template 1002 "Release Notes") | templates 1000/1001 exist; 1002 added in Phase 0 | after every production push with a player-visible change |
+| Login/start screen notice (`notices.json`) | new in Phase 0 | upcoming maintenance 48 h ahead; "what's new" after each phase |
+| Update notice modal (`/api/status` mode `notice`, dismissable, every refresh, everyone) | new in Phase 0 | from the Phase 0 deploy until the Phase 2 window opens |
+| Maintenance modal (`/api/status` mode `maintenance`, blocking for non-devs, Ignore button for devs) | new in Phase 0 | during the Phase 2 window only |
+| Town News modal | exists | mirrors the latest notice |
+| Website (`secretsofelsinore.com` landing) | exists | one line: "Winter season live, the game is now single-player with shared settlements" |
+
+Players have no email on file, so in-game and the website are the only channels.
+
+## 9. How we will know it worked
+
+| Metric | Before | Target |
+|---|---|---|
+| HTTP calls per grid change | 10-14 | 2 (`enter-grid` + the previous grid's snapshot) |
+| HTTP calls per harvest | 5-7 | 1 |
+| HTTP calls per idle minute (client) | ~1 + NPC saves | 0 |
+| Frontier reads per idle hour (server) | 2,160 | ~12 |
+| Socket events per NPC step | 2 | 0 |
+| `App` re-renders at idle | 1/s | 0 |
+| Dead render files in `src/Render` | ~15 | 0 |
+| Routes that trust a client-supplied inventory/XP delta | 8 | 0 |
+| Grid documents | 1,063 shared | homesteads + templates + per-player copies |
