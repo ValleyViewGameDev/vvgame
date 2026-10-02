@@ -3,6 +3,65 @@
 // Uses a 512-byte buffer to store 4096 bits (64 settlements × 64 grids = 4096)
 
 /**
+ * Parse a full gridCoord (TTFFSSGG as a number or numeric string) into its parts.
+ * This is the single gridCoord parser for the client; do not re-implement it.
+ *
+ *   TT = frontier tier, FF = frontier index,
+ *   S S = settlement row / col (0-7), G G = grid row / col (0-7)
+ *
+ * @param {number|string|null} gridCoord
+ * @returns {null|{
+ *   frontierTier:number, frontierIndex:number,
+ *   settlementRow:number, settlementCol:number, gridRow:number, gridCol:number,
+ *   settlementPosition:{row:number,col:number}, gridPosition:{row:number,col:number},
+ *   frontierRow:number, frontierCol:number   // position in the 64x64 frontier grid
+ * }}
+ */
+export function parseGridCoord(gridCoord) {
+  if (gridCoord === null || gridCoord === undefined || gridCoord === '') return null;
+  const n = Number(gridCoord);
+  if (!Number.isFinite(n) || n < 0) return null;
+
+  const str = String(Math.trunc(n)).padStart(8, '0');
+  const frontierTier = parseInt(str.slice(0, 2), 10);
+  const frontierIndex = parseInt(str.slice(2, 4), 10);
+  const settlementRow = parseInt(str[4], 10);
+  const settlementCol = parseInt(str[5], 10);
+  const gridRow = parseInt(str[6], 10);
+  const gridCol = parseInt(str[7], 10);
+
+  if ([settlementRow, settlementCol, gridRow, gridCol].some((d) => Number.isNaN(d))) return null;
+
+  return {
+    frontierTier,
+    frontierIndex,
+    settlementRow,
+    settlementCol,
+    gridRow,
+    gridCol,
+    settlementPosition: { row: settlementRow, col: settlementCol },
+    gridPosition: { row: gridRow, col: gridCol },
+    frontierRow: settlementRow * 8 + gridRow,
+    frontierCol: settlementCol * 8 + gridCol,
+  };
+}
+
+/**
+ * Inverse of parseGridCoord: build a numeric gridCoord from its parts.
+ * @returns {number}
+ */
+export function encodeGridCoord({ frontierTier = 0, frontierIndex = 0, settlementRow, settlementCol, gridRow, gridCol }) {
+  return (
+    frontierTier * 1000000 +
+    frontierIndex * 10000 +
+    settlementRow * 1000 +
+    settlementCol * 100 +
+    gridRow * 10 +
+    gridCol
+  );
+}
+
+/**
  * Convert a gridCoord to a 0-4095 bit index
  * gridCoord format: TFFSSGG where:
  *   T = Frontier tier (ignored for bit storage)

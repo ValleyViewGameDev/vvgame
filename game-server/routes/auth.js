@@ -69,11 +69,17 @@ router.post('/register-new-player', async (req, res) => {
     // Create the new player
     // FTUE: New players start in the Cave dungeon
     // Homestead will be created when they buy the Home Deed
-    const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
-    const FTUE_CAVE_START_X = 4; // 2 tiles right of original position
+    // FTUE: every new player gets their own copy of the tutorial cave (docs/phase-2-contract.md).
+    const { createDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('../utils/dungeonUtils');
+    const FTUE_CAVE_START_X = 4;
     const FTUE_CAVE_START_Y = 9;
+    const newPlayerId = new mongoose.Types.ObjectId();
+    const caveGrid = await createDungeonGrid(FTUE_TEMPLATE, {
+      frontierId, settlementId: frontierId, ownerId: newPlayerId, templateKey: FTUE_KEY,
+    });
 
     const newPlayer = new Player({
+      _id: newPlayerId,
       username,
       password: hashedPassword,
       icon: defaultIcon,
@@ -122,7 +128,7 @@ router.post('/register-new-player', async (req, res) => {
       kentOffers: kentOffers ? { ...kentOffers, offers: [...kentOffers.offers] } : undefined,
       // FTUE: Start new players in the Cave dungeon
       location: {
-        g: FTUE_CAVE_GRID_ID,
+        g: caveGrid._id,
         s: null, // No settlement until homestead is created
         f: frontierId,
         gridCoord: null, // Dungeons don't have gridCoord

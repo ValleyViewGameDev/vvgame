@@ -13,7 +13,7 @@ const seasonsConfig = require('../tuning/seasons.json');
 const UltraCompactResourceEncoder = require('./ResourceEncoder');
 const TileEncoder = require('./TileEncoder');
 
-async function performGridCreation({ gridCoord, gridType, settlementId, frontierId }) {
+async function performGridCreation({ gridCoord, gridType, settlementId, frontierId, ownerId = null, perPlayer = false, seasonNumber = null }) {
   if (!gridCoord || !gridType || !settlementId || !frontierId) {
     throw new Error('gridCoord, gridType, settlementId, and frontierId are required.');
   }
@@ -38,10 +38,11 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
   if (!targetGrid) throw new Error(`No sub-grid found in settlement for gridCoord: ${gridCoord}`);
 
   const seasonType = frontier.seasons?.seasonType || 'default';
-  let layoutFileName, layout, isFixedLayout = false;
+  let layoutFileName, layout, isFixedLayout = false, templateKey = null;
 
   if (gridType === 'homestead') {
     layoutFileName = getHomesteadLayoutFile(seasonType);
+    templateKey = 'homestead';
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName));
   } else if (gridType === 'town') {
     // Get settlement position from settlementType in the Frontier document
@@ -60,6 +61,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     }
     
     layoutFileName = getTownLayoutFile(seasonType, position);
+    templateKey = `town/${layoutFileName.replace(/\.json$/, '')}`;
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName));
     console.log(`🏘️ Creating town with position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFileName}`);
   } else {
@@ -70,6 +72,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     if (fs.existsSync(fixedPath)) {
       // FIXED LAYOUT: Use exact positions from the valleyFixedCoord file
       layoutFileName = `${gridCoord}.json`;
+      templateKey = `valleyFixedCoord/${gridCoord}`;
       layout = readJSON(fixedPath);
       isFixedLayout = true;
       console.log(`📌 Using fixed-coordinate layout for grid creation: ${layoutFileName}`);
@@ -88,6 +91,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
         throw new Error(`No valley layout found for gridType: ${gridType}`);
       }
       layoutFileName = layout.layoutName || gridType;
+      templateKey = `random:${gridType}`;
       console.log(`📦 Using random valley layout for grid creation: ${layoutFileName}`);
     }
   }
@@ -228,10 +232,23 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
   }
 
   // Create grid with v2 schema only (no v1 fields)
+  // Per-player copies inherit the editor-set region from the cell's template instance.
+  let region = null;
+  if (perPlayer && targetGrid.gridId) {
+    const templateInstance = await Grid.findById(targetGrid.gridId, 'region').lean();
+    region = templateInstance?.region || null;
+  }
+
   const newGrid = new Grid({
     gridType,
     frontierId,
     settlementId,
+    gridCoord: Number(gridCoord),
+    ownerId,
+    isTemplate: !perPlayer && gridType !== 'homestead',
+    templateKey,
+    seasonNumber: seasonNumber ?? frontier.seasons?.seasonNumber ?? null,
+    region,
     resources: encodedResources,
     tiles: encodedTiles,
     NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
@@ -243,9 +260,12 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
 
   await newGrid.save();
 
-  targetGrid.available = false;
-  targetGrid.gridId = newGrid._id;
-  await settlement.save();
+  if (!perPlayer) {
+    // Shared world: the settlement cell points at the homestead (owned) or the template instance.
+    targetGrid.available = false;
+    targetGrid.gridId = newGrid._id;
+    await settlement.save();
+  }
 
   return { success: true, gridId: newGrid._id, message: 'Grid created successfully.' };
 }

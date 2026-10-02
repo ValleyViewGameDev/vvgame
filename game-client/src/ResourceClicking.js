@@ -22,7 +22,6 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
 
 // FTUE Cave dungeon grid ID (must match auth.js and Dungeon.js)
-const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
 
  
  // Handles resource click actions based on category. //
@@ -700,7 +699,7 @@ export async function handleSourceConversion(
       addFloatingText(`${requirement} Required`, col, row, TILE_SIZE);
       // Show notification about missing skill (different message for Axe vs Pickaxe)
       // Skip notification in starter dungeon - player is expected to not have Axe yet
-      const isInStarterDungeon = gridId === FTUE_CAVE_GRID_ID;
+      const isInStarterDungeon = !!GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave;
       const messageKey = requirement === 'Axe' ? 7057 : requirement === 'Pickaxe' ? 7058 : null;
       if (messageKey && !isInStarterDungeon) {
         showNotification('FTUE', {

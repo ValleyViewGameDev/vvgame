@@ -178,63 +178,45 @@ class GridStateManager {
   }
 
   /**
-   * Initialize the NPCsInGrid for a specific gridId.
+   * Seed the NPCsInGrid for `gridId` from the `enter-grid` bundle.
+   * Accepts either the `{ npcs, lastUpdated }` wrapper or a
+   * bare `{ [npcId]: npc }` map. No HTTP: the bundle already holds the NPCs.
    */
-  async initializeGridState(gridId) {
-
-    console.log('👍 Initialize NPCsInGrid for gridId:', gridId);
+  async initializeFromData(gridId, NPCsInGridData) {
     if (!gridId) {
-      console.error('initializeGridState: gridId is undefined.');
+      console.error('initializeFromData: gridId is undefined.');
       return;
     }
 
-    try {
-      const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-      const {
-        NPCsInGrid = { npcs: {}, lastUpdated: 0 },
-      } = response.data;
+    const wrapper = NPCsInGridData && typeof NPCsInGridData === 'object' && 'npcs' in NPCsInGridData
+      ? NPCsInGridData
+      : { npcs: NPCsInGridData || {}, lastUpdated: 0 };
+    const rawNPCs = wrapper.npcs || {};
+    const lastUpdated = new Date(wrapper.lastUpdated || 0).getTime() || Date.now();
 
-      // Build a consolidated local state with independent timestamps
-      const hydratedState = {
-        npcs: NPCsInGrid.npcs || {},
-        NPCsInGridLastUpdated: new Date(NPCsInGrid.lastUpdated || 0).getTime(),
-      };
-      const npcs = hydratedState.npcs || {};
-      console.log('Fetched NPCsInGrid:', hydratedState);
+    const masterResources = await loadMasterResources();
 
-      // Load master resources
-      const masterResources = await loadMasterResources();
-
-      // Rehydrate NPCs
-      if (npcs) {
-        Object.keys(npcs).forEach((npcId) => {
-          const lightweightNPC = npcs[npcId];
-          const npcTemplate = masterResources.find((res) => res.type === lightweightNPC.type);
-          if (!npcTemplate) {
-            console.warn(`⚠️ Missing template for NPC type: ${lightweightNPC.type}`);
-            console.log('Master resources:', masterResources.map(res => res.type));
-          }
-          const hydrated = new NPC(
-            npcId,
-            lightweightNPC.type,
-            lightweightNPC.position,
-            { ...npcTemplate, ...lightweightNPC },
-            gridId
-          );
-
-          //console.log('  ✅ Hydrated NPC instance:', hydrated);
-
-          NPCsInGrid.npcs[npcId] = hydrated;
-        });
+    const npcs = {};
+    Object.keys(rawNPCs).forEach((npcId) => {
+      const lightweightNPC = rawNPCs[npcId];
+      if (!lightweightNPC) return;
+      const npcTemplate = masterResources.find((res) => res.type === lightweightNPC.type);
+      if (!npcTemplate) {
+        console.warn(`⚠️ Missing template for NPC type: ${lightweightNPC.type}`);
       }
+      npcs[npcId] = new NPC(
+        npcId,
+        lightweightNPC.type,
+        lightweightNPC.position,
+        { ...npcTemplate, ...lightweightNPC },
+        gridId
+      );
+    });
 
-      this.NPCsInGrid[gridId] = NPCsInGrid;
-      this.syncReact(gridId, hydratedState.NPCsInGridLastUpdated || Date.now());
+    this.NPCsInGrid[gridId] = { npcs, NPCsInGridLastUpdated: lastUpdated };
+    this.syncReact(gridId, lastUpdated);
 
-      console.log(`✅ Initialized and enriched NPCsInGrid for gridId ${gridId}:`, NPCsInGrid);
-    } catch (error) {
-      console.error('Error fetching NPCsInGrid:', error);
-    }
+    console.log(`✅ Seeded NPCsInGrid for gridId ${gridId} (${Object.keys(npcs).length} NPCs)`);
   }
 
   /**

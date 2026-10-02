@@ -533,15 +533,6 @@ router.post('/get-settlement-bundle', async (req, res) => {
       }))
     );
 
-    const occupiedGridIds = enrichedGrid.flat().filter(cell => cell.available === false && cell.gridId).map(cell => cell.gridId);
-    const gridStates = {};
-    if (occupiedGridIds.length > 0) {
-      const npcResponse = await Grid.find({ _id: { $in: occupiedGridIds } }, { _id: 1, playersInGrid: 1 }).lean();
-      npcResponse.forEach(grid => {
-        gridStates[grid._id.toString()] = { playersInGrid: grid.playersInGrid };
-      });
-    }
-
     const ownerIds = grids.map(grid => grid.ownerId).filter(Boolean).map(id => id.toString());
     const players = await Player.find({ _id: { $in: ownerIds } }, 'username role netWorth tradeStall').lean();
 
@@ -552,7 +543,6 @@ router.post('/get-settlement-bundle', async (req, res) => {
         displayName: settlement.displayName,
         grids: enrichedGrid
       },
-      gridStates,
       players
     });
 

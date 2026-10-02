@@ -978,6 +978,7 @@ router.post('/relocate-homestead', async (req, res) => {
       if (!grid) return res.status(404).json({ error: 'Grid not found.' });
 
       grid.settlementId = targetSettlement._id;
+      grid.gridCoord = Number(targetGridCoord); // the homestead's world cell moved with it (Phase 2)
       await grid.save();
 
       // 🔁 Update the player who owns this homestead
@@ -2622,169 +2623,39 @@ router.post('/melt-the-snow/:gridId', async (req, res) => {
 
 // Create a dungeon grid with template
 router.post('/create-dungeon', async (req, res) => {
+  // Editor: create the TEMPLATE instance of a dungeon and register it. Players get their own copies via /enter-grid.
   try {
     const { templateFilename, settlementId, frontierId } = req.body;
-    
-    console.log('Creating dungeon grid:', { templateFilename, settlementId, frontierId });
-    
-    // Validate required fields
-    if (!templateFilename) {
-      return res.status(400).json({ 
-        error: 'templateFilename is required.' 
-      });
-    }
-    
-    // Load the dungeon template
-    const fs = require('fs');
-    const path = require('path');
-    const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
-    
-    if (!fs.existsSync(templatePath)) {
-      return res.status(404).json({ 
-        error: `Template not found: ${templateFilename}` 
-      });
-    }
-    
-    const template = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
-    
-    // Import encoders
-    const TileEncoder = require('../utils/TileEncoder');
-    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
-    const mongoose = require('mongoose');
-    
-    // Import world generation utilities
-    const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
-    const masterResources = require('../tuning/resources.json');
-    
-    // Generate tiles from template
-    const tiles = generateFixedGrid(template);
-    
-    // Generate resources from template
-    const resources = generateFixedResources(template);
-    
-    // Handle NPCs from template
-    const npcsMap = new Map();
-    if (template.resources) {
-      template.resources.forEach((row, y) => {
-        row.forEach((cell, x) => {
-          if (cell && cell !== '.' && cell !== '**') {
-            const resourceDef = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
-            if (resourceDef) {
-              const npcId = new mongoose.Types.ObjectId().toString();
-              npcsMap.set(npcId, {
-                id: npcId,
-                type: resourceDef.type,
-                position: { x, y },
-                state: resourceDef.defaultState || 'idle',
-                hp: resourceDef.maxhp || 10,
-                maxhp: resourceDef.maxhp || 10,
-                armorclass: resourceDef.armorclass || 10,
-                attackbonus: resourceDef.attackbonus || 0,
-                damage: resourceDef.damage || 1,
-                attackrange: resourceDef.attackrange || 1,
-                speed: resourceDef.speed || 1,
-                lastUpdated: new Date()
-              });
-            }
-          }
-        });
-      });
-    }
-    
-    // Enrich multi-tile resources
-    resources.forEach(resource => {
-      const resourceDef = masterResources.find(r => r.type === resource.type);
-      if (resourceDef && resourceDef.range > 1) {
-        resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
-        if (resourceDef.passable !== undefined) {
-          resource.passable = resourceDef.passable;
-        }
-      }
-    });
-    
-    // Encode resources
-    const encoder = new UltraCompactResourceEncoder(masterResources);
-    const encodedResources = [];
-    for (const resource of resources) {
-      try {
-        const encoded = encoder.encode(resource);
-        encodedResources.push(encoded);
-      } catch (error) {
-        console.error(`❌ Failed to encode resource:`, resource, error);
-        throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
-      }
-    }
-    
-    // Create the dungeon grid
-    const newGrid = new Grid({
-      gridType: 'dungeon',
-      frontierId: frontierId || 'global',
-      settlementId: settlementId || 'global',
-      tiles: TileEncoder.encode(tiles),
-      resources: encodedResources,
-      NPCsInGrid: npcsMap,
-      NPCsInGridLastUpdated: new Date(),
-      playersInGrid: new Map(),
-      lastOptimized: new Date()
-    });
-    
-    await newGrid.save();
-    
-    // Update the frontier's dungeons registry
+    if (!templateFilename) return res.status(400).json({ error: 'templateFilename is required.' });
+    const { createDungeonGrid, dungeonTemplateExists } = require('../utils/dungeonUtils');
+    if (!dungeonTemplateExists(templateFilename)) return res.status(404).json({ error: `Template not found: ${templateFilename}` });
     const Frontier = require('../models/frontier');
-    const frontier = await Frontier.findById(newGrid.frontierId);
-    
-    if (frontier) {
-      const dungeonId = newGrid._id.toString();
-      
-      // Add dungeon to the frontier's registry
-      if (!frontier.dungeons) {
-        frontier.dungeons = new Map();
-      }
-      
-      frontier.dungeons.set(dungeonId, {
-        gridId: dungeonId,
-        templateUsed: templateFilename,
-        createdAt: new Date(),
-        needsReset: false,
-        lastReset: new Date(),
-        sourceValleyGrid: null
-      });
-      
-      await frontier.save();
-      console.log('✅ Added dungeon to frontier registry:', dungeonId);
-    } else {
-      console.warn('⚠️ Frontier not found for dungeon registration');
-    }
-    
-    console.log(`✅ Created dungeon grid: ${newGrid._id} with template ${templateFilename}`);
-    
-    res.status(201).json({
-      success: true,
-      grid: {
-        _id: newGrid._id,
-        gridId: newGrid._id,
-        gridType: 'dungeon',
-        templateUsed: templateFilename
-      }
+    const frontier = frontierId ? await Frontier.findById(frontierId) : await Frontier.findOne({});
+    if (!frontier) return res.status(404).json({ error: 'Frontier not found' });
+    const newGrid = await createDungeonGrid(templateFilename, {
+      frontierId: frontier._id, settlementId: settlementId || frontier._id, isTemplate: true,
     });
-    
+    const dungeonId = newGrid._id.toString();
+    if (!frontier.dungeons) frontier.dungeons = new Map();
+    frontier.dungeons.set(dungeonId, {
+      gridId: dungeonId, templateUsed: templateFilename, createdAt: new Date(),
+      needsReset: false, lastReset: new Date(), sourceValleyGrid: null, entranceGrids: [],
+    });
+    await frontier.save();
+    res.status(201).json({ success: true, grid: { _id: newGrid._id, gridId: newGrid._id, gridType: 'dungeon', templateUsed: templateFilename } });
   } catch (error) {
     console.error('Error creating dungeon grid:', error);
-    res.status(500).json({ 
-      error: error.message || 'Failed to create dungeon grid' 
-    });
+    res.status(500).json({ error: error.message || 'Failed to create dungeon grid' });
   }
 });
-
-// List grids with optional filters
 router.get('/grids', async (req, res) => {
   try {
-    const { gridType, frontierId, settlementId } = req.query;
+    const { gridType, frontierId, settlementId, isTemplate } = req.query;
     
-    // Build query
+    // Build query. Per-player copies are never listed: the editor sees template instances (and homesteads).
     const query = {};
     if (gridType) query.gridType = gridType;
+    if (isTemplate === 'true' || (gridType && gridType !== 'homestead')) query.isTemplate = true;
     if (frontierId) query.frontierId = frontierId;
     if (settlementId) query.settlementId = settlementId;
     
@@ -2863,7 +2734,9 @@ router.post('/reset-dungeon', async (req, res) => {
     }
     
     // Use the shared reset logic - explicitly pass 'dungeon' as gridType
-    await performGridReset(gridId, 'dungeon', grid.gridCoord);
+    const resetTemplate = (grid.templateKey || '').replace(/^dungeon:/, '')
+      || (await Frontier.findById(grid.frontierId))?.dungeons?.get(gridId)?.templateUsed;
+    await performGridReset(gridId, 'dungeon', grid.gridCoord, { templateFilename: resetTemplate });
     
     // Update dungeon-specific information in frontier registry
     const Frontier = require('../models/frontier');
@@ -2936,425 +2809,39 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
 });
 
 // Exit from dungeon back to source grid
-router.post('/exit-dungeon', async (req, res) => {
-  try {
-    const { playerId } = req.body;
-
-    // FTUE Cave dungeon - new players start here and exit to their settlement's town
-    const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
-    const FTUE_TOWN_EXIT_X = 39;
-    const FTUE_TOWN_EXIT_Y = 49;
-
-    if (!playerId) {
-      return res.status(400).json({
-        error: 'playerId is required.'
-      });
-    }
-
-    // Get player document
-    const Player = require('../models/player');
-    const player = await Player.findById(playerId);
-
-    if (!player) {
-      return res.status(404).json({
-        error: 'Player not found'
-      });
-    }
-
-    // ============================================================
-    // SPECIAL CASE: FTUE Cave dungeon
-    // If player is in the FTUE Cave, teleport them to their homestead
-    // ============================================================
-    if (player.location?.g?.toString() === FTUE_CAVE_GRID_ID) {
-      console.log(`🚪 [FTUE] Player ${playerId} exiting FTUE Cave dungeon`);
-
-      // Get the player's homestead grid (player.gridId is their homestead)
-      const homesteadGridId = player.gridId;
-
-      if (!homesteadGridId) {
-        return res.status(404).json({
-          error: 'Player homestead not found'
-        });
-      }
-
-      // Load the homestead grid to find Signpost Town position
-      const homesteadGrid = await Grid.findById(homesteadGridId);
-      if (!homesteadGrid) {
-        return res.status(404).json({
-          error: 'Homestead grid not found'
-        });
-      }
-
-      // Find the Signpost Town resource to position player next to it
-      const resources = gridResourceManager.getResources(homesteadGrid);
-      const signpostTown = resources.find(r => r.type === 'Signpost Town');
-
-      // Position player one tile to the right of Signpost Town (same as clicking it)
-      let exitX = 30; // default fallback
-      let exitY = 33;
-      if (signpostTown) {
-        exitX = signpostTown.x + 1; // One tile to the right
-        exitY = signpostTown.y;
-        console.log(`📍 [FTUE] Found Signpost Town at (${signpostTown.x}, ${signpostTown.y}), placing player at (${exitX}, ${exitY})`);
-      } else {
-        console.warn(`⚠️ [FTUE] Signpost Town not found in homestead, using default position`);
-      }
-
-      // Look up gridCoord from settlement
-      let gridCoord = null;
-      if (player.settlementId) {
-        const Settlement = require('../models/settlement');
-        const settlement = await Settlement.findById(player.settlementId);
-        if (settlement && settlement.grids) {
-          const flatGrids = settlement.grids.flat();
-          const subGrid = flatGrids.find(g => g.gridId?.toString() === homesteadGridId.toString());
-          if (subGrid && subGrid.gridCoord !== undefined) {
-            gridCoord = subGrid.gridCoord;
-          }
-        }
-      }
-
-      console.log(`🏠 [FTUE] Teleporting to homestead grid: ${homesteadGridId} at position (${exitX}, ${exitY})`);
-
-      return res.json({
-        success: true,
-        sourceGridId: homesteadGridId,
-        exitPosition: {
-          x: exitX,
-          y: exitY
-        },
-        gridType: 'homestead',
-        gridCoord: gridCoord,
-        settlementId: player.settlementId
-      });
-    }
-
-    // ============================================================
-    // STANDARD CASE: Exit to source grid before dungeon
-    // ============================================================
-    if (!player.sourceGridBeforeDungeon) {
-      return res.status(404).json({
-        error: 'No source grid found - cannot exit dungeon'
-      });
-    }
-    
-    const sourceGridId = player.sourceGridBeforeDungeon;
-    
-    // Get the source grid
-    const sourceGrid = await Grid.findById(sourceGridId);
-    if (!sourceGrid) {
-      return res.status(404).json({ 
-        error: 'Source grid no longer exists' 
-      });
-    }
-    
-    // Find the Dungeon Entrance resource position
-    const resources = gridResourceManager.getResources(sourceGrid);
-    const dungeonEntrance = resources.find(r => r.type === 'Dungeon Entrance');
-
-    // Look up gridCoord from settlement
-    let gridCoord = null;
-    console.log(`🔍 [EXIT-DUNGEON DEBUG] Looking up gridCoord for source grid: ${sourceGridId}`);
-    console.log(`🔍 [EXIT-DUNGEON DEBUG] Source grid settlementId: ${sourceGrid.settlementId}`);
-
-    if (sourceGrid.settlementId) {
-      const Settlement = require('../models/settlement');
-      const settlement = await Settlement.findById(sourceGrid.settlementId);
-      console.log(`🔍 [EXIT-DUNGEON DEBUG] Settlement found: ${settlement ? 'YES' : 'NO'}`);
-      console.log(`🔍 [EXIT-DUNGEON DEBUG] Settlement has grids: ${settlement?.grids ? 'YES' : 'NO'}`);
-
-      if (settlement && settlement.grids) {
-        const flatGrids = settlement.grids.flat();
-        console.log(`🔍 [EXIT-DUNGEON DEBUG] Total grids in settlement: ${flatGrids.length}`);
-
-        const subGrid = flatGrids.find(g => g.gridId?.toString() === sourceGridId.toString());
-        console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid found: ${subGrid ? 'YES' : 'NO'}`);
-
-        if (subGrid) {
-          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid data:`, JSON.stringify(subGrid, null, 2));
-          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord: ${subGrid.gridCoord}`);
-          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord type: ${typeof subGrid.gridCoord}`);
-          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord !== undefined: ${subGrid.gridCoord !== undefined}`);
-        }
-
-        if (subGrid && subGrid.gridCoord !== undefined) {
-          gridCoord = subGrid.gridCoord;
-          console.log(`📍 Found gridCoord for source grid: ${gridCoord}`);
-        } else {
-          console.warn(`⚠️ Could not find gridCoord for grid ${sourceGridId} in settlement`);
-          console.warn(`⚠️ SubGrid exists: ${!!subGrid}, has gridCoord: ${subGrid?.gridCoord !== undefined}`);
-        }
-      }
-    } else {
-      console.warn(`⚠️ Source grid has no settlementId!`);
-    }
-
-    if (!dungeonEntrance) {
-      console.error('❌ No Dungeon Entrance found in source grid:', sourceGridId);
-      // Default to center of grid if entrance not found
-      return res.json({
-        success: true,
-        sourceGridId: sourceGridId,
-        exitPosition: { x: 32, y: 32 },
-        gridType: sourceGrid.gridType,
-        gridCoord: gridCoord,
-        settlementId: sourceGrid.settlementId  // Return the grid's actual settlement
-      });
-    }
-
-    // Clear the source grid from player document
-    await Player.findByIdAndUpdate(playerId, {
-      $unset: { sourceGridBeforeDungeon: "" }
-    });
-
-    console.log(`✅ Player ${playerId} exiting dungeon to ${sourceGridId}`);
-
-    res.json({
-      success: true,
-      sourceGridId: sourceGridId,
-      exitPosition: {
-        x: dungeonEntrance.x,
-        y: dungeonEntrance.y
-      },
-      gridType: sourceGrid.gridType,
-      gridCoord: gridCoord,
-      settlementId: sourceGrid.settlementId  // Return the grid's actual settlement
-    });
-    
-  } catch (error) {
-    console.error('Error exiting dungeon:', error);
-    res.status(500).json({ 
-      error: error.message || 'Failed to exit dungeon' 
-    });
-  }
-});
-
-// Enter a random dungeon
-router.post('/enter-dungeon', async (req, res) => {
-  try {
-    const { playerId, sourceGridId, frontierId } = req.body;
-    
-    if (!playerId || !sourceGridId || !frontierId) {
-      return res.status(400).json({ 
-        error: 'playerId, sourceGridId, and frontierId are required.' 
-      });
-    }
-    
-    // Get the frontier to access dungeons
-    const Frontier = require('../models/frontier');
-    const frontier = await Frontier.findById(frontierId);
-    
-    if (!frontier || !frontier.dungeons || frontier.dungeons.size === 0) {
-      return res.status(404).json({ 
-        error: 'No dungeons available in this frontier' 
-      });
-    }
-    
-    // Find the dungeon that has this sourceGridId in its entranceGrids array
-    let dungeonGridId = null;
-    let dungeonData = null;
-    
-    for (const [id, data] of frontier.dungeons.entries()) {
-      if (data.entranceGrids && data.entranceGrids.includes(sourceGridId)) {
-        dungeonGridId = id;
-        dungeonData = data;
-        break;
-      }
-    }
-    
-    // If no specific dungeon is mapped to this entrance, return error
-    if (!dungeonGridId) {
-      console.log(`⚠️ No dungeon mapped to entrance grid ${sourceGridId}`);
-      return res.status(404).json({ 
-        error: 'No dungeon found for this entrance location. Please contact an administrator to map this entrance.' 
-      });
-    }
-    
-    console.log(`🎯 Selected dungeon: ${dungeonGridId} (${dungeonData.templateUsed}) for entrance grid ${sourceGridId}`);
-    
-    // Check if dungeon needs reset (first entry after reset phase)
-    console.log(`🔍 Checking dungeon ${dungeonGridId} reset status:`, {
-      needsReset: dungeonData.needsReset,
-      lastReset: dungeonData.lastReset,
-      currentPhase: frontier.dungeon?.phase
-    });
-    
-    if (dungeonData.needsReset) {
-      console.log(`🔄 Dungeon ${dungeonGridId} needs reset - performing automatic reset`);
-      
-      try {
-        // Get the dungeon grid to perform reset
-        const dungeonGrid = await Grid.findById(dungeonGridId);
-        if (!dungeonGrid) {
-          throw new Error('Dungeon grid not found for reset');
-        }
-        
-        // Use the shared reset logic - explicitly pass 'dungeon' as gridType
-        await performGridReset(dungeonGridId, 'dungeon', dungeonGrid.gridCoord);
-        
-        // Update the dungeon registry to clear needsReset flag using dot notation
-        await Frontier.findByIdAndUpdate(
-          frontier._id,
-          {
-            $set: {
-              [`dungeons.${dungeonGridId}.needsReset`]: false,
-              [`dungeons.${dungeonGridId}.lastReset`]: new Date()
-            }
-          }
-        );
-        
-        console.log(`📝 Updated dungeon ${dungeonGridId}: needsReset = false`);
-        console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);
-      } catch (resetError) {
-        console.error(`❌ Error during automatic dungeon reset:`, resetError);
-        return res.status(500).json({ 
-          error: 'Failed to reset dungeon: ' + resetError.message 
-        });
-      }
-    }
-    
-    // Get the dungeon grid to find Dungeon Exit resource
-    const dungeonGrid = await Grid.findById(dungeonGridId);
-    if (!dungeonGrid) {
-      return res.status(404).json({ 
-        error: 'Dungeon grid not found' 
-      });
-    }
-    
-    // Find the Dungeon Exit resource position
-    let resources;
-    try {
-      resources = gridResourceManager.getResources(dungeonGrid);
-      console.log(`📦 Found ${resources.length} resources in dungeon grid`);
-    } catch (resourceError) {
-      console.error('❌ Error getting resources from grid:', resourceError);
-      return res.status(500).json({ 
-        error: 'Failed to get dungeon resources' 
-      });
-    }
-    
-    const dungeonExit = resources.find(r => r.type === 'Dungeon Exit');
-    console.log(`🚪 Dungeon Exit found:`, dungeonExit ? `at (${dungeonExit.x}, ${dungeonExit.y})` : 'NOT FOUND');
-    
-    if (!dungeonExit) {
-      console.error('❌ No Dungeon Exit found in dungeon:', dungeonGridId);
-      return res.status(500).json({ 
-        error: 'Dungeon is missing exit point' 
-      });
-    }
-    
-    // Update player document with source grid
-    const Player = require('../models/player');
-    await Player.findByIdAndUpdate(playerId, {
-      sourceGridBeforeDungeon: sourceGridId
-    });
-    
-    console.log(`✅ Player ${playerId} entering dungeon ${dungeonGridId} from ${sourceGridId}`);
-    
-    res.json({
-      success: true,
-      dungeonGridId: dungeonGridId,
-      entryPosition: {
-        x: dungeonExit.x,
-        y: dungeonExit.y
-      },
-      sourceGridId: sourceGridId // Return this so client can update its state
-    });
-    
-  } catch (error) {
-    console.error('Error entering dungeon:', error);
-    res.status(500).json({ 
-      error: error.message || 'Failed to enter dungeon' 
-    });
-  }
-});
-
-// Update dungeon configuration (template, entrance mappings)
+// /enter-dungeon and /exit-dungeon were folded into POST /api/enter-grid (routes/enterGridRoutes.js).
 router.post('/update-dungeon-config', async (req, res) => {
+  // Editor: which template a dungeon uses and which world cells (gridCoords) lead into it.
   try {
-    const { frontierId, dungeonGridId, templateUsed, entranceGrids } = req.body;
-    
-    if (!frontierId || !dungeonGridId) {
-      return res.status(400).json({ 
-        error: 'frontierId and dungeonGridId are required.' 
-      });
-    }
-    
-    // Validate entrance grids have Dungeon Entrance resources
-    if (entranceGrids && entranceGrids.length > 0) {
-      const masterResources = require('../tuning/resources.json');
-      const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
-      const encoder = new UltraCompactResourceEncoder(masterResources);
-      
-      for (const entranceGridId of entranceGrids) {
-        const grid = await Grid.findOne({ 
-          $or: [
-            { _id: entranceGridId },
-            { gridId: entranceGridId }
-          ]
-        });
-        
-        if (!grid) {
-          return res.status(400).json({ 
-            error: `Grid ${entranceGridId} not found` 
-          });
-        }
-        
-        // Decode resources to check for Dungeon Entrance
-        let hasDungeonEntrance = false;
-        for (const encodedResource of grid.resources || []) {
-          try {
-            const decoded = encoder.decode(encodedResource);
-            if (decoded.type === 'Dungeon Entrance') {
-              hasDungeonEntrance = true;
-              break;
-            }
-          } catch (error) {
-            console.error(`Failed to decode resource:`, error);
-          }
-        }
-        
-        if (!hasDungeonEntrance) {
-          return res.status(400).json({ 
-            error: `Grid ${entranceGridId} does not have a Dungeon Entrance resource` 
-          });
-        }
+    const { frontierId, dungeonGridId, templateUsed } = req.body;
+    const entranceGridCoords = req.body.entranceGridCoords ?? req.body.entranceGrids;
+    if (!frontierId || !dungeonGridId) return res.status(400).json({ error: 'frontierId and dungeonGridId are required.' });
+    const frontier = await Frontier.findById(frontierId);
+    if (!frontier) return res.status(404).json({ error: 'Frontier not found' });
+
+    let coords;
+    if (entranceGridCoords !== undefined) {
+      const { findCell } = require('../utils/gridResolver');
+      coords = [];
+      for (const raw of entranceGridCoords) {
+        const coord = Number(raw);
+        if (!Number.isFinite(coord)) return res.status(400).json({ error: `${raw} is not a gridCoord` });
+        const found = await findCell(frontier, coord);
+        if (!found?.cell?.gridId) return res.status(400).json({ error: `Cell ${coord} has no template grid yet` });
+        const template = await Grid.findById(found.cell.gridId);
+        const hasEntrance = gridResourceManager.getResources(template).some(r => r.type === 'Dungeon Entrance');
+        if (!hasEntrance) return res.status(400).json({ error: `Cell ${coord} has no Dungeon Entrance resource` });
+        coords.push(coord);
       }
     }
-    
-    // Update the dungeon configuration using dot notation
     const updateOperations = {};
-    if (templateUsed !== undefined) {
-      updateOperations[`dungeons.${dungeonGridId}.templateUsed`] = templateUsed;
-    }
-    if (entranceGrids !== undefined) {
-      updateOperations[`dungeons.${dungeonGridId}.entranceGrids`] = entranceGrids;
-    }
-    
-    const updatedFrontier = await Frontier.findByIdAndUpdate(
-      frontierId,
-      { $set: updateOperations },
-      { new: true }
-    );
-    
-    if (!updatedFrontier) {
-      return res.status(404).json({ 
-        error: 'Frontier not found' 
-      });
-    }
-    
-    console.log(`✅ Updated dungeon ${dungeonGridId} configuration`);
-    
-    res.json({
-      success: true,
-      dungeon: updatedFrontier.dungeons.get(dungeonGridId)
-    });
-    
+    if (templateUsed !== undefined) updateOperations[`dungeons.${dungeonGridId}.templateUsed`] = templateUsed;
+    if (coords !== undefined) updateOperations[`dungeons.${dungeonGridId}.entranceGrids`] = coords;
+    const updatedFrontier = await Frontier.findByIdAndUpdate(frontierId, { $set: updateOperations }, { new: true });
+    res.json({ success: true, dungeon: updatedFrontier.dungeons.get(dungeonGridId) });
   } catch (error) {
     console.error('Error updating dungeon configuration:', error);
-    res.status(500).json({ 
-      error: error.message || 'Failed to update dungeon configuration' 
-    });
+    res.status(500).json({ error: error.message || 'Failed to update dungeon configuration' });
   }
 });
 

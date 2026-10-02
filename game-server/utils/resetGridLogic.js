@@ -48,7 +48,7 @@ const TileEncoder = require('./TileEncoder');
  * @param {string} gridType - The type of grid (homestead, town, dungeon, valley1, etc.)
  * @param {string} gridCoord - The coordinate string (e.g., "0,0", "1,-2")
  */
-async function performGridReset(gridId, gridType, gridCoord) {
+async function performGridReset(gridId, gridType, gridCoord, options = {}) {
   console.log(`🔄 performGridReset called with: gridId=${gridId}, gridType=${gridType}, gridCoord=${gridCoord}`);
 
   const grid = await Grid.findById(gridId);
@@ -93,33 +93,10 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`🗓️ Using town layout for reset - position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFile}`);
 
   } else if (gridType === 'dungeon') {
-    // Get the template from frontier's dungeons registry
-    console.log(`🔍 [DUNGEON RESET DEBUG] gridId: ${gridId}, type: ${typeof gridId}`);
-    console.log(`🔍 [DUNGEON RESET DEBUG] frontier exists: ${!!frontier}, dungeons exists: ${!!frontier?.dungeons}`);
-
-    if (!frontier || !frontier.dungeons) {
-      throw new Error('Frontier or dungeon registry not found');
-    }
-
-    // Debug: List all dungeon keys in the registry
-    console.log(`🔍 [DUNGEON RESET DEBUG] Dungeon registry keys:`, Array.from(frontier.dungeons.keys()));
-
-    // Try both string and direct lookup
-    let dungeonEntry = frontier.dungeons.get(gridId);
-    if (!dungeonEntry) {
-      // Try with toString() in case of ObjectId mismatch
-      dungeonEntry = frontier.dungeons.get(gridId.toString());
-      if (dungeonEntry) {
-        console.log(`🔍 [DUNGEON RESET DEBUG] Found with toString() conversion`);
-      }
-    }
-
-    if (!dungeonEntry) {
-      console.error(`❌ [DUNGEON RESET DEBUG] Dungeon not found. gridId: ${gridId}`);
-      throw new Error(`Dungeon not found in frontier registry. gridId: ${gridId}`);
-    }
-
-    const templateFilename = dungeonEntry.templateUsed;
+    // Template name comes from the caller (per-player copies carry it in templateKey) or the frontier registry (template instances).
+    const registryEntry = frontier?.dungeons?.get(gridId.toString());
+    const templateFilename = options.templateFilename || registryEntry?.templateUsed;
+    if (!templateFilename) throw new Error(`No dungeon template known for grid ${gridId}`);
     console.log(`🔍 [DUNGEON RESET DEBUG] templateUsed from registry: "${templateFilename}"`);
 
     const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
@@ -360,6 +337,8 @@ async function performGridReset(gridId, gridType, gridCoord) {
   grid.NPCsInGrid = new Map(Object.entries(newNPCs));
   grid.NPCsInGridLastUpdated = Date.now();
   grid.lastOptimized = new Date(); // Update optimization timestamp
+  grid.resetEpoch = new Date();
+  if (frontier?.seasons?.seasonNumber != null) grid.seasonNumber = frontier.seasons.seasonNumber;
 
   // Skip validation to handle any pre-existing corrupted NPCs
   console.log(`🔍 [DUNGEON RESET DEBUG] About to save grid._id: ${grid._id}, resources count: ${grid.resources.length}`);

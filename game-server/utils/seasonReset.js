@@ -8,7 +8,6 @@ const masterResources = require("../tuning/resources.json");
 const fs = require("fs");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const { relocatePlayersHome } = require('./relocatePlayersHome');
-const { plantNewTrees } = require('./plantNewTreesLogic');
   
 
 async function seasonReset(frontierId, nextSeasonType = null) {
@@ -44,70 +43,8 @@ async function seasonReset(frontierId, nextSeasonType = null) {
         console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
       }
 
-// ✅ STEP 2: Plant new trees on valley grids (replaces full grid reset)
-      // Note: We no longer do full grid resets. Instead:
-      // - Valley grids get trees planted (replaces harvested trees, removes Wood doobers)
-      // - Town grids only get snow/melt (handled in Step 2.5)
-      // - Homesteads only get snow/melt (no changes to player-placed resources)
-
-      console.log("🌳 STEP 2: Planting trees on valley grids...");
-
-      // Query ONLY valley grids (not towns - they don't need tree planting)
-      const valleyGrids = await Grid.find({
-        frontierId,
-        gridType: /^valley/ // Regex for valley*
-      }, { _id: 1, gridType: 1 }); // Only load _id and gridType fields
-
-      console.log(`🌳 Found ${valleyGrids.length} valley grids for tree planting`);
-
-      // Build gridCoord lookup map from settlements
-      const gridIdToCoordMap = {};
-      settlements.forEach(settlement => {
-        settlement.grids?.flat().forEach(g => {
-          if (g.gridId && g.gridCoord) {
-            gridIdToCoordMap[g.gridId.toString()] = g.gridCoord;
-          }
-        });
-      });
-
-      // Plant trees on each valley grid
-      let treesPlantedCount = 0;
-      let totalOakAdded = 0;
-      let totalPineAdded = 0;
-      let totalWoodRemoved = 0;
-
-      for (const grid of valleyGrids) {
-        try {
-          const gridCoord = gridIdToCoordMap[grid._id.toString()];
-          const result = await plantNewTrees(grid._id.toString(), gridCoord);
-          treesPlantedCount++;
-          totalOakAdded += result.oakTreesAdded || 0;
-          totalPineAdded += result.pineTreesAdded || 0;
-          totalWoodRemoved += result.woodRemoved || 0;
-          console.log(`🌳 Planted trees on ${grid.gridType} (${gridCoord}): +${result.oakTreesAdded} Oak, +${result.pineTreesAdded} Pine, -${result.woodRemoved} Wood (${result.layoutSource})`);
-        } catch (err) {
-          console.error(`❌ Error planting trees on grid ${grid._id}:`, err.message);
-        }
-      }
-
-      console.log(`✅ Planted trees on ${treesPlantedCount} valley grids: +${totalOakAdded} Oak, +${totalPineAdded} Pine, -${totalWoodRemoved} Wood removed`);
-
-      // 🔁 Update the seasonlog
-      console.log("Updating seasonlog...");
-      const gridsResetCount = treesPlantedCount; // Now tracking valley grids with trees planted
-      if (currentSeasonNumber !== undefined) {
-        const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
-        if (logIndex !== -1) {
-          frontier.seasonlog[logIndex].gridsreset = gridsResetCount;
-          frontier.markModified(`seasonlog.${logIndex}.gridsreset`);
-          await frontier.save();
-          console.log(`📝 Updated gridsreset (${gridsResetCount}) in seasonlog.`);
-        } else {
-          console.warn("⚠️ Could not update gridsreset — season entry not found.");
-        }
-      } else {
-        console.warn("⚠️ Current season number missing; cannot update gridsreset in log.");
-      }
+// STEP 2 (tree top-up on valleys) is now applied lazily per player copy on next entry
+// (utils/gridResolver.applySeasonCatchUp), keyed on Grid.seasonNumber vs frontier.seasons.seasonNumber.
 
       // ✅ STEP 2.5: Apply seasonal tile changes (snow/melt) based on new season
       if (nextSeasonType) {
@@ -116,8 +53,9 @@ async function seasonReset(frontierId, nextSeasonType = null) {
 
         // Get ALL grids in the frontier (including homesteads, valleys, towns)
         // ✅ Use projection to only load tiles and gridType fields (not resources, playersInGrid, etc.)
+        // Shared grids only: homesteads and template instances. Per-player copies catch up lazily on entry.
         const allGridsForSeasonalChange = await Grid.find(
-          { frontierId },
+          { frontierId, gridType: { $ne: 'dungeon' }, $or: [{ gridType: 'homestead' }, { isTemplate: true }] },
           { _id: 1, tiles: 1, gridType: 1 }
         );
         console.log(`🌍 Found ${allGridsForSeasonalChange.length} total grids for seasonal tile changes`);

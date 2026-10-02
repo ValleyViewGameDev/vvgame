@@ -2,7 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
-import { fetchTownSignpostPosition } from './worldHelpers';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 
 
 // Helper function to calculate derived level based on player XP
@@ -158,120 +158,70 @@ export const handlePlayerDeath = async (
   console.log('⚰️ Handling player death for', player.username);
 
   try {
-    // Find the town grid in the player's home settlement
-    console.log('🏛️ Finding town grid for death respawn in settlement:', player.settlementId);
-    const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${player.settlementId}`);
-    const settlement = settlementResponse.data;
-
-    if (!settlement || !settlement.grids) {
-      console.error('❌ Could not find settlement for death respawn');
-      return;
-    }
-
-    // Find the town grid in this settlement
-    const townGrid = settlement.grids.flat().find((grid) => grid.gridType === "town" && grid.gridId);
-    if (!townGrid) {
-      console.error('❌ Could not find town grid in settlement for death respawn');
-      return;
-    }
-
-    console.log('🏛️ Found town grid for respawn:', townGrid.gridId);
-
-    // Fetch the Signpost Home position from the town grid (same as Town button logic)
-    const signpostPosition = await fetchTownSignpostPosition(townGrid.gridId);
-
-    // Determine respawn grid and coordinates - respawn at town, not homestead
-    const targetLocation = {
-      x: signpostPosition.x,
-      y: signpostPosition.y,
-      g: townGrid.gridId,
-      s: player.settlementId,
-      f: player.location.f, // Preserve frontier
-      gtype: "town",
-      gridCoord: townGrid.gridCoord,
-    };
-    // Preserve other location fields (frontier, settlement, gtype)
-    const updatedLocation = {
-      ...player.location,
-      ...targetLocation,
-    };
-
-    // Determine restored HP based on account status
+    // Restored HP depends on account status
     let restoredHp = 40;
     if (player.accountStatus === "Gold") {
-      restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
+      restoredHp = Math.floor(player.baseMaxhp / 2);
     }
-    
-    // Calculate proper maxHP from base stats and equipment (don't let it get corrupted)
+
+    // Proper maxHP from base stats and equipment (don't let it get corrupted)
     const properMaxHp = (player.baseMaxhp || 990) + (player.maxhpModifier || 0);
-    
-    console.log(`🚨 [HP DEBUG] Death recovery for ${player.username}:`);
-    console.log('  player.baseMaxhp:', player.baseMaxhp);
-    console.log('  player.maxhp (before):', player.maxhp);
-    console.log('  properMaxHp (calculated):', properMaxHp);
-    console.log('  restoredHp:', restoredHp);
-    
-    // Keep only Tent and Boat items in backpack, discard everything else
-    const filteredBackpack = player.backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
-    const originalLocation = { ...player.location }; // ✅ preserve the correct fromLocation
-    
-    // Create updated player object with restored HP and proper maxHP
+
+    // Keep only Tent and Boat in the backpack
+    const filteredBackpack = (player.backpack || []).filter((item) => item.type === "Tent" || item.type === "Boat");
+
     const updatedPlayer = {
       ...player,
       hp: restoredHp,
-      maxhp: properMaxHp,  // Ensure maxHP is not corrupted
+      maxhp: properMaxHp,
       backpack: filteredBackpack,
-      location: updatedLocation,
     };
 
-    // 1. **Update Player Data in the Database**
+    // 1. Persist HP / backpack. Location is written by enter-grid below.
     await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: player._id,
       updates: {
-        backpack: filteredBackpack,  // Backpack now only contains Tent and Boat
-        hp: restoredHp,  // Use restored HP value
-        maxhp: properMaxHp,  // Ensure maxHP is preserved in database
-        location: updatedLocation,  // Update location
+        backpack: filteredBackpack,
+        hp: restoredHp,
+        maxhp: properMaxHp,
         settings: player.settings,
       },
     });
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 
-    // REMOVED: Don't update PlayersInGrid here - let changePlayerLocation handle the cleanup
-    // The player is dead and about to be moved, so we shouldn't update their HP in the current grid
+    console.log(`Player ${player.username} will respawn in town with ${restoredHp} HP.`);
 
-    console.log(`Player ${player.username} will be teleported to town grid with ${restoredHp} HP.`);
-    console.log('📦 Player before changePlayerLocation:', JSON.stringify(updatedPlayer, null, 2));
-
-    // 4. **Load New Grid & Add Player to GridState**
-    await changePlayerLocation(
+    // 2. Respawn in the player's own town, next to Signpost Home
+    const moved = await changePlayerLocation(
       updatedPlayer,
-      originalLocation,   // fromLocation
-      updatedLocation,   // toLocation
+      { type: 'town' },
       setCurrentPlayer,
       setGridId,
       setGrid,
       setTileTypes,
       setResources,
-      TILE_SIZE,
-      closeAllPanels,
       updateStatus,
+      closeAllPanels,
       null, // bulkOperationContext not available
-      null, // masterResources not available
       null, // strings not available
-      null  // masterTrophies not available
+      null, // transitionFadeControl not available
+      { findSignpost: 'Signpost Home' }
     );
+    if (!moved) {
+      console.error('❌ Death respawn: could not enter town');
+      return;
+    }
 
-    // 5. **Ensure HP is properly set in the grid state after teleportation**
-    console.log(`🏥 Ensuring player HP is set to ${restoredHp} in grid state`);
-    const playersInGridManager = await import('../GridState/PlayersInGrid').then(m => m.default);
-    await playersInGridManager.updatePC(townGrid.gridId, updatedPlayer._id, { hp: restoredHp });
-    
-    // Also ensure the currentPlayer state reflects the restored HP
-    setCurrentPlayer(prevPlayer => ({
+    // 3. The PC record was carried over with the dead HP; set the restored value in the new grid
+    const townGridId = GlobalGridStateTilesAndResources.getGridMeta()?.gridId;
+    if (townGridId) {
+      await playersInGridManager.updatePC(townGridId, String(updatedPlayer._id), { hp: restoredHp, maxhp: properMaxHp });
+    }
+
+    setCurrentPlayer((prevPlayer) => ({
       ...prevPlayer,
-      hp: restoredHp
+      hp: restoredHp,
     }));
 
   } catch (error) {

@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import './FrontierMiniMap.css';
 import { handleTransitSignpost } from '../GameFeatures/Transit/Transit';
-
-// FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
-const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { parseGridCoord } from '../Utils/gridsVisitedUtils';
 
 /**
  * Frontier Mini Map - 128x128 pixel representation (2x2 pixels per grid)
@@ -28,77 +27,21 @@ const FrontierMiniMap = ({
   timers,
   countdowns
 }) => {
-  // Calculate player's position in the 64x64 grid from gridCoord
+  // Player's position in the 64x64 frontier grid, from location.gridCoord
   const playerGridPosition = useMemo(() => {
-    if (!currentPlayer?.location?.gridCoord) {
-      return null;
-    }
-
-    const gridCoord = currentPlayer.location.gridCoord;
-    console.log('🗺️ Calculating position from gridCoord:', gridCoord);
-    
-    // Convert gridCoord to string and pad to ensure consistent format
-    const gridCoordStr = gridCoord.toString().padStart(8, '0');
-    
-    // Parse gridCoord: TTIISSGG
-    // TT = tier (ignore)
-    // II = index (ignore) 
-    // SS = settlement row & col (positions 4-5)
-    // GG = grid row & col within settlement (positions 6-7)
-    
-    const settlementRow = parseInt(gridCoordStr[4], 10);
-    const settlementCol = parseInt(gridCoordStr[5], 10);
-    const gridRow = parseInt(gridCoordStr[6], 10);
-    const gridCol = parseInt(gridCoordStr[7], 10);
-    
-    // Calculate final position in 64x64 grid
-    const finalRow = settlementRow * 8 + gridRow;
-    const finalCol = settlementCol * 8 + gridCol;
-    
-    console.log('🗺️ Parsed gridCoord:', {
-      gridCoord: gridCoordStr,
-      settlementRow, settlementCol,
-      gridRow, gridCol,
-      finalRow, finalCol
-    });
-    
-    return { row: finalRow, col: finalCol };
+    const parsed = parseGridCoord(currentPlayer?.location?.gridCoord);
+    return parsed ? { row: parsed.frontierRow, col: parsed.frontierCol } : null;
   }, [currentPlayer?.location?.gridCoord]);
 
-  // Calculate homestead position from homesteadGridCoord
+  // Homestead position from homesteadGridCoord
   const homesteadGridPosition = useMemo(() => {
-    if (!currentPlayer?.homesteadGridCoord) {
-      return null;
-    }
-
-    const gridCoord = currentPlayer.homesteadGridCoord;
-    console.log('🏠 Calculating homestead position from gridCoord:', gridCoord);
-    
-    // Convert gridCoord to string and pad to ensure consistent format
-    const gridCoordStr = gridCoord.toString().padStart(8, '0');
-    
-    // Parse gridCoord: TTIISSGG
-    const settlementRow = parseInt(gridCoordStr[4], 10);
-    const settlementCol = parseInt(gridCoordStr[5], 10);
-    const gridRow = parseInt(gridCoordStr[6], 10);
-    const gridCol = parseInt(gridCoordStr[7], 10);
-    
-    // Calculate final position in 64x64 grid
-    const finalRow = settlementRow * 8 + gridRow;
-    const finalCol = settlementCol * 8 + gridCol;
-    
-    console.log('🏠 Parsed homestead gridCoord:', {
-      gridCoord: gridCoordStr,
-      settlementRow, settlementCol,
-      gridRow, gridCol,
-      finalRow, finalCol
-    });
-    
-    return { row: finalRow, col: finalCol };
+    const parsed = parseGridCoord(currentPlayer?.homesteadGridCoord);
+    return parsed ? { row: parsed.frontierRow, col: parsed.frontierCol } : null;
   }, [currentPlayer?.homesteadGridCoord]);
 
-  // Check if player is in a dungeon
+  // Check if player is in a dungeon; the FTUE cave is a dungeon without a timer
   const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
+  const isInFTUECave = !!GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave;
 
   // Check if player is already in their home town (town grid in their home settlement)
   const isInHomeTown = useMemo(() => {
@@ -144,7 +87,6 @@ const FrontierMiniMap = ({
   // Compute the display title based on location
   const displayTitle = useMemo(() => {
     // 1. If in a dungeon, show "In a Dungeon" (but not for the FTUE Cave)
-    const isInFTUECave = currentPlayer?.location?.g?.toString() === FTUE_CAVE_GRID_ID;
     if (isInDungeon && !isInFTUECave) {
       return strings[10186] || 'In a Dungeon';
     }
@@ -182,7 +124,7 @@ const FrontierMiniMap = ({
 
     // 6. Default to "Map"
     return strings[2] || 'Map';
-  }, [isInDungeon, currentRegion, currentPlayer?.location?.g, currentPlayer?.gridId,
+  }, [isInDungeon, isInFTUECave, currentRegion, currentPlayer?.location?.g, currentPlayer?.gridId,
       currentPlayer?.location?.gtype, currentPlayer?.location?.s,
       currentPlayer?.settlementId, strings]);
 
@@ -287,7 +229,7 @@ const FrontierMiniMap = ({
       </div>
 
       {/* Only show dungeon timer when in dungeon (but not FTUE Cave which has no timer) */}
-      {isInDungeon && currentPlayer?.location?.g?.toString() !== FTUE_CAVE_GRID_ID && (
+      {isInDungeon && !isInFTUECave && (
         <div className="mini-map-dungeon-info">
           {(() => {
             const countdown = countdowns?.dungeon || '--:--:--';

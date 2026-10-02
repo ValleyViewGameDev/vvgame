@@ -75,10 +75,17 @@ const GridSchema = new mongoose.Schema({
     required: true,
   },
   ownerId: {
-    type: mongoose.Schema.Types.ObjectId, // Links to the player's ID
+    type: mongoose.Schema.Types.ObjectId, // Homestead owner, or the player who owns this town/valley/dungeon copy
     ref: 'Player',
-    default: null, // Public grids (e.g., Towns) will have no owner
+    default: null, // Template instances have no owner
   },
+
+  // Per-player world (Phase 2, docs/phase-2-contract.md)
+  gridCoord: { type: Number, default: null },      // world cell TTFFSSGG; null for dungeons
+  isTemplate: { type: Boolean, default: false },   // the one shared instance per cell/dungeon template that the editor edits
+  templateKey: { type: String, default: null },    // what this grid was generated from (e.g. 'town/townN', 'valleyFixedCoord/1011100', 'dungeon:d001', 'ftue-cave')
+  seasonNumber: { type: Number, default: null },   // season this copy was last caught up to (trees / snow)
+  resetEpoch: { type: Date, default: null },       // dungeons: when this copy was last reset from its template
   
   // COMPACT RESOURCE AND TILE STORAGE (V2 format)
   resources: {
@@ -99,9 +106,10 @@ const GridSchema = new mongoose.Schema({
   }
 });
 
-// Add compound index for common queries
+// Indexes
 GridSchema.index({ frontierId: 1, gridType: 1 });
-GridSchema.index({ frontierId: 1, gridId: 1 });
+GridSchema.index({ ownerId: 1, gridCoord: 1 }, { partialFilterExpression: { gridCoord: { $type: 'number' } } });
+GridSchema.index({ ownerId: 1, templateKey: 1 });
 
 const Grid = mongoose.model('Grid', GridSchema, 'grids'); // Ensure 'grids' is the correct collection name
 module.exports = Grid;

@@ -114,7 +114,7 @@ const FrontierSchema = new mongoose.Schema({
       needsReset: { type: Boolean, default: false },
       lastReset: { type: Date, default: Date.now },
       sourceValleyGrid: { type: String, default: null },
-      entranceGrids: [{ type: String }] // Array of gridIds that have entrances to this dungeon
+      entranceGrids: [{ type: Number }] // gridCoords of the world cells whose Dungeon Entrance leads here (Phase 2)
     },
     default: {}
   }

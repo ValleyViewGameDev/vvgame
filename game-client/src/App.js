@@ -9,7 +9,6 @@ import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler, showNotification } from './UI/Notifications/Notifications';
-import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
 // LEGACY RENDERING - COMMENTED OUT (PixiJS is now the only renderer)
 // import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
@@ -130,9 +129,9 @@ import LoginScreenButterflies from './UI/LoginScreenButterflies';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
-import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
+import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, renderPositions } from './PlayerMovement';
-import { fetchHomesteadOwner, calculateDistance, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from './Utils/worldHelpers.js';
+import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
@@ -156,7 +155,6 @@ const playerIconToSvgMap = new Map();
 });
 
 // FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
-const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
 
 function App() {
   // Check if we should redirect (must be before hooks for consistent evaluation)
@@ -862,6 +860,7 @@ useEffect(() => {
       if (coordsToFetch.length === 0) return;
 
       const response = await axios.post(`${API_BASE}/api/grids-tiles`, {
+        playerId: currentPlayer?.playerId,
         settlementId: visibleSettlementId,
         gridCoords: coordsToFetch
       });
@@ -1441,16 +1440,6 @@ useEffect(() => {
         // Don't block app initialization if this fails
       }
 
-      // Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
-      console.log('🏁✅ 2.5 InitAppWrapper; checking for stale gridId after relocation...');
-      const storedGridId = localStorage.getItem("gridId");
-      const resolvedGridId = DBPlayerData.location?.g;
-      if (storedGridId && resolvedGridId && storedGridId !== resolvedGridId) {
-        console.warn("🌪️ Detected stale gridId from localStorage. Updating to new home grid.");
-        localStorage.setItem("gridId", resolvedGridId);
-        setGridId(resolvedGridId); // ✅ Use setter to update React state
-      }
-
       // Step 3. Combine local and server data, prioritizing newer info from the server
       console.log('🏁✅ 3 InitAppWrapper; Merging player data and initializing inventory...');
       let updatedPlayerData = { ...parsedPlayer, ...DBPlayerData };
@@ -1466,16 +1455,21 @@ useEffect(() => {
       setInventory(DBPlayerData.inventory || []);  // Initialize inventory properly
       setBackpack(DBPlayerData.backpack || []);
 
-      // Step 4. Determine initial gridId from player or storage
-      // Use fresh server data (resolvedGridId) first, then fall back to cached data
-      console.log('🏁✅ 4. Determining local gridId...');
-      const initialGridId = resolvedGridId || parsedPlayer?.location?.g || localStorage.getItem('gridId');
-      if (!initialGridId) {
-        console.error('No gridId found. Unable to initialize grid.');
+      // Step 4. Enter the current grid through the per-player resolver (docs/phase-2-contract.md).
+      console.log('🏁✅ 4. Entering current grid via /enter-grid...');
+      let bundle;
+      try {
+        bundle = await enterGrid(DBPlayerData.playerId, { type: 'current' });
+      } catch (err) {
+        console.error('enter-grid current failed', err.response?.data || err.message);
+        updateStatus(105);
         return;
       }
+      const { grid: gridBundle, location: enteredLocation, spawn: enteredSpawn, ownerUsername } = bundle;
+      const initialGridId = String(gridBundle._id);
       setGridId(initialGridId);
-      localStorage.setItem('gridId', initialGridId); // Save to local storage
+      localStorage.setItem('gridId', initialGridId);
+      DBPlayerData.location = { ...DBPlayerData.location, ...enteredLocation, g: initialGridId, ...(enteredSpawn || {}) };
 
       // 4.5. Open the socket and wait for connection before emitting
       socket.connect();
@@ -1496,32 +1490,15 @@ useEffect(() => {
       socket.emit('join-player-room', { playerId: DBPlayerData.playerId });
       console.log(`📡 Joined socket room for playerId: ${DBPlayerData.playerId}`);
 
-      // Step 5. Initialize grid tiles, resources
-      console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
-      // Use globalTuningData directly for tile size since React state hasn't updated yet
-      // PIXI_BASE_TILE_SIZE still uses fallback values at this point
-      const pixiBaseTileSizeFromTuning = globalTuningData?.closeZoom || 40;
-      await initializeGrid(
-        activeTileSize,
-        initialGridId,
-        setGrid,
-        setResources,
-        setTileTypes,
-        updateStatus,
-        DBPlayerData,
-        resources, // Use locally loaded resources, not state (which hasn't updated yet)
-        pixiBaseTileSizeFromTuning // Pass tile size from globalTuningData directly
-      );
-
-      // Step 6. Initialize NPCs
-      console.log('🏁✅ 6 InitAppWrapper; Initializing NPC NPCsInGrid...');
-      await NPCsInGridManager.initializeGridState(initialGridId);
-      const freshNPCState = NPCsInGridManager.getNPCsInGrid(initialGridId);
-      console.log('initializedState (NPCs): ',freshNPCState);
-
-      // Step 7. Initialize PCs
-      console.log('🏁✅ 7 InitAppWrapper; Initializing playersInGrid...');
-      await playersInGridManager.initializePlayersInGrid(initialGridId, String(DBPlayerData.playerId));
+      // Steps 5-7. Seed tiles, resources, NPCs and the local PC from the enter-grid bundle.
+      console.log('🏁✅ 5-7 InitAppWrapper; seeding grid from bundle...');
+      await seedGridFromBundle(gridBundle, DBPlayerData, {
+        setGrid, setResources, setTileTypes,
+        TILE_SIZE: activeTileSize,
+        pixiBaseTileSize: globalTuningData?.closeZoom || 40,
+        masterResources: resources, // locally loaded master list (state has not updated yet)
+        ownerUsername,
+      });
       const freshPCState = playersInGridManager.getPlayersInGrid(initialGridId);
       const playerId = String(parsedPlayer.playerId);
       console.log('🔍 [DEBUG] playerId:', playerId);
@@ -1630,37 +1607,19 @@ useEffect(() => {
       const playerIdStr = DBPlayerData._id.toString();
       let gridPlayer = freshPCState?.[playerIdStr];
 
-      // Step A: Detect location mismatch or missing from NPCsInGrid
-      const isLocationMismatch = DBPlayerData.location?.g !== initialGridId;
       const isMissingFromGrid = !gridPlayer;
-
-      console.log('isLocationMismatch = ', isLocationMismatch);
       console.log('isMissingFromGrid = ', isMissingFromGrid);
 
-      if (isMissingFromGrid && gridId === DBPlayerData.location.g) {
-        console.warn("🧭 Player not in correct NPCsInGrid or missing entirely. Repositioning...");
-        const targetPosition = { x: 0, y: 0 };
-        console.warn('InitAppWrapper: adding PC to NPCsInGrid');
-        await playersInGridManager.addPlayer(gridId, DBPlayerData.playerId, DBPlayerData);
-        // Refresh the NPCsInGrid and React state
-        console.warn('InitAppWrapper: refreshing NPCsInGrid');
+      if (isMissingFromGrid) {
+        console.warn("🧭 Player missing from the grid's PC map. Placing at stored location...");
+        const targetPosition = { x: DBPlayerData.location.x ?? 0, y: DBPlayerData.location.y ?? 0 };
+        await playersInGridManager.addPlayer(initialGridId, DBPlayerData.playerId, { ...DBPlayerData, position: targetPosition });
         setPlayersInGrid((prev) => ({
           ...prev,
-          [gridId]: playersInGridManager.getPlayersInGrid(gridId),
+          [initialGridId]: playersInGridManager.getPlayersInGrid(initialGridId),
         }));
-        const gridPlayer = playersInGridManager.getPlayersInGrid(gridId)?.[playerIdStr];
-        console.log('Refreshed gridPlayer:', gridPlayer);
-        // Update gridId and storage to match actual grid
-        console.warn('InitAppWrapper: adding PC to NPCsInGrid');
-        setGridId(gridId);
-        localStorage.setItem("gridId", gridId);
-        // Update player's in-memory and stored location
-        DBPlayerData.location = {
-          ...DBPlayerData.location,
-          x: targetPosition.x,
-          y: targetPosition.y,
-          g: gridId,
-        };
+        gridPlayer = playersInGridManager.getPlayersInGrid(initialGridId)?.[playerIdStr];
+        DBPlayerData.location = { ...DBPlayerData.location, x: targetPosition.x, y: targetPosition.y, g: initialGridId };
 
         console.log("✅ Player repositioned into NPCsInGrid:", gridPlayer);
       } else {
@@ -1679,44 +1638,21 @@ useEffect(() => {
         },
       };
 
-      // Step 11a: Lookup homestead gridCoord if not already stored
-      if (updatedPlayerData.gridId && !updatedPlayerData.homesteadGridCoord) {
-        try {
-          console.log('🏠 Looking up homestead gridCoord for gridId:', updatedPlayerData.gridId);
-          const homesteadResponse = await axios.get(`${API_BASE}/api/homestead-gridcoord/${updatedPlayerData.gridId}`);
-          if (homesteadResponse.data.gridCoord) {
-            updatedPlayerData.homesteadGridCoord = homesteadResponse.data.gridCoord;
-            console.log('🏠✅ Homestead gridCoord found and stored:', homesteadResponse.data.gridCoord);
-          }
-        } catch (error) {
-          console.warn('🏠❌ Could not find homestead gridCoord:', error.response?.data?.error || error.message);
-        }
-      }
-
       setCurrentPlayer(updatedPlayerData);
       localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
-      // Step 11b: Mark current grid as visited (initial load)
+      // Step 11b: the server marked the grid visited inside enter-grid; mirror the bit locally
+      // (the player document was fetched before that call).
       const currentGridCoord = updatedPlayerData.location?.gridCoord;
       if (typeof currentGridCoord === 'number' && currentGridCoord >= 0) {
         try {
-          const { isGridVisited } = await import('./Utils/gridsVisitedUtils');
-          if (!isGridVisited(updatedPlayerData.gridsVisited, currentGridCoord)) {
-            console.log(`📍 [GRIDS_VISITED] Marking initial grid ${currentGridCoord} as visited`);
-            const visitResponse = await axios.post(`${API_BASE}/api/mark-grid-visited`, {
-              playerId: updatedPlayerData.playerId,
-              gridCoord: currentGridCoord
-            });
-            if (visitResponse.data.success && visitResponse.data.gridsVisited) {
-              updatedPlayerData.gridsVisited = visitResponse.data.gridsVisited;
-              setCurrentPlayer({ ...updatedPlayerData });
-              localStorage.setItem('player', JSON.stringify(updatedPlayerData));
-              console.log(`📍 [GRIDS_VISITED] ✅ Initial grid marked as visited`);
-            }
-          }
+          const { markGridVisited } = await import('./Utils/gridsVisitedUtils');
+          updatedPlayerData.gridsVisited = markGridVisited(updatedPlayerData.gridsVisited, currentGridCoord);
+          setCurrentPlayer({ ...updatedPlayerData });
+          localStorage.setItem('player', JSON.stringify(updatedPlayerData));
         } catch (err) {
-          console.warn('📍 [GRIDS_VISITED] Could not mark initial grid as visited:', err);
+          console.warn('📍 [GRIDS_VISITED] Could not mirror visited bit locally:', err);
         }
       }
 
@@ -1945,10 +1881,10 @@ const handleDungeonAutoExit = async () => {
     // Show warning message
     updateStatus("Dungeon is resetting! Teleporting you to safety...");
     
-    // First attempt: Try normal dungeon exit
-    try {
+    // First attempt: normal dungeon exit (returns false instead of throwing when it cannot)
+    {
       const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
-      await handleDungeonExit(
+      const exited = await handleDungeonExit(
         currentPlayerRef.current,
         setCurrentPlayer,
         setGridId,
@@ -1964,11 +1900,12 @@ const handleDungeonAutoExit = async () => {
         masterTrophies,
         transitionFadeControl
       );
-      updateStatus("You have been safely returned to the surface as the dungeon resets.");
-      isDungeonExitInProgress.current = false; // Reset flag on success
-      return; // Success, exit early
-    } catch (exitError) {
-      console.warn("⚠️ Normal dungeon exit failed, attempting fallback...", exitError);
+      if (exited) {
+        updateStatus("You have been safely returned to the surface as the dungeon resets.");
+        isDungeonExitInProgress.current = false;
+        return;
+      }
+      console.warn("⚠️ Normal dungeon exit failed, attempting fallback...");
     }
     
     // Fallback: If no source grid found, teleport to homestead
@@ -2466,7 +2403,7 @@ useEffect(() => {
       
       // Check if player is in a dungeon and needs to be teleported out
       // Skip FTUE Cave dungeon - it doesn't use the normal timer system
-      const isInFTUECave = currentPlayerRef.current?.location?.g?.toString() === FTUE_CAVE_GRID_ID;
+      const isInFTUECave = !!GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave;
       if (newDungeonPhase === "resetting" && currentPlayerRef.current?.location?.gtype === "dungeon" && !isInFTUECave) {
         console.log("🚨 Player is in dungeon during reset phase - teleporting out!", {
           timestamp: Date.now(),
@@ -3753,81 +3690,21 @@ return (
           currentGridPosition={currentGridPosition}
           isVisuallyInSettlement={isVisuallyInSettlement}
           onSettlementGridClick={async (gridData, row, col) => {
-            // Developer mode grid travel from settlement zoom
-            if (!isDeveloper) {
-              console.log(`🏘️ Grid click ignored (not developer mode)`);
+            // Developer mode grid travel from settlement zoom (keyed on gridCoord: cells hold template ids now)
+            if (!isDeveloper) return;
+            if (gridData?.gridCoord == null) {
+              console.log(`🏘️ Grid click ignored (no gridCoord at ${row}, ${col})`);
               return;
             }
-            if (!gridData || !gridData.gridId) {
-              console.log(`🏘️ Grid click ignored (no grid data at ${row}, ${col})`);
-              return;
-            }
-            console.log(`🏘️ [DEV] Traveling to grid at (${row}, ${col}):`, gridData);
-
-            // Determine spawn position based on grid type
             const gridType = gridData.gridType || gridData.type || 'valley';
-            let spawnX = 0;
-            let spawnY = 0;
-
-            try {
-              if (gridType === 'homestead') {
-                // Homestead: place player 1 tile to the right of Signpost Town
-                const signpostPos = await fetchHomesteadSignpostPosition(gridData.gridId);
-                spawnX = signpostPos.x + 1;
-                spawnY = signpostPos.y;
-                console.log(`🏘️ [DEV] Homestead spawn at (${spawnX}, ${spawnY}) - right of Signpost Town`);
-              } else if (gridType === 'town') {
-                // Town: place player 1 tile to the left of Signpost Home (already offset in helper)
-                const signpostPos = await fetchTownSignpostPosition(gridData.gridId);
-                spawnX = signpostPos.x;
-                spawnY = signpostPos.y;
-                console.log(`🏘️ [DEV] Town spawn at (${spawnX}, ${spawnY}) - left of Signpost Home`);
-              } else {
-                // Other grid types (valley, etc.): use default position
-                spawnX = 0;
-                spawnY = 0;
-                console.log(`🏘️ [DEV] Default spawn at (${spawnX}, ${spawnY}) for ${gridType}`);
-              }
-            } catch (posError) {
-              console.warn(`🏘️ [DEV] Error getting signpost position, using default:`, posError);
-              spawnX = 0;
-              spawnY = 0;
-            }
-
-            // Construct toLocation from gridData
-            const toLocation = {
-              x: spawnX,
-              y: spawnY,
-              g: gridData.gridId,
-              s: currentPlayer.location?.s,  // Stay in same settlement
-              f: currentPlayer.location?.f,  // Stay in same frontier
-              gtype: gridType,
-              gridCoord: gridData.gridCoord,
-            };
-
-            try {
-              await changePlayerLocation(
-                currentPlayer,
-                currentPlayer.location,   // fromLocation
-                toLocation,               // toLocation
-                setCurrentPlayer,
-                setGridId,
-                setGrid,
-                setTileTypes,
-                setResources,
-                PIXI_BASE_TILE_SIZE,
-                closeAllPanels,
-                updateStatus,
-                bulkOperationContext,
-                masterResources,
-                strings,
-                masterTrophies,
-                transitionFadeControl
-              );
-            } catch (error) {
-              console.error('🏘️ [DEV] Grid travel failed:', error);
-              updateStatus('Grid travel failed');
-            }
+            const arrival = gridType === 'homestead' ? { findSignpost: 'Signpost Town', offset: { x: 1, y: 0 } }
+                          : gridType === 'town' ? { findSignpost: 'Signpost Home' }
+                          : { fallback: { x: 0, y: 0 } };
+            await changePlayerLocation(
+              currentPlayer, { type: 'coord', gridCoord: gridData.gridCoord },
+              setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
+              updateStatus, closeAllPanels, bulkOperationContext, strings, transitionFadeControl, arrival
+            );
           }}
           // Frontier zoom props
           frontierData={frontierData}

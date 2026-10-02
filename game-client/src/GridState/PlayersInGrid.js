@@ -209,41 +209,40 @@ class GridStatePCManager {
   // ---------------------------------------------------------------------------
 
   /**
-   * Hydrate ONLY the local player's record for `gridId` from `load-grid-state`.
-   * `playerId` is optional; when omitted it is read from localStorage 'player'.
+   * Seed ONLY the local player's record for `gridId` from the `enter-grid`
+   * bundle. Accepts the `{ pcs }` wrapper or a bare
+   * `{ [playerId]: pc }` map. `playerId` is optional; when omitted it is read
+   * from localStorage 'player'. No HTTP.
    */
-  async initializePlayersInGrid(gridId, playerId = null) {
+  initializeFromData(gridId, playersInGridData, playerId = null) {
     if (!gridId) {
-      console.error('initializePlayersInGrid: gridId is undefined.');
+      console.error('initializeFromData: gridId is undefined.');
       return;
     }
 
     const localId = resolveLocalPlayerId(playerId);
     if (localId) this.localPlayerId = localId;
 
-    try {
-      const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-      const storedPCs = response.data?.playersInGrid?.pcs || {};
-      const storedPC = localId ? storedPCs[localId] : null;
+    const storedPCs = playersInGridData && typeof playersInGridData === 'object' && 'pcs' in playersInGridData
+      ? (playersInGridData.pcs || {})
+      : (playersInGridData || {});
+    const storedPC = localId ? storedPCs[localId] : null;
 
-      const pcs = {};
-      if (storedPC) {
-        pcs[localId] = buildPCRecord(localId, storedPC);
-      }
-
-      this.playersInGrid[gridId] = {
-        pcs,
-        playersInGridLastUpdated: Date.now(),
-      };
-      this.syncReact(gridId);
-
-      console.log(`✅ Initialized playersInGrid for gridId ${gridId}:`, pcs);
-
-      this.startBatchSaving();
-      this.ensureUnloadFlush();
-    } catch (error) {
-      console.error('❌ Error fetching playersInGrid:', error);
+    const pcs = {};
+    if (storedPC) {
+      pcs[localId] = buildPCRecord(localId, storedPC);
     }
+
+    this.playersInGrid[gridId] = {
+      pcs,
+      playersInGridLastUpdated: Date.now(),
+    };
+    this.syncReact(gridId);
+
+    console.log(`✅ Seeded playersInGrid for gridId ${gridId}:`, pcs);
+
+    this.startBatchSaving();
+    this.ensureUnloadFlush();
   }
 
   // ---------------------------------------------------------------------------

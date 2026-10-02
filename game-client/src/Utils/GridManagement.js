@@ -1,21 +1,19 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import { initializeGrid } from '../AppInit';
+import { initializeGridFromData } from '../AppInit';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
-import { closePanel } from '../UI/Panels/PanelContext';
-import { fetchHomesteadOwner } from './worldHelpers';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
-import { isGridVisited } from './gridsVisitedUtils';
+import { isGridVisited, markGridVisited, toServerFormat, parseGridCoord } from './gridsVisitedUtils';
 import farmState from '../FarmState';
-import { parseGridCoord } from '../Render/PixiRenderer/UnifiedCamera';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
+import { loadMasterResources, loadMasterTrophies, loadGlobalTuning } from './TuningManager';
 
 export const updateGridResource = async (
   gridId,
@@ -85,123 +83,314 @@ export const convertTileType = async (gridId, x, y, newType, setTileTypes = null
   }
 };
 
+/**
+ * Arrival offsets: where the player stands relative to a signpost when
+ * arriving next to it. This is the ONE copy of the table; Transit passes the
+ * signpost name, changePlayerLocation applies the offset.
+ */
+export const SIGNPOST_ARRIVAL_OFFSETS = {
+  'Signpost NE':   { x: -1, y: 1 },
+  'Signpost E':    { x: -1, y: 0 },
+  'Signpost SE':   { x: -1, y: -1 },
+  'Signpost S':    { x: 0,  y: -1 },
+  'Signpost SW':   { x: 1,  y: -1 },
+  'Signpost W':    { x: 1,  y: 0 },
+  'Signpost NW':   { x: 1,  y: 1 },
+  'Signpost N':    { x: 0,  y: 1 },
+  'Signpost Home': { x: -1, y: 0 }, // arriving in town: one tile left of Signpost Home
+  'Signpost Town': { x: 1,  y: 0 }, // arriving at the homestead: one tile right of Signpost Town
+};
+
+const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+
+/**
+ * Resolve the arrival tile. Precedence:
+ *   1. `spawn` from the server (dungeon entry/exit, FTUE exit, home fallback)
+ *   2. `arrival.findSignpost` located in the loaded resources, plus
+ *      `arrival.offset` (or the SIGNPOST_ARRIVAL_OFFSETS entry for that signpost)
+ *   3. `arrival.fallback`
+ *   4. `arrival.x/y`, then `target.x/y`
+ *   5. {0,0}
+ */
+export function resolveArrivalPosition(arrival = {}, target = {}, spawn = null, resources = []) {
+  if (spawn && isNum(spawn.x) && isNum(spawn.y)) {
+    return { x: spawn.x, y: spawn.y, source: 'spawn' };
+  }
+
+  if (arrival.findSignpost) {
+    const signpost = (resources || []).find((res) => res.type === arrival.findSignpost);
+    if (signpost && isNum(signpost.x) && isNum(signpost.y)) {
+      const offset = arrival.offset || SIGNPOST_ARRIVAL_OFFSETS[arrival.findSignpost] || { x: 0, y: 0 };
+      return { x: signpost.x + offset.x, y: signpost.y + offset.y, source: 'signpost' };
+    }
+    console.log(`⚠️ [ARRIVAL] ${arrival.findSignpost} not found in destination grid`);
+  }
+
+  if (arrival.fallback && isNum(arrival.fallback.x) && isNum(arrival.fallback.y)) {
+    return { x: arrival.fallback.x, y: arrival.fallback.y, source: 'fallback' };
+  }
+  if (isNum(arrival.x) && isNum(arrival.y)) {
+    return { x: arrival.x, y: arrival.y, source: 'arrival' };
+  }
+  if (isNum(target.x) && isNum(target.y)) {
+    return { x: target.x, y: target.y, source: 'target' };
+  }
+  return { x: 0, y: 0, source: 'default' };
+}
+
+/**
+ * The one HTTP call that resolves and loads a grid for the player.
+ * Returns `response.data` = `{ grid, location, spawn, ownerUsername }`
+ * (see docs/phase-2-contract.md). Throws the axios error on failure.
+ */
+export async function enterGrid(playerId, target) {
+  const response = await axios.post(`${API_BASE}/api/enter-grid`, { playerId, target });
+  return response.data;
+}
+
+/**
+ * Seed every client store from an `enter-grid` grid payload: grid meta,
+ * tiles + resources (+ FarmState, ambient VFX, music), NPCs, and the local PC
+ * record. Used by changePlayerLocation and by App boot (`{type:'current'}`).
+ *
+ * @param {object} grid       `response.data.grid`
+ * @param {object} player     the player AFTER the location merge
+ * @param {object} opts       { setGrid, setResources, setTileTypes, TILE_SIZE?, pixiBaseTileSize?, masterResources?, ownerUsername? }
+ */
+export async function seedGridFromBundle(grid, player, opts = {}) {
+  const playerId = String(player._id || player.playerId);
+  const masterResources = opts.masterResources || await loadMasterResources();
+  const tuning = await loadGlobalTuning();
+  const pixiBaseTileSize = opts.pixiBaseTileSize || tuning?.closeZoom || null;
+  const TILE_SIZE = opts.TILE_SIZE || playersInGridManager.tileSize || pixiBaseTileSize || 40;
+
+  GlobalGridStateTilesAndResources.setGridMeta({
+    gridId: String(grid._id),
+    gridType: grid.gridType ?? null,
+    gridCoord: grid.gridCoord ?? null,
+    templateKey: grid.templateKey ?? null,
+    ownerId: grid.ownerId ? String(grid.ownerId?._id ?? grid.ownerId) : null,
+    ownerUsername: opts.ownerUsername ?? null,
+    isFTUECave: !!grid.isFTUECave,
+    region: grid.region ?? null,
+    settlementId: grid.settlementId ? String(grid.settlementId) : null,
+    frontierId: grid.frontierId ? String(grid.frontierId) : null,
+  });
+
+  await initializeGridFromData(
+    TILE_SIZE,
+    grid,
+    opts.setGrid,
+    opts.setResources,
+    opts.setTileTypes,
+    player,
+    masterResources,
+    pixiBaseTileSize
+  );
+
+  // Server sends NPCsInGrid as a bare map with NPCsInGridLastUpdated beside it
+  const npcData = grid.NPCsInGrid && typeof grid.NPCsInGrid === 'object' && 'npcs' in grid.NPCsInGrid
+    ? grid.NPCsInGrid
+    : { npcs: grid.NPCsInGrid || {}, lastUpdated: grid.NPCsInGridLastUpdated || 0 };
+  await NPCsInGridManager.initializeFromData(String(grid._id), npcData);
+  playersInGridManager.initializeFromData(String(grid._id), grid.playersInGrid, playerId);
+}
+
+/**
+ * Map an `enter-grid` failure to a status message. Returns a string or a
+ * string id for updateStatus.
+ */
+function enterGridErrorStatus(error, strings) {
+  const status = error?.response?.status;
+  const reason = error?.response?.data?.reason || error?.response?.data?.error;
+  if (status === 403 && reason === 'not-your-homestead') {
+    return strings?.[10020] || 'That homestead belongs to someone else.';
+  }
+  if (status === 404) {
+    if (reason === 'no-homestead') return 113; // "Your homestead is being prepared..."
+    if (reason === 'no-dungeon-here') return strings?.[10201] || 'The dungeon is currently closed';
+    return 105; // "There was a problem trying to travel."
+  }
+  if (status === 503) {
+    return strings?.[10012] || 'Down for maintenance';
+  }
+  if (status === 400) return 105;
+  return 105;
+}
+
+/**
+ * The one grid-change executor. Every way a player changes grid ends here.
+ *
+ * @param {object}   currentPlayer
+ * @param {object}   target   a docs/phase-2-contract.md target:
+ *                            {type:'coord', gridCoord} | {type:'home'} | {type:'town'} |
+ *                            the two dungeon targets ({fromGridId} on entry) | {type:'current'}
+ *                            Optional target.x / target.y when the arrival tile is already known.
+ * @param {Function} setCurrentPlayer
+ * @param {Function} setGridId
+ * @param {Function} setGrid
+ * @param {Function} setTileTypes
+ * @param {Function} setResources
+ * @param {Function} updateStatus
+ * @param {Function} closeAllPanels
+ * @param {object}   bulkOperationContext
+ * @param {object}   strings
+ * @param {object}   transitionFadeControl   { startTransition, endTransition }
+ * @param {object}   arrival  { findSignpost?: 'Signpost W' | 'Signpost Town' | 'Signpost Home' | ...,
+ *                              offset?: {x,y}   (overrides the SIGNPOST_ARRIVAL_OFFSETS entry),
+ *                              fallback?: {x,y} (used when the signpost is missing),
+ *                              x?, y?           (explicit tile, lowest precedence after fallback) }
+ *                            Precedence: server `spawn` > findSignpost > fallback > arrival.x/y > target.x/y.
+ * @returns {Promise<boolean>} true when the player is standing in the new grid; false on any
+ *                             failure (status already shown, fade ended, lock released).
+ */
 export const changePlayerLocation = async (
   currentPlayer,
-  fromLocation,
-  toLocation,
+  target,
   setCurrentPlayer,
   setGridId,
   setGrid,
   setTileTypes,
   setResources,
-  TILE_SIZE,
-  closeAllPanels, // ✅ Add this prop
   updateStatus,
-  bulkOperationContext, // ✅ Add bulk operation context
-  masterResources = null, // ✅ Add masterResources for combat stat calculations
-  strings = null, // ✅ Add strings for notifications
-  masterTrophies = null, // ✅ Add masterTrophies for trophy visibility checks
-  transitionFadeControl = null // ✅ Add transition fade control
+  closeAllPanels,
+  bulkOperationContext,
+  strings,
+  transitionFadeControl,
+  arrival = {}
 ) => {
+  const endFade = () => {
+    if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
+  };
 
-  // Start fade to black immediately when location change is detected
+  // Fade to black immediately so the UI reacts on the tap
   if (transitionFadeControl?.startTransition) {
     transitionFadeControl.startTransition();
   }
-  
-  // Check if any bulk operation is active
-  if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
-    if (updateStatus) {
-      updateStatus(470); // "Bulk operation in progress"
-    }
+
+  if (!target || !target.type) {
+    console.error('❌ changePlayerLocation: invalid target', target);
+    endFade();
     return false;
   }
 
-  // ✅ NEW: Check if location change is already in progress
-  const playerId = currentPlayer._id?.toString() || currentPlayer.playerId;
-  
-  const changeRequest = {
+  if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
+    if (updateStatus) updateStatus(470); // "Cannot travel right now, farming actions in progress."
+    endFade();
+    return false;
+  }
+
+  const playerId = String(currentPlayer._id || currentPlayer.playerId);
+  const fromLocation = currentPlayer.location || {};
+  const fromGridId = fromLocation.g ? String(fromLocation.g) : null;
+
+  const canProceed = await locationChangeManager.requestLocationChange({
     from: fromLocation,
-    to: toLocation,
-    playerId: playerId,
-    timestamp: Date.now()
+    to: target,
+    playerId,
+    timestamp: Date.now(),
+  });
+  if (!canProceed) {
+    if (updateStatus) updateStatus('Location change in progress, please wait...');
+    // The in-flight change owns the fade; do not end it here.
+    return false;
+  }
+
+  if (closeAllPanels) closeAllPanels();
+
+  const fail = (statusMsg, error) => {
+    if (error) console.error('❌ Location change error:', error);
+    if (updateStatus && statusMsg != null) updateStatus(statusMsg);
+    endFade();
+    locationChangeManager.failLocationChange(error || new Error(String(statusMsg)));
+    return false;
   };
 
-  const canProceed = await locationChangeManager.requestLocationChange(changeRequest);
-  if (!canProceed) {
-    if (updateStatus) {
-      updateStatus('Location change in progress, please wait...');
-    }
-    return false;
-  }
-
-  // Close all panels before transition
-  if (closeAllPanels) {
-    closeAllPanels();
-  }
-  
-  if (!fromLocation || !toLocation) {
-    console.error('❌ Invalid fromLocation or toLocation');
-    locationChangeManager.failLocationChange(new Error('Invalid locations'));
-    return false;
-  }
-
   try {
-    if (updateStatus) {
-      updateStatus('Leaving ...');
+    if (updateStatus) updateStatus('Leaving ...');
+
+    // ---------------------------------------------------------------- leave
+    // The local PC record is authoritative for in-grid combat stats.
+    const fromPlayerState = (fromGridId && playersInGridManager.getPlayersInGrid(fromGridId)?.[playerId]) || {};
+
+    if (fromGridId) {
+      await Promise.all([
+        NPCsInGridManager.flushGridPositionUpdates(fromGridId),
+        playersInGridManager.flushGridPositionUpdates(fromGridId),
+      ]);
     }
 
-    // Get the local PC's in-grid stats before removal (the store is authoritative)
-    const fromPlayerState = playersInGridManager.getPlayersInGrid(fromLocation.g)?.[playerId] || {};
-
-    // Flush all pending updates BEFORE removing player
-    await Promise.all([
-      NPCsInGridManager.flushGridPositionUpdates(fromLocation.g),
-      playersInGridManager.flushGridPositionUpdates(fromLocation.g)
-    ]);
-
-    // Stop all timers and intervals for the old grid to prevent memory accumulation
     try {
       playersInGridManager.stopBatchSaving();
-      farmState.stopSeedTimer(); // Stop FarmState timer before grid change
-      ambientVFXManager.onGridLeave(); // Fade out ambient VFX
-      soundManager.onGridLeave(); // Fade out music
+      farmState.stopSeedTimer();
+      ambientVFXManager.onGridLeave();
+      soundManager.onGridLeave();
     } catch (timerError) {
       console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
     }
 
-    // Remove player from old grid with immediate DB persistence
-    await playersInGridManager.removePC(fromLocation.g, playerId);
+    if (updateStatus) updateStatus('Loading ...');
 
-    if (updateStatus) {
-      updateStatus('Loading ...');
+    // ---------------------------------------------------------------- resolve + load
+    // Resolve BEFORE removing the PC from the old grid so a refused move
+    // (403 not-your-homestead, 404) leaves the player exactly where they were.
+    let bundle;
+    try {
+      bundle = await enterGrid(playerId, target);
+    } catch (error) {
+      return fail(enterGridErrorStatus(error, strings), error);
     }
 
-    // Load grid state data
-    const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
+    const { grid, location, spawn, ownerUsername } = bundle || {};
+    if (!grid?._id || !Array.isArray(grid.tiles) || grid.tiles.length === 0 || !Array.isArray(grid.resources) || !location) {
+      return fail(105, new Error('enter-grid returned an incomplete bundle'));
+    }
+    const toGridId = String(grid._id);
 
-    // Pre-load grid data to validate it exists, but don't apply to state yet
-    const gridDataResponse = await axios.get(`${API_BASE}/api/load-grid/${toLocation.g}`);
-    const newTilesData = gridDataResponse.data?.tiles || [];
-    const newResourcesData = gridDataResponse.data?.resources || [];
+    // Remove the local PC from the old grid (skip when re-entering the same grid, e.g. boot / relocation)
+    if (fromGridId && fromGridId !== toGridId) {
+      await playersInGridManager.removePC(fromGridId, playerId);
+    }
 
-    // Extract region from the new grid for region transition notifications
-    const toRegion = gridDataResponse.data?.region || null;
-    const fromRegion = currentPlayer.location?.region || null;
+    if (updateStatus) updateStatus('Entering ...');
 
-    // Prepare player data with preserved combat stats
+    // Player location: contract `location` merged over the old one
+    const mergedLocation = { ...fromLocation, ...location, g: toGridId };
+    const fromRegion = fromLocation.region || null;
+    const toRegion = grid.region ?? location.region ?? null;
+
+    const updatedPlayer = {
+      ...currentPlayer,
+      location: mergedLocation,
+    };
+
+    // Seed tiles/resources/NPCs/PC from the bundle
+    const masterResources = await loadMasterResources();
+    await seedGridFromBundle(grid, updatedPlayer, {
+      setGrid,
+      setResources,
+      setTileTypes,
+      masterResources,
+      ownerUsername,
+    });
+
+    // ---------------------------------------------------------------- arrival
+    const resolved = resolveArrivalPosition(arrival, target, spawn, GlobalGridStateTilesAndResources.getResources());
+    const finalX = resolved.x;
+    const finalY = resolved.y;
+    console.log(`📍 [ARRIVAL] (${finalX}, ${finalY}) via ${resolved.source}`);
+
+    updatedPlayer.location = { ...mergedLocation, x: finalX, y: finalY };
+
     const now = Date.now();
-    const finalHp = fromPlayerState.hp ?? currentPlayer.hp ?? 25;
-    const finalMaxHp = fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25;
-    
     const playerData = {
-      playerId: playerId,
+      playerId,
       type: 'pc',
       username: currentPlayer.username,
-      position: { x: toLocation.x, y: toLocation.y },
+      position: { x: finalX, y: finalY },
       icon: currentPlayer.icon || '😀',
-      hp: finalHp,
-      maxhp: finalMaxHp,
+      hp: fromPlayerState.hp ?? currentPlayer.hp ?? 25,
+      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25,
       armorclass: fromPlayerState.armorclass ?? currentPlayer.armorclass ?? 10,
       attackbonus: fromPlayerState.attackbonus ?? currentPlayer.attackbonus ?? 0,
       damage: fromPlayerState.damage ?? currentPlayer.damage ?? 1,
@@ -211,89 +400,36 @@ export const changePlayerLocation = async (
       isinboat: fromPlayerState.isinboat ?? currentPlayer.isinboat ?? false,
       lastUpdated: now,
     };
-
-    // Validate that all required data was loaded
-    const validationChecks = {
-      tiles: Array.isArray(newTilesData) && newTilesData.length > 0,
-      resources: Array.isArray(newResourcesData),
-      gridState: toGridResponse.data && typeof toGridResponse.data === 'object',
-      playerData: playerData &&
-                  typeof playerData.playerId === 'string' &&
-                  typeof playerData.username === 'string' &&
-                  playerData.playerId.length > 0 &&
-                  playerData.username.length > 0
-    };
-
-    const allValid = Object.values(validationChecks).every(check => check === true);
-    if (!allValid) {
-      throw new Error(`Validation failed: ${JSON.stringify(validationChecks)}`);
+    if (typeof playerData.username !== 'string' || playerData.username.length === 0) {
+      return fail(105, new Error('changePlayerLocation: player has no username'));
     }
 
-    if (updateStatus) {
-      updateStatus('Entering ...');
+    // Save own PC into the new grid (existing save-single-pc, throws on failure)
+    await playersInGridManager.addPC(toGridId, playerId, playerData);
+
+    // Local gridsVisited mirror (the server already marked the bit in enter-grid)
+    const toGridCoord = location.gridCoord ?? grid.gridCoord ?? null;
+    if (isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
+      updatedPlayer.gridsVisited = toServerFormat(markGridVisited(currentPlayer.gridsVisited, toGridCoord));
     }
 
-    // Add player to new grid database
-    await playersInGridManager.addPC(toLocation.g, playerId, playerData);
-    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
-      playerId: playerId,
-      location: toLocation,
-    });
-
-    if (!locationResponse.data.success) {
-      throw new Error(`Failed to update player location: ${locationResponse.data.error}`);
-    }
-    
-    // Clear grid and resources (but NOT tileTypes - see note below)
-    // IMPORTANT: We do NOT clear tileTypes here to prevent PixiRenderer from unmounting.
-    // Clearing tileTypes causes tileTypes.length to become 0, which unmounts PixiRenderer,
-    // destroying the WebGL context. When new tileTypes arrive moments later, PixiRenderer
-    // remounts with a new WebGL context. This rapid destroy/create cycle can exhaust GPU
-    // resources and cause "Could not initialize shader" errors.
-    // The old tiles remain visible but are hidden behind the black transition overlay
-    // until new tiles are loaded by initializeGrid().
-    setGrid([]);
-    setResources([]);
-    // setTileTypes([]); - REMOVED to prevent PixiRenderer unmount
-    GlobalGridStateTilesAndResources.setTiles([]);
-    GlobalGridStateTilesAndResources.setResources([]);
-    
-    // Update grid ID and player state first
-    setGridId(toLocation.g);
-    
-    const updatedPlayer = {
-      ...currentPlayer,
-      location: locationResponse.data.player.location,
-      // Preserve any other fields that may have been updated (e.g., homesteadGridCoord from handlePlayerDeath)
-      ...(locationResponse.data.player.homesteadGridCoord && { homesteadGridCoord: locationResponse.data.player.homesteadGridCoord }),
-    };
+    // Commit React + localStorage state
+    setGridId(toGridId);
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
+    localStorage.setItem('gridId', toGridId);
 
-    // Initialize the grid with tiles and resources
-    // TILE_SIZE passed here is the pixiBaseTileSize (from globalTuning.closeZoom)
-    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources, TILE_SIZE);
-
-    // ✅ CHECK: First time visiting valley - award trophy and show notification
-    if (toLocation.gtype && toLocation.gtype.startsWith('valley') && strings) {
-      // Check if player has "Explore the Valley" trophy
-      const hasValleyTrophy = currentPlayer.trophies?.some(trophy => trophy.name === "Explore the Valley");
-      
+    // ---------------------------------------------------------------- side effects
+    // First time visiting a valley: trophy + notification
+    const gtype = location.gtype || grid.gridType || '';
+    if (gtype.startsWith('valley') && strings) {
+      const hasValleyTrophy = currentPlayer.trophies?.some((trophy) => trophy.name === 'Explore the Valley');
       if (!hasValleyTrophy) {
-        console.log('🏆 First time visiting valley - awarding "Explore the Valley" trophy');
-        
         try {
-          // Award the trophy
-          const trophyResult = await earnTrophy(playerId, "Explore the Valley", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          
+          const masterTrophies = await loadMasterTrophies();
+          const trophyResult = await earnTrophy(playerId, 'Explore the Valley', 1, updatedPlayer, masterTrophies, setCurrentPlayer);
           if (trophyResult.success) {
-            // Show notification
-            showNotification('Message', {
-              title: strings[7002],
-              message: strings[7021]
-            });
-            
-            console.log('✅ Valley trophy awarded and notification shown');
+            showNotification('Message', { title: strings[7002], message: strings[7021] });
           } else {
             console.warn('⚠️ Failed to award valley trophy:', trophyResult.error);
           }
@@ -303,316 +439,127 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ CHECK: Region transition notification
+    // Region transition notification
     if (strings && fromRegion !== toRegion) {
-      // Regions are different - show a notification
       if (toRegion) {
-        // Entering a new region
-        console.log(`🗺️ Player entering region: ${toRegion}`);
         showNotification('Travel', {
           title: strings[10185] || 'Elsinore',
-          message: `${strings[10182] || 'You are entering '}${toRegion}.`
+          message: `${strings[10182] || 'You are entering '}${toRegion}.`,
         });
       } else if (fromRegion) {
-        // Leaving a region (toRegion is null/undefined)
-        console.log(`🗺️ Player leaving region: ${fromRegion}`);
         showNotification('Travel', {
           title: strings[10185] || 'Elsinore',
-          message: `${strings[10183] || 'You are leaving '}${fromRegion}.`
+          message: `${strings[10183] || 'You are leaving '}${fromRegion}.`,
         });
       }
     }
 
-    // ================================
-    // PHASE 6: FINALIZATION
-    // ================================
-    console.log('🏁 [PHASE 6] FINALIZATION - Completing grid transition');
-    
-    // Initialize NPCs and PCs for the new grid
-    console.log('👥 [FINALIZATION] Initializing NPCs and PCs...');
-    try {
-      await NPCsInGridManager.initializeGridState(toLocation.g);
-      await playersInGridManager.initializePlayersInGrid(toLocation.g, playerId);
-      
-      const freshGridState = NPCsInGridManager.getNPCsInGrid(toLocation.g);
-      const freshPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
-
-      // Verify that our player exists in the fresh PC state
-      if (!freshPCState || !freshPCState[playerId]) {
-        console.warn('⚠️ [FINALIZATION] Player not found in fresh PC state, forcing re-add...');
-        
-        // Re-add the player to ensure they appear
-        await playersInGridManager.addPC(toLocation.g, playerId, playerData);
-        
-        // Get the updated state
-        const updatedPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
-        
-        playersInGridManager.setPlayersInGridReact(prev => ({
-          ...prev,
-          [toLocation.g]: {
-            pcs: updatedPCState,
-            playersInGridLastUpdated: Date.now(),
-          }
-        }));
-
-        console.log('✅ [FINALIZATION] Player force-added to grid');
-      } else {
-        playersInGridManager.setPlayersInGridReact(prev => ({
-          ...prev,
-          [toLocation.g]: {
-            pcs: freshPCState,
-            playersInGridLastUpdated: Date.now(),
-          }
-        }));
-      }
-
-      NPCsInGridManager.setGridStateReact(prev => ({
-        ...prev,
-        [toLocation.g]: {
-          npcs: freshGridState,
-          NPCsInGridLastUpdated: Date.now(),
-        }
-      }));
-      
-      console.log('✅ [FINALIZATION] NPCs and PCs initialized successfully');
-    } catch (err) {
-      console.error('❌ [FINALIZATION] Error initializing NPCs/PCs:', err);
-      throw new Error(`Failed to initialize grid entities: ${err.message}`);
-    }
-    
-    // Handle signpost finding if needed
-    let finalX = toLocation.x;
-    let finalY = toLocation.y;
-
-    if (toLocation.findSignpost) {
-      console.log(`🔍 [FINALIZATION] Looking for ${toLocation.findSignpost}...`);
-      const currentResources = GlobalGridStateTilesAndResources.getResources();
-      const signpost = currentResources.find(res => res.type === toLocation.findSignpost);
-
-      if (signpost) {
-        finalX = signpost.x;
-        finalY = signpost.y;
-
-        // Apply directional offset so player doesn't spawn on top of the signpost
-        // The offset moves the player one tile away from the signpost in the appropriate direction
-        const signpostType = toLocation.findSignpost;
-        const signpostOffsets = {
-          'Signpost NE': { x: -1, y: 1 },
-          'Signpost E':  { x: -1, y: 0 },
-          'Signpost SE': { x: -1, y: -1 },
-          'Signpost S':  { x: 0,  y: -1 },
-          'Signpost SW': { x: 1,  y: -1 },
-          'Signpost W':  { x: 1,  y: 0 },
-          'Signpost NW': { x: 1,  y: 1 },
-          'Signpost N':  { x: 0,  y: 1 },
-          'Signpost Home': { x: 0, y: 1 }, // Keep existing behavior for town signpost
-        };
-
-        const offset = signpostOffsets[signpostType];
-        if (offset) {
-          finalX += offset.x;
-          finalY += offset.y;
-          console.log(`📍 [FINALIZATION] Applied offset for ${signpostType}: (${offset.x}, ${offset.y}) -> final position (${finalX}, ${finalY})`);
-        }
-
-        const updatedPlayerData = {
-          ...playerData,
-          position: { x: finalX, y: finalY }
-        };
-        
-        playersInGridManager.updatePC(toLocation.g, playerId, updatedPlayerData);
-        
-        await axios.post(`${API_BASE}/api/save-single-pc`, {
-          gridId: toLocation.g,
-          playerId: playerId,
-          pc: updatedPlayerData,
-          lastUpdated: Date.now(),
-        });
-
-        console.log(`✅ [FINALIZATION] Player positioned at signpost (${finalX}, ${finalY})`);
-      } else {
-        console.log(`⚠️ [FINALIZATION] ${toLocation.findSignpost} not found, using default position`);
-      }
-    }
-    
-    // Center camera immediately after grid initialization, before verification delays
-    // Parse grid AND settlement position from gridCoord for proper world coordinate calculation
-    const gridCoord = toLocation.gridCoord ?? updatedPlayer.homesteadGridCoord;
-    let gridPosition = { row: 0, col: 0 };
-    let settlementPosition = { row: 0, col: 0 };
-
-    if (gridCoord != null) {
-      const parsed = parseGridCoord(gridCoord);
-      if (parsed) {
-        gridPosition = { row: parsed.gridRow, col: parsed.gridCol };
-        settlementPosition = { row: parsed.settlementRow, col: parsed.settlementCol };
-        console.log(`📍 [GRID TRANSITION] Position from gridCoord ${gridCoord}: grid=(${parsed.gridRow}, ${parsed.gridCol}), settlement=(${parsed.settlementRow}, ${parsed.settlementCol})`);
-      }
-    } else {
-      console.warn(`⚠️ [GRID TRANSITION] No gridCoord available for grid ${toLocation.g} - camera may be mispositioned`);
+    // ---------------------------------------------------------------- camera
+    const tuning = await loadGlobalTuning();
+    const TILE_SIZE = playersInGridManager.tileSize || tuning?.closeZoom || 40;
+    const cameraCoord = toGridCoord ?? updatedPlayer.homesteadGridCoord;
+    const parsed = parseGridCoord(cameraCoord);
+    const gridPosition = parsed ? parsed.gridPosition : { row: 0, col: 0 };
+    const settlementPosition = parsed ? parsed.settlementPosition : { row: 0, col: 0 };
+    if (!parsed) {
+      console.warn(`⚠️ [GRID TRANSITION] No gridCoord for grid ${toGridId}; camera uses (0,0) offsets`);
     }
 
-    // Center camera and wait for it to complete before fading up
-    // centerCameraOnPlayer now returns a Promise that resolves when scroll is actually set
-    let cameraReady = false;
-    if (typeof finalX === 'number' && typeof finalY === 'number') {
-      console.log(`📷 [GRID TRANSITION] Centering camera on (${finalX}, ${finalY}) in grid (${gridPosition.row}, ${gridPosition.col}), settlement (${settlementPosition.row}, ${settlementPosition.col})`);
-      // Await the Promise - this ensures camera is in position before we continue
-      cameraReady = await centerCameraOnPlayer(
-        { x: finalX, y: finalY },
-        TILE_SIZE,
-        1, // zoomScale
-        0, // retryCount
-        gridPosition,
-        settlementPosition,
-        true // instant=true for grid transitions
-      );
-      console.log(`📷 [GRID TRANSITION] Camera centering complete: ${cameraReady ? 'SUCCESS' : 'FAILED'}`);
-    } else {
-      console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid final coordinates:', { finalX, finalY });
-    }
-    
-    // Note: Server verification removed to improve transition performance
-    // The race condition was rare and fallback values now handle incomplete data
-    // Clean up dead player if needed
-    if (currentPlayer.hp <= 0) {
-      console.log('⚰️ [FINALIZATION] Verifying dead player cleanup...');
+    await centerCameraOnPlayer(
+      { x: finalX, y: finalY },
+      TILE_SIZE,
+      1,    // zoomScale
+      0,    // retryCount
+      gridPosition,
+      settlementPosition,
+      true  // instant for grid transitions
+    );
+
+    // Dead player: make sure the old grid no longer holds the corpse record
+    if (fromGridId && fromGridId !== toGridId && currentPlayer.hp <= 0) {
       try {
-        await axios.post(`${API_BASE}/api/remove-single-pc`, {
-          gridId: fromLocation.g,
-          playerId: playerId,
-        });
-        console.log('✅ [FINALIZATION] Dead player cleanup verified');
+        await axios.post(`${API_BASE}/api/remove-single-pc`, { gridId: fromGridId, playerId });
       } catch (cleanupError) {
-        console.warn('⚠️ [FINALIZATION] Cleanup verification failed:', cleanupError);
+        console.warn('⚠️ [FINALIZATION] Dead-player cleanup failed:', cleanupError);
       }
     }
 
-    if (updateStatus && toLocation.gtype) {
-      await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
+    if (updateStatus && gtype) {
+      updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);
     }
 
-    console.log('🎉 [GRID TRANSITION] Transactional grid change completed successfully');
-
-    // Wait for PixiJS to render a few frames after camera is positioned
-    // This ensures the canvas is fully rendered before we fade out from black
-    console.log('🎨 [GRID TRANSITION] Waiting for PixiJS to render...');
+    // Let PixiJS render a few frames at the new camera position before fading up
     await new Promise((resolve) => {
       let frameCount = 0;
       const waitForFrames = () => {
         frameCount++;
-        if (frameCount >= 3) {
-          resolve();
-        } else {
-          requestAnimationFrame(waitForFrames);
-        }
+        if (frameCount >= 3) resolve();
+        else requestAnimationFrame(waitForFrames);
       };
       requestAnimationFrame(waitForFrames);
     });
-    console.log('🎨 [GRID TRANSITION] PixiJS render frames complete');
 
-    // End fade transition - fade back to normal view
-    if (transitionFadeControl?.endTransition) {
-      transitionFadeControl.endTransition();
-    }
-    
-    // Mark location change as completed
+    endFade();
+
     locationChangeManager.completeLocationChange({
       from: fromLocation,
-      to: toLocation,
-      playerId: playerId,
-      success: true
+      to: updatedPlayer.location,
+      gridId: toGridId,
+      playerId,
+      success: true,
     });
 
-    // Track visited grid (only make API call if not already visited)
-    console.log(`📍 [GRIDS_VISITED] Checking visit tracking - gridCoord: ${toLocation.gridCoord}, type: ${typeof toLocation.gridCoord}`);
-    if (typeof toLocation.gridCoord === 'number' && toLocation.gridCoord >= 0) {
-      const alreadyVisited = isGridVisited(currentPlayer.gridsVisited, toLocation.gridCoord);
-      console.log(`📍 [GRIDS_VISITED] Grid ${toLocation.gridCoord} alreadyVisited: ${alreadyVisited}, hasGridsVisited: ${!!currentPlayer.gridsVisited}`);
-      if (!alreadyVisited) {
-        console.log(`📍 [GRIDS_VISITED] Making API call to mark grid ${toLocation.gridCoord} as visited for player ${playerId}`);
-        try {
-          const visitResponse = await axios.post(`${API_BASE}/api/mark-grid-visited`, {
-            playerId: playerId,
-            gridCoord: toLocation.gridCoord
-          });
-          console.log(`📍 [GRIDS_VISITED] API response:`, visitResponse.data);
-          if (visitResponse.data.success && visitResponse.data.gridsVisited) {
-            // Update local player state with new gridsVisited data
-            const playerWithVisited = {
-              ...updatedPlayer,
-              gridsVisited: visitResponse.data.gridsVisited
-            };
-            setCurrentPlayer(playerWithVisited);
-            localStorage.setItem('player', JSON.stringify(playerWithVisited));
-            console.log(`📍 [GRIDS_VISITED] ✅ Marked grid ${toLocation.gridCoord} as visited`);
-          }
-        } catch (visitError) {
-          console.warn('📍 [GRIDS_VISITED] ⚠️ Failed to mark grid as visited:', visitError);
-          // Non-critical error, don't fail the location change
-        }
-      } else {
-        console.log(`📍 [GRIDS_VISITED] Grid ${toLocation.gridCoord} was already visited, skipping API call`);
-      }
-    } else {
-      console.log(`📍 [GRIDS_VISITED] Skipping visit tracking - gridCoord invalid`);
-    }
-
+    console.log(`🎉 [GRID TRANSITION] Entered grid ${toGridId} (${gtype}) at (${finalX}, ${finalY})`);
     return true;
   } catch (error) {
-    console.error('❌ Location change error:', error);
-    
-    // End fade transition even on error to restore visibility
-    if (transitionFadeControl?.endTransition) {
-      transitionFadeControl.endTransition();
-    }
-    
-    // ✅ NEW: Mark location change as failed
-    locationChangeManager.failLocationChange(error);
-    
-    throw error;
-  } 
+    return fail(105, error);
+  }
 };
 
-
-
-
-export async function fetchGridData(gridId, updateStatus, DBPlayerData) {
-  try {
-    //console.log(`Fetching grid data for gridId: ${gridId}`);
-
-    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
-    const gridData = gridResponse.data || {};
-    console.log('Fetched grid data:', gridData);
-    return gridData;
-  } catch (error) {
-    console.error('Error fetching grid data:', error);
-    if (updateStatus) updateStatus('Failed to load grid data');
+/**
+ * Tiles + resources + meta of the LOADED grid, from the in-memory store.
+ * Kept for Utils/debug.js (timers dump). Grid loads go through enter-grid;
+ * nothing on the client fetches a grid document any more (that route is the editor's).
+ */
+export async function fetchGridData(gridId, updateStatus) {
+  const meta = GlobalGridStateTilesAndResources.getGridMeta();
+  if (gridId && meta && meta.gridId !== String(gridId)) {
+    console.warn(`fetchGridData: ${gridId} is not the loaded grid (${meta.gridId}); returning nothing`);
+    if (updateStatus) updateStatus('Grid data is only available for the current grid');
     return {};
   }
+  return {
+    ...(meta || {}),
+    _id: meta?.gridId ?? gridId,
+    tiles: GlobalGridStateTilesAndResources.getTiles(),
+    resources: GlobalGridStateTilesAndResources.getResources(),
+  };
 }
 
-
-
-
-// Separate function for status updates
-export async function updateGridStatus(gridType, ownerUsername, updateStatus, currentPlayer = null, gridId = null) {
+/**
+ * Status-bar message for the grid the player just entered.
+ * `ownerUsername` comes from the enter-grid bundle (homesteads only); when it
+ * is not supplied, the grid meta / player's own gridId decide "home" vs visit.
+ */
+export function updateGridStatus(gridType, ownerUsername, updateStatus, currentPlayer = null, gridId = null) {
   if (!updateStatus) return;
 
-  console.log("😀😀 UPDATING GRID STATUS message");
   switch (gridType) {
-    case 'homestead':
-      // If we have currentPlayer and gridId, check if it's their homestead
-      if (currentPlayer && gridId) {
-        const { username } = await fetchHomesteadOwner(gridId);
-        if (username === currentPlayer.username) {
-          updateStatus(112); // "You're home."
-          return;
-        }
-        ownerUsername = username;
+    case 'homestead': {
+      const meta = GlobalGridStateTilesAndResources.getGridMeta();
+      const playerId = currentPlayer ? String(currentPlayer._id || currentPlayer.playerId || '') : '';
+      const isOwn =
+        (ownerUsername && currentPlayer && ownerUsername === currentPlayer.username) ||
+        (gridId && currentPlayer?.gridId && String(gridId) === String(currentPlayer.gridId)) ||
+        (meta && gridId && meta.gridId === String(gridId) && meta.ownerId && meta.ownerId === playerId);
+      if (isOwn) {
+        updateStatus(112); // "Welcome home."
+        return;
       }
-      updateStatus(`Welcome to ${ownerUsername || 'Unknown'}'s homestead.`);
+      const name = ownerUsername || meta?.ownerUsername || 'Unknown';
+      updateStatus(`Welcome to ${name}'s homestead.`);
       break;
+    }
     case 'town':
       updateStatus(14); // Town view
       break;
@@ -629,7 +576,6 @@ export async function updateGridStatus(gridType, ownerUsername, updateStatus, cu
       updateStatus(13); // Frontier view
       break;
     default:
-      //updateStatus(0); // Default status
       break;
   }
 }

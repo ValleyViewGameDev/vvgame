@@ -1,13 +1,18 @@
-import API_BASE from "../../config";
-import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
+import GlobalGridStateTilesAndResources from "../../GridState/GlobalGridStateTilesAndResources";
 import FloatingTextManager from "../../UI/FloatingText";
-import { getLocalizedString } from "../../Utils/stringLookup";
-import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
 
-// FTUE Cave dungeon grid ID (must match auth.js)
-const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+/** True while the player is in their FTUE cave (grid flag from enter-grid, never a hard-coded id). */
+export function isInFTUECave() {
+  return !!GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave;
+}
 
+/**
+ * Dungeon Entrance click. The server resolves which dungeon template is
+ * registered for the cell the player is standing in, creates/resets their copy
+ * and returns `spawn` (next to the Dungeon Exit); changePlayerLocation uses it.
+ * Signature shared with App.js.
+ */
 export async function handleDungeonEntrance(
   currentPlayer,
   dungeonPhase,
@@ -28,119 +33,57 @@ export async function handleDungeonEntrance(
 ) {
   try {
     console.log("🚪 Handling dungeon entrance click, phase:", dungeonPhase);
-    
-    // Check if dungeon is open
+
     if (dungeonPhase !== 'open') {
-      console.log("🔒 Dungeon is closed (phase: " + dungeonPhase + ")");
-      
-      // Show floating text at resource position
       const message = strings?.["10201"] || "The dungeon is currently closed";
       FloatingTextManager.addFloatingText(message, resourcePosition.x, resourcePosition.y, TILE_SIZE);
       updateStatus(message);
-      return;
+      return false;
     }
-    
-    // Start fade transition for immersive teleportation
-    if (transitionFadeControl?.startTransition) {
-      console.log('🌑 [DUNGEON] Starting fade transition');
-      transitionFadeControl.startTransition();
+
+    const fromGridId = currentPlayer.location?.g ? String(currentPlayer.location.g) : null;
+    if (!fromGridId) {
+      updateStatus(105);
+      return false;
     }
-    
-    console.log("✅ Dungeon is open, preparing teleportation...");
-    
-    // Get a random dungeon from the server and store source grid
-    try {
-      // First, store the current grid as the source
-      const sourceGridId = currentPlayer.location.g;
-      
-      const response = await axios.post(`${API_BASE}/api/enter-dungeon`, {
-        playerId: currentPlayer._id,
-        sourceGridId: sourceGridId,
-        frontierId: currentPlayer.frontierId
-      });
-      
-      if (!response.data.success) {
-        throw new Error(response.data.error || "Failed to enter dungeon");
-      }
-      
-      const dungeonGridId = response.data.dungeonGridId;
-      const dungeonEntryPosition = response.data.entryPosition; // Position of Dungeon Exit resource
-      const sourceGrid = response.data.sourceGridId; // Source grid returned from server
-      
-      console.log("🎲 Entering dungeon:", dungeonGridId, "at position:", dungeonEntryPosition, "from source:", sourceGrid);
-      
-      // Update the current player with the source grid
-      if (setCurrentPlayer) {
-        setCurrentPlayer(prev => ({
-          ...prev,
-          sourceGridBeforeDungeon: sourceGrid
-        }));
-      }
-      
-      const fromLocation = { ...currentPlayer.location };
-      const toLocation = {
-        x: dungeonEntryPosition.x,
-        y: dungeonEntryPosition.y,
-        g: dungeonGridId,
-        s: currentPlayer.settlementId,
-        f: currentPlayer.frontierId,
-        gtype: "dungeon",
-        gridCoord: null // Dungeons don't appear on the minimap
-      };
-    
-      console.log("📍 Teleporting to dungeon:", toLocation);
-    
-      // Perform the teleportation
-      await changePlayerLocation(
-        currentPlayer,
-        fromLocation,
-        toLocation,
-        setCurrentPlayer,
-        setGridId,
-        setGrid,
-        setTileTypes,
-        setResources,
-        TILE_SIZE,
-        closeAllPanels,
-        updateStatus,
-        bulkOperationContext,
-        masterResources,
-        strings,
-        masterTrophies
-      );
-      
-      // Show success message
-      const successMessage = strings?.["10202"] || "You have entered the dungeon!";
-      updateStatus(successMessage);
-      
-      // End fade transition
-      if (transitionFadeControl?.endTransition) {
-        transitionFadeControl.endTransition();
-      }
-      
-    } catch (error) {
-      throw error; // Re-throw to be caught by outer catch
+
+    const moved = await changePlayerLocation(
+      currentPlayer,
+      { type: 'enter-dungeon', fromGridId },
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      updateStatus,
+      closeAllPanels,
+      bulkOperationContext,
+      strings,
+      transitionFadeControl
+    );
+    if (!moved) return false;
+
+    // The server set player.sourceGridBeforeDungeon = fromGridId; mirror it locally
+    if (setCurrentPlayer) {
+      setCurrentPlayer((prev) => ({ ...prev, sourceGridBeforeDungeon: fromGridId }));
     }
-    
+
+    updateStatus(strings?.["10202"] || "You have entered the dungeon!");
+    return true;
   } catch (error) {
     console.error("❌ Error entering dungeon:", error);
-    
-    // Log more details about the error
-    if (error.response) {
-      console.error("Error response data:", error.response.data);
-      console.error("Error response status:", error.response.status);
-    }
-    
-    const errorMessage = error.response?.data?.error || "Failed to enter dungeon";
-    updateStatus(errorMessage);
-    
-    // End fade transition on error
-    if (transitionFadeControl?.endTransition) {
-      transitionFadeControl.endTransition();
-    }
+    updateStatus(error.response?.data?.error || "Failed to enter dungeon");
+    if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
+    return false;
   }
 }
 
+/**
+ * Dungeon Exit click and the auto-exit on phase flip. The server resolves
+ * `player.sourceGridBeforeDungeon` (or the homestead for the FTUE cave) and
+ * returns `spawn` next to the Dungeon Entrance. Returns false when the exit
+ * failed so App.js can fall back to Signpost Home.
+ */
 export async function handleDungeonExit(
   currentPlayer,
   setCurrentPlayer,
@@ -159,96 +102,34 @@ export async function handleDungeonExit(
 ) {
   try {
     console.log("🚪 Handling dungeon exit click");
-    
-    // Start fade transition
-    if (transitionFadeControl?.startTransition) {
-      console.log('🌑 [DUNGEON] Starting fade transition');
-      transitionFadeControl.startTransition();
-    }
-    
-    // Get exit information from server
-    const response = await axios.post(`${API_BASE}/api/exit-dungeon`, {
-      playerId: currentPlayer._id
-    });
-    
-    if (!response.data.success) {
-      throw new Error(response.data.error || "Failed to exit dungeon");
-    }
-    
-    const sourceGridId = response.data.sourceGridId;
-    const exitPosition = response.data.exitPosition; // Position of Dungeon Entrance resource
-    const settlementId = response.data.settlementId; // The settlement that contains the source grid
 
-    console.log("🏠 Returning to grid:", sourceGridId, "at position:", exitPosition);
-    console.log("🏠 Using settlementId from server:", settlementId);
-
-    const fromLocation = { ...currentPlayer.location };
-    const toLocation = {
-      x: exitPosition.x,
-      y: exitPosition.y,
-      g: sourceGridId,
-      s: settlementId,  // Use the grid's actual settlement, not player's home settlement
-      f: currentPlayer.frontierId,
-      gtype: response.data.gridType || "valley",
-      gridCoord: response.data.gridCoord // Restore minimap position
-    };
-    
-    console.log("📍 Teleporting back to:", toLocation);
-    
-    // Perform the teleportation
-    await changePlayerLocation(
+    const moved = await changePlayerLocation(
       currentPlayer,
-      fromLocation,
-      toLocation,
+      { type: 'exit-dungeon' },
       setCurrentPlayer,
       setGridId,
       setGrid,
       setTileTypes,
       setResources,
-      TILE_SIZE,
-      closeAllPanels,
       updateStatus,
+      closeAllPanels,
       bulkOperationContext,
-      masterResources,
       strings,
-      masterTrophies
+      transitionFadeControl
     );
-    
-    // Clear the source grid from current player state
+    if (!moved) return false;
+
     if (setCurrentPlayer) {
-      setCurrentPlayer(prev => ({
-        ...prev,
-        sourceGridBeforeDungeon: null
-      }));
+      setCurrentPlayer((prev) => ({ ...prev, sourceGridBeforeDungeon: null }));
     }
 
-    // Note: ExitedCave FTUE trigger has been moved to Transit.js (Signpost Home click)
-    // The FTUE cave now uses Signpost Home instead of Dungeon Exit
-
-    // Show success message
-    const successMessage = strings?.["10203"] || "You have exited the dungeon";
-    updateStatus(successMessage);
-    
-    // End fade transition
-    if (transitionFadeControl?.endTransition) {
-      transitionFadeControl.endTransition();
-    }
-    
+    // Note: the FTUE cave is left through Signpost Home (Transit.js), not Dungeon Exit
+    updateStatus(strings?.["10203"] || "You have exited the dungeon");
+    return true;
   } catch (error) {
     console.error("❌ Error exiting dungeon:", error);
-    
-    // Log more details about the error
-    if (error.response) {
-      console.error("Error response data:", error.response.data);
-      console.error("Error response status:", error.response.status);
-      console.error("Error response headers:", error.response.headers);
-    }
-    
     updateStatus("Failed to exit dungeon");
-    
-    // End fade transition on error
-    if (transitionFadeControl?.endTransition) {
-      transitionFadeControl.endTransition();
-    }
+    if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
+    return false;
   }
 }

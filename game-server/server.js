@@ -52,6 +52,7 @@ const scheduleRoutes = require('./routes/scheduleRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const enterGridRoutes = require('./routes/enterGridRoutes');
 
 
 const leoProfanity = require('leo-profanity');
@@ -195,6 +196,7 @@ console.log('Setting up world routes...');
 app.use('/api', worldRoutes);
 console.log('Setting up NPCsInGrid routes...');
 app.use('/api', gridRoutes);
+app.use('/api', enterGridRoutes);
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');

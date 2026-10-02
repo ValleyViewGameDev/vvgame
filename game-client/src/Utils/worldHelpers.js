@@ -1,96 +1,21 @@
-import API_BASE from '../config';
-import axios from 'axios';
 import { loadMasterResources } from './TuningManager';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 
 /**
- * Fetches the Signpost Town position from a homestead grid
- * @param {string} gridId - The homestead grid ID
- * @returns {Promise<{x: number, y: number}>} The x,y coordinates of Signpost Town, or default {x: 1, y: 1}
+ * Owner + type of the LOADED grid, from the enter-grid meta (no HTTP). Other
+ * players' homesteads can no longer be entered, so for a homestead the owner is
+ * always the player themselves; `username` is null for towns/valleys/dungeons.
  */
-export const fetchHomesteadSignpostPosition = async (gridId) => {
-  try {
-    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
-    const gridData = gridResponse.data;
-    
-    if (gridData.resources && Array.isArray(gridData.resources)) {
-      const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
-      if (signpostTown) {
-        console.log(`✅ Found Signpost Town at (${signpostTown.x}, ${signpostTown.y}) on homestead grid ${gridId}`);
-        return { x: signpostTown.x, y: signpostTown.y };
-      } else {
-        console.log(`⚠️ Signpost Town not found on homestead grid ${gridId}, using default (1, 1)`);
-      }
-    }
-  } catch (error) {
-    console.error(`❌ Error fetching homestead grid data for grid ${gridId}:`, error);
-  }
-  
-  // Return default position if not found or error
-  return { x: 1, y: 1 };
-};
-
-/**
- * Fetches the Signpost Home position from a town grid (for arrival via signpost)
- * Returns position offset by one tile to the left of Signpost Home
- * @param {string} gridId - The town grid ID
- * @returns {Promise<{x: number, y: number}>} The x,y coordinates (offset -1 x from Signpost Home), or default {x: 0, y: 0}
- */
-export const fetchTownSignpostPosition = async (gridId) => {
-  try {
-    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
-    const gridData = gridResponse.data;
-
-    if (gridData.resources && Array.isArray(gridData.resources)) {
-      const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
-      if (signpostHome) {
-        console.log(`✅ Found Signpost Home at (${signpostHome.x}, ${signpostHome.y}) on town grid ${gridId}, placing player at (${signpostHome.x - 1}, ${signpostHome.y})`);
-        return { x: signpostHome.x - 1, y: signpostHome.y };
-      } else {
-        console.log(`⚠️ Signpost Home not found on town grid ${gridId}, using default (0, 0)`);
-      }
-    }
-  } catch (error) {
-    console.error(`❌ Error fetching town grid data for grid ${gridId}:`, error);
-  }
-
-  // Return default position if not found or error
-  return { x: 0, y: 0 };
-};
- 
 export const fetchHomesteadOwner = async (gridId) => {
-  try {
-    console.log(`Fetching homestead owner for gridId: ${gridId}`);
-
-    // 🔹 Step 1: Fetch grid details (to get `ownerId`)
-    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
-    const { ownerId = null, gridType = null } = gridResponse.data;
-
-    console.log("ownerId =",ownerId);
-
-    if (!ownerId) {
-      console.log("🏡 This homestead is unoccupied.");
-      return { username: null, gridType };
-    }
-
-    // 🔹 Step 2: Fetch player document using `ownerId`
-    const playerResponse = await axios.get(`${API_BASE}/api/player/${ownerId._id}`);
-    const { username = null } = playerResponse.data;
- 
-    if (username) {
-      console.log(`🏡 Homestead belongs to: ${username}`);
-      return { username, gridType };
-    } else {
-      console.warn("🚨 Owner's player document not found!");
-      return { username: null, gridType };
-    }
-
-  } catch (error) {
-    console.error('❌ Error fetching homestead owner:', error);
-    return { username: null, gridType: null }; // Return defaults in case of an error
+  const meta = GlobalGridStateTilesAndResources.getGridMeta();
+  if (!meta || (gridId && meta.gridId !== String(gridId))) {
+    console.warn(`fetchHomesteadOwner: ${gridId} is not the loaded grid`);
+    return { username: null, gridType: null };
   }
+  const username = meta.gridType === 'homestead' ? (meta.ownerUsername || null) : null;
+  return { username, gridType: meta.gridType };
 };
 
- 
 export const addResourceToGrid = async (resources, newResource) => {
   try {
     const masterResources = await loadMasterResources();

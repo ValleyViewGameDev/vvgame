@@ -1025,6 +1025,8 @@ router.post('/delete-player', async (req, res) => {
     }
 
     // 5. Delete the player
+    // Per-player world copies (towns, valleys, dungeons, FTUE cave) go with the account.
+    await Grid.deleteMany({ ownerId: playerId, isTemplate: { $ne: true } });
     await Player.deleteOne({ _id: playerId });
 
     console.log(`✅ Player ${playerId} and associated grid ${gridId} deleted.`);
@@ -1637,44 +1639,33 @@ router.post('/mark-grid-visited', async (req, res) => {
 
 // POST /api/grids-tiles - Fetch tiles for multiple grids by gridCoord
 router.post('/grids-tiles', async (req, res) => {
-  const { settlementId, gridCoords } = req.body;
-
+  // Settlement-view thumbnails. Homestead cells show the owned grid's tiles; town/valley cells show the
+  // VIEWER's own copy (per-player world). Cells the viewer has never materialised are simply absent.
+  const { playerId, settlementId, gridCoords } = req.body;
   if (!settlementId || !Array.isArray(gridCoords)) {
     return res.status(400).json({ error: 'settlementId and gridCoords array are required.' });
   }
-
   try {
-    // Find the settlement to get gridId mappings
     const settlement = await Settlement.findById(settlementId);
-    if (!settlement) {
-      return res.status(404).json({ error: 'Settlement not found.' });
+    if (!settlement) return res.status(404).json({ error: 'Settlement not found.' });
+    const wanted = new Set(gridCoords.map(Number));
+    const homesteadIds = [];
+    const copyCoords = [];
+    for (const cell of settlement.grids.flat()) {
+      if (!cell || !wanted.has(Number(cell.gridCoord))) continue;
+      if (cell.gridType === 'homestead') { if (cell.gridId) homesteadIds.push(cell.gridId); }
+      else copyCoords.push(Number(cell.gridCoord));
     }
-
-    // Build a map of gridCoord -> gridId
-    const gridCoordToIdMap = {};
-    for (const row of settlement.grids) {
-      for (const cell of row) {
-        if (cell && cell.gridId && gridCoords.includes(cell.gridCoord)) {
-          gridCoordToIdMap[cell.gridCoord] = cell.gridId;
-        }
-      }
-    }
-
-    // Fetch all grids in a single query
-    const gridIds = Object.values(gridCoordToIdMap);
-    const grids = await Grid.find({ _id: { $in: gridIds } }).select('tiles');
-
-    // Build response map of gridCoord -> tiles
     const tilesMap = {};
-    for (const [gridCoord, gridId] of Object.entries(gridCoordToIdMap)) {
-      const grid = grids.find(g => g._id.toString() === gridId.toString());
-      if (grid) {
-        tilesMap[gridCoord] = grid.tiles;
-      }
+    if (homesteadIds.length) {
+      const grids = await Grid.find({ _id: { $in: homesteadIds } }).select('tiles gridCoord').lean();
+      for (const g of grids) if (g.gridCoord != null) tilesMap[g.gridCoord] = g.tiles;
     }
-
+    if (playerId && copyCoords.length) {
+      const copies = await Grid.find({ ownerId: playerId, gridCoord: { $in: copyCoords } }).select('tiles gridCoord').lean();
+      for (const g of copies) tilesMap[g.gridCoord] = g.tiles;
+    }
     res.json({ success: true, tilesMap });
-
   } catch (error) {
     console.error('Error fetching grid tiles:', error);
     res.status(500).json({ error: 'Failed to fetch grid tiles.' });

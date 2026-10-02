@@ -1,6 +1,14 @@
 import axios from "axios";
 import API_BASE from "../config";
+import GlobalGridStateTilesAndResources from "../GridState/GlobalGridStateTilesAndResources";
 
+/**
+ * Move the player's homestead to `targetGridCoord`. The server moves the Grid
+ * reference between Settlement cells and rewrites player.settlementId /
+ * homesteadGridCoord (and location.s/gridCoord when the player is standing at
+ * home). The player is NOT moved; we refetch the player and refresh the
+ * loaded grid's meta so Transit / the minimap see the new coordinate.
+ */
 export const processRelocation = async (currentPlayer, setCurrentPlayer, fromGridId, targetGridCoord, settlementGrid) => {
   console.log("At processRelocation; fromGridId =", fromGridId, "; targetGridCoord =", targetGridCoord);
   console.log("settlementGrid =", settlementGrid);
@@ -11,15 +19,23 @@ export const processRelocation = async (currentPlayer, setCurrentPlayer, fromGri
       targetGridCoord,
     });
 
-    // 🔄 Refresh player data
+    // Refresh player data
     try {
-      console.log("🔄 Fetching updated player data...");
       const playerResponse = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
-      console.log("📊 Updated player object:", playerResponse.data);
+      const freshPlayer = playerResponse.data;
+      if (freshPlayer) {
+        setCurrentPlayer(freshPlayer);
+        localStorage.setItem("player", JSON.stringify(freshPlayer));
 
-      if (playerResponse.data) {
-        setCurrentPlayer(playerResponse.data);
-        localStorage.setItem("player", JSON.stringify(playerResponse.data));
+        // Standing at home during the move: the loaded grid's cell changed
+        const meta = GlobalGridStateTilesAndResources.getGridMeta();
+        if (meta && freshPlayer.location?.g && String(freshPlayer.location.g) === meta.gridId) {
+          GlobalGridStateTilesAndResources.setGridMeta({
+            ...meta,
+            gridCoord: freshPlayer.location.gridCoord ?? meta.gridCoord,
+            settlementId: freshPlayer.location.s ? String(freshPlayer.location.s) : meta.settlementId,
+          });
+        }
         console.log("✅ setCurrentPlayer + localStorage update complete");
       }
     } catch (error) {
