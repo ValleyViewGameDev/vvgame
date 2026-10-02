@@ -139,6 +139,15 @@ import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
+// Identify this client to the server's maintenance gate (utils/serviceMode.js) from the very first request.
+// The React effect below re-applies it once currentPlayer loads; this module-level set covers app boot
+// and the post-login reload, which happen before any player state exists.
+try {
+  const storedForHeader = JSON.parse(localStorage.getItem('player') || 'null');
+  const storedId = storedForHeader?.playerId || storedForHeader?._id;
+  if (storedId) axios.defaults.headers.common['x-player-id'] = String(storedId);
+} catch (_) { /* no stored player */ }
+
 const normalizeEmoji = (emoji) => {
   if (!emoji) return emoji;
   return emoji.replace(/\uFE0F/g, '');
