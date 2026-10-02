@@ -12,7 +12,6 @@ import { fetchHomesteadOwner } from './worldHelpers';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
-import SVGAssetManager from '../Render/SVGAssetManager';
 import { isGridVisited } from './gridsVisitedUtils';
 import farmState from '../FarmState';
 import { parseGridCoord } from '../Render/PixiRenderer/UnifiedCamera';
@@ -325,22 +324,6 @@ export const changePlayerLocation = async (
     // Initialize the grid with tiles and resources
     // TILE_SIZE passed here is the pixiBaseTileSize (from globalTuning.closeZoom)
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer, masterResources, TILE_SIZE);
-
-    // Get resources for SVG preloading
-    const postInitResources = GlobalGridStateTilesAndResources.getResources();
-
-    // Preload SVGs to ensure they're ready before we fade in
-    if (masterResources && postInitResources?.length > 0) {
-      if (updateStatus) {
-        updateStatus('Loading assets...');
-      }
-
-      await SVGAssetManager.preloadResourceSVGs(
-        postInitResources,
-        masterResources,
-        TILE_SIZE
-      );
-    }
 
     // ✅ CHECK: First time visiting valley - award trophy and show notification
     if (toLocation.gtype && toLocation.gtype.startsWith('valley') && strings) {

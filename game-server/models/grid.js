@@ -80,23 +80,6 @@ const GridSchema = new mongoose.Schema({
     default: null, // Public grids (e.g., Towns) will have no owner
   },
   
-  // Outpost trade stall data - only present when an Outpost exists on this grid
-  outpostTradeStall: {
-    type: [new mongoose.Schema({
-      slotIndex: { type: Number, required: true },
-      resource: { type: String, default: null },
-      amount: { type: Number, default: 0 },
-      price: { type: Number, default: 0 },
-      sellTime: { type: Number, default: null },
-      boughtBy: { type: String, default: null },
-      boughtFor: { type: Number, default: null },
-      sellerUsername: { type: String, default: null }, // Who placed the item
-      sellerId: { type: String, default: null } // Player ID of seller
-    })],
-    default: undefined, // Don't create this field unless explicitly set
-    sparse: true // Optimize storage for grids without outposts
-  },
-
   // COMPACT RESOURCE AND TILE STORAGE (V2 format)
   resources: {
     type: [mongoose.Schema.Types.Mixed], // Array of encoded resource arrays

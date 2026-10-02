@@ -39,6 +39,7 @@ const Player = require('./models/player');
 const Grid = require('./models/grid');
 const Chat = require('./models/chat'); // Import ChatMessage model
 const { setSocketIO } = require('./socketInstance');
+const { getStatus, maintenanceGate } = require('./utils/serviceMode');
 
 const worldRoutes = require('./routes/worldRoutes');
 const gridRoutes = require('./routes/gridRoutes'); 
@@ -52,7 +53,6 @@ const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const leoProfanity = require('leo-profanity');
 
@@ -67,7 +67,8 @@ const corsOptions = {
       'https://www.valleyviewgame.com',
       'https://www.secretsofelsinore.com'
     ];
-    if (!origin || allowedOrigins.includes(origin)) {
+    const isLocalDev = process.env.NODE_ENV !== 'production' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin || '');
+    if (!origin || allowedOrigins.includes(origin) || isLocalDev) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -82,6 +83,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
+
+// Service status (update notice / maintenance). See utils/serviceMode.js.
+app.get('/api/status', (req, res) => res.json(getStatus()));
+app.use(maintenanceGate());
 
 // Logging middleware for debugging
 app.use((req, res, next) => {
@@ -116,11 +121,7 @@ mongoose.connect(process.env.MONGODB_URI, {
     // Create socket.io server
     const io = new Server(httpServer, {
       cors: {
-        origin: [
-          'https://vvgame.onrender.com',
-          'https://www.valleyviewgame.com',
-          'https://www.secretsofelsinore.com'
-        ],
+        origin: corsOptions.origin, // same allowlist + local-dev rule as HTTP
         methods: ['GET', 'POST'],
       }
     });
@@ -534,16 +535,6 @@ console.log('Setting up analytics routes...');
 app.use('/api/analytics', analyticsRoutes);
 
 
-// Stripe test route: check mode and balance
-app.get('/api/stripe-test', async (req, res) => {
-  try {
-    const balance = await stripe.balance.retrieve();
-    res.json({ mode: stripe._apiKey.startsWith('sk_live_') ? 'live' : 'test', balance });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -559,114 +550,6 @@ app._router.stack.forEach(function(r) {
 
 app.get('/api/ping', (req, res) => {
   res.status(200).json({ success: true, message: 'pong' });
-});
-
-//
-// EDITOR ROUTES 
-//
-app.post('/api/save-layout', (req, res) => {
-  let { fileName, directory, grid } = req.body;
-  console.log(`📂 Save request received - File: ${fileName}, Directory: ${directory}`);
-
-  // 🔹 Log the request body to ensure correct structure
-  console.log(`🔍 Full request body:`, req.body);
-
-  // If grid is a string, parse it to ensure it's an object
-  try {
-    if (typeof grid === "string") {
-      grid = JSON.parse(grid);
-      console.log("✅ Parsed grid from string to object.");
-    }
-  } catch (error) {
-    console.error('❌ Error parsing grid JSON:', error);
-    return res.status(400).json({ success: false, error: 'Invalid grid format (not valid JSON)' });
-  }
-
-  if (!fileName || !directory || !grid || !grid.tiles || !grid.resources) {
-    console.error('❌ Missing or invalid grid data:', { fileName, directory, grid });
-    return res.status(400).json({ success: false, error: 'Missing or invalid grid data' });
-  }
-
-  // Set the save path
-  const savePath = path.join(__dirname, `layouts/gridLayouts/${directory}/${fileName}.json`);
-
-  // Ensure the directory exists
-  fs.mkdirSync(path.dirname(savePath), { recursive: true });
-
-  // ✅ Format the JSON manually so each row appears on a single line
-  const formattedTiles = grid.tiles.map(row => `  [${row.map(cell => `"${cell}"`).join(", ")}]`).join(",\n");
-  const formattedResources = grid.resources.map(row => `  [${row.map(cell => `"${cell}"`).join(", ")}]`).join(",\n");
-  const formattedTileDistribution = Object.entries(grid.tileDistribution)
-    .map(([key, value]) => `    "${key}": ${value}`)
-    .join(",\n");
-  const filteredResourceDistribution = Object.entries(grid.resourceDistribution || {})
-    .filter(([_, value]) => value > 0)
-    .map(([key, value]) => `    "${key}": ${value}`)
-    .join(",\n");
-  const filteredEnemiesDistribution = Object.entries(grid.enemiesDistribution || {})
-    .filter(([_, value]) => value > 0)
-    .map(([key, value]) => `    "${key}": ${value}`)
-    .join(",\n");
-
-    const jsonString = `{
-      "tiles": [
-    ${formattedTiles}
-    ],
-      "resources": [
-    ${formattedResources}
-    ],
-      "tileDistribution": {
-    ${formattedTileDistribution}
-      }${filteredResourceDistribution ? `,
-      "resourceDistribution": {
-    ${filteredResourceDistribution}
-      }` : ""}${filteredEnemiesDistribution ? `,
-      "enemiesDistribution": {
-    ${filteredEnemiesDistribution}
-      }` : ""}
-    }`;
-
-  console.log("📂 Final formatted JSON before saving:\n", jsonString);
-
-  fs.writeFile(savePath, jsonString, (err) => {
-    if (err) {
-      console.error('❌ Error saving file:', err);
-      return res.status(500).json({ success: false, error: 'Failed to save file' });
-    }
-    console.log(`✅ File saved successfully: ${savePath}`);
-    res.json({ success: true, message: `Saved to ${savePath}` });
-  });
-});
-
-
-app.get('/api/load-layout', (req, res) => {
-  const { fileName, directory } = req.query;
-
-  if (!fileName || !directory) {
-    return res.status(400).json({ success: false, error: 'Missing fileName or directory' });
-  }
-
-  const filePath = path.join(__dirname, `layouts/gridLayouts/${directory}/${fileName}.json`);
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ success: false, error: 'File not found' });
-  }
-
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('❌ Error reading file:', err);
-      return res.status(500).json({ success: false, error: 'Failed to read file' });
-    }
-
-    try {
-      const parsedData = JSON.parse(data);
-      console.log("📂 Loaded layout successfully:", parsedData);
-      res.json({ success: true, grid: parsedData });
-    } catch (error) {
-      console.error('❌ Error parsing JSON:', error);
-      res.status(500).json({ success: false, error: 'Invalid JSON format' });
-    }
-  });
 });
 
 

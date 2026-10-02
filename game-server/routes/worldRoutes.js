@@ -7,16 +7,12 @@ const path = require('path');
 const { readJSON } = require('../utils/fileUtils');
 const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
-const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Adjust the path to match your project structure
-const { getFrontierId, getSettlementId, getgridId } = require('../utils/IDs');
 const { performGridCreation, claimHomestead } = require('../utils/createGridLogic');
 const { performGridReset } = require('../utils/resetGridLogic');
-const { generateGrid, generateResources } = require('../utils/worldUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
 const globalTuning = require('../tuning/globalTuning.json'); // Import globalTuning.json
-const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const gridResourceManager = require('../utils/GridResourceManager');
@@ -321,42 +317,6 @@ router.post('/delete-orphaned-grid', async (req, res) => {
 });
 
 
-router.post('/claim-homestead/:gridId', async (req, res) => {
-  const { gridId } = req.params;
-  const { playerId } = req.body; // or from session token, etc.
-
-  if (!playerId) {
-    return res.status(400).json({ error: 'No playerId provided to claim homestead.' });
-  }
-
-  // Log attempt to claim homestead
-  console.log(`🔐 Attempting to claim gridId: ${gridId} for playerId: ${playerId}`);
-
-  try {
-    const grid = await Grid.findById(gridId);
-    if (!grid) return res.status(404).json({ error: 'Grid not found.' });
-
-    // Log grid found
-    console.log(`📋 Grid found: type = ${grid.gridType}, ownerId = ${grid.ownerId || 'null'}`);
-
-    if (grid.gridType !== 'homestead') {
-      return res.status(400).json({ error: 'Cannot claim a non-homestead grid.' });
-    }
-
-    if (grid.ownerId) {
-      return res.status(400).json({ error: 'Homestead is already claimed.' });
-    }
-
-    // Assign the player as owner
-    grid.ownerId = playerId;
-    await grid.save();
-
-    return res.status(200).json({ success: true, message: 'Homestead claimed successfully.' });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to claim homestead.' });
-  }
-});
 
 // Create homestead for player when they purchase Home Deed
 // This is called during FTUE when player buys Home Deed from Constable Elbow
@@ -588,17 +548,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
           // Use GridResourceManager to update the resource
           gridResourceManager.updateResource(grid, updatedResource);
 
-          if (false) { // Skip the old else block
-            // ✅ Preserve existing resource & append attributes if needed
-            
-            // Load master resources to check resource categories
-            const fs = require('fs');
-            const path = require('path');
-            const masterResources = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/resources.json'), 'utf-8'));
-            const newResourceDef = masterResources.find(r => r.type === type);
-            
-            // This old logic is now handled by the updated resource logic above
-          }
 
         } else {
           // ✅ CASE 2: No Existing Resource - Add New One
@@ -795,118 +744,6 @@ router.get('/load-grid/:gridId', async (req, res) => {
   }
 });
 
-// Batch load multiple grids (tiles and resources only, no NPCs/PCs)
-// Used by MultiGridManager for 9-grid seamless rendering
-router.post('/load-neighbor-grids', async (req, res) => {
-  const { gridIds } = req.body;
-
-  if (!Array.isArray(gridIds) || gridIds.length === 0 || gridIds.length > 9) {
-    return res.status(400).json({ error: 'Invalid gridIds array (must be 1-9 IDs)' });
-  }
-
-  console.log(`🗺️ Batch loading ${gridIds.length} grids for multi-grid rendering`);
-
-  try {
-    const grids = await Grid.find({ _id: { $in: gridIds } });
-    const result = {};
-
-    for (const gridDocument of grids) {
-      try {
-        // Load resources using GridResourceManager
-        let loadedResources;
-        try {
-          loadedResources = gridResourceManager.getResources(gridDocument);
-        } catch (resourceError) {
-          console.warn(`⚠️ Failed to load resources for grid ${gridDocument._id}:`, resourceError);
-          loadedResources = [];
-        }
-
-        // Enrich resources with masterResources data
-        const enrichedResources = loadedResources.map((resource) => {
-          const resourceTemplate = masterResources.find((res) => res.type === resource.type);
-          if (!resourceTemplate) {
-            return { ...resource };
-          }
-          return {
-            ...resourceTemplate,
-            ...resource,
-          };
-        });
-
-        // Load tiles using GridTileManager
-        let loadedTiles;
-        try {
-          loadedTiles = gridTileManager.getTiles(gridDocument);
-        } catch (tileError) {
-          console.warn(`⚠️ Failed to load tiles for grid ${gridDocument._id}:`, tileError);
-          loadedTiles = gridTileManager.createEmptyTileGrid();
-        }
-
-        result[gridDocument._id] = {
-          tiles: loadedTiles,
-          resources: enrichedResources,
-        };
-      } catch (gridError) {
-        console.warn(`⚠️ Failed to process grid ${gridDocument._id}:`, gridError);
-        // Skip this grid
-      }
-    }
-
-    console.log(`✅ Batch loaded ${Object.keys(result).length} grids`);
-    res.status(200).json({ grids: result });
-  } catch (error) {
-    console.error('❌ Error batch loading grids:', error);
-    res.status(500).json({ error: 'Failed to load neighbor grids.' });
-  }
-});
-
-// update-homestead-descriptor
-router.patch('/update-grid-availability/:gridId', async (req, res) => {
-  const { gridId } = req.params;
-  const { available } = req.body; // Expect the new availability value in the request body
-
-  console.log('Updating Grid Availability; gridId =', gridId, ', available =', available);
-
-  try {
-    const gridObjectId = new mongoose.Types.ObjectId(gridId);
-
-    // Find the settlement containing the grid
-    const settlement = await Settlement.findOne({
-      grids: { $elemMatch: { $elemMatch: { gridId: gridObjectId } } },
-    });
-
-    if (!settlement) {
-      console.error('Grid not found in any Settlement.');
-      return res.status(404).json({ error: 'Grid not found in any Settlement.' });
-    }
-
-    console.log('Matching Settlement:', settlement._id);
-
-    // Update the specific grid's availability
-    let updated = false;
-    settlement.grids.forEach((row) => {
-      row.forEach((grid) => {
-        if (grid.gridId && String(grid.gridId) === String(gridObjectId)) {
-          grid.available = available;
-          updated = true;
-        }
-      });
-    });
-
-    if (!updated) {
-      return res.status(404).json({ error: 'Grid availability update failed.' });
-    }
-
-    await settlement.save();
-    console.log('Updated Settlement:', settlement._id);
-
-    res.status(200).json({ success: true, message: 'Grid availability updated.' });
-  } catch (error) {
-    console.error('Error updating grid availability:', error);
-    res.status(500).json({ error: 'Failed to update grid availability.' });
-  }
-});
-
 
 
 ///////////////////////////////////////////////////////////////
@@ -1042,130 +879,6 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
 });
 
 
-
-
-//
-// ID ROUTES 
-//
-// Endpoint to fetch default Frontier ID
-router.get('/get-frontier-id', async (req, res) => {
-  try {
-    const frontierId = await getFrontierId();
-    res.json(frontierId);
-  } catch (error) {
-    console.error('Error fetching default Frontier ID:', error.message);
-    res.status(500).json({ error: 'Failed to fetch default Frontier ID.' });
-  }
-});
-
-// Endpoint to fetch default Settlement ID
-router.get('/get-settlement-id', async (req, res) => {
-  const { frontierId } = req.query;
-  try {
-    const settlementId = await getSettlementId(frontierId).catch((error) => {
-      console.error("Error in getSettlementId:", error.message);
-      throw error;
-    });
-        res.json(settlementId);
-  } catch (error) {
-    console.error('Error fetching default Settlement ID:', error.message);
-    res.status(500).json({ error: 'Failed to fetch default Settlement ID.' });
-  }
-});
-
-// Endpoint to fetch default Homestead ID
-router.get('/get-homestead-id', async (req, res) => {
-  const { settlementId } = req.query;
-  try {
-    const gridId = await getgridId(settlementId).catch((error) => {
-      console.error("Error in getgridId:", error.message);
-      throw error;
-    });
-        res.json(gridId);
-  } catch (error) {
-    console.error('Error fetching default Homestead ID:', error.message);
-    res.status(500).json({ error: 'Failed to fetch default Homestead ID.' });
-  }
-});
-
-
-//
-// GAME EDITOR ROUTES 
-//
-// 🔹 API Route: Generate Tiles
-router.post('/api/generate-tiles', async (req, res) => {
-  try {
-    const { layoutName } = req.body;
-    if (!layoutName) return res.status(400).json({ success: false, error: 'Missing layoutName' });
-
-    // Load the layout template
-    const layoutPath = path.join(__dirname, `../layouts/gridLayouts/${layoutName}.json`);
-    const layout = readJSON(layoutPath);
-    if (!layout || !layout.tiles || !layout.tileDistribution) {
-      return res.status(400).json({ success: false, error: 'Invalid layout data' });
-    }
-
-    // Generate new tiles based on tileDistribution
-    // Note: gridType is null here since this is an editor endpoint - uses original random distribution
-    const newTiles = generateGrid(layout, null);
-
-    res.json({ success: true, tiles: newTiles });
-  } catch (error) {
-    console.error('❌ Error generating tiles:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate tiles' });
-  }
-});
-
-// 🔹 API Route: Generate Resources
-router.post('/api/generate-resources', async (req, res) => {
-  try {
-    const { layoutName, tiles } = req.body;
-    if (!layoutName || !tiles) return res.status(400).json({ success: false, error: 'Missing layoutName or tiles' });
-
-    // Load the layout template
-    const layoutPath = path.join(__dirname, `../layouts/gridLayouts/${layoutName}.json`);
-    const layout = readJSON(layoutPath);
-    if (!layout || !layout.resourceDistribution) {
-      return res.status(400).json({ success: false, error: 'Invalid layout data' });
-    }
-
-    // Generate new resources based on resourceDistribution
-    const newResources = generateResources(layout, tiles, layout.resourceDistribution);
-
-    res.json({ success: true, resources: newResources });
-  } catch (error) {
-    console.error('❌ Error generating resources:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate resources' });
-  }
-});
-
-
-router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
-  try {
-    // Get frontier document for season data
-    const frontier = await Frontier.findById(req.params.frontierId);
-    if (!frontier) {
-      return res.status(404).json({ error: 'Frontier not found' });
-    }
-
-    // Import bankScheduler and generate new offers using correct seasonLevel
-    const bankScheduler = require('../schedulers/bankScheduler');
-    const seasonLevel = getSeasonLevel(frontier?.seasons?.startTime, frontier?.seasons?.endTime);
-    const newOffers = bankScheduler.generateBankOffers(seasonLevel);
-
-    // Save new offers to frontier document
-    await Frontier.findByIdAndUpdate(
-      req.params.frontierId,
-      { $set: { 'bank.offers': newOffers } },
-      { new: true }
-    );
-
-    res.json({ success: true, offers: newOffers });
-  } catch (error) {
-    console.error('Error refreshing bank offers:', error);
-    res.status(500).json({ error: 'Failed to refresh bank offers' });
-  }
-});
 
 
 
@@ -1311,40 +1024,6 @@ router.post('/relocate-homestead', async (req, res) => {
 
 
 
-// Endpoint to fetch multiple grids by ID array, enriched with owner info
-router.post('/get-grids-by-id-array', async (req, res) => {
-  const { gridIds } = req.body;
-
-  if (!Array.isArray(gridIds) || gridIds.length === 0) {
-    return res.status(400).json({ error: 'gridIds must be a non-empty array.' });
-  }
-
-  try {
-    const objectIds = gridIds.map((id) => new mongoose.Types.ObjectId(id));
-    const grids = await Grid.find({ _id: { $in: objectIds } }).populate('ownerId', 'username netWorth role tradeStall');
-
-    const enrichedGrids = grids.map(grid => {
-      const gridObj = grid.toObject();
-      if (gridObj.ownerId && typeof gridObj.ownerId === 'object') {
-        gridObj.username = gridObj.ownerId.username || '';
-        gridObj.netWorth = gridObj.ownerId.netWorth || 0;
-        gridObj.role = gridObj.ownerId.role || '';
-        gridObj.tradeStall = gridObj.ownerId.tradeStall || null;
-      } else {
-        gridObj.username = '';
-        gridObj.netWorth = 0;
-        gridObj.role = '';
-        gridObj.tradeStall = null;
-      }
-      return gridObj;
-    });
-
-    res.json({ grids: enrichedGrids });
-  } catch (error) {
-    console.error('Error in /get-grids-by-id-array:', error);
-    res.status(500).json({ error: 'Failed to fetch grid data.' });
-  }
-});
 
 // Protected crafting collection endpoint
 router.post('/crafting/collect-item', async (req, res) => {
@@ -3679,164 +3358,7 @@ router.post('/update-dungeon-config', async (req, res) => {
   }
 });
 
-// Diagnostic endpoint to find grids with undefined/unknown resources
-router.get('/diagnose-undefined-resources', async (req, res) => {
-  try {
-    console.log('🔍 Starting diagnostic scan for undefined resources...');
 
-    const masterResources = require('../tuning/resources.json');
-    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
-    const encoder = new UltraCompactResourceEncoder(masterResources);
-
-    // Get all grids
-    const grids = await Grid.find({}, { _id: 1, gridType: 1, resources: 1, settlementId: 1 }).lean();
-    console.log(`📊 Scanning ${grids.length} grids...`);
-
-    const problematicGrids = [];
-    let totalUndefined = 0;
-    let totalUnknown = 0;
-
-    for (const grid of grids) {
-      if (!grid.resources || !Array.isArray(grid.resources) || grid.resources.length === 0) {
-        continue;
-      }
-
-      const gridProblems = {
-        gridId: grid._id.toString(),
-        gridType: grid.gridType,
-        settlementId: grid.settlementId?.toString(),
-        undefinedResources: [],
-        unknownResources: []
-      };
-
-      for (let i = 0; i < grid.resources.length; i++) {
-        const encodedResource = grid.resources[i];
-
-        try {
-          const decoded = encoder.decode(encodedResource);
-
-          // Check for undefined type
-          if (decoded.type === undefined || decoded.type === null) {
-            gridProblems.undefinedResources.push({
-              index: i,
-              x: decoded.x,
-              y: decoded.y,
-              encoded: encodedResource
-            });
-            totalUndefined++;
-          }
-          // Check for UNKNOWN types
-          else if (decoded.type && decoded.type.startsWith('UNKNOWN_')) {
-            gridProblems.unknownResources.push({
-              index: i,
-              type: decoded.type,
-              x: decoded.x,
-              y: decoded.y,
-              layoutKey: decoded.layoutKey,
-              encoded: encodedResource
-            });
-            totalUnknown++;
-          }
-        } catch (error) {
-          gridProblems.undefinedResources.push({
-            index: i,
-            error: error.message,
-            encoded: encodedResource
-          });
-          totalUndefined++;
-        }
-      }
-
-      if (gridProblems.undefinedResources.length > 0 || gridProblems.unknownResources.length > 0) {
-        problematicGrids.push(gridProblems);
-      }
-    }
-
-    console.log(`✅ Scan complete. Found ${problematicGrids.length} grids with issues.`);
-    console.log(`📊 Total undefined resources: ${totalUndefined}`);
-    console.log(`📊 Total unknown resources: ${totalUnknown}`);
-
-    res.json({
-      success: true,
-      summary: {
-        totalGridsScanned: grids.length,
-        gridsWithProblems: problematicGrids.length,
-        totalUndefinedResources: totalUndefined,
-        totalUnknownResources: totalUnknown
-      },
-      problematicGrids: problematicGrids.slice(0, 50) // Limit to first 50 for response size
-    });
-
-  } catch (error) {
-    console.error('❌ Error during diagnostic scan:', error);
-    res.status(500).json({
-      error: error.message || 'Failed to run diagnostic scan'
-    });
-  }
-});
-
-// Manual grid reset endpoint (for fixing corrupted grids)
-router.post('/manual-grid-reset', async (req, res) => {
-  try {
-    const { gridId } = req.body;
-
-    if (!gridId) {
-      return res.status(400).json({
-        error: 'gridId is required.'
-      });
-    }
-
-    console.log(`🔧 [MANUAL RESET] Starting manual reset for grid: ${gridId}`);
-
-    // Load the grid
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({
-        error: `Grid ${gridId} not found`
-      });
-    }
-
-    console.log(`📍 [MANUAL RESET] Grid found: type=${grid.gridType}, settlementId=${grid.settlementId}`);
-
-    // Get gridCoord from settlement
-    let gridCoord = null;
-    if (grid.settlementId) {
-      const Settlement = require('../models/settlement');
-      const settlement = await Settlement.findById(grid.settlementId);
-      if (settlement && settlement.grids) {
-        const subGrid = settlement.grids.flat().find(g => g.gridId?.toString() === gridId.toString());
-        if (subGrid) {
-          gridCoord = subGrid.gridCoord;
-          console.log(`📍 [MANUAL RESET] Found gridCoord: ${gridCoord}`);
-        }
-      }
-    }
-
-    if (!gridCoord) {
-      console.warn(`⚠️ [MANUAL RESET] No gridCoord found for grid ${gridId}`);
-    }
-
-    // Use the shared reset logic
-    const { performGridReset } = require('../utils/resetGridLogic');
-    await performGridReset(gridId, grid.gridType, gridCoord);
-
-    console.log(`✅ [MANUAL RESET] Grid ${gridId} reset successfully`);
-
-    res.json({
-      success: true,
-      message: `Grid ${gridId} (${grid.gridType}) has been reset`,
-      gridId: gridId,
-      gridType: grid.gridType,
-      gridCoord: gridCoord
-    });
-
-  } catch (error) {
-    console.error('❌ [MANUAL RESET] Error resetting grid:', error);
-    res.status(500).json({
-      error: error.message || 'Failed to reset grid'
-    });
-  }
-});
 
 // Update region for a single grid
 router.post('/update-grid-region', async (req, res) => {

@@ -13,7 +13,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 - Last real commit before the refactor: 2026-05-06. Commit messages in this repo are historically placeholders; from now on write real ones.
 - No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77255`). Their data must survive every migration. Other players' data is nice-to-have.
 - Production DB: 11 players, ~1,060 grids (73 MB), 64 settlements, 1 frontier. Database name is `test`.
-- Refactor phase: **0 (prep)**. Docs written; decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots); no code changed yet. Phase checklist lives in the plan.
+- Refactor phase: **0 (prep), in progress on branch `refactor/phase-0`**. Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
 
 ## Tech stack
 
@@ -38,9 +38,12 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 | client | `cd game-client && npm start` | 3000 |
 | editor | `cd game-editor && npm run electron-dev` | 5173 |
 
+- Claude's in-app previews use `/Users/jonathanknight/GameDevelopment/.claude/launch.json` (session root, not this repo): `vvgame-server` / `vvgame-server-notice` / `vvgame-server-maintenance` on 3011 and `vvgame-client` on 3010 (`REACT_APP_SERVER_URL=http://localhost:3011`), so they never collide with your own 3000/3001 processes.
+
 - The local server uses the **production Atlas database** (`game-server/.env`). There is no separate dev DB. Be careful with writes; never run migrations without the backup script.
 - **Never set `NODE_ENV=production` locally**: it starts the schedulers against the live Frontier (season end, taxes, elections).
-- Known trap (fix in Phase 0): `game-client/src/socketManager.js:12` hard-codes the production socket URL, and `game-editor/src/config.js` points at production while `FrontierView.jsx` points at `localhost:3001`.
+- The client socket and API both follow `REACT_APP_SERVER_URL` (`src/config.js`). The editor follows `game-editor/src/config.js`, which points at production; change it to `http://localhost:3001` to edit against a local server.
+- `SERVICE_MODE` / `SERVICE_MESSAGE` env vars on the server (`utils/serviceMode.js`) drive the update-notice and maintenance modals; unset locally = `normal`.
 - Dev accounts: usernames in `game-server/tuning/developerUsernames.json` are excluded from analytics/leaderboards and get debug UI.
 
 ## Repository layout
@@ -59,6 +62,7 @@ vvgame/
 │   │                         # settlementRoutes, frontierRoutes, tradingRoutes, auth, chat, payment, schedule, analytics
 │   ├── models/               # player, grid, settlement, frontier (+ dead: resource, combat, town)
 │   ├── schedulers/           # mainScheduler drives taxes/seasons/elections/train/carnival/bank/messages/networth/dungeon
+│   ├── scripts/              # backup.js / restore.js (EJSON dumps of the 4 gameplay collections), refund-outposts.js
 │   ├── utils/                # createGridLogic, resetGridLogic, TileEncoder, ResourceEncoder, Grid*Manager, seasonReset, ...
 │   ├── layouts/              # gridLayouts/{homestead,town,dungeon,valleyFixedCoord,...}, settlementLayouts, frontierLayouts
 │   └── tuning/               # resources.json (master resource table, 504 entries), globalTuning.json, seasons, quests, ...

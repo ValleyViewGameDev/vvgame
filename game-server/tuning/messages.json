@@ -1,91 +1,185 @@
 [
-    {
-      "id": 1,
-      "title": "👸 Welcome to Secrets of Elsinore!",
-      "body": "Thanks for joining the world of Elsinore. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
-      "rewards": [
-        { "item": "Money", "qty": 500 }, 
-        { "item": "Gem", "qty": 25 }, 
-        { "item": "Wood", "qty": 5 }, 
-        { "item": "Wheat", "qty": 12 }, 
-        { "item": "Carrot", "qty": 12 }, 
-        { "item": "Corn", "qty": 12 }
-      ],
-      "everyoneRewards": true,
-      "neverPurge": true
-    },
-    {
-      "id": 5,
-      "title": "👸 Just another day in Elsinore!",
-      "body": "Don't forget to enjoy the day :)",
-      "rewards": [{ "item": "Money", "qty": 50 }, { "item": "Wood", "qty": 5 }],
-      "everyoneRewards": true,
-      "neverPurge": false
-    },
-    {
-      "id": 101,
-      "title": "🚂 Train Shipment Complete!",
-      "body": "Your settlement filled all Train orders. Great teamwork! Here's your reward.",
-      "rewards": [],
-      "everyoneRewards": false,
-      "neverPurge": false
-    },
-    {
-      "id": 102,
-      "title": "🎡 Carnival Complete!",
-      "body": "Your settlement filled all Carnival orders. Great teamwork! Here's your reward.",
-      "rewards": [],
-      "everyoneRewards": false,
-      "neverPurge": false
-    },
-    {
-      "id": 201,
-      "title": "🙏 Thank You for Your Purchase!",
-      "body": "Here are the items you purchased from the Store.",
-      "rewards": [],
-      "everyoneRewards": false,
-      "neverPurge": true
-    },
-    {
-      "id": 301,
-      "title": "🗓️ Season Reward!",
-      "body": "For the top 3 players across the Frontier last season.",
-      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gem", "qty": 500 }],
-      "everyoneRewards": false,
-      "neverPurge": true
-    },
-    {
-      "id": 302,
-      "title": "🗓️ Season Reward!",
-      "body": "For all players in the top Settlement last season.",
-      "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Gem", "qty": 100 }],
-      "everyoneRewards": false,
-      "neverPurge": true
-    },
-    {
-      "id": 303,
-      "title": "🗓️ Season Reward!",
-      "body": "CONGRATULATIONS! You were the top player across the Frontier last season!",
-      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gem", "qty": 1000 }],
-      "everyoneRewards": false,
-      "neverPurge": true
-    },
-
-    {
-      "id": 1000,
-      "title": "👸 Thanks for playing Secrets of Elsinore!",
-      "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
-      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Honey", "qty": 15 }, { "item": "Sugarcane", "qty": 20 }],
-      "everyoneRewards": true,
-      "neverPurge": false
-    },
-
-    {
-      "id": 1001,
-      "title": "😢 Our bad!",
-      "body": "We recently had some technical issues. Thanks for your patience.",
-      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Gem", "qty": 5 }, { "item": "Feverfew", "qty": 10 }, { "item": "Wool", "qty": 10 }, { "item": "XP", "qty": 1 }],
-      "everyoneRewards": true,
-      "neverPurge": false
-    }
+  {
+    "id": 1,
+    "title": "👸 Welcome to Secrets of Elsinore!",
+    "body": "Thanks for joining the world of Elsinore. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 500
+      },
+      {
+        "item": "Gem",
+        "qty": 25
+      },
+      {
+        "item": "Wood",
+        "qty": 5
+      },
+      {
+        "item": "Wheat",
+        "qty": 12
+      },
+      {
+        "item": "Carrot",
+        "qty": 12
+      },
+      {
+        "item": "Corn",
+        "qty": 12
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": true
+  },
+  {
+    "id": 5,
+    "title": "👸 Just another day in Elsinore!",
+    "body": "Don't forget to enjoy the day :)",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 50
+      },
+      {
+        "item": "Wood",
+        "qty": 5
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": false
+  },
+  {
+    "id": 101,
+    "title": "🚂 Train Shipment Complete!",
+    "body": "Your settlement filled all Train orders. Great teamwork! Here's your reward.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": false
+  },
+  {
+    "id": 102,
+    "title": "🎡 Carnival Complete!",
+    "body": "Your settlement filled all Carnival orders. Great teamwork! Here's your reward.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": false
+  },
+  {
+    "id": 201,
+    "title": "🙏 Thank You for Your Purchase!",
+    "body": "Here are the items you purchased from the Store.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true
+  },
+  {
+    "id": 301,
+    "title": "🗓️ Season Reward!",
+    "body": "For the top 3 players across the Frontier last season.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 10000
+      },
+      {
+        "item": "Gem",
+        "qty": 500
+      }
+    ],
+    "everyoneRewards": false,
+    "neverPurge": true
+  },
+  {
+    "id": 302,
+    "title": "🗓️ Season Reward!",
+    "body": "For all players in the top Settlement last season.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 5000
+      },
+      {
+        "item": "Gem",
+        "qty": 100
+      }
+    ],
+    "everyoneRewards": false,
+    "neverPurge": true
+  },
+  {
+    "id": 303,
+    "title": "🗓️ Season Reward!",
+    "body": "CONGRATULATIONS! You were the top player across the Frontier last season!",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 10000
+      },
+      {
+        "item": "Gem",
+        "qty": 1000
+      }
+    ],
+    "everyoneRewards": false,
+    "neverPurge": true
+  },
+  {
+    "id": 1000,
+    "title": "👸 Thanks for playing Secrets of Elsinore!",
+    "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 10000
+      },
+      {
+        "item": "Honey",
+        "qty": 15
+      },
+      {
+        "item": "Sugarcane",
+        "qty": 20
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": false
+  },
+  {
+    "id": 1001,
+    "title": "😢 Our bad!",
+    "body": "We recently had some technical issues. Thanks for your patience.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 1000
+      },
+      {
+        "item": "Gem",
+        "qty": 5
+      },
+      {
+        "item": "Feverfew",
+        "qty": 10
+      },
+      {
+        "item": "Wool",
+        "qty": 10
+      },
+      {
+        "item": "XP",
+        "qty": 1
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": false
+  },
+  {
+    "id": 1002,
+    "title": "📣 Release Notes",
+    "body": "Phase 0 of the big update is live. The Outpost has been retired; anything you had listed there was returned to your warehouse, and any money owed to you was paid. Use the Trade Stall and Global Market to sell. The game stays up while we work; a short maintenance window is coming, and we will announce it here and on the login screen.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": false
+  }
 ]

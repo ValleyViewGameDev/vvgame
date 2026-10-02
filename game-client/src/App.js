@@ -21,7 +21,6 @@ import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlob
 
 // PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
-import CursorTileHighlight from './Render/CursorTileHighlight';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
@@ -119,7 +118,6 @@ import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
-import Outpost from './GameFeatures/Trading/Outpost';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
@@ -151,6 +149,7 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
 import Redirect, { shouldRedirect } from './Redirect';
+import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -320,33 +319,24 @@ useEffect(() => {
     }
   }, []);
 
-  // Server connectivity check: periodically ping server and show modal if down
+  // Service status: update notice / maintenance (see game-server/utils/serviceMode.js).
+  // Polled at boot and every 60 s; a change of mode reloads so the whole app restarts cleanly.
+  const [serviceStatus, setServiceStatus] = useState(null);
+  const [maintenanceIgnored, setMaintenanceIgnored] = useState(false);
   useEffect(() => {
-    let interval;
-    let serverPreviouslyDown = false;
-    const checkServer = async () => {
+    let lastMode = null;
+    const checkStatus = async () => {
       try {
-        // await axios.get(`${API_BASE}/api/ping`);
-        // Always close modal if server is reachable
-        if (modalContent?.title === strings[10000]) {
-          setIsModalOpen(false);
-        }
-        // If it was previously down, reload the page
-        if (serverPreviouslyDown) { window.location.reload(); }
+        const { data } = await axios.get(`${API_BASE}/api/status`);
+        if (lastMode && data.mode !== lastMode) { window.location.reload(); return; }
+        lastMode = data.mode;
+        setServiceStatus(data);
       } catch (err) {
-        console.warn("❌ Server unreachable:", err.message);
-        if (!serverPreviouslyDown) {
-          setModalContent({
-            title: strings[10000],
-            message: strings[10001],
-            message2: strings[10002],
-          });
-          setIsModalOpen(true);
-          serverPreviouslyDown = true;
-        }
+        console.warn("Service status check failed:", err.message);
       }
     };
-    interval = setInterval(checkServer, 2000);
+    checkStatus();
+    const interval = setInterval(checkStatus, 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -385,6 +375,10 @@ useEffect(() => {
   };
   const seasonData = getSeasonData();
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
+  // Lets the server's maintenance gate recognise developer accounts (utils/serviceMode.js).
+  useEffect(() => {
+    if (currentPlayer?.playerId) axios.defaults.headers.common['x-player-id'] = currentPlayer.playerId;
+  }, [currentPlayer?.playerId]);
 
   // Canvas settings migration removed - now forced to Canvas mode always
 
@@ -3197,9 +3191,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Trading Post':
           openPanel('TradeStall'); 
           break;
-        case 'Outpost':
-          openPanel('OutpostPanel'); 
-          break;
         case 'Mailbox':
           openModal('Mailbox');
           // FTUE trigger: Clicking on Mailbox
@@ -3463,6 +3454,9 @@ const handleLoginSuccess = async (player) => {
 return (
     <>
     {showRedirect && <Redirect />}
+    {!maintenanceIgnored && (
+      <ServiceStatusModal status={serviceStatus} isDeveloper={isDeveloper} onIgnoreMaintenance={() => setMaintenanceIgnored(true)} />
+    )}
     <FloatingTextManager />
 
 {/* //////////////////////  Header  //////////////////////// */}
@@ -4972,24 +4966,6 @@ return (
           masterResources={masterResources}
         />
       )}
-      {activePanel === 'OutpostPanel' && (
-        <Outpost
-          onClose={closePanel}
-          backpack={backpack}
-          setBackpack={setBackpack}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          gridId={activeStation?.gridId}
-          setModalContent={setModalContent}
-          setIsModalOpen={setIsModalOpen}
-          isDeveloper={isDeveloper}
-          stationType={activeStation?.type}
-          currentStationPosition={activeStation?.position}
-          setResources={setResources}
-          setInventory={setInventory}
-          TILE_SIZE={activeTileSize}
-          globalTuning={globalTuning}
-        />
       )}
       {activePanel === 'SeasonPanel' && (
         <SeasonPanel

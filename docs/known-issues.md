@@ -7,7 +7,7 @@ Fix opportunistically, or fold into the phase that touches the file. Sourced fro
 
 - No auth middleware anywhere; `playerId` in the body is the identity. Admin routes are open to anyone: `/reset-password` (sets password to `temp`), `/delete-player`, `/send-mailbox-message-all`, `/update-settlement`, `/update-settlement-role`, `POST /tuning` (rewrites `globalTuning.json`), `/reset-all-timers`, `/force-end-phase`, `/levy-tax`, `/create-frontier`, `/remove-homestead`, `/reset-grid`, `/manual-grid-reset`.
 - `GET /player/:id`, `/get-player-by-username/:u`, `/get-players-by-frontier/:f` return the full document **including the bcrypt password hash**. `/get-players-by-settlement` accepts a client-supplied projection.
-- `/api/save-layout` and `/api/load-layout` in `server.js` take `directory`/`fileName` unsanitised (path traversal). Nothing calls them; delete.
+- ~~`/api/save-layout` and `/api/load-layout` in `server.js` take `directory`/`fileName` unsanitised (path traversal).~~ Deleted in Phase 0.
 - `/purchase-store-offer` grants Gold with no Stripe verification (no webhook, no session check).
 - `/update-profile` `$set`s any field (inventory, xp, accountStatus, role, gridId). 42 client call sites. Needs a field allowlist.
 
@@ -34,7 +34,7 @@ Fix opportunistically, or fold into the phase that touches the file. Sourced fro
 - Client: `App.js:1396` emits `join-player-room` with a bare string; server expects `{playerId}`.
 - Client: `Transit.js` returns on three error paths without `endTransition()` (screen stays black).
 - Client: `NPCEnemyBehavior.js:277` `updateThisNPC.call(gridId)` wrong `this`; `NPCHealBehavior.js:33` uses `pc.range` (undefined).
-- Client: `App.js:329` server ping is commented out, so the "server down" modal can never fire and the 2 s interval is a no-op.
+- ~~Client: `App.js:329` server ping is commented out, so the "server down" modal can never fire and the 2 s interval is a no-op.~~ Replaced in Phase 0 by the `/api/status` poll (`ServiceStatusModal`).
 - Client: `gridType` enums disagree (`valley` vs `valley0`) between models and client checks.
 
 ## Unbounded growth
@@ -45,8 +45,8 @@ Fix opportunistically, or fold into the phase that touches the file. Sourced fro
 
 ## Dead code worth deleting (zero callers confirmed by grep)
 
-Server: `utils/TileEncoder.js.backup`, `models/resource.js`, `models/combat.js`, `models/town.js` (empty, still `require`d twice), `utils/inventoryUtils.js` (all but `isCurrency`), `utils/fileUtils.js` layout loaders, `routes/playground-2.mongodb.js`, `/api/api/generate-*` (double prefix), `/get-train` (undefined function), `/election-phase`, `/election-status`, `/reset-season` (legacy fields), `/sell-items`, `/update-train-offer` + `Settlement.currentoffers/nextoffers`, `Frontier.governor`, `scheduleHelpers.activeTimers/clearAllTimers`, plus ~40 routes with no client or editor caller (list in `audits/server-routes.md` §6). Layout dirs: `gridLayouts/valley1|2|3/`, `_oldGrids/`, `fromEditor/`, `homestead/homestead{Spring,Summer,Fall,Winter}.json`, `town/townN_bk|townN_current|townOLD.json`, `valleyFixedCoord/undefined.json`, `settlementLayouts/homesteadSet/*`.
+Server: ~~`utils/TileEncoder.js.backup`, `models/resource.js`, `models/combat.js`, `models/town.js`, `utils/inventoryUtils.js` (all but `isCurrency`), `utils/fileUtils.js` layout loaders, `routes/playground-2.mongodb.js`, `utils/IDs.js`, and 46 routes with no client or editor caller~~ (deleted in Phase 0). Still present: `Settlement.currentoffers/nextoffers` (schema fields, read only by TownNews), `Frontier.governor`, `scheduleHelpers.resetAllTimers/clearAllTimers/activeTimers` (export-only), `gridLayouts/valley1|2|3/` (editor FileManager offers them as save targets; drop the options, then delete).
 
-Client: every `Render/*.js` outside `Render/PixiRenderer/` except `RenderAnimatePosition.js`, `RenderDynamicElements.js` (keep the three tooltip helpers, drop the component), `SVGAssetManager.js` (only used to warm a cache Pixi never reads); `ZoomedOut/*` except `FrontierMiniMap.js`; `GridState/NPCController.js`; `Combat.handleAttackOnPC`; `PlayerMovement.js` camera helpers (`centerCameraOnPlayerFast/Settlement/Frontier/Instant`); `ResourceHelpers.mergeResources/validateTileType`; `GridStateNPCs.saveGridStateNPCs/startGridTimer` (reconsider: the snapshot save is the right shape for Phase 3).
+Client: ~~every `Render/*.js` outside `Render/PixiRenderer/` except `RenderAnimatePosition.js`, `RenderDynamicElements.js` (keep the three tooltip helpers, drop the component), `SVGAssetManager.js` (only used to warm a cache Pixi never reads); `ZoomedOut/*` except `FrontierMiniMap.js`~~ (deleted in Phase 0: 29 files, ~8,650 lines); `GridState/NPCController.js` (Phase 1); `Combat.handleAttackOnPC`; `PlayerMovement.js` camera helpers (`centerCameraOnPlayerFast/Settlement/Frontier/Instant`); `ResourceHelpers.mergeResources/validateTileType`; `GridStateNPCs.saveGridStateNPCs/startGridTimer` (reconsider: the snapshot save is the right shape for Phase 3).
 
 Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, unused by either app).

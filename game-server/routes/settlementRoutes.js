@@ -7,10 +7,8 @@ const { readJSON } = require('../utils/fileUtils');
 const { tileTypes } = require('../utils/worldUtils');
 const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
-const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Import the Player model
-const tuningConfig = require('../tuning/globalTuning.json');
  
 
 // ✅ Route to get all settlements with full editor UI context
@@ -62,34 +60,6 @@ router.get('/settlements', async (req, res) => {
 
 // SETTLEMENT ROUTES
 
-router.get('/get-settlement-by-grid/:gridId', async (req, res) => {
-  console.log('Route hit with params:', req.params);
-
-  try {
-    const { gridId } = req.params;
-
-    console.log('Fetching settlement for gridId:', gridId);
-
-    // Ensure the gridId is treated as a string or ObjectId as needed
-    const objectId = new mongoose.Types.ObjectId(gridId);
-
-    // Query to search for the gridId in the nested grids array of arrays
-    const settlement = await Settlement.findOne({
-      grids: { $elemMatch: { $elemMatch: { gridId: objectId } } }
-    }).lean();
-
-    if (!settlement) {
-      console.error(`No settlement found containing gridId: ${gridId}`);
-      return res.status(404).json({ error: 'Settlement not found' });
-    }
-
-    // Return the settlementId
-    res.status(200).json({ settlementId: settlement._id });
-  } catch (error) {
-    console.error('Error fetching settlement ID by grid:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 router.get('/get-settlement/:settlementId', async (req, res) => {
 
@@ -121,50 +91,6 @@ router.get('/get-settlement/:settlementId', async (req, res) => {
     }
 });
 
-router.get('/get-settlement-grid/:settlementId', async (req, res) => {
-  console.log('Fetching Settlement Grid for settlementId:', req.params.settlementId);
-
-  try {
-    const { settlementId } = req.params;
-    const objectId = new mongoose.Types.ObjectId(settlementId);
-
-    // First get settlement grids
-    const settlement = await Settlement.findById(objectId).lean();
-    if (!settlement) {
-      return res.status(404).json({ error: 'Settlement not found' });
-    }
-
-    // Get all gridIds from the settlement
-    const gridIds = settlement.grids.flat()
-      .filter(g => g.gridId)
-      .map(g => g.gridId);
-
-    // Fetch just the ownerId for these grids
-    const gridOwners = await Grid.find(
-      { _id: { $in: gridIds } },
-      { ownerId: 1 }
-    ).lean();
-
-    // Create a map of gridId to ownerId
-    const ownerMap = gridOwners.reduce((acc, grid) => {
-      acc[grid._id.toString()] = grid.ownerId;
-      return acc;
-    }, {});
-
-    // Add owner information to the settlement grid
-    const enrichedGrid = settlement.grids.map(row =>
-      row.map(cell => ({
-        ...cell,
-        ownerId: cell.gridId ? ownerMap[cell.gridId.toString()] : null
-      }))
-    );
-
-    res.status(200).json({ grid: enrichedGrid });
-  } catch (error) {
-    console.error('Error fetching settlement grid:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 router.get('/get-settlement-by-coords/:row/:col', async (req, res) => {
     const { row, col } = req.params;
@@ -247,33 +173,6 @@ router.post('/update-settlement', async (req, res) => {
     }
 });
 
-router.post('/increment-settlement-population', async (req, res) => {
-  const { settlementId } = req.body;
-  if (!mongoose.Types.ObjectId.isValid(settlementId)) {
-      return res.status(400).json({ error: 'Invalid settlement ID format.' });
-  }
-  try {
-      // Update Settlement document
-      const updatedSettlement = await Settlement.findByIdAndUpdate(
-          settlementId,
-          { $inc: { population: 1 } },
-          { new: true }
-      );
-      if (!updatedSettlement) { return res.status(404).json({ error: 'Settlement not found.' }); }
-      console.log('🔍 Settlement updated:', {
-          id: updatedSettlement._id,
-          newPopulation: updatedSettlement.population,
-      });
-      res.status(200).json({ 
-          success: true, 
-          population: updatedSettlement.population 
-      });
-  } catch (error) {
-      console.error('❌ Error incrementing settlement population:', error);
-      res.status(500).json({ error: 'Failed to increment settlement population.' });
-  }
-});
-
 
 ///////////
 /////////// GOVERNMENT-RELATED ROUTES
@@ -348,130 +247,8 @@ router.get('/settlement/:id/roles', async (req, res) => {
   }
 });
 
-router.get('/election-phase/:settlementId', async (req, res) => {
-  const { settlementId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(settlementId)) {
-    return res.status(400).json({ error: 'Invalid settlement ID.' });
-  }
-
-  try {
-    const settlement = await Settlement.findById(settlementId, 'electionPhase');
-
-    if (!settlement) {
-      return res.status(404).json({ error: 'Settlement not found.' });
-    }
-
-    res.status(200).json({ electionPhase: settlement.electionPhase });
-  } catch (error) {
-    console.error('❌ Error fetching election phase:', error);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-});
-
-router.post('/reset-election-votes', async (req, res) => {
-  const { settlementId } = req.body;
-  if (!settlementId) return res.status(400).json({ error: 'Missing settlement ID.' });
-
-  try {
-      const updatedSettlement = await Settlement.findByIdAndUpdate(settlementId, {
-          votes: [], // ✅ Use an empty array instead of an object
-          campaignPromises: [], // ✅ Reset campaign promises
-      }, { new: true });
-
-      console.log(`✅ Election reset for ${settlementId}. New phase: Campaigning`);
-      res.status(200).json({ message: 'Election reset successfully', settlement: updatedSettlement });
-
-  } catch (error) {
-      console.error('Error resetting election:', error);
-      res.status(500).json({ error: 'Internal server error.' });
-  }
-});
 
 
-router.get('/election-status/:settlementId', async (req, res) => {
-  const { settlementId } = req.params;
-
-  console.log(`📡 Received election status request for settlement ID: ${settlementId}`);
-
-  if (!mongoose.Types.ObjectId.isValid(settlementId)) {
-      return res.status(400).json({ error: 'Invalid settlement ID format.' });
-  }
-
-  try {
-      const settlement = await Settlement.findById(settlementId);
-
-      if (!settlement) {
-          return res.status(404).json({ error: 'Settlement not found.' });
-      }
-
-      const now = new Date();
-      const { campaignStart, votingStart, votingEnd } = settlement;
-
-      let nextPhase;
-      let timeRemainingMs;
-      if (now < campaignStart) {
-          nextPhase = "Campaigning";
-          timeRemainingMs = campaignStart - now;
-      } else if (now < votingStart) {
-          nextPhase = "Voting";
-          timeRemainingMs = votingStart - now;
-      } else if (now < votingEnd) {
-          nextPhase = "Administration";
-          timeRemainingMs = votingEnd - now;
-        } else {
-          console.log(`🔄 Election cycle ended, resetting to next campaign.`);
-          
-          // ✅ Auto-reset timestamps to create a new cycle
-          const now = new Date();
-          const campaignStart = new Date(now.getTime() + tuningConfig.termLength * 60000); 
-          const votingStart = new Date(campaignStart.getTime() + tuningConfig.campaignLength * 60000);
-          const votingEnd = new Date(votingStart.getTime() + tuningConfig.votingLength * 60000);
-      
-          // ✅ Update settlement in DB
-          await Settlement.findByIdAndUpdate(settlementId, {
-              campaignStart,
-              votingStart,
-              votingEnd,
-              electionPhase: "Administration",  // Ensure phase starts correctly
-              campaignPromises: [],
-              votes: {},
-              electionCandidates: []
-          });
-      
-          console.log(`🔁 New election cycle scheduled for ${settlement.name}: Campaign starts at ${campaignStart}`);
-      
-          nextPhase = "Campaigning"; // Ensure UI shows proper next phase
-          timeRemainingMs = campaignStart - now;
-      }
-
-      let electionPhase;
-        if (now < campaignStart) {
-          electionPhase = "Administration";
-      } else if (now < votingStart) {
-        electionPhase = "Campaigning";
-      } else if (now < votingEnd) {
-        electionPhase = "Voting";
-      } else {
-        electionPhase = "Administration"; // Ensure phase resets correctly after election cycle
-      }
-
-      const timeRemaining = {
-          hours: Math.floor(timeRemainingMs / (1000 * 60 * 60)),
-          minutes: Math.floor((timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((timeRemainingMs % (1000 * 60)) / 1000),
-      };
-
-      res.status(200).json({
-          currentPhase: electionPhase || "Unknown",
-          nextPhase,
-          timeRemaining,
-      });
-  } catch (error) {
-      console.error("❌ Error retrieving election status:", error);
-      res.status(500).json({ error: "Internal server error." });
-  }
-});
 
 router.post('/save-campaign-promise', async (req, res) => {
   const { settlementId, playerId, username, text } = req.body;
@@ -553,74 +330,8 @@ router.post('/cast-vote', async (req, res) => {
 
 
 ///////////
-////// TRAIN ROUTES
+////// CARNIVAL ROUTES
 ///////////
-
-router.get("/get-train", async (req, res) => {
-  try {
-      const trainData = await getTrainDataFromDB(); // Fetch from DB
-      res.json(trainData);
-  } catch (error) {
-      console.error("Error fetching train data:", error);
-      res.status(500).json({ error: "Failed to fetch train data" });
-  }
-});
-
-router.post('/update-train-offer/:settlementId', async (req, res) => {
-  const { updateOffer } = req.body;
-  const { settlementId } = req.params;
-
-  try {
-    const settlement = await Settlement.findById(settlementId);
-    if (!settlement) return res.status(404).json({ error: 'Settlement not found' });
-
-    // ✅ Use _id to locate the specific offer to update
-    const offerIndex = settlement.currentoffers.findIndex(
-      (o) => o._id.toString() === updateOffer._id
-    );
-
-    if (offerIndex === -1) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
-
-    // ✅ Validate claim attempts
-    const currentOffer = settlement.currentoffers[offerIndex];
-    
-    console.log('🚂 Train offer update attempt:', {
-      currentClaimedBy: currentOffer.claimedBy,
-      newClaimedBy: updateOffer.claimedBy,
-      offerItem: currentOffer.itemBought
-    });
-    
-    if ('claimedBy' in updateOffer && updateOffer.claimedBy) {
-      // Someone is trying to claim this offer
-      if (currentOffer.claimedBy && currentOffer.claimedBy.toString() !== updateOffer.claimedBy) {
-        // Offer was already claimed by someone else
-        console.log('❌ Rejecting claim - already claimed by:', currentOffer.claimedBy);
-        return res.status(409).json({ 
-          error: 'Offer already claimed',
-          claimedBy: currentOffer.claimedBy 
-        });
-      }
-      // Either unclaimed or same player reclaiming - allow the update
-      settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
-    } else if ('claimedBy' in updateOffer && !updateOffer.claimedBy) {
-      // Clearing the claim (setting claimedBy to null)
-      settlement.currentoffers[offerIndex].claimedBy = null;
-    }
-    
-    if ('filled' in updateOffer) {
-      settlement.currentoffers[offerIndex].filled = updateOffer.filled;
-    }
-
-    await settlement.save();
-    return res.status(200).json({ success: true });
-
-  } catch (error) {
-    console.error("❌ Error updating offer:", error);
-    return res.status(500).json({ error: 'Server error' });
-  }
-});
 
 router.post('/update-carnival-offer/:settlementId', async (req, res) => {
   const { updateOffer } = req.body;
@@ -787,28 +498,6 @@ router.get('/settlement/:id/electionlog', async (req, res) => {
   } catch (error) {
     console.error('❌ Error fetching election log:', error);
     res.status(500).json({ error: 'Internal server error.' });
-  }
-});
-
-
-
-// Route to get players by settlementId with optional fields
-router.post('/get-players-by-settlement', async (req, res) => {
-  const { settlementId, fields } = req.body;
-
-  if (!settlementId) {
-    return res.status(400).json({ error: 'Missing settlementId' });
-  }
-
-  try {
-    const projection = {};
-    (fields || []).forEach(field => projection[field] = 1);
-
-    const players = await Player.find({ 'location.s': settlementId }, projection).lean();
-    res.json(players);
-  } catch (error) {
-    console.error('Error fetching players by settlement:', error);
-    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

@@ -202,55 +202,6 @@ router.post('/clear-quest-history', async (req, res) => {
   }
 });
 
-router.post('/complete-quest', async (req, res) => {
-  const { playerId, questId, reward } = req.body;
-
-  if (!playerId || !questId || !reward) {
-    return res.status(400).json({ error: 'Missing required fields.' });
-  }
-
-  try {
-    const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    const questIndex = player.activeQuests.findIndex((q) => q.questId === questId);
-
-    if (questIndex === -1 || !player.activeQuests[questIndex].completed) {
-      return res.status(400).json({ error: 'Quest is not marked as completed.' });
-    }
-
-    // Add the reward to inventory
-    const inventory = player.inventory || [];
-    const itemIndex = inventory.findIndex((item) => item.type === reward.type);
-    if (itemIndex >= 0) {
-      inventory[itemIndex].quantity += reward.quantity;
-    } else {
-      inventory.push({ type: reward.type, quantity: reward.quantity });
-    }
-
-    // Move the quest to completedQuests and remove extra details
-    const completedQuest = {
-      questId,
-      timestamp: Date.now(),
-      completed: true,
-    };
-    player.completedQuests = player.completedQuests || [];
-    player.completedQuests.push(completedQuest);
-
-    // Remove the quest from activeQuests
-    player.activeQuests.splice(questIndex, 1);
-
-    player.inventory = inventory;
-    await player.save();
-
-    res.json({ success: true, player });
-  } catch (error) {
-    console.error('Error completing quest:', error);
-    res.status(500).json({ error: 'Failed to complete quest.' });
-  }
-});
 
 router.post('/update-player-quests', async (req, res) => {
   const { playerId, activeQuests } = req.body;
@@ -464,25 +415,6 @@ router.post('/update-profile', async (req, res) => {
   }
 });
 
-router.post('/update-settings', async (req, res) => {
-  const { playerId, settings } = req.body;
-
-  try {
-    const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ success: false, error: 'Player not found.' });
-    }
-
-    // Merge settings to preserve existing fields like equippedWeapon and equippedArmor
-    player.settings = { ...player.settings, ...settings };
-    await player.save();
-
-    res.json({ success: true, player });
-  } catch (error) {
-    console.error('Error updating player settings:', error);
-    res.status(500).json({ success: false, error: 'Failed to update settings.' });
-  }
-});
 
 // ✅ Get all players in a given settlement
 router.get('/get-players-by-settlement/:settlementId', async (req, res) => {
@@ -663,41 +595,6 @@ router.post('/update-inventory-delta', async (req, res) => {
 });
 
 
-// Endpoint to update player capacities
-router.post('/update-capacity', async (req, res) => {
-  const { playerId, warehouseCapacity, backpackCapacity } = req.body;
-  console.log(`POST /api/update-capacity - Updating capacities for playerId: ${playerId}`);
-
-  if (!playerId) {
-    return res.status(400).json({ error: 'Player ID is required.' });
-  }
-
-  try {
-    const updateFields = {};
-    if (warehouseCapacity !== undefined) updateFields.warehouseCapacity = warehouseCapacity;
-    if (backpackCapacity !== undefined) updateFields.backpackCapacity = backpackCapacity;
-
-    const player = await Player.findByIdAndUpdate(
-      playerId,
-      { $set: updateFields },
-      { new: true }
-    );
-
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    res.json({
-      success: true,
-      warehouseCapacity: player.warehouseCapacity,
-      backpackCapacity: player.backpackCapacity,
-      player, // Return the full updated player object if needed
-    });
-  } catch (error) {
-    console.error('Error updating capacities:', error);
-    res.status(500).json({ error: 'Failed to update capacities.' });
-  }
-});
 
 ////////// RELATIONSHIP ROUTES ///////////
 
@@ -820,53 +717,7 @@ router.post('/add-or-update-relationship-status', async (req, res) => {
 
 ////////// LOCATION BASED ROUTES ///////////
 
-// Endpoint to get the current player position
-router.get('/player-position/:username', async (req, res) => {
-  const { username } = req.params;
 
-  try {
-    const player = await Player.findOne({ username });
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found' });
-    }
-    res.json({ location: player.location });
-  } catch (error) {
-    console.error('Error fetching player position:', error);
-    res.status(500).json({ error: 'Failed to fetch player position' });
-  }
-});
-
-// Endpoint to update the player's position
-router.post('/update-player-position', async (req, res) => {
-  const { playerId, location } = req.body;
-
-  if (!location) {
-    return res.status(400).json({ error: 'Location data is required.' });
-  }
-
-  const { x, y, g, s, f, gtype } = location;
-  console.log('Payload:', { x, y, g, s, f, gtype });
-
-  if (!playerId || typeof x !== 'number' || typeof y !== 'number' || !g) {
-    return res.status(400).json({ error: 'Invalid player coordinates or location data.' });
-  }
-
-  try {
-    const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    player.location = location;
-    await player.save();
-
-    console.log('Player position successfully updated:', player.location);
-    res.json({ success: true, player });
-  } catch (error) {
-    console.error('Error updating player position:', error);
-    res.status(500).json({ error: 'Failed to update player position.' });
-  }
-});
 
 // Endpoint to update the player's location in SettlementView
 router.post('/update-player-location', async (req, res) => {
@@ -1626,140 +1477,7 @@ router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) 
   }
 });
 
-// POST /api/migrate-warehouse-levels - Migrate warehouse levels for all players
-router.post('/migrate-warehouse-levels', async (req, res) => {
-  try {
-    console.log('🏗️ Starting warehouse level migration for all players...');
-    
-    // Find all players who don't have warehouseLevel set
-    const playersToMigrate = await Player.find({ 
-      warehouseLevel: { $exists: false }
-    });
-    
-    console.log(`Found ${playersToMigrate.length} players needing warehouse level migration`);
-    
-    let migratedCount = 0;
-    let errorCount = 0;
-    
-    // Process each player
-    for (const player of playersToMigrate) {
-      try {
-        // All existing players without warehouseLevel start at level 0
-        // Their current capacity is preserved as-is
-        const level = 0;
-        
-        // Update the player with their warehouse level
-        await Player.updateOne(
-          { _id: player._id },
-          { $set: { warehouseLevel: level } }
-        );
-        
-        migratedCount++;
-        console.log(`✅ Migrated ${player.username}: set to level ${level}`);
-      } catch (error) {
-        errorCount++;
-        console.error(`❌ Error migrating player ${player.username}:`, error);
-      }
-    }
-    
-    res.json({
-      success: true,
-      message: `Migration complete. Migrated: ${migratedCount}, Errors: ${errorCount}`,
-      migratedCount,
-      errorCount
-    });
-    
-  } catch (error) {
-    console.error('❌ Error during warehouse level migration:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to migrate warehouse levels' 
-    });
-  }
-});
 
-// POST /api/migrate-grid-resources - Migrate grid resources from legacy to encoded format
-router.post('/migrate-grid-resources', async (req, res) => {
-  try {
-    const { gridIds } = req.body; // Optional array of specific grid IDs to migrate
-    
-    console.log('📦 Starting grid resource migration...');
-    if (gridIds) {
-      console.log(`🎯 Targeting specific grids: ${gridIds.join(', ')}`);
-    }
-    
-    const Grid = require('../models/grid');
-    const fs = require('fs');
-    const path = require('path');
-    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
-    
-    // Load master resources for encoding
-    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
-    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
-    const encoder = new UltraCompactResourceEncoder(masterResources);
-    
-    // Build query - either specific grids or all legacy grids
-    let query = {
-      "resources.0": {
-        "$exists": true,
-        "$type": "object"
-      },
-      "resources.0.type": {
-        "$exists": true
-      }
-    };
-    
-    // If specific grid IDs provided, add that filter
-    if (gridIds && Array.isArray(gridIds) && gridIds.length > 0) {
-      query._id = { $in: gridIds };
-    }
-    
-    // Find grids with legacy resource format
-    const gridsToMigrate = await Grid.find(query);
-    
-    console.log(`Found ${gridsToMigrate.length} grids needing resource migration`);
-    
-    let migratedCount = 0;
-    let errorCount = 0;
-    
-    for (const grid of gridsToMigrate) {
-      try {
-        const legacyResources = grid.resources;
-        console.log(`🔄 Migrating grid ${grid._id} with ${legacyResources.length} legacy resources`);
-        
-        // Encode the legacy resources
-        const encodedResources = encoder.encodeResources(legacyResources);
-        
-        // Update the grid
-        await Grid.updateOne(
-          { _id: grid._id },
-          { $set: { resources: encodedResources } }
-        );
-        
-        migratedCount++;
-        console.log(`✅ Migrated grid ${grid._id}: ${legacyResources.length} resources encoded`);
-        
-      } catch (error) {
-        errorCount++;
-        console.error(`❌ Error migrating grid ${grid._id}:`, error);
-      }
-    }
-    
-    res.json({
-      success: true,
-      message: `Migration complete. Migrated: ${migratedCount}, Errors: ${errorCount}`,
-      migratedCount,
-      errorCount
-    });
-    
-  } catch (error) {
-    console.error('❌ Error during grid resource migration:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to migrate grid resources' 
-    });
-  }
-});
 
 // POST /api/transfer-inventory - Transfer items between warehouse and backpack
 router.post('/transfer-inventory', async (req, res) => {

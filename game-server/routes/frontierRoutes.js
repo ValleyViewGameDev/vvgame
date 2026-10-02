@@ -3,17 +3,14 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const express = require('express');
 const router = express.Router();
-const path = require('path');
 const { readJSON } = require('../utils/fileUtils');
 const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
 const Grid = require('../models/grid'); // If needed for referencing large grid data
-const Player = require("../models/player"); // Adjust path as needed
 const tuningConfig = require('../tuning/globalTuning.json');
 const seasonConfig = require('../tuning/seasons.json');
 const { getTemplate } = require('../utils/templateUtils');
 const { ObjectId } = require("mongodb");
-const { levyTax } = require("../controllers/taxController"); // Import the function
 
 // ========================
 // Coordinate Calculation
@@ -77,18 +74,6 @@ router.get('/frontiers-by-name', async (req, res) => {
 });
 
 
-// ✅ Get all players in a frontier
-router.get('/get-players-by-frontier/:frontierId', async (req, res) => {
-  try {
-    const { frontierId } = req.params;
-    const players = await Player.find({ frontierId }).lean();
-    res.status(200).json(players);
-  } catch (error) {
-    console.error('❌ Error fetching players by frontier:', error);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-});
-
 
 // Example: GET /api/frontiers
 // Returns all frontiers with full document data (including season, tax, election, train, bank timing, etc.)
@@ -119,22 +104,6 @@ router.get("/get-frontier/:frontierId", async (req, res) => {
   } catch (error) {
     console.error("Error fetching frontier:", error);
     res.status(500).json({ error: "Failed to fetch frontier." });
-  }
-});
-
-// Example: GET /get-frontier-grid/:frontierId
-router.get('/get-frontier-grid/:frontierId', async (req, res) => {
-  try {
-    const { frontierId } = req.params;
-    const frontier = await Frontier.findById(frontierId).lean();
-    if (!frontier) {
-      console.error(`Frontier not found for frontierId: ${frontierId}`);
-      return res.status(404).json({ error: 'Frontier not found' });
-    }
-    res.status(200).json({ frontierGrid: frontier.settlements });
-  } catch (error) {
-    console.error('Error fetching Frontier Grid:', error);
-    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -357,111 +326,17 @@ router.post('/create-frontier', async (req, res) => {
   }
 });
 
-// Example: GET /get-transit-map
-router.get("/get-transit-map", async (req, res) => {
-  try {
-    const transitMapPath = path.join(__dirname, "../layouts/transitMap.json");
-    const transitMap = require(transitMapPath);
-    res.status(200).json(transitMap);
-  } catch (error) {
-    console.error("Error fetching transit map:", error.message || error);
-    res.status(500).json({ error: "Failed to load transit map." });
-  }
-});
 
-// Example: GET /frontiers/:frontierId
-router.get('/frontiers/:frontierId', async (req, res) => {
-  const { frontierId } = req.params;
-  try {
-    const frontier = await Frontier.findById(frontierId).lean();
-    if (!frontier) {
-      return res.status(404).json({ error: 'Frontier not found' });
-    }
-    // Optional: transform frontier.settlements if needed
-    res.status(200).json(frontier);
-  } catch (error) {
-    console.error(`Error fetching frontier with ID ${frontierId}:`, error);
-    res.status(500).json({ error: 'Failed to fetch frontier' });
-  }
-});
 
-// Layout routes (homestead, settlement, frontier)
-router.get('/layouts/homestead', (req, res) => {
-  console.log('Getting Homestead layout');
-  res.sendFile(path.join(__dirname, '../layouts/homesteadLayout.json'));
-});
 
-router.get('/layouts/settlement', (req, res) => {
-  console.log('Getting Settlement layout');
-  res.sendFile(path.join(__dirname, '../layouts/settlementLayout.json'));
-});
-
-router.get('/layouts/frontier', (req, res) => {
-  console.log('Getting Frontier layout');
-  res.sendFile(path.join(__dirname, '../layouts/frontierLayout.json'));
-});
 
 
 ///////////
 /////////// SEASON-RELATED ROUTES
 ///////////
 
-router.post('/reset-season', async (req, res) => {
-  try {
-      const frontier = await Frontier.findOne();
-      if (!frontier) return res.status(404).json({ message: 'Frontier not found.' });
-
-      // Extract season types from the config
-      const seasonTypes = seasonConfig.map(season => season.seasonType);
-      const currentIndex = seasonTypes.indexOf(frontier.seasons.seasonType);
-      const nextSeasonIndex = (currentIndex + 1) % seasonTypes.length;
-      const nextSeason = seasonConfig[nextSeasonIndex]; // Get full object
-
-      // Update the season state with new season attributes
-      frontier.seasons.seasonNumber += 1;
-      frontier.seasons.seasonPhase = "onSeason";
-      frontier.seasons.seasonStart = new Date();
-      frontier.seasons.seasonEnd = new Date(Date.now() + tuningConfig.onSeasonLength * 60000);
-      frontier.seasons.seasonType = nextSeason.seasonType;
-
-      await frontier.save();
-
-      console.log(`✅ Season reset: Now in ${nextSeason.seasonType}, Season ${frontier.seasons.seasonNumber}`);
-      res.status(200).json({ 
-          success: true, 
-          message: `Season reset to ${nextSeason.seasonType}, Season ${frontier.seasons.seasonNumber}.`,
-          season: frontier.seasons
-      });
-  } catch (error) {
-      console.error('❌ Error resetting season:', error);
-      res.status(500).json({ error: 'Failed to reset season.' });
-  }
-});
-
-router.get('/get-season', async (req, res) => {
-  try {
-      const frontier = await Frontier.findOne();
-      if (!frontier) return res.status(404).json({ message: 'Frontier not found.' });
-
-      res.status(200).json(frontier.seasons);
-  } catch (error) {
-      console.error('❌ Error fetching season:', error);
-      res.status(500).json({ error: 'Failed to fetch season.' });
-  }
-});
 
 
-router.get('/get-tuning', async (req, res) => {
-    try {
-        res.status(200).json({
-            onSeasonLength: tuningConfig.onSeasonLength,
-            offSeasonLength: tuningConfig.offSeasonLength
-        });
-    } catch (error) {
-        console.error('❌ Error fetching tuning data:', error);
-        res.status(500).json({ error: 'Failed to fetch tuning data.' });
-    }
-});
 
 // GET /api/tuning/seasons
 router.get('/tuning/seasons', async (req, res) => {
@@ -487,25 +362,6 @@ router.get('/get-global-season-phase', async (req, res) => {
   } catch (error) {
     console.error("❌ Error in get-global-season-phase:", error);
     res.status(500).json({ error: "Server error" });
-  }
-});
-
-
-
-///////////
-/////////// TAXES
-///////////
-
-router.post("/levy-tax", async (req, res) => {
-  try {
-    const { frontierId } = req.body;
-    if (!frontierId) return res.status(400).json({ error: "Frontier ID is required." });
-
-    const result = await levyTax(frontierId);
-    res.json(result);
-  } catch (error) {
-    console.error("❌ Error in /levy-tax route:", error);
-    res.status(500).json({ error: "Internal server error." });
   }
 });
 

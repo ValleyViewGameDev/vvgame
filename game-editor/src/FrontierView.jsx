@@ -3,11 +3,11 @@ import './FrontierView.css';
 import Modal from './components/Modal.jsx';
 import { useFileContext } from './FileContext';
 import axios from 'axios';
+import API_BASE from './config';
 import '../../game-client/src/UI/Styles/theme.css';
 import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const GRID_DIMENSION = 64;
-const API_BASE = 'http://localhost:3001'; // You can make this configurable later
 
 const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
   const { setFileName, setDirectory, selectedCell, setSelectedCell } = useFileContext();
