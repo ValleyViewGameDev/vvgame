@@ -1707,4 +1707,24 @@ router.post('/set-all-grids-visited', async (req, res) => {
   }
 });
 
+
+// Phase 3: the player's position and current hp/maxhp live on the Player (docs/phase-3-contract.md).
+// The client sends this debounced (30 s), on grid leave/arrival and on unload.
+router.post('/player/state', async (req, res) => {
+  const { playerId, x, y, hp, maxhp } = req.body || {};
+  if (!playerId) return res.status(400).json({ error: 'playerId is required' });
+  const set = { lastActive: new Date() };
+  if (Number.isInteger(x) && Number.isInteger(y) && x >= 0 && x < 64 && y >= 0 && y < 64) { set['location.x'] = x; set['location.y'] = y; }
+  if (Number.isFinite(maxhp) && maxhp > 0) set.maxhp = maxhp;
+  if (Number.isFinite(hp)) set.hp = Math.max(0, Number.isFinite(maxhp) ? Math.min(hp, maxhp) : hp);
+  try {
+    const player = await Player.findByIdAndUpdate(playerId, { $set: set }, { new: true, projection: 'location hp maxhp' });
+    if (!player) return res.status(404).json({ error: 'Player not found' });
+    res.json({ success: true, location: player.location, hp: player.hp, maxhp: player.maxhp });
+  } catch (err) {
+    console.error('player/state failed:', err);
+    res.status(500).json({ error: 'Failed to save player state' });
+  }
+});
+
 module.exports = router;

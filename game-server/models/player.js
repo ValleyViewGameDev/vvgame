@@ -36,6 +36,9 @@ const playerSchema = new mongoose.Schema({
   },
   xp: { type: Number, default: 0 },
   range: { type: Number, default: 0 },
+  // Current combat state (Phase 3: lives here, not on the grid; docs/phase-3-contract.md)
+  hp: { type: Number, default: null },
+  maxhp: { type: Number, default: null },
   baseHp: { type: Number, default: 0 },
   baseMaxhp: { type: Number, default: 0 },
   baseAttackrange: { type: Number, default: 0 },

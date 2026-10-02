@@ -1611,29 +1611,9 @@ useEffect(() => {
         pendingCameraInit = initCameraWithRetry;
       }
 
-      // Step 8. Resolve player location 
-      console.log('🏁✅ 8 InitAppWrapper; Resolving player location...');
+      // Step 8. The PC record is always built from the Player by initializeForPlayer (seedGridFromBundle)
       const playerIdStr = DBPlayerData._id.toString();
-      let gridPlayer = freshPCState?.[playerIdStr];
-
-      const isMissingFromGrid = !gridPlayer;
-      console.log('isMissingFromGrid = ', isMissingFromGrid);
-
-      if (isMissingFromGrid) {
-        console.warn("🧭 Player missing from the grid's PC map. Placing at stored location...");
-        const targetPosition = { x: DBPlayerData.location.x ?? 0, y: DBPlayerData.location.y ?? 0 };
-        await playersInGridManager.addPlayer(initialGridId, DBPlayerData.playerId, { ...DBPlayerData, position: targetPosition });
-        setPlayersInGrid((prev) => ({
-          ...prev,
-          [initialGridId]: playersInGridManager.getPlayersInGrid(initialGridId),
-        }));
-        gridPlayer = playersInGridManager.getPlayersInGrid(initialGridId)?.[playerIdStr];
-        DBPlayerData.location = { ...DBPlayerData.location, x: targetPosition.x, y: targetPosition.y, g: initialGridId };
-
-        console.log("✅ Player repositioned into NPCsInGrid:", gridPlayer);
-      } else {
-        console.log('✅ Player found in local NPCsInGrid.');
-      }
+      const gridPlayer = freshPCState?.[playerIdStr];
 
       // Step 11: Update local storage with final player state
       console.log('🏁✅ 11 InitAppWrapper: updating localStorage with player data');
@@ -2182,7 +2162,7 @@ useEffect(() => {
         // 🔥 Check for lava tile
         if (onTileType === "l") {
           const lavaDamage = 2;
-          playersInGrid[gridId].pcs[playerId].hp -= lavaDamage;
+          playersInGridManager.updatePC(gridId, playerId, { hp: playerPC.hp - lavaDamage });
           FloatingTextManager.addFloatingText(`- ${lavaDamage} ❤️‍🩹 HP`, col, row, activeTileSize);
           console.log("🔥 Player is standing on lava. Applying 2 damage.");
         }
@@ -2221,7 +2201,7 @@ useEffect(() => {
 
       if (playerPC?.hp <= (currentPlayer.baseMaxhp/2) && currentPlayer.location.gtype === 'homestead') {
           const healing = 2;
-          playersInGrid[gridId].pcs[playerId].hp += healing;
+          playersInGridManager.updatePC(gridId, playerId, { hp: playerPC.hp + healing });
           FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
         }
     }

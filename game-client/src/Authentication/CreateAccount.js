@@ -238,37 +238,8 @@ const handleCreateAccount = async (e) => {
     localStorage.removeItem('player');
     localStorage.setItem('player', JSON.stringify(player));
 
-    // 5. Save PC to the starting grid (server-assigned location)
-    const startingGridId = player.location.g;
-    const now = Date.now();
-    const newPC = {
-      playerId: player._id,
-      type: 'pc',
-      username: player.username,
-      position: { x: player.location.x, y: player.location.y },
-      icon: player.icon || '😀',
-      hp: player.baseHp || 25,
-      maxhp: player.baseMaxhp || 25,
-      attackbonus: player.baseAttackbonus || 1,
-      armorclass: player.baseArmorclass || 1,
-      damage: player.baseDamage || 1,
-      attackrange: player.baseAttackrange || 1,
-      speed: player.baseSpeed || 1,
-      iscamping: false,
-      isinboat: false,
-      lastUpdated: now,
-    };
-
-    const payload = {
-      gridId: startingGridId,
-      playerId: player._id,
-      pc: newPC,
-      lastUpdated: now,
-    };
-
-    await axios.post(`${API_BASE}/api/save-single-pc`, payload);
-
-    // Note: Server already set the correct location, no need to update it
+    // 5. The server seeds hp/maxhp and location at registration; the PC record
+    //    is built from the Player on boot (no per-grid PC save).
 
     // 7. Send welcome message
     try {

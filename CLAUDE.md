@@ -13,7 +13,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 - Last real commit before the refactor: 2026-05-06. Commit messages in this repo are historically placeholders; from now on write real ones.
 - No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77255`). Their data must survive every migration. Other players' data is nice-to-have.
 - Production DB: 11 players, ~1,060 grids (73 MB), 64 settlements, 1 frontier. Database name is `test`.
-- Refactor phase: **0 and 1 shipped to production 2026-10-02 (`SERVICE_MODE=notice` is on); 2 built on `refactor/phase-2-per-player-grids`, rehearsed against a migrated copy of production, awaiting the maintenance window.** Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
+- Refactor phase: **0, 1 and 2 shipped to production 2026-10-02 (season 38 Winter started; `SERVICE_MODE` still `maintenance` until the owner flips it). Phase 3 slice 1 (player state on the Player, settlement 0,1 move, corner ban) built on `refactor/phase-3a-player-state`, rehearsed, awaiting merge.** Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
 
 ## Tech stack
 
@@ -80,7 +80,7 @@ vvgame/
 ## Conventions
 
 - **Architecture decisions defer to the refactor plan**, then to what the code already does (same rule as House/simgame: don't invent a second way to do something that exists).
-- Player identity is `playerId` in the request body; auth is stateless JSON + localStorage (no sessions, no cookies). Keep it that way; add an allowlist/ownership check per route rather than a session layer.
+- Player position and current hp/maxhp live on the Player (`location.x/y`, `hp`, `maxhp`) and are saved through `POST /api/player/state`; grids never hold player records. Player identity is `playerId` in the request body; auth is stateless JSON + localStorage (no sessions, no cookies). Keep it that way; add an allowlist/ownership check per route rather than a session layer.
 - World model (Phase 2): homesteads are one shared Grid per cell (`ownerId` = owner); towns, valleys and dungeons are one Grid COPY per player (`ownerId` = viewer, `gridCoord`, `templateKey`), created from layout templates on first entry via `POST /api/enter-grid` and caught up lazily (`seasonNumber`, `resetEpoch`). The editor edits template instances (`isTemplate: true`, `ownerId: null`) that `Settlement.grids[].gridId` points at. Resolve cells with `utils/gridResolver.findCell` (frontier/settlement arrays), never with a `Settlement.find({})` scan. Contract: `docs/phase-2-contract.md`.
 - Tiles and resources are stored encoded (`utils/TileEncoder.js`, `utils/ResourceEncoder.js`); read/write through `GridTileManager` / `GridResourceManager`, never by hand.
 - Master resource data lives in `tuning/resources.json` and is loaded once on the client via `Utils/TuningManager.js`; never fetch `/api/resources` from feature code.

@@ -193,7 +193,8 @@ export async function seedGridFromBundle(grid, player, opts = {}) {
     ? grid.NPCsInGrid
     : { npcs: grid.NPCsInGrid || {}, lastUpdated: grid.NPCsInGridLastUpdated || 0 };
   await NPCsInGridManager.initializeFromData(String(grid._id), npcData);
-  playersInGridManager.initializeFromData(String(grid._id), grid.playersInGrid, playerId);
+  // The PC record comes from the Player (location.x/y, hp, maxhp, base stats + powers), not the bundle
+  await playersInGridManager.initializeForPlayer(String(grid._id), { ...player, _id: playerId });
 }
 
 /**
@@ -310,18 +311,18 @@ export const changePlayerLocation = async (
     if (updateStatus) updateStatus('Leaving ...');
 
     // ---------------------------------------------------------------- leave
-    // The local PC record is authoritative for in-grid combat stats.
-    const fromPlayerState = (fromGridId && playersInGridManager.getPlayersInGrid(fromGridId)?.[playerId]) || {};
+    // The live PC record holds the current hp/maxhp; carry them onto the player
+    // so the record rebuilt on arrival (from the Player) does not regress.
+    const fromPlayerState = (fromGridId && playersInGridManager.getAllPCs(fromGridId)?.[playerId]) || {};
 
     if (fromGridId) {
       await Promise.all([
         NPCsInGridManager.flushGridPositionUpdates(fromGridId),
-        playersInGridManager.flushGridPositionUpdates(fromGridId),
+        playersInGridManager.flushState(),
       ]);
     }
 
     try {
-      playersInGridManager.stopBatchSaving();
       farmState.stopSeedTimer();
       ambientVFXManager.onGridLeave();
       soundManager.onGridLeave();
@@ -347,11 +348,6 @@ export const changePlayerLocation = async (
     }
     const toGridId = String(grid._id);
 
-    // Remove the local PC from the old grid (skip when re-entering the same grid, e.g. boot / relocation)
-    if (fromGridId && fromGridId !== toGridId) {
-      await playersInGridManager.removePC(fromGridId, playerId);
-    }
-
     if (updateStatus) updateStatus('Entering ...');
 
     // Player location: contract `location` merged over the old one
@@ -362,6 +358,8 @@ export const changePlayerLocation = async (
     const updatedPlayer = {
       ...currentPlayer,
       location: mergedLocation,
+      hp: fromPlayerState.hp ?? currentPlayer.hp,
+      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp,
     };
 
     // Seed tiles/resources/NPCs/PC from the bundle
@@ -382,30 +380,10 @@ export const changePlayerLocation = async (
 
     updatedPlayer.location = { ...mergedLocation, x: finalX, y: finalY };
 
-    const now = Date.now();
-    const playerData = {
-      playerId,
-      type: 'pc',
-      username: currentPlayer.username,
-      position: { x: finalX, y: finalY },
-      icon: currentPlayer.icon || '😀',
-      hp: fromPlayerState.hp ?? currentPlayer.hp ?? 25,
-      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25,
-      armorclass: fromPlayerState.armorclass ?? currentPlayer.armorclass ?? 10,
-      attackbonus: fromPlayerState.attackbonus ?? currentPlayer.attackbonus ?? 0,
-      damage: fromPlayerState.damage ?? currentPlayer.damage ?? 1,
-      speed: fromPlayerState.speed ?? currentPlayer.speed ?? 1,
-      attackrange: fromPlayerState.attackrange ?? currentPlayer.attackrange ?? 1,
-      iscamping: fromPlayerState.iscamping ?? currentPlayer.iscamping ?? false,
-      isinboat: fromPlayerState.isinboat ?? currentPlayer.isinboat ?? false,
-      lastUpdated: now,
-    };
-    if (typeof playerData.username !== 'string' || playerData.username.length === 0) {
-      return fail(105, new Error('changePlayerLocation: player has no username'));
-    }
-
-    // Save own PC into the new grid (existing save-single-pc, throws on failure)
-    await playersInGridManager.addPC(toGridId, playerId, playerData);
+    // Place the PC on the arrival tile (no slide animation from the old grid's
+    // tile) and persist so the server's Player.location carries the arrival x/y.
+    playersInGridManager.updatePC(toGridId, playerId, { position: { x: finalX, y: finalY } }, { animate: false });
+    await playersInGridManager.flushState();
 
     // Local gridsVisited mirror (the server already marked the bit in enter-grid)
     const toGridCoord = location.gridCoord ?? grid.gridCoord ?? null;
@@ -474,15 +452,6 @@ export const changePlayerLocation = async (
       settlementPosition,
       true  // instant for grid transitions
     );
-
-    // Dead player: make sure the old grid no longer holds the corpse record
-    if (fromGridId && fromGridId !== toGridId && currentPlayer.hp <= 0) {
-      try {
-        await axios.post(`${API_BASE}/api/remove-single-pc`, { gridId: fromGridId, playerId });
-      } catch (cleanupError) {
-        console.warn('⚠️ [FINALIZATION] Dead-player cleanup failed:', cleanupError);
-      }
-    }
 
     if (updateStatus && gtype) {
       updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);

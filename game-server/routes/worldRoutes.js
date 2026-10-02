@@ -368,6 +368,7 @@ router.post('/create-homestead', async (req, res) => {
     for (const settlementRow of frontier.settlements) {
       for (const settlementEntry of settlementRow) {
         if (!settlementEntry.settlementId) continue;
+        if (settlementEntry.available === false) continue; // corner settlements are closed to new homesteads
 
         const settlement = await Settlement.findById(settlementEntry.settlementId);
         if (!settlement) continue;
@@ -890,6 +891,7 @@ router.post('/relocate-homestead', async (req, res) => {
   try {
     let fromSettlement = null;
     let targetSettlement = null;
+    let updated = false;
 
     // Step 1: Loop through all settlements to locate from and target grids
     const settlements = await Settlement.find({});
@@ -927,6 +929,13 @@ router.post('/relocate-homestead', async (req, res) => {
 
     if (!fromSettlement || !targetSettlement) {
       return res.status(400).json({ error: 'Failed to locate both source and target settlement entries.' });
+    }
+    {
+      const frontierDoc = await Frontier.findById(targetSettlement.frontierId);
+      const entry = frontierDoc?.settlements?.flat().find(e => String(e.settlementId) === String(targetSettlement._id));
+      if (entry && entry.available === false) {
+        return res.status(400).json({ error: 'That settlement is closed to homesteads.' });
+      }
     }
 
     // Ensure the gridId/available state is correct for both settlements

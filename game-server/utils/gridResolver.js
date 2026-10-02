@@ -195,6 +195,8 @@ async function sendPlayerHome(player, { save = true } = {}) {
   const spawn = spawnNextTo(grid, 'Signpost Town', { x: 1, y: 0 }, { x: 30, y: 33 });
   setPlayerLocation(player, grid, player.settlementId, player.homesteadGridCoord ?? grid.gridCoord, spawn);
   player.sourceGridBeforeDungeon = null;
+  player.maxhp = player.maxhp ?? player.baseMaxhp ?? null;
+  if (player.maxhp != null) player.hp = player.maxhp; // going home restores health
   player.iscamping = false;
   player.isinboat = false;
   if (save) await player.save();
