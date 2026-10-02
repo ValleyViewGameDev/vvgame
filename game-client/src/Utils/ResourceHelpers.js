@@ -18,7 +18,7 @@ export const getIngredientDetails = (recipe, allResources) => {
   };
   
 
-// Utility Function for Socket Listener
+// Merge a list of updated resources into an existing list (keyed by x,y)
 export function mergeResources(existingResources, updatedResources) {
   console.log("🧪 mergeResources called");
   console.log("📥 Existing Resources:", existingResources.length);
@@ -93,7 +93,7 @@ export function mergeTiles(existingTiles, updatedTiles) {
 
 
 export function enrichResourceFromMaster(raw, masterResources) {
-// Used by socket listeners to enrich raw resource data with template details
+// Enrich raw resource data with its master template details
   const template = masterResources.find(r => r.type === raw.type);  
   if (!template) {
     console.warn(`⚠️ No matching resource template found for ${raw.type}`);

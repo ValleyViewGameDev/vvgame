@@ -29,11 +29,11 @@ Fix opportunistically, or fold into the phase that touches the file. Sourced fro
 - `mainScheduler` computes `delayMs` to the real `endTime` and then ignores it, polling every 15 s.
 - `templateUtils.getTownLayoutFile` falls back to `town/town_default.json`, which does not exist.
 - `tuningConfig` is `require`d at boot in four files, so `POST /tuning` edits are invisible until restart.
-- Client: eight socket `useEffect`s in `App.js` (2621-2660) never return their cleanup, so handlers accumulate on every `currentPlayer` change. (Deleted in Phase 1.)
-- Client: `socket.off(event)` without a handler (`socketManager.js`, `Chat.js:51`) removes every listener for that event; closing Chat kills the App-level chat listener.
-- Client: `App.js:1396` emits `join-player-room` with a bare string; server expects `{playerId}`.
+- ~~Client: eight socket `useEffect`s in `App.js` never return their cleanup, so handlers accumulate on every `currentPlayer` change.~~ Deleted in Phase 1.
+- ~~Client: `socket.off(event)` without a handler removes every listener for that event.~~ Fixed in Phase 1 (named handlers everywhere).
+- ~~Client: `App.js:1396` emits `join-player-room` with a bare string.~~ Fixed in Phase 1.
 - Client: `Transit.js` returns on three error paths without `endTransition()` (screen stays black).
-- Client: `NPCEnemyBehavior.js:277` `updateThisNPC.call(gridId)` wrong `this`; `NPCHealBehavior.js:33` uses `pc.range` (undefined).
+- ~~Client: `NPCEnemyBehavior.js:277` wrong `this`; `NPCHealBehavior.js:33` uses `pc.range`.~~ Fixed in Phase 1.
 - ~~Client: `App.js:329` server ping is commented out, so the "server down" modal can never fire and the 2 s interval is a no-op.~~ Replaced in Phase 0 by the `/api/status` poll (`ServiceStatusModal`).
 - Client: `gridType` enums disagree (`valley` vs `valley0`) between models and client checks.
 

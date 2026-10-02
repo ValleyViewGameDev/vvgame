@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import socket from '../../socketManager';
-import { emitChatMessage } from '../../socketManager';
+import socket, { emitChatMessage, socketListenForChatMessages } from '../../socketManager';
 import { updateBadge } from '../../Utils/appUtils';
 import './Chat.css';
 import API_BASE from '../../config';
@@ -15,12 +14,11 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
   useEffect(() => {
     console.log("🟨 Chat component mounted with frontierId:", currentFrontierId);
 
-    // ✅ Join only frontier chat room
+    // ✅ Join the settlement + frontier chat rooms (no grid-scoped chat)
     if (socket && socket.connected && currentFrontierId) {
-      console.log("📡 Joining frontier chat room from Chat.js");
+      console.log("📡 Joining chat rooms from Chat.js");
       socket.emit('join-chat-rooms', {
-        gridId: null,
-        settlementId: null,
+        settlementId: currentSettlementId || null,
         frontierId: currentFrontierId,
       });
     } else {
@@ -31,26 +29,24 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
     if (currentPlayer) {
       updateBadge(currentPlayer, () => {}, 'chat', false ?? true);
     }
-  }, [currentFrontierId]);
+  }, [currentFrontierId, currentSettlementId]);
 
   useEffect(() => {
-    if (!socket) return;
-
-    socket.on('receive-chat-message', (msg) => {
+    // Single subscriber for receive-chat-message; cleanup removes this exact handler.
+    const handleChatMessage = (msg) => {
       // Only show frontier messages
       if (msg.scope !== 'frontier') return;
-      
+
       if (!msg.username && currentPlayer?.username) {
         msg.username = currentPlayer.username;
       }
       console.log("📨 Received chat message via socket:", msg);
       setMessages(prev => [...prev, msg]);
-    });
-
-    return () => {
-        socket.off('receive-chat-message');
     };
-    }, [socket]);
+
+    const cleanup = socketListenForChatMessages(handleChatMessage);
+    return () => { cleanup?.(); };
+  }, [currentPlayer?.username]);
 
 
 useEffect(() => {

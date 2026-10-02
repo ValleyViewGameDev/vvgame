@@ -99,7 +99,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-  const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
+  // Single-PC store: the only PC on the grid is the local player (if present)
+  const localPC = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0] || null;
 
   // Force initial state to roam if not set
   if (!this.state || this.state === 'idle') {
@@ -107,19 +108,16 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     await updateThisNPC.call(this, gridId);
   }
  
-  // Check for visible PCs at the start of any state (immediate reaction)
-  const visiblePCsInRange = pcs.filter(pc => {
-    if (pc.hp <= 0) return false;
-    const dist = getDistance(this.position, pc.position);
-    if (dist > this.range) return false;
-    return canSeeTarget(this.position, pc.position);
-  });
-  
-  // If we see a PC and we're not already pursuing/attacking, immediately react
-  if (visiblePCsInRange.length > 0 && this.state === 'roam') {
-    const targetPC = visiblePCsInRange[Math.floor(Math.random() * visiblePCsInRange.length)];
-    console.log(`⚡ NPC ${this.id} spotted PC ${targetPC.username}! Entering pursue state.`);
-    this.targetPC = targetPC;
+  // Check whether the PC is visible at the start of any state (immediate reaction)
+  const pcVisibleInRange = !!localPC &&
+    localPC.hp > 0 &&
+    getDistance(this.position, localPC.position) <= this.range &&
+    canSeeTarget(this.position, localPC.position);
+
+  // If we see the PC and we're not already pursuing/attacking, immediately react
+  if (pcVisibleInRange && this.state === 'roam') {
+    console.log(`⚡ NPC ${this.id} spotted PC ${localPC.username}! Entering pursue state.`);
+    this.targetPC = localPC;
     this.state = 'pursue';
     this.pursueTimerStart = null;
     await updateThisNPC.call(this, gridId);
@@ -141,7 +139,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'pursue': {
-      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
+      this.targetPC = refreshTarget(this.targetPC, localPC); // Refresh position from latest state
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
         this.state = 'roam';
@@ -177,16 +175,6 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
       const timeSincePursueStart = Date.now() - this.pursueTimerStart;
       const distance = getDistance(this.position, this.targetPC?.position);
-      // Check if there's a closer PC to switch to (that can be seen)
-      const closestVisiblePC = findClosestVisiblePC(this.position, pcs);
-      if (closestVisiblePC && closestVisiblePC.playerId !== this.targetPC.playerId) {
-        const distToCurrent = distance;
-        const distToClosest = getDistance(this.position, closestVisiblePC.position);
-        if (distToCurrent - distToClosest >= 2) {
-          console.log(`🔄 NPC ${this.id} switching target from ${this.targetPC.username} to much closer PC ${closestVisiblePC.username}.`);
-          this.targetPC = closestVisiblePC;
-        }
-      }
       // Give up if: 
       // 1. Target is too far AND we've been chasing for a while, OR
       // 2. We can't see the target anymore (behind wall)
@@ -267,14 +255,13 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'attack': {
-      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
-      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
+      this.targetPC = refreshTarget(this.targetPC, localPC); // Refresh position from latest state
 
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
         this.pursueTimerStart = null;
         this.state = 'roam';
-        await updateThisNPC.call(gridId); // Save after transition
+        await updateThisNPC.call(this, gridId); // Save after transition
         break;
       }
       if (this.targetPC.hp <= 0 || this.targetPC.iscamping) {
@@ -354,41 +341,12 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 }
 
 /**
- * Finds the closest PC to the given position.
+ * Re-read the current target from the store so position/hp are fresh.
+ * Returns null if the target is no longer the PC on this grid.
  */
-function findClosestPC(npcPosition, pcs) {
-  let closestPC = null;
-  let minDistance = Infinity;
-
-  pcs.forEach((pc) => {
-    if (pc.hp <= 0) return; // ✅ Skip PCs that are dead
-    const distance = getDistance(npcPosition, pc.position);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closestPC = pc;
-    }
-  });
-
-  return closestPC;
-}
-
-/**
- * Helper to find the closest VISIBLE PC to an NPC (no walls blocking)
- */
-function findClosestVisiblePC(npcPosition, pcs) {
-  let closestPC = null;
-  let minDistance = Infinity;
-
-  pcs.forEach((pc) => {
-    if (pc.hp <= 0) return; // Skip PCs that are dead
-    const distance = getDistance(npcPosition, pc.position);
-    if (distance < minDistance && canSeeTarget(npcPosition, pc.position)) {
-      minDistance = distance;
-      closestPC = pc;
-    }
-  });
-
-  return closestPC;
+function refreshTarget(targetPC, localPC) {
+  if (!targetPC || !localPC) return null;
+  return localPC.playerId === targetPC.playerId ? localPC : null;
 }
 
 /**

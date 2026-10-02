@@ -19,7 +19,7 @@ import { renderPositions } from '../../PlayerMovement';
 const PixiRendererVFX = ({
   app,                    // PixiJS Application instance
   npcs,                   // Array of NPCs (for range indicators)
-  pcs,                    // Array of PCs (for future effects)
+  pcs,                    // Array of PCs (single-player: at most the local PC)
   currentPlayer,          // Current player (for settings like rangeOn)
   TILE_SIZE,              // Current tile size
   masterResources,        // Master resources list (for getDerivedRange calculation)
@@ -196,8 +196,9 @@ const PixiRendererVFX = ({
       return;
     }
 
-    // === PLAYER RANGE INDICATORS ===
-    const currentPC = pcs?.find(pc =>
+    // === PLAYER RANGE INDICATORS (local player only) ===
+    const pcList = Array.isArray(pcs) ? pcs : Object.values(pcs || {});
+    const currentPC = pcList.find(pc =>
       pc && String(pc.playerId) === String(currentPlayer?._id)
     );
 

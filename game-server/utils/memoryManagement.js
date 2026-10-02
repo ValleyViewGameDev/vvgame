@@ -28,25 +28,6 @@ function setupMemoryMonitoring() {
   logMemoryUsage('Startup');
 }
 
-// Clean up old entries from Maps/Sets
-function cleanupMemoryMaps(io) {
-  if (!io) return;
-  
-  const gridControllers = io.gridControllers;
-  const connectedPlayersByGrid = io.connectedPlayersByGrid;
-  
-  if (connectedPlayersByGrid) {
-    // Remove empty Sets from the Map
-    for (const [gridId, playerSet] of connectedPlayersByGrid.entries()) {
-      if (playerSet.size === 0) {
-        connectedPlayersByGrid.delete(gridId);
-      }
-    }
-  }
-  
-  console.log(`🧹 Memory cleanup: ${connectedPlayersByGrid?.size || 0} grids with players`);
-}
-
 // Monitor for memory warnings
 function setupMemoryWarnings() {
   const heapUsedThreshold = 0.8; // Warn at 80% heap usage
@@ -65,6 +46,5 @@ function setupMemoryWarnings() {
 module.exports = {
   logMemoryUsage,
   setupMemoryMonitoring,
-  cleanupMemoryMaps,
   setupMemoryWarnings
 };

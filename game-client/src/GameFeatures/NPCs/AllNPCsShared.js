@@ -1,4 +1,3 @@
-import socket from '../../socketManager'; 
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { calculateDistance } from '../../Utils/worldHelpers';
 import { attachGrazingBehavior } from './NPCGrazeBehavior';
@@ -8,7 +7,18 @@ import { attachHealBehavior } from './NPCHealBehavior';
 import { attachSpawnBehavior } from './NPCSpawnerBehavior';
 import { attachFarmerBehavior } from './NPCWorkerBehavior';
 import { attachTraderBehavior } from './NPCTraderBehavior';
- 
+
+const DIRECTION_DELTAS = {
+  N: { x: 0, y: -1 },
+  S: { x: 0, y: 1 },
+  E: { x: 1, y: 0 },
+  W: { x: -1, y: 0 },
+  NE: { x: 1, y: -1 },
+  SE: { x: 1, y: 1 },
+  SW: { x: -1, y: 1 },
+  NW: { x: -1, y: -1 },
+};
+
 class NPC {
   constructor(id, type, position, properties, gridId) {
     //console.log('NPC constructor: properties:', properties);
@@ -249,24 +259,17 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
 // NPC UTILITY //
 /////////////////
 
+// Moves the NPC one tile. Async so callers can `await` it (the graze
+// behaviour's `isMoving` guard relies on that), but the position is applied
+// synchronously; the returned promise settles on the next microtask.
 async moveOneTile(direction, tiles, resources, npcs) {
 
   if (this.action === 'spawn') {
     console.warn(`Spawner ${this.id} cannot move!`);
     return false; // ✅ Prevents spawners from moving at all
   }
-  const directions = {
-      N: { x: 0, y: -1 },
-      S: { x: 0, y: 1 },
-      E: { x: 1, y: 0 },
-      W: { x: -1, y: 0 },
-      NE: { x: 1, y: -1 },
-      SE: { x: 1, y: 1 },
-      SW: { x: -1, y: 1 },
-      NW: { x: -1, y: -1 },
-  };
 
-  const delta = directions[direction];
+  const delta = DIRECTION_DELTAS[direction];
   if (!delta) {
       console.error(`Invalid direction: ${direction}`);
       return false;
@@ -279,46 +282,19 @@ async moveOneTile(direction, tiles, resources, npcs) {
       console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
       return false;
   }
-  //console.log('Tile was valid.');
-  const moveDuration = 1200; // Standard movement speed for all NPCs
-  
-  // Set the target position immediately - CSS transition will handle the animation
+
+  // Set the target position immediately - the renderer animates the transition
   this.position.x = targetX;
   this.position.y = targetY;
-  
-  // Use updateNPCPosition for movement-only updates (doesn't save to DB immediately)
+
+  // Movement-only update (queued for the batch save, not saved immediately)
   NPCsInGridManager.updateNPCPosition(this.gridId, this.id, { x: targetX, y: targetY });
-  
-  return new Promise((resolve) => {
-      // Wait for CSS transition to complete before emitting socket event
-      setTimeout(() => {
-          if (socket && socket.connected) {
-            socket.emit('npc-moved', {
-              gridId: this.gridId,
-              npcId: this.id,
-              newPosition: { x: targetX, y: targetY },
-              emitterId: socket.id
-            });
-            //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY}) from ${socket.id}`);
-          }
-          resolve(true);
-      }, moveDuration);
-  });
+
+  return true;
 }
 
 getAdjacentTile(direction) {
-  const directions = {
-      N: { x: 0, y: -1 },
-      S: { x: 0, y: 1 },
-      E: { x: 1, y: 0 },
-      W: { x: -1, y: 0 },
-      NE: { x: 1, y: -1 },
-      SE: { x: 1, y: 1 },
-      SW: { x: -1, y: 1 },
-      NW: { x: -1, y: -1 },
-  };
-
-  const delta = directions[direction];
+  const delta = DIRECTION_DELTAS[direction];
   if (!delta) {
       console.error(`Invalid direction: ${direction}`);
       return { x: this.position.x, y: this.position.y };

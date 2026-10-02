@@ -16,7 +16,7 @@ import ConversationManager from '../../GameFeatures/Relationships/ConversationMa
 const PixiRendererSpeech = ({
   app,                    // PixiJS Application instance
   npcs,                   // Array of NPCs (for position lookup by type)
-  pcs,                    // Array of PCs (for position lookup by playerId)
+  pcs,                    // Array of PCs (single-player: at most the local PC)
   currentPlayer,          // Current player object
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
@@ -49,13 +49,13 @@ const PixiRendererSpeech = ({
 
   /**
    * Find entity position by speaker ID
-   * NPCs are identified by type, PCs by playerId
+   * NPCs are identified by type; the only PC speaker is the local player (by playerId)
    */
   const findEntityPosition = useCallback((speakerId) => {
-    // Check if it's the current player
+    // Check if it's the current player (the only PC that can speak)
     if (currentPlayer && String(speakerId) === String(currentPlayer._id)) {
-      // Find current player's PC
-      const currentPC = pcs?.find(pc => String(pc.playerId) === String(currentPlayer._id));
+      const list = Array.isArray(pcs) ? pcs : Object.values(pcs || {});
+      const currentPC = list.find(pc => pc && String(pc.playerId) === String(currentPlayer._id));
       if (currentPC?.position) {
         return currentPC.position;
       }
@@ -65,12 +65,6 @@ const PixiRendererSpeech = ({
     const npc = npcs?.find(n => n && n.type === speakerId);
     if (npc?.position) {
       return npc.position;
-    }
-
-    // Check PCs by playerId
-    const pc = pcs?.find(p => p && String(p.playerId) === String(speakerId));
-    if (pc?.position) {
-      return pc.position;
     }
 
     return null;

@@ -1,19 +1,7 @@
 import API_BASE from '../config';
-import socket from '../socketManager'; 
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/AllNPCsShared';
 import { loadMasterResources } from '../Utils/TuningManager';
-
-let gridTimer = null; // For periodic grid updates
-let externalSetGridState = null;
-
-let lastGridStateTimestamp = 0;
-export const updateLastGridStateTimestamp = (timestamp) => {
-  if (timestamp > lastGridStateTimestamp) {
-    lastGridStateTimestamp = timestamp;
-  }
-};
-export const getLastGridStateTimestamp = () => lastGridStateTimestamp;
 
 class GridStateManager {
   constructor() {
@@ -166,20 +154,16 @@ class GridStateManager {
     
     // Queue for batch save instead of immediate save
     this.queuePositionUpdate(gridId, npcId, position);
-    
-    // Still emit socket for real-time sync with other players
-    if (socket && socket.emit) {
-      const payload = {
-        [gridId]: {
-          npcs: { [npcId]: { ...npc, position } },
-          NPCsInGridLastUpdated: now,
-        },
-        emitterId: socket.id,
-      };
-      socket.emit('update-NPCsInGrid-NPCs', payload);
-    }
-    
-    // Update React state - force timestamp update
+
+    this.syncReact(gridId, now);
+  }
+
+  /**
+   * Mirror the in-memory grid entry into React state (triggers re-render).
+   */
+  syncReact(gridId, now = Date.now()) {
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid) return;
     NPCsInGrid.NPCsInGridLastUpdated = now;
     if (this.setGridStateReact) {
       this.setGridStateReact(prev => ({
@@ -191,10 +175,6 @@ class GridStateManager {
         },
       }));
     }
-  }
-
-  registerSetGridState(setterFunction) {
-    externalSetGridState = setterFunction;
   }
 
   /**
@@ -249,17 +229,7 @@ class GridStateManager {
       }
 
       this.NPCsInGrid[gridId] = NPCsInGrid;
-
-      if (this.setGridStateReact) {
-        console.log('📡 Syncing initialized NPCs to React state for gridId:', gridId);
-        this.setGridStateReact(prev => ({
-          ...prev,
-          [gridId]: {
-            ...(prev[gridId] || {}),
-            ...NPCsInGrid,
-          },
-        }));
-      }
+      this.syncReact(gridId, hydratedState.NPCsInGridLastUpdated || Date.now());
 
       console.log(`✅ Initialized and enriched NPCsInGrid for gridId ${gridId}:`, NPCsInGrid);
     } catch (error) {
@@ -292,8 +262,8 @@ class GridStateManager {
       console.error('Invalid npcType. Expected a string but got:', npcType);
       return;
     }
-    const masterResources = await axios.get(`${API_BASE}/api/resources`);
-    const npcTemplate = masterResources.data.find((res) => res.type === npcType && res.category === 'npc');
+    const masterResources = await loadMasterResources();
+    const npcTemplate = masterResources.find((res) => res.type === npcType && res.category === 'npc');
     if (!npcTemplate) {
       console.error(`NPC template not found for type: ${npcType}`);
       return;
@@ -385,18 +355,6 @@ class GridStateManager {
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npc.id}:`, error);
     }
-
-    if (socket && socket.emit) {
-      const payload = {
-        [gridId]: {
-          npcs: { [npc.id]: npc }, // or [npc.id]: npc in addNPC
-          NPCsInGridLastUpdated: now,
-        },
-        emitterId: socket.id,
-      };
-      console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
-      socket.emit('update-NPCsInGrid-NPCs', payload);
-    }
   }
 
   /**
@@ -460,30 +418,7 @@ class GridStateManager {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
     }
 
-    if (socket && socket.emit) {
-      const payload = {
-        [gridId]: {
-          npcs: { [npcId]: npc }, // or [npc.id]: npc in addNPC
-          NPCsInGridLastUpdated: now,
-        },
-        emitterId: socket.id,
-      };
-      //console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
-      socket.emit('update-NPCsInGrid-NPCs', payload);
-    }
-    
-    // Update React state to trigger re-renders - force timestamp update
-    NPCsInGrid.NPCsInGridLastUpdated = now;
-    if (this.setGridStateReact) {
-      this.setGridStateReact(prev => ({
-        ...prev,
-        [gridId]: {
-          ...(prev[gridId] || {}),
-          ...NPCsInGrid,
-          NPCsInGridLastUpdated: now,
-        },
-      }));
-    }
+    this.syncReact(gridId, now);
   }
 
 
@@ -516,15 +451,6 @@ class GridStateManager {
       console.log(`✅ Removed single NPC ${npcId} from server.`);
     } catch (error) {
       console.error(`❌ Failed to remove single NPC ${npcId}:`, error);
-    }
-
-    if (socket && socket.emit) {
-      socket.emit('remove-NPC', {
-        gridId,
-        npcId,
-        emitterId: socket.id,
-      });
-      console.log(`📡 Emitted NPC removal for ${npcId}`);
     }
   }
 
@@ -568,66 +494,15 @@ class GridStateManager {
 
       //console.log('💾 Payload for saving NPCs:', payload);
 
-      // Save to server
+      // Save to server (no callers yet; Phase 3 switches persistence to this per-grid snapshot)
       await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
-      //console.log(`✅ 💾 Saved NPCs for grid ${gridId}`);
-
-      // Emit updated NPCs to other clients
-      if (socket && socket.emit) {
-        console.log(`📡 Emitting NPC grid-state for grid ${gridId}`);
-        socket.emit('update-NPCsInGrid-NPCs', {
-          gridId,
-          npcs: dehydratedNPCs,
-          NPCsInGridLastUpdated: now,
-        });
-      }
     } catch (error) {
       console.error(`❌ Error saving NPCs for grid ${gridId}:`, error);
     }
   }
 
-  /**
-   * Start periodic updates for NPCs in the NPCsInGrid.
-   */
-  startGridTimer(gridId) {
-    if (gridTimer) clearInterval(gridTimer);
-
-    gridTimer = setInterval(() => {
-      const NPCsInGrid = this.NPCsInGrid[gridId];
-      if (!NPCsInGrid) return;
-
-      const { npcs } = NPCsInGrid;
-      const now = Date.now();
-
-      Object.values(npcs || {}).forEach((npc) => {
-        if (npc instanceof NPC && typeof npc.update === 'function') {
-          //console.log(`Calling update() for NPC ID: ${npc.id}`);
-          npc.update(now, NPCsInGrid); // Let each NPC handle its own updates
-        } else {
-          console.error(`NPC ID: ${npc.id} is not a valid NPC instance or missing update method. NPC:`, npc);
-        }
-      });
-
-      console.log(`Processed NPC updates for gridId ${gridId}.`);
-    }, 1000);
-  }
-
-  /**
-   * Stop periodic updates for NPCs.
-   */
-  stopGridTimer() {
-    if (gridTimer) clearInterval(gridTimer);
-    gridTimer = null;
-  }
-
   // Stop updates or clear grid state
   stopGridStateUpdates() {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval); // Clear periodic updates
-      this.updateInterval = null;
-      //console.log('Grid state updates stopped.');
-    }
-    
     // Flush any pending position updates before clearing
     this.flushPendingPositionUpdates();
     
@@ -654,36 +529,12 @@ class GridStateManager {
       npcs: npcsObject || {},
       NPCsInGridLastUpdated: lastUpdated,
     };
-  
-    if (this.setGridStateReact) {
-      this.setGridStateReact(prev => ({
-        ...prev,
-        [gridId]: {
-          ...(prev[gridId] || {}),
-          npcs: npcsObject || {},
-          NPCsInGridLastUpdated: Date.now(), // Force update timestamp
-        },
-      }));
-    }
+
+    this.syncReact(gridId);
   }
 
 }
 
 const NPCsInGridManager = new GridStateManager();
 
-// Export individual methods for direct use
-export const {
-  initializeGridState,
-  getNPCsInGrid,
-  addNPC,
-  updateNPC,
-  updateNPCPosition,
-  removeNPC, 
-  registerSetGridState,
-  setAllNPCs,
-  flushPendingPositionUpdates,
-  flushGridPositionUpdates,
-} = NPCsInGridManager;
-
-// Default export for the entire manager
 export default NPCsInGridManager;

@@ -9,9 +9,6 @@ import { getPlayerWorldPosition, getScrollPosition } from './Render/PixiRenderer
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
 
-// Track current registered TILE_SIZE for camera callback
-let registeredTileSize = 64;
-
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
 
@@ -621,57 +618,6 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
 
   // ✅ If all checks pass, movement is allowed
   return true;
-}
-
-/**
- * Register the current player for camera tethering during movement animation.
- * This should be called from App.js when the player is initialized.
- * @param {string} playerId - The current player's ID
- * @param {number} tileSize - The current TILE_SIZE
- */
-export function registerCurrentPlayerForCamera(playerId, tileSize) {
-  registeredTileSize = tileSize;
-
-  // Create a camera callback that will be called on each animation frame
-  const cameraCallback = (interpolatedPosition) => {
-    // Use instant camera update (not smooth) since we're already animating frame-by-frame
-    centerCameraOnPlayerInstant(interpolatedPosition, registeredTileSize);
-  };
-
-  // Register with PlayersInGrid manager
-  playersInGridManager.registerCurrentPlayer(playerId, cameraCallback);
-}
-
-/**
- * Instantly center the camera on a position without smooth scrolling.
- * NOTE: This function uses a simplified formula that doesn't account for the
- * unified world model (grid/settlement offsets). It's currently unused but
- * kept for future camera tethering implementation.
- */
-function centerCameraOnPlayerInstant(position, TILE_SIZE, zoomScale = 1) {
-  const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) return;
-
-  // Guard against undefined position
-  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-    return;
-  }
-
-  // Simple formula - doesn't account for unified world model offsets
-  const playerWorldX = position.x * TILE_SIZE * zoomScale;
-  const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
-  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
-
-  // Clamp to valid scroll bounds
-  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
-  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
-
-  // Use instant scroll (no behavior or behavior: 'instant')
-  gameContainer.scrollLeft = clampedX;
-  gameContainer.scrollTop = clampedY;
 }
 
 // Export renderPositions at the end to avoid initialization issues

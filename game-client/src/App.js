@@ -26,20 +26,10 @@ import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
 import questCache from './Utils/QuestCache';
 
-import socket from './socketManager';
-import {
-  socketListenForPCJoinAndLeave,
-  socketListenForPCstateChanges,
-  socketListenForNPCStateChanges,
-  socketListenForResourceChanges,
-  socketListenForTileChanges,
-  socketListenForNPCControllerStatus,
-  socketListenForSeasonReset,
-  socketListenForPlayerConnectedAndDisconnected,
+import socket, {
   socketListenForConnectAndDisconnect,
-  socketListenForChatMessages,
+  socketListenForForceRefresh,
   socketListenForBadgeUpdates,
-  socketListenForStoreBadgeUpdates,
 } from './socketManager';
 
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
@@ -51,7 +41,6 @@ import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
 import NPCsInGridManager from './GridState/GridStateNPCs.js';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
-import npcController from './GridState/NPCController';
 
 // LEGACY - Old HTML-based zoom views (PixiJS now handles settlement/frontier zoom)
 // import SettlementView from './ZoomedOut/SettlementView';
@@ -142,8 +131,7 @@ import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
 import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
-import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, registerCurrentPlayerForCamera, renderPositions } from './PlayerMovement';
-import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
+import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, renderPositions } from './PlayerMovement';
 import { fetchHomesteadOwner, calculateDistance, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
@@ -1012,13 +1000,6 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-// Register current player for camera tethering during movement animation
-useEffect(() => {
-  if (currentPlayer?._id && activeTileSize) {
-    registerCurrentPlayerForCamera(currentPlayer._id, activeTileSize);
-  }
-}, [currentPlayer?._id, activeTileSize]);
-
 // ============================================================================
 // UNIFIED WORLD MODEL - CAMERA POSITION
 // ============================================================================
@@ -1189,7 +1170,6 @@ const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-seas
 const { activePanel, openPanel, closePanel } = usePanelContext();
 const { closeAllPanels } = usePanelContext(); 
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
-const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
@@ -1342,19 +1322,14 @@ const handleNPCPanel = (npc) => {
   }
 };
 
-const handlePCClick = (pc) => {
-  console.log('App.js: Opening SocialPanel for PC:', pc);
-  setActiveSocialPC(pc);  // Set the active clicked PC globally
-  openPanel('SocialPanel');  // Open the panel
+// Opens the current player's own profile (SocialPanel). Other players are never shown in a grid.
+const openMyProfile = () => {
+  openPanel('SocialPanel');
 };
 
 const [hoverTooltip, setHoverTooltip] = useState(null);
 
 
-const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
-const [isSocketConnected, setIsSocketConnected] = useState(false);
-const [connectedPlayers, setConnectedPlayers] = useState(() => new Set());
-const [chatMessages, setChatMessages] = useState({});
 const [badgeState, setBadgeState] = useState({ chat: false, store: false, mailbox: false });
 
 //Forgot why we did this:
@@ -1377,32 +1352,22 @@ const [isAppInitialized, setIsAppInitialized] = useState(false);
 
 // Central INITIALIZATION for player and grid data //////////////////////////////////////////////////////
 
-// --- SOCKET "connect" LISTENER: Register before other listeners
-// This effect runs once at mount to set up socket.on('connect') as early as possible
+// --- SOCKET connect/disconnect LISTENER: re-joins the per-player room on every reconnect.
+// Keyed on playerId (not the whole currentPlayer object) so it registers once per login.
 useEffect(() => {
-  if (!socket) return;
-  // Remove any previous connect listeners to avoid duplicate logs
-  socket.off('connect', socket.__vvgame_connect_listener);
-  const connectListener = () => {
-    console.log('📡 Socket connected!');
-    if (currentPlayer?.playerId) {
-      console.log('📡 Rejoining playerId room:', currentPlayer.playerId);
-      socket.emit('join-player-room', currentPlayer.playerId);
-    }
-  };
-  socket.on('connect', connectListener);
-  // Save a reference for cleanup
-  socket.__vvgame_connect_listener = connectListener;
-  return () => {
-    socket.off('connect', connectListener);
-    delete socket.__vvgame_connect_listener;
-  };
-  // Depend on currentPlayer so we can re-emit join-player-room if playerId changes
-}, [socket, currentPlayer]);
+  const playerId = currentPlayer?.playerId;
+  if (!playerId) return;
+  const cleanup = socketListenForConnectAndDisconnect(playerId);
+  return cleanup;
+}, [currentPlayer?.playerId]);
+
+// --- SOCKET force-refresh LISTENER: server-requested reload (deploys, season reset)
+useEffect(() => {
+  const cleanup = socketListenForForceRefresh();
+  return cleanup;
+}, []);
 
 useEffect(() => {
-  let cleanupBadges = null;
-
   const initializeAppWrapper = async () => {
     const initStartTime = Date.now();
     console.log('🏁🏁🏁 [INIT] ========== App initialization begun ==========');
@@ -1527,47 +1492,9 @@ useEffect(() => {
       await waitForConnection();
       console.log("📡 Socket connected, now joining rooms...");
 
-      // Join the grid for grid-based updates
-      socket.emit('join-grid', { gridId: initialGridId, playerId: DBPlayerData.playerId });
-      console.log("📡 Emitted join-grid for grid:", initialGridId);
-
-      // Format playerData correctly for socket sync (matching PlayersInGrid schema)
-      // DBPlayerData uses different field names (baseHp, location.x) than PC schema (hp, position.x)
-      const formattedPlayerData = {
-        playerId: DBPlayerData.playerId || DBPlayerData._id?.toString(),
-        username: DBPlayerData.username,
-        type: 'pc',
-        icon: DBPlayerData.icon || '😀',
-        position: {
-          x: DBPlayerData.location?.x ?? 0,
-          y: DBPlayerData.location?.y ?? 0
-        },
-        hp: DBPlayerData.baseHp ?? 25,
-        maxhp: DBPlayerData.baseMaxhp ?? 25,
-        armorclass: DBPlayerData.baseArmorclass ?? 10,
-        attackbonus: DBPlayerData.baseAttackbonus ?? 0,
-        damage: DBPlayerData.baseDamage ?? 1,
-        attackrange: DBPlayerData.baseAttackrange ?? 1,
-        speed: DBPlayerData.baseSpeed ?? 1,
-        iscamping: DBPlayerData.iscamping ?? false,
-        isinboat: DBPlayerData.isinboat ?? false,
-        lastUpdated: Date.now(),
-      };
-
-      socket.emit('player-joined-grid', {
-        gridId: initialGridId,
-        playerId: DBPlayerData.playerId,
-        username: DBPlayerData.username,
-        playerData: formattedPlayerData,
-      });
-      // Join the player room for personal updates
+      // Join the player room for personal updates (badges, force-refresh)
       socket.emit('join-player-room', { playerId: DBPlayerData.playerId });
       console.log(`📡 Joined socket room for playerId: ${DBPlayerData.playerId}`);
-      socket.emit('set-username', { username: DBPlayerData.username });
-
-      // Request current NPCController status to clear any stale controller data
-      console.log(`🎮 Requesting current NPCController for grid: ${initialGridId}`);
-      socket.emit('request-npc-controller', { gridId: initialGridId });
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -1594,7 +1521,7 @@ useEffect(() => {
 
       // Step 7. Initialize PCs
       console.log('🏁✅ 7 InitAppWrapper; Initializing playersInGrid...');
-      await playersInGridManager.initializePlayersInGrid(initialGridId);
+      await playersInGridManager.initializePlayersInGrid(initialGridId, String(DBPlayerData.playerId));
       const freshPCState = playersInGridManager.getPlayersInGrid(initialGridId);
       const playerId = String(parsedPlayer.playerId);
       console.log('🔍 [DEBUG] playerId:', playerId);
@@ -1825,8 +1752,6 @@ useEffect(() => {
         updateBadge(updatedPlayerData, setBadgeState, 'mailbox', true); // ✅ Use your helper
       }
 
-      cleanupBadges = socketListenForBadgeUpdates(updatedPlayerData, setBadgeState, updateBadge);
-
       console.log(`🏁 [INIT] ========== Data initialization complete (+${Date.now() - initStartTime}ms) ==========`);
 
       const zoom = localStorage.getItem("initialZoomLevel");
@@ -1900,10 +1825,6 @@ useEffect(() => {
 
 
   initializeAppWrapper();
-
-  return () => {
-    cleanupBadges?.();
-  };
 }, []);  // Only run once when the component mounts
 
 // Revival state handlers
@@ -2104,8 +2025,9 @@ useEffect(() => {
 }, [currentPlayer]);
 
 // Establish UI BADGING (Chat, Mailbox, Store) //////////////////////////////////////////////////////
+// Single registration of the badge socket listener, keyed on playerId (not the whole currentPlayer).
 useEffect(() => {
-  if (!currentPlayer?.username) return;
+  if (!currentPlayer?.playerId) return;
   // Load badge state from localStorage
   const stored = localStorage.getItem(`badges_${currentPlayer.username}`);
   if (stored) {
@@ -2117,7 +2039,7 @@ useEffect(() => {
   return () => {
     cleanupBadges?.();
   };
-}, [currentPlayer, socket]);
+}, [currentPlayer?.playerId]);
 
 // Watch for ftuestep changes to show FTUE modal
 useEffect(() => {
@@ -2256,9 +2178,8 @@ useEffect(() => {
       console.warn('No NPCs in NPCsInGrid for gridId:', gridId);
       return;
     }
-    const isController = controllerUsername === currentPlayer?.username;
-
-    if (isController) {
+    // Phase 1: every client ticks its own NPCs; there is no NPC controller election.
+    {
       Object.values(currentGridNPCs).forEach((npc) => {
         if (typeof npc.update !== 'function') {
           console.warn(`🛑 Skipping NPC without update() method:`, npc);
@@ -2271,29 +2192,16 @@ useEffect(() => {
           return;
         }
         
-        //console.log(`[🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
         npc.update(Date.now(), NPCsInGrid[gridId], gridId, activeTileSize);
       });
       
-      // Trigger React state update after all NPCs have been updated
-      // This ensures Canvas mode re-renders with new positions
-      const updatedGridState = NPCsInGridManager.getNPCsInGrid(gridId);
-      if (updatedGridState?.npcs) {
-        NPCsInGridManager.setAllNPCs(gridId, updatedGridState.npcs);
-        console.log('🔄 NPC update loop: Triggered state update, sample NPC:', 
-          Object.values(updatedGridState.npcs)[0] ? {
-            id: Object.values(updatedGridState.npcs)[0].id,
-            pos: `${Object.values(updatedGridState.npcs)[0].position?.x},${Object.values(updatedGridState.npcs)[0].position?.y}`
-          } : 'none'
-        );
-      }
-    } else {
-      //console.log('🛑 Not the NPC controller. Skipping NPC updates.');
+      // Rendering is driven by NPCsInGridManager's own React sync (updateNPCPosition / updateNPC);
+      // no extra per-tick state bump here (the old one never ran: getNPCsInGrid returns the npc map).
     }
   }, 1000);
 
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize, controllerUsername]);
+}, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize]);
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2610,68 +2518,9 @@ useEffect(() => {
 
 
 /////////// SOCKET LISTENERS /////////////////////////
-
-// 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
-useEffect(() => {
-  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid, controllerUsername, setControllerUsername);
-}, [socket, gridId, isMasterResourcesReady, currentPlayer, controllerUsername]);
-
-// 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
-useEffect(() => {
-  if (!isAppInitialized) { console.log('App not initialized. Skipping PC socket changes.'); return; }
-  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef, setConnectedPlayers);
-}, [socket, gridId, currentPlayer]);
-
-// 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
-useEffect(() => {
-  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC socket changes.'); return; }  
-  socketListenForNPCStateChanges(activeTileSize, gridId, setGridState, npcController);
-}, [socket, gridId, isAppInitialized]);
-
-// 🔄 SOCKET LISTENER: Real-time updates for resources
-useEffect(() => {
-  socketListenForResourceChanges(activeTileSize, gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster);
-}, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
-
-// 🔄 SOCKET LISTENER: Real-time updates for tiles
-useEffect(() => {
-  socketListenForTileChanges(gridId, setTileTypes, mergeTiles);
-}, [socket, gridId]);
-
-// Add socket event listeners for NPC controller status
-useEffect(() => {
-  socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername);
-}, [socket, gridId, currentPlayer]);
-
-// 🔄 SOCKET LISTENER: Force refresh on season reset
-useEffect(() => {
-  socketListenForSeasonReset();
-}, [socket]);
-
-useEffect(() => {
-  if (!socket || !currentPlayer || !gridId) return;
-  socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected);
-}, [socket, currentPlayer, gridId]);
-
-useEffect(() => {
-  if (!socket || !gridId) return;
-  const cleanup = socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
-  return cleanup;
-}, [socket, gridId]);
-
-// 🔄 SOCKET LISTENER: Real-time updates for mailbox badge
-useEffect(() => {
-  if (!socket || !currentPlayer?.playerId) return;
-  const cleanup = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
-  return cleanup;
-}, [socket, currentPlayer]);
-
-// 🔄 SOCKET LISTENER: Real-time chat messages
-useEffect(() => {
-  if (!socket || !currentPlayer) return;
-  const cleanup = socketListenForChatMessages(setChatMessages); // ✅ Must pass correct setter
-  return cleanup;
-}, [socket, currentPlayer]);
+// Phase 1: the socket carries only connect/disconnect, join-player-room, chat, badges and
+// force-refresh. Those listeners are registered above (connect + force-refresh near the init
+// effect, badges under "Establish UI BADGING", chat inside Chat.js).
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
@@ -3335,7 +3184,6 @@ const handleLoginSuccess = async (player) => {
 
   useEffect(() => {
     let lastActivity = Date.now();
-    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
     const REFRESH_TIMEOUT = 20 * 60 * 1000; // 20 minutes
     const updateActivity = () => { lastActivity = Date.now(); };
 
@@ -3374,11 +3222,6 @@ const handleLoginSuccess = async (player) => {
           window.location.reload();
         }, 30000);
 
-      } else if (inactiveTime >= INACTIVITY_LIMIT) {
-        console.warn('👋 Inactive for a while. Releasing controller role.');
-        if (controllerUsername === currentPlayer?.username) {
-          socket.emit('relinquish-npc-controller', { gridId });
-        }
       }
     };
 
@@ -3411,7 +3254,7 @@ const handleLoginSuccess = async (player) => {
       window.removeEventListener('keydown', updateActivity);
       clearInterval(interval);
     };
-  }, [currentPlayer, controllerUsername, gridId]);
+  }, [currentPlayer, gridId]);
 
 
   ///////////////// FOR THE PANELS:
@@ -3472,16 +3315,7 @@ return (
           {/* Row 1 */}
           <button className="header-link" onClick={() => {
             if (currentPlayer) {
-              const currentPC = {
-                playerId: currentPlayer._id,
-                username: currentPlayer.username,
-                icon: currentPlayer.icon,
-                hp: currentPlayer.hp || 100,
-                position: { x: 0, y: 0 },
-                iscamping: currentPlayer.iscamping,
-                isinboat: currentPlayer.isinboat
-              };
-              handlePCClick(currentPC);
+              openMyProfile();
             }
           }}>
             {(() => {
@@ -3498,16 +3332,7 @@ return (
 
           <button className="header-link" disabled={!currentPlayer} onClick={() => {
             if (currentPlayer) {
-              const currentPC = {
-                playerId: currentPlayer._id,
-                username: currentPlayer.username,
-                icon: currentPlayer.icon,
-                hp: currentPlayer.hp || 100,
-                position: { x: 0, y: 0 },
-                iscamping: currentPlayer.iscamping,
-                isinboat: currentPlayer.isinboat
-              };
-              handlePCClick(currentPC);
+              openMyProfile();
             }
           }}>
             {strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}
@@ -3552,16 +3377,7 @@ return (
           <span></span>
           <button className="header-link" disabled={!currentPlayer} onClick={() => {
             if (currentPlayer) {
-              const currentPC = {
-                playerId: currentPlayer._id,
-                username: currentPlayer.username,
-                icon: currentPlayer.icon,
-                hp: currentPlayer.hp || 100,
-                position: { x: 0, y: 0 },
-                iscamping: currentPlayer.iscamping,
-                isinboat: currentPlayer.isinboat
-              };
-              handlePCClick(currentPC);
+              openMyProfile();
             }
           }}>
             {strings[10112]}
@@ -3678,17 +3494,7 @@ return (
         disabled={!currentPlayer}
         onClick={() => {
           if (currentPlayer) {
-            // Create PC data structure for current player to pass to SocialPanel
-            const currentPC = {
-              playerId: currentPlayer._id,
-              username: currentPlayer.username,
-              icon: currentPlayer.icon,
-              hp: currentPlayer.hp || 100,
-              position: { x: 0, y: 0 }, // Position not needed for own profile
-              iscamping: currentPlayer.iscamping,
-              isinboat: currentPlayer.isinboat
-            };
-            handlePCClick(currentPC);
+            openMyProfile();
           }
         }}
       >
@@ -3871,29 +3677,6 @@ return (
       </div>
 
       <br />
-      <h3>{strings[10126]}</h3>
-      <div>
-      {playersInGrid?.[gridId]?.pcs && typeof playersInGrid[gridId].pcs === 'object' ? (
-          Object.entries(playersInGrid[gridId].pcs).length === 0 ? (
-            <h4>{strings[10127]}</h4>
-          ) : (
-            Object.entries(playersInGrid[gridId].pcs).map(([playerId, pc]) => (
-              <p key={playerId}>
-                {connectedPlayers.has(playerId) && '📡 '}
-                <strong>{pc.username}</strong>
-              </p>
-            ))
-          )
-        ) : (
-          <h4>{strings[10127]}</h4>
-        )}
-        <h4>
-          {controllerUsername
-            ? `🐮 ${controllerUsername}`
-            : "There is no NPCController"}
-        </h4>
-      </div>
-      <br />
       </div>
       <div className="base-panel-buffer"></div>
     </div>
@@ -3946,7 +3729,6 @@ return (
           hoverTooltip={hoverTooltip}
           setHoverTooltip={setHoverTooltip}
           onNPCClick={handleNPCPanel}
-          onPCClick={handlePCClick}
           // Props for NPC interactions
           setInventory={setInventory}
           setBackpack={setBackpack}
@@ -3963,7 +3745,6 @@ return (
           timers={timers}
           playersInGrid={playersInGrid}
           isDeveloper={isDeveloper}
-          connectedPlayers={connectedPlayers}
           cursorMode={cursorMode}
           // Settlement zoom props
           settlementData={settlementData}
@@ -4285,7 +4066,7 @@ return (
         setIsRelocating={setIsRelocating}
         zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel}
-        handlePCClick={handlePCClick}
+        handlePCClick={openMyProfile}
         isDeveloper={isDeveloper}
        />
       )}
@@ -4833,7 +4614,6 @@ return (
       {activePanel === 'SocialPanel' && (
         <SocialPanel
           onClose={closePanel}
-          pcData={activeSocialPC}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           inventory={inventory}
@@ -4841,14 +4621,10 @@ return (
           backpack={backpack}
           setBackpack={setBackpack}
           updateStatus={updateStatus}
-          masterInteractions={masterInteractions}
           masterTrophies={masterTrophies}
           masterResources={masterResources}
           masterXPLevels={masterXPLevels}
           masterTraders={masterTraders}
-          isDeveloper={isDeveloper}
-          controllerUsername={controllerUsername}
-          setControllerUsername={setControllerUsername}
           openPanel={openPanel}
         />
       )}

@@ -7,36 +7,6 @@ const Grid = require('../models/grid');
 ///////////////////////////////////////////////////////////////
 
 // Dedicated route: save only PCs without altering NPCs
-router.post('/save-grid-state-pcs', async (req, res) => {
-  const { gridId, pcs, playersInGridLastUpdated } = req.body;
-
-  try {
-    // Validate input
-    if (!gridId || !pcs) {
-      return res.status(400).json({ error: 'gridId and pcs are required.' });
-    }
-
-    // Find the grid by ID
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: 'Grid not found.' });
-    }
-
-    // Update the playersInGrid and timestamp
-    grid.playersInGrid = pcs;
-    grid.playersInGridLastUpdated = new Date(playersInGridLastUpdated);
-
-    await grid.save();
-
-    console.log(`✅ PCs successfully saved for gridId: ${gridId}`);
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('❌ Error saving NPCsInGrid PCs:', error);
-    res.status(500).json({ error: 'Failed to save NPCsInGrid PCs.' });
-  }
-});
-
-// Dedicated route: save a single PC to playersInGrid (using atomic operations)
 router.post('/save-single-pc', async (req, res) => {
   const { gridId, playerId, pc, lastUpdated } = req.body;
 
@@ -188,44 +158,6 @@ router.get('/load-grid-state/:gridId', async (req, res) => {
   }
 });
 
-router.post('/get-multiple-grid-states', async (req, res) => {
-  const { gridIds } = req.body;
-  
-  if (!Array.isArray(gridIds)) {
-    return res.status(400).json({ error: 'gridIds must be an array' });
-  }
-
-  try {
-    // Find all grids in one query, selecting only relevant fields
-    const grids = await Grid.find(
-      { _id: { $in: gridIds } },
-      'playersInGrid playersInGridLastUpdated NPCsInGrid NPCsInGridLastUpdated'
-    );
-    
-    // Create a map of gridId to NPCsInGrid
-    const NPCsInGrids = grids.reduce((acc, grid) => {
-      acc[grid._id] = {
-        playersInGrid: {
-          pcs: Object.fromEntries(grid.playersInGrid || []),
-          lastUpdated: grid.playersInGridLastUpdated || null
-        },
-        NPCsInGrid: {
-          npcs: Object.fromEntries(grid.NPCsInGrid || []),
-          lastUpdated: grid.NPCsInGridLastUpdated || null
-        }
-      };
-      return acc;
-    }, {});
-    
-    res.json(NPCsInGrids);
-  } catch (error) {
-    console.error('Error fetching multiple grid states:', error);
-    res.status(500).json({ error: 'Failed to fetch grid states' });
-  }
-});
-
-
-// Dedicated route: save a single NPC to NPCsInGrid
 router.post('/save-single-npc', async (req, res) => {
   const { gridId, npcId, npc, lastUpdated } = req.body;
 

@@ -8,7 +8,7 @@ console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
 console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
 
 // Memory management
-const { setupMemoryMonitoring, setupMemoryWarnings, cleanupMemoryMaps } = require('./utils/memoryManagement');
+const { setupMemoryMonitoring, setupMemoryWarnings } = require('./utils/memoryManagement');
 setupMemoryMonitoring();
 setupMemoryWarnings();
 
@@ -39,7 +39,7 @@ const Player = require('./models/player');
 const Grid = require('./models/grid');
 const Chat = require('./models/chat'); // Import ChatMessage model
 const { setSocketIO } = require('./socketInstance');
-const { getStatus, maintenanceGate } = require('./utils/serviceMode');
+const { getStatus, maintenanceGate, isDeveloperPlayerId } = require('./utils/serviceMode');
 
 const worldRoutes = require('./routes/worldRoutes');
 const gridRoutes = require('./routes/gridRoutes'); 
@@ -128,236 +128,37 @@ mongoose.connect(process.env.MONGODB_URI, {
     app.set('socketio', io); // ✅ Attach io to app so it's accessible in route handlers
     setSocketIO(io);         // ✅ Register globally for non-route modules
     
-    // Set up periodic memory cleanup for socket.io Maps
-    setInterval(() => {
-      cleanupMemoryMaps(io);
-    }, 10 * 60 * 1000); // Every 10 minutes
-    
 ///////// SOCKET EVENTS //////////
+    // Phase 1 (docs/refactor-plan.md): the socket carries only per-player notifications and chat.
+    // There are no grid rooms, no NPC controller, and no PC/NPC/tile/resource sync.
 
     io.on('connection', (socket) => {
-      console.log(`🟢 New client connected: ${socket.id}`);
-
-      // Track controller assignments (move this OUTSIDE the connection handler)
-      const gridControllers = io.gridControllers = io.gridControllers || new Map();
-
-      // Track connected players per grid (shared across all sockets)
-      const connectedPlayersByGrid = io.connectedPlayersByGrid = io.connectedPlayersByGrid || new Map();
-
-      // 📡 Respond to a request for currently connected players in the grid
-      socket.on('request-connected-players', async ({ gridId }) => {
-        // Use the connectedPlayersByGrid map to get the player IDs
-        const players = Array.from(connectedPlayersByGrid.get(gridId) || []);
-        socket.emit('connected-players', { gridId, connectedPlayerIds: players });
+      // Private room for player-specific pushes (mailbox/store badges, force-refresh).
+      socket.on('join-player-room', ({ playerId } = {}) => {
+        if (playerId) socket.join(String(playerId));
       });
 
-      socket.on('disconnect', () => {
-        //console.log(`🔴 Client disconnected: ${socket.id}`);
-        // Check all grids this socket was controlling
-        gridControllers.forEach((controller, gridId) => {
-          if (controller.socketId === socket.id) {
-            const room = io.sockets.adapter.rooms.get(gridId);
-            const nextSocket = room?.values()?.next()?.value;
-            if (nextSocket) {
-              const nextSocketObj = io.sockets.sockets.get(nextSocket);
-              gridControllers.set(gridId, {
-                socketId: nextSocket,
-                username: nextSocketObj.username
-              });
-              io.to(gridId).emit('npc-controller-update', {
-                gridId,
-                controllerUsername: nextSocketObj.username
-              });
-            } else {
-              gridControllers.delete(gridId);
-              io.to(gridId).emit('npc-controller-update', {
-                gridId,
-                controllerUsername: null
-              });
-            }
-          }
-        });
-        // Remove the player from connectedPlayersByGrid and broadcast update
-        if (socket.gridId && socket.playerId) {
-          const playerSet = connectedPlayersByGrid.get(socket.gridId);
-          if (playerSet) {
-            playerSet.delete(socket.playerId);
-            io.to(socket.gridId).emit('connected-players', {
-              gridId: socket.gridId,
-              connectedPlayerIds: Array.from(playerSet),
-            });
-          }
-          // Emit player-disconnected for legacy logic
-          //console.log(`❌ Emitting player-disconnected for ${socket.playerId}`);
-          socket.to(socket.gridId).emit('player-disconnected', {
-            playerId: socket.playerId
-          });
-        }
-      });
-      
-      // Handle mailbox badge updates
-      socket.on('update-mailbox-badge', ({ playerId, hasNewMail }) => {
-        if (!playerId || typeof hasNewMail !== 'boolean') {
-          console.warn('⚠️ Invalid update-mailbox-badge payload:', { playerId, hasNewMail });
-          return;
-        }
-        // Broadcast to all sockets EXCEPT sender
-        socket.broadcast.emit('mailbox-badge-update', { playerId, hasNewMail });
-      });
-      
-      socket.on('join-grid', async ({ gridId, playerId }) => {
-        console.log(`📡 Socket ${socket.id} joining grid room: "${gridId}" (type: ${typeof gridId})`);
-        socket.join(gridId);
-        socket.gridId = gridId;
-        socket.playerId = playerId; // Store playerId on the socket
-        // Track player in connectedPlayersByGrid and broadcast update
-        if (!connectedPlayersByGrid.has(gridId)) {
-          connectedPlayersByGrid.set(gridId, new Set());
-        }
-        connectedPlayersByGrid.get(gridId).add(playerId);
-        io.to(gridId).emit('connected-players', {
-          gridId,
-          connectedPlayerIds: Array.from(connectedPlayersByGrid.get(gridId)),
-        });
-        //console.log(`📡 Player ${playerId} joined grid ${gridId}`);
-        io.to(gridId).emit('player-connected', { playerId });
-        try {
-          const gridDoc = await Grid.findById(gridId);
-          const pcs = gridDoc?.playersInGrid || {};
-          socket.emit('current-grid-players', { gridId, pcs });
-          //console.log(`📦 Sent current PCs in grid ${gridId} to ${socket.id}`);
-        } catch (error) {
-          console.error(`❌ Failed to fetch grid PCs for grid ${gridId}:`, error);
-        }
-        // If no controller exists for this grid, assign this socket
-        if (!gridControllers.has(gridId)) {
-          gridControllers.set(gridId, { socketId: socket.id, username: socket.username });
-          // Broadcast to ALL clients in the grid
-          io.to(gridId).emit('npc-controller-update', { 
-            gridId,
-            controllerUsername: socket.username 
-          });
-          //console.log(`🎮 Socket ${socket.id} (${socket.username}) assigned as controller for grid ${gridId}`);
-        } else {
-          // Inform the new joiner who the current controller is
-          socket.emit('npc-controller-update', {
-            gridId,
-            controllerUsername: gridControllers.get(gridId).username
-          });
-        }
+      // Chat rooms are the settlement and the frontier. Grid-scoped chat is gone with shared grids.
+      socket.on('join-chat-rooms', ({ settlementId, frontierId } = {}) => {
+        if (settlementId) socket.join(String(settlementId));
+        if (frontierId) socket.join(String(frontierId));
+        socket.settlementId = settlementId;
+        socket.frontierId = frontierId;
       });
 
-      socket.on('leave-grid', (gridId) => {
-        socket.leave(gridId);
-        // Remove from connectedPlayersByGrid and broadcast update
-        const playerSet = connectedPlayersByGrid.get(gridId);
-        if (playerSet) {
-          playerSet.delete(socket.playerId);
-          io.to(gridId).emit('connected-players', {
-            gridId,
-            connectedPlayerIds: Array.from(playerSet),
-          });
-        }
-        // If this socket was the controller, assign to another socket in the room
-        if (gridControllers.get(gridId)?.socketId === socket.id) {
-          const room = io.sockets.adapter.rooms.get(gridId);
-          const nextSocket = room?.values()?.next()?.value;
-          if (nextSocket) {
-            const nextSocketObj = io.sockets.sockets.get(nextSocket);
-            gridControllers.set(gridId, {
-              socketId: nextSocket,
-              username: nextSocketObj.username
-            });
-            // Broadcast the new controller to all clients
-            io.to(gridId).emit('npc-controller-update', {
-              gridId,
-              controllerUsername: nextSocketObj.username
-            });
-          } else {
-            gridControllers.delete(gridId);
-            io.to(gridId).emit('npc-controller-update', {
-              gridId,
-              controllerUsername: null
-            });
-          }
-        }
-      });
-      socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
-        //console.log(`👋 Player ${username} joined grid ${gridId}`);
-        //console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
-        
-        // 🚨 [DEBUG] Log received and re-emitted data for socket debugging
-        console.log('🚨 [SERVER DEBUG] Received player-joined-grid:', {
-          playerId,
-          username,
-          gridId,
-          playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
-          playerDataHP: playerData?.hp,
-          playerDataMaxHP: playerData?.maxhp,
-          playerDataArmorClass: playerData?.armorclass,
-          playerDataAttackBonus: playerData?.attackbonus,
-        });
-        
-        // Emit a distinct event name to avoid confusion and include the emitter's socket ID
-        socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData, emitterId: socket.id });
-      });
-
-      socket.on('player-left-grid', ({ gridId, playerId, username }) => {
-        //console.log(`👋 Player ${username} left grid ${gridId}`);
-        // Include the emitter's socket ID in the payload
-        socket.to(gridId).emit('player-left-sync', { playerId, username, emitterId: socket.id });
-      });
-      // Track username with socket
-      socket.on('set-username', ({ username }) => {
-        socket.username = username;
-        // If this socket is controlling any grids, update the username
-        gridControllers.forEach((controller, gridId) => {
-          if (controller.socketId === socket.id) {
-            gridControllers.set(gridId, { 
-              socketId: socket.id, 
-              username 
-            });
-            // Broadcast the update
-            io.to(gridId).emit('npc-controller-update', { 
-              gridId,
-              controllerUsername: username 
-            });
-          }
-        });
-      });
-
-      // "Player-Room" is a room for private player-specific events, like Store and Mailbox updates
-      socket.on('join-player-room', ({ playerId }) => {
-        if (playerId) {
-          socket.join(playerId);
-          console.log(`🧩 Socket ${socket.id} joined player room: ${playerId}`);
-        }
-      });
-
-      // Handle incoming chat messages
-      socket.on('send-chat-message', async (msg) => {
+      socket.on('send-chat-message', async (msg = {}) => {
         const { scope, message, playerId, username } = msg;
         let scopeId;
-
-        if (scope === 'grid') scopeId = socket.gridId;
-        else if (scope === 'settlement') scopeId = socket.settlementId;
+        if (scope === 'settlement') scopeId = socket.settlementId;
         else if (scope === 'frontier') scopeId = socket.frontierId;
         else return;
+        if (!scopeId || typeof message !== 'string' || !message.trim()) return;
 
         const cleanedMessage = leoProfanity.clean(message);
+        const newMessage = new Chat({ playerId, username, message: cleanedMessage, scope, scopeId, timestamp: Date.now() });
+        await newMessage.save();
 
-        const newMessage = new Chat({
-          playerId,
-          username,
-          message: cleanedMessage,
-          scope,
-          scopeId,
-          timestamp: Date.now()
-        });
-
-        await newMessage.save(); // Save to MongoDB
-
-        const payload = {
+        io.to(scopeId).emit('receive-chat-message', {
           id: newMessage._id.toString(),
           playerId: newMessage.playerId,
           username: newMessage.username,
@@ -365,134 +166,9 @@ mongoose.connect(process.env.MONGODB_URI, {
           scope: newMessage.scope,
           scopeId: newMessage.scopeId,
           timestamp: newMessage.timestamp,
-          emitterId: socket.id, // 👈 Add this
-        };
-
-        io.to(scopeId).emit('receive-chat-message', payload);
-
-        // 🔔 Emit chat badge updates to ALL OTHER sockets in the same chat room (excluding sender)
-        socket.to(scopeId).emit('chat-badge-update', {
-          playerId, // optional if not needed by the listener
-          hasUpdate: true
+          emitterId: socket.id,
         });
-
-        // 🔔 Also update the sender's badge if desired (optional)
-        io.to(playerId).emit('chat-badge-update', {
-          playerId,
-          hasUpdate: true
-        });
-      });
-
-      socket.on('join-chat-rooms', ({ gridId, settlementId, frontierId }) => {
-      if (gridId) socket.join(gridId);
-      if (settlementId) socket.join(settlementId);
-      if (frontierId) socket.join(frontierId);
-      socket.gridId = gridId;
-      socket.settlementId = settlementId;
-      socket.frontierId = frontierId;
-    });
-
-
-    // 📡 Broadcast updated PCs to others in the same grid
-    socket.on('update-NPCsInGrid-PCs', (payload) => {
-      //console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
-      const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
-      const emitterId = payload.emitterId || socket.id;
-      if (gridEntries.length === 0) {
-        console.warn('⚠️ Payload missing grid-specific data.');
-        return;
-      }
-      const [gridId, gridData] = gridEntries[0];
-      const { pcs, playersInGridLastUpdated } = gridData || {};
-      if (!gridId || !pcs || !playersInGridLastUpdated) {
-        console.warn('⚠️ Invalid or incomplete PCs update:', {
-          gridId,
-          pcs,
-          playersInGridLastUpdated,
-          emitterId,
-        });
-        return;
-      }
-      // Preserve the original structure for rebroadcast
-      const outboundPayload = {
-        [gridId]: {
-          pcs,
-          playersInGridLastUpdated
-        },
-        emitterId
-      };
-      //console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
-      //console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
-      socket.to(gridId).emit('sync-PCs', outboundPayload);
-    });
-
-      // Broadcast updated NPCs to others in the same grid
-      socket.on('update-NPCsInGrid-NPCs', (payload) => {
-        //console.log('📩 Received update-NPCsInGrid-NPCs with payload:\n', JSON.stringify(payload, null, 2));
-      
-        const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
-        const emitterId = payload.emitterId || socket.id;
-        if (gridEntries.length === 0) {
-          console.warn('⚠️ Payload missing grid-specific data.');
-          return;
-        }
-        const [gridId, gridData] = gridEntries[0];
-        const { npcs, NPCsInGridLastUpdated } = gridData || {};
-        if (!gridId || !npcs || !NPCsInGridLastUpdated) {
-          console.warn('⚠️ Invalid or incomplete NPCs update:', { gridId, npcs, NPCsInGridLastUpdated, emitterId });
-          return;
-        }
-        const outboundPayload = {
-          [gridId]: { npcs, NPCsInGridLastUpdated },
-          emitterId,
-        };
-        //console.log(`📤 Broadcasting sync-NPCs for grid ${gridId}`);
-        //console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));  
-        socket.to(gridId).emit('sync-NPCs', outboundPayload);
-      });
-      
-      socket.on('npc-moved', ({ gridId, npcId, newPosition }) => {
-        if (!gridId || !npcId || !newPosition) {
-          console.error('Invalid npc-moved payload:', { gridId, npcId, newPosition });
-          return;
-        }
-        socket.to(gridId).emit('npc-moved-sync', { npcId, newPosition, emitterId: socket.id });
-        //console.log(`📡 server: npc-moved; NPC ${npcId} moved to ${JSON.stringify(newPosition)} in grid ${gridId}`);
-      });
-
-      // Handle NPC removal
-      socket.on('remove-NPC', ({ gridId, npcId }) => {
-        if (!gridId || !npcId) {
-          console.error('Invalid remove-NPC payload:', { gridId, npcId });
-          return;
-        }
-        //console.log(`📡 server: remove-NPC; NPC ${npcId} removed from grid ${gridId}`);
-        socket.to(gridId).emit('remove-NPC', { gridId, npcId, emitterId: socket.id });
-      });
-      
-      // Handle tile updates
-      socket.on('update-tile', ({ gridId, updatedTiles }) => {
-        //console.log(`🌍 update-tile received for grid ${gridId}`);
-        io.in(gridId).fetchSockets().then(sockets => {
-          //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
-        });
-        // Broadcast tile updates to all clients in the grid
-      socket.to(gridId).emit('tile-sync', {
-          gridId,
-          updatedTiles,
-        });
-      });
-
-      // Broadcast updated resources to others in the same grid
-      socket.on('update-resource', ({ gridId, updatedResources }) => {
-        //console.log(`🌍 update-resource received for grid ${gridId}`);
-        io.in(gridId).fetchSockets().then(sockets => {
-          //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
-        });
-      socket.to(gridId).emit('resource-sync', {
-          gridId,
-          updatedResources,
-        });
+        socket.to(scopeId).emit('chat-badge-update', { playerId, hasUpdate: true });
       });
     });
 
@@ -546,6 +222,16 @@ app._router.stack.forEach(function(r) {
   if (r.route && r.route.path) {
     console.log(`Registered route: ${r.route.path}`);
   }
+});
+
+// Ask every connected client to reload (used after deploys and service-mode flips). Developer-only.
+app.post('/api/force-refresh', async (req, res) => {
+  const playerId = req.get('x-player-id') || req.body?.playerId;
+  if (!(await isDeveloperPlayerId(playerId))) return res.status(403).json({ error: 'developer only' });
+  const io = app.get('socketio');
+  if (!io) return res.status(503).json({ error: 'socket server not ready' });
+  io.emit('force-refresh', { reason: req.body?.reason || 'update' });
+  res.json({ success: true, clients: io.engine.clientsCount });
 });
 
 app.get('/api/ping', (req, res) => {

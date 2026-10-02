@@ -228,32 +228,3 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
         }
     }
 }
-
-
-export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
-  const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
-  const player = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-  if (!player) {
-    console.error('Player not found in playersInGrid.');
-    return;
-  }
-
-  // Refresh the target PC from memory
-  pc = playersInGridManager.getPlayersInGrid(gridId)?.[pc.playerId] || pc;
-
-  if (!checkRange(player, pc, TILE_SIZE)) return;
-  if (!isAHit(player, pc, TILE_SIZE)) return;
-
-  const damage = calculateDamage(player, gridId);
-  FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
-  createCollectEffect(pc.position.x, pc.position.y, TILE_SIZE);
-
-  const newHP = Math.max(0, pc.hp - damage);
-  console.log('📢 Calling updatePC after reducing HP; current HP:', newHP);
-  await playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP });
-
-  if (newHP <= 0) {
-    console.log(`PC ${pc.playerId} defeated.`);
-    FloatingTextManager.addFloatingText(504, pc.position.x, pc.position.y+1, TILE_SIZE);
-  }
-}

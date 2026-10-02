@@ -339,7 +339,7 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
   }
 
   // ===== SERVER UPDATE =====
-  // Call convertTileType for server update, React state sync, and socket broadcast
+  // Call convertTileType for server update and React state sync
   // Pass setTileTypes so it updates React state after server confirms
   await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
 

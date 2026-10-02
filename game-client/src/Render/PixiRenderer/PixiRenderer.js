@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { Application, Container, Graphics, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
-import { generateResourceTooltip, generateNPCTooltip, generatePCTooltip } from '../RenderDynamicElements';
+import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import PixiRendererVFX from './PixiRendererVFX';
 import PixiRendererPCs from './PixiRendererPCs';
@@ -290,7 +290,6 @@ const PixiRenderer = ({
   hoverTooltip,
   setHoverTooltip,
   onNPCClick,
-  onPCClick,
   // Props for NPC interactions (passed from App.js via RenderDynamicElements pattern)
   setInventory,
   setBackpack,
@@ -307,7 +306,6 @@ const PixiRenderer = ({
   timers,
   playersInGrid,
   isDeveloper = false,
-  connectedPlayers,       // Set of online player IDs (for PC opacity)
   cursorMode,             // Cursor placement mode { type, size, emoji, ... } or null
   // Settlement zoom props
   settlementData,         // Array of grid metadata for the 8×8 settlement
@@ -1331,25 +1329,13 @@ const PixiRenderer = ({
       return;
     }
 
-    // Check for PC at this position
-    const pc = pcs?.find(p =>
-      p && p.position &&
-      Math.floor(p.position.x) === col &&
-      Math.floor(p.position.y) === row
-    );
-
-    if (pc && onPCClick) {
-      onPCClick(pc);
-      return;
-    }
-
-    // No NPC or PC found, forward to tile/resource handler
+    // No NPC found, forward to tile/resource handler
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, pcs, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
-      onNPCClick, onPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
+      onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
       setActiveStation, isDeveloper, isFrontierZoom, isRelocating, onFrontierGridClick,
       settlementData, currentSettlementPosition]);
@@ -1425,27 +1411,9 @@ const PixiRenderer = ({
       return;
     }
 
-    // Check for PC at this position (excluding current player)
-    const pc = pcs?.find(p =>
-      p && p.position &&
-      Math.floor(p.position.x) === col &&
-      Math.floor(p.position.y) === row &&
-      String(p.playerId) !== String(currentPlayer?._id)
-    );
-
-    if (pc) {
-      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
-      setHoverTooltip({
-        x: tooltipPosition.x,
-        y: tooltipPosition.y,
-        content: generatePCTooltip(pc, strings),
-      });
-      return;
-    }
-
     // Nothing to show tooltip for
     setHoverTooltip(null);
-  }, [TILE_SIZE, zoomScale, npcs, pcs, resources, currentPlayer, strings, timers, setHoverTooltip]);
+  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip]);
 
   // Handle mouse leave to clear tooltip and hovered tile
   const handleMouseLeave = useCallback(() => {
@@ -1613,9 +1581,7 @@ const PixiRenderer = ({
         pcs={pcs}
         currentPlayer={currentPlayer}
         TILE_SIZE={TILE_SIZE}
-        connectedPlayers={connectedPlayers}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
-        gridId={gridId}
       />
       {/* Speech bubbles and relationship outcomes */}
       <PixiRendererSpeech

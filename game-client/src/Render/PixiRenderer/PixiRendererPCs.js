@@ -1,10 +1,7 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
-
-// FTUE Cave dungeon grid ID - players in this grid should only see themselves
-const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -22,37 +19,38 @@ const iconToSvgMap = new Map();
   });
 });
 
-// Cache for loaded SVG textures
-const svgTextureCache = new Map();
-const svgLoadingPromises = new Map();
-
 /**
  * PixiRendererPCs - Player Character rendering for PixiJS renderer
  *
- * Handles rendering of:
- * - PC icons (emoji-based, with state modifications)
- * - Offline player transparency
- * - State-based icon changes (dead, low health, camping, in boat)
- * - FTUE isolation (hides other PCs in tutorial dungeon)
+ * Single-player: renders ONLY the local player's PC. Other players are never
+ * drawn (the game is single-player with asynchronous multiplayer; see
+ * docs/refactor-plan.md Phase 1).
  *
- * IMPORTANT: This component uses object pooling to prevent IOSurface/GPU
- * memory exhaustion. Never create Graphics/Text objects in render loops
- * without proper reuse.
+ * Handles rendering of:
+ * - The local PC icon (emoji-based, with state modifications)
+ * - State-based icon changes (dead, low health, camping, in boat)
+ *
+ * IMPORTANT: This component reuses one pooled Text and one pooled Sprite to
+ * prevent IOSurface/GPU memory exhaustion. Never create Graphics/Text objects
+ * in render loops without proper reuse.
  */
 const PixiRendererPCs = ({
   app,                    // PixiJS Application instance
-  pcs,                    // Array of PC objects
-  currentPlayer,          // Current player (for highlight + ID matching)
+  pcs,                    // Array of PC objects (single-player: at most the local PC)
+  currentPlayer,          // Current player (for ID matching)
   TILE_SIZE,              // Tile size in pixels
-  connectedPlayers,       // Set of online player IDs (for opacity)
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
-  gridId,                 // Current grid ID (for FTUE filtering)
 }) => {
   const pcContainerRef = useRef(null);
 
-  // Object pools for reuse - prevents memory leaks
-  const textPoolRef = useRef([]);           // Pool of Text objects for PC icons (emoji fallback)
-  const spritePoolRef = useRef([]);         // Pool of Sprite objects for SVG icons
+  // Pooled display objects (one of each; only the local PC is ever drawn)
+  const textRef = useRef(null);             // Text object for PC icon (emoji fallback)
+  const spriteRef = useRef(null);           // Sprite object for SVG icon
+
+  // Per-instance SVG texture cache (destroyed on unmount)
+  const svgTextureCacheRef = useRef(new Map());
+  const svgLoadingPromisesRef = useRef(new Map());
+  const isMountedRef = useRef(true);
 
   // Ref to track if animation ticker is running (on-demand pattern)
   const animationTickerRef = useRef(null);
@@ -84,6 +82,8 @@ const PixiRendererPCs = ({
    * Fetches SVG, modifies dimensions, then rasterizes at target resolution for crisp display
    */
   const loadSvgTexture = useCallback(async (filename) => {
+    const svgTextureCache = svgTextureCacheRef.current;
+    const svgLoadingPromises = svgLoadingPromisesRef.current;
     if (svgTextureCache.has(filename)) {
       return svgTextureCache.get(filename);
     }
@@ -141,9 +141,13 @@ const PixiRendererPCs = ({
           img.src = url;
         });
 
-        if (texture) {
-          svgTextureCache.set(filename, texture);
+        if (!texture) return null;
+        if (!isMountedRef.current) {
+          // Component went away while the SVG was rasterizing; don't leak the texture
+          texture.destroy(true);
+          return null;
         }
+        svgTextureCache.set(filename, texture);
         return texture;
       } catch (error) {
         console.error(`Error loading player icon SVG ${filename}:`, error);
@@ -158,78 +162,49 @@ const PixiRendererPCs = ({
   }, []);
 
   /**
-   * Get or create a Text object from the pool
+   * Get (or lazily create) the single pooled Text object
    */
-  const getTextFromPool = useCallback((index) => {
-    const pool = textPoolRef.current;
-
-    if (index < pool.length) {
-      // Reuse existing text
-      const text = pool[index];
-      text.visible = true;
-      return text;
+  const getText = useCallback(() => {
+    if (textRef.current) {
+      textRef.current.visible = true;
+      return textRef.current;
     }
-
-    // Create new text and add to pool
     const newText = new Text('', {
       fontSize: 32, // Will be updated per render
       fontFamily: 'sans-serif',
     });
     newText.resolution = 2;
     newText.anchor.set(0.5, 0.5);
-    pool.push(newText);
-
-    // Add to container if it exists
+    textRef.current = newText;
     if (pcContainerRef.current) {
       pcContainerRef.current.addChild(newText);
     }
-
     return newText;
   }, []);
 
   /**
-   * Get or create a Sprite object from the pool
+   * Get (or lazily create) the single pooled Sprite object
    */
-  const getSpriteFromPool = useCallback((index) => {
-    const pool = spritePoolRef.current;
-
-    if (index < pool.length) {
-      const sprite = pool[index];
-      sprite.visible = true;
-      return sprite;
+  const getSprite = useCallback(() => {
+    if (spriteRef.current) {
+      spriteRef.current.visible = true;
+      return spriteRef.current;
     }
-
-    // Create new sprite and add to pool
     const newSprite = new Sprite();
     newSprite.anchor.set(0.5, 0.5);
-    pool.push(newSprite);
-
-    // Add to container if it exists
+    spriteRef.current = newSprite;
     if (pcContainerRef.current) {
       pcContainerRef.current.addChild(newSprite);
     }
-
     return newSprite;
   }, []);
 
-  /**
-   * Hide unused text objects in the pool
-   */
-  const hideUnusedPoolTexts = useCallback((usedCount) => {
-    const pool = textPoolRef.current;
-    for (let i = usedCount; i < pool.length; i++) {
-      pool[i].visible = false;
-    }
+  const hideText = useCallback(() => {
+    if (textRef.current) textRef.current.visible = false;
   }, []);
 
-  /**
-   * Hide unused sprite objects in the pool
-   */
-  const hideUnusedPoolSprites = useCallback((usedCount) => {
-    const pool = spritePoolRef.current;
-    for (let i = usedCount; i < pool.length; i++) {
-      pool[i].visible = false;
-    }
+  const hideSprite = useCallback(() => {
+    if (spriteRef.current) spriteRef.current.visible = false;
   }, []);
 
   // Initialize PC container and persistent graphics
@@ -258,28 +233,40 @@ const PixiRendererPCs = ({
 
     pcContainerRef.current = pcContainer;
 
-    // Add any existing pool texts to the container
-    textPoolRef.current.forEach(t => {
-      if (!t.parent) {
-        pcContainer.addChild(t);
-      }
-    });
-
-    // Add any existing pool sprites to the container
-    spritePoolRef.current.forEach(s => {
-      if (!s.parent) {
-        pcContainer.addChild(s);
-      }
-    });
+    // Re-attach pooled objects if they already exist (app instance changed)
+    if (textRef.current && !textRef.current.parent) {
+      pcContainer.addChild(textRef.current);
+    }
+    if (spriteRef.current && !spriteRef.current.parent) {
+      pcContainer.addChild(spriteRef.current);
+    }
 
     return () => {
       // Cleanup on unmount
-      // NOTE: Don't call .destroy() - parent PixiRenderer handles that
-      textPoolRef.current = [];
-      spritePoolRef.current = [];
+      // NOTE: Don't destroy the Text/Sprite - parent PixiRenderer destroys the stage tree
+      if (spriteRef.current) {
+        spriteRef.current.texture = Texture.EMPTY;
+      }
+      textRef.current = null;
+      spriteRef.current = null;
       pcContainerRef.current = null;
     };
   }, [app]);
+
+  // Destroy this instance's SVG textures on unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    const cache = svgTextureCacheRef.current;
+    const loading = svgLoadingPromisesRef.current;
+    return () => {
+      isMountedRef.current = false;
+      cache.forEach(tex => {
+        try { tex.destroy(true); } catch (e) { /* already destroyed */ }
+      });
+      cache.clear();
+      loading.clear();
+    };
+  }, []);
 
   /**
    * Get the render position for a PC, checking for animation overrides
@@ -296,93 +283,75 @@ const PixiRendererPCs = ({
   }, []);
 
   /**
-   * Render function that updates PC positions
+   * The local player's PC record (the only one ever rendered)
+   */
+  const currentPC = useMemo(() => {
+    if (!currentPlayer?._id || !pcs) return null;
+    const list = Array.isArray(pcs) ? pcs : Object.values(pcs);
+    return list.find(pc => pc && String(pc.playerId) === String(currentPlayer._id)) || null;
+  }, [pcs, currentPlayer]);
+
+  /**
+   * Render function that updates the local PC's position/icon
    * Called both on state changes and during animations via ticker
    */
   const renderPCs = useCallback(() => {
     const container = pcContainerRef.current;
-
     if (!container) return;
 
-    let textsUsed = 0;
-    let spritesUsed = 0;
+    const pc = currentPC;
+    const renderPos = pc ? getPCRenderPosition(pc) : null;
+    const posX = renderPos?.x;
+    const posY = renderPos?.y;
 
-    if (!pcs || pcs.length === 0) {
-      hideUnusedPoolTexts(0);
-      hideUnusedPoolSprites(0);
+    if (!pc || posX === undefined || posY === undefined) {
+      hideText();
+      hideSprite();
       return;
     }
 
-    const fontSize = TILE_SIZE * 0.8;
+    // Get display icon based on state
+    const displayIcon = getDisplayIcon(pc);
 
-    for (const pc of pcs) {
-      // Get render position (may be animated)
-      const renderPos = getPCRenderPosition(pc);
-      const posX = renderPos?.x;
-      const posY = renderPos?.y;
+    // Check if we have an SVG for this icon
+    const svgFilename = getSvgFilename(displayIcon);
+    const svgTextureCache = svgTextureCacheRef.current;
 
-      if (posX === undefined || posY === undefined) continue;
+    // Calculate position
+    const xPos = gridOffset.x + posX * TILE_SIZE + TILE_SIZE / 2;
+    const yPos = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
 
-      // Calculate if this is the current player
-      const isCurrentPlayer = currentPlayer && String(pc.playerId) === String(currentPlayer._id);
+    const texture = svgFilename ? svgTextureCache.get(svgFilename) : null;
 
-      // FTUE: In the opening dungeon, only render the current player (hide all other PCs)
-      if (gridId === FTUE_CAVE_GRID_ID && !isCurrentPlayer) {
-        continue;
-      }
+    if (texture) {
+      // Use SVG sprite
+      const sprite = getSprite();
+      sprite.texture = texture;
+      sprite.width = TILE_SIZE * 0.9;
+      sprite.height = TILE_SIZE * 0.9;
+      sprite.x = xPos;
+      sprite.y = yPos;
+      sprite.alpha = 1.0;
+      hideText();
+    } else {
+      // Use emoji text fallback
+      const text = getText();
+      text.text = displayIcon;
+      text.style.fontSize = TILE_SIZE * 0.8;
+      text.x = xPos;
+      text.y = yPos;
+      text.alpha = 1.0;
+      hideSprite();
 
-      // Check if player is connected (online)
-      const isConnected = isCurrentPlayer || connectedPlayers?.has(pc.playerId);
-
-      // Get display icon based on state
-      const displayIcon = getDisplayIcon(pc);
-
-      // Check if we have an SVG for this icon
-      const svgFilename = getSvgFilename(displayIcon);
-
-      // Calculate position
-      const xPos = gridOffset.x + posX * TILE_SIZE + TILE_SIZE / 2;
-      const yPos = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
-      const alpha = isConnected ? 1.0 : 0.4;
-
-      if (svgFilename && svgTextureCache.has(svgFilename)) {
-        // Use SVG sprite
-        const sprite = getSpriteFromPool(spritesUsed);
-        const texture = svgTextureCache.get(svgFilename);
-
-        if (texture) {
-          sprite.texture = texture;
-          sprite.width = TILE_SIZE * 0.9;
-          sprite.height = TILE_SIZE * 0.9;
-          sprite.x = xPos;
-          sprite.y = yPos;
-          sprite.alpha = alpha;
-          spritesUsed++;
-        }
-      } else {
-        // Use emoji text fallback
-        const text = getTextFromPool(textsUsed);
-        text.text = displayIcon;
-        text.style.fontSize = fontSize;
-        text.x = xPos;
-        text.y = yPos;
-        text.alpha = alpha;
-        textsUsed++;
-
-        // If SVG exists but not loaded, trigger load
-        if (svgFilename && !svgTextureCache.has(svgFilename)) {
-          loadSvgTexture(svgFilename).then(() => {
-            // Re-render after texture loads
-            renderPCs();
-          });
-        }
+      // If SVG exists but not loaded, trigger load
+      if (svgFilename && !svgTextureCache.has(svgFilename)) {
+        loadSvgTexture(svgFilename).then((tex) => {
+          // Re-render after texture loads
+          if (tex) renderPCs();
+        });
       }
     }
-
-    // Hide unused pool objects
-    hideUnusedPoolTexts(textsUsed);
-    hideUnusedPoolSprites(spritesUsed);
-  }, [pcs, currentPlayer, connectedPlayers, TILE_SIZE, gridOffset, gridId, getDisplayIcon, getSvgFilename, getTextFromPool, getSpriteFromPool, hideUnusedPoolTexts, hideUnusedPoolSprites, getPCRenderPosition, loadSvgTexture]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getSvgFilename, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
 
   // Initial render and re-render on state changes
   useEffect(() => {
@@ -397,10 +366,8 @@ const PixiRendererPCs = ({
     if (animationTickerRef.current) return; // Already running
 
     const onFrame = () => {
-      // Check if any PC has an active animation position
-      const hasActiveAnimations = pcs?.some(pc =>
-        pc.playerId && renderPositions[pc.playerId]
-      );
+      // Check if the local PC has an active animation position
+      const hasActiveAnimations = !!(currentPC?.playerId && renderPositions[currentPC.playerId]);
 
       if (hasActiveAnimations) {
         noAnimationFramesRef.current = 0;
@@ -422,18 +389,15 @@ const PixiRendererPCs = ({
     };
 
     animationTickerRef.current = requestAnimationFrame(onFrame);
-  }, [pcs, renderPCs]);
+  }, [currentPC, renderPCs]);
 
   // Check for animations on each render and start ticker if needed
   // This is triggered by parent re-renders when player moves
   useEffect(() => {
-    const hasActiveAnimations = pcs?.some(pc =>
-      pc.playerId && renderPositions[pc.playerId]
-    );
-    if (hasActiveAnimations) {
+    if (currentPC?.playerId && renderPositions[currentPC.playerId]) {
       startAnimationTicker();
     }
-  }, [pcs, startAnimationTicker]);
+  }, [currentPC, startAnimationTicker]);
 
   // Cleanup animation loop on unmount
   useEffect(() => {

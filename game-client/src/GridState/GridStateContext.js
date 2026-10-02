@@ -6,16 +6,8 @@ const GridStateUpdateContext = createContext();
 export const useGridState = () => useContext(GridStateContext);
 export const useGridStateUpdate = () => useContext(GridStateUpdateContext);
 
-let externalSetGridState = null;
-export const setGridStateExternally = (state) => {
-  if (externalSetGridState) {
-    externalSetGridState(state);
-  }
-};
-
 export function GridStateProvider({ children }) {
   const [NPCsInGrid, setGridState] = useState({});
-  externalSetGridState = setGridState;
 
   return (
     <GridStateContext.Provider value={NPCsInGrid}>

@@ -13,7 +13,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 - Last real commit before the refactor: 2026-05-06. Commit messages in this repo are historically placeholders; from now on write real ones.
 - No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77255`). Their data must survive every migration. Other players' data is nice-to-have.
 - Production DB: 11 players, ~1,060 grids (73 MB), 64 settlements, 1 frontier. Database name is `test`.
-- Refactor phase: **0 (prep), in progress on branch `refactor/phase-0`**. Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
+- Refactor phase: **0 built (branch `refactor/phase-0`, pushed, unmerged); 1 built on `refactor/phase-1-sockets` (stacked on 0)**. Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
 
 ## Tech stack
 
@@ -68,8 +68,8 @@ vvgame/
 │   └── tuning/               # resources.json (master resource table, 504 entries), globalTuning.json, seasons, quests, ...
 ├── game-client/src/
 │   ├── App.js                # 5,000-line orchestrator; owns most state + the NPC tick loop (shrink it, don't grow it)
-│   ├── socketManager.js      # socket client (being cut to chat + badges)
-│   ├── GridState/            # NPCsInGridManager, PlayersInGrid, GlobalGridStateTilesAndResources, contexts
+│   ├── socketManager.js      # socket client: connect, player room, chat, badges, force-refresh (nothing else)
+│   ├── GridState/            # NPCsInGridManager (every client ticks its own NPCs), PlayersInGrid (local player only), GlobalGridStateTilesAndResources, contexts
 │   ├── Utils/GridManagement.js   # changePlayerLocation: the single execution path for every grid change
 │   ├── Render/PixiRenderer/  # the live renderer
 │   ├── GameFeatures/         # one folder per feature (Trading, Crafting, Farming, NPCs, Combat, Government, ...)
