@@ -51,14 +51,18 @@ function templateKeyFor(grid, coord) {
   for (const s of settlements) for (const cell of s.grids.flat()) if (cell.gridId) coordByGridId.set(cell.gridId.toString(), Number(cell.gridCoord));
   log(`settlement cells with grids: ${coordByGridId.size}`);
   let stamped = 0, templated = 0;
-  for (const [gridId, coord] of coordByGridId) {
-    const grid = await Grid.findById(gridId, 'gridType ownerId gridCoord isTemplate templateKey');
-    if (!grid) continue;
+  // One query for all referenced grids (the previous per-grid findById loop took ~2 minutes against Atlas).
+  const referenced = await Grid.find({ _id: { $in: Array.from(coordByGridId.keys()) } }, 'gridType ownerId').lean();
+  log(`step 1-2: ${referenced.length} referenced grids loaded`);
+  const ops = [];
+  for (const grid of referenced) {
+    const coord = coordByGridId.get(grid._id.toString());
     const set = { gridCoord: coord };
     if (grid.gridType !== 'homestead' && !grid.ownerId) { set.isTemplate = true; set.templateKey = templateKeyFor(grid, coord); templated++; }
     stamped++;
-    if (apply) await Grid.updateOne({ _id: grid._id }, { $set: set });
+    ops.push({ updateOne: { filter: { _id: grid._id }, update: { $set: set } } });
   }
+  if (apply && ops.length) await Grid.bulkWrite(ops, { ordered: false });
   log(`step 1-2: stamped gridCoord on ${stamped} grids, marked ${templated} town/valley docs as templates`);
 
   // dungeons: the registry's grids become templates too
