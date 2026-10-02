@@ -173,6 +173,7 @@ useEffect(() => {
         <div className={activePanel === 'dungeons' ? 'panel-visible' : 'panel-hidden'}>
           <Dungeons 
             selectedFrontier={selectedFrontier}
+            settlements={settlements}
             activePanel={activePanel}
             />
         </div>

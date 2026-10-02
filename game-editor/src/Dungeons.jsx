@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
-import { useFileContext } from './FileContext';
 import './Dungeons.css';
 import '../../game-client/src/UI/Styles/theme.css';
 import '../../game-client/src/UI/Buttons/SharedButtons.css';
@@ -14,8 +13,26 @@ const projectRoot = isDev
   ? path.join(__dirname, '..', '..')
   : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
 
-const Dungeons = ({ selectedFrontier, activePanel }) => {
-  const { setFileName, setDirectory } = useFileContext();
+// Decode the SSGG part of a TTFFSSGG gridCoord into settlement row/col + grid row/col
+const decodeGridCoord = (coord) => {
+  const ssgg = Number(coord) % 10000;
+  return {
+    sRow: Math.floor(ssgg / 1000),
+    sCol: Math.floor(ssgg / 100) % 10,
+    gRow: Math.floor(ssgg / 10) % 10,
+    gCol: ssgg % 10,
+  };
+};
+
+const isGridCoord = (value) => Number.isFinite(Number(value)) && String(value).trim() !== '';
+
+const formatGridCoord = (coord) => {
+  if (!isGridCoord(coord)) return `${coord} (legacy grid id)`;
+  const { sRow, sCol, gRow, gCol } = decodeGridCoord(coord);
+  return `${coord} (S${sRow},${sCol} G${gRow},${gCol})`;
+};
+
+const Dungeons = ({ selectedFrontier, settlements = [], activePanel }) => {
   const [dungeonGrids, setDungeonGrids] = useState([]);
   const [dungeonData, setDungeonData] = useState({}); // Frontier dungeon data
   const [templates, setTemplates] = useState([]);
@@ -23,8 +40,33 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [editingDungeon, setEditingDungeon] = useState({}); // Track which dungeons are being edited
-  const [availableGridsWithEntrances, setAvailableGridsWithEntrances] = useState([]); // Grids that have Dungeon Entrance resources
-  const [newEntranceGridInput, setNewEntranceGridInput] = useState({}); // Track input values for adding entrance grids
+  const [newEntranceCoordInput, setNewEntranceCoordInput] = useState({}); // Per-dungeon selected gridCoord to add
+
+  // Town/valley cells in the selected frontier that have a template instance (Settlement.grids[].gridId).
+  // Entrances are keyed by gridCoord; the template gridId is only used to validate the Dungeon Entrance resource.
+  const entranceCells = useMemo(() => {
+    const cells = [];
+    for (const settlement of settlements) {
+      const fid = settlement.frontierId?._id || settlement.frontierId;
+      if (String(fid) !== String(selectedFrontier)) continue;
+      const grids = Array.isArray(settlement.grids) ? settlement.grids.flat() : [];
+      for (const cell of grids) {
+        if (!cell?.gridId || !isGridCoord(cell.gridCoord)) continue;
+        if (cell.gridType === 'homestead') continue;
+        cells.push({
+          gridCoord: Number(cell.gridCoord),
+          gridId: String(cell.gridId?._id || cell.gridId),
+          gridType: cell.gridType,
+        });
+      }
+    }
+    return cells.sort((a, b) => a.gridCoord - b.gridCoord);
+  }, [settlements, selectedFrontier]);
+
+  const entranceCellByCoord = useMemo(
+    () => new Map(entranceCells.map(cell => [cell.gridCoord, cell])),
+    [entranceCells]
+  );
 
   // Load dungeon grids when panel becomes active
   useEffect(() => {
@@ -32,16 +74,16 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
       loadDungeonGrids();
       loadDungeonData();
       loadTemplates();
-      loadAvailableEntranceGrids();
     }
   }, [activePanel, selectedFrontier]);
 
   const loadDungeonGrids = async () => {
     try {
-      // Use the standard grids endpoint with a filter
+      // Template instances only (never per-player copies)
       const response = await axios.get(`${API_BASE}/api/grids`, {
         params: {
-          gridType: 'dungeon'
+          gridType: 'dungeon',
+          isTemplate: true
         }
       });
       // Sort by creation date (newest first)
@@ -69,7 +111,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
             ...prev,
             [key]: {
               templateUsed: value.templateUsed,
-              entranceGrids: value.entranceGrids || [],
+              // Frontier.dungeons[*].entranceGrids now holds gridCoords (numbers)
+              entranceGridCoords: (value.entranceGrids || []).map(v => (isGridCoord(v) ? Number(v) : v)),
               hasChanges: false
             }
           }));
@@ -79,11 +122,6 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     } catch (error) {
       console.error('Error loading dungeon data from frontier:', error);
     }
-  };
-
-  const loadAvailableEntranceGrids = async () => {
-    // This function is no longer needed since we validate individually
-    setAvailableGridsWithEntrances([]);
   };
 
   const loadTemplates = () => {
@@ -201,52 +239,59 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     }));
   };
 
-  const handleEntranceGridAdd = async (dungeonId, gridId) => {
-    if (!gridId || !gridId.trim()) return;
-    
-    // Check if this grid has a Dungeon Entrance resource
+  const handleEntranceCoordAdd = async (dungeonId, coordRaw) => {
+    if (!isGridCoord(coordRaw)) return;
+    const gridCoord = Number(coordRaw);
+
+    const cell = entranceCellByCoord.get(gridCoord);
+    if (!cell) {
+      alert(`gridCoord ${gridCoord} is not a created town/valley cell in this frontier`);
+      return;
+    }
+
+    // Validate against the cell's template instance (Settlement.grids[].gridId)
     try {
       const response = await axios.get(`${API_BASE}/api/grid-has-resource`, {
         params: {
-          gridId: gridId.trim(),
+          gridId: cell.gridId,
           resourceType: 'Dungeon Entrance'
         }
       });
-      
+
       if (!response.data.hasResource) {
-        alert(`Grid ${gridId} does not have a Dungeon Entrance resource`);
+        alert(`Cell ${formatGridCoord(gridCoord)} does not have a Dungeon Entrance resource`);
         return;
       }
     } catch (error) {
-      console.error('Error validating grid:', error);
-      alert('Failed to validate grid');
+      console.error('Error validating entrance cell:', error);
+      alert('Failed to validate entrance cell');
       return;
     }
-    
+
     setEditingDungeon(prev => {
-      const currentEntrances = prev[dungeonId]?.entranceGrids || [];
-      if (currentEntrances.includes(gridId)) {
-        alert('This grid is already linked to this dungeon');
+      const current = prev[dungeonId]?.entranceGridCoords || [];
+      if (current.includes(gridCoord)) {
+        alert('This cell is already linked to this dungeon');
         return prev;
       }
-      
+
       return {
         ...prev,
         [dungeonId]: {
           ...prev[dungeonId],
-          entranceGrids: [...currentEntrances, gridId],
+          entranceGridCoords: [...current, gridCoord],
           hasChanges: true
         }
       };
     });
   };
 
-  const handleEntranceGridRemove = (dungeonId, gridId) => {
+  const handleEntranceCoordRemove = (dungeonId, gridCoord) => {
     setEditingDungeon(prev => ({
       ...prev,
       [dungeonId]: {
         ...prev[dungeonId],
-        entranceGrids: prev[dungeonId].entranceGrids.filter(g => g !== gridId),
+        entranceGridCoords: (prev[dungeonId]?.entranceGridCoords || []).filter(c => c !== gridCoord),
         hasChanges: true
       }
     }));
@@ -262,7 +307,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
         frontierId: selectedFrontier,
         dungeonGridId: dungeonId,
         templateUsed: editing.templateUsed,
-        entranceGrids: editing.entranceGrids
+        // gridCoords (numbers); any legacy non-numeric ids are dropped on save
+        entranceGridCoords: (editing.entranceGridCoords || []).filter(isGridCoord).map(Number)
       });
       
       // Refresh data
@@ -341,8 +387,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
               <tr>
                 <th style={{width: '120px'}}>Grid ID</th>
                 <th style={{width: '150px'}}>Template</th>
-                <th style={{width: '200px'}}>Source Grids</th>
-                <th style={{width: '200px'}}>Add Source Grid</th>
+                <th style={{width: '220px'}}>Entrance Cells (gridCoord)</th>
+                <th style={{width: '240px'}}>Add Entrance Cell</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -351,7 +397,9 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
                 const dungeonId = dungeon._id;
                 const frontierData = dungeonData[dungeonId] || {};
                 const editing = editingDungeon[dungeonId] || {};
-                const entranceGrids = editing.entranceGrids || frontierData.entranceGrids || [];
+                const entranceGridCoords = editing.entranceGridCoords
+                  || (frontierData.entranceGrids || []).map(v => (isGridCoord(v) ? Number(v) : v));
+                const addableCells = entranceCells.filter(cell => !entranceGridCoords.includes(cell.gridCoord));
                 
                 return (
                   <tr key={dungeonId}>
@@ -373,16 +421,16 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
                     </td>
                     <td className="source-grids-cell">
                       <div className="source-grids-list">
-                        {entranceGrids.length === 0 ? (
+                        {entranceGridCoords.length === 0 ? (
                           <span className="no-sources">None</span>
                         ) : (
-                          entranceGrids.map((gridId, index) => (
+                          entranceGridCoords.map((gridCoord, index) => (
                             <div key={index} className="source-grid-item">
-                              <span>{gridId}</span>
+                              <span>{formatGridCoord(gridCoord)}</span>
                               <button
-                                onClick={() => handleEntranceGridRemove(dungeonId, gridId)}
+                                onClick={() => handleEntranceCoordRemove(dungeonId, gridCoord)}
                                 className="remove-button-mini"
-                                title={`Remove ${gridId}`}
+                                title={`Remove ${gridCoord}`}
                               >
                                 ×
                               </button>
@@ -393,27 +441,34 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
                     </td>
                     <td className="add-grid-cell">
                       <div className="add-grid-container">
-                        <input
-                          type="text"
-                          placeholder="Grid ID"
-                          value={newEntranceGridInput[dungeonId] || ''}
-                          onChange={(e) => setNewEntranceGridInput(prev => ({
+                        <select
+                          value={newEntranceCoordInput[dungeonId] || ''}
+                          onChange={(e) => setNewEntranceCoordInput(prev => ({
                             ...prev,
                             [dungeonId]: e.target.value
                           }))}
                           className="add-grid-input"
                           disabled={loading}
-                        />
+                        >
+                          <option value="">
+                            {addableCells.length === 0 ? '-- No created town/valley cells --' : '-- Select cell --'}
+                          </option>
+                          {addableCells.map(cell => (
+                            <option key={cell.gridCoord} value={cell.gridCoord}>
+                              {formatGridCoord(cell.gridCoord)} {cell.gridType}
+                            </option>
+                          ))}
+                        </select>
                         <button
                           onClick={() => {
-                            handleEntranceGridAdd(dungeonId, newEntranceGridInput[dungeonId]);
-                            setNewEntranceGridInput(prev => ({
+                            handleEntranceCoordAdd(dungeonId, newEntranceCoordInput[dungeonId]);
+                            setNewEntranceCoordInput(prev => ({
                               ...prev,
                               [dungeonId]: ''
                             }));
                           }}
                           className="add-grid-button"
-                          disabled={loading || !newEntranceGridInput[dungeonId]}
+                          disabled={loading || !newEntranceCoordInput[dungeonId]}
                         >
                           Add
                         </button>
