@@ -35,3 +35,31 @@ Server rules: `/create-homestead` first-fit skips settlements whose frontier ent
 ## 3. Master plan note (not acted on): seamless world
 
 Long term the client should feel like one continuous world: keep the grid-based data (per-player copies, `NPCsInGrid` per grid) but always have the active grid plus its 8 neighbours loaded, scroll seamlessly across edges, and lazily fetch the next ring as the player moves. `playersInGrid` was the blocker; with player state on the Player, the remaining design questions are NPC ticking for the loaded ring (tick only the active grid, freeze neighbours), one `enter-grid` that returns a 3x3 bundle (or a `/grid-ring` fetch), and a renderer that addresses tiles by world coordinate. Recorded here so it shapes Phase 4 decisions (tile layer as render textures per grid, camera in world space); no work scheduled yet.
+
+## 4. Grid travel: validate first, one round trip, prefetch the neighbour (slice 2)
+
+Measured on the Fiona log (2026-10-03): a cardinal crossing was fade → lock → `batch-update-npc-positions` → `player/state` → `enter-grid` → seed → arrival → `player/state` → camera: four sequential round trips, and the fade started before the move was known to be valid.
+
+### 4.1 World map, cached on the client
+
+`GET /api/world-map/:frontierId?playerId=` → `{ frontierRow: 0, frontierCol: 1, settlements: [8][8] of { settlementId, type, open, cells: "<64 chars>" } }` where `cells` is row-major, one char per grid cell: `H` homestead (someone's, not yours), `M` your own homestead, `T` town, `V` valley, `R` reserved/none. `open` is false only for a HOMESTEAD settlement whose frontier entry has `available: false` (valley settlements never carry `available` and are always open); a closed settlement's cells are all `R`. ~5 KB. The client fetches it once at boot and after a relocation, and keeps it in `GlobalGridStateTilesAndResources` (`setWorldMap` / `getWorldMap`).
+
+`canTravel(fromGridCoord, direction)` is pure: neighbour coord via `computeNeighbourGridCoord`; null (off the frontier) → false; cell `R` or `H` → false; `M`, `T`, `V` → true. Edge walks and directional signposts call it BEFORE starting the fade; a false result shows the status (106 beyond the frontier, 10020 someone else's homestead, 105 otherwise) and the player simply stays on the tile. The server keeps its own checks (403/404) as the authority.
+
+### 4.2 One round trip per crossing
+
+`POST /api/enter-grid` accepts an optional `leave`:
+```json
+"leave": { "fromGridId": "...", "npcPositions": { "<npcId>": { "x": 1, "y": 2 } }, "state": { "x": 8, "y": 63, "hp": 1000, "maxhp": 1100 } }
+```
+The server applies the NPC position batch to `fromGridId` (owner check) and the player state, then resolves the target as before. The client no longer awaits the two leave-side flushes; it drains the NPC position queue and the dirty player record into `leave`. After arrival the client calls `playersInGridManager.flushState()` WITHOUT awaiting it (the 30 s tick and unload still cover it). Net: one awaited request per crossing.
+
+### 4.3 Prefetch and no-fade crossings
+
+`POST /api/grid-prefetch { playerId, gridCoord }` → the same `grid` payload `enter-grid` returns for that cell (copy created on first prefetch, same lazy catch-up), `location` untouched. 403/404 for cells the player cannot enter. When the player is within 2 tiles of an edge and `canTravel` says the neighbour is enterable, the client prefetches that neighbour's bundle once (keyed by gridCoord, kept until the player leaves the current grid or 5 minutes pass). On a crossing whose bundle is cached: skip the fade, seed from the cached bundle, place the player, then send `enter-grid` (with `leave`) WITHOUT awaiting it; on a server refusal (403/404/5xx) the client reverts to the previous grid with a status. Without a cached bundle the fade path from 4.2 runs.
+
+This is the first step of the seamless-world plan (§3): the cache grows from one neighbour to the 8-ring later, and the non-awaited commit is how a continuous world will persist position.
+
+### 4.4 Frontier view
+
+`🏠` only where `cell.gridId` is set (a closed settlement's free cells are `available: false` but empty). A homestead settlement whose frontier entry is `available: false` renders as closed (grey, no icons); valley settlements are never "available" and must not be treated as closed. `GET /frontier-bundle` omits closed settlements' grids unless it is the viewer's own. The move script also deletes orphan homesteads (owner account gone) in closed settlements and frees their cells.

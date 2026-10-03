@@ -135,6 +135,7 @@ import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js'
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
+import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 
@@ -1438,6 +1439,10 @@ useEffect(() => {
         return;
       }
       
+      // 2.1b World map for client-side travel validation (docs/phase-3-contract.md §4.1).
+      // Non-fatal: without it canTravel defers to the server's own checks.
+      fetchWorldMap(DBPlayerData.frontierId || DBPlayerData.location?.f, DBPlayerData.playerId);
+
       // 2.2 Update lastActive timestamp for app initialization
       console.log('🏁✅ 2.2 InitAppWrapper; updating lastActive timestamp...');
       try {

@@ -203,6 +203,25 @@ class GridStatePCManager {
     return this.inflightFlush;
   }
 
+  /**
+   * The local record's `{ x, y, hp, maxhp }` for `enter-grid`'s `leave.state`
+   * (docs/phase-3-contract.md §4.2). Clears the dirty flag; returns the
+   * current values even when nothing is dirty. Null when there is no record.
+   */
+  takeDirtyState() {
+    const payload = this.buildStatePayload();
+    if (!payload) return null;
+    this.dirty = false;
+    return { x: payload.x, y: payload.y, hp: payload.hp, maxhp: payload.maxhp };
+  }
+
+  /** Re-arm the dirty flag (a leave the server never applied). */
+  markDirty() {
+    if (!this.getLocalRecord()) return;
+    this.dirty = true;
+    this.startPersistence();
+  }
+
   startPersistence() {
     if (this.persistInterval) return;
     this.persistInterval = setInterval(() => { this.flushState(); }, PERSIST_INTERVAL_MS);

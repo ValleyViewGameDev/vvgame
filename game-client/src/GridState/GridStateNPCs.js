@@ -101,6 +101,36 @@ class GridStateManager {
   }
 
   /**
+   * Take the pending position updates for a grid WITHOUT posting them:
+   * returns `{ [npcId]: { x, y } }` (empty object when nothing is queued) and
+   * clears the queue. changePlayerLocation puts the result into
+   * `enter-grid`'s `leave.npcPositions` (docs/phase-3-contract.md §4.2).
+   */
+  drainPendingPositions(gridId) {
+    const npcUpdates = this.pendingPositionUpdates.get(gridId);
+    const positions = {};
+    if (npcUpdates) {
+      for (const [npcId, update] of npcUpdates) {
+        positions[npcId] = { x: update.position.x, y: update.position.y };
+      }
+      npcUpdates.clear();
+      this.pendingPositionUpdates.delete(gridId);
+    }
+    return positions;
+  }
+
+  /** Put drained positions back on the queue (a leave that the server never applied). */
+  requeuePositions(gridId, positions) {
+    if (!gridId || !positions) return;
+    for (const [npcId, position] of Object.entries(positions)) {
+      if (!position) continue;
+      const gridUpdates = this.pendingPositionUpdates.get(gridId);
+      if (gridUpdates?.has(npcId)) continue; // a newer position was queued since
+      this.queuePositionUpdate(gridId, npcId, position);
+    }
+  }
+
+  /**
    * Force flush position updates for a specific grid
    * Used when player leaves a grid to ensure all updates are saved
    */
@@ -198,6 +228,8 @@ class GridStateManager {
 
     const npcs = {};
     Object.keys(rawNPCs).forEach((npcId) => {
+      const raw = rawNPCs[npcId];
+      if (!raw || !raw.type || !raw.position || !Number.isFinite(raw.position.x)) { console.warn('⚠️ Skipping malformed NPC entry', npcId, raw); return; }
       const lightweightNPC = rawNPCs[npcId];
       if (!lightweightNPC) return;
       const npcTemplate = masterResources.find((res) => res.type === lightweightNPC.type);

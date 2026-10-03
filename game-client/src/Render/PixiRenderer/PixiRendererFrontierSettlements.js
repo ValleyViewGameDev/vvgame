@@ -59,6 +59,18 @@ function getSettlementBackgroundColor(settlementType) {
 }
 
 /**
+ * A settlement is closed only when it is a homestead settlement AND its
+ * frontier entry says `available: false` (docs/phase-3-contract.md §2, §4.4).
+ * Valley entries never carry `available: true`, so the flag means nothing there.
+ */
+function isClosedSettlement(settlement) {
+  return !!settlement
+    && typeof settlement.settlementType === 'string'
+    && settlement.settlementType.startsWith('homestead')
+    && settlement.available === false;
+}
+
+/**
  * Get tree emoji for valley type
  */
 function getValleyTreeEmoji(settlementType) {
@@ -101,8 +113,8 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       if (grid?.gridId === currentPlayer?.location?.g) {
         content = currentPlayer.icon || '👤'; // Player is here
         cellBg = '#82bb4d'; // Green background for player location
-      } else if (grid?.gridType === 'homestead' && !grid.available) {
-        content = '🏠'; // Owned homestead
+      } else if (grid?.gridType === 'homestead' && grid.gridId) {
+        content = '🏠'; // Owned homestead (a closed settlement's free cells are unavailable but empty)
         cellBg = '#82bb4d'; // Green background behind house emoji
       } else if (grid?.gridType === 'town') {
         content = '🏛️'; // Town (classical building)
@@ -277,8 +289,8 @@ const PixiRendererFrontierSettlements = ({
         // Normal frontier settlement (0-7 range)
         const settlement = frontierData?.[row]?.[col];
 
-        if (!settlement) {
-          // Empty slot - render as grass
+        if (!settlement || isClosedSettlement(settlement)) {
+          // Empty slot or a closed settlement: same grey as the padding, no icons, no mini-grid
           cells.push(
             <div
               key={key}

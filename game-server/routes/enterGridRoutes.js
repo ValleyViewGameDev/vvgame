@@ -16,6 +16,87 @@ const {
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ error: reason, reason, ...extra });
 
+/** Apply the previous grid's NPC positions and the player's last position/hp (docs/phase-3-contract.md §4.2). */
+async function applyLeave(player, leave) {
+  if (!leave || typeof leave !== 'object') return;
+  const { fromGridId, npcPositions, state } = leave;
+  if (fromGridId && npcPositions && typeof npcPositions === 'object') {
+    const grid = await Grid.findById(fromGridId, 'ownerId gridType NPCsInGrid');
+    const mine = grid && (!grid.ownerId || grid.ownerId.toString() === player._id.toString());
+    if (mine) {
+      const known = grid.NPCsInGrid instanceof Map ? grid.NPCsInGrid : new Map(Object.entries(grid.NPCsInGrid || {}));
+      const set = {};
+      for (const [npcId, pos] of Object.entries(npcPositions)) {
+        // Only move NPCs that exist: a $set on an unknown key would create a junk entry.
+        if (!known.has(npcId) || !Number.isInteger(pos?.x) || !Number.isInteger(pos?.y)) continue;
+        set[`NPCsInGrid.${npcId}.position`] = { x: pos.x, y: pos.y };
+      }
+      if (Object.keys(set).length) { set.NPCsInGridLastUpdated = new Date(); await Grid.updateOne({ _id: grid._id }, { $set: set }); }
+    }
+  }
+  if (state && typeof state === 'object') {
+    if (Number.isInteger(state.x) && Number.isInteger(state.y) && state.x >= 0 && state.x < 64 && state.y >= 0 && state.y < 64) {
+      player.location = { ...(player.location?.toObject ? player.location.toObject() : (player.location || {})), x: state.x, y: state.y };
+    }
+    if (Number.isFinite(state.maxhp) && state.maxhp > 0) player.maxhp = state.maxhp;
+    if (Number.isFinite(state.hp)) player.hp = Math.max(0, player.maxhp != null ? Math.min(state.hp, player.maxhp) : state.hp);
+  }
+}
+
+/** Compact per-cell map of the frontier for client-side travel validation (§4.1). */
+router.get('/world-map/:frontierId', async (req, res) => {
+  try {
+    const frontier = await Frontier.findById(req.params.frontierId).lean();
+    if (!frontier) return fail(res, 404, 'no-frontier');
+    const playerId = req.query.playerId ? String(req.query.playerId) : null;
+    const player = playerId ? await Player.findById(playerId, 'gridId').lean() : null;
+    const myHomestead = player?.gridId ? String(player.gridId) : null;
+    const ids = frontier.settlements.flat().map((e) => e?.settlementId).filter(Boolean);
+    const docs = await Settlement.find({ _id: { $in: ids } }, 'grids').lean();
+    const byId = new Map(docs.map((d) => [String(d._id), d]));
+    const settlements = frontier.settlements.map((row) => row.map((entry) => {
+      const doc = entry?.settlementId ? byId.get(String(entry.settlementId)) : null;
+      // Only homestead settlements carry a meaningful `available`; valley sets are never "available" but are always open.
+      const isHomesteadSet = /^homestead/.test(entry?.settlementType || '');
+      const open = !!doc && !(isHomesteadSet && entry.available === false);
+      let cells = 'R'.repeat(64);
+      if (doc && open) {
+        cells = doc.grids.flat().map((c) => {
+          if (!c) return 'R';
+          if (c.gridType === 'homestead') return c.gridId ? (String(c.gridId) === myHomestead ? 'M' : 'H') : 'R';
+          if (c.gridType === 'town') return 'T';
+          if (/^valley/.test(c.gridType || '')) return 'V';
+          return 'R';
+        }).join('');
+      }
+      return { settlementId: entry?.settlementId ?? null, type: entry?.settlementType ?? null, open, cells };
+    }));
+    res.json({ frontierId: frontier._id, settlements });
+  } catch (err) {
+    console.error('world-map failed:', err);
+    res.status(500).json({ error: 'world-map failed' });
+  }
+});
+
+/** Resolve (and create if needed) the player's copy of a cell without moving the player (§4.3). */
+router.post('/grid-prefetch', async (req, res) => {
+  const { playerId, gridCoord } = req.body || {};
+  if (!playerId || !Number.isFinite(Number(gridCoord))) return fail(res, 400, 'bad-target');
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return fail(res, 404, 'no-player');
+    const frontier = await Frontier.findById(player.frontierId || player.location?.f);
+    if (!frontier) return fail(res, 404, 'no-frontier');
+    const r = await resolveCellGrid(player, frontier, Number(gridCoord));
+    const ownerUsername = r.grid.gridType === 'homestead' ? player.username : null;
+    return res.json({ grid: buildGridPayload(r.grid, playerId, { ownerUsername }), ownerUsername });
+  } catch (err) {
+    if (err.status) return fail(res, err.status, err.reason || err.message);
+    console.error('grid-prefetch failed:', err);
+    return res.status(500).json({ error: 'grid-prefetch failed' });
+  }
+});
+
 router.post('/enter-grid', async (req, res) => {
   const { playerId, target } = req.body || {};
   if (!playerId || !target || typeof target !== 'object' || !target.type) return fail(res, 400, 'bad-target');
@@ -25,6 +106,9 @@ router.post('/enter-grid', async (req, res) => {
     if (!player) return fail(res, 404, 'no-player');
     const frontier = await Frontier.findById(player.frontierId || player.location?.f);
     if (!frontier) return fail(res, 404, 'no-frontier');
+
+    // §4.2: leave-side state rides along so a crossing is one round trip.
+    await applyLeave(player, req.body.leave);
 
     const xy = Number.isFinite(target.x) && Number.isFinite(target.y) ? { x: target.x, y: target.y } : null;
     let grid, settlementId = null, gridCoord = null, spawn = null, ownerUsername = null;

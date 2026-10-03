@@ -78,10 +78,19 @@ const CORNERS = [[0, 0], [0, 7], [7, 0], [7, 7]];
     }
   }
 
-  // close the corners
+  // close the corners (and remove orphan homesteads whose owner account is gone)
   for (const [r, c] of CORNERS) {
     const entry = frontier.settlements[r][c];
     const s = await getSettlement(entry.settlementId);
+    for (const cell of s.grids.flat()) {
+      if (cell.gridType !== 'homestead' || !cell.gridId) continue;
+      const g = await Grid.findById(cell.gridId, 'ownerId').lean();
+      const owner = g?.ownerId ? await Player.exists({ _id: g.ownerId }) : null;
+      if (!g || !owner) {
+        console.log(`corner (${r},${c}): orphan homestead ${cell.gridCoord} (grid ${cell.gridId}, owner ${g?.ownerId || 'none'}) -> deleted`);
+        if (apply) { if (g) await Grid.deleteOne({ _id: g._id }); cell.gridId = null; cell.available = false; s.population = Math.max(0, (s.population || 0) - 1); }
+      }
+    }
     const open = s.grids.flat().filter((x) => x.gridType === 'homestead' && x.available).length;
     console.log(`corner (${r},${c}) ${s.name}: closing (${open} open homestead cells, ${s.grids.flat().filter((x) => x.gridType === 'homestead' && x.gridId).length} still occupied)`);
     if (apply) {

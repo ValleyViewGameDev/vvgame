@@ -5,6 +5,7 @@ import { getEntryPosition } from './transitConfig';
 import playersInGridManager from "../../GridState/PlayersInGrid";
 import GlobalGridStateTilesAndResources from "../../GridState/GlobalGridStateTilesAndResources";
 import { parseGridCoord, encodeGridCoord } from "../../Utils/gridsVisitedUtils";
+import { worldMapCell } from "../../Utils/WorldMap";
 import FloatingTextManager from "../../UI/FloatingText";
 import { earnTrophy } from "../Trophies/TrophyUtils";
 import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
@@ -61,6 +62,28 @@ export function computeNeighbourGridCoord(currentGridCoord, direction) {
     gridRow,
     gridCol,
   });
+}
+
+/**
+ * Can the player walk/signpost from `fromGridCoord` in `direction`? Pure
+ * (docs/phase-3-contract.md §4.1): neighbour via computeNeighbourGridCoord,
+ * then the world-map cell. Call it BEFORE starting the fade.
+ *
+ * @returns {{ ok: true, gridCoord: number } | { ok: false, reason: 106|10020|105 }}
+ *   106   beyond the frontier
+ *   10020 someone else's homestead
+ *   105   reserved / closed settlement / anything else
+ * With no world map loaded (fetch failed at boot) the neighbour is allowed and
+ * the server's own 403/404 remain the authority.
+ */
+export function canTravel(fromGridCoord, direction) {
+  const gridCoord = computeNeighbourGridCoord(fromGridCoord, direction);
+  if (gridCoord == null) return { ok: false, reason: 106 };
+  const cell = worldMapCell(gridCoord);
+  if (cell === null) return { ok: true, gridCoord };
+  if (cell === 'H') return { ok: false, reason: 10020 };
+  if (cell === 'M' || cell === 'T' || cell === 'V') return { ok: true, gridCoord };
+  return { ok: false, reason: 105 };
 }
 
 /**
@@ -127,17 +150,15 @@ export async function handleTransitSignpost(
     }
     console.log("Handling transit for resource:", resourceType);
 
-    // Fade immediately for a responsive feel (signpost click and edge-walk)
-    if (transitionFadeControl?.startTransition) {
-      transitionFadeControl.startTransition();
-    }
+    // Home/Town: fade immediately for a responsive feel. Directional travel
+    // validates with canTravel first; changePlayerLocation then owns the fade
+    // (and skips it when the neighbour's bundle is already prefetched).
+    const startFade = () => {
+      if (transitionFadeControl?.startTransition) transitionFadeControl.startTransition();
+    };
 
     const currentGridId = currentPlayer.location?.g;
     const playerId = String(currentPlayer._id || currentPlayer.playerId);
-    const isSpecialSignpost =
-      resourceType === "Signpost Town" ||
-      resourceType === "Signpost Home" ||
-      resourceType === "Signpost Town Home";
 
     const showNoHorse = () => {
       const playersInGrid = playersInGridManager.getPlayersInGrid(currentGridId);
@@ -161,6 +182,7 @@ export async function handleTransitSignpost(
 
     // ------------------------------------------------------------ Signpost Home
     if (resourceType === "Signpost Home") {
+      startFade();
       const hasHomeDeed =
         currentPlayer.backpack?.some((item) => item.type === "Home Deed" && item.quantity > 0) ||
         currentPlayer.inventory?.some((item) => item.type === "Home Deed" && item.quantity > 0);
@@ -196,6 +218,7 @@ export async function handleTransitSignpost(
 
     // ------------------------------------------------------------ Signpost Town / Town Home
     if (resourceType === "Signpost Town Home" || resourceType === "Signpost Town") {
+      startFade();
       updateStatus(102); // "Traveling to town ..."
       const moved = await changePlayerLocation(
         currentPlayer,
@@ -216,11 +239,7 @@ export async function handleTransitSignpost(
     }
 
     // ------------------------------------------------------------ Directional signpost / edge-walk
-    if (!isSpecialSignpost) {
-      const playerSkills = skills?.length ? skills : await resolveSkills(currentPlayer);
-      if (!playerSkills.some((item) => item.type === "Horse" && item.quantity > 0)) return showNoHorse();
-    }
-
+    // No fade has started yet: every refusal below leaves the player on the tile.
     const direction = resourceType.replace("Signpost ", "");
     if (!DIRECTION_OFFSETS[direction]) {
       console.error("❌ Unknown signpost direction:", resourceType);
@@ -234,11 +253,17 @@ export async function handleTransitSignpost(
       return bail(105);
     }
 
-    const targetGridCoord = computeNeighbourGridCoord(currentGridCoord, direction);
-    if (targetGridCoord == null) return bail(106); // "You cannot travel beyond the frontier."
+    // §4.1: validate against the world map BEFORE any fade or request
+    // (106 beyond the frontier, 10020 someone else's homestead, 105 closed/reserved).
+    const travel = canTravel(currentGridCoord, direction);
+    if (!travel.ok) return bail(travel.reason);
+    const targetGridCoord = travel.gridCoord;
 
-    // A homestead that is not the player's own is refused by the server (403
-    // not-your-homestead); changePlayerLocation shows the status for that.
+    const playerSkills = skills?.length ? skills : await resolveSkills(currentPlayer);
+    if (!playerSkills.some((item) => item.type === "Horse" && item.quantity > 0)) return showNoHorse();
+
+    // The server keeps its own checks (403 not-your-homestead, 404);
+    // changePlayerLocation shows the status for those.
 
     updateStatus(103); // "Travelling ..."
 

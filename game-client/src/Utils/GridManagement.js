@@ -9,6 +9,7 @@ import { centerCameraOnPlayer } from '../PlayerMovement';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
+import { takePrefetched, clear as clearPrefetch } from './GridPrefetch';
 import { isGridVisited, markGridVisited, toServerFormat, parseGridCoord } from './gridsVisitedUtils';
 import farmState from '../FarmState';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
@@ -142,9 +143,15 @@ export function resolveArrivalPosition(arrival = {}, target = {}, spawn = null, 
  * The one HTTP call that resolves and loads a grid for the player.
  * Returns `response.data` = `{ grid, location, spawn, ownerUsername }`
  * (see docs/phase-2-contract.md). Throws the axios error on failure.
+ *
+ * `leave` (docs/phase-3-contract.md §4.2) carries the from-grid's queued NPC
+ * positions and the player's last x/y/hp/maxhp so a crossing is one round trip:
+ *   { fromGridId, npcPositions: { [npcId]: {x,y} }, state: { x, y, hp, maxhp } }
  */
-export async function enterGrid(playerId, target) {
-  const response = await axios.post(`${API_BASE}/api/enter-grid`, { playerId, target });
+export async function enterGrid(playerId, target, leave = undefined) {
+  const body = { playerId, target };
+  if (leave) body.leave = leave;
+  const response = await axios.post(`${API_BASE}/api/enter-grid`, body);
   return response.data;
 }
 
@@ -219,8 +226,30 @@ function enterGridErrorStatus(error, strings) {
   return 105;
 }
 
+/** Let PixiJS render a few frames (e.g. at a new camera position) before continuing. */
+const waitForFrames = (count = 3) => new Promise((resolve) => {
+  let frameCount = 0;
+  const tick = () => {
+    frameCount++;
+    if (frameCount >= count) resolve();
+    else requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+});
+
 /**
  * The one grid-change executor. Every way a player changes grid ends here.
+ *
+ * Two paths (docs/phase-3-contract.md §4):
+ *   fade    : fade → ONE awaited `enter-grid` (with `leave`) → seed → arrive → fade up
+ *   no-fade : a prefetched bundle for `target.gridCoord` (GridPrefetch) is
+ *             seeded immediately with no fade; `enter-grid` (with `leave`, and
+ *             the arrival x/y on the target) is sent WITHOUT awaiting it. If the
+ *             server refuses (403/404/5xx) the client reverts to the previous
+ *             grid/tile through the fade path and shows 105 (10020 on 403).
+ * The LocationChangeManager lock is held from the first store write until the
+ * crossing is committed (fade path: the response; no-fade path: when the
+ * deferred request settles) and released on every exit.
  *
  * @param {object}   currentPlayer
  * @param {object}   target   a docs/phase-2-contract.md target:
@@ -240,7 +269,8 @@ function enterGridErrorStatus(error, strings) {
  * @param {object}   arrival  { findSignpost?: 'Signpost W' | 'Signpost Town' | 'Signpost Home' | ...,
  *                              offset?: {x,y}   (overrides the SIGNPOST_ARRIVAL_OFFSETS entry),
  *                              fallback?: {x,y} (used when the signpost is missing),
- *                              x?, y?           (explicit tile, lowest precedence after fallback) }
+ *                              x?, y?           (explicit tile, lowest precedence after fallback),
+ *                              noPrefetch?: true (always use the fade path; used by the revert) }
  *                            Precedence: server `spawn` > findSignpost > fallback > arrival.x/y > target.x/y.
  * @returns {Promise<boolean>} true when the player is standing in the new grid; false on any
  *                             failure (status already shown, fade ended, lock released).
@@ -260,106 +290,92 @@ export const changePlayerLocation = async (
   transitionFadeControl,
   arrival = {}
 ) => {
+  const startFade = () => {
+    if (transitionFadeControl?.startTransition) transitionFadeControl.startTransition();
+  };
   const endFade = () => {
     if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
   };
 
-  // Fade to black immediately so the UI reacts on the tap
-  if (transitionFadeControl?.startTransition) {
-    transitionFadeControl.startTransition();
-  }
-
+  // Synchronous checks first: nothing fades and nothing is touched for a refused change.
   if (!target || !target.type) {
     console.error('❌ changePlayerLocation: invalid target', target);
-    endFade();
     return false;
   }
 
   if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
     if (updateStatus) updateStatus(470); // "Cannot travel right now, farming actions in progress."
-    endFade();
+    return false;
+  }
+
+  if (!locationChangeManager.tryAcquire()) {
+    if (updateStatus) updateStatus('Location change in progress, please wait...');
     return false;
   }
 
   const playerId = String(currentPlayer._id || currentPlayer.playerId);
   const fromLocation = currentPlayer.location || {};
   const fromGridId = fromLocation.g ? String(fromLocation.g) : null;
+  const fromGridCoord = fromLocation.gridCoord ?? GlobalGridStateTilesAndResources.getGridMeta()?.gridCoord ?? null;
+  const fromPC = (fromGridId && playersInGridManager.getAllPCs(fromGridId)?.[playerId]) || null;
+  const fromPosition = (fromPC?.position && isNum(fromPC.position.x) && isNum(fromPC.position.y))
+    ? { x: fromPC.position.x, y: fromPC.position.y }
+    : null;
 
-  const canProceed = await locationChangeManager.requestLocationChange({
-    from: fromLocation,
-    to: target,
-    playerId,
-    timestamp: Date.now(),
-  });
-  if (!canProceed) {
-    if (updateStatus) updateStatus('Location change in progress, please wait...');
-    // The in-flight change owns the fade; do not end it here.
-    return false;
-  }
+  // §4.3: a cached neighbour bundle makes this a no-fade crossing. Any grid
+  // change drops the cache (it is keyed to the grid we are leaving).
+  const prefetched = (target.type === 'coord' && !arrival.noPrefetch) ? takePrefetched(target.gridCoord) : null;
+  clearPrefetch();
+
+  // Fade to black immediately so the UI reacts on the tap (fade path only)
+  if (!prefetched) startFade();
 
   if (closeAllPanels) closeAllPanels();
 
-  const fail = (statusMsg, error) => {
+  // ---------------------------------------------------------------- leave
+  // §4.2: drain the from-grid's NPC position queue and the local PC's
+  // x/y/hp/maxhp into `leave`; no leave-side requests of their own.
+  const leave = fromGridId
+    ? {
+        fromGridId,
+        npcPositions: NPCsInGridManager.drainPendingPositions(fromGridId),
+        state: playersInGridManager.takeDirtyState() || undefined,
+      }
+    : undefined;
+  const restoreLeave = () => {
+    if (!leave) return;
+    NPCsInGridManager.requeuePositions(leave.fromGridId, leave.npcPositions);
+    playersInGridManager.markDirty();
+  };
+
+  const fail = (statusMsg, error, { fade = true } = {}) => {
     if (error) console.error('❌ Location change error:', error);
     if (updateStatus && statusMsg != null) updateStatus(statusMsg);
-    endFade();
-    locationChangeManager.failLocationChange(error || new Error(String(statusMsg)));
+    if (fade) endFade();
+    locationChangeManager.release();
     return false;
   };
 
-  try {
-    if (updateStatus) updateStatus('Leaving ...');
-
-    // ---------------------------------------------------------------- leave
-    // The live PC record holds the current hp/maxhp; carry them onto the player
-    // so the record rebuilt on arrival (from the Player) does not regress.
-    const fromPlayerState = (fromGridId && playersInGridManager.getAllPCs(fromGridId)?.[playerId]) || {};
-
-    if (fromGridId) {
-      await Promise.all([
-        NPCsInGridManager.flushGridPositionUpdates(fromGridId),
-        playersInGridManager.flushState(),
-      ]);
-    }
-
-    try {
-      farmState.stopSeedTimer();
-      ambientVFXManager.onGridLeave();
-      soundManager.onGridLeave();
-    } catch (timerError) {
-      console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
-    }
-
-    if (updateStatus) updateStatus('Loading ...');
-
-    // ---------------------------------------------------------------- resolve + load
-    // Resolve BEFORE removing the PC from the old grid so a refused move
-    // (403 not-your-homestead, 404) leaves the player exactly where they were.
-    let bundle;
-    try {
-      bundle = await enterGrid(playerId, target);
-    } catch (error) {
-      return fail(enterGridErrorStatus(error, strings), error);
-    }
-
-    const { grid, location, spawn, ownerUsername } = bundle || {};
-    if (!grid?._id || !Array.isArray(grid.tiles) || grid.tiles.length === 0 || !Array.isArray(grid.resources) || !location) {
-      return fail(105, new Error('enter-grid returned an incomplete bundle'));
-    }
+  /**
+   * Seed the stores from `grid`, resolve the arrival tile, place the player,
+   * commit React/localStorage, and run the trophy / region / camera / status
+   * steps. Shared by both paths. Returns { x, y, toGridId, gtype, updatedPlayer }.
+   */
+  const arrive = async ({ grid, location, spawn, ownerUsername }) => {
     const toGridId = String(grid._id);
-
-    if (updateStatus) updateStatus('Entering ...');
 
     // Player location: contract `location` merged over the old one
     const mergedLocation = { ...fromLocation, ...location, g: toGridId };
     const fromRegion = fromLocation.region || null;
     const toRegion = grid.region ?? location.region ?? null;
 
+    // The live record held the current hp/maxhp (now in leave.state); carry
+    // them onto the player so the record rebuilt on arrival does not regress.
     const updatedPlayer = {
       ...currentPlayer,
       location: mergedLocation,
-      hp: fromPlayerState.hp ?? currentPlayer.hp,
-      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp,
+      hp: leave?.state?.hp ?? fromPC?.hp ?? currentPlayer.hp,
+      maxhp: leave?.state?.maxhp ?? fromPC?.maxhp ?? currentPlayer.maxhp,
     };
 
     // Seed tiles/resources/NPCs/PC from the bundle
@@ -380,12 +396,10 @@ export const changePlayerLocation = async (
 
     updatedPlayer.location = { ...mergedLocation, x: finalX, y: finalY };
 
-    // Place the PC on the arrival tile (no slide animation from the old grid's
-    // tile) and persist so the server's Player.location carries the arrival x/y.
+    // Place the PC on the arrival tile (no slide animation from the old grid's tile)
     playersInGridManager.updatePC(toGridId, playerId, { position: { x: finalX, y: finalY } }, { animate: false });
-    await playersInGridManager.flushState();
 
-    // Local gridsVisited mirror (the server already marked the bit in enter-grid)
+    // Local gridsVisited mirror (the server marks the bit in enter-grid)
     const toGridCoord = location.gridCoord ?? grid.gridCoord ?? null;
     if (isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
       updatedPlayer.gridsVisited = toServerFormat(markGridVisited(currentPlayer.gridsVisited, toGridCoord));
@@ -457,31 +471,113 @@ export const changePlayerLocation = async (
       updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);
     }
 
-    // Let PixiJS render a few frames at the new camera position before fading up
-    await new Promise((resolve) => {
-      let frameCount = 0;
-      const waitForFrames = () => {
-        frameCount++;
-        if (frameCount >= 3) resolve();
-        else requestAnimationFrame(waitForFrames);
+    return { x: finalX, y: finalY, toGridId, gtype, updatedPlayer };
+  };
+
+  /**
+   * The deferred `enter-grid` of a no-fade crossing was refused: put the
+   * player back on the previous grid/tile through the fade path.
+   */
+  const revert = (error, updatedPlayer) => {
+    const status = error?.response?.status;
+    const statusMsg = status === 403 ? 10020 : 105;
+    console.error('❌ [GRID TRANSITION] enter-grid refused after a no-fade crossing; reverting:', error?.response?.data || error.message);
+    locationChangeManager.release();
+    if (updateStatus) updateStatus(statusMsg);
+    if (fromGridCoord == null) return;
+
+    const back = { type: 'coord', gridCoord: fromGridCoord, ...(fromPosition || {}) };
+    changePlayerLocation(
+      updatedPlayer,
+      back,
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      updateStatus,
+      closeAllPanels,
+      bulkOperationContext,
+      strings,
+      transitionFadeControl,
+      { noPrefetch: true, ...(fromPosition || {}) }
+    ).then((reverted) => {
+      if (!reverted) console.error('❌ [GRID TRANSITION] Revert to the previous grid failed');
+      else if (updateStatus) updateStatus(statusMsg);
+    });
+  };
+
+  try {
+    try {
+      farmState.stopSeedTimer();
+      ambientVFXManager.onGridLeave();
+      soundManager.onGridLeave();
+    } catch (timerError) {
+      console.warn('⚠️ [CLEANUP] Error stopping timers:', timerError);
+    }
+
+    // ================================================================ no-fade crossing (§4.3)
+    if (prefetched) {
+      const { grid, ownerUsername } = prefetched;
+      const toGridId = String(grid._id);
+      // The prefetch bundle has no `location`; build it the way the server will
+      // (gridResolver.setPlayerLocation) from the grid document.
+      const location = {
+        g: toGridId,
+        s: grid.settlementId ? String(grid.settlementId) : (fromLocation.s ?? null),
+        f: grid.frontierId ? String(grid.frontierId) : (fromLocation.f ?? null),
+        gridCoord: grid.gridCoord ?? target.gridCoord,
+        gtype: grid.gridType,
+        region: grid.region ?? null,
       };
-      requestAnimationFrame(waitForFrames);
-    });
 
+      const arrived = await arrive({ grid, location, spawn: null, ownerUsername: ownerUsername ?? null });
+
+      // Commit without awaiting: target carries the arrival tile, leave the from-grid state.
+      enterGrid(playerId, { ...target, x: arrived.x, y: arrived.y }, leave).then(
+        () => {
+          locationChangeManager.release();
+          console.log(`🎉 [GRID TRANSITION] Entered grid ${arrived.toGridId} (${arrived.gtype}) at (${arrived.x}, ${arrived.y}) [prefetched, committed]`);
+        },
+        (error) => revert(error, arrived.updatedPlayer)
+      );
+      return true;
+    }
+
+    // ================================================================ fade crossing (§4.2)
+    if (updateStatus) updateStatus('Loading ...');
+
+    // The ONE awaited request. Resolve before touching any store so a refused
+    // move (403 not-your-homestead, 404) leaves the player exactly where they were.
+    let bundle;
+    try {
+      bundle = await enterGrid(playerId, target, leave);
+    } catch (error) {
+      restoreLeave();
+      return fail(enterGridErrorStatus(error, strings), error);
+    }
+
+    const { grid, location, spawn, ownerUsername } = bundle || {};
+    if (!grid?._id || !Array.isArray(grid.tiles) || grid.tiles.length === 0 || !Array.isArray(grid.resources) || !location) {
+      return fail(105, new Error('enter-grid returned an incomplete bundle'));
+    }
+
+    if (updateStatus) updateStatus('Entering ...');
+
+    const arrived = await arrive({ grid, location, spawn, ownerUsername });
+
+    // Persist the arrival x/y; not awaited (the 30 s tick and unload also cover it)
+    playersInGridManager.flushState();
+
+    // Let PixiJS render a few frames at the new camera position before fading up
+    await waitForFrames(3);
     endFade();
+    locationChangeManager.release();
 
-    locationChangeManager.completeLocationChange({
-      from: fromLocation,
-      to: updatedPlayer.location,
-      gridId: toGridId,
-      playerId,
-      success: true,
-    });
-
-    console.log(`🎉 [GRID TRANSITION] Entered grid ${toGridId} (${gtype}) at (${finalX}, ${finalY})`);
+    console.log(`🎉 [GRID TRANSITION] Entered grid ${arrived.toGridId} (${arrived.gtype}) at (${arrived.x}, ${arrived.y})`);
     return true;
   } catch (error) {
-    return fail(105, error);
+    return fail(105, error, { fade: !prefetched });
   }
 };
 

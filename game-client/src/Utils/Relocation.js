@@ -1,6 +1,7 @@
 import axios from "axios";
 import API_BASE from "../config";
 import GlobalGridStateTilesAndResources from "../GridState/GlobalGridStateTilesAndResources";
+import { fetchWorldMap } from "./WorldMap";
 
 /**
  * Move the player's homestead to `targetGridCoord`. The server moves the Grid
@@ -37,6 +38,9 @@ export const processRelocation = async (currentPlayer, setCurrentPlayer, fromGri
           });
         }
         console.log("✅ setCurrentPlayer + localStorage update complete");
+
+        // The homestead cell moved: refresh the world map so canTravel sees the new M/H cells
+        await fetchWorldMap(freshPlayer.frontierId || freshPlayer.location?.f, freshPlayer.playerId || freshPlayer._id);
       }
     } catch (error) {
       console.error("❌ Failed to refresh player data after relocation:", error);

@@ -2,7 +2,8 @@ import playersInGridManager from './GridState/PlayersInGrid';
 import NPCsInGridManager from './GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
-import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
+import { handleTransitSignpost, canTravel } from './GameFeatures/Transit/Transit';
+import { prefetchNeighbour } from './Utils/GridPrefetch';
 import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
 import { getPlayerWorldPosition, getScrollPosition } from './Render/PixiRenderer/UnifiedCamera';
 
@@ -266,9 +267,34 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
     lastUpdated: timestamp,
   });
 
+  maybePrefetchAcrossEdge(currentPlayer, playerId, finalPosition);
+
   // Note: Camera tethering during animation is not yet implemented for the unified world model.
   // The camera will jump to the final position after the animation completes.
   // For now, we don't call centerCameraOnPlayer here to avoid the jump during animation.
+}
+
+// Prefetch the neighbour's bundle when the player is this close to an edge
+// (docs/phase-3-contract.md §4.3). GridPrefetch dedupes: a cached, in-flight
+// or refused coord is a no-op, so repeated steps along an edge do not refetch.
+const EDGE_PREFETCH_TILES = 2;
+
+function maybePrefetchAcrossEdge(currentPlayer, playerId, position) {
+  const gridCoord = currentPlayer.location?.gridCoord ?? GlobalGridStateTilesAndResources.getGridMeta()?.gridCoord;
+  if (gridCoord == null) return; // dungeons / FTUE cave: no neighbours
+  // Edge travel needs a Horse; do not create grid copies for players who cannot cross yet
+  if (!currentPlayer.skills?.some((item) => item.type === 'Horse' && item.quantity > 0)) return;
+
+  const directions = [];
+  if (position.x <= EDGE_PREFETCH_TILES) directions.push('W');
+  if (position.x >= 63 - EDGE_PREFETCH_TILES) directions.push('E');
+  if (position.y <= EDGE_PREFETCH_TILES) directions.push('N');
+  if (position.y >= 63 - EDGE_PREFETCH_TILES) directions.push('S');
+
+  for (const direction of directions) {
+    const travel = canTravel(gridCoord, direction);
+    if (travel.ok) prefetchNeighbour(playerId, travel.gridCoord);
+  }
 }
 
 async function isValidMove(targetX, targetY, masterResources,
@@ -305,15 +331,23 @@ async function isValidMove(targetX, targetY, masterResources,
       null;
     if (!direction) { console.warn(`⛔ Invalid movement direction from (${targetX}, ${targetY}).`); return false; }
 
-    console.log(`📦 Attempting directional travel via: ${direction}`);
-
-    // 🌑 Start fade transition and WAIT for it to complete before continuing
-    if (transitionFadeControl?.startTransition) {
-      console.log('🌑 [IMMEDIATE FADE] Starting fade transition for boundary crossing');
-      await transitionFadeControl.startTransition();
-      console.log('🌑 [IMMEDIATE FADE] Fade to black complete, proceeding with travel');
+    // §4.1: validate the crossing BEFORE any fade or request. A refusal shows
+    // the status and the player simply stays on the tile.
+    const gridCoord = currentPlayer.location?.gridCoord ?? GlobalGridStateTilesAndResources.getGridMeta()?.gridCoord;
+    if (gridCoord == null) {
+      if (updateStatus) updateStatus(105);
+      return false;
+    }
+    const travel = canTravel(gridCoord, direction.replace('Signpost ', ''));
+    if (!travel.ok) {
+      if (updateStatus) updateStatus(travel.reason);
+      return false;
     }
 
+    console.log(`📦 Attempting directional travel via: ${direction}`);
+
+    // No fade here: changePlayerLocation starts it (or skips it when the
+    // neighbour's bundle is prefetched).
     const skills = currentPlayer.skills;
 
     handleTransitSignpost(
