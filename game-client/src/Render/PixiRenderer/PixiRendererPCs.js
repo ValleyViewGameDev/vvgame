@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
+import { getAtlasTexture } from './AtlasTextures';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -47,8 +48,10 @@ const PixiRendererPCs = ({
   const textRef = useRef(null);             // Text object for PC icon (emoji fallback)
   const spriteRef = useRef(null);           // Sprite object for SVG icon
 
-  // Per-instance SVG texture cache (destroyed on unmount)
+  // Per-instance SVG texture cache (destroyed on unmount). Atlas frames are kept apart
+  // in atlasTextureCacheRef because they belong to the shared sheets and must not be destroyed here.
   const svgTextureCacheRef = useRef(new Map());
+  const atlasTextureCacheRef = useRef(new Map());
   const svgLoadingPromisesRef = useRef(new Map());
   const isMountedRef = useRef(true);
 
@@ -84,6 +87,10 @@ const PixiRendererPCs = ({
   const loadSvgTexture = useCallback(async (filename) => {
     const svgTextureCache = svgTextureCacheRef.current;
     const svgLoadingPromises = svgLoadingPromisesRef.current;
+    const atlasTextureCache = atlasTextureCacheRef.current;
+    if (atlasTextureCache.has(filename)) {
+      return atlasTextureCache.get(filename);
+    }
     if (svgTextureCache.has(filename)) {
       return svgTextureCache.get(filename);
     }
@@ -93,6 +100,13 @@ const PixiRendererPCs = ({
 
     const promise = (async () => {
       try {
+        // Atlas first (scripts/build-atlas.js); the SVG rasterisation below is the fallback
+        const atlasTexture = await getAtlasTexture('playerIcons', filename);
+        if (atlasTexture) {
+          if (isMountedRef.current) atlasTextureCache.set(filename, atlasTexture);
+          return atlasTexture;
+        }
+
         // Fetch SVG text so we can modify its dimensions
         const response = await fetch(`/assets/playerIcons/${filename}`);
         if (!response.ok) {
@@ -257,6 +271,7 @@ const PixiRendererPCs = ({
   useEffect(() => {
     isMountedRef.current = true;
     const cache = svgTextureCacheRef.current;
+    const atlasCache = atlasTextureCacheRef.current;
     const loading = svgLoadingPromisesRef.current;
     return () => {
       isMountedRef.current = false;
@@ -264,6 +279,7 @@ const PixiRendererPCs = ({
         try { tex.destroy(true); } catch (e) { /* already destroyed */ }
       });
       cache.clear();
+      atlasCache.clear(); // not destroyed: the sheets belong to AtlasTextures
       loading.clear();
     };
   }, []);
@@ -316,12 +332,14 @@ const PixiRendererPCs = ({
     // Check if we have an SVG for this icon
     const svgFilename = getSvgFilename(displayIcon);
     const svgTextureCache = svgTextureCacheRef.current;
+    const atlasTextureCache = atlasTextureCacheRef.current;
 
     // Calculate position
     const xPos = gridOffset.x + posX * TILE_SIZE + TILE_SIZE / 2;
     const yPos = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
 
-    const texture = svgFilename ? svgTextureCache.get(svgFilename) : null;
+    const cached = svgFilename ? (atlasTextureCache.get(svgFilename) || svgTextureCache.get(svgFilename)) : null;
+    const texture = cached && cached.valid !== false && !cached.baseTexture?.destroyed ? cached : null;
 
     if (texture) {
       // Use SVG sprite
@@ -344,7 +362,7 @@ const PixiRendererPCs = ({
       hideSprite();
 
       // If SVG exists but not loaded, trigger load
-      if (svgFilename && !svgTextureCache.has(svgFilename)) {
+      if (svgFilename && !svgTextureCache.has(svgFilename) && !atlasTextureCache.has(svgFilename)) {
         loadSvgTexture(svgFilename).then((tex) => {
           // Re-render after texture loads
           if (tex) renderPCs();

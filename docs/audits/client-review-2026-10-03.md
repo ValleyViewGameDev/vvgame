@@ -365,7 +365,7 @@ with forced reflows at `VFX.js:227, 288`.
 
 Keep PixiJS 7 (move to plain `pixi.js`). Rebuild the four things around it, in this order.
 
-**A. Assets: pre-rasterise at build time into atlases; settle the emoji question.**
+**A. Assets: pre-rasterise at build time into atlases; settle the emoji question.** *(SVG half built 2026-10-03: `scripts/build-atlas.js`, `Render/PixiRenderer/AtlasTextures.js`; five 2048 px sheets, 1.8 MB WebP. Emoji policy still open.)*
 - A one-off script (`game-client/scripts/build-atlas.js`, sharp or resvg plus a packer) renders
   each SVG at 128 px (256 px for `size >= 2` buildings) into a few 2048 px PNG/WebP sheets with a
   JSON frame map keyed by `filename`. The client loads the sheets once with `Assets.load`;

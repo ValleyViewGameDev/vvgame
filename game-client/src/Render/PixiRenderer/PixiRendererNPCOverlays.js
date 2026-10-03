@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { Container, Sprite, Text, Texture } from 'pixi.js-legacy';
 import { checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus } from '../RenderDynamicElements';
 import { OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
+import { getAtlasTexture } from './AtlasTextures';
 
 /**
  * PixiRendererNPCOverlays - Status overlay indicators for NPCs
@@ -22,6 +23,11 @@ const overlayLoadingPromises = new Map();
  * Load an overlay SVG and create a PixiJS texture
  */
 const loadOverlayTexture = async (filename, size) => {
+  // Atlas first (scripts/build-atlas.js). Not put in overlayTextureCache: that cache is
+  // destroyed on unmount and the sheet textures are shared.
+  const atlasTexture = await getAtlasTexture('overlays', filename);
+  if (atlasTexture) return atlasTexture;
+
   const cacheKey = `overlay-${filename}-${size}`;
 
   if (overlayTextureCache.has(cacheKey)) {

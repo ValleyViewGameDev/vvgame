@@ -14,6 +14,7 @@ import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
 import PixiRendererPadding from './PixiRendererPadding';
 import PixiRendererDoinker from './PixiRendererDoinker';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
+import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
 import {
   TILES_PER_GRID,
   TILES_PER_SETTLEMENT,
@@ -106,12 +107,23 @@ const BASE_TEXTURE_SIZE = 128;
 const OVERLAY_TEXTURE_SIZE = 64;  // Overlays can be smaller since they're always small on screen
 
 /**
- * Load an SVG file and create a PixiJS texture
+ * Texture for a resource / NPC / overlay SVG.
+ *
+ * Atlas first (scripts/build-atlas.js pre-rasterises every SVG into a few sheets,
+ * loaded once by AtlasTextures.js), then the legacy path: fetch the SVG, rasterise it
+ * on a canvas, upload one texture per file. The legacy path only runs for art that has
+ * not been through `npm run build:atlas` yet.
  * @param {string} filename - SVG filename (e.g., "tree.svg")
  * @param {boolean} isOverlay - Whether this is an overlay SVG
  * @returns {Promise<Texture|null>} PixiJS texture or null if failed
  */
 const loadSVGTexture = async (filename, isOverlay = false) => {
+  const atlasTexture = await getAtlasTexture(isOverlay ? 'overlays' : 'resources', filename);
+  if (atlasTexture) return atlasTexture;
+  return loadSVGTextureLegacy(filename, isOverlay);
+};
+
+const loadSVGTextureLegacy = async (filename, isOverlay = false) => {
   // Cache key is now just the filename - size is always fixed
   const cacheKey = `${isOverlay ? 'overlay-' : ''}${filename}`;
 
@@ -568,6 +580,9 @@ const PixiRenderer = ({
       worldContainer.addChild(overlayContainer);
       overlayContainerRef.current = overlayContainer;
 
+      // Start the sprite-sheet download now so it overlaps the grid bundle fetch
+      loadAtlas();
+
       // Wire up AmbientVFXManager with PixiJS app and world container
       // Pass TILE_SIZE as the base tile size - this is the constant rendering size (e.g., 40)
       // that doesn't change with zoom, ensuring ambient effects render at correct world coordinates
@@ -634,6 +649,7 @@ const PixiRenderer = ({
       // Clear texture caches to prevent stale texture references on remount
       clearTextureCache();
       clearTileTextureCache();
+      resetAtlas(); // the sheets' BaseTextures died with the Application; next lookup reloads them
     };
   }, []); // Only run once on mount
 
