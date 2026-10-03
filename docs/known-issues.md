@@ -56,3 +56,17 @@ Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, 
 - Badges set or cleared by panels (`Mailbox`, `Store`, `Chat` call `updateBadge` with a no-op setter) never reached App state; the header dot and the mailbox overlay only changed through the old socket echo. `updateBadge` now dispatches `vv-badge-change`, which App subscribes to.
 - The Kent overlay (`checkKentNPCStatus`) ignored Kent's timer and the per-card cooldowns, so the checkmark stayed after a purchase. It now reads `kentOffers.endTime` and the `kentCardCooldowns_<playerId>` localStorage entry, and NPC overlays re-evaluate every 10 s so time-based states expire visibly.
 
+
+## Found 2026-10-03 in the client review (not yet fixed; details in `audits/client-review-2026-10-03.md`)
+
+- `game-client/src/App.js:4623` has a stray `)}` after the TradeStall block. It parses and renders as literal text in the panel area.
+- The inactivity effect (`App.js:3121-3195`) adds a `visibilitychange` listener on every run (deps `[currentPlayer, gridId]`) and never removes it.
+- `let isProcessing` (`App.js:2619`) and `let isInitializing` (`App.js:1309`) are render-body variables, so the double-click and double-init guards reset on every render and never block.
+- The timers effect (`App.js:2258-2268`) depends on the whole `currentPlayer`, so every `setCurrentPlayer` fires `GET /api/get-frontier/:id` and recreates the 1 s countdown and phase intervals.
+- `TransitionContext.js:13-14` fades an overlay at `top: 85px; left: 300px`; the board starts at `84px / 240px` (`App.css:383-387`), so a 60 px strip of board never fades.
+- `SoundManager` references `sfx_success.mp3` and `sfx_heal2.mp3`; the files are `sfx_succes.mp3` and `sfx_heal.mp3`.
+- `Modal.js:11` only ever applies `modal-small`; `modal-medium/large/xlarge` in `Modal.css:68-89` are unreachable and every other modal inherits `min-width: 400px`.
+- `isMayor` state (`App.js:401-418`) is set and never read; computing it costs two GETs per location change.
+- Six of the ten `UI/Strings/strings*.json` (FI, IT, NO, PT, RU, SV) are byte-identical English stubs, and all ten are statically imported into the main bundle.
+- `public/sound/music/homestead2.mp3` is byte-identical to `homestead.mp3` (7 MB each).
+- Dev tooling (`Utils/debug.js`, 1,435 lines, 30 calls to admin endpoints) is a static import and ships to every player.

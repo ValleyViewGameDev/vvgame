@@ -13,7 +13,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 - Last real commit before the refactor: 2026-05-06. Commit messages in this repo are historically placeholders; from now on write real ones.
 - No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77255`). Their data must survive every migration. Other players' data is nice-to-have.
 - Production DB: 11 players, ~1,060 grids (73 MB), 64 settlements, 1 frontier. Database name is `test`.
-- Refactor phase: **0, 1 and 2 shipped to production 2026-10-02 (season 38 Winter started; `SERVICE_MODE` still `maintenance` until the owner flips it). Phase 3 slice 1 (player state on the Player, settlement 0,1 move, corner ban) built on `refactor/phase-3a-player-state`, rehearsed, awaiting merge.** Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Phase checklist and ship sequence live in the plan.
+- Refactor phase: **0, 1, 2 and Phase 3 slices 1-2 are on `main` (2026-10-03). `SERVICE_MODE` is still `maintenance` until the owner flips it.** Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Next: the rest of Phase 3 (delete `Grid.playersInGrid` + PC routes, NPC snapshots) and Phase 4 client performance, whose plan is now `docs/audits/client-review-2026-10-03.md` (atlas first, then Pixi camera + movement loop). Phase checklist and ship sequence live in the plan.
 
 ## Tech stack
 
@@ -55,7 +55,7 @@ vvgame/
 │   ├── refactor-plan.md      # THE plan: goals, target architecture, decisions D1-D9, phases 0-6, migration
 │   ├── architecture.md       # as-is baseline (world model, authority table, client structure)
 │   ├── known-issues.md       # bugs/hazards/dead code found in the audit, independent of the refactor
-│   └── audits/               # six deep read-only audits with file:line citations (2026-10-01)
+│   └── audits/               # deep read-only audits with file:line citations (six from 2026-10-01; client-review-2026-10-03.md = whole-client + renderer strategy)
 ├── game-server/
 │   ├── server.js             # Express + socket.io + route mounting (all under /api)
 │   ├── routes/               # enterGridRoutes (POST /enter-grid, the one grid-change resolver), worldRoutes (grids, crafting, dungeon admin), playerRoutes, gridRoutes (NPC/PC maps),
@@ -87,6 +87,7 @@ vvgame/
 - Economic changes go through a server route that validates and returns the player delta (Phase 5 target). Do not add new client-trusted `update-inventory`/`addXP` call sites.
 - New files: small focused modules, 300-500 lines; `App.js` only shrinks.
 - Player-facing copy: no em-dashes (the "AI dash"); use commas, colons, or two sentences.
+- Interactions are optimistic, the way doober collection is (`game-client/src/ResourceClicking.js:339-361`): react on the input (sprite, VFX, SFX, local state), fire the server call in parallel, revert only on a real conflict. Never gate the visual on the round trip. Player movement is the current counter-example; see `docs/audits/client-review-2026-10-03.md` §2.2.
 - Commit messages describe the change. End with `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 
 ## Hazards (read before running anything)
