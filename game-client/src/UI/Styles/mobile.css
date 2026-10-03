@@ -1,0 +1,236 @@
+/* ===========================================
+   MOBILE LAYOUT (phones, and any viewport under 768 px wide)
+
+   The desktop chrome is fixed pixels: a 60 px nav rail, a 220 px base panel, 240 px
+   slide-in panels and a 60 px header, with the board starting 300 px in. On a phone that
+   leaves a strip of board. These rules re-arrange the SAME elements for a narrow screen:
+
+     header      two horizontally scrollable rows (stats, then actions), fixed height
+     status bar  under the header, full width
+     board       fills everything between the status bar and the bottom bar
+     nav rail    becomes a bottom bar of the same buttons
+     base panel  hidden (its content is reachable from panels; see refactor plan)
+     panels      full-screen sheets between the header and the bottom bar
+     modals      fit the viewport
+     zoom        two round buttons on the board's top-right
+
+   Sizes live in the custom properties below so the pieces agree with each other.
+   Heights use dvh where supported so the iOS URL bar does not hide the bottom bar.
+   =========================================== */
+
+@media (max-width: 767px) {
+  :root {
+    --m-header-height: 58px;
+    --m-status-height: 20px;
+    --m-nav-height: 56px;
+    --m-top: calc(var(--m-header-height) + var(--m-status-height)); /* where the board starts */
+    --m-safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ---------- app frame ---------- */
+  .app-container { margin-left: 0; }
+
+  /* ---------- header: two scrollable rows ---------- */
+  .app-header {
+    height: var(--m-header-height);
+    padding: 4px 8px 2px 8px;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 4px;
+  }
+  .header-title { display: none; }
+
+  /* Row 1: the player's numbers. The desktop grid becomes a single scrolling row. */
+  .header-controls-left.header-grid {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .header-controls-left.header-grid::-webkit-scrollbar { display: none; }
+  .header-controls-left.header-grid > span,
+  .header-xp-bar,
+  .header-inventory-bar,
+  .header-hp-bar { display: none; }
+  .header-currency-group { gap: 14px; flex: 0 0 auto; }
+
+  /* Row 2: Store, Inbox, Settings, Chat, Leaders, Language, Share */
+  .header-secondary {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .header-secondary::-webkit-scrollbar { display: none; }
+  .header-secondary .header-controls-center,
+  .header-secondary .header-controls-right,
+  .header-secondary .header-row { display: contents; }
+  .header-secondary > .header-controls-right > span { display: none; }
+
+  .header-link {
+    font-size: 13px;
+    padding: 3px 0;
+    flex: 0 0 auto;
+  }
+
+  /* ---------- status bar ---------- */
+  .status-bar {
+    top: var(--m-header-height);
+    left: 0;
+    width: 100%;
+    height: var(--m-status-height);
+    line-height: var(--m-status-height);
+    font-size: 11px;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+
+  /* ---------- board ---------- */
+  .homestead {
+    margin-left: 0;
+    left: 0;
+    width: 100%;
+    top: var(--m-top);
+    height: calc(100vh - var(--m-top) - var(--m-nav-height) - var(--m-safe-bottom));
+    height: calc(100dvh - var(--m-top) - var(--m-nav-height) - var(--m-safe-bottom));
+  }
+
+  /* ---------- nav rail -> bottom bar ---------- */
+  .nav-column {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--m-nav-height) + var(--m-safe-bottom));
+    padding: 0 0 var(--m-safe-bottom) 0;
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
+  }
+  .nav-column::-webkit-scrollbar { display: none; }
+  .nav-button {
+    width: 56px;
+    min-width: 56px;
+    height: var(--m-nav-height);
+    flex: 0 0 auto;
+    font-size: 28px;
+  }
+  .nav-icon { width: 30px; height: 30px; }
+
+  /* Zoom: round buttons on the board's top-right instead of the rail's corner triangles */
+  .zoom-controls {
+    position: fixed;
+    top: calc(var(--m-top) + 8px);
+    right: 8px;
+    left: auto;
+    width: 44px;
+    height: 96px;
+    z-index: 1001;
+  }
+  .zoom-button-container { width: 44px; height: 96px; }
+  .zoom-button,
+  .zoom-button.zoom-in,
+  .zoom-button.zoom-out {
+    width: 44px;
+    height: 44px;
+    left: 0;
+    right: auto;
+    clip-path: none;
+    border-radius: 50%;
+    font-size: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+    opacity: 0.9;
+  }
+  .zoom-button.zoom-in { top: 0; }
+  .zoom-button.zoom-out { top: 52px; bottom: auto; }
+  .zoom-button.zoom-in span,
+  .zoom-button.zoom-out span { position: static; }
+
+  /* ---------- base panel: hidden on phones ---------- */
+  .base-panel { display: none; }
+
+  /* ---------- slide-in panels -> full-screen sheets ---------- */
+  .panel-container {
+    top: var(--m-header-height);
+    left: 0;
+    width: 100%;
+    height: calc(100vh - var(--m-header-height) - var(--m-nav-height) - var(--m-safe-bottom));
+    height: calc(100dvh - var(--m-header-height) - var(--m-nav-height) - var(--m-safe-bottom));
+    box-shadow: none;
+  }
+  .panel-buffer-space { display: none; }
+  .panel-content { font-size: 13px; }
+  .panel-close-btn { padding: 6px 10px; }
+
+  /* Chat opens as a sheet too (App.js wraps it in .chat-panel-slideout) */
+  .chat-panel-slideout {
+    top: var(--m-header-height);
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(100vh - var(--m-header-height) - var(--m-nav-height) - var(--m-safe-bottom));
+    height: calc(100dvh - var(--m-header-height) - var(--m-nav-height) - var(--m-safe-bottom));
+    padding-left: 0;
+    box-sizing: border-box;
+    z-index: 998;
+  }
+  .chat-container { width: 100%; }
+
+  /* ---------- modals ---------- */
+  .modal-container,
+  .modal-container.modal-small,
+  .modal-container.modal-medium,
+  .modal-container.modal-large,
+  .modal-container.modal-xlarge {
+    width: 94vw;
+    min-width: 0;
+    max-width: 94vw;
+    max-height: 86vh;
+    max-height: 86dvh;
+    padding: 14px 12px;
+  }
+  .modal-container.modal-small { max-height: 60vh; }
+
+  /* ---------- notifications ---------- */
+  #notification-container { top: calc(var(--m-top) + 8px); }
+  .notification,
+  .notification.notification-persistent {
+    left: 8px !important;
+    right: 8px;
+    min-width: 0;
+    max-width: none;
+    padding: 10px 14px;
+    animation: mobileNotificationIn 0.4s ease-out forwards, mobileNotificationOut 0.6s ease-out 4.4s forwards;
+  }
+  .notification.notification-persistent { animation: mobileNotificationIn 0.4s ease-out forwards; }
+  @keyframes mobileNotificationIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes mobileNotificationOut { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ---------- login / key art ---------- */
+  .keyart-wrapper { left: 0; top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
+  .keyart-image { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Tooltips come from long-press; keep them clear of the thumb */
+  .HoverTooltip { max-width: 70vw; }
+}
+
+/* Short landscape phones: trade header rows for board height */
+@media (max-width: 900px) and (max-height: 450px) {
+  :root { --m-header-height: 32px; --m-nav-height: 44px; }
+  .app-header { gap: 0; }
+  .header-secondary { display: none; }
+  .nav-button { height: 44px; font-size: 22px; }
+  .nav-icon { width: 24px; height: 24px; }
+}

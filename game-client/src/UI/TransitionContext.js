@@ -6,8 +6,9 @@ const TransitionContext = createContext(null);
 const FADE_TO_BLACK_DURATION = 600;  // Slower fade to black (feels more deliberate)
 const FADE_FROM_BLACK_DURATION = 900; // Faster reveal of new scene
 
-// Fixed positioning for the game area overlay
-// Matches the board: top 84px (header + status bar), left 300px (app-container 60 + .homestead margin 240)
+// Fixed overlay covering the board. The geometry is read from .homestead when a fade
+// starts (see boardRect), so the desktop layout (board at 84/300) and the phone layout
+// (mobile.css) both get an exact fit.
 const OVERLAY_STYLE = {
   position: 'fixed',
   top: '84px',
@@ -42,10 +43,19 @@ export const useTransition = () => {
  *   // ... do loading work ...
  *   await fadeFromBlack(); // Screen fades back to normal
  */
+/** Where the board is right now, as fixed-position CSS; falls back to the desktop numbers. */
+const boardRect = () => {
+  const board = typeof document !== 'undefined' && document.querySelector('.homestead');
+  if (!board) return { top: '84px', left: '300px', right: 0, bottom: 0 };
+  const r = board.getBoundingClientRect();
+  return { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, right: 'auto', bottom: 'auto' };
+};
+
 export const TransitionProvider = ({ children }) => {
   const overlayRef = useRef(null);
   const isLockedRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [overlayGeometry, setOverlayGeometry] = useState(null);
 
   // Returns a Promise that resolves when fade-to-black is complete
   const fadeToBlack = useCallback(() => {
@@ -56,6 +66,7 @@ export const TransitionProvider = ({ children }) => {
       }
 
       isLockedRef.current = true;
+      setOverlayGeometry(boardRect());
       setIsVisible(true);
 
       // Wait for mount, then animate
@@ -118,7 +129,7 @@ export const TransitionProvider = ({ children }) => {
       {isVisible && (
         <div
           ref={overlayRef}
-          style={OVERLAY_STYLE}
+          style={{ ...OVERLAY_STYLE, ...(overlayGeometry || {}) }}
         />
       )}
     </TransitionContext.Provider>

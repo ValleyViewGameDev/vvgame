@@ -210,6 +210,8 @@ axios response have no gesture context on iOS and fail silently.
 
 ### 1.6 Mobile-readiness blockers outside the renderer
 
+*(2026-10-03: the chrome, modal, `100vh`, viewport-meta and fade-overlay items below are addressed by `UI/Styles/mobile.css` and the touch work; audio, ambient dark clouds and the Ko-fi widget remain.)*
+
 - Fixed desktop chrome in pixels: 60 px nav, 220 px base panel, 240 px slide-in panels, board at
   `left: 240px; top: 84px` (`App.css:383-387`, `theme.css:29-31`, `Panel.css:16-20`). On a 390 px
   screen the board is ~90 px wide. **No `@media` query exists in `App.css` or `src/UI/`** (four

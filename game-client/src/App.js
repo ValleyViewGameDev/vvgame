@@ -4,6 +4,7 @@ import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import './UI/Buttons/SharedButtons.css';
 import './Render/Tooltip.css';
+import './UI/Styles/mobile.css';  /* phone layout: must come after the desktop rules it overrides */
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
@@ -2981,6 +2982,8 @@ return (
           <span></span>
         </div>
 
+        {/* header-secondary groups the action links so the phone layout can lay them out as one row */}
+        <div className="header-secondary">
         <div className="header-controls-center">
           {/* Row 1: Store */}
           <div className="header-row">
@@ -3025,6 +3028,7 @@ return (
           <button className="header-link" onClick={() => setShowShareModal(true)}>
             {strings[10106]}
           </button>
+        </div>
         </div>
     </header>
     
