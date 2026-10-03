@@ -5,6 +5,7 @@ import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost, canTravel } from './GameFeatures/Transit/Transit';
 import { prefetchNeighbour } from './Utils/GridPrefetch';
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
+import { buildPassability, findPath } from './Utils/Pathfinding';
 
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
@@ -59,6 +60,17 @@ let moveInFlight = false;
 let lastMovementTime = 0;
 const LOOP_POLL_MS = 8;
 
+/**
+ * TAP-TO-WALK (docs/audits/client-review-2026-10-03.md §2.5 D)
+ * `walkTo(col, row)` plans a path (Utils/Pathfinding.js) and queues its steps; the same
+ * loop that serves held keys then takes one queued step per MOVEMENT_STEP_MS. A direction
+ * key, a modal, a zoom-out, a grid change or a new tap cancels the walk. A step that is
+ * refused mid-walk (an NPC wandered into the way) re-plans once from where the player is.
+ */
+let pathQueue = [];
+let pathGoal = null;
+let pathReplanned = false;
+
 export function setMovementContext(context) {
   movementContext = context;
 }
@@ -73,27 +85,117 @@ function stopLoop() {
   loopTimer = null;
 }
 
-/** Forget every held key and stop stepping (modal opened, zoomed out, grid change, blur). */
+function clearPath() {
+  pathQueue = [];
+  pathGoal = null;
+  pathReplanned = false;
+}
+
+/** Forget every held key and queued walk, stop stepping (modal, zoom out, grid change, blur). */
 export function stopMovement() {
   pressedKeys.clear();
+  clearPath();
   stopLoop();
   playersInGridManager.flushReactSync();
 }
 
+export function isWalking() {
+  return pathQueue.length > 0;
+}
+
+function currentPosition() {
+  const ctx = movementContext;
+  if (!ctx?.currentPlayer?._id || !ctx.currentPlayer.location?.g) return null;
+  return playersInGridManager.getPlayerPosition(ctx.currentPlayer.location.g, String(ctx.currentPlayer._id));
+}
+
+function planPath(goal) {
+  const ctx = movementContext;
+  const from = currentPosition();
+  if (!ctx || !from) return [];
+  const gridId = ctx.currentPlayer.location.g;
+  const passable = buildPassability({
+    tiles: GlobalGridStateTilesAndResources.getTiles(),
+    resources: GlobalGridStateTilesAndResources.getResources(),
+    npcs: NPCsInGridManager.getNPCsInGrid(gridId),
+    masterResources: ctx.masterResources,
+    currentPlayer: ctx.currentPlayer,
+  });
+  return findPath(from, goal, passable);
+}
+
+/**
+ * Walk to a tile (or next to it when it is blocked). Returns the number of steps queued;
+ * 0 means already there or unreachable.
+ */
+export function walkTo(col, row) {
+  const ctx = movementContext;
+  if (!ctx?.currentPlayer) return 0;
+  if (ctx.currentPlayer.iscamping) {
+    const pos = currentPosition();
+    if (pos) FloatingTextManager.addFloatingText(32, pos.x, pos.y, ctx.TILE_SIZE);
+    return 0;
+  }
+  pressedKeys.clear(); // a tap replaces any held key
+  const goal = { x: col, y: row };
+  const path = planPath(goal);
+  pathQueue = path;
+  pathGoal = path.length ? goal : null;
+  pathReplanned = false;
+  if (path.length && !loopTimer) loopTick();
+  return path.length;
+}
+
+/** Next queued step as a unit delta from where the player actually is, or null to abandon. */
+function nextPathDelta() {
+  const pos = currentPosition();
+  const next = pathQueue[0];
+  if (!pos || !next) return null;
+  const dx = next.x - Math.round(pos.x);
+  const dy = next.y - Math.round(pos.y);
+  if (dx === 0 && dy === 0) { pathQueue.shift(); return nextPathDelta(); }
+  if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return null; // desynced (teleport, grid change)
+  return { dx, dy };
+}
+
 function loopTick() {
   loopTimer = null;
-  if (!hasDirectionPressed()) {
+  const keyboard = hasDirectionPressed();
+  if (keyboard && pathQueue.length) clearPath(); // keys win over a queued walk
+  if (!keyboard && pathQueue.length === 0) {
     // Movement stopped: let React catch up with the final position right away
+    pathGoal = null;
     playersInGridManager.flushReactSync();
     return;
   }
   const now = Date.now();
   const due = MOVEMENT_STEP_MS - (now - lastMovementTime);
   if (!moveInFlight && movementContext && due <= 0) {
+    let forced = null;
+    if (!keyboard) {
+      forced = nextPathDelta();
+      if (!forced) { clearPath(); loopTimer = setTimeout(loopTick, LOOP_POLL_MS); return; }
+    }
     lastMovementTime = now;
     moveInFlight = true;
-    processMovement(movementContext)
-      .catch((err) => { console.error('Error processing movement:', err); })
+    const stepTarget = forced ? pathQueue[0] : null;
+    processMovement(movementContext, forced)
+      .then((moved) => {
+        if (!forced) return;
+        if (moved) {
+          if (pathQueue[0] === stepTarget) pathQueue.shift();
+          return;
+        }
+        // Blocked mid-walk: re-plan once from here, then give up
+        if (pathGoal && !pathReplanned) {
+          pathReplanned = true;
+          pathQueue = planPath(pathGoal);
+          if (!pathQueue.length) clearPath();
+        } else {
+          clearPath();
+        }
+      })
+      .catch((err) => { console.error('Error processing movement:', err); clearPath(); })
       .finally(() => { moveInFlight = false; });
     loopTimer = setTimeout(loopTick, MOVEMENT_STEP_MS);
     return;
@@ -182,24 +284,29 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
   strings = null,
-  transitionFadeControl = null })
+  transitionFadeControl = null }, forcedDelta = null)
 {
   const directions = DIRECTIONS;
 
-  // Calculate combined movement vector from all pressed keys
+  // Movement vector: a queued walk step, or the sum of all pressed keys
   let totalDx = 0;
   let totalDy = 0;
 
-  for (const key of pressedKeys) {
-    const movement = directions[key];
-    if (movement) {
-      totalDx += movement.dx;
-      totalDy += movement.dy;
+  if (forcedDelta) {
+    totalDx = forcedDelta.dx;
+    totalDy = forcedDelta.dy;
+  } else {
+    for (const key of pressedKeys) {
+      const movement = directions[key];
+      if (movement) {
+        totalDx += movement.dx;
+        totalDy += movement.dy;
+      }
     }
   }
 
   // If no movement, return
-  if (totalDx === 0 && totalDy === 0) return;
+  if (totalDx === 0 && totalDy === 0) return false;
 
   // Clamp diagonal movement to -1, 0, or 1
   totalDx = Math.max(-1, Math.min(1, totalDx));
@@ -207,7 +314,8 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
 
   if (currentPlayer.iscamping) {
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
-    return;
+    stopMovement();
+    return false;
   }
 
   const playerId = currentPlayer._id.toString();
@@ -216,7 +324,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   if (!playersInGrid || !playersInGrid[playerId]) {
     // Mid grid-change (the record lives on another grid now): stop until the next key press
     stopMovement();
-    return;
+    return false;
   }
 
   const currentPosition = playersInGrid[playerId].position;
@@ -226,7 +334,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   // Normal movement validation for all players (boats use existing transit logic)
   if (!Array.isArray(masterResources)) {
     console.error('masterResources is not an array:', masterResources);
-    return;
+    return false;
   }
   // Edge crossings (isValidMove triggers them) must not keep stepping while the grid changes
   if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) stopMovement();
@@ -245,7 +353,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
     strings,
     transitionFadeControl
   ))) {
-    return;
+    return false;
   }
 
   const finalPosition = { x: targetX, y: targetY };
@@ -263,6 +371,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
 
   maybePrefetchAcrossEdge(currentPlayer, playerId, finalPosition);
   // The camera follows the animated position from PixiRendererPCs (PixiCamera.follow).
+  return true;
 }
 
 // Prefetch the neighbour's bundle when the player is this close to an edge

@@ -70,3 +70,4 @@ Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, 
 - Six of the ten `UI/Strings/strings*.json` (FI, IT, NO, PT, RU, SV) are byte-identical English stubs, and all ten are statically imported into the main bundle.
 - `public/sound/music/homestead2.mp3` is byte-identical to `homestead.mp3` (7 MB each).
 - Dev tooling (`Utils/debug.js`, 1,435 lines, 30 calls to admin endpoints) is a static import and ships to every player.
+- Observed once 2026-10-03 (Oberon, rehearsal): after an edge crossing and a reload, the localStorage `player.location.x` read 3 while the server and the camera both had 0. The server is the source of truth and the PC record is built from it, so nothing visible was wrong; worth a look at what writes the mirror between arrival and the next init (`PlayersInGrid.mirrorToLocalStorage`, `AppInit`).

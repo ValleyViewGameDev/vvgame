@@ -406,7 +406,7 @@ Keep PixiJS 7 (move to plain `pixi.js`). Rebuild the four things around it, in t
 - `antialias: false`, `resolution: Math.min(devicePixelRatio, 2)`,
   `powerPreference: 'high-performance'` on mobile.
 
-**D. Input: a movement loop and touch.** *(Movement loop built 2026-10-03, 90 ms per tile, timer-driven; touch still open.)*
+**D. Input: a movement loop and touch.** *(Built 2026-10-03: 90 ms timer-driven loop, tap-to-walk via `Utils/Pathfinding.js`, long-press tooltip, pinch zoom steps. A virtual d-pad was not needed.)*
 - Per-frame held-key loop (first step immediate, then a tuned repeat), camera inside Pixi, no
   `App` commit per step, localStorage mirror debounced.
 - Touch: tap-to-move with a short A* over the passable grid (the `isTileValidForPlayer` rules

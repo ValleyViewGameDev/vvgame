@@ -4,6 +4,7 @@ import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVE
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
 import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
+import { getDerivedRange } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
 import PixiRendererPCs from './PixiRendererPCs';
 import PixiRendererCursor from './PixiRendererCursor';
@@ -351,6 +352,9 @@ const PixiRenderer = ({
   doinkerTargets,         // Resource/NPC type(s) to point doinker at
   doinkerType,            // 'resource' or 'button'
   doinkerVisible = false, // Whether doinker should be visible
+  // Touch / tap-to-walk
+  onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
+  onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
 }) => {
   const containerRef = useRef(null);   // the canvas host: fills the board, viewport-sized
   const overlayRef = useRef(null);     // DOM overlay mirrored to the Pixi world by PixiCamera
@@ -383,6 +387,20 @@ const PixiRenderer = ({
   // Throttle tracking for mouse move handler (performance optimization)
   const lastMouseMoveTimeRef = useRef(0);
   const MOUSE_MOVE_THROTTLE_MS = 50; // Limit to ~20 updates per second
+
+  // Touch gestures: long-press (tooltip) and pinch (zoom step). Pointer events feed these;
+  // the browser's synthesized click after a tap still goes through handleClick, which the
+  // gesture code suppresses when the touch was a long-press or a pinch.
+  const touchPointersRef = useRef(new Map());   // pointerId -> { x, y }
+  const longPressTimerRef = useRef(null);
+  const longPressFiredRef = useRef(false);
+  const suppressClickRef = useRef(false);
+  const pinchBaselineRef = useRef(null);         // finger distance at the last zoom step
+  const pinchedRef = useRef(false);
+  const tooltipClearTimerRef = useRef(null);
+  const LONG_PRESS_MS = 450;
+  const LONG_PRESS_MOVE_TOLERANCE_PX = 12;
+  const PINCH_STEP_RATIO = 1.25;
 
   // Animation version tracking - triggers re-render when grow animations complete
   // This works with VFX.js to hide resources during their grow animation
@@ -530,7 +548,7 @@ const PixiRenderer = ({
         app = new Application({
           width: worldWidth,
           height: worldHeight,
-          backgroundColor: 0x1a1a2e, // Dark background
+          backgroundAlpha: 0, // beyond the grid edge the board's grass (.homestead background) shows through
           resolution: window.devicePixelRatio || 1,
           autoDensity: true,
           antialias: true,
@@ -1289,9 +1307,21 @@ const PixiRenderer = ({
   // Handle click events - check NPCs and PCs before falling through to tile click
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
+    if (suppressClickRef.current) { suppressClickRef.current = false; return; } // long-press or pinch
 
     const rect = containerRef.current.getBoundingClientRect();
     const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
+
+    // Range as the interaction code sees it (ResourceClicking.js / NPCInteractionUtils.js):
+    // Euclidean distance against the derived range, no limit on the player's own homestead.
+    const onOwnHomestead = currentPlayer?.gridId && currentPlayer.gridId === currentPlayer?.location?.g;
+    const playerPos = playersInGrid?.[gridId]?.pcs?.[String(currentPlayer?._id)]?.position;
+    const outOfRange = (tx, ty) => {
+      if (onOwnHomestead || !playerPos) return false;
+      const d = Math.hypot(playerPos.x - tx, playerPos.y - ty);
+      return d > getDerivedRange(currentPlayer, masterResources);
+    };
+    const walk = () => { if (onWalkTo) onWalkTo(row, col); };
 
     // At frontier zoom during relocation, clicking on the current settlement should
     // trigger a grid-level click (same as other settlements)
@@ -1322,6 +1352,11 @@ const PixiRenderer = ({
     );
 
     if (npc) {
+      // A helper NPC beyond reach: walk up to it instead of just saying "out of range".
+      // Enemies and spawners keep the plain click (walking into them is not a tap's intent).
+      const isHostile = npc.action === 'attack' || npc.action === 'spawn';
+      if (!isHostile && !cursorMode && outOfRange(col, row)) { walk(); return; }
+
       // Use the shared click handler that includes cooldown logic for attack NPCs
       handleNPCClickShared(npc, {
         currentPlayer,
@@ -1350,11 +1385,30 @@ const PixiRenderer = ({
       return;
     }
 
-    // No NPC found, forward to tile/resource handler
+    // Cursor placement modes own the click entirely (they have their own range feedback)
+    if (!cursorMode) {
+      const resource = resources?.find(r => {
+        if (!r || r.category === 'source' || r.type === 'shadow') return false;
+        const span = r.size || 1;
+        return col >= r.x && col < r.x + span && row <= r.y && row > r.y - span;
+      });
+      if (resource) {
+        // Something to interact with, but too far: walk next to it (tap again once there)
+        if (outOfRange(resource.x, resource.y)) { walk(); return; }
+      } else {
+        // Empty tile: walk there, unless the tile has its own click meaning
+        const tileType = tileTypes?.[row]?.[col];
+        const dirtOpensFarming = tileType === 'd' && onOwnHomestead;
+        const teleportOn = !!currentPlayer?.settings?.isTeleportEnabled;
+        if (!dirtOpensFarming && !teleportOn) { walk(); return; }
+      }
+    }
+
+    // Forward to tile/resource handler
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
@@ -1428,6 +1482,99 @@ const PixiRenderer = ({
     setHoverTooltip(null);
   }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip]);
 
+  // Tooltip for whatever is under a screen point (long-press on touch uses this too)
+  const showTooltipAt = useCallback((clientX, clientY) => {
+    if (!containerRef.current || !setHoverTooltip) return false;
+    const rect = containerRef.current.getBoundingClientRect();
+    const { row, col } = PixiCamera.screenToTile(clientX - rect.left, clientY - rect.top);
+    if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) return false;
+    const npc = npcs?.find(n => n && n.position && Math.floor(n.position.x) === col && Math.floor(n.position.y) === row);
+    const tooltipPosition = calculateTooltipPosition(clientX, clientY);
+    if (npc) {
+      setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateNPCTooltip(npc, strings) });
+      return true;
+    }
+    const resource = resources?.find(r => {
+      if (r.type === 'shadow' || r.category === 'doober' || r.category === 'source' || r.category === 'deco') return false;
+      const tileSpan = r.size || 1;
+      return col >= r.x && col < r.x + tileSpan && row <= r.y && row > r.y - tileSpan;
+    });
+    if (resource) {
+      setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateResourceTooltip(resource, strings, timers) });
+      return true;
+    }
+    return false;
+  }, [npcs, resources, strings, timers, setHoverTooltip]);
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }
+  }, []);
+
+  const pointerDistance = useCallback(() => {
+    const pts = [...touchPointersRef.current.values()];
+    if (pts.length < 2) return 0;
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }, []);
+
+  const handlePointerDown = useCallback((event) => {
+    if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+    touchPointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY });
+    if (touchPointersRef.current.size === 2) {
+      // Second finger: this is a pinch, not a tap or a long-press
+      cancelLongPress();
+      pinchBaselineRef.current = pointerDistance();
+      pinchedRef.current = false;
+      return;
+    }
+    longPressFiredRef.current = false;
+    cancelLongPress();
+    const { clientX, clientY } = event;
+    longPressTimerRef.current = setTimeout(() => {
+      longPressTimerRef.current = null;
+      if (showTooltipAt(clientX, clientY)) longPressFiredRef.current = true;
+    }, LONG_PRESS_MS);
+  }, [cancelLongPress, pointerDistance, showTooltipAt]);
+
+  const handlePointerMove = useCallback((event) => {
+    const p = touchPointersRef.current.get(event.pointerId);
+    if (!p) return;
+    p.x = event.clientX; p.y = event.clientY;
+    if (touchPointersRef.current.size >= 2 && pinchBaselineRef.current) {
+      const d = pointerDistance();
+      const ratio = d / pinchBaselineRef.current;
+      if (ratio >= PINCH_STEP_RATIO || ratio <= 1 / PINCH_STEP_RATIO) {
+        pinchBaselineRef.current = d;
+        pinchedRef.current = true;
+        if (onPinchZoom) onPinchZoom(ratio > 1 ? 'in' : 'out');
+      }
+      return;
+    }
+    if (Math.hypot(p.x - p.startX, p.y - p.startY) > LONG_PRESS_MOVE_TOLERANCE_PX) cancelLongPress();
+  }, [cancelLongPress, pointerDistance, onPinchZoom]);
+
+  const handlePointerUp = useCallback((event) => {
+    if (!touchPointersRef.current.has(event.pointerId)) return;
+    touchPointersRef.current.delete(event.pointerId);
+    cancelLongPress();
+    if (touchPointersRef.current.size === 0) {
+      if (pinchedRef.current || pinchBaselineRef.current) {
+        suppressClickRef.current = true; // the tap-click after a pinch is not a tap
+        pinchBaselineRef.current = null;
+        pinchedRef.current = false;
+      } else if (longPressFiredRef.current) {
+        suppressClickRef.current = true;
+        longPressFiredRef.current = false;
+        if (tooltipClearTimerRef.current) clearTimeout(tooltipClearTimerRef.current);
+        tooltipClearTimerRef.current = setTimeout(() => {
+          tooltipClearTimerRef.current = null;
+          if (setHoverTooltip) setHoverTooltip(null);
+        }, 1800);
+      }
+      // Clear the suppression if no click follows (e.g. the browser sent none)
+      setTimeout(() => { suppressClickRef.current = false; }, 400);
+    }
+  }, [cancelLongPress, setHoverTooltip]);
+
   // Handle mouse leave to clear tooltip and hovered tile
   const handleMouseLeave = useCallback(() => {
     setHoveredTile(null);
@@ -1475,6 +1622,10 @@ const PixiRenderer = ({
         onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         style={{
           position: 'absolute',
           top: 0,
@@ -1484,6 +1635,7 @@ const PixiRenderer = ({
           overflow: 'hidden',
           zIndex: 1,
           cursor: 'pointer',
+          touchAction: 'none', // taps, long-presses and pinches are ours, not the page's
         }}
       />
       {/* DOM overlay mirrored to the Pixi world (transform set by PixiCamera). pointer-events

@@ -130,7 +130,7 @@ import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
 import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
-import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement } from './PlayerMovement';
+import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement, walkTo } from './PlayerMovement';
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -3416,6 +3416,17 @@ return (
           doinkerTargets={doinkerTargets}
           doinkerType={doinkerType}
           doinkerVisible={!!doinkerTargets}
+          // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
+          onWalkTo={(row, col) => {
+            if (activeModal || isOffSeason) return;
+            if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return;
+            const steps = walkTo(col, row);
+            if (steps === 0) updateStatus(10021); // "You can't go that way."
+          }}
+          onPinchZoom={(direction) => {
+            if (isZoomAnimating || isZoomAnimatingRef.current) return;
+            if (direction === 'in') zoomIn(); else zoomOut();
+          }}
         />
 
         {/* Hover Tooltip - render at top level (works with both PixiJS and Canvas) */}
