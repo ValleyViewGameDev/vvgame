@@ -243,7 +243,7 @@ const waitForFrames = (count = 3) => new Promise((resolve) => {
  * Two paths (docs/phase-3-contract.md §4):
  *   fade    : fade → ONE awaited `enter-grid` (with `leave`) → seed → arrive → fade up
  *   no-fade : a prefetched bundle for `target.gridCoord` (GridPrefetch) is
- *             seeded immediately with no fade; `enter-grid` (with `leave`, and
+ *             seeded immediately (a short fade is still shown for now, see startFade); `enter-grid` (with `leave`, and
  *             the arrival x/y on the target) is sent WITHOUT awaiting it. If the
  *             server refuses (403/404/5xx) the client reverts to the previous
  *             grid/tile through the fade path and shows 105 (10020 on 403).
@@ -290,9 +290,7 @@ export const changePlayerLocation = async (
   transitionFadeControl,
   arrival = {}
 ) => {
-  const startFade = () => {
-    if (transitionFadeControl?.startTransition) transitionFadeControl.startTransition();
-  };
+  const startFade = () => (transitionFadeControl?.startTransition ? transitionFadeControl.startTransition() : Promise.resolve());
   const endFade = () => {
     if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
   };
@@ -327,8 +325,11 @@ export const changePlayerLocation = async (
   const prefetched = (target.type === 'coord' && !arrival.noPrefetch) ? takePrefetched(target.gridCoord) : null;
   clearPrefetch();
 
-  // Fade to black immediately so the UI reacts on the tap (fade path only)
-  if (!prefetched) startFade();
+  // Fade to black immediately so the UI reacts on the tap.
+  // TEMPORARY: the prefetched (no-network) crossing also fades, because an instant cut between
+  // grids reads as jarring. Remove this fade once grid-to-grid travel is seamless (continuous
+  // world, docs/phase-3-contract.md §3); then only the network path should fade.
+  const fadeToBlackDone = startFade();
 
   if (closeAllPanels) closeAllPanels();
 
@@ -531,7 +532,14 @@ export const changePlayerLocation = async (
         region: grid.region ?? null,
       };
 
+      // TEMPORARY (see startFade above): the cached crossing is faster than the fade-to-black
+      // (600 ms), so wait for black before swapping grids or the overlay never becomes visible.
+      await fadeToBlackDone;
       const arrived = await arrive({ grid, location, spawn: null, ownerUsername: ownerUsername ?? null });
+
+      // TEMPORARY (see startFade above): let the new grid settle for a few frames, then lift the fade.
+      await waitForFrames(3);
+      endFade();
 
       // Commit without awaiting: target carries the arrival tile, leave the from-grid state.
       enterGrid(playerId, { ...target, x: arrived.x, y: arrived.y }, leave).then(
@@ -577,7 +585,7 @@ export const changePlayerLocation = async (
     console.log(`🎉 [GRID TRANSITION] Entered grid ${arrived.toGridId} (${arrived.gtype}) at (${arrived.x}, ${arrived.y})`);
     return true;
   } catch (error) {
-    return fail(105, error, { fade: !prefetched });
+    return fail(105, error, { fade: true });
   }
 };
 

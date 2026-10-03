@@ -69,7 +69,7 @@ export function computeNeighbourGridCoord(currentGridCoord, direction) {
  * (docs/phase-3-contract.md §4.1): neighbour via computeNeighbourGridCoord,
  * then the world-map cell. Call it BEFORE starting the fade.
  *
- * @returns {{ ok: true, gridCoord: number } | { ok: false, reason: 106|10020|105 }}
+ * @returns {{ ok: true, gridCoord: number } | { ok: false, reason: 106|10020|10021 }}
  *   106   beyond the frontier
  *   10020 someone else's homestead
  *   105   reserved / closed settlement / anything else
@@ -83,7 +83,7 @@ export function canTravel(fromGridCoord, direction) {
   if (cell === null) return { ok: true, gridCoord };
   if (cell === 'H') return { ok: false, reason: 10020 };
   if (cell === 'M' || cell === 'T' || cell === 'V') return { ok: true, gridCoord };
-  return { ok: false, reason: 105 };
+  return { ok: false, reason: 10021 }; // reserved / closed cell: "You can't go that way."
 }
 
 /**
