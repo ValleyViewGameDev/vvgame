@@ -16,6 +16,12 @@
  *                (a size-5 building is 375 CSS px at the closest zoom, 750 px on a 2x screen)
  *   playerIcons/ every `filename` in src/Authentication/PlayerIcons.json   slot = 256 px
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
+ *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
+ *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
+ *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
+ *                same art and the world layer never needs a PIXI.Text. Frame name =
+ *                src/Utils/emojiKey.js. slot = 128 px for size-1 symbols, 256 up to size 3,
+ *                512 up to size 8, 768 beyond (the 20-tile mountain).
  * The 2 px transparent gutter lives INSIDE each slot (frame = slot - 4), so slots tile the
  * 2048 px sheet exactly and a shelf of 768s still has room for a 512 at its end.
  *
@@ -34,6 +40,11 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const sharp = require('sharp');
+const { emojiKey, looksLikeEmoji } = require('../src/Utils/emojiKey.js'); // ESM; Node >= 22.12
+
+const TWEMOJI_DIR = path.join(__dirname, '..', 'node_modules', '@twemoji', 'svg');
+// Icons PixiRendererPCs draws for player state (getDisplayIcon) that have no SVG of their own
+const PC_STATE_EMOJI = ['💀', '🤢', '🏕️', '🛶', '🧑'];
 
 const CLIENT_ROOT = path.resolve(__dirname, '..');
 const PUBLIC = path.join(CLIENT_ROOT, 'public', 'assets');
@@ -86,6 +97,41 @@ function listPlayerIconSources() {
     src: path.join(PUBLIC, 'playerIcons', file),
     cell: BASE_CELL,
   }));
+}
+
+const emojiSlotForSize = (size) => (size > 8 ? 768 : size > 3 ? 512 : size > 1 ? 256 : 128);
+
+/** Every emoji the world layer can draw, each at the largest slot any resource using it needs. */
+function listEmojiSources() {
+  const raw = readJson(RESOURCES_JSON);
+  const list = Array.isArray(raw) ? raw : (raw.resources || Object.values(raw));
+  const wanted = new Map(); // symbol -> max size
+  for (const r of list) {
+    if (r.filename || !looksLikeEmoji(r.symbol)) continue;
+    const size = Math.max(1, Number(r.size) || 1);
+    wanted.set(r.symbol, Math.max(wanted.get(r.symbol) || 1, size));
+  }
+  for (const e of PC_STATE_EMOJI) if (!wanted.has(e)) wanted.set(e, 1);
+
+  const items = [];
+  const missing = [];
+  for (const [symbol, size] of wanted) {
+    const key = emojiKey(symbol);
+    if (!key) continue;
+    let src = path.join(TWEMOJI_DIR, `${key}.svg`);
+    if (!fs.existsSync(src)) {
+      // Twemoji sometimes keeps or drops FE0F differently from the input; try both spellings
+      const alt = key.includes('fe0f') ? key.replace(/-fe0f/g, '') : null;
+      const altSrc = alt ? path.join(TWEMOJI_DIR, `${alt}.svg`) : null;
+      if (altSrc && fs.existsSync(altSrc)) src = altSrc;
+      else { missing.push(`${symbol} (${key})`); continue; }
+    }
+    items.push({ key: `emoji/${key}`, src, cell: emojiSlotForSize(size) });
+  }
+  if (missing.length) {
+    console.warn(`Twemoji has no SVG for ${missing.length} symbol(s); the renderer will keep drawing these as text:\n  ${missing.join('\n  ')}`);
+  }
+  return items;
 }
 
 function listOverlaySources() {
@@ -161,12 +207,12 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v2:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}`);
+  h.update(`v3:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}`);
   return h.digest('hex');
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listOverlaySources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listOverlaySources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced SVGs not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);

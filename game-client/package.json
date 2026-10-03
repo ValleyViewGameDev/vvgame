@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@twemoji/svg": "^15.0.0",
     "sharp": "^0.35.5"
   }
 }

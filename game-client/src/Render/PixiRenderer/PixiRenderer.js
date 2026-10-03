@@ -15,6 +15,7 @@ import PixiRendererPadding from './PixiRendererPadding';
 import PixiRendererDoinker from './PixiRendererDoinker';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
+import { emojiKey } from '../../Utils/emojiKey';
 import {
   TILES_PER_GRID,
   TILES_PER_SETTLEMENT,
@@ -252,6 +253,19 @@ const loadSVGTextureLegacy = async (filename, isOverlay = false) => {
   svgLoadingPromises.set(cacheKey, loadPromise);
   return loadPromise;
 };
+
+/**
+ * Atlas texture for an emoji symbol (scripts/build-atlas.js renders every world symbol
+ * from Twemoji), or null when the atlas has no frame for it (then the caller draws Text).
+ */
+const loadEmojiTexture = async (symbol) => {
+  const key = emojiKey(symbol);
+  return key ? getAtlasTexture('emoji', key) : null;
+};
+
+// An emoji glyph at font-size f is roughly f wide; the Twemoji frame fills its box, so
+// scale the sprite to match what the Text fallback would have drawn.
+const EMOJI_SPRITE_SCALE = 1.0;
 
 /**
  * Get the SVG filename for a resource type from masterResources
@@ -769,7 +783,9 @@ const PixiRenderer = ({
       const loadPromises = resources.map(async (resource) => {
         const filename = getResourceFilename(resource.type, masterResources);
         const texture = filename ? await loadSVGTexture(filename) : null;
-        return { resource, texture };
+        if (texture) return { resource, texture, emojiTexture: null };
+        const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
+        return { resource, texture: null, emojiTexture };
       });
 
       // Phase 2: Wait for all textures to load
@@ -786,7 +802,7 @@ const PixiRenderer = ({
       let emojiCount = 0;
       let skippedAnimating = 0;
 
-      for (const { resource, texture } of loadedResources) {
+      for (const { resource, texture, emojiTexture } of loadedResources) {
         // Skip resources that are currently animating (VFX grow effect handles their visual)
         const isAnimating = isResourceAnimating(resource.x, resource.y);
         if (isAnimating) {
@@ -831,6 +847,19 @@ const PixiRenderer = ({
           fontSize = resource.action === 'wall'
             ? TILE_SIZE * 1.1  // Single-tile walls
             : TILE_SIZE * 0.7; // Other single-tile resources
+        }
+
+        if (emojiTexture && emojiTexture.valid !== false) {
+          // Atlas emoji (same art on every platform, batches with the other sprites)
+          const sprite = new Sprite(emojiTexture);
+          sprite.anchor.set(0.5, 0.5);
+          sprite.width = fontSize * EMOJI_SPRITE_SCALE;
+          sprite.height = fontSize * EMOJI_SPRITE_SCALE;
+          sprite.x = x + size / 2;
+          sprite.y = visualY + size / 2;
+          resourceContainer.addChild(sprite);
+          svgCount++;
+          continue;
         }
 
         const text = new Text(resource.symbol, {
@@ -949,8 +978,13 @@ const PixiRenderer = ({
       // Phase 1: Load all SVG textures in parallel for NPCs that have filenames
       const npcTexturePromises = npcs.map(async (npc) => {
         const filename = getNPCFilename(npc.type, masterResources);
-        const texture = filename ? await loadSVGTexture(filename) : null;
-        return { npc, texture, filename };
+        let texture = filename ? await loadSVGTexture(filename) : null;
+        let emojiSized = false;
+        if (!texture && npc.symbol) {
+          texture = await loadEmojiTexture(npc.symbol);
+          emojiSized = !!texture;
+        }
+        return { npc, texture, filename, emojiSized };
       });
 
       const loadedNPCs = await Promise.all(npcTexturePromises);
@@ -960,7 +994,9 @@ const PixiRenderer = ({
       if (!npcContainerRef.current) return;
 
       // Phase 2: Update or create display objects for each NPC
-      for (const { npc, texture, filename } of loadedNPCs) {
+      for (const { npc, texture, filename, emojiSized } of loadedNPCs) {
+        // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile)
+        const spriteSize = emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE;
         if (!npc.symbol && !texture) continue;
 
         const targetPos = npc.position || { x: npc.x, y: npc.y };
@@ -987,8 +1023,8 @@ const PixiRenderer = ({
           // Create new display object
           if (needsSprite) {
             displayObj = new Sprite(texture);
-            displayObj.width = TILE_SIZE;
-            displayObj.height = TILE_SIZE;
+            displayObj.width = spriteSize;
+            displayObj.height = spriteSize;
             displayObj.anchor.set(0.5, 0.5);
           } else {
             displayObj = new Text(npc.symbol, {
@@ -1020,8 +1056,8 @@ const PixiRenderer = ({
           if (newDisplayType === 'sprite') {
             // Update sprite texture and size
             displayObj.texture = texture;
-            displayObj.width = TILE_SIZE;
-            displayObj.height = TILE_SIZE;
+            displayObj.width = spriteSize;
+            displayObj.height = spriteSize;
           } else {
             // Update text content and style
             displayObj.text = npc.symbol;

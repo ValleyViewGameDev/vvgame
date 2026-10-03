@@ -3,6 +3,7 @@ import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
 import { getAtlasTexture } from './AtlasTextures';
+import { emojiKey } from '../../Utils/emojiKey';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -81,6 +82,15 @@ const PixiRendererPCs = ({
   }, []);
 
   /**
+   * Cache key + loader for icons that have no SVG of their own (💀 🤢 🏕️ 🛶, or an emoji
+   * icon the art set lacks): the atlas's Twemoji frame, keyed `emoji:<codepoints>`.
+   */
+  const getEmojiCacheKey = useCallback((emoji) => {
+    const key = emojiKey(emoji);
+    return key ? `emoji:${key}` : null;
+  }, []);
+
+  /**
    * Load an SVG texture (async, cached)
    * Fetches SVG, modifies dimensions, then rasterizes at target resolution for crisp display
    */
@@ -100,12 +110,17 @@ const PixiRendererPCs = ({
 
     const promise = (async () => {
       try {
-        // Atlas first (scripts/build-atlas.js); the SVG rasterisation below is the fallback
-        const atlasTexture = await getAtlasTexture('playerIcons', filename);
+        // Atlas first (scripts/build-atlas.js); the SVG rasterisation below is the fallback.
+        // `emoji:<key>` names are Twemoji frames and have no SVG to fall back to.
+        const isEmojiKey = filename.startsWith('emoji:');
+        const atlasTexture = isEmojiKey
+          ? await getAtlasTexture('emoji', filename.slice('emoji:'.length))
+          : await getAtlasTexture('playerIcons', filename);
         if (atlasTexture) {
           if (isMountedRef.current) atlasTextureCache.set(filename, atlasTexture);
           return atlasTexture;
         }
+        if (isEmojiKey) return null;
 
         // Fetch SVG text so we can modify its dimensions
         const response = await fetch(`/assets/playerIcons/${filename}`);
@@ -329,8 +344,8 @@ const PixiRendererPCs = ({
     // Get display icon based on state
     const displayIcon = getDisplayIcon(pc);
 
-    // Check if we have an SVG for this icon
-    const svgFilename = getSvgFilename(displayIcon);
+    // Check if we have an SVG for this icon; otherwise use its Twemoji atlas frame
+    const svgFilename = getSvgFilename(displayIcon) || getEmojiCacheKey(displayIcon);
     const svgTextureCache = svgTextureCacheRef.current;
     const atlasTextureCache = atlasTextureCacheRef.current;
 
@@ -369,7 +384,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getSvgFilename, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
 
   // Initial render and re-render on state changes
   useEffect(() => {
