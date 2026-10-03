@@ -11,8 +11,8 @@ import PixiRendererSpeech from './PixiRendererSpeech';
 import PixiRendererNPCOverlays from './PixiRendererNPCOverlays';
 import PixiRendererSettlementGrids, { clearGridSnapshotCache } from './PixiRendererSettlementGrids';
 import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
-import PixiRendererPadding from './PixiRendererPadding';
 import PixiRendererDoinker from './PixiRendererDoinker';
+import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -20,8 +20,6 @@ import {
   TILES_PER_GRID,
   TILES_PER_SETTLEMENT,
   WORLD_PADDING_SETTLEMENTS,
-  getWorldPixelSize,
-  getGridWorldPixelPosition,
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
@@ -354,7 +352,8 @@ const PixiRenderer = ({
   doinkerType,            // 'resource' or 'button'
   doinkerVisible = false, // Whether doinker should be visible
 }) => {
-  const containerRef = useRef(null);
+  const containerRef = useRef(null);   // the canvas host: fills the board, viewport-sized
+  const overlayRef = useRef(null);     // DOM overlay mirrored to the Pixi world by PixiCamera
   const appRef = useRef(null);
   const worldContainerRef = useRef(null);  // Parent container for all game layers - zoom applied here
   const tileContainerRef = useRef(null);
@@ -517,12 +516,11 @@ const PixiRenderer = ({
       clearTileTextureCache();
       clearGridSnapshotCache();
 
-      // Calculate canvas size - ALWAYS TILES_PER_GRID×TILES_PER_GRID tiles (single grid)
-      // Settlement zoom renders neighboring grids via PixiRendererSettlementGrids
-      // but the main PixiJS canvas stays the same size
-      const gridSize = TILES_PER_GRID;
-      const worldWidth = gridSize * TILE_SIZE;
-      const worldHeight = gridSize * TILE_SIZE;
+      // The canvas is the size of the visible board (PixiCamera keeps it in sync on resize).
+      // It used to be the whole 64x64 grid at full resolution: 2,880 CSS px square, which is a
+      // 285 MB drawing buffer on a 3x phone (docs/audits/client-review-2026-10-03.md §2.4).
+      const worldWidth = Math.max(1, containerRef.current.clientWidth);
+      const worldHeight = Math.max(1, containerRef.current.clientHeight);
 
       // Create PixiJS Application with legacy support (WebGL with Canvas fallback)
       // pixi.js-legacy v7 uses constructor pattern, not async init()
@@ -594,6 +592,15 @@ const PixiRenderer = ({
       worldContainer.addChild(overlayContainer);
       overlayContainerRef.current = overlayContainer;
 
+      // The camera owns worldContainer's position/scale from here on (PixiCamera.js)
+      PixiCamera.attach({
+        app,
+        worldContainer,
+        hostElement: containerRef.current,
+        overlayElement: overlayRef.current,
+        baseTileSize: TILE_SIZE,
+      });
+
       // Start the sprite-sheet download now so it overlaps the grid bundle fetch
       loadAtlas();
 
@@ -645,6 +652,7 @@ const PixiRenderer = ({
     return () => {
       // Clear global renderer reference FIRST to prevent texture creation during cleanup
       activePixiRenderer = null;
+      PixiCamera.detach();
 
       if (appRef.current) {
         // Remove context loss handlers
@@ -689,38 +697,8 @@ const PixiRenderer = ({
     };
   }, []);
 
-  // Apply zoom using CSS transform ONLY
-  // The PixiJS canvas stays at a constant size (64×64 tiles).
-  // CSS transform handles visual scaling for ALL zoom levels including settlement.
-  // At settlement zoom, the scroll container expands to show neighboring grids.
-  useEffect(() => {
-    if (!appRef.current || !worldContainerRef.current) return;
-
-    // SKIP during zoom animation - App.js directly manipulates DOM during animation
-    // to avoid React re-render overhead. This useEffect only runs at animation END.
-    if (isZoomAnimating) {
-      return;
-    }
-
-    // Canvas is ALWAYS 64×64 tiles - never changes
-    const baseWorldSize = GRID_TILES * TILE_SIZE;
-
-    // Keep renderer at constant size
-    appRef.current.renderer.resize(baseWorldSize, baseWorldSize);
-
-    // World container always at origin - current grid renders at (0,0)
-    worldContainerRef.current.x = 0;
-    worldContainerRef.current.y = 0;
-    worldContainerRef.current.scale.set(1.0);
-
-    // CSS transform scales the canvas visually
-    // At settlement zoom (zoomScale ~0.05), the 1920px canvas becomes ~96px visually
-    const canvas = appRef.current.view;
-    canvas.style.width = `${baseWorldSize}px`;
-    canvas.style.height = `${baseWorldSize}px`;
-    canvas.style.transformOrigin = 'top left';
-    canvas.style.transform = `scale(${zoomScale})`;
-  }, [TILE_SIZE, zoomScale, zoomLevel, isZoomAnimating]);
+  // Zoom is worldContainer.scale, animated by PixiCamera.animateZoom (App.js drives it).
+  // The overlay DOM (previews, floating text, VFX) gets the same transform from the camera.
 
   // Grid offset is always 0 - the current grid renders at origin (0,0)
   // Settlement zoom renders NEIGHBORING grids around it via PixiRendererSettlementGrids
@@ -1313,16 +1291,7 @@ const PixiRenderer = ({
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const screenX = event.clientX - rect.left;
-    const screenY = event.clientY - rect.top;
-
-    // Convert screen coordinates to world coordinates
-    // The canvas is CSS-scaled by zoomScale, so divide to get world coords
-    const worldX = screenX / zoomScale;
-    const worldY = screenY / zoomScale;
-
-    const col = Math.floor(worldX / TILE_SIZE);
-    const row = Math.floor(worldY / TILE_SIZE);
+    const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
 
     // At frontier zoom during relocation, clicking on the current settlement should
     // trigger a grid-level click (same as other settlements)
@@ -1405,15 +1374,7 @@ const PixiRenderer = ({
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const screenX = event.clientX - rect.left;
-    const screenY = event.clientY - rect.top;
-
-    // Convert screen coordinates to world coordinates (account for zoom scale)
-    const worldX = screenX / zoomScale;
-    const worldY = screenY / zoomScale;
-
-    const col = Math.floor(worldX / TILE_SIZE);
-    const row = Math.floor(worldY / TILE_SIZE);
+    const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
 
     if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) {
       setHoveredTile(null);
@@ -1476,83 +1437,38 @@ const PixiRenderer = ({
   }, [setHoverTooltip]);
 
   // ============================================================================
-  // UNIFIED WORLD MODEL
+  // LAYOUT
   // ============================================================================
-  // The world is ALWAYS 6144×6144 tiles (4096 frontier + 2×1024 padding).
-  // Container size scales proportionally with zoomScale - no jumps, no coordinate
-  // system changes at different zoom levels. This eliminates camera jitter.
-  //
-  // All content is positioned at ABSOLUTE world coordinates, not relative to
-  // the current zoom level. The same position formula works at ALL zoom levels.
+  // The canvas fills the board. PixiCamera scales/positions worldContainer so the player
+  // sits at the board's centre; the current grid is at the world origin. The DOM overlay
+  // (`.pixi-world-container`) receives the same transform, so settlement/frontier previews,
+  // floating text, DOM VFX and the FTUE doinker are laid out in BASE px with the current
+  // grid at (0,0) and simply follow the camera.
   // ============================================================================
 
-  // World size in pixels at current zoom scale
-  // This is the ONLY size calculation - it's the same at ALL zoom levels
-  const worldPixelSize = getWorldPixelSize(zoomScale, TILE_SIZE);
+  const singleGridPixelSizeBase = TILES_PER_GRID * TILE_SIZE;
+  const singleSettlementPixelSizeBase = TILES_PER_SETTLEMENT * TILE_SIZE;
 
-  // Single grid/settlement sizes for child component positioning
-  const singleGridPixelSizeBase = TILES_PER_GRID * TILE_SIZE; // Base size, no zoom
-  const singleSettlementPixelSizeBase = TILES_PER_SETTLEMENT * TILE_SIZE; // Base size, no zoom
-  const singleGridPixelSize = singleGridPixelSizeBase * zoomScale;
-  const singleSettlementPixelSize = singleSettlementPixelSizeBase * zoomScale;
+  const currentGridRow = currentGridPosition?.row ?? 0;
+  const currentGridCol = currentGridPosition?.col ?? 0;
+  const currentSettlementRow = currentSettlementPosition?.row ?? 0;
+  const currentSettlementCol = currentSettlementPosition?.col ?? 0;
 
-  // Current grid position within the 8×8 settlement (for positioning)
-  const hasGridPosition = currentGridPosition !== null && currentGridPosition !== undefined;
-  const currentGridRow = hasGridPosition ? currentGridPosition.row : 0;
-  const currentGridCol = hasGridPosition ? currentGridPosition.col : 0;
-
-  // Current settlement position within the 8×8 frontier (for positioning)
-  const hasSettlementPosition = currentSettlementPosition !== null && currentSettlementPosition !== undefined;
-  const currentSettlementRow = hasSettlementPosition ? currentSettlementPosition.row : 0;
-  const currentSettlementCol = hasSettlementPosition ? currentSettlementPosition.col : 0;
-
-  // Calculate the PixiJS canvas position using unified world coordinates
-  // This is the SAME formula at ALL zoom levels - just uses absolute world position
-  const currentGridWorldPos = getGridWorldPixelPosition(
-    { row: currentGridRow, col: currentGridCol },
-    { row: currentSettlementRow, col: currentSettlementCol },
-    zoomScale,
-    TILE_SIZE
-  );
-
-  // For backward compatibility with PixiRendererPadding (will be simplified in Phase 5)
-  // These are calculated from the unified world but maintain the interface child components expect
-  const paddingSizeBase = singleSettlementPixelSizeBase * WORLD_PADDING_SETTLEMENTS;
-  const paddingSize = paddingSizeBase * zoomScale;
-
-  // Settlement offset for PixiRendererSettlementGrids positioning
-  // Uses absolute world coordinates - same formula regardless of zoom level
+  // Settlement previews lay grids out at (col * grid, row * grid) within the settlement;
+  // shift so the current grid lands on the origin
   const settlementOffset = {
-    x: paddingSizeBase + currentSettlementCol * singleSettlementPixelSizeBase,
-    y: paddingSizeBase + currentSettlementRow * singleSettlementPixelSizeBase
+    x: -currentGridCol * singleGridPixelSizeBase,
+    y: -currentGridRow * singleGridPixelSizeBase,
+  };
+  // Frontier previews lay settlements out at ((col + padding) * settlement, ...)
+  const frontierOffset = {
+    x: -((WORLD_PADDING_SETTLEMENTS + currentSettlementCol) * singleSettlementPixelSizeBase + currentGridCol * singleGridPixelSizeBase),
+    y: -((WORLD_PADDING_SETTLEMENTS + currentSettlementRow) * singleSettlementPixelSizeBase + currentGridRow * singleGridPixelSizeBase),
   };
 
   return (
-    // Outer wrapper establishes scroll boundaries - this div's size determines
-    // how far the user can scroll in the .homestead container
-    // UNIFIED WORLD MODEL: Size is ALWAYS the full world size (6144 tiles) × zoomScale
-    // This eliminates coordinate system changes and scroll jumps during zoom
-    <div
-      className="pixi-world-container"
-      style={{
-        position: 'relative',
-        width: `${worldPixelSize}px`,
-        height: `${worldPixelSize}px`,
-      }}
-    >
-      {/* Padding/spillover areas - rendered FIRST so they appear behind all content */}
-      {/* In unified world model, padding is the 2-settlement border around the 8×8 frontier */}
-      <PixiRendererPadding
-        isActive={true}
-        baseUnitSize={singleSettlementPixelSizeBase}
-        paddingUnits={WORLD_PADDING_SETTLEMENTS}
-        zoomScale={zoomScale}
-      />
-      {/* PixiJS canvas container - positioned at ABSOLUTE world coordinates */}
-      {/* UNIFIED WORLD MODEL: Same position formula at ALL zoom levels */}
-      {/* overflow:hidden is CRITICAL - the canvas is 2560px with CSS scale transform, */}
-      {/* but transforms don't affect layout. Without overflow:hidden, canvas overflows */}
-      {/* and creates incorrect scroll bounds */}
+    <>
+      {/* Canvas host: fills the board; receives clicks and hover for the world */}
       <div
         ref={containerRef}
         className="pixi-container"
@@ -1561,53 +1477,78 @@ const PixiRenderer = ({
         onMouseLeave={handleMouseLeave}
         style={{
           position: 'absolute',
-          top: currentGridWorldPos.y,
-          left: currentGridWorldPos.x,
-          width: `${singleGridPixelSize}px`,
-          height: `${singleGridPixelSize}px`,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           overflow: 'hidden',
           zIndex: 1,
           cursor: 'pointer',
         }}
       />
-      {/* Frontier settlement previews (rendered as HTML behind current settlement) */}
-      {/* MUST be rendered BEFORE PixiRendererSettlementGrids so current settlement appears on top */}
-      {/* Use BASE size (without zoomScale) - component applies zoomScale itself */}
-      {/* paddingOffset tells the component where to position relative to scroll container */}
-      {/* Hide during zoom animation to prevent flash at wrong scale */}
-      <PixiRendererFrontierSettlements
-        isActive={isFrontierZoom && !isZoomAnimating}
-        currentSettlementPosition={currentSettlementPosition}
-        frontierData={frontierData}
-        frontierSettlementGrids={frontierSettlementGrids}
-        currentPlayer={currentPlayer}
-        settlementPixelSize={singleSettlementPixelSizeBase}
-        zoomScale={zoomScale}
-        onGridClick={onFrontierGridClick}
-        paddingOffset={paddingSize}
-        isRelocating={isRelocating}
-      />
-      {/* Settlement grid previews (rendered as HTML behind current grid content) */}
-      {/* At frontier zoom, settlement grids are positioned within the larger frontier */}
-      {/* Hide during zoom animation to prevent flash at wrong scale */}
-      <PixiRendererSettlementGrids
-        isActive={(isSettlementZoom || isFrontierZoom) && !isZoomAnimating}
-        currentGridPosition={currentGridPosition}
-        settlementData={settlementData}
-        visitedGridTiles={visitedGridTiles}
-        players={settlementPlayers}
-        TILE_SIZE={TILE_SIZE}
-        zoomScale={zoomScale}
-        masterResources={masterResources}
-        onGridClick={onSettlementGridClick}
-        strings={strings}
-        settlementOffset={settlementOffset}
-        isFrontierZoom={isFrontierZoom}
-        isDeveloper={isDeveloper}
-        isRelocating={isRelocating}
-        onRelocationGridClick={onFrontierGridClick}
-        currentSettlementPosition={currentSettlementPosition}
-      />
+      {/* DOM overlay mirrored to the Pixi world (transform set by PixiCamera). pointer-events
+          none so the canvas gets clicks; preview cells that are clickable opt back in. */}
+      <div
+        ref={overlayRef}
+        className="pixi-world-container"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+          overflow: 'visible',
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      >
+        {/* Frontier settlement previews; hidden during zoom animation to avoid a flash */}
+        <PixiRendererFrontierSettlements
+          isActive={isFrontierZoom && !isZoomAnimating}
+          currentSettlementPosition={currentSettlementPosition}
+          frontierData={frontierData}
+          frontierSettlementGrids={frontierSettlementGrids}
+          currentPlayer={currentPlayer}
+          settlementPixelSize={singleSettlementPixelSizeBase}
+          zoomScale={1}
+          screenScale={zoomScale}
+          onGridClick={onFrontierGridClick}
+          containerOffset={frontierOffset}
+          isRelocating={isRelocating}
+        />
+        {/* Settlement grid previews (the current grid itself is the live canvas) */}
+        <PixiRendererSettlementGrids
+          isActive={(isSettlementZoom || isFrontierZoom) && !isZoomAnimating}
+          currentGridPosition={currentGridPosition}
+          settlementData={settlementData}
+          visitedGridTiles={visitedGridTiles}
+          players={settlementPlayers}
+          TILE_SIZE={TILE_SIZE}
+          zoomScale={1}
+          screenScale={zoomScale}
+          masterResources={masterResources}
+          onGridClick={onSettlementGridClick}
+          strings={strings}
+          settlementOffset={settlementOffset}
+          isFrontierZoom={isFrontierZoom}
+          isDeveloper={isDeveloper}
+          isRelocating={isRelocating}
+          onRelocationGridClick={onFrontierGridClick}
+          currentSettlementPosition={currentSettlementPosition}
+        />
+        {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
+        {doinkerType !== 'button' && (
+          <PixiRendererDoinker
+            doinkerTargets={doinkerTargets}
+            doinkerType={doinkerType}
+            TILE_SIZE={TILE_SIZE}
+            zoomScale={1}
+            visible={doinkerVisible}
+            gridId={gridId}
+            gridWorldPosition={{ x: 0, y: 0 }}
+          />
+        )}
+      </div>
       {/* Cursor highlight for placement modes */}
       <PixiRendererCursor
         app={appRef.current}
@@ -1655,19 +1596,7 @@ const PixiRenderer = ({
         getNPCRenderPosition={getNPCRenderPosition}
         npcAnimations={npcAnimations}
       />
-      {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
-      {doinkerType !== 'button' && (
-        <PixiRendererDoinker
-          doinkerTargets={doinkerTargets}
-          doinkerType={doinkerType}
-          TILE_SIZE={TILE_SIZE}
-          zoomScale={zoomScale}
-          visible={doinkerVisible}
-          gridId={gridId}
-          gridWorldPosition={currentGridWorldPos}
-        />
-      )}
-    </div>
+    </>
   );
 };
 

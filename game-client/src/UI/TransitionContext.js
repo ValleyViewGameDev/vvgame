@@ -7,10 +7,10 @@ const FADE_TO_BLACK_DURATION = 600;  // Slower fade to black (feels more deliber
 const FADE_FROM_BLACK_DURATION = 900; // Faster reveal of new scene
 
 // Fixed positioning for the game area overlay
-// These match the CSS layout: header (85px), nav column (300px)
+// Matches the board: top 84px (header + status bar), left 300px (app-container 60 + .homestead margin 240)
 const OVERLAY_STYLE = {
   position: 'fixed',
-  top: '85px',
+  top: '84px',
   left: '300px',
   right: 0,
   bottom: 0,

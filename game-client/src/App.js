@@ -130,7 +130,8 @@ import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
 
 import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
-import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, renderPositions } from './PlayerMovement';
+import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement } from './PlayerMovement';
+import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
@@ -554,189 +555,28 @@ const currentZoomScaleRef = useRef(currentZoomScale);
 // React state only updates at the END of animation to trigger final re-render.
 // ============================================================================
 useEffect(() => {
+  // PixiCamera lerps worldContainer.scale (and the mirrored DOM overlay) toward the target.
+  // React state changes only at the END of the animation so previews never render at a
+  // half-way scale. Replaces the old per-frame DOM writes (scroll, canvas transform, world div).
   targetZoomScaleRef.current = pixiZoomScale;
-
-  // Skip animation if already at target
-  if (Math.abs(currentZoomScaleRef.current - pixiZoomScale) < 0.001) {
+  if (Math.abs(currentZoomScaleRef.current - pixiZoomScale) >= 0.001) {
+    isZoomAnimatingRef.current = true;
+    setIsZoomAnimating(true);
+  }
+  PixiCamera.animateZoom(pixiZoomScale, () => {
     currentZoomScaleRef.current = pixiZoomScale;
+    const targetZoomLevel = zoomLevelRef.current;
+    const shouldShowSettlement = targetZoomLevel === 'settlement' || targetZoomLevel === 'frontier';
+    const shouldShowFrontier = targetZoomLevel === 'frontier';
+    // Update all states atomically - React batches these into single re-render
+    setIsVisuallyInSettlement(shouldShowSettlement);
+    setIsVisuallyInFrontier(shouldShowFrontier);
     setCurrentZoomScale(pixiZoomScale);
     isZoomAnimatingRef.current = false;
     setIsZoomAnimating(false);
-    return;
-  }
-
-  // Start animation - lock zoom input (ref was already set by zoom handler)
-  isZoomAnimatingRef.current = true;
-  setIsZoomAnimating(true);
-
-  // Get DOM elements for direct manipulation (bypassing React)
-  const gameContainer = document.querySelector(".homestead");
-  const pixiCanvasContainer = document.querySelector(".pixi-container"); // The div that positions the canvas
-  const pixiCanvas = pixiCanvasContainer?.querySelector("canvas");
-  const worldContainer = document.querySelector(".pixi-world-container"); // The outer world container
-  const paddingContainer = document.querySelector(".pixi-padding-container"); // Padding outer container
-  const paddingInner = document.querySelector(".pixi-padding-inner"); // Padding inner (transform target)
-
-  // Get player position from playersInGrid
-  let playerPos = null;
-  if (currentPlayer?.location?.g && currentPlayer?._id) {
-    const gridId = currentPlayer.location.g;
-    const playerIdStr = String(currentPlayer._id);
-    playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-  }
-
-  // UNIFIED WORLD MODEL: Calculate positions ONCE at animation start
-  // CRITICAL FIX: Parse gridCoord directly from currentPlayer.location to get FRESH position data.
-  // The refs (currentGridPositionRef, currentSettlementPositionRef) may not be updated yet
-  // when zoom animation triggers during a grid transition. Parsing directly from location
-  // ensures we use the player's actual current position, not stale ref data.
-  let gridPos = currentGridPositionRef.current || { row: 0, col: 0 };
-  let settlementPos = currentSettlementPositionRef.current || { row: 0, col: 0 };
-
-  // Parse fresh position from gridCoord if available (overrides potentially stale refs)
-  const gridCoord = currentPlayer?.location?.gridCoord ?? currentPlayer?.homesteadGridCoord;
-  if (gridCoord !== null && gridCoord !== undefined) {
-    const parsed = parseGridCoord(gridCoord);
-    if (parsed) {
-      gridPos = { row: parsed.gridRow, col: parsed.gridCol };
-      settlementPos = { row: parsed.settlementRow, col: parsed.settlementCol };
-      // Update refs to keep them in sync
-      currentGridPositionRef.current = gridPos;
-      currentSettlementPositionRef.current = settlementPos;
-      console.log(`🎬 [ZOOM ANIMATION] Parsed position from gridCoord ${gridCoord}: grid=(${gridPos.row}, ${gridPos.col}), settlement=(${settlementPos.row}, ${settlementPos.col})`);
-    }
-  }
-
-  const worldPos = getPlayerWorldPosition(
-    playerPos || { x: 0, y: 0 },
-    gridPos,
-    settlementPos
-  );
-
-  // Calculate grid world position in tiles (matches getGridWorldPixelPosition logic)
-  // This is the position of the current grid within the unified world
-  // Constants are imported from UnifiedCamera.js to stay in sync
-
-  const gridWorldTileX = WORLD_PADDING_SETTLEMENTS * TILES_PER_SETTLEMENT
-    + settlementPos.col * TILES_PER_SETTLEMENT
-    + gridPos.col * TILES_PER_GRID;
-  const gridWorldTileY = WORLD_PADDING_SETTLEMENTS * TILES_PER_SETTLEMENT
-    + settlementPos.row * TILES_PER_SETTLEMENT
-    + gridPos.row * TILES_PER_GRID;
-
-  const animate = () => {
-    const current = currentZoomScaleRef.current;
-    const target = targetZoomScaleRef.current;
-    const diff = target - current;
-
-    // Done animating - snap to target
-    if (Math.abs(diff) < 0.001) {
-      currentZoomScaleRef.current = target;
-
-      // Final DOM updates at exact target scale
-      if (gameContainer) {
-        const scroll = getScrollPosition(worldPos, target, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
-        gameContainer.scrollLeft = scroll.x;
-        gameContainer.scrollTop = scroll.y;
-      }
-      if (pixiCanvas) {
-        pixiCanvas.style.transform = `scale(${target})`;
-      }
-      if (pixiCanvasContainer) {
-        const gridPixelX = gridWorldTileX * PIXI_BASE_TILE_SIZE * target;
-        const gridPixelY = gridWorldTileY * PIXI_BASE_TILE_SIZE * target;
-        pixiCanvasContainer.style.left = `${gridPixelX}px`;
-        pixiCanvasContainer.style.top = `${gridPixelY}px`;
-        pixiCanvasContainer.style.width = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * target}px`;
-        pixiCanvasContainer.style.height = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * target}px`;
-      }
-      if (worldContainer) {
-        const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * target;
-        worldContainer.style.width = `${worldPixelSize}px`;
-        worldContainer.style.height = `${worldPixelSize}px`;
-      }
-      if (paddingContainer) {
-        const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * target;
-        paddingContainer.style.width = `${worldPixelSize}px`;
-        paddingContainer.style.height = `${worldPixelSize}px`;
-      }
-      if (paddingInner) {
-        paddingInner.style.transform = `scale(${target})`;
-      }
-
-      // Update React state ONLY at the end of animation
-      // CRITICAL: Determine and set visual states BEFORE clearing isZoomAnimating
-      // to prevent flash where grids render at wrong scale (React batches these)
-      const targetZoomLevel = zoomLevelRef.current;
-      const shouldShowSettlement = targetZoomLevel === 'settlement' || targetZoomLevel === 'frontier';
-      const shouldShowFrontier = targetZoomLevel === 'frontier';
-
-      // Update all states atomically - React batches these into single re-render
-      setIsVisuallyInSettlement(shouldShowSettlement);
-      setIsVisuallyInFrontier(shouldShowFrontier);
-      setCurrentZoomScale(target);
-      isZoomAnimatingRef.current = false;
-      setIsZoomAnimating(false);
-      console.log(`🎬 [ZOOM ANIMATION] Complete at scale ${target.toFixed(3)}, settlement=${shouldShowSettlement}, frontier=${shouldShowFrontier}`);
-      return;
-    }
-
-    // Lerp toward target (0.14 = ~150ms total transition at 60fps)
-    const newScale = current + diff * 0.14;
-    currentZoomScaleRef.current = newScale;
-
-    // Update ALL zoom-dependent DOM elements directly
-    // This ensures everything stays in sync during animation
-    if (gameContainer) {
-      const scroll = getScrollPosition(worldPos, newScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
-      gameContainer.scrollLeft = scroll.x;
-      gameContainer.scrollTop = scroll.y;
-    }
-    if (pixiCanvas) {
-      pixiCanvas.style.transform = `scale(${newScale})`;
-    }
-    if (pixiCanvasContainer) {
-      const gridPixelX = gridWorldTileX * PIXI_BASE_TILE_SIZE * newScale;
-      const gridPixelY = gridWorldTileY * PIXI_BASE_TILE_SIZE * newScale;
-      pixiCanvasContainer.style.left = `${gridPixelX}px`;
-      pixiCanvasContainer.style.top = `${gridPixelY}px`;
-      pixiCanvasContainer.style.width = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * newScale}px`;
-      pixiCanvasContainer.style.height = `${TILES_PER_GRID * PIXI_BASE_TILE_SIZE * newScale}px`;
-    }
-    if (worldContainer) {
-      const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * newScale;
-      worldContainer.style.width = `${worldPixelSize}px`;
-      worldContainer.style.height = `${worldPixelSize}px`;
-    }
-    if (paddingContainer) {
-      const worldPixelSize = WORLD_SIZE_TILES * PIXI_BASE_TILE_SIZE * newScale;
-      paddingContainer.style.width = `${worldPixelSize}px`;
-      paddingContainer.style.height = `${worldPixelSize}px`;
-    }
-    if (paddingInner) {
-      paddingInner.style.transform = `scale(${newScale})`;
-    }
-
-    // Schedule next frame
-    zoomAnimationRef.current = requestAnimationFrame(animate);
-  };
-
-  // Cancel any existing animation
-  if (zoomAnimationRef.current) {
-    cancelAnimationFrame(zoomAnimationRef.current);
-  }
-
-  // Start new animation
-  zoomAnimationRef.current = requestAnimationFrame(animate);
-
-  return () => {
-    if (zoomAnimationRef.current) {
-      cancelAnimationFrame(zoomAnimationRef.current);
-    }
-  };
-  // UNIFIED WORLD MODEL: Only depend on pixiZoomScale - refs are read at animation start
+  });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [pixiZoomScale, PIXI_BASE_TILE_SIZE]);
+}, [pixiZoomScale]);
 
 // Visual settlement mode - tracks whether we're visually displaying settlement view
 // When entering settlement: immediately true (zoomLevel === 'settlement')
@@ -1009,158 +849,7 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-// ============================================================================
-// UNIFIED WORLD MODEL - CAMERA POSITION
-// ============================================================================
-// Player is ALWAYS at pixel position (PLAYER_FIXED_POSITION.x, PLAYER_FIXED_POSITION.y)
-// in the .homestead container. With the unified world model, we use ONE formula
-// for calculating world position at ALL zoom levels.
-// ============================================================================
-
-useEffect(() => {
-  // Clear entering/exiting flags when animation completes
-  const animationComplete = Math.abs(currentZoomScale - targetZoomScaleRef.current) < 0.001;
-  if (animationComplete) {
-    if (isEnteringSettlementRef.current) {
-      isEnteringSettlementRef.current = false;
-      enteringSettlementFromRef.current = null;
-    }
-    if (isEnteringFrontierRef.current) {
-      isEnteringFrontierRef.current = false;
-      enteringFrontierFromRef.current = null;
-    }
-    if (isExitingSettlementRef.current) {
-      isExitingSettlementRef.current = false;
-    }
-    if (isExitingFrontierRef.current) {
-      isExitingFrontierRef.current = false;
-    }
-  }
-
-  // Get player position
-  if (!currentPlayer?.location?.g || !currentPlayer?._id) return;
-  const gridId = currentPlayer.location.g;
-  const playerIdStr = String(currentPlayer._id);
-  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-  if (!playerPos) return;
-
-  // Check if player is currently animating - if so, don't update scroll here
-  // The animation ticker will handle smooth camera updates
-  const isPlayerAnimating = !!renderPositions[playerIdStr];
-  if (isPlayerAnimating) {
-    // Update refs but don't update scroll - animation handles it
-    isVisuallyInSettlementRef.current = isVisuallyInSettlement;
-    isVisuallyInFrontierRef.current = isVisuallyInFrontier;
-    currentGridPositionRef.current = currentGridPosition;
-    currentSettlementPositionRef.current = currentSettlementPosition;
-    // Don't update playerPosRef yet - wait for animation to complete
-    prevZoomScaleRef.current = currentZoomScale;
-    return;
-  }
-
-  // Check if player position actually changed (not just other player data like inventory/quests)
-  // Also check if grid/settlement position changed (player moved to a new grid)
-  // Also check if zoom scale changed (requires scroll recalculation)
-  // IMPORTANT: Check BEFORE updating refs
-  const prevPos = playerPosRef.current;
-  const prevGridPos = currentGridPositionRef.current;
-  const prevSettlementPos = currentSettlementPositionRef.current;
-  const prevZoomScale = prevZoomScaleRef.current;
-
-  const tilePositionChanged = !prevPos || prevPos.x !== playerPos.x || prevPos.y !== playerPos.y;
-  const gridPositionChanged = !prevGridPos ||
-    prevGridPos.row !== currentGridPosition?.row ||
-    prevGridPos.col !== currentGridPosition?.col;
-  const settlementPositionChanged = !prevSettlementPos ||
-    prevSettlementPos.row !== currentSettlementPosition?.row ||
-    prevSettlementPos.col !== currentSettlementPosition?.col;
-  const zoomScaleChanged = prevZoomScale === null || prevZoomScale !== currentZoomScale;
-
-  const shouldUpdateScroll = tilePositionChanged || gridPositionChanged || settlementPositionChanged || zoomScaleChanged;
-
-  // Update refs for backward compatibility (will be removed in Phase 4)
-  // IMPORTANT: Update AFTER position comparison
-  isVisuallyInSettlementRef.current = isVisuallyInSettlement;
-  isVisuallyInFrontierRef.current = isVisuallyInFrontier;
-  currentGridPositionRef.current = currentGridPosition;
-  currentSettlementPositionRef.current = currentSettlementPosition;
-  playerPosRef.current = playerPos;
-  prevZoomScaleRef.current = currentZoomScale;
-
-  // UNIFIED WORLD MODEL: ONE formula at ALL zoom levels
-  const worldPos = getPlayerWorldPosition(
-    playerPos,
-    currentGridPosition || { row: 0, col: 0 },
-    currentSettlementPosition || { row: 0, col: 0 }
-  );
-
-  // Update ref for animation loop
-  playerWorldPosRef.current = worldPos;
-
-  // Only update scroll when:
-  // 1. NOT animating - animation loop handles scroll during zoom
-  // 2. Player position or zoom scale actually changed - don't re-center on inventory/quest updates
-  if (!isZoomAnimating && shouldUpdateScroll) {
-    const gameContainer = document.querySelector(".homestead");
-    if (gameContainer) {
-      const scroll = getScrollPosition(worldPos, currentZoomScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
-      gameContainer.scrollLeft = scroll.x;
-      gameContainer.scrollTop = scroll.y;
-    }
-  }
-}, [currentZoomScale, currentPlayer, playersInGrid, PIXI_BASE_TILE_SIZE, isVisuallyInSettlement, isVisuallyInFrontier, currentGridPosition, currentSettlementPosition, isZoomAnimating]);
-
-// Camera tethering during player movement animation
-// This runs on every animation frame when the current player is animating
-useEffect(() => {
-  if (!currentPlayer?._id) return;
-  const playerIdStr = String(currentPlayer._id);
-
-  let animationFrameId = null;
-  let isRunning = true;
-
-  const updateCameraDuringAnimation = () => {
-    if (!isRunning) return;
-
-    // Check if player is animating
-    const animatedPos = renderPositions[playerIdStr];
-    if (animatedPos) {
-      // Use the interpolated position for smooth camera following
-      const worldPos = getPlayerWorldPosition(
-        animatedPos,
-        currentGridPosition || { row: 0, col: 0 },
-        currentSettlementPosition || { row: 0, col: 0 }
-      );
-
-      const gameContainer = document.querySelector(".homestead");
-      if (gameContainer) {
-        const scroll = getScrollPosition(worldPos, currentZoomScale, PIXI_BASE_TILE_SIZE, PLAYER_FIXED_POSITION);
-        gameContainer.scrollLeft = scroll.x;
-        gameContainer.scrollTop = scroll.y;
-      }
-
-      // Continue the animation loop
-      animationFrameId = requestAnimationFrame(updateCameraDuringAnimation);
-    } else {
-      // Animation complete - update playerPosRef to final position
-      const gridId = currentPlayer.location?.g;
-      const finalPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-      if (finalPos) {
-        playerPosRef.current = finalPos;
-      }
-    }
-  };
-
-  // Start the animation loop
-  animationFrameId = requestAnimationFrame(updateCameraDuringAnimation);
-
-  return () => {
-    isRunning = false;
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-    }
-  };
-}, [currentPlayer, currentGridPosition, currentSettlementPosition, currentZoomScale, PIXI_BASE_TILE_SIZE, playersInGrid]);
+// The camera follows the player from PixiRendererPCs (PixiCamera.follow); nothing to do here.
 
 // NOTE: Visual state clearing (isVisuallyInSettlement/isVisuallyInFrontier) is now handled
 // atomically at animation completion in the zoom animation useEffect above.
@@ -1539,81 +1228,9 @@ useEffect(() => {
         const baseTileSize = tileSizesFromTuning.close;
         const initialZoomScale = initialTileSize / baseTileSize;
 
-        // UNIFIED WORLD MODEL: Use full world position including grid/settlement offsets
-        // Parse location.gridCoord to get grid and settlement positions (CURRENT location, not homestead)
-        // Falls back to homesteadGridCoord if location.gridCoord not available
-        const gridCoord = DBPlayerData.location?.gridCoord ?? DBPlayerData.homesteadGridCoord;
-        const parsed = gridCoord != null ? parseGridCoord(gridCoord) : null;
-        const gridPosition = parsed ? { row: parsed.gridRow, col: parsed.gridCol } : { row: 0, col: 0 };
-        const settlementPosition = parsed ? { row: parsed.settlementRow, col: parsed.settlementCol } : { row: 0, col: 0 };
-        // Calculate full world position (includes padding + settlement offset + grid offset + tile position)
-        const worldPos = getPlayerWorldPosition(playerPosition, gridPosition, settlementPosition);
-        const scroll = getScrollPosition(worldPos, initialZoomScale, baseTileSize, PLAYER_FIXED_POSITION);
-
-        // Camera centering function - will be called AFTER isAppInitialized is set
-        // so that PixiRenderer has rendered and container has scroll dimensions
-        const cameraStartTime = Date.now();
-        const initCameraWithRetry = (retryCount = 0) => {
-          return new Promise((resolve) => {
-            const gameContainer = document.querySelector(".homestead");
-            const elapsed = Date.now() - cameraStartTime;
-
-            if (!gameContainer) {
-              if (retryCount < 30) {
-                if (retryCount % 5 === 0) { // Log every 5 attempts
-                  console.log(`📷 [CAMERA] Container not found, retrying... (attempt ${retryCount + 1}, +${elapsed}ms)`);
-                }
-                requestAnimationFrame(() => {
-                  initCameraWithRetry(retryCount + 1).then(resolve);
-                });
-              } else {
-                console.warn(`📷 [CAMERA] ⚠️ Container not found after 30 retries (+${elapsed}ms)`);
-                resolve(false);
-              }
-              return;
-            }
-
-            // Clamp to valid scroll bounds
-            const scrollWidth = gameContainer.scrollWidth;
-            const scrollHeight = gameContainer.scrollHeight;
-            const clientWidth = gameContainer.clientWidth;
-            const clientHeight = gameContainer.clientHeight;
-            const maxScrollLeft = Math.max(0, scrollWidth - clientWidth);
-            const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
-
-            // If container hasn't laid out yet (scroll dimensions are 0), retry
-            if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 30) {
-              if (retryCount % 5 === 0) { // Log every 5 attempts
-                console.log(`📷 [CAMERA] Container found but no scroll (scrollWidth=${scrollWidth}, clientWidth=${clientWidth}), retrying... (attempt ${retryCount + 1}, +${elapsed}ms)`);
-              }
-              requestAnimationFrame(() => {
-                initCameraWithRetry(retryCount + 1).then(resolve);
-              });
-              return;
-            }
-
-            const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
-            const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
-
-            console.log(`📷 [CAMERA] Container ready! scrollWidth=${scrollWidth}, clientWidth=${clientWidth}, maxScroll=(${maxScrollLeft}, ${maxScrollTop})`);
-            console.log(`📷 [CAMERA] Target scroll: (${scroll.x}, ${scroll.y}), clamped: (${clampedX}, ${clampedY})`);
-            console.log(`📷 [CAMERA] Setting scroll position... (+${elapsed}ms, attempt ${retryCount + 1})`);
-
-            gameContainer.scrollLeft = clampedX;
-            gameContainer.scrollTop = clampedY;
-
-            // Verify the scroll was applied
-            const actualScrollLeft = gameContainer.scrollLeft;
-            const actualScrollTop = gameContainer.scrollTop;
-            console.log(`📷 [CAMERA] ✅ Scroll applied: actual=(${actualScrollLeft}, ${actualScrollTop}), expected=(${clampedX}, ${clampedY})`);
-
-            resolve(true);
-          });
-        };
-
-        // Store the camera init function to call after isAppInitialized is set
-        // This is needed because PixiRenderer must render before scroll dimensions exist
-        pendingCameraInit = initCameraWithRetry;
+        // The camera (PixiCamera.js) follows the player as soon as PixiRenderer mounts and the
+        // PC layer renders; init only waits for that before fading up from black.
+        pendingCameraInit = () => PixiCamera.whenReady();
       }
 
       // Step 8. The PC record is always built from the Player by initializeForPlayer (seedGridFromBundle)
@@ -2604,6 +2221,15 @@ useEffect(() => {
     handleMovementKeyUp(event);
   };
   
+  // The held-key loop in PlayerMovement.js steps from this context, so a key held across a
+  // player refresh or grid change keeps using the live player and setters
+  setMovementContext({
+    currentPlayer, TILE_SIZE: activeTileSize, masterResources,
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext,
+    strings, transitionFadeControl
+  });
+
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
   return () => {
@@ -2611,6 +2237,12 @@ useEffect(() => {
     window.removeEventListener('keyup', handleKeyUp);
   };
 }, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel, isZoomAnimating]);
+
+// Keyboard movement is blocked while a modal is open or the view is zoomed out; make sure a
+// key that was held when that happened does not keep the loop stepping
+useEffect(() => {
+  if (activeModal || zoomLevel === 'frontier' || zoomLevel === 'settlement') stopMovement();
+}, [activeModal, zoomLevel]);
 
 
 

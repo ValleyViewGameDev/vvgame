@@ -1,0 +1,204 @@
+/**
+ * PixiCamera: the one camera for the game board.
+ *
+ * Before this module the camera was the browser: a 368,640 px DOM scroll container held a
+ * 2,880 px canvas of the whole grid, and "moving the camera" meant writing scrollLeft /
+ * scrollTop (docs/audits/client-review-2026-10-03.md §2.1, §2.4). Now the canvas is the size
+ * of the visible board and this module positions and scales Pixi's `worldContainer` so the
+ * local player sits at a fixed point on screen (the centre of the board).
+ *
+ * World coordinates are BASE pixels (tile x TILE_SIZE, no zoom) with the CURRENT GRID at
+ * the origin. Zoom is `worldContainer.scale`. Everything that lives in the world is a child
+ * of `worldContainer`, so it follows for free. DOM overlays that must line up with the world
+ * (floating text, DOM VFX, the settlement/frontier previews, the FTUE doinker) sit inside one
+ * absolutely positioned div (`.pixi-world-container`) whose CSS transform this module keeps
+ * identical to the Pixi container's. Children of that div are laid out in the same base px.
+ *
+ * Who calls what:
+ *   PixiRenderer         attach() / detach(), on mount and unmount
+ *   PixiRendererPCs      follow(x, y) on every PC render and animation frame
+ *   App.js               animateZoom(target, onDone) when the zoom level changes
+ *   PixiRenderer         screenToWorld() for click and hover hit-testing
+ *   VFX.js, FloatingText getTileSize() so DOM overlays use base px
+ */
+
+let app = null;
+let worldContainer = null;
+let hostEl = null;        // the div the canvas lives in; its size is the viewport
+let overlayEl = null;     // the mirrored DOM overlay
+let tileSize = 45;
+let zoom = 1;
+let targetZoom = 1;
+let playerTile = { x: 0, y: 0 };
+let viewport = { width: 0, height: 0 };
+let resizeObserver = null;
+let zoomFrame = null;
+let zoomDone = null;
+let readyResolvers = [];
+
+const ZOOM_DURATION_MS = 220; // ease-out over real time, so a slow frame rate still lands on time
+const ZOOM_EPSILON = 0.001;
+
+function apply() {
+  if (!worldContainer) return;
+  const cx = viewport.width / 2;
+  const cy = viewport.height / 2;
+  // Snap to whole device pixels at the current zoom so tile edges stay crisp
+  const x = Math.round(cx - playerTile.x * tileSize * zoom);
+  const y = Math.round(cy - playerTile.y * tileSize * zoom);
+  worldContainer.scale.set(zoom);
+  worldContainer.position.set(x, y);
+  if (overlayEl) {
+    overlayEl.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
+  }
+}
+
+function resizeToHost() {
+  if (!app || !hostEl) return;
+  const width = Math.max(1, Math.floor(hostEl.clientWidth));
+  const height = Math.max(1, Math.floor(hostEl.clientHeight));
+  if (width === viewport.width && height === viewport.height) return;
+  viewport = { width, height };
+  app.renderer.resize(width, height);
+  apply();
+}
+
+/** Wire the camera to a Pixi Application. Called once per Application by PixiRenderer. */
+export function attach({ app: pixiApp, worldContainer: container, hostElement, overlayElement, baseTileSize }) {
+  app = pixiApp;
+  worldContainer = container;
+  hostEl = hostElement;
+  overlayEl = overlayElement || null;
+  tileSize = baseTileSize || tileSize;
+  if (overlayEl) {
+    overlayEl.style.transformOrigin = '0 0';
+    overlayEl.style.willChange = 'transform';
+  }
+  viewport = { width: 0, height: 0 };
+  resizeToHost();
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(resizeToHost);
+    resizeObserver.observe(hostEl);
+  } else {
+    window.addEventListener('resize', resizeToHost);
+  }
+  readyResolvers.forEach((resolve) => resolve(true));
+  readyResolvers = [];
+}
+
+export function detach() {
+  if (zoomFrame) cancelAnimationFrame(zoomFrame);
+  zoomFrame = null;
+  zoomDone = null;
+  if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
+  window.removeEventListener('resize', resizeToHost);
+  app = null;
+  worldContainer = null;
+  hostEl = null;
+  overlayEl = null;
+}
+
+/** Resolves once attach() has run (init waits on this before fading up). */
+export function whenReady() {
+  if (worldContainer) return Promise.resolve(true);
+  return new Promise((resolve) => { readyResolvers.push(resolve); });
+}
+
+export function setOverlayElement(el) {
+  overlayEl = el || null;
+  if (overlayEl) {
+    overlayEl.style.transformOrigin = '0 0';
+    overlayEl.style.willChange = 'transform';
+  }
+  apply();
+}
+
+/** Keep the player at the fixed screen point. x/y are tile coordinates (fractions during animation). */
+export function follow(x, y) {
+  if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
+  // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
+  playerTile = { x: x + 0.5, y: y + 0.5 };
+  apply();
+}
+
+export function setZoom(scale) {
+  if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
+  zoom = scale;
+  targetZoom = scale;
+  apply();
+}
+
+/**
+ * Lerp the zoom to `target`, then call onDone. A new call replaces the previous animation
+ * (its onDone is dropped, matching the old effect cleanup).
+ */
+export function animateZoom(target, onDone) {
+  if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
+  targetZoom = target;
+  zoomDone = onDone || null;
+  if (Math.abs(zoom - target) < ZOOM_EPSILON) {
+    zoom = target;
+    apply();
+    const done = zoomDone; zoomDone = null;
+    if (done) done();
+    return;
+  }
+  const from = zoom;
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / ZOOM_DURATION_MS);
+    const eased = 1 - Math.pow(1 - t, 3); // cubic ease-out
+    zoom = from + (targetZoom - from) * eased;
+    apply();
+    if (t >= 1) {
+      zoom = targetZoom;
+      apply();
+      zoomFrame = null;
+      const done = zoomDone; zoomDone = null;
+      if (done) done();
+      return;
+    }
+    zoomFrame = requestAnimationFrame(step);
+  };
+  zoomFrame = requestAnimationFrame(step);
+}
+
+export function getZoom() { return zoom; }
+export function getTileSize() { return tileSize; }
+export function getViewport() { return { ...viewport }; }
+export function isAttached() { return !!worldContainer; }
+
+/** Screen px (relative to the host element) -> world base px (current grid at origin). */
+export function screenToWorld(screenX, screenY) {
+  if (!worldContainer) return { x: screenX, y: screenY };
+  return {
+    x: (screenX - worldContainer.position.x) / zoom,
+    y: (screenY - worldContainer.position.y) / zoom,
+  };
+}
+
+/** World base px -> screen px (relative to the host element). */
+export function worldToScreen(worldX, worldY) {
+  if (!worldContainer) return { x: worldX, y: worldY };
+  return {
+    x: worldX * zoom + worldContainer.position.x,
+    y: worldY * zoom + worldContainer.position.y,
+  };
+}
+
+/** Screen px -> tile { row, col } in the current grid (may be outside 0-63). */
+export function screenToTile(screenX, screenY) {
+  const world = screenToWorld(screenX, screenY);
+  return { col: Math.floor(world.x / tileSize), row: Math.floor(world.y / tileSize) };
+}
+
+const PixiCamera = {
+  attach, detach, whenReady, setOverlayElement, follow, setZoom, animateZoom,
+  getZoom, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
+  // read-only debug view of the internals (dev console: __pixiCamera.debug())
+  debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame }),
+};
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  window.__pixiCamera = PixiCamera;
+}
+export default PixiCamera;

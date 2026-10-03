@@ -21,6 +21,10 @@ import { loadMasterResources } from '../Utils/TuningManager';
 
 const PERSIST_INTERVAL_MS = 30000;
 const GRID_MAX_COORD = 63;
+// While a key is held the store changes every ~90 ms. React (App.js) and localStorage only
+// need to catch up every so often; the renderer reads the store directly (PixiRendererPCs).
+const REACT_SYNC_THROTTLE_MS = 150;
+const LOCALSTORAGE_MIRROR_DEBOUNCE_MS = 1000;
 
 const DEFAULT_PC_RECORD_FIELDS = {
   hp: 25,
@@ -114,6 +118,10 @@ class GridStatePCManager {
     this.persistInterval = null;
     this.inflightFlush = null;
     this.unloadListenerAdded = false;
+    this.lastReactSync = 0;
+    this.reactSyncTimer = null;
+    this.mirrorTimer = null;
+    this.pendingMirror = null;
   }
 
   registerSetPlayersInGrid(setter) {
@@ -128,8 +136,33 @@ class GridStatePCManager {
   // React mirror
   // ---------------------------------------------------------------------------
 
+  /** Position-only updates come at step rate; coalesce them for React. */
+  syncReactThrottled(gridId) {
+    const now = Date.now();
+    const elapsed = now - this.lastReactSync;
+    if (elapsed >= REACT_SYNC_THROTTLE_MS) {
+      if (this.reactSyncTimer) { clearTimeout(this.reactSyncTimer); this.reactSyncTimer = null; }
+      this.syncReact(gridId);
+      return;
+    }
+    if (this.reactSyncTimer) return;
+    this.reactSyncTimer = setTimeout(() => {
+      this.reactSyncTimer = null;
+      this.syncReact(gridId);
+    }, REACT_SYNC_THROTTLE_MS - elapsed);
+  }
+
+  /** Push any coalesced position update to React now (movement stopped, grid about to change). */
+  flushReactSync() {
+    if (!this.reactSyncTimer) return;
+    clearTimeout(this.reactSyncTimer);
+    this.reactSyncTimer = null;
+    for (const gridId of Object.keys(this.playersInGrid)) this.syncReact(gridId);
+  }
+
   syncReact(gridId, { replace = false } = {}) {
     if (!this.setPlayersInGridReact) return;
+    this.lastReactSync = Date.now();
     const pcs = { ...(this.playersInGrid[gridId]?.pcs || {}) };
     const entry = { pcs, playersInGridLastUpdated: Date.now() };
     this.setPlayersInGridReact((prev) => (
@@ -209,6 +242,12 @@ class GridStatePCManager {
    * current values even when nothing is dirty. Null when there is no record.
    */
   takeDirtyState() {
+    this.flushReactSync();
+    if (this.mirrorTimer) {
+      clearTimeout(this.mirrorTimer); this.mirrorTimer = null;
+      const pending = this.pendingMirror; this.pendingMirror = null;
+      if (pending) this.mirrorToLocalStorage(this.getLocalRecord() || pending.pc, pending.changedKeys);
+    }
     const payload = this.buildStatePayload();
     if (!payload) return null;
     this.dirty = false;
@@ -246,6 +285,20 @@ class GridStatePCManager {
       }
     });
     this.unloadListenerAdded = true;
+  }
+
+  /** Debounced localStorage mirror: one JSON parse/serialise per second at most while moving. */
+  mirrorToLocalStorageDebounced(pc, changedKeys) {
+    const prev = this.pendingMirror;
+    this.pendingMirror = { pc, changedKeys: [...new Set([...(prev?.changedKeys || []), ...changedKeys])] };
+    if (this.mirrorTimer) return;
+    this.mirrorTimer = setTimeout(() => {
+      this.mirrorTimer = null;
+      const pending = this.pendingMirror;
+      this.pendingMirror = null;
+      const latest = this.getLocalRecord() || pending.pc;
+      this.mirrorToLocalStorage(latest, pending.changedKeys);
+    }, LOCALSTORAGE_MIRROR_DEBOUNCE_MS);
   }
 
   /** Merge x/y/hp/maxhp into the localStorage `player` without clobbering other fields. */
@@ -390,9 +443,13 @@ class GridStatePCManager {
     }
 
     const currentData = gridPCs[playerId];
-    const changedKeys = Object.keys(newProperties).filter((key) =>
-      key !== 'lastUpdated' && JSON.stringify(currentData[key]) !== JSON.stringify(newProperties[key])
-    );
+    const changedKeys = Object.keys(newProperties).filter((key) => {
+      if (key === 'lastUpdated') return false;
+      const a = currentData[key];
+      const b = newProperties[key];
+      if (key === 'position') return !a || !b || a.x !== b.x || a.y !== b.y;
+      return a !== b;
+    });
     if (changedKeys.length === 0) return;
 
     const oldPosition = currentData.position;
@@ -416,11 +473,14 @@ class GridStatePCManager {
       animateRemotePC(playerId, oldPosition, newPosition, this.tileSize);
     }
 
-    this.syncReact(gridId);
+    const positionOnly = changedKeys.length === 1 && changedKeys[0] === 'position';
+    if (positionOnly) this.syncReactThrottled(gridId);
+    else this.syncReact(gridId);
 
     if (changedKeys.some((key) => key === 'position' || key === 'hp' || key === 'maxhp')) {
       this.dirty = true;
-      this.mirrorToLocalStorage(updatedPC, changedKeys);
+      if (positionOnly) this.mirrorToLocalStorageDebounced(updatedPC, changedKeys);
+      else this.mirrorToLocalStorage(updatedPC, changedKeys);
       this.startPersistence();
     }
   }

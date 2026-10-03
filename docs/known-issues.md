@@ -63,7 +63,7 @@ Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, 
 - The inactivity effect (`App.js:3121-3195`) adds a `visibilitychange` listener on every run (deps `[currentPlayer, gridId]`) and never removes it.
 - `let isProcessing` (`App.js:2619`) and `let isInitializing` (`App.js:1309`) are render-body variables, so the double-click and double-init guards reset on every render and never block.
 - The timers effect (`App.js:2258-2268`) depends on the whole `currentPlayer`, so every `setCurrentPlayer` fires `GET /api/get-frontier/:id` and recreates the 1 s countdown and phase intervals.
-- `TransitionContext.js:13-14` fades an overlay at `top: 85px; left: 300px`; the board starts at `84px / 240px` (`App.css:383-387`), so a 60 px strip of board never fades.
+- ~~`TransitionContext.js:13-14` fades an overlay at `top: 85px; left: 300px`; the board starts at `84px / 240px`~~ Wrong: the board starts at 300 px (app-container 60 + homestead margin 240); only the top was 1 px off. Fixed 2026-10-03 (84/300).
 - `SoundManager` references `sfx_success.mp3` and `sfx_heal2.mp3`; the files are `sfx_succes.mp3` and `sfx_heal.mp3`.
 - `Modal.js:11` only ever applies `modal-small`; `modal-medium/large/xlarge` in `Modal.css:68-89` are unreachable and every other modal inherits `min-width: 400px`.
 - `isMayor` state (`App.js:401-418`) is set and never read; computing it costs two GETs per location change.

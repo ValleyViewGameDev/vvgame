@@ -4,8 +4,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost, canTravel } from './GameFeatures/Transit/Transit';
 import { prefetchNeighbour } from './Utils/GridPrefetch';
-import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
-import { getPlayerWorldPosition, getScrollPosition } from './Render/PixiRenderer/UnifiedCamera';
+import PixiCamera from './Render/PixiRenderer/PixiCamera';
 
 // Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
@@ -16,57 +15,100 @@ const pressedKeys = new Set();
 // Define modifier keys that should be ignored for movement
 const MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock'];
 
-// Track last movement time for rate limiting
+// Movement speed: one tile per MOVEMENT_STEP_MS while a direction key is held.
+// 90 ms = ~11 tiles/s. Must equal PC_ANIMATION_DURATION_MS (RenderAnimatePosition.js) so
+// steps glide into each other. Tune here only.
+const MOVEMENT_STEP_MS = 90;
+
+const DIRECTIONS = {
+  // Arrow keys
+  ArrowUp: { dx: 0, dy: -1 },
+  ArrowDown: { dx: 0, dy: 1 },
+  ArrowLeft: { dx: -1, dy: 0 },
+  ArrowRight: { dx: 1, dy: 0 },
+  // WASD keys
+  w: { dx: 0, dy: -1 }, W: { dx: 0, dy: -1 },
+  s: { dx: 0, dy: 1 },  S: { dx: 0, dy: 1 },
+  a: { dx: -1, dy: 0 }, A: { dx: -1, dy: 0 },
+  d: { dx: 1, dy: 0 },  D: { dx: 1, dy: 0 },
+  // Numpad cardinal directions (uses event.code)
+  Numpad8: { dx: 0, dy: -1 },
+  Numpad2: { dx: 0, dy: 1 },
+  Numpad4: { dx: -1, dy: 0 },
+  Numpad6: { dx: 1, dy: 0 },
+  // Numpad diagonals (uses event.code)
+  Numpad7: { dx: -1, dy: -1 },
+  Numpad9: { dx: 1, dy: -1 },
+  Numpad1: { dx: -1, dy: 1 },
+  Numpad3: { dx: 1, dy: 1 },
+};
+
+/**
+ * HELD-KEY MOVEMENT LOOP (docs/audits/client-review-2026-10-03.md §2.2, §2.5 D)
+ *
+ * The old code stepped once per `keydown` event, so a held key moved once, then waited out
+ * the OS key-repeat delay, then moved at the OS repeat rate. Now `keydown` records the key and
+ * takes the first step immediately; a requestAnimationFrame loop keeps stepping every
+ * MOVEMENT_STEP_MS for as long as any direction key is down, and stops itself when none is.
+ * App.js refreshes `movementContext` (player, setters, strings) whenever its state changes so
+ * the loop never acts on a stale player.
+ */
+let movementContext = null;
+let loopTimer = null;       // setTimeout handle: timers keep their cadence when rAF is throttled
+let moveInFlight = false;
 let lastMovementTime = 0;
+const LOOP_POLL_MS = 8;
 
-// Pending movement timer - allows collecting simultaneous key presses before processing
-let pendingMovementTimer = null;
-let pendingMovementArgs = null; // Stores movement function arguments for the pending timer
-const SIMULTANEOUS_COLLECT_MS = 20; // Wait this many ms to collect simultaneous key presses
+export function setMovementContext(context) {
+  movementContext = context;
+}
 
-// Movement speed configuration
-// Lower values = faster movement, higher values = slower movement
-// 100ms = ~10 tiles/sec (very fast, arcade-like)
-// 150ms = ~6-7 tiles/sec (recommended default)
-// 200ms = ~5 tiles/sec (slower, more deliberate)
-// 250ms = ~4 tiles/sec (slow, strategic)
-const MOVEMENT_COOLDOWN_MS = 60;
+function hasDirectionPressed() {
+  for (const key of pressedKeys) if (DIRECTIONS[key]) return true;
+  return false;
+}
+
+function stopLoop() {
+  if (loopTimer) clearTimeout(loopTimer);
+  loopTimer = null;
+}
+
+/** Forget every held key and stop stepping (modal opened, zoomed out, grid change, blur). */
+export function stopMovement() {
+  pressedKeys.clear();
+  stopLoop();
+  playersInGridManager.flushReactSync();
+}
+
+function loopTick() {
+  loopTimer = null;
+  if (!hasDirectionPressed()) {
+    // Movement stopped: let React catch up with the final position right away
+    playersInGridManager.flushReactSync();
+    return;
+  }
+  const now = Date.now();
+  const due = MOVEMENT_STEP_MS - (now - lastMovementTime);
+  if (!moveInFlight && movementContext && due <= 0) {
+    lastMovementTime = now;
+    moveInFlight = true;
+    processMovement(movementContext)
+      .catch((err) => { console.error('Error processing movement:', err); })
+      .finally(() => { moveInFlight = false; });
+    loopTimer = setTimeout(loopTick, MOVEMENT_STEP_MS);
+    return;
+  }
+  loopTimer = setTimeout(loopTick, Math.max(LOOP_POLL_MS, due));
+}
 
 // Clear all pressed keys when window loses focus or visibility
 if (typeof window !== 'undefined') {
-  window.addEventListener('blur', () => {
-    pressedKeys.clear();
-    if (pendingMovementTimer) {
-      clearTimeout(pendingMovementTimer);
-      pendingMovementTimer = null;
-    }
-  });
+  window.addEventListener('blur', stopMovement);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopMovement(); });
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      pressedKeys.clear();
-      if (pendingMovementTimer) {
-        clearTimeout(pendingMovementTimer);
-        pendingMovementTimer = null;
-      }
-    }
-  });
-
-  // Debug function to check stuck keys (accessible from console)
-  window.debugMovementKeys = () => {
-    console.log('Currently pressed keys:', Array.from(pressedKeys));
-    return Array.from(pressedKeys);
-  };
-
-  // Emergency reset function (accessible from console)
-  window.resetMovementKeys = () => {
-    pressedKeys.clear();
-    if (pendingMovementTimer) {
-      clearTimeout(pendingMovementTimer);
-      pendingMovementTimer = null;
-    }
-    console.log('Movement keys reset');
-  };
+  // Debug helpers (accessible from console)
+  window.debugMovementKeys = () => Array.from(pressedKeys);
+  window.resetMovementKeys = stopMovement;
 }
 
 // Helper function to handle key press events
@@ -88,65 +130,36 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
     return;
   }
 
-  // Add the key to our set of pressed keys
   // Use event.code for numpad keys (consistent regardless of NumLock state)
   // Use event.key for all other keys (handles WASD, arrows, etc.)
   const isNumpadKey = event.code && event.code.startsWith('Numpad');
   const keyToTrack = isNumpadKey ? event.code : event.key;
 
   // Prevent default browser scrolling for numpad navigation keys (when NumLock is off)
-  // Numpad 1,3,7,9 send Home/End/PageUp/PageDown which scroll the page
   if (isNumpadKey) {
     event.preventDefault();
   }
 
-  pressedKeys.add(keyToTrack);
-
-  // Check cooldown - if in cooldown, just track the key but don't schedule movement
-  const now = Date.now();
-  if (now - lastMovementTime < MOVEMENT_COOLDOWN_MS) {
-    return;
-  }
-
-  // Store the movement arguments for when the timer fires
-  pendingMovementArgs = {
+  // Latest arguments from App.js (also refreshed by setMovementContext on every App state change)
+  setMovementContext({
     currentPlayer, TILE_SIZE, masterResources,
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
     updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext,
     strings, transitionFadeControl
-  };
+  });
 
-  // If there's already a pending timer, let it collect this key too
-  if (pendingMovementTimer) {
-    return;
-  }
+  // OS auto-repeat: the loop already handles held keys
+  if (event.repeat) return;
 
-  // Start a short timer to collect simultaneous key presses
-  pendingMovementTimer = setTimeout(() => {
-    pendingMovementTimer = null;
+  pressedKeys.add(keyToTrack);
+  if (!DIRECTIONS[keyToTrack]) return;
 
-    // Update lastMovementTime before processing
-    lastMovementTime = Date.now();
-
-    const args = pendingMovementArgs;
-    if (args) {
-      // Process movement with all currently pressed keys
-      processMovement(
-        args.currentPlayer, args.TILE_SIZE, args.masterResources,
-        args.setCurrentPlayer, args.setGridId, args.setGrid, args.setTileTypes, args.setResources,
-        args.updateStatus, args.closeAllPanels, args.localPlayerMoveTimestampRef,
-        args.bulkOperationContext, args.strings, args.transitionFadeControl
-      ).catch(err => {
-        console.error('Error processing movement:', err);
-      });
-    }
-  }, SIMULTANEOUS_COLLECT_MS);
+  // First step right now (if the cooldown allows), then the loop takes over
+  if (!loopTimer) loopTick();
 }
 
 // Helper function to handle key release events
 export function handleKeyUp(event) {
-  // Remove the key from our set of pressed keys
-  // Use event.code for numpad keys (consistent regardless of NumLock state)
   const isNumpadKey = event.code && event.code.startsWith('Numpad');
   const keyToRemove = isNumpadKey ? event.code : event.key;
   pressedKeys.delete(keyToRemove);
@@ -158,7 +171,7 @@ export function handleKeyUp(event) {
 }
 
 // Process movement based on all currently pressed keys
-async function processMovement(currentPlayer, TILE_SIZE, masterResources,
+async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   setCurrentPlayer,
   setGridId,
   setGrid,
@@ -169,34 +182,9 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
   strings = null,
-  transitionFadeControl = null)
+  transitionFadeControl = null })
 {
-  const directions = {
-    // Arrow keys
-    ArrowUp: { dx: 0, dy: -1 },
-    ArrowDown: { dx: 0, dy: 1 },
-    ArrowLeft: { dx: -1, dy: 0 },
-    ArrowRight: { dx: 1, dy: 0 },
-    // WASD keys
-    w: { dx: 0, dy: -1 },
-    W: { dx: 0, dy: -1 },
-    s: { dx: 0, dy: 1 },
-    S: { dx: 0, dy: 1 },
-    a: { dx: -1, dy: 0 },
-    A: { dx: -1, dy: 0 },
-    d: { dx: 1, dy: 0 },
-    D: { dx: 1, dy: 0 },
-    // Numpad cardinal directions (uses event.code)
-    Numpad8: { dx: 0, dy: -1 },   // Up (N)
-    Numpad2: { dx: 0, dy: 1 },    // Down (S)
-    Numpad4: { dx: -1, dy: 0 },   // Left (W)
-    Numpad6: { dx: 1, dy: 0 },    // Right (E)
-    // Numpad diagonals (uses event.code)
-    Numpad7: { dx: -1, dy: -1 },  // NW
-    Numpad9: { dx: 1, dy: -1 },   // NE
-    Numpad1: { dx: -1, dy: 1 },   // SW
-    Numpad3: { dx: 1, dy: 1 },    // SE
-  };
+  const directions = DIRECTIONS;
 
   // Calculate combined movement vector from all pressed keys
   let totalDx = 0;
@@ -225,7 +213,11 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
   const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
-  if (!playersInGrid || !playersInGrid[playerId]) return;
+  if (!playersInGrid || !playersInGrid[playerId]) {
+    // Mid grid-change (the record lives on another grid now): stop until the next key press
+    stopMovement();
+    return;
+  }
 
   const currentPosition = playersInGrid[playerId].position;
   const targetX = Math.round(currentPosition.x + totalDx);
@@ -236,6 +228,9 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
     console.error('masterResources is not an array:', masterResources);
     return;
   }
+  // Edge crossings (isValidMove triggers them) must not keep stepping while the grid changes
+  if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) stopMovement();
+
   if (!(await isValidMove(targetX, targetY, masterResources,
     currentPlayer,
     setCurrentPlayer,
@@ -250,7 +245,6 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
     strings,
     transitionFadeControl
   ))) {
-    console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
 
@@ -268,10 +262,7 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   });
 
   maybePrefetchAcrossEdge(currentPlayer, playerId, finalPosition);
-
-  // Note: Camera tethering during animation is not yet implemented for the unified world model.
-  // The camera will jump to the final position after the animation completes.
-  // For now, we don't call centerCameraOnPlayer here to avoid the jump during animation.
+  // The camera follows the animated position from PixiRendererPCs (PixiCamera.follow).
 }
 
 // Prefetch the neighbour's bundle when the player is this close to an edge
@@ -344,8 +335,6 @@ async function isValidMove(targetX, targetY, masterResources,
       return false;
     }
 
-    console.log(`📦 Attempting directional travel via: ${direction}`);
-
     // No fade here: changePlayerLocation starts it (or skips it when the
     // neighbour's bundle is prefetched).
     const skills = currentPlayer.skills;
@@ -374,210 +363,23 @@ async function isValidMove(targetX, targetY, masterResources,
   // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
   const canMove = await isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, currentPlayer, updateStatus, strings, TILE_SIZE);
   if (!canMove) {
-    console.warn(`⛔ Movement blocked: Tile (${targetX}, ${targetY}) is not passable.`);
   }
   return canMove;
 }
 
 
-export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale = 1, retryCount = 0, gridPosition = null, settlementPosition = null, instant = false) {
-  // Return a Promise so callers can await until camera is actually centered
-  return new Promise((resolve) => {
-    const gameContainer = document.querySelector(".homestead");
-    if (!gameContainer) {
-      // Container not ready yet, retry after a short delay (Safari fix)
-      console.log(`📷 [CAMERA] No container found, retrying... (attempt ${retryCount + 1})`);
-      if (retryCount < 5) {
-        requestAnimationFrame(() => {
-          centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1, gridPosition, settlementPosition, instant).then(resolve);
-        });
-      } else {
-        console.warn('⚠️ [CAMERA] Container not found after 5 retries');
-        resolve(false);
-      }
-      return;
-    }
-
-    // Guard against undefined position during network delays
-    if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-      console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
-      resolve(false);
-      return;
-    }
-
-    // UNIFIED WORLD MODEL: Use getPlayerWorldPosition and getScrollPosition
-    // for consistent camera centering that accounts for grid/settlement offsets
-    const gridPos = gridPosition || { row: 0, col: 0 };
-    const settlementPos = settlementPosition || { row: 0, col: 0 };
-
-    const worldPos = getPlayerWorldPosition(position, gridPos, settlementPos);
-    const scroll = getScrollPosition(worldPos, zoomScale, TILE_SIZE, PLAYER_FIXED_POSITION);
-
-    // Clamp to valid scroll bounds (no negative scroll, no scroll past content)
-    const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-    const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
-
-    // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-    if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scroll.x > 0 && retryCount < 10) {
-      console.log(`📷 [CAMERA] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
-      requestAnimationFrame(() => {
-        centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount + 1, gridPosition, settlementPosition, instant).then(resolve);
-      });
-      return;
-    }
-
-    const clampedX = Math.max(0, Math.min(scroll.x, maxScrollLeft));
-    const clampedY = Math.max(0, Math.min(scroll.y, maxScrollTop));
-
-    // Use instant scroll for grid transitions (no animation), smooth for regular movement
-    if (instant) {
-      gameContainer.scrollLeft = clampedX;
-      gameContainer.scrollTop = clampedY;
-      console.log(`📷 [CAMERA] Scroll set instantly to (${clampedX}, ${clampedY})`);
-    } else {
-      gameContainer.scrollTo({
-        left: clampedX,
-        top: clampedY,
-        behavior: "smooth",
-      });
-    }
-
-    resolve(true);
-  });
-}
-
-
-export function centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
-  const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) {
-    // Container not ready yet, retry after a short delay (Safari fix)
-    console.log(`📷 [CAMERA FAST] No container found, retrying... (attempt ${retryCount + 1})`);
-    if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale, retryCount + 1));
-    }
-    return;
-  }
-
-  // Guard against undefined position during network delays
-  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-    console.warn('⚠️ [CAMERA FAST] Cannot center camera - invalid position:', position);
-    return;
-  }
-
-  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
-  // This matches the formula used in App.js scroll effect (getScrollPosition)
-  const playerWorldX = position.x * TILE_SIZE * zoomScale;
-  const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
-  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
-
-  // Clamp to valid scroll bounds
-  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
-
-  // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
-  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
-    console.log(`📷 [CAMERA FAST] Container not ready (maxScroll=0), retrying... (attempt ${retryCount + 1})`);
-    requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, zoomScale, retryCount + 1));
-    return;
-  }
-
-  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
-
-  gameContainer.scrollTo({
-    left: clampedX,
-    top: clampedY,
-  });
-}
-
 /**
- * Center camera for settlement zoom level (512×512 tile world = 8×8 grids)
- * Position should be in settlement coordinates (gridCol * 64 + playerX, gridRow * 64 + playerY)
+ * Put the camera on the player immediately (grid arrival, panel "go to" buttons).
+ * The camera itself lives in Render/PixiRenderer/PixiCamera.js; the extra arguments are
+ * accepted for the existing call sites and ignored.
  */
-export function centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
-  const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) {
-    if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale, retryCount + 1));
-    }
-    return;
-  }
-
-  // Guard against undefined position
+export function centerCameraOnPlayer(position /* , TILE_SIZE, zoomScale, retryCount, gridPosition, settlementPosition, instant */) {
   if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-    console.warn('⚠️ [CAMERA SETTLEMENT] Cannot center camera - invalid position:', position);
-    return;
+    console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
+    return Promise.resolve(false);
   }
-
-  // UNIFIED WORLD MODEL: Use PLAYER_FIXED_POSITION for consistent camera centering
-  // This matches the formula used in App.js scroll effect (getScrollPosition)
-  const playerWorldX = position.x * TILE_SIZE * zoomScale;
-  const playerWorldY = position.y * TILE_SIZE * zoomScale;
-  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
-  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
-
-  // Clamp to valid scroll bounds
-  const maxScrollLeft = Math.max(0, gameContainer.scrollWidth - gameContainer.clientWidth);
-  const maxScrollTop = Math.max(0, gameContainer.scrollHeight - gameContainer.clientHeight);
-
-  // If container hasn't laid out yet, retry
-  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && scrollX > 0 && retryCount < 10) {
-    requestAnimationFrame(() => centerCameraOnPlayerSettlement(position, TILE_SIZE, zoomScale, retryCount + 1));
-    return;
-  }
-
-  const clampedX = Math.max(0, Math.min(scrollX, maxScrollLeft));
-  const clampedY = Math.max(0, Math.min(scrollY, maxScrollTop));
-
-  gameContainer.scrollTo({
-    left: clampedX,
-    top: clampedY,
-  });
-}
-
-/**
- * Fixed Player Position Camera Model for Frontier Zoom
- *
- * CONCEPT: The player is ALWAYS at pixel position (200, 200) within the .homestead container.
- * The world scrolls to maintain this position, regardless of where the player is in the frontier.
- *
- * Position should be in frontier coordinates:
- * (settlementCol * 512 + gridCol * 64 + playerX, settlementRow * 512 + gridRow * 64 + playerY)
- *
- * NO CLAMPING: We allow unconstrained scrolling. Spillover content (padding settlements)
- * uses negative positioning to extend beyond the 8×8 frontier, ensuring there's always
- * visible content at the player's fixed screen position.
- */
-export function centerCameraOnPlayerFrontier(position, TILE_SIZE, zoomScale = 1, retryCount = 0) {
-  const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) {
-    if (retryCount < 5) {
-      requestAnimationFrame(() => centerCameraOnPlayerFrontier(position, TILE_SIZE, zoomScale, retryCount + 1));
-    }
-    return;
-  }
-
-  // Guard against undefined position
-  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-    console.warn('⚠️ [CAMERA FRONTIER] Cannot center camera - invalid position:', position);
-    return;
-  }
-
-  // Player's world position in scaled pixels
-  const playerWorldX = position.x * TILE_SIZE * zoomScale;
-  const playerWorldY = position.y * TILE_SIZE * zoomScale;
-
-  // Scroll = player world position - fixed screen position (from CameraConstants)
-  // NO padding offset needed - spillover uses negative positioning
-  const scrollX = playerWorldX - PLAYER_FIXED_POSITION.x;
-  const scrollY = playerWorldY - PLAYER_FIXED_POSITION.y;
-
-  // NO CLAMPING - spillover content handles edge cases
-  gameContainer.scrollTo({
-    left: scrollX,
-    top: scrollY,
-  });
+  PixiCamera.follow(position.x, position.y);
+  return Promise.resolve(true);
 }
 
 export async function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null, updateStatus = null, strings = null, TILE_SIZE = null) {

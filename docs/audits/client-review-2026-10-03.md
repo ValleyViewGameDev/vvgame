@@ -161,8 +161,8 @@ own 1 s countdown over `localStorage.timers` while `App` keeps `countdowns` for 
   (deps `[currentPlayer, gridId]`) and never removes it.
 - `let isProcessing` at `App.js:2619` is a render-body variable, so the double-click guard on
   tile clicks resets every render and never blocks; `let isInitializing` at `1309` is the same.
-- `TransitionContext.js:13-14` fades an overlay at `top: 85px; left: 300px` while the board starts
-  at `84px / 240px` (`App.css:383-387`), leaving a 60 px strip of board unfaded.
+- `TransitionContext.js:13-14` fades an overlay at `top: 85px`; the board starts at `84px` (the
+  `left: 300px` is right: app-container 60 + homestead margin 240). One pixel; fixed 2026-10-03.
 - `SoundManager` references `sfx_success.mp3` and `sfx_heal2.mp3`; the files on disk are
   `sfx_succes.mp3` and `sfx_heal.mp3`.
 - `Modal.js:11` only ever applies `modal-small`, so `modal-medium/large/xlarge` in `Modal.css:68-89`
@@ -381,7 +381,7 @@ Keep PixiJS 7 (move to plain `pixi.js`). Rebuild the four things around it, in t
 - The SVG sources belong in the editor's asset pipeline rather than hand-copied files; six are
   already orphaned on disk.
 
-**B. Camera: viewport-sized canvas, Pixi owns the camera.**
+**B. Camera: viewport-sized canvas, Pixi owns the camera.** *(Built 2026-10-03: `PixiCamera.js`; previews stay HTML inside the camera-mirrored overlay for now.)*
 - Size the canvas to the visible game area, keep `worldContainer` in Pixi and move it to follow
   the player (`position = screenCentre - playerPixel × scale`). Zoom becomes `worldContainer.scale`
   with the same lerp `App.js:555-739` runs on the DOM today, minus the writes to `scrollLeft`, the
@@ -406,7 +406,7 @@ Keep PixiJS 7 (move to plain `pixi.js`). Rebuild the four things around it, in t
 - `antialias: false`, `resolution: Math.min(devicePixelRatio, 2)`,
   `powerPreference: 'high-performance'` on mobile.
 
-**D. Input: a movement loop and touch.**
+**D. Input: a movement loop and touch.** *(Movement loop built 2026-10-03, 90 ms per tile, timer-driven; touch still open.)*
 - Per-frame held-key loop (first step immediate, then a tuned repeat), camera inside Pixi, no
   `App` commit per step, localStorage mirror debounced.
 - Touch: tap-to-move with a short A* over the passable grid (the `isTileValidForPlayer` rules

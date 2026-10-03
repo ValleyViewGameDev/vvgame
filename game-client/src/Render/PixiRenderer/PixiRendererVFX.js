@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
 import { getDerivedRange } from '../../Utils/worldHelpers';
 import { renderPositions } from '../../PlayerMovement';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 
 /**
  * PixiRendererVFX - Visual effects layer for the PixiJS renderer
@@ -165,6 +166,11 @@ const PixiRendererVFX = ({
     // Check for interpolated animation position (PCs use renderPositions)
     if (playerId && renderPositions[playerId]) {
       return renderPositions[playerId];
+    }
+    // The store is the live position (React's PC record is throttled while moving)
+    const live = playersInGridManager.getLocalRecord();
+    if (live && String(live.playerId) === String(playerId) && live.position) {
+      return live.position;
     }
     // Fall back to grid position
     return pc.position || { x: pc.x, y: pc.y };

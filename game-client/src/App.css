@@ -379,7 +379,7 @@ body {
 /* GAME BOARD */
 
 .homestead {
-  overflow: auto;
+  overflow: hidden; /* the camera is PixiCamera.js, not the scroll position */
   margin-left: 240px;
   width: calc(100% - 300px); /* Account for total left margin */
   height: calc(100vh - 84px); /* Extend to bottom of viewport (header 60px + status bar 24px = 84px) */
@@ -387,9 +387,8 @@ body {
   top: 84px; /* Align directly below status bar (60px header + 24px status bar) */
   z-index: 100;
   background-color: var(--settlement-gridline-color, #82bb4dff); /* Match settlement grid background */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
-  overscroll-behavior: contain; /* Prevent scroll chaining and reduce bounce effect */
-  touch-action: pan-x pan-y; /* Enable smooth trackpad scrolling on Windows */
+  overscroll-behavior: contain;
+  touch-action: none; /* gestures belong to the game, not the page */
 }
 
 

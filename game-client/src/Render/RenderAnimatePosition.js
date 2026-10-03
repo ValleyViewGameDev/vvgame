@@ -1,11 +1,9 @@
 import { renderPositions } from '../PlayerMovement';
 
-// Animation duration in milliseconds for PC movement
-// IMPORTANT: This should be <= MOVEMENT_COOLDOWN_MS (60ms in PlayerMovement.js)
-// to ensure animations complete before the next movement can start.
-// If duration > cooldown, animations will chain (new one starts from current position)
-// which works but can feel slightly choppy at high speeds.
-const PC_ANIMATION_DURATION_MS = 60;
+// Animation duration in milliseconds for one PC step.
+// Equal to MOVEMENT_STEP_MS in PlayerMovement.js so a held key glides tile to tile with no
+// pause and no overlap; the movement loop starts the next step as this one lands.
+const PC_ANIMATION_DURATION_MS = 90;
 
 // Track active animations to handle interruption/chaining
 // Maps playerId -> { animationId, targetPos }
@@ -63,16 +61,12 @@ export function animateRemotePC(playerId, from, to, TILE_SIZE, durationMs = PC_A
   // Set initial position immediately (prevents flash to wrong position)
   renderPositions[playerId] = { x: actualStartX, y: actualStartY };
 
-  // Debug logging for animation tracking
-  console.log(`🎬 Animation ${thisAnimationId} for ${playerId}: (${actualStartX.toFixed(2)}, ${actualStartY.toFixed(2)}) → (${endX}, ${endY}), duration=${duration}ms`);
-
   const startTime = performance.now();
 
   function animate(currentTime) {
     // Check if this animation has been superseded by a newer one
     if (activeAnimations[playerId]?.animationId !== thisAnimationId) {
       // This animation was interrupted, let the newer one handle things
-      console.log(`🛑 Animation ${thisAnimationId} interrupted by newer animation`);
       return;
     }
 
@@ -100,7 +94,6 @@ export function animateRemotePC(playerId, from, to, TILE_SIZE, durationMs = PC_A
       // Animation complete
       // Set exact final position to prevent float rounding errors
       renderPositions[playerId] = { x: endX, y: endY };
-      console.log(`✅ Animation ${thisAnimationId} complete at (${endX}, ${endY})`);
 
       // Clean up animation tracking
       if (activeAnimations[playerId]?.animationId === thisAnimationId) {

@@ -1,3 +1,5 @@
+import PixiCamera from '../Render/PixiRenderer/PixiCamera';
+
 // Configure animation durations (in milliseconds)
 const VFX_TIMING = {
     COLLECT_DURATION: 500,      // Doober collection poof animation
@@ -51,11 +53,10 @@ export const calculateTileCenter = (x, y, TILE_SIZE) => {
 
 export const createCollectEffect = (x, y, TILE_SIZE) => {
     // Find the PixiJS containers - same approach as createPlantGrowEffect
-    const pixiContainer = document.querySelector('.pixi-container');
     const worldContainer = document.querySelector('.pixi-world-container');
 
-    if (!pixiContainer || !worldContainer) {
-        console.warn('🎬 VFX: PixiJS containers not found for collect effect');
+    if (!worldContainer) {
+        console.warn('🎬 VFX: world overlay not found for collect effect');
         return;
     }
 
@@ -71,12 +72,11 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
     recentEffects.set(effectKey, now);
     setTimeout(() => recentEffects.delete(effectKey), 1000);
 
-    // Get the grid offset from pixi-container (same as createPlantGrowEffect)
-    const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
-    const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
-
-    // Calculate world center position for the tile
-    const scaledTileSize = TILE_SIZE;
+    // The overlay is CSS-transformed by PixiCamera to match the Pixi world, so everything
+    // here is in BASE px with the current grid at the origin (the TILE_SIZE argument is ignored)
+    const gridOffsetX = 0;
+    const gridOffsetY = 0;
+    const scaledTileSize = PixiCamera.getTileSize();
     const centerX = gridOffsetX + (x * scaledTileSize) + (scaledTileSize / 2);
     const centerY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize / 2);
 
@@ -167,11 +167,10 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
  
 export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => {
     // Find the PixiJS containers - same approach as createCollectEffect
-    const pixiContainer = document.querySelector('.pixi-container');
     const worldContainer = document.querySelector('.pixi-world-container');
 
-    if (!pixiContainer || !worldContainer) {
-        console.warn('🎬 VFX: PixiJS containers not found for source conversion effect');
+    if (!worldContainer) {
+        console.warn('🎬 VFX: world overlay not found for source conversion effect');
         return;
     }
 
@@ -187,12 +186,10 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
                        isPickaxe ? ['🩶', '🪨', '▪️', '◾'] :
                        ['💥', '◾', '▫️'];
 
-    // Get the grid offset from pixi-container
-    const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
-    const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
-
-    // Calculate world center position for the tile
-    const scaledTileSize = TILE_SIZE;
+    // BASE px inside the camera-mirrored overlay; current grid at the origin
+    const gridOffsetX = 0;
+    const gridOffsetY = 0;
+    const scaledTileSize = PixiCamera.getTileSize();
     const centerX = gridOffsetX + (x * scaledTileSize) + (scaledTileSize / 2);
     const centerY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize / 2);
 
@@ -317,11 +314,10 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
  */
 export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filename = null) => {
     // Find the PixiJS container - get its position to calculate world coordinates
-    const pixiContainer = document.querySelector('.pixi-container');
     const worldContainer = document.querySelector('.pixi-world-container');
 
-    if (!pixiContainer || !worldContainer) {
-        console.warn('🎬 VFX: PixiJS containers not found');
+    if (!worldContainer) {
+        console.warn('🎬 VFX: world overlay not found');
         return;
     }
 
@@ -338,16 +334,11 @@ export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filena
         forceResourceRender();
     }
 
-    // Get the .pixi-container position (this is where the current grid is in world space)
-    // The container's top/left style values give us the grid's world offset
-    const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
-    const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
-
-    // TILE_SIZE passed from App.js is already the scaled tile size (activeTileSize)
-    // e.g., at 'close' zoom it's 40, at 'farish' it's 25
-    // We use this directly for positioning since gridOffset is in scaled world coordinates
-    // and TILE_SIZE already represents the visual size at the current zoom level
-    const scaledTileSize = TILE_SIZE;
+    // BASE px inside the camera-mirrored overlay (PixiCamera.js); current grid at the origin.
+    // The TILE_SIZE argument (App's zoomed tile size) is ignored: the overlay is scaled by CSS.
+    const gridOffsetX = 0;
+    const gridOffsetY = 0;
+    const scaledTileSize = PixiCamera.getTileSize();
     const finalFontSize = scaledTileSize * 0.7;
 
     // Create the growing element (SVG image or emoji)

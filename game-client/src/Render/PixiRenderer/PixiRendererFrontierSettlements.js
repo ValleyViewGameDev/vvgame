@@ -164,12 +164,12 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
 /**
  * Settlement cell component - renders one settlement as an 8×8 mini-grid
  */
-const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, settlementRow, settlementCol, onGridClick, isRelocating = false }) => {
+const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, screenScale = zoomScale, settlementRow, settlementCol, onGridClick, isRelocating = false }) => {
   const scaledSize = size * zoomScale;
   const bgColor = getSettlementBackgroundColor(settlement?.settlementType);
-  // Font size for emojis in the 8x8 mini-grid (each cell is scaledSize/8)
-  const cellSize = scaledSize / 8;
-  const fontSize = Math.max(6, cellSize * 0.7);
+  // Font size for emojis in the 8x8 mini-grid: chosen in on-screen px, expressed in base px
+  const screenCell = (size * screenScale) / 8;
+  const fontSize = Math.max(6, screenCell * 0.7) / screenScale;
 
   return (
     <div
@@ -180,7 +180,7 @@ const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, cu
         width: scaledSize,
         height: scaledSize,
         backgroundColor: bgColor,
-        border: `0.5px solid ${GRASS_BORDER}`,
+        border: `${0.5 / screenScale}px solid ${GRASS_BORDER}`,
         boxSizing: 'border-box',
         display: 'grid',
         gridTemplateColumns: 'repeat(8, 1fr)',
@@ -198,7 +198,7 @@ const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, cu
 /**
  * Glowing outline for the current settlement (where the player is located)
  */
-const CurrentSettlementGlow = ({ x, y, size, zoomScale }) => (
+const CurrentSettlementGlow = ({ x, y, size, zoomScale, screenScale = zoomScale }) => (
   <div
     style={{
       position: 'absolute',
@@ -206,9 +206,9 @@ const CurrentSettlementGlow = ({ x, y, size, zoomScale }) => (
       top: y * zoomScale,
       width: size * zoomScale,
       height: size * zoomScale,
-      border: `4px solid ${CURRENT_SETTLEMENT_GLOW}`,
+      border: `${4 / screenScale}px solid ${CURRENT_SETTLEMENT_GLOW}`,
       boxSizing: 'border-box',
-      boxShadow: `0 0 20px ${CURRENT_SETTLEMENT_GLOW}, 0 0 40px ${CURRENT_SETTLEMENT_GLOW}, inset 0 0 20px rgba(255, 215, 0, 0.3)`,
+      boxShadow: `0 0 ${20 / screenScale}px ${CURRENT_SETTLEMENT_GLOW}, 0 0 ${40 / screenScale}px ${CURRENT_SETTLEMENT_GLOW}, inset 0 0 ${20 / screenScale}px rgba(255, 215, 0, 0.3)`,
       pointerEvents: 'none',
       zIndex: 10,
     }}
@@ -222,9 +222,10 @@ const PixiRendererFrontierSettlements = ({
   frontierSettlementGrids,     // Map of settlementId → grid data
   currentPlayer,               // For determining player location (includes gridsVisited for visited check)
   settlementPixelSize,         // Size of one settlement in pixels (before zoomScale)
-  zoomScale = 1,               // CSS zoom scale for frontier view
+  zoomScale = 1,               // Layout scale (1 inside the camera-mirrored overlay)
+  screenScale = zoomScale,     // Real on-screen zoom (for text/border sizing)
   onGridClick,                 // Callback when a grid cell is clicked during relocation (gridData, gridRow, gridCol, settlementRow, settlementCol)
-  paddingOffset = 0,           // Offset from parent's padding (in pixels, already scaled)
+  containerOffset = { x: 0, y: 0 }, // Where the padded frontier's top-left sits, in layout px (current grid at the origin)
   isRelocating = false,        // true when in relocation mode (enables clicking on grid cells)
 }) => {
   const currentRow = currentSettlementPosition?.row ?? 3;
@@ -278,7 +279,7 @@ const PixiRendererFrontierSettlements = ({
                 width: settlementPixelSize * zoomScale,
                 height: settlementPixelSize * zoomScale,
                 backgroundColor: SPILLOVER_COLOR,
-                border: `0.5px solid ${GRASS_BORDER}`,
+                border: `${0.5 / screenScale}px solid ${GRASS_BORDER}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -301,7 +302,7 @@ const PixiRendererFrontierSettlements = ({
                 width: settlementPixelSize * zoomScale,
                 height: settlementPixelSize * zoomScale,
                 backgroundColor: SPILLOVER_COLOR,
-                border: `0.5px solid ${GRASS_BORDER}`,
+                border: `${0.5 / screenScale}px solid ${GRASS_BORDER}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -322,6 +323,7 @@ const PixiRendererFrontierSettlements = ({
             settlementGridData={settlementGridData}
             currentPlayer={currentPlayer}
             zoomScale={zoomScale}
+            screenScale={screenScale}
             settlementRow={row}
             settlementCol={col}
             onGridClick={onGridClick}
@@ -333,7 +335,7 @@ const PixiRendererFrontierSettlements = ({
 
     // Renders 8×8 settlements plus spillover padding for fixed player position camera
     return cells;
-  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, isRelocating, onGridClick]);
+  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, screenScale, isRelocating, onGridClick]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders
@@ -353,8 +355,8 @@ const PixiRendererFrontierSettlements = ({
     <div
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
+        top: containerOffset.y,
+        left: containerOffset.x,
         width: fullFrontierSize,
         height: fullFrontierSize,
         zIndex: 0,
@@ -371,6 +373,7 @@ const PixiRendererFrontierSettlements = ({
         y={currentSettlementPixelY}
         size={settlementPixelSize}
         zoomScale={zoomScale}
+        screenScale={screenScale}
       />
     </div>
   );

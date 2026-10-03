@@ -1,6 +1,8 @@
 import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions } from '../../PlayerMovement';
+import playersInGridManager from '../../GridState/PlayersInGrid';
+import PixiCamera from './PixiCamera';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -309,7 +311,11 @@ const PixiRendererPCs = ({
     if (playerId && renderPositions[playerId]) {
       return renderPositions[playerId];
     }
-    // Fall back to the actual position
+    // The store is the live position: React's copy of the PC record is throttled while moving
+    const live = playersInGridManager.getLocalRecord();
+    if (live && String(live.playerId) === String(playerId) && live.position) {
+      return live.position;
+    }
     return pc.position;
   }, []);
 
@@ -352,6 +358,9 @@ const PixiRendererPCs = ({
     // Calculate position
     const xPos = gridOffset.x + posX * TILE_SIZE + TILE_SIZE / 2;
     const yPos = gridOffset.y + posY * TILE_SIZE + TILE_SIZE / 2;
+
+    // The camera keeps the local player at the fixed screen point (PixiCamera.js)
+    PixiCamera.follow(posX, posY);
 
     const cached = svgFilename ? (atlasTextureCache.get(svgFilename) || svgTextureCache.get(svgFilename)) : null;
     const texture = cached && cached.valid !== false && !cached.baseTexture?.destroyed ? cached : null;

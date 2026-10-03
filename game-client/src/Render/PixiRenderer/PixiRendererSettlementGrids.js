@@ -123,16 +123,23 @@ export function clearGridSnapshotCache() {
  * At frontier zoom: no border (cells are too small for visible borders)
  * At settlement zoom: thin border (0.5px)
  */
-const getGridBorder = (borderColor, isFrontierZoom) => {
+const getGridBorder = (borderColor, isFrontierZoom, screenScale = 1) => {
   if (isFrontierZoom) return 'none';
-  return `0.5px solid ${borderColor}`;
+  return `${0.5 / screenScale}px solid ${borderColor}`;
 };
+
+/**
+ * LAYOUT MODEL: this component now lives inside the `.pixi-world-container` overlay, which
+ * PixiCamera CSS-transforms to match the Pixi world. Positions and sizes are BASE px
+ * (`zoomScale` is passed as 1); `screenScale` is the real on-screen zoom, used only to keep
+ * text, borders and glows the same on-screen size they had before (base px = screen px / scale).
+ */
 
 /**
  * Empty grid cell component
  * For unoccupied homesteads, uses dirt background and bold "Unoccupied" text
  */
-const EmptyGridCell = ({ x, y, size, label, zoomScale, isUnoccupiedHomestead = false, strings, isFrontierZoom = false, onClick, isClickable = false }) => {
+const EmptyGridCell = ({ x, y, size, label, zoomScale, screenScale = zoomScale, isUnoccupiedHomestead = false, strings, isFrontierZoom = false, onClick, isClickable = false }) => {
   const bgColor = isUnoccupiedHomestead ? HOMESTEAD_UNOCCUPIED_BG : GRASS_GREEN;
   const borderColor = isUnoccupiedHomestead ? HOMESTEAD_UNOCCUPIED_BORDER : GRASS_BORDER;
   const textColor = isUnoccupiedHomestead ? '#ffffff' : '#3d5c1f';
@@ -149,7 +156,7 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, isUnoccupiedHomestead = f
         width: size * zoomScale,
         height: size * zoomScale,
         backgroundColor: bgColor,
-        border: getGridBorder(borderColor, isFrontierZoom),
+        border: getGridBorder(borderColor, isFrontierZoom, screenScale),
         boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
@@ -161,10 +168,10 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, isUnoccupiedHomestead = f
       {displayLabel && (
         <span style={{
           color: textColor,
-          fontSize: Math.max(8, size * zoomScale * 0.08),
+          fontSize: Math.max(8, size * screenScale * 0.08) / screenScale,
           fontFamily: 'sans-serif',
           fontWeight: isUnoccupiedHomestead ? 'bold' : 'normal',
-          textShadow: isUnoccupiedHomestead ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
+          textShadow: isUnoccupiedHomestead ? `${1 / screenScale}px ${1 / screenScale}px ${2 / screenScale}px rgba(0, 0, 0, 0.7)` : 'none',
         }}>
           {displayLabel}
         </span>
@@ -176,7 +183,7 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, isUnoccupiedHomestead = f
 /**
  * Glowing outline for the current grid (where the player is located)
  */
-const CurrentGridGlow = ({ x, y, size, zoomScale }) => (
+const CurrentGridGlow = ({ x, y, size, zoomScale, screenScale = zoomScale }) => (
   <div
     style={{
       position: 'absolute',
@@ -184,9 +191,9 @@ const CurrentGridGlow = ({ x, y, size, zoomScale }) => (
       top: y * zoomScale,
       width: size * zoomScale,
       height: size * zoomScale,
-      border: `4px solid ${CURRENT_GRID_GLOW}`,
+      border: `${4 / screenScale}px solid ${CURRENT_GRID_GLOW}`,
       boxSizing: 'border-box',
-      boxShadow: `0 0 20px ${CURRENT_GRID_GLOW}, 0 0 40px ${CURRENT_GRID_GLOW}, inset 0 0 20px rgba(255, 215, 0, 0.3)`,
+      boxShadow: `0 0 ${20 / screenScale}px ${CURRENT_GRID_GLOW}, 0 0 ${40 / screenScale}px ${CURRENT_GRID_GLOW}, inset 0 0 ${20 / screenScale}px rgba(255, 215, 0, 0.3)`,
       pointerEvents: 'none',
       zIndex: 10,
     }}
@@ -196,7 +203,7 @@ const CurrentGridGlow = ({ x, y, size, zoomScale }) => (
 /**
  * Grid cell with tile snapshot
  */
-const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, isFrontierZoom = false, onClick, isClickable = false }) => (
+const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, screenScale = zoomScale, isFrontierZoom = false, onClick, isClickable = false }) => (
   <div
     onClick={isClickable ? onClick : undefined}
     style={{
@@ -205,7 +212,7 @@ const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, isFrontierZoom = fal
       top: y * zoomScale,
       width: size * zoomScale,
       height: size * zoomScale,
-      border: getGridBorder(GRASS_BORDER, isFrontierZoom),
+      border: getGridBorder(GRASS_BORDER, isFrontierZoom, screenScale),
       boxSizing: 'border-box',
       backgroundImage: `url(${dataUrl})`,
       backgroundSize: 'cover',
@@ -225,12 +232,14 @@ const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, isFrontierZoom = fal
  * - 💰 netWorth "(net worth)"
  * - 📥 Trade: [trade stall items]
  */
-const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFrontierZoom = false, onClick, isClickable = false }) => {
+const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomScale, masterResources, isFrontierZoom = false, onClick, isClickable = false }) => {
   const scaledSize = size * zoomScale;
+  const screenSize = size * screenScale;          // on-screen px, for choosing text sizes
+  const px = (screenPx) => screenPx / screenScale; // on-screen px -> base px
 
   // At frontier zoom, show house emoji instead of text (text is too small to read)
   if (isFrontierZoom) {
-    const fontSize = Math.max(7, scaledSize * 0.5 + 1);
+    const fontSize = px(Math.max(7, screenSize * 0.5 + 1));
     return (
       <div
         onClick={isClickable ? onClick : undefined}
@@ -241,7 +250,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
           width: scaledSize,
           height: scaledSize,
           backgroundColor: HOMESTEAD_BG,
-          border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom),
+          border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, screenScale),
           boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
@@ -256,9 +265,9 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
     );
   }
 
-  const fontSize = Math.max(9, scaledSize * 0.055 + 4);
-  const smallFontSize = Math.max(8, scaledSize * 0.045 + 4);
-  const emojiSize = Math.max(10, scaledSize * 0.065 + 4);
+  const fontSize = px(Math.max(9, screenSize * 0.055 + 4));
+  const smallFontSize = px(Math.max(8, screenSize * 0.045 + 4));
+  const emojiSize = px(Math.max(10, screenSize * 0.065 + 4));
 
   // Get role and check if Mayor
   const role = owner.role || owner.settlement?.role || 'Citizen';
@@ -281,16 +290,16 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
   }
 
   // Common text shadow for readability
-  const textShadow = '1px 1px 1px rgba(0, 0, 0, 0.7)';
+  const textShadow = `${px(1)}px ${px(1)}px ${px(1)}px rgba(0, 0, 0, 0.7)`;
 
   // Row style with slightly more line spacing
   const rowStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: 2,
+    gap: px(2),
     lineHeight: 1.3,
     whiteSpace: 'nowrap',
-    marginBottom: 2,
+    marginBottom: px(2),
   };
 
   return (
@@ -303,9 +312,9 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
         width: scaledSize,
         height: scaledSize,
         backgroundColor: HOMESTEAD_BG,
-        border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom),
+        border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, screenScale),
         boxSizing: 'border-box',
-        padding: 3,
+        padding: px(3),
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
@@ -321,7 +330,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
         color: '#333',
         fontWeight: 'bold',
         lineHeight: 1.3,
-        marginBottom: 2,
+        marginBottom: px(2),
       }}>
         Homestead owned by:
       </div>
@@ -370,7 +379,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
         color: '#333',
         fontWeight: 'bold',
         lineHeight: 1.3,
-        marginBottom: 2,
+        marginBottom: px(2),
       }}>
         {netWorth.toLocaleString()}
       </div>
@@ -381,7 +390,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
         fontSize: smallFontSize,
         fontFamily: 'sans-serif',
         color: '#333',
-        marginTop: 2,
+        marginTop: px(2),
       }}>
         <span style={{ fontSize: emojiSize }}>📥</span>
         <span>&nbsp;Trade:</span>
@@ -392,7 +401,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, masterResources, isFr
         <div style={{
           fontSize: emojiSize,
           display: 'flex',
-          gap: 2,
+          gap: px(2),
           flexWrap: 'wrap',
         }}>
           {tradeStallItems.map((symbol, idx) => (
@@ -412,7 +421,8 @@ const PixiRendererSettlementGrids = ({
   visitedGridTiles,            // Map of gridCoord → base64 encoded tiles
   players,                     // Map of playerId → player data
   TILE_SIZE,                   // Tile size in pixels
-  zoomScale = 1,               // CSS zoom scale for settlement view
+  zoomScale = 1,               // Layout scale (1 inside the camera-mirrored overlay)
+  screenScale = zoomScale,     // Real on-screen zoom (for text/border sizing)
   masterResources,             // Master resources list (for trade stall symbols)
   onGridClick,                 // Callback when a grid is clicked (gridData, row, col) => void
   strings,                     // Localized strings (for "Unoccupied" label)
@@ -486,6 +496,7 @@ const PixiRendererSettlementGrids = ({
               size={gridPixelSize}
               label={`(${col},${row})`}
               zoomScale={zoomScale}
+              screenScale={screenScale}
               isFrontierZoom={isFrontierZoom}
             />
           );
@@ -511,6 +522,7 @@ const PixiRendererSettlementGrids = ({
                   size={gridPixelSize}
                   dataUrl={dataUrl}
                   zoomScale={zoomScale}
+                  screenScale={screenScale}
                   isFrontierZoom={isFrontierZoom}
                   onClick={handleGridClick}
                   isClickable={isClickable}
@@ -528,6 +540,7 @@ const PixiRendererSettlementGrids = ({
               size={gridPixelSize}
               label={gridType}
               zoomScale={zoomScale}
+              screenScale={screenScale}
               isFrontierZoom={isFrontierZoom}
               onClick={handleGridClick}
               isClickable={isClickable}
@@ -546,6 +559,7 @@ const PixiRendererSettlementGrids = ({
                 size={gridPixelSize}
                 owner={owner}
                 zoomScale={zoomScale}
+                screenScale={screenScale}
                 masterResources={masterResources}
                 isFrontierZoom={isFrontierZoom}
                 onClick={handleGridClick}
@@ -560,6 +574,7 @@ const PixiRendererSettlementGrids = ({
                 y={pixelY}
                 size={gridPixelSize}
                 zoomScale={zoomScale}
+                screenScale={screenScale}
                 isUnoccupiedHomestead={true}
                 strings={strings}
                 isFrontierZoom={isFrontierZoom}
@@ -577,6 +592,7 @@ const PixiRendererSettlementGrids = ({
               size={gridPixelSize}
               label={gridType}
               zoomScale={zoomScale}
+              screenScale={screenScale}
               isFrontierZoom={isFrontierZoom}
               onClick={handleGridClick}
               isClickable={isClickable}
@@ -587,7 +603,7 @@ const PixiRendererSettlementGrids = ({
     }
 
     return cells;
-  }, [currentRow, currentCol, gridPixelSize, settlementData, visitedGridTiles, players, zoomScale, masterResources, strings, isFrontierZoom, isActive, isDeveloper, onGridClick, isRelocating, onRelocationGridClick, currentSettlementPosition]);
+  }, [currentRow, currentCol, gridPixelSize, settlementData, visitedGridTiles, players, zoomScale, screenScale, masterResources, strings, isFrontierZoom, isActive, isDeveloper, onGridClick, isRelocating, onRelocationGridClick, currentSettlementPosition]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders
@@ -631,6 +647,7 @@ const PixiRendererSettlementGrids = ({
         y={currentGridPixelY}
         size={gridPixelSize}
         zoomScale={zoomScale}
+        screenScale={screenScale}
       />
     </div>
   );

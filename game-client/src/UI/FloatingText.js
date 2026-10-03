@@ -2,45 +2,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import './FloatingText.css';
 import { useStrings } from '../UI/StringsContext';
+import PixiCamera from '../Render/PixiRenderer/PixiCamera';
 
 // Global array to store floating texts - shared across all instances
 let globalFloatingTexts = [];
 let globalForceUpdate = null;
 
 /**
- * Calculate world position for floating text
- * Works with both legacy canvas and PixiJS world model
- *
- * The TILE_SIZE parameter is often the base tile size (30), but we need to use the
- * scaled tile size based on the current zoom level. We derive this from the
- * pixi-container's actual pixel dimensions.
+ * World position for floating text, in BASE px with the current grid at the origin.
+ * The `.pixi-world-container` overlay is CSS-transformed by PixiCamera to match the Pixi
+ * world, so no zoom or grid offset is applied here (the TILE_SIZE argument is ignored).
  */
-const calculateWorldPosition = (x, y, TILE_SIZE) => {
-    // Try to get PixiJS container position (for unified world model)
-    const pixiContainer = document.querySelector('.pixi-container');
-
-    if (pixiContainer) {
-        // PixiJS world model: grid is positioned at an offset within the world
-        const gridOffsetX = parseFloat(pixiContainer.style.left) || 0;
-        const gridOffsetY = parseFloat(pixiContainer.style.top) || 0;
-
-        // Derive the scaled tile size from the container's actual dimensions
-        // The container width = 64 tiles * scaledTileSize
-        const containerWidth = parseFloat(pixiContainer.style.width) || (64 * TILE_SIZE);
-        const scaledTileSize = containerWidth / 64;
-
-        // Calculate world position: grid offset + tile position + center offset
-        // Use scaledTileSize for correct positioning at all zoom levels
-        const worldX = gridOffsetX + (x * scaledTileSize) + (scaledTileSize / 2);
-        const worldY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize / 2);
-
-        return { centerX: worldX, centerY: worldY, scaledTileSize };
-    }
-
-    // Legacy fallback: simple tile calculation
-    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2) - 6;
-    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - 6;
-    return { centerX, centerY, scaledTileSize: TILE_SIZE };
+const calculateWorldPosition = (x, y /* , TILE_SIZE */) => {
+    const scaledTileSize = PixiCamera.getTileSize();
+    const centerX = (x * scaledTileSize) + (scaledTileSize / 2);
+    const centerY = (y * scaledTileSize) + (scaledTileSize / 2);
+    return { centerX, centerY, scaledTileSize };
 };
 
 const FloatingTextManager = () => {
@@ -82,14 +59,9 @@ const FloatingTextManager = () => {
             // Get container dimensions (64x64 grid) using scaled tile size
             const gridSize = 64 * scaledTileSize;
 
-            // For PixiJS world model, edge detection needs to account for grid offset
-            const pixiContainer = document.querySelector('.pixi-container');
-            const gridOffsetX = pixiContainer ? (parseFloat(pixiContainer.style.left) || 0) : 0;
-            const gridOffsetY = pixiContainer ? (parseFloat(pixiContainer.style.top) || 0) : 0;
-
-            // Calculate position within the grid (for edge detection)
-            const posInGridX = centerX - gridOffsetX;
-            const posInGridY = centerY - gridOffsetY;
+            // Position within the grid (the grid is at the overlay's origin)
+            const posInGridX = centerX;
+            const posInGridY = centerY;
 
             // Check left edge
             if (posInGridX < EDGE_THRESHOLD) {
