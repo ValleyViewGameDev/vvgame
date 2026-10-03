@@ -198,7 +198,9 @@ class ButterfliesEffect extends AmbientEffect {
   animate() {
     if (!this.isActive) return;
     // The Pixi container can be destroyed under us (grid change, hot reload); stop quietly instead of throwing every tick.
-    if (!this.container || this.container.destroyed) { clearInterval(this.updateInterval); this.isActive = false; return; }
+    if (!this.container || this.container.destroyed || this.container.children.some((c) => !c || c.destroyed || !c.transform)) {
+      clearInterval(this.updateInterval); this.isActive = false; return;
+    }
 
     const now = Date.now();
     const delta = (now - this.lastTime) / 16.67; // Normalize to ~60fps equivalent
@@ -427,7 +429,9 @@ class BaseCloudEffect extends AmbientEffect {
   animate() {
     if (!this.isActive) return;
     // The Pixi container can be destroyed under us (grid change, hot reload); stop quietly instead of throwing every tick.
-    if (!this.container || this.container.destroyed) { clearInterval(this.updateInterval); this.isActive = false; return; }
+    if (!this.container || this.container.destroyed || this.container.children.some((c) => !c || c.destroyed || !c.transform)) {
+      clearInterval(this.updateInterval); this.isActive = false; return;
+    }
 
     const now = Date.now();
     const delta = (now - this.lastTime) / 16.67;
@@ -654,7 +658,9 @@ class BirdsEffect extends AmbientEffect {
   animate() {
     if (!this.isActive) return;
     // The Pixi container can be destroyed under us (grid change, hot reload); stop quietly instead of throwing every tick.
-    if (!this.container || this.container.destroyed) { clearInterval(this.updateInterval); this.isActive = false; return; }
+    if (!this.container || this.container.destroyed || this.container.children.some((c) => !c || c.destroyed || !c.transform)) {
+      clearInterval(this.updateInterval); this.isActive = false; return;
+    }
 
     const now = Date.now();
     const delta = (now - this.lastTime) / 16.67; // Normalize to ~60fps equivalent

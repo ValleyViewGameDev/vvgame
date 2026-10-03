@@ -175,8 +175,10 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                             return (
                                 <div 
                                     key={index} 
-                                    className={`trophy-card ${!isEarned ? 'unearned' : ''} trophy-${(trophyDef.type || 'Event').toLowerCase()}`}
+                                    className={`trophy-card ${!isEarned ? 'unearned' : ''} ${hasUncollectedReward ? 'collectable' : ''} trophy-${(trophyDef.type || 'Event').toLowerCase()}`}
                                     data-tooltip={trophyDef.tooltip || ''}
+                                    onClick={hasUncollectedReward && !isCollecting ? () => handleCollectReward(trophyDef.name) : undefined}
+                                    style={hasUncollectedReward ? { cursor: isCollecting ? 'wait' : 'pointer' } : undefined}
                                 >
                                     <div className="trophy-icon-wrapper">
                                         <div className="trophy-icon">🏆</div>
@@ -214,7 +216,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                     {hasUncollectedReward && (
                                         <div 
                                             className="trophy-reward-gem"
-                                            onClick={() => handleCollectReward(trophyDef.name)}
+                                            onClick={(e) => { e.stopPropagation(); handleCollectReward(trophyDef.name); }}
                                             style={{
                                                 opacity: isCollecting ? 0.5 : 1,
                                                 cursor: isCollecting ? 'wait' : 'pointer'
