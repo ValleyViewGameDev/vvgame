@@ -241,9 +241,15 @@ export const checkKentNPCStatus = (npc, currentPlayer) => {
 
   try {
     const kentOffers = currentPlayer?.kentOffers?.offers || [];
+    const now = Date.now();
+    // Kent's own timer (set when offers refresh) and the per-card cooldowns Kent.js keeps in localStorage.
+    if ((currentPlayer?.kentOffers?.endTime || 0) > now) return null;
+    let cardCooldowns = {};
+    try { cardCooldowns = JSON.parse(localStorage.getItem(`kentCardCooldowns_${currentPlayer?.playerId || currentPlayer?._id}`) || '{}'); } catch (_) { cardCooldowns = {}; }
 
-    // Check if player can afford any of Kent's offers
-    const canAffordAny = kentOffers.some(offer => {
+    // Check if player can afford any of Kent's offers that are not cooling down
+    const canAffordAny = kentOffers.some((offer, index) => {
+      if ((cardCooldowns[index] || 0) > now) return false;
       // Handle multi-item offers (items array with multiple items)
       if (offer.items && offer.items.length > 0) {
         // Must be able to afford ALL items in the offer

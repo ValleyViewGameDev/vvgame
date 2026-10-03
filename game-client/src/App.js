@@ -1957,6 +1957,13 @@ useEffect(() => {
 
 // Establish UI BADGING (Chat, Mailbox, Store) //////////////////////////////////////////////////////
 // Single registration of the badge socket listener, keyed on playerId (not the whole currentPlayer).
+// Badge changes made by panels (Mailbox/Store/Chat clear their own dot) reach App through this event.
+useEffect(() => {
+  const onBadgeChange = (e) => { if (e?.detail) setBadgeState((prev) => ({ ...prev, ...e.detail })); };
+  window.addEventListener('vv-badge-change', onBadgeChange);
+  return () => window.removeEventListener('vv-badge-change', onBadgeChange);
+}, []);
+
 useEffect(() => {
   if (!currentPlayer?.playerId) return;
   // Load badge state from localStorage

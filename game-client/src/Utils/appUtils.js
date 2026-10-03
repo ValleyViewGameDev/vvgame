@@ -31,6 +31,9 @@ export function updateBadge(currentPlayer, setBadgeState, category, value = true
   const updated = { ...current, [category]: value };
   localStorage.setItem(key, JSON.stringify(updated));
   setBadgeState(updated);
+  // Callers outside App (Mailbox, Store, Chat) pass a no-op setter; App listens for this event so the
+  // header dots and the grid overlays (mailbox checkmark) react without a socket round trip.
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('vv-badge-change', { detail: updated }));
 }
 
 // Badge read helper

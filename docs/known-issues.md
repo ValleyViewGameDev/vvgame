@@ -50,3 +50,9 @@ Server: ~~`utils/TileEncoder.js.backup`, `models/resource.js`, `models/combat.js
 Client: ~~every `Render/*.js` outside `Render/PixiRenderer/` except `RenderAnimatePosition.js`, `RenderDynamicElements.js` (keep the three tooltip helpers, drop the component), `SVGAssetManager.js` (only used to warm a cache Pixi never reads); `ZoomedOut/*` except `FrontierMiniMap.js`~~ (deleted in Phase 0: 29 files, ~8,650 lines); `GridState/NPCController.js` (Phase 1); `Combat.handleAttackOnPC`; `PlayerMovement.js` camera helpers (`centerCameraOnPlayerFast/Settlement/Frontier/Instant`); `ResourceHelpers.mergeResources/validateTileType`; `GridStateNPCs.saveGridStateNPCs/startGridTimer` (reconsider: the snapshot save is the right shape for Phase 3).
 
 Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, unused by either app).
+
+## Found 2026-10-03 while testing Phase 3 (fixed on `refactor/phase-3a-player-state`)
+
+- Badges set or cleared by panels (`Mailbox`, `Store`, `Chat` call `updateBadge` with a no-op setter) never reached App state; the header dot and the mailbox overlay only changed through the old socket echo. `updateBadge` now dispatches `vv-badge-change`, which App subscribes to.
+- The Kent overlay (`checkKentNPCStatus`) ignored Kent's timer and the per-card cooldowns, so the checkmark stayed after a purchase. It now reads `kentOffers.endTime` and the `kentCardCooldowns_<playerId>` localStorage entry, and NPC overlays re-evaluate every 10 s so time-based states expire visibly.
+

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Container, Sprite, Text, Texture } from 'pixi.js-legacy';
 import { checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus } from '../RenderDynamicElements';
 import { OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
@@ -129,6 +129,9 @@ const PixiRendererNPCOverlays = ({
 
   // Cache for NPC overlay status to avoid redundant async calls
   const statusCacheRef = useRef(new Map());
+  // Time-based overlay states (Kent cooldowns, timers) change without any prop changing; re-evaluate every 10 s.
+  const [overlayTick, setOverlayTick] = useState(0);
+  useEffect(() => { const id = setInterval(() => setOverlayTick((t) => t + 1), 10000); return () => clearInterval(id); }, []);
 
   // Track overlay assignments to NPCs for animation updates
   const overlayAssignmentsRef = useRef(new Map()); // npcId -> { overlay, overlaySize }
@@ -386,7 +389,7 @@ const PixiRendererNPCOverlays = ({
     return () => {
       statusCacheRef.current.clear();
     };
-  }, [npcs, currentPlayer, masterResources, TILE_SIZE, gridOffset,
+  }, [npcs, currentPlayer, masterResources, TILE_SIZE, gridOffset, overlayTick,
       getOverlayFromPool, hideUnusedOverlays, getOverlaySize, getNPCRenderPosition]);
 
   // Start animation ticker on-demand when NPC animations are detected
