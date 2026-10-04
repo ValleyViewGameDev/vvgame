@@ -16,8 +16,9 @@
      HEADER             three rows in both orientations: stats, their fill bars, then the
                         secondary commands as icons only (centred in portrait, left in
                         landscape).
-     ZOOM               round buttons floating at the board's top-left in both orientations
-                        (panels may cover them); in landscape the pill starts below them.
+     ZOOM               portrait: a small vertical pill (matching the nav) at the board's
+                        top-left under the status bar. Landscape: the header's first column,
+                        with the game title in the second, like desktop.
      SAFE AREA          landscape keeps env(safe-area-inset-left) clear (iPhone camera
                         housing) with a black strip; viewport-fit=cover supplies the inset.
      ALSO               base panel hidden (Home sheet instead), modals fit, notifications
@@ -189,33 +190,30 @@
   .nav-button:active { transform: scale(0.92); }
   .nav-icon { width: 28px; height: 28px; }
 
-  /* ---------- zoom: round buttons floating at the board's top-left (panels may cover them) ---------- */
+  /* ---------- zoom: two stacked round buttons (placed per orientation) ---------- */
   .zoom-controls {
     position: fixed;
-    top: calc(var(--m-top) + 8px);
-    left: calc(var(--m-safe-left) + 8px);
     right: auto;
     bottom: auto;
-    width: 44px;
-    height: 96px;
+    width: 48px;
+    height: 100px;
     z-index: 1001;
   }
-  .zoom-button-container { width: 44px; height: 96px; }
+  .zoom-button-container { width: 48px; height: 100px; }
   .zoom-button,
   .zoom-button.zoom-in,
   .zoom-button.zoom-out {
-    width: 44px;
-    height: 44px;
-    left: 0;
+    width: 40px;
+    height: 40px;
+    left: 4px;
     right: auto;
     clip-path: none;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: 22px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-    opacity: 0.9;
   }
-  .zoom-button.zoom-in { top: 0; }
-  .zoom-button.zoom-out { top: 52px; bottom: auto; }
+  .zoom-button.zoom-in { top: 6px; }
+  .zoom-button.zoom-out { top: 54px; bottom: auto; }
   .zoom-button.zoom-in span,
   .zoom-button.zoom-out span { position: static; }
 
@@ -339,6 +337,17 @@
   /* icon row centred in portrait */
   .header-secondary { justify-content: center; }
 
+  /* zoom: a small vertical pill matching the nav, top-left of the board under the status bar */
+  .zoom-controls {
+    top: calc(var(--m-top) + var(--m-gap));
+    left: calc(var(--m-safe-left) + var(--m-gap));
+    border-radius: 24px;
+    background-color: rgba(130, 187, 77, 0.96);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
   /* the pill */
   .nav-column {
     top: auto;
@@ -364,18 +373,54 @@
   :root {
     --m-pill-reserve-bottom: 0px;
     --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
-    --m-zoom-reserve: 112px;      /* the zoom buttons sit above the pill at the top-left */
+    --m-zoom-col: 48px;           /* header column 1: the zoom buttons */
   }
 
   /* the camera housing: the strip under env(safe-area-inset-left) stays black */
   body { background-color: #000; }
 
-  /* icon row left-justified in landscape */
-  .header-secondary { justify-content: flex-start; }
+  /* Header mimics desktop: zoom column, title column, then the three control rows */
+  .app-header {
+    display: grid;
+    grid-template-columns: var(--m-zoom-col) max-content 1fr;
+    grid-template-rows: 20px 3px 30px;
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: center;
+    padding: 3px 8px 2px 0;
+  }
+  .header-title {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    width: auto;
+    align-self: center;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .header-title h1 { font-size: 1.35em; }
+  .header-controls-left.header-grid { grid-column: 3; grid-row: 1 / span 2; }
+  .header-secondary { grid-column: 3; grid-row: 3; justify-content: flex-start; }
 
-  /* the pill, vertical at the left, below the zoom buttons */
+  /* zoom buttons fill the header's first column, top to bottom like desktop */
+  .zoom-controls {
+    top: 0;
+    left: var(--m-safe-left);
+    width: var(--m-zoom-col);
+    height: var(--m-header-height);
+    background: none;
+    box-shadow: none;
+  }
+  .zoom-button-container { width: var(--m-zoom-col); height: var(--m-header-height); }
+  .zoom-button,
+  .zoom-button.zoom-in,
+  .zoom-button.zoom-out { width: 32px; height: 30px; left: 8px; border-radius: 8px; font-size: 20px; }
+  .zoom-button.zoom-in { top: 3px; }
+  .zoom-button.zoom-out { top: 36px; }
+
+  /* the pill, vertical at the left, from just under the status bar */
   .nav-column {
-    top: calc(var(--m-top) + var(--m-zoom-reserve));
+    top: calc(var(--m-top) + var(--m-gap));
     bottom: calc(var(--m-gap) + var(--m-safe-bottom));
     left: calc(var(--m-safe-left) + var(--m-gap));
     right: auto;

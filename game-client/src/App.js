@@ -3108,16 +3108,21 @@ return (
 
 {/* //////////////// Left Side Navigation Column ///////////////// */}
 
+    {/* Zoom controls: a sibling of the nav (not a child) so the phone layouts can place them
+        freely; on desktop they are fixed at the top-left, exactly where the nav's corner was */}
+    {currentPlayer && (
+      <div className="zoom-controls">
+        <div className="zoom-button-container">
+          <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
+          <button className="zoom-button zoom-out" disabled={!currentPlayer} onClick={zoomOut}><span>−</span></button>
+        </div>
+      </div>
+    )}
+
     <div className="nav-column">
 
       {currentPlayer && (
         <>
-        <div className="zoom-controls">
-          <div className="zoom-button-container">
-            <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
-            <button className="zoom-button zoom-out" disabled={!currentPlayer} onClick={zoomOut}><span>−</span></button>
-          </div>
-        </div>
 
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => { closePanel(); if (isHomeSheetOpen) closeHomeSheet(); else setIsHomeSheetOpen(true); }}>{renderNavIcon('BasePanel', '👸')}</button>
       <button

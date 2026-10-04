@@ -147,10 +147,9 @@ body {
 /* ZOOM CONTROLS /////////////////////////////////// */
 
 .zoom-controls {
-  position: absolute;
+  position: fixed; /* the nav column is fixed at 0,0 too, so this is the same corner it always sat in */
   top: 0;
   left: 0;
-  right: 0;
   width: 60px;
   height: 60px;
   z-index: 1001;
