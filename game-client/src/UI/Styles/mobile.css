@@ -9,7 +9,7 @@
                         visually detached from the panels (iOS style). Portrait: a
                         horizontal pill along the bottom. Landscape: a vertical pill at the
                         left.
-     PANELS             about half the screen wide so the board stays playable beside
+     PANELS             44vw wide in both orientations so the board stays playable beside
                         them. Portrait: docked bottom-left, sliding up from the bottom and
                         back down on close. Landscape: docked left of the board (right of
                         the pill), sliding in from the left. The Home sheet (the desktop base
@@ -39,8 +39,8 @@
     --m-pill-w: 48px;              /* landscape pill width */
     --m-pill-reserve-bottom: 0px;  /* portrait: space the panel box leaves for the pill */
     --m-pill-reserve-left: 0px;    /* landscape: space the panel box leaves for the pill */
-    --m-panel-width: 56vw;
-    --m-panel-max-width: 360px;
+    --m-panel-width: 44vw;        /* same proportion in both orientations (owner's call) */
+    --m-panel-max-width: 400px;
     --m-panel-radius: 14px;
     --m-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     --m-anim-in: 260ms;
@@ -309,8 +309,6 @@
     --m-header-height: 34px;
     --m-pill-reserve-bottom: 0px;
     --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
-    --m-panel-width: 44vw;
-    --m-panel-max-width: 400px;
   }
 
   /* Every header link in one scrolling row */
