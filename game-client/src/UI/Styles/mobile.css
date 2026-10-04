@@ -9,11 +9,10 @@
                         visually detached from the panels (iOS style). Portrait: a
                         horizontal pill along the bottom. Landscape: a vertical pill at the
                         left.
-     PANELS             44vw wide in both orientations so the board stays playable beside
-                        them. Portrait: docked bottom-left, sliding up from the bottom and
-                        back down on close. Landscape: docked left of the board (right of
-                        the pill), sliding in from the left. The Home sheet (the desktop base
-                        panel) and the chat use the same box and motion.
+     PANELS             docked at the left, 58vw wide in portrait and 44vw in landscape so
+                        the board stays playable beside them; they slide in from the left
+                        and back out on close in both orientations. The Home sheet (the
+                        desktop base panel) and the chat use the same box and motion.
      HEADER             portrait = two scrollable rows; landscape = one scrollable row.
      ZOOM               round buttons; bottom-right in portrait, top-right in landscape.
      ALSO               base panel hidden (Home sheet instead), modals fit, notifications
@@ -218,11 +217,19 @@
   /* Tooltips come from long-press; keep them clear of the thumb */
   .HoverTooltip { max-width: 70vw; }
 
-  /* ---------- motion ---------- */
-  @keyframes mPanelUpIn   { from { transform: translateY(110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
-  @keyframes mPanelDownOut { from { transform: none; opacity: 1; } to { transform: translateY(110%); opacity: 0.6; } }
+  /* ---------- motion: panels slide in from the left and back out, both orientations ---------- */
   @keyframes mPanelLeftIn  { from { transform: translateX(-110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
   @keyframes mPanelLeftOut { from { transform: none; opacity: 1; } to { transform: translateX(-110%); opacity: 0.6; } }
+  .panel-container,
+  .base-panel.base-panel--open,
+  .chat-panel-slideout {
+    animation: mPanelLeftIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  body.panel-closing .panel-container,
+  .base-panel.base-panel--open.base-panel--closing,
+  .chat-panel-slideout.closing {
+    animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
+  }
 }
 
 /* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
@@ -231,6 +238,7 @@
     --m-header-height: 58px;
     --m-pill-reserve-bottom: calc(var(--m-pill-h) + 2 * var(--m-gap) + var(--m-safe-bottom));
     --m-pill-reserve-left: 0px;
+    --m-panel-width: 58vw;        /* wider than landscape's 44vw: a portrait screen is narrow */
   }
 
   .app-header {
@@ -283,18 +291,6 @@
   }
   .nav-button { width: 52px; min-width: 52px; height: 46px; margin: 0 1px; }
 
-  /* panels: docked bottom-left, half the screen, up from the bottom */
-  .panel-container,
-  .base-panel.base-panel--open,
-  .chat-panel-slideout {
-    animation: mPanelUpIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-  body.panel-closing .panel-container,
-  .base-panel.base-panel--open.base-panel--closing,
-  .chat-panel-slideout.closing {
-    animation: mPanelDownOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
-  }
-
   /* zoom buttons at the board's bottom-right, above the pill, clear of notifications */
   .zoom-controls {
     top: auto;
@@ -345,19 +341,13 @@
   .nav-button { width: 44px; min-width: 0; height: 44px; margin: 1px 0; font-size: 24px; }
   .nav-icon { width: 26px; height: 26px; }
 
-  /* panels: right of the pill, in from the left; bottom gap matches the top gap */
+  /* panels: right of the pill; bottom gap matches the top gap */
   .panel-container,
   .base-panel.base-panel--open,
   .chat-panel-slideout {
     height: calc(100vh - var(--m-top) - 2 * var(--m-gap));
     height: calc(100dvh - var(--m-top) - 2 * var(--m-gap));
     border-radius: var(--m-panel-radius);
-    animation: mPanelLeftIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-  body.panel-closing .panel-container,
-  .base-panel.base-panel--open.base-panel--closing,
-  .chat-panel-slideout.closing {
-    animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
   }
 
   /* zoom buttons top-right of the board */

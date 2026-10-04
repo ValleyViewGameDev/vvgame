@@ -250,6 +250,26 @@ useEffect(() => {
   };
 
   // The desktop-only gate that used to live here is gone: phones get the layout in UI/Styles/mobile.css.
+
+  // Browser chrome on phones. A page cannot hide Safari's own bars (a tap at the top edge in
+  // landscape brings them back by design); the two things it can do are (1) ask for
+  // fullscreen where the platform allows it, which is Android Chrome, on the first touch of
+  // the board, and (2) be installable (manifest + apple-mobile-web-app-capable in index.html),
+  // which runs the game without browser chrome from the iOS home screen.
+  useEffect(() => {
+    const phone = window.matchMedia && window.matchMedia('(max-width: 767px), (max-height: 500px) and (orientation: landscape)');
+    if (!phone?.matches) return undefined;
+    const el = document.documentElement;
+    const canFullscreen = document.fullscreenEnabled && typeof el.requestFullscreen === 'function';
+    if (!canFullscreen) return undefined;
+    const onFirstTouch = (event) => {
+      if (event.pointerType && event.pointerType !== 'touch') return;
+      if (document.fullscreenElement) return;
+      el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    };
+    window.addEventListener('pointerdown', onFirstTouch, { passive: true });
+    return () => window.removeEventListener('pointerdown', onFirstTouch);
+  }, []);
   const openMailbox = () => openModal && openModal('Mailbox');
 
   // Store purchase fulfillment effect
