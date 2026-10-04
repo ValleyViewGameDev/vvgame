@@ -20,6 +20,10 @@ const MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock',
 // 90 ms = ~11 tiles/s. Must equal PC_ANIMATION_DURATION_MS (RenderAnimatePosition.js) so
 // steps glide into each other. Tune here only.
 const MOVEMENT_STEP_MS = 90;
+// A tap of a key moves exactly one tile: the second step of a press only comes once the key
+// has been held this long (an OS-style initial repeat delay), after which steps run at
+// MOVEMENT_STEP_MS. Queued walks (tap-to-walk) are not presses and never wait.
+const HOLD_REPEAT_DELAY_MS = 220;
 
 const DIRECTIONS = {
   // Arrow keys
@@ -58,6 +62,7 @@ let movementContext = null;
 let loopTimer = null;       // setTimeout handle: timers keep their cadence when rAF is throttled
 let moveInFlight = false;
 let lastMovementTime = 0;
+let keyStepsThisPress = 0;  // keyboard steps since the first direction key went down
 const LOOP_POLL_MS = 8;
 
 /**
@@ -96,6 +101,7 @@ export function stopMovement() {
   pressedKeys.clear();
   clearPath();
   stopLoop();
+  keyStepsThisPress = 0;
   playersInGridManager.flushReactSync();
 }
 
@@ -165,11 +171,14 @@ function loopTick() {
   if (!keyboard && pathQueue.length === 0) {
     // Movement stopped: let React catch up with the final position right away
     pathGoal = null;
+    keyStepsThisPress = 0;
     playersInGridManager.flushReactSync();
     return;
   }
   const now = Date.now();
-  const due = MOVEMENT_STEP_MS - (now - lastMovementTime);
+  // The second step of a key press waits for the hold delay; everything else runs at step cadence
+  const interval = keyboard && keyStepsThisPress === 1 ? HOLD_REPEAT_DELAY_MS : MOVEMENT_STEP_MS;
+  const due = interval - (now - lastMovementTime);
   if (!moveInFlight && movementContext && due <= 0) {
     let forced = null;
     if (!keyboard) {
@@ -178,6 +187,7 @@ function loopTick() {
     }
     lastMovementTime = now;
     moveInFlight = true;
+    if (keyboard) keyStepsThisPress += 1;
     const stepTarget = forced ? pathQueue[0] : null;
     processMovement(movementContext, forced)
       .then((moved) => {
@@ -197,7 +207,7 @@ function loopTick() {
       })
       .catch((err) => { console.error('Error processing movement:', err); clearPath(); })
       .finally(() => { moveInFlight = false; });
-    loopTimer = setTimeout(loopTick, MOVEMENT_STEP_MS);
+    loopTimer = setTimeout(loopTick, keyboard && keyStepsThisPress === 1 ? HOLD_REPEAT_DELAY_MS : MOVEMENT_STEP_MS);
     return;
   }
   loopTimer = setTimeout(loopTick, Math.max(LOOP_POLL_MS, due));
