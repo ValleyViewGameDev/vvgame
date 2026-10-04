@@ -75,6 +75,7 @@ const LOOP_POLL_MS = 8;
 let pathQueue = [];
 let pathGoal = null;
 let pathReplanned = false;
+let pathCrossDelta = null;  // set when the tap was beyond an edge: the final step crosses it
 
 export function setMovementContext(context) {
   movementContext = context;
@@ -94,6 +95,7 @@ function clearPath() {
   pathQueue = [];
   pathGoal = null;
   pathReplanned = false;
+  pathCrossDelta = null;
 }
 
 /** Forget every held key and queued walk, stop stepping (modal, zoom out, grid change, blur). */
@@ -143,13 +145,36 @@ export function walkTo(col, row) {
     return 0;
   }
   pressedKeys.clear(); // a tap replaces any held key
+  clearPath();
+
+  // A tap beyond an edge: walk to the nearest edge tile, then step across in the direction
+  // of the larger overshoot (the transit rules decide whether the crossing happens)
+  let cross = null;
+  if (col < 0 || col > 63 || row < 0 || row > 63) {
+    const dx = col < 0 ? col : col > 63 ? col - 63 : 0;
+    const dy = row < 0 ? row : row > 63 ? row - 63 : 0;
+    cross = Math.abs(dx) >= Math.abs(dy) ? { dx: Math.sign(dx), dy: 0 } : { dx: 0, dy: Math.sign(dy) };
+    col = Math.max(0, Math.min(63, col));
+    row = Math.max(0, Math.min(63, row));
+  }
+
   const goal = { x: col, y: row };
   const path = planPath(goal);
   pathQueue = path;
   pathGoal = path.length ? goal : null;
-  pathReplanned = false;
+  pathCrossDelta = cross;
+  if (cross && path.length === 0) {
+    // Already on the edge tile: cross right away
+    if (!moveInFlight) {
+      moveInFlight = true;
+      processMovement(movementContext, cross)
+        .catch((err) => console.error('Error crossing the edge:', err))
+        .finally(() => { moveInFlight = false; });
+    }
+    return -1;
+  }
   if (path.length && !loopTimer) loopTick();
-  return path.length;
+  return path.length + (cross ? 1 : 0);
 }
 
 /** Next queued step as a unit delta from where the player actually is, or null to abandon. */
@@ -194,6 +219,16 @@ function loopTick() {
         if (!forced) return;
         if (moved) {
           if (pathQueue[0] === stepTarget) pathQueue.shift();
+          if (pathQueue.length === 0 && pathCrossDelta) {
+            // The walk reached the edge tile: one more step crosses it (transit rules apply)
+            const cross = pathCrossDelta;
+            pathCrossDelta = null;
+            pathQueue = [];
+            moveInFlight = true;
+            processMovement(movementContext, cross)
+              .catch((err) => console.error('Error crossing the edge:', err))
+              .finally(() => { moveInFlight = false; });
+          }
           return;
         }
         // Blocked mid-walk: re-plan once from here, then give up

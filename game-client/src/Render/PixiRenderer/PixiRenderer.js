@@ -1359,8 +1359,13 @@ const PixiRenderer = ({
       }
     }
 
-    // Bounds check - grid is TILES_PER_GRID×TILES_PER_GRID tiles
-    if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) return;
+    // Off the grid (the green beyond an edge): walk to the nearest edge tile and cross.
+    // PlayerMovement.walkTo clamps the target and takes the crossing step at the end, so the
+    // existing transit rules (Horse, closed settlements, "can't go that way") apply.
+    if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) {
+      if (!cursorMode) walk();
+      return;
+    }
 
     // Check for NPC at this position first
     const npc = npcs?.find(n =>

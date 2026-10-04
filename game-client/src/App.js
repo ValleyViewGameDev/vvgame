@@ -132,6 +132,7 @@ import LoadingScreen from './UI/LoadingScreen';
 import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement, walkTo } from './PlayerMovement';
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
+import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
@@ -253,6 +254,9 @@ useEffect(() => {
   };
 
   // The desktop-only gate that used to live here is gone: phones get the layout in UI/Styles/mobile.css.
+
+  // Phones: a closing panel slides out (a clone of the removed node plays the animation)
+  useEffect(() => installPanelExitGhost(), []);
 
   // Browser chrome on phones. A page cannot hide Safari's own bars (a tap at the top edge in
   // landscape brings them back by design); the two things it can do are (1) ask for
@@ -3492,7 +3496,7 @@ return (
             if (activeModal || isOffSeason) return;
             if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return;
             const steps = walkTo(col, row);
-            if (steps === 0) updateStatus(10021); // "You can't go that way."
+            if (steps === 0) updateStatus(10021); // "You can't go that way." (a crossing returns -1)
           }}
           onPinchZoom={(direction) => {
             if (isZoomAnimating || isZoomAnimatingRef.current) return;

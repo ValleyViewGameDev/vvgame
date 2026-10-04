@@ -27,8 +27,9 @@
    height and the pill's reserve, the shared block derives the board, status bar, panel box
    and animations from them. Heights use dvh where supported (iOS URL bar).
    Phone = a viewport under 768 px wide, or a landscape viewport under 500 px tall.
-   The slide-out on close is timed by UI/Panels/PanelContext.js (body.panel-closing) and
-   App.js (.base-panel--closing); keep CLOSE_ANIMATION_MS and the durations here in step.
+   The slide-out on close: panels are ghosted by UI/Panels/panelExitGhost.js (a clone with
+   .panel-ghost plays mPanelLeftOut), the Home sheet uses .base-panel--closing (App.js) and
+   the chat its own .closing; keep those timers and --m-anim-out in step.
    =========================================== */
 
 /* ---------- shared: both orientations ---------- */
@@ -319,11 +320,12 @@
   .chat-panel-slideout {
     animation: mPanelLeftIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
-  body.panel-closing .panel-container,
+  .panel-container.panel-ghost,
   .base-panel.base-panel--open.base-panel--closing,
   .chat-panel-slideout.closing {
     animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
   }
+  .panel-container.panel-ghost { z-index: 1001; pointer-events: none; }
 }
 
 /* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
