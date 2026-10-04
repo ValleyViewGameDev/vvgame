@@ -37,6 +37,8 @@ let viewport = { width: 0, height: 0 };
 // soon as the player moves or the zoom changes, which is what the old scroll container did.
 let pan = { x: 0, y: 0 };
 let panBounds = null;
+let panReturnFrame = null;      // rAF handle while the pan eases back to the player
+const PAN_RETURN_MS = 350;
 let resizeObserver = null;
 let zoomFrame = null;
 let zoomDone = null;
@@ -110,6 +112,8 @@ export function attach({ app: pixiApp, worldContainer: container, hostElement, o
 export function detach() {
   if (zoomFrame) cancelAnimationFrame(zoomFrame);
   zoomFrame = null;
+  cancelPanReturn();
+  pan = { x: 0, y: 0 };
   zoomDone = null;
   if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
   window.removeEventListener('resize', resizeToHost);
@@ -135,27 +139,56 @@ export function setOverlayElement(el) {
 }
 
 /** Keep the player at the fixed screen point. x/y are tile coordinates (fractions during animation). */
+function cancelPanReturn() {
+  if (panReturnFrame) cancelAnimationFrame(panReturnFrame);
+  panReturnFrame = null;
+}
+
+/**
+ * Ease a look-around pan back to zero over PAN_RETURN_MS (time-based, so a slow frame rate
+ * still lands on time). Used when the player starts moving while the view is panned away,
+ * instead of cutting straight back to them; the movement itself is not delayed.
+ */
+function startPanReturn() {
+  cancelPanReturn();
+  const from = { ...pan };
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / PAN_RETURN_MS);
+    const eased = 1 - Math.pow(1 - t, 3);
+    pan = { x: from.x * (1 - eased), y: from.y * (1 - eased) };
+    apply();
+    if (t >= 1) { pan = { x: 0, y: 0 }; apply(); panReturnFrame = null; return; }
+    panReturnFrame = requestAnimationFrame(step);
+  };
+  panReturnFrame = requestAnimationFrame(step);
+}
+
 export function follow(x, y) {
   if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
   // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
   const nx = x + 0.5, ny = y + 0.5;
-  if (nx !== playerTile.x || ny !== playerTile.y) {
-    // The player moved: a look-around pan ends and the camera snaps back to them
-    pan = { x: 0, y: 0 };
-  }
+  const moved = nx !== playerTile.x || ny !== playerTile.y;
   playerTile = { x: nx, y: ny };
+  if (moved && !panReturnFrame && (pan.x !== 0 || pan.y !== 0)) {
+    // The player set off while the view was panned away: glide back to them
+    startPanReturn();
+    return; // startPanReturn's first frame applies
+  }
   apply();
 }
 
 /** Move the view by screen px (trackpad, wheel, finger drag). Clamped to panBounds. */
 export function panBy(dx, dy) {
   if (!worldContainer) return;
+  cancelPanReturn();
   pan = { x: pan.x + dx, y: pan.y + dy };
   clampPan();
   apply();
 }
 
 export function resetPan() {
+  cancelPanReturn();
   pan = { x: 0, y: 0 };
   apply();
 }
@@ -169,6 +202,7 @@ export function setPanBounds(bounds) {
 
 export function setZoom(scale) {
   if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
+  cancelPanReturn();
   zoom = scale;
   targetZoom = scale;
   pan = { x: 0, y: 0 };
@@ -183,6 +217,7 @@ export function animateZoom(target, onDone) {
   if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
   targetZoom = target;
   zoomDone = onDone || null;
+  cancelPanReturn();
   pan = { x: 0, y: 0 }; // a zoom re-centres on the player
   if (Math.abs(zoom - target) < ZOOM_EPSILON) {
     zoom = target;
@@ -244,7 +279,7 @@ const PixiCamera = {
   attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, setPanBounds, setZoom, animateZoom,
   getZoom, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
-  debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame }),
+  debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),
 };
 if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   window.__pixiCamera = PixiCamera;

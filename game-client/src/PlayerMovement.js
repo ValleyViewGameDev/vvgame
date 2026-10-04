@@ -244,6 +244,7 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
 
   // Latest arguments from App.js (also refreshed by setMovementContext on every App state change)
   setMovementContext({
+    ...(movementContext || {}), // keep keys only App sets (onEnterTile)
     currentPlayer, TILE_SIZE, masterResources,
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
     updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext,
@@ -284,7 +285,8 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
   strings = null,
-  transitionFadeControl = null }, forcedDelta = null)
+  transitionFadeControl = null,
+  onEnterTile = null }, forcedDelta = null)
 {
   const directions = DIRECTIONS;
 
@@ -371,6 +373,16 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
 
   maybePrefetchAcrossEdge(currentPlayer, playerId, finalPosition);
   // The camera follows the animated position from PixiRendererPCs (PixiCamera.follow).
+
+  // Walking onto a doober collects it exactly as a click on that tile would
+  // (App.js routes onEnterTile through handleTileClick, so inventory, VFX, feedback,
+  // quests and the server call are the same code path).
+  if (onEnterTile) {
+    const here = GlobalGridStateTilesAndResources.getResources()?.find(
+      (r) => r && r.category === 'doober' && r.x === targetX && r.y === targetY
+    );
+    if (here) onEnterTile(targetY, targetX, here);
+  }
   return true;
 }
 

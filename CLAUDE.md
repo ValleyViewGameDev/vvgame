@@ -90,7 +90,7 @@ vvgame/
 - Layout: desktop chrome is fixed px in `App.css` / `Panel.css` / `Modal.css`; the phone layout is ONE media block in `game-client/src/UI/Styles/mobile.css` (imported last in App.js) that re-positions the same elements (header rows, bottom nav bar, full-screen panels and chat, board between them). Add phone overrides there, never scatter `@media` blocks; keep the `--m-*` sizes in sync.
 - New files: small focused modules, 300-500 lines; `App.js` only shrinks.
 - Player-facing copy: no em-dashes (the "AI dash"); use commas, colons, or two sentences.
-- Interactions are optimistic, the way doober collection is (`game-client/src/ResourceClicking.js:339-361`): react on the input (sprite, VFX, SFX, local state), fire the server call in parallel, revert only on a real conflict. Never gate the visual on the round trip. Player movement is the current counter-example; see `docs/audits/client-review-2026-10-03.md` §2.2.
+- Walking onto a doober collects it through `handleTileClick` (App's `onEnterTile` in the movement context); do not add a second collection path. Interactions are optimistic, the way doober collection is (`game-client/src/ResourceClicking.js:339-361`): react on the input (sprite, VFX, SFX, local state), fire the server call in parallel, revert only on a real conflict. Never gate the visual on the round trip. Player movement is the current counter-example; see `docs/audits/client-review-2026-10-03.md` §2.2.
 - Commit messages describe the change. End with `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 
 ## Hazards (read before running anything)

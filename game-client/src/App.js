@@ -2211,7 +2211,8 @@ useEffect(() => {
     currentPlayer, TILE_SIZE: activeTileSize, masterResources,
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
     updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext,
-    strings, transitionFadeControl
+    strings, transitionFadeControl,
+    onEnterTile: onEnterTileRef.current,
   });
 
   window.addEventListener('keydown', handleKeyDown);
@@ -2706,6 +2707,21 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   isProcessing = false; // Reset flag here
 
 }, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize, cursorMode]);
+
+// Latest click handler and cursor mode, for callers outside React's render (the movement loop)
+const tileClickRef = useRef(null);
+tileClickRef.current = handleTileClick;
+const cursorModeRef = useRef(null);
+cursorModeRef.current = cursorMode;
+// Stepping onto a doober: run the click path for that tile, unless a placement cursor is
+// active (a click would place, not collect)
+const onEnterTileRef = useRef(null);
+if (!onEnterTileRef.current) {
+  onEnterTileRef.current = (row, col) => {
+    if (cursorModeRef.current) return;
+    if (tileClickRef.current) tileClickRef.current(row, col);
+  };
+}
   
 
   
