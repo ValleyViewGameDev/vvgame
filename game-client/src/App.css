@@ -39,6 +39,9 @@ body {
   overflow: hidden; /* Prevent panel itself from scrolling */
 }
 
+/* The base panel's close button exists for the phone "Home" sheet only (mobile.css shows it) */
+.base-panel-close { display: none; }
+
 /* Scrollable content area within base panel */
 .base-panel-content {
   flex: 1;
