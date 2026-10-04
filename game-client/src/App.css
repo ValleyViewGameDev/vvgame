@@ -253,6 +253,10 @@ body {
   gap: 7px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
 }
 
+/* Groups the Store/Inbox and Settings/Chat/... blocks for the phone layout (mobile.css).
+   On desktop it must not be a box of its own, or the two blocks stack. */
+.header-secondary { display: contents; }
+
 /* Left header uses CSS Grid for precise column alignment */
 .header-controls-left.header-grid {
   display: grid;

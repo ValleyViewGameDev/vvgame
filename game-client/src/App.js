@@ -4,7 +4,6 @@ import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import './UI/Buttons/SharedButtons.css';
 import './Render/Tooltip.css';
-import './UI/Styles/mobile.css';  /* phone layout: must come after the desktop rules it overrides */
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
@@ -250,23 +249,7 @@ useEffect(() => {
     isTransitioning
   };
 
-  // Mobile device detection: Show modal if on mobile
-  useEffect(() => {
-    if (isMobile()) {
-      setModalContent({
-        title: 'Unsupported Device',
-        size: 'small',
-        children: (
-          <div style={{ fontSize: '1rem', textAlign: 'center', padding: '1rem' }}>
-            🚫 This game is intended for desktop browsers only.<br /><br />
-            Please revisit on a laptop or desktop computer.
-          </div>
-        ),
-        onClose: () => {},
-      });
-      setIsModalOpen(true);
-    }
-  }, []);
+  // The desktop-only gate that used to live here is gone: phones get the layout in UI/Styles/mobile.css.
   const openMailbox = () => openModal && openModal('Mailbox');
 
   // Store purchase fulfillment effect

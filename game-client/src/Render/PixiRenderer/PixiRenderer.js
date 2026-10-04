@@ -21,6 +21,7 @@ import {
   TILES_PER_GRID,
   TILES_PER_SETTLEMENT,
   WORLD_PADDING_SETTLEMENTS,
+  SETTLEMENTS_PER_FRONTIER,
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
@@ -397,6 +398,7 @@ const PixiRenderer = ({
   const suppressClickRef = useRef(false);
   const pinchBaselineRef = useRef(null);         // finger distance at the last zoom step
   const pinchedRef = useRef(false);
+  const dragPannedRef = useRef(false);           // a one-finger drag panned the camera (not a tap)
   const tooltipClearTimerRef = useRef(null);
   const LONG_PRESS_MS = 450;
   const LONG_PRESS_MOVE_TOLERANCE_PX = 12;
@@ -717,6 +719,20 @@ const PixiRenderer = ({
 
   // Zoom is worldContainer.scale, animated by PixiCamera.animateZoom (App.js drives it).
   // The overlay DOM (previews, floating text, VFX) gets the same transform from the camera.
+
+  // Trackpad / mouse wheel pans the view (the old scroll container did this for free).
+  // Native listener because React registers wheel as passive and preventDefault would be ignored.
+  useEffect(() => {
+    const host = containerRef.current;
+    if (!host) return undefined;
+    const onWheel = (event) => {
+      event.preventDefault();
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? host.clientHeight : 1;
+      PixiCamera.panBy(-event.deltaX * unit, -event.deltaY * unit);
+    };
+    host.addEventListener('wheel', onWheel, { passive: false });
+    return () => host.removeEventListener('wheel', onWheel);
+  }, []);
 
   // Grid offset is always 0 - the current grid renders at origin (0,0)
   // Settlement zoom renders NEIGHBORING grids around it via PixiRendererSettlementGrids
@@ -1520,8 +1536,9 @@ const PixiRenderer = ({
     if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
     touchPointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY });
     if (touchPointersRef.current.size === 2) {
-      // Second finger: this is a pinch, not a tap or a long-press
+      // Second finger: this is a pinch, not a tap, a long-press or a drag
       cancelLongPress();
+      dragPannedRef.current = false;
       pinchBaselineRef.current = pointerDistance();
       pinchedRef.current = false;
       return;
@@ -1549,7 +1566,19 @@ const PixiRenderer = ({
       }
       return;
     }
-    if (Math.hypot(p.x - p.startX, p.y - p.startY) > LONG_PRESS_MOVE_TOLERANCE_PX) cancelLongPress();
+    if (touchPointersRef.current.size !== 1) return;
+    const moved = Math.hypot(p.x - p.startX, p.y - p.startY);
+    if (moved > LONG_PRESS_MOVE_TOLERANCE_PX) {
+      cancelLongPress();
+      // One finger dragging the board pans the view; the tap-click that follows is not a tap
+      if (!dragPannedRef.current) {
+        dragPannedRef.current = true;
+        p.lastX = p.x; p.lastY = p.y;
+      } else {
+        PixiCamera.panBy(p.x - (p.lastX ?? p.x), p.y - (p.lastY ?? p.y));
+        p.lastX = p.x; p.lastY = p.y;
+      }
+    }
   }, [cancelLongPress, pointerDistance, onPinchZoom]);
 
   const handlePointerUp = useCallback((event) => {
@@ -1557,7 +1586,10 @@ const PixiRenderer = ({
     touchPointersRef.current.delete(event.pointerId);
     cancelLongPress();
     if (touchPointersRef.current.size === 0) {
-      if (pinchedRef.current || pinchBaselineRef.current) {
+      if (dragPannedRef.current) {
+        dragPannedRef.current = false;
+        suppressClickRef.current = true;
+      } else if (pinchedRef.current || pinchBaselineRef.current) {
         suppressClickRef.current = true; // the tap-click after a pinch is not a tap
         pinchBaselineRef.current = null;
         pinchedRef.current = false;
@@ -1612,6 +1644,19 @@ const PixiRenderer = ({
     x: -((WORLD_PADDING_SETTLEMENTS + currentSettlementCol) * singleSettlementPixelSizeBase + currentGridCol * singleGridPixelSizeBase),
     y: -((WORLD_PADDING_SETTLEMENTS + currentSettlementRow) * singleSettlementPixelSizeBase + currentGridRow * singleGridPixelSizeBase),
   };
+
+  // How far the view may be panned: the grid, or the settlement / padded frontier when zoomed out
+  useEffect(() => {
+    if (isFrontierZoom) {
+      const size = singleSettlementPixelSizeBase * (SETTLEMENTS_PER_FRONTIER + 2 * WORLD_PADDING_SETTLEMENTS);
+      PixiCamera.setPanBounds({ minX: frontierOffset.x, minY: frontierOffset.y, maxX: frontierOffset.x + size, maxY: frontierOffset.y + size });
+    } else if (isSettlementZoom) {
+      const size = singleGridPixelSizeBase * 8;
+      PixiCamera.setPanBounds({ minX: settlementOffset.x, minY: settlementOffset.y, maxX: settlementOffset.x + size, maxY: settlementOffset.y + size });
+    } else {
+      PixiCamera.setPanBounds(null);
+    }
+  }, [isFrontierZoom, isSettlementZoom, frontierOffset.x, frontierOffset.y, settlementOffset.x, settlementOffset.y, singleGridPixelSizeBase, singleSettlementPixelSizeBase]);
 
   return (
     <>

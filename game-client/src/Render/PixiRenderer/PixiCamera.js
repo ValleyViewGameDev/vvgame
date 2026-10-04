@@ -31,6 +31,12 @@ let zoom = 1;
 let targetZoom = 1;
 let playerTile = { x: 0, y: 0 };
 let viewport = { width: 0, height: 0 };
+// Pan: a screen-px offset the player can add with the trackpad / wheel / a finger drag to look
+// around. It clamps so the viewport centre stays inside panBounds (world base px; the current
+// grid by default, the settlement or frontier extent when zoomed out) and resets to zero as
+// soon as the player moves or the zoom changes, which is what the old scroll container did.
+let pan = { x: 0, y: 0 };
+let panBounds = null;
 let resizeObserver = null;
 let zoomFrame = null;
 let zoomDone = null;
@@ -39,13 +45,28 @@ let readyResolvers = [];
 const ZOOM_DURATION_MS = 220; // ease-out over real time, so a slow frame rate still lands on time
 const ZOOM_EPSILON = 0.001;
 
+function defaultBounds() {
+  return { minX: 0, minY: 0, maxX: 64 * tileSize, maxY: 64 * tileSize };
+}
+
+/** Keep the world point under the viewport centre inside panBounds. */
+function clampPan() {
+  const b = panBounds || defaultBounds();
+  const centreX = playerTile.x * tileSize - pan.x / zoom;
+  const centreY = playerTile.y * tileSize - pan.y / zoom;
+  const cx = Math.min(b.maxX, Math.max(b.minX, centreX));
+  const cy = Math.min(b.maxY, Math.max(b.minY, centreY));
+  pan.x = (playerTile.x * tileSize - cx) * zoom;
+  pan.y = (playerTile.y * tileSize - cy) * zoom;
+}
+
 function apply() {
   if (!worldContainer) return;
   const cx = viewport.width / 2;
   const cy = viewport.height / 2;
   // Snap to whole device pixels at the current zoom so tile edges stay crisp
-  const x = Math.round(cx - playerTile.x * tileSize * zoom);
-  const y = Math.round(cy - playerTile.y * tileSize * zoom);
+  const x = Math.round(cx - playerTile.x * tileSize * zoom + pan.x);
+  const y = Math.round(cy - playerTile.y * tileSize * zoom + pan.y);
   worldContainer.scale.set(zoom);
   worldContainer.position.set(x, y);
   if (overlayEl) {
@@ -117,7 +138,32 @@ export function setOverlayElement(el) {
 export function follow(x, y) {
   if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
   // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
-  playerTile = { x: x + 0.5, y: y + 0.5 };
+  const nx = x + 0.5, ny = y + 0.5;
+  if (nx !== playerTile.x || ny !== playerTile.y) {
+    // The player moved: a look-around pan ends and the camera snaps back to them
+    pan = { x: 0, y: 0 };
+  }
+  playerTile = { x: nx, y: ny };
+  apply();
+}
+
+/** Move the view by screen px (trackpad, wheel, finger drag). Clamped to panBounds. */
+export function panBy(dx, dy) {
+  if (!worldContainer) return;
+  pan = { x: pan.x + dx, y: pan.y + dy };
+  clampPan();
+  apply();
+}
+
+export function resetPan() {
+  pan = { x: 0, y: 0 };
+  apply();
+}
+
+/** World extent (base px, current grid at the origin) the view may wander over; null = the grid. */
+export function setPanBounds(bounds) {
+  panBounds = bounds || null;
+  clampPan();
   apply();
 }
 
@@ -125,6 +171,7 @@ export function setZoom(scale) {
   if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
   zoom = scale;
   targetZoom = scale;
+  pan = { x: 0, y: 0 };
   apply();
 }
 
@@ -136,6 +183,7 @@ export function animateZoom(target, onDone) {
   if (zoomFrame) { cancelAnimationFrame(zoomFrame); zoomFrame = null; }
   targetZoom = target;
   zoomDone = onDone || null;
+  pan = { x: 0, y: 0 }; // a zoom re-centres on the player
   if (Math.abs(zoom - target) < ZOOM_EPSILON) {
     zoom = target;
     apply();
@@ -193,10 +241,10 @@ export function screenToTile(screenX, screenY) {
 }
 
 const PixiCamera = {
-  attach, detach, whenReady, setOverlayElement, follow, setZoom, animateZoom,
+  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, setPanBounds, setZoom, animateZoom,
   getZoom, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
-  debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame }),
+  debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame }),
 };
 if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
   window.__pixiCamera = PixiCamera;

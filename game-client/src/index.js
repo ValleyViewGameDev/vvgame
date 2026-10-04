@@ -2,6 +2,7 @@ import React from 'react';
 import { StringsProvider } from './UI/StringsContext';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './UI/Styles/mobile.css'; // phone layout; imported after App so it follows every component stylesheet
 import reportWebVitals from './reportWebVitals';
 import { StatusBarProvider } from './UI/StatusBar/StatusBar';
 import { PanelProvider } from './UI/Panels/PanelContext';
