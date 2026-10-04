@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import Panel from '../../UI/Panels/Panel';
@@ -375,6 +376,7 @@ const CraftingStation = ({
 
   // Slot-based collection function - uses optimistic UI pattern for responsiveness
   const handleCollectSlot = async (slotIndex) => {
+    playersInGridManager.flushAfterTransaction(); // collecting a craft: save the position with it
     const slot = effectiveSlots?.[slotIndex];
     if (!slot?.craftedItem) {
       console.error('❌ No item in this slot');

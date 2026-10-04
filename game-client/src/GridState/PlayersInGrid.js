@@ -20,6 +20,9 @@ import { loadMasterResources } from '../Utils/TuningManager';
  */
 
 const PERSIST_INTERVAL_MS = 30000;
+// After the last step of a movement burst, persist this soon (one POST per burst, so a
+// refresh a few seconds after walking somewhere finds the player where they stopped)
+const SETTLE_FLUSH_MS = 2000;
 const GRID_MAX_COORD = 63;
 // While a key is held the store changes every ~90 ms. React (App.js) and localStorage only
 // need to catch up every so often; the renderer reads the store directly (PixiRendererPCs).
@@ -122,6 +125,7 @@ class GridStatePCManager {
     this.reactSyncTimer = null;
     this.mirrorTimer = null;
     this.pendingMirror = null;
+    this.settleTimer = null;
   }
 
   registerSetPlayersInGrid(setter) {
@@ -266,24 +270,60 @@ class GridStatePCManager {
     this.persistInterval = setInterval(() => { this.flushState(); }, PERSIST_INTERVAL_MS);
   }
 
+  /** Persist shortly after the position stops changing (debounced). */
+  flushSoon(delayMs = SETTLE_FLUSH_MS) {
+    if (this.settleTimer) clearTimeout(this.settleTimer);
+    this.settleTimer = setTimeout(() => {
+      this.settleTimer = null;
+      this.flushState();
+    }, delayMs);
+  }
+
+  /**
+   * Transactional moments (an NPC killed, a quest reward, a trade, a craft collected, a
+   * purchase) persist the position right away, off the timer. Fire-and-forget.
+   */
+  flushAfterTransaction() {
+    if (this.settleTimer) { clearTimeout(this.settleTimer); this.settleTimer = null; }
+    this.flushState();
+  }
+
+  /**
+   * Page dismissal: `navigator.sendBeacon` is the only request a browser is guaranteed to
+   * deliver from pagehide / a hidden tab (synchronous XHR is blocked there now, which is why
+   * a refresh after walking used to lose the position). The payload carries playerId, which
+   * the maintenance gate accepts in place of the x-player-id header a beacon cannot set.
+   */
+  sendBeaconState() {
+    if (!this.dirty) return;
+    const payload = this.buildStatePayload();
+    if (!payload) return;
+    const url = `${API_BASE}/api/player/state`;
+    const body = JSON.stringify(payload);
+    try {
+      if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))) {
+        this.dirty = false;
+        return;
+      }
+    } catch (err) { /* fall through */ }
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, false);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      if (this.localPlayerId) xhr.setRequestHeader('x-player-id', String(this.localPlayerId));
+      xhr.send(body);
+      this.dirty = false;
+    } catch (err) {
+      // page is going away; nothing else to do
+    }
+  }
+
   ensureUnloadFlush() {
     if (this.unloadListenerAdded) return;
-    window.addEventListener('beforeunload', () => {
-      if (!this.dirty) return;
-      const payload = this.buildStatePayload();
-      if (!payload) return;
-      // Synchronous XHR so the request survives page teardown
-      try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `${API_BASE}/api/player/state`, false);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        if (this.localPlayerId) xhr.setRequestHeader('x-player-id', String(this.localPlayerId)); // maintenance gate (utils/serviceMode.js)
-        xhr.send(JSON.stringify(payload));
-        this.dirty = false;
-      } catch (err) {
-        // page is going away; nothing else to do
-      }
-    });
+    const onLeave = () => this.sendBeaconState();
+    window.addEventListener('pagehide', onLeave);
+    window.addEventListener('beforeunload', onLeave);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) onLeave(); });
     this.unloadListenerAdded = true;
   }
 
@@ -482,6 +522,7 @@ class GridStatePCManager {
       if (positionOnly) this.mirrorToLocalStorageDebounced(updatedPC, changedKeys);
       else this.mirrorToLocalStorage(updatedPC, changedKeys);
       this.startPersistence();
+      this.flushSoon(); // settle flush: a couple of seconds after the last change
     }
   }
 

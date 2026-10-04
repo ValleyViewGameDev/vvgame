@@ -260,6 +260,7 @@ useEffect(() => {
     const offerId = params.get("offerId");
 
     if (purchaseSuccess === "success" && playerId && offerId) {
+      playersInGridManager.flushAfterTransaction(); // a purchase: save the position with it
       console.log("🧾 Processing store purchase via App.js effect:", { playerId, offerId });
 
       axios.post(`${API_BASE}/api/purchase-store-offer`, {

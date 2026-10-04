@@ -391,6 +391,7 @@ const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, x
 };
 
 const handleGetReward = async (transactionId, transactionKey, quest) => {
+  playersInGridManager.flushAfterTransaction(); // quest reward: save the position with it
     console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
@@ -560,6 +561,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
 // Protected function to execute healing using transaction system
   const handleHeal = async (transactionId, transactionKey, recipe) => {
+    playersInGridManager.flushAfterTransaction();
     console.log(`🔒 [PROTECTED HEAL] Starting protected heal for ${recipe.type}`);
     setErrorMessage('');
 
@@ -652,6 +654,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
   // Protected function to execute trades using transaction system
   const handleTrade = async (transactionId, transactionKey, recipe) => {
+    playersInGridManager.flushAfterTransaction(); // NPC trade: save the position with it
     console.log(`🔒 [PROTECTED TRADE] Starting protected trade for ${recipe.type}`);
     setErrorMessage('');
     if (!recipe) {

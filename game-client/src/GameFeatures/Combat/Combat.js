@@ -111,6 +111,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
 
     if (freshNPC.hp <= 0) {
         console.log(`NPC ${freshNPC.id} killed.`);
+        playersInGridManager.flushAfterTransaction(); // a kill is a moment worth saving the position
         FloatingTextManager.addFloatingText(504, freshNPC.position.x, freshNPC.position.y-0.5, TILE_SIZE);
 
         try {
