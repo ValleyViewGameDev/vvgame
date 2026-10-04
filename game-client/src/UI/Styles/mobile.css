@@ -21,7 +21,7 @@
                         with the game title in the second, like desktop.
      SAFE AREA          landscape keeps env(safe-area-inset-left) clear (iPhone camera
                         housing) with a black strip; viewport-fit=cover supplies the inset.
-     ALSO               base panel hidden (Home sheet instead), modals fit, notifications
+     ALSO               base panel hidden (Home sheet instead), modals centred with side buffers, notifications
                         span the width above the zoom buttons, Ko-fi hidden.
 
    Geometry flows through the --m-* custom properties: each orientation sets the header
@@ -269,20 +269,26 @@
   .chat-panel-slideout { padding-left: 0; }
   .chat-container { width: 100%; }
 
-  /* ---------- modals fit the viewport ---------- */
+  /* ---------- modals: centred by the overlay, with a clear buffer to the screen edges ---------- */
   .modal-container,
   .modal-container.modal-small,
   .modal-container.modal-medium,
   .modal-container.modal-large,
-  .modal-container.modal-xlarge {
-    width: 94vw;
+  .modal-container.modal-xlarge,
+  .modal-container.story-modal.modal-small {
+    width: 84vw;
     min-width: 0;
-    max-width: 94vw;
-    max-height: 86vh;
-    max-height: 86dvh;
-    padding: 14px 12px;
+    max-width: 440px;
+    min-height: 0;
+    max-height: 82vh;
+    max-height: 82dvh;
+    margin: 0 auto;
+    padding: 16px 14px;
+    border-radius: 12px;
+    box-sizing: border-box;
   }
   .modal-container.modal-small { max-height: 60vh; }
+  .modal-container.story-modal.modal-small { max-height: 80vh; max-height: 80dvh; }
 
   /* ---------- notifications: full width, above the zoom buttons ---------- */
   #notification-container { top: calc(var(--m-top) + 8px); left: var(--m-safe-left); z-index: 1500; }

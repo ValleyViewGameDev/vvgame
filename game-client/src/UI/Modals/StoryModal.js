@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import './Modal.css';
 import './StoryModal.css';
 import '../Buttons/SharedButtons.css';
@@ -185,7 +186,10 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     }
   };
 
-  return (
+  // Portal to <body>: NPC panels render this while they are animated/transformed on phones,
+  // and a transformed ancestor would otherwise become the fixed overlay's containing block
+  // (the modal then conforms to the panel instead of the viewport)
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-small story-modal">
         {/* Close Button */}
@@ -231,7 +235,8 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
