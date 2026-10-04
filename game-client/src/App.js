@@ -3486,6 +3486,7 @@ return (
           doinkerType={doinkerType}
           doinkerVisible={!!doinkerTargets}
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
+          onPlayerClick={() => openMyProfile()}
           onBoardTap={() => {
             // A tap on the board while a panel (or the Home sheet) is open closes it on
             // phones; the tap still does its own thing (move, collect, interact)

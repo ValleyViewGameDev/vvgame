@@ -355,6 +355,7 @@ const PixiRenderer = ({
   doinkerVisible = false, // Whether doinker should be visible
   // Touch / tap-to-walk
   onBoardTap,             // () => void: any real tap/click on the board (phones close an open panel)
+  onPlayerClick,          // () => void: the local avatar's tile was clicked (opens the Player Character panel)
   onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
   onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
 }) => {
@@ -1367,6 +1368,12 @@ const PixiRenderer = ({
       return;
     }
 
+    // The avatar itself: open the Player Character panel (wins over whatever is on the tile)
+    if (onPlayerClick && playerPos && Math.round(playerPos.x) === col && Math.round(playerPos.y) === row) {
+      onPlayerClick();
+      return;
+    }
+
     // Check for NPC at this position first
     const npc = npcs?.find(n =>
       n && n.position &&
@@ -1433,7 +1440,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, onBoardTap, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
