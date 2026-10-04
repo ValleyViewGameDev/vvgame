@@ -1403,8 +1403,10 @@ const PixiRenderer = ({
 
     // Cursor placement modes own the click entirely (they have their own range feedback)
     if (!cursorMode) {
+      // Anything placed on the tile is clickable (trees and rocks are 'source' and get chopped
+      // or mined through handleTileClick); only shadows are decoration
       const resource = resources?.find(r => {
-        if (!r || r.category === 'source' || r.type === 'shadow') return false;
+        if (!r || r.type === 'shadow') return false;
         const span = r.size || 1;
         return col >= r.x && col < r.x + span && row <= r.y && row > r.y - span;
       });
