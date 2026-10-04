@@ -234,7 +234,7 @@
     box-shadow: var(--m-panel-shadow);
     box-sizing: border-box;
     overflow: hidden;
-    z-index: 1002; /* above the zoom buttons and the pill */
+    z-index: 990; /* BELOW the nav pill (1000) and the zoom buttons: panels slide in and out behind the pill */
   }
   .panel-buffer-space { display: none; }
   .panel-content { font-size: 13px; }
@@ -323,7 +323,7 @@
   .chat-panel-slideout.closing {
     animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
   }
-  .panel-container.panel-ghost { z-index: 1001; pointer-events: none; }
+  .panel-container.panel-ghost { z-index: 990; pointer-events: none; }
 }
 
 /* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
@@ -374,6 +374,8 @@
     --m-pill-reserve-bottom: 0px;
     --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
     --m-zoom-col: 48px;           /* header column 1: the zoom buttons */
+    --m-panel-width: 37vw;        /* about 85% of the portrait proportion; landscape has the room */
+    --m-panel-max-width: 340px;
   }
 
   /* the camera housing: the strip under env(safe-area-inset-left) stays black */
