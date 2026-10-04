@@ -3490,7 +3490,8 @@ return (
             // A tap on the board while a panel (or the Home sheet) is open closes it on
             // phones; the tap still does its own thing (move, collect, interact)
             if (isPhoneLayout) {
-              if (activePanel) closePanel();
+              // The Farming panel stays open: players place many farmplots in a row from it
+              if (activePanel && activePanel !== 'FarmingPanel') closePanel();
               if (isHomeSheetOpen) closeHomeSheet();
               // Best effort to tuck the browser's bars away again: Safari collapses them on a
               // page scroll, so the document is kept 1 px taller than the viewport (mobile.css)
