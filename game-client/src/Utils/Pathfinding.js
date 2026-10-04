@@ -15,7 +15,7 @@
  * Returns the steps AFTER the start tile, or [] when start === goal or nothing is reachable.
  */
 
-import { checkDoorAccess } from '../GameFeatures/Doors/Doors';
+import { checkDoorAccess } from '../GameFeatures/Doors/Doors.js';
 
 const SQRT2 = Math.SQRT2;
 const MAX_EXPANSIONS = 6000;   // the whole grid is 4,096 tiles; this bounds a hopeless search
