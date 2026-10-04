@@ -3,23 +3,28 @@
 
    The desktop chrome is fixed pixels: a 60 px nav rail, a 220 px base panel, 240 px
    slide-in panels and a 60 px header, with the board starting 300 px in. These rules
-   re-arrange the SAME elements for phones, in two orientations:
+   re-arrange the SAME elements for phones, with one UX pattern in both orientations:
 
-     PHONE (both orientations)  base panel hidden (the 👸 button opens it as the "Home"
-                                sheet), panels and chat as sheets over the board, modals
-                                that fit, notifications that span the width, Ko-fi hidden
-     PORTRAIT                   header = two scrollable rows, status bar under it, the nav
-                                rail becomes a bottom bar, zoom buttons at the board's
-                                bottom-right (clear of notifications at the top)
-     LANDSCAPE                  header = one scrollable row, the nav stays a rail on the
-                                left (narrower), zoom buttons top-right of the board
+     FLOATING TAB BAR   the nav buttons sit in a rounded pill that floats over the board,
+                        visually detached from the panels (iOS style). Portrait: a
+                        horizontal pill along the bottom. Landscape: a vertical pill at the
+                        left.
+     PANELS             about half the screen wide so the board stays playable beside
+                        them. Portrait: docked bottom-left, sliding up from the bottom and
+                        back down on close. Landscape: docked left of the board (right of
+                        the pill), sliding in from the left. The Home sheet (the desktop base
+                        panel) and the chat use the same box and motion.
+     HEADER             portrait = two scrollable rows; landscape = one scrollable row.
+     ZOOM               round buttons; bottom-right in portrait, top-right in landscape.
+     ALSO               base panel hidden (Home sheet instead), modals fit, notifications
+                        span the width above the zoom buttons, Ko-fi hidden.
 
-   Geometry is shared through the --m-* custom properties: each orientation sets the
-   header height and where the nav lives (--m-nav-left / --m-nav-bottom), and the shared
-   block positions the board, the sheets and the status bar from those.
-   Heights use dvh where supported so the iOS URL bar does not hide the bottom bar.
-
+   Geometry flows through the --m-* custom properties: each orientation sets the header
+   height and the pill's reserve, the shared block derives the board, status bar, panel box
+   and animations from them. Heights use dvh where supported (iOS URL bar).
    Phone = a viewport under 768 px wide, or a landscape viewport under 500 px tall.
+   The slide-out on close is timed by UI/Panels/PanelContext.js (body.panel-closing) and
+   App.js (.base-panel--closing); keep CLOSE_ANIMATION_MS and the durations here in step.
    =========================================== */
 
 /* ---------- shared: both orientations ---------- */
@@ -27,14 +32,19 @@
   :root {
     --m-header-height: 58px;
     --m-status-height: 20px;
-    --m-nav-left: 0px;      /* rail width when the nav is on the left (landscape) */
-    --m-nav-bottom: 56px;   /* bar height when the nav is at the bottom (portrait) */
-    --m-safe-bottom: env(safe-area-inset-bottom, 0px);
     --m-top: calc(var(--m-header-height) + var(--m-status-height)); /* where the board starts */
-    --m-sheet-height: calc(100vh - var(--m-header-height) - var(--m-nav-bottom) - var(--m-safe-bottom));
-  }
-  @supports (height: 100dvh) {
-    :root { --m-sheet-height: calc(100dvh - var(--m-header-height) - var(--m-nav-bottom) - var(--m-safe-bottom)); }
+    --m-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --m-gap: 10px;                 /* the pill's distance from the edges */
+    --m-pill-h: 56px;              /* portrait pill height */
+    --m-pill-w: 48px;              /* landscape pill width */
+    --m-pill-reserve-bottom: 0px;  /* portrait: space the panel box leaves for the pill */
+    --m-pill-reserve-left: 0px;    /* landscape: space the panel box leaves for the pill */
+    --m-panel-width: 56vw;
+    --m-panel-max-width: 360px;
+    --m-panel-radius: 14px;
+    --m-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    --m-anim-in: 260ms;
+    --m-anim-out: 220ms;
   }
 
   .app-container { margin-left: 0; }
@@ -50,11 +60,11 @@
   .header-secondary .header-controls-right,
   .header-secondary .header-row { display: contents; }
 
-  /* status bar: under the header, right of the rail (if any), full width otherwise */
+  /* status bar: full width under the header */
   .status-bar {
     top: var(--m-header-height);
-    left: var(--m-nav-left);
-    width: calc(100% - var(--m-nav-left));
+    left: 0;
+    width: 100%;
     height: var(--m-status-height);
     line-height: var(--m-status-height);
     font-size: 11px;
@@ -62,21 +72,39 @@
     box-sizing: border-box;
   }
 
-  /* board: everything between the status bar and the bottom bar, right of the rail */
+  /* board: the whole area below the status bar; the pill floats over it */
   .homestead {
     margin-left: 0;
-    left: var(--m-nav-left);
-    width: calc(100% - var(--m-nav-left));
+    left: 0;
+    width: 100%;
     top: var(--m-top);
-    height: calc(100vh - var(--m-top) - var(--m-nav-bottom) - var(--m-safe-bottom));
-    height: calc(100dvh - var(--m-top) - var(--m-nav-bottom) - var(--m-safe-bottom));
+    height: calc(100vh - var(--m-top));
+    height: calc(100dvh - var(--m-top));
   }
 
-  /* nav buttons: finger-sized in either orientation */
-  .nav-button { font-size: 28px; flex: 0 0 auto; }
-  .nav-icon { width: 30px; height: 30px; }
+  /* ---------- floating tab bar (pill); orientation blocks shape it ---------- */
+  .nav-column {
+    position: fixed;
+    background-color: rgba(130, 187, 77, 0.96); /* --color-primary-green with a little glass */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1000;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-column::-webkit-scrollbar { display: none; }
+  .nav-button {
+    flex: 0 0 auto;
+    font-size: 26px;
+    border-radius: 22px;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+  }
+  .nav-button.selected { background-color: var(--color-bg-panel); }
+  .nav-button:active { transform: scale(0.92); }
+  .nav-icon { width: 28px; height: 28px; }
 
-  /* zoom: round buttons (placed per orientation below) */
+  /* ---------- zoom: round buttons (placed per orientation) ---------- */
   .zoom-controls { position: fixed; left: auto; width: 44px; height: 96px; z-index: 1001; }
   .zoom-button-container { width: 44px; height: 96px; }
   .zoom-button,
@@ -97,26 +125,41 @@
   .zoom-button.zoom-in span,
   .zoom-button.zoom-out span { position: static; }
 
-  /* base panel: hidden, opens as the "Home" sheet from the 👸 button */
+  /* ---------- the panel box: panels, the Home sheet and the chat share it ---------- */
+  .panel-container,
+  .base-panel.base-panel--open,
+  .chat-panel-slideout {
+    position: fixed;
+    top: calc(var(--m-top) + var(--m-gap));
+    left: var(--m-pill-reserve-left);
+    right: auto;
+    bottom: auto;
+    width: var(--m-panel-width);
+    max-width: var(--m-panel-max-width);
+    height: calc(100vh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
+    height: calc(100dvh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
+    border-radius: 0 var(--m-panel-radius) var(--m-panel-radius) 0;
+    box-shadow: var(--m-panel-shadow);
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 1002; /* above the zoom buttons and the pill */
+  }
+  .panel-buffer-space { display: none; }
+  .panel-content { font-size: 13px; }
+  .panel-close-btn { padding: 6px 10px; }
+
+  /* base panel: hidden until the 👸 button opens it as the Home sheet */
   .base-panel { display: none; }
   .base-panel.base-panel--open {
     display: flex;
-    position: fixed;
-    top: var(--m-header-height);
-    left: var(--m-nav-left);
-    width: calc(100% - var(--m-nav-left));
-    height: var(--m-sheet-height);
-    padding: 12px 16px 0 16px;
-    box-sizing: border-box;
-    box-shadow: none;
-    z-index: 1002; /* above the zoom buttons (1001), like the other sheets */
+    padding: 12px 12px 0 12px;
   }
   .base-panel.base-panel--open .base-panel-buffer { display: none; }
   .base-panel-close {
     display: flex;
     position: absolute;
-    top: 6px;
-    right: 10px;
+    top: 4px;
+    right: 6px;
     width: 36px;
     height: 36px;
     align-items: center;
@@ -130,33 +173,11 @@
     z-index: 1;
   }
 
-  /* slide-in panels -> sheets over the board */
-  .panel-container {
-    top: var(--m-header-height);
-    left: var(--m-nav-left);
-    width: calc(100% - var(--m-nav-left));
-    height: var(--m-sheet-height);
-    box-shadow: none;
-    z-index: 1002; /* sheets cover the zoom buttons (1001) */
-  }
-  .panel-buffer-space { display: none; }
-  .panel-content { font-size: 13px; }
-  .panel-close-btn { padding: 6px 10px; }
-
-  /* chat opens as a sheet too (App.js wraps it in .chat-panel-slideout) */
-  .chat-panel-slideout {
-    top: var(--m-header-height);
-    left: var(--m-nav-left);
-    right: 0;
-    width: calc(100% - var(--m-nav-left));
-    height: var(--m-sheet-height);
-    padding-left: 0;
-    box-sizing: border-box;
-    z-index: 1002;
-  }
+  /* chat (App.js wraps it in .chat-panel-slideout, which already has a .closing state) */
+  .chat-panel-slideout { padding-left: 0; }
   .chat-container { width: 100%; }
 
-  /* modals fit the viewport */
+  /* ---------- modals fit the viewport ---------- */
   .modal-container,
   .modal-container.modal-small,
   .modal-container.modal-medium,
@@ -171,8 +192,8 @@
   }
   .modal-container.modal-small { max-height: 60vh; }
 
-  /* notifications: full width, above the zoom buttons so the dismiss button is reachable */
-  #notification-container { top: calc(var(--m-top) + 8px); left: var(--m-nav-left); z-index: 1500; }
+  /* ---------- notifications: full width, above the zoom buttons ---------- */
+  #notification-container { top: calc(var(--m-top) + 8px); left: 0; z-index: 1500; }
   .notification,
   .notification.notification-persistent {
     left: 8px !important;
@@ -187,8 +208,8 @@
   @keyframes mobileNotificationIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
   @keyframes mobileNotificationOut { from { opacity: 1; } to { opacity: 0; } }
 
-  /* login / key art */
-  .keyart-wrapper { left: var(--m-nav-left); top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
+  /* ---------- login / key art ---------- */
+  .keyart-wrapper { left: 0; top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
   .keyart-image { width: 100%; height: 100%; object-fit: cover; }
 
   /* The Ko-fi floating widget (injected by index.html) lands on the nav; off on phones */
@@ -196,14 +217,20 @@
 
   /* Tooltips come from long-press; keep them clear of the thumb */
   .HoverTooltip { max-width: 70vw; }
+
+  /* ---------- motion ---------- */
+  @keyframes mPanelUpIn   { from { transform: translateY(110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  @keyframes mPanelDownOut { from { transform: none; opacity: 1; } to { transform: translateY(110%); opacity: 0.6; } }
+  @keyframes mPanelLeftIn  { from { transform: translateX(-110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  @keyframes mPanelLeftOut { from { transform: none; opacity: 1; } to { transform: translateX(-110%); opacity: 0.6; } }
 }
 
-/* ---------- portrait: two-row header, bottom bar ---------- */
+/* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
 @media (max-width: 767px) and (orientation: portrait) {
   :root {
     --m-header-height: 58px;
-    --m-nav-left: 0px;
-    --m-nav-bottom: 56px;
+    --m-pill-reserve-bottom: calc(var(--m-pill-h) + 2 * var(--m-gap) + var(--m-safe-bottom));
+    --m-pill-reserve-left: 0px;
   }
 
   .app-header {
@@ -238,39 +265,52 @@
   }
   .header-secondary::-webkit-scrollbar { display: none; }
 
-  /* nav rail -> bottom bar */
+  /* the pill */
   .nav-column {
     top: auto;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: calc(var(--m-nav-bottom) + var(--m-safe-bottom));
-    padding: 0 0 var(--m-safe-bottom) 0;
+    bottom: calc(var(--m-gap) + var(--m-safe-bottom));
+    left: var(--m-gap);
+    right: var(--m-gap);
+    width: auto;
+    height: var(--m-pill-h);
+    padding: 0 6px;
+    border-radius: calc(var(--m-pill-h) / 2);
     flex-direction: row;
-    align-items: stretch;
+    align-items: center;
+    justify-content: flex-start;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
   }
-  .nav-column::-webkit-scrollbar { display: none; }
-  .nav-button { width: 56px; min-width: 56px; height: var(--m-nav-bottom); }
+  .nav-button { width: 52px; min-width: 52px; height: 46px; margin: 0 1px; }
 
-  /* zoom buttons at the board's bottom-right, out of the way of notifications */
+  /* panels: docked bottom-left, half the screen, up from the bottom */
+  .panel-container,
+  .base-panel.base-panel--open,
+  .chat-panel-slideout {
+    animation: mPanelUpIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  body.panel-closing .panel-container,
+  .base-panel.base-panel--open.base-panel--closing,
+  .chat-panel-slideout.closing {
+    animation: mPanelDownOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  /* zoom buttons at the board's bottom-right, above the pill, clear of notifications */
   .zoom-controls {
     top: auto;
-    bottom: calc(var(--m-nav-bottom) + var(--m-safe-bottom) + 12px);
+    bottom: calc(var(--m-pill-reserve-bottom) + 4px);
     right: 10px;
   }
 }
 
-/* ---------- landscape: one-row header, nav rail on the left ---------- */
+/* ---------- landscape: one-row header, pill at the left, panels slide in from the left ---------- */
 @media (max-height: 500px) and (orientation: landscape) {
   :root {
     --m-header-height: 34px;
-    --m-nav-left: 48px;
-    --m-nav-bottom: 0px;
+    --m-pill-reserve-bottom: 0px;
+    --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
+    --m-panel-width: 44vw;
+    --m-panel-max-width: 400px;
   }
 
   /* Every header link in one scrolling row */
@@ -289,25 +329,38 @@
   .header-controls-left.header-grid,
   .header-secondary { display: contents; }
 
-  /* nav stays a rail, narrower, below the header */
+  /* the pill, vertical at the left */
   .nav-column {
-    top: var(--m-header-height);
-    bottom: 0;
-    left: 0;
-    width: var(--m-nav-left);
-    height: calc(100vh - var(--m-header-height));
-    height: calc(100dvh - var(--m-header-height));
-    padding: 0;
+    top: calc(var(--m-top) + var(--m-gap));
+    bottom: calc(var(--m-gap) + var(--m-safe-bottom));
+    left: var(--m-gap);
+    right: auto;
+    width: var(--m-pill-w);
+    height: auto;
+    padding: 6px 0;
+    border-radius: calc(var(--m-pill-w) / 2);
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: none;
-    box-shadow: 2px 0 6px rgba(0, 0, 0, 0.25);
   }
-  .nav-column::-webkit-scrollbar { display: none; }
-  .nav-button { width: var(--m-nav-left); min-width: 0; height: 44px; font-size: 24px; }
+  .nav-button { width: 44px; min-width: 0; height: 44px; margin: 1px 0; font-size: 24px; }
   .nav-icon { width: 26px; height: 26px; }
+
+  /* panels: right of the pill, in from the left; bottom gap matches the top gap */
+  .panel-container,
+  .base-panel.base-panel--open,
+  .chat-panel-slideout {
+    height: calc(100vh - var(--m-top) - 2 * var(--m-gap));
+    height: calc(100dvh - var(--m-top) - 2 * var(--m-gap));
+    border-radius: var(--m-panel-radius);
+    animation: mPanelLeftIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  body.panel-closing .panel-container,
+  .base-panel.base-panel--open.base-panel--closing,
+  .chat-panel-slideout.closing {
+    animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
+  }
 
   /* zoom buttons top-right of the board */
   .zoom-controls { top: calc(var(--m-top) + 8px); right: 8px; bottom: auto; }

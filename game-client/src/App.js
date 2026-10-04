@@ -854,7 +854,14 @@ const { activePanel, openPanel, closePanel } = usePanelContext();
 // Phones hide the base panel (UI/Styles/mobile.css); the 👸 nav button opens it as a
 // full-screen "Home" sheet instead. Any other panel opening closes the sheet.
 const [isHomeSheetOpen, setIsHomeSheetOpen] = useState(false);
-useEffect(() => { if (activePanel) setIsHomeSheetOpen(false); }, [activePanel]);
+const [isHomeSheetClosing, setIsHomeSheetClosing] = useState(false);
+const closeHomeSheet = () => {
+  if (!isHomeSheetOpen || isHomeSheetClosing) return;
+  // Slide out first on phones (CSS .base-panel--closing), then unmount-equivalent hide
+  setIsHomeSheetClosing(true);
+  setTimeout(() => { setIsHomeSheetClosing(false); setIsHomeSheetOpen(false); }, 240);
+};
+useEffect(() => { if (activePanel) { setIsHomeSheetClosing(false); setIsHomeSheetOpen(false); } }, [activePanel]);
 const { closeAllPanels } = usePanelContext(); 
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
@@ -3065,7 +3072,7 @@ return (
           </div>
         </div>
 
-      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => { closePanel(); setIsHomeSheetOpen((open) => !open); }}>{renderNavIcon('BasePanel', '👸')}</button>
+      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => { closePanel(); if (isHomeSheetOpen) closeHomeSheet(); else setIsHomeSheetOpen(true); }}>{renderNavIcon('BasePanel', '👸')}</button>
       <button
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
         title="My Profile"
@@ -3178,9 +3185,9 @@ return (
 
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
-    <div className={`base-panel ${isHomeSheetOpen ? 'base-panel--open' : ''}`}>
+    <div className={`base-panel ${isHomeSheetOpen ? 'base-panel--open' : ''} ${isHomeSheetClosing ? 'base-panel--closing' : ''}`}>
       {/* Close button: only rendered visibly on phones, where the panel is a sheet */}
-      <button className="base-panel-close" aria-label="Close" onClick={() => setIsHomeSheetOpen(false)}>×</button>
+      <button className="base-panel-close" aria-label="Close" onClick={closeHomeSheet}>×</button>
       <div className="base-panel-content">
 
       {/* Frontier Mini Map */}
