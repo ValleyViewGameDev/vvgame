@@ -3,9 +3,10 @@
  *
  * Passability mirrors PlayerMovement.isTileValidForPlayer: the tile type must be passable
  * per masterResources (a player in a boat may only use water), a resource anchored on the
- * tile with `passable === false` blocks it (doors included: the walk stops in front of them
- * and the player's next step through the door runs the real door check), and an impassable
- * NPC blocks the tile it stands on. Eight directions, no corner cutting (a diagonal step
+ * tile with `passable === false` blocks it unless it is a door the player holds the key for
+ * (Doors.checkDoorAccess, the same rule keyboard movement applies; the step through the
+ * door still runs canPassThroughDoor with its sound and message), and an impassable NPC
+ * blocks the tile it stands on. Eight directions, no corner cutting (a diagonal step
  * needs both orthogonal neighbours open), octile heuristic.
  *
  * If the goal itself is blocked (a tree, a building, an NPC) the path ends on the nearest
@@ -13,6 +14,8 @@
  *
  * Returns the steps AFTER the start tile, or [] when start === goal or nothing is reachable.
  */
+
+import { checkDoorAccess } from '../GameFeatures/Doors/Doors';
 
 const SQRT2 = Math.SQRT2;
 const MAX_EXPANSIONS = 6000;   // the whole grid is 4,096 tiles; this bounds a hopeless search
@@ -30,9 +33,10 @@ export function buildPassability({ tiles, resources, npcs, masterResources, curr
   }
   const blockedByResource = new Set();
   for (const res of resources || []) {
-    if (res && res.passable === false && Number.isInteger(res.x) && Number.isInteger(res.y)) {
-      blockedByResource.add(key(res.x, res.y));
-    }
+    if (!res || res.passable !== false || !Number.isInteger(res.x) || !Number.isInteger(res.y)) continue;
+    // A door opens for a player who has its key: route through it, as a key press would
+    if (res.action === 'door' && checkDoorAccess(res, currentPlayer, null)?.hasAccess) continue;
+    blockedByResource.add(key(res.x, res.y));
   }
   const blockedByNpc = new Set();
   const npcList = Array.isArray(npcs) ? npcs : Object.values(npcs || {});
