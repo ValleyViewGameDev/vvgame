@@ -354,6 +354,7 @@ const PixiRenderer = ({
   doinkerType,            // 'resource' or 'button'
   doinkerVisible = false, // Whether doinker should be visible
   // Touch / tap-to-walk
+  onBoardTap,             // () => void: any real tap/click on the board (phones close an open panel)
   onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
   onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
 }) => {
@@ -1324,6 +1325,7 @@ const PixiRenderer = ({
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
     if (suppressClickRef.current) { suppressClickRef.current = false; return; } // long-press or pinch
+    if (onBoardTap) onBoardTap();
 
     const rect = containerRef.current.getBoundingClientRect();
     const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
@@ -1426,7 +1428,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, onBoardTap, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,

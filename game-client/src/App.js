@@ -140,6 +140,9 @@ import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 
+// Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
+const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
+
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 // Identify this client to the server's maintenance gate (utils/serviceMode.js) from the very first request.
 // The React effect below re-applies it once currentPlayer loads; this module-level set covers app boot
@@ -875,6 +878,26 @@ const { activePanel, openPanel, closePanel } = usePanelContext();
 // full-screen "Home" sheet instead. Any other panel opening closes the sheet.
 const [isHomeSheetOpen, setIsHomeSheetOpen] = useState(false);
 const [isHomeSheetClosing, setIsHomeSheetClosing] = useState(false);
+// Phone layout active? (same media list as UI/Styles/mobile.css). Header links render as
+// icons only and a board tap closes an open panel when this is true.
+const [isPhoneLayout, setIsPhoneLayout] = useState(() => (
+  typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia(PHONE_MEDIA_QUERY).matches : false
+));
+useEffect(() => {
+  if (!window.matchMedia) return undefined;
+  const mql = window.matchMedia(PHONE_MEDIA_QUERY);
+  const onChange = (e) => setIsPhoneLayout(e.matches);
+  if (mql.addEventListener) mql.addEventListener('change', onChange); else mql.addListener(onChange);
+  return () => { if (mql.removeEventListener) mql.removeEventListener('change', onChange); else mql.removeListener(onChange); };
+}, []);
+// The leading emoji of a "🛒 Store" style label, for the phone header's icon-only row
+const headerIcon = (label, fallback = '') => {
+  if (typeof label !== 'string') return fallback;
+  const m = label.match(/^\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*/u);
+  return m ? m[0] : fallback;
+};
+const headerLabel = (label, fallback = '') => (isPhoneLayout ? headerIcon(label, fallback) : label);
 const closeHomeSheet = () => {
   if (!isHomeSheetOpen || isHomeSheetClosing) return;
   // Slide out first on phones (CSS .base-panel--closing), then unmount-equivalent hide
@@ -3019,8 +3042,8 @@ return (
           {/* Row 1: Store */}
           <div className="header-row">
             <div className="header-link-wrapper">
-              <button className="header-link" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>
-                {strings[10104]}
+              <button className="header-link header-link--store" title={strings[10104]} disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>
+                {headerLabel(strings[10104], '🛒')}
               </button>
               {badgeState.store && <div className="badge-dot" />}
             </div>
@@ -3029,8 +3052,8 @@ return (
           <div className="header-row">
             <div className="header-link-wrapper">
               {badgeState.mailbox && <div className="badge-dot badge-dot-left" />}
-              <button className="header-link" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>
-                {strings[10105]}
+              <button className="header-link header-link--inbox" title={strings[10105]} disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>
+                {headerLabel(strings[10105], '📨')}
               </button>
             </div>
           </div>
@@ -3039,25 +3062,25 @@ return (
         <div className="header-controls-right header-grid-right">
           {/* Grid layout: 3 columns x 2 rows */}
           {/* Row 1: Settings, Chat, (empty) */}
-          <button className="header-link" onClick={() => openPanel('ProfilePanel')}>
-            {strings[1190]}
+          <button className="header-link header-link--settings" title={strings[1190]} onClick={() => openPanel('ProfilePanel')}>
+            {headerLabel(strings[1190], '⚙️')}
           </button>
           <div className="header-link-wrapper">
-            <button className="header-link" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>
-              {strings[10107]}
+            <button className="header-link header-link--chat" title={strings[10107]} disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>
+              {headerLabel(strings[10107], '💬')}
             </button>
             {badgeState.chat && <div className="badge-dot" />}
           </div>
           <span></span>
           {/* Row 2: Leaders, Language, Share */}
-          <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
-            {strings[1140]}
+          <button className="header-link header-link--leaders" title={strings[1140]} disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
+            {headerLabel(strings[1140], '📊')}
           </button>
-          <button className="header-link" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
-            🌐 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
+          <button className="header-link header-link--language" title="Language" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
+            🌐 {isPhoneLayout ? '' : (LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language')}
           </button>
-          <button className="header-link" onClick={() => setShowShareModal(true)}>
-            {strings[10106]}
+          <button className="header-link header-link--share" title={strings[10106]} onClick={() => setShowShareModal(true)}>
+            {headerLabel(strings[10106], '📢')}
           </button>
         </div>
         </div>
@@ -3454,6 +3477,17 @@ return (
           doinkerType={doinkerType}
           doinkerVisible={!!doinkerTargets}
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
+          onBoardTap={() => {
+            // A tap on the board while a panel (or the Home sheet) is open closes it on
+            // phones; the tap still does its own thing (move, collect, interact)
+            if (isPhoneLayout) {
+              if (activePanel) closePanel();
+              if (isHomeSheetOpen) closeHomeSheet();
+              // Best effort to tuck the browser's bars away again: Safari collapses them on a
+              // page scroll, so the document is kept 1 px taller than the viewport (mobile.css)
+              if (window.scrollY < 1) window.scrollTo(0, 1);
+            }
+          }}
           onWalkTo={(row, col) => {
             if (activeModal || isOffSeason) return;
             if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return;
