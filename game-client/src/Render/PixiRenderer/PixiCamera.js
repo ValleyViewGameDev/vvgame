@@ -164,6 +164,43 @@ function startPanReturn() {
   panReturnFrame = requestAnimationFrame(step);
 }
 
+/** Ease the pan to `target` (screen px) over `ms`; a new pan, zoom or movement cancels it. */
+export function animatePanTo(target, ms = 320) {
+  cancelPanReturn();
+  const from = { ...pan };
+  const start = performance.now();
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / ms);
+    const eased = 1 - Math.pow(1 - t, 3);
+    pan = { x: from.x + (target.x - from.x) * eased, y: from.y + (target.y - from.y) * eased };
+    clampPan();
+    apply();
+    if (t >= 1) { panReturnFrame = null; return; }
+    panReturnFrame = requestAnimationFrame(step);
+  };
+  panReturnFrame = requestAnimationFrame(step);
+}
+
+/**
+ * Make sure the player is visible inside `region` (host px: left/top/right/bottom), easing
+ * the pan so they sit at the region's centre when they are not. Used when a panel covers
+ * part of the board and something is about to happen at the avatar (a conversation).
+ * With no pan the player is at the viewport centre, so the player's screen point is
+ * centre + pan, and the pan that puts them at P is P - centre.
+ */
+export function revealPlayerIn(region, margin = 28) {
+  if (!worldContainer) return false;
+  const cx = viewport.width / 2, cy = viewport.height / 2;
+  const px = cx + pan.x, py = cy + pan.y;
+  const inside = px >= region.left + margin && px <= region.right - margin
+              && py >= region.top + margin && py <= region.bottom - margin;
+  if (inside) return false;
+  const targetX = (region.left + region.right) / 2;
+  const targetY = (region.top + region.bottom) / 2;
+  animatePanTo({ x: targetX - cx, y: targetY - cy });
+  return true;
+}
+
 export function follow(x, y) {
   if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
   // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
@@ -276,7 +313,7 @@ export function screenToTile(screenX, screenY) {
 }
 
 const PixiCamera = {
-  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, setPanBounds, setZoom, animateZoom,
+  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, revealPlayerIn, setPanBounds, setZoom, animateZoom,
   getZoom, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
   debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),

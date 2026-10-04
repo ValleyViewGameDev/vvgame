@@ -504,13 +504,45 @@ async function isValidMove(targetX, targetY, masterResources,
  * The camera itself lives in Render/PixiRenderer/PixiCamera.js; the extra arguments are
  * accepted for the existing call sites and ignored.
  */
-export function centerCameraOnPlayer(position /* , TILE_SIZE, zoomScale, retryCount, gridPosition, settlementPosition, instant */) {
+export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount, gridPosition, settlementPosition, instant = false) {
   if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
     console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
     return Promise.resolve(false);
   }
-  PixiCamera.follow(position.x, position.y);
+  if (instant) {
+    // Grid arrival: snap, no look-around pan
+    PixiCamera.resetPan();
+    PixiCamera.follow(position.x, position.y);
+    return Promise.resolve(true);
+  }
+  // Panel buttons (a conversation is about to play at the avatar): make sure the avatar is
+  // visible in the part of the board no panel covers, easing the camera there if needed.
+  revealPlayerBesidePanels();
   return Promise.resolve(true);
+}
+
+/**
+ * The board minus whatever panel, Home sheet or chat is covering its left side (phones), as a
+ * region in host px; then PixiCamera.revealPlayerIn. On desktop panels sit beside the board,
+ * so the region is the whole board and this only recentres a panned-away view.
+ */
+export function revealPlayerBesidePanels() {
+  const host = document.querySelector('.pixi-container');
+  if (!host) return false;
+  const h = host.getBoundingClientRect();
+  const region = { left: 0, top: 0, right: h.width, bottom: h.height };
+  const covers = document.querySelectorAll('.panel-container, .base-panel.base-panel--open, .chat-panel-slideout');
+  covers.forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    const overlapX = Math.min(r.right, h.right) - Math.max(r.left, h.left);
+    const overlapY = Math.min(r.bottom, h.bottom) - Math.max(r.top, h.top);
+    if (overlapX <= 0 || overlapY <= 0) return; // beside the board (desktop)
+    // Panels dock at the left: the clear region starts at the panel's right edge
+    region.left = Math.max(region.left, r.right - h.left);
+  });
+  if (region.right - region.left < 80) { region.left = 0; } // no room beside it: use the whole board
+  return PixiCamera.revealPlayerIn(region);
 }
 
 export async function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null, updateStatus = null, strings = null, TILE_SIZE = null) {
