@@ -8,9 +8,10 @@ import { local } from './core/api.js';
 import { toast, setStatus } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
 import { stubTab } from './tabs/stub.js';
+import { layoutsTab } from './tabs/layouts.js';
 
 const TABS = [
-  stubTab('layouts', 'Layouts', '🗺', 'world'),
+  layoutsTab(),
   stubTab('world', 'World', '🌍', 'world'),
   stubTab('atlas', 'Atlas', '🧭', 'world'),
   stubTab('dungeons', 'Dungeons', '🏰', 'admin'),

@@ -173,6 +173,7 @@ async function handle(req, res) {
   if (p === '/healthz') return sendJSON(res, 200, { ok: true });
   if (p === '/' || p === '/index.html') return serveStatic(res, CLIENT_DIR, 'index.html');
   if (p.startsWith('/sheets/')) return serveStatic(res, SHEETS_DIR, p.slice('/sheets/'.length));
+  if (p === '/game-client/tileColors.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'UI', 'Styles'), 'tileColors.js'); // the client's own module, dependency-free
   if (p.startsWith('/api/game/')) return proxyToGame(req, res, p.slice('/api/game'.length), url.search);
 
   if (p === '/api/local/info') {
