@@ -1323,6 +1323,45 @@ const PixiRenderer = ({
   }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY]); // TILE_SIZE removed - it's constant now
 
   // Handle click events - check NPCs and PCs before falling through to tile click
+  // Latest props for callbacks that fire after a walk (the click closure would be stale by then)
+  const latestRef = useRef(null);
+  if (process.env.NODE_ENV !== 'production') window.__npcsDebug = () => latestRef.current?.npcs; // dev hook, like __pixiCamera
+  latestRef.current = {
+    npcs, currentPlayer, playersInGrid, gridId, TILE_SIZE, masterResources, masterSkills, masterTrophies,
+    globalTuning, strings, onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
+    setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel, setActiveStation,
+    isDeveloper, onWalkTo,
+  };
+
+  /**
+   * Walk next to an out-of-range NPC and open it when the avatar stops. The NPC is looked up
+   * again on arrival (it may have wandered); if it has moved out of reach meanwhile the walk
+   * is repeated once, then the normal click feedback applies.
+   */
+  const walkToNpc = useCallback((npcId, retries) => {
+    const L = latestRef.current;
+    const npc = L?.npcs?.find((n) => n && n.id === npcId);
+    if (!npc?.position || !L.onWalkTo) return;
+    L.onWalkTo(Math.floor(npc.position.y), Math.floor(npc.position.x), {
+      stopShort: true,
+      onArrive: () => {
+        const now = latestRef.current;
+        const target = now?.npcs?.find((n) => n && n.id === npcId);
+        if (!target) return;
+        const opened = handleNPCClickShared(target, {
+          currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
+          TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
+          masterTrophies: now.masterTrophies, globalTuning: now.globalTuning, strings: now.strings,
+          onNPCClick: now.onNPCClick, setHoverTooltip: now.setHoverTooltip, setInventory: now.setInventory,
+          setBackpack: now.setBackpack, setResources: now.setResources, setCurrentPlayer: now.setCurrentPlayer,
+          setModalContent: now.setModalContent, setIsModalOpen: now.setIsModalOpen, updateStatus: now.updateStatus,
+          openPanel: now.openPanel, setActiveStation: now.setActiveStation, isDeveloper: now.isDeveloper,
+        });
+        if (opened === false && retries > 0) walkToNpc(npcId, retries - 1);
+      },
+    });
+  }, []);
+
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
     if (suppressClickRef.current) { suppressClickRef.current = false; return; } // long-press or pinch
@@ -1382,10 +1421,11 @@ const PixiRenderer = ({
     );
 
     if (npc) {
-      // A helper NPC beyond reach: walk up to it instead of just saying "out of range".
-      // Enemies and spawners keep the plain click (walking into them is not a tap's intent).
+      // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
+      // the NPC) and open it on arrival, as if it had been tapped from there. Enemies and
+      // spawners keep the plain click (walking into them is not a tap's intent).
       const isHostile = npc.action === 'attack' || npc.action === 'spawn';
-      if (!isHostile && !cursorMode && outOfRange(col, row)) { walk(); return; }
+      if (!isHostile && !cursorMode && outOfRange(col, row)) { walkToNpc(npc.id, 1); return; }
 
       // Use the shared click handler that includes cooldown logic for attack NPCs
       handleNPCClickShared(npc, {
@@ -1440,7 +1480,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, walkToNpc, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,

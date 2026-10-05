@@ -76,6 +76,8 @@ let pathQueue = [];
 let pathGoal = null;
 let pathReplanned = false;
 let pathCrossDelta = null;  // set when the tap was beyond an edge: the final step crosses it
+let pathArrive = null;      // called once when the walk completes (not when it is cancelled)
+let pathGoalOpts = {};      // findPath options of the current walk, reused by a re-plan
 
 export function setMovementContext(context) {
   movementContext = context;
@@ -96,6 +98,16 @@ function clearPath() {
   pathGoal = null;
   pathReplanned = false;
   pathCrossDelta = null;
+  pathArrive = null;
+}
+
+/** The walk reached its goal: tell whoever asked for it (after React has the final position). */
+function fireArrive() {
+  const cb = pathArrive;
+  pathArrive = null;
+  if (!cb) return;
+  playersInGridManager.flushReactSync();
+  try { cb(); } catch (err) { console.error('Error in walk arrival handler:', err); }
 }
 
 /** Forget every held key and queued walk, stop stepping (modal, zoom out, grid change, blur). */
@@ -117,7 +129,7 @@ function currentPosition() {
   return playersInGridManager.getPlayerPosition(ctx.currentPlayer.location.g, String(ctx.currentPlayer._id));
 }
 
-function planPath(goal) {
+function planPath(goal, opts) {
   const ctx = movementContext;
   const from = currentPosition();
   if (!ctx || !from) return [];
@@ -129,14 +141,18 @@ function planPath(goal) {
     masterResources: ctx.masterResources,
     currentPlayer: ctx.currentPlayer,
   });
-  return findPath(from, goal, passable);
+  return findPath(from, goal, passable, opts);
 }
 
 /**
  * Walk to a tile (or next to it when it is blocked). Returns the number of steps queued;
- * 0 means already there or unreachable.
+ * 0 means already there or unreachable, -1 means handled (an edge crossing, or an
+ * `onArrive` walk that was already at its goal).
+ *
+ * options.stopShort  never step onto the goal tile, stop on a neighbour (tapping an NPC)
+ * options.onArrive   called once when the walk completes; dropped if it is cancelled
  */
-export function walkTo(col, row) {
+export function walkTo(col, row, { stopShort = false, onArrive = null } = {}) {
   const ctx = movementContext;
   if (!ctx?.currentPlayer) return 0;
   if (ctx.currentPlayer.iscamping) {
@@ -159,10 +175,20 @@ export function walkTo(col, row) {
   }
 
   const goal = { x: col, y: row };
-  const path = planPath(goal);
+  const path = planPath(goal, { stopShort });
   pathQueue = path;
   pathGoal = path.length ? goal : null;
+  pathGoalOpts = { stopShort };
   pathCrossDelta = cross;
+  pathArrive = onArrive;
+  if (!cross && path.length === 0 && onArrive) {
+    // Already standing at (or beside) the goal: arrive right away
+    const pos = currentPosition();
+    const adjacent = pos && Math.max(Math.abs(Math.round(pos.x) - col), Math.abs(Math.round(pos.y) - row)) <= 1;
+    if (adjacent) { fireArrive(); return -1; }
+    pathArrive = null;
+    return 0;
+  }
   if (cross && path.length === 0) {
     // Already on the edge tile: cross right away
     if (!moveInFlight) {
@@ -228,13 +254,15 @@ function loopTick() {
             processMovement(movementContext, cross)
               .catch((err) => console.error('Error crossing the edge:', err))
               .finally(() => { moveInFlight = false; });
+          } else if (pathQueue.length === 0) {
+            fireArrive();
           }
           return;
         }
         // Blocked mid-walk: re-plan once from here, then give up
         if (pathGoal && !pathReplanned) {
           pathReplanned = true;
-          pathQueue = planPath(pathGoal);
+          pathQueue = planPath(pathGoal, pathGoalOpts);
           if (!pathQueue.length) clearPath();
         } else {
           clearPath();

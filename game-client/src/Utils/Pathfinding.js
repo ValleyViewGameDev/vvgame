@@ -75,24 +75,34 @@ function octile(ax, ay, bx, by) {
  * @param {(x:number,y:number)=>boolean} passable
  * @returns {Array<{x:number,y:number}>}
  */
-export function findPath(start, goal, passable) {
+export function findPath(start, goal, passable, { stopShort = false } = {}) {
   if (!start || !goal) return [];
   const sx = Math.round(start.x), sy = Math.round(start.y);
   const gx = Math.round(goal.x), gy = Math.round(goal.y);
   if (sx === gx && sy === gy) return [];
 
-  // Targets: the goal itself when open, otherwise its open neighbours
+  // Targets: the goal itself when open, otherwise its open neighbours. `stopShort` (walking up
+  // to an NPC) never steps onto the goal: it prefers the four orthogonal neighbours, which are
+  // within any interaction range, and falls back to the diagonals.
   const targets = new Set();
-  if (passable(gx, gy)) {
+  if (!stopShort && passable(gx, gy)) {
     targets.add(key(gx, gy));
   } else {
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        if (dx === 0 && dy === 0) continue;
-        const nx = gx + dx, ny = gy + dy;
-        if (passable(nx, ny)) targets.add(key(nx, ny));
+    const ring = (diagonal) => {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          if ((dx !== 0 && dy !== 0) !== diagonal) continue;
+          const nx = gx + dx, ny = gy + dy;
+          if (passable(nx, ny)) targets.add(key(nx, ny));
+        }
       }
-    }
+    };
+    ring(false);
+    if (!stopShort || targets.size === 0) ring(true);
+    // An NPC standing in a pocket with no open neighbour (NPCs roam over resources): the
+    // goal tile itself is the only way to reach it, better than "can't go that way"
+    if (stopShort && targets.size === 0 && passable(gx, gy)) targets.add(key(gx, gy));
   }
   if (targets.size === 0) return [];
   if (targets.has(key(sx, sy))) return []; // already adjacent to a blocked goal

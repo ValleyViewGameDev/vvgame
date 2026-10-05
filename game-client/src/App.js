@@ -3499,10 +3499,10 @@ return (
               if (window.scrollY < 1) window.scrollTo(0, 1);
             }
           }}
-          onWalkTo={(row, col) => {
+          onWalkTo={(row, col, options) => {
             if (activeModal || isOffSeason) return;
             if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return;
-            const steps = walkTo(col, row);
+            const steps = walkTo(col, row, options);
             if (steps === 0) updateStatus(10021); // "You can't go that way." (a crossing returns -1)
           }}
           onPinchZoom={(direction) => {
