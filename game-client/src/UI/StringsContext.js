@@ -1,5 +1,6 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import stringsEN from './Strings/stringsEN.json';
+import { withTouchVariants } from '../Utils/inputMode';
 import stringsFR from './Strings/stringsFR.json';
 import stringsES from './Strings/stringsES.json';
 import stringsIT from './Strings/stringsIT.json';
@@ -27,12 +28,15 @@ const STRINGS_MAP = {
 const StringsContext = createContext(stringsEN); // Default to English
 
 export const StringsProvider = ({ language = 'en', children }) => {
-  const selectedStrings = STRINGS_MAP[language?.toLowerCase()] || stringsEN;
+  const selectedFile = STRINGS_MAP[language?.toLowerCase()] || stringsEN;
+  // On a touch-first device every lookup prefers the "<key>_touch" sibling when the file has
+  // one ("tap" wording, no keyboard hints), so no call site needs to know (Utils/inputMode.js).
+  const selectedStrings = useMemo(() => withTouchVariants(selectedFile), [selectedFile]);
 
   console.log('🧬 StringsProvider:', {
     rawLanguage: language,
     normalized: language?.toLowerCase(),
-    resolvedFile: selectedStrings,
+    resolvedFile: selectedFile,
   });
 
   return (

@@ -15,3 +15,21 @@ export function uiString(strings, key) {
   if (isTouchPrimary() && strings[`${key}_touch`]) return strings[`${key}_touch`];
   return strings[key];
 }
+
+/**
+ * Wrap a strings file so that, on a touch-first device, strings[key] returns strings[`${key}_touch`]
+ * when that sibling exists. Enumeration, spreading and `in` see the plain file. Used by
+ * UI/StringsContext.js so every component gets the right wording without wiring.
+ */
+export function withTouchVariants(file) {
+  if (!file || !isTouchPrimary()) return file;
+  return new Proxy(file, {
+    get(target, prop, receiver) {
+      if (typeof prop === 'string') {
+        const touch = target[`${prop}_touch`];
+        if (touch !== undefined) return touch;
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+}
