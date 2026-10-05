@@ -55,7 +55,7 @@
 
 /* Dungeon timer info (only shown when in dungeon) */
 .mini-map-dungeon-info {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--color-text);
   margin-top: 4px;
   font-family: Arial, sans-serif;

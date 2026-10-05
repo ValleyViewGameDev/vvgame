@@ -236,7 +236,7 @@ export function BulkCraftingModal({
                           <>
                             {station.stationSymbol} {getLocalizedString(station.stationType, strings)}
                             {station.readySlots.length > 1 && (
-                              <span style={{ fontSize: '11px', color: '#666', marginLeft: '4px' }}>
+                              <span style={{ fontSize: '12px', color: '#666', marginLeft: '4px' }}>
                                 ({station.readySlots.length} slots)
                               </span>
                             )}
@@ -269,13 +269,13 @@ export function BulkCraftingModal({
                               title={slot.affordable ? '' : (strings[347] || 'Not enough resources')}
                             />
                           ) : (
-                            <span style={{ fontSize: '10px', color: '#999' }}>{strings[346] || 'Locked'}</span>
+                            <span style={{ fontSize: '12px', color: '#999' }}>{strings[346] || 'Locked'}</span>
                           )}
                         </div>
                       )}
 
                       {/* Cost/Needs column */}
-                      <div style={{ width: '150px', textAlign: 'center', fontSize: '11px' }}>
+                      <div style={{ width: '150px', textAlign: 'center', fontSize: '12px' }}>
                         {needs && Object.entries(needs).map(([type, data], idx) => {
                           const hasEnough = data.available >= data.needed;
                           return (

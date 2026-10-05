@@ -727,7 +727,7 @@ const CourthousePanel = ({
                                             />
                                             <div style={{ marginLeft: '10px' }}>
                                                 <strong>{candidate.username}</strong>
-                                                <div style={{ fontSize: '0.9em', color: '#666', marginTop: '4px' }}>
+                                                <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
                                                     "{getCandidatePromise(candidate.playerId)}"
                                                 </div>
                                             </div>

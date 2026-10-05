@@ -81,7 +81,7 @@
 .player-resources {
   display: flex;
   gap: 4px;
-  font-size: 0.9rem;
+  font-size: 14px;
   margin-top: 4px;
 }
 
@@ -350,7 +350,7 @@
 .trade-slot-empty-text {
   text-align: center;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .trade-slot-content {
@@ -364,7 +364,7 @@
 }
 
 .trade-slot-status {
-  font-size: 0.85rem;
+  font-size: 14px;
   color: #666;
 }
 
@@ -383,7 +383,7 @@
 
 .trade-buy-button {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 14px;
   padding: 6px 4px;
   border: none;
   border-radius: 8px;
@@ -403,7 +403,7 @@
 
 .trade-collect-button {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 14px;
   padding: 6px 4px;
   border: none;
   border-radius: 8px;
@@ -469,7 +469,7 @@
 }
 
 .trade-slot-lock-text {
-  font-size: 0.85rem;
+  font-size: 14px;
   font-weight: bold;
 }
 

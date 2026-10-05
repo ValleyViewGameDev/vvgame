@@ -134,7 +134,7 @@ body {
 .base-panel h4 {
   margin: 0;
   padding: 0;
-  font-size: 0.9em;
+  font-size: 14px;
   color: var(--color-modal-title);
   text-align: left;
   font-family: var(--font-text-1-family);

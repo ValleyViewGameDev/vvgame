@@ -188,9 +188,10 @@ value rather than trust this page.
   over a board object or a crafting slot (11 px). Decorative glyphs (the 7 px butterfly VFX)
   are not text.
 - Size in `px` (or a token), not `em`/`rem`: `rem` ignores the phone's smaller panel text and
-  `em` compounds (a 0.7em tag inside a 0.9em row inside a 13 px phone panel is 8 px). Known
-  offenders to bring up to the floor when the surface is next touched: Mailbox unread tag
-  and timestamp (`Mailbox.css` 0.7em / 0.8em), Inventory Gold Pass note (0.7rem), Trophy
-  progress text (10 px), relationship status badge (11 px), BulkCrafting "slots" and "Locked"
-  labels (10 to 11 px inline), minimap dungeon timer (11 px).
+  `em` compounds (the Mailbox unread tag used to be 0.7em inside a 0.9em row inside the 13 px
+  phone panel: 8 px). The sweep of 2026-10-05 brought every sub-floor site up (Mailbox,
+  Inventory Gold Pass note, Trophy progress, relationship badge, BulkCrafting labels, minimap
+  dungeon timer, Trade Stall and resource/quest button details); `grep -rn "font-size: 0\."`
+  and `grep -rnE "font-size: (1?[0-9])px"` over `game-client/src` should stay empty apart
+  from the two overlays above.
 
