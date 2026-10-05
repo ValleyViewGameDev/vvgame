@@ -35,7 +35,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 | Piece | Command | Port |
 |---|---|---|
 | server | `cd game-server && npm run dev` (nodemon) | 3001 |
-| client | `cd game-client && npm start` | 3000 |
+| client | `cd game-client && npm start` (`npm run start:fresh` when 3000 is held by a hung dev server or it sits on "Compiling...": frees the port and clears `node_modules/.cache`, which grows to gigabytes and stalls webpack) | 3000 |
 | editor | `node tools/editor/server.js --port 8770 [--game-server http://localhost:3001] [--dev-player-id <id>]` | 8770 |
 | analytics | `node tools/analytics/server.js --port 8771` | 8771 |
 

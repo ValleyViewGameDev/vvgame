@@ -24,7 +24,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "build:atlas": "node scripts/build-atlas.js",
-    "check:atlas": "node scripts/build-atlas.js --check"
+    "check:atlas": "node scripts/build-atlas.js --check",
+    "start:fresh": "lsof -ti tcp:3000 | xargs -r kill; rm -rf node_modules/.cache; react-scripts start",
+    "clear:cache": "rm -rf node_modules/.cache"
   },
   "eslintConfig": {
     "extends": [
