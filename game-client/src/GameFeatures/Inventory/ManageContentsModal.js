@@ -9,6 +9,7 @@ const ManageContentsModal = ({
   inventory,
   masterResources,
   showActions = false,
+  emptyMessage,
   warehouseAmounts,
   setWarehouseAmounts,
   handleAmountChange,
@@ -78,7 +79,7 @@ const ManageContentsModal = ({
   };
 
   if (sortedInventory.length === 0) {
-    return <p>{strings[76]}</p>;
+    return <p>{emptyMessage || strings[76]}</p>;
   }
 
   return (

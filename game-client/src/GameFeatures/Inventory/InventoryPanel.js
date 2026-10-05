@@ -631,6 +631,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         <ManageContentsModal
                             inventory={backpack}
                             masterResources={masterResources}
+                            emptyMessage={strings[77]}
                             showActions={true}
                             warehouseAmounts={backpackAmounts}
                             setWarehouseAmounts={setBackpackAmounts}
