@@ -5,6 +5,7 @@ import { useStrings } from '../StringsContext';
 import './Modal.css';
 import './ShareModal.css';
 import '../Buttons/SharedButtons.css';
+import { DISCORD_INVITE } from '../../config';
 
 function ShareModal({ onClose }) {
 
@@ -37,7 +38,7 @@ function ShareModal({ onClose }) {
           <div className="shared-buttons">
             <button
               className="btn-basic discord-btn btn-modal"
-              onClick={() => window.open('https://discord.gg/mQgRP2K9', '_blank')}
+              onClick={() => window.open(DISCORD_INVITE, '_blank')}
             >
               Join our Discord
             </button>

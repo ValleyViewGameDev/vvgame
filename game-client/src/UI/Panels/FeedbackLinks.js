@@ -1,5 +1,6 @@
 import React from 'react';
 import { useStrings } from '../StringsContext';
+import { DISCORD_INVITE } from '../../config';
 
 /**
  * "Have Feedback?" with the Discord and email buttons. Shown on the base panel (Home sheet
@@ -11,7 +12,7 @@ export default function FeedbackLinks() {
     <div className="feedback-links">
       <h2 style={{ textAlign: 'center' }}>{strings[96]}</h2>
       <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => window.open('https://discord.gg/SZMw4vpUJV', '_blank')}>
+        <button className="btn-basic" onClick={() => window.open(DISCORD_INVITE, '_blank')}>
           Join Discord Server
         </button>
       </div>
