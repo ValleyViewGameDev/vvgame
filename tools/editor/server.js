@@ -245,11 +245,11 @@ async function handle(req, res) {
     return sendJSON(res, 200, { written: [written], warnings, restartNeeded: !!def.restartNeeded });
   }
   if (p === '/api/local/tuning/globalTuning/phase' && req.method === 'PATCH') {
-    const { event, phase, hours } = (await readJSONBody(req)) || {};
+    const { event, phase, minutes } = (await readJSONBody(req)) || {};
     const file = path.join(GAME_SERVER_DIR, 'tuning', 'globalTuning.json');
     const tuning = readJSONFile(file);
     if (!tuning[event]?.phases || !(phase in tuning[event].phases)) return sendError(res, 400, 'unknown event/phase');
-    tuning[event].phases[phase] = Number(hours);
+    tuning[event].phases[phase] = Number(minutes); // globalTuning phases are minutes (utils/scheduleHelpers.js)
     return sendJSON(res, 200, { written: [writeJSONFile(file, tuning)] });
   }
 

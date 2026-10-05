@@ -9,13 +9,15 @@ import { toast, setStatus } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
 import { stubTab } from './tabs/stub.js';
 import { layoutsTab } from './tabs/layouts.js';
+import { dungeonsTab } from './tabs/dungeons.js';
+import { eventsTab } from './tabs/events.js';
 
 const TABS = [
   layoutsTab(),
   stubTab('world', 'World', '🌍', 'world'),
   stubTab('atlas', 'Atlas', '🧭', 'world'),
-  stubTab('dungeons', 'Dungeons', '🏰', 'admin'),
-  stubTab('events', 'Events', '⏱', 'admin'),
+  dungeonsTab(),
+  eventsTab(),
   stubTab('players', 'Players', '👥', 'admin'),
   stubTab('feedback', 'Feedback', '💬', 'admin'),
   sheetTab('resources', '💰'),

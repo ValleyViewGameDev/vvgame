@@ -120,3 +120,67 @@ kbd { font: 11px var(--mono); background: #eef1e8; border: 1px solid var(--line)
 .qty-row span { font-size: 12px; }
 label.mini { font-size: 11px; color: var(--muted); display: inline-flex; gap: 3px; align-items: center; }
 .chip input { margin: 0; }
+
+/* ---------- dungeons + events tabs (tabs/dungeons.js, tabs/events.js) ---------- */
+.tab-body { flex: 1; overflow: auto; padding: 8px 14px 40px; min-height: 0; }
+.tab-body h3:first-child { margin-top: 6px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 12px; }
+.kv span:nth-child(odd) { color: var(--muted); }
+.note.warn-note { color: var(--warn); background: #fbe9c6; padding: 6px 8px; border-radius: 4px; }
+.chip .chip-x { border: 0; background: none; padding: 0 2px; font-size: 13px; line-height: 1; color: var(--error); cursor: pointer; }
+.ev-list li { align-items: center; gap: 6px; }
+.ev-list li .mono { font-size: 11px; white-space: nowrap; }
+.ev-list li.active .ev-phase { color: #fff; }
+.ev-phase { font-size: 11px; color: var(--muted); }
+.ev-phase-row { margin: 4px 0; }
+.ev-phase-name { min-width: 120px; }
+.ev-line { margin: 4px 0; }
+table.plain { border-collapse: collapse; font-size: 12px; width: 100%; }
+table.plain th, table.plain td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.plain th { background: #eef1e8; }
+
+/* ---------- players + feedback tabs (tabs/players.js, tabs/feedback.js) ---------- */
+.players-table-wrap { flex: 1; overflow: auto; background: var(--panel); min-height: 0; }
+table.sheet.players td { padding: 3px 8px; vertical-align: top; }
+table.sheet.players th { white-space: nowrap; }
+table.sheet.players td.num { text-align: right; }
+table.sheet.players td.err { color: var(--error); }
+table.sheet.players tbody tr { cursor: pointer; }
+table.sheet.players tbody tr:hover td { background: #f3f6ee; }
+table.sheet.players tbody tr.selected td { background: #e1efd9; }
+.players-list li small { font-size: 10px; white-space: nowrap; margin-left: 6px; }
+.players-list li.active small { color: #e6f2df; }
+.diag-btn { width: 20px; height: 20px; padding: 0; border-radius: 50%; font: 11px var(--mono); line-height: 1; }
+.badge.pstatus.free { background: #e8ecdf; }
+.badge.pstatus.bronze { background: #e9cfae; color: #5b3a12; }
+.badge.pstatus.silver { background: #dfe3e8; color: #3b434c; }
+.badge.pstatus.gold { background: #f6e08a; color: #5a4300; }
+.badge.prole.citizen { background: #e8ecdf; }
+.badge.prole.mayor { background: #cfe3f7; color: #1d4e7a; }
+.badge.prole.governor { background: #e0d4f5; color: #4b2c82; }
+.badge.prole.president { background: #f7d1d1; color: #7a1d1d; }
+.inspector { flex: 1; overflow: auto; padding: 10px 14px 40px; min-height: 0; }
+.inspector .kv { margin-bottom: 10px; }
+.inspector .kv .k, .fb-kv .k { color: var(--muted); }
+.inspector .kv .v, .fb-kv .v { min-width: 0; }
+.psection { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; margin-bottom: 8px; }
+.psection-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; cursor: pointer; font-weight: 600; user-select: none; }
+.psection-head:hover { background: #f3f6ee; }
+.psection-body { padding: 4px 10px 8px; border-top: 1px solid var(--line); }
+.psection-body h3 { margin: 8px 0 4px; }
+.qty-edit { padding: 2px 0; border-bottom: 1px dashed #eef1e8; justify-content: space-between; flex-wrap: nowrap; }
+.qty-edit .qty-name { flex: 1; min-width: 0; }
+.qty-edit.pending .qty-name { color: #1d4e7a; font-weight: 600; }
+.qty-edit.pending input { border-color: var(--warn); background: #fff7cf; }
+.qty-edit.strike > span { text-decoration: line-through; color: var(--error); }
+.fb-field { display: block; font-size: 12px; color: var(--muted); margin: 4px 0; }
+.fb-field input { margin-top: 2px; }
+.fb-kv { margin: 4px 0 8px; }
+.fb-counts { display: flex; flex-direction: column; gap: 3px; }
+.fb-item { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 2px 6px; border-radius: 4px; }
+.fb-counts.positive .fb-item { background: #eaf5e4; }
+.fb-counts.negative .fb-item { background: #fbeae7; }
+.fb-text { min-width: 0; }
+td.fb-pos, ul.fb-pos { color: #1b7f2a; }
+td.fb-neg, ul.fb-neg { color: var(--error); }
+table.sheet.players td.fb-pos, table.sheet.players td.fb-neg { white-space: normal; max-width: 320px; }

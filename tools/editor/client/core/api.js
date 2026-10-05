@@ -29,7 +29,7 @@ export const local = {
   tuningList: () => request('GET', '/api/local/tuning'),
   tuning: (id) => request('GET', `/api/local/tuning/${id}`),
   saveTuning: (id, data) => request('PUT', `/api/local/tuning/${id}`, { data }),
-  patchPhase: (event, phase, hours) => request('PATCH', '/api/local/tuning/globalTuning/phase', { event, phase, hours }),
+  patchPhase: (event, phase, minutes) => request('PATCH', '/api/local/tuning/globalTuning/phase', { event, phase, minutes }),
   settlementLayouts: () => request('GET', '/api/local/settlement-layouts'),
   frontierLayouts: () => request('GET', '/api/local/frontier-layouts'),
 };
