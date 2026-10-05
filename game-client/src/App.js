@@ -881,6 +881,23 @@ useEffect(() => {
 }, [zoomLevel]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
+// `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
+// there is no live session, then drop the parameters. Skipped in in-app browsers, where the
+// session would not survive anyway and the prompt only confuses.
+const [signinPrefill] = useState(() => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('signin') !== '1') return null;
+    params.delete('signin');
+    const name = (params.get('u') || '').trim();
+    params.delete('u');
+    const rest = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (rest ? `?${rest}` : '') + window.location.hash);
+    if (localStorage.getItem('player')) return null;
+    if (/FBAN|FBAV|FB_IAB|Instagram|musical_ly|TikTok|Bytedance/i.test(navigator.userAgent || '')) return null;
+    return { username: name };
+  } catch (_) { return null; }
+});
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
 const { activePanel, openPanel, closePanel } = usePanelContext();
 // Phones hide the base panel (UI/Styles/mobile.css); the 👸 nav button opens it as a
@@ -3663,6 +3680,8 @@ return (
           }}
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel} 
+          initialUsername={signinPrefill?.username || ''}
+          initialView={signinPrefill ? 'signin' : 'create'}
           onLoginSuccess={async (username, password) => {
             await handleLoginSuccess(username, password);
           }}

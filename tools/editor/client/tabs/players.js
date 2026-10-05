@@ -260,14 +260,14 @@ async function sendHome(p) {
 
 async function resetPassword(p) {
   const ok = await confirm(el('div', {}, [
-    el('p', {}, `Reset the password for "${p.username}"?`),
-    el('ul', {}, [el('li', {}, 'Their password becomes the temporary password: temp'), el('li', {}, 'They will need to log in with it and change it')]),
+    el('p', {}, `Clear the password for "${p.username}"?`),
+    el('ul', {}, [el('li', {}, 'They sign in with their username alone (no password)'), el('li', {}, 'They can add a new password in Profile > Secure your profile')]),
   ]), { title: 'Reset password', okLabel: 'Reset password', danger: true });
   if (!ok) return;
   try {
     const res = await game.post('/api/reset-password', { playerId: p._id });
     if (!res?.success) return failModal('Reset password failed', res);
-    toast(res.message || `Password reset to "temp" for "${p.username}"`);
+    toast(res.message || `Password cleared for "${p.username}"`);
   } catch (err) { failModal('Reset password failed', err); }
 }
 

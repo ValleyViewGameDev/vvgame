@@ -17,6 +17,7 @@ import soundManager from '../Sound/SoundManager';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import { showNotification } from '../UI/Notifications/Notifications';
 import FeedbackLinks from '../UI/Panels/FeedbackLinks';
+import { authErrorText } from './authErrors';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -27,10 +28,37 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
   const [formData, setFormData] = useState({
     username: '',
     icon: '',
-    password: '',
     accountStatus: 'Free',
     role: 'Citizen',
   });
+  // Secure your profile: a passwordless profile sets its first password with no current-password
+  // check; one with a password must give the current one (/player/change-password).
+  const [pwForm, setPwForm] = useState({ current: '', next: '' });
+  const [pwMessage, setPwMessage] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+  const hasPassword = !!currentPlayer?.hasPassword;
+
+  const handleSavePassword = async () => {
+    setPwMessage('');
+    if (pwForm.next.length < 4) { setPwMessage(strings[4086]); return; }
+    setPwSaving(true);
+    try {
+      await axios.post(`${API_BASE}/api/player/change-password`, {
+        playerId: currentPlayer.playerId,
+        currentPassword: hasPassword ? pwForm.current : undefined,
+        newPassword: pwForm.next,
+      });
+      const updatedPlayer = { ...currentPlayer, hasPassword: true };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      setPwForm({ current: '', next: '' });
+      setPwMessage(strings[4080]);
+    } catch (err) {
+      setPwMessage(authErrorText(err, strings, 'Could not save the password.'));
+    } finally {
+      setPwSaving(false);
+    }
+  };
 
   const { updateStatus } = useContext(StatusBarContext);
   const [isSaving, setIsSaving] = useState(false);
@@ -63,7 +91,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       setFormData({
         username: currentPlayer.username || '',
         icon: currentPlayer.icon || '',
-        password: '',
         accountStatus: currentPlayer.accountStatus || 'Free',
         role: currentPlayer.role || 'Citizen',
       });
@@ -134,7 +161,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       const updates = {
         username: formData.username.trim(),
         icon: formData.icon.trim(),
-        ...(formData.password && { password: formData.password }),
         accountStatus: formData.accountStatus,
         role: formData.role,
         // Use dot notation to update specific settings fields without replacing the entire object
@@ -318,15 +344,33 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             placeholder="Enter your username"
           />
         </div>
+        <h3>{strings[4076]}</h3>
+        <p className="profile-password-note">{hasPassword ? strings[4085] : strings[4089]}</p>
+        {hasPassword && (
+          <div className="form-group">
+            <label>{strings[4078]}</label>
+            <input
+              type="password"
+              value={pwForm.current}
+              onChange={(e) => setPwForm((f) => ({ ...f, current: e.target.value }))}
+              autoComplete="current-password"
+            />
+          </div>
+        )}
         <div className="form-group">
-          <label>{strings[4053]}</label>
+          <label>{strings[4079]}</label>
           <input
-            name="password"
             type="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="Enter new password (optional)"
+            value={pwForm.next}
+            onChange={(e) => setPwForm((f) => ({ ...f, next: e.target.value }))}
+            autoComplete="new-password"
           />
+        </div>
+        {pwMessage && <p className="profile-password-message">{pwMessage}</p>}
+        <div className="shared-buttons">
+          <button className="btn-basic btn-neutral" onClick={handleSavePassword} disabled={pwSaving || !pwForm.next}>
+            {hasPassword ? strings[4088] : strings[4077]}
+          </button>
         </div>
 
         <br />

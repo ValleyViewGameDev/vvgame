@@ -3,8 +3,20 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const Player = require('../models/player'); // Import the Player model
+const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
+const { validateUsername } = require('../utils/usernames');
+const { isDeveloperPlayerId } = require('../utils/serviceMode');
+
+// Account routes the editor uses (and the profile's own delete): the caller must be a developer
+// (x-player-id of a developer account, as the maintenance gate checks) or, for delete, the player themself.
+async function requireDeveloperOrSelf(req, res, targetId, { allowSelf }) {
+  const callerId = req.get('x-player-id') || null;
+  if (allowSelf && callerId && String(callerId) === String(targetId)) return true;
+  if (await isDeveloperPlayerId(callerId)) return true;
+  res.status(403).json({ error: 'Not allowed.' });
+  return false;
+}
 const Grid = require('../models/grid');
 const Settlement = require('../models/settlement');
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
@@ -140,7 +152,7 @@ router.post('/add-player-quest', async (req, res) => {
 
     console.log(`✅ Quest "${questId}" added to player "${playerId}" with progress:`, initialProgress);
 
-    res.json({ success: true, player });
+    res.json({ success: true, player: publicPlayer(player) });
   } catch (error) {
     console.error('Error adding quest to player:', error);
     res.status(500).json({ error: 'Failed to add quest to player.' });
@@ -191,7 +203,7 @@ router.post('/update-player-quests', async (req, res) => {
     player.activeQuests = activeQuests;
     await player.save();
 
-    res.json({ success: true, player });
+    res.json({ success: true, player: publicPlayer(player) });
   } catch (error) {
     console.error('Error updating player quests:', error);
     res.status(500).json({ error: 'Failed to update player quests.' });
@@ -329,7 +341,7 @@ router.get('/player/:playerId', async (req, res) => {
       return res.status(404).json({ error: 'Player not found.' });
     }
 
-    res.json(player); // Return the full player object
+    res.json(publicPlayer(player)); // the full player object minus the password hash
   } catch (error) {
     console.error('Error fetching player data:', error);
     res.status(500).json({ error: 'Failed to fetch player data.' });
@@ -346,7 +358,7 @@ router.get('/get-player-by-username/:username', async (req, res) => {
       return res.status(404).json({ error: 'Player not found.' });
     }
 
-    res.json(player); // Return full player object
+    res.json(publicPlayer(player)); // full player object minus the password hash
   } catch (error) {
     console.error('Error fetching player by username:', error);
     res.status(500).json({ error: 'Failed to fetch player.' });
@@ -354,25 +366,36 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 });
 
 // Endpoint to update the player's profile
+// Identity and billing fields never travel through this generic route: the password has its own
+// route (/player/change-password), the subscription tier is set by the Stripe webhook, the role by the
+// election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
+// The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
+const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token'];
+const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role'];
+
 router.post('/update-profile', async (req, res) => {
-  const { playerId, updates } = req.body;
+  const { playerId } = req.body;
+  const updates = { ...(req.body.updates || {}) };
 
   try {
-    // ✅ Check if the username is already taken (excluding the current player)
-    if (updates.username) {
+    for (const key of Object.keys(updates)) {
+      if (PROFILE_NEVER.includes(key.split('.')[0])) delete updates[key];
+    }
+    if (PROFILE_DEVELOPER_ONLY.some((k) => k in updates) && !(await isDeveloperPlayerId(req.get('x-player-id')))) {
+      for (const k of PROFILE_DEVELOPER_ONLY) delete updates[k];
+    }
+
+    // ✅ Username: same rules as registration, and not already taken by someone else
+    if (updates.username !== undefined) {
+      updates.username = String(updates.username).trim();
+      const problem = validateUsername(updates.username);
+      if (problem) return res.status(400).json({ error: problem, code: problem });
       const existingPlayer = await Player.findOne({ username: updates.username });
       if (existingPlayer && existingPlayer._id.toString() !== playerId) {
-        return res.status(400).json({ error: "TAKEN" });
+        return res.status(400).json({ error: "TAKEN", code: 'TAKEN' });
       }
     }
-    
-    // ✅ Hash the password if it's being updated
-    if (updates.password) {
-      const hashedPassword = await bcrypt.hash(updates.password, 10);
-      updates.password = hashedPassword;
-      console.log(`🔐 Password hashed for player ${playerId}`);
-    }
-        
+
     // ✅ Proceed with the update if no conflicts
     const player = await Player.findByIdAndUpdate(playerId, { $set: updates }, { new: true });
     if (!player) {
@@ -386,7 +409,7 @@ router.post('/update-profile', async (req, res) => {
       recordQuestCompleted(playerId).catch(() => {});
     }
 
-    res.json({ success: true, player });
+    res.json({ success: true, player: publicPlayer(player) });
   } catch (err) {
     console.error('Error updating profile:', err);
     res.status(500).json({ error: 'Failed to update profile.' });
@@ -565,7 +588,7 @@ router.post('/update-inventory-delta', async (req, res) => {
       return res.status(404).json({ error: 'Player not found.' });
     }
 
-    res.json({ success: true, player });
+    res.json({ success: true, player: publicPlayer(player) });
   } catch (error) {
     console.error('❌ Error in update-inventory-delta:', error);
     res.status(500).json({ error: 'Failed to apply inventory delta.' });
@@ -955,6 +978,7 @@ router.post('/delete-player', async (req, res) => {
   if (!playerId) {
     return res.status(400).json({ error: 'Player ID is required.' });
   }
+  if (!(await requireDeveloperOrSelf(req, res, playerId, { allowSelf: true }))) return;
 
   try {
     const player = await Player.findById(playerId);
@@ -1050,11 +1074,14 @@ router.post('/delete-player', async (req, res) => {
 ////////////////////////////////////////////////////////
 ////////////// RESET PASSWORD //////////////////////////
 
+// Developer-only (editor Players tab): clears the password, so the player signs in with the
+// username alone and can set a new one from Profile. No more shared "temp" password.
 router.post('/reset-password', async (req, res) => {
   const { playerId } = req.body;
   if (!playerId) {
     return res.status(400).json({ error: 'Player ID is required.' });
   }
+  if (!(await requireDeveloperOrSelf(req, res, playerId, { allowSelf: false }))) return;
 
   try {
     const player = await Player.findById(playerId);
@@ -1062,18 +1089,13 @@ router.post('/reset-password', async (req, res) => {
       return res.status(404).json({ error: 'Player not found.' });
     }
 
-    // Hash the temporary password "temp"
-    const tempPassword = 'temp';
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
-    // Update the player's password
-    player.password = hashedPassword;
+    player.password = NO_PASSWORD;
     await player.save();
 
-    console.log(`✅ Password reset to 'temp' for player: ${player.username} (ID: ${playerId})`);
-    res.json({ 
-      success: true, 
-      message: `Password reset to 'temp' for ${player.username}` 
+    console.log(`✅ Password cleared for player: ${player.username} (ID: ${playerId})`);
+    res.json({
+      success: true,
+      message: `Password cleared for ${player.username}: they sign in with the username alone and can add a new one in Profile.`
     });
 
   } catch (error) {

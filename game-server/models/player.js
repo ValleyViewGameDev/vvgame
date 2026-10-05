@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const playerSchema = new mongoose.Schema({
   playerId: { type: mongoose.Schema.Types.ObjectId },
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  // 'none' (utils/publicPlayer.js NO_PASSWORD) = passwordless profile: signs in with the username alone
+  password: { type: String, default: 'none' },
+  signup_ip_hash: { type: String, default: null }, // salted hash of the signup IP (anti-abuse cap), never the raw IP
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step

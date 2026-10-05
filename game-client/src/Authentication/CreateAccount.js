@@ -1,4 +1,5 @@
 import API_BASE from '../config';
+import { authErrorText } from './authErrors';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
@@ -129,7 +130,6 @@ const getDiagnostics = async () => {
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [language, setLanguage] = useState('en');
   const [selectedIcon, setSelectedIcon] = useState(PlayerIcons.free[0].value);
   const [iconScrollIndex, setIconScrollIndex] = useState(0);
@@ -179,11 +179,7 @@ const handleCreateAccount = async (e) => {
 
   // Validate required fields
   if (!username.trim()) {
-    setError('Enter a username');
-    return;
-  }
-  if (!password.trim()) {
-    setError('Enter a password');
+    setError(strings[4081]);
     return;
   }
 
@@ -206,9 +202,10 @@ const handleCreateAccount = async (e) => {
     const diagnostics = await getDiagnostics();
 
     // 3. Register player - server handles starting location (Cave dungeon)
+    // No password at signup (docs/onboarding-plan.md phase A): the profile signs in with the
+    // name alone; a password can be added later from Profile.
     const registerPayload = {
-      username,
-      password,
+      username: username.trim(),
       language,
       icon: selectedIcon,
       frontierId: frontier._id,
@@ -261,7 +258,7 @@ const handleCreateAccount = async (e) => {
 
   } catch (err) {
     console.error('Error during account creation:', err);
-    setError(err.response?.data?.error || 'Account creation failed. Please try again.');
+    setError(authErrorText(err, strings, 'Account creation failed. Please try again.'));
     setIsSubmitting(false);
   }
 };
@@ -279,12 +276,6 @@ return (
         placeholder={strings[4069] || "Choose Username"}
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder={strings[4070] || "Select a Password"}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
       />
       <select
         value={language}

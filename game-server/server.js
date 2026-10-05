@@ -79,6 +79,7 @@ const corsOptions = {
 };
 // Declare app before using it
 const app = express();
+app.set('trust proxy', true); // Render: req.ip is the client, not the proxy (signup IP cap in routes/auth.js)
 const PORT = process.env.PORT || 3001;
 
 app.use(cors(corsOptions));

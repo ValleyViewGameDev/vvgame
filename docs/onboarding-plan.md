@@ -106,9 +106,9 @@ unused). Generated names never collide with the reserved developer usernames.
 
 ### 4.3 Returning players and sign-in
 
-- Same device: `localStorage.player` → `/whoami {playerId}` (new route, replaces the
-  unguarded full-document GET for boot; returns the public subset only). 4xx clears the
-  cache and shows the first screen; network error keeps it and shows Retry.
+- Same device: `localStorage.player` → `GET /api/player/:id`, which now answers through
+  `publicPlayer` (no hash, `hasPassword` flag). 4xx clears the cache and shows the first
+  screen; network error keeps it and shows Retry.
 - New device or cleared storage: **Sign in again?** opens a modal with username and
   "Password (leave blank if none)". A passwordless account signs in with the name alone; a
   password supplied for one is rejected with the House copy. The modal keeps the
@@ -238,16 +238,19 @@ dashboard funnel can be split before/after.
 
 | Phase | Scope | Done when |
 |---|---|---|
-| **A. Passwordless + hardening** (~2 days) | `password` optional with sentinel; `/login` username-only for passwordless; `/whoami`; Sign-in-again modal; Add password in Profile; dev-gate the open routes; `update-profile` allowlist; per-IP cap; profanity filter; `?signin=1&u=` handling | Existing players log in unchanged; a new account needs a name only; the password hash never leaves the server |
+| **A. Passwordless + hardening** (BUILT 2026-10-05) | `password` optional with the `'none'` sentinel (`utils/publicPlayer.js`); `/login` username-only for passwordless profiles, `NO_PASSWORD` / `PASSWORD_REQUIRED` / `BAD_PASSWORD` codes; every player-returning route goes through `publicPlayer` (hash stripped, `hasPassword` surfaced) instead of a new `/whoami`; sign-in form with "Password (leave blank if none)"; Profile "Secure your profile" via `/player/change-password`; `/reset-password` (now clears the password) and `/delete-player` gated to developers or self; `update-profile` denylist (password, billing, identity; `accountStatus`/`role` developer-only); per-IP cap (production, `signup_ip_hash`, needs `trust proxy`); `utils/usernames.js` rules + `/check-username`; the chosen avatar is honoured; `?signin=1&u=` opens the sign-in form prefilled | Existing players log in unchanged; a new account needs a name only; the password hash never leaves the server |
 | **B. Play-first + name at the deed** (~3 days) | First screen = Play; silent account with generated name; language detection; name prompt on the Home Deed with live uniqueness; `named` flag; purge job; avatar beat; Mailbox gift moved to the first homestead beat; open-loop ending; dashboard funnel gains Play → named | Landing-to-named measured; FTUE median ≤ 12 min |
 | **C. Email + Loops** (~2 days) | Player email fields; the email modal after first harvest; Profile/Settings entry points and toggle; Loops mailer + welcome template per language; unsubscribe route; `EmailSend` ledger; in-app-browser early ask + Safari prompt | Emails on file reported per surface in the dashboard; welcome sent once per player |
 | **D. Re-engagement** (later, gated on D7) | Event announcement runner on cron (Train/Carnival/season); Google sign-in with link mode; BL-1 install prompt; subscription-thanks email | Each email has a placebo-date control like House's Naples/Granada read |
 
-## 8. Decisions for the owner
+## 8. Decisions (owner, 2026-10-05)
 
-1. Silent account on Play (recommended) versus a one-field name screen before the cave.
-2. Name prompt at the Home Deed (recommended) versus at homestead arrival.
-3. Email ask after first harvest (recommended) versus at FTUE completion as in House.
-4. Keep the key art on the first screen, or go logo-only as House did (House got no clean
-   read; here it can be an A/B on `client_info` since the beacon already stamps the landing).
-5. Purge window for unnamed, inactive silent accounts: 7 days (recommended) or 30.
+1. **Silent account**, created the moment the game loads for a visitor with no session.
+2. **Name prompt at the Home Deed.**
+3. **Email ask after the first harvest** (in-app browsers: at the deed).
+4. **No first screen at all.** A visitor with no `localStorage.player` lands directly in
+   the cave: no key art, no Play button. The account is created on load (4.2), the language
+   is detected, and "Sign in again?" lives in the Settings/Profile panel and on the
+   `?signin=1&u=` link. The key art and the LoginPanel are retired with phase B.
+5. **Purge after 7 days** for unnamed accounts with no email; never purge a named or
+   emailed account; log the count to the dashboard.

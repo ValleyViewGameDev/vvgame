@@ -10,13 +10,16 @@ import './Authentication.css';
 import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
 import { sendPageviewBeacon } from '../Utils/pageviewBeacon';
+import { authErrorText } from './authErrors';
 
-const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess }) => {
+// initialUsername / initialView come from a `?signin=1&u=<name>` link (App.js): the sign-in form
+// opens prefilled so a returning player never creates a second profile by mistake.
+const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess, initialUsername = '', initialView = 'create' }) => {
   const strings = useStrings();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(initialUsername);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(false);
+  const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(initialView === 'signin');
 
   // Play login screen music on mount, stop on unmount
   useEffect(() => {
@@ -30,7 +33,8 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE}/api/login`, { username, password });
+      // A passwordless profile signs in with the name alone; the field stays optional.
+      const response = await axios.post(`${API_BASE}/api/login`, { username: username.trim(), password: password || '' });
       if (response.data.success) {
         const player = response.data.player;
         setCurrentPlayer(player);
@@ -41,11 +45,11 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
           onLoginSuccess(player);
         }
       } else {
-        setError(response.data.error || 'Invalid username or password');
+        setError(authErrorText(response.data, strings, 'Invalid username or password'));
       }
     } catch (err) {
       console.error('Error during login:', err);
-      setError('Login failed. Please try again.');
+      setError(authErrorText(err, strings, 'Login failed. Please try again.'));
     }
   };
 
@@ -74,10 +78,10 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
                 id="password"
                 type="password"
                 className="login-form-input"
-                placeholder={strings[4006] || "Password"}
+                placeholder={strings[4072]}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
+                autoComplete="current-password"
               />
             </div>
             {error && <p className="error-message">{error}</p>}
