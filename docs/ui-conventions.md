@@ -172,3 +172,25 @@ value rather than trust this page.
   animation equals the step cadence (90 ms). Match these before inventing a new duration.
 - Preview the change on a phone viewport (375x812 portrait and a 500 px-tall landscape) as
   well as desktop before calling it done; the two orientations have separate rules.
+
+## 9. Type sizes
+
+- The scale is the `--font-*` tokens in `UI/Styles/theme.css`: title-1 28 px (modal titles),
+  title-2 22 px (panel titles), title-3 16 px (sub-headings, timers), title-4 18 px (button
+  titles), text-1 14 px (body and UI text), text-2 12 px (captions, secondary text). Use the
+  token, not a bare number, when a new element fits one of those roles.
+- **12 px is the floor for anything the player reads**: a hint, a timestamp, a tag, a
+  "Locked" label, a progress count. Body text and anything with a number the player acts on
+  (a cost, a quantity, an XP line) is 14 px or more; small modals that show one fact
+  (`ResourceModalSmall`: 17 px line, 14 px ingredients) can go larger because there is room.
+- Nothing below 12 px except the two in-board overlays whose size follows the tile, not the
+  type scale: the phone status bar (11 px, one line of secondary state) and timer text drawn
+  over a board object or a crafting slot (11 px). Decorative glyphs (the 7 px butterfly VFX)
+  are not text.
+- Size in `px` (or a token), not `em`/`rem`: `rem` ignores the phone's smaller panel text and
+  `em` compounds (a 0.7em tag inside a 0.9em row inside a 13 px phone panel is 8 px). Known
+  offenders to bring up to the floor when the surface is next touched: Mailbox unread tag
+  and timestamp (`Mailbox.css` 0.7em / 0.8em), Inventory Gold Pass note (0.7rem), Trophy
+  progress text (10 px), relationship status badge (11 px), BulkCrafting "slots" and "Locked"
+  labels (10 to 11 px inline), minimap dungeon timer (11 px).
+

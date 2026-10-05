@@ -20,12 +20,12 @@
 }
 .resource-modal-small .rms-source {
   margin: 0;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--color-text-primary);
 }
 .resource-modal-small .rms-ingredients {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-secondary);
 }
 .resource-modal-small .rms-label { font-weight: bold; }
