@@ -190,6 +190,26 @@ supports today: FTUE funnel from `ftuestep`/`firsttimeuser`/`aspiration`, Home D
 visited distribution, trophies earned, season leaderboard from `frontiers.seasonlog`,
 settlement event participation from the settlement logs. Owner to add the rest.
 
+## 4a. Build log
+
+- **2026-10-05, slice 1 (skeleton + sheets), commit 85c3c839.** As designed, with these
+  deviations: errors a file already has on disk (the duplicate `Angelo's Keep` type and the
+  `armorclass: "`"` cell in resources.json) are demoted to warnings marked "pre-existing" so an
+  old defect never blocks an unrelated save (`errorSignatures` + `validateRows(..., baseline)`);
+  the server compares saves semantically (parsed JSON) so a no-op save never rewrites a file;
+  `trader` and quest `giver` references warn rather than block (Shiro is category `shop`, not
+  `npc`); `output` accepts the sentinels `noBank`, `hp`, `noRel`, `Buy`, `backpackCapacity`,
+  `range`. Every sheet file on disk is already 2-space JSON, so a real save diffs only the
+  changed rows.
+- **2026-10-05, slice 2 (Layouts), commit d97714ab.** Tile colours come from the client's own
+  `game-client/src/UI/Styles/tileColors.js`, served by the tool at `/game-client/tileColors.js`
+  and keyed by the tile's single-letter `type`, so the stale two-letter map in that file is
+  bypassed rather than fixed. Model + generation in `client/layouts/GridModel.js`
+  (`model.js` in the design); every layout on disk round-trips unchanged except two valley
+  grids holding layoutkey `CT`, which no longer exists in resources.json (the Electron editor
+  dropped it the same way). Grid type for templates is a toolbar select, or `?type=` on the
+  route from the World tab.
+
 ## 4. Delivery slices (each a commit, each runnable)
 
 1. **Skeleton + sheets.** Editor server, client shell, core modules, the sheet engine and the
