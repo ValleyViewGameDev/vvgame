@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import TransactionButton from '../Buttons/TransactionButton';
 import { useStrings } from '../StringsContext';
@@ -77,7 +78,10 @@ const TradingInventoryModal = ({
 
   const slotConfig = getSlotConfig(selectedSlotIndex);
 
-  return (
+  // Rendered through a portal to document.body: the Trade Stall panel that opens this modal is
+  // transformed on phones, which would otherwise trap the modal inside the panel's box
+  // (docs/ui-conventions.md, Modals).
+  return createPortal(
     <div className="inventory-modal wider">
       <button className="close-button" onClick={onClose}>✖</button>
 
@@ -187,7 +191,7 @@ const TradingInventoryModal = ({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };
 
 export default TradingInventoryModal;

@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
@@ -567,7 +568,7 @@ function CarnivalPanel({
       </LevelLock>
     </Panel>
     
-    {showLogicModal && (
+    {showLogicModal && createPortal(
       <div className="carnival-logic-modal-overlay">
         <div className="carnival-logic-modal">
           <button 
@@ -584,7 +585,7 @@ function CarnivalPanel({
           </pre>
         </div>
       </div>
-    )}
+    , document.body)}
     </>
   );
 }

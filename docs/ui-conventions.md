@@ -35,9 +35,12 @@ value rather than trust this page.
   specificity so a feature stylesheet's desktop width (Mailbox's 800 px, for example) cannot
   leak onto phones. A feature stylesheet may size its modal for desktop; it must not use
   `!important`, inline widths, or a selector heavier than `body .modal-overlay .x`.
-- The NPC greeting, Eat Food, Choose Avatar, level-up, revival, share, language and
-  service-status modals all follow this; the trading inventory modal (`.inventory-modal`) is
-  the one custom overlay and is covered by the same phone rule.
+- The NPC greeting, Eat Food, Choose Avatar, level-up, revival, share, language,
+  service-status, Mailbox, Trade Stall inventory (`.inventory-modal`) and Carnival logic
+  modals all follow this. A modal opened FROM a panel (Trade Stall, Inventory, Carnival) is the
+  usual offender: it must still portal to `document.body`, never render inline in the panel.
+  Custom overlays (`.inventory-modal`, `.carnival-logic-modal-overlay`) are listed in the
+  phone width rule in `mobile.css`; add any new one there.
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
 

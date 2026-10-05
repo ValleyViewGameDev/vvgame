@@ -279,7 +279,9 @@
   body .modal-overlay .modal-container.modal-large,
   body .modal-overlay .modal-container.modal-xlarge,
   body .modal-overlay .modal-container.story-modal.modal-small,
-  body .inventory-modal .inventory-modal-container {
+  body .inventory-modal,
+  body .inventory-modal.wider,
+  body .carnival-logic-modal-overlay .carnival-logic-modal {
     width: 84vw;
     min-width: 0;
     max-width: 440px;
@@ -291,6 +293,9 @@
     border-radius: 12px;
     box-sizing: border-box;
   }
+  /* Trade Stall inventory modal: the table scrolls inside the box instead of forcing 600px */
+  body .inventory-modal table { min-width: 0; }
+  body .inventory-modal .inventory-modal-scroll { overflow-x: auto; }
   /* Mailbox rows: text above, rewards and buttons below, instead of one row that overflows */
   .mailbox-modal .mailbox-message { flex-wrap: wrap; gap: 8px; }
   .mailbox-modal .message-left { flex: 1 1 100%; margin-right: 0; }
