@@ -182,7 +182,8 @@ export async function handleTransitSignpost(
 
     // ------------------------------------------------------------ Signpost Home
     if (resourceType === "Signpost Home") {
-      startFade();
+      // Refusals come first, with no fade: in the cave a player without the deed just reads
+      // the status-bar line ("You'll need a Home Deed...") and keeps playing.
       const hasHomeDeed =
         currentPlayer.backpack?.some((item) => item.type === "Home Deed" && item.quantity > 0) ||
         currentPlayer.inventory?.some((item) => item.type === "Home Deed" && item.quantity > 0);
@@ -194,6 +195,7 @@ export async function handleTransitSignpost(
       // Home Deed bought but the homestead may not exist yet (race with create-homestead)
       if (!currentPlayer.gridId) return bail(113);
 
+      startFade();
       updateStatus(101); // "Traveling home ..."
       const moved = await changePlayerLocation(
         currentPlayer,

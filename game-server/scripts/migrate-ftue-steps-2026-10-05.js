@@ -1,15 +1,16 @@
 #!/usr/bin/env node
-// One-off: tuning/FTUEsteps.json was renumbered on 2026-10-05 (gift + avatar beats inserted after
-// the first homestead visit; open-loop ending). Players still in the FTUE keep their place:
-//   old 5 -> 7 (sell to Kent), 6 -> 8, 7 -> 9, 8 -> 10, 9 -> 11, 10 -> 12, 11 -> 13, 12 -> 14,
-//   old 13/14 (mailbox beats at the end) -> 15 (open-loop ending). Steps 1-4 are unchanged.
+// One-off: tuning/FTUEsteps.json was renumbered on 2026-10-05 (Queen Gertrude's story + deed push
+// at the start; gift + avatar beats after the first homestead visit; open-loop ending). Players
+// still in the FTUE keep their place (old numbering -> new):
+//   1 -> 1, 2 -> 3 (move to Elbow), 3 -> 4, 4 -> 5, 5 -> 8 (sell to Kent), 6 -> 9, 7 -> 10, 8 -> 11,
+//   9 -> 12, 10 -> 13, 11 -> 14, 12 -> 15, old 13/14 (mailbox beats at the end) -> 16 (open loop).
 //   node scripts/migrate-ftue-steps-2026-10-05.js            dry run
 //   node scripts/migrate-ftue-steps-2026-10-05.js --apply
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const Player = require('../models/player');
 
-const MAP = { 5: 7, 6: 8, 7: 9, 8: 10, 9: 11, 10: 12, 11: 13, 12: 14, 13: 15, 14: 15 };
+const MAP = { 2: 3, 3: 4, 4: 5, 5: 8, 6: 9, 7: 10, 8: 11, 9: 12, 10: 13, 11: 14, 12: 15, 13: 16, 14: 16 };
 
 (async () => {
   const apply = process.argv.includes('--apply');

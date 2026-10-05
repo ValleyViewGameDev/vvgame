@@ -449,10 +449,11 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
 
   // Walking onto a doober collects it exactly as a click on that tile would
   // (App.js routes onEnterTile through handleTileClick, so inventory, VFX, feedback,
-  // quests and the server call are the same code path).
+  // quests and the server call are the same code path). "special" collectables (the
+  // cave Gem) take the same path as doobers in handleTileClick, so they count too.
   if (onEnterTile) {
     const here = GlobalGridStateTilesAndResources.getResources()?.find(
-      (r) => r && r.category === 'doober' && r.x === targetX && r.y === targetY
+      (r) => r && (r.category === 'doober' || (r.category === 'special' && r.action === 'collect')) && r.x === targetX && r.y === targetY
     );
     if (here) onEnterTile(targetY, targetX, here);
   }
