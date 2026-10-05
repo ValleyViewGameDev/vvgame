@@ -1582,7 +1582,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const playerQty = inventoryQty + backpackQty;
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      return `<span data-resource="${type}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                      return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                     }).join('');
                   } else {
                     // Legacy format - check ingredient1 through ingredientN
@@ -1597,7 +1597,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const playerQty = inventoryQty + backpackQty;
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      ingredientsList.push(`<span data-resource="${type}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                      ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                     }
                     formattedCosts = ingredientsList.join('');
                   }
@@ -1618,10 +1618,11 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       key={`${recipe.source}-${recipe.index}`}
                       className="trader-offer-wrap"
                       onClick={(e) => {
-                        if (!isDisabled) return;
-                        const lines = [...e.currentTarget.querySelectorAll('[data-resource]')];
-                        const hit = lines.find((el) => { const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
-                        if (hit) setInfoResource(hit.dataset.resource);
+                        // A tap anywhere on an offer the player cannot afford opens ResourceModalSmall
+                        // for the first requirement they are short of (NPCsPanel.css lets the tap through).
+                        if (affordable || !isDisabled) return;
+                        const line = e.currentTarget.querySelector('[data-resource][data-short="1"]') || e.currentTarget.querySelector('[data-resource]');
+                        if (line) setInfoResource(line.dataset.resource);
                       }}
                     >
                     <ResourceButton

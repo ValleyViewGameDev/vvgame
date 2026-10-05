@@ -49,11 +49,13 @@ value rather than trust this page.
   Found in the Valley / Dropped by ..." line from `Utils/resourceSource.js`, ingredients for
   crafted goods; strings 17001 to 17013). Open it when a resource icon has no action of its
   own: Kent cards the player cannot trade, Train orders and claimed Carnival offers they
-  cannot fill, and each requirement line of a trader offer they cannot afford (NPC panel;
-  the lines carry `data-resource`, so a tap on one line is unambiguous even when the offer
-  needs several items). A disabled `<button>` swallows taps on its children, so those cards get
-  `pointer-events: none` when disabled and the wrapper around them catches the tap; the
-  card's look must not change (no new colour for "cannot afford").
+  cannot fill, and trader offers they cannot afford (NPC panel). The tap target is the WHOLE
+  card, not just the icon: a card whose requirements are not met opens the modal wherever it
+  is tapped, for the first item the player is short of (Kent `itemsWithQty`, trader lines
+  carry `data-resource` / `data-short`). Cards that are disabled for another reason (cooldown,
+  level, someone else's claim) do nothing. A disabled `<button>` swallows taps on its children,
+  so those cards get `pointer-events: none` when disabled and the wrapper around them catches
+  the tap; the card's look must not change (no new colour for "cannot afford").
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
 - Multi-column modal layouts (the Store's paired and tripled offer cards) collapse to a one-

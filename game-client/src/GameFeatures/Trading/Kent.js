@@ -711,14 +711,13 @@ function KentPanel({
                         <div
                           key={index}
                           className="kent-offer-wrapper"
-                          onClick={(e) => {
-                            // A card that cannot be traded is a disabled <button>, which swallows taps on its
-                            // children, so Kent.css gives it pointer-events: none and the wrapper catches the
-                            // tap: the item cell under the pointer opens ResourceModalSmall (where to find it).
-                            if (!(isCardInactive || !canAffordAll) || isTrading) return;
-                            const cells = [...e.currentTarget.querySelectorAll('.kent-multi-item-cell, .kent-single-item-cell')];
-                            const hit = cells.findIndex((c) => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
-                            if (hit >= 0 && itemsWithQty[hit]) setInfoResource(itemsWithQty[hit].item);
+                          onClick={() => {
+                            // A card the player cannot afford is a disabled <button>, which swallows taps, so
+                            // Kent.css gives it pointer-events: none and the wrapper catches the tap anywhere on
+                            // the card: ResourceModalSmall opens for the first item the player is short of.
+                            if (canAffordAll || isCardInactive || isTrading) return;
+                            const missing = itemsWithQty.find((item) => !item.hasEnough);
+                            if (missing) setInfoResource(missing.item);
                           }}
                         >
                           <ResourceButton
