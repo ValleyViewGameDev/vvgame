@@ -93,9 +93,12 @@ value rather than trust this page.
 ## 4. Header, status bar, notifications
 
 - Phone header rows are fixed by orientation (see the `mobile.css` header comment): portrait
-  is name + gems + money, then the three bar stats (level, health, inventory) with their fill
-  bars, then the icon-only command row; landscape is the zoom column, the two-line title,
-  then the control rows. Every portrait row is centred.
+  row 1 is the name at the left edge and gems + money at the right edge (16px), row 2 the
+  three bar stats (level, health, inventory) with their fill bars centred as a group, row 3
+  the icon-only command row centred; landscape is the zoom column, the two-line title, then
+  the control rows. Row 1's two items are absolutely positioned against the full-width grid
+  with `grid-column: auto`: a positioned grid child with a grid placement is boxed to its
+  grid area, not the container.
 - Secondary header commands render icon-only on phones through `headerLabel()` in `App.js`;
   the desktop keeps text labels. Add a new header command to both branches.
 - The status bar sits directly under the header and the board under it; nothing else
