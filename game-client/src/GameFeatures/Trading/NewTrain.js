@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { generateCompleteTrainData } from './TrainOfferLogic';
 import './Train.css';
@@ -33,6 +34,8 @@ function NewTrainPanel({
   // Get Train level requirement from masterResources
   const trainResource = masterResources?.find(r => r.type === 'Train');
   const trainRequiredLevel = trainResource?.level || 1;
+
+  const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall for an order you cannot fill
 
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
@@ -710,7 +713,11 @@ function NewTrainPanel({
           }
 
           return (
-            <div key={index} style={{ position: 'relative' }}>
+            <div
+              key={index}
+              style={{ position: 'relative' }}
+              onClick={() => { if (!affordable && !isCompleted && !loadingExpired && !isTrading) setInfoResource(offer.item); }} // the disabled card lets the tap through (NewTrain.css): where to find the item
+            >
               <ResourceButton
                 className={`train-offer-card ${isCompleted ? 'completed' : ''}`}
                 onClick={() => !isTrading && affordable && !isCompleted ? handleFulfillOffer(offer) : null}
@@ -781,6 +788,7 @@ function NewTrainPanel({
   };
 
   return (
+    <>
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="NewTrainPanel">
       <LevelLock
         currentPlayer={currentPlayer}
@@ -828,6 +836,8 @@ function NewTrainPanel({
         )}
       </LevelLock>
     </Panel>
+    {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+    </>
   );
 }
 

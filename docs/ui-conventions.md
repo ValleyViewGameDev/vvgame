@@ -44,6 +44,14 @@ value rather than trust this page.
   usual offender: it must still portal to `document.body`, never render inline in the panel.
   Custom overlays (`.inventory-modal`, `.carnival-logic-modal-overlay`) are listed in the
   phone width rule in `mobile.css`; add any new one there.
+- `UI/Modals/ResourceModalSmall.js` is the standard "what is this and where does it come
+  from" pop-up (icon, the resource name as the title, a "Grown on / Made at / Collected from /
+  Found in the Valley / Dropped by ..." line from `Utils/resourceSource.js`, ingredients for
+  crafted goods; strings 17001 to 17013). Open it when a resource icon has no action of its
+  own: Kent cards the player cannot trade, Train orders and claimed Carnival offers they
+  cannot fill. A disabled `<button>` swallows taps on its children, so those cards get
+  `pointer-events: none` when disabled and the wrapper around them catches the tap; the
+  card's look must not change (no new colour for "cannot afford").
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
 - Multi-column modal layouts (the Store's paired and tripled offer cards) collapse to a one-

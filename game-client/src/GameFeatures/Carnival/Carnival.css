@@ -148,3 +148,7 @@
     margin-bottom: 8px;
     color: #333;
 }
+
+/* Your claimed offer you cannot fill is a disabled button; the tap passes through to the
+   wrapper in Carnival.js, which opens ResourceModalSmall (where to find the item) */
+.carnival-offer-card:disabled { pointer-events: none; }

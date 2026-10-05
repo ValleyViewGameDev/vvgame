@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade, generateNewKentOffers } from './KentOfferLogic';
@@ -38,6 +39,7 @@ function KentPanel({
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
     const [kentOffers, setKentOffers] = useState([]);
+    const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap an item on a card you cannot trade
     const [kentTimer, setKentTimer] = useState("");
     const [kentPhase, setKentPhase] = useState("");
     const [isTrading, setIsTrading] = useState(false);
@@ -706,7 +708,19 @@ function KentPanel({
                             };
 
                       return (
-                        <div key={index} className="kent-offer-wrapper">
+                        <div
+                          key={index}
+                          className="kent-offer-wrapper"
+                          onClick={(e) => {
+                            // A card that cannot be traded is a disabled <button>, which swallows taps on its
+                            // children, so Kent.css gives it pointer-events: none and the wrapper catches the
+                            // tap: the item cell under the pointer opens ResourceModalSmall (where to find it).
+                            if (!(isCardInactive || !canAffordAll) || isTrading) return;
+                            const cells = [...e.currentTarget.querySelectorAll('.kent-multi-item-cell, .kent-single-item-cell')];
+                            const hit = cells.findIndex((c) => { const r = c.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+                            if (hit >= 0 && itemsWithQty[hit]) setInfoResource(itemsWithQty[hit].item);
+                          }}
+                        >
                           <ResourceButton
                             className={`kent-offer-button ${isCardInactive ? 'disabled' : ''} ${isMultiItem ? 'multi-item' : ''}`}
                             onClick={() => !isCardInactive && !isTrading && handleTrade(convertedOffer)}
@@ -834,6 +848,8 @@ function KentPanel({
           </>
         )}
       </Panel>
+      {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+
 
       {/* Tooltip portal for multi-item offer symbols */}
       {itemTooltip.show && ReactDOM.createPortal(

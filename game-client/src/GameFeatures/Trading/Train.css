@@ -148,3 +148,7 @@
     margin-bottom: 8px;
     color: #333;
 }
+
+/* An order you cannot fill is a disabled button; the tap passes through to the wrapper in
+   NewTrain.js, which opens ResourceModalSmall (where to find the item) */
+.train-offer-card:disabled { pointer-events: none; }

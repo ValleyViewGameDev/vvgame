@@ -294,3 +294,7 @@
     font-size: 12px;
   }
 }
+/* A card that cannot be traded keeps its look; taps pass through the disabled button to the
+   wrapper (Kent.js), which opens ResourceModalSmall for the item cell under the pointer */
+.kent-offer-button:disabled { pointer-events: none; }
+.kent-offer-wrapper { cursor: default; }

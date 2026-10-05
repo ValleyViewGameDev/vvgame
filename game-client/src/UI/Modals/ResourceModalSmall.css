@@ -1,0 +1,31 @@
+/* ResourceModalSmall: icon, name, "where it comes from" (docs/ui-conventions.md, Modals) */
+.resource-modal-small .modal-content {
+  text-align: center;
+  padding: 4px 0 6px;
+}
+.resource-modal-small .rms-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  margin: 2px auto 8px;
+  font-size: 52px;
+  line-height: 1;
+}
+.resource-modal-small .rms-icon img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+.resource-modal-small .rms-source {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text-primary);
+}
+.resource-modal-small .rms-ingredients {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.resource-modal-small .rms-label { font-weight: bold; }

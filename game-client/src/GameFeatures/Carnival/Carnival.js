@@ -5,6 +5,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import './Carnival.css';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -32,6 +33,8 @@ function CarnivalPanel({
   // Get Carnival level requirement from masterResources
   const carnivalResource = masterResources?.find(r => r.type === 'Carnival');
   const carnivalRequiredLevel = carnivalResource?.level || 1;
+
+  const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall for a claimed offer you cannot fill
 
   const [carnivalOffers, setCarnivalOffers] = useState([]);
   const [carnivalPhase, setCarnivalPhase] = useState("here");
@@ -477,8 +480,11 @@ function CarnivalPanel({
           }
 
           return (
-            <ResourceButton
+            <div
               key={index}
+              onClick={() => { if (isYours && !affordable && !isCompleted) setInfoResource(offer.itemBought); }} // the disabled card lets the tap through (Carnival.css): where to find the item
+            >
+            <ResourceButton
               name={isCompleted || offer.claimedBy ? (playerUsernames[offer.claimedBy] || 'Unknown') : ''}
               className={`carnival-offer-card ${
                 !offer.claimedBy ? 'unclaimed' : 
@@ -495,6 +501,7 @@ function CarnivalPanel({
               <strong>{!isCompleted && !offer.claimedBy ? buttonText : 
                !isCompleted && offer.claimedBy ? strings[2007] : ''}</strong>
             </ResourceButton>
+            </div>
           );
         })}
       </div>
@@ -567,6 +574,9 @@ function CarnivalPanel({
         )}
       </LevelLock>
     </Panel>
+
+  {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+
     
     {showLogicModal && createPortal(
       <div className="carnival-logic-modal-overlay">
