@@ -25,6 +25,9 @@ import {
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
+
+// Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
+const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
 // Note: pixi-viewport v6 requires PixiJS v8. For v7, we'd need pixi-viewport v5.
 // For Phase 1, we'll skip the viewport and render directly to stage.
 // Smooth zooming can be added in a later phase.
@@ -488,28 +491,31 @@ const PixiRenderer = ({
     }, { ready: [], searching: [], hungry: [], inProgress: [] });
   }, [resources]); // Removed currentTime - now calculated inside
 
-  // Check for completed trades at Trading Post
+  // The ✅ on the player's own Trade Stall: a sale someone bought (payment to collect) or a
+  // listing whose timer has run out (ready to sell to the game). Only on the player's own
+  // homestead: another player's stall shows nothing of ours. The 30 s tick lets a timer
+  // that runs out while we stand here raise the checkmark without a reload.
+  const [tradingTick, setTradingTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTradingTick((t) => t + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
   const computedTradingStatus = useMemo(() => {
-    if (!resources || !currentPlayer?.tradeStall) return { completed: [] };
-
-    const now = Date.now(); // Calculate inside useMemo
-
+    if (!resources || !currentPlayer?.tradeStall) return { ready: [] };
+    const onOwnHomestead = currentPlayer?.gridId && String(currentPlayer.gridId) === String(currentPlayer?.location?.g);
+    if (!onOwnHomestead) return { ready: [] };
+    const now = Date.now();
+    const hasCollectable = currentPlayer.tradeStall.some((slot) => slot && !slot.locked && slot.resource && (
+      (slot.boughtBy !== null && slot.boughtBy !== undefined) ||
+      (slot.sellTime && new Date(slot.sellTime).getTime() <= now)
+    ));
+    if (!hasCollectable) return { ready: [] };
     return resources.reduce((acc, res) => {
-      if (res.type === 'Trading Post' && currentPlayer.tradeStall) {
-        const hasCompletedTrades = currentPlayer.tradeStall.some(trade =>
-          trade && (
-            (trade.sellTime && new Date(trade.sellTime) < now) ||
-            (trade.boughtBy !== null && trade.boughtBy !== undefined)
-          )
-        );
-        if (hasCompletedTrades) {
-          const key = `${res.x}-${res.y}`;
-          acc.completed.push(key);
-        }
-      }
+      if (TRADE_STALL_TYPES.has(res.type)) acc.ready.push(`${res.x}-${res.y}`);
       return acc;
-    }, { completed: [] });
-  }, [resources, currentPlayer?.tradeStall]); // Removed currentTime
+    }, { ready: [] });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resources, currentPlayer?.tradeStall, currentPlayer?.gridId, currentPlayer?.location?.g, tradingTick]);
 
   // NPC animation duration in milliseconds
   // 2500ms allows smooth continuous movement between tiles

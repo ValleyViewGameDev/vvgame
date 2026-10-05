@@ -30,8 +30,8 @@ export const getResourceOverlayStatus = (
     return { type: 'inprogress', priority: 2 };
   }
   
-  // Trading Post status
-  if (isTradingReady && resource.type === 'Trading Post') {
+  // Trade Stall: a sale to collect or a listing ready to sell (PixiRenderer computes the keys)
+  if (isTradingReady && (resource.type === 'Trading Post' || resource.type === 'Trade Stall' || resource.type === 'Trade')) {
     return { type: 'ready', priority: 1 };
   }
   
