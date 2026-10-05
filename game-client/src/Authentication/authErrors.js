@@ -13,6 +13,7 @@ const CODES = {
   INVALID: 4082,
   PROFANE: 4082,
   RATE_LIMITED: 4087,
+  EMAIL_INVALID: 4104,
 };
 
 export function authErrorText(err, strings, fallback) {

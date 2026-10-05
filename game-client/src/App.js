@@ -137,7 +137,8 @@ import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
-import { sendPageviewBeacon } from './Utils/pageviewBeacon';
+import EmailModal from './UI/Modals/EmailModal';
+import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -887,6 +888,7 @@ const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const signinMode = useRef(false); // true when the login panel is the deliberate path (logout, ?signin=1)
 const [isSilentCreating, setIsSilentCreating] = useState(false); // a new visitor's account is being made
 const [showBegin, setShowBegin] = useState(false); // new visitor: key art + the Begin modal until they tap
+const [emailAsk, setEmailAsk] = useState(null); // { inApp } while the once-only email ask is open
 // `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
 // there is no live session, then drop the parameters. Skipped in in-app browsers, where the
 // session would not survive anyway and the prompt only confuses.
@@ -2244,6 +2246,25 @@ useEffect(() => {
     console.log("📍 Player sourceGridBeforeDungeon updated:", currentPlayer.sourceGridBeforeDungeon);
   }
 }, [currentPlayer]);
+
+// The once-only email ask (docs/onboarding-plan.md §4.5): after the first crop harvest, or, in an
+// in-app browser where the session rarely survives, right after the Home Deed is signed. Shown
+// once per profile (email_prompt_seen_at), never to an unnamed or already-emailed player.
+useEffect(() => {
+  const maybeAsk = (inApp) => {
+    const p = currentPlayerRef.current;
+    if (!p || p.email || p.email_prompt_seen_at || p.named === false) return;
+    const seenAt = new Date().toISOString();
+    setCurrentPlayer((prev) => (prev ? { ...prev, email_prompt_seen_at: seenAt } : prev));
+    axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { email_prompt_seen_at: seenAt } }).catch(() => {});
+    setEmailAsk({ inApp });
+  };
+  const onHarvest = () => maybeAsk(isInAppBrowser());
+  const onNamed = () => { if (isInAppBrowser()) setTimeout(() => maybeAsk(true), 1500); };
+  window.addEventListener('vv:crop-harvested', onHarvest);
+  window.addEventListener('vv:named', onNamed);
+  return () => { window.removeEventListener('vv:crop-harvested', onHarvest); window.removeEventListener('vv:named', onNamed); };
+}, []);
 
 useEffect(() => {
   const handleKeyDown = (event) => {
@@ -3716,6 +3737,9 @@ return (
        />
       )}
       {showBegin && <BeginModal onBegin={handleBegin} onSignIn={handleBeginSignIn} />}
+      {emailAsk && currentPlayer && (
+        <EmailModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} inApp={emailAsk.inApp} onClose={() => setEmailAsk(null)} />
+      )}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
           onClose={closePanel}

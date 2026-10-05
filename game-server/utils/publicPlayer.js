@@ -20,6 +20,7 @@ function publicPlayer(playerDoc) {
   p.hasPassword = hasPassword(p);
   delete p.password;
   delete p.signup_ip_hash;
+  delete p.unsubscribe_token;
   return p;
 }
 

@@ -191,6 +191,7 @@ app.use((req, res, next) => {
 
 console.log('Setting up authentication routes...');
 app.use('/api', authRoutes); // <-- Use auth routes for player registration/login
+app.use('/api', require('./routes/unsubscribe')); // one-click unsubscribe from email footers (no session)
 console.log('Setting up player routes...');
 app.use('/api', playerRoutes);
 console.log('Setting up world routes...');

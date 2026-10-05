@@ -445,6 +445,14 @@ export async function handleDooberClick(
       skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
     updateStatus(statusMessage);
 
+    // A crop (its source is a farm plot) was harvested: App.js listens for the first one to make
+    // the once-only email ask (docs/onboarding-plan.md §4.5).
+    try {
+      const master = (masterResources || []).find((r) => r.type === resource.type);
+      const source = master && (masterResources || []).find((r) => r.type === master.source);
+      if (source && source.category === 'farmplot') window.dispatchEvent(new CustomEvent('vv:crop-harvested', { detail: { type: resource.type } }));
+    } catch (_) { /* never block a collection */ }
+
     const gridUpdateResponse = await updateGridResource(
       gridId,
       { type: null, x: col, y: row }, // Collecting doober removes it

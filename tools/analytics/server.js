@@ -899,7 +899,7 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
     { $addFields: { created_at: CREATED_EXPR } },
     { $match: { created_at: { $gte: start, $lte: end }, ...exPlQ(excludeIds) } },
     { $project: {
-      username: 1, named: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
+      username: 1, named: 1, email: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
       settlementId: 1, client_info: 1,
       'ftueFeedback.os': 1, 'ftueFeedback.browser': 1, 'ftueFeedback.timezone': 1, 'ftueFeedback.isMobile': 1,
     } },
@@ -919,6 +919,7 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
       playerId: String(p._id),
       username: p.username || null,
       named: p.named !== false,
+      has_email: !!p.email,
       completed: p.firsttimeuser === false || p.firsttimeuser === undefined,
       ftue_step: Number.isFinite(p.ftuestep) ? p.ftuestep : null,
       aspiration: p.aspiration ?? null,

@@ -60,6 +60,12 @@ function detectSurface(params) {
   return 'web';
 }
 
+// Meta/TikTok in-app browsers: localStorage rarely survives, so the game asks for email early
+// and shows the "open in your browser" hint (docs/onboarding-plan.md §4.4).
+export function isInAppBrowser() {
+  return /FBAN|FBAV|FB_IAB|Instagram|musical_ly|TikTok|Bytedance/i.test(navigator.userAgent || '');
+}
+
 // The landing context, captured on the FIRST load of this browser session and
 // re-read afterwards (utm tags are only on the landing URL).
 function landing() {

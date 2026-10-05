@@ -18,6 +18,9 @@ const { recordActivity, ensurePageview, sanitizeClientInfo } = require('../utils
 const { NO_PASSWORD, hasPassword, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, generateUniqueRandomUsername } = require('../utils/usernames');
 const sendMailboxMessage = require('../utils/messageUtils');
+const { sendWelcomeEmail } = require('../utils/emailNotifications');
+const { setMarketingConsent, isMarketingEligible } = require('../utils/crmAudience');
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WELCOME_MESSAGE_ID = 1; // tuning/messages.json: the day-0 gift (Money, Gems, Wood, seeds)
 
 // --- Per-network signup cap (anti-abuse, ported from House) -----------------------------
@@ -364,6 +367,44 @@ router.post('/player/name', async (req, res) => {
     res.json({ success: true, player: publicPlayer(player) });
   } catch (err) {
     console.error('❌ /player/name:', err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// POST /player/email {playerId, email}: the in-game ask (UI/Modals/EmailModal.js) and Profile.
+// Lowercased, shape-checked, provenance 'manual'; the welcome email goes out once, on the first save.
+router.post('/player/email', async (req, res) => {
+  const { playerId } = req.body || {};
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!playerId) return res.status(400).json({ error: 'playerId is required.', code: 'MISSING' });
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'Please enter a valid email address.', code: 'EMAIL_INVALID' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.', code: 'NOT_FOUND' });
+    player.email = email;
+    player.email_source = 'manual';
+    if (!player.email_prompt_seen_at) player.email_prompt_seen_at = new Date();
+    await player.save();
+    sendWelcomeEmail(player).catch(() => {}); // fire-and-forget; once per player
+    res.json({ success: true, player: publicPlayer(player), marketingEligible: isMarketingEligible(player) });
+  } catch (err) {
+    console.error('❌ /player/email:', err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// POST /player/marketing-consent {playerId, optedIn}: the Settings toggle. Always explicit, always dated.
+router.post('/player/marketing-consent', async (req, res) => {
+  const { playerId, optedIn } = req.body || {};
+  if (!playerId) return res.status(400).json({ error: 'playerId is required.', code: 'MISSING' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.', code: 'NOT_FOUND' });
+    setMarketingConsent(player, optedIn === true);
+    await player.save();
+    res.json({ success: true, marketing_consent: player.marketing_consent, marketingEligible: isMarketingEligible(player) });
+  } catch (err) {
+    console.error('❌ /player/marketing-consent:', err);
     res.status(500).json({ error: 'Server error.' });
   }
 });

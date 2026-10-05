@@ -50,6 +50,7 @@ export default function NameDeedModal({ currentPlayer, setCurrentPlayer, onNamed
       setCurrentPlayer(updated);
       try { localStorage.setItem('player', JSON.stringify({ ...JSON.parse(localStorage.getItem('player') || '{}'), username: updated.username, named: true })); } catch (_) { /* storage off */ }
       trackAccountCreation(updated.username, currentPlayer.playerId);
+      window.dispatchEvent(new CustomEvent('vv:named'));
       onNamed(updated);
     } catch (err) {
       setStatus({ kind: 'bad', text: authErrorText(err, strings, strings[4082]) });

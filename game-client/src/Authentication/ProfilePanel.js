@@ -18,6 +18,7 @@ import ambientVFXManager from '../VFX/AmbientVFXManager';
 import { showNotification } from '../UI/Notifications/Notifications';
 import FeedbackLinks from '../UI/Panels/FeedbackLinks';
 import { authErrorText } from './authErrors';
+import EmailModal from '../UI/Modals/EmailModal';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -37,6 +38,18 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
   const [pwMessage, setPwMessage] = useState('');
   const [pwSaving, setPwSaving] = useState(false);
   const hasPassword = !!currentPlayer?.hasPassword;
+  // Email + consent (docs/onboarding-plan.md §4.5): the address is saved through EmailModal
+  // (/player/email); the toggle is explicit consent (/player/marketing-consent). The displayed
+  // state mirrors utils/crmAudience.js: explicit value, else opted in unless billing-only.
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const marketingOn = currentPlayer?.marketing_consent === true || (currentPlayer?.marketing_consent == null && currentPlayer?.email_source !== 'stripe');
+  const toggleMarketing = async () => {
+    const optedIn = !marketingOn;
+    const updated = { ...currentPlayer, marketing_consent: optedIn };
+    setCurrentPlayer(updated); // optimistic (docs/ui-conventions.md)
+    try { await axios.post(`${API_BASE}/api/player/marketing-consent`, { playerId: currentPlayer.playerId, optedIn }); }
+    catch (_) { setCurrentPlayer(currentPlayer); }
+  };
 
   const handleSavePassword = async () => {
     setPwMessage('');
@@ -372,6 +385,24 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             {hasPassword ? strings[4088] : strings[4077]}
           </button>
         </div>
+
+        <h3>{strings[4106]}</h3>
+        <p className="profile-email-line">{currentPlayer.email || strings[4108]}</p>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-neutral" onClick={() => setShowEmailModal(true)}>
+            {currentPlayer.email ? strings[4109] : strings[4111]}
+          </button>
+        </div>
+        {currentPlayer.email && (
+          <div className="shared-buttons">
+            <button className={`btn-basic ${marketingOn ? 'btn-success' : 'btn-neutral'}`} onClick={toggleMarketing}>
+              {strings[4107]}: {marketingOn ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        )}
+        {showEmailModal && (
+          <EmailModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} mode="edit" onClose={() => setShowEmailModal(false)} />
+        )}
 
         <br />
 

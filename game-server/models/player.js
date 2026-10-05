@@ -10,6 +10,15 @@ const playerSchema = new mongoose.Schema({
   // `named` flips when the player signs the Home Deed. Unnamed + inactive accounts are purged.
   named: { type: Boolean, default: true },
   named_at: { type: Date, default: null },
+  // ===== Email + consent (docs/onboarding-plan.md §4.5, ported from House) =====
+  email: { type: String, default: null, lowercase: true, trim: true },
+  email_source: { type: String, default: null },            // 'manual' (typed in game) | 'stripe' (billing only)
+  marketing_consent: { type: Boolean, default: null },      // tri-state: true / false / null = unasked (utils/crmAudience.js decides)
+  marketing_consent_at: { type: Date, default: null },
+  unsubscribe_token: { type: String, default: null, index: { unique: true, sparse: true } },
+  email_bounced_at: { type: Date, default: null },
+  welcome_email_sent_at: { type: Date, default: null },     // atomic once-only stamp (utils/emailNotifications.js)
+  email_prompt_seen_at: { type: Date, default: null },      // the in-game ask is shown once
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step
