@@ -71,6 +71,13 @@ value rather than trust this page.
   One panel open at a time (`UI/Panels/PanelContext.js`). When panels switch, the new one
   slides in ON TOP of the old one's ghost (ghost z-index 989, panel 990) on every layout. On
   desktop the zoom pill (995) sits above panels; on phones it sits behind them (980).
+- Scrolling content fades out over its last 20 px while there is more below, on every
+  layout: `UI/Panels/scrollFade.js` (installed once from App.js) finds every vertically
+  scrolling box inside a `.panel-container` or the Home sheet, including a feature panel's own
+  inner list above a footer, and toggles `scroll-fade--more` (a mask in `scrollFade.css`) as
+  it scrolls; the fade disappears at the end so the last line is never dimmed. Nothing to
+  wire per panel; a new panel gets it as long as its scroller is a real `overflow-y: auto`
+  box rather than the window.
 - Right panels (desktop only): How to Play, Season and Leaders are `RIGHT_PANELS` in
   `UI/Panels/Panel.js` and get `panel-container--right`: the same box docked at the window's
   right edge, sliding in and out from the right. On phones every panel is a left panel

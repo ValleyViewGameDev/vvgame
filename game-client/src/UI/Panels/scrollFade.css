@@ -1,0 +1,8 @@
+/* "More below" fade for scrolling panel content: UI/Panels/scrollFade.js adds
+   .scroll-fade--more to any scrolling box inside a panel while content runs past its bottom
+   edge, and removes it at the end of the scroll. The mask lets the panel background show
+   through the last 20 px, so the fade matches whatever the panel's colour is. */
+.scroll-fade--more {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+}

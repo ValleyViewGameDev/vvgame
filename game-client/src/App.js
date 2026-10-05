@@ -134,6 +134,8 @@ import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLin
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement, walkTo } from './PlayerMovement';
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
+import { installScrollFade } from './UI/Panels/scrollFade';
+import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
@@ -259,6 +261,7 @@ useEffect(() => {
 
   // Phones: a closing panel slides out (a clone of the removed node plays the animation)
   useEffect(() => installPanelExitGhost(), []);
+  useEffect(() => installScrollFade(), []);
 
   // Browser chrome on phones. A page cannot hide Safari's own bars (a tap at the top edge in
   // landscape brings them back by design); the two things it can do are (1) ask for
