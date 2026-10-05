@@ -7,12 +7,12 @@ value rather than trust this page.
 
 ## 1. Where the layout lives
 
-- Desktop chrome is fixed pixels through the `--d-*` tokens in `App.css`: the 240 px base
-  panel is the fixed left column (always present, not dismissable), the board starts at its
-  right edge (`--d-board-left`) under the 60 px header and 24 px status bar (`--d-top`), and
-  everything else floats over the board the way it does on phones: the zoom pill top-left,
-  the nav pill under it, the season button top-right, and 280 px slide-in panels
-  (`UI/Panels/Panel.css`) beside the pill. Modals in `UI/Modals/Modal.css`.
+- Desktop chrome is the phone pattern at desktop size, through the `--d-*` tokens in
+  `App.css`: the board fills the window under the 60 px header and the full-width 24 px
+  status bar (`--d-top`); the zoom pill floats top-left, the nav pill under it, the season
+  button top-right; 280 px panels (`UI/Panels/Panel.css`) float beside the pill. The base
+  panel is the Home sheet on every layout: hidden until the 👸 nav button opens it, then a
+  panel like any other (same box, slide and close button). Modals in `UI/Modals/Modal.css`.
 - The phone layout is ONE stylesheet, `UI/Styles/mobile.css`, imported last (in `index.js`) so
   it follows every component stylesheet. It re-positions the same elements; it never adds
   phone-only components. Three blocks: shared (both orientations), portrait
@@ -75,9 +75,8 @@ value rather than trust this page.
   nav pill: its backdrop-filter would make it their containing block. The season button (📅,
   opens the Season panel) is the zoom pill's twin at the board's top-right on every layout
   (`.season-controls`); the base panel no longer shows the season.
-- The phone Home sheet is the base panel trimmed: map, range note, Town News, feedback
-  links. Keyboard controls and the season block are desktop only (`.base-panel-controls`,
-  `.base-panel-season`). How to Play lives in the header icon row (❓) on every layout. The
+- The Home sheet is the base panel: map, range note, Town News, feedback links, plus the
+  keyboard Controls text on desktop only (`.base-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, shared by the base panel and the
   bottom of the Settings panel.
 

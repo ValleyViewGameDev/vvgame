@@ -7,9 +7,10 @@
   font-weight: bold;
   color: var(--color-text-muted);
   top: 60px; /* Positioned under header */
-  left: var(--d-board-left, 240px); /* Start after the base panel */
+  left: var(--d-board-left, 0px); /* full width under the header, like the phone */
   height: 24px;
-  width: calc(100% - var(--d-board-left, 240px));
+  width: calc(100% - var(--d-board-left, 0px));
+  box-sizing: border-box; /* the side padding stays inside the window */
   background-color: var(--color-bg-panel);
   line-height: 20px; /* Match height for vertical centering */
   font-size: var(--font-text-2-size); /* Use text-2 size for status bar */
