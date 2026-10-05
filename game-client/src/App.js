@@ -140,6 +140,7 @@ import { processRelocation } from './Utils/Relocation';
 import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
+import { uiString } from './Utils/inputMode';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -3263,7 +3264,7 @@ return (
       />
  
       <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
-      <h3 style={{ textAlign: 'center' }}>{strings[10135]}</h3>
+      <h3 style={{ textAlign: 'center' }}>{uiString(strings, 10135)}</h3>
       <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
       <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
       <h3 style={{ textAlign: 'center' }}>{isOnOwnHomestead ? strings[10140] : strings[10141]}</h3>

@@ -7,6 +7,7 @@ import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import { uiString } from '../../Utils/inputMode';
 
 
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps }) => {
@@ -59,7 +60,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       console.log(`🎓 Re-triggering notification for step ${currentStepData.step} on load`);
       showNotification('FTUE', {
         title: strings[7049],
-        message: strings[currentStepData.notificationKey],
+        message: uiString(strings, currentStepData.notificationKey),
         username: currentPlayer?.username,
         ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon })
       });
@@ -144,7 +145,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       if (stepData?.notificationKey) {
         showNotification('FTUE', {
           title: strings[7049],
-          message: strings[stepData.notificationKey],
+          message: uiString(strings, stepData.notificationKey),
           username: currentPlayer?.username,
           ...(stepData.notificationIcon && { icon: stepData.notificationIcon })
         });

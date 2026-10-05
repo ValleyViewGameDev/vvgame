@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; // Importing the shared Panel component
 import { useStrings } from '../StringsContext';
+import { uiString } from '../../Utils/inputMode';
 
 const HowToPanel = memo(({ onClose }) => {
   const strings = useStrings();
@@ -11,7 +12,7 @@ const HowToPanel = memo(({ onClose }) => {
         <p>{strings[9002]}</p>
         <p>{strings[9003]}</p>
         <h3>{strings[9004]}</h3>
-        <p>{strings[9005]}</p>
+        <p>{uiString(strings, 9005)}</p>
         <p>{strings[9006]}</p>
         <p>{strings[9007]}</p>
         <h3>{strings[9008]}</h3>
