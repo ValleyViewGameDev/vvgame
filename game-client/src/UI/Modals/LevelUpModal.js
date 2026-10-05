@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
 import './LevelUpModal.css';
@@ -78,7 +79,7 @@ const LevelUpModal = ({
     onClose();
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium level-up-modal">
         <button className="modal-close-btn" onClick={handleClose}>×</button>
@@ -127,7 +128,7 @@ const LevelUpModal = ({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };
 
 export default LevelUpModal;

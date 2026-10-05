@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import '../../UI/Panels/Panel.css';
@@ -621,7 +622,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 });
                 const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonSpecialItems.length === 0) : 
                                         (backpack.length === 0 || nonSpecialItems.length === 0);
-                return (
+                return createPortal(
                     <div className="modal-overlay">
                         <div className="modal-container modal-large">
                             <button className="modal-close-btn" onClick={() => setShowBackpackModal(false)}>×</button>
@@ -660,10 +661,10 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         </div>
                     </div>
                 </div>
-                );
+                , document.body);
             })()}
 
-            {showWarehouseModal && (
+            {showWarehouseModal && createPortal(
                 <div className="modal-overlay">
                     <div className="modal-container modal-large">
                         <button className="modal-close-btn" onClick={() => setShowWarehouseModal(false)}>×</button>
@@ -683,7 +684,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     />
                     </div>
                 </div>
-            )}
+                , document.body)}
         </Panel>
     );
 }

@@ -2,6 +2,7 @@
 //  - notice: dismissable update notice, shown on every app load, to everyone.
 //  - maintenance: blocking screen; developers get an "Ignore" button so they can test.
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStrings } from '../StringsContext';
 import stringsEN from '../Strings/stringsEN.json';
 import './Modal.css';
@@ -16,7 +17,7 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
 
   if (status.mode === 'notice') {
     if (noticeDismissed) return null;
-    return (
+    return createPortal(
       <div className="modal-overlay" style={{ zIndex: 100000 }}>
         <div className="modal-container">
           <button className="modal-close-btn" onClick={() => setNoticeDismissed(true)}>&times;</button>
@@ -30,11 +31,11 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
           </div>
         </div>
       </div>
-    );
+    , document.body);
   }
 
   // maintenance
-  return (
+  return createPortal(
     <div className="modal-overlay" style={{ zIndex: 100000 }}>
       <div className="modal-container">
         <h2 className="modal-title">{t(10012)}</h2>
@@ -48,7 +49,7 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
 
 export default ServiceStatusModal;

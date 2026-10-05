@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -283,7 +284,7 @@ const EatingModal = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-container eating-modal-container">
         <button className="modal-close-btn" onClick={onClose}>×</button>
@@ -311,7 +312,7 @@ const EatingModal = ({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };
 
 export default EatingModal;

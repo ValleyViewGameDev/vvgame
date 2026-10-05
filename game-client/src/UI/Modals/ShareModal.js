@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { shareToNetwork, copyToClipboard } from '../../Utils/share';
 import { useStrings } from '../StringsContext';
 import './Modal.css';
@@ -10,7 +11,7 @@ function ShareModal({ onClose }) {
   const strings = useStrings();
   const url = window.location.href;
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium">
         <button className="modal-close-btn" onClick={onClose}>×</button>
@@ -50,7 +51,7 @@ function ShareModal({ onClose }) {
 
       </div>
     </div>
-  );
+  , document.body);
 }
 
 export default ShareModal;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
 import { handlePurchase } from '../../Store/Store';
@@ -45,7 +46,7 @@ function RevivalModal({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className={`modal-container ${hasEnoughGems ? 'modal-small' : 'modal-medium'}`}>
         <h2 className="modal-title">{strings["5004"] || "💀 You have fallen!"}</h2>
@@ -106,7 +107,7 @@ function RevivalModal({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
 
 export default RevivalModal;

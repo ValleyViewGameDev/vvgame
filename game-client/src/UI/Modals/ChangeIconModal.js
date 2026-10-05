@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import API_BASE from '../../config';
 import './ChangeIconModal.css';
@@ -105,7 +106,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
   const freeIcons = ICON_OPTIONS.free || [];
   const paidIcons = ICON_OPTIONS.paid || [];
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium">
         <button className="modal-close-btn" onClick={onClose}>×</button>
@@ -185,5 +186,5 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }

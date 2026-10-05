@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import './LanguagePickerModal.css';
 import '../Buttons/SharedButtons.css';
 import LANGUAGE_OPTIONS from '../Languages.json';
@@ -41,7 +42,7 @@ const handleSave = async () => {
   }
 };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container modal-medium" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close-btn" onClick={onClose}>×</button>
@@ -69,5 +70,5 @@ const handleSave = async () => {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
