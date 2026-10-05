@@ -26,6 +26,8 @@ import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import StoryModal from '../../UI/Modals/StoryModal';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
+import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
@@ -59,6 +61,7 @@ const NPCPanel = ({
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
+  const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap a requirement on a trade you cannot afford
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
@@ -885,6 +888,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   );
 
   return (
+    <>
     <Panel onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
@@ -1578,7 +1582,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const playerQty = inventoryQty + backpackQty;
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                      return `<span data-resource="${type}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                     }).join('');
                   } else {
                     // Legacy format - check ingredient1 through ingredientN
@@ -1593,7 +1597,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const playerQty = inventoryQty + backpackQty;
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      ingredientsList.push(`<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                      ingredientsList.push(`<span data-resource="${type}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                     }
                     formattedCosts = ingredientsList.join('');
                   }
@@ -1610,8 +1614,17 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                   const isDisabled = !affordable || !requirementsMet;
 
                   return (
-                    <ResourceButton
+                    <div
                       key={`${recipe.source}-${recipe.index}`}
+                      className="trader-offer-wrap"
+                      onClick={(e) => {
+                        if (!isDisabled) return;
+                        const lines = [...e.currentTarget.querySelectorAll('[data-resource]')];
+                        const hit = lines.find((el) => { const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+                        if (hit) setInfoResource(hit.dataset.resource);
+                      }}
+                    >
+                    <ResourceButton
                       symbol={recipe.symbol}
                       name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
                       details={details}
@@ -1628,6 +1641,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       currentPlayer={currentPlayer}
                       devOnly={false}
                     />
+                    </div>
                   );
                   });
                 })()
@@ -1701,6 +1715,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         npcFilename={npcData?.filename}
       />
     </Panel>
+    {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+    </>
   );
 };
 

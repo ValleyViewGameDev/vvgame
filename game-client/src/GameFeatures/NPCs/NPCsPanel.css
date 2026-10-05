@@ -1,0 +1,5 @@
+/* NPC panel: trader offers. A trade the player cannot afford is a disabled button, which would
+   swallow taps on its requirement lines; let the tap through to .trader-offer-wrap, which opens
+   ResourceModalSmall for the requirement under the pointer (docs/ui-conventions.md). */
+.trader-offer-wrap .resource-button:disabled { pointer-events: none; }
+.trader-offer-wrap { cursor: default; }
