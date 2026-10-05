@@ -119,6 +119,12 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
       if (!panelElement) {
         return null;
       }
+      // The panel slides in (panelLeftIn / mPanelLeftIn, 260 ms): a rect measured mid-slide
+      // puts the arrow where the panel WAS, and it then jumps. Stay hidden until the slide ends.
+      if (typeof panelElement.getAnimations === 'function' &&
+          panelElement.getAnimations().some((a) => a.playState === 'running')) {
+        return null;
+      }
 
       // doinkerTargets is a CSS selector string
       const targetButton = panelElement.querySelector(doinkerTargets);
@@ -137,19 +143,18 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
       };
     };
 
-    // Initial search
-    const position = findButton();
-    if (position) {
-      setButtonPosition(position);
-    }
-
-    // Keep polling - panel might not be rendered yet or button might change position
+    // Initial search, then quick retries while the panel mounts and finishes sliding in
+    // (about 260 ms), then a slow poll in case the button moves (scroll, relayout).
+    setButtonPosition(findButton());
+    const quick = setInterval(() => {
+      const p = findButton();
+      if (p) { setButtonPosition(p); clearInterval(quick); }
+    }, 50);
     const interval = setInterval(() => {
-      const newPosition = findButton();
-      setButtonPosition(newPosition);
+      setButtonPosition(findButton());
     }, 500);
 
-    return () => clearInterval(interval);
+    return () => { clearInterval(quick); clearInterval(interval); };
   }, [doinkerType, doinkerTargets, visible, activePanel]);
 
   // Don't render if not visible

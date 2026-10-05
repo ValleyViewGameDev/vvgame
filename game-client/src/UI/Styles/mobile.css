@@ -353,6 +353,8 @@
   #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
   .notification,
   .notification.notification-persistent {
+    border-radius: var(--m-panel-radius);
+    box-shadow: var(--m-panel-shadow);
     width: calc(100% - 16px);
     max-width: 440px;
     min-width: 0;

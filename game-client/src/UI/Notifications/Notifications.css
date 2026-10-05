@@ -21,10 +21,10 @@
 
 .notification {
     background-color: var(--color-bg-panel);
-    border: 2px solid var(--color-warning);
-    border-radius: 8px;
+    border: none;                               /* flat, like the panels: no outline */
+    border-radius: var(--d-panel-radius, 14px); /* same corner as the panels */
     padding: 15px 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--d-panel-shadow, 0 8px 24px rgba(0, 0, 0, 0.28));
     display: flex;
     align-items: center;
     min-width: 300px;

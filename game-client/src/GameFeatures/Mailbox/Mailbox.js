@@ -128,8 +128,10 @@ function Mailbox({
         const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
         soundManager.playSFX('collect_money');
         updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
-        // FTUE: the welcome gift collected is the beat before the avatar picker (tuning/FTUEsteps.json step 6)
+        // FTUE: the welcome gift collected is the beat before the avatar picker (tuning/FTUEsteps.json)
         tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        // That was the last message: close rather than show the empty state
+        if (!(messages || []).length) handleClose();
       }
     } catch (error) {
       console.error('Error in protected mailbox collection:', error);
