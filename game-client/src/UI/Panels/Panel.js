@@ -3,6 +3,10 @@ import { usePanelContext } from './PanelContext'; // Import the context
 import './Panel.css';
 import { useStrings } from '../StringsContext';
 
+// Panels that fly in from the RIGHT edge on desktop (docs/ui-conventions.md). Phones keep every
+// panel on the left: mobile.css overrides the class.
+const RIGHT_PANELS = new Set(['HowToPanel', 'SeasonPanel', 'LeaderboardPanel']);
+
 const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }) => {
   const strings = useStrings();
   const { activePanel, openPanel, closePanel } = usePanelContext();
@@ -18,7 +22,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
   }
 
   return (
-    <div className="panel-container" data-panel-name={panelName}>
+    <div className={`panel-container${RIGHT_PANELS.has(panelName) ? ' panel-container--right' : ''}`} data-panel-name={panelName}>
       {/* Fixed Header with Title and Close Button */}
       <div className="panel-header">
         <h2 className="panel-title">{title || strings[titleKey] || "Panel"}</h2>

@@ -46,6 +46,9 @@ value rather than trust this page.
   phone width rule in `mobile.css`; add any new one there.
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
+- Multi-column modal layouts (the Store's paired and tripled offer cards) collapse to a one-
+  item-per-row feed on phones; add the phone rule in `mobile.css` next to the Store block
+  rather than building a second mobile component.
 
 ## 3. Panels (the right-hand slide-ins) and the base panel
 
@@ -53,7 +56,14 @@ value rather than trust this page.
   rounded, shadowed, z-index 990 under the pill's 1000), slide in from the left and back out
   on close (`panelLeftIn/Out` in `App.css`; the exit is the same ghost clone as on phones,
   `UI/Panels/panelExitGhost.js`, which runs on every layout). Closed with `.panel-close-btn`.
-  One panel open at a time (`UI/Panels/PanelContext.js`). The desktop header's left block is
+  One panel open at a time (`UI/Panels/PanelContext.js`). When panels switch, the new one
+  slides in ON TOP of the old one's ghost (ghost z-index 989, panel 990) on every layout. On
+  desktop the zoom pill (995) sits above panels; on phones it sits behind them (980).
+- Right panels (desktop only): How to Play, Season and Leaders are `RIGHT_PANELS` in
+  `UI/Panels/Panel.js` and get `panel-container--right`: the same box docked at the window's
+  right edge, sliding in and out from the right. On phones every panel is a left panel
+  (`mobile.css` overrides the class). Add a panel to that set to make it a right panel.
+- The desktop header's left block is
   the phone's two-row grid (name, gems, money; then level, health, inventory with bars), the
   title sits at the left on two lines, and the right block is Settings, Chat, Help over
   Leaders, Language, Share.

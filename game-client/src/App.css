@@ -210,7 +210,7 @@ body {
   box-shadow: var(--d-pill-shadow);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 980; /* behind an open panel, like the phone layout */
+  z-index: 995; /* above the panels (990) on desktop; phones put it behind them */
 }
 
 .zoom-button-container {
@@ -620,5 +620,11 @@ body {
    UI/Panels/panelExitGhost.js clones a removed panel so every close path animates) */
 @keyframes panelLeftIn  { from { transform: translateX(-110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
 @keyframes panelLeftOut { from { transform: none; opacity: 1; } to { transform: translateX(-110%); opacity: 0.6; } }
+@keyframes panelRightIn  { from { transform: translateX(110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
+@keyframes panelRightOut { from { transform: none; opacity: 1; } to { transform: translateX(110%); opacity: 0.6; } }
 .panel-container { animation: panelLeftIn var(--d-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-.panel-container.panel-ghost { animation: panelLeftOut var(--d-anim-out) cubic-bezier(0.4, 0, 1, 1) both; z-index: 990; pointer-events: none; }
+/* the ghost of the old panel sits UNDER the new one sliding in */
+.panel-container.panel-ghost { animation: panelLeftOut var(--d-anim-out) cubic-bezier(0.4, 0, 1, 1) both; z-index: 989; pointer-events: none; }
+/* right panels (Panel.js RIGHT_PANELS): same box, docked at the window's right edge */
+.panel-container.panel-container--right { left: auto; right: var(--d-gap); animation-name: panelRightIn; }
+.panel-container.panel-container--right.panel-ghost { animation-name: panelRightOut; }
