@@ -1,25 +1,32 @@
 /**
- * World tab: the frontier map (parity with game-editor/src/FrontierView.jsx).
+ * World tab: the frontier, in two sub-views.
  *
- * Selection panel: frontier picker, filters, find-by-coord, legend. Editing space: toolbar,
- * a 64x64 canvas of the frontier's grids (8x8 settlements of 8x8 grids) and an inspector
- * column with the selected grid's actions: open or create its layout in Layouts, create or
- * reset the grid in the live game, assign its region; multi-select (shift+click to toggle,
- * drag for a rectangle) for bulk region / create / reset. Every live write goes through a
- * confirm naming the target. Route: #world[/<frontierId>[/<gridCoord>]]
+ * Grid view (parity with game-editor/src/FrontierView.jsx): a 64x64 canvas of the frontier's
+ * grids (8x8 settlements of 8x8 grids) and an inspector column with the selected grid's
+ * actions: open or create its layout in Layouts, create or reset the grid in the live game,
+ * assign its region; multi-select (shift+click to toggle, drag for a rectangle) for bulk
+ * region / create / reset. Every live write goes through a confirm naming the target.
+ * Tile view (world/tileView.js): the same frontier drawn tile by tile from the TEMPLATE
+ * layouts on disk, nothing from any player's copy (the old Atlas tab, minus the database).
+ *
+ * Selection panel: frontier picker, then the sub-view's own controls.
+ * Route: #world/<grid|tiles>/<frontierId>[/<gridCoord>]  (older #world/<frontierId>[/<coord>]
+ * and #atlas/<frontierId> links still resolve)
  */
 import { el, clear } from '../core/dom.js';
 import { game, local } from '../core/api.js';
 import { loadResources } from '../core/resources.js';
 import { modal, confirm, toast, setStatus } from '../core/ui.js';
-import { loadWorld, gridMapOf, coordParts, isValleyType, townLayoutName, BOARD, GRIDS_PER_SETTLEMENT } from '../core/world.js';
+import { loadWorld, gridMapOf, coordParts, frontierPrefix, isValleyType, townLayoutName, BOARD, GRIDS_PER_SETTLEMENT } from '../core/world.js';
+import { tileView } from '../world/tileView.js';
 
 const FILL = { none: '#f4f5f1', valley: '#d0f0c0', homestead: '#e4d5b7', town: '#e4d5b7', reserved: '#dcdcdc', db: '#cdcd21', region: 'rgba(255, 0, 0, 0.3)' };
 
 const W = {
   ctx: null, els: {}, active: false,
-  world: null, frontierId: null, frontier: null, gridMap: new Map(), cells: [],
-  layoutCoords: new Set(), regions: [],
+  view: 'grid',           // 'grid' | 'tiles'
+  world: null, frontierId: null, frontier: null, gridMap: new Map(), cells: [], prefix: null,
+  layoutCoords: new Set(), regions: [], res: null,
   selected: null,         // gridCoord last clicked (single inspector)
   selectedCells: [],      // gridCoords in the multi-selection
   hover: null, drag: null,
@@ -36,7 +43,7 @@ async function loadAll(force = false) {
     const [world, layouts, res] = await Promise.all([loadWorld(force), local.layouts(), loadResources()]);
     W.world = world;
     W.layoutCoords = new Set((layouts.dirs.valleyFixedCoord || []).map(Number).filter(Boolean));
-    W.regions = res.regions;
+    W.regions = res.regions; W.res = res;
   } catch (err) { W.loadError = err; W.world = W.world || { frontiers: [], settlements: [] }; }
   if (!W.frontierId || !W.world.frontiers.some((f) => String(f._id) === W.frontierId)) W.frontierId = W.world.frontiers[0] ? String(W.world.frontiers[0]._id) : null;
   indexFrontier();
@@ -45,6 +52,7 @@ async function loadAll(force = false) {
 function indexFrontier() {
   W.frontier = W.world.frontiers.find((f) => String(f._id) === W.frontierId) || null;
   W.gridMap = gridMapOf(W.world, W.frontierId);
+  W.prefix = frontierPrefix(W.gridMap);
   W.cells = Array.from({ length: BOARD }, () => Array(BOARD).fill(null));
   for (const g of W.gridMap.values()) { const p = coordParts(g.gridCoord); if (p) W.cells[p.row][p.col] = g; }
   W.selectedCells = W.selectedCells.filter((c) => W.gridMap.has(c));
@@ -186,10 +194,13 @@ function renderSelection() {
   s.appendChild(el('h2', {}, 'World'));
   const frontiers = W.world?.frontiers || [];
   s.appendChild(el('div', { class: 'row' }, [
-    el('select', { style: { flex: 1 }, onchange: (e) => { W.selected = null; W.selectedCells = []; W.ctx.navigate(`world/${e.target.value}`); } },
+    el('select', { style: { flex: 1 }, onchange: (e) => { W.selected = null; W.selectedCells = []; W.ctx.navigate(`world/${W.view}/${e.target.value}`); } },
       frontiers.length ? frontiers.map((f) => el('option', { value: String(f._id), selected: String(f._id) === W.frontierId }, `${f.name}${f.tier != null ? ` (tier ${f.tier})` : ''}`)) : [el('option', { value: '' }, 'no frontiers')]),
   ]));
   s.appendChild(el('div', { class: 'row', style: { margin: '6px 0' } }, [el('button', { onclick: refresh, title: 'Re-fetch frontiers, settlements and the layout list' }, '🔄 Refresh data')]));
+
+  if (W.view === 'tiles') { W.els.tilePanel = el('div'); s.appendChild(W.els.tilePanel); return; }
+  W.els.tilePanel = null;
 
   s.appendChild(el('h3', {}, 'Find grid'));
   const find = el('input', { placeholder: 'gridCoord, e.g. 1011100', class: 'mono', style: { width: '100%' }, onkeydown: (e) => {
@@ -209,6 +220,11 @@ function renderSelection() {
   s.append(sw(FILL.valley, 'valley grid'), sw(FILL.homestead, 'homestead / town (🚂)'), sw(FILL.reserved, 'reserved'), sw(FILL.db, 'created in the database'), sw('rgba(255,0,0,0.3)', 'has a region'), el('div', { class: 'note' }, 'Thick lines bound settlements. Click selects; shift+click toggles; drag selects a rectangle.'));
 }
 
+function setView(view) {
+  if (view === W.view) return;
+  W.ctx.navigate(`world/${view}/${W.frontierId}${view === 'grid' && W.selected ? `/${W.selected}` : ''}`);
+}
+
 function scrollTo(coord) {
   const p = coordParts(coord); const wrap = W.els.wrap;
   if (!p || !wrap) return;
@@ -224,6 +240,14 @@ function renderEditor() {
     return;
   }
   if (!W.frontierId) { root.appendChild(el('div', { class: 'stub' }, 'The game server returned no frontiers.')); return; }
+  root.appendChild(el('div', { class: 'subtabs' }, [
+    el('button', { class: W.view === 'grid' ? 'on' : '', onclick: () => setView('grid') }, 'Grid view'),
+    el('button', { class: W.view === 'tiles' ? 'on' : '', onclick: () => setView('tiles') }, 'Tile view'),
+  ]));
+  if (W.view === 'tiles') {
+    tileView.mount(root, W.els.tilePanel, { ctx: W.ctx, frontierId: W.frontierId, frontier: W.frontier, gridMap: W.gridMap, prefix: W.prefix, layoutCoords: W.layoutCoords, res: W.res });
+    return;
+  }
   const grids = [...W.gridMap.values()];
   const counts = `${grids.length} grids · ${grids.filter((g) => g.gridId).length} in database · ${grids.filter((g) => hasLayout(g.gridCoord)).length} with layouts · ${grids.filter((g) => g.region).length} with regions`;
   W.els.hoverInfo = el('span', { class: 'muted mono' }, '');
@@ -370,7 +394,13 @@ export function worldTab() {
     id: 'world', label: 'World', icon: '🌍', group: 'world',
     async mount(selectionEl, editorEl, ctx, route) {
       W.ctx = ctx; W.els.selection = selectionEl; W.els.editor = editorEl; W.active = true;
-      const [, rawFrontier, rawCoord] = route.split('/');
+      const parts = route.split('/');
+      let view = 'grid', rawFrontier, rawCoord;
+      if (parts[0] === 'atlas') { view = 'tiles'; [, rawFrontier] = parts; }           // old Atlas links
+      else if (parts[1] === 'grid' || parts[1] === 'tiles') { [, view, rawFrontier, rawCoord] = parts; }
+      else { [, rawFrontier, rawCoord] = parts; }                                     // old #world/<frontier>/<coord>
+      if (view !== W.view) tileView.unmount();
+      W.view = view;
       const frontierId = rawFrontier ? decodeURIComponent(rawFrontier.split('?')[0]) : null;
       if (frontierId && frontierId !== W.frontierId) { W.frontierId = frontierId; W.selected = null; W.selectedCells = []; }
       if (!W.world) {
@@ -385,9 +415,9 @@ export function worldTab() {
       if (coord && W.gridMap.has(coord)) selectSingle(coord);
       renderSelection();
       renderEditor();
-      if (coord && W.gridMap.has(coord)) scrollTo(coord);
+      if (W.view === 'grid' && coord && W.gridMap.has(coord)) scrollTo(coord);
       setStatus(W.frontier ? `World: ${W.frontier.name}` : '');
     },
-    unmount() { W.active = false; W.drag = null; W.hover = null; },
+    unmount() { W.active = false; W.drag = null; W.hover = null; tileView.unmount(); },
   };
 }

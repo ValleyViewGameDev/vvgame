@@ -185,12 +185,15 @@ td.fb-pos, ul.fb-pos { color: #1b7f2a; }
 td.fb-neg, ul.fb-neg { color: var(--error); }
 table.sheet.players td.fb-pos, table.sheet.players td.fb-neg { white-space: normal; max-width: 320px; }
 
-/* ---------- world + atlas tabs (tabs/world.js, tabs/atlas.js) ---------- */
+/* ---------- world tab (tabs/world.js: Grid view + world/tileView.js: Tile view) ---------- */
 .world-body { flex: 1; display: flex; min-height: 0; }
 .world-canvas-wrap { flex: 1; overflow: auto; background: #e9ebe4; padding: 6px; }
 .world-canvas { display: block; background: #fff; cursor: pointer; user-select: none; }
 .world-inspector { width: 300px; flex: none; overflow: auto; background: var(--panel); border-left: 1px solid var(--line); padding: 8px 10px 40px; }
 .world-inspector .row { margin-bottom: 4px; }
 .world-swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--line); border-radius: 3px; }
+.subtabs { display: flex; gap: 2px; padding: 6px 10px 0; background: var(--panel); border-bottom: 1px solid var(--line); }
+.subtabs button { border: 1px solid var(--line); border-bottom: 0; border-radius: 6px 6px 0 0; background: #eef1e8; color: var(--muted); padding: 5px 14px; }
+.subtabs button.on { background: var(--bg); color: var(--ink); font-weight: 600; }
 .atlas-wrap { flex: 1; min-height: 0; position: relative; overflow: hidden; background: #fff; }
 .atlas-canvas { position: absolute; top: 0; left: 0; cursor: grab; image-rendering: pixelated; image-rendering: crisp-edges; }

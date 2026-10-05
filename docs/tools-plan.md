@@ -225,6 +225,14 @@ settlement event participation from the settlement logs. Owner to add the rest.
   success path is client-side, so `/purchase-store-offer` is the single ledger point (webhook =
   TODO in docs/analytics.md). `game-editor/` deleted, with its `.env` credential and builds.
 
+- **2026-10-05, Atlas folded into World.** Per-player grid copies made a "current state" atlas
+  meaningless (whose copy?). The World tab now has two sub-views: Grid view (the FrontierView
+  port) and Tile view (`client/world/tileView.js`), which draws the frontier tile by tile from
+  the template layouts on disk only (valleyFixedCoord files, `town<POS>.json`, homestead) and
+  hatches valley grids that have no file (random at creation). No `/load-grid` calls at all;
+  the only game-server reads are frontiers and settlements for the cell structure. `#atlas`
+  links redirect to `#world/tiles`.
+
 ## 4. Delivery slices (each a commit, each runnable)
 
 1. **Skeleton + sheets.** Editor server, client shell, core modules, the sheet engine and the

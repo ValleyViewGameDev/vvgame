@@ -9,7 +9,6 @@ import { toast, setStatus } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
 import { layoutsTab } from './tabs/layouts.js';
 import { worldTab } from './tabs/world.js';
-import { atlasTab } from './tabs/atlas.js';
 import { dungeonsTab } from './tabs/dungeons.js';
 import { eventsTab } from './tabs/events.js';
 import { playersTab } from './tabs/players.js';
@@ -18,7 +17,6 @@ import { feedbackTab } from './tabs/feedback.js';
 const TABS = [
   layoutsTab(),
   worldTab(),
-  atlasTab(),
   dungeonsTab(),
   eventsTab(),
   playersTab(),
@@ -52,7 +50,7 @@ function renderNav() {
 async function route() {
   const hash = location.hash.replace(/^#/, '') || TABS[0].id;
   const id = hash.split('/')[0];
-  const tab = TABS.find((t) => t.id === id) || TABS[0];
+  const tab = TABS.find((t) => t.id === id) || (id === 'atlas' ? TABS.find((t) => t.id === 'world') : null) || TABS[0]; // #atlas lives on as World's Tile view
   if (active && active.id !== tab.id) { try { active.unmount(); } catch (e) { console.warn(e); } }
   active = tab;
   renderNav();
