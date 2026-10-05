@@ -155,6 +155,8 @@ body {
   z-index: 1001;
 }
 
+.season-controls { display: none; } /* phones only: UI/Styles/mobile.css */
+
 .zoom-button-container {
   position: relative;
   width: 60px;

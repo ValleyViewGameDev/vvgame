@@ -63,7 +63,14 @@ value rather than trust this page.
   board; never move the panel.
 - The zoom buttons are their own small pill (portrait: top-left under the status bar, z 980,
   so panels cover them; landscape: the header's first column). They are not children of the
-  nav pill: its backdrop-filter would make it their containing block.
+  nav pill: its backdrop-filter would make it their containing block. The season button (📅,
+  opens the Season panel) is the zoom pill's twin at the board's top-right on phones only
+  (`.season-controls`, hidden on desktop where the base panel shows the season).
+- The phone Home sheet is the base panel trimmed: map, range note, Town News, feedback
+  links. Keyboard controls and the season block are desktop only (`.base-panel-controls`,
+  `.base-panel-season`). How to Play lives in the header icon row (❓) on every layout. The
+  "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, shared by the base panel and the
+  bottom of the Settings panel.
 
 ## 4. Header, status bar, notifications
 

@@ -16,6 +16,7 @@ import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import { showNotification } from '../UI/Notifications/Notifications';
+import FeedbackLinks from '../UI/Panels/FeedbackLinks';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -564,6 +565,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             </div>
           </>
         )}
+
+        <br />
+        <FeedbackLinks />
 
         {showChangeIconModal && (
           <ChangeIconModal

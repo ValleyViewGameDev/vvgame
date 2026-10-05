@@ -142,6 +142,7 @@
   .header-link--chat     { order: 5; }
   .header-link--language { order: 6; }
   .header-link--share    { order: 7; }
+  .header-link--howto    { order: 8; }
   /* the badge wrappers carry the order of the link inside them */
   .header-link-wrapper:has(.header-link--inbox) { order: 2; }
   .header-link-wrapper:has(.header-link--chat)  { order: 5; }
@@ -189,6 +190,42 @@
   .nav-button.selected { background-color: var(--color-bg-panel); }
   .nav-button:active { transform: scale(0.92); }
   .nav-icon { width: 28px; height: 28px; }
+
+  /* ---------- Home sheet trims: no keyboard controls, no season block (the 📅 button has it) ---------- */
+  .base-panel-controls, .base-panel-season { display: none; }
+
+  /* ---------- season: one round button over the board's top-right, the zoom pill's twin ---------- */
+  .season-controls {
+    display: block;
+    position: fixed;
+    z-index: 980;                       /* behind an open panel (990), like the zoom pill */
+    top: calc(var(--m-top) + var(--m-gap));
+    right: var(--m-gap);
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background-color: rgba(130, 187, 77, 0.96);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .season-button {
+    width: 40px;
+    height: 40px;
+    margin: 4px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--color-primary-green-dark);
+    color: var(--color-text-white);
+    font-size: 22px;
+    line-height: 40px;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .season-button:active { transform: scale(0.92); }
 
   /* ---------- zoom: two stacked round buttons (placed per orientation) ---------- */
   .zoom-controls {

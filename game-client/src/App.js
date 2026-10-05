@@ -76,6 +76,7 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import WarehousePanel from './GameFeatures/Inventory/WarehousePanel';
 import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
 import HowToPanel from './UI/Panels/HowToPanel';
+import FeedbackLinks from './UI/Panels/FeedbackLinks';
 import HowToMoneyPanel from './UI/Panels/HowToMoneyPanel';
 import HowToGemsPanel from './UI/Panels/HowToGemsPanel';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
@@ -3087,6 +3088,9 @@ return (
           <button className="header-link header-link--share" title={strings[10106]} onClick={() => setShowShareModal(true)}>
             {headerLabel(strings[10106], '📢')}
           </button>
+          <button className="header-link header-link--howto" title={strings[10110]} disabled={!currentPlayer} onClick={() => openPanel('HowToPanel')}>
+            {headerLabel(strings[10110], '❓')}
+          </button>
         </div>
         </div>
     </header>
@@ -3117,6 +3121,14 @@ return (
           <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
           <button className="zoom-button zoom-out" disabled={!currentPlayer} onClick={zoomOut}><span>−</span></button>
         </div>
+      </div>
+    )}
+
+    {/* Season: a round button floating over the board's top-right corner on phones (the base panel's
+        season block is desktop only); mirrors the zoom pill. Hidden on desktop by App.css. */}
+    {currentPlayer && (
+      <div className="season-controls">
+        <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
       </div>
     )}
 
@@ -3263,58 +3275,41 @@ return (
         countdowns={countdowns}
       />
  
-      <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
-      <h3 style={{ textAlign: 'center' }}>{uiString(strings, 10135)}</h3>
-      <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
-      <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
+      {/* Range note stays right under the map on every layout */}
       <h3 style={{ textAlign: 'center' }}>{isOnOwnHomestead ? strings[10140] : strings[10141]}</h3>
 
-      <br />
+      {/* Controls: desktop only (phones have no keyboard and get How to Play from the header ❓) */}
+      <div className="base-panel-controls">
+        <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
+        <h3 style={{ textAlign: 'center' }}>{uiString(strings, 10135)}</h3>
+        <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
+        <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
+        <br />
+      </div>
 
-      {/* Season */}
-      <h2 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', color: 'var(--color-primary-green-dark)', margin: '0 0 4px 0' }}>
-        {strings[10113]} {seasonData?.type || "[Season unknown]"}
-      </h2>
-      <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
-        <span
-          onClick={() => openPanel('SeasonPanel')}
-          style={{ textDecoration: 'underline', cursor: 'pointer' }}
-        >
-          {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]}
-        </span>
-      </h2>
-      <h2 className="countdown-timer" style={{ textAlign: 'center' }}>{countdowns.seasons}</h2>
-
-      <br />
+      {/* Season: desktop only (phones have the 📅 button floating over the board) */}
+      <div className="base-panel-season">
+        <h2 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', color: 'var(--color-primary-green-dark)', margin: '0 0 4px 0' }}>
+          {strings[10113]} {seasonData?.type || "[Season unknown]"}
+        </h2>
+        <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
+          <span
+            onClick={() => openPanel('SeasonPanel')}
+            style={{ textDecoration: 'underline', cursor: 'pointer' }}
+          >
+            {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]}
+          </span>
+        </h2>
+        <h2 className="countdown-timer" style={{ textAlign: 'center' }}>{countdowns.seasons}</h2>
+        <br />
+      </div>
 
       <div className="shared-buttons">
         <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
       </div>
 
-      <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
-      </div>
-      
       <br />
-      <h2 style={{ textAlign: 'center' }}>{strings[96]}</h2>
-
-      <div className="shared-buttons">
-        <button
-          className="btn-basic"
-          onClick={() => window.open('https://discord.gg/SZMw4vpUJV', '_blank')}
-        >
-          Join Discord Server
-        </button>
-      </div>
-      
-      <div className="shared-buttons">
-        <button
-          className="btn-basic"
-          onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
-        >
-          {strings[97]}
-        </button>
-      </div>
+      <FeedbackLinks />
 
       <br />
       </div>
