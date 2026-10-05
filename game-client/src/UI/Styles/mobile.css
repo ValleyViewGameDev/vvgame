@@ -335,16 +335,31 @@
 /* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
 @media (max-width: 767px) and (orientation: portrait) {
   :root {
+    --m-header-height: 90px;      /* stats, bars, gems/money, icons */
     --m-pill-reserve-bottom: calc(var(--m-pill-h) + 2 * var(--m-gap) + var(--m-safe-bottom));
     --m-pill-reserve-left: 0px;
-    --m-panel-width: 58vw;        /* wider than landscape's 44vw: a portrait screen is narrow */
+    --m-panel-width: 58vw;        /* wider than landscape's: a portrait screen is narrow */
   }
+
+  /* Rows 1-3: name, level, health, inventory with their bars; then gems and money on a row
+     of their own; slightly larger type than the icon row */
+  .header-controls-left.header-grid {
+    grid-template-columns: repeat(4, max-content);
+    grid-template-rows: 22px 3px 22px;
+    column-gap: 16px;
+    row-gap: 2px;
+  }
+  .header-controls-left.header-grid > :nth-child(9) { grid-column: 1 / span 4; grid-row: 3; } /* gems + money */
+  .header-controls-left.header-grid .header-link { font-size: 15px; }
+  .header-currency-group { gap: 18px; }
 
   /* icon row centred in portrait */
   .header-secondary { justify-content: center; }
 
-  /* zoom: a small vertical pill matching the nav, top-left of the board under the status bar */
+  /* zoom: a small vertical pill matching the nav, top-left of the board under the status bar,
+     behind an open panel (990) */
   .zoom-controls {
+    z-index: 980;
     top: calc(var(--m-top) + var(--m-gap));
     left: calc(var(--m-safe-left) + var(--m-gap));
     border-radius: 24px;
@@ -380,8 +395,8 @@
     --m-pill-reserve-bottom: 0px;
     --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
     --m-zoom-col: 48px;           /* header column 1: the zoom buttons */
-    --m-panel-width: 37vw;        /* about 85% of the portrait proportion; landscape has the room */
-    --m-panel-max-width: 340px;
+    --m-panel-width: 33vw;        /* trimmed twice at the owner's request; landscape has the room */
+    --m-panel-max-width: 306px;
   }
 
   /* the camera housing: the strip under env(safe-area-inset-left) stays black */
@@ -404,9 +419,9 @@
     width: auto;
     align-self: center;
     font-size: 15px;
-    white-space: nowrap;
   }
-  .header-title h1 { font-size: 1.35em; }
+  /* "Secrets of" / "Elsinore": a width that fits the first two words but not all three */
+  .header-title h1 { font-size: 1.35em; line-height: 1.05; white-space: normal; max-width: 5.6em; }
   .header-controls-left.header-grid { grid-column: 3; grid-row: 1 / span 2; }
   .header-secondary { grid-column: 3; grid-row: 3; justify-content: flex-start; }
 
