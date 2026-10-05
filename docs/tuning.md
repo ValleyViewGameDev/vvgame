@@ -58,16 +58,22 @@ can check the current value rather than trust this page.
 
 ## 3. The level curve (xpLevels.json)
 
-XP needed to advance, as of 2026-10-05:
+XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches
+level N+1), as of 2026-10-05 after the smoothing:
 
 | To level | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| XP gap | 20 | 25 | 50 | 100 | 280 | 120 | 120 | 140 | 140 | 280 | 420 | 560 | 700 |
+| Threshold | 25 | 50 | 100 | 200 | 330 | 480 | 640 | 810 | 990 | 1280 | 1700 | 2260 | 2960 |
+| XP gap | 20 | 25 | 50 | 100 | 130 | 150 | 160 | 170 | 180 | 290 | 420 | 560 | 700 |
 
 Rule: the gap should grow smoothly with what the player can earn per hour at that level.
-The 6 to 7 step (280) is a known anomaly: nearly three times the previous step and more than
-double the next, at a level where the only XP outlet is Kent. Fix it with a combination of
-curve smoothing and richer level-6 offers, not one or the other alone.
+Before 2026-10-05 the 6 to 7 step was 280 (480 threshold), nearly three times the previous
+step and more than double the next, at a level where the only XP outlet is Kent; levels 7 to
+11 were lowered to 330/480/640/810/990 so the gaps climb 130 to 180 and rejoin the old curve
+at level 12 (1280). **Changing a threshold never demotes anyone as long as the new value is
+at or below the old one** (levels are derived from XP); every value in that change was lower,
+checked against every production player before the commit. A player who crosses a lowered
+threshold simply sees the level-up modal on their next session.
 
 ## 4. Kent (KentOfferLogic.js, Kent.js, globalTuning.json)
 
@@ -88,6 +94,13 @@ curve smoothing and richer level-6 offers, not one or the other alone.
 - **Reward.** Money = sum of `maxprice` x quantity over the items (`minprice` or 10 as
   fallback). XP = 2 x sum of the items' `xp` (1 if undefined). From level 11 a bonus valley
   item rolls at `harvestDropRate` (10%), weighted by rarity.
+- **Level 6 tuning (2026-10-05).** Besides the curve: Butter `xp` 3 to 4 and Cheese 3 to 5
+  (two- and four-Milk Dairy products deserved more than raw Milk's 2; Cornmeal, the Mill
+  equivalent, was already 4), and `MULTI_ITEM_TARGET_COUNTS` level 6 is min 1 (was 0), so a
+  level-6 board always carries at least one two-item offer, which pays double XP. Expected
+  effect: the 6 to 7 stretch drops from 280 XP at about 5 XP per offer to 130 XP at about 7,
+  roughly a quarter of the trades. Measure in the dashboard's Users tab (level, xp) before
+  touching it again.
 - **Where to intervene for pacing.** In order of safety: (a) item `xp` values and level gates
   in resources.json (data only, no format change); (b) the per-level constants in
   `KentOfferLogic.js` (multi-item target, quantity bands, crop share); (c) the timers in

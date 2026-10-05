@@ -11,7 +11,7 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 // The system picks a random count weighted toward 'target', within [min, max]
 const MULTI_ITEM_TARGET_COUNTS = [
     { maxLevel: 5, min: 0, target: 0, max: 0 },    // Levels 1-5: always 0 multi-item
-    { maxLevel: 6, min: 0, target: 1, max: 2 },    // Level 6: usually 1, sometimes 0 or 2
+    { maxLevel: 6, min: 1, target: 1, max: 2 },    // Level 6: at least 1 (two items = double XP), sometimes 2 (tuning.md, 2026-10-05)
     { maxLevel: 7, min: 1, target: 2, max: 3 },    // Level 7: usually 2, sometimes 1 or 3, never 0
     { maxLevel: 9, min: 1, target: 3, max: 4 },    // Levels 8-9: usually 3, sometimes 2 or 4
     { maxLevel: Infinity, min: 3, target: 5, max: 6 } // Levels 10+: usually 5, sometimes 4 or 6
