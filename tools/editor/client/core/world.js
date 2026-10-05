@@ -1,0 +1,77 @@
+/**
+ * World store: frontiers and settlements from the game server (GET /api/frontiers,
+ * GET /api/settlements), loaded once and shared by the World and Atlas tabs, plus the
+ * gridCoord arithmetic both tabs need. Reads only; nothing here writes.
+ *
+ * gridCoord is a 7-digit number FFFSSGG: FFF frontier prefix (101 ...), S settlement row/col
+ * (0-7), G grid row/col inside the settlement (0-7). A frontier is therefore a 64x64 board
+ * of grids: board row = settlementRow * 8 + gridRow, board col = settlementCol * 8 + gridCol.
+ */
+import { game } from './api.js';
+
+export const SETTLEMENTS_PER_SIDE = 8;
+export const GRIDS_PER_SETTLEMENT = 8;
+export const BOARD = SETTLEMENTS_PER_SIDE * GRIDS_PER_SETTLEMENT; // 64
+
+let cache = null; // { frontiers, settlements, loadedAt }
+
+export async function loadWorld(force = false) {
+  if (cache && !force) return cache;
+  const [frontiers, settlements] = await Promise.all([game.get('/api/frontiers'), game.get('/api/settlements')]);
+  cache = { frontiers: Array.isArray(frontiers) ? frontiers : [], settlements: Array.isArray(settlements) ? settlements : [], loadedAt: new Date() };
+  return cache;
+}
+export function getWorld() { return cache; }
+
+export const idOf = (v) => (v && typeof v === 'object' ? String(v._id ?? v) : v == null ? null : String(v));
+export const isValleyType = (t) => typeof t === 'string' && t.startsWith('valley');
+
+export function coordParts(gridCoord) {
+  const s = String(gridCoord ?? '').padStart(7, '0');
+  if (!/^\d{7}$/.test(s)) return null;
+  const sr = +s[3], sc = +s[4], gr = +s[5], gc = +s[6];
+  if (sr >= SETTLEMENTS_PER_SIDE || sc >= SETTLEMENTS_PER_SIDE || gr >= GRIDS_PER_SETTLEMENT || gc >= GRIDS_PER_SETTLEMENT) return null;
+  return { prefix: s.slice(0, 3), settlementRow: sr, settlementCol: sc, gridRow: gr, gridCol: gc, row: sr * GRIDS_PER_SETTLEMENT + gr, col: sc * GRIDS_PER_SETTLEMENT + gc };
+}
+export function coordFrom(prefix, row, col) {
+  const sPart = Math.floor(row / GRIDS_PER_SETTLEMENT) * 10 + Math.floor(col / GRIDS_PER_SETTLEMENT);
+  const gPart = (row % GRIDS_PER_SETTLEMENT) * 10 + (col % GRIDS_PER_SETTLEMENT);
+  return Number(prefix) * 10000 + sPart * 100 + gPart;
+}
+
+export function settlementsOf(world, frontierId) {
+  return (world?.settlements || []).filter((s) => idOf(s.frontierId) === String(frontierId));
+}
+
+/** Map gridCoord -> grid cell enriched with its settlement. Cells carry gridId, gridType, region, available. */
+export function gridMapOf(world, frontierId) {
+  const map = new Map();
+  for (const s of settlementsOf(world, frontierId)) {
+    const rows = Array.isArray(s.grids) ? s.grids : [];
+    for (const row of rows) {
+      if (!Array.isArray(row)) continue;
+      for (const g of row) {
+        if (!g || g.gridCoord == null) continue;
+        map.set(Number(g.gridCoord), { ...g, gridCoord: Number(g.gridCoord), gridId: g.gridId ? idOf(g.gridId) : null, settlementId: idOf(s._id), settlementName: s.displayName || s.name, frontierId: idOf(s.frontierId) });
+      }
+    }
+  }
+  return map;
+}
+
+/** The 3-digit frontier prefix shared by a frontier's grids (from its settlements), or null. */
+export function frontierPrefix(gridMap) {
+  for (const coord of gridMap.keys()) { const p = coordParts(coord); if (p) return p.prefix; }
+  return null;
+}
+
+/** Which town layout file the game server would use for this settlement (town<POS>), or null. */
+export function townLayoutName(frontier, settlementId) {
+  const rows = Array.isArray(frontier?.settlements) ? frontier.settlements : [];
+  for (const row of rows) {
+    if (!Array.isArray(row)) continue;
+    const entry = row.find((e) => e && idOf(e.settlementId) === String(settlementId));
+    if (entry) { const m = String(entry.settlementType || '').match(/homesteadSet([NSEW]+)$/); return m ? `town${m[1]}` : null; }
+  }
+  return null;
+}

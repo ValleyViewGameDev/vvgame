@@ -7,19 +7,22 @@ import { el, clear, $ } from './core/dom.js';
 import { local } from './core/api.js';
 import { toast, setStatus } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
-import { stubTab } from './tabs/stub.js';
 import { layoutsTab } from './tabs/layouts.js';
+import { worldTab } from './tabs/world.js';
+import { atlasTab } from './tabs/atlas.js';
 import { dungeonsTab } from './tabs/dungeons.js';
 import { eventsTab } from './tabs/events.js';
+import { playersTab } from './tabs/players.js';
+import { feedbackTab } from './tabs/feedback.js';
 
 const TABS = [
   layoutsTab(),
-  stubTab('world', 'World', '🌍', 'world'),
-  stubTab('atlas', 'Atlas', '🧭', 'world'),
+  worldTab(),
+  atlasTab(),
   dungeonsTab(),
   eventsTab(),
-  stubTab('players', 'Players', '👥', 'admin'),
-  stubTab('feedback', 'Feedback', '💬', 'admin'),
+  playersTab(),
+  feedbackTab(),
   sheetTab('resources', '💰'),
   sheetTab('quests', '📜'),
   sheetTab('traders', '🤝'),

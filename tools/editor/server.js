@@ -2,7 +2,11 @@
 /**
  * VVGame Editor: local content and world-administration tool (docs/tools-plan.md).
  *
- *   node tools/editor/server.js [--port 8770] [--game-server https://vvgame-server.onrender.com]
+ *   node tools/editor/server.js [--port 8770] [--game-server https://vvgame-server.onrender.com] [--dev-player-id <id>]
+ *
+ * --dev-player-id (or EDITOR_DEV_PLAYER_ID) is sent as x-player-id on every proxied request so the
+ * game server's maintenance gate (utils/serviceMode.js) lets the editor through while SERVICE_MODE
+ * is maintenance; it must be a developer account's player id.
  *
  * Plain Node http server, binds 127.0.0.1, no auth, no build step. Serves the vanilla-JS
  * client from ./client, reads and writes the game server's files under game-server/
@@ -32,12 +36,13 @@ const defs = require(path.join(SHEETS_DIR, 'definitions.js')); // ESM via requir
 
 // ----------------------------------------------------------------------------- args
 function parseArgs(argv) {
-  const out = { port: 8770, gameServer: 'https://vvgame-server.onrender.com' };
+  const out = { port: 8770, gameServer: 'https://vvgame-server.onrender.com', devPlayerId: process.env.EDITOR_DEV_PLAYER_ID || null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--port') out.port = Number(argv[++i]);
     else if (a === '--game-server') out.gameServer = String(argv[++i]).replace(/\/+$/, '');
-    else if (a === '-h' || a === '--help') { console.log('node server.js [--port 8770] [--game-server <url>]'); process.exit(0); }
+    else if (a === '--dev-player-id') out.devPlayerId = String(argv[++i]);
+    else if (a === '-h' || a === '--help') { console.log('node server.js [--port 8770] [--game-server <url>] [--dev-player-id <id>]'); process.exit(0); }
   }
   return out;
 }
@@ -152,6 +157,7 @@ function proxyToGame(req, res, pathname, search) {
   const lib = target.protocol === 'https:' ? https : http;
   const headers = { ...req.headers, host: target.host };
   delete headers['content-length'];
+  if (ARGS.devPlayerId && !headers['x-player-id']) headers['x-player-id'] = ARGS.devPlayerId;
   readBody(req).then((body) => {
     if (body.length) headers['content-length'] = String(body.length);
     const upstream = lib.request(target, { method: req.method, headers }, (up) => {
@@ -171,13 +177,14 @@ async function handle(req, res) {
   let x;
 
   if (p === '/healthz') return sendJSON(res, 200, { ok: true });
+  if (p === '/favicon.ico') { res.writeHead(204); return res.end(); }
   if (p === '/' || p === '/index.html') return serveStatic(res, CLIENT_DIR, 'index.html');
   if (p.startsWith('/sheets/')) return serveStatic(res, SHEETS_DIR, p.slice('/sheets/'.length));
   if (p === '/game-client/tileColors.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'UI', 'Styles'), 'tileColors.js'); // the client's own module, dependency-free
   if (p.startsWith('/api/game/')) return proxyToGame(req, res, p.slice('/api/game'.length), url.search);
 
   if (p === '/api/local/info') {
-    return sendJSON(res, 200, { gameServer: ARGS.gameServer, repoRoot: REPO_ROOT, isProduction: /onrender\.com|secretsofelsinore|valleyviewgame/.test(ARGS.gameServer) });
+    return sendJSON(res, 200, { gameServer: ARGS.gameServer, repoRoot: REPO_ROOT, devPlayerId: !!ARGS.devPlayerId, isProduction: /onrender\.com|secretsofelsinore|valleyviewgame/.test(ARGS.gameServer) });
   }
   if (p === '/api/local/resources') return sendJSON(res, 200, resourcesJSON());
   if (p === '/api/local/random-valley') return sendJSON(res, 200, readJSONFile(path.join(LAYOUTS_DIR, 'gridLayouts', 'randomValleyGridLayouts.json')));
