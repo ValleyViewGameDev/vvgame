@@ -13,14 +13,17 @@
 }
 
 .panel-container {
+    /* floats over the board to the right of the nav pill (desktop vars in App.css; phones: mobile.css) */
     position: fixed;
-    top: 60px;
-    left: 60px; /* Overlap with base panel */
-    height: calc(100% - 60px); /* Subtract the top offset */
-    width: 240px; /* Fixed width for panels (20px wider); overlaps base panel */
+    top: calc(var(--d-top) + var(--d-gap));
+    left: calc(var(--d-board-left) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
+    height: calc(100vh - var(--d-top) - 2 * var(--d-gap));
+    width: var(--d-panel-width);
+    box-sizing: border-box;
+    border-radius: var(--d-panel-radius);
     background-color: var(--color-bg-panel);
-    box-shadow: 4px 0 8px var(--color-panel-shadow);
-    z-index: 999;
+    box-shadow: var(--d-panel-shadow);
+    z-index: 990; /* below the nav pill (1000): panels slide in and out behind it */
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Prevent container overflow, let content handle it */

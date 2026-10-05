@@ -192,7 +192,7 @@
   .nav-icon { width: 28px; height: 28px; }
 
   /* ---------- Home sheet trims: no keyboard controls, no season block (the 📅 button has it) ---------- */
-  .base-panel-controls, .base-panel-season { display: none; }
+  .base-panel-controls { display: none; }
 
   /* ---------- season: one round button over the board's top-right, the zoom pill's twin ---------- */
   .season-controls {

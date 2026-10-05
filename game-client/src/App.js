@@ -3079,6 +3079,9 @@ return (
           </div>
           <span></span>
           {/* Row 2: Leaders, Language, Share */}
+          <button className="header-link header-link--howto" title={strings[10110]} disabled={!currentPlayer} onClick={() => openPanel('HowToPanel')}>
+            {headerLabel(strings[10110], '❓')}
+          </button>
           <button className="header-link header-link--leaders" title={strings[1140]} disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
             {headerLabel(strings[1140], '📊')}
           </button>
@@ -3087,9 +3090,6 @@ return (
           </button>
           <button className="header-link header-link--share" title={strings[10106]} onClick={() => setShowShareModal(true)}>
             {headerLabel(strings[10106], '📢')}
-          </button>
-          <button className="header-link header-link--howto" title={strings[10110]} disabled={!currentPlayer} onClick={() => openPanel('HowToPanel')}>
-            {headerLabel(strings[10110], '❓')}
           </button>
         </div>
         </div>
@@ -3124,8 +3124,7 @@ return (
       </div>
     )}
 
-    {/* Season: a round button floating over the board's top-right corner on phones (the base panel's
-        season block is desktop only); mirrors the zoom pill. Hidden on desktop by App.css. */}
+    {/* Season: a round button floating over the board's top-right corner, the zoom pill's twin */}
     {currentPlayer && (
       <div className="season-controls">
         <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
@@ -3278,29 +3277,12 @@ return (
       {/* Range note stays right under the map on every layout */}
       <h3 style={{ textAlign: 'center' }}>{isOnOwnHomestead ? strings[10140] : strings[10141]}</h3>
 
-      {/* Controls: desktop only (phones have no keyboard and get How to Play from the header ❓) */}
+      {/* Controls: desktop only (phones have no keyboard; Help lives in the header) */}
       <div className="base-panel-controls">
         <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
         <h3 style={{ textAlign: 'center' }}>{uiString(strings, 10135)}</h3>
         <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
         <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
-        <br />
-      </div>
-
-      {/* Season: desktop only (phones have the 📅 button floating over the board) */}
-      <div className="base-panel-season">
-        <h2 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', color: 'var(--color-primary-green-dark)', margin: '0 0 4px 0' }}>
-          {strings[10113]} {seasonData?.type || "[Season unknown]"}
-        </h2>
-        <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
-          <span
-            onClick={() => openPanel('SeasonPanel')}
-            style={{ textDecoration: 'underline', cursor: 'pointer' }}
-          >
-            {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]}
-          </span>
-        </h2>
-        <h2 className="countdown-timer" style={{ textAlign: 'center' }}>{countdowns.seasons}</h2>
         <br />
       </div>
 

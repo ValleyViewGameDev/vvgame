@@ -12,7 +12,7 @@ const FADE_FROM_BLACK_DURATION = 900; // Faster reveal of new scene
 const OVERLAY_STYLE = {
   position: 'fixed',
   top: '84px',
-  left: '300px',
+  left: '240px',
   right: 0,
   bottom: 0,
   backgroundColor: '#000000',
@@ -46,7 +46,7 @@ export const useTransition = () => {
 /** Where the board is right now, as fixed-position CSS; falls back to the desktop numbers. */
 const boardRect = () => {
   const board = typeof document !== 'undefined' && document.querySelector('.homestead');
-  if (!board) return { top: '84px', left: '300px', right: 0, bottom: 0 };
+  if (!board) return { top: '84px', left: '240px', right: 0, bottom: 0 };
   const r = board.getBoundingClientRect();
   return { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, right: 'auto', bottom: 'auto' };
 };

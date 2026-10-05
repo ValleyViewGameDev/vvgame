@@ -13,9 +13,26 @@ body {
   background-color: var(--color-bg-dirt);
 }
 
-/* Shift base panel and others to the right */
+/* Desktop geometry (phones: UI/Styles/mobile.css). The base panel is the fixed left column;
+   the board starts at its right edge; the nav pill, zoom pill and season button float over
+   the board; slide-in panels float beside the pill. docs/ui-conventions.md. */
+:root {
+  --d-board-left: 240px;              /* base panel 220px + its padding */
+  --d-top: 84px;                      /* header 60px + status bar 24px */
+  --d-gap: 10px;                      /* pills' distance from the board edges */
+  --d-pill-w: 48px;                   /* nav / zoom pill width */
+  --d-zoom-h: 100px;                  /* zoom pill height (two round buttons) */
+  --d-panel-width: 280px;
+  --d-panel-radius: 14px;
+  --d-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --d-pill-bg: rgba(130, 187, 77, 0.96);
+  --d-pill-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  --d-anim-in: 260ms;
+  --d-anim-out: 220ms;
+}
+
 .app-container {
-  margin-left: 60px; /* Width of the nav column */
+  margin-left: 0; /* the nav is a floating pill now, not a rail */
 }
 
 
@@ -29,6 +46,7 @@ body {
   padding: var(--spacing-md);
   padding-bottom: 0; /* Content wrapper handles bottom spacing */
   top: 60px;
+  left: 0;
   font-size: 14px;
   box-shadow: 4px 0 4px var(--color-shadow);
   display: flex;
@@ -104,36 +122,51 @@ body {
 
 
 
-/* NAV COLUMN /////////////////////////////// */
+/* NAV COLUMN: a floating vertical pill at the board's left, under the zoom pill ///////// */
 
 .nav-column {
   position: fixed;
-  left: 0;
-  padding-top: 60px;
-  width: var(--nav-column-width);
-  height: 100%;
-  background-color: var(--color-primary-green);
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-zoom-h) + var(--d-gap));
+  bottom: var(--d-gap);
+  left: calc(var(--d-board-left) + var(--d-gap));
+  width: var(--d-pill-w);
+  height: auto;
+  padding: 6px 0;
+  box-sizing: border-box;
+  border-radius: calc(var(--d-pill-w) / 2);
+  background-color: var(--d-pill-bg);
+  box-shadow: var(--d-pill-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1000;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  z-index: 1000; /* panels (990) slide in and out behind it */
 }
+.nav-column::-webkit-scrollbar { display: none; }
+.nav-column:empty { display: none; } /* nothing to show before the player loads */
 
 .nav-button {
   background: none;
   border: none;
-  font-size: 32px;
-  margin: 0px 0;
+  font-size: 24px;
+  margin: 1px 0;
   cursor: pointer;
   color: var(--color-text-white);
-  width: 100%;
-  height: 52px;
-  border-radius: 0;
-  transition: background-color 0.2s ease;
+  width: 44px;
+  min-width: 0;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 22px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.nav-button:active { transform: scale(0.92); }
 
 .nav-button.selected {
   background-color: var(--color-bg-panel);
@@ -144,91 +177,96 @@ body {
 
 /* HEADER /////////////////////////////// */
 
-/* ZOOM CONTROLS /////////////////////////////////// */
+/* ZOOM: two round buttons in a pill at the board's top-left //////////////////////////// */
 
 .zoom-controls {
-  position: fixed; /* the nav column is fixed at 0,0 too, so this is the same corner it always sat in */
-  top: 0;
-  left: 0;
-  width: 60px;
-  height: 60px;
-  z-index: 1001;
+  position: fixed;
+  top: calc(var(--d-top) + var(--d-gap));
+  left: calc(var(--d-board-left) + var(--d-gap));
+  width: var(--d-pill-w);
+  height: var(--d-zoom-h);
+  border-radius: calc(var(--d-pill-w) / 2);
+  background-color: var(--d-pill-bg);
+  box-shadow: var(--d-pill-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 980; /* behind an open panel, like the phone layout */
 }
-
-.season-controls { display: none; } /* phones only: UI/Styles/mobile.css */
 
 .zoom-button-container {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: var(--d-pill-w);
+  height: var(--d-zoom-h);
 }
 
 .zoom-button {
   position: absolute;
-  width: 58px;
-  height: 58px;
-  font-size: 26px;
+  left: 4px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 22px;
   font-weight: bold;
   background-color: var(--color-primary-green-dark);
   color: var(--color-text-white);
   border: none;
   cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
 }
+.zoom-button:hover:enabled { background-color: var(--color-button-hover); }
+.zoom-button:active:enabled { transform: scale(0.92); }
+.zoom-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.zoom-button.zoom-in { top: 6px; }
+.zoom-button.zoom-out { top: 54px; }
+.zoom-button span { position: static; }
+.zoom-label { display: none; }
 
-.zoom-button:hover:enabled {
-  background-color: var(--color-button-hover);
-  transform: translateY(1px);
+/* SEASON: one round button at the board's top-right, the zoom pill's twin ///////////////// */
+
+.season-controls {
+  position: fixed;
+  top: calc(var(--d-top) + var(--d-gap));
+  right: var(--d-gap);
+  width: var(--d-pill-w);
+  height: var(--d-pill-w);
+  border-radius: calc(var(--d-pill-w) / 2);
+  background-color: var(--d-pill-bg);
+  box-shadow: var(--d-pill-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 980;
 }
-
-.zoom-button:active:enabled {
-  transform: translateY(2px);
+.season-button {
+  width: 40px;
+  height: 40px;
+  margin: 4px;
+  border: none;
+  border-radius: 20px;
+  background-color: var(--color-primary-green-dark);
+  color: var(--color-text-white);
+  font-size: 22px;
+  line-height: 40px;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-.zoom-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.zoom-button.zoom-in {
-  top: 1px;
-  left: 1px;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-
-.zoom-button.zoom-in span {
-  position: absolute;
-  top: 6px;
-  left: 8px;
-}
-
-.zoom-button.zoom-out {
-  bottom: 0px;
-  right: 1px;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-
-}
-
-.zoom-button.zoom-out span {
-  position: absolute;
-  bottom: 6px;
-  right: 10px;
-}
-
-.zoom-label {
-  display: none;
-}
+.season-button:hover { background-color: var(--color-button-hover); }
+.season-button:active { transform: scale(0.92); }
 
 /* HEADER /////////////////////////////////// */
 
 .app-header {
   background-color: var(--color-primary-green);
   color: var(--color-text-white);
-  padding: 2px 10px 6px 70px; /* top right bottom left - aligns with base panel content (60px nav + 10px padding) */
+  padding: 2px 10px 6px 12px; /* top right bottom left */
   position: fixed;
   top: 0;
   left: 0;
@@ -241,12 +279,13 @@ body {
 }
 
 .header-title {
-  /* Fixed width for game title */
-  width: 230px;
+  /* the title sits at the left on two lines ("Secrets of" / "Elsinore"), like the phone */
+  width: auto;
   flex-shrink: 0;
   display: flex;
   font-size: 17px;
   align-items: center;
+  margin-right: 22px;
 }
 
 .header-controls-center,
@@ -261,16 +300,33 @@ body {
    On desktop it must not be a box of its own, or the two blocks stack. */
 .header-secondary { display: contents; }
 
-/* Left header uses CSS Grid for precise column alignment */
+/* Left header: the phone's two-row grid. Row 1: name, gems + money. Row 2: level, health,
+   inventory, each with its fill bar on the thin row below. The <span> fillers are hidden. */
 .header-controls-left.header-grid {
   display: grid;
-  grid-template-columns: auto auto auto; /* 3 columns: Username, Level/Health, Inventory+Currency */
-  grid-template-rows: auto 4px auto 4px; /* 4 rows: content, progress bars, content, progress bars */
-  column-gap: 30px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 2px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  grid-template-columns: repeat(3, max-content);
+  grid-template-rows: 22px 22px 3px;
+  column-gap: 24px;
+  row-gap: 2px;
   align-items: center;
-  justify-content: start; /* Pack columns to left, don't spread across container */
+  justify-content: start;
   flex: 1;
+}
+.header-controls-left.header-grid > span { display: none; }
+.header-controls-left.header-grid > :nth-child(1) { grid-column: 1; grid-row: 1; }               /* name */
+.header-controls-left.header-grid > :nth-child(9) { grid-column: 2 / span 2; grid-row: 1; }      /* gems + money */
+.header-controls-left.header-grid > :nth-child(2) { grid-column: 1; grid-row: 2; }               /* level */
+.header-controls-left.header-grid > :nth-child(5) { grid-column: 1; grid-row: 3; }               /* xp bar */
+.header-controls-left.header-grid > :nth-child(8) { grid-column: 2; grid-row: 2; }               /* health */
+.header-controls-left.header-grid > :nth-child(11) { grid-column: 2; grid-row: 3; }              /* hp bar */
+.header-controls-left.header-grid > :nth-child(3) { grid-column: 3; grid-row: 2; }               /* inventory */
+.header-controls-left.header-grid > :nth-child(6) { grid-column: 3; grid-row: 3; }               /* capacity bar */
+.header-xp-bar, .header-inventory-bar, .header-hp-bar {
+  display: block;
+  width: 100% !important;  /* the inline 100px becomes the column's width */
+  height: 3px !important;
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 /* Gems and Money grouped together - expand together dynamically */
@@ -288,7 +344,9 @@ body {
   align-items: flex-end;
 }
 
-/* Right header uses CSS Grid for column alignment, right-aligned overall */
+/* Right header uses CSS Grid for column alignment, right-aligned overall:
+   row 1 Settings, Chat, Help; row 2 Leaders, Language, Share */
+.header-controls-right.header-grid-right > span { display: none; }
 .header-controls-right.header-grid-right {
   display: grid;
   grid-template-columns: auto auto auto; /* 3 columns */
@@ -345,7 +403,10 @@ body {
 .app-header h1 {
   margin: 0;
   padding-right: 0;
-  font-size: 1.6em;
+  font-size: 1.35em;
+  line-height: 1.05;
+  white-space: normal;
+  max-width: 5.6em; /* "Secrets of" / "Elsinore" */
   font-weight: normal;
   color: var(--color-text-white);
   text-align: left;
@@ -388,11 +449,12 @@ body {
 
 .homestead {
   overflow: hidden; /* the camera is PixiCamera.js, not the scroll position */
-  margin-left: 240px;
-  width: calc(100% - 300px); /* Account for total left margin */
-  height: calc(100vh - 84px); /* Extend to bottom of viewport (header 60px + status bar 24px = 84px) */
+  margin-left: 0;
+  left: var(--d-board-left);
+  width: calc(100% - var(--d-board-left));
+  height: calc(100vh - var(--d-top));
   position: absolute;
-  top: 84px; /* Align directly below status bar (60px header + 24px status bar) */
+  top: var(--d-top); /* directly below the status bar */
   z-index: 100;
   background-color: var(--settlement-gridline-color, #82bb4dff); /* Match settlement grid background */
   overscroll-behavior: contain;
@@ -532,3 +594,11 @@ body {
   position: absolute;
 }
 
+
+
+/* PANEL MOTION: slide-in panels fly in from the left and back out (Panel.css places them;
+   UI/Panels/panelExitGhost.js clones a removed panel so every close path animates) */
+@keyframes panelLeftIn  { from { transform: translateX(-110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
+@keyframes panelLeftOut { from { transform: none; opacity: 1; } to { transform: translateX(-110%); opacity: 0.6; } }
+.panel-container { animation: panelLeftIn var(--d-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.panel-container.panel-ghost { animation: panelLeftOut var(--d-anim-out) cubic-bezier(0.4, 0, 1, 1) both; z-index: 990; pointer-events: none; }

@@ -7,9 +7,12 @@ value rather than trust this page.
 
 ## 1. Where the layout lives
 
-- Desktop chrome is fixed pixels: a 60 px nav rail, the 220 px base panel, 240 px slide-in
-  panels (`UI/Panels/Panel.css`), a 60 px header (`App.css`), modals in `UI/Modals/Modal.css`.
-  The board starts 300 px in.
+- Desktop chrome is fixed pixels through the `--d-*` tokens in `App.css`: the 240 px base
+  panel is the fixed left column (always present, not dismissable), the board starts at its
+  right edge (`--d-board-left`) under the 60 px header and 24 px status bar (`--d-top`), and
+  everything else floats over the board the way it does on phones: the zoom pill top-left,
+  the nav pill under it, the season button top-right, and 280 px slide-in panels
+  (`UI/Panels/Panel.css`) beside the pill. Modals in `UI/Modals/Modal.css`.
 - The phone layout is ONE stylesheet, `UI/Styles/mobile.css`, imported last (in `index.js`) so
   it follows every component stylesheet. It re-positions the same elements; it never adds
   phone-only components. Three blocks: shared (both orientations), portrait
@@ -46,8 +49,14 @@ value rather than trust this page.
 
 ## 3. Panels (the right-hand slide-ins) and the base panel
 
-- Desktop: panels are 240 px, overlap the base panel, z-index 999, closed with
-  `.panel-close-btn`. One panel open at a time (`UI/Panels/PanelContext.js`).
+- Desktop: panels float over the board right of the nav pill (`--d-panel-width` 280 px,
+  rounded, shadowed, z-index 990 under the pill's 1000), slide in from the left and back out
+  on close (`panelLeftIn/Out` in `App.css`; the exit is the same ghost clone as on phones,
+  `UI/Panels/panelExitGhost.js`, which runs on every layout). Closed with `.panel-close-btn`.
+  One panel open at a time (`UI/Panels/PanelContext.js`). The desktop header's left block is
+  the phone's two-row grid (name, gems, money; then level, health, inventory with bars), the
+  title sits at the left on two lines, and the right block is Settings, Chat, Help over
+  Leaders, Language, Share.
 - Phones: the nav is a floating iOS-style pill over the board (horizontal along the bottom
   in portrait, vertical at the left in landscape). Panels, the Home sheet (the base panel's
   phone form, 👸 button) and the chat share one box docked at the left,
@@ -64,8 +73,8 @@ value rather than trust this page.
 - The zoom buttons are their own small pill (portrait: top-left under the status bar, z 980,
   so panels cover them; landscape: the header's first column). They are not children of the
   nav pill: its backdrop-filter would make it their containing block. The season button (📅,
-  opens the Season panel) is the zoom pill's twin at the board's top-right on phones only
-  (`.season-controls`, hidden on desktop where the base panel shows the season).
+  opens the Season panel) is the zoom pill's twin at the board's top-right on every layout
+  (`.season-controls`); the base panel no longer shows the season.
 - The phone Home sheet is the base panel trimmed: map, range note, Town News, feedback
   links. Keyboard controls and the season block are desktop only (`.base-panel-controls`,
   `.base-panel-season`). How to Play lives in the header icon row (❓) on every layout. The
