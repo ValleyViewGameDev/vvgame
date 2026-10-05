@@ -21,8 +21,8 @@ body {
   --d-board-left: 0px;                /* the board starts at the window's left edge */
   --d-top: 84px;                      /* header 60px + status bar 24px */
   --d-gap: 10px;                      /* pills' distance from the board edges */
-  --d-pill-w: 48px;                   /* nav / zoom pill width */
-  --d-zoom-h: 100px;                  /* zoom pill height (two round buttons) */
+  --d-pill-w: 53px;                   /* nav / zoom pill width (phone pill 48px, +10% on desktop) */
+  --d-zoom-h: 110px;                  /* zoom pill height (two round buttons) */
   --d-panel-width: 280px;
   --d-panel-radius: 14px;
   --d-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
@@ -172,15 +172,15 @@ body {
 .nav-button {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 26px;
   margin: 1px 0;
   cursor: pointer;
   color: var(--color-text-white);
-  width: 44px;
+  width: 48px;
   min-width: 0;
-  height: 44px;
+  height: 48px;
   flex: 0 0 auto;
-  border-radius: 22px;
+  border-radius: 24px;
   transition: background-color 0.15s ease, transform 0.15s ease;
   display: flex;
   align-items: center;
@@ -222,10 +222,10 @@ body {
 .zoom-button {
   position: absolute;
   left: 4px;
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   background-color: var(--color-primary-green-dark);
   color: var(--color-text-white);
@@ -241,8 +241,8 @@ body {
 .zoom-button:hover:enabled { background-color: var(--color-button-hover); }
 .zoom-button:active:enabled { transform: scale(0.92); }
 .zoom-button:disabled { opacity: 0.5; cursor: not-allowed; }
-.zoom-button.zoom-in { top: 6px; }
-.zoom-button.zoom-out { top: 54px; }
+.zoom-button.zoom-in { top: 7px; }
+.zoom-button.zoom-out { top: 59px; }
 .zoom-button span { position: static; }
 .zoom-label { display: none; }
 
@@ -262,15 +262,15 @@ body {
   z-index: 980;
 }
 .season-button {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   margin: 4px;
   border: none;
-  border-radius: 20px;
+  border-radius: 50%;
   background-color: var(--color-primary-green-dark);
   color: var(--color-text-white);
-  font-size: 22px;
-  line-height: 40px;
+  font-size: 24px;
+  line-height: 45px;
   padding: 0;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
@@ -459,8 +459,8 @@ body {
 
 /* Nav button SVG icons */
 .nav-icon {
-  width: 32px;
-  height: 32px;
+  width: 35px;
+  height: 35px;
   object-fit: contain;
 }
 
