@@ -1374,7 +1374,7 @@
     "7061": "Du musst in die Stadt reisen, um deine Fähigkeiten auszubauen. Kaufe einen Stadtschlüssel von Constable Elbow. Benutze den Wegweiser zum Reisen.",
     "7062": "Gut gemacht! Ich bin die Hirtin, und ich helfe dir mit deiner ✅ Aufgabenliste. Komm zu mir zurück, wenn Aufgaben erledigt sind.",
 
-    "740": "Willkommen in Elsinore, {username}. Erwerbe eine Hausurkunde beim Constable, um dein Land zu sichern. Dein Abenteuer beginnt!",
+    "740": "Willkommen in Elsinore. Erwerbe eine Hausurkunde beim Constable, um dein Land zu sichern. Dein Abenteuer beginnt!",
     "741": "Bewege dich mit A-W-S-D, den Pfeiltasten oder per Klick auf ein Feld. KLICKE auf Constable Elbow.",
     "741_touch": "Tippe auf ein Feld, um dich zu bewegen. Tippe auf Constable Elbow.",
     "742": "Klicke auf den Wegweiser, um zu deinem neuen Heimathof zu reisen.",
@@ -1414,5 +1414,8 @@
     "4092": "Urkunde unterschreiben",
     "4093": "Prüfe...",
     "4094": "Dieser Name ist frei.",
-    "4095": "Du kannst ihn später im Profil ändern."
+    "4095": "Du kannst ihn später im Profil ändern.",
+    "7063": "Willkommen zu Hause! Ein Willkommensgeschenk wartet in deinem 📬 Briefkasten.",
+    "7064": "Das bist du! Such dir ein Aussehen für dein Abenteuer aus. Du kannst es jederzeit im Profil ändern.",
+    "7065": "Deine Pflanzen wachsen. Komm wieder, wenn sie reif sind, und behalte den Wegweiser im Auge: der Zug zahlt gut für deine Waren."
 }

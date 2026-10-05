@@ -13,6 +13,7 @@ import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
+import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
 function Mailbox({ 
   onClose, 
@@ -127,6 +128,8 @@ function Mailbox({
         const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
         soundManager.playSFX('collect_money');
         updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
+        // FTUE: the welcome gift collected is the beat before the avatar picker (tuning/FTUEsteps.json step 6)
+        tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }
     } catch (error) {
       console.error('Error in protected mailbox collection:', error);

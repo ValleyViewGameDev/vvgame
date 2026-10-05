@@ -1374,7 +1374,7 @@
     "7061": "Vous devrez vous rendre en Ville pour développer vos Compétences. Achetez une Clé de la Ville auprès du Constable Elbow. Utilisez le Panneau indicateur pour voyager.",
     "7062": "Bon travail ! Je suis la Bergère, et je vous aiderai avec votre ✅ Liste de Tâches. Revenez me voir quand les tâches sont terminées.",
 
-    "740": "Bienvenue à Elsinore, {username}. Obtenez un Titre de Propriété auprès du Constable pour sécuriser votre terrain. Votre aventure commence !",
+    "740": "Bienvenue à Elsinore. Obtenez un Titre de Propriété auprès du Constable pour sécuriser votre terrain. Votre aventure commence !",
     "741": "Utilisez A-W-S-D, les flèches ou cliquez sur une case pour vous déplacer. CLIQUEZ sur Constable Elbow.",
     "741_touch": "Touchez une case pour vous déplacer. Touchez Constable Elbow.",
     "742": "Cliquez sur le Panneau indicateur pour voyager vers votre nouveau Domaine.",
@@ -1414,5 +1414,8 @@
     "4092": "Signer l'acte",
     "4093": "Vérification...",
     "4094": "Ce nom est libre.",
-    "4095": "Vous pourrez le changer plus tard dans le Profil."
+    "4095": "Vous pourrez le changer plus tard dans le Profil.",
+    "7063": "Bienvenue chez vous ! Un cadeau de bienvenue vous attend dans votre 📬 Boîte aux lettres.",
+    "7064": "C'est vous ! Choisissez un look pour votre aventure. Vous pourrez le changer à tout moment dans votre Profil.",
+    "7065": "Vos cultures poussent. Revenez quand elles seront prêtes, et gardez un œil sur le Panneau : le Train paie bien vos marchandises."
 }

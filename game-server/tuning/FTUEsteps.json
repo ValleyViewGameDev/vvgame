@@ -1,143 +1,162 @@
 [
-   {
-      "step": 1,
-      "trigger": "StartedFTUE",
-      "showModal": true,
-      "modalIcon": "👸",
-      "bodyKey": 740,
-      "continue": true,
-      "addQuests": []
-    },
-    {
-      "step": 2,
-      "trigger": "ContinuedFromStep1",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Constable Elbow",
-      "notificationKey": 741,
-      "notificationIcon": "🧔🏼‍♂️",
-      "addQuests": []
-    },
-    {
-      "step": 3,
-      "trigger": "ClickedConstableElbow",
-      "showModal": false,
-      "openPanel": "NPCPanel",
-      "panelTargetNPC": "Constable Elbow",
-      "doinker": true,
-      "doinkerType": "button",
-      "doinkerTarget": ".trade-options .resource-button",
-      "addQuests": []
-    },
-    {
-      "step": 4,
-      "trigger": "BoughtHomeDeed",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Signpost Home",
-      "notificationKey": 742,
-      "notificationIcon": "🏠",
-      "addQuests": []
-    },
-    {
-      "step": 5,
-      "trigger": "HomesteadVisit",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": ["Wheat", "Kent"],
-      "notificationKey": 7053,
-      "notificationIcon": "🤠",
-      "addQuests": []
-    },
-    {
-      "step": 6,
-      "trigger": "SoldToKent",
-      "openPanel": "FarmingPanel",
-      "showFeedbackModalAfter": true,
-      "showModal": false,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "button",
-      "doinkerTarget": "[data-resource-type=\"Wheat Plot\"] .resource-button",
-      "notificationKey": 7054,
-      "notificationIcon": "🌽",
-      "addQuests": [6]
-    },
-    {
-      "step": 7,
-      "trigger": "PlantedFirstCrop",
-      "showModal": false,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "The Shepherd",
-      "notificationKey": 7062,
-      "notificationIcon": "👵🏻",
-      "addQuests": []
-    },
-    {
-      "step": 8,
-      "trigger": "CollectedQuest",
-      "addQuests": [7]
-    },
-    {
-      "step": 9,
-      "trigger": "FirstTownVisit",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Constable Elbow",
-      "notificationKey": 743,
-      "notificationIcon": "🧔🏼‍♂️",
-      "addQuests": []
-    },
-    {
-      "step": 10,
-      "trigger": "AcquiredTownKey",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Agriculture Center",
-      "continue": false,
-      "notificationKey": 7056,
-      "notificationIcon": "🗝️",
-      "addQuests": []
-    },
-    {
-      "step": 11,
-      "trigger": "ClickedAgricultureCenter",
-      "showModal": false,
-      "doinker": true,
-      "doinkerType": "button",
-      "doinkerTarget": "[data-resource-type=\"Grower\"] .resource-button",
-      "addQuests": []
-    },
-    {
-      "step": 12,
-      "trigger": "AcquiredGrower",
-      "showModal": true,
-      "modalIcon": "🧔🏼‍♂️",
-      "bodyKey": 16021,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Signpost Home",
-      "notificationKey": 7059,
-      "notificationIcon": "🏠",
-      "addQuests": []
-    },
-    {
-      "step": 13,
-      "trigger": "HomesteadVisit",
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Mailbox",
-      "continue": false,
-      "addQuests": []
-    },
-    {
-      "step": 14,
-      "trigger": "ClickedMailbox",
-      "showModal": false,
-      "continue": false,
-      "addQuests": []
-    }
+  {
+    "step": 1,
+    "trigger": "StartedFTUE",
+    "showModal": true,
+    "modalIcon": "👸",
+    "bodyKey": 740,
+    "continue": true,
+    "addQuests": []
+  },
+  {
+    "step": 2,
+    "trigger": "ContinuedFromStep1",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Constable Elbow",
+    "notificationKey": 741,
+    "notificationIcon": "🧔🏼‍♂️",
+    "addQuests": []
+  },
+  {
+    "step": 3,
+    "trigger": "ClickedConstableElbow",
+    "showModal": false,
+    "openPanel": "NPCPanel",
+    "panelTargetNPC": "Constable Elbow",
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": ".trade-options .resource-button",
+    "addQuests": []
+  },
+  {
+    "step": 4,
+    "trigger": "BoughtHomeDeed",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Signpost Home",
+    "notificationKey": 742,
+    "notificationIcon": "🏠",
+    "addQuests": []
+  },
+  {
+    "step": 5,
+    "trigger": "HomesteadVisit",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Mailbox",
+    "notificationKey": 7063,
+    "notificationIcon": "📬",
+    "addQuests": []
+  },
+  {
+    "step": 6,
+    "trigger": "CollectedMail",
+    "showModal": true,
+    "modalType": "icon",
+    "bodyKey": 7064,
+    "continue": true,
+    "addQuests": []
+  },
+  {
+    "step": 7,
+    "trigger": "ChoseAvatar",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": [
+      "Wheat",
+      "Kent"
+    ],
+    "notificationKey": 7053,
+    "notificationIcon": "🤠",
+    "addQuests": []
+  },
+  {
+    "step": 8,
+    "trigger": "SoldToKent",
+    "openPanel": "FarmingPanel",
+    "showFeedbackModalAfter": true,
+    "showModal": false,
+    "continue": false,
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": "[data-resource-type=\"Wheat Plot\"] .resource-button",
+    "notificationKey": 7054,
+    "notificationIcon": "🌽",
+    "addQuests": [
+      6
+    ]
+  },
+  {
+    "step": 9,
+    "trigger": "PlantedFirstCrop",
+    "showModal": false,
+    "continue": false,
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "The Shepherd",
+    "notificationKey": 7062,
+    "notificationIcon": "👵🏻",
+    "addQuests": []
+  },
+  {
+    "step": 10,
+    "trigger": "CollectedQuest",
+    "addQuests": [
+      7
+    ]
+  },
+  {
+    "step": 11,
+    "trigger": "FirstTownVisit",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Constable Elbow",
+    "notificationKey": 743,
+    "notificationIcon": "🧔🏼‍♂️",
+    "addQuests": []
+  },
+  {
+    "step": 12,
+    "trigger": "AcquiredTownKey",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Agriculture Center",
+    "continue": false,
+    "notificationKey": 7056,
+    "notificationIcon": "🗝️",
+    "addQuests": []
+  },
+  {
+    "step": 13,
+    "trigger": "ClickedAgricultureCenter",
+    "showModal": false,
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": "[data-resource-type=\"Grower\"] .resource-button",
+    "addQuests": []
+  },
+  {
+    "step": 14,
+    "trigger": "AcquiredGrower",
+    "showModal": true,
+    "modalIcon": "🧔🏼‍♂️",
+    "bodyKey": 16021,
+    "continue": false,
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Signpost Home",
+    "notificationKey": 7059,
+    "notificationIcon": "🏠",
+    "addQuests": []
+  },
+  {
+    "step": 15,
+    "trigger": "HomesteadVisit",
+    "showModal": false,
+    "continue": false,
+    "notificationKey": 7065,
+    "notificationIcon": "🌱",
+    "addQuests": []
+  }
 ]

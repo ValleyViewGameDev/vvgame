@@ -6,6 +6,7 @@ import './FTUE.css';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
+import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
 
@@ -397,6 +398,23 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   // Don't render modal if showModal is false (will auto-advance via useEffect)
   if (currentStepData?.showModal === false) {
     return null;
+  }
+
+  // modalType "icon": the avatar beat (docs/onboarding-plan.md §4.4). The picker replaces the
+  // signup carousel; saving or closing it advances the step (continue: true on the step).
+  if (currentStepData?.modalType === 'icon') {
+    return (
+      <ChangeIconModal
+        currentPlayer={currentPlayer}
+        setCurrentPlayer={setCurrentPlayer}
+        updateStatus={() => {}}
+        currentIcon={currentPlayer?.icon}
+        playerId={currentPlayer?.playerId}
+        intro={uiString(strings, currentStepData.bodyKey)}
+        onClose={handleOK}
+        onSave={() => handleOK()}
+      />
+    );
   }
 
   // Standard render for steps with showModal: true - use StoryModal

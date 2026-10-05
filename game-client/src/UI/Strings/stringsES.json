@@ -1372,7 +1372,7 @@
     "7061": "Necesitarás viajar al Pueblo para desarrollar tus Habilidades. Compra una Llave del Pueblo del Alguacil Elbow. Usa el Poste indicador para viajar.",
     "7062": "¡Buen trabajo! Soy la Pastora, y te ayudaré con tu ✅ Lista de Tareas. Vuelve a verme cuando completes las tareas.",
 
-    "740": "Bienvenido a Elsinore, {username}. Adquiere una Escritura de Propiedad del Alguacil para asegurar tu terreno. ¡Tu aventura comienza!",
+    "740": "Bienvenido a Elsinore. Adquiere una Escritura de Propiedad del Alguacil para asegurar tu terreno. ¡Tu aventura comienza!",
     "741": "Usa A-W-S-D, las flechas o haz clic en una casilla para moverte. HAZ CLIC en Constable Elbow.",
     "741_touch": "Toca una casilla para moverte. Toca a Constable Elbow.",
     "742": "Haz clic en el Poste indicador para viajar a tu nueva Granja.",
@@ -1412,5 +1412,8 @@
     "4092": "Firmar la escritura",
     "4093": "Comprobando...",
     "4094": "Este nombre está libre.",
-    "4095": "Puedes cambiarlo más tarde en el Perfil."
+    "4095": "Puedes cambiarlo más tarde en el Perfil.",
+    "7063": "¡Bienvenido a casa! Un regalo de bienvenida te espera en tu 📬 Buzón.",
+    "7064": "¡Este eres tú! Elige un aspecto para tu aventura. Puedes cambiarlo cuando quieras en tu Perfil.",
+    "7065": "Tus cultivos están creciendo. Vuelve cuando estén listos y no pierdas de vista el Poste: el Tren paga bien por tus productos."
 }

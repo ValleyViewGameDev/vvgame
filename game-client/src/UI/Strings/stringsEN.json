@@ -1425,7 +1425,7 @@
 
     "109": "You'll need a Home Deed from the Constable to claim your Homestead.",
 
-"740": "Welcome to Elsinore, {username}. Acquire a Home Deed from the Constable to secure your land. Your adventure begins!",
+"740": "Welcome to Elsinore. Acquire a Home Deed from the Constable to secure your land. Your adventure begins!",
 "741": "Use A-W-S-D, the arrow keys, or click a tile to move. Click on Constable Elbow.",
 "741_touch": "Tap a tile to move. Tap Constable Elbow.",
 "742": "Click the Signpost to travel to your new Homestead.",
@@ -1455,5 +1455,8 @@
     "4092": "Sign the deed",
     "4093": "Checking...",
     "4094": "This name is free.",
-    "4095": "You can change it later in Profile."
+    "4095": "You can change it later in Profile.",
+    "7063": "Welcome home! A welcome gift is waiting in your 📬 Mailbox.",
+    "7064": "This is you! Pick a look for your adventure. You can change it any time in your Profile.",
+    "7065": "Your crops are growing. Come back when they are ready, and keep an eye on the Signpost: the Train pays well for your goods."
 }

@@ -27,7 +27,7 @@ const iconToSvgMap = new Map();
   });
 });
 
-export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen, inventory, setInventory, backpack, setBackpack }) {
+export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen, inventory, setInventory, backpack, setBackpack, intro }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
   const [isProcessing, setIsProcessing] = useState(false);
   const strings = useStrings();
@@ -111,6 +111,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
       <div className="modal-container modal-medium">
         <button className="modal-close-btn" onClick={onClose}>×</button>
         <div className="modal-title">Choose Your Avatar</div>
+        {intro && <p className="icon-modal-intro">{intro}</p>}
 
         <br />
 
