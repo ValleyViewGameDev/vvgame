@@ -1,0 +1,398 @@
+/* Secrets of Elsinore Analytics dashboard: self-contained dark dev-tool theme,
+   copied from House's tools/analytics (same palette, same classes) so the two
+   dashboards read alike. Not the game client; no shared tokens. */
+:root {
+  --bg: #16130f;
+  --panel: #211c16;
+  --panel-2: #2b251d;
+  --line: #3a3128;
+  --ink: #efe7d8;
+  --ink-dim: #b7ab95;
+  --accent: #d8a657;   /* DAU */
+  --accent-2: #7aa2f7; /* New Users */
+  --good: #8bbf6a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* Column layout so each piece (title, controls, status, tabs) is its own row.
+   This is deliberate: when the controls + status shared a wrapping flex row
+   with the title, a short status ("Loading…") let the controls jump up next to
+   the title for a frame and then drop back when the full status returned -
+   a jarring shift. Stacking rows makes the layout independent of text length. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.topbar h1 { font-size: 1.15rem; margin: 0; letter-spacing: 0.02em; }
+.controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.controls label { font-size: 1rem; color: var(--ink-dim); display: flex; gap: 0.4rem; align-items: center; }
+.controls input[type="date"] {
+  font-size: 1rem;
+  padding: 0.3rem 0.45rem;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color-scheme: dark;
+}
+.quick { display: flex; gap: 0.25rem; }
+.quick button, .apply {
+  font-size: 1rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.controls label.checkbox { cursor: pointer; user-select: none; }
+.controls label.checkbox input[type="checkbox"] {
+  width: 1.1rem; height: 1.1rem; accent-color: var(--accent); cursor: pointer;
+}
+.quick button.active { background: var(--accent); color: #16130f; border-color: var(--accent); }
+.apply { background: var(--accent); color: #16130f; border-color: var(--accent); font-weight: 600; }
+.quick button:hover, .apply:hover { filter: brightness(1.08); }
+.status { font-size: 1rem; color: var(--ink-dim); min-height: 1.2em; }
+.status.error { color: #e06c75; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--line); margin-top: 0.1rem; }
+.tab {
+  font-size: 1rem;
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  color: var(--ink-dim);
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+
+[hidden] { display: none !important; }
+
+main { padding: 1.25rem; max-width: 1100px; margin: 0 auto; }
+.tabpanel { display: flex; flex-direction: column; gap: 1.25rem; }
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem 1.1rem 1.2rem;
+  position: relative;   /* anchor for the top-right .info-dot */
+}
+
+/* Info affordance: a small "i" pinned to a card/metric's top-right corner; its
+   detail shows on hover/focus in a tooltip. Replaces the old inline parenthetical
+   captions so titles stay clean and the detail lives one hover away. */
+.info-dot {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.75rem;
+  z-index: 6;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  font: italic 700 0.8rem/1.15rem Georgia, 'Times New Roman', serif;
+  text-align: center;
+  cursor: help;
+  user-select: none;
+}
+.info-dot:hover, .info-dot:focus { color: var(--ink); border-color: var(--accent); outline: none; }
+.info-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: max-content;
+  max-width: 260px;
+  background: #14110e;
+  color: #efe7d8;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0.55rem 0.7rem;
+  font: 400 0.85rem/1.4 var(--sans, system-ui, sans-serif);
+  font-style: normal;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  pointer-events: none;
+  z-index: 30;
+}
+.info-dot:hover .info-tip, .info-dot:focus .info-tip { opacity: 1; visibility: visible; transform: translateY(0); }
+.card h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+
+/* Source-filter toggle chips (FTUE funnel). A wrap row of small pill buttons;
+   each carries a color dot matching the Source-chart palette. Inactive chips
+   dim; active chips read at full strength with an accent border. */
+.src-toggles { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
+.src-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--panel-2);
+  color: var(--ink-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.src-toggle.active { color: var(--ink); border-color: var(--accent); opacity: 1; }
+.src-toggle:hover { color: var(--ink); }
+.src-toggle .src-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; flex: 0 0 auto; border: 1px solid rgba(0,0,0,.3); }
+
+/* Card header row - title left, an inline control (e.g. the DAU mode
+   toggle) right. Used where a chart needs a control in its corner. */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding-right: 1.7rem;   /* clear the top-right corner for the .info-dot */
+}
+.card-head h2 { margin: 0; }
+
+/* Segmented toggle (Stacked | Overlay). */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; flex: 0 0 auto; }
+.seg button {
+  font-size: 0.9rem;
+  padding: 0.25rem 0.65rem;
+  background: var(--panel-2);
+  color: var(--ink-dim);
+  border: none;
+  cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.active { background: var(--accent); color: #16130f; font-weight: 600; }
+.seg button:hover:not(.active) { color: var(--ink); }
+.card h2 .sub { font-size: 1rem; font-weight: 400; color: var(--ink-dim); }
+.chart-wrap { position: relative; height: 340px; }
+.chart-wrap.small { height: 240px; }
+
+/* Demographics tab - 2×2 grid of small breakdown charts. */
+.demographics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (max-width: 720px) {
+  .demographics-grid { grid-template-columns: 1fr; }
+}
+
+/* Hover popover for username rows. Fixed-positioned so it can escape its
+   parent card; mounted at body level (see #user-popover in index.html).
+   Suppressed pointer events keep it from re-triggering its own hover. */
+.user-popover {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  background: var(--panel-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+  font-size: 1rem;
+  line-height: 1.45;
+  max-width: 22rem;
+}
+.user-popover .pop-title { font-weight: 600; margin-bottom: 0.35rem; color: var(--ink); }
+.user-popover .pop-row   { color: var(--ink-dim); }
+.user-popover .pop-row b { color: var(--ink); font-weight: 500; }
+.users-list li { cursor: default; }  /* signal hover-state without being clickable */
+
+.notes {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  color: var(--ink-dim);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.notes strong { color: var(--ink); display: block; margin-bottom: 0.4rem; }
+.notes ul { margin: 0; padding-left: 1.2rem; }
+.notes b { color: var(--ink); }
+
+/* Users tab - two side-by-side cards (active today | new accounts in range).
+   Collapses to a single column on narrow viewports. align-items: start so a
+   short list doesn't stretch to match a tall neighbor. */
+.users-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+/* Three name columns need more room than two before they turn into slivers,
+   so they collapse to a single column earlier than the rest of the layout. */
+@media (max-width: 1080px) {
+  .users-grid { grid-template-columns: 1fr; }
+}
+
+/* "Ignored by analytics" rows. The reason sits in the row's right-hand slot
+   (where the other two lists put a timestamp) as a small chip. A row that is
+   NOT currently being excluded - a developer while Hide developers is off -
+   dims, so the list reads as "these are the rules" and "these are in force
+   right now" at the same time. */
+.ignored-reason {
+  font-size: 0.85rem;          /* chip annotation, not body text */
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  white-space: nowrap;
+}
+.ignored-reason.r-non-player { border-color: #8a5a2a; color: #d8a657; }
+.ignored-reason.r-abuse-farmer { border-color: #7a3030; color: #e08585; }
+.ignored-reason.r-developer { border-color: #35506a; color: #7fa8d0; }
+.users-list li.ignored-off { opacity: 0.45; }
+.users-list li .icount { color: var(--ink-dim); font-weight: 400; }
+/* Monetization headline metric tiles (numbers, not charts). */
+/* auto-fit (not a fixed count) so a row adapts to however many tiles it holds -
+   Monetization uses 3, Site Traffic 4 - without forking the class. Empty tracks
+   collapse, so the tiles present always share the full width equally. */
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 720px) {
+  .metric-row { grid-template-columns: 1fr; }
+}
+.metric-tile {
+  background: var(--card, #201b17);
+  border: 1px solid var(--line, #3a3128);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  text-align: center;
+  position: relative;   /* anchor for the top-right .info-dot */
+}
+.metric-num { font-size: 2.4rem; font-weight: 700; color: #efe7d8; line-height: 1.1; }
+/* Headline count above the Users-tab pies (matches the green "yes" slice), so
+   those two cards stand about as tall as the DAU-with-Email bar beside them. */
+.pie-metric { font-size: 2rem; font-weight: 700; color: #8bbf6a; line-height: 1.1; text-align: center; margin: 0.1rem 0 0.5rem; }
+.metric-label { margin-top: 0.35rem; font-size: 1rem; color: var(--ink-dim, #b7ab95); }
+.metric-label .sub { font-size: 0.85rem; color: var(--ink-dim, #b7ab95); opacity: 0.8; }
+/* Up/down delta under a metric number (e.g. DAU vs 7 days ago). */
+.metric-delta { margin-top: 0.15rem; font-size: 0.95rem; font-weight: 700; min-height: 1.1em; }
+.metric-delta.up { color: #8bbf6a; }
+.metric-delta.down { color: #e06c75; }
+.metric-delta.flat { color: var(--ink-dim, #b7ab95); font-weight: 400; }
+
+/* Reachability charts row at the top of the Users tab: two account-composition
+   pies (Email on file, Password set) + a wider per-day DAU bar. */
+.users-charts {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(300px, 1.9fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 960px) {
+  .users-charts { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .users-charts { grid-template-columns: 1fr; }
+}
+
+/* Users tab list */
+.users-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.users-list li {
+  font-size: 1rem;
+  padding: 0.55rem 0.8rem;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.users-list li .uname { color: var(--ink); font-weight: 600; }
+.users-list li .deleted { color: var(--ink-dim); font-style: italic; }
+.users-list li .time { color: var(--ink-dim); }
+.users-list li.empty { color: var(--ink-dim); justify-content: flex-start; background: transparent; border: none; }
+
+/* Founder audit table (Engagement tab bottom) - plain data table in the panel
+   palette. .table-wrap scrolls horizontally on narrow screens. */
+.table-wrap { overflow-x: auto; }
+.audit-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.audit-table th, .audit-table td {
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid var(--panel-2);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.audit-table th { color: var(--ink-dim); font-weight: 600; position: sticky; top: 0; background: var(--panel); }
+.audit-table td.num, .audit-table th.num { text-align: right; }
+.audit-table tbody tr:hover { background: var(--panel-2); }
+/* Sortable audit-table headers: click to sort, click again to flip. The active
+   column shows ▲ (asc) / ▼ (desc) via ::after so the label text stays clean. */
+.audit-table th[data-key] { cursor: pointer; user-select: none; }
+.audit-table th[data-key]:hover { color: var(--ink); }
+.audit-table th.sort-asc::after { content: " ▲"; color: var(--accent); }
+.audit-table th.sort-desc::after { content: " ▼"; color: var(--accent); }
+
+/* Realm Mastery table (Engagement tab). Reuses .audit-table for the frame; these
+   only handle the tier grid. A zero is dimmed almost to the background so the
+   handful of non-zero cells are findable at a glance - at current volumes the
+   table is mostly zeros, and undimmed they drown the signal. */
+.audit-table td.tier-zero { color: var(--panel-2); }
+.audit-table td.tier-hit { color: var(--accent); font-weight: 600; }
+/* "Closest" progress on realms nobody has completed - the only signal while
+   completions are near zero, so it reads as data, not as a footnote. */
+.audit-table td.progress { color: var(--ink-dim); }
+.audit-table th.tier-col, .audit-table td.tier-col { text-align: center; min-width: 3.2rem; }
+
+/* One-line caveat under a chart's controls (e.g. the retention Played-mode
+   start date). Dim + small so it reads as a footnote, not a heading. */
+.chart-note {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;      /* footnote annotation, not body text */
+  color: var(--ink-dim);
+  font-style: italic;
+}
+/* A note that qualifies the chart's VALIDITY, not just its contents - e.g. the
+   screen-size sample being forward-only and therefore skewed to the recent part
+   of the range. Lifted out of the dim footnote colour so it is not skimmed past;
+   this is the sentence that stops a biased sample being read as a fact. */
+.chart-note.warn { color: var(--accent); font-style: normal; }
+
+/* ---- VVGame additions ---- */
+/* FTUE filter chip groups (Engagement tab): one labelled row per dimension. */
+.chip-groups { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.85rem; }
+.chip-group { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; }
+.chip-group .chip-label { font-size: 0.85rem; color: var(--ink-dim); min-width: 5.5rem; }
+/* Inline code in notes. */
+.notes code, .chart-note code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; color: var(--ink); }
+/* Excluded-account tag in the season table. */
+.tag { font-size: 0.75rem; padding: 0.05rem 0.4rem; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-dim); margin-left: 0.3rem; }
+/* Players table can be long: cap height and scroll inside the card. */
+#playersTable { font-size: 0.9rem; }
+.table-wrap.tall { max-height: 32rem; overflow: auto; }

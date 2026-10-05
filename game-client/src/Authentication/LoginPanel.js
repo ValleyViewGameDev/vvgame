@@ -9,6 +9,7 @@ import './Authentication.css';
 
 import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
+import { sendPageviewBeacon } from '../Utils/pageviewBeacon';
 
 const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess }) => {
   const strings = useStrings();
@@ -19,6 +20,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
 
   // Play login screen music on mount, stop on unmount
   useEffect(() => {
+    sendPageviewBeacon();   // anonymous landing beacon, once per day (docs/analytics.md)
     soundManager.playTrack('valley1_1.mp3', true);
     return () => {
       soundManager.stop();

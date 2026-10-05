@@ -7,6 +7,31 @@ const Player = require('../models/player'); // Import the Player model
 const Grid = require('../models/grid');
 const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/sendMailboxMessage.js
+const Purchase = require('../models/purchase');
+const { recordPurchase } = require('../utils/analytics');
+
+// Append a row to the purchases ledger (models/purchase.js) and flag the
+// player's activity day. Fire-and-forget: a ledger failure must never block
+// fulfilment. `kind` is 'stripe' when the offer carries a price (every offer in
+// store.json today reaches this route via the Stripe success redirect), else
+// 'store_offer'. NOTE: there is no Stripe webhook; this records that the server
+// fulfilled an offer the client reported as paid. See docs/analytics.md.
+function logPurchase(player, offer) {
+  const rewards = Array.isArray(offer.rewards) ? offer.rewards : [];
+  const gems = rewards.filter((r) => r && r.item === 'Gem').reduce((s, r) => s + (Number(r.qty) || 0), 0);
+  const amountCents = Number(offer.priceInCents) || 0;
+  Purchase.create({
+    playerId: player._id,
+    username: player.username || null,
+    kind: amountCents > 0 ? 'stripe' : 'store_offer',
+    offerId: String(offer.id),
+    title: offer.title || null,
+    gems,
+    amountCents,
+    ts: new Date(),
+  }).catch(() => {});
+  recordPurchase(player._id).catch(() => {});
+}
  
 
 // POST /create-checkout-session
@@ -75,6 +100,7 @@ router.post('/purchase-store-offer', async (req, res) => {
     if (String(offerId) === "1") {
       player.accountStatus = "Gold";
       await player.save();
+      logPurchase(player, offer);   // purchases ledger + analytics day flag (fire-and-forget)
       return res.status(200).json({ success: true, message: "Gold account upgraded." });
     }
 
@@ -82,6 +108,7 @@ router.post('/purchase-store-offer', async (req, res) => {
     const rewards = offer.rewards || [];
     console.log("📨 Sending mailbox message with rewards:", rewards);
     await sendMailboxMessage(playerId, 201, rewards); // 201 = store message template
+    logPurchase(player, offer);   // purchases ledger + analytics day flag (fire-and-forget)
     return res.status(200).json({ success: true, message: "Purchase successful. Reward sent via Mailbox." });
 
   } catch (error) {

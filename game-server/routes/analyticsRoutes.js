@@ -6,6 +6,28 @@ const path = require('path');
 
 // Load FTUE steps configuration
 const FTUEsteps = require('../tuning/FTUEsteps.json');
+const { recordPageview } = require('../utils/analytics');
+
+// POST /api/analytics/pageview  { visitor_id, utm_source, referrer_host, source }
+// Anonymous landing-page beacon from game-client/src/Utils/pageviewBeacon.js:
+// the DENOMINATOR of the dashboard's PageView -> AccountCreation funnel. The
+// endpoint is UNAUTHENTICATED, so everything is validated at the write boundary:
+// recordPageview drops any id that is not UUID-shaped and length-caps the
+// strings, and obvious bot user agents are dropped here. Always answers 204 so
+// the client learns nothing from the response; the write is fire-and-forget.
+const BOT_UA = /bot|crawl|spider|slurp|facebookexternalhit|preview|headless|lighthouse|pingdom|monitor/i;
+router.post('/pageview', (req, res) => {
+  const ua = req.get('user-agent') || '';
+  const body = req.body || {};
+  if (!BOT_UA.test(ua) && body.visitor_id) {
+    recordPageview(body.visitor_id, {
+      utm_source: body.utm_source,
+      referrer_host: body.referrer_host,
+      source: body.source,
+    }).catch(() => {});
+  }
+  res.status(204).end();
+});
 
 // Get daily active users for the last N days
 router.get('/daily-active-users', async (req, res) => {

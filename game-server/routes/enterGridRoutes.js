@@ -14,6 +14,8 @@ const {
   applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, FTUE_KEY,
 } = require('../utils/gridResolver');
 
+const { recordActivity, recordGridEntered } = require('../utils/analytics');
+
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ error: reason, reason, ...extra });
 
 /** Apply the previous grid's NPC positions and the player's last position/hp (docs/phase-3-contract.md §4.2). */
@@ -204,6 +206,9 @@ router.post('/enter-grid', async (req, res) => {
 
     player.lastActive = new Date();
     await player.save();
+    // Analytics (fire-and-forget): day heartbeat + the grids_entered counter.
+    recordActivity(player._id).catch(() => {});
+    recordGridEntered(player._id).catch(() => {});
 
     return res.json({
       grid: buildGridPayload(grid, playerId, { ownerUsername }),

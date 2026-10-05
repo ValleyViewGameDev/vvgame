@@ -18,6 +18,7 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const gridResourceManager = require('../utils/GridResourceManager');
 const gridTileManager = require('../utils/GridTileManager');
 const { isCurrency } = require('../utils/inventoryUtils');
+const { recordPlayed } = require('../utils/analytics');
 
 // Initialize GridResourceManager
 (async () => {
@@ -1174,6 +1175,7 @@ router.post('/crafting/collect-item', async (req, res) => {
     player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
+    recordPlayed(player._id).catch(() => {});   // analytics "played today" flag, fire-and-forget
 
     // Get the updated station resource
     const updatedResources = gridResourceManager.getResources(grid);
@@ -2236,6 +2238,7 @@ router.post('/bulk-harvest', async (req, res) => {
     player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
+    recordPlayed(player._id).catch(() => {});   // analytics "played today" flag, fire-and-forget
 
     res.json({
       success: true,

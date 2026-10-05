@@ -11,6 +11,7 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
+const { recordActivity, recordQuestCompleted } = require('../utils/analytics');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils');
  
@@ -376,6 +377,13 @@ router.post('/update-profile', async (req, res) => {
     const player = await Player.findByIdAndUpdate(playerId, { $set: updates }, { new: true });
     if (!player) {
       return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Analytics: the quest turn-in path (NPCsPanel) writes completedQuests through
+    // this generic route, so a body carrying completedQuests is the "turned in a
+    // quest today" signal. Idempotent per day; fire-and-forget.
+    if (Array.isArray(updates.completedQuests) && updates.completedQuests.length) {
+      recordQuestCompleted(playerId).catch(() => {});
     }
 
     res.json({ success: true, player });
@@ -1354,6 +1362,9 @@ router.post('/update-last-active', async (req, res) => {
     await Player.findByIdAndUpdate(playerId, { 
       lastActive: new Date() 
     });
+    // Analytics heartbeat (fire-and-forget). Id only: this route cannot verify
+    // the id belongs to a real player, so it must never mint a cohort row.
+    recordActivity(playerId).catch(() => {});
     
     res.json({ success: true });
   } catch (error) {
@@ -1720,6 +1731,7 @@ router.post('/player/state', async (req, res) => {
   try {
     const player = await Player.findByIdAndUpdate(playerId, { $set: set }, { new: true, projection: 'location hp maxhp' });
     if (!player) return res.status(404).json({ error: 'Player not found' });
+    recordActivity(playerId).catch(() => {});   // analytics heartbeat, fire-and-forget (id only)
     res.json({ success: true, location: player.location, hp: player.hp, maxhp: player.maxhp });
   } catch (err) {
     console.error('player/state failed:', err);

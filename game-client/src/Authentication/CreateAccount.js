@@ -11,6 +11,7 @@ import '../UI/Buttons/SharedButtons.css';
 import './Authentication.css';
 import '../GameFeatures/FTUE/FTUE.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
+import { gatherClientInfo } from '../Utils/pageviewBeacon';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -216,6 +217,8 @@ const handleCreateAccount = async (e) => {
       os: getOSType(),
       // Device and network diagnostics
       diagnostics,
+      // Acquisition context (utm_*, referrer, surface, visitor_id) for analytics
+      clientInfo: gatherClientInfo(),
     };
 
     console.log('Calling /api/register-new-player with payload:', registerPayload);

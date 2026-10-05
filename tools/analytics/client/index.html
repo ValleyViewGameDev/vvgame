@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secrets of Elsinore Analytics</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Secrets of Elsinore Analytics</h1>
+    <div class="controls">
+      <label>From <input type="date" id="from" /></label>
+      <label>To <input type="date" id="to" /></label>
+      <div class="quick">
+        <button data-days="3">3d</button>
+        <button data-days="7">7d</button>
+        <button data-days="14">14d</button>
+        <button data-days="30" class="active">30d</button>
+        <button data-days="90">90d</button>
+        <button data-days="365">1y</button>
+      </div>
+      <button id="apply" class="apply">Apply</button>
+      <label class="checkbox"><input type="checkbox" id="hideDevs" /> Hide developers</label>
+    </div>
+    <div id="status" class="status"></div>
+    <nav class="tabs">
+      <button class="tab" data-tab="site">Site Traffic</button>
+      <button class="tab active" data-tab="traffic">DAU &amp; Retention</button>
+      <button class="tab" data-tab="users">Users</button>
+      <button class="tab" data-tab="engagement">Engagement</button>
+      <button class="tab" data-tab="events">Events</button>
+      <button class="tab" data-tab="monetization">Monetization</button>
+      <button class="tab" data-tab="demographics">Demographics</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= SITE TRAFFIC ================= -->
+    <div id="tab-site" class="tabpanel" hidden>
+      <!-- PageView -> AccountCreation funnel. Views come from the anonymous
+           landing beacon (analytics_pageview, fired from the login screen);
+           accounts are the same New Users series as the DAU tab. Forward-only:
+           the view series gaps before the first beacon row. -->
+      <p id="site-start-note" class="chart-note warn" hidden></p>
+      <div class="metric-row">
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Every login-screen load yesterday (last complete local day), new and returning visitors alike. The beacon fires once per browser per day from the login screen, so returning players who were logged out count here. The arrow compares to the same weekday 7 days ago.</span></span>
+          <div class="metric-num" id="st-views">-</div>
+          <div class="metric-delta" id="st-views-delta"></div>
+          <div class="metric-label">Pageviews Yesterday</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Visitors seen for the FIRST time ever yesterday: the only people who can create an account, so the honest top of the signup funnel. Anonymous, so Hide Developers cannot filter this side; localhost never beacons.</span></span>
+          <div class="metric-num" id="st-newvis">-</div>
+          <div class="metric-delta" id="st-newvis-delta"></div>
+          <div class="metric-label">New Visitors Yesterday</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Accounts created yesterday (same as the DAU tab's New Users, standard exclusions). The arrow compares to the same weekday 7 days ago.</span></span>
+          <div class="metric-num" id="st-accounts">-</div>
+          <div class="metric-delta" id="st-accounts-delta"></div>
+          <div class="metric-label">Accounts Created Yesterday</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Accounts created yesterday divided by new visitors yesterday. The two populations are not identical (someone who browsed Monday and registered Tuesday is in Tuesday's numerator and Monday's denominator), so it can exceed 100%; the same-day cohort rate on the chart below is bounded. The arrow is the change vs 7 days ago in percentage points.</span></span>
+          <div class="metric-num" id="st-conversion">-</div>
+          <div class="metric-delta" id="st-conversion-delta"></div>
+          <div class="metric-label">Conversion Rate Yesterday</div>
+        </div>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Raw login-screen loads per day, everyone included. Site-traffic volume, not a funnel metric. Hover for the unique-visitor split. Starts at the beacon's first recorded day; earlier days show a gap, not zero.</span></span>
+        <h2>Total pageviews</h2>
+        <div class="chart-wrap"><canvas id="pageviewsChart"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The signup funnel on one axis, so the gap between the lines IS the conversion loss. New visitors = visitors whose first-ever pageview was that day. Accounts created = the New Users series. The dashed line is the subset who signed up the SAME day they first arrived.</span></span>
+        <h2>New visitors &amp; accounts created</h2>
+        <div class="chart-wrap"><canvas id="funnelChart"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Gold = all accounts created that day divided by new visitors that day (can exceed 100%, see the tile). Dashed green = the same-day cohort, bounded by 100%. Cyan = rolling 7-day average of the gold line, pooled over the window so a 1-visitor day cannot dominate. At single-digit daily visitors the gold line swings hugely on one signup; trust the cyan one.</span></span>
+        <h2>Conversion rate (accounts per new visitor)</h2>
+        <div class="chart-wrap"><canvas id="conversionChart"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Visits per day (one per visitor per day) split by origin: the play surface or ?source= tag first, then utm_source on the landing URL, then the referrer host, else Direct / Untagged. Referrers get stripped by iOS, rel=noreferrer links and app-to-app shares, so untagged traffic lands in Direct too; tagging every link you control is what shrinks it. NEW shows first-ever visitors only; ALL adds returning visits.</span></span>
+        <div class="card-head">
+          <h2>Visits by source</h2>
+          <div class="seg" id="visitsrc-mode">
+            <button type="button" data-mode="new" class="active">New visitors</button>
+            <button type="button" data-mode="all">All visits</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="visitSourceChart"></canvas></div>
+      </section>
+    </div>
+
+    <!-- ================= DAU & RETENTION ================= -->
+    <div id="tab-traffic" class="tabpanel">
+      <p id="traffic-start-note" class="chart-note warn" hidden></p>
+      <div class="metric-row">
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">All current accounts in the players collection. Developers and test accounts are dropped when Hide Developers is on.</span></span>
+          <div class="metric-num" id="tm-total-accounts">-</div>
+          <div class="metric-label">Total Accounts</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Distinct players with an activity row on the last complete local day (login, app boot, grid entry or a position save). The arrow compares it to the same weekday 7 days ago.</span></span>
+          <div class="metric-num" id="tm-dau">-</div>
+          <div class="metric-delta" id="tm-dau-delta"></div>
+          <div class="metric-label">DAU Yesterday</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Distinct Gold-tier accounts (accountStatus Gold) active yesterday. The arrow compares it to the same weekday 7 days ago.</span></span>
+          <div class="metric-num" id="tm-subdau">-</div>
+          <div class="metric-delta" id="tm-subdau-delta"></div>
+          <div class="metric-label">Gold DAU Yesterday</div>
+        </div>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Active players per day (DAU, distinct players with an activity row) and new signups. Toggle stacked composition vs. overlay. DAU is recorded by the live server from the deploy that shipped analytics; before that only New Users (backfilled from account creation) exists, so DAU reads as a floor equal to New Users on those days.</span></span>
+        <div class="card-head">
+          <h2>Daily Active &amp; New Users</h2>
+          <div class="seg" id="dau-mode">
+            <button type="button" data-mode="stacked" class="active">Stacked</button>
+            <button type="button" data-mode="overlay">Overlay</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="dauChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Exact-day retention by join-day cohort: the share active on exactly day D+N. OPENED counts any activity row (login, app boot, grid entry, position save), so it measures "came back to the game". PLAYED requires a harvest or craft collection that day. Both are forward-only: cohorts that joined before live recording began report NO DATA (a gap), never a zero. Toggle sources to restrict WHO is in the cohort; the lines stay one per lag.</span></span>
+        <div class="card-head">
+          <h2>Retention by Cohort: D1 / D3 / D7 / D30</h2>
+          <div class="seg" id="retention-mode">
+            <button type="button" data-mode="opened" class="active">Opened</button>
+            <button type="button" data-mode="played">Played</button>
+          </div>
+        </div>
+        <div id="retention-src-toggles" class="src-toggles retention-src-toggles"></div>
+        <p id="retention-mode-note" class="chart-note" hidden></p>
+        <div class="chart-wrap"><canvas id="retentionChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The settled all-time view: on each day, the average D1/D3/D7/D30 across EVERY cohort from the beginning through that day. Pooled (total returners divided by total cohort size), so a 3-person cohort cannot swing it like a 300-person one. A cohort joins a lag's average only once that lag has matured. Hover shows each lag's own sample size. Respects the source filter above.</span></span>
+        <h2>Avg. Retention: All Cohorts</h2>
+        <div class="src-toggles retention-src-toggles"></div>
+        <div class="chart-wrap"><canvas id="retentionAvgChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The trend-sensitive view: the same pooled average over only the most recent cohorts (window length in the title). Old cohorts drop out, so this actually MOVES when something changes. Each line stops once no new cohort can still enter its pool (D1 two days back, D7 eight, D30 thirty-one); do not read a crossover near the right edge as behaviour.</span></span>
+        <h2 id="retention-rolling-title">Retention: Rolling Avg.</h2>
+        <div class="src-toggles retention-src-toggles"></div>
+        <div class="chart-wrap"><canvas id="retentionRollingChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Players per day by acquisition source (client_info captured at signup: in-app browser or ?source= tag, then utm_source, then referrer host). Every account created before acquisition capture shipped reads as Unknown. Toggle All / New / Returning users.</span></span>
+        <div class="card-head">
+          <h2>Source</h2>
+          <div class="seg" id="source-mode">
+            <button type="button" data-mode="all" class="active">All Users</button>
+            <button type="button" data-mode="new">New Users</button>
+            <button type="button" data-mode="returning">Returning Users</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="sourceChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The same per-day source breakdown drawn as one line per source, so individual source trends are directly comparable. Follows the All / New / Returning toggle above.</span></span>
+        <h2>Source trend</h2>
+        <div class="chart-wrap"><canvas id="sourceLineChart"></canvas></div>
+      </section>
+
+      <section class="notes">
+        <strong>Reading these charts</strong>
+        <ul>
+          <li><b>New Users</b> has history (backfilled from each account's creation date by
+            <code>backfill-firstseen.js</code>), but only for accounts not yet deleted at backfill time.</li>
+          <li><b>DAU</b> before the recording deploy is a <i>known floor</i>: it counts only account signups
+            (so it equals New Users on those days). Returning visits were never recorded historically;
+            <code>players.lastActive</code> is one overwritten timestamp (see "Players last seen" on Engagement).</li>
+          <li><b>Retention</b> is <i>n/a</i> (a gap in the line) for a cohort until day D+N has passed, and for any
+            cohort that joined before <i>live</i> activity recording began.</li>
+          <li><b>Source</b> is Unknown for every account created before acquisition capture shipped.</li>
+        </ul>
+      </section>
+    </div>
+
+    <!-- ================= USERS ================= -->
+    <div id="tab-users" class="tabpanel" hidden>
+      <div class="users-grid">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Players with an activity row today (your local day). A leaf marks a player who harvested or crafted today. Hover a name for its account detail.</span></span>
+          <h2 id="users-title">Today's active users</h2>
+          <ul id="users-list" class="users-list"></ul>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Accounts this dashboard drops from EVERY number on every tab. One row per username; the count shows how many accounts wear that name. "developer" rows (tuning/developerUsernames.json or isDeveloper on the doc) are only excluded while Hide developers is ticked, and show greyed when it is off. "no account" is a configured name nobody has registered.</span></span>
+          <h2 id="ignored-title">Ignored by analytics</h2>
+          <ul id="ignored-list" class="users-list"></ul>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Accounts created within the selected From / To range (first-seen registry, so deleted accounts still appear, marked with a bin).</span></span>
+          <h2 id="accounts-title">All new accounts</h2>
+          <ul id="accounts-list" class="users-list"></ul>
+        </section>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Every current account (live players collection, capped at 2000), most recently active first. Level is derived from xp with the client's own rule. Home Deed = settlementId set (bought from Constable Elbow). FTUE = current step, or Done. Click a header to sort; click again to flip. Ignores the date range.</span></span>
+        <h2 id="players-title">Players</h2>
+        <div class="table-wrap"><table class="audit-table" id="playersTable"><thead>
+          <tr>
+            <th data-key="username" data-type="str">Username</th>
+            <th data-key="created_at" data-type="num">Created</th>
+            <th data-key="last_active" data-type="num">Last active</th>
+            <th data-key="level" data-type="num" class="num">Level</th>
+            <th data-key="xp" data-type="num" class="num">XP</th>
+            <th data-key="net_worth" data-type="num" class="num">Net worth</th>
+            <th data-key="ftue_sort" data-type="num">FTUE</th>
+            <th data-key="home_deed" data-type="num">Home Deed</th>
+            <th data-key="subscribed" data-type="num">Gold</th>
+            <th data-key="language" data-type="str">Lang</th>
+            <th data-key="source" data-type="str">Source</th>
+          </tr>
+        </thead><tbody></tbody></table></div>
+      </section>
+    </div>
+
+    <!-- ================= ENGAGEMENT ================= -->
+    <div id="tab-engagement" class="tabpanel" hidden>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The retired editor's "Daily Active Users" chart, under its honest name. Gold bars = players whose players.lastActive (ONE overwritten timestamp per player) falls on that day, i.e. players whose MOST RECENT visit was that day: a floor on activity, but the only signal that exists for days before the recording deploy. Blue line = real DAU from analytics_activity, which starts at the deploy. Where both exist the line should sit on or above the bars.</span></span>
+        <h2>Players last seen per day (legacy) vs DAU</h2>
+        <div class="chart-wrap"><canvas id="lastSeenChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the players active each day (DAU), the share who PLAYED (a harvest or craft collection), turned in a quest, or bought something; plus grid entries per active player. All from analytics_activity, so forward-only: days before the first live row are a gap, not 0%.</span></span>
+        <h2>What active players did</h2>
+        <p id="flags-note" class="chart-note" hidden></p>
+        <div class="chart-wrap"><canvas id="flagsChart"></canvas></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The retired editor's FTUE drop-off chart, re-implemented against the players collection. Cohort = accounts CREATED in the range (standard exclusions). Each bar = the share that reached AT LEAST that step (ftuestep, from tuning/FTUEsteps.json), ending with Completed (firsttimeuser false). A legacy account with no step counter and firsttimeuser false counts as completed, as the old route did. The chips filter the cohort client-side (OS / browser / timezone / language / aspiration), and the table below lists the filtered players.</span></span>
+        <h2 id="ftue-funnel-title">FTUE funnel</h2>
+        <div id="ftue-filters"></div>
+        <div class="chart-wrap"><canvas id="ftueFunnelChart"></canvas></div>
+        <div class="table-wrap"><table class="audit-table" id="ftueTable"><thead>
+          <tr><th>Username</th><th>FTUE</th><th>Step</th><th>Aspiration</th><th>Home Deed</th><th>Lang</th><th>OS</th><th>Browser</th><th>Timezone</th><th>Registered</th><th>Last active</th></tr>
+        </thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Bars = Home Deeds bought per day, from the Homesteader trophy's timestamp (awarded at purchase; a season reset can clear trophies, so this is a floor). Line (right axis) = of the accounts CREATED that day, the share that holds a deed today (settlementId set, no timestamp, so it is attributed to the signup day). Lifetime share in the title.</span></span>
+        <h2 id="home-deed-title">Home Deed bought</h2>
+        <div class="chart-wrap"><canvas id="homeDeedChart"></canvas></div>
+      </section>
+
+      <div class="demographics-grid">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Quests turned in per day (completedQuests[].timestamp, written by the client at turn-in) and the distinct players who turned one in. Entries without a timestamp are skipped, never bucketed to a fake day. Has history: the timestamps predate the dashboard.</span></span>
+          <h2>Quests completed per day</h2>
+          <div class="chart-wrap small"><canvas id="questsChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The most-turned-in quests in the range (top 15).</span></span>
+          <h2>Top quests</h2>
+          <div class="chart-wrap small"><canvas id="questsTopChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Trophies earned per day (trophies[].timestamp). Progress trophies count once, when first earned. Has history.</span></span>
+          <h2>Trophies earned per day</h2>
+          <div class="chart-wrap small"><canvas id="trophiesChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The most-earned trophies in the range (top 15).</span></span>
+          <h2>Top trophies</h2>
+          <div class="chart-wrap small"><canvas id="trophiesTopChart"></canvas></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">LIFETIME, not date-ranged: gridsVisited is a 512-byte bitfield with no timestamps. Each bar = players who have visited that many distinct grids (popcount of the bitfield). A 4096 means a developer used set-all-grids-visited.</span></span>
+        <h2 id="grids-title">Grids visited per player</h2>
+        <div class="chart-wrap"><canvas id="gridsChart"></canvas></div>
+      </section>
+    </div>
+
+    <!-- ================= EVENTS ================= -->
+    <div id="tab-events" class="tabpanel" hidden>
+      <section class="notes">
+        <strong>Events</strong> are the settlement-wide systems the schedulers run: the Train, the Carnival, Mayor elections
+        and the seasons with their net-worth leaderboard. These read the logs the game already keeps on
+        <code>settlements</code> and <code>frontiers</code>, so they have history.
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Per day across all settlements: Train and Carnival departures (log rows whose status is not "Next"/"Current"), how many of those had every offer filled, and the total winners the game logged (players who filled their share). "Winners" is the game's count, not distinct players across events. Elections = election log rows that day. Not dev-filtered: the logs name no player ids.</span></span>
+        <h2 id="settlement-events-title">Train &amp; Carnival</h2>
+        <div class="chart-wrap"><canvas id="settlementEventsChart"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">frontiers.seasonlog: one row per finished season, newest first, with the top three by net worth, the winning settlement, and how many players were relocated by the reset. Not date-ranged (a season is about three months). A winner marked with a tag is an account the dashboard excludes elsewhere (developer or test).</span></span>
+        <h2 id="season-log-title">Season leaderboard</h2>
+        <p id="season-current" class="chart-note"></p>
+        <div class="table-wrap"><table class="audit-table" id="seasonTable"><thead>
+          <tr><th>Season</th><th>Ended</th><th>Winner</th><th class="num">Net worth</th><th>2nd</th><th>3rd</th><th>Winning settlement</th><th class="num">Relocated</th></tr>
+        </thead><tbody></tbody></table></div>
+      </section>
+    </div>
+
+    <!-- ================= MONETIZATION ================= -->
+    <div id="tab-monetization" class="tabpanel" hidden>
+      <p id="mon-start-note" class="chart-note warn" hidden></p>
+      <div class="metric-row">
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Current accounts on the Gold tier (accountStatus Gold, set by the Gold Pass purchase). There is no end date or churn signal on the account; a Gold account stays Gold.</span></span>
+          <div class="metric-num" id="metric-gold">-</div>
+          <div class="metric-label">Gold Accounts</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Sum of offer prices (store.json priceInCents at purchase time) over the whole purchases ledger. The ledger starts with the recording deploy; purchases before it were never recorded. Not Stripe-verified: a row means the server fulfilled an offer the client reported as paid.</span></span>
+          <div class="metric-num" id="metric-revenue">-</div>
+          <div class="metric-label">Lifetime Revenue (ledger)</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Rows in the purchases ledger, all time, and the distinct accounts behind them.</span></span>
+          <div class="metric-num" id="metric-purchases">-</div>
+          <div class="metric-label" id="metric-purchases-label">Lifetime Purchases</div>
+        </div>
+        <div class="metric-tile">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Purchases and revenue on the last complete local day.</span></span>
+          <div class="metric-num" id="metric-yesterday">-</div>
+          <div class="metric-label" id="metric-yesterday-label">Yesterday</div>
+        </div>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Bars = revenue per day in dollars (offer price at purchase time); line (right axis) = purchases that day. Hover for distinct buyers and gems sold. Forward-only from the ledger's first row.</span></span>
+        <h2>Revenue &amp; purchases per day</h2>
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+      </section>
+      <div class="demographics-grid">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Purchases in the range by store offer (title from tuning/store.json), with revenue in the tooltip.</span></span>
+          <h2>Purchases by offer</h2>
+          <div class="chart-wrap small"><canvas id="offersChart"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the accounts that are Gold TODAY, the share active each day. accountStatus carries no start date, so the base is today's Gold set on every day (a Gold account's pre-purchase activity counts). A day with no Gold base breaks the line.</span></span>
+          <h2>% of Gold accounts active</h2>
+          <div class="chart-wrap small"><canvas id="subActivePctChart"></canvas></div>
+        </section>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Gold accounts active per day. New = Gold Pass purchases (offer 1) in the ledger that day. Toggle stacked vs. overlay.</span></span>
+        <div class="card-head">
+          <h2>Gold DAU</h2>
+          <div class="seg" id="subdau-mode">
+            <button type="button" data-mode="stacked" class="active">Stacked</button>
+            <button type="button" data-mode="overlay">Overlay</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="subDauChart"></canvas></div>
+      </section>
+    </div>
+
+    <!-- ================= DEMOGRAPHICS ================= -->
+    <div id="tab-demographics" class="tabpanel" hidden>
+      <p id="demo-note" class="chart-note"></p>
+      <div class="demographics-grid">
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Share of new accounts in the selected range by device (ftueFeedback.isMobile, captured at signup), stacked by acquisition source (client_info; Unknown for accounts created before capture shipped).</span></span><h2>Device</h2><div class="chart-wrap small"><canvas id="demoDevice"></canvas></div></section>
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Share of new accounts in the selected range by operating system (ftueFeedback.os).</span></span><h2>OS</h2><div class="chart-wrap small"><canvas id="demoOs"></canvas></div></section>
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Share of new accounts in the selected range by browser (ftueFeedback.browser).</span></span><h2>Browser</h2><div class="chart-wrap small"><canvas id="demoBrowser"></canvas></div></section>
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Browser share among mobile signups only.</span></span><h2>Browser (mobile)</h2><div class="chart-wrap small"><canvas id="demoBrowserMobile"></canvas></div></section>
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Browser share among desktop signups only.</span></span><h2>Browser (desktop)</h2><div class="chart-wrap small"><canvas id="demoBrowserDesktop"></canvas></div></section>
+        <section class="card"><span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Network quality reported at signup (navigator.connection.effectiveType: 4g / 3g / 2g / slow-2g; Unknown on browsers that do not expose it, i.e. Safari).</span></span><h2>Connection at signup</h2><div class="chart-wrap small"><canvas id="demoConnection"></canvas></div></section>
+      </div>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Mobile signups in the range by logical screen size (ftueFeedback.screenWidth x screenHeight, portrait-normalised). Accounts without a measurement are left out of the bars and reported in the note.</span></span>
+        <h2>Mobile screen size</h2>
+        <p id="demoScreenNote" class="chart-note"></p>
+        <div class="chart-wrap"><canvas id="demoScreen"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">VVGame has no geo-IP, so the browser timezone captured at signup (ftueFeedback.timezone) stands in for country. % of new accounts in the range.</span></span>
+        <h2>Timezone: new accounts</h2>
+        <div class="chart-wrap"><canvas id="demoTimezone"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">% of yesterday's active users (the previous full local day, independent of the From / To range) by signup timezone. <span id="demoTzDauSub"></span></span></span>
+        <h2>Timezone: DAU yesterday</h2>
+        <div class="chart-wrap"><canvas id="demoTimezoneDau"></canvas></div>
+      </section>
+      <div class="demographics-grid">
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Each day is 100% of active players, split by UI language (players.language). Forward-only with DAU.</span></span>
+          <h2>Language share of DAU</h2>
+          <div class="chart-wrap small"><canvas id="demoLanguage"></canvas></div>
+        </section>
+        <section class="card">
+          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">All current accounts by UI language. Has full history (it is the live players collection).</span></span>
+          <h2>Language: all accounts</h2>
+          <div class="chart-wrap small"><canvas id="demoLanguagePie"></canvas></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Single shared hover popover, positioned via JS on mouseenter of any
+       username row in the Users tab. See showUserPopover() in app.js. -->
+  <div id="user-popover" class="user-popover" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

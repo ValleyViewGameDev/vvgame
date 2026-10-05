@@ -13,6 +13,7 @@ const starterAccountPath = path.resolve(__dirname, '../tuning/starterAccount.jso
 const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
+const { recordActivity, ensurePageview, sanitizeClientInfo } = require('../utils/analytics');
 
 
 // POST /register-new-player
@@ -22,6 +23,10 @@ const { sendNewUserEmail } = require('../utils/emailUtils.js');
 router.post('/register-new-player', async (req, res) => {
   const { username, password, language, frontierId, browser, os, diagnostics } = req.body;
   console.log('POST /register-new-player:', { username, frontierId, browser, os, diagnostics });
+  // Optional acquisition context from the client beacon (Utils/pageviewBeacon.js):
+  // { visitor_id, surface, acquisition: { utm_source, utm_medium, utm_campaign,
+  // referrer_host, landing_path } }. Older clients send nothing -> stays null.
+  const clientInfo = sanitizeClientInfo(req.body.clientInfo || req.body.acquisition || null);
 
   if (!username || !password || !language || !frontierId) {
     return res.status(400).json({ error: 'Missing required fields for registration.' });
@@ -143,9 +148,22 @@ router.post('/register-new-player', async (req, res) => {
       // gridId and settlementId are NOT set - they'll be set when player buys Home Deed
       frontierId,
       settings,
+      client_info: clientInfo,
     });
 
     await newPlayer.save();
+
+    // Analytics (fire-and-forget, never awaited): cohort row + day-0 activity, and
+    // make sure the visitor's pageview exists so the Site Traffic funnel's
+    // numerator never outruns its denominator. See docs/analytics.md.
+    recordActivity(newPlayer._id, { username: newPlayer.username }).catch(() => {});
+    if (clientInfo && clientInfo.visitor_id) {
+      ensurePageview(clientInfo.visitor_id, {
+        utm_source: clientInfo.acquisition.utm_source,
+        referrer_host: clientInfo.acquisition.referrer_host,
+        source: clientInfo.surface,
+      }).catch(() => {});
+    }
 
     newPlayer.playerId = newPlayer._id;
     await newPlayer.save();
@@ -194,6 +212,9 @@ router.post('/login', async (req, res) => {
     await Player.findByIdAndUpdate(player._id, { 
       lastActive: new Date() 
     });
+    // Analytics heartbeat (fire-and-forget). Login holds the player doc, so it
+    // is one of the two call sites allowed to stamp the username (docs/analytics.md).
+    recordActivity(player._id, { username: player.username }).catch(() => {});
 
     // Respond with player details (excluding password)
     return res.status(200).json({

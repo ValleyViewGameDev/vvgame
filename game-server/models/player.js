@@ -288,6 +288,29 @@ playerSchema.add({
   lastActive: { type: Date, default: Date.now }
 });
 
+// Acquisition + visit context captured ONCE at register (routes/auth.js), from the
+// optional `clientInfo` object the client sends. Null for every account created
+// before this shipped and for clients that send nothing. Read by the analytics
+// dashboard's Source charts (tools/analytics/) and joined to analytics_pageview
+// through visitor_id. Device/browser/OS live in ftueFeedback, not here.
+playerSchema.add({
+  client_info: {
+    type: new mongoose.Schema({
+      visitor_id: { type: String, default: null },   // anonymous UUID minted by the client beacon
+      surface: { type: String, default: null },      // 'web' | 'facebook in-app' | a ?source= tag
+      acquisition: {
+        utm_source: { type: String, default: null },
+        utm_medium: { type: String, default: null },
+        utm_campaign: { type: String, default: null },
+        referrer_host: { type: String, default: null },
+        landing_path: { type: String, default: null },
+      },
+      captured_at: { type: Date, default: null },
+    }, { _id: false }),
+    default: null,
+  },
+});
+
 // Add transaction state tracking for preventing duplicate transactions
 playerSchema.add({
   activeTransactions: {
