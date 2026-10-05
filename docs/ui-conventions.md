@@ -114,9 +114,15 @@ value rather than trust this page.
 - The status bar sits directly under the header and the board under it; nothing else
   scrolls (the document is kept 1 px taller than the viewport so a board tap can nudge
   Safari's bars away).
-- Notifications are dismissable by tap, auto-dismiss after 5 s unless their type is in the
-  persistent list (`UI/Notifications/Notifications.js`), span the width above the zoom buttons
-  on phones, z-index 1500.
+- Notifications (toasts) drop down from behind the header and status bar, centred, and slide
+  back up the same way on dismiss (`toastIn`/`toastOut` in `UI/Notifications/Notifications.css`;
+  the component adds `notification-exiting` and unmounts after the exit). The container is
+  fixed at the status bar's bottom edge (`--d-top` / `--m-top`) with `overflow: hidden`, so
+  the slide is clipped at that edge and the toast appears to come out from behind the chrome;
+  z-index 985: above the zoom pill (980 on phones) but below every panel (990), the status
+  bar and the header, so a toast never competes with a panel. Tap to dismiss;
+  auto-dismiss after 4.6 s unless the type is in the persistent list. Phones only change the
+  width (nearly full width, 440 px cap). Dev hook: `window.__showNotification(type, data)`.
 - Landscape phones keep `env(safe-area-inset-left)` clear with a black strip (iPhone camera
   housing); `viewport-fit=cover` supplies the inset.
 

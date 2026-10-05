@@ -14,28 +14,31 @@ const PERSISTENT_NOTIFICATION_TYPES = ['To Do', 'FTUE', 'Message'];
 /**
  * Generic notification component
  */
+const EXIT_MS = 350;      // slide back up behind the header (Notifications.css toastOut)
+const AUTO_DISMISS_MS = 4600;
+
 function Notification({ type, data, onDismiss, onClick }) {
     const strings = useStrings();
-    
-    // Add unmount detection
+    const [exiting, setExiting] = React.useState(false);
+    const exitTimer = React.useRef(null);
+
+    // Play the slide-out, then unmount
+    const dismiss = React.useCallback(() => {
+        if (exitTimer.current) return;
+        setExiting(true);
+        exitTimer.current = setTimeout(onDismiss, EXIT_MS);
+    }, [onDismiss]);
+
+    React.useEffect(() => () => { if (exitTimer.current) clearTimeout(exitTimer.current); }, []);
+
     React.useEffect(() => {
-        return () => {
-        };
-    }, []);
-    
-    React.useEffect(() => {
-        // Auto-dismiss after 5 seconds (except for persistent notification types)
+        // Auto-dismiss (except for persistent notification types)
         if (!PERSISTENT_NOTIFICATION_TYPES.includes(type)) {
-            const timer = setTimeout(() => {
-                onDismiss();
-            }, 5000);
-            
-            return () => {
-                clearTimeout(timer);
-            };
-        } else {
+            const timer = setTimeout(dismiss, AUTO_DISMISS_MS);
+            return () => clearTimeout(timer);
         }
-        // Remove onDismiss from dependencies to prevent re-running effect
+        return undefined;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [type]);
     
     // Helper function to replace {username} placeholder in text
@@ -161,13 +164,13 @@ function Notification({ type, data, onDismiss, onClick }) {
     
     // Add persistent class for notifications that shouldn't auto-dismiss
     const isPersistent = PERSISTENT_NOTIFICATION_TYPES.includes(type);
-    const className = `notification ${isPersistent ? 'notification-persistent' : ''}`;
+    const className = `notification ${isPersistent ? 'notification-persistent' : ''} ${exiting ? 'notification-exiting' : ''}`;
     
     return (
         <div className={className} onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
             <button className="notification-dismiss" onClick={(e) => {
                 e.stopPropagation();
-                onDismiss();
+                dismiss();
             }}>×</button>
             <div className="notification-content">
                 {renderContent()}
@@ -236,3 +239,5 @@ export function showNotification(type, data, onClick = null) {
         />
     );
 }
+
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') window.__showNotification = showNotification; // dev hook

@@ -22,7 +22,7 @@
      SAFE AREA          landscape keeps env(safe-area-inset-left) clear (iPhone camera
                         housing) with a black strip; viewport-fit=cover supplies the inset.
      ALSO               base panel hidden (Home sheet instead), modals centred with side buffers, notifications
-                        span the width above the zoom buttons, Ko-fi hidden.
+                        drop down from behind the header (nearly full width), Ko-fi hidden.
 
    Geometry flows through the --m-* custom properties: each orientation sets the header
    height and the pill's reserve, the shared block derives the board, status bar, panel box
@@ -349,21 +349,16 @@
   body .modal-overlay .modal-container.modal-small { max-height: 60vh; }
   body .modal-overlay .modal-container.story-modal.modal-small { max-height: 80vh; max-height: 80dvh; }
 
-  /* ---------- notifications: full width, above the zoom buttons ---------- */
-  #notification-container { top: calc(var(--m-top) + 8px); left: var(--m-safe-left); z-index: 1500; }
+  /* ---------- notifications: same drop-down toast from behind the header, nearly full width ---------- */
+  #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
   .notification,
   .notification.notification-persistent {
-    left: 8px !important;
-    right: 8px;
+    width: calc(100% - 16px);
+    max-width: 440px;
     min-width: 0;
-    max-width: none;
     padding: 10px 28px 10px 14px; /* room for the dismiss button */
-    animation: mobileNotificationIn 0.4s ease-out forwards, mobileNotificationOut 0.6s ease-out 4.4s forwards;
   }
-  .notification.notification-persistent { animation: mobileNotificationIn 0.4s ease-out forwards; }
   .notification-dismiss { width: 28px; height: 28px; font-size: 24px; top: 4px; right: 4px; }
-  @keyframes mobileNotificationIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-  @keyframes mobileNotificationOut { from { opacity: 1; } to { opacity: 0; } }
 
   /* ---------- login / key art ---------- */
   .keyart-wrapper { left: var(--m-safe-left); top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
