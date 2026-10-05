@@ -210,6 +210,21 @@ settlement event participation from the settlement logs. Owner to add the rest.
   dropped it the same way). Grid type for templates is a toolbar select, or `?type=` on the
   route from the World tab.
 
+- **2026-10-05, slices 3-5 (live tabs, analytics, retirement).** World, Atlas, Dungeons, Events,
+  Players and Feedback ported at parity over the proxy, with these corrections to the Electron
+  behaviour: World maps town/homestead loads to their real layout directories (the old code
+  pushed every grid to `valleyFixedCoord/`), both World and Atlas derive the frontier's 3-digit
+  coord prefix from its settlements instead of hard-coding `101`, bulk create/reset act on the
+  eligible subset of a selection, Dungeons refuses to create without a frontier (the old code
+  sent `'global'` and 500'd), Events edits phase durations in the local globalTuning.json
+  (minutes, as the scheduler reads them) and only shows the live server's values, Players'
+  "Delete Unstarted" uses the 7 days its code always used. `core/world.js` is the shared
+  frontier/settlement cache. The proxy takes `--dev-player-id` so the editor passes the
+  maintenance gate. Analytics as designed; `config/database.js` turned out to be dead
+  (Mongoose 5 options), so the tools connect with `mongoose.connect` like server.js; the Stripe
+  success path is client-side, so `/purchase-store-offer` is the single ledger point (webhook =
+  TODO in docs/analytics.md). `game-editor/` deleted, with its `.env` credential and builds.
+
 ## 4. Delivery slices (each a commit, each runnable)
 
 1. **Skeleton + sheets.** Editor server, client shell, core modules, the sheet engine and the
