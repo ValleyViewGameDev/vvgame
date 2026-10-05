@@ -1,19 +1,19 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import { gatherClientInfo, sendPageviewBeacon } from '../Utils/pageviewBeacon';
+import { gatherClientInfo } from '../Utils/pageviewBeacon';
 import { getBrowserType, getOSType, getDiagnostics } from '../Utils/clientDiagnostics';
 import { detectLanguage } from '../Utils/detectLanguage';
 
 const FRONTIER_NAME = 'Valley View 1';
 
 /**
- * Silent account (docs/onboarding-plan.md §4.2): a visitor with no session gets a profile the
- * moment the game loads, with a generated name, no password and the detected language, and
- * lands in their own tutorial cave. The name is asked for when they sign the Home Deed.
- * Returns the player record, already stored in localStorage and set as the x-player-id header.
+ * Silent account (docs/onboarding-plan.md §4.2): a visitor with no session gets a profile when
+ * they tap Begin (UI/Modals/BeginModal.js; a bare page load never creates one), with a generated
+ * name, no password and the detected language, and lands in their own tutorial cave. The name is
+ * asked for when they sign the Home Deed. Returns the player record, already stored in
+ * localStorage and set as the x-player-id header.
  */
 export async function createSilentAccount() {
-  sendPageviewBeacon(); // the landing beacon used to fire when the login panel mounted
   const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, { params: { name: FRONTIER_NAME } });
   const frontier = frontierResponse.data?.[0];
   if (!frontier) throw new Error('Frontier not found');

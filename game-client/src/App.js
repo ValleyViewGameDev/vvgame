@@ -136,6 +136,8 @@ import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { createSilentAccount } from './Authentication/silentAccount';
+import BeginModal from './UI/Modals/BeginModal';
+import { sendPageviewBeacon } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -884,6 +886,7 @@ useEffect(() => {
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const signinMode = useRef(false); // true when the login panel is the deliberate path (logout, ?signin=1)
 const [isSilentCreating, setIsSilentCreating] = useState(false); // a new visitor's account is being made
+const [showBegin, setShowBegin] = useState(false); // new visitor: key art + the Begin modal until they tap
 // `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
 // there is no live session, then drop the parameters. Skipped in in-app browsers, where the
 // session would not survive anyway and the prompt only confuses.
@@ -1182,22 +1185,14 @@ useEffect(() => {
           setShowKeyArt(true);
           return;
         }
-        // New visitor: no first screen at all. Make the silent account and land in the cave
-        // (docs/onboarding-plan.md §4.2); the name is asked for at the Home Deed.
-        console.log('No stored player: creating a silent account...');
-        setIsSilentCreating(true);
-        try {
-          const silentPlayer = await createSilentAccount();
-          storedPlayer = JSON.stringify(silentPlayer);
-        } catch (err) {
-          console.error('Silent account creation failed, falling back to the login panel:', err);
-          setIsSilentCreating(false);
-          signinMode.current = true;
-          setisLoginPanelOpen(true);
-          openPanel("LoginPanel");
-          setShowKeyArt(true);
-          return;
-        }
+        // New visitor: the key art and one Begin button (docs/onboarding-plan.md §4.1). The silent
+        // account is made when they tap it (handleBegin), never by the page load itself, so a
+        // refresh or a bot never spams accounts. The name is asked for at the Home Deed.
+        console.log('No stored player: showing the Begin gate.');
+        sendPageviewBeacon(); // anonymous landing beacon, once per day (docs/analytics.md)
+        setShowKeyArt(true);
+        setShowBegin(true);
+        return;
       }
 
       // Start fade-to-black for logged-in players ONLY
@@ -2850,6 +2845,29 @@ const handleLogout = () => {
   console.log('Player has logged out, and state has been reset.');
 };
 
+// Begin gate: make the silent account, then boot as that player (one reload, like a typed signup).
+const handleBegin = async () => {
+  setIsSilentCreating(true);
+  try {
+    await createSilentAccount();
+    window.location.reload();
+  } catch (err) {
+    console.error('Silent account creation failed, falling back to the login panel:', err);
+    setIsSilentCreating(false);
+    setShowBegin(false);
+    signinMode.current = true;
+    setisLoginPanelOpen(true);
+    openPanel("LoginPanel");
+    throw err;
+  }
+};
+const handleBeginSignIn = () => {
+  setShowBegin(false);
+  signinMode.current = true;
+  setisLoginPanelOpen(true);
+  openPanel("LoginPanel");
+};
+
 const handleLoginSuccess = async (player) => {
   console.log('Handling login success for player:', player);  // Store player data in localStorage
   localStorage.setItem('player', JSON.stringify(player));  // Reload the app (triggers full initialization)
@@ -3697,6 +3715,7 @@ return (
         isDeveloper={isDeveloper}
        />
       )}
+      {showBegin && <BeginModal onBegin={handleBegin} onSignIn={handleBeginSignIn} />}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
           onClose={closePanel}

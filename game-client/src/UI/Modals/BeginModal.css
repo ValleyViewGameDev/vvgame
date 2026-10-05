@@ -1,0 +1,6 @@
+/* BeginModal: the single Begin tap over the key art for a new visitor (docs/ui-conventions.md, Modals) */
+.begin-modal .modal-close-btn { display: none; } /* not dismissable: Begin or sign in */
+.begin-modal .modal-content { text-align: center; padding: 6px 0 2px; }
+.begin-modal .begin-button { font-size: 20px; min-width: 180px; }
+.begin-modal .begin-signin { margin: 14px 0 0; font-size: 13px; }
+.begin-modal .begin-signin a { color: var(--color-text-secondary); text-decoration: underline; }
