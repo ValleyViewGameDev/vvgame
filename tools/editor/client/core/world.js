@@ -43,10 +43,29 @@ export function settlementsOf(world, frontierId) {
   return (world?.settlements || []).filter((s) => idOf(s.frontierId) === String(frontierId));
 }
 
-/** Map gridCoord -> grid cell enriched with its settlement. Cells carry gridId, gridType, region, available. */
+/**
+ * A settlement is closed when it is a homestead settlement whose frontier entry says
+ * `available: false` (the four corners today); the game never shows its grids, so neither
+ * does the editor, even though the database still holds them. Same rule as the client's
+ * PixiRendererFrontierSettlements.isClosedSettlement (docs/phase-3-contract.md).
+ */
+export function closedSettlementIds(world, frontierId) {
+  const frontier = (world?.frontiers || []).find((f) => idOf(f._id) === String(frontierId));
+  const closed = new Set();
+  for (const row of Array.isArray(frontier?.settlements) ? frontier.settlements : []) {
+    for (const e of Array.isArray(row) ? row : []) {
+      if (e && typeof e.settlementType === 'string' && e.settlementType.startsWith('homestead') && e.available === false) closed.add(idOf(e.settlementId));
+    }
+  }
+  return closed;
+}
+
+/** Map gridCoord -> grid cell enriched with its settlement (closed settlements left out). Cells carry gridId, gridType, region, available. */
 export function gridMapOf(world, frontierId) {
   const map = new Map();
+  const closed = closedSettlementIds(world, frontierId);
   for (const s of settlementsOf(world, frontierId)) {
+    if (closed.has(idOf(s._id))) continue;
     const rows = Array.isArray(s.grids) ? s.grids : [];
     for (const row of rows) {
       if (!Array.isArray(row)) continue;
