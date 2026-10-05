@@ -401,15 +401,16 @@
   /* Row 1: name at the left edge, gems + money at the right edge (both are positioned out of
      the grid flow against the full-width grid, so they reach the edges while the first grid
      row just reserves their height). Row 2: level, health, inventory, each with its bar on the
-     thin row below, centred as a group (max-content columns, centred tracks). */
+     thin row below: Level and Health hug the left under the name, Inventory hugs the right
+     under the currency (a 1fr spacer column between them). */
   .header-controls-left.header-grid {
     position: relative;
-    grid-template-columns: repeat(3, max-content);
+    grid-template-columns: max-content max-content 1fr max-content; /* level, health | spacer | inventory */
     grid-template-rows: 24px 22px 3px;
     column-gap: 14px;
     row-gap: 2px;
     width: 100%;
-    justify-content: center;
+    justify-content: start;
     margin: 0;
   }
   /* grid-column/row: auto, or the absolutely positioned item would be boxed to its grid area */
@@ -420,8 +421,8 @@
   .header-controls-left.header-grid > :nth-child(5) { grid-column: 1; grid-row: 3; }          /* xp bar */
   .header-controls-left.header-grid > :nth-child(8) { grid-column: 2; grid-row: 2; }          /* health */
   .header-controls-left.header-grid > :nth-child(11) { grid-column: 2; grid-row: 3; }         /* hp bar */
-  .header-controls-left.header-grid > :nth-child(3) { grid-column: 3; grid-row: 2; }          /* inventory */
-  .header-controls-left.header-grid > :nth-child(6) { grid-column: 3; grid-row: 3; }          /* capacity bar */
+  .header-controls-left.header-grid > :nth-child(3) { grid-column: 4; grid-row: 2; }          /* inventory, right-justified under gems + money */
+  .header-controls-left.header-grid > :nth-child(6) { grid-column: 4; grid-row: 3; }          /* capacity bar */
   .header-controls-left.header-grid .header-link { font-size: 14px; }
   .header-currency-group { gap: 18px; }
 
