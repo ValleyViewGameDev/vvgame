@@ -27,6 +27,7 @@ import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
+import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -62,6 +63,7 @@ const NPCPanel = ({
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap a requirement on a trade you cannot afford
+  const [pendingDeedTrade, setPendingDeedTrade] = useState(null); // a silent account names itself before the Home Deed trade runs
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
@@ -656,7 +658,13 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   };
 
   // Protected function to execute trades using transaction system
-  const handleTrade = async (transactionId, transactionKey, recipe) => {
+  const handleTrade = async (transactionId, transactionKey, recipe, { named = false } = {}) => {
+    // Silent account (docs/onboarding-plan.md §4.2): the Home Deed is where the player picks a name.
+    // The modal re-runs this trade with `named` once /player/name has succeeded.
+    if (recipe?.type === 'Home Deed' && currentPlayer?.named === false && !named) {
+      setPendingDeedTrade({ transactionId, transactionKey, recipe });
+      return;
+    }
     playersInGridManager.flushAfterTransaction(); // NPC trade: save the position with it
     console.log(`🔒 [PROTECTED TRADE] Starting protected trade for ${recipe.type}`);
     setErrorMessage('');
@@ -1717,6 +1725,18 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       />
     </Panel>
     {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+    {pendingDeedTrade && (
+      <NameDeedModal
+        currentPlayer={currentPlayer}
+        setCurrentPlayer={setCurrentPlayer}
+        onCancel={() => setPendingDeedTrade(null)}
+        onNamed={async () => {
+          const t = pendingDeedTrade;
+          setPendingDeedTrade(null);
+          await handleTrade(t.transactionId, t.transactionKey, t.recipe, { named: true });
+        }}
+      />
+    )}
     </>
   );
 };

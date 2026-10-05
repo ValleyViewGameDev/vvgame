@@ -25,6 +25,7 @@ const getNextPhaseData = (currentPhase, phases) => {
 
 async function initializeTimers() {
   console.log("⏰ INITIALIZING TIMERS...");
+  require('./purgeScheduler').start(); // unnamed silent accounts, daily (docs/onboarding-plan.md §5)
   const frontiers = await Frontier.find();
   for (const frontier of frontiers) {
     const { _id: frontierId } = frontier;

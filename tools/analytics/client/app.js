@@ -663,7 +663,8 @@ function renderFtue() {
   const done = f.rows[f.rows.length - 1];
   $('ftue-funnel-title').textContent = `FTUE funnel: ${f.total} account${f.total === 1 ? '' : 's'} created in range`
     + (f.total !== ftueData.cohort_total ? ` (filtered from ${ftueData.cohort_total})` : '')
-    + (f.total ? `, ${done.percent}% completed` : '');
+    + (f.total ? `, ${done.percent}% completed` : '')
+    + (ftueData.purged_unnamed ? `; ${ftueData.purged_unnamed} bounced in the cave (unnamed, purged)` : '');
   chart('ftueFunnelChart', {
     type: 'bar',
     data: { labels: f.rows.map((r) => r.label), datasets: [{ label: '% of cohort', data: f.rows.map((r) => r.percent), backgroundColor: f.rows.map((r) => (r.id === 'completed' ? '#8bbf6a' : '#d8a657')) }] },

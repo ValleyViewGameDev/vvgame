@@ -51,6 +51,7 @@ const Frontier = require(path.join(GAME_SERVER, 'models', 'frontier'));
 const Settlement = require(path.join(GAME_SERVER, 'models', 'settlement'));
 const Purchase = require(path.join(GAME_SERVER, 'models', 'purchase'));
 const AnalyticsActivity = require(path.join(GAME_SERVER, 'models', 'analyticsActivity'));
+const AnalyticsPurge = require(path.join(GAME_SERVER, 'models', 'analyticsPurge'));
 const AnalyticsPlayer = require(path.join(GAME_SERVER, 'models', 'analyticsPlayer'));
 const AnalyticsPageview = require(path.join(GAME_SERVER, 'models', 'analyticsPageview'));
 const { dayKeyUTC } = require(path.join(GAME_SERVER, 'utils', 'analytics'));
@@ -898,18 +899,26 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
     { $addFields: { created_at: CREATED_EXPR } },
     { $match: { created_at: { $gte: start, $lte: end }, ...exPlQ(excludeIds) } },
     { $project: {
-      username: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
+      username: 1, named: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
       settlementId: 1, client_info: 1,
       'ftueFeedback.os': 1, 'ftueFeedback.browser': 1, 'ftueFeedback.timezone': 1, 'ftueFeedback.isMobile': 1,
     } },
     { $sort: { created_at: -1 } },
   ]);
+  // Silent accounts purged for bouncing in the cave are gone from `players`; their count comes from
+  // the purge log (utils/purgeUnnamed.js), by purge day, so the funnel can say what it no longer sees.
+  const purged = await AnalyticsPurge.aggregate([
+    { $match: { ts: { $gte: start, $lte: end } } },
+    { $group: { _id: null, count: { $sum: '$count' } } },
+  ]);
   return {
     steps: FTUE_STEPS,
     cohort_total: rows.length,
+    purged_unnamed: purged.length ? purged[0].count : 0,
     players: rows.map((p) => redactPerUser({
       playerId: String(p._id),
       username: p.username || null,
+      named: p.named !== false,
       completed: p.firsttimeuser === false || p.firsttimeuser === undefined,
       ftue_step: Number.isFinite(p.ftuestep) ? p.ftuestep : null,
       aspiration: p.aspiration ?? null,

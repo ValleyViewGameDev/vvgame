@@ -1449,5 +1449,11 @@
     "4086": "Password must be at least 4 characters.",
     "4087": "Too many new profiles from this network today. Please try again tomorrow.",
     "4088": "Change password",
-    "4089": "No password yet. Sign in with your name alone."
+    "4089": "No password yet. Sign in with your name alone.",
+    "4090": "The Home Deed",
+    "4091": "What name shall I put on the deed?",
+    "4092": "Sign the deed",
+    "4093": "Checking...",
+    "4094": "This name is free.",
+    "4095": "You can change it later in Profile."
 }

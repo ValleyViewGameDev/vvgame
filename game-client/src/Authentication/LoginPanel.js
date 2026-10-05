@@ -14,7 +14,7 @@ import { authErrorText } from './authErrors';
 
 // initialUsername / initialView come from a `?signin=1&u=<name>` link (App.js): the sign-in form
 // opens prefilled so a returning player never creates a second profile by mistake.
-const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess, initialUsername = '', initialView = 'create' }) => {
+const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess, initialUsername = '', initialView = 'signin' }) => {
   const strings = useStrings();
   const [username, setUsername] = useState(initialUsername);
   const [password, setPassword] = useState('');
@@ -23,7 +23,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
 
   // Play login screen music on mount, stop on unmount
   useEffect(() => {
-    sendPageviewBeacon();   // anonymous landing beacon, once per day (docs/analytics.md)
+    sendPageviewBeacon();   // anonymous landing beacon, once per day (docs/analytics.md); silentAccount.js sends it for new visitors
     soundManager.playTrack('valley1_1.mp3', true);
     return () => {
       soundManager.stop();

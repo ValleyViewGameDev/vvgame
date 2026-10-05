@@ -135,6 +135,7 @@ import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKe
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
+import { createSilentAccount } from './Authentication/silentAccount';
 import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -881,6 +882,8 @@ useEffect(() => {
 }, [zoomLevel]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
+const signinMode = useRef(false); // true when the login panel is the deliberate path (logout, ?signin=1)
+const [isSilentCreating, setIsSilentCreating] = useState(false); // a new visitor's account is being made
 // `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
 // there is no live session, then drop the parameters. Skipped in in-app browsers, where the
 // session would not survive anyway and the prompt only confuses.
@@ -1041,8 +1044,10 @@ useEffect(() => {
 }, [openPanel]);
 
 useEffect(() => {
+  // Only while the sign-in form is the chosen path (logout, ?signin=1 link): a visitor with no
+  // session otherwise gets a silent account during init and never sees the login panel.
   const storedPlayer = localStorage.getItem('player');
-  if (!storedPlayer) {
+  if (!storedPlayer && signinMode.current) {
     console.log('[Watcher] No stored player found — showing login panel.');
     setisLoginPanelOpen(true);
     openPanel("LoginPanel");
@@ -1163,16 +1168,36 @@ useEffect(() => {
 
       // Step 2. Fetch stored player from localStorage
       console.log(`🏁 [INIT STEP 2] Getting local player... (+${Date.now() - initStartTime}ms)`);
-      const storedPlayer = localStorage.getItem('player');
+      let storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
-        // No stored player - show login screen WITHOUT black overlay
-        // The ValleyViewLoadScreen should be visible instead
-        console.log('No stored player found, showing login screen.');
-        setisLoginPanelOpen(true);
-        openPanel("LoginPanel");
-        setShowKeyArt(true);  // 👈 NEW STATE FLAG TO TRIGGER IMAGE
-        return;
+        const wantsSignin = !!signinPrefill || localStorage.getItem('vv_signin_requested') === '1';
+        localStorage.removeItem('vv_signin_requested');
+        if (wantsSignin) {
+          // Deliberate sign-in (logout, or a ?signin=1&u= link): the login panel over the key art
+          console.log('Sign-in requested, showing login panel.');
+          signinMode.current = true;
+          setisLoginPanelOpen(true);
+          openPanel("LoginPanel");
+          setShowKeyArt(true);
+          return;
+        }
+        // New visitor: no first screen at all. Make the silent account and land in the cave
+        // (docs/onboarding-plan.md §4.2); the name is asked for at the Home Deed.
+        console.log('No stored player: creating a silent account...');
+        setIsSilentCreating(true);
+        try {
+          const silentPlayer = await createSilentAccount();
+          storedPlayer = JSON.stringify(silentPlayer);
+        } catch (err) {
+          console.error('Silent account creation failed, falling back to the login panel:', err);
+          setIsSilentCreating(false);
+          signinMode.current = true;
+          setisLoginPanelOpen(true);
+          openPanel("LoginPanel");
+          setShowKeyArt(true);
+          return;
+        }
       }
 
       // Start fade-to-black for logged-in players ONLY
@@ -2820,6 +2845,7 @@ const handleLogout = () => {
   setGridId(null); // Clear gridId
   localStorage.removeItem('gridId'); // Remove gridId from local storage
   localStorage.removeItem('player');  // Remove player data from local storage
+  localStorage.setItem('vv_signin_requested', '1'); // next load shows the sign-in form instead of a silent account
   window.location.reload();  // Force a state reset by triggering the login modal
   console.log('Player has logged out, and state has been reset.');
 };
@@ -3337,7 +3363,7 @@ return (
 
       {/* Loading Screen - shown until app data is initialized */}
       {/* TransitionProvider handles fade-to-black overlay while camera centers after this */}
-      {!showKeyArt && !isAppInitialized && hasStoredPlayer && (
+      {!showKeyArt && !isAppInitialized && (hasStoredPlayer || isSilentCreating) && (
         <LoadingScreen message="Preparing your adventure..." />
       )}
 

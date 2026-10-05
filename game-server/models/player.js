@@ -6,6 +6,10 @@ const playerSchema = new mongoose.Schema({
   // 'none' (utils/publicPlayer.js NO_PASSWORD) = passwordless profile: signs in with the username alone
   password: { type: String, default: 'none' },
   signup_ip_hash: { type: String, default: null }, // salted hash of the signup IP (anti-abuse cap), never the raw IP
+  // Silent accounts (docs/onboarding-plan.md §4.2) are created on first load with a generated name;
+  // `named` flips when the player signs the Home Deed. Unnamed + inactive accounts are purged.
+  named: { type: Boolean, default: true },
+  named_at: { type: Date, default: null },
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step

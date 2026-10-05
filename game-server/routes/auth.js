@@ -16,7 +16,9 @@ const crypto = require('crypto');
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
 const { recordActivity, ensurePageview, sanitizeClientInfo } = require('../utils/analytics');
 const { NO_PASSWORD, hasPassword, publicPlayer } = require('../utils/publicPlayer');
-const { validateUsername } = require('../utils/usernames');
+const { validateUsername, generateUniqueRandomUsername } = require('../utils/usernames');
+const sendMailboxMessage = require('../utils/messageUtils');
+const WELCOME_MESSAGE_ID = 1; // tuning/messages.json: the day-0 gift (Money, Gems, Wood, seeds)
 
 // --- Per-network signup cap (anti-abuse, ported from House) -----------------------------
 // Passwordless, email-less accounts are free to spin up, so NEW accounts per IP are capped
@@ -74,30 +76,39 @@ router.post('/check-username', async (req, res) => {
 // A password is OPTIONAL (docs/onboarding-plan.md phase A): without one the profile stores
 // NO_PASSWORD and signs in with the username alone; the player can add one later from Profile.
 
+// `silent: true` (docs/onboarding-plan.md §4.2): the client creates the account the moment a visitor
+// with no session loads the game. The username is generated and `named` stays false until the
+// player signs the Home Deed (/player/name). Unnamed, inactive accounts are purged (utils/purgeUnnamed.js).
 router.post('/register-new-player', async (req, res) => {
   const { password, language, frontierId, browser, os, diagnostics } = req.body;
-  const username = String(req.body.username || '').trim();
-  console.log('POST /register-new-player:', { username, frontierId, browser, os, diagnostics });
+  const silent = req.body.silent === true;
+  let username = String(req.body.username || '').trim();
+  console.log('POST /register-new-player:', { username: username || '(silent)', frontierId, browser, os, diagnostics });
   // Optional acquisition context from the client beacon (Utils/pageviewBeacon.js):
   // { visitor_id, surface, acquisition: { utm_source, utm_medium, utm_campaign,
   // referrer_host, landing_path } }. Older clients send nothing -> stays null.
   const clientInfo = sanitizeClientInfo(req.body.clientInfo || req.body.acquisition || null);
 
-  if (!username || !language || !frontierId) {
+  if ((!username && !silent) || !language || !frontierId) {
     return res.status(400).json({ error: 'Missing required fields for registration.', code: 'MISSING' });
   }
-  const nameProblem = validateUsername(username);
-  if (nameProblem) {
-    return res.status(400).json({ error: 'That name cannot be used.', code: nameProblem });
+  if (!silent) {
+    const nameProblem = validateUsername(username);
+    if (nameProblem) {
+      return res.status(400).json({ error: 'That name cannot be used.', code: nameProblem });
+    }
   }
   if (password !== undefined && password !== null && password !== '' && (typeof password !== 'string' || password.length < 4)) {
     return res.status(400).json({ error: 'Password must be at least 4 characters.', code: 'PASSWORD_SHORT' });
   }
   try {
-    // Check if username exists
-    const existingPlayer = await Player.findOne({ username });
-    if (existingPlayer) {
-      return res.status(400).json({ error: 'Username already exists.', code: 'TAKEN' });
+    if (silent) {
+      username = await generateUniqueRandomUsername(Player);
+    } else {
+      const existingPlayer = await Player.findOne({ username });
+      if (existingPlayer) {
+        return res.status(400).json({ error: 'Username already exists.', code: 'TAKEN' });
+      }
     }
 
     const ipHash = signupIpHash(req.ip);
@@ -153,6 +164,8 @@ router.post('/register-new-player', async (req, res) => {
     const newPlayer = new Player({
       _id: newPlayerId,
       username,
+      named: !silent,
+      named_at: silent ? null : new Date(),
       password: hashedPassword,
       signup_ip_hash: ipHash,
       icon: isFreeIcon(req.body.icon) ? req.body.icon : defaultIcon,
@@ -239,8 +252,13 @@ router.post('/register-new-player', async (req, res) => {
     // Note: Settlement population is NOT incremented here
     // It will be incremented when the player actually claims a homestead (buys Home Deed)
 
-    console.log(`✅ New player created: ${username} (homestead will be created when Home Deed is purchased)`);
-    sendNewUserEmail(newPlayer);
+    console.log(`✅ New player created: ${username}${silent ? ' (silent)' : ''} (homestead will be created when Home Deed is purchased)`);
+    // The owner's new-user alert fires when the player has a name (here, or /player/name for silent ones)
+    if (!silent) sendNewUserEmail(newPlayer);
+
+    // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
+    try { await sendMailboxMessage(String(newPlayer._id), WELCOME_MESSAGE_ID, [], req.app.get('socketio')); }
+    catch (mailErr) { console.error('❌ welcome mailbox message failed:', mailErr?.message || mailErr); }
 
     res.status(201).json({ success: true, player: publicPlayer(newPlayer) });
   } catch (err) {
@@ -317,6 +335,36 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     console.error('Error during login:', err.message || err);
     return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// POST /player/name {playerId, username}: a silent account signs the Home Deed. Same rules as a
+// typed signup; only allowed while `named` is false (renames afterwards go through /update-profile).
+// This is the moment the dashboard counts as "account created" and the owner alert fires.
+router.post('/player/name', async (req, res) => {
+  const { playerId } = req.body || {};
+  const username = String(req.body?.username || '').trim();
+  if (!playerId) return res.status(400).json({ error: 'playerId is required.', code: 'MISSING' });
+  const problem = validateUsername(username);
+  if (problem) return res.status(400).json({ error: 'That name cannot be used.', code: problem });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.', code: 'NOT_FOUND' });
+    if (player.named !== false) return res.status(400).json({ error: 'This profile is already named.', code: 'ALREADY_NAMED' });
+    const taken = await Player.findOne({ username });
+    if (taken && String(taken._id) !== String(player._id)) {
+      return res.status(400).json({ error: 'Username already exists.', code: 'TAKEN' });
+    }
+    player.username = username;
+    player.named = true;
+    player.named_at = new Date();
+    await player.save();
+    recordActivity(player._id, { username: player.username }).catch(() => {}); // re-stamp the cohort row
+    sendNewUserEmail(player);
+    res.json({ success: true, player: publicPlayer(player) });
+  } catch (err) {
+    console.error('❌ /player/name:', err);
+    res.status(500).json({ error: 'Server error.' });
   }
 });
 

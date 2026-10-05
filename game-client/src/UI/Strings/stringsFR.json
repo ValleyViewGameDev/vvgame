@@ -1408,5 +1408,11 @@
     "4086": "Le mot de passe doit comporter au moins 4 caractères.",
     "4087": "Trop de nouveaux profils depuis ce réseau aujourd'hui. Réessayez demain.",
     "4088": "Changer le mot de passe",
-    "4089": "Pas encore de mot de passe. Connectez-vous avec votre nom seul."
+    "4089": "Pas encore de mot de passe. Connectez-vous avec votre nom seul.",
+    "4090": "L'acte de propriété",
+    "4091": "Quel nom dois-je inscrire sur l'acte ?",
+    "4092": "Signer l'acte",
+    "4093": "Vérification...",
+    "4094": "Ce nom est libre.",
+    "4095": "Vous pourrez le changer plus tard dans le Profil."
 }

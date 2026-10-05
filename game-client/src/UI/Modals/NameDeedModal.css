@@ -1,0 +1,18 @@
+/* NameDeedModal: the silent account's name prompt at the Home Deed (docs/ui-conventions.md, Modals) */
+.name-deed-modal .modal-content { text-align: center; }
+.name-deed-modal .name-deed-question { margin: 4px 0 10px; font-size: 16px; }
+.name-deed-modal .name-deed-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  font-size: 18px;
+  text-align: center;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-input, #fff);
+  color: var(--color-text-primary);
+}
+.name-deed-modal .name-deed-status { min-height: 18px; margin: 6px 0 4px; font-size: 13px; color: var(--color-text-secondary); }
+.name-deed-modal .name-deed-status--bad { color: var(--color-error); }
+.name-deed-modal .name-deed-status--ok { color: var(--color-success, #4caf50); }
+.name-deed-modal .name-deed-note { margin: 8px 0 0; font-size: 12px; color: var(--color-text-muted); }

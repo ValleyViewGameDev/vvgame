@@ -21,4 +21,15 @@ function validateUsername(raw) {
   return null;
 }
 
-module.exports = { validateUsername, USERNAME_MIN: MIN, USERNAME_MAX: MAX };
+// Generated name for a silent account: "Brave Fox 4821". Unique against the players collection.
+const ADJECTIVES = ['Brave', 'Quiet', 'Merry', 'Clever', 'Gentle', 'Hardy', 'Lucky', 'Nimble', 'Steady', 'Sunny', 'Wild', 'Bold', 'Keen', 'Kind', 'Swift'];
+const NOUNS = ['Fox', 'Hare', 'Otter', 'Finch', 'Badger', 'Heron', 'Lark', 'Wren', 'Stag', 'Vole', 'Robin', 'Ox', 'Goose', 'Hound', 'Ram'];
+async function generateUniqueRandomUsername(Player) {
+  for (let i = 0; i < 20; i++) {
+    const name = `${ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)]} ${NOUNS[Math.floor(Math.random() * NOUNS.length)]} ${1000 + Math.floor(Math.random() * 9000)}`;
+    if (!(await Player.exists({ username: name }))) return name;
+  }
+  return `Wanderer ${Date.now().toString(36)}`;
+}
+
+module.exports = { validateUsername, generateUniqueRandomUsername, USERNAME_MIN: MIN, USERNAME_MAX: MAX };
