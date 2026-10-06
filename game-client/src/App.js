@@ -135,6 +135,7 @@ import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKe
 import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
+import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
@@ -266,6 +267,15 @@ useEffect(() => {
   // Phones: a closing panel slides out (a clone of the removed node plays the animation)
   useEffect(() => installPanelExitGhost(), []);
   useEffect(() => installScrollFade(), []);
+  // Developer Edit Mode (⌘+Ctrl+E, desktop only): font sizes and strings edited in place and
+  // written back to the source tree through /api/dev/* (Dev/devEditMode.js). Developers only.
+  useEffect(() => {
+    if (!isDeveloper) return;
+    initDevEditMode({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
+  }, [isDeveloper]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (isDeveloper) setDevEditContext({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
+  }, [isDeveloper, currentPlayer?.playerId, currentPlayer?.language]);
 
   // Browser chrome on phones. A page cannot hide Safari's own bars (a tap at the top edge in
   // landscape brings them back by design); the two things it can do are (1) ask for

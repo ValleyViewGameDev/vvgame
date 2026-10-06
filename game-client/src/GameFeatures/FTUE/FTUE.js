@@ -411,6 +411,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         currentIcon={currentPlayer?.icon}
         playerId={currentPlayer?.playerId}
         intro={uiString(strings, currentStepData.bodyKey)}
+        freeOnly
         onClose={handleOK}
         onSave={() => handleOK()}
       />

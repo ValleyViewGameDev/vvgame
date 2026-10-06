@@ -27,7 +27,7 @@ const iconToSvgMap = new Map();
   });
 });
 
-export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen, inventory, setInventory, backpack, setBackpack, intro }) {
+export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen, inventory, setInventory, backpack, setBackpack, intro, freeOnly = false }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
   const [isProcessing, setIsProcessing] = useState(false);
   const strings = useStrings();
@@ -139,9 +139,9 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
           })}
         </div>
 
-        <h3>Premium Avatars</h3>
+        {!freeOnly && <h3>Premium Avatars</h3>}
 
-        {!hasPremiumAvatars && (
+        {!freeOnly && !hasPremiumAvatars && (
           <div className="shared-buttons">
             <button
               className="btn-basic btn-modal"
@@ -154,7 +154,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
           </div>
         )}
 
-        <div className="icon-grid">
+        {!freeOnly && <div className="icon-grid">
           {paidIcons.map(icon => {
             const locked = !hasPremiumAvatars;
             const svgFilename = iconToSvgMap.get(normalizeEmoji(icon.value));
@@ -179,7 +179,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
               </button>
             );
           })}
-        </div>
+        </div>}
 
 
         <div className="shared-buttons">

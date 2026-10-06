@@ -45,4 +45,4 @@
 }
 
 /* FTUE avatar beat: one line of copy under the Choose Your Avatar title (FTUE.js modalType icon) */
-.icon-modal-intro { margin: 6px 0 0; font-size: 14px; text-align: center; color: var(--color-text-primary); }
+.icon-modal-intro { margin: 6px 0 0; font-family: var(--font-text-1-family); font-size: 16px; text-align: center; color: var(--color-text-primary); }
