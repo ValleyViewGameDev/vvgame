@@ -83,7 +83,37 @@ The event template (Phase D) is the same procedure with the seven variables abov
 must contain a link to `{{unsubscribeUrl}}` (CAN-SPAM), which the server supplies per
 player.
 
-### 2.4 Test before players see it
+### 2.4 DNS records at GoDaddy (both domains are on GoDaddy's nameservers)
+
+Loops sends through Amazon SES, so the records it asks for are the same shape House has on
+`heirandspare.io`: three DKIM CNAMEs (`<random>._domainkey` → `<random>.dkim.amazonses.com`)
+and a return-path subdomain `envelope` with an MX (`feedback-smtp.us-east-1.amazonses.com`)
+and an SPF TXT (`v=spf1 include:amazonses.com ~all`). Copy the exact hosts and values from the
+Loops page; never retype them from memory.
+
+1. Loops (the Elsinore team) → Settings → Domain → enter `secretsofelsinore.com`. Leave that
+   page open: it lists every record with a Verify button.
+2. GoDaddy → My Products → the domain → DNS → Add New Record, one per Loops row:
+   - **Type** as listed (CNAME / MX / TXT).
+   - **Name**: the host part only. GoDaddy appends the domain itself, so enter `envelope`,
+     not `envelope.secretsofelsinore.com`, and `abc123._domainkey`, not the full name. A
+     Loops row whose host is the bare domain is entered as `@`.
+   - **Value**: paste as given, minus any trailing dot. MX rows also take the priority Loops
+     shows (10).
+   - **TTL**: leave the default (1 hour).
+3. Keep the existing `_dmarc` TXT (`v=DMARC1; p=quarantine; adkim=r; aspf=r; ...`, GoDaddy's
+   default). Relaxed alignment means the `envelope` subdomain satisfies SPF alignment and the
+   DKIM CNAMEs satisfy DKIM alignment, so mail passes DMARC as is.
+4. Back in Loops, press Verify. Propagation is usually minutes on GoDaddy, up to an hour.
+   If a row stays unverified, compare host and value character by character; the usual
+   slip is a doubled domain (`envelope.secretsofelsinore.com.secretsofelsinore.com`).
+5. Only if you want a readable mailbox for the From / Reply-To address (House uses
+   ImprovMX): add MX `@` → `mx1.improvmx.com` (priority 10) and `mx2.improvmx.com` (20),
+   and a root TXT `v=spf1 include:spf.improvmx.com ~all`, then set the forward in ImprovMX.
+   The domain has no root MX today, so this does not collide with anything. Skip it if the
+   Reply-To is a Gmail address.
+
+### 2.5 Test before players see it
 
 1. Loops → the template → **Send test** with your own address: checks rendering and the
    sending domain, not the server plumbing.
@@ -101,7 +131,7 @@ player.
 cd game-server && node -e "require('dotenv').config();const m=require('mongoose');const P=require('./models/player');(async()=>{await m.connect(process.env.MONGODB_URI);const r=await P.updateOne({username:'newtest'},{\$set:{welcome_email_sent_at:null}});console.log(r.modifiedCount);await m.disconnect();})()"
 ```
 
-### 2.5 What never needs a code change
+### 2.6 What never needs a code change
 
 Template copy, subject, design, From name and Reply-To all live in Loops. Only the
 transactional IDs are configuration, and only the variable names are code.
