@@ -4414,7 +4414,6 @@ return (
           masterResources={masterResources}
         />
       )}
-      )}
       {activePanel === 'SeasonPanel' && (
         <SeasonPanel
           onClose={closePanel}
