@@ -157,6 +157,10 @@ function proxyToGame(req, res, pathname, search) {
   const lib = target.protocol === 'https:' ? https : http;
   const headers = { ...req.headers, host: target.host };
   delete headers['content-length'];
+  // Browser-only headers never go upstream: the editor page's Origin (localhost:8770, sent on
+  // every POST) fails the game server's CORS allowlist in production, which answers with an
+  // HTML 500 ("Not allowed by CORS"). Upstream sees a plain server-to-server request.
+  for (const h of ['origin', 'referer', 'cookie', 'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-dest']) delete headers[h];
   if (ARGS.devPlayerId && !headers['x-player-id']) headers['x-player-id'] = ARGS.devPlayerId;
   readBody(req).then((body) => {
     if (body.length) headers['content-length'] = String(body.length);
