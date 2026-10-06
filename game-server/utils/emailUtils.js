@@ -15,7 +15,7 @@ export async function sendNewUserEmail(player) {
   });
 
   const mailOptions = {
-    from: `"Valley View Studios Notifier" <${process.env.ALERT_EMAIL_USERNAME}>`,
+    from: `"Valley View Studio" <${process.env.ALERT_EMAIL_USERNAME}>`,
     to: process.env.ALERT_EMAIL_RECEIVER,         // Also your Gmail
     subject: '👸 New Secrets of Elsinore Account Registered',
     text: `Username: ${player.username}\nID: ${player._id}\nCreated: ${new Date(player.created).toLocaleString()}`
