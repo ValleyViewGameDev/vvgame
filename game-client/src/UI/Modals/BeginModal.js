@@ -19,6 +19,7 @@ export default function BeginModal({ onBegin, onSignIn }) {
   };
   return (
     <Modal size="small" className="begin-modal" onClose={() => {}} title={strings[0]}>
+      <img className="begin-logo" src="/logo512.png" alt="" width="96" height="96" />
       <div className="shared-buttons">
         <button className="btn-basic btn-success begin-button" onClick={begin} disabled={busy}>
           {busy ? strings[4093] : strings[4096]}
