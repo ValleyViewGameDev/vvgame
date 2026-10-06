@@ -1,5 +1,6 @@
 /* BeginModal: the single Begin tap over the key art for a new visitor (docs/ui-conventions.md, Modals) */
 .begin-modal .modal-close-btn { display: none; } /* not dismissable: Begin or sign in */
+.begin-modal h2.modal-title { color: var(--color-text-green) !important; } /* the game's panel green, not the brown modal title */
 .begin-modal .modal-content { text-align: center; padding: 2px 0 2px; }
 .begin-modal .begin-logo { display: block; width: 96px; height: 96px; margin: 0 auto 12px; }
 .begin-modal .begin-button { font-size: 20px; min-width: 180px; }
