@@ -17,6 +17,11 @@
 //                     lift on lapsed players: 5.5% reactivated by a real dated event).
 //
 // Env: LOOPS_API_KEY, LOOPS_TID_EVENT_<LANG> (game-server/.env, which points at production).
+//
+// PARKED (owner, 2026-10-06): the event email is not part of the program yet; it is too much
+// email for the current audience. Dry runs and --to-username tests work; a real send or --auto
+// refuses unless EVENT_EMAIL_ENABLED=1 is set. Decide the cadence in docs/onboarding-plan.md
+// before flipping that.
 const path = require('path');
 const GAME_SERVER = path.join(__dirname, '..', 'game-server');
 require(path.join(GAME_SERVER, 'node_modules', 'dotenv')).config({ path: path.join(GAME_SERVER, '.env') });
@@ -108,6 +113,10 @@ async function runCampaign(kind, frontier) {
 
 (async () => {
   if (!AUTO && !EVENT) { console.error('Usage: --event train|carnival|season [--send] [--to-username X] [--lapsed-days N] [--cap-days N] | --auto [--send]'); process.exit(1); }
+  if (SEND && !TO_USERNAME && process.env.EVENT_EMAIL_ENABLED !== '1') {
+    console.error('✗ Event emails are parked: set EVENT_EMAIL_ENABLED=1 to send a real campaign (see the header of this file).');
+    process.exit(1);
+  }
   await mongoose.connect(process.env.MONGODB_URI);
   const frontier = await Frontier.findOne({}).lean();
   if (!frontier) { console.error('No frontier'); process.exit(1); }

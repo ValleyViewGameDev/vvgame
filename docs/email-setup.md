@@ -138,7 +138,12 @@ transactional IDs are configuration, and only the variable names are code.
 
 ## 3. Phase D: the event announcement, the Gold thanks, Google sign-in
 
-### 3.1 Event announcement (marketing)
+### 3.1 Event announcement (marketing): PARKED
+
+**Not in the program yet** (owner decision 2026-10-06: too much email). The runner stays in the
+repo for when the cadence is decided; a real send refuses until `EVENT_EMAIL_ENABLED=1` is in
+the environment, and no cron job should be created until then. Everything below is the setup
+for that day.
 
 Template per language, declared variables `username`, `eventName`, `eventDates`, `eventCloses`,
 `eventHook`, `ctaUrl`, `unsubscribeUrl`; the body must contain a link to `{{unsubscribeUrl}}`.
