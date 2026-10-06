@@ -8,6 +8,8 @@ Keep done items out of here; the git log is the record.
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
+**DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.
+
 **What.** A step in the first-time-user flow that invites the player to install the game on
 their home screen, surfaced once, at a moment of earned goodwill (after the first homestead
 visit or the first harvest, not on the login screen), with "later" remembered so it never

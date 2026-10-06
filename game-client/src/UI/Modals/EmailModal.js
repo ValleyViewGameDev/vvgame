@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from './Modal';
@@ -6,6 +6,7 @@ import { useStrings } from '../StringsContext';
 import { authErrorText } from '../../Authentication/authErrors';
 import '../Buttons/SharedButtons.css';
 import './EmailModal.css';
+import { isGoogleAvailable, renderGoogleButton, loginWithGoogle } from '../../Authentication/googleSignIn';
 
 /**
  * EmailModal: the one in-game ask for an email (docs/onboarding-plan.md §4.5). Shown once,
@@ -19,6 +20,25 @@ export default function EmailModal({ currentPlayer, setCurrentPlayer, onClose, i
   const [status, setStatus] = useState({ kind: '', text: '' });
   const [saving, setSaving] = useState(false);
   const inputRef = useRef(null);
+  const googleRef = useRef(null);
+
+  // Google option: LINKS this account (never find-or-create, which would swap the player onto a
+  // fresh account). Hidden where GIS cannot run.
+  useEffect(() => {
+    const tryRender = () => renderGoogleButton(googleRef.current, async (credential) => {
+      try {
+        const data = await loginWithGoogle(credential, { linkPlayerId: currentPlayer.playerId });
+        if (data?.success && data.player) {
+          const updated = { ...currentPlayer, email: data.player.email, email_source: data.player.email_source, googleId: data.player.googleId, email_prompt_seen_at: data.player.email_prompt_seen_at };
+          setCurrentPlayer(updated);
+          try { localStorage.setItem('player', JSON.stringify({ ...JSON.parse(localStorage.getItem('player') || '{}'), email: updated.email })); } catch (_) { /* storage off */ }
+          setStatus({ kind: 'ok', text: strings[4103] });
+          setTimeout(() => onClose(true), 700);
+        } else setStatus({ kind: 'bad', text: authErrorText(data, strings, strings[4119]) });
+      } catch (err) { setStatus({ kind: 'bad', text: authErrorText(err, strings, strings[4119]) }); }
+    });
+    if (!tryRender()) { const t = setTimeout(tryRender, 1500); return () => clearTimeout(t); }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = async () => {
     const value = email.trim();
@@ -60,6 +80,12 @@ export default function EmailModal({ currentPlayer, setCurrentPlayer, onClose, i
         <button className="btn-basic btn-neutral" onClick={() => onClose(false)} disabled={saving}>{strings[4101]}</button>
         <button className="btn-basic btn-success" onClick={save} disabled={saving || !email.trim()}>{strings[4102]}</button>
       </div>
+      {isGoogleAvailable() && (
+        <div className="email-modal-google">
+          <p className="email-modal-divider">{strings[4117]}</p>
+          <div ref={googleRef} />
+        </div>
+      )}
       <p className="email-modal-assurance">{strings[4099]}</p>
       <p className="email-modal-privacy"><a href="/privacy/index.html" target="_blank" rel="noopener noreferrer">{strings[4110]}</a></p>
     </Modal>

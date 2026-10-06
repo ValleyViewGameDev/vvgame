@@ -82,6 +82,157 @@ router.post('/check-username', async (req, res) => {
 // `silent: true` (docs/onboarding-plan.md §4.2): the client creates the account the moment a visitor
 // with no session loads the game. The username is generated and `named` stays false until the
 // player signs the Home Deed (/player/name). Unnamed, inactive accounts are purged (utils/purgeUnnamed.js).
+// Build and save a new Player with their own FTUE cave, the starter attributes, analytics
+// rows and the welcome mailbox gift. Shared by /register-new-player (typed and silent) and
+// /login-google (a brand-new Google identity). `extra` lands on the document last
+// (googleId, email, email_source...). Returns the saved player.
+async function createPlayerAccount({ username, silent, hashedPassword, ipHash, icon, language, frontierId, browser, os, diagnostics, clientInfo, extra = {} }, io) {
+
+  // Step 3: Load starter attributes
+  const {
+    icon: defaultIcon,
+    range,
+    baseHp,
+    baseMaxhp,
+    baseArmorclass,
+    baseAttackbonus,
+    baseDamage,
+    baseSpeed,
+    baseAttackrange,
+    inventory,
+    backpack,
+    skills,
+    powers,
+    warehouseCapacity,
+    backpackCapacity,
+    accountStatus,
+    role,
+    iscamping,
+    relocations,
+    firsttimeuser,
+    ftuestep,
+    location: defaultLocation,
+    settings,
+    relationships,
+    tradeStall,
+    kentOffers,
+  } = starterAccount.defaultAttributes;
+
+  // Create the new player
+  // FTUE: New players start in the Cave dungeon
+  // Homestead will be created when they buy the Home Deed
+  // FTUE: every new player gets their own copy of the tutorial cave (docs/phase-2-contract.md).
+  const { createDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('../utils/dungeonUtils');
+  const FTUE_CAVE_START_X = 4;
+  const FTUE_CAVE_START_Y = 9;
+  const newPlayerId = new mongoose.Types.ObjectId();
+  const caveGrid = await createDungeonGrid(FTUE_TEMPLATE, {
+    frontierId, settlementId: frontierId, ownerId: newPlayerId, templateKey: FTUE_KEY,
+  });
+
+  const newPlayer = new Player({
+    _id: newPlayerId,
+    username,
+    named: !silent,
+    named_at: silent ? null : new Date(),
+    password: hashedPassword,
+    signup_ip_hash: ipHash,
+    icon: isFreeIcon(icon) ? icon : defaultIcon,
+    language,
+    firsttimeuser,
+    ftuestep,
+    ftueFeedback: {
+      positive: [],
+      negative: [],
+      browser: browser || null,
+      os: os || null,
+      // Diagnostics captured at account creation
+      latency: diagnostics?.latency ?? null,
+      connectionType: diagnostics?.connectionType ?? null,
+      downlink: diagnostics?.downlink ?? null,
+      screenWidth: diagnostics?.screenWidth ?? null,
+      screenHeight: diagnostics?.screenHeight ?? null,
+      viewportWidth: diagnostics?.viewportWidth ?? null,
+      viewportHeight: diagnostics?.viewportHeight ?? null,
+      devicePixelRatio: diagnostics?.devicePixelRatio ?? null,
+      deviceMemory: diagnostics?.deviceMemory ?? null,
+      hardwareConcurrency: diagnostics?.hardwareConcurrency ?? null,
+      isMobile: diagnostics?.isMobile ?? null,
+      isTouchDevice: diagnostics?.isTouchDevice ?? null,
+      webglSupported: diagnostics?.webglSupported ?? null,
+      timezone: diagnostics?.timezone ?? null,
+    },
+    range,
+    baseHp,
+    baseMaxhp,
+    hp: baseMaxhp,
+    maxhp: baseMaxhp,
+    baseArmorclass,
+    baseAttackbonus,
+    baseDamage,
+    baseSpeed,
+    baseAttackrange,
+    inventory: [...inventory],
+    backpack: [...backpack],
+    skills: [...skills],
+    powers: [...powers],
+    warehouseCapacity,
+    backpackCapacity,
+    accountStatus,
+    role,
+    relationships: [...relationships],
+    tradeStall: [...tradeStall],
+    kentOffers: kentOffers ? { ...kentOffers, offers: [...kentOffers.offers] } : undefined,
+    // FTUE: Start new players in the Cave dungeon
+    location: {
+      g: caveGrid._id,
+      s: null, // No settlement until homestead is created
+      f: frontierId,
+      gridCoord: null, // Dungeons don't have gridCoord
+      x: FTUE_CAVE_START_X,
+      y: FTUE_CAVE_START_Y,
+      gtype: 'dungeon',
+    },
+    relocations,
+    iscamping,
+    // gridId and settlementId are NOT set - they'll be set when player buys Home Deed
+    frontierId,
+    settings,
+    client_info: clientInfo,
+    ...extra,
+  });
+
+  await newPlayer.save();
+
+  // Analytics (fire-and-forget, never awaited): cohort row + day-0 activity, and
+  // make sure the visitor's pageview exists so the Site Traffic funnel's
+  // numerator never outruns its denominator. See docs/analytics.md.
+  recordActivity(newPlayer._id, { username: newPlayer.username }).catch(() => {});
+  if (clientInfo && clientInfo.visitor_id) {
+    ensurePageview(clientInfo.visitor_id, {
+      utm_source: clientInfo.acquisition.utm_source,
+      referrer_host: clientInfo.acquisition.referrer_host,
+      source: clientInfo.surface,
+    }).catch(() => {});
+  }
+
+  newPlayer.playerId = newPlayer._id;
+  await newPlayer.save();
+
+  // Note: Settlement population is NOT incremented here
+  // It will be incremented when the player actually claims a homestead (buys Home Deed)
+
+  console.log(`✅ New player created: ${username}${silent ? ' (silent)' : ''} (homestead will be created when Home Deed is purchased)`);
+  // The owner's new-user alert fires when the player has a name (here, or /player/name for silent ones)
+  if (!silent) sendNewUserEmail(newPlayer);
+  return newPlayer;
+
+  // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
+  try { await sendMailboxMessage(String(newPlayer._id), WELCOME_MESSAGE_ID, [], io); }
+  catch (mailErr) { console.error('❌ welcome mailbox message failed:', mailErr?.message || mailErr); }
+
+}
+
 router.post('/register-new-player', async (req, res) => {
   const { password, language, frontierId, browser, os, diagnostics } = req.body;
   const silent = req.body.silent === true;
@@ -121,147 +272,9 @@ router.post('/register-new-player', async (req, res) => {
 
     // Hash the password when one was given; otherwise the profile is passwordless
     const hashedPassword = password ? await bcrypt.hash(password, 10) : NO_PASSWORD;
-
-    // Step 3: Load starter attributes
-    const {
-      icon: defaultIcon,
-      range,
-      baseHp,
-      baseMaxhp,
-      baseArmorclass,
-      baseAttackbonus,
-      baseDamage,
-      baseSpeed,
-      baseAttackrange,
-      inventory,
-      backpack,
-      skills,
-      powers,
-      warehouseCapacity,
-      backpackCapacity,
-      accountStatus,
-      role,
-      iscamping,
-      relocations,
-      firsttimeuser,
-      ftuestep,
-      location: defaultLocation,
-      settings,
-      relationships,
-      tradeStall,
-      kentOffers,
-    } = starterAccount.defaultAttributes;
-
-    // Create the new player
-    // FTUE: New players start in the Cave dungeon
-    // Homestead will be created when they buy the Home Deed
-    // FTUE: every new player gets their own copy of the tutorial cave (docs/phase-2-contract.md).
-    const { createDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('../utils/dungeonUtils');
-    const FTUE_CAVE_START_X = 4;
-    const FTUE_CAVE_START_Y = 9;
-    const newPlayerId = new mongoose.Types.ObjectId();
-    const caveGrid = await createDungeonGrid(FTUE_TEMPLATE, {
-      frontierId, settlementId: frontierId, ownerId: newPlayerId, templateKey: FTUE_KEY,
-    });
-
-    const newPlayer = new Player({
-      _id: newPlayerId,
-      username,
-      named: !silent,
-      named_at: silent ? null : new Date(),
-      password: hashedPassword,
-      signup_ip_hash: ipHash,
-      icon: isFreeIcon(req.body.icon) ? req.body.icon : defaultIcon,
-      language,
-      firsttimeuser,
-      ftuestep,
-      ftueFeedback: {
-        positive: [],
-        negative: [],
-        browser: browser || null,
-        os: os || null,
-        // Diagnostics captured at account creation
-        latency: diagnostics?.latency ?? null,
-        connectionType: diagnostics?.connectionType ?? null,
-        downlink: diagnostics?.downlink ?? null,
-        screenWidth: diagnostics?.screenWidth ?? null,
-        screenHeight: diagnostics?.screenHeight ?? null,
-        viewportWidth: diagnostics?.viewportWidth ?? null,
-        viewportHeight: diagnostics?.viewportHeight ?? null,
-        devicePixelRatio: diagnostics?.devicePixelRatio ?? null,
-        deviceMemory: diagnostics?.deviceMemory ?? null,
-        hardwareConcurrency: diagnostics?.hardwareConcurrency ?? null,
-        isMobile: diagnostics?.isMobile ?? null,
-        isTouchDevice: diagnostics?.isTouchDevice ?? null,
-        webglSupported: diagnostics?.webglSupported ?? null,
-        timezone: diagnostics?.timezone ?? null,
-      },
-      range,
-      baseHp,
-      baseMaxhp,
-      hp: baseMaxhp,
-      maxhp: baseMaxhp,
-      baseArmorclass,
-      baseAttackbonus,
-      baseDamage,
-      baseSpeed,
-      baseAttackrange,
-      inventory: [...inventory],
-      backpack: [...backpack],
-      skills: [...skills],
-      powers: [...powers],
-      warehouseCapacity,
-      backpackCapacity,
-      accountStatus,
-      role,
-      relationships: [...relationships],
-      tradeStall: [...tradeStall],
-      kentOffers: kentOffers ? { ...kentOffers, offers: [...kentOffers.offers] } : undefined,
-      // FTUE: Start new players in the Cave dungeon
-      location: {
-        g: caveGrid._id,
-        s: null, // No settlement until homestead is created
-        f: frontierId,
-        gridCoord: null, // Dungeons don't have gridCoord
-        x: FTUE_CAVE_START_X,
-        y: FTUE_CAVE_START_Y,
-        gtype: 'dungeon',
-      },
-      relocations,
-      iscamping,
-      // gridId and settlementId are NOT set - they'll be set when player buys Home Deed
-      frontierId,
-      settings,
-      client_info: clientInfo,
-    });
-
-    await newPlayer.save();
-
-    // Analytics (fire-and-forget, never awaited): cohort row + day-0 activity, and
-    // make sure the visitor's pageview exists so the Site Traffic funnel's
-    // numerator never outruns its denominator. See docs/analytics.md.
-    recordActivity(newPlayer._id, { username: newPlayer.username }).catch(() => {});
-    if (clientInfo && clientInfo.visitor_id) {
-      ensurePageview(clientInfo.visitor_id, {
-        utm_source: clientInfo.acquisition.utm_source,
-        referrer_host: clientInfo.acquisition.referrer_host,
-        source: clientInfo.surface,
-      }).catch(() => {});
-    }
-
-    newPlayer.playerId = newPlayer._id;
-    await newPlayer.save();
-
-    // Note: Settlement population is NOT incremented here
-    // It will be incremented when the player actually claims a homestead (buys Home Deed)
-
-    console.log(`✅ New player created: ${username}${silent ? ' (silent)' : ''} (homestead will be created when Home Deed is purchased)`);
-    // The owner's new-user alert fires when the player has a name (here, or /player/name for silent ones)
-    if (!silent) sendNewUserEmail(newPlayer);
-
-    // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
-    try { await sendMailboxMessage(String(newPlayer._id), WELCOME_MESSAGE_ID, [], req.app.get('socketio')); }
-    catch (mailErr) { console.error('❌ welcome mailbox message failed:', mailErr?.message || mailErr); }
+    const newPlayer = await createPlayerAccount({
+      username, silent, hashedPassword, ipHash, icon: req.body.icon, language, frontierId, browser, os, diagnostics, clientInfo,
+    }, req.app.get('socketio'));
 
     res.status(201).json({ success: true, player: publicPlayer(newPlayer) });
   } catch (err) {
@@ -270,6 +283,76 @@ router.post('/register-new-player', async (req, res) => {
   }
 });
 
+
+// POST /login-google { credential, linkPlayerId?, language?, frontierId?, browser?, os?, diagnostics?, clientInfo? }
+// Google Identity Services credential (an id_token) verified against GOOGLE_CLIENT_ID. Three outcomes:
+// link mode (attach the Google identity + verified email to the already-playing account; 409 if
+// that Google id belongs to someone else), returning Google player (sign in), or a brand-new
+// account built like a silent one (generated name, named at the Home Deed) with the verified
+// email on file. Ported from House.
+let googleClient = null;
+router.post('/login-google', async (req, res) => {
+  const { credential, linkPlayerId } = req.body || {};
+  if (!credential) return res.status(400).json({ success: false, error: 'Missing Google credential.', code: 'MISSING' });
+  if (!process.env.GOOGLE_CLIENT_ID) return res.status(500).json({ success: false, error: 'Google sign-in is not configured on this server.', code: 'UNCONFIGURED' });
+  try {
+    if (!googleClient) { const { OAuth2Client } = require('google-auth-library'); googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); }
+    const ticket = await googleClient.verifyIdToken({ idToken: credential, audience: process.env.GOOGLE_CLIENT_ID });
+    const payload = ticket.getPayload();
+    const googleId = payload.sub;
+    const email = String(payload.email || '').toLowerCase();
+    const picture = payload.picture || null;
+    if (!payload.email_verified) return res.status(400).json({ success: false, error: 'Google email is not verified.', code: 'EMAIL_UNVERIFIED' });
+
+    if (linkPlayerId) {
+      if (!mongoose.isValidObjectId(linkPlayerId)) return res.status(400).json({ success: false, error: 'Invalid player.', code: 'MISSING' });
+      const current = await Player.findById(linkPlayerId);
+      if (!current) return res.status(404).json({ success: false, error: 'Player not found.', code: 'NOT_FOUND' });
+      const claimed = await Player.findOne({ googleId });
+      if (claimed && String(claimed._id) !== String(current._id)) {
+        return res.status(409).json({ success: false, error: 'That Google account is already linked to another profile.', code: 'GOOGLE_TAKEN' });
+      }
+      current.googleId = googleId;
+      current.google_picture = picture;
+      if (!current.email || current.email_source !== 'manual') { current.email = email; current.email_source = 'oauth'; }
+      if (!current.email_prompt_seen_at) current.email_prompt_seen_at = new Date();
+      await current.save();
+      sendWelcomeEmail(current).catch(() => {});
+      recordActivity(current._id, { username: current.username }).catch(() => {});
+      console.log(`✅ Google linked to ${current.username}`);
+      return res.json({ success: true, player: publicPlayer(current), isNewAccount: false, linked: true });
+    }
+
+    let player = await Player.findOne({ googleId });
+    let isNewAccount = false;
+    if (player) {
+      await Player.updateOne({ _id: player._id }, { $set: { google_picture: picture, lastActive: new Date() } });
+      player = await Player.findById(player._id);
+      console.log(`✅ Google login: ${player.username}`);
+    } else {
+      const ipHash = signupIpHash(req.ip);
+      if (await signupRateLimited(ipHash)) return res.status(429).json({ success: false, error: 'Too many new profiles from this network today. Please try again tomorrow.', code: 'RATE_LIMITED' });
+      let frontierId = req.body.frontierId;
+      if (!frontierId) { const Frontier = require('../models/frontier'); frontierId = (await Frontier.findOne({ name: 'Valley View 1' }, { _id: 1 }).lean())?._id; }
+      if (!frontierId) return res.status(500).json({ success: false, error: 'No frontier to start in.', code: 'NO_FRONTIER' });
+      const username = await generateUniqueRandomUsername(Player);
+      player = await createPlayerAccount({
+        username, silent: true, hashedPassword: NO_PASSWORD, ipHash, icon: null,
+        language: req.body.language || 'en', frontierId, browser: req.body.browser, os: req.body.os, diagnostics: req.body.diagnostics,
+        clientInfo: sanitizeClientInfo(req.body.clientInfo || null),
+        extra: { googleId, google_picture: picture, email, email_source: 'oauth', email_prompt_seen_at: new Date() },
+      }, req.app.get('socketio'));
+      isNewAccount = true;
+      sendWelcomeEmail(player).catch(() => {});
+      console.log(`✅ Google signup: new player ${username}`);
+    }
+    recordActivity(player._id, { username: player.username }).catch(() => {});
+    res.json({ success: true, player: publicPlayer(player), isNewAccount });
+  } catch (err) {
+    console.error('❌ /login-google:', err?.message || err);
+    res.status(400).json({ success: false, error: 'Google sign-in failed.', code: 'GOOGLE_FAILED' });
+  }
+});
 
 // Route: Login an Existing Player
 // A passwordless profile (password === NO_PASSWORD) signs in with the username alone; sending a

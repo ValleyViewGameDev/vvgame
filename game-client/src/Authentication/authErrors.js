@@ -14,6 +14,7 @@ const CODES = {
   PROFANE: 4082,
   RATE_LIMITED: 4087,
   EMAIL_INVALID: 4104,
+  GOOGLE_FAILED: 4119,
 };
 
 export function authErrorText(err, strings, fallback) {

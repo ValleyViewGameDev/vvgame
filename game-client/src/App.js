@@ -139,6 +139,7 @@ import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
+import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } from './UI/Modals/InstallPromptModal';
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
@@ -890,6 +891,8 @@ const signinMode = useRef(false); // true when the login panel is the deliberate
 const [isSilentCreating, setIsSilentCreating] = useState(false); // a new visitor's account is being made
 const [showBegin, setShowBegin] = useState(false); // new visitor: key art + the Begin modal until they tap
 const [emailAsk, setEmailAsk] = useState(null); // { inApp } while the once-only email ask is open
+const [showInstallPrompt, setShowInstallPrompt] = useState(false); // BL-1, once per device on phone browsers
+const deferredInstallPrompt = useRef(null); // Android's beforeinstallprompt, captured at boot
 // `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
 // there is no live session, then drop the parameters. Skipped in in-app browsers, where the
 // session would not survive anyway and the prompt only confuses.
@@ -2270,11 +2273,20 @@ useEffect(() => {
     axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { email_prompt_seen_at: seenAt } }).catch(() => {});
     setEmailAsk({ inApp });
   };
-  const onHarvest = () => maybeAsk(isInAppBrowser());
+  const onHarvest = () => {
+    const p = currentPlayerRef.current;
+    const emailDue = p && !p.email && !p.email_prompt_seen_at && p.named !== false;
+    if (emailDue) { maybeAsk(isInAppBrowser()); return; }
+    // BL-1: the install invitation takes the next harvest after the email ask, on a phone
+    // browser only, never inside the installed app, remembered per device.
+    if (isPhone() && !isStandalone() && !installPromptDismissed() && !isInAppBrowser() && p?.named !== false) setShowInstallPrompt(true);
+  };
   const onNamed = () => { if (isInAppBrowser()) setTimeout(() => maybeAsk(true), 1500); };
+  const onBeforeInstall = (e) => { e.preventDefault(); deferredInstallPrompt.current = e; };
   window.addEventListener('vv:crop-harvested', onHarvest);
   window.addEventListener('vv:named', onNamed);
-  return () => { window.removeEventListener('vv:crop-harvested', onHarvest); window.removeEventListener('vv:named', onNamed); };
+  window.addEventListener('beforeinstallprompt', onBeforeInstall);
+  return () => { window.removeEventListener('vv:crop-harvested', onHarvest); window.removeEventListener('vv:named', onNamed); window.removeEventListener('beforeinstallprompt', onBeforeInstall); };
 }, []);
 
 useEffect(() => {
@@ -3748,6 +3760,7 @@ return (
        />
       )}
       {showBegin && <BeginModal onBegin={handleBegin} onSignIn={handleBeginSignIn} />}
+      {showInstallPrompt && <InstallPromptModal deferredPrompt={deferredInstallPrompt.current} onClose={() => setShowInstallPrompt(false)} />}
       {emailAsk && currentPlayer && (
         <EmailModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} inApp={emailAsk.inApp} onClose={() => setEmailAsk(null)} />
       )}

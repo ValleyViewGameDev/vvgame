@@ -1,5 +1,5 @@
 import API_BASE from '../config';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panels/Panel';
 import CreateAccount from './CreateAccount';
@@ -11,6 +11,7 @@ import { useStrings } from '../UI/StringsContext';
 import soundManager from '../Sound/SoundManager';
 import { sendPageviewBeacon } from '../Utils/pageviewBeacon';
 import { authErrorText } from './authErrors';
+import { isGoogleAvailable, renderGoogleButton, loginWithGoogle } from './googleSignIn';
 
 // initialUsername / initialView come from a `?signin=1&u=<name>` link (App.js): the sign-in form
 // opens prefilled so a returning player never creates a second profile by mistake.
@@ -20,6 +21,24 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(initialView === 'signin');
+  const googleRef = useRef(null);
+
+  // Google button (sign in, or a new account with the Google email on file). Hidden when no
+  // client id is configured or inside an in-app browser.
+  useEffect(() => {
+    if (!showLoginExistingAccount) return;
+    const tryRender = () => renderGoogleButton(googleRef.current, async (credential) => {
+      try {
+        const data = await loginWithGoogle(credential);
+        if (data?.success && data.player) {
+          localStorage.setItem('player', JSON.stringify(data.player));
+          localStorage.setItem('initialZoomLevel', 'close');
+          window.location.reload();
+        } else setError(authErrorText(data, strings, strings[4119]));
+      } catch (err) { setError(authErrorText(err, strings, strings[4119])); }
+    });
+    if (!tryRender()) { const t = setTimeout(tryRender, 1500); return () => clearTimeout(t); } // GIS script may still be loading
+  }, [showLoginExistingAccount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Play login screen music on mount, stop on unmount
   useEffect(() => {
@@ -92,6 +111,13 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
               </button>
             </div>
           </form>
+
+          {isGoogleAvailable() && (
+            <div className="login-google">
+              <p className="login-divider">{strings[4117]}</p>
+              <div ref={googleRef} className="login-google-button" />
+            </div>
+          )}
 
           <div className="panel-buffer-space" />
 

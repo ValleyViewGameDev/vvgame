@@ -22,3 +22,5 @@
 .email-modal .email-modal-assurance { margin: 10px 0 0; font-size: 12px; color: var(--color-text-muted); line-height: 1.35; }
 .email-modal .email-modal-privacy { margin: 6px 0 0; font-size: 12px; }
 .email-modal .email-modal-privacy a { color: var(--color-text-secondary); }
+.email-modal .email-modal-google { margin-top: 10px; display: flex; flex-direction: column; align-items: center; }
+.email-modal .email-modal-divider { margin: 0 0 6px; font-size: 13px; color: var(--color-text-muted); }

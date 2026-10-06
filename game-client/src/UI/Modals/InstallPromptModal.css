@@ -1,0 +1,7 @@
+/* InstallPromptModal: the one-time Add-to-Home-Screen invitation (docs/backlog.md BL-1) */
+.modal-overlay .modal-container.install-modal { width: 340px; max-height: 85vh; height: auto; }
+.install-modal .modal-content { text-align: center; }
+.install-modal .install-logo { display: block; margin: 0 auto 10px; width: 64px; height: 64px; }
+.install-modal .install-body { margin: 0 0 12px; font-size: 15px; line-height: 1.4; }
+.install-modal .install-actions { display: flex; gap: 8px; justify-content: center; }
+.install-modal .install-actions .btn-basic { flex: 1; }

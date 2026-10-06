@@ -19,6 +19,10 @@ const playerSchema = new mongoose.Schema({
   email_bounced_at: { type: Date, default: null },
   welcome_email_sent_at: { type: Date, default: null },     // atomic once-only stamp (utils/emailNotifications.js)
   email_prompt_seen_at: { type: Date, default: null },      // the in-game ask is shown once
+  subscription_thanks_email_sent_at: { type: Date, default: null },
+  // Google sign-in (routes/auth.js /login-google): one account per Google id; partial index so the nulls don't collide
+  googleId: { type: String, default: null, index: { unique: true, partialFilterExpression: { googleId: { $type: 'string' } } } },
+  google_picture: { type: String, default: null },
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step

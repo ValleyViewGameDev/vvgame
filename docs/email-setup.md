@@ -135,3 +135,45 @@ cd game-server && node -e "require('dotenv').config();const m=require('mongoose'
 
 Template copy, subject, design, From name and Reply-To all live in Loops. Only the
 transactional IDs are configuration, and only the variable names are code.
+
+## 3. Phase D: the event announcement, the Gold thanks, Google sign-in
+
+### 3.1 Event announcement (marketing)
+
+Template per language, declared variables `username`, `eventName`, `eventDates`, `eventCloses`,
+`eventHook`, `ctaUrl`, `unsubscribeUrl`; the body must contain a link to `{{unsubscribeUrl}}`.
+IDs go into `LOOPS_TID_EVENT_<LANG>`; `PUBLIC_SERVER_URL` must be set for the unsubscribe link.
+
+The runner is `tools/send-event-announcement.js` (dry run by default). Windows come from the
+frontier's live timers: Train loading, Carnival here, and the season's last seven days.
+
+```bash
+node tools/send-event-announcement.js --event train                     # who would get it
+node tools/send-event-announcement.js --event train --to-username Oberon --send   # yourself only
+node tools/send-event-announcement.js --auto --send                     # what the cron runs
+```
+
+Render → the `vvgame-server` service → Cron Jobs → New: command `node tools/send-event-announcement.js --auto --send`,
+schedule `30 11 * * *` (daily, after the day rollover). The `EmailSend` ledger keeps a manual run
+and the cron from double-sending; no player gets more than one marketing email per 7 days
+(`--cap-days`). To announce only to lapsed players, add `--lapsed-days 3`.
+
+Measure it like House did: compare D1 return of recipients against the same players on a
+placebo date with no email, and read reactivation of lapsed recipients separately.
+
+### 3.2 Gold Pass thanks (transactional)
+
+Template per language with `username` and `signinUrl`; IDs in `LOOPS_TID_SUB_THANKS_<LANG>`.
+Sent once per player when the Gold upgrade is recorded, only when an email is on file.
+
+### 3.3 Google sign-in
+
+Google Cloud console → APIs & Services → Credentials → OAuth client ID (Web): authorised
+JavaScript origins `https://www.secretsofelsinore.com`, `https://vvgame.onrender.com` and
+`http://localhost:3000`. Put the client ID in `GOOGLE_CLIENT_ID` on `vvgame-server` and in
+`REACT_APP_GOOGLE_CLIENT_ID` on the `vvgame-client` static site (it is baked in at build
+time, so redeploy the client). Until both are set no Google button renders anywhere. The
+button appears on the sign-in form (sign in, or a new account with the Google email on file,
+named at the Home Deed like any other) and inside the email ask, where it LINKS the current
+profile instead of creating one.
+

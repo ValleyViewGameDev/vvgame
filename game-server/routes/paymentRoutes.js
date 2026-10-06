@@ -101,6 +101,7 @@ router.post('/purchase-store-offer', async (req, res) => {
       player.accountStatus = "Gold";
       await player.save();
       logPurchase(player, offer);   // purchases ledger + analytics day flag (fire-and-forget)
+      require('../utils/emailNotifications').sendSubscriptionThanksEmail(player).catch(() => {}); // once, needs an email on file
       return res.status(200).json({ success: true, message: "Gold account upgraded." });
     }
 

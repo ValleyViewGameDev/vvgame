@@ -206,3 +206,8 @@
   box-shadow: 0 0 8px var(--color-primary-green);
   transform: scale(1.2);
 }
+
+/* Google sign-in under the sign-in form (Authentication/googleSignIn.js) */
+.login-google { margin-top: 12px; text-align: center; }
+.login-divider { margin: 0 0 8px; font-size: 13px; color: var(--color-text-muted); }
+.login-google-button { display: flex; justify-content: center; }
