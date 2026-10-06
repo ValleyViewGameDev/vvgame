@@ -20,7 +20,7 @@ export default function BeginModal({ onBegin, onSignIn }) {
   return (
     <Modal size="small" className="begin-modal" onClose={() => {}} title={strings[0]}>
       <div className="shared-buttons">
-        <button className="btn-basic btn-success begin-button" onClick={begin} disabled={busy} autoFocus>
+        <button className="btn-basic btn-success begin-button" onClick={begin} disabled={busy}>
           {busy ? strings[4093] : strings[4096]}
         </button>
       </div>
