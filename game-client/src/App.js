@@ -267,15 +267,6 @@ useEffect(() => {
   // Phones: a closing panel slides out (a clone of the removed node plays the animation)
   useEffect(() => installPanelExitGhost(), []);
   useEffect(() => installScrollFade(), []);
-  // Developer Edit Mode (⌘+Ctrl+E, desktop only): font sizes and strings edited in place and
-  // written back to the source tree through /api/dev/* (Dev/devEditMode.js). Developers only.
-  useEffect(() => {
-    if (!isDeveloper) return;
-    initDevEditMode({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
-  }, [isDeveloper]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (isDeveloper) setDevEditContext({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
-  }, [isDeveloper, currentPlayer?.playerId, currentPlayer?.language]);
 
   // Browser chrome on phones. A page cannot hide Safari's own bars (a tap at the top edge in
   // landscape brings them back by design); the two things it can do are (1) ask for
@@ -2257,6 +2248,16 @@ useEffect(() => {
   }
 }, [currentPlayer]);
 
+// Developer Edit Mode (⌘+Ctrl+E, desktop only): font sizes and strings edited in place and
+// written back to the source tree through /api/dev/* (Dev/devEditMode.js). Developers only.
+useEffect(() => {
+  if (!isDeveloper) return;
+  initDevEditMode({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
+}, [isDeveloper]); // eslint-disable-line react-hooks/exhaustive-deps
+useEffect(() => {
+  if (isDeveloper) setDevEditContext({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
+}, [isDeveloper, currentPlayer?.playerId, currentPlayer?.language]);
+
 // The once-only email ask (docs/onboarding-plan.md §4.5): after the first crop harvest, or, in an
 // in-app browser where the session rarely survives, right after the Home Deed is signed. Shown
 // once per profile (email_prompt_seen_at), never to an unnamed or already-emailed player.
@@ -3760,7 +3761,7 @@ return (
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel} 
           initialUsername={signinPrefill?.username || ''}
-          initialView={signinPrefill ? 'signin' : 'create'}
+          initialView="signin" /* opened by a ?signin link, logout or the Begin gate's link: the sign-in form; the create form stays one link away */
           onLoginSuccess={async (username, password) => {
             await handleLoginSuccess(username, password);
           }}
