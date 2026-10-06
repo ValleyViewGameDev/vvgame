@@ -59,6 +59,7 @@ vvgame/
 │   ├── backlog.md            # agreed-but-unscheduled work (BL-n items), e.g. the Add-to-Home-Screen FTUE prompt
 │   ├── ui-conventions.md     # the UI/UX rules (modals, panels, phone layout, buttons, copy); check before any UI change
 │   ├── tuning.md             # tuning principles, knobs, level curve, Kent offer rules, compatibility; check before any tuning change
+│   ├── email-setup.md        # Render env vars + Loops template setup for the welcome/event emails (what to click, which IDs go where)
 │   ├── onboarding-plan.md    # PLAN (2026-10-05): first screen, passwordless silent account, name at the Home Deed, email + Loops, FTUE arc; read before touching login/FTUE/email
 │   └── audits/               # deep read-only audits with file:line citations (six from 2026-10-01; client-review-2026-10-03.md = whole-client + renderer strategy)
 ├── game-server/
