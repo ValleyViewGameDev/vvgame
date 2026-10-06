@@ -6,12 +6,19 @@ export async function sendNewUserEmail(player) {
   console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
   console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
   
+  // family: 4 forces IPv4: Render's outbound network cannot reach Gmail's IPv6 SMTP endpoints
+  // reliably (ENETUNREACH). The timeouts stop a stuck socket from hanging with no error line.
+  // Same settings as House's utils/emailUtils.js.
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.ALERT_EMAIL_USERNAME,     // Your Gmail
-      pass: process.env.ALERT_EMAIL_PASSWORD      // App password
+      user: process.env.ALERT_EMAIL_USERNAME,     // the studio Gmail
+      pass: process.env.ALERT_EMAIL_PASSWORD      // that account's app password
     },
+    family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   });
 
   const mailOptions = {
