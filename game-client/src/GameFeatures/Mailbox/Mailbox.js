@@ -168,9 +168,11 @@ const renderRewards = (rewards) => {
     );
   }
 
+  // messageIndex is the index in the STORED order (visibleMessages), not the on-screen order:
+  // the list renders newest first, so callers un-reverse the row index the way handleCollect does.
   const deleteMessage = async (playerId, messageIndex) => {
     try {
-      const updatedMessages = [...currentPlayer.messages];
+      const updatedMessages = [...visibleMessages];
       updatedMessages.splice(messageIndex, 1); // Remove the one at this index only
     
       await axios.post(`${API_BASE}/api/update-player-messages`, {
@@ -178,6 +180,7 @@ const renderRewards = (rewards) => {
         messages: updatedMessages,
       });
   
+      setVisibleMessages(updatedMessages);
       setCurrentPlayer((prev) => ({
         ...prev,
         messages: updatedMessages,
@@ -252,7 +255,7 @@ const renderRewards = (rewards) => {
                     title="Delete"
                     onClick={() => {
                       if (window.confirm("Are you sure you want to delete this message?")) {
-                        deleteMessage(currentPlayer.playerId, index);
+                        deleteMessage(currentPlayer.playerId, visibleMessages.length - 1 - index); // rows are newest-first
                       }
                     }}
                   >
