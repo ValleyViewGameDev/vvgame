@@ -10,15 +10,6 @@
   },
   {
     "step": 2,
-    "trigger": "GertrudeStory",
-    "showModal": true,
-    "modalIcon": "👸",
-    "bodyKey": 740,
-    "continue": true,
-    "addQuests": []
-  },
-  {
-    "step": 3,
     "trigger": "ContinuedFromStep1",
     "doinker": true,
     "doinkerType": "resource",
@@ -28,7 +19,7 @@
     "addQuests": []
   },
   {
-    "step": 4,
+    "step": 3,
     "trigger": "ClickedConstableElbow",
     "showModal": false,
     "openPanel": "NPCPanel",
@@ -39,7 +30,7 @@
     "addQuests": []
   },
   {
-    "step": 5,
+    "step": 4,
     "trigger": "BoughtHomeDeed",
     "doinker": true,
     "doinkerType": "resource",
@@ -49,17 +40,18 @@
     "addQuests": []
   },
   {
-    "step": 6,
+    "step": 5,
     "trigger": "HomesteadVisit",
     "doinker": true,
     "doinkerType": "resource",
     "doinkerTarget": "Mailbox",
     "notificationKey": 7063,
     "notificationIcon": "📬",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "mailbox.svg"
   },
   {
-    "step": 7,
+    "step": 6,
     "trigger": "CollectedMail",
     "showModal": true,
     "modalType": "icon",
@@ -68,7 +60,7 @@
     "addQuests": []
   },
   {
-    "step": 8,
+    "step": 7,
     "trigger": "ChoseAvatar",
     "doinker": true,
     "doinkerType": "resource",
@@ -81,7 +73,7 @@
     "addQuests": []
   },
   {
-    "step": 9,
+    "step": 8,
     "trigger": "SoldToKent",
     "openPanel": "FarmingPanel",
     "showFeedbackModalAfter": true,
@@ -97,7 +89,7 @@
     ]
   },
   {
-    "step": 10,
+    "step": 9,
     "trigger": "PlantedFirstCrop",
     "showModal": false,
     "continue": false,
@@ -109,14 +101,14 @@
     "addQuests": []
   },
   {
-    "step": 11,
+    "step": 10,
     "trigger": "CollectedQuest",
     "addQuests": [
       7
     ]
   },
   {
-    "step": 12,
+    "step": 11,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -126,7 +118,7 @@
     "addQuests": []
   },
   {
-    "step": 13,
+    "step": 12,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -137,7 +129,7 @@
     "addQuests": []
   },
   {
-    "step": 14,
+    "step": 13,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -146,7 +138,7 @@
     "addQuests": []
   },
   {
-    "step": 15,
+    "step": 14,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalIcon": "🧔🏼‍♂️",
@@ -160,7 +152,7 @@
     "addQuests": []
   },
   {
-    "step": 16,
+    "step": 15,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

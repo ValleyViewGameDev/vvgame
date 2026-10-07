@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './Notifications.css';
 import { useStrings } from '../StringsContext';
 
+// The big icon at the left of a toast: an emoji (data.icon) or, when data.iconSrc is set, an
+// image such as a resource's own board art (/assets/resources/<file>.svg), so a toast about the
+// Mailbox can show the Mailbox the player sees on the board.
+function renderIcon(data, fallbackEmoji) {
+  if (data?.iconSrc) return <img className="notification-icon-img" src={data.iconSrc} alt="" />;
+  return data?.icon || fallbackEmoji;
+}
+
 // Global notification manager
 let notificationRoot = null;
 let notificationTimer = null;
@@ -54,7 +62,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || '🏆'}</div>
+                            <div className="notification-icon">{renderIcon(data, '🏆')}</div>
                             {data.type === 'Progress' && data.progress && (
                                 <div className="notification-milestone">{data.progress}</div>
                             )}
@@ -73,7 +81,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || '🌙'}</div>
+                            <div className="notification-icon">{renderIcon(data, '🌙')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Phase Change</div>
@@ -86,7 +94,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || '📨'}</div>
+                            <div className="notification-icon">{renderIcon(data, '📨')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || 'New Message'}</div>
@@ -99,7 +107,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || '✅'}</div>
+                            <div className="notification-icon">{renderIcon(data, '✅')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[204]}</div>
@@ -112,7 +120,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
+                            <div className="notification-icon">{renderIcon(data, 'ℹ️')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7001]}</div>
@@ -125,7 +133,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || '👸'}</div>
+                            <div className="notification-icon">{renderIcon(data, '👸')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7001]}</div>
@@ -138,7 +146,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
+                            <div className="notification-icon">{renderIcon(data, 'ℹ️')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7049]}</div>
@@ -151,7 +159,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
+                            <div className="notification-icon">{renderIcon(data, 'ℹ️')}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Notification</div>
@@ -184,6 +192,7 @@ function Notification({ type, data, onDismiss, onClick }) {
  * @param {string} type - The type of notification ('Trophy', 'Phase Change', 'Message', etc.)
  * @param {Object} data - The data to display in the notification
  * @param {string} [data.icon] - Optional emoji to override the default notification icon
+ * @param {string} [data.iconSrc] - Optional image URL shown instead of the emoji (e.g. a resource sprite)
  * @param {Function} onClick - Optional click handler for the notification
  */
 /**

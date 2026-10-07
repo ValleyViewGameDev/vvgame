@@ -63,7 +63,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         title: strings[7049],
         message: uiString(strings, currentStepData.notificationKey),
         username: currentPlayer?.username,
-        ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon })
+        ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon }),
+        ...(currentStepData.notificationSprite && { iconSrc: `/assets/resources/${currentStepData.notificationSprite}` })
       });
     }
 
@@ -148,7 +149,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           title: strings[7049],
           message: uiString(strings, stepData.notificationKey),
           username: currentPlayer?.username,
-          ...(stepData.notificationIcon && { icon: stepData.notificationIcon })
+          ...(stepData.notificationIcon && { icon: stepData.notificationIcon }),
+          ...(stepData.notificationSprite && { iconSrc: `/assets/resources/${stepData.notificationSprite}` })
         });
       }
       // Auto-add quests defined in FTUEsteps.json

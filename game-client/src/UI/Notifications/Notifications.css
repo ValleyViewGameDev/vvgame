@@ -80,6 +80,12 @@
     font-size: 40px;
     line-height: 1;
 }
+.notification-icon-img {
+    display: block;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
 
 /* Milestone number overlay */
 .notification-milestone {

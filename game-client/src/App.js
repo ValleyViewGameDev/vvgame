@@ -3266,8 +3266,8 @@ return (
       </button>
       <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>{renderNavIcon('QuestPanel', '✅')}</button>
 
-      {/* Hide these panels during early FTUE steps (1-3: Gertrude's story, the deed push, the walk to Elbow) */}
-      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 3) && (
+      {/* Hide these panels during early FTUE steps (1-2: Gertrude's story, the walk to Elbow) */}
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <>
           <button
             className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer}
@@ -3331,7 +3331,7 @@ return (
         >{renderNavIcon('BuyDecoPanel', '🪴')}</button>
       )}
 
-      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 3) && (
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
       )}
 
@@ -3339,7 +3339,7 @@ return (
         <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>{renderNavIcon('GovPanel', '🏛️')}</button>
       )}
 
-      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 3) && (
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>{renderNavIcon('TrophyPanel', '🏆')}</button>
       )}
 
