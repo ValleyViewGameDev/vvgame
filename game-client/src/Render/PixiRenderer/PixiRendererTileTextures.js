@@ -83,10 +83,23 @@ export function getVariation(row, col, numVariations = 4) {
 }
 
 /**
- * Get seed from row/col position
+ * Get seed from row/col position.
+ *
+ * The seed only picks WHICH of a few pre-drawn looks a cell gets, so that every tile texture
+ * is shared across the grid. A per-cell seed (the old `(row*127 + col*53) % 10000`) made
+ * almost every one of the 4,096 cells its own 64 px canvas and GPU texture, rebuilt on every
+ * grid change; with VARIANT_SEEDS a grid needs a few dozen textures that batch into a
+ * handful of draw calls (2026-10-07, docs/audits/client-review-2026-10-03.md §2.3).
  */
+const VARIANT_SEEDS = [1181, 2477, 3613, 4909, 6151, 7331, 8629, 9803];
+export const TILE_VARIANTS = VARIANT_SEEDS.length;
+
+export function getVariant(row, col) {
+  return (row * 73 + col * 37 + ((row * 7 + col * 13) % 3)) % TILE_VARIANTS;
+}
+
 export function getSeed(row, col) {
-  return (row * 127 + col * 53) % 10000;
+  return VARIANT_SEEDS[getVariant(row, col)];
 }
 
 // ============================================
@@ -798,22 +811,36 @@ function getNeighbor(tileTypes, row, col, defaultType) {
 }
 
 /**
- * Draw corner rounding for a tile
+ * Corner signature: what corner rounding will DRAW on this cell, as four slots
+ * (top-left, top-right, bottom-left, bottom-right), each '-' (nothing) or the neighbour type
+ * whose colour fills that corner. It is the only thing about a cell's surroundings that
+ * reaches the pixels, so it is what the texture cache keys on (eight raw neighbours would
+ * make hundreds of keys that draw identically).
  */
-function drawCornerRounding(ctx, tileType, size, row, col, tileTypes) {
-  if (!isOrganicTile(tileType)) return;
-
+export function cornerSignature(tileType, row, col, tileTypes) {
+  if (!isOrganicTile(tileType) || !tileTypes) return '----';
   const myPriority = CORNER_PRIORITY[tileType] || 0;
-  const cornerRadius = Math.max(2, Math.floor(size * 0.2));
-
   const top = getNeighbor(tileTypes, row - 1, col, tileType);
   const bottom = getNeighbor(tileTypes, row + 1, col, tileType);
   const left = getNeighbor(tileTypes, row, col - 1, tileType);
   const right = getNeighbor(tileTypes, row, col + 1, tileType);
-  const topLeft = getNeighbor(tileTypes, row - 1, col - 1, tileType);
-  const topRight = getNeighbor(tileTypes, row - 1, col + 1, tileType);
-  const bottomLeft = getNeighbor(tileTypes, row + 1, col - 1, tileType);
-  const bottomRight = getNeighbor(tileTypes, row + 1, col + 1, tileType);
+  const corner = (a, b, diag) => {
+    if (a === tileType || b === tileType || a !== b) return '-';
+    const surrounded = diag === a && isOrganicTile(a);
+    return (surrounded || (CORNER_PRIORITY[a] || 0) > myPriority) ? a : '-';
+  };
+  return corner(top, left, getNeighbor(tileTypes, row - 1, col - 1, tileType))
+    + corner(top, right, getNeighbor(tileTypes, row - 1, col + 1, tileType))
+    + corner(bottom, left, getNeighbor(tileTypes, row + 1, col - 1, tileType))
+    + corner(bottom, right, getNeighbor(tileTypes, row + 1, col + 1, tileType));
+}
+
+/**
+ * Draw corner rounding for a tile from its corner signature (see cornerSignature)
+ */
+function drawCornerRounding(ctx, size, signature) {
+  if (!signature || signature === '----') return;
+  const cornerRadius = Math.max(2, Math.floor(size * 0.2));
 
   const drawOuterCorner = (corner, fillColor) => {
     ctx.fillStyle = fillColor;
@@ -847,44 +874,15 @@ function drawCornerRounding(ctx, tileType, size, row, col, tileTypes) {
         ctx.quadraticCurveTo(size, size, size, size - cornerRadius);
         ctx.closePath();
         break;
+      default:
+        break;
     }
     ctx.fill();
   };
 
-  // Top-left corner
-  if (top !== tileType && left !== tileType && top === left) {
-    const neighborPriority = CORNER_PRIORITY[top] || 0;
-    const isSurrounded = topLeft === top && isOrganicTile(top);
-    if (isSurrounded || neighborPriority > myPriority) {
-      drawOuterCorner('topLeft', getTileColor(top));
-    }
-  }
-
-  // Top-right corner
-  if (top !== tileType && right !== tileType && top === right) {
-    const neighborPriority = CORNER_PRIORITY[top] || 0;
-    const isSurrounded = topRight === top && isOrganicTile(top);
-    if (isSurrounded || neighborPriority > myPriority) {
-      drawOuterCorner('topRight', getTileColor(top));
-    }
-  }
-
-  // Bottom-left corner
-  if (bottom !== tileType && left !== tileType && bottom === left) {
-    const neighborPriority = CORNER_PRIORITY[bottom] || 0;
-    const isSurrounded = bottomLeft === bottom && isOrganicTile(bottom);
-    if (isSurrounded || neighborPriority > myPriority) {
-      drawOuterCorner('bottomLeft', getTileColor(bottom));
-    }
-  }
-
-  // Bottom-right corner
-  if (bottom !== tileType && right !== tileType && bottom === right) {
-    const neighborPriority = CORNER_PRIORITY[bottom] || 0;
-    const isSurrounded = bottomRight === bottom && isOrganicTile(bottom);
-    if (isSurrounded || neighborPriority > myPriority) {
-      drawOuterCorner('bottomRight', getTileColor(bottom));
-    }
+  const names = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
+  for (let i = 0; i < 4; i++) {
+    if (signature[i] !== '-') drawOuterCorner(names[i], getTileColor(signature[i]));
   }
 }
 
@@ -901,25 +899,14 @@ function drawCornerRounding(ctx, tileType, size, row, col, tileTypes) {
  * @returns {Texture} PixiJS texture
  */
 export function generateTileTexture(tileType, row, col, tileTypes = null) {
-  const seed = getSeed(row, col);
-  const variation = getVariation(row, col, 4);
+  const variant = getVariant(row, col);
+  const seed = VARIANT_SEEDS[variant];
+  const variation = variant % 4; // the detail drawers have four position sets each
 
-  // Create cache key - include neighbor info if corner rounding is needed
-  let cacheKey = `${tileType}-${variation}-${seed}`;
-  if (tileTypes && isOrganicTile(tileType)) {
-    // Include neighbor types in cache key for corner rounding
-    const neighbors = [
-      tileTypes[row - 1]?.[col] || 'g',
-      tileTypes[row + 1]?.[col] || 'g',
-      tileTypes[row]?.[col - 1] || 'g',
-      tileTypes[row]?.[col + 1] || 'g',
-      tileTypes[row - 1]?.[col - 1] || 'g',
-      tileTypes[row - 1]?.[col + 1] || 'g',
-      tileTypes[row + 1]?.[col - 1] || 'g',
-      tileTypes[row + 1]?.[col + 1] || 'g',
-    ].join('');
-    cacheKey = `${tileType}-${variation}-${seed}-${neighbors}`;
-  }
+  // Cache key: type + variant + what corner rounding will draw. Nothing position-specific,
+  // so every cell that looks the same shares one texture.
+  const signature = cornerSignature(tileType, row, col, tileTypes);
+  const cacheKey = `${tileType}-${variant}-${signature}`;
 
   // Return cached texture if available AND still valid
   if (tileTextureCache.has(cacheKey)) {
@@ -975,9 +962,7 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
     }
 
     // Draw corner rounding
-    if (tileTypes) {
-      drawCornerRounding(ctx, tileType, size, row, col, tileTypes);
-    }
+    drawCornerRounding(ctx, size, signature);
   }
 
   // Convert to PixiJS texture with error handling

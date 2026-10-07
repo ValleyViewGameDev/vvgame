@@ -367,6 +367,7 @@ const PixiRenderer = ({
   const appRef = useRef(null);
   const worldContainerRef = useRef(null);  // Parent container for all game layers - zoom applied here
   const tileContainerRef = useRef(null);
+  const tileSpritePool = useRef([]);       // one Sprite per tile cell, reused across grids
   const resourceContainerRef = useRef(null);
   const npcContainerRef = useRef(null);
   // pcContainerRef removed - now managed by PixiRendererPCs component
@@ -542,6 +543,7 @@ const PixiRenderer = ({
       // This is critical for recovering from WebGL context loss
       clearTextureCache();
       clearTileTextureCache();
+      tileSpritePool.current = [];
       clearGridSnapshotCache();
 
       // The canvas is the size of the visible board (PixiCamera keeps it in sync on resize).
@@ -699,6 +701,7 @@ const PixiRenderer = ({
       // Clear texture caches to prevent stale texture references on remount
       clearTextureCache();
       clearTileTextureCache();
+      tileSpritePool.current = [];
       resetAtlas(); // the sheets' BaseTextures died with the Application; next lookup reloads them
     };
   }, []); // Only run once on mount
@@ -753,34 +756,45 @@ const PixiRenderer = ({
     if (!tileContainerRef.current || !grid || !tileTypes) return;
 
     const tileContainer = tileContainerRef.current;
-
-    // Clear existing tiles
-    tileContainer.removeChildren();
+    const t0 = performance.now();
 
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
 
-    // Render each tile as a sprite with pre-rendered texture
-    // At settlement zoom, tiles are offset to their position within the 8×8 settlement world
+    // One sprite per cell, pooled across grid changes (tileSpritePool): a grid change or a
+    // single tile conversion only reassigns textures and positions. Textures come from the
+    // shared per-look cache (PixiRendererTileTextures), and the sprites are added to the
+    // container grouped by texture so Pixi's batcher draws the whole layer in a few calls
+    // (tiles never overlap, so their order does not matter).
+    const pool = tileSpritePool.current;
+    const byTexture = new Map();
+    let i = 0;
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const tileType = tileTypes[row]?.[col] || 'g';
-
-        // Generate texture with details and corner rounding
         const texture = generateTileTexture(tileType, row, col, tileTypes);
+        if (!texture) continue; // WebGL context issue: leave the cell empty this pass
 
-        // Skip if texture creation failed (e.g., WebGL context issue)
-        if (!texture) continue;
-
-        // Create sprite and position it
-        const sprite = new Sprite(texture);
+        let sprite = pool[i];
+        if (!sprite) { sprite = new Sprite(texture); pool[i] = sprite; }
+        else sprite.texture = texture;
+        i++;
         sprite.x = col * TILE_SIZE;
         sprite.y = row * TILE_SIZE;
         sprite.width = TILE_SIZE;
         sprite.height = TILE_SIZE;
 
-        tileContainer.addChild(sprite);
+        const group = byTexture.get(texture);
+        if (group) group.push(sprite); else byTexture.set(texture, [sprite]);
       }
+    }
+    pool.length = i; // a smaller grid drops the unused tail (sprites are plain quads, GC is fine)
+
+    tileContainer.removeChildren();
+    for (const group of byTexture.values()) for (const sprite of group) tileContainer.addChild(sprite);
+
+    if (process.env.NODE_ENV !== 'production') {
+      window.__tileStats = { sprites: i, textures: byTexture.size, ms: Math.round((performance.now() - t0) * 10) / 10 };
     }
   }, [grid, tileTypes, TILE_SIZE]); // Re-render when grid, tileTypes, or TILE_SIZE changes
 
