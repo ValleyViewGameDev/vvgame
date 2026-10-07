@@ -2,9 +2,11 @@ import React, { createContext, useContext, useRef, useCallback, useState } from 
 
 const TransitionContext = createContext(null);
 
-// Fade durations in ms
-const FADE_TO_BLACK_DURATION = 600;  // Slower fade to black (feels more deliberate)
-const FADE_FROM_BLACK_DURATION = 900; // Faster reveal of new scene
+// Fade durations in ms. A grid change pays both back to back, so they are the floor of
+// every crossing (docs/ui-conventions.md, motion): short enough to read as a cut with
+// a breath, not a scene change. Were 600 / 900 until 2026-10-07.
+const FADE_TO_BLACK_DURATION = 250;
+const FADE_FROM_BLACK_DURATION = 400;
 
 // Fixed overlay covering the board. The geometry is read from .homestead when a fade
 // starts (see boardRect), so the desktop layout (board at 84/300) and the phone layout
@@ -107,6 +109,8 @@ export const TransitionProvider = ({ children }) => {
         // Set transition duration for fade-from-black
         overlayRef.current.style.transition = `opacity ${FADE_FROM_BLACK_DURATION / 1000}s ease-in-out`;
         overlayRef.current.style.opacity = '0';
+        // The new grid is in place: taps go through while the black lifts
+        overlayRef.current.style.pointerEvents = 'none';
       }
 
       // Wait for CSS transition to complete

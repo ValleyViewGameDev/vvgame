@@ -17,7 +17,6 @@ const { plantNewTrees } = require('./plantNewTreesLogic');
 const { applySeasonTiles } = require('./seasonTiles');
 const { createDungeonGrid, resetDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('./dungeonUtils');
 const { markGridVisited } = require('./gridsVisitedUtils');
-const masterResources = require('../tuning/resources.json');
 
 // ---------- coordinates ----------
 
@@ -150,11 +149,10 @@ function spawnNextTo(grid, type, offset, fallback) {
 
 /** Same shape as GET /load-grid plus the NPC/PC maps, trimmed to this player's PC record. */
 function buildGridPayload(grid, playerId, { ownerUsername = null } = {}) {
-  const raw = gridResourceManager.getResources(grid);
-  const resources = raw.map((r) => {
-    const t = masterResources.find((m) => m.type === r.type);
-    return t ? { ...t, ...r } : { ...r };
-  });
+  // Compact: type, x, y and per-instance state only. The client merges the master row itself
+  // (AppInit.enrichGridResources) from the resources.json it already holds; sending the row
+  // with every instance made a town bundle ~590 KB instead of ~40 KB (2026-10-07).
+  const resources = gridResourceManager.getResources(grid);
   const npcs = grid.NPCsInGrid instanceof Map ? Object.fromEntries(grid.NPCsInGrid) : (grid.NPCsInGrid || {});
   const pcs = grid.playersInGrid instanceof Map ? Object.fromEntries(grid.playersInGrid) : (grid.playersInGrid || {});
   const mine = playerId && pcs[playerId] ? { [playerId]: pcs[playerId] } : {};

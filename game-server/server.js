@@ -31,6 +31,7 @@ if (process.env.NODE_ENV === 'production') {
 const fs = require('fs');
 const path = require('path');  
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const http = require('http');
@@ -84,6 +85,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors(corsOptions));
 
+app.use(compression()); // gzip every response (grid bundles are JSON that compresses ~10x)
 app.use(express.json({ limit: '10mb' }));
 
 // Service status (update notice / maintenance). See utils/serviceMode.js.

@@ -533,7 +533,7 @@ export const changePlayerLocation = async (
       };
 
       // TEMPORARY (see startFade above): the cached crossing is faster than the fade-to-black
-      // (600 ms), so wait for black before swapping grids or the overlay never becomes visible.
+      // (TransitionContext), so wait for black before swapping grids or the overlay never becomes visible.
       await fadeToBlackDone;
       const arrived = await arrive({ grid, location, spawn: null, ownerUsername: ownerUsername ?? null });
 

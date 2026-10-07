@@ -39,7 +39,7 @@ Response `200`:
     "ownerId": "...", "region": "Belmont", "settlementId": "...", "frontierId": "...",
     "isFTUECave": false,
     "tiles": [[ "g", ... ] ...],            // 64x64 decoded, same shape as GET /load-grid
-    "resources": [ { "type": "Oak Tree", "x": 3, "y": 4, ... } ],   // decoded + enriched, same as GET /load-grid
+    "resources": [ { "type": "Oak Tree", "x": 3, "y": 4, ... } ],   // decoded, COMPACT: type/x/y + instance state; the client merges the master row (2026-10-07)
     "NPCsInGrid": { "<npcId>": { ... } },   // same shape as GET /load-grid-state
     "playersInGrid": { "<playerId>": { ... } }  // only this player's record, if any
   },

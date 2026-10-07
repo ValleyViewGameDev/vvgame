@@ -177,6 +177,11 @@ value rather than trust this page.
 
 - Panel slide: 260 ms in, 220 ms out. Camera: zoom ease 220 ms, pan return 350 ms. Movement
   animation equals the step cadence (90 ms). Match these before inventing a new duration.
+- Grid-change fade (`UI/TransitionContext.js`): 250 ms to black, 400 ms back. A crossing pays
+  both back to back, so together they are the floor of every grid change; keep them a short
+  breath, not a scene change (they were 600 / 900 until 2026-10-07 and read as "slow"). The
+  overlay stops blocking taps the moment the fade-up starts, since the new grid is already in
+  place. The fade stays until grid-to-grid travel is seamless (docs/phase-3-contract.md §4.3).
 - Preview the change on a phone viewport (375x812 portrait and a 500 px-tall landscape) as
   well as desktop before calling it done; the two orientations have separate rules.
 
