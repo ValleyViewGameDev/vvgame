@@ -1225,7 +1225,7 @@
     "4093": "Checking...",
     "4094": "This name is free.",
     "4095": "You can change it later in Profile.",
-    "7063": "Welcome home! A welcome gift is waiting in your 📬 Mailbox.",
+    "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
     "7065": "Your crops are growing. Come back when they are ready, and keep an eye on the Signpost: the Train pays well for your goods.",
     "4096": "Begin the Adventure",
@@ -1251,5 +1251,6 @@
     "4116": "Not now",
     "4117": "or",
     "4119": "Google sign-in failed.",
-    "4120": "Open the browser menu and choose Add to Home screen. The game then opens full screen, without the browser bars."
+    "4120": "Open the browser menu and choose Add to Home screen. The game then opens full screen, without the browser bars.",
+    "7053": "Welcome to your Homestead! This land is yours to build. Make Money by selling your goods to Kent."
 }

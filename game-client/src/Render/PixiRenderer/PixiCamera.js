@@ -283,6 +283,7 @@ export function animateZoom(target, onDone) {
   zoomFrame = requestAnimationFrame(step);
 }
 
+export function getPan() { return { ...pan }; }
 export function getZoom() { return zoom; }
 export function getTileSize() { return tileSize; }
 export function getViewport() { return { ...viewport }; }
@@ -314,7 +315,7 @@ export function screenToTile(screenX, screenY) {
 
 const PixiCamera = {
   attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, revealPlayerIn, setPanBounds, setZoom, animateZoom,
-  getZoom, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
+  getZoom, getPan, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
   debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),
 };

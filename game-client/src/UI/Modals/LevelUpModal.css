@@ -10,15 +10,15 @@
 
 @keyframes levelUpBounce {
   0% {
-    transform: scale(0.3) rotate(-10deg);
+    transform: scale(0.3);
     opacity: 0;
   }
-  50% {
-    transform: scale(1.1) rotate(2deg);
-    opacity: 0.8;
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     opacity: 1;
   }
 }

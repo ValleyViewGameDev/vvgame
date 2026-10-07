@@ -48,7 +48,8 @@
     "notificationKey": 7063,
     "notificationIcon": "📬",
     "addQuests": [],
-    "notificationSprite": "mailbox.svg"
+    "notificationSprite": "mailbox.svg",
+    "scrim": true
   },
   {
     "step": 6,
@@ -69,8 +70,8 @@
       "Kent"
     ],
     "notificationKey": 7053,
-    "notificationIcon": "🤠",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "npc-kent.svg"
   },
   {
     "step": 8,
@@ -97,15 +98,18 @@
     "doinkerType": "resource",
     "doinkerTarget": "The Shepherd",
     "notificationKey": 7062,
-    "notificationIcon": "👵🏻",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "npc-shepherd.svg"
   },
   {
     "step": 10,
     "trigger": "CollectedQuest",
     "addQuests": [
       7
-    ]
+    ],
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Signpost Town"
   },
   {
     "step": 11,
@@ -126,7 +130,11 @@
     "continue": false,
     "notificationKey": 7056,
     "notificationIcon": "🗝️",
-    "addQuests": []
+    "addQuests": [],
+    "cutscene": {
+      "target": "Agriculture Center",
+      "holdMs": 2000
+    }
   },
   {
     "step": 13,

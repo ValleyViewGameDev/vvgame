@@ -1,0 +1,20 @@
+/* Scrim Moment (FTUEScrim.js): everything dark and inert except the target's tile */
+.ftue-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;                       /* above header, nav pill (1000), panels (990), modals */
+  pointer-events: none;                /* the panels take the events; the hole between them lets them through */
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+.ftue-scrim-panel {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.62);
+  pointer-events: auto;
+}
+/* What must stay readable and tappable over the scrim */
+body.ftue-scrim-active #notification-container { z-index: 1600; }
+body.ftue-scrim-active .ftue-doinker,
+body.ftue-scrim-active .ftue-doinker-button { z-index: 1600 !important; }
+/* A modal opened from the target (the Mailbox, the avatar picker) must be usable over the scrim */
+body.ftue-scrim-active .modal-overlay { z-index: 1600; }

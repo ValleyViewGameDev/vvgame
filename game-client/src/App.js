@@ -136,6 +136,9 @@ import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
+import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
+import { playCutscene } from './Utils/cutscene';
+import { isInputLocked } from './Utils/inputLock';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
@@ -950,6 +953,8 @@ const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
 const [doinkerTargets, setDoinkerTargets] = useState(null); // Resource type string or array of strings to point doinkers at
 const [doinkerType, setDoinkerType] = useState('resource'); // Type of doinker: 'resource' or 'button'
+const [scrimTarget, setScrimTarget] = useState(null); // FTUE Scrim Moment: the one board thing that stays live
+const lastCutsceneStep = useRef(null);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
@@ -1751,6 +1756,15 @@ useEffect(() => {
 
   const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
 
+  // Scrim Moment: everything but the target goes dark and inert (FTUEScrim.js)
+  setScrimTarget(stepData?.scrim ? (stepData.scrimTarget || (Array.isArray(stepData.doinkerTarget) ? stepData.doinkerTarget[0] : stepData.doinkerTarget) || null) : null);
+  // Cutscene: once per step, after the grid has settled (Utils/cutscene.js)
+  if (stepData?.cutscene && lastCutsceneStep.current !== stepData.step && isAppInitialized) {
+    lastCutsceneStep.current = stepData.step;
+    const { target, holdMs, panMs } = stepData.cutscene;
+    setTimeout(() => { closePanel(); playCutscene({ target, gridId: gridId || localStorage.getItem('gridId'), holdMs, panMs }); }, 600);
+  }
+
   if (stepData?.doinker && stepData?.doinkerTarget) {
     // doinkerTarget can be a string, array of strings, or CSS selector (for button type)
     const targets = stepData.doinkerTarget;
@@ -1761,7 +1775,7 @@ useEffect(() => {
     setDoinkerTargets(null);
     setDoinkerType('resource');
   }
-}, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser]);
+}, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId]);
 
 // Level-up detection: Watch for XP changes and show level-up modal
 useEffect(() => {
@@ -2329,6 +2343,7 @@ useEffect(() => {
     }
     
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
+    if (isInputLocked()) return; // a cutscene or an FTUE scrim holds the player still
 
     handleMovementKeyDown(event, currentPlayer, activeTileSize, masterResources,
         setCurrentPlayer, 
@@ -3617,6 +3632,7 @@ return (
         /> */}
 
         {/* FTUE Doinker - Button-type only (resource/NPC doinkers handled by PixiRendererDoinker) */}
+        {scrimTarget && <FTUEScrim target={scrimTarget} gridId={gridId} />}
         {doinkerType === 'button' && (
           <FTUEDoinker
             doinkerTargets={doinkerTargets}
