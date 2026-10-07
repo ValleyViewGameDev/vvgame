@@ -61,7 +61,7 @@ vvgame/
 │   ├── tuning.md             # tuning principles, knobs, level curve, Kent offer rules, compatibility; check before any tuning change
 │   ├── email-setup.md        # Render env vars + Loops template setup for the welcome/event emails (what to click, which IDs go where)
 │   ├── onboarding-plan.md    # PLAN (2026-10-05): first screen, passwordless silent account, name at the Home Deed, email + Loops, FTUE arc; read before touching login/FTUE/email
-│   └── audits/               # deep read-only audits with file:line citations (six from 2026-10-01; client-review-2026-10-03.md = whole-client + renderer strategy)
+│   └── audits/               # deep read-only audits with file:line citations (six from 2026-10-01; client-review-2026-10-03.md = whole-client + renderer strategy; combat-and-npc-review-2026-10-07.md = the NPC/Combat overhaul epic's parent doc, five tracks)
 ├── game-server/
 │   ├── server.js             # Express + socket.io + route mounting (all under /api)
 │   ├── routes/               # enterGridRoutes (POST /enter-grid, the one grid-change resolver), worldRoutes (grids, crafting, dungeon admin), playerRoutes, gridRoutes (NPC/PC maps),

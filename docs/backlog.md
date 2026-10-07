@@ -6,6 +6,21 @@ Keep done items out of here; the git log is the record.
 
 ## Open
 
+### EPIC: NPC / Combat System overhaul (opened 2026-10-07)
+
+**What.** The combat loop, enemy and NPC movement, the server trust model for fights, a
+tuning pass, and (further out) motive-driven "brains" for town NPCs. Parent document with
+file:line findings and five tracks: `docs/audits/combat-and-npc-review-2026-10-07.md`.
+
+**Owner's framing.** Casual, timing-game combat with strong board feedback and little UI to
+process; the fight simulated on the client with one outcome request after a kill; NPCs that
+read as alive (per-NPC cadence, pauses, home anchors, A\*); town "brains" (motives, habits,
+little stories, lighter than SimGame) as the even-more-future track; enemies get a simpler
+brain.
+
+**Where to start.** Track 1 (client action loop) then the kill route from Track 2 (Part 4
+of the review). Nothing is scheduled yet; the owner picks the first bite.
+
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
 **DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.
