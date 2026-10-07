@@ -148,9 +148,10 @@ export function resolveArrivalPosition(arrival = {}, target = {}, spawn = null, 
  * positions and the player's last x/y/hp/maxhp so a crossing is one round trip:
  *   { fromGridId, npcPositions: { [npcId]: {x,y} }, state: { x, y, hp, maxhp } }
  */
-export async function enterGrid(playerId, target, leave = undefined) {
+export async function enterGrid(playerId, target, leave = undefined, frontierId = undefined) {
   const body = { playerId, target };
   if (leave) body.leave = leave;
+  if (frontierId) body.frontierId = String(frontierId); // lets the server read Player and Frontier in one round trip
   const response = await axios.post(`${API_BASE}/api/enter-grid`, body);
   return response.data;
 }
@@ -542,7 +543,7 @@ export const changePlayerLocation = async (
       endFade();
 
       // Commit without awaiting: target carries the arrival tile, leave the from-grid state.
-      enterGrid(playerId, { ...target, x: arrived.x, y: arrived.y }, leave).then(
+      enterGrid(playerId, { ...target, x: arrived.x, y: arrived.y }, leave, currentPlayer.frontierId || fromLocation.f).then(
         () => {
           locationChangeManager.release();
           console.log(`🎉 [GRID TRANSITION] Entered grid ${arrived.toGridId} (${arrived.gtype}) at (${arrived.x}, ${arrived.y}) [prefetched, committed]`);
@@ -559,7 +560,7 @@ export const changePlayerLocation = async (
     // move (403 not-your-homestead, 404) leaves the player exactly where they were.
     let bundle;
     try {
-      bundle = await enterGrid(playerId, target, leave);
+      bundle = await enterGrid(playerId, target, leave, currentPlayer.frontierId || fromLocation.f);
     } catch (error) {
       restoreLeave();
       return fail(enterGridErrorStatus(error, strings), error);

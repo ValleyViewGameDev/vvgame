@@ -15,6 +15,8 @@ const MAX_AGE_MS = 5 * 60 * 1000;
 const RETRY_AFTER_MS = 30 * 1000;
 
 const cache = new Map();    // gridCoord -> { gridCoord, grid, ownerUsername, fetchedAt }
+// The server reads Player and Frontier in one round trip when it knows the frontier up front
+const storedFrontierId = () => { try { return JSON.parse(localStorage.getItem('player') || 'null')?.frontierId || undefined; } catch (_) { return undefined; } };
 const refused = new Map();  // gridCoord -> { at, permanent }
 let inflight = null;        // { gridCoord, promise } | null
 let generation = 0;         // bumped by clear() so a late response is not cached
@@ -39,7 +41,7 @@ export function prefetchNeighbour(playerId, gridCoord) {
 
   const startedGeneration = generation;
   const promise = axios
-    .post(`${API_BASE}/api/grid-prefetch`, { playerId: String(playerId), gridCoord: key })
+    .post(`${API_BASE}/api/grid-prefetch`, { playerId: String(playerId), gridCoord: key, frontierId: storedFrontierId() })
     .then((response) => {
       const grid = response.data?.grid;
       if (!grid?._id || !Array.isArray(grid.tiles) || grid.tiles.length === 0 || !Array.isArray(grid.resources)) {

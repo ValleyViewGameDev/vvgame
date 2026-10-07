@@ -81,23 +81,29 @@ async function applyDungeonCatchUp(grid, frontier) {
  * The Grid the player should load for a world cell. Throws {status, reason} on refusal.
  * Homestead cells resolve to the shared owned grid (own only); town/valley cells to the player's copy.
  */
-async function resolveCellGrid(player, frontier, gridCoord) {
-  const found = await findCell(frontier, gridCoord);
+async function resolveCellGrid(player, frontier, gridCoord, hints = {}) {
+  // hints: { found } a findCell result the caller already has; { existing } a Grid document the
+  // caller already read (used instead of a second read when it is this very grid). Every DB
+  // round trip here is ~35 ms, and enter-grid pays them in sequence (2026-10-07).
+  const found = hints.found || await findCell(frontier, gridCoord);
   if (!found) throw Object.assign(new Error('no such cell'), { status: 404, reason: 'no-cell' });
   const { settlement, cell } = found;
+  const existing = hints.existing || null;
 
   if (cell.gridType === 'homestead') {
     if (!cell.gridId || !player.gridId || cell.gridId.toString() !== player.gridId.toString()) {
       throw Object.assign(new Error('not your homestead'), { status: 403, reason: 'not-your-homestead' });
     }
-    const grid = await Grid.findById(cell.gridId);
+    const grid = (existing && String(existing._id) === String(cell.gridId)) ? existing : await Grid.findById(cell.gridId);
     if (!grid) throw Object.assign(new Error('homestead missing'), { status: 404, reason: 'no-homestead' });
     return { grid, settlement, cell };
   }
 
   if (cell.gridType === 'reserved') throw Object.assign(new Error('reserved cell'), { status: 404, reason: 'no-cell' });
 
-  let grid = await Grid.findOne({ ownerId: player._id, gridCoord: Number(gridCoord) });
+  const isMyCopy = existing && existing.ownerId && String(existing.ownerId) === String(player._id)
+    && Number(existing.gridCoord) === Number(gridCoord);
+  let grid = isMyCopy ? existing : await Grid.findOne({ ownerId: player._id, gridCoord: Number(gridCoord) });
   if (!grid) {
     const created = await performGridCreation({
       gridCoord: Number(gridCoord), gridType: cell.gridType, settlementId: settlement._id, frontierId: frontier._id,

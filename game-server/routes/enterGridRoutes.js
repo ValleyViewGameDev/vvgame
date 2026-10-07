@@ -10,7 +10,7 @@ const Player = require('../models/player');
 const Frontier = require('../models/frontier');
 const Settlement = require('../models/settlement');
 const {
-  findTownCoord, resolveCellGrid, resolveDungeonCopy, dungeonTemplateForEntrance,
+  findCell, findTownCoord, resolveCellGrid, resolveDungeonCopy, dungeonTemplateForEntrance,
   applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, FTUE_KEY,
 } = require('../utils/gridResolver');
 
@@ -18,10 +18,40 @@ const { recordActivity, recordGridEntered } = require('../utils/analytics');
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ error: reason, reason, ...extra });
 
-/** Apply the previous grid's NPC positions and the player's last position/hp (docs/phase-3-contract.md §4.2). */
-async function applyLeave(player, leave) {
+/**
+ * Player + Frontier in one round trip when the client sends its frontierId (it always knows it);
+ * the player's own frontier is re-read only when the hint is missing or wrong.
+ */
+async function loadPlayerAndFrontier(playerId, frontierHint) {
+  const [player, hinted] = await Promise.all([
+    Player.findById(playerId),
+    frontierHint ? Frontier.findById(frontierHint).catch(() => null) : null,
+  ]);
+  if (!player) return { player: null, frontier: null };
+  const wanted = String(player.frontierId || player.location?.f || '');
+  const frontier = (hinted && String(hinted._id) === wanted) ? hinted : await Frontier.findById(wanted || null);
+  return { player, frontier };
+}
+
+// The previous grid's leave-side state (docs/phase-3-contract.md §4.2) arrives in two parts:
+
+/** The player's own leave-side state: synchronous, on the in-memory Player (saved with the entry). */
+function applyLeaveState(player, leave) {
   if (!leave || typeof leave !== 'object') return;
-  const { fromGridId, npcPositions, state } = leave;
+  const { state } = leave;
+  if (state && typeof state === 'object') {
+    if (Number.isInteger(state.x) && Number.isInteger(state.y) && state.x >= 0 && state.x < 64 && state.y >= 0 && state.y < 64) {
+      player.location = { ...(player.location?.toObject ? player.location.toObject() : (player.location || {})), x: state.x, y: state.y };
+    }
+    if (Number.isFinite(state.maxhp) && state.maxhp > 0) player.maxhp = state.maxhp;
+    if (Number.isFinite(state.hp)) player.hp = Math.max(0, player.maxhp != null ? Math.min(state.hp, player.maxhp) : state.hp);
+  }
+}
+
+/** The from-grid's NPC positions: its own documents, so it runs alongside the target resolve. */
+async function applyLeaveNpcs(player, leave) {
+  if (!leave || typeof leave !== 'object') return;
+  const { fromGridId, npcPositions } = leave;
   if (fromGridId && npcPositions && typeof npcPositions === 'object') {
     const grid = await Grid.findById(fromGridId, 'ownerId gridType NPCsInGrid');
     const mine = grid && (!grid.ownerId || grid.ownerId.toString() === player._id.toString());
@@ -35,13 +65,6 @@ async function applyLeave(player, leave) {
       }
       if (Object.keys(set).length) { set.NPCsInGridLastUpdated = new Date(); await Grid.updateOne({ _id: grid._id }, { $set: set }); }
     }
-  }
-  if (state && typeof state === 'object') {
-    if (Number.isInteger(state.x) && Number.isInteger(state.y) && state.x >= 0 && state.x < 64 && state.y >= 0 && state.y < 64) {
-      player.location = { ...(player.location?.toObject ? player.location.toObject() : (player.location || {})), x: state.x, y: state.y };
-    }
-    if (Number.isFinite(state.maxhp) && state.maxhp > 0) player.maxhp = state.maxhp;
-    if (Number.isFinite(state.hp)) player.hp = Math.max(0, player.maxhp != null ? Math.min(state.hp, player.maxhp) : state.hp);
   }
 }
 
@@ -85,9 +108,8 @@ router.post('/grid-prefetch', async (req, res) => {
   const { playerId, gridCoord } = req.body || {};
   if (!playerId || !Number.isFinite(Number(gridCoord))) return fail(res, 400, 'bad-target');
   try {
-    const player = await Player.findById(playerId);
+    const { player, frontier } = await loadPlayerAndFrontier(playerId, req.body.frontierId);
     if (!player) return fail(res, 404, 'no-player');
-    const frontier = await Frontier.findById(player.frontierId || player.location?.f);
     if (!frontier) return fail(res, 404, 'no-frontier');
     const r = await resolveCellGrid(player, frontier, Number(gridCoord));
     const ownerUsername = r.grid.gridType === 'homestead' ? player.username : null;
@@ -104,13 +126,14 @@ router.post('/enter-grid', async (req, res) => {
   if (!playerId || !target || typeof target !== 'object' || !target.type) return fail(res, 400, 'bad-target');
 
   try {
-    const player = await Player.findById(playerId);
+    const { player, frontier } = await loadPlayerAndFrontier(playerId, req.body.frontierId);
     if (!player) return fail(res, 404, 'no-player');
-    const frontier = await Frontier.findById(player.frontierId || player.location?.f);
     if (!frontier) return fail(res, 404, 'no-frontier');
 
-    // §4.2: leave-side state rides along so a crossing is one round trip.
-    await applyLeave(player, req.body.leave);
+    // §4.2: leave-side state rides along so a crossing is one round trip. The player's own
+    // state lands now; the from-grid's NPC write runs alongside the target resolve below.
+    applyLeaveState(player, req.body.leave);
+    const leaveNpcs = applyLeaveNpcs(player, req.body.leave);
 
     const xy = Number.isFinite(target.x) && Number.isFinite(target.y) ? { x: target.x, y: target.y } : null;
     let grid, settlementId = null, gridCoord = null, spawn = null, ownerUsername = null;
@@ -176,7 +199,11 @@ router.post('/enter-grid', async (req, res) => {
       }
       case 'current': {
         const loc = player.location || {};
-        const existing = loc.g ? await Grid.findById(loc.g) : null;
+        // The current grid and its world cell are independent reads: one round trip, not two
+        const [existing, found] = await Promise.all([
+          loc.g ? Grid.findById(loc.g) : null,
+          loc.gridCoord != null ? findCell(frontier, loc.gridCoord).catch(() => null) : null,
+        ]);
         const ownsIt = existing && (
           (existing.gridType === 'homestead' && player.gridId && existing._id.toString() === player.gridId.toString()) ||
           (existing.ownerId && existing.ownerId.toString() === player._id.toString())
@@ -186,7 +213,8 @@ router.post('/enter-grid', async (req, res) => {
           settlementId = loc.s ?? grid.settlementId; gridCoord = grid.gridCoord ?? loc.gridCoord ?? null;
           if (grid.gridType === 'homestead') ownerUsername = player.username;
           if (grid.gridType !== 'dungeon' && gridCoord != null) {
-            const r = await resolveCellGrid(player, frontier, gridCoord); // applies season catch-up
+            // applies season catch-up; reuses `existing` when it is this very grid (no second read)
+            const r = await resolveCellGrid(player, frontier, gridCoord, { found: Number(found?.cell?.gridCoord) === Number(gridCoord) ? found : null, existing: grid });
             grid = r.grid; settlementId = r.settlement._id;
           }
           setPlayerLocation(player, grid, settlementId, gridCoord, xy || (Number.isFinite(loc.x) ? { x: loc.x, y: loc.y } : null));
@@ -205,6 +233,7 @@ router.post('/enter-grid', async (req, res) => {
     }
 
     player.lastActive = new Date();
+    await leaveNpcs; // the leave is part of this round trip (§4.2)
     await player.save();
     // Analytics (fire-and-forget): day heartbeat + the grids_entered counter.
     recordActivity(player._id).catch(() => {});

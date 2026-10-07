@@ -822,8 +822,13 @@ const PixiRenderer = ({
         return { resource, texture: null, emojiTexture };
       });
 
-      // Phase 2: Wait for all textures to load
-      const loadedResources = await Promise.all(loadPromises);
+      // Phase 2: two waves. Everything whose texture is ready within a short deadline (the
+      // atlas, once loaded, resolves on a microtask) renders together; a straggler (an SVG not
+      // in the atlas: fetch + rasterise, up to 5 s) no longer holds the whole layer back and is
+      // placed when it arrives.
+      const LATE = Symbol('late');
+      const deadline = new Promise((resolve) => setTimeout(() => resolve(LATE), 120));
+      const firstWave = await Promise.all(loadPromises.map((p) => Promise.race([p, deadline])));
 
       // Check if render is still valid after parallel load (cancelled if new render started)
       if (thisRenderVersion !== resourceRenderVersionRef.current) {
@@ -831,7 +836,19 @@ const PixiRenderer = ({
       }
       if (!resourceContainerRef.current) return;
 
-      // Phase 3: Render all resources synchronously (no more awaits)
+      const ready = firstWave.filter((r) => r !== LATE);
+      const late = loadPromises.filter((_, idx) => firstWave[idx] === LATE);
+      placeResources(ready);
+      if (late.length) {
+        Promise.all(late).then((rest) => {
+          if (thisRenderVersion !== resourceRenderVersionRef.current || !resourceContainerRef.current) return;
+          placeResources(rest);
+        });
+      }
+    };
+
+    // Phase 3: Render a batch of resources synchronously (no awaits)
+    const placeResources = (loadedResources) => {
       let svgCount = 0;
       let emojiCount = 0;
       let skippedAnimating = 0;

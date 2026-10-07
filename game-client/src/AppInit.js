@@ -91,14 +91,16 @@ export const initializeGridFromData = async (
     GlobalGridStateTilesAndResources.setTiles(tiles);
     GlobalGridStateTilesAndResources.setResources(processedResources);
 
-    // FarmState sees the enriched resources (master props like 'output')
+    // FarmState sees the enriched resources (master props like 'output'). Not awaited: on a
+    // homestead with finished crops it PATCHes one farmplot per crop, and arrival must not
+    // wait on those; it swaps the sprites in through setResources when they land.
     if (masterResources && masterResources.length > 0 && processedResources.length > 0) {
-      await farmState.initializeAndProcessCompleted({
+      farmState.initializeAndProcessCompleted({
         resources: processedResources,
         gridId,
         setResources,
         masterResources,
-      });
+      }).catch((err) => console.error('🌾 [FarmState] load-time conversion failed:', err));
       farmState.startSeedTimer({ gridId, setResources, masterResources });
     }
 

@@ -20,6 +20,7 @@ import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlob
 
 // PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
+import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
@@ -1214,6 +1215,10 @@ useEffect(() => {
         return;
       }
 
+      // The sprite sheets (2.4 MB) download now, alongside the boot requests, so the first grid
+      // fades up with its art; PixiRenderer's own loadAtlas() at mount then finds them loading
+      loadAtlas();
+
       // Start fade-to-black for logged-in players ONLY
       // This ensures we fade up on a fully-ready grid, hiding any async loading
       // We await this to ensure the screen is fully black before continuing
@@ -1266,7 +1271,7 @@ useEffect(() => {
       console.log('🏁✅ 4. Entering current grid via /enter-grid...');
       let bundle;
       try {
-        bundle = await enterGrid(DBPlayerData.playerId, { type: 'current' });
+        bundle = await enterGrid(DBPlayerData.playerId, { type: 'current' }, undefined, DBPlayerData.frontierId || DBPlayerData.location?.f);
       } catch (err) {
         console.error('enter-grid current failed', err.response?.data || err.message);
         updateStatus(105);
@@ -2926,6 +2931,7 @@ const handleLogout = () => {
 // Begin gate: make the silent account, then boot as that player (one reload, like a typed signup).
 const handleBegin = async () => {
   setIsSilentCreating(true);
+  loadAtlas(); // warms the browser cache for the reload that follows
   try {
     await createSilentAccount();
     window.location.reload();
