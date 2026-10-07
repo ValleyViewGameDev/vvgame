@@ -34,7 +34,7 @@ import socket, {
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
-import { tryAdvanceFTUEByTrigger, incrementFTUEStep } from './GameFeatures/FTUE/FTUEutils';
+import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -2775,15 +2775,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('TradeStall'); 
           break;
         case 'Mailbox':
-          openModal('Mailbox');
-          // FTUE trigger: Clicking on Mailbox
-          if (currentPlayer?.firsttimeuser) {
-            tryAdvanceFTUEByTrigger('ClickedMailbox', currentPlayer._id, currentPlayer, setCurrentPlayer);
-            // If mailbox is empty, skip ahead (no messages to interact with)
-            if (!currentPlayer?.messages?.length) {
-              incrementFTUEStep(currentPlayer._id, currentPlayer, setCurrentPlayer);
-            }
+          // FTUE: an empty box at the collect-mail beat has nothing to collect, so pass that beat
+          // without showing the empty box (only moves when the next step waits on CollectedMail)
+          if (currentPlayer?.firsttimeuser && !currentPlayer?.messages?.length) {
+            const before = currentPlayer.ftuestep || 0;
+            const after = await tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+            if (after > before) break;
           }
+          openModal('Mailbox');
           break;
         case 'Warehouse':
           openPanel('WarehousePanel'); break;

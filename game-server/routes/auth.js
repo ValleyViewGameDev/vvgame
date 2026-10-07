@@ -225,12 +225,12 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, i
   console.log(`✅ New player created: ${username}${silent ? ' (silent)' : ''} (homestead will be created when Home Deed is purchased)`);
   // The owner's new-user alert fires when the player has a name (here, or /player/name for silent ones)
   if (!silent) sendNewUserEmail(newPlayer);
-  return newPlayer;
 
   // Day-0 gift: the welcome mailbox message, sent here so every registration path gets it
+  // (the FTUE's mailbox beat collects it)
   try { await sendMailboxMessage(String(newPlayer._id), WELCOME_MESSAGE_ID, [], io); }
   catch (mailErr) { console.error('❌ welcome mailbox message failed:', mailErr?.message || mailErr); }
-
+  return newPlayer;
 }
 
 router.post('/register-new-player', async (req, res) => {
