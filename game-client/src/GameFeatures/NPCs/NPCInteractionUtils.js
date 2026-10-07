@@ -4,10 +4,10 @@ import { handleNPCClick } from './NPCUtils';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import FloatingTextManager from '../../UI/FloatingText';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { isWallBlocking, getLineOfSightTiles } from '../../Utils/GridManagement';
+import { isWallBlocking } from '../../Utils/GridManagement';
+import { getAttackCooldownStatus } from '../Combat/Combat';
 
 // Shared global attack cooldown for consistency between DOM and Canvas modes
-let globalAttackCooldown = 0;
 
 
 /**
@@ -133,30 +133,8 @@ export function handleNPCClickShared(npc, {
     setHoverTooltip(null);
   }
   
-  const currentTime = Date.now();
-  
-  // Handle attack NPCs with cooldown
-  if (npc.action === 'attack' || npc.action === 'spawn') {
-    // Get player state from playersInGridManager like Combat.js does
-    const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
-    const pcState = playersInGrid?.[String(currentPlayer._id)];
-    const speed = pcState?.speed ?? 5;
-    console.log('⚔️ Attack cooldown check:');
-    console.log('  Speed being used:', speed);
-    console.log('  pcState?.speed:', pcState?.speed);
-    if (currentTime < globalAttackCooldown) {
-      return false; // Still on cooldown
-    }
-    // New cooldown formula: speed 5 = 3.5s, speed 1 = 0.5s
-    // Formula: cooldown = 0.5 + (speed - 1) * 0.75
-    // This gives us: speed 1 = 0.5s, speed 2 = 1.25s, speed 3 = 2s, speed 4 = 2.75s, speed 5 = 3.5s
-    const cooldownSeconds = 0.5 + (speed - 1) * 0.75;
-    const cooldownDuration = cooldownSeconds * 1000;
-    globalAttackCooldown = currentTime + cooldownDuration;
-    console.log(`⚔️ Setting new cooldown: ${cooldownDuration}ms (${cooldownSeconds} seconds for speed ${speed})`);
-    // Continue to handleNPCClick below for attack NPCs
-  }
-  
+  // Attack NPCs: reach, cooldown and feedback are Combat.handleAttackOnNPC's (below, via handleNPCClick)
+
   // Handle quest/heal/worker/trade NPCs with range checking
   if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
     // Check range for helper NPCs (skip on own homestead)
@@ -216,32 +194,18 @@ export function handleNPCClickShared(npc, {
 }
 
 /**
- * Gets the current attack cooldown status
+ * Attack cooldown status (owned by GameFeatures/Combat/Combat.js)
  */
-export function getAttackCooldownStatus() {
-  return {
-    cooldownEnd: globalAttackCooldown,
-    isOnCooldown: Date.now() < globalAttackCooldown
-  };
-}
+export { getAttackCooldownStatus } from '../Combat/Combat';
 
 /**
- * Determines cursor class for NPC based on action and cooldown status
+ * Cursor class for an NPC by action (combat cursor reflects the swing cooldown)
  */
 export function getNPCCursorClass(npc) {
   if (npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade' || npc.action === 'quest') {
     return 'cursor-help';
   } else if (npc.action === 'attack' || npc.action === 'spawn') {
-    // For attack NPCs, check reload status
-    const currentTime = Date.now();
-    return currentTime < globalAttackCooldown ? 'cursor-wait' : 'cursor-crosshair';
+    return getAttackCooldownStatus().isOnCooldown ? 'cursor-wait' : 'cursor-crosshair';
   }
   return 'cursor-pointer';
-}
-
-/**
- * Sets the shared global attack cooldown (used by DOM mode to sync with shared state)
- */
-export function setGlobalAttackCooldown(cooldownEnd) {
-  globalAttackCooldown = cooldownEnd;
 }

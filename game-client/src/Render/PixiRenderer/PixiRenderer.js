@@ -16,6 +16,7 @@ import PixiRendererDoinker from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
+import CombatFX from './CombatFX';
 import { emojiKey } from '../../Utils/emojiKey';
 import {
   TILES_PER_GRID,
@@ -634,6 +635,19 @@ const PixiRenderer = ({
       // Start the sprite-sheet download now so it overlaps the grid bundle fetch
       loadAtlas();
 
+      // Combat feedback layer (CombatFX.js): reads NPC display objects, and takes one over on a kill
+      CombatFX.attach({
+        app, worldContainer, TILE_SIZE,
+        getNpcDisplay: (id) => npcDisplayObjects.current[id] || null,
+        detachNpcDisplay: (id) => {
+          const obj = npcDisplayObjects.current[id] || null;
+          delete npcDisplayObjects.current[id];
+          delete npcDisplayTypes.current[id];
+          delete npcAnimations.current[id];
+          return obj;
+        },
+      });
+
       // Wire up AmbientVFXManager with PixiJS app and world container
       // Pass TILE_SIZE as the base tile size - this is the constant rendering size (e.g., 40)
       // that doesn't change with zoom, ensuring ambient effects render at correct world coordinates
@@ -693,6 +707,7 @@ const PixiRenderer = ({
         if (appRef.current._contextRestoredHandler) {
           canvas.removeEventListener('webglcontextrestored', appRef.current._contextRestoredHandler);
         }
+        CombatFX.detach();
         appRef.current.destroy(true, { children: true, texture: true });
         appRef.current = null;
       }
@@ -1399,6 +1414,23 @@ const PixiRenderer = ({
     });
   }, []);
 
+  // The hostile NPC whose RENDERED sprite is under a board-relative screen point (half a tile
+  // of slack), or null. Enemies tween between tiles, so the tile under the cursor is often empty.
+  const findHostileAtScreen = useCallback((sx, sy) => {
+    if (!npcs?.length) return null;
+    const w = PixiCamera.screenToWorld(sx, sy);
+    const px = w.x / TILE_SIZE; const py = w.y / TILE_SIZE;
+    let best = null; let bestD = Infinity;
+    for (const n of npcs) {
+      if (!n || !(n.action === 'attack' || n.action === 'spawn')) continue;
+      const r = getNPCRenderPosition(n);
+      if (!r) continue;
+      const dx = Math.abs(r.x + 0.5 - px); const dy = Math.abs(r.y + 0.5 - py);
+      if (dx <= 0.55 && dy <= 0.55 && dx + dy < bestD) { bestD = dx + dy; best = n; }
+    }
+    return best;
+  }, [npcs, TILE_SIZE, getNPCRenderPosition]);
+
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
     if (suppressClickRef.current) { suppressClickRef.current = false; return; } // long-press or pinch
@@ -1450,8 +1482,9 @@ const PixiRenderer = ({
       return;
     }
 
-    // Check for NPC at this position first
-    const npc = npcs?.find(n =>
+    // Enemies are hit-tested on the sprite you SEE (its tween can trail the logical tile);
+    // everything else on the logical tile
+    const npc = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
       n && n.position &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
@@ -1517,7 +1550,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, walkToNpc, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, walkToNpc, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
@@ -1551,14 +1584,20 @@ const PixiRenderer = ({
     // Skip tooltip handling if no setHoverTooltip provided
     if (!setHoverTooltip) return;
 
-    // Check for NPC at this position first (they render on top)
-    const npc = npcs?.find(n =>
+    // Check for NPC at this position first (they render on top); enemies by their sprite
+    const hostile = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top);
+    const npc = hostile || npcs?.find(n =>
       n && n.position &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
     );
 
     if (npc) {
+      if (hostile) {
+        // Up and to the right of the cursor, so the enemy and the swing stay in view
+        setHoverTooltip({ x: event.clientX, y: event.clientY, placement: 'up-right', content: generateNPCTooltip(npc, strings) });
+        return;
+      }
       const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
       setHoverTooltip({
         x: tooltipPosition.x,
@@ -1589,7 +1628,7 @@ const PixiRenderer = ({
 
     // Nothing to show tooltip for
     setHoverTooltip(null);
-  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip]);
+  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip, findHostileAtScreen]);
 
   // Tooltip for whatever is under a screen point (long-press on touch uses this too)
   const showTooltipAt = useCallback((clientX, clientY) => {

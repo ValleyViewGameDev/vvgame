@@ -20,6 +20,8 @@ import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlob
 
 // PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
+import { attackNearestEnemy } from './GameFeatures/Combat/Combat';
+import { derivedMaxhp } from './GridState/PlayersInGrid';
 import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
@@ -1503,7 +1505,8 @@ const handleAcceptDeath = async () => {
     setModalContent,
     setIsModalOpen,
     closeAllPanels,
-    false // offerRevival = false
+    masterResources,
+    globalTuning
   );
   
   // Show normal death modal
@@ -1530,8 +1533,8 @@ const handleRevive = async () => {
     
     // Calculate HP to restore
     const percentageToRevive = globalTuning?.percentageToRevive || 0.25;
-    // Calculate proper maxHP from base stats and equipment (don't let it get corrupted)
-    const properMaxHp = (currentPlayer.baseMaxhp || 25) + (currentPlayer.maxhpModifier || 0);
+    // Max hp as the stats derive it (base + maxhp powers), never a stale persisted copy
+    const properMaxHp = derivedMaxhp(currentPlayer, masterResources);
     const restoredHp = Math.floor(properMaxHp * percentageToRevive);
     
     try {
@@ -2369,6 +2372,15 @@ useEffect(() => {
     
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
     if (isInputLocked()) return; // a cutscene or an FTUE scrim holds the player still
+
+    // Attack: Space or F swings at the nearest enemy in reach (GameFeatures/Combat/Combat.js)
+    if (event.key === ' ' || event.key === 'f' || event.key === 'F') {
+      event.preventDefault();
+      if (!event.repeat && currentPlayer) {
+        attackNearestEnemy({ currentPlayer, setCurrentPlayer, TILE_SIZE: activeTileSize, setResources, masterResources, masterTrophies, globalTuning });
+      }
+      return;
+    }
 
     handleMovementKeyDown(event, currentPlayer, activeTileSize, masterResources,
         setCurrentPlayer, 
@@ -3641,11 +3653,11 @@ return (
         {hoverTooltip && (
           <div
             className="HoverTooltip"
-            style={{
-              bottom: `calc(100vh - ${hoverTooltip.y}px + 10px)`,
-              left: hoverTooltip.x,
-              transform: 'translateX(-50%)',
-            }}
+            style={hoverTooltip.placement === 'up-right'
+              // Enemies: the tip sits up and to the right of the cursor so the sprite and the
+              // swing stay visible during a fight (docs/audits/combat-and-npc-review, Track 1.9)
+              ? { bottom: `calc(100vh - ${hoverTooltip.y}px + 18px)`, left: hoverTooltip.x + 18, transform: 'none' }
+              : { bottom: `calc(100vh - ${hoverTooltip.y}px + 10px)`, left: hoverTooltip.x, transform: 'translateX(-50%)' }}
             dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}
           />
         )}

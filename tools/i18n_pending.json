@@ -32,6 +32,16 @@
         "FR"
       ],
       "ts": "2026-10-07T13:53:00.739Z"
+    },
+    {
+      "key": "5002",
+      "en_old": "You have been returned home. Any backpack 🎒 items you had were lost.",
+      "en_new": "You wake in Town. Any backpack 🎒 items you had were lost.",
+      "langs": [
+        "DE",
+        "FR"
+      ],
+      "ts": "2026-10-07T18:00:00.000Z"
     }
   ]
 }

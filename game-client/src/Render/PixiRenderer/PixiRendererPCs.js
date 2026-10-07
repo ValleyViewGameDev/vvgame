@@ -6,6 +6,7 @@ import PixiCamera from './PixiCamera';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
+import CombatFX from './CombatFX';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -263,6 +264,11 @@ const PixiRendererPCs = ({
     }
 
     pcContainerRef.current = pcContainer;
+    // CombatFX (lunge, hit flash, cooldown ring) reads the player's display object through this
+    CombatFX.registerPC(() => {
+      const s = spriteRef.current; if (s && s.visible && s.parent) return s;
+      const t = textRef.current; return (t && t.visible && t.parent) ? t : null;
+    });
 
     // Re-attach pooled objects if they already exist (app instance changed)
     if (textRef.current && !textRef.current.parent) {
@@ -278,6 +284,7 @@ const PixiRendererPCs = ({
       if (spriteRef.current) {
         spriteRef.current.texture = Texture.EMPTY;
       }
+      CombatFX.registerPC(null);
       textRef.current = null;
       spriteRef.current = null;
       pcContainerRef.current = null;

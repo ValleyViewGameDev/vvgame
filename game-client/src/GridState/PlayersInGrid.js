@@ -95,6 +95,12 @@ function powerModifiers(player, masterResources) {
   return modifiers;
 }
 
+/** Max hp as the stats derive it: base + every maxhp power the player holds (death/revive use this). */
+export function derivedMaxhp(player, masterResources) {
+  const base = player?.baseMaxhp || DEFAULT_PC_RECORD_FIELDS.maxhp;
+  return base + (powerModifiers(player || {}, masterResources || []).maxhp || 0);
+}
+
 /**
  * Resolve the local player's id: an explicit argument wins, otherwise the
  * `player` record in localStorage (the same source App.js / index.js use).

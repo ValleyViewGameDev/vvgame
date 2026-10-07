@@ -377,7 +377,7 @@ export async function handleNPCClick(
 
     case 'attack': 
     case 'spawn':
-      handleAttackOnNPC(npc,currentPlayer,setCurrentPlayer,TILE_SIZE,setResources,masterResources,masterTrophies);
+      handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZE, setResources, masterResources, masterTrophies, globalTuning);
       
     break;
   

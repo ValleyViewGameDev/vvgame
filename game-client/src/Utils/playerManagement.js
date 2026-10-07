@@ -1,6 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
+import { derivedMaxhp } from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 
@@ -152,20 +153,21 @@ export const handlePlayerDeath = async (
   setModalContent,
   setIsModalOpen,
   closeAllPanels,
-  offerRevival = true
+  masterResources = [],
+  globalTuning = null
 
 ) => {
   console.log('⚰️ Handling player death for', player.username);
 
   try {
-    // Restored HP depends on account status
-    let restoredHp = 40;
+    // Respawn hp from tuning (globalTuning.combat): a flat value for free accounts, a fraction
+    // of max hp for Gold. Max hp is re-derived from base + powers so no bonus is lost.
+    const combat = globalTuning?.combat || {};
+    const properMaxHp = derivedMaxhp(player, masterResources);
+    let restoredHp = combat.respawnHpFree ?? 40;
     if (player.accountStatus === "Gold") {
-      restoredHp = Math.floor(player.baseMaxhp / 2);
+      restoredHp = Math.floor(properMaxHp * (combat.respawnHpGoldFraction ?? 0.5));
     }
-
-    // Proper maxHP from base stats and equipment (don't let it get corrupted)
-    const properMaxHp = (player.baseMaxhp || 990) + (player.maxhpModifier || 0);
 
     // Keep only Tent and Boat in the backpack
     const filteredBackpack = (player.backpack || []).filter((item) => item.type === "Tent" || item.type === "Boat");

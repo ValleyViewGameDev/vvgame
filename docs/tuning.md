@@ -130,3 +130,25 @@ threshold simply sees the level-up modal on their next session.
   8 should pull the player through the new unlocks (Mill, Dairy, animals) by asking for what
   those produce, with XP that reflects the extra steps.
 - Keep the Trading Post as the money outlet, not an XP outlet.
+
+## Combat (Track 1, 2026-10-07)
+
+Knobs live in `globalTuning.json` → `combat`; the loop is `GameFeatures/Combat/Combat.js`
+(player) and `GameFeatures/NPCs/NPCEnemyBehavior.js` (enemies); see
+docs/audits/combat-and-npc-review-2026-10-07.md.
+
+- **Swing cooldown**: `attackCooldownMinMs` (400) + `(speed - 1) × attackCooldownPerSpeedMs`
+  (100), clamped to `attackCooldownMaxMs` (800). Speed 1 → 0.4 s, speed 5 (starter) → 0.8 s;
+  speed-reducing powers (Jab, Flurry, Barrage, Magic Gloves) make swings faster, never
+  below the minimum. The cooldown starts only on a valid swing (never on a refused click).
+- **Reach is Chebyshev** (board distance): the eight neighbours are 1 away for both the
+  player's `attackrange` and an enemy's. Enemy `attackrange` in resources.json is now 1 for
+  melee beasts (Coyote, Bear, Polar Bear, Zombie), 2 Ogre / Duke Angelo, 3 Demon, 4 Spider /
+  Dragon, 5 Ghost / Phoenix. Sight (`range`) stays larger so there is an approach. Anything
+  beyond reach 1 is a ranged attack and shows a projectile (both sides).
+- **Rolls** are unchanged: d20 + attack bonus vs armour class; damage = stat + d6. Enemies
+  roll on the tick they come into reach (after a 300 ms wind-up) and once per tick after;
+  enemy `speed` still does not set the attack rate (a per-type interval is open work).
+- **Death**: `respawnHpFree` (40) for free accounts, `respawnHpGoldFraction` (0.5) of the
+  derived max hp for Gold; max hp is re-derived from base + maxhp powers
+  (`PlayersInGrid.derivedMaxhp`) so no bonus is lost on death or revive.

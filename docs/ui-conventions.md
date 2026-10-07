@@ -177,6 +177,16 @@ value rather than trust this page.
 
 - Panel slide: 260 ms in, 220 ms out. Camera: zoom ease 220 ms, pan return 350 ms. Movement
   animation equals the step cadence (90 ms). Match these before inventing a new duration.
+- Combat feedback (`Render/PixiRenderer/CombatFX.js`, all on the board, no panels): swing
+  lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
+  around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the
+  pop never grows from a corner); damage numbers rise 0.9 tile over 900 ms; the death beat
+  is 900 ms in three parts (flash + pop, hold while it tips, shrink + fade) with the skull at
+  150 ms, "+XP" at 650 ms and the drop at 700 ms, so a kill can be read; enemy wind-up
+  300 ms; projectiles 70 ms per tile (min 140); cooldown ring 0.62-tile radius; enemy hp
+  bar only while engaged, lingers 2.5 s then fades 400 ms, destroyed on the kill.
+- Enemy hover tip (desktop): placed up-and-right of the cursor (`placement: 'up-right'`),
+  never centred over the sprite, so the enemy and the swing stay visible mid-fight.
 - Grid-change fade (`UI/TransitionContext.js`): 250 ms to black, 400 ms back. A crossing pays
   both back to back, so together they are the floor of every grid change; keep them a short
   breath, not a scene change (they were 600 / 900 until 2026-10-07 and read as "slow"). The

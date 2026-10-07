@@ -1,8 +1,8 @@
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import FloatingTextManager from "../../UI/FloatingText";
 import soundManager from '../../Sound/SoundManager';
+import CombatFX from '../../Render/PixiRenderer/CombatFX';
 
 /** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
 function getLineOfSightTiles(start, end) {
@@ -160,16 +160,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       }
       
       // Check if already in attack range AND can see target before pursuing
-      const currentDistance = getDistance(this.position, this.targetPC.position);
+      const currentDistance = reach(this.position, this.targetPC.position);
       if (currentDistance <= this.attackrange) {
         // Verify line of sight before switching to attack
         if (canSeeTarget(this.position, this.targetPC.position)) {
-          console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}) and can see target. Switching to attack!`);
           this.state = 'attack';
           await updateThisNPC.call(this, gridId);
+          performAttack.call(this, gridId, TILE_SIZE); // no dead tick between arriving and swinging
           break;
-        } else {
-          console.log(`NPC ${this.id} is in range but can't see ${this.targetPC.username} due to walls. Continuing pursuit.`);
         }
       }
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
@@ -192,8 +190,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         await updateThisNPC.call(this, gridId);
         break;
       }
-      console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
-      
+
       // Use a custom pursue handler that checks line of sight
       const handlePursueWithLineOfSight = async () => {
         const dx = this.targetPC.position.x - this.position.x;
@@ -214,17 +211,13 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         } 
         
         // Check if already in attack range AND can see target BEFORE attempting to move
-        const distanceToPlayer = getDistance(this.position, this.targetPC.position);
-        console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
-        
+        const distanceToPlayer = reach(this.position, this.targetPC.position);
         if (distanceToPlayer <= this.attackrange) {
           if (canSeeTarget(this.position, this.targetPC.position)) {
-            console.log(`NPC ${this.id} can see and attack ${this.targetPC.username}. Transitioning to attack!`);
             this.state = 'attack';
             await updateThisNPC.call(this, gridId);
+            performAttack.call(this, gridId, TILE_SIZE);
             return;
-          } else {
-            console.log(`NPC ${this.id} is in range but can't see ${this.targetPC.username} due to walls. Continuing pursuit.`);
           }
         }
         
@@ -269,7 +262,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         await updateThisNPC.call(this, gridId);
         break; // ✅ Skip PCs that are dead or camping
       }
-      const distanceToTarget = getDistance(this.position, this.targetPC.position);
+      const distanceToTarget = reach(this.position, this.targetPC.position);
       if (distanceToTarget > this.attackrange) {
         //console.log(`PC ${this.targetPC.username} moved out of attack range. Returning to 'pursue' state.`);
         this.state = 'pursue';
@@ -285,42 +278,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
  
-      // Perform the attack
-      const attackRoll = Math.floor(Math.random() * 20) + 1;
-      const hitRoll = attackRoll + this.attackbonus;
-      const isAHit = hitRoll >= this.targetPC.armorclass;
-
-      // console.log('attackRoll = ', attackRoll);
-      // console.log('this.attackBonus = ', this.attackbonus)
-      // console.log('this.targetPC = ',this.targetPC);
-      // console.log('this.targetPC.armorclass = ',this.targetPC.armorclass);
-      // console.log('hitRoll = ', hitRoll);
-      // console.log('isAHit = ', isAHit);
-
-      if (!isAHit) {
-        //console.log(`NPC ${this.id} missed the attack on ${this.targetPC.username}.`);
-        FloatingTextManager.addFloatingText(503, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE);
-        setTimeout(() => {
-          this.state = 'attack'; // Retry attack after waiting
-        }, this.speed);
-      } else {
-        // apply damage
-        const damage = Math.floor(Math.random() * 6) + 1 + this.damage;
-        // Define the stat and amount to modify before calling modifyPlayerStats
-        const amountToMod = -damage;  // Damage is negative
-        
-        try {
-          const newHP = Math.max(0, this.targetPC.hp + amountToMod);
-          FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
-          soundManager.playSFX('take_damage');
-          playersInGridManager.updatePC(gridId, this.targetPC.playerId, {
-            hp: newHP,
-            lastUpdated: Date.now()
-          });
-        } catch (error) {
-          console.error(`Error applying damage to player ${this.targetPC.username}:`, error);
-        }
-      }
+      performAttack.call(this, gridId, TILE_SIZE);
       break;
     }
 
@@ -350,10 +308,54 @@ function refreshTarget(targetPC, localPC) {
 }
 
 /**
- * Calculates the Euclidean distance between two points.
+ * Calculates the Euclidean distance between two points (sight range).
  */
 function getDistance(pos1, pos2) {
   return Math.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2);
+}
+
+/** Board reach (Chebyshev): the eight neighbours are all 1 away, like the player's swing. */
+function reach(pos1, pos2) {
+  return Math.max(Math.abs(pos1.x - pos2.x), Math.abs(pos1.y - pos2.y));
+}
+
+/**
+ * The swing (docs/audits/combat-and-npc-review-2026-10-07.md, Track 1.6): a short wind-up on
+ * the sprite, then the roll resolves, provided the enemy is still attacking a live target in
+ * reach. Called on the tick the enemy enters `attack` and on every attack tick after.
+ */
+function performAttack(gridId, TILE_SIZE) {
+  if (this.swingPending) return;
+  this.swingPending = true;
+  CombatFX.enemyWindup(this.id);
+  CombatFX.engageEnemy(this.id, this.hp, this.maxhp);
+  setTimeout(() => {
+    this.swingPending = false;
+    const target = this.targetPC;
+    if (this.state !== 'attack' || !target || target.hp <= 0 || target.iscamping) return;
+    // Re-read the live PC: it may have stepped away during the wind-up
+    const live = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
+    if (!live || live.playerId !== target.playerId) return;
+    if (reach(this.position, live.position) > this.attackrange || !canSeeTarget(this.position, live.position)) return;
+
+    const attackRoll = Math.floor(Math.random() * 20) + 1;
+    const isAHit = attackRoll + (this.attackbonus || 0) >= (live.armorclass || 0);
+    const damage = isAHit ? Math.floor(Math.random() * 6) + 1 + (this.damage || 0) : 0;
+    const land = () => {
+      const pc = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
+      if (!pc || pc.hp <= 0) return;
+      if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss'); return; }
+      const newHP = Math.max(0, pc.hp - damage);
+      CombatFX.playerHit();
+      CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player');
+      soundManager.playSFX('take_damage');
+      playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
+      if (newHP <= 0) playersInGridManager.flushAfterTransaction(); // death is worth saving now
+    };
+    // A ranged enemy's shot flies to the player; a melee blow lands at once
+    if (reach(this.position, live.position) > 1) CombatFX.projectile(this.position.x, this.position.y, live.position.x, live.position.y, land);
+    else land();
+  }, CombatFX.FX.WINDUP_MS);
 }
 
 

@@ -1,4 +1,11 @@
 {
+  "combat": {
+    "attackCooldownMinMs": 400,
+    "attackCooldownMaxMs": 800,
+    "attackCooldownPerSpeedMs": 100,
+    "respawnHpFree": 40,
+    "respawnHpGoldFraction": 0.5
+  },
   "costToRevive": 50,
   "percentageToRevive": 0.25,
   "maxCrops": 1000,
