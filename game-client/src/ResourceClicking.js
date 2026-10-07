@@ -445,6 +445,10 @@ export async function handleDooberClick(
       skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
     updateStatus(statusMessage);
 
+    // The tutorial's Wheat: remember its tile so the planting beat can point back at it
+    if (currentPlayer?.firsttimeuser && resource.type === 'Wheat') {
+      try { localStorage.setItem('vv_ftue_wheat_tile', JSON.stringify({ x: col, y: row })); } catch (_) { /* storage off */ }
+    }
     // A crop (its source is a farm plot) was harvested: App.js listens for the first one to make
     // the once-only email ask (docs/onboarding-plan.md §4.5).
     try {

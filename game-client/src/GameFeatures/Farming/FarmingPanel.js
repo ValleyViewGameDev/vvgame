@@ -11,6 +11,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { formatDuration } from '../../UI/Timers';
 import { updatePlayerSettings } from '../../settings';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
@@ -273,8 +274,15 @@ const FarmingPanel = ({
                   details={details}
                   info={info}
                   disabled={isCoolingDown || !affordable || !requirementsMet}
-                  onClick={() => {
+                  onClick={async () => {
                     if (!affordable || !requirementsMet) return;
+                    // FTUE planting beat: the card arms cursor planting (whatever the toggle says) and
+                    // the step advances; App closes the panel and points at a dirt tile to plant on.
+                    if (currentPlayer?.firsttimeuser) {
+                      const before = currentPlayer.ftuestep || 0;
+                      const after = await tryAdvanceFTUEByTrigger('ClickedWheatPlotCard', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+                      if (after > before) { handleCursorModeSelect(item); return; }
+                    }
                     if (plantWithCursor) {
                       // In cursor mode: select this crop for planting via clicks
                       handleCursorModeSelect(item);

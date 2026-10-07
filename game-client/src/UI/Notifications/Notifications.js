@@ -204,6 +204,11 @@ export function registerNotificationClickHandler(type, handler) {
     globalClickHandlers[type] = handler;
 }
 
+let currentDismiss = null;
+// Remove the toast on screen, if any (FTUE steps with dismissNotification: true use it when the
+// instruction has been followed).
+export function dismissNotification() { if (currentDismiss) currentDismiss(); }
+
 export function showNotification(type, data, onClick = null) {
     console.log(`[showNotification] Called with type: ${type}`, data);
     // Clear any existing notification
@@ -230,7 +235,9 @@ export function showNotification(type, data, onClick = null) {
         if (notificationRoot) {
             notificationRoot.render(null);
         }
+        if (currentDismiss === handleDismiss) currentDismiss = null;
     };
+    currentDismiss = handleDismiss;
     
     // Use passed onClick or fall back to global handler for this type
     const clickHandler = onClick || (globalClickHandlers[type] ? () => globalClickHandlers[type](data) : null);

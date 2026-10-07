@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import { resolveFtueDirtTile } from './findBoardTarget';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from './DoinkerArrow';
 import './FTUE.css';
@@ -23,7 +24,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   // Find the target resource/NPC positions - continuously poll to handle async loading
   // Skip this logic for button-type doinkers (handled by separate useEffect below)
   useEffect(() => {
-    if (!doinkerTargets || !visible || doinkerType === 'button') {
+    if (!doinkerTargets || !visible || doinkerType === 'button' || doinkerType === 'element') {
       setTargetPositions([]);
       return;
     }
@@ -36,6 +37,13 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
 
       for (const targetName of targetsArray) {
         let found = false;
+
+        // 'tile' doinkers point at a computed tile (today: the FTUE planting tile)
+        if (doinkerType === 'tile') {
+          const t = targetName === 'ftue-dirt' ? resolveFtueDirtTile() : null;
+          if (t) foundPositions.push({ x: t.x, y: t.y, size: 1, source: 'tile', targetName });
+          continue;
+        }
 
         // First, check resources
         const resources = GlobalGridStateTilesAndResources.getResources();
@@ -109,19 +117,21 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   // Handle button-type doinkers - use CSS selector to find target element
   useEffect(() => {
     // doinkerTargets should be a CSS selector string when doinkerType is 'button'
-    if (doinkerType !== 'button' || !visible || !activePanel || typeof doinkerTargets !== 'string') {
+    // 'button' looks inside the active panel; 'element' anywhere in the document (a nav button)
+    const isElement = doinkerType === 'element';
+    if ((doinkerType !== 'button' && !isElement) || !visible || (!isElement && !activePanel) || typeof doinkerTargets !== 'string') {
       setButtonPosition(null);
       return;
     }
 
     const findButton = () => {
-      const panelElement = document.querySelector(`[data-panel-name="${activePanel}"]`);
+      const panelElement = isElement ? document : document.querySelector(`[data-panel-name="${activePanel}"]`);
       if (!panelElement) {
         return null;
       }
       // The panel slides in (panelLeftIn / mPanelLeftIn, 260 ms): a rect measured mid-slide
       // puts the arrow where the panel WAS, and it then jumps. Stay hidden until the slide ends.
-      if (typeof panelElement.getAnimations === 'function' &&
+      if (!isElement && typeof panelElement.getAnimations === 'function' &&
           panelElement.getAnimations().some((a) => a.playState === 'running')) {
         return null;
       }
@@ -155,7 +165,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
     }, 500);
 
     return () => { clearInterval(quick); clearInterval(interval); };
-  }, [doinkerType, doinkerTargets, visible, activePanel]);
+  }, [doinkerType, doinkerTargets, visible, activePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Don't render if not visible
   if (!visible) {
@@ -163,7 +173,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   }
 
   // For button type, use buttonPosition; for resource type, use targetPositions
-  if (doinkerType === 'button') {
+  if (doinkerType === 'button' || doinkerType === 'element') {
     if (!buttonPosition) {
       return null;
     }
@@ -176,7 +186,7 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   // Render doinker arrow(s)
   // For button type: render one arrow over the button (using portal to escape .homestead overflow)
   // For resource type: render arrows over each resource/NPC
-  if (doinkerType === 'button' && buttonPosition) {
+  if ((doinkerType === 'button' || doinkerType === 'element') && buttonPosition) {
     const arrowHeight = 40;
     const arrowWidth = 30;
 

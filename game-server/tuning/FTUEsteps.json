@@ -36,8 +36,8 @@
     "doinkerType": "resource",
     "doinkerTarget": "Signpost Home",
     "notificationKey": 742,
-    "notificationIcon": "🏠",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "signpost-home.svg"
   },
   {
     "step": 5,
@@ -76,21 +76,53 @@
   {
     "step": 8,
     "trigger": "SoldToKent",
-    "openPanel": "FarmingPanel",
-    "showFeedbackModalAfter": true,
     "showModal": false,
+    "showFeedbackModalAfter": true,
     "continue": false,
-    "doinker": true,
-    "doinkerType": "button",
-    "doinkerTarget": "[data-resource-type=\"Wheat Plot\"] .resource-button",
     "notificationKey": 7054,
     "notificationIcon": "🌽",
+    "doinker": true,
+    "doinkerType": "element",
+    "doinkerTarget": "[data-nav=\"FarmingPanel\"]",
+    "scrim": true,
+    "scrimTarget": {
+      "selector": "[data-nav=\"FarmingPanel\"]"
+    },
     "addQuests": [
       6
     ]
   },
   {
     "step": 9,
+    "trigger": "OpenedFarmingPanel",
+    "showModal": false,
+    "continue": false,
+    "dismissNotification": true,
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": "[data-resource-type=\"Wheat Plot\"] .resource-button",
+    "addQuests": []
+  },
+  {
+    "step": 10,
+    "trigger": "ClickedWheatPlotCard",
+    "showModal": false,
+    "continue": false,
+    "dismissNotification": true,
+    "closePanels": true,
+    "keepCursor": true,
+    "setCursor": "Wheat Plot",
+    "doinker": true,
+    "doinkerType": "tile",
+    "doinkerTarget": "ftue-dirt",
+    "scrim": true,
+    "scrimTarget": {
+      "dirtTile": true
+    },
+    "addQuests": []
+  },
+  {
+    "step": 11,
     "trigger": "PlantedFirstCrop",
     "showModal": false,
     "continue": false,
@@ -102,7 +134,7 @@
     "notificationSprite": "npc-shepherd.svg"
   },
   {
-    "step": 10,
+    "step": 12,
     "trigger": "CollectedQuest",
     "addQuests": [
       7
@@ -112,7 +144,7 @@
     "doinkerTarget": "Signpost Town"
   },
   {
-    "step": 11,
+    "step": 13,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -122,7 +154,7 @@
     "addQuests": []
   },
   {
-    "step": 12,
+    "step": 14,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -137,7 +169,7 @@
     }
   },
   {
-    "step": 13,
+    "step": 15,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -146,7 +178,7 @@
     "addQuests": []
   },
   {
-    "step": 14,
+    "step": 16,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalIcon": "🧔🏼‍♂️",
@@ -156,11 +188,11 @@
     "doinkerType": "resource",
     "doinkerTarget": "Signpost Home",
     "notificationKey": 7059,
-    "notificationIcon": "🏠",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "signpost-home.svg"
   },
   {
-    "step": 15,
+    "step": 17,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

@@ -1796,7 +1796,7 @@ const PixiRenderer = ({
           currentSettlementPosition={currentSettlementPosition}
         />
         {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
-        {doinkerType !== 'button' && (
+        {doinkerType !== 'button' && doinkerType !== 'element' && (
           <PixiRendererDoinker
             doinkerTargets={doinkerTargets}
             doinkerType={doinkerType}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from '../../GameFeatures/FTUE/DoinkerArrow';
+import { resolveFtueDirtTile } from '../../GameFeatures/FTUE/findBoardTarget';
 import '../../GameFeatures/FTUE/FTUE.css';
 
 /**
@@ -36,7 +37,7 @@ const PixiRendererDoinker = ({
   // Find the target resource/NPC positions - continuously poll to handle async loading
   // Only handles resource/NPC type doinkers (button type uses the original component)
   useEffect(() => {
-    if (!doinkerTargets || !visible || doinkerType === 'button') {
+    if (!doinkerTargets || !visible || doinkerType === 'button' || doinkerType === 'element') {
       setTargetPositions([]);
       return;
     }
@@ -49,6 +50,13 @@ const PixiRendererDoinker = ({
 
       for (const targetName of targetsArray) {
         let found = false;
+
+        // 'tile' doinkers point at a computed tile (today: the FTUE planting tile)
+        if (doinkerType === 'tile') {
+          const t = targetName === 'ftue-dirt' ? resolveFtueDirtTile() : null;
+          if (t) foundPositions.push({ x: t.x, y: t.y, size: 1, source: 'tile', targetName });
+          continue;
+        }
 
         // First, check resources
         const resources = GlobalGridStateTilesAndResources.getResources();
@@ -118,7 +126,7 @@ const PixiRendererDoinker = ({
   }, [doinkerTargets, visible, gridId, doinkerType]);
 
   // Don't render if not visible or button type (button type handled elsewhere)
-  if (!visible || doinkerType === 'button') {
+  if (!visible || doinkerType === 'button' || doinkerType === 'element') {
     return null;
   }
 

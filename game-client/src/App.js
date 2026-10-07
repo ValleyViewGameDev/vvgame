@@ -8,7 +8,7 @@ import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
-import { registerNotificationClickHandler, showNotification } from './UI/Notifications/Notifications';
+import { registerNotificationClickHandler, showNotification, dismissNotification } from './UI/Notifications/Notifications';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
 // LEGACY RENDERING - COMMENTED OUT (PixiJS is now the only renderer)
 // import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
@@ -958,13 +958,21 @@ const lastCutsceneStep = useRef(null);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
-// Clear cursor mode when panel changes (except when staying on panels that support cursor placement)
+// Clear cursor mode when panel changes (except when staying on panels that support cursor placement).
+// An FTUE step with keepCursor: true closes the panel but keeps the plot armed for the planting beat.
+const keepCursorRef = useRef(false);
 useEffect(() => {
   const cursorModePanels = ['FarmingPanel', 'ToolsPanel', 'BuildPanel', 'BuyPanel', 'BuyDecoPanel', 'PetsPanel'];
-  if (!cursorModePanels.includes(activePanel)) {
+  if (!cursorModePanels.includes(activePanel) && !keepCursorRef.current) {
     setCursorMode(null);
   }
 }, [activePanel]);
+// FTUE: opening the Farming panel is a tutorial beat (tuning/FTUEsteps.json, OpenedFarmingPanel)
+useEffect(() => {
+  if (activePanel === 'FarmingPanel' && currentPlayer?.firsttimeuser) {
+    tryAdvanceFTUEByTrigger('OpenedFarmingPanel', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+  }
+}, [activePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
 // Apply emoji or SVG cursor when in cursor mode
 useEffect(() => {
@@ -1758,6 +1766,17 @@ useEffect(() => {
 
   // Scrim Moment: everything but the target goes dark and inert (FTUEScrim.js)
   setScrimTarget(stepData?.scrim ? (stepData.scrimTarget || (Array.isArray(stepData.doinkerTarget) ? stepData.doinkerTarget[0] : stepData.doinkerTarget) || null) : null);
+  // Step housekeeping: drop the previous instruction's toast, close panels (keeping an armed plot when asked)
+  if (stepData?.dismissNotification) dismissNotification();
+  keepCursorRef.current = !!stepData?.keepCursor;
+  if (stepData?.closePanels) closePanel();
+  // setCursor: arm a plot cursor if none is held (a reload mid-step would otherwise strand the
+  // player behind the scrim with nothing to plant)
+  if (stepData?.setCursor && masterResources.length) {
+    const item = masterResources.find((r) => r.type === stepData.setCursor);
+    const out = item && masterResources.find((r) => r.source === item.type);
+    if (item) setCursorMode((prev) => prev || { type: 'plant', item, emoji: out?.symbol || item.symbol || '🌱', filename: out?.filename || item.filename || null });
+  }
   // Cutscene: once per step, after the grid has settled (Utils/cutscene.js)
   if (stepData?.cutscene && lastCutsceneStep.current !== stepData.step && isAppInitialized) {
     lastCutsceneStep.current = stepData.step;
@@ -1775,7 +1794,7 @@ useEffect(() => {
     setDoinkerTargets(null);
     setDoinkerType('resource');
   }
-}, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId]);
+}, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId, masterResources]);
 
 // Level-up detection: Watch for XP changes and show level-up modal
 useEffect(() => {
@@ -3285,7 +3304,7 @@ return (
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <>
           <button
-            className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer}
+            className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} data-nav="FarmingPanel"
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
@@ -3293,7 +3312,7 @@ return (
             }}
           >{renderNavIcon('FarmingPanel', '🌽')}</button>
           <button
-            className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer}
+            className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} data-nav="ToolsPanel"
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
@@ -3633,7 +3652,7 @@ return (
 
         {/* FTUE Doinker - Button-type only (resource/NPC doinkers handled by PixiRendererDoinker) */}
         {scrimTarget && <FTUEScrim target={scrimTarget} gridId={gridId} />}
-        {doinkerType === 'button' && (
+        {(doinkerType === 'button' || doinkerType === 'element') && (
           <FTUEDoinker
             doinkerTargets={doinkerTargets}
             doinkerType={doinkerType}
