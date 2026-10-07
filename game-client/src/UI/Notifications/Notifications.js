@@ -55,6 +55,17 @@ function Notification({ type, data, onDismiss, onClick }) {
         return text.replace(/\{username\}/gi, data.username || 'Adventurer');
     };
 
+    // Inline icons in toast text: "{icon:icon-farming.svg}" renders the SVG the nav column shows
+    // for that panel (public/assets/icons), so a toast's icon matches the button it points at
+    const renderMessage = (text) => {
+        const t = replaceUsername(text);
+        if (!t || typeof t !== 'string' || !t.includes('{icon:')) return t;
+        return t.split(/(\{icon:[^}]+\})/g).map((part, i) => {
+            const m = part.match(/^\{icon:([^}]+)\}$/);
+            return m ? <img key={i} className="notification-inline-icon" src={`/assets/icons/${m[1]}`} alt="" /> : part;
+        });
+    };
+
     // Render different content based on notification type
     const renderContent = () => {
         switch (type) {
@@ -124,7 +135,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7001]}</div>
-                            <div className="notification-name">{data.message}</div>
+                            <div className="notification-name">{renderMessage(data.message)}</div>
                         </div>
                     </>
                 );
@@ -150,7 +161,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7049]}</div>
-                            <div className="notification-name">{replaceUsername(data.message)}</div>
+                            <div className="notification-name">{renderMessage(data.message)}</div>
                         </div>
                     </>
                 );

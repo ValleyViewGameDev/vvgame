@@ -10,6 +10,10 @@ import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
 
+// A step's notificationSprite is a file under /assets/resources (board art), or an absolute path
+// such as /assets/icons/icon-farming.svg when the toast should carry a nav icon instead
+const spriteSrc = (file) => (file.startsWith('/') ? file : `/assets/resources/${file}`);
+
 
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps }) => {
   const strings = useStrings();
@@ -64,7 +68,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         message: uiString(strings, currentStepData.notificationKey),
         username: currentPlayer?.username,
         ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon }),
-        ...(currentStepData.notificationSprite && { iconSrc: `/assets/resources/${currentStepData.notificationSprite}` })
+        ...(currentStepData.notificationSprite && { iconSrc: spriteSrc(currentStepData.notificationSprite) })
       });
     }
 
@@ -150,7 +154,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           message: uiString(strings, stepData.notificationKey),
           username: currentPlayer?.username,
           ...(stepData.notificationIcon && { icon: stepData.notificationIcon }),
-          ...(stepData.notificationSprite && { iconSrc: `/assets/resources/${stepData.notificationSprite}` })
+          ...(stepData.notificationSprite && { iconSrc: spriteSrc(stepData.notificationSprite) })
         });
       }
       // Auto-add quests defined in FTUEsteps.json
@@ -428,6 +432,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       isOpen={true}
       onClose={handleOK}
       symbol={modalSymbol}
+      npcFilename={currentStepData?.modalSprite}
       dialogKey={currentStepData.bodyKey}
       relationshipType="FTUE"
       username={currentPlayer?.username}

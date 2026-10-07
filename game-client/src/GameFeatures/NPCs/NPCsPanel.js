@@ -1634,6 +1634,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       }}
                     >
                     <ResourceButton
+                      resourceType={recipe.type}
                       symbol={recipe.symbol}
                       name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
                       details={details}

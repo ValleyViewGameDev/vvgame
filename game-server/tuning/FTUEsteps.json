@@ -3,7 +3,7 @@
     "step": 1,
     "trigger": "StartedFTUE",
     "showModal": true,
-    "modalIcon": "👸",
+    "modalSprite": "npc-gertrude.svg",
     "bodyKey": 16019,
     "continue": true,
     "addQuests": []
@@ -15,7 +15,7 @@
     "doinkerType": "resource",
     "doinkerTarget": "Constable Elbow",
     "notificationKey": 741,
-    "notificationIcon": "🧔🏼‍♂️",
+    "notificationSprite": "npc-elbow.svg",
     "addQuests": []
   },
   {
@@ -24,9 +24,14 @@
     "showModal": false,
     "openPanel": "NPCPanel",
     "panelTargetNPC": "Constable Elbow",
+    "dismissNotification": true,
     "doinker": true,
     "doinkerType": "button",
-    "doinkerTarget": ".trade-options .resource-button",
+    "doinkerTarget": "[data-resource-type=\"Home Deed\"] .resource-button",
+    "scrim": true,
+    "scrimTarget": {
+      "selector": "[data-resource-type=\"Home Deed\"] .resource-button"
+    },
     "addQuests": []
   },
   {
@@ -80,7 +85,7 @@
     "showFeedbackModalAfter": true,
     "continue": false,
     "notificationKey": 7054,
-    "notificationIcon": "🌽",
+    "notificationSprite": "/assets/icons/icon-farming.svg",
     "doinker": true,
     "doinkerType": "element",
     "doinkerTarget": "[data-nav=\"FarmingPanel\"]",
@@ -139,6 +144,9 @@
     "addQuests": [
       7
     ],
+    "dismissNotification": true,
+    "notificationKey": 7066,
+    "notificationSprite": "signpost-town.svg",
     "doinker": true,
     "doinkerType": "resource",
     "doinkerTarget": "Signpost Town"
@@ -150,7 +158,7 @@
     "doinkerType": "resource",
     "doinkerTarget": "Constable Elbow",
     "notificationKey": 743,
-    "notificationIcon": "🧔🏼‍♂️",
+    "notificationSprite": "npc-elbow.svg",
     "addQuests": []
   },
   {
@@ -181,7 +189,7 @@
     "step": 16,
     "trigger": "AcquiredGrower",
     "showModal": true,
-    "modalIcon": "🧔🏼‍♂️",
+    "modalSprite": "npc-elbow.svg",
     "bodyKey": 16021,
     "continue": false,
     "doinker": true,

@@ -86,6 +86,13 @@
     height: 44px;
     object-fit: contain;
 }
+/* An icon inside the toast text ({icon:file.svg} in the string) */
+.notification-inline-icon {
+    width: 1.25em;
+    height: 1.25em;
+    vertical-align: -0.3em;
+    margin: 0 0.1em;
+}
 
 /* Milestone number overlay */
 .notification-milestone {

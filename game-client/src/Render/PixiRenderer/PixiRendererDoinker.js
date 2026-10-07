@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import PixiCamera from './PixiCamera';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from '../../GameFeatures/FTUE/DoinkerArrow';
@@ -18,19 +20,15 @@ import '../../GameFeatures/FTUE/FTUE.css';
  * - doinkerTargets: string | string[] - The resource/NPC type(s) to point at
  * - doinkerType: string - Type of doinker: 'resource' (only type supported here)
  * - TILE_SIZE: number - Base tile size (before zoom scaling)
- * - zoomScale: number - Current zoom scale factor
  * - visible: boolean - Whether the doinker should be visible
  * - gridId: string - The current grid ID (needed to look up NPCs)
- * - gridWorldPosition: { x, y } - Position of the grid in world coordinates (pixels)
  */
 const PixiRendererDoinker = ({
   doinkerTargets,
   doinkerType = 'resource',
   TILE_SIZE,
-  zoomScale,
   visible,
   gridId,
-  gridWorldPosition = { x: 0, y: 0 }
 }) => {
   const [targetPositions, setTargetPositions] = useState([]);
 
@@ -134,49 +132,52 @@ const PixiRendererDoinker = ({
     return null;
   }
 
-  // Render doinker arrows positioned within the world container
-  // The arrows need to be positioned in world coordinates (accounting for zoom)
-  return (
-    <>
-      {targetPositions.map((targetPosition, index) => {
-        // Calculate pixel position in BASE coordinates (before zoom)
-        // The arrow will be positioned relative to the grid's world position
-        const centerOffset = (targetPosition.size - 1) / 2;
-
-        // Position in grid-local coordinates (tiles -> pixels at base tile size)
-        const gridLocalX = (targetPosition.x + centerOffset + 0.5) * TILE_SIZE;
-        const gridLocalY = (targetPosition.y - centerOffset + 0.5) * TILE_SIZE;
-
-        // Apply zoom scale to get world position
-        const worldX = gridWorldPosition.x + gridLocalX * zoomScale;
-        const worldY = gridWorldPosition.y + gridLocalY * zoomScale;
-
-        // Arrow dimensions (scaled with zoom for visibility)
-        const baseArrowHeight = Math.max(30, TILE_SIZE * 0.8);
-        const baseArrowWidth = Math.max(20, TILE_SIZE * 0.5);
-        const arrowHeight = baseArrowHeight * zoomScale;
-        const arrowWidth = baseArrowWidth * zoomScale;
-
-        return (
-          <div
-            key={`pixi-doinker-${targetPosition.targetName}-${index}`}
-            className="ftue-doinker"
-            style={{
-              position: 'absolute',
-              left: `${worldX}px`,
-              top: `${worldY - arrowHeight - 10 * zoomScale}px`,
-              width: `${arrowWidth}px`,
-              height: `${arrowHeight}px`,
-              transform: 'translateX(-50%)', // Center horizontally
-              zIndex: 1000,
-            }}
-          >
-            <DoinkerArrow width={arrowWidth} height={arrowHeight} />
-          </div>
-        );
-      })}
-    </>
-  );
+  // Screen placement: the arrows are portalled to <body> (position: fixed) so they can sit above
+  // a Scrim Moment (FTUEScrim.css lifts .ftue-doinker to 1600); inside the board they would be
+  // trapped under the board's own stacking context. Positions follow the camera on a short tick.
+  return <BoardArrows targets={targetPositions} TILE_SIZE={TILE_SIZE} />;
 };
+
+function BoardArrows({ targets, TILE_SIZE }) {
+  const [arrows, setArrows] = useState([]);
+  useEffect(() => {
+    if (!targets.length) { setArrows([]); return undefined; }
+    const place = () => {
+      const host = PixiCamera.isAttached() && document.querySelector('.homestead')?.getBoundingClientRect();
+      if (!host) { setArrows([]); return; }
+      const z = PixiCamera.getZoom();
+      const next = targets.map((t) => {
+        const centerOffset = (t.size - 1) / 2;
+        const p = PixiCamera.worldToScreen((t.x + centerOffset + 0.5) * TILE_SIZE, (t.y - centerOffset + 0.5) * TILE_SIZE);
+        const x = host.left + p.x;
+        const y = host.top + p.y;
+        const height = Math.max(30, TILE_SIZE * 0.8) * z;
+        const width = Math.max(20, TILE_SIZE * 0.5) * z;
+        const onBoard = x >= host.left && x <= host.right && y >= host.top && y <= host.bottom;
+        return { key: `${t.targetName}-${t.x}-${t.y}`, x: Math.round(x), top: Math.round(y - height - 10 * z), width, height, onBoard };
+      }).filter((a) => a.onBoard);
+      setArrows((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
+    };
+    place();
+    const id = setInterval(place, 33);
+    return () => clearInterval(id);
+  }, [targets, TILE_SIZE]);
+
+  if (!arrows.length) return null;
+  return createPortal(
+    <>
+      {arrows.map((a) => (
+        <div
+          key={a.key}
+          className="ftue-doinker ftue-doinker-board"
+          style={{ left: `${a.x}px`, top: `${a.top}px`, width: `${a.width}px`, height: `${a.height}px` }}
+        >
+          <DoinkerArrow width={a.width} height={a.height} />
+        </div>
+      ))}
+    </>,
+    document.body
+  );
+}
 
 export default PixiRendererDoinker;

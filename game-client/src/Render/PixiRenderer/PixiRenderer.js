@@ -1801,10 +1801,8 @@ const PixiRenderer = ({
             doinkerTargets={doinkerTargets}
             doinkerType={doinkerType}
             TILE_SIZE={TILE_SIZE}
-            zoomScale={1}
             visible={doinkerVisible}
             gridId={gridId}
-            gridWorldPosition={{ x: 0, y: 0 }}
           />
         )}
       </div>

@@ -1767,7 +1767,8 @@ useEffect(() => {
   // Scrim Moment: everything but the target goes dark and inert (FTUEScrim.js)
   setScrimTarget(stepData?.scrim ? (stepData.scrimTarget || (Array.isArray(stepData.doinkerTarget) ? stepData.doinkerTarget[0] : stepData.doinkerTarget) || null) : null);
   // Step housekeeping: drop the previous instruction's toast, close panels (keeping an armed plot when asked)
-  if (stepData?.dismissNotification) dismissNotification();
+  // (a step with its own notificationKey replaces the toast; FTUE.js shows it before this effect runs)
+  if (stepData?.dismissNotification && !stepData?.notificationKey) dismissNotification();
   keepCursorRef.current = !!stepData?.keepCursor;
   if (stepData?.closePanels) closePanel();
   // setCursor: arm a plot cursor if none is held (a reload mid-step would otherwise strand the
