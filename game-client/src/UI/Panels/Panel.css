@@ -13,11 +13,11 @@
 }
 
 .panel-container {
-    /* floats over the board to the right of the nav pill (desktop vars in App.css; phones: mobile.css) */
+    /* floats over the board right of the zoom/map column, clear of the bottom nav bar (desktop vars in App.css; phones: mobile.css) */
     position: fixed;
     top: calc(var(--d-top) + var(--d-gap));
     left: calc(var(--d-board-left) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
-    height: calc(100vh - var(--d-top) - 2 * var(--d-gap));
+    height: calc(100vh - var(--d-top) - var(--d-gap) - var(--d-nav-reserve));
     width: var(--d-panel-width);
     box-sizing: border-box;
     border-radius: var(--d-panel-radius);

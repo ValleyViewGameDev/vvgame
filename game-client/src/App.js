@@ -48,7 +48,7 @@ import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 // LEGACY - Old HTML-based zoom views (PixiJS now handles settlement/frontier zoom)
 // import SettlementView from './ZoomedOut/SettlementView';
 // import FrontierView from './ZoomedOut/FrontierView';
-import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
+import MapPanel from './ZoomedOut/MapPanel';
 import { PLAYER_FIXED_POSITION } from './Render/PixiRenderer/CameraConstants';
 import {
   getPlayerWorldPosition,
@@ -80,7 +80,6 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import WarehousePanel from './GameFeatures/Inventory/WarehousePanel';
 import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
 import HowToPanel from './UI/Panels/HowToPanel';
-import FeedbackLinks from './UI/Panels/FeedbackLinks';
 import HowToMoneyPanel from './UI/Panels/HowToMoneyPanel';
 import HowToGemsPanel from './UI/Panels/HowToGemsPanel';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
@@ -156,7 +155,6 @@ import { processRelocation } from './Utils/Relocation';
 import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
-import { uiString } from './Utils/inputMode';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -919,10 +917,6 @@ const [signinPrefill] = useState(() => {
 });
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
 const { activePanel, openPanel, closePanel } = usePanelContext();
-// Phones hide the base panel (UI/Styles/mobile.css); the 👸 nav button opens it as a
-// full-screen "Home" sheet instead. Any other panel opening closes the sheet.
-const [isHomeSheetOpen, setIsHomeSheetOpen] = useState(false);
-const [isHomeSheetClosing, setIsHomeSheetClosing] = useState(false);
 // Phone layout active? (same media list as UI/Styles/mobile.css). Header links render as
 // icons only and a board tap closes an open panel when this is true.
 const [isPhoneLayout, setIsPhoneLayout] = useState(() => (
@@ -943,13 +937,6 @@ const headerIcon = (label, fallback = '') => {
   return m ? m[0] : fallback;
 };
 const headerLabel = (label, fallback = '') => (isPhoneLayout ? headerIcon(label, fallback) : label);
-const closeHomeSheet = () => {
-  if (!isHomeSheetOpen || isHomeSheetClosing) return;
-  // Slide out first on phones (CSS .base-panel--closing), then unmount-equivalent hide
-  setIsHomeSheetClosing(true);
-  setTimeout(() => { setIsHomeSheetClosing(false); setIsHomeSheetOpen(false); }, 240);
-};
-useEffect(() => { if (activePanel) { setIsHomeSheetClosing(false); setIsHomeSheetOpen(false); } }, [activePanel]);
 const { closeAllPanels } = usePanelContext(); 
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
@@ -3278,7 +3265,7 @@ return (
     )}
 
 
-{/* //////////////// Left Side Navigation Column ///////////////// */}
+{/* //////////////// Navigation Bar ///////////////// */}
 
     {/* Zoom controls: a sibling of the nav (not a child) so the phone layouts can place them
         freely; on desktop they are fixed at the top-left, exactly where the nav's corner was */}
@@ -3298,12 +3285,18 @@ return (
       </div>
     )}
 
+    {/* Map: a round button under the zoom pill, the season button's twin; toggles the Map panel */}
+    {currentPlayer && (
+      <div className="map-controls">
+        <button className={`map-button ${activePanel === 'MapPanel' ? 'selected' : ''}`} title={strings[2] || 'Map'} onClick={() => (activePanel === 'MapPanel' ? closePanel() : openPanel('MapPanel'))}>{renderNavIcon('MapPanel', '🗺️')}</button>
+      </div>
+    )}
+
     <div className="nav-column">
 
       {currentPlayer && (
         <>
 
-      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => { closePanel(); if (isHomeSheetOpen) closeHomeSheet(); else setIsHomeSheetOpen(true); }}>{renderNavIcon('BasePanel', '👸')}</button>
       <button
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
         title="My Profile"
@@ -3412,58 +3405,6 @@ return (
     </div>
 
     <div className="app-container">
-
-
-{/* ///////////////////  Base Panel  ///////////////////// */}
-
-    <div className={`base-panel ${isHomeSheetOpen ? 'base-panel--open' : ''} ${isHomeSheetClosing ? 'base-panel--closing' : ''}`}>
-      {/* Close button: only rendered visibly on phones, where the panel is a sheet */}
-      <button className="base-panel-close" aria-label="Close" onClick={closeHomeSheet}>×</button>
-      <div className="base-panel-content">
-
-      {/* Frontier Mini Map */}
-      <FrontierMiniMap 
-        currentPlayer={currentPlayer} 
-        strings={strings}
-        setCurrentPlayer={setCurrentPlayer}
-        setGridId={setGridId}
-        setGrid={setGrid}
-        setTileTypes={setTileTypes}
-        setResources={setResources}
-        updateStatus={updateStatus}
-        TILE_SIZE={activeTileSize}
-        closeAllPanels={closeAllPanels}
-        bulkOperationContext={bulkOperationContext}
-        masterResources={masterResources}
-        masterTrophies={masterTrophies}
-        transitionFadeControl={transitionFadeControl}
-        timers={timers}
-        countdowns={countdowns}
-      />
- 
-      {/* Range note stays right under the map on every layout */}
-      <h3 style={{ textAlign: 'center' }}>{isOnOwnHomestead ? strings[10140] : strings[10141]}</h3>
-
-      {/* Controls: desktop only (phones have no keyboard; Help lives in the header) */}
-      <div className="base-panel-controls">
-        <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
-        <h3 style={{ textAlign: 'center' }}>{uiString(strings, 10135)}</h3>
-        <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
-        <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
-        <br />
-      </div>
-
-      <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
-      </div>
-
-      <br />
-      <FeedbackLinks />
-
-      <br />
-      </div>
-      <div className="base-panel-buffer"></div>
-    </div>
 
 
 {/* //////////////////// Game Board //////////////////// */}
@@ -3633,12 +3574,11 @@ return (
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
           onPlayerClick={() => openMyProfile()}
           onBoardTap={() => {
-            // A tap on the board while a panel (or the Home sheet) is open closes it on
+            // A tap on the board while a panel is open closes it on
             // phones; the tap still does its own thing (move, collect, interact)
             if (isPhoneLayout) {
               // Farming and Tools panels stay open: players place or till many tiles in a row from them
               if (activePanel && activePanel !== 'FarmingPanel' && activePanel !== 'ToolsPanel') closePanel();
-              if (isHomeSheetOpen) closeHomeSheet();
               // Best effort to tuck the browser's bars away again: Safari collapses them on a
               // page scroll, so the document is kept 1 px taller than the viewport (mobile.css)
               if (window.scrollY < 1) window.scrollTo(0, 1);
@@ -4496,6 +4436,27 @@ return (
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
           masterResources={masterResources}
+        />
+      )}
+      {activePanel === 'MapPanel' && (
+        <MapPanel
+          onClose={closePanel}
+          isOnOwnHomestead={isOnOwnHomestead}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setGridId={setGridId}
+          setGrid={setGrid}
+          setTileTypes={setTileTypes}
+          setResources={setResources}
+          updateStatus={updateStatus}
+          TILE_SIZE={activeTileSize}
+          closeAllPanels={closeAllPanels}
+          bulkOperationContext={bulkOperationContext}
+          masterResources={masterResources}
+          masterTrophies={masterTrophies}
+          transitionFadeControl={transitionFadeControl}
+          timers={timers}
+          countdowns={countdowns}
         />
       )}
       {activePanel === 'SeasonPanel' && (

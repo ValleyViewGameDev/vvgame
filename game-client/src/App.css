@@ -14,19 +14,23 @@ body {
 }
 
 /* Desktop geometry (phones: UI/Styles/mobile.css). Same pattern as the phone: the board
-   fills the window under the header and status bar; the zoom pill, the nav pill and the
-   season button float over it; panels (and the base panel, opened by the 👸 button as the
-   Home sheet) float beside the nav pill and slide in and out. docs/ui-conventions.md. */
+   fills the window under the header and status bar; the zoom pill and the map button (top-
+   left), the season button (top-right) and the nav bar (bottom centre) float over it; panels
+   float beside the zoom/map column, clear of the nav bar, and slide in and out.
+   docs/ui-conventions.md. */
 :root {
   --d-board-left: 0px;                /* the board starts at the window's left edge */
   --d-top: 84px;                      /* header 60px + status bar 24px */
   --d-gap: 10px;                      /* pills' distance from the board edges */
-  --d-pill-w: 53px;                   /* nav / zoom pill width (phone pill 48px, +10% on desktop) */
+  --d-pill-w: 53px;                   /* zoom pill / round button width (phone 48px, +10% on desktop) */
   --d-zoom-h: 110px;                  /* zoom pill height (two round buttons) */
+  --d-nav-h: 58px;                    /* the bottom nav bar's height */
+  --d-nav-reserve: calc(var(--d-nav-h) + 2 * var(--d-gap)); /* what panels leave free at the bottom */
   --d-panel-width: 280px;
   --d-panel-radius: 14px;
   --d-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  --d-pill-bg: rgba(130, 187, 77, 0.96);
+  --d-pill-bg: rgba(130, 187, 77, 0.96);    /* zoom / season / map pills */
+  --d-nav-bg: rgba(255, 251, 179, 0.96);     /* the nav bar: --color-bg-panel yellow, so it stands off the grass */
   --d-pill-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   --d-anim-in: 260ms;
   --d-anim-out: 220ms;
@@ -39,60 +43,9 @@ body {
 
 
 
-/* BASE PANEL: the Home sheet. Hidden until the 👸 nav button opens it; then it is a panel like
-   any other (same box, same slide, dismissable). ////////////////////////////////////////// */
+/* MAP PANEL (ZoomedOut/MapPanel.js): the old base panel's text styles ///////////////////// */
 
-.base-panel { display: none; }
-.base-panel.base-panel--open {
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: calc(var(--d-top) + var(--d-gap));
-  left: calc(var(--d-board-left) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
-  width: var(--d-panel-width);
-  height: calc(100vh - var(--d-top) - 2 * var(--d-gap));
-  box-sizing: border-box;
-  padding: 12px 12px 0 12px;
-  border-radius: var(--d-panel-radius);
-  background-color: var(--color-bg-panel);
-  box-shadow: var(--d-panel-shadow);
-  font-size: 14px;
-  z-index: 990;
-  overflow: hidden;
-  animation: panelLeftIn var(--d-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.base-panel.base-panel--open.base-panel--closing {
-  animation: panelLeftOut var(--d-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-/* The Home sheet's close button */
-.base-panel-close {
-  display: flex;
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  width: 36px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  font-size: 28px;
-  line-height: 1;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  z-index: 1;
-}
-
-/* Scrollable content area within base panel */
-.base-panel-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* The Ko-fi widget floats at the window's bottom-left on its own; nothing reserves space for it */
-.base-panel-buffer { display: none; }
-.base-panel p {
+.map-panel p {
   margin: 0;
   padding: 0;
   font-size: 12px;
@@ -102,7 +55,7 @@ body {
 
 }
 
-.base-panel h1 {
+.map-panel h1 {
   margin: 0;
   padding: 0;
   font-size: 1.9em;
@@ -112,7 +65,7 @@ body {
 
 }
 
-.base-panel h2 {
+.map-panel h2 {
   margin: 0;
   padding: 0;
   font-size: 1.4em;
@@ -122,7 +75,7 @@ body {
 
 }
 
-.base-panel h3 {
+.map-panel h3 {
   margin: 0;
   padding: 0;
   font-size: 1em;
@@ -131,7 +84,7 @@ body {
   font-family: var(--font-text-1-family);
 }
 
-.base-panel h4 {
+.map-panel h4 {
   margin: 0;
   padding: 0;
   font-size: 14px;
@@ -142,27 +95,29 @@ body {
 
 
 
-/* NAV COLUMN: a floating vertical pill at the board's left, under the zoom pill ///////// */
+/* NAV BAR: a floating horizontal pill centred along the board's bottom edge, like the
+   phone's portrait pill ////////////////////////////////////////////////////////////// */
 
 .nav-column {
   position: fixed;
-  top: calc(var(--d-top) + var(--d-gap) + var(--d-zoom-h) + var(--d-gap));
-  left: calc(var(--d-board-left) + var(--d-gap));
-  width: var(--d-pill-w);
-  height: auto;
-  max-height: calc(100vh - var(--d-top) - var(--d-gap) - var(--d-zoom-h) - var(--d-gap) - 80px); /* clear of the Ko-fi widget */
-  padding: 6px 0;
+  bottom: var(--d-gap);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--d-gap));
+  height: var(--d-nav-h);
+  padding: 0 6px;
   box-sizing: border-box;
-  border-radius: calc(var(--d-pill-w) / 2);
-  background-color: var(--d-pill-bg);
+  border-radius: calc(var(--d-nav-h) / 2);
+  background-color: var(--d-nav-bg);
   box-shadow: var(--d-pill-shadow);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
   z-index: 1000; /* panels (990) slide in and out behind it */
 }
@@ -173,7 +128,7 @@ body {
   background: none;
   border: none;
   font-size: 26px;
-  margin: 1px 0;
+  margin: 0 1px;
   cursor: pointer;
   color: var(--color-text-white);
   width: 48px;
@@ -189,7 +144,7 @@ body {
 .nav-button:active { transform: scale(0.92); }
 
 .nav-button.selected {
-  background-color: var(--color-bg-panel);
+  background-color: var(--color-primary-green);
 }
 
 
@@ -280,6 +235,41 @@ body {
 }
 .season-button:hover { background-color: var(--color-button-hover); }
 .season-button:active { transform: scale(0.92); }
+
+/* MAP: one round button under the zoom pill, the season button's twin; toggles the Map panel */
+
+.map-controls {
+  position: fixed;
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-zoom-h) + var(--d-gap));
+  left: calc(var(--d-board-left) + var(--d-gap));
+  width: var(--d-pill-w);
+  height: var(--d-pill-w);
+  border-radius: calc(var(--d-pill-w) / 2);
+  background-color: var(--d-pill-bg);
+  box-shadow: var(--d-pill-shadow);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 995; /* with the zoom pill: above the panels (990) on desktop */
+}
+.map-button {
+  width: 45px;
+  height: 45px;
+  margin: 4px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-primary-green-dark);
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.map-button:hover, .map-button.selected { background-color: var(--color-button-hover); }
+.map-button:active { transform: scale(0.92); }
+.map-button .nav-icon { width: 30px; height: 30px; }
 
 /* HEADER /////////////////////////////////// */
 

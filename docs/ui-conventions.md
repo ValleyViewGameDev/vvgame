@@ -9,10 +9,12 @@ value rather than trust this page.
 
 - Desktop chrome is the phone pattern at desktop size, through the `--d-*` tokens in
   `App.css`: the board fills the window under the 60 px header and the full-width 24 px
-  status bar (`--d-top`); the zoom pill floats top-left, the nav pill under it, the season
-  button top-right; 280 px panels (`UI/Panels/Panel.css`) float beside the pill. The base
-  panel is the Home sheet on every layout: hidden until the 👸 nav button opens it, then a
-  panel like any other (same box, slide and close button). Modals in `UI/Modals/Modal.css`.
+  status bar (`--d-top`); the zoom pill floats top-left with the map button under it, the
+  season button top-right, and the nav is a horizontal bar centred along the bottom (the
+  phone's portrait pill; `--d-nav-h`); 280 px panels (`UI/Panels/Panel.css`) float right of
+  the zoom/map column and stop above the nav bar (`--d-nav-reserve`). The nav bar is the
+  panel yellow (`--d-nav-bg`, `--color-bg-panel`) so it stands off the grass; its selected
+  button is green (`--color-primary-green`). Same colours on phones. Modals in `UI/Modals/Modal.css`.
 - The phone layout is ONE stylesheet, `UI/Styles/mobile.css`, imported last (in `index.js`) so
   it follows every component stylesheet. It re-positions the same elements; it never adds
   phone-only components. Three blocks: shared (both orientations), portrait
@@ -62,18 +64,18 @@ value rather than trust this page.
   item-per-row feed on phones; add the phone rule in `mobile.css` next to the Store block
   rather than building a second mobile component.
 
-## 3. Panels (the right-hand slide-ins) and the base panel
+## 3. Panels (the right-hand slide-ins) and the Map panel
 
-- Desktop: panels float over the board right of the nav pill (`--d-panel-width` 280 px,
-  rounded, shadowed, z-index 990 under the pill's 1000), slide in from the left and back out
+- Desktop: panels float over the board right of the zoom/map column (`--d-panel-width` 280 px,
+  rounded, shadowed, z-index 990 under the nav bar's 1000), slide in from the left and back out
   on close (`panelLeftIn/Out` in `App.css`; the exit is the same ghost clone as on phones,
   `UI/Panels/panelExitGhost.js`, which runs on every layout). Closed with `.panel-close-btn`.
   One panel open at a time (`UI/Panels/PanelContext.js`). When panels switch, the new one
   slides in ON TOP of the old one's ghost (ghost z-index 989, panel 990) on every layout. On
-  desktop the zoom pill (995) sits above panels; on phones it sits behind them (980).
+  desktop the zoom pill and map button (995) sit above panels; on phones it sits behind them (980).
 - Scrolling content fades out over its last 20 px while there is more below, on every
   layout: `UI/Panels/scrollFade.js` (installed once from App.js) finds every vertically
-  scrolling box inside a `.panel-container` or the Home sheet, including a feature panel's own
+  scrolling box inside a `.panel-container`, including a feature panel's own
   inner list above a footer, and toggles `scroll-fade--more` (a mask in `scrollFade.css`) as
   it scrolls; the fade disappears at the end so the last line is never dimmed. Nothing to
   wire per panel; a new panel gets it as long as its scroller is a real `overflow-y: auto`
@@ -87,8 +89,8 @@ value rather than trust this page.
   title sits at the left on two lines, and the right block is Settings, Chat, Help over
   Leaders, Language, Share.
 - Phones: the nav is a floating iOS-style pill over the board (horizontal along the bottom
-  in portrait, vertical at the left in landscape). Panels, the Home sheet (the base panel's
-  phone form, 👸 button) and the chat share one box docked at the left,
+  in portrait, vertical at the left in landscape). Panels (the Map panel
+  included) and the chat share one box docked at the left,
   `--m-panel-width` (58vw portrait, 33vw landscape, 400 px cap), z-index 990 so they slide
   BEHIND the pill (1000). They slide in from the left and back out on close in both
   orientations; the exit is a static clone of the removed node (`UI/Panels/panelExitGhost.js`),
@@ -103,10 +105,14 @@ value rather than trust this page.
   so panels cover them; landscape: the header's first column). They are not children of the
   nav pill: its backdrop-filter would make it their containing block. The season button (📅,
   opens the Season panel) is the zoom pill's twin at the board's top-right on every layout
-  (`.season-controls`); the base panel no longer shows the season.
-- The Home sheet is the base panel: map, range note, Town News, feedback links, plus the
-  keyboard Controls text on desktop only (`.base-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
-  "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, shared by the base panel and the
+  (`.season-controls`). The map button (`.map-controls`, 🗺️) is its other twin: under the
+  zoom pill on desktop and in portrait, under the season button in landscape (zoom lives in
+  the header there). It toggles the Map panel (a second tap closes it); on phones it sits
+  behind an open panel like the zoom pill, so the panel's × or a board tap closes it there.
+- The Map panel (`ZoomedOut/MapPanel.js`, formerly the base panel / Home sheet) is an
+  ordinary `Panel`: map, range note, Town News, feedback links, plus the keyboard Controls
+  text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
+  "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, shared by the Map panel and the
   bottom of the Settings panel.
 
 ## 4. Header, status bar, notifications

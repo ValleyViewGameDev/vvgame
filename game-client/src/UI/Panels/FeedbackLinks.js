@@ -3,8 +3,8 @@ import { useStrings } from '../StringsContext';
 import { DISCORD_INVITE } from '../../config';
 
 /**
- * "Have Feedback?" with the Discord and email buttons. Shown on the base panel (Home sheet
- * on phones) and at the bottom of the Settings panel; keep the two in step by using this.
+ * "Have Feedback?" with the Discord and email buttons. Shown on the Map panel
+ * (ZoomedOut/MapPanel.js) and at the bottom of the Settings panel; keep the two in step by using this.
  */
 export default function FeedbackLinks() {
   const strings = useStrings();

@@ -591,7 +591,7 @@ export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount,
 }
 
 /**
- * The board minus whatever panel, Home sheet or chat is covering its left side (phones), as a
+ * The board minus whatever panel or chat is covering its left side (phones), as a
  * region in host px; then PixiCamera.revealPlayerIn. On desktop panels sit beside the board,
  * so the region is the whole board and this only recentres a panned-away view.
  */
@@ -600,7 +600,7 @@ export function revealPlayerBesidePanels() {
   if (!host) return false;
   const h = host.getBoundingClientRect();
   const region = { left: 0, top: 0, right: h.width, bottom: h.height };
-  const covers = document.querySelectorAll('.panel-container, .base-panel.base-panel--open, .chat-panel-slideout');
+  const covers = document.querySelectorAll('.panel-container, .chat-panel-slideout');
   covers.forEach((el) => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return;

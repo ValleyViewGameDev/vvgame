@@ -11,17 +11,18 @@
                         left.
      PANELS             docked at the left, 58vw wide in portrait and 44vw in landscape so
                         the board stays playable beside them; they slide in from the left
-                        and back out on close in both orientations. The Home sheet (the
-                        desktop base panel) and the chat use the same box and motion.
+                        and back out on close in both orientations. The Map panel is a
+                        panel like any other; the chat uses the same box and motion.
      HEADER             three rows in both orientations: stats, their fill bars, then the
                         secondary commands as icons only (centred in portrait, left in
                         landscape).
      ZOOM               portrait: a small vertical pill (matching the nav) at the board's
-                        top-left under the status bar. Landscape: the header's first column,
-                        with the game title in the second, like desktop.
+                        top-left under the status bar, the map button under it. Landscape:
+                        the header's first column, with the game title in the second, like
+                        desktop; the map button under the season button.
      SAFE AREA          landscape keeps env(safe-area-inset-left) clear (iPhone camera
                         housing) with a black strip; viewport-fit=cover supplies the inset.
-     ALSO               base panel hidden (Home sheet instead), modals centred with side buffers, notifications
+     ALSO               modals centred with side buffers, notifications
                         drop down from behind the header (nearly full width), Ko-fi hidden.
 
    Geometry flows through the --m-* custom properties: each orientation sets the header
@@ -29,8 +30,8 @@
    and animations from them. Heights use dvh where supported (iOS URL bar).
    Phone = a viewport under 768 px wide, or a landscape viewport under 500 px tall.
    The slide-out on close: panels are ghosted by UI/Panels/panelExitGhost.js (a clone with
-   .panel-ghost plays mPanelLeftOut), the Home sheet uses .base-panel--closing (App.js) and
-   the chat its own .closing; keep those timers and --m-anim-out in step.
+   .panel-ghost plays mPanelLeftOut, the Map panel included) and the chat uses its own
+   .closing; keep those timers and --m-anim-out in step.
    =========================================== */
 
 /* ---------- shared: both orientations ---------- */
@@ -172,11 +173,13 @@
   /* ---------- floating tab bar (pill); orientation blocks shape it ---------- */
   .nav-column {
     position: fixed;
-    background-color: rgba(130, 187, 77, 0.96); /* --color-primary-green with a little glass */
+    background-color: rgba(255, 251, 179, 0.96); /* --color-bg-panel yellow with a little glass (desktop: --d-nav-bg) */
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 1000;
+    transform: none;  /* desktop centres its bar with a transform */
+    max-width: none;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -187,12 +190,12 @@
     border-radius: 22px;
     transition: background-color 0.15s ease, transform 0.15s ease;
   }
-  .nav-button.selected { background-color: var(--color-bg-panel); }
+  .nav-button.selected { background-color: var(--color-primary-green); }
   .nav-button:active { transform: scale(0.92); }
   .nav-icon { width: 28px; height: 28px; }
 
-  /* ---------- Home sheet trims: no keyboard controls, no season block (the 📅 button has it) ---------- */
-  .base-panel-controls { display: none; }
+  /* ---------- Map panel trims: no keyboard controls ---------- */
+  .map-panel-controls { display: none; }
 
   /* ---------- season: one round button over the board's top-right, the zoom pill's twin ---------- */
   .season-controls {
@@ -227,6 +230,19 @@
   }
   .season-button:active { transform: scale(0.92); }
 
+  /* ---------- map: the season button's twin, placed per orientation (under the zoom pill in
+     portrait; under the season button in landscape, where zoom sits in the header). Behind
+     an open panel (990) like the zoom pill: the panel's × or a board tap closes it ---------- */
+  .map-controls {
+    z-index: 980;
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+    background-color: rgba(130, 187, 77, 0.96);
+  }
+  .map-button { width: 40px; height: 40px; margin: 4px; font-size: 22px; }
+  .map-button .nav-icon { width: 26px; height: 26px; }
+
   /* ---------- zoom: two stacked round buttons (placed per orientation) ---------- */
   .zoom-controls {
     position: fixed;
@@ -254,9 +270,8 @@
   .zoom-button.zoom-in span,
   .zoom-button.zoom-out span { position: static; }
 
-  /* ---------- the panel box: panels, the Home sheet and the chat share it ---------- */
+  /* ---------- the panel box: panels and the chat share it ---------- */
   .panel-container,
-  .base-panel.base-panel--open,
   .chat-panel-slideout {
     position: fixed;
     top: calc(var(--m-top) + var(--m-gap));
@@ -276,31 +291,6 @@
   .panel-buffer-space { display: none; }
   .panel-content { font-size: 13px; }
   .panel-close-btn { padding: 6px 10px; }
-
-  /* base panel: hidden until the 👸 button opens it as the Home sheet */
-  .base-panel { display: none; }
-  .base-panel.base-panel--open {
-    display: flex;
-    padding: 12px 12px 0 12px;
-  }
-  .base-panel.base-panel--open .base-panel-buffer { display: none; }
-  .base-panel-close {
-    display: flex;
-    position: absolute;
-    top: 4px;
-    right: 6px;
-    width: 36px;
-    height: 36px;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    font-size: 28px;
-    line-height: 1;
-    color: var(--color-text-primary);
-    cursor: pointer;
-    z-index: 1;
-  }
 
   /* chat (App.js wraps it in .chat-panel-slideout, which already has a .closing state) */
   .chat-panel-slideout { padding-left: 0; }
@@ -376,12 +366,10 @@
   @keyframes mPanelLeftIn  { from { transform: translateX(-110%); opacity: 0.6; } to { transform: none; opacity: 1; } }
   @keyframes mPanelLeftOut { from { transform: none; opacity: 1; } to { transform: translateX(-110%); opacity: 0.6; } }
   .panel-container,
-  .base-panel.base-panel--open,
   .chat-panel-slideout {
     animation: mPanelLeftIn var(--m-anim-in) cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
   .panel-container.panel-ghost,
-  .base-panel.base-panel--open.base-panel--closing,
   .chat-panel-slideout.closing {
     animation: mPanelLeftOut var(--m-anim-out) cubic-bezier(0.4, 0, 1, 1) both;
   }
@@ -442,6 +430,12 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* map: under the zoom pill, same column */
+  .map-controls {
+    top: calc(var(--m-top) + var(--m-gap) + 100px + var(--m-gap));
+    left: calc(var(--m-safe-left) + var(--m-gap));
   }
 
   /* the pill */
@@ -516,6 +510,14 @@
   .zoom-button.zoom-in { top: 3px; }
   .zoom-button.zoom-out { top: 36px; }
 
+  /* map: zoom lives in the header here and the nav pill owns the left edge, so the map
+     button sits under the season button at the board's top-right */
+  .map-controls {
+    top: calc(var(--m-top) + var(--m-gap) + 48px + var(--m-gap));
+    right: var(--m-gap);
+    left: auto;
+  }
+
   /* the pill, vertical at the left, from just under the status bar */
   .nav-column {
     top: calc(var(--m-top) + var(--m-gap));
@@ -536,7 +538,6 @@
 
   /* panels: right of the pill; bottom gap matches the top gap */
   .panel-container,
-  .base-panel.base-panel--open,
   .chat-panel-slideout {
     height: calc(100vh - var(--m-top) - 2 * var(--m-gap));
     height: calc(100dvh - var(--m-top) - 2 * var(--m-gap));

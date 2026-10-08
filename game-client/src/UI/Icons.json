@@ -1,5 +1,5 @@
 [
-  { "BasePanel": "icon-game.svg" },
+  { "MapPanel": "icon-map.svg" },
   { "FarmingPanel": "icon-farming.svg" },
   { "ToolsPanel": "icon-tools.svg" },
   { "BuyPanel": "icon-buy.svg" },

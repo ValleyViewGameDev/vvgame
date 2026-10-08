@@ -1,7 +1,7 @@
 /**
  * scrollFade: the "there is more below" fade on scrolling panel content (docs/ui-conventions.md §3).
  *
- * Any box inside a panel (`.panel-container`, the Home sheet `.base-panel`) that scrolls
+ * Any box inside a panel (`.panel-container`, the Map panel included) that scrolls
  * vertically and has content below its bottom edge gets `scroll-fade--more`, which
  * scrollFade.css turns into a 20 px mask fading the content out at the bottom. The class
  * drops as soon as the box is scrolled to its end, so the last line is never faded.
@@ -12,7 +12,7 @@
  * that scrolled; DOM changes, image loads and resizes rescan the open panels.
  */
 
-const ROOTS = '.panel-container, .base-panel';
+const ROOTS = '.panel-container';
 const CLASS_HOST = 'scroll-fade';
 const CLASS_MORE = 'scroll-fade--more';
 const SLACK = 4; // px of remaining scroll that still counts as "at the end"
