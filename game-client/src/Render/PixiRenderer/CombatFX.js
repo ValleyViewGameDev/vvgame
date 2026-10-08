@@ -58,6 +58,16 @@ const hpBars = new Map();     // npcId -> { bar, lastEngaged, hp, maxhp }
 const easeOut = (t) => 1 - (1 - t) * (1 - t);
 const easeIn = (t) => t * t;
 
+// The sprite's resting scale: recorded by the renderer when it sizes the sprite
+// (`__restScale`), so overlapping effects never capture each other's mid-animation squash
+// as the size to restore to. The sign of scale.x (the facing flip) is read live.
+const rest = (obj) => obj.__restScale || { x: Math.abs(obj.scale.x) || 1, y: Math.abs(obj.scale.y) || 1 };
+const applyScale = (obj, mx, my) => {
+  const r = rest(obj);
+  const sign = (obj.scale.x < 0) ? -1 : 1;
+  obj.scale.set(sign * r.x * mx, r.y * my);
+};
+
 // ---------------------------------------------------------------- lifecycle
 
 export function attach(opts) {
@@ -171,8 +181,6 @@ export function hitEnemy(npcId, fromX, fromY, toX, toY) {
   const dy = ((toY - fromY) / len) * FX.KNOCKBACK_TILES * TILE;
   const start = Date.now();
   const baseTint = obj.tint ?? 0xffffff;
-  const baseScaleX = obj.scale.x;
-  const baseScaleY = obj.scale.y;
   const total = FX.KNOCKBACK_MS * 2.4;
   run({
     update(now) {
@@ -187,12 +195,13 @@ export function hitEnemy(npcId, fromX, fromY, toX, toY) {
       // pop, around the centre: the knockback pivot is computed from the resting scale
       const pp = Math.min(1, e / (FX.HIT_FLASH_MS * 1.5));
       const pop = 1 + (FX.POP_SCALE - 1) * Math.sin(pp * Math.PI);
-      obj.scale.set(baseScaleX * pop, baseScaleY * pop);
-      setPivotOffset(obj, dx * k, dy * k, baseScaleX, baseScaleY);
+      const r = rest(obj);
+      applyScale(obj, pop, pop);
+      setPivotOffset(obj, dx * k, dy * k, r.x, r.y);
       if (e >= total) {
-        setPivotOffset(obj, 0, 0, baseScaleX, baseScaleY);
+        setPivotOffset(obj, 0, 0, r.x, r.y);
         obj.tint = baseTint;
-        obj.scale.set(baseScaleX, baseScaleY);
+        applyScale(obj, 1, 1);
         return false;
       }
       return true;
@@ -205,14 +214,13 @@ export function enemyWindup(npcId) {
   const obj = getNpcDisplay(npcId);
   if (!ready() || !obj || obj.destroyed) return;
   const start = Date.now();
-  const bx = obj.scale.x; const by = obj.scale.y;
   run({
     update(now) {
       if (obj.destroyed) return false;
       const p = Math.min(1, (now - start) / FX.WINDUP_MS);
       const s = Math.sin(p * Math.PI);
-      obj.scale.set(bx * (1 + 0.12 * s), by * (1 - 0.14 * s));
-      if (p >= 1) { obj.scale.set(bx, by); return false; }
+      applyScale(obj, 1 + 0.12 * s, 1 - 0.14 * s);
+      if (p >= 1) { applyScale(obj, 1, 1); return false; }
       return true;
     },
   });
@@ -228,8 +236,8 @@ export function killEnemy(npcId) {
   if (!ready() || !obj || obj.destroyed) return;
   if (obj.parent) obj.parent.removeChild(obj);
   fxContainer.addChild(obj);
-  const bx = obj.scale.x; const by = obj.scale.y; const y0 = obj.y;
-  setPivotOffset(obj, 0, 0, bx, by);
+  const r0 = rest(obj); const y0 = obj.y;
+  setPivotOffset(obj, 0, 0, r0.x, r0.y);
   const start = Date.now();
   obj.tint = 0xffffff;
   // A flash and a tiny pop (0-25%), then the body shrinks out of its centre; the chunk burst
@@ -247,7 +255,7 @@ export function killEnemy(npcId) {
         pop = 1.15 * (1 - q); alpha = 1 - q * 0.6;
         obj.tint = 0xffffff;
       }
-      obj.scale.set(bx * pop, by * pop);
+      applyScale(obj, pop, pop);
       obj.alpha = alpha;
       obj.y = y0;
       if (p >= 1) { fxContainer.removeChild(obj); try { obj.destroy(); } catch (_) { /* shared texture */ } return false; }
@@ -275,7 +283,6 @@ export function playerLunge(fromX, fromY, toX, toY) {
   const dy = ((toY - fromY) / len) * FX.LUNGE_TILES * TILE;
   const start = Date.now();
   const total = FX.LUNGE_MS * 2.3;
-  const bx = obj.scale.x; const by = obj.scale.y;
   run({
     update(now) {
       if (obj.destroyed) return false;
@@ -283,8 +290,9 @@ export function playerLunge(fromX, fromY, toX, toY) {
       let k;
       if (e < FX.LUNGE_MS) k = easeOut(e / FX.LUNGE_MS);
       else k = 1 - easeOut(Math.min(1, (e - FX.LUNGE_MS) / (FX.LUNGE_MS * 1.3)));
-      setPivotOffset(obj, dx * k, dy * k, bx, by);
-      if (e >= total) { setPivotOffset(obj, 0, 0, bx, by); return false; }
+      const r = rest(obj);
+      setPivotOffset(obj, dx * k, dy * k, r.x, r.y);
+      if (e >= total) { setPivotOffset(obj, 0, 0, r.x, r.y); return false; }
       return true;
     },
   });

@@ -1119,6 +1119,7 @@ const PixiRenderer = ({
           // Set initial position
           displayObj.x = targetPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = targetPos.y * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) }; // CombatFX restores to this
         } else {
           // Update existing display object
           if (newDisplayType === 'sprite') {
@@ -1155,6 +1156,8 @@ const PixiRenderer = ({
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
           displayObj.zIndex = renderPos.y;
         }
+        // Resting scale for CombatFX (sizing above may have just reset it under an effect)
+        displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).
         // Sizing above leaves scale.x positive; facing only changes on a horizontal step.
