@@ -635,6 +635,7 @@ const PixiRenderer = ({
 
       // Start the sprite-sheet download now so it overlaps the grid bundle fetch
       loadAtlas();
+      if (process.env.NODE_ENV !== 'production') window.__pixiApp = app; // dev hook: inspect the stage from the console
 
       // Combat feedback layer (CombatFX.js): reads NPC display objects, and takes one over on a kill
       CombatFX.attach({

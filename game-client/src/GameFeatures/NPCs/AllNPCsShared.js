@@ -71,7 +71,9 @@ class NPC {
     this.updateInterval = this.stepMs;
     this.lastStepMs = this.stepMs;          // the renderer tweens exactly this long
     this.nextUpdateAt = Date.now() + Math.floor(Math.random() * this.stepMs); // desync on load
-    this.facing = 1;                        // +1 right, -1 left (renderer flips the sprite)
+    // +1 right, -1 left (renderer flips the sprite relative to `artFacing`); at rest an NPC
+    // shows its native art, so left-facing art starts facing left
+    this.facing = (this.artFacing || (this.action === 'graze' || this.action === 'attack' ? 'left' : 'front')) === 'left' ? -1 : 1;
 
     //console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }
