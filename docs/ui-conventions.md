@@ -46,6 +46,17 @@ value rather than trust this page.
   usual offender: it must still portal to `document.body`, never render inline in the panel.
   Custom overlays (`.inventory-modal`, `.carnival-logic-modal-overlay`) are listed in the
   phone width rule in `mobile.css`; add any new one there.
+- Resource management modals (Trading Post item picker `UI/Modals/TradingInventoryModal.js`,
+  Manage Backpack / Warehouse `GameFeatures/Inventory/ManageContentsModal.js`, Eat Food
+  `GameFeatures/Eating/Eating.js`) are tables on desktop and two-line rows on phones: line 1
+  the item name with small labelled facts at the right, line 2 the stepper (−, field, +, Max)
+  with the action button at the right; the header becomes sort chips. One block in
+  `mobile.css` does it from role classes on the cells: `.res-rows` (container),
+  `.res-rows-head` / `.res-rows-body`, and per cell `.res-name`, `.res-meta` (with a
+  `data-label` that prints before the value), `.res-amount`, `.res-gain`, `.res-action`. A new
+  table of this kind adds those classes instead of a phone stylesheet of its own. Row text is
+  `--font-text-2-family`: Berkshire Swash (the page default in `App.css`) is for headings only,
+  so any table or list that sits outside `.modal-content` must set the body font itself.
 - `UI/Modals/ResourceModalSmall.js` is the standard "what is this and where does it come
   from" pop-up (icon, the resource name as the title, a "Grown on / Made at / Collected from /
   Found in the Valley / Dropped by ..." line from `Utils/resourceSource.js`, ingredients for

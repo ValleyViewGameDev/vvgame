@@ -83,12 +83,12 @@ const ManageContentsModal = ({
   }
 
   return (
-    <div className="manage-contents-container">
-      <div className="manage-contents-header">
+    <div className="manage-contents-container res-rows">
+      <div className="manage-contents-header res-rows-head">
         <table>
           <thead>
             <tr>
-              <th onClick={() => handleSort('food')} className="sortable-header">
+              <th onClick={() => handleSort('food')} className="sortable-header res-sort-food">
                 {getSortIcon('food')}
               </th>
               <th onClick={() => handleSort('name')} className="sortable-header">
@@ -109,7 +109,7 @@ const ManageContentsModal = ({
         </table>
       </div>
       
-      <div className="manage-contents-scroll">
+      <div className="manage-contents-scroll res-rows-body">
         <table>
           <tbody>
             {sortedInventory.map((item, index) => {
@@ -118,16 +118,16 @@ const ManageContentsModal = ({
               
               return (
                 <tr key={index}>
-                  <td>
+                  <td className="res-meta res-food">
                     {isFood ? `❤️‍🩹 +${resourceData.hp}` : ''}
                   </td>
-                  <td>
+                  <td className="res-name">
                     {resourceData?.symbol || ''} {getLocalizedString(item.type, strings)}
                   </td>
-                  <td>{item.quantity.toLocaleString()}</td>
+                  <td className="res-meta" data-label={strings[185] || 'Quantity'}>{item.quantity.toLocaleString()}</td>
                 {showActions && (
                   <>
-                    <td>
+                    <td className="res-amount">
                       <div className="amount-input">
                         <button
                           onClick={() =>
@@ -162,7 +162,7 @@ const ManageContentsModal = ({
                         </button>
                       </div>
                     </td>
-                    <td>
+                    <td className="res-action">
                       {resourceData?.category !== 'special' && (
                         <div className="shared-buttons">
                           <button
@@ -176,7 +176,7 @@ const ManageContentsModal = ({
                       )}
                     </td>
                     {handleSecondAction && (
-                      <td>
+                      <td className="res-action">
                         <div className="shared-buttons">
                           <button
                             className={`btn-basic ${secondActionButtonClass} btn-mini`}

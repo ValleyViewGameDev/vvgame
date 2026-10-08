@@ -62,3 +62,29 @@ per device), and `App.js` to capture `beforeinstallprompt` into a ref at boot. C
 right instructions for the platform; inside the installed app it never appears; "later" is
 remembered; the installed app launches straight into the game full-screen in both
 orientations.
+
+### BL-2: Floating text when collecting Gems on the Trophy panel
+
+Added 2026-10-08.
+
+**What.** Collecting Gems from the Trophy panel should fire the floating-text feedback that
+other collections already show, so the reward reads on the spot.
+
+### BL-3: Panel resource buttons stay light after a tap instead of returning to green
+
+Added 2026-10-08.
+
+**What.** Tapping a green (active) button in a panel, e.g. starting a craft at a
+craftingStation, turns it light as tap feedback, but it stays light. If the player still has
+the resources for another go, the button should return to green right away so they can tap
+again. Inactive is still correct when the resources really are short. Appears to affect all
+resource buttons in panels, so the fix probably belongs in the shared button, not per panel.
+
+### BL-4: Turn off hovertips on mobile entirely
+
+Added 2026-10-08.
+
+**What.** No hovertips on mobile. The catch: some buttons (gem buttons among them) carry
+critical information, such as the quantity, only in the hovertip, so mobile players would lose
+it. That information has to move onto the button itself, which needs some finesse to fit
+without crowding. Audit which hovertips hold must-have info before switching them off.

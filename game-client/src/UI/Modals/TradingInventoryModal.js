@@ -91,8 +91,8 @@ const TradingInventoryModal = ({
         {slotConfig.maxAmount} {isRequestMode ? strings[10181] : strings[158]}
       </p>
       
-      <div className="inventory-modal-container">
-        <div className="inventory-modal-header">
+      <div className="inventory-modal-container res-rows">
+        <div className="inventory-modal-header res-rows-head">
           <table>
             <thead>
               <tr>
@@ -114,7 +114,7 @@ const TradingInventoryModal = ({
           </table>
         </div>
         
-        <div className="inventory-modal-scroll">
+        <div className="inventory-modal-scroll res-rows-body">
           <table>
             <tbody>
               {sortedInventory.map((item) => {
@@ -129,10 +129,10 @@ const TradingInventoryModal = ({
 
                 return (
                   <tr key={item.type}>
-                    <td>{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
-                    <td>{item.quantity}</td>
-                    <td>💰 {price}</td>
-                    <td>
+                    <td className="res-name">{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
+                    <td className="res-meta" data-label={strings[162]}>{item.quantity}</td>
+                    <td className="res-meta">💰 {price}</td>
+                    <td className="res-amount">
                       <div className="amount-input">
                         <button
                           onClick={() =>
@@ -167,7 +167,7 @@ const TradingInventoryModal = ({
                         </button>
                       </div>
                     </td>
-                    <td>
+                    <td className="res-action">
                       <TransactionButton
                         className="add-button"
                         onAction={(transactionId, transactionKey) =>

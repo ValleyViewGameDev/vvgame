@@ -35,6 +35,7 @@
 /* Table Container Styles (similar to ManageContentsModal) */
 .eating-container {
   width: 100%;
+  font-family: var(--font-text-2-family); /* body text, not the Berkshire Swash heading font */
   max-height: 250px;
   display: flex;
   flex-direction: column;
@@ -115,15 +116,15 @@
   background-color: #f0f8ff;
 }
 
-/* Amount input styling (reused from ManageContentsModal) */
-.amount-input {
+/* Amount input styling (scoped to this modal) */
+.eating-scroll .amount-input {
   display: flex;
   align-items: center;
   gap: 2px;
   margin-left: -10px; /* Shift controls slightly to the left */
 }
 
-.amount-input input {
+.eating-scroll .amount-input input {
   width: 40px;
   padding: 2px;
   text-align: center;
@@ -132,7 +133,7 @@
   font-size: 12px;
 }
 
-.amount-input button {
+.eating-scroll .amount-input button {
   width: 25px;
   height: 25px;
   font-size: 12px;
@@ -144,15 +145,15 @@
 }
 
 /* Make Max button wider */
-.amount-input button[title="Max"] {
+.eating-scroll .amount-input button[title="Max"] {
   width: 50px;
 }
 
-.amount-input button:hover:not(:disabled) {
+.eating-scroll .amount-input button:hover:not(:disabled) {
   background: #f0f0f0;
 }
 
-.amount-input button:disabled {
+.eating-scroll .amount-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

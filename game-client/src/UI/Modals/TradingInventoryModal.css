@@ -7,11 +7,14 @@
   font-size: 16px; /* 2px bigger than default 14px */
   color: var(--color-info); /* Light blue color */
   font-weight: bold;
+  font-family: var(--font-text-2-family);
 }
 
-/* Container for the modal table with sticky header */
+/* Container for the modal table with sticky header. Rows are body text, not headings: the
+   page default is Berkshire Swash (App.css body), which is for titles only. */
 .inventory-modal-container {
   position: relative;
+  font-family: var(--font-text-2-family);
   height: 420px; /* Fixed height instead of max-height */
   display: flex;
   flex-direction: column;
@@ -88,14 +91,14 @@
   background-color: #f0f8ff;
 }
 
-/* Amount input styling */
-.amount-input {
+/* Amount input styling (scoped: Eating.css and ManageContentsModal.css have their own) */
+.inventory-modal-scroll .amount-input {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.amount-input input {
+.inventory-modal-scroll .amount-input input {
   width: 60px;
   padding: 4px;
   text-align: center;
@@ -103,7 +106,7 @@
   border-radius: 4px;
 }
 
-.amount-input button {
+.inventory-modal-scroll .amount-input button {
   padding: 4px 8px;
   border: 1px solid var(--color-border-dark);
   border-radius: 4px;
@@ -112,11 +115,11 @@
   min-width: 24px;
 }
 
-.amount-input button:hover:not(:disabled) {
+.inventory-modal-scroll .amount-input button:hover:not(:disabled) {
   background: var(--color-btn-hover-light);
 }
 
-.amount-input button:disabled {
+.inventory-modal-scroll .amount-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

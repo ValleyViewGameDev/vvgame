@@ -320,9 +320,95 @@
     border-radius: 12px;
     box-sizing: border-box;
   }
-  /* Trade Stall inventory modal: the table scrolls inside the box instead of forcing 600px */
-  body .inventory-modal table { min-width: 0; }
-  body .inventory-modal .inventory-modal-scroll { overflow-x: auto; }
+  /* ---------- resource management modals: tables become two-line rows ----------
+     The Trading Post picker (TradingInventoryModal), Manage Backpack / Warehouse
+     (ManageContentsModal) and Eat Food (Eating) are wide tables on desktop. On a phone each
+     row reflows (docs/ui-conventions.md §2):
+       line 1  🌽 Name ............ meta meta     (.res-name, .res-meta with data-label)
+       line 2  [ - ][ 3 ][ + ][Max]  gain [Action] (.res-amount, .res-gain, .res-action)
+     and the header row becomes sort chips (non-sortable headers hidden, the labels move into
+     the rows). The cell selectors are written heavy enough to beat the desktop column widths
+     in TradeStall.css / InventoryPanel.css / ManageContentsModal.css / Eating.css. */
+  body .inventory-modal.wider { display: flex; flex-direction: column; overflow: hidden; }
+  body .inventory-modal table { min-width: 0; margin-top: 0; }
+  body .inventory-modal h2 { margin: 0 36px 4px 0; font-size: 20px; text-align: left; }
+  body .inventory-modal .trading-modal-subtitle { font-size: 13px; text-align: left; margin-bottom: 8px; }
+  body .inventory-modal .inventory-modal-container { height: auto; flex: 1 1 auto; min-height: 0; }
+  body .modal-overlay .modal-container > .manage-contents-container { height: auto; flex: 1 1 auto; min-height: 0; }
+  .eating-modal-container .eating-container { max-height: none; box-sizing: border-box; }
+  .eating-modal-container .eating-header { padding-right: 0; }
+  .eating-modal-container .eating-section { margin-bottom: 18px; }
+  .eating-modal-container .eating-section h3 { margin-bottom: 6px; padding-bottom: 4px; }
+
+  body .res-rows table,
+  body .res-rows thead,
+  body .res-rows tbody { display: block; width: 100%; min-width: 0; }
+  body .res-rows .res-rows-body { overflow-x: hidden; margin-bottom: 8px; }
+  .eating-modal-container .res-rows .res-rows-body { overflow: visible; }
+
+  /* header: sort chips */
+  body .res-rows .res-rows-head { background: transparent; }
+  body .res-rows .res-rows-head tr { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 8px; }
+  body .res-rows .res-rows-head th { display: none; }
+  body .res-rows .res-rows-head th.sortable-header {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    padding: 3px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background: var(--color-bg-light, #f8f9fa);
+    font-size: 12px;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+  body .res-rows .res-rows-head th.res-sort-food::before { content: "❤️‍🩹 "; }
+
+  /* rows */
+  body .res-rows .res-rows-body tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+  }
+  body .res-rows .res-rows-body tr::after { content: ""; order: 2; flex-basis: 100%; height: 0; } /* the line break */
+  body .res-rows .res-rows-body tr > td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: none;
+    text-align: left;
+    font-size: 13px;
+  }
+  body .res-rows .res-rows-body tr > td.res-name { order: 0; flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: bold; overflow-wrap: anywhere; }
+  body .res-rows .res-rows-body tr > td.res-meta { order: 1; flex: 0 0 auto; color: var(--color-text-secondary, #555); white-space: nowrap; }
+  body .res-rows .res-rows-body tr > td.res-meta:empty { display: none; }
+  body .res-rows .res-rows-body tr > td.res-food { order: 1; }
+  body .res-rows .res-rows-body tr > td[data-label]::before { content: attr(data-label) " "; font-size: 11px; color: var(--color-text-muted, #888); }
+  body .res-rows .res-rows-body tr > td.res-amount { order: 3; flex: 1 1 auto; }
+  /* the health gain reads "+36 ❤️‍🩹" here; its column header says what it is on desktop */
+  body .res-rows .res-rows-body tr > td.res-gain { order: 3; flex: 0 0 auto; white-space: nowrap; font-size: 14px; }
+  body .res-rows .res-rows-body tr > td.res-gain::before { content: "+"; font-size: 14px; color: inherit; }
+  body .res-rows .res-rows-body tr > td.res-gain::after { content: " ❤️‍🩹"; font-size: 12px; }
+  body .res-rows .res-rows-body tr > td.res-action { order: 3; flex: 0 0 auto; }
+  body .res-rows .res-rows-body td.res-action .shared-buttons { margin: 0; }
+
+  /* the stepper: thumb-sized, and 16px in the field so iOS does not zoom on focus */
+  body .res-rows .amount-input { justify-content: flex-start; gap: 3px; margin: 0; }
+  body .res-rows .amount-input button {
+    width: 32px;
+    min-width: 32px;
+    height: 34px;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    border-radius: 8px;
+  }
+  body .res-rows .amount-input button:last-child { width: auto; min-width: 0; padding: 0 7px; font-size: 13px; margin-left: 1px !important; } /* Max (its inline style says 4px) */
+  body .res-rows .amount-input input { width: 40px; height: 34px; padding: 0; font-size: 16px; border-radius: 8px; box-sizing: border-box; }
+  body .res-rows .res-action button { min-height: 34px; padding: 6px 10px; font-size: 13px; border-radius: 8px; white-space: nowrap; }
   /* Store: a feed, one offer per row (desktop pairs and triples them in custom rows) */
   .store-modal .store-offer-row { flex-direction: column; gap: 12px; }
   .store-modal .store-offer-card,

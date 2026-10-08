@@ -173,8 +173,8 @@ const EatingModal = ({
     return (
       <div className="eating-section">
         <h3>{title}</h3>
-        <div className="eating-container">
-          <div className="eating-header">
+        <div className="eating-container res-rows">
+          <div className="eating-header res-rows-head">
             <table>
               <thead>
                 <tr>
@@ -189,17 +189,17 @@ const EatingModal = ({
             </table>
           </div>
           
-          <div className="eating-scroll">
+          <div className="eating-scroll res-rows-body">
             <table>
               <tbody>
                 {foods.map((item, index) => (
                   <tr key={`${item.type}-${index}`}>
-                    <td>
+                    <td className="res-name">
                       {item.symbol} {getLocalizedString(item.type, strings)}
                     </td>
-                    <td>{item.quantity.toLocaleString()}</td>
-                    <td>{item.hp}</td>
-                    <td>
+                    <td className="res-meta" data-label={strings[10156]}>{item.quantity.toLocaleString()}</td>
+                    <td className="res-meta" data-label={strings[10157]}>{item.hp}</td>
+                    <td className="res-amount">
                       <div className="amount-input">
                         <button
                           onClick={() =>
@@ -260,10 +260,10 @@ const EatingModal = ({
                         </button>
                       </div>
                     </td>
-                    <td>
+                    <td className="res-gain" data-label={strings[10159]}>
                       <strong>{getHpToAdd(item.type, item.hp)}</strong>
                     </td>
-                    <td>
+                    <td className="res-action">
                       <button
                         className="eat-button"
                         onClick={() => handleEat(item, isWarehouse)}

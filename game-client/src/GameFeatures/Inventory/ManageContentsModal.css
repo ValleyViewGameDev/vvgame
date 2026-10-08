@@ -1,6 +1,7 @@
 /* Manage Contents Modal Styles */
 .manage-contents-container {
   width: 100%;
+  font-family: var(--font-text-2-family); /* body text, not the Berkshire Swash heading font */
   height: 300px;
   display: flex;
   flex-direction: column;
@@ -93,15 +94,15 @@
   background-color: #f0f8ff;
 }
 
-/* Amount input styling for actions */
-.amount-input {
+/* Amount input styling for actions (scoped to this modal) */
+.manage-contents-scroll .amount-input {
   display: flex;
   align-items: center;
   justify-content: center; /* Center the controls within the column */
   gap: 2px;
 }
 
-.amount-input input {
+.manage-contents-scroll .amount-input input {
   width: 40px;
   padding: 2px;
   text-align: center;
@@ -110,7 +111,7 @@
   font-size: 12px;
 }
 
-.amount-input button {
+.manage-contents-scroll .amount-input button {
   width: 25px;
   height: 25px;
   font-size: 12px;
@@ -121,11 +122,11 @@
   cursor: pointer;
 }
 
-.amount-input button:hover:not(:disabled) {
+.manage-contents-scroll .amount-input button:hover:not(:disabled) {
   background: #f0f0f0;
 }
 
-.amount-input button:disabled {
+.manage-contents-scroll .amount-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
