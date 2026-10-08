@@ -180,12 +180,14 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     CombatFX.showCooldown(attackReadyAt, cooldown);
     CombatFX.playerLunge(player.position.x, player.position.y, freshNPC.position.x, freshNPC.position.y);
     CombatFX.engageEnemy(freshNPC.id, freshNPC.hp, freshNPC.maxhp);
-    soundManager.playSFX('attack_melee');
 
     // The roll is decided now; the feedback lands when the blow does (at once for melee,
-    // when the projectile arrives for a ranged weapon)
+    // when the projectile arrives for a ranged weapon). Sound: the swoosh is the miss; a hit
+    // plays attack_hit when it lands (Sound/SFXMap.json; the hit file is a placeholder).
     const hit = rollHit(player, freshNPC);
     const damage = hit ? rollDamage(player) : 0;
+    const ranged = isRangedWeaponEquipped(currentPlayer, masterResources);
+    if (!hit || ranged) soundManager.playSFX('attack_miss');
     const from = { x: player.position.x, y: player.position.y };
     const to = { x: freshNPC.position.x, y: freshNPC.position.y };
     const land = () => {
@@ -193,8 +195,9 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         if (!hit) { CombatFX.text(to.x, to.y, 'miss', 'miss'); return; }
         if (!live || live.hp <= 0) return; // died to something else meanwhile
         live.hp -= damage;
+        soundManager.playSFX('attack_hit');
         CombatFX.hitEnemy(live.id, from.x, from.y, live.position.x, live.position.y);
-        createImpactEffect(live.position.x, live.position.y);
+        createImpactEffect(live.position.x, live.position.y, from.x, from.y);
         CombatFX.text(live.position.x, live.position.y, `-${damage}`, 'damage');
         CombatFX.engageEnemy(live.id, live.hp, live.maxhp);
         if (live.hp > 0) {
@@ -205,7 +208,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         }
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
     };
-    if (isRangedWeaponEquipped(currentPlayer, masterResources)) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
+    if (ranged) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
     else land();
     return true;
 }
@@ -220,7 +223,7 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
     //    template's deathVfx) explodes from the tile; the store forgets the NPC at once. The
     //    drop appears as the body finishes fading, and "+XP" rises from the tile right after.
     CombatFX.killEnemy(npc.id);
-    setTimeout(() => createNPCDeathEffect(pos.x, pos.y, npcResource?.deathVfx), 120);
+    setTimeout(() => createNPCDeathEffect(pos.x, pos.y, npcResource?.deathVfx), CombatFX.FX.DEATH_BURST_DELAY_MS);
     setTimeout(() => soundManager.playSFX('collect_money'), CombatFX.FX.DEATH_XP_DELAY_MS);
     const removal = NPCsInGridManager.removeNPC(gridId, npc.id); // local delete now, POST inside
 
@@ -245,8 +248,10 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
             symbol: details.symbol || '❓',
             qtycollected: details.qtycollected || 1,
         };
-        // on the board once the body has faded; written behind right away
+        // falls in and bounces to rest once the burst has bloomed (the board's own sprite stays
+        // hidden until the bounce ends); written behind right away
         setTimeout(() => {
+            CombatFX.dropBounce(at.x, at.y, { symbol: drop.symbol, filename: drop.filename || null });
             GlobalGridStateTilesAndResources.setResources([...GlobalGridStateTilesAndResources.getResources(), drop]);
             setResources((prev) => [...prev, drop]);
         }, CombatFX.FX.DEATH_LOOT_DELAY_MS);

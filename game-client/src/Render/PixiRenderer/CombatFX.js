@@ -15,7 +15,10 @@
  * the singleton; every call is a no-op until attached, so the logic never depends on it.
  * Casual by design: nothing here is a permanent UI element.
  */
-import { Container, Graphics, Text } from 'pixi.js-legacy';
+import { Container, Graphics, Sprite, Text } from 'pixi.js-legacy';
+import { getAtlasTexture } from './AtlasTextures';
+import { emojiKey } from '../../Utils/emojiKey';
+import { holdResourceRender } from '../../VFX/VFX';
 
 const FX = {
   DAMAGE_RISE_MS: 900,       // damage number lifetime
@@ -24,9 +27,10 @@ const FX = {
   KNOCKBACK_TILES: 0.22,
   KNOCKBACK_MS: 110,         // out; back takes KNOCKBACK_MS * 1.4
   POP_SCALE: 1.18,
-  DEATH_MS: 900,             // death beat: flash, hold, then shrink and fade
-  DEATH_LOOT_DELAY_MS: 880,  // the drop appears as the body finishes fading
-  DEATH_XP_DELAY_MS: 900,    // "+XP" rises from the tile right after, once the drop is there
+  DEATH_MS: 220,             // the body: a flash, then it shrinks out of its centre (the chunk burst covers it)
+  DEATH_BURST_DELAY_MS: 60,  // when the chunk burst (VFX.js) starts
+  DEATH_LOOT_DELAY_MS: 420,  // the drop falls in once the burst has bloomed
+  DEATH_XP_DELAY_MS: 1050,   // "+XP" rises from the tile once the drop has landed (drop bounce ~650 ms)
   PROJECTILE_MS_PER_TILE: 70,
   PROJECTILE_MIN_MS: 140,
   LUNGE_TILES: 0.3,
@@ -228,27 +232,24 @@ export function killEnemy(npcId) {
   setPivotOffset(obj, 0, 0, bx, by);
   const start = Date.now();
   obj.tint = 0xffffff;
-  // Three beats so the kill can be read: a flash + pop (0-15%), a hold while it tips over
-  // (15-45%), then it shrinks, rises and fades (45-100%).
+  // A flash and a tiny pop (0-25%), then the body shrinks out of its centre; the chunk burst
+  // from VFX.js is what the eye follows, so the sprite itself is gone almost at once.
   run({
     update(now) {
       if (obj.destroyed) return false;
       const p = Math.min(1, (now - start) / FX.DEATH_MS);
-      let pop = 1; let alpha = 1; let rise = 0;
-      if (p < 0.15) {
-        pop = 1 + (p / 0.15) * 0.22;
+      let pop; let alpha = 1;
+      if (p < 0.25) {
+        pop = 1 + (p / 0.25) * 0.15;
         obj.tint = 0xffd0d0;
-      } else if (p < 0.45) {
-        pop = 1.22 - ((p - 0.15) / 0.3) * 0.12;
-        obj.tint = 0xffffff;
       } else {
-        const q = easeIn((p - 0.45) / 0.55);
-        pop = 1.1 - q * 0.9; alpha = 1 - q; rise = q * 0.4;
+        const q = easeIn((p - 0.25) / 0.75);
+        pop = 1.15 * (1 - q); alpha = 1 - q * 0.6;
+        obj.tint = 0xffffff;
       }
       obj.scale.set(bx * pop, by * pop);
       obj.alpha = alpha;
-      obj.y = y0 - rise * TILE;
-      obj.rotation = Math.min(1, p / 0.45) * 0.35;
+      obj.y = y0;
       if (p >= 1) { fxContainer.removeChild(obj); try { obj.destroy(); } catch (_) { /* shared texture */ } return false; }
       return true;
     },
@@ -287,6 +288,67 @@ export function playerLunge(fromX, fromY, toX, toY) {
       return true;
     },
   });
+}
+
+// ---------------------------------------------------------------- the drop
+
+/**
+ * A kill's drop falling in and bouncing to rest with some weight, drawn with the SAME atlas
+ * frame the board will show (an SVG resource fills the tile; an emoji is the 0.7-tile Twemoji
+ * frame), so nothing changes when the real sprite takes over. The board's sprite is held
+ * hidden (VFX.holdResourceRender) from the call until the bounce ends. ~650 ms.
+ */
+export async function dropBounce(x, y, { symbol, filename } = {}) {
+  const release = holdResourceRender(x, y);
+  try {
+    let texture = filename ? await getAtlasTexture('resources', filename) : null;
+    let emoji = false;
+    if (!texture && symbol) { const k = emojiKey(symbol); texture = k ? await getAtlasTexture('emoji', k) : null; emoji = !!texture; }
+    if (!texture || !ready()) { release(); return; }
+    const size = emoji ? TILE * 0.7 : TILE;
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0.5, 1); // the squash happens from the feet
+    sprite.width = size; sprite.height = size;
+    const cx = (x + 0.5) * TILE;
+    const ground = emoji ? (y + 0.5) * TILE + size / 2 : (y + 1) * TILE;
+    sprite.x = cx; sprite.y = ground;
+    fxContainer.addChild(sprite);
+    const bw = sprite.scale.x; const bh = sprite.scale.y;
+    const up = TILE * 0.9;
+    // keyframes: [t, dy (px, up is negative), sx, sy, alpha]
+    const K = [
+      [0.00, -up, 0.55, 0.55, 0.6],
+      [0.30, 0, 1, 1, 1],            // lands
+      [0.38, 0, 1.25, 0.7, 1],       // squash
+      [0.58, -up * 0.32, 0.95, 1.08, 1], // first bounce, stretched
+      [0.72, 0, 1.12, 0.86, 1],      // lands again
+      [0.86, -up * 0.1, 1, 1, 1],    // a small hop
+      [0.95, 0, 1.04, 0.96, 1],
+      [1.00, 0, 1, 1, 1],
+    ];
+    const DUR = 650;
+    const start = Date.now();
+    run({
+      update(now) {
+        if (sprite.destroyed) { release(); return false; }
+        const p = Math.min(1, (now - start) / DUR);
+        let i = 1; while (i < K.length - 1 && K[i][0] < p) i++;
+        const a = K[i - 1]; const b = K[i];
+        let t = (p - a[0]) / (b[0] - a[0] || 1);
+        // falling segments accelerate (weight), rising ones decelerate
+        t = b[1] < a[1] ? easeOut(t) : easeIn(t);
+        const dy = a[1] + (b[1] - a[1]) * t;
+        const sx = a[2] + (b[2] - a[2]) * t; const sy = a[3] + (b[3] - a[3]) * t;
+        sprite.y = ground + dy;
+        sprite.scale.set(bw * sx, bh * sy);
+        sprite.alpha = a[4] + (b[4] - a[4]) * t;
+        if (p >= 1) { fxContainer.removeChild(sprite); sprite.destroy(); release(); return false; }
+        return true;
+      },
+    });
+  } catch (e) {
+    release();
+  }
 }
 
 // ---------------------------------------------------------------- projectiles
@@ -413,5 +475,5 @@ function tickHpBars(now) {
   }
 }
 
-const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, killEnemy, playerLunge, playerHit, showCooldown, engageEnemy, projectile, FX };
+const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, killEnemy, playerLunge, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
 export default CombatFX;

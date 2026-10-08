@@ -29,6 +29,14 @@
     "file1": "sfx_swish.mp3"
   },
   {
+    "event": "attack_miss",
+    "file1": "sfx_swish.mp3"
+  },
+  {
+    "event": "attack_hit",
+    "file1": "sfx-sword.mp3"
+  },
+  {
     "event": "tent_on",
     "file1": "sfx_tent.mp3"
   },

@@ -181,11 +181,16 @@ value rather than trust this page.
   lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
   around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the
   pop never grows from a corner); damage numbers rise 0.9 tile over 900 ms; every hit also
-  gets a soft impact poof (`VFX.createImpactEffect`, five pale puffs, 260 ms, no stars); the
-  death beat is 900 ms in three parts (flash + pop, hold while it tips, shrink + fade) with a
-  dark-red chunk burst at 120 ms (`VFX.createNPCDeathEffect`, keyed by the template's
-  `deathVfx`, default `chunks`), the drop on the nearest FREE tile at 880 ms and "+XP" rising
-  from that tile at 900 ms, nothing else (no skull), so a kill reads as one event; enemy
+  throws seven bright chips off the sprite away from the attacker (`VFX.createImpactEffect`,
+  0.13-0.22 tile, ~400 ms, no stars, always smaller than a death burst); on death the body
+  flashes and shrinks out of its centre in 220 ms, no rotation, under a dark-red chunk burst
+  from 60 ms (`VFX.createNPCDeathEffect`, 11 chunks of 0.22-0.38 tile, keyed by the
+  template's `deathVfx`, default `chunks`); the drop falls in at 420 ms and bounces to rest
+  with weight (`CombatFX.dropBounce`, 650 ms, the board's own atlas frame so the art never
+  changes when the real sprite takes over, which is held hidden meanwhile), and "+XP" rises
+  from the drop's tile at 1,050 ms, nothing else (no skull), so a kill reads as one event;
+  sounds: the swoosh (`attack_miss`) is the miss, `attack_hit` plays when a blow lands
+  (`Sound/SFXMap.json`, hit file is a placeholder to replace); enemy
   wind-up 300 ms; projectiles only from a `ranged` weapon or a reach > 1 enemy, 70 ms per
   tile (min 140); cooldown ring 0.62-tile radius; enemy hp bar only while engaged, lingers
   2.5 s then fades 400 ms, destroyed on the kill.

@@ -439,21 +439,26 @@ function spawnChunk(worldContainer, cx, cy, { size, color, endX, endY, duration,
 }
 
 /**
- * A soft impact "poof" on a hit (NPC or PC): a few pale puffs expanding from the tile, no stars.
- * Lightweight by design, it only accompanies CombatFX's flash/knockback on the sprite.
+ * Impact on a hit (NPC or PC): a few small bright chips flying off the sprite, away from the
+ * attacker when (fromX, fromY) is given. Lightweight by design, smaller than any death burst;
+ * it only accompanies CombatFX's flash/knockback on the sprite.
  */
-export const createImpactEffect = (x, y) => {
+export const createImpactEffect = (x, y, fromX = null, fromY = null) => {
     const worldContainer = document.querySelector('.pixi-world-container');
     if (!worldContainer) return;
     const t = PixiCamera.getTileSize();
     const cx = x * t + t / 2; const cy = y * t + t / 2;
-    const puffs = 5;
-    for (let i = 0; i < puffs; i++) {
-        const angle = (i / puffs) * Math.PI * 2 + Math.random() * 0.6;
-        const dist = t * (0.25 + Math.random() * 0.25);
+    const away = (fromX === null) ? null : Math.atan2(y - fromY, x - fromX);
+    const chips = 7;
+    for (let i = 0; i < chips; i++) {
+        // a cone away from the attacker, or all round when there is none
+        const angle = away === null
+            ? (i / chips) * Math.PI * 2 + Math.random() * 0.8
+            : away + (Math.random() - 0.5) * 1.7;
+        const dist = t * (0.6 + Math.random() * 0.45);
         spawnChunk(worldContainer, cx, cy, {
-            size: t * (0.22 + Math.random() * 0.12), color: 'rgba(255, 245, 230, 0.85)', round: true, blur: 1,
-            endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist, duration: 260, delay: Math.random() * 20,
+            size: t * (0.13 + Math.random() * 0.09), color: i % 3 === 0 ? '#ffd166' : (i % 2 ? '#fff3c4' : '#ffffff'),
+            endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist + t * 0.1, duration: 360 + Math.random() * 100, delay: Math.random() * 20,
         });
     }
 };
@@ -462,19 +467,19 @@ export const createImpactEffect = (x, y) => {
 // default is the dark-red chunk burst. Add new entries here for bespoke NPC deaths.
 const NPC_DEATH_VFX = {
     chunks: (worldContainer, cx, cy, t) => {
-        const colors = ['#7a1010', '#9c1c1c', '#5a0b0b', '#b32626'];
-        const count = 14;
+        const colors = ['#7a1010', '#9c1c1c', '#5a0b0b', '#b32626', '#8f1616'];
+        const count = 11;
         for (let i = 0; i < count; i++) {
             const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
-            const dist = t * (0.7 + Math.random() * 0.9);
+            const dist = t * (0.8 + Math.random() * 0.8);
             spawnChunk(worldContainer, cx, cy, {
-                size: t * (0.12 + Math.random() * 0.14), color: colors[i % colors.length],
+                size: t * (0.22 + Math.random() * 0.16), color: colors[i % colors.length], // big, readable chunks
                 endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist - t * 0.35, // a little upward bias
-                duration: 520 + Math.random() * 200, delay: Math.random() * 40,
+                duration: 600 + Math.random() * 220, delay: Math.random() * 40,
             });
         }
         // a short dark splash under the chunks
-        spawnChunk(worldContainer, cx, cy, { size: t * 0.5, color: 'rgba(90, 11, 11, 0.55)', round: true, blur: 2, endX: 0, endY: 0, duration: 420 });
+        spawnChunk(worldContainer, cx, cy, { size: t * 0.6, color: 'rgba(90, 11, 11, 0.6)', round: true, blur: 2, endX: 0, endY: 0, duration: 480 });
     },
 };
 
@@ -485,4 +490,21 @@ export const createNPCDeathEffect = (x, y, variant = 'chunks') => {
     const t = PixiCamera.getTileSize();
     const fx = NPC_DEATH_VFX[variant] || NPC_DEATH_VFX.chunks;
     fx(worldContainer, x * t + t / 2, y * t + t / 2, t);
+};
+
+
+/**
+ * Hide the board's own sprite for the resource at (x, y) while an effect stands in for it
+ * (CombatFX.dropBounce). Returns the release function; call it when the effect is done.
+ */
+export const holdResourceRender = (x, y) => {
+    const posKey = `${x},${y}`;
+    animatingResources.add(posKey);
+    animationVersion++;
+    if (forceResourceRender) forceResourceRender();
+    return () => {
+        animatingResources.delete(posKey);
+        animationVersion++;
+        if (forceResourceRender) forceResourceRender();
+    };
 };

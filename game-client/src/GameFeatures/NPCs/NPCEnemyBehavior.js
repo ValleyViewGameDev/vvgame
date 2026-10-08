@@ -348,7 +348,7 @@ function performAttack(gridId, TILE_SIZE) {
       if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss'); return; }
       const newHP = Math.max(0, pc.hp - damage);
       CombatFX.playerHit();
-      createImpactEffect(pc.position.x, pc.position.y);
+      createImpactEffect(pc.position.x, pc.position.y, this.position.x, this.position.y);
       CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player');
       soundManager.playSFX('take_damage');
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
