@@ -20,6 +20,7 @@ import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlob
 
 // PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
+import { handleNPCClick } from './GameFeatures/NPCs/NPCUtils';
 import { attackNearestEnemy } from './GameFeatures/Combat/Combat';
 import { derivedMaxhp } from './GridState/PlayersInGrid';
 import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
@@ -2911,10 +2912,31 @@ const cursorModeRef = useRef(null);
 cursorModeRef.current = cursorMode;
 // Stepping onto a doober: run the click path for that tile, unless a placement cursor is
 // active (a click would place, not collect)
+// What a walk-over needs from App (refreshed every render; the handler below is created once)
+const enterTileCtxRef = useRef(null);
+enterTileCtxRef.current = {
+  currentPlayer, setInventory, setBackpack, setResources, setCurrentPlayer, TILE_SIZE: activeTileSize,
+  masterResources, masterSkills, gridId, setModalContent, setIsModalOpen, updateStatus, openPanel,
+  setActiveStation, strings, masterTrophies, globalTuning,
+};
 const onEnterTileRef = useRef(null);
 if (!onEnterTileRef.current) {
   onEnterTileRef.current = (row, col) => {
     if (cursorModeRef.current) return;
+    // A farm animal that is ready ("processing") is harvested by walking onto it, like a doober
+    const c = enterTileCtxRef.current;
+    const g = c?.currentPlayer?.location?.g;
+    if (g) {
+      const ready = Object.values(NPCsInGridManager.getNPCsInGrid(g) || {}).find((n) =>
+        n && n.action === 'graze' && n.state === 'processing' &&
+        Math.floor(n.position?.x) === col && Math.floor(n.position?.y) === row);
+      if (ready) {
+        handleNPCClick(ready, row, col, c.setInventory, c.setBackpack, c.setResources, c.currentPlayer, c.setCurrentPlayer,
+          c.TILE_SIZE, c.masterResources, c.masterSkills, g, c.setModalContent, c.setIsModalOpen, c.updateStatus,
+          c.openPanel, c.setActiveStation, c.strings, c.masterTrophies, c.globalTuning);
+        return;
+      }
+    }
     if (tileClickRef.current) tileClickRef.current(row, col);
   };
 }

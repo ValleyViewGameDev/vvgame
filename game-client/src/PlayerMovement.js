@@ -451,11 +451,16 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   // (App.js routes onEnterTile through handleTileClick, so inventory, VFX, feedback,
   // quests and the server call are the same code path). "special" collectables (the
   // cave Gem) take the same path as doobers in handleTileClick, so they count too.
+  // A farm animal that is ready to collect ("processing") counts too: App's onEnterTile
+  // harvests it the way a tap on it would.
   if (onEnterTile) {
     const here = GlobalGridStateTilesAndResources.getResources()?.find(
       (r) => r && (r.category === 'doober' || (r.category === 'special' && r.action === 'collect')) && r.x === targetX && r.y === targetY
     );
-    if (here) onEnterTile(targetY, targetX, here);
+    const readyAnimal = !here && currentPlayer?.location?.g && Object.values(NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g) || {}).some(
+      (n) => n && n.action === 'graze' && n.state === 'processing' && Math.floor(n.position?.x) === targetX && Math.floor(n.position?.y) === targetY
+    );
+    if (here || readyAnimal) onEnterTile(targetY, targetX, here || null);
   }
   return true;
 }
