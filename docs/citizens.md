@@ -7,21 +7,37 @@ before the behaviours are built. Code: `game-client/src/GameFeatures/NPCs/NPCCit
 (the shared brain), `VFX/NPCVFX.js` (headline effects), per-type numbers in
 `game-server/tuning/resources.json` (ECONOMY sheet).
 
-## 1. What is built today (scaffold, 2026-10-08)
+## 1. What is built today (2026-10-08)
 
-- All four actions route through one brain, `handleCitizenBehavior`. Inside each state the
-  citizen still runs its legacy per-action behaviour (quest/trade/heal roam and freeze near
-  the player; workers stand still), so nothing visible changed except:
-- **The state loop runs.** working → resting → roaming → eating → socializing → working, each
-  state's length a per-type field in seconds (`stateWorking`, `stateResting`, `stateRoaming`,
-  `stateEating`, `stateSocializing`); 0 means the state is skipped. A citizen with no state
-  fields keeps the legacy behaviour and never cycles.
-- **Resting shows Zzz** above the head (`NPCVFX.startHeadlineEffect(id, 'Zzz', position)`),
-  the first *headline effect*: a looping glyph above an NPC for as long as a state lasts.
-  `'emoji'` headlines take any emoji (`{ emoji: '💬' }`); position follows the NPC.
-- **Waiting** is in: when the player comes within `range` with line of sight, a quest, trade
-  or heal citizen stops where it is, the loop's clock pauses, and it resumes the same state
-  with the same time left when the player leaves. Workers never wait.
+- **One brain** for the four actions (`NPCCitizenBehavior.js`), the **state loop** with
+  per-type lengths, the **waiting** interrupt (quest/trade/heal), **Zzz** while resting
+  (`VFX/NPCVFX.js`, the generic headline effect; waiting shows 💬, eating 🍽️).
+- **Persistence:** `citizenState`, `citizenStateUntil`, `citizenTask`, `homeX`, `homeY` ride
+  on the NPC record (`save-single-npc`; the grid model's NPC sub-schema declares them), so a
+  citizen resumes the same state with the time left, like a Farm Animal's `grazeEnd`.
+- **Home + per-type slots:** hiring from the Farm House keeps the haybale and turns it into
+  the worker's own `<Type> Slot` (`Farm Hand Slot`, `Lumberjack Slot`, `Rancher Slot`,
+  `Crafter Slot`, resources.json, drawn as haybales, clickable like the generic slot); the
+  worker spawns on it with `homeX/homeY`. Workers hired before this (no slot) take the tile
+  they stood on as home. Talkers' home is their template tile.
+- **Movement:** `AllNPCsShared.followPath(x, y, …)` walks an A\* path (`Utils/Pathfinding`)
+  one step per tick on the NPC's own cadence, using the NPC's own terrain rules (all
+  citizens now walk grass/dirt/snow/sand/pavement/etc., not only pavement), never onto the
+  player or another NPC; re-plans up to three times then reports blocked.
+- **Workers' working:** Lumberjack = nearest tree (any `convertTo` requiring Axe) → chop
+  (`handleSourceConversion`) → walk onto the wood and collect it (`handleDooberClick`) →
+  walk to the Warehouse → next tree; warehouse full before a chop = FAIL → resting.
+  Rancher = nearest ready animal → collect (`handleNPCClick`); none → next state. Farm Hand
+  = nearest grown crop doober → collect; none → next state. Crafter = nearest crafting
+  station with a finished slot → collect (`executeBulkCrafting` for that station); none →
+  next state. All through the player's own code paths with the live React context App
+  registers each render (`setCitizenContext`).
+- **resting** routes onto the slot/home and stands (Zzz). **roaming** is a leashed wander
+  (4 tiles of home). **eating** walks to a random food doober (master `hp > 0`), eats it
+  (the doober is gone), then straight back to working; an unreachable food is dropped after
+  20 s.
+- **Talkers' working** = anchored wander within 3 tiles of the template tile; **socializing
+  is not built yet** (behaves like working).
 
 Current numbers (seconds; the owner's spec for the Lumberjack, copied to the other workers
 and placeholders for the talkers until tuned):
@@ -93,32 +109,24 @@ they do other things on the homestead.
 
 Waiting applies (as to quest and trade). The rest of the healer loop is an open question.
 
-## 3. Open questions (need the owner before building)
+## 3. Decisions (owner, 2026-10-08)
 
-1. **Lumberjack work length.** The spec says 10 min in one place and 15 min in another.
-   Scaffold has 600 s.
-2. **Healers.** Do they socialize like quest/trade (5 min), or only work + wait?
-3. **Worker Slot.** Resting routes "back to his designated Worker Slot". Today `Worker Slot`
-   is a devonly station (`resources.json`) and workers are placed by the Farm House; is the
-   slot the tile the worker was hired at, or a station the player builds? (Needed for the
-   resting route and as the home anchor.)
-4. **Eating consumes the player's doobers.** "Consume that doober" removes a food item the
-   player would otherwise collect. Intended (a running cost of keeping workers), or should
-   eating be cosmetic (walk to it, eat animation, doober stays)?
-5. **Work is economic.** Chopping, harvesting and crafting-collection go through the same
-   client-trusted inventory routes the player uses (refactor plan Phase 5). Fine for now?
-   The Warehouse-full failure needs the Warehouse capacity check the Bulk code already does.
-6. **Time while away.** The loop runs only while the player is on the grid (client
-   simulation). On re-entry: resume the state with the time left, or restart at working?
-   And does a 30-min rest count real minutes on the grid only?
-7. **Citizen-to-citizen relationships** need a home. The player's relationships live on the
-   Player; citizen pairs would need storage (on the grid's NPC records, or a per-grid
-   `citizenRelationships` map) and persistence rules. Start with the static
-   `RelationshipMatrix.json` ("rival"/"friend"/"love" between types) and no persistence?
-8. **Talkers' working length** (900 s placeholder) and the idle leash radius (3 tiles?).
-9. **The waiting range**: the existing `range` (3 for most, 12 for Kent and the Shepherd)?
-10. **Conversation visuals**: speech bubbles only, no modal (the player can watch); the
-    player can still tap either citizen mid-conversation?
+1. **Lumberjack work length: 10 min** (600 s).
+2. **Healers: work and wait only.** Every other state is 0 for now.
+3. **Worker Slots are per type and stay.** Hiring from the Farm House no longer removes the
+   haybale: the slot stays on the grid as that worker's home base, becomes a per-type
+   resource (`Farm Hand Slot`, `Lumberjack Slot`, `Rancher Slot`, `Crafter Slot`, all drawn
+   as haybales) so each worker targets an object that is uniquely theirs, and a resting
+   worker routes ONTO it. One day the player may move them.
+4. **Eating is a deliberate running cost.** The food doober is consumed.
+5. **Work uses the same client-trusted routes** the player and the Bulk commands use (chop,
+   harvest, collect, warehouse). Server validation is Phase 5.
+6. **On return, pick up where the citizen left off**: the state and the time remaining in
+   it, like a Farm Animal's `grazeEnd`. The state, its end time and any mid-state progress
+   are persisted on the NPC record.
+7. **Citizen-to-citizen relationships persist with the player's saved state**: storage is
+   added now, on the Player document, seeded from the static type-to-type relationships in
+   `RelationshipMatrix.json` and changed by conversation outcomes.
 
 ## 4. Build order (once agreed)
 

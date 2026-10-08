@@ -25,7 +25,13 @@ const GridSchema = new mongoose.Schema({
       hp: { type: Number, default: 0 },
       maxhp: { type: Number, default: 0 },
       grazeEnd: { type: Number },
-      lastUpdated: { type: Date, default: Date.now }
+      lastUpdated: { type: Date, default: Date.now },
+      // Citizens (docs/citizens.md): loop position + home, so they resume on re-entry
+      citizenState: { type: String },
+      citizenStateUntil: { type: Number },
+      citizenTask: { type: mongoose.Schema.Types.Mixed },
+      homeX: { type: Number },
+      homeY: { type: Number },
     }),
     default: {}
   },

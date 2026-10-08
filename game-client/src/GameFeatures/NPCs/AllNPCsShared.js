@@ -1,5 +1,6 @@
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
+import { findPath } from '../../Utils/Pathfinding';
 import { calculateDistance } from '../../Utils/worldHelpers';
 import { attachGrazingBehavior } from './NPCGrazeBehavior';
 import { attachQuestBehavior } from './NPCQuestBehavior';
@@ -20,6 +21,13 @@ const DIRECTION_DELTAS = {
   SW: { x: -1, y: 1 },
   NW: { x: -1, y: -1 },
 };
+
+// Is a goal tile itself walkable (terrain + no impassable resource)? Used by followPath.
+function passable_(goal, tiles, resources) {
+  const t = tiles?.[goal.y]?.[goal.x]; if (!t) return false;
+  const res = (resources || []).find((r) => r && r.x === goal.x && r.y === goal.y);
+  return !(res && res.passable === false);
+}
 
 // Small stable hash for per-NPC jitter (ids are timestamps or ObjectIds)
 function hashId(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return Math.abs(h >>> 0); }
@@ -197,9 +205,12 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
   };
 
   const preferredDirections = preferredDirectionsMap[this.currentDirection] || [this.currentDirection];
+  // A leash ({ home, radius }, set by the citizen brain) keeps the wander near home
+  const leash = this.leash;
+  const inLeash = (x, y) => !leash || Math.max(Math.abs(x - leash.home.x), Math.abs(y - leash.home.y)) <= leash.radius;
   const validDirections = preferredDirections.filter((direction) => {
     const { x, y } = this.getAdjacentTile(direction);
-    return this.isValidTile(x, y, tiles, resources, npcs);
+    return inLeash(x, y) && this.isValidTile(x, y, tiles, resources, npcs);
   })
   if (validDirections.length > 0) {
     const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
@@ -321,6 +332,47 @@ async moveOneTile(direction, tiles, resources, npcs) {
   NPCsInGridManager.updateNPCPosition(this.gridId, this.id, { x: targetX, y: targetY });
 
   return true;
+}
+
+/**
+ * Walk one step along an A* path to (x, y) (Utils/Pathfinding.js; a blocked goal such as a
+ * tree resolves to an adjacent tile, `stopShort` never steps onto the goal). The path is kept
+ * on the NPC and re-planned when a step is refused. Returns 'arrived' | 'moving' | 'blocked'.
+ */
+followPath(x, y, tiles, resources, npcs, { stopShort = false } = {}) {
+  const here = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
+  const goal = { x: Math.floor(x), y: Math.floor(y) };
+  const adjacentDone = stopShort && Math.max(Math.abs(here.x - goal.x), Math.abs(here.y - goal.y)) <= 1;
+  if ((here.x === goal.x && here.y === goal.y) || adjacentDone) { this.path = null; return 'arrived'; }
+  const plan = () => {
+    // Passability is the NPC's own: its validon<tile> flags and impassable resources
+    // (terrainOpen), never the player's tile, never another NPC's tile
+    const me = playersInGridManager.getLocalRecord?.()?.position;
+    const open = (px, py) => this.terrainOpen(px, py, tiles, resources) && !(me && Math.round(me.x) === px && Math.round(me.y) === py)
+      && !npcs.some((n) => n && n.id !== this.id && Math.floor(n.position?.x) === px && Math.floor(n.position?.y) === py);
+    const path = findPath(here, goal, open, { stopShort });
+    this.path = { goal, steps: path, replans: (this.path?.goal?.x === goal.x && this.path?.goal?.y === goal.y) ? (this.path.replans || 0) + 1 : 0 };
+    return path;
+  };
+  if (!this.path || this.path.goal.x !== goal.x || this.path.goal.y !== goal.y || !this.path.steps?.length) {
+    if (this.path && (this.path.replans || 0) >= 3) { this.path = null; return 'blocked'; }
+    if (!plan().length) {
+      // already next to a blocked goal counts as arrived; otherwise unreachable
+      if (Math.max(Math.abs(here.x - goal.x), Math.abs(here.y - goal.y)) <= 1) { this.path = null; return 'arrived'; }
+      return (this.path?.replans || 0) >= 3 ? 'blocked' : 'moving';
+    }
+  }
+  const next = this.path.steps[0];
+  const dx = Math.sign(next.x - here.x); const dy = Math.sign(next.y - here.y);
+  const dir = Object.keys(DIRECTION_DELTAS).find((k) => DIRECTION_DELTAS[k].x === dx && DIRECTION_DELTAS[k].y === dy);
+  if (!dir) { this.path = null; return 'moving'; }
+  // moveOneTile is synchronous in effect (the promise settles on a microtask)
+  let moved = false;
+  this.moveOneTile(dir, tiles, resources, npcs).then((m) => { moved = m; });
+  if (Math.floor(this.position.x) === next.x && Math.floor(this.position.y) === next.y) { this.path.steps.shift(); return this.path.steps.length ? 'moving' : (stopShort || !passable_(goal, tiles, resources) ? 'arrived' : 'moving'); }
+  // refused: drop the plan so the next tick re-plans (up to 3 times)
+  this.path.steps = [];
+  return 'moving';
 }
 
 getAdjacentTile(direction) {

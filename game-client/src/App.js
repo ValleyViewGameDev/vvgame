@@ -21,6 +21,7 @@ import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlob
 // PixiJS Renderer (now the only renderer)
 import PixiRenderer from './Render/PixiRenderer';
 import { handleNPCClick } from './GameFeatures/NPCs/NPCUtils';
+import { setCitizenContext } from './GameFeatures/NPCs/NPCCitizenBehavior';
 import { attackNearestEnemy } from './GameFeatures/Combat/Combat';
 import { derivedMaxhp } from './GridState/PlayersInGrid';
 import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
@@ -2785,6 +2786,10 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Bank':
           openPanel('BankPanel'); break;
         case 'Worker Slot':
+        case 'Farm Hand Slot':
+        case 'Lumberjack Slot':
+        case 'Rancher Slot':
+        case 'Crafter Slot':
           // Find the Farm House on the grid
           const farmHouse = resources.find(res => res.type === 'Farm House' && res.category === 'farmhouse');
           if (farmHouse) {
@@ -2884,6 +2889,13 @@ const cursorModeRef = useRef(null);
 cursorModeRef.current = cursorMode;
 // Stepping onto a doober: run the click path for that tile, unless a placement cursor is
 // active (a click would place, not collect)
+// Citizens act for the player (chop, collect, eat) through the same code the player uses, so
+// the brain gets the live React context every render (GameFeatures/NPCs/NPCCitizenBehavior.js)
+setCitizenContext({
+  currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources,
+  updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE: activeTileSize, openPanel, masterTrophies,
+});
+
 // What a walk-over needs from App (refreshed every render; the handler below is created once)
 const enterTileCtxRef = useRef(null);
 enterTileCtxRef.current = {

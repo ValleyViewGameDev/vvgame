@@ -287,7 +287,7 @@ class GridStateManager {
   /**
    * Spawn a new NPC and immediately save the updated NPCsInGrid to the DB.
    */
-  async spawnNPC(gridId, npcType, position) {
+  async spawnNPC(gridId, npcType, position, extra = {}) {
     // DEBUG: Log input parameters for spawnNPC
     console.log('spawnNPC called with:', { gridId, npcType, position });
     if (typeof npcType === 'object' && npcType?.type) {
@@ -318,6 +318,7 @@ class GridStateManager {
         hp: 0,
         maxhp: npcTemplate.maxhp,
         lastUpdated: Date.now(),
+        ...extra, // e.g. homeX / homeY for a worker's slot (docs/citizens.md)
       };
     } else if (npcTemplate.action === 'spawn') {  // Ensure spawners track nextspawn
       lightweightNPC = {
@@ -429,7 +430,13 @@ class GridStateManager {
         grazeEnd: npc.grazeEnd,
         lastUpdated: npc.lastUpdated,
         action: npc.action,
-        gridId: npc.gridId
+        gridId: npc.gridId,
+        // Citizens (docs/citizens.md): where in the loop they are, so they resume on re-entry
+        citizenState: npc.citizenState ?? null,
+        citizenStateUntil: npc.citizenStateUntil ?? null,
+        citizenTask: npc.citizenTask ?? null,
+        homeX: npc.homeX ?? null,
+        homeY: npc.homeY ?? null,
       };
 
       // For spawner NPCs, include spawner-specific properties

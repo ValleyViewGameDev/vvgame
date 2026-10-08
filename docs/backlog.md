@@ -88,3 +88,73 @@ Added 2026-10-08.
 critical information, such as the quantity, only in the hovertip, so mobile players would lose
 it. That information has to move onto the button itself, which needs some finesse to fit
 without crowding. Audit which hovertips hold must-have info before switching them off.
+
+### BL-5: Bears should be faster
+
+Added 2026-10-08.
+
+**What.** Bears move too slowly; speed them up. A tuning item; it fits Track 5 (tuning) of the
+NPC / Combat epic above, so fold it in there if that track starts first.
+
+### BL-6: Bug: exiting a dungeon placed the player on top of a wall
+
+Added 2026-10-08.
+
+**What.** Leaving a dungeon put the PC avatar on a wall tile. The arrival position after a
+dungeon exit needs to land on a passable tile (fall back to the nearest passable one if the
+target is blocked).
+
+### BL-7: Signposts passable; walking onto one triggers the grid transition
+
+Added 2026-10-08.
+
+**What.** Signposts should not block movement. Walking the avatar onto a signpost should
+simply trigger its grid transition, with no separate interaction step.
+
+### BL-8: Editor Layouts tab: clicking a tile should select it, not change its tileType
+
+Added 2026-10-08.
+
+**What.** In the Editor's Layouts tab with a layout loaded, clicking a tile currently changes
+its tileType. A click should only select the tile; changing the type should be a deliberate
+separate action.
+
+### BL-9: Trade Stall panel: Locked cards aren't centered
+
+Added 2026-10-08.
+
+**What.** In the Trade Stall panel, the Locked cards are not centered the way the unlocked
+cards are. Match their alignment.
+
+### BL-10: Inventory buttons on the Warehouse and Player Character panels; Profile links become buttons
+
+Added 2026-10-08.
+
+**What.** Three changes:
+- Add an Inventory button to the Warehouse panel (the one that opens when you click the
+  warehouse resource on the grid).
+- Add an Inventory button to the Player Character panel, below the Eat button.
+- Both Inventory buttons open the InventoryPanel.
+- On the player profile, turn the Skills and Combat links into buttons.
+
+### BL-11: Town News moves off the Map panel into a floating button below the Season button
+
+Added 2026-10-08.
+
+**What.** Remove the "Read the Town News" button from the Map panel. Replace it with a
+floating button just below the Season button that opens the Town News in a right panel.
+
+### BL-12: Settings panel header says "Profile"; change to "Settings"
+
+Added 2026-10-08.
+
+**What.** The Settings panel's header reads "Profile". Change it to "Settings" (all ten
+languages).
+
+### BL-13: Refresh the How to Play text for single-player; add Email Us at the top
+
+Added 2026-10-08.
+
+**What.** The How to Play text predates the single-player refactor. Rewrite it to reflect the
+gameplay changes since then (all ten languages). Also put a copy of the Email Us button at the
+top of the How to Play panel.

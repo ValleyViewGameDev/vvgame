@@ -342,18 +342,20 @@ const FarmHouse = ({
             const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
             console.log(`Spawning ${collectedItem} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
 
-            // Remove the Worker Slot from the grid (client-side)
-            const filteredResources = currentResources.filter(
-              res => !(res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot')
+            // The slot STAYS and becomes this worker's own (docs/citizens.md decision 3): a
+            // per-type slot the worker rests on and calls home
+            const ownSlotType = `${craftedResource.type} Slot`;
+            const ownSlotDef = allResources.find(res => res.type === ownSlotType);
+            const ownSlot = { ...(ownSlotDef || workerSlot), type: ownSlotDef ? ownSlotType : 'Worker Slot', x: workerSlot.x, y: workerSlot.y };
+            const swappedResources = currentResources.map(
+              res => (res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot') ? ownSlot : res
             );
-            GlobalGridStateTilesAndResources.setResources(filteredResources);
-            setResources(filteredResources);
+            GlobalGridStateTilesAndResources.setResources(swappedResources);
+            setResources(swappedResources);
+            await updateGridResource(gridId, { type: ownSlot.type, x: workerSlot.x, y: workerSlot.y }, true);
 
-            // Remove the Worker Slot from the database
-            await updateGridResource(gridId, { type: null, x: workerSlot.x, y: workerSlot.y }, true);
-
-            // Spawn the NPC at the Worker Slot's position
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
+            // Spawn the NPC on its slot, which is its home
+            NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition, { homeX: workerSlot.x, homeY: workerSlot.y });
 
             // Check for First Farm Worker trophy
             if (craftedResource.action === 'worker') {
@@ -567,18 +569,19 @@ const FarmHouse = ({
       const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
       console.log(`Spawning ${modifiedRecipe.type} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
 
-      // Remove the Worker Slot from the grid (client-side)
-      const filteredResources = currentResources.filter(
-        res => !(res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot')
+      // The slot STAYS and becomes this worker's own (docs/citizens.md decision 3)
+      const ownSlotType = `${craftedResource.type} Slot`;
+      const ownSlotDef = allResources.find(res => res.type === ownSlotType);
+      const ownSlot = { ...(ownSlotDef || workerSlot), type: ownSlotDef ? ownSlotType : 'Worker Slot', x: workerSlot.x, y: workerSlot.y };
+      const swappedResources = currentResources.map(
+        res => (res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot') ? ownSlot : res
       );
-      GlobalGridStateTilesAndResources.setResources(filteredResources);
-      setResources(filteredResources);
+      GlobalGridStateTilesAndResources.setResources(swappedResources);
+      setResources(swappedResources);
+      await updateGridResource(gridId, { type: ownSlot.type, x: workerSlot.x, y: workerSlot.y }, true);
 
-      // Remove the Worker Slot from the database
-      await updateGridResource(gridId, { type: null, x: workerSlot.x, y: workerSlot.y }, true);
-
-      // Spawn the NPC at the Worker Slot's position
-      NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
+      // Spawn the NPC on its slot, which is its home
+      NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition, { homeX: workerSlot.x, homeY: workerSlot.y });
 
       // Check for First Farm Worker trophy
       if (craftedResource.action === 'worker') {
