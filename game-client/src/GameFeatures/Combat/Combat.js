@@ -18,6 +18,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
+import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -50,6 +51,42 @@ export function reachDistance(a, b) {
 }
 
 const isHostile = (npc) => npc && (npc.action === 'attack' || npc.action === 'spawn');
+
+/**
+ * Melee or ranged is the EQUIPPED WEAPON's `ranged` flag (resources.json), not the reach:
+ * reach-adding powers still extend a sword's swing, but only a bow shows a projectile.
+ * (Owner note 2026-10-08: revisit whether range powers should apply to melee at all.)
+ */
+export function isRangedWeaponEquipped(currentPlayer, masterResources) {
+  const weapon = currentPlayer?.settings?.equippedWeapon;
+  if (!weapon) return false;
+  const def = (masterResources || []).find((r) => r.type === weapon);
+  return !!def?.ranged;
+}
+
+/** Where a kill's drop lands: the NPC's tile if nothing sits there, else the nearest free tile. */
+function findDropTile(x, y, avoid = null) {
+  const tiles = GlobalGridStateTilesAndResources.getTiles() || [];
+  const resources = GlobalGridStateTilesAndResources.getResources() || [];
+  const taken = new Set();
+  if (avoid) taken.add(`${Math.round(avoid.x)},${Math.round(avoid.y)}`); // not under the player's feet: walking ON is what collects
+  for (const r of resources) {
+    if (!r) continue;
+    const span = r.size || 1;
+    for (let dx = 0; dx < span; dx++) for (let dy = 0; dy < span; dy++) taken.add(`${r.x + dx},${r.y - dy}`);
+  }
+  const free = (tx, ty) => tiles[ty]?.[tx] && !['w', 'l'].includes(tiles[ty][tx]) && !taken.has(`${tx},${ty}`);
+  if (free(x, y)) return { x, y };
+  for (let radius = 1; radius <= 3; radius++) {
+    const ring = [];
+    for (let dx = -radius; dx <= radius; dx++) for (let dy = -radius; dy <= radius; dy++) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius) continue;
+      if (free(x + dx, y + dy)) ring.push({ x: x + dx, y: y + dy, d: dx * dx + dy * dy });
+    }
+    if (ring.length) { ring.sort((a, b) => a.d - b.d); return { x: ring[0].x, y: ring[0].y }; }
+  }
+  return { x, y }; // nowhere free nearby: stack after all
+}
 
 /** The hostile NPC the player can reach right now (nearest first), or null. */
 export function findEnemyInReach(gridId, playerId) {
@@ -157,6 +194,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         if (!live || live.hp <= 0) return; // died to something else meanwhile
         live.hp -= damage;
         CombatFX.hitEnemy(live.id, from.x, from.y, live.position.x, live.position.y);
+        createImpactEffect(live.position.x, live.position.y);
         CombatFX.text(live.position.x, live.position.y, `-${damage}`, 'damage');
         CombatFX.engageEnemy(live.id, live.hp, live.maxhp);
         if (live.hp > 0) {
@@ -167,7 +205,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         }
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
     };
-    if (reachDistance(from, to) > 1) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
+    if (isRangedWeaponEquipped(currentPlayer, masterResources)) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
     else land();
     return true;
 }
@@ -178,29 +216,31 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
     const npcResource = masterResources.find((r) => r.type === npc.type && r.category === 'npc');
     const xp = npcResource?.xp || 0;
 
-    // 1. The board: death animation takes the sprite over, the store forgets the NPC at once.
-    //    The feedback is staggered so it can be read: skull, then XP, then the drop.
+    // 1. The board: the death beat takes the sprite over and a burst (VFX.js, picked by the
+    //    template's deathVfx) explodes from the tile; the store forgets the NPC at once. The
+    //    drop appears as the body finishes fading, and "+XP" rises from the tile right after.
     CombatFX.killEnemy(npc.id);
-    setTimeout(() => CombatFX.text(pos.x, pos.y - 0.2, '💀', 'kill'), 150);
+    setTimeout(() => createNPCDeathEffect(pos.x, pos.y, npcResource?.deathVfx), 120);
     setTimeout(() => soundManager.playSFX('collect_money'), CombatFX.FX.DEATH_XP_DELAY_MS);
     const removal = NPCsInGridManager.removeNPC(gridId, npc.id); // local delete now, POST inside
 
     // 2. XP: header updates now, the server's total replaces it when it answers
     if (xp && currentPlayer.playerId) {
         setCurrentPlayer((prev) => ({ ...prev, xp: (prev.xp || 0) + xp }));
-        setTimeout(() => CombatFX.text(pos.x, pos.y - 0.6, `+${xp} XP`, 'gain'), CombatFX.FX.DEATH_XP_DELAY_MS);
+        setTimeout(() => CombatFX.text(pos.x, pos.y, `+${xp} XP`, 'gain'), CombatFX.FX.DEATH_XP_DELAY_MS);
         axios.post(`${API_BASE}/api/addXP`, { playerId: currentPlayer.playerId, xpAmount: xp })
           .then((res) => { if (res.data?.success && Number.isFinite(res.data.newXP)) setCurrentPlayer((prev) => ({ ...prev, xp: res.data.newXP })); })
           .catch((e) => console.error('Error awarding XP:', e?.message));
     }
 
-    // 3. Loot: on the board now, written behind
+    // 3. Loot: the nearest free tile (never stacked on a crate or another drop), written behind
     if (npc.output) {
         const details = masterResources.find((r) => r.type === npc.output) || {};
+        const at = findDropTile(pos.x, pos.y, playersInGridManager.getPlayersInGrid(gridId)?.[String(currentPlayer._id)]?.position);
         const drop = {
             ...details,
             type: npc.output,
-            x: pos.x, y: pos.y,
+            x: at.x, y: at.y,
             category: details.category || 'doober',
             symbol: details.symbol || '❓',
             qtycollected: details.qtycollected || 1,
@@ -210,7 +250,7 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
             GlobalGridStateTilesAndResources.setResources([...GlobalGridStateTilesAndResources.getResources(), drop]);
             setResources((prev) => [...prev, drop]);
         }, CombatFX.FX.DEATH_LOOT_DELAY_MS);
-        updateGridResource(gridId, { type: npc.output, x: pos.x, y: pos.y }).catch((e) => console.error('drop save failed', e?.message));
+        updateGridResource(gridId, { type: npc.output, x: at.x, y: at.y }).catch((e) => console.error('drop save failed', e?.message));
     }
 
     // 4. Position save for the player (a kill is a moment worth keeping)

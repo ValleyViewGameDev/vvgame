@@ -145,7 +145,12 @@ docs/audits/combat-and-npc-review-2026-10-07.md.
   player's `attackrange` and an enemy's. Enemy `attackrange` in resources.json is now 1 for
   melee beasts (Coyote, Bear, Polar Bear, Zombie), 2 Ogre / Duke Angelo, 3 Demon, 4 Spider /
   Dragon, 5 Ghost / Phoenix. Sight (`range`) stays larger so there is an approach. Anything
-  beyond reach 1 is a ranged attack and shows a projectile (both sides).
+  beyond reach 1 is a ranged attack for an ENEMY and shows a projectile. For the player,
+  melee vs ranged is the equipped weapon's `ranged` flag (resources.json, ECONOMY sheet column
+  `ranged`): bows, crossbows and Darts are ranged (they keep their `attackrange` bonus and show a
+  projectile); swords, axes, spears and halberds are melee and their `attackrange` is 0.
+  Reach-adding powers (Horizon Eye and the like) still extend a melee swing. Owner note
+  2026-10-08: reconsider that once the melee/ranged split settles (a sword with reach 3 is odd).
 - **Rolls** are unchanged: d20 + attack bonus vs armour class; damage = stat + d6. Enemies
   roll on the tick they come into reach (after a 300 ms wind-up) and once per tick after;
   enemy `speed` still does not set the attack rate (a per-type interval is open work).

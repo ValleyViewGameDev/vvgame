@@ -180,11 +180,15 @@ value rather than trust this page.
 - Combat feedback (`Render/PixiRenderer/CombatFX.js`, all on the board, no panels): swing
   lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
   around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the
-  pop never grows from a corner); damage numbers rise 0.9 tile over 900 ms; the death beat
-  is 900 ms in three parts (flash + pop, hold while it tips, shrink + fade) with the skull at
-  150 ms, "+XP" at 650 ms and the drop at 700 ms, so a kill can be read; enemy wind-up
-  300 ms; projectiles 70 ms per tile (min 140); cooldown ring 0.62-tile radius; enemy hp
-  bar only while engaged, lingers 2.5 s then fades 400 ms, destroyed on the kill.
+  pop never grows from a corner); damage numbers rise 0.9 tile over 900 ms; every hit also
+  gets a soft impact poof (`VFX.createImpactEffect`, five pale puffs, 260 ms, no stars); the
+  death beat is 900 ms in three parts (flash + pop, hold while it tips, shrink + fade) with a
+  dark-red chunk burst at 120 ms (`VFX.createNPCDeathEffect`, keyed by the template's
+  `deathVfx`, default `chunks`), the drop on the nearest FREE tile at 880 ms and "+XP" rising
+  from that tile at 900 ms, nothing else (no skull), so a kill reads as one event; enemy
+  wind-up 300 ms; projectiles only from a `ranged` weapon or a reach > 1 enemy, 70 ms per
+  tile (min 140); cooldown ring 0.62-tile radius; enemy hp bar only while engaged, lingers
+  2.5 s then fades 400 ms, destroyed on the kill.
 - Enemy hover tip (desktop): placed up-and-right of the cursor (`placement: 'up-right'`),
   never centred over the sprite, so the enemy and the swing stay visible mid-fight.
 - Grid-change fade (`UI/TransitionContext.js`): 250 ms to black, 400 ms back. A crossing pays

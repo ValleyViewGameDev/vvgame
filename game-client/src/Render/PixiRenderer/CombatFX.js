@@ -25,8 +25,8 @@ const FX = {
   KNOCKBACK_MS: 110,         // out; back takes KNOCKBACK_MS * 1.4
   POP_SCALE: 1.18,
   DEATH_MS: 900,             // death beat: flash, hold, then shrink and fade
-  DEATH_XP_DELAY_MS: 650,    // when the "+XP" text follows the skull
-  DEATH_LOOT_DELAY_MS: 700,  // when the drop appears on the tile
+  DEATH_LOOT_DELAY_MS: 880,  // the drop appears as the body finishes fading
+  DEATH_XP_DELAY_MS: 900,    // "+XP" rises from the tile right after, once the drop is there
   PROJECTILE_MS_PER_TILE: 70,
   PROJECTILE_MIN_MS: 140,
   LUNGE_TILES: 0.3,

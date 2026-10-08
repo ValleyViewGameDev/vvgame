@@ -3,6 +3,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
+import { createImpactEffect } from '../../VFX/VFX';
 
 /** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
 function getLineOfSightTiles(start, end) {
@@ -347,6 +348,7 @@ function performAttack(gridId, TILE_SIZE) {
       if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss'); return; }
       const newHP = Math.max(0, pc.hp - damage);
       CombatFX.playerHit();
+      createImpactEffect(pc.position.x, pc.position.y);
       CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player');
       soundManager.playSFX('take_damage');
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });

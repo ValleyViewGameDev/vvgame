@@ -1826,7 +1826,9 @@ router.post('/sell-for-refund', async (req, res) => {
 
     // Find the station resource using GridResourceManager
     const currentResources = gridResourceManager.getResources(grid);
-    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
+    // By type AND tile: a kill's drop or another resource may share the tile (2026-10-08)
+    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY && res.type === stationType)
+      || currentResources.find(res => res.x === stationX && res.y === stationY);
     if (!stationResource || stationResource.type !== stationType) {
       player.activeTransactions.delete(transactionKey);
       await player.save();

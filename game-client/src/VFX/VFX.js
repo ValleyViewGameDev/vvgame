@@ -411,3 +411,78 @@ export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filena
         }
     }, VFX_TIMING.PLANT_GROW_DURATION);
 };
+
+
+// ============================================================ combat VFX
+// Both live in the same camera-mirrored overlay as the effects above (BASE px, current grid at
+// the origin). Combat.js / NPCEnemyBehavior.js call them beside CombatFX's sprite reactions.
+
+/** A div particle: a coloured, rounded chunk (no emoji, so the colour is ours). */
+function spawnChunk(worldContainer, cx, cy, { size, color, endX, endY, duration, delay = 0, round = false, blur = 0 }) {
+    setTimeout(() => {
+        const el = document.createElement('div');
+        el.style.cssText = `
+            position: absolute; left: ${cx}px; top: ${cy}px; width: ${size}px; height: ${size}px;
+            background: ${color}; border-radius: ${round ? '50%' : '18%'}; pointer-events: none; z-index: 1001;
+            transform: translate(-50%, -50%) rotate(${Math.random() * 360}deg) scale(1); opacity: 1;
+            ${blur ? `filter: blur(${blur}px);` : ''} will-change: transform, opacity;
+        `;
+        worldContainer.appendChild(el);
+        void el.offsetHeight;
+        el.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0.6, 0.4, 1), opacity ${duration}ms ease-in`;
+        setTimeout(() => {
+            el.style.transform = `translate(calc(-50% + ${endX}px), calc(-50% + ${endY}px)) rotate(${Math.random() * 720 - 360}deg) scale(${round ? 2.2 : 0.35})`;
+            el.style.opacity = '0';
+        }, 0);
+        setTimeout(() => { if (el.parentNode) worldContainer.removeChild(el); }, duration + 80);
+    }, delay);
+}
+
+/**
+ * A soft impact "poof" on a hit (NPC or PC): a few pale puffs expanding from the tile, no stars.
+ * Lightweight by design, it only accompanies CombatFX's flash/knockback on the sprite.
+ */
+export const createImpactEffect = (x, y) => {
+    const worldContainer = document.querySelector('.pixi-world-container');
+    if (!worldContainer) return;
+    const t = PixiCamera.getTileSize();
+    const cx = x * t + t / 2; const cy = y * t + t / 2;
+    const puffs = 5;
+    for (let i = 0; i < puffs; i++) {
+        const angle = (i / puffs) * Math.PI * 2 + Math.random() * 0.6;
+        const dist = t * (0.25 + Math.random() * 0.25);
+        spawnChunk(worldContainer, cx, cy, {
+            size: t * (0.22 + Math.random() * 0.12), color: 'rgba(255, 245, 230, 0.85)', round: true, blur: 1,
+            endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist, duration: 260, delay: Math.random() * 20,
+        });
+    }
+};
+
+// Death bursts by name. An NPC template may set `deathVfx` (resources.json) to pick one; the
+// default is the dark-red chunk burst. Add new entries here for bespoke NPC deaths.
+const NPC_DEATH_VFX = {
+    chunks: (worldContainer, cx, cy, t) => {
+        const colors = ['#7a1010', '#9c1c1c', '#5a0b0b', '#b32626'];
+        const count = 14;
+        for (let i = 0; i < count; i++) {
+            const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.5;
+            const dist = t * (0.7 + Math.random() * 0.9);
+            spawnChunk(worldContainer, cx, cy, {
+                size: t * (0.12 + Math.random() * 0.14), color: colors[i % colors.length],
+                endX: Math.cos(angle) * dist, endY: Math.sin(angle) * dist - t * 0.35, // a little upward bias
+                duration: 520 + Math.random() * 200, delay: Math.random() * 40,
+            });
+        }
+        // a short dark splash under the chunks
+        spawnChunk(worldContainer, cx, cy, { size: t * 0.5, color: 'rgba(90, 11, 11, 0.55)', round: true, blur: 2, endX: 0, endY: 0, duration: 420 });
+    },
+};
+
+/** The burst when an NPC dies. `variant` comes from the NPC template's `deathVfx` (default 'chunks'). */
+export const createNPCDeathEffect = (x, y, variant = 'chunks') => {
+    const worldContainer = document.querySelector('.pixi-world-container');
+    if (!worldContainer) return;
+    const t = PixiCamera.getTileSize();
+    const fx = NPC_DEATH_VFX[variant] || NPC_DEATH_VFX.chunks;
+    fx(worldContainer, x * t + t / 2, y * t + t / 2, t);
+};

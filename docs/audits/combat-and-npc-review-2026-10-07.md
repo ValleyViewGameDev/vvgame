@@ -265,7 +265,13 @@ Track 2 are the recommended first bite (Part 4).
 
 **BUILT 2026-10-07** (commit "Combat Track 1"): items 1-5 and 7-9 as described, with the
 owner's same-day notes folded in (pop around the sprite's centre, hp bar destroyed on kill,
-the death beat slowed and staggered, projectiles for ranged attacks on both sides). Item 6
+the death beat slowed and staggered, projectiles for ranged attacks on both sides).
+**Iterated 2026-10-08:** no skull, "+XP" rises from the tile once the body is gone and the
+drop is there; a dark-red chunk burst on death (`deathVfx` per template, one variant so far)
+and a soft impact poof on every hit (both sides); the drop lands on the nearest free tile and
+the sell route matches a station by type AND tile (a drop sharing a crate's tile broke
+"sell"); an explicit `ranged` weapon flag (melee weapons lost their attackrange bonus; range
+powers still apply to melee, to be reconsidered). Item 6
 is partial: enemies swing on the tick they come into reach after a 300 ms wind-up, but the
 attack rate is still once per tick (a per-type interval needs a sub-second NPC tick, Track 3).
 
