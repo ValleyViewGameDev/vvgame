@@ -1856,41 +1856,26 @@ useEffect(() => {
 
 
 
-// 🔄 NPC Management Loop
+// 🔄 NPC scheduler: a 100 ms tick that asks each NPC whether its own next step is due
+// (AllNPCsShared.update keeps the per-NPC clock). Keyed on the grid only and reading the live
+// store, so an NPC step never rebuilds the interval; paused while the tab is hidden.
+const activeTileSizeRef = useRef(activeTileSize);
+activeTileSizeRef.current = activeTileSize;
 useEffect(() => {
-  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC management.'); return; }
-  //console.log('🔄 NPC Management Loop started for gridId:', gridId);
-
+  if (!isAppInitialized || !gridId) return undefined;
   const interval = setInterval(() => {
-    const currentGridNPCs = NPCsInGrid?.[gridId]?.npcs;
-    if (!currentGridNPCs) {
-      console.warn('No NPCs in NPCsInGrid for gridId:', gridId);
-      return;
+    if (document.hidden) return;
+    const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (!npcs) return;
+    const now = Date.now();
+    for (const npc of Object.values(npcs)) {
+      if (typeof npc?.update !== 'function') continue;
+      if (npc.gridId && npc.gridId !== gridId) continue;
+      npc.update(now, { npcs }, gridId, activeTileSizeRef.current);
     }
-    // Phase 1: every client ticks its own NPCs; there is no NPC controller election.
-    {
-      Object.values(currentGridNPCs).forEach((npc) => {
-        if (typeof npc.update !== 'function') {
-          console.warn(`🛑 Skipping NPC without update() method:`, npc);
-          return;
-        }
-        
-        // Verify NPC belongs to current grid before updating
-        if (npc.gridId && npc.gridId !== gridId) {
-          console.warn(`⚠️ NPC ${npc.id} (${npc.type}) has gridId ${npc.gridId} but is being updated in grid ${gridId}. Skipping.`);
-          return;
-        }
-        
-        npc.update(Date.now(), NPCsInGrid[gridId], gridId, activeTileSize);
-      });
-      
-      // Rendering is driven by NPCsInGridManager's own React sync (updateNPCPosition / updateNPC);
-      // no extra per-tick state bump here (the old one never ran: getNPCsInGrid returns the npc map).
-    }
-  }, 1000);
-
+  }, 100);
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize]);
+}, [isAppInitialized, gridId]);
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

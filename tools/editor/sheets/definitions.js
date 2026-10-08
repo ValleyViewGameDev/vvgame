@@ -54,7 +54,7 @@ export const DEFINITIONS = [
       num('pricemod'), num('minprice'), num('maxprice'),
       num('scrollqty'), { key: 'scrollchance', type: 'enum', enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'] },
       { key: 'season', type: 'enum', enum: ['Spring', 'Summer', 'Fall', 'Winter'] },
-      num('hp'), num('maxhp'), num('range'), num('speed'), num('damage'), num('armorclass'), num('attackbonus'), num('attackrange'), bool('ranged'), str('deathVfx'),
+      num('hp'), num('maxhp'), num('range'), num('speed'), num('damage'), num('armorclass'), num('attackbonus'), num('attackrange'), bool('ranged'), str('deathVfx'), num('movespeed'),
       ...VALIDON.map((t) => bool(`validon${t}`)),
     ],
   },

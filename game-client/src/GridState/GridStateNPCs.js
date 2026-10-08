@@ -13,6 +13,23 @@ class GridStateManager {
     
     // Start batch save timer
     this.startBatchSaveTimer();
+
+    // A reload or a closed tab would lose up to 10 s of NPC movement: send what is queued
+    if (typeof window !== 'undefined') window.addEventListener('pagehide', () => this.sendBeaconPositions());
+  }
+
+  /** Queued positions by sendBeacon (pagehide): the same payload as the batch flush. */
+  sendBeaconPositions() {
+    if (typeof navigator === 'undefined' || !navigator.sendBeacon) return;
+    for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
+      if (!npcUpdates.size) continue;
+      const updates = {};
+      for (const [npcId, u] of npcUpdates) updates[npcId] = u.position;
+      try {
+        navigator.sendBeacon(`${API_BASE}/api/batch-update-npc-positions`, new Blob([JSON.stringify({ gridId, updates })], { type: 'application/json' }));
+        npcUpdates.clear();
+      } catch (_) { /* best effort */ }
+    }
   }
 
   /**
@@ -213,6 +230,8 @@ class GridStateManager {
    * bare `{ [npcId]: npc }` map. No HTTP: the bundle already holds the NPCs.
    */
   async initializeFromData(gridId, NPCsInGridData) {
+    this.startBatchSaveTimer(); // idempotent: back on after a logout stopped it
+
     if (!gridId) {
       console.error('initializeFromData: gridId is undefined.');
       return;

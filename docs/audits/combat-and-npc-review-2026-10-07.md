@@ -256,6 +256,21 @@ at `:261, 291-305`), no cooldown indicator (the cooldown cursor code is dead,
   NPCs 1000 unused, enemies 1-5 as a miss-retry ms, spawners seconds between spawns);
   `passable` only decides whether the PLAYER is blocked by the NPC (`PlayerMovement.js:664-675`).
 
+## NPC taxonomy (owner, 2026-10-08)
+
+Everything with `resource.category === 'npc'` is an NPC; `resource.action` splits them into four
+kinds, and the code, docs and tuning use these names from here on:
+
+| Kind | `action` | Who | Brain |
+|---|---|---|---|
+| **Enemies** | `attack` | Coyote … Phoenix, Duke Angelo | creature: home tile + leash, pursue, re-anchor (Track 3b) |
+| **Spawners** | `spawn` | the seven Spawners | static; spawn Enemies on a cadence |
+| **Citizens** | `quest`, `trade`, `heal`, `worker` | Kent, Elbow, the Doctor, the Farm Hand … | shared idle/roam, then motives and habits (Track 4) |
+| **Farm Animals** | `graze` | Cow, Brown Cow, Sheep, Ram, Pig | graze cycle on the homestead |
+
+"Citizen" is the umbrella for the four helper actions: they share one idle/roam behaviour
+(Track 4) and differ only in what a tap does (panel, trade, heal, work).
+
 ## Part 3. Opportunities, as tracks
 
 The tracks are independent enough to ship separately. Track 1 and the kill route from
@@ -344,33 +359,69 @@ few outcomes it can reason about, and the free-form value routes close.
 - A plausibility bound is enough: this stops dev-tools stat editing, which is the realistic
   threat for a solo game.
 
-### Track 3. NPC movement that reads as alive
+### Track 3a. Movement that reads as alive (all NPC kinds)
 
-In rough priority order; the first two are small and transform the look.
+The mechanical feel comes from the tick, the tween and the step rules, so this pass is shared
+by every kind. **BUILT 2026-10-08** (see the status note at the end of this section).
 
-1. **Tween = step, linear** (as the PC animator does), or tick = tween; removes the throb and
-   the 1.3-tile glide. Pin speech bubbles and the ready overlay to the render position.
-2. **Per-NPC cadence.** Randomised step interval with jitter (e.g. 700-1,600 ms seeded per
-   NPC) to break the lockstep; a real per-type `movespeed`; diagonals at √2 of a step.
-3. **Idle inside roam.** Walk 2-5 steps, pause 2-8 s, sometimes turn in place. Stillness done
-   well is most of "alive".
-4. **Home anchor + leash + A\*.** Each NPC gets a home tile (its spawn/layout position) and a
-   leash radius; roam picks a destination inside the leash and walks it with `findPath`
-   (`Utils/Pathfinding.js`). Fixes drifting quest givers and the zig-zag together. Enemy
-   pursuit uses the same A\* at a speed that can close on the player.
-5. **Collision parity with the player:** no walking through the player's tile, no diagonal
-   corner cuts, no stacking grazers (offset within the tile when they share one).
-6. **Look:** `scale.x` flip from the horizontal step direction, a small walk bob while a
-   tween is active, y-sort (`sortableChildren`, zIndex = y) for NPCs, the PC and tall
-   resources so NPCs pass behind trees.
-7. **Loop hygiene:** key the tick effect on `isAppInitialized` + `gridId` only (read state
-   through refs); pause the tick while the tab is hidden and snap tweens deliberately on
-   return; flush NPC positions on pagehide with `sendBeacon`; restart the batch timer after
-   logout.
-8. **Fields:** split `range` into `aggro`, `roamSteps`/`leash`, `interactRange`; give `speed`
-   one meaning.
+1. **Tween = step, linear** (as the PC animator does): the renderer's NPC tween lasts exactly
+   the step the NPC just took; no ease-out, so no throb and no glide.
+2. **Per-NPC cadence and a real speed.** `movespeed` (tiles per second, resources.json /
+   ECONOMY sheet) per type, a seeded per-NPC jitter so a grid never steps in lockstep, and
+   diagonals at √2 of a straight step. The App tick becomes a 100 ms scheduler; each NPC
+   decides when its next step is due.
+3. **Idle inside roam.** A roam is legs of 2-5 steps with a 2-8 s pause between them
+   (sometimes a turn in place). Stillness done well is most of "alive".
+4. **Collision parity with the player:** no walking through the player's tile, no diagonal
+   corner cuts, no stacking farm animals.
+5. **Look:** sprite flip from the horizontal step direction, a small walk bob while a step
+   plays, NPCs y-sorted among themselves.
+6. **Loop hygiene:** the tick effect keyed on the grid only (state through refs); paused while
+   the tab is hidden; NPC positions flushed on pagehide with `sendBeacon`; the batch timer
+   restarted after a logout.
 
-### Track 4. Tuning pass (after the loop exists)
+### Track 3b. Enemies: a creature brain with a movable home
+
+Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor MOVES.
+
+- Each Enemy gets a **home tile** (its spawn/layout position) and a **leash** radius; roam
+  picks destinations inside the leash and walks them with the existing A\* (`findPath`).
+- **Pursuit** uses the same A\* at a speed that can close on the player, through the sight and
+  reach rules Track 1 set (sight `range`, Chebyshev reach, wind-up, per-type attack rate once
+  the tick allows it).
+- **Losing the player re-anchors.** When line of sight is lost (or the chase times out), the
+  enemy does NOT walk back to its first home: it establishes a **new home tile and leash where
+  it is** and roams there. Players can lure enemies away from a corridor, a spawner or a
+  door and plan routes around them; a dungeon slowly rearranges itself as you play it.
+- Spawners keep spawning on their own tile; their spawn becomes the new enemy's first home.
+- Open design points: a maximum drift from the original home per Enemy (or none, since a
+  dungeon resets lazily anyway); whether a re-anchored enemy "forgets" after a long idle and
+  drifts back; what a Spawner does when all its enemies have been lured away.
+
+### Track 4. Citizens: a living Town
+
+Quest givers, Traders, Healers and Workers are one kind ("citizens") with one shared
+behaviour, and this track is about making the Town feel alive and its people feel smart.
+
+- **Shared idle/roam** for all four actions first (replaces the four near-identical
+  behaviour files): a home anchor and leash per citizen (fixes the drifting Kent and
+  Shepherd), roam legs with pauses from Track 3a, facing the player when they come near
+  instead of freezing mid-step.
+- **Then motives, habits and little stories**, in the spirit of SimGame but lighter: a
+  handful of motives (rest, food, work, social, worship), a daily schedule by in-game hour
+  (the frontier already has the clock), a small set of named spots per Town (home, work
+  station, tavern, chapel, market) walked between with the Track 3a/3b A\*, dwelling and a
+  speech line on arrival. Habits plus the existing `RelationshipMatrix.json` give stories
+  without authored scripts; a few authored vignettes (two citizens meet at the well at 8)
+  can layer on top. Reference: `simgame/game-server/lifegoals/goals-motives.json`,
+  `simgame/game-server/interactions/int-*.json`, `simgame/game-server/townies/`.
+- **Constraints:** client-simulated (no server tick), deterministic from the frontier clock
+  so it looks the same on re-entry, cheap (a motive pick per citizen per in-game hour, not
+  per tick), and never more UI; the player reads it on the board.
+- Workers are citizens too: the Farm Hand, Rancher, Lumberjack and Crafter get a work spot
+  and a shift rather than a no-op behaviour.
+
+### Track 5. Tuning pass (after the loops exist)
 
 Starter hp 1,000 vs Coyote d6+10; Dragon d6+238 / Phoenix d6+420 vs a 1,000-1,800 hp
 player; the weapon price/damage ladder (Short Sword 7 dmg / 8,000 Money at L2, Long Sword
@@ -378,45 +429,16 @@ player; the weapon price/damage ladder (Short Sword 7 dmg / 8,000 Money at L2, L
 Phoenix (AC 40) on a 20 only. Dungeon `enemiesDistribution` should either drive placement
 or be deleted. Follow docs/tuning.md.
 
-### Track 5 (future). NPC brains: motives, habits, little stories
-
-Owner's direction: town NPCs should feel like they have brains, motivations and habits, in
-the spirit of SimGame but lighter. Enemies get a different, simpler brain. Not scheduled;
-recorded here so Tracks 1-3 do not design against it.
-
-- **Reference.** SimGame models this as needs/motives that decay, a set of interactions as
-  goal nodes with rewards (`simgame/game-server/lifegoals/goals-motives.json`,
-  `simgame/game-server/interactions/int-*.json`), and townies with schedules
-  (`simgame/game-server/townies/`). The vvgame version should be a subset: a handful of
-  motives (rest, food, work, social, worship), a daily schedule by in-game hour (the frontier
-  already has day/season timers), and a small set of "spots" per town (home, work station,
-  tavern, chapel, market) that NPCs walk between with the Track 3 A\*.
-- **Two brain kinds.** `brain: 'townie'` (motive-driven: pick the most pressing motive, go
-  to the spot that satisfies it, dwell, emit a speech line, repeat) and `brain: 'creature'`
-  (the Track 3 roam/leash plus enemy pursue/attack). Farm animals are creatures with a
-  graze motive. The brain is a field on the NPC template in resources.json, replacing the
-  `action`-keyed switch in `AllNPCsShared.js`.
-- **Stories.** Habits (the Chef is at the Oven at noon, the Doctor walks to the chapel at
-  dusk) plus relationship state already in `RelationshipMatrix.json` give "little stories"
-  without authored scripts; a few authored vignettes (two NPCs meet at the well at 8) can
-  layer on top as scheduled interactions.
-- **Constraints from this review.** Keep it client-simulated (no server tick), deterministic
-  from the frontier clock so it looks the same on re-entry, and cheap: a motive pick once per
-  NPC per in-game hour, not per tick.
-- **Scope guard.** This is the "even-more-future" track; it must not pull Track 1 toward
-  more UI or more systems. Casual first.
+*(The former "Track 5: NPC brains" is now the second half of Track 4, Citizens.)*
 
 ## Part 4. Recommended sequence
 
-1. **Track 1** (client action loop): cooldown, reach, hit-testing, board feedback, instant
-   local kill, same-tick enemy roll, death fixes.
-2. **The kill route from Track 2** right behind it, because the instant local kill wants one
-   outcome request to replace the serial chain, and that is the moment to close the
-   free-form value routes.
-3. **Track 3** as its own pass: tween and cadence first (small, transformative), then anchor
-   + leash + A\*, then collision parity and look.
-4. **Track 4** once the loop exists to tune against.
-5. **Track 5** when the town needs it.
+1. **Track 1** (client action loop). Built 2026-10-07.
+2. **The kill route from Track 2.** Built 2026-10-08.
+3. **Track 3a** (movement feel, all kinds). Built 2026-10-08.
+4. **Track 3b** (Enemies: movable home + leash, A\* pursuit).
+5. **Track 4** (Citizens: shared idle/roam, then motives and habits).
+6. **Track 5** tuning, once the loops exist to tune against.
 
 ## Cleanup to fold into whichever track touches the file
 

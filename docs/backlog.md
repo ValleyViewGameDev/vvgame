@@ -8,9 +8,13 @@ Keep done items out of here; the git log is the record.
 
 ### EPIC: NPC / Combat System overhaul (opened 2026-10-07)
 
-**What.** The combat loop, enemy and NPC movement, the server trust model for fights, a
-tuning pass, and (further out) motive-driven "brains" for town NPCs. Parent document with
-file:line findings and five tracks: `docs/audits/combat-and-npc-review-2026-10-07.md`.
+**What.** The combat loop, NPC movement, the server trust model for fights, enemy brains,
+citizen brains and a tuning pass. Parent document with file:line findings:
+`docs/audits/combat-and-npc-review-2026-10-07.md`. NPC kinds (owner, 2026-10-08): Enemies
+(`attack`), Spawners (`spawn`), Citizens (`quest`/`trade`/`heal`/`worker`) and Farm Animals
+(`graze`). Tracks: 1 action loop (built), 2 kill route (built), 3a movement feel (built),
+3b Enemies with a movable home + leash, 4 Citizens (shared idle/roam, then motives/habits),
+5 tuning.
 
 **Owner's framing.** Casual, timing-game combat with strong board feedback and little UI to
 process; the fight simulated on the client with one outcome request after a kill; NPCs that
@@ -18,8 +22,7 @@ read as alive (per-NPC cadence, pauses, home anchors, A\*); town "brains" (motiv
 little stories, lighter than SimGame) as the even-more-future track; enemies get a simpler
 brain.
 
-**Where to start.** Track 1 (client action loop) then the kill route from Track 2 (Part 4
-of the review). Nothing is scheduled yet; the owner picks the first bite.
+**Next.** Track 3b (Enemies), then Track 4 (Citizens).
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 

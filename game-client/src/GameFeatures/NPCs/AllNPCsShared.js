@@ -1,4 +1,5 @@
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from '../../Utils/worldHelpers';
 import { attachGrazingBehavior } from './NPCGrazeBehavior';
 import { attachQuestBehavior } from './NPCQuestBehavior';
@@ -19,6 +20,9 @@ const DIRECTION_DELTAS = {
   NW: { x: -1, y: -1 },
 };
 
+// Small stable hash for per-NPC jitter (ids are timestamps or ObjectIds)
+function hashId(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return Math.abs(h >>> 0); }
+
 class NPC {
   constructor(id, type, position, properties, gridId) {
     //console.log('NPC constructor: properties:', properties);
@@ -30,7 +34,6 @@ class NPC {
       throw new Error('NPC constructor requires valid properties.');
     }
 
-    this.updateInterval = properties.updateInterval || 1000; // Default to 1 second updates
     this.id = id;
     this.type = type;
     this.position = {
@@ -57,6 +60,19 @@ class NPC {
     const { type: _type, id: _id, ...safeProperties } = properties;
     Object.assign(this, safeProperties);
 
+    // Cadence (docs/audits/combat-and-npc-review-2026-10-07.md, Track 3a): each NPC steps on
+    // its own clock. `movespeed` is tiles per second from resources.json (per kind defaults
+    // below); a per-NPC jitter seeded from the id keeps a grid from stepping in lockstep; a
+    // diagonal step takes √2 as long (moveOneTile). The App tick is only a 100 ms scheduler.
+    const kindDefault = { graze: 0.5, quest: 0.8, trade: 0.8, heal: 0.8, worker: 0.8, attack: 1.2 }[this.action] || 1;
+    const movespeed = Number(properties.movespeed) > 0 ? Number(properties.movespeed) : kindDefault;
+    this.stepJitter = 0.85 + (hashId(String(this.id)) % 1000) / 1000 * 0.35; // 0.85 … 1.2
+    this.stepMs = Math.round((1000 / movespeed) * this.stepJitter);
+    this.updateInterval = this.stepMs;
+    this.lastStepMs = this.stepMs;          // the renderer tweens exactly this long
+    this.nextUpdateAt = Date.now() + Math.floor(Math.random() * this.stepMs); // desync on load
+    this.facing = 1;                        // +1 right, -1 left (renderer flips the sprite)
+
     //console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }
 
@@ -66,11 +82,9 @@ class NPC {
 /////////////////
 
 update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
-
-  //console.log(`⏰ update() for NPC ${this.id} | currentTime: ${currentTime} | lastUpdated: ${this.lastUpdated} | elapsed: ${currentTime - this.lastUpdated}`);
-  const timeElapsed = currentTime - this.lastUpdated;
-  if (timeElapsed < this.updateInterval) { return; }
-  
+  // Own clock: nothing until the next step is due (moveOneTile pushes it out for diagonals)
+  if (currentTime < (this.nextUpdateAt || 0)) return;
+  this.nextUpdateAt = currentTime + this.stepMs;
   this.processState(NPCsInGrid, gridId, TILE_SIZE);
   this.lastUpdated = currentTime;
 }
@@ -129,12 +143,13 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
 // NPC -- SHARED BEHAVIORS //
 /////////////////////////////
 
+// `idleDuration` is in SECONDS (it used to count 1 s ticks; the tick is per-NPC now)
 async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {
-  if (!this.idleTimer) this.idleTimer = 0;
-  this.idleTimer++;
+  const now = Date.now();
+  if (!this.idleUntil) this.idleUntil = now + idleDuration * 1000;
 
-  if (this.idleTimer >= idleDuration) {
-    this.idleTimer = 0;
+  if (now >= this.idleUntil) {
+    this.idleUntil = null;
 
     const directions = ['N', 'S', 'E', 'W', 'NE', 'SE', 'SW', 'NW'];
     const validDirections = directions.filter((dir) => {
@@ -155,15 +170,21 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
 }
 
 
+// A roam is `range` steps in all, walked as LEGS of 2-5 steps with a 2-8 s pause between
+// them (sometimes a turn in place), so an NPC stands still convincingly instead of pacing.
 async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Initialize roam step counter and range
+  const now = Date.now();
+  if (this.pauseUntil && now < this.pauseUntil) return; // resting between legs
+  this.pauseUntil = null;
   this.roamSteps = this.roamSteps || 0;
   const range = this.range || 4; // Default roam range
 
-  // If no initial direction is set, choose one at random
+  // If no initial direction is set, choose one at random and the length of this leg
   if (!this.currentDirection) {
     const directions = ['N', 'S', 'E', 'W', 'NE', 'SE', 'SW', 'NW'];
     this.currentDirection = directions[Math.floor(Math.random() * directions.length)];
-    //console.log(`NPC ${this.id} selected initial roam direction: ${this.currentDirection}`);
+    this.legSteps = 0;
+    this.legLength = 2 + Math.floor(Math.random() * 4);
   }
   // Define preferred directions based on the initial direction
   const preferredDirectionsMap = {
@@ -186,17 +207,24 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
     const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
     await this.moveOneTile(direction, tiles, resources, npcs);
     this.roamSteps++;
+    this.legSteps = (this.legSteps || 0) + 1;
   } else {
     this.currentDirection = null;
-    // console.warn(`🐄 NPC ${this.id} found no valid roam directions this step.`);
   }
 
-  // Check if the NPC has completed the roam range
-  if (this.roamSteps >= range || validDirections.length === 0) {
-    //console.log(`NPC ${this.id} completed ${range} roam steps. Transitioning to the next state.`);
-    this.roamSteps = 0; // Reset roam steps
-    this.currentDirection = null; // Reset direction for the next roam
+  // The whole roam is done: hand off
+  if (this.roamSteps >= range) {
+    this.roamSteps = 0;
+    this.currentDirection = null;
+    this.pauseUntil = now + 1500 + Math.random() * 3000; // a breath before whatever comes next
     onTransition();
+    return;
+  }
+  // The leg is done (or blocked): rest, sometimes turn, then pick a new heading
+  if (validDirections.length === 0 || this.legSteps >= (this.legLength || 3)) {
+    this.currentDirection = null;
+    this.pauseUntil = now + 2000 + Math.random() * 6000;
+    if (Math.random() < 0.4) this.facing = -this.facing;
   }
 }
 
@@ -279,13 +307,18 @@ async moveOneTile(direction, tiles, resources, npcs) {
 
   // Validate the tile before moving
   if (!this.isValidTile(targetX, targetY, tiles, resources, npcs)) {
-      console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
       return false;
   }
 
   // Set the target position immediately - the renderer animates the transition
   this.position.x = targetX;
   this.position.y = targetY;
+  if (delta.x) this.facing = delta.x > 0 ? 1 : -1;
+  // A diagonal is √2 as long as a straight step: the tween and the next step both wait for it
+  const diagonal = delta.x !== 0 && delta.y !== 0;
+  this.lastStepMs = Math.round(this.stepMs * (diagonal ? 1.414 : 1));
+  if (diagonal) this.nextUpdateAt = (this.nextUpdateAt || Date.now()) + Math.round(this.stepMs * 0.414);
+  this.stepStartedAt = Date.now();
 
   // Movement-only update (queued for the batch save, not saved immediately)
   NPCsInGridManager.updateNPCPosition(this.gridId, this.id, { x: targetX, y: targetY });
@@ -305,6 +338,14 @@ getAdjacentTile(direction) {
       x: this.position.x + delta.x,
       y: this.position.y + delta.y,
   };
+}
+
+// Terrain + resources only (no NPC / player checks): the part a corner-cut check reuses
+terrainOpen(x, y, tiles, resources) {
+  if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) return false;
+  if (this[`validon${tiles[y][x]}`] !== true) return false;
+  const res = resources.find((r) => r.x === x && r.y === y);
+  return !(res && !res.passable);
 }
 
 isValidTile(x, y, tiles, resources, npcs) {
@@ -354,24 +395,25 @@ isValidTile(x, y, tiles, resources, npcs) {
       }
     }
   
+  // **Step 3: the same rules the player's own pathfinding applies (Utils/Pathfinding.js)**
+  // No diagonal corner cutting: both orthogonal neighbours of a diagonal step must be open
+  const dx = x - Math.floor(this.position.x); const dy = y - Math.floor(this.position.y);
+  if (dx !== 0 && dy !== 0 && Math.abs(dx) === 1 && Math.abs(dy) === 1) {
+    if (!this.terrainOpen(x, Math.floor(this.position.y), tiles, resources) || !this.terrainOpen(Math.floor(this.position.x), y, tiles, resources)) return false;
+  }
+  // Never onto the player's tile
+  const me = playersInGridManager.getLocalRecord?.()?.position;
+  if (me && Math.round(me.x) === x && Math.round(me.y) === y) return false;
+
   // Ensure npcs is an array before calling .some()
   if (!Array.isArray(npcs)) {
-    console.warn(`NPC list is invalid or undefined. Skipping NPC collision check.`);
     return true;
   }
 
-  // Check if another NPC is occupying the tile
+  // Never onto another NPC's tile (farm animals included: no stacking)
   const npcInTile = npcs.find(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y && npc.id !== this.id);
-  if (npcInTile) {
-    // Allow farm animals to move through other farm animals
-    const bothGrazingAnimals = this.action === 'graze' && npcInTile.action === 'graze';
-    if (!bothGrazingAnimals) {
-      //console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
-      return false;
-    }
-  }
+  if (npcInTile) return false;
 
-  //console.log(`Tile (${x}, ${y}) is valid for movement.`);
   return true;
 }
 

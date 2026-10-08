@@ -613,6 +613,7 @@ const PixiRenderer = ({
 
       const npcContainer = new Container();
       npcContainer.name = 'npcs';
+      npcContainer.sortableChildren = true; // y-sort: an NPC lower on the board draws in front
       worldContainer.addChild(npcContainer);
       npcContainerRef.current = npcContainer;
 
@@ -971,19 +972,19 @@ const PixiRenderer = ({
 
         const elapsed = now - animation.startTime;
 
+        let bob = 0;
         if (elapsed >= animation.duration) {
           // Animation complete - snap to target
           animation.currentPos = { ...animation.targetPos };
           animation.duration = 0;
         } else {
-          // Interpolate position (ease-out for smooth deceleration)
+          // Linear, lasting exactly the NPC's step (as the PC animator does): no throb, no glide
           const progress = elapsed / animation.duration;
-          const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
-
           animation.currentPos = {
-            x: animation.startPos.x + (animation.targetPos.x - animation.startPos.x) * easeOut,
-            y: animation.startPos.y + (animation.targetPos.y - animation.startPos.y) * easeOut
+            x: animation.startPos.x + (animation.targetPos.x - animation.startPos.x) * progress,
+            y: animation.startPos.y + (animation.targetPos.y - animation.startPos.y) * progress
           };
+          bob = Math.sin(progress * Math.PI) * TILE_SIZE * 0.06; // a small walk bob
           hasActiveAnimations = true;
         }
 
@@ -991,7 +992,8 @@ const PixiRenderer = ({
         const displayObj = npcDisplayObjects.current[npcId];
         if (displayObj) {
           displayObj.x = animation.currentPos.x * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
+          displayObj.zIndex = animation.currentPos.y; // y-sorted among NPCs
         }
       }
 
@@ -1134,13 +1136,14 @@ const PixiRenderer = ({
           if (currentAnimation &&
               (currentAnimation.targetPos.x !== targetPos.x ||
                currentAnimation.targetPos.y !== targetPos.y)) {
-            // Position changed - start new animation from current interpolated position
+            // Position changed - start new animation from current interpolated position,
+            // lasting exactly the step the NPC just took (AllNPCsShared.moveOneTile)
             npcAnimations.current[npc.id] = {
               startPos: { ...currentAnimation.currentPos },
               currentPos: { ...currentAnimation.currentPos },
               targetPos: { ...targetPos },
               startTime: Date.now(),
-              duration: NPC_ANIMATION_DURATION
+              duration: npc.lastStepMs || NPC_ANIMATION_DURATION
             };
             // Start the animation ticker (on-demand pattern - only runs when needed)
             startNPCAnimationTicker();
@@ -1150,7 +1153,10 @@ const PixiRenderer = ({
           const renderPos = getNPCRenderPosition(npc);
           displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.zIndex = renderPos.y;
         }
+        // Face the way it last walked (sizing above leaves scale.x positive)
+        displayObj.scale.x = Math.abs(displayObj.scale.x) * (npc.facing < 0 ? -1 : 1);
       }
     };
 
