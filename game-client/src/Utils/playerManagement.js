@@ -179,13 +179,12 @@ export const handlePlayerDeath = async (
       backpack: filteredBackpack,
     };
 
-    // 1. Persist HP / backpack. Location is written by enter-grid below.
+    // 1. Persist the backpack. hp goes through the PC record (/player/state, where the server
+    //    derives maxhp itself); location is written by enter-grid below.
     await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: player._id,
       updates: {
         backpack: filteredBackpack,
-        hp: restoredHp,
-        maxhp: properMaxHp,
         settings: player.settings,
       },
     });
@@ -219,6 +218,7 @@ export const handlePlayerDeath = async (
     const townGridId = GlobalGridStateTilesAndResources.getGridMeta()?.gridId;
     if (townGridId) {
       await playersInGridManager.updatePC(townGridId, String(updatedPlayer._id), { hp: restoredHp, maxhp: properMaxHp });
+      playersInGridManager.flushAfterTransaction();
     }
 
     setCurrentPlayer((prevPlayer) => ({

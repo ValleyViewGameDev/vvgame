@@ -437,6 +437,18 @@ class GridStateManager {
 
 
   /**
+   * Drop an NPC from the local store only (React synced, no request): for outcomes the server
+   * already knows about through another route (a kill reported to /action/npc-kill).
+   */
+  forgetNPC(gridId, npcId) {
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid?.npcs?.[npcId]) return;
+    this.pendingPositionUpdates.get(gridId)?.delete(npcId);
+    delete NPCsInGrid.npcs[npcId];
+    this.setAllNPCs(gridId, NPCsInGrid.npcs);
+  }
+
+  /**
    * Remove an NPC from the NPCsInGrid using the per-NPC save model.
    */
   async removeNPC(gridId, npcId) {

@@ -202,6 +202,7 @@ app.use('/api', worldRoutes);
 console.log('Setting up NPCsInGrid routes...');
 app.use('/api', gridRoutes);
 app.use('/api', enterGridRoutes);
+app.use('/api', require('./routes/combatRoutes')); // POST /action/npc-kill: the one combat write (docs/audits/combat-and-npc-review-2026-10-07.md Track 2)
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');

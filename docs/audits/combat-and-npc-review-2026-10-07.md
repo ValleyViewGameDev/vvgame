@@ -308,6 +308,21 @@ Everything here is client code; nothing needs the server during a fight.
 
 ### Track 2. Trust model: outcomes, not state
 
+**BUILT 2026-10-08 (the kill route):** `POST /api/action/npc-kill { playerId, gridId, npcId,
+dropAt? }` (`game-server/routes/combatRoutes.js`) checks grid ownership, that the NPC exists
+there and is hostile, and a kill-rate bound from the server's OWN derived stats
+(`utils/combatStats.js`: base + equipped weapon/armour + enhancements, the client's
+`powerModifiers` mirrored): a kill may not land sooner than `(ceil(maxhp / (damage + 6)) - 1)`
+swings at the tuning's fastest cooldown. It then removes the NPC, grants the template `xp`,
+places the drop on the nearest free tile (the client's suggestion when free) and advances
+Kill quests, in one write; the client reconciles xp, quests and the drop tile from the answer.
+Combat no longer calls `/addXP`, `/update-grid`, `/remove-single-npc` or `/save-single-npc`
+(a wound stays client-side; an enemy is back at full hp on re-entry). `/player/state` now sets
+maxhp to the derived value and clamps hp to it; `/update-profile` drops `base*` stats, `hp`
+and `maxhp` from non-developers. Still open from the list below: `/addXP`, `/update-grid`,
+`/update-player-quests`, `/earn-trophy` and the `powers` / `inventory` fields of
+`/update-profile` stay client-trusted for quests, trades and purchases (refactor plan Phase 5).
+
 Target shape (matches docs/refactor-plan.md D9): the client simulates, the server checks a
 few outcomes it can reason about, and the free-form value routes close.
 

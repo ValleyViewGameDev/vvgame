@@ -10886,7 +10886,6 @@
     "hp": 1,
     "level": 9,
     "damage": 15,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 500,
@@ -11008,7 +11007,6 @@
     "hp": 2,
     "level": 17,
     "damage": 18,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
@@ -11027,7 +11025,7 @@
     "level": 18,
     "scrollqty": 1,
     "scrollchance": "legendary",
-    "attackrange": 2,
+    "attackrange": 1,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient2": "Gem",
@@ -11147,7 +11145,6 @@
     "level": 23,
     "damage": 6,
     "attackbonus": 1,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
@@ -11226,7 +11223,6 @@
     "hp": 2,
     "level": 27,
     "damage": 15,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
@@ -11364,7 +11360,6 @@
     "scrollchance": "legendary",
     "damage": 10,
     "attackbonus": 1,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11403,7 +11398,6 @@
     "scrollchance": "legendary",
     "armorclass": 2,
     "damage": 22,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11440,7 +11434,6 @@
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 20,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11476,7 +11469,6 @@
     "armorclass": "`",
     "damage": 25,
     "attackbonus": 2,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11496,7 +11488,6 @@
     "speed": 2,
     "damage": 28,
     "attackbonus": 2,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11536,7 +11527,6 @@
     "speed": 1,
     "damage": 32,
     "attackbonus": 2,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11556,7 +11546,6 @@
     "speed": 2,
     "damage": 38,
     "attackbonus": 6,
-    "attackrange": 0,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1

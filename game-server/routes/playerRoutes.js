@@ -7,6 +7,7 @@ const Player = require('../models/player'); // Import the Player model
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
+const { derivedStats } = require('../utils/combatStats');
 
 // Account routes the editor uses (and the profile's own delete): the caller must be a developer
 // (x-player-id of a developer account, as the maintenance gate checks) or, for delete, the player themself.
@@ -371,7 +372,9 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
 // The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
 const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token'];
-const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role'];
+// Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
+// base stats, hp and maxhp are never set from the client (hp goes through /player/state).
+const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp'];
 
 router.post('/update-profile', async (req, res) => {
   const { playerId } = req.body;
@@ -1744,13 +1747,20 @@ router.post('/set-all-grids-visited', async (req, res) => {
 // Phase 3: the player's position and current hp/maxhp live on the Player (docs/phase-3-contract.md).
 // The client sends this debounced (30 s), on grid leave/arrival and on unload.
 router.post('/player/state', async (req, res) => {
-  const { playerId, x, y, hp, maxhp } = req.body || {};
+  const { playerId, x, y, hp } = req.body || {};
   if (!playerId) return res.status(400).json({ error: 'playerId is required' });
   const set = { lastActive: new Date() };
   if (Number.isInteger(x) && Number.isInteger(y) && x >= 0 && x < 64 && y >= 0 && y < 64) { set['location.x'] = x; set['location.y'] = y; }
-  if (Number.isFinite(maxhp) && maxhp > 0) set.maxhp = maxhp;
-  if (Number.isFinite(hp)) set.hp = Math.max(0, Number.isFinite(maxhp) ? Math.min(hp, maxhp) : hp);
   try {
+    // maxhp is what the server derives from base + powers (never the client's number); hp is
+    // clamped to it (utils/combatStats.js)
+    if (Number.isFinite(hp)) {
+      const basis = await Player.findById(playerId, 'baseMaxhp powers settings').lean();
+      if (!basis) return res.status(404).json({ error: 'Player not found' });
+      const { maxhp: derivedMax } = derivedStats(basis);
+      set.maxhp = derivedMax;
+      set.hp = Math.max(0, Math.min(hp, derivedMax));
+    }
     const player = await Player.findByIdAndUpdate(playerId, { $set: set }, { new: true, projection: 'location hp maxhp' });
     if (!player) return res.status(404).json({ error: 'Player not found' });
     recordActivity(playerId).catch(() => {});   // analytics heartbeat, fire-and-forget (id only)

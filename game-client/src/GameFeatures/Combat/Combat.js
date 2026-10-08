@@ -12,9 +12,8 @@ import FloatingTextManager from "../../UI/FloatingText";
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import playersInGridManager from "../../GridState/PlayersInGrid";
 import { extractXY } from "../NPCs/NPCUtils";
-import { updateGridResource, isWallBlocking } from "../../Utils/GridManagement";
+import { isWallBlocking } from "../../Utils/GridManagement";
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
@@ -200,12 +199,7 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         createImpactEffect(live.position.x, live.position.y, from.x, from.y);
         CombatFX.text(live.position.x, live.position.y, `-${damage}`, 'damage');
         CombatFX.engageEnemy(live.id, live.hp, live.maxhp);
-        if (live.hp > 0) {
-            // Persist the wound in the background (Track 2 folds this into the kill route)
-            NPCsInGridManager.updateNPC(gridId, live.id, { hp: live.hp, position: live.position, state: live.state })
-              .catch((e) => console.warn('hp save failed', e?.message));
-            return;
-        }
+        if (live.hp > 0) return; // a wound stays client-side; the server only hears about the kill
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
     };
     if (ranged) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
@@ -213,58 +207,80 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     return true;
 }
 
-/** The kill, resolved locally first; every server write follows in the background. */
+/**
+ * The kill, resolved locally first (death beat, drop, XP in the header), then reported ONCE to
+ * POST /action/npc-kill, which removes the NPC, grants the xp, places the drop and advances Kill
+ * quests on the server (docs/audits/combat-and-npc-review-2026-10-07.md, Track 2). The server's
+ * answer reconciles the header xp, the quest list and, if it chose another tile, the drop.
+ */
 function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies) {
     const pos = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
     const npcResource = masterResources.find((r) => r.type === npc.type && r.category === 'npc');
     const xp = npcResource?.xp || 0;
+    const playerId = String(currentPlayer._id || currentPlayer.playerId);
+    const myTile = playersInGridManager.getPlayersInGrid(gridId)?.[playerId]?.position;
 
     // 1. The board: the death beat takes the sprite over and a burst (VFX.js, picked by the
-    //    template's deathVfx) explodes from the tile; the store forgets the NPC at once. The
-    //    drop appears as the body finishes fading, and "+XP" rises from the tile right after.
+    //    template's deathVfx) explodes from the tile; the store forgets the NPC at once.
     CombatFX.killEnemy(npc.id);
     setTimeout(() => createNPCDeathEffect(pos.x, pos.y, npcResource?.deathVfx), CombatFX.FX.DEATH_BURST_DELAY_MS);
     setTimeout(() => soundManager.playSFX('collect_money'), CombatFX.FX.DEATH_XP_DELAY_MS);
-    const removal = NPCsInGridManager.removeNPC(gridId, npc.id); // local delete now, POST inside
+    NPCsInGridManager.forgetNPC(gridId, npc.id);
 
-    // 2. XP: header updates now, the server's total replaces it when it answers
-    if (xp && currentPlayer.playerId) {
+    // 2. XP in the header now; the server's total replaces it when it answers
+    if (xp) {
         setCurrentPlayer((prev) => ({ ...prev, xp: (prev.xp || 0) + xp }));
         setTimeout(() => CombatFX.text(pos.x, pos.y, `+${xp} XP`, 'gain'), CombatFX.FX.DEATH_XP_DELAY_MS);
-        axios.post(`${API_BASE}/api/addXP`, { playerId: currentPlayer.playerId, xpAmount: xp })
-          .then((res) => { if (res.data?.success && Number.isFinite(res.data.newXP)) setCurrentPlayer((prev) => ({ ...prev, xp: res.data.newXP })); })
-          .catch((e) => console.error('Error awarding XP:', e?.message));
     }
 
-    // 3. Loot: the nearest free tile (never stacked on a crate or another drop), written behind
+    // 3. The drop: the client's guess at the nearest free tile falls in and bounces; the server
+    //    confirms the tile (or moves it) in its answer
+    let localDrop = null;
     if (npc.output) {
         const details = masterResources.find((r) => r.type === npc.output) || {};
-        const at = findDropTile(pos.x, pos.y, playersInGridManager.getPlayersInGrid(gridId)?.[String(currentPlayer._id)]?.position);
-        const drop = {
-            ...details,
-            type: npc.output,
-            x: at.x, y: at.y,
-            category: details.category || 'doober',
-            symbol: details.symbol || '❓',
-            qtycollected: details.qtycollected || 1,
-        };
-        // falls in and bounces to rest once the burst has bloomed (the board's own sprite stays
-        // hidden until the bounce ends); written behind right away
+        const at = findDropTile(pos.x, pos.y, myTile);
+        localDrop = { ...details, type: npc.output, x: at.x, y: at.y, category: details.category || 'doober', symbol: details.symbol || '❓', qtycollected: details.qtycollected || 1 };
+        const placed = localDrop;
         setTimeout(() => {
-            CombatFX.dropBounce(at.x, at.y, { symbol: drop.symbol, filename: drop.filename || null });
-            GlobalGridStateTilesAndResources.setResources([...GlobalGridStateTilesAndResources.getResources(), drop]);
-            setResources((prev) => [...prev, drop]);
+            CombatFX.dropBounce(placed.x, placed.y, { symbol: placed.symbol, filename: placed.filename || null });
+            GlobalGridStateTilesAndResources.setResources([...GlobalGridStateTilesAndResources.getResources(), placed]);
+            setResources((prev) => [...prev, placed]);
         }, CombatFX.FX.DEATH_LOOT_DELAY_MS);
-        updateGridResource(gridId, { type: npc.output, x: at.x, y: at.y }).catch((e) => console.error('drop save failed', e?.message));
     }
 
     // 4. Position save for the player (a kill is a moment worth keeping)
     playersInGridManager.flushAfterTransaction();
 
-    // 5. Quests and trophies, after the removal has been sent
-    Promise.resolve(removal).finally(async () => {
-        try {
-            if (npc.type === 'Duke Angelo') {
+    // 5. The one combat write
+    const report = axios.post(`${API_BASE}/api/action/npc-kill`, {
+        playerId, gridId, npcId: npc.id, dropAt: localDrop ? { x: localDrop.x, y: localDrop.y } : undefined,
+    }).then((res) => {
+        const d = res.data || {};
+        if (!d.success) return false;
+        setCurrentPlayer((prev) => ({
+            ...prev,
+            ...(Number.isFinite(d.xp) ? { xp: d.xp } : {}),
+            ...(Array.isArray(d.activeQuests) ? { activeQuests: d.activeQuests } : {}),
+        }));
+        if (localDrop && d.drop && (d.drop.x !== localDrop.x || d.drop.y !== localDrop.y)) {
+            // the server placed it elsewhere: move ours to match
+            const moveLocal = (list) => list.map((r) => (r && r.type === localDrop.type && r.x === localDrop.x && r.y === localDrop.y) ? { ...r, x: d.drop.x, y: d.drop.y } : r);
+            GlobalGridStateTilesAndResources.setResources(moveLocal(GlobalGridStateTilesAndResources.getResources()));
+            setResources((prev) => moveLocal(prev));
+        }
+        return true;
+    }).catch((e) => {
+        // Refused (not your grid, unknown NPC, too fast) or failed: the board keeps the local
+        // outcome for this session; the next grid load shows the server's truth
+        console.warn('npc-kill not accepted:', e?.response?.data?.reason || e?.message);
+        return false;
+    });
+
+    // 6. Duke Angelo's trophy and story quest ride on the accepted kill (client paths, unchanged)
+    if (npc.type === 'Duke Angelo') {
+        report.then(async (ok) => {
+            if (!ok) return;
+            try {
                 if (masterTrophies && currentPlayer?.playerId) {
                     await earnTrophy(currentPlayer.playerId, 'Kill the Duke', 1, currentPlayer, masterTrophies, setCurrentPlayer);
                 }
@@ -278,12 +294,10 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
                         setCurrentPlayer(response.data.player);
                         CombatFX.text(pos.x, pos.y - 1.4, 'Quest: Blood for Juliet', 'gain');
                     }
-                    return;
                 }
+            } catch (error) {
+                console.error('Duke follow-up failed:', error);
             }
-            await trackQuestProgress(currentPlayer, 'Kill', npc.type, 1, setCurrentPlayer);
-        } catch (error) {
-            console.error('Kill follow-up failed:', error);
-        }
-    });
+        });
+    }
 }
