@@ -217,3 +217,29 @@
     filter: brightness(1.05);
 }
 
+
+/* "+N 💎" rising off a card when its reward is collected (GEM_FLOAT_MS in TrophyPanel.js) */
+.trophy-gem-float {
+    position: absolute;
+    bottom: 8px;
+    right: 6px;
+    font-size: var(--font-title-3-size, 16px);
+    font-weight: bold;
+    font-family: var(--font-text-1-family);
+    color: var(--color-text-white);
+    text-shadow:
+        0px 0px 3px black,
+        0px 0px 6px black,
+        1px 1px 2px black,
+        -1px -1px 2px black;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 11;
+    animation: trophyGemFloat 1.8s ease-out forwards;
+}
+
+@keyframes trophyGemFloat {
+    0% { transform: translateY(0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateY(-40px); opacity: 0; }
+}

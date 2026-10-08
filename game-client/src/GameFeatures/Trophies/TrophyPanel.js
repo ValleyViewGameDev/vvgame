@@ -8,6 +8,16 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 
+// Matches the trophyGemFloat animation in TrophyPanel.css.
+const GEM_FLOAT_MS = 1800;
+
+const addGems = (inventory, qty) => {
+    const list = Array.isArray(inventory) ? inventory : [];
+    const hasGem = list.some(item => item.type === 'Gem');
+    return hasGem
+        ? list.map(item => item.type === 'Gem' ? { ...item, quantity: (item.quantity || 0) + qty } : item)
+        : [...list, { type: 'Gem', quantity: qty }];
+};
 
 function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, setCurrentPlayer, updateStatus, openPanel, setActiveStation, inventory, setInventory, backpack, setBackpack }) {
 
@@ -15,6 +25,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
     const [trophies, setTrophies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [collecting, setCollecting] = useState(null); // Track which trophy is being collected
+    const [gemFloats, setGemFloats] = useState([]); // "+N 💎" texts rising off collected cards
     
     useEffect(() => {
         // Fetch trophies when panel opens
@@ -38,39 +49,57 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         }
     }, [currentPlayer?.playerId]);
     
-    // Handle collecting trophy reward
+    // Handle collecting trophy reward. Optimistic: the card flips to collected, the gems land
+    // in the header and "+N 💎" floats off the card (and over the avatar) on the tap; the
+    // server call runs in parallel and only a failure puts the card and the gems back.
     const handleCollectReward = async (trophyName) => {
+        if (collecting) return;
+        const trophyDef = masterTrophies?.find(t => t.name === trophyName);
+        const gemReward = trophyDef?.reward || 0;
+        const prevInventory = inventory;
+
+        setCollecting(trophyName);
+        setTrophies(prevTrophies =>
+            prevTrophies.map(t => t.name === trophyName ? { ...t, collected: true } : t)
+        );
+        if (gemReward > 0) {
+            const optimistic = addGems(inventory, gemReward);
+            setInventory(optimistic);
+            setCurrentPlayer(prev => ({ ...prev, inventory: optimistic }));
+            const floatId = `${trophyName}-${Date.now()}`;
+            setGemFloats(prev => [...prev, { id: floatId, trophyName, text: `+${gemReward} 💎` }]);
+            setTimeout(() => setGemFloats(prev => prev.filter(f => f.id !== floatId)), GEM_FLOAT_MS);
+            const loc = currentPlayer?.location;
+            if (loc && Number.isFinite(loc.x) && Number.isFinite(loc.y)) {
+                FloatingTextManager.addFloatingText(`+${gemReward} 💎`, loc.x, loc.y, 0);
+            }
+        }
+
         try {
-            setCollecting(trophyName);
-            
             const response = await axios.post(`${API_BASE}/api/collect-trophy-reward`, {
                 playerId: currentPlayer.playerId,
                 trophyName: trophyName
             });
-            
+
             if (response.data.success) {
-                const { gemReward, inventory } = response.data;
-                
-                // Update inventory from server response
-                if (inventory) {
-                    setInventory(inventory);
-                    setCurrentPlayer(prev => ({ ...prev, inventory }));
+                const { gemReward: serverReward, inventory: serverInventory } = response.data;
+                if (serverInventory) {
+                    setInventory(serverInventory);
+                    setCurrentPlayer(prev => ({ ...prev, inventory: serverInventory }));
                 }
-                
-                // Update local trophy state to mark as collected
-                setTrophies(prevTrophies => 
-                    prevTrophies.map(t => 
-                        t.name === trophyName ? { ...t, collected: true } : t
-                    )
-                );
-                
-                FloatingTextManager.addFloatingText(`+${gemReward} 💎`, window.innerWidth / 2, window.innerHeight / 2, 64);
-                updateStatus(`💎 Earned ${gemReward} Gem${gemReward > 1 ? 's' : ''} from your trophy`);
+                updateStatus(`💎 Earned ${serverReward} Gem${serverReward > 1 ? 's' : ''} from your trophy`);
             } else {
-                updateStatus(response.data.message || 'Failed to collect reward');
+                throw new Error(response.data.message || 'Failed to collect reward');
             }
         } catch (error) {
             console.error('Error collecting trophy reward:', error);
+            setTrophies(prevTrophies =>
+                prevTrophies.map(t => t.name === trophyName ? { ...t, collected: false } : t)
+            );
+            if (gemReward > 0) {
+                setInventory(prevInventory);
+                setCurrentPlayer(prev => ({ ...prev, inventory: prevInventory }));
+            }
             updateStatus('Failed to collect trophy reward');
         } finally {
             setCollecting(null);
@@ -213,6 +242,9 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                             </div>
                                         )}
                                     </div>
+                                    {gemFloats.filter(f => f.trophyName === trophyDef.name).map(f => (
+                                        <span key={f.id} className="trophy-gem-float">{f.text}</span>
+                                    ))}
                                     {hasUncollectedReward && (
                                         <div 
                                             className="trophy-reward-gem"
