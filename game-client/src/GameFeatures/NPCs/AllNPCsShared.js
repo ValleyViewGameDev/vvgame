@@ -7,6 +7,7 @@ import { attachEnemyBehavior } from './NPCEnemyBehavior';
 import { attachHealBehavior } from './NPCHealBehavior';
 import { attachSpawnBehavior } from './NPCSpawnerBehavior';
 import { attachFarmerBehavior } from './NPCWorkerBehavior';
+import { attachCitizenBehavior } from './NPCCitizenBehavior';
 import { attachTraderBehavior } from './NPCTraderBehavior';
 
 const DIRECTION_DELTAS = {
@@ -107,21 +108,16 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
         // console.log('Pet behavior not implemented yet.');
         break;
     
+      // Citizens: one shared brain (state loop + waiting), docs/citizens.md
       case 'quest':
-        await this.handleQuestGiverBehavior(gridId);
-        break;
-    
       case 'trade':
-        await this.handleTraderBehavior(gridId);
-        break;
-
+      case 'heal':
       case 'worker':
-        await this.handleWorkerBehavior(gridId);
+        await this.handleCitizenBehavior(gridId, TILE_SIZE);
         break;
     
-      case 'heal':
-        await this.handleHealBehavior(gridId);
-        break;
+
+    
     
       case 'attack':
         await this.handleEnemyBehavior(gridId, TILE_SIZE);
@@ -532,6 +528,7 @@ attachEnemyBehavior(NPC);
 attachHealBehavior(NPC);
 attachSpawnBehavior(NPC);
 attachFarmerBehavior(NPC);
+attachCitizenBehavior(NPC); // quest / trade / heal / worker share one brain (docs/citizens.md)
 attachTraderBehavior(NPC);
 
 export default NPC;

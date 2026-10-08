@@ -55,6 +55,7 @@ export const DEFINITIONS = [
       num('scrollqty'), { key: 'scrollchance', type: 'enum', enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'] },
       { key: 'season', type: 'enum', enum: ['Spring', 'Summer', 'Fall', 'Winter'] },
       num('hp'), num('maxhp'), num('range'), num('speed'), num('damage'), num('armorclass'), num('attackbonus'), num('attackrange'), bool('ranged'), str('deathVfx'), num('movespeed'), { key: 'artFacing', type: 'enum', enum: ['left', 'right', 'front'] },
+      num('stateWorking'), num('stateResting'), num('stateRoaming'), num('stateEating'), num('stateSocializing'),
       ...VALIDON.map((t) => bool(`validon${t}`)),
     ],
   },

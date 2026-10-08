@@ -400,6 +400,11 @@ Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor M
 
 ### Track 4. Citizens: a living Town
 
+**Design doc: `docs/citizens.md`** (owner's state-loop spec of 2026-10-08 + open questions).
+**Scaffold built 2026-10-08:** one shared brain for the four actions, the state loop with
+per-type lengths in resources.json, Zzz headline effect while resting (`VFX/NPCVFX.js`),
+the waiting interrupt. Inside each state the legacy behaviour still runs.
+
 Quest givers, Traders, Healers and Workers are one kind ("citizens") with one shared
 behaviour, and this track is about making the Town feel alive and its people feel smart.
 
