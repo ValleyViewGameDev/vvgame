@@ -190,7 +190,7 @@ value rather than trust this page.
   changes when the real sprite takes over, which is held hidden meanwhile), and "+XP" rises
   from the drop's tile at 1,050 ms, nothing else (no skull), so a kill reads as one event;
   sounds: the swoosh (`attack_miss`) is the miss, `attack_hit` plays when a blow lands
-  (`Sound/SFXMap.json`, hit file is a placeholder to replace); enemy
+  (`Sound/SFXMap.json`, one of sfx_plant / sfx_plant2 at random); enemy
   wind-up 300 ms; projectiles only from a `ranged` weapon or a reach > 1 enemy, 70 ms per
   tile (min 140); cooldown ring 0.62-tile radius; enemy hp bar only while engaged, lingers
   2.5 s then fades 400 ms, destroyed on the kill.

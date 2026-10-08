@@ -34,7 +34,8 @@
   },
   {
     "event": "attack_hit",
-    "file1": "sfx-sword.mp3"
+    "file1": "sfx_plant.mp3",
+    "file2": "sfx_plant2.mp3"
   },
   {
     "event": "tent_on",
