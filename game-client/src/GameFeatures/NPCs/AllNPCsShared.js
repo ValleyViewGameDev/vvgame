@@ -171,7 +171,7 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
 
 
 // A roam is `range` steps in all, walked as LEGS of 2-5 steps with a 2-8 s pause between
-// them (sometimes a turn in place), so an NPC stands still convincingly instead of pacing.
+// them, so an NPC stands still convincingly instead of pacing.
 async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Initialize roam step counter and range
   const now = Date.now();
   if (this.pauseUntil && now < this.pauseUntil) return; // resting between legs
@@ -224,7 +224,6 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
   if (validDirections.length === 0 || this.legSteps >= (this.legLength || 3)) {
     this.currentDirection = null;
     this.pauseUntil = now + 2000 + Math.random() * 6000;
-    if (Math.random() < 0.4) this.facing = -this.facing;
   }
 }
 

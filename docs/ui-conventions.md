@@ -196,6 +196,9 @@ value rather than trust this page.
   2.5 s then fades 400 ms, destroyed on the kill.
 - Enemy hover tip (desktop): placed up-and-right of the cursor (`placement: 'up-right'`),
   never centred over the sprite, so the enemy and the swing stay visible mid-fight.
+- NPC facing: the sprite flips only on a horizontal step (up/down keeps the last facing),
+  relative to the art's native facing in `artFacing` (resources.json: `left` for animals and
+  beasts, `front` for people, which never flip); no random turns in place.
 - Grid-change fade (`UI/TransitionContext.js`): 250 ms to black, 400 ms back. A crossing pays
   both back to back, so together they are the floor of every grid change; keep them a short
   breath, not a scene change (they were 600 / 900 until 2026-10-07 and read as "slow"). The

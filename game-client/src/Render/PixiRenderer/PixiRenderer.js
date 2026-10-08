@@ -1155,8 +1155,12 @@ const PixiRenderer = ({
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
           displayObj.zIndex = renderPos.y;
         }
-        // Face the way it last walked (sizing above leaves scale.x positive)
-        displayObj.scale.x = Math.abs(displayObj.scale.x) * (npc.facing < 0 ? -1 : 1);
+        // Face the way it last walked, relative to the art's native facing (`artFacing` on the
+        // template: 'left' for the animals and beasts, 'front' for people, which never flip).
+        // Sizing above leaves scale.x positive; facing only changes on a horizontal step.
+        const art = npc.artFacing || (npc.action === 'graze' || npc.action === 'attack' ? 'left' : 'front');
+        const flip = art === 'left' ? (npc.facing > 0 ? -1 : 1) : art === 'right' ? (npc.facing < 0 ? -1 : 1) : 1;
+        displayObj.scale.x = Math.abs(displayObj.scale.x) * flip;
       }
     };
 
