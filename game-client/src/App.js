@@ -114,7 +114,7 @@ import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
-import TownNews from './UI/Modals/TownNews.js';
+import TownNewsPanel from './UI/Panels/TownNewsPanel.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
@@ -3297,6 +3297,14 @@ return (
       </div>
     )}
 
+    {/* Town News: a round button under the season button (under the map button in phone
+        landscape, where the map sits under the season button); toggles the Town News panel */}
+    {currentPlayer && (
+      <div className="season-controls news-controls">
+        <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} title={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><span>📰</span></button>
+      </div>
+    )}
+
     {/* Map: a round button under the zoom pill, the season button's twin; toggles the Map panel */}
     {currentPlayer && (
       <div className="map-controls">
@@ -3713,14 +3721,6 @@ return (
           masterResources={masterResources}
         />
       )}
-      {activeModal === 'TownNews' && (
-        <TownNews
-          onClose={closeModal}  // ✅ This sets activeModal = null
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          resources={masterResources}
-        />
-      )}
       {activeModal === 'LanguagePicker' && (
         <LanguagePickerModal
           currentPlayer={currentPlayer}
@@ -3835,6 +3835,12 @@ return (
           globalTuning={globalTuning}
           masterWarehouse={masterWarehouse}
           updateStatus={updateStatus}
+        />
+      )}
+      {activePanel === 'TownNewsPanel' && (
+        <TownNewsPanel
+          onClose={closePanel}
+          currentPlayer={currentPlayer}
         />
       )}
       {activePanel === 'TrophyPanel' && (

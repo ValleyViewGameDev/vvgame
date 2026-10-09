@@ -1,14 +1,16 @@
 import API_BASE from '../../config';
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from './Modal';
-import './TownNews.css';
-import { StatusBarContext } from '../StatusBar/StatusBar';
+import Panel from './Panel';
+import './TownNewsPanel.css';
 import { useStrings } from '../StringsContext';
 import { formatCountdown } from '../Timers';
 import { getMayorUsername } from '../../GameFeatures/Government/GovUtils';
 
-function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
+// Town News: a right panel opened by the floating 📰 button under the season button
+// (docs/ui-conventions.md §3). Settlement and bank data are fetched on open and every 30 s;
+// the phase countdowns tick from the stored timers every second.
+function TownNewsPanel({ onClose, currentPlayer }) {
     const strings = useStrings();
     // Settlement data
     const [settlementName, setSettlementName] = useState("");
@@ -37,6 +39,17 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
         return uniqueItems.join(", ");
     };
 
+    const updateTimers = () => {
+        const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
+        setBankPhase(storedTimers.bank?.phase || "");
+        setTrainPhase(storedTimers.train?.phase || "");
+        setElectionPhase(storedTimers.elections?.phase || "");
+        const now = Date.now();
+        setTrainTimer(formatCountdown(storedTimers.train?.endTime, now));
+        setElectionTimer(formatCountdown(storedTimers.elections?.endTime, now));
+        setBankTimer(formatCountdown(storedTimers.bank?.endTime, now));
+    };
+
     const fetchTownData = async () => {
         try { 
             // Fetch settlement data
@@ -60,18 +73,6 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
             const frontierResponse = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
             setBankOffers(frontierResponse.data.bank?.offers || []);
 
-            // Get phases and timers from localStorage
-            const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
-            setBankPhase(storedTimers.bank?.phase || "");
-            setTrainPhase(storedTimers.train?.phase || "");
-            setElectionPhase(storedTimers.elections?.phase || "");
-
-            // Update timers
-            const now = Date.now();
-            setTrainTimer(formatCountdown(storedTimers.train?.endTime, now));
-            setElectionTimer(formatCountdown(storedTimers.elections?.endTime, now));
-            setBankTimer(formatCountdown(storedTimers.bank?.endTime, now));
-
         } catch (error) {
             console.error('Error fetching town data:', error);
         }
@@ -80,16 +81,15 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
     // Initial fetch and timer updates
     useEffect(() => {
         fetchTownData();
-        const interval = setInterval(fetchTownData, 1000);
-        return () => clearInterval(interval);
-    }, [currentPlayer]);
+        updateTimers();
+        const dataInterval = setInterval(fetchTownData, 30000);
+        const timerInterval = setInterval(updateTimers, 1000);
+        return () => { clearInterval(dataInterval); clearInterval(timerInterval); };
+    }, [currentPlayer?.settlementId, currentPlayer?.frontierId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <Modal 
-            onClose={onClose} 
-            className="modal-TownNews"
-            size="standard"
-        >
+        <Panel onClose={onClose} panelName="TownNewsPanel" title={strings[5040]}>
+          <div className="town-news-panel">
             <h3>{strings["1501"]} "{settlementName || "..."}"</h3>
             
             {mayor ? (
@@ -134,8 +134,9 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
             {bankPhase === "refreshing" && (
                 <p>{strings["1511"]}</p>
             )}
-        </Modal>
+          </div>
+        </Panel>
     );
 }
 
-export default TownNews;
+export default TownNewsPanel;

@@ -236,6 +236,12 @@ body {
 .season-button:hover { background-color: var(--color-button-hover); }
 .season-button:active { transform: scale(0.92); }
 
+/* TOWN NEWS: the season button's twin, right under it; toggles the Town News panel */
+.season-controls.news-controls {
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
+}
+.season-button.news-button.selected { background-color: var(--color-button-hover); }
+
 /* MAP: one round button under the zoom pill, the season button's twin; toggles the Map panel */
 
 .map-controls {

@@ -91,7 +91,7 @@ value rather than trust this page.
   it scrolls; the fade disappears at the end so the last line is never dimmed. Nothing to
   wire per panel; a new panel gets it as long as its scroller is a real `overflow-y: auto`
   box rather than the window.
-- Right panels (desktop only): How to Play, Season and Leaders are `RIGHT_PANELS` in
+- Right panels (desktop only): How to Play, Season, Leaders and Town News are `RIGHT_PANELS` in
   `UI/Panels/Panel.js` and get `panel-container--right`: the same box docked at the window's
   right edge, sliding in and out from the right. On phones every panel is a left panel
   (`mobile.css` overrides the class). Add a panel to that set to make it a right panel.
@@ -120,8 +120,11 @@ value rather than trust this page.
   zoom pill on desktop and in portrait, under the season button in landscape (zoom lives in
   the header there). It toggles the Map panel (a second tap closes it); on phones it sits
   behind an open panel like the zoom pill, so the panel's × or a board tap closes it there.
+  The Town News button (`.season-controls.news-controls`, 📰, toggles `UI/Panels/TownNewsPanel.js`)
+  sits right under the season button on desktop and in portrait, and under the map button in
+  landscape (BL-11).
 - The Map panel (`ZoomedOut/MapPanel.js`, formerly the base panel / Home sheet) is an
-  ordinary `Panel`: map, range note, Town News, feedback links, plus the keyboard Controls
+  ordinary `Panel`: map, range note, feedback links, plus the keyboard Controls
   text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, shared by the Map panel and the
   bottom of the Settings panel.

@@ -243,6 +243,10 @@
   .map-button { width: 40px; height: 40px; margin: 4px; font-size: 22px; }
   .map-button .nav-icon { width: 26px; height: 26px; }
 
+  /* ---------- town news: under the season button (landscape moves it under the map button,
+     which takes this spot there) ---------- */
+  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 48px + var(--m-gap)); }
+
   /* ---------- zoom: two stacked round buttons (placed per orientation) ---------- */
   .zoom-controls {
     position: fixed;
@@ -603,6 +607,7 @@
     right: var(--m-gap);
     left: auto;
   }
+  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 2 * (48px + var(--m-gap))); }
 
   /* the pill, vertical at the left, from just under the status bar */
   .nav-column {

@@ -5,7 +5,7 @@ import { useStrings } from '../StringsContext';
 
 // Panels that fly in from the RIGHT edge on desktop (docs/ui-conventions.md). Phones keep every
 // panel on the left: mobile.css overrides the class.
-const RIGHT_PANELS = new Set(['HowToPanel', 'SeasonPanel', 'LeaderboardPanel']);
+const RIGHT_PANELS = new Set(['HowToPanel', 'SeasonPanel', 'LeaderboardPanel', 'TownNewsPanel']);
 
 const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }) => {
   const strings = useStrings();
