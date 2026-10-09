@@ -4,6 +4,7 @@ import { calculateGemPurchase } from '../../Economy/GemCosts';
 import { useStrings } from '../StringsContext';
 import { usePanelContext } from '../Panels/PanelContext';
 import { formatNumber } from '../Timers';
+import { canHover } from '../../Utils/inputMode';
 import './ResourceButton.css';
 
 // Function to format numbers in HTML details strings
@@ -68,6 +69,9 @@ const ResourceButton = ({
   const [showGemTooltip, setShowGemTooltip] = useState(false);
   const [gemTooltipPosition, setGemTooltipPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
+  // Touch screens get no hovertips: the ℹ️ badge is dropped and the gem cost is printed on the
+  // gem button itself (it is also shown on desktop, where the tooltip adds the breakdown).
+  const hoverTips = canHover();
   
   // Only create gem calculation when we have gem functionality enabled
   const shouldCalculateGem = !!(resource && inventory && backpack && masterResources && currentPlayer && onGemPurchase && (gemCost || resource?.gemcost));
@@ -204,7 +208,7 @@ const ResourceButton = ({
           {children}
           
           {/* ✅ Hide "ℹ️" info button when `hideInfo` is true */}
-          {!hideInfo && info && (
+          {!hideInfo && info && hoverTips && (
             <span
               className="info-button"
               onMouseEnter={(event) => {
@@ -227,19 +231,20 @@ const ResourceButton = ({
             className="gem-button"
             onClick={handleGemClick}
             onMouseEnter={(event) => {
+              if (!hoverTips) return;
               setShowGemTooltip(true);
               updateGemTooltipPosition(event);
             }}
-            onMouseMove={updateGemTooltipPosition}
+            onMouseMove={(event) => { if (hoverTips) updateGemTooltipPosition(event); }}
             onMouseLeave={() => setShowGemTooltip(false)}
           >
-            💎
+            💎{gemCalculation.gemCost != null ? <span className="gem-button-cost">{formatNumber(gemCalculation.gemCost)}</span> : null}
           </span>
         )}
       </div>
 
       {/* ✅ Render info toaster inside `document.body` for proper layering */}
-      {showInfo && info && ReactDOM.createPortal(
+      {showInfo && info && hoverTips && ReactDOM.createPortal(
         <div
           className="info-toaster"
           style={{
@@ -258,7 +263,7 @@ const ResourceButton = ({
       )}
 
       {/* ✅ Render gem tooltip inside `document.body` for proper layering */}
-      {showGemTooltip && gemCalculation && ReactDOM.createPortal(
+      {showGemTooltip && gemCalculation && hoverTips && ReactDOM.createPortal(
         <div
           style={{
             top: gemTooltipPosition.top,

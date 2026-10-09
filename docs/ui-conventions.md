@@ -163,6 +163,13 @@ value rather than trust this page.
   sticks after a tap, so an unguarded hover colour (the ResourceButton's is near-white) leaves a
   tapped button looking spent until something else is tapped (BL-3). A transaction-mode button
   stays locked until its handler returns, so do not await follow-up refreshes inside it.
+- No hovertips on touch screens (BL-4). Every hover tooltip checks `canHover()`
+  (`Utils/inputMode.js`) before it opens; touch browsers fake mouseenter on a tap, so an
+  unguarded tip pops up under the finger and sticks. Whatever a tip says that the player needs
+  goes on the control itself: the gem button prints its cost (`💎12`, every layout), the
+  crafting station prints the next slot's unlock cost under the slots, a trophy card prints
+  how to earn it. The ℹ️ badge on resource buttons is desktop only. The board's long-press
+  tooltip is a touch gesture, not a hovertip, and stays.
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

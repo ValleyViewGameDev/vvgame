@@ -197,6 +197,12 @@
   }
 }
 
+/* The purchase's gem cost, printed on the button (touch screens have no gem hovertip) */
+.gem-button-cost {
+  margin-left: 3px;
+  font-weight: bold;
+}
+
 .gem-button.disabled {
   background-color: var(--color-text-muted);
   cursor: not-allowed;

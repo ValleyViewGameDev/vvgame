@@ -1,4 +1,5 @@
 import API_BASE from '../../config.js';
+import { canHover } from '../../Utils/inputMode';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
@@ -738,7 +739,7 @@ function KentPanel({
                                         <div
                                           key={itemIdx}
                                           className="kent-multi-item-cell"
-                                          onMouseEnter={(e) => setItemTooltip({
+                                          onMouseEnter={(e) => canHover() && setItemTooltip({
                                             show: true,
                                             itemName: getLocalizedString(item.item, strings),
                                             top: e.clientY + window.scrollY + 10,
@@ -770,7 +771,7 @@ function KentPanel({
                                   <>
                                     <div
                                       className="kent-single-item-cell"
-                                      onMouseEnter={(e) => setItemTooltip({
+                                      onMouseEnter={(e) => canHover() && setItemTooltip({
                                         show: true,
                                         itemName: getLocalizedString(itemsWithQty[0].item, strings),
                                         top: e.clientY + window.scrollY + 10,

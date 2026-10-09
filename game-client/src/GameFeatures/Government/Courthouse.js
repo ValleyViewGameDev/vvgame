@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { canHover } from '../../Utils/inputMode';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
@@ -709,6 +710,7 @@ const CourthousePanel = ({
                                             key={candidate.playerId || index}
                                             className="candidate-row"
                                             onMouseEnter={(e) => {
+                                                if (!canHover()) return;
                                                 setHoveredCandidate(candidate.playerId);
                                                 setTooltipPosition({
                                                     x: e.clientX + 10,

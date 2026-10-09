@@ -33,3 +33,15 @@ export function withTouchVariants(file) {
     },
   });
 }
+
+/**
+ * Does the primary pointer really hover (a mouse or trackpad)? Hover tooltips are desktop
+ * only: on a touch screen the browser fakes mouseenter/mousemove on every tap, so a hovertip
+ * pops up under the finger and sticks. Every hover tooltip checks this before opening, and
+ * anything a tooltip says that the player needs (a gem cost, an unlock cost) is printed on
+ * the control itself when this is false (docs/ui-conventions.md §5).
+ */
+export function canHover() {
+  if (typeof window === 'undefined' || !window.matchMedia) return true;
+  return window.matchMedia('(hover: hover)').matches;
+}

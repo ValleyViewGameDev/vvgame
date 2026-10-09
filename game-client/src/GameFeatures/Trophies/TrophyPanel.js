@@ -7,6 +7,7 @@ import './TrophyPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
+import { canHover } from '../../Utils/inputMode';
 
 // Matches the trophyGemFloat animation in TrophyPanel.css.
 const GEM_FLOAT_MS = 1800;
@@ -219,6 +220,10 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                         <div className="trophy-name">
                                             {getLocalizedString(trophyDef.name, strings)}
                                         </div>
+                                        {/* Touch screens have no hovertip: how to earn it is printed on the card */}
+                                        {!canHover() && trophyDef.tooltip && (
+                                            <div className="trophy-hint">{trophyDef.tooltip}</div>
+                                        )}
                                         {trophyDef.type === 'Progress' && progressInfo && (
                                             <div className="trophy-progress-container">
                                                 <div className="progress-text">

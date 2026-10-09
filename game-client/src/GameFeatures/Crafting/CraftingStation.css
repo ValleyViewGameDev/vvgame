@@ -61,6 +61,16 @@
   border-radius: 5px;
 }
 
+.crafting-slot-unlock-cost {
+  margin-top: 6px;
+  font-size: 12px;
+  font-family: var(--font-text-1-family);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+.crafting-slot-unlock-cost .sufficient { color: var(--color-success); }
+.crafting-slot-unlock-cost .insufficient { color: var(--color-error, #c62828); }
+
 .crafting-slots-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

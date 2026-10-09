@@ -3,6 +3,7 @@ import { Application, Container, Graphics, Text, Sprite, Texture } from 'pixi.js
 import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
 import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
+import { canHover } from '../../Utils/inputMode';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
@@ -1595,8 +1596,9 @@ const PixiRenderer = ({
     // Update hovered tile for cursor highlight
     setHoveredTile({ row, col });
 
-    // Skip tooltip handling if no setHoverTooltip provided
-    if (!setHoverTooltip) return;
+    // Skip tooltip handling if no setHoverTooltip provided. Touch screens fake a mousemove on
+    // every tap, so they never get the hover tooltip here (the long-press tooltip is theirs).
+    if (!setHoverTooltip || !canHover()) return;
 
     // Check for NPC at this position first (they render on top); enemies by their sprite
     const hostile = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top);

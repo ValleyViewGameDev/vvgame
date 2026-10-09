@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { canHover } from '../../Utils/inputMode';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import React, { useState, useEffect, useContext, useMemo } from 'react';
 import ReactDOM from 'react-dom';
@@ -21,7 +22,7 @@ import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
-import { formatDuration, formatCompactCountdown } from '../../UI/Timers';
+import { formatDuration, formatCompactCountdown, formatNumber } from '../../UI/Timers';
 import { getMayorUsername } from '../Government/GovUtils';
 import './CraftingStation.css'; // Import for crafting station panel and slot styles
 
@@ -745,8 +746,8 @@ const CraftingStation = ({
             {skillBonusInfo.hasSkills && (
               <div
                 className="output-multiplier-badge"
-                onMouseEnter={updateOutputTooltipPosition}
-                onMouseMove={updateOutputTooltipPosition}
+                onMouseEnter={(e) => canHover() && updateOutputTooltipPosition(e)}
+                onMouseMove={(e) => canHover() && updateOutputTooltipPosition(e)}
                 onMouseLeave={() => setOutputTooltip({ show: false, top: 0, left: 0 })}
               >
                 {strings[807] || 'Output'}: {skillBonusInfo.multiplier}x
@@ -802,8 +803,8 @@ const CraftingStation = ({
                             <div className="crafting-slot-wrapper" key={i}>
                               <div
                                 className={`crafting-slot ${isUnlocked ? 'unlocked' : 'locked'} ${!isUnlocked && isNextSlot ? 'clickable' : ''} ${!isUnlocked && canAffordSlot && isNextSlot ? 'affordable' : ''} ${slotIsCrafting ? 'crafting' : ''} ${slotIsReady ? 'ready' : ''}`}
-                                onMouseEnter={(e) => updateSlotTooltipPosition(e, i)}
-                                onMouseMove={(e) => updateSlotTooltipPosition(e, i)}
+                                onMouseEnter={(e) => canHover() && updateSlotTooltipPosition(e, i)}
+                                onMouseMove={(e) => canHover() && updateSlotTooltipPosition(e, i)}
                                 onMouseLeave={() => setSlotTooltip({ show: false, slotIndex: null, top: 0, left: 0 })}
                                 onClick={() => {
                                   if (!isUnlocked && isNextSlot && !isUpgrading) {
@@ -848,6 +849,28 @@ const CraftingStation = ({
                       </div>
                     );
                   })}
+                  {/* Touch screens have no slot hovertip, so the next slot's unlock cost is
+                      printed under the slots (have / need, red when short). */}
+                  {!canHover() && stationLevel + 1 < maxSlots && (() => {
+                    const costs = globalTuning?.craftingStationSlotCosts?.[`slot${stationLevel + 1}`];
+                    const entries = costs ? Object.entries(costs).filter(([, v]) => v > 0) : [];
+                    if (entries.length === 0) return null;
+                    return (
+                      <div className="crafting-slot-unlock-cost">
+                        &#x1F512; {strings[175] || 'Unlock for'}{' '}
+                        {entries.map(([resourceType, qty], idx) => {
+                          const symbol = masterResources?.find(r => r.type === resourceType)?.symbol || '';
+                          const playerQty = (inventory?.find(item => item.type === resourceType)?.quantity || 0)
+                            + ((Array.isArray(backpack) ? backpack : []).find(item => item.type === resourceType)?.quantity || 0);
+                          return (
+                            <span key={resourceType} className={playerQty >= qty ? 'sufficient' : 'insufficient'}>
+                              {idx > 0 ? ', ' : ''}{symbol} {formatNumber(qty)} / {formatNumber(playerQty)}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })()}
