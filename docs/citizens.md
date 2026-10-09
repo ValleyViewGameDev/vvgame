@@ -11,7 +11,7 @@ before the behaviours are built. Code: `game-client/src/GameFeatures/NPCs/NPCCit
 
 - **One brain** for the four actions (`NPCCitizenBehavior.js`), the **state loop** with
   per-type lengths, the **waiting** interrupt (quest/trade/heal), **Zzz** while resting
-  (`VFX/NPCVFX.js`, the generic headline effect; waiting shows 💬, eating 🍽️).
+  (`VFX/NPCVFX.js`, the generic headline effect; waiting shows rising "?"s, eating 🍽️).
 - **Persistence:** `citizenState`, `citizenStateUntil`, `citizenTask`, `homeX`, `homeY` ride
   on the NPC record (`save-single-npc`; the grid model's NPC sub-schema declares them), so a
   citizen resumes the same state with the time left, like a Farm Animal's `grazeEnd`.
@@ -28,7 +28,9 @@ before the behaviours are built. Code: `game-client/src/GameFeatures/NPCs/NPCCit
   (`handleSourceConversion`) → walk onto the wood and collect it (`handleDooberClick`) →
   walk to the Warehouse → next tree; warehouse full before a chop = FAIL → resting.
   Rancher = nearest ready animal → collect (`handleNPCClick`); none → next state. Farm Hand
-  = nearest grown crop doober → collect; none → next state. Crafter = nearest crafting
+  = nearest grown crop doober → collect → replant the same crop on the same tile at once
+  (`handleFarmPlotPlacement`, seeds spent as when the player plants; repeatable crops are
+  replanted free by `handleDooberClick`; no seeds = the tile stays empty); none → next state. Crafter = nearest crafting
   station with a finished slot → collect (`executeBulkCrafting` for that station); none →
   next state. All through the player's own code paths with the live React context App
   registers each render (`setCitizenContext`).
@@ -82,7 +84,7 @@ Workers have 0 socializing. Lengths vary per worker type.
 
 **Rancher**: as the Lumberjack, but work = route to the nearest Farm Animal that is ready and
 harvest it; if none is ready, forced into the next state (resting).
-**Farm Hand**: work = crop harvesting. **Crafter**: work = any Crafting Station ready to
+**Farm Hand**: work = crop harvesting, each harvest followed by a replant (owner, 2026-10-09). **Crafter**: work = any Crafting Station ready to
 collect.
 
 The Bulk commands on workers stay for the player; this loop is the idle game that runs while

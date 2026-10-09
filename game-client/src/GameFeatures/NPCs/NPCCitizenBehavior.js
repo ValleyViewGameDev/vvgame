@@ -19,7 +19,8 @@
  *   working  Lumberjack: nearest tree -> chop -> collect the wood -> walk it to the Warehouse
  *            -> next tree, until the clock runs out; warehouse full = the state FAILS -> rest.
  *            Rancher: nearest ready Farm Animal -> collect; none ready -> next state.
- *            Farm Hand: nearest grown crop -> collect; none -> next state.
+ *            Farm Hand: nearest grown crop -> collect -> replant it on the same tile (seeds
+ *            spent as when the player plants; repeatable crops replant themselves); none -> next.
  *            Crafter: nearest crafting station with a finished slot -> collect; none -> next.
  *   resting  route onto the worker's own slot (Farm Hand Slot …, the haybale) and stand, Zzz.
  *   roaming  leashed wander around home (Track 3a legs and pauses).
@@ -42,6 +43,7 @@ import { hasRoomFor } from '../../Utils/InventoryManagement';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { handleDooberClick, handleSourceConversion } from '../../ResourceClicking';
 import { handleNPCClick } from './NPCUtils';
+import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { prepareBulkCraftingData, executeBulkCrafting } from '../FarmHands/BulkCrafting';
 import { createCollectEffect } from '../../VFX/VFX';
 import { startHeadlineEffect, stopHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
@@ -56,7 +58,7 @@ const ROAM_LEASH = 4;     // tiles a worker wanders from its slot while roaming
 const EAT_FAIL_MS = 20000; // give up on a food target you cannot reach after this long
 
 const STATE_FIELD = { working: 'stateWorking', resting: 'stateResting', roaming: 'stateRoaming', eating: 'stateEating', socializing: 'stateSocializing' };
-const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'emoji', emoji: '💬' }, eating: { type: 'emoji', emoji: '🍽️' } };
+const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'emoji', emoji: '?' }, eating: { type: 'emoji', emoji: '🍽️' } };
 
 // ---------------------------------------------------------------- context from App
 let ctx = null; // { currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources, updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE, openPanel, masterTrophies }
@@ -179,6 +181,26 @@ async function collectDoober(doober, gridId) {
     c.currentPlayer?.skills || [], gridId, FloatingTextManager.addFloatingText, c.TILE_SIZE, c.currentPlayer, c.setCurrentPlayer, c.updateStatus, c.masterResources, c.masterSkills, c.strings, noop, c.globalTuning, c.masterTrophies);
   return true;
 }
+/**
+ * Replant the crop a worker just harvested, on the same tile, through the player's own
+ * planting path (Farming.handleFarmPlotPlacement: the seed / ingredient cost is spent, the
+ * grow timer starts, the server confirms or it rolls back). A repeatable crop has already
+ * been replanted for free by handleDooberClick, so it is skipped. Reads `ctx` AFTER the
+ * harvest's awaits, so the inventory it spends from already holds the harvested crop.
+ */
+async function replantCrop(crop, gridId) {
+  const c = ctx; if (!c) return false;
+  const master = c.masterResources || [];
+  if (crop.repeatable === true || masterOf(crop.type)?.repeatable === true) return true;
+  const plot = master.find((r) => r.category === 'farmplot' && r.output === crop.type);
+  if (!plot) return false;
+  return handleFarmPlotPlacement({
+    selectedItem: plot, TILE_SIZE: c.TILE_SIZE, resources: GlobalGridStateTilesAndResources.getResources() || [], setResources: c.setResources,
+    currentPlayer: c.currentPlayer, setCurrentPlayer: c.setCurrentPlayer, inventory: c.inventory || [], setInventory: c.setInventory,
+    backpack: c.backpack || [], setBackpack: c.setBackpack, gridId, masterResources: master, masterSkills: c.masterSkills,
+    updateStatus: c.updateStatus || noop, overridePosition: { x: crop.x, y: crop.y }, strings: c.strings,
+  });
+}
 async function collectAnimal(animal, gridId) {
   const c = ctx; if (!c) return false;
   await handleNPCClick(animal, Math.floor(animal.position.y), Math.floor(animal.position.x), c.setInventory, c.setBackpack, c.setResources, c.currentPlayer, c.setCurrentPlayer,
@@ -250,7 +272,12 @@ async function workTick(npc, gridId, tiles, resources, npcs) {
       if (!crop) return 'done';
       if (!warehouseHasRoom(crop.type, crop.qtycollected || 1)) return 'failed';
       const r = walkTo(npc, crop.x, crop.y, tiles, resources, npcs);
-      if (r === 'arrived') await collectDoober(crop, gridId);
+      if (r === 'arrived') {
+        // each harvest is followed at once by a replant of the same crop on the same tile
+        const harvested = { x: crop.x, y: crop.y, type: crop.type, repeatable: crop.repeatable };
+        await collectDoober(crop, gridId);
+        await replantCrop(harvested, gridId);
+      }
       else if (r === 'blocked') return 'done';
       return 'busy';
     }
