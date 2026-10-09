@@ -22,8 +22,48 @@ const updateThisNPC = async function(gridId) {
   await NPCsInGridManager.updateNPC(gridId, this.id, {
     state: this.state,
     position: this.position,
+    homeX: this.homeX,
+    homeY: this.homeY,
   });
 };
+
+/**
+ * Track 3b (docs/audits/combat-and-npc-review-2026-10-07.md): an Enemy roams inside a LEASH
+ * around a HOME tile, and the home MOVES. The first home is where the enemy first stands (its
+ * layout tile, or the Spawner's spawn tile). When it gives up on the player (sight lost, the
+ * chase times out, the player dies, camps or leaves) it does not walk back: it re-anchors
+ * where it is and roams there, so a player can lure enemies away from a corridor, a spawner or
+ * a door, and a dungeon slowly rearranges itself (it resets lazily anyway). Home rides on the
+ * NPC record (homeX / homeY), like a Citizen's. No maximum drift, no drifting back (owner's
+ * open points, defaulted 2026-10-09).
+ */
+const ENEMY_LEASH = 4; // tiles; a template may override with `leashradius` in resources.json
+
+function enemyLeashRadius(npc) {
+  const r = Number(npc.leashradius);
+  return r > 0 ? r : ENEMY_LEASH;
+}
+
+function hasHome(npc) {
+  return Number.isInteger(npc.homeX) && Number.isInteger(npc.homeY);
+}
+
+/** Make the enemy's current tile its home (first sight of it, or it lost the player). */
+function anchorHere(npc) {
+  npc.homeX = Math.floor(npc.position.x);
+  npc.homeY = Math.floor(npc.position.y);
+  npc.leash = { home: { x: npc.homeX, y: npc.homeY }, radius: enemyLeashRadius(npc) };
+}
+
+/** Stop chasing and settle where it stands. */
+async function giveUpAndReanchor(npc, gridId) {
+  npc.state = 'roam';
+  npc.pursueTimerStart = null;
+  npc.targetPC = null;
+  npc.path = null;
+  anchorHere(npc);
+  await updateThisNPC.call(npc, gridId);
+}
 
 async function handleEnemyBehavior(gridId, TILE_SIZE) {
   //console.log(`🐺 NPC ${this.id} handling enemy behavior on grid ${gridId}.`);
@@ -33,9 +73,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   // Single-PC store: the only PC on the grid is the local player (if present)
   const localPC = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0] || null;
 
+  // First tick on this grid: the tile it stands on is its home (persisted with the state)
+  const firstHome = !hasHome(this);
+  if (firstHome) anchorHere(this);
+  else if (!this.leash) this.leash = { home: { x: this.homeX, y: this.homeY }, radius: enemyLeashRadius(this) };
+
   // Force initial state to roam if not set
-  if (!this.state || this.state === 'idle') {
-    this.state = 'roam';
+  if (!this.state || this.state === 'idle' || firstHome) {
+    if (!this.state || this.state === 'idle') this.state = 'roam';
     await updateThisNPC.call(this, gridId);
   }
  
@@ -71,22 +116,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
     case 'pursue': {
       this.targetPC = refreshTarget(this.targetPC, localPC); // Refresh position from latest state
-      if (!this.targetPC) {
-        //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
-        this.state = 'roam';
-        this.pursueTimerStart = null;
-        await updateThisNPC.call(this, gridId); // Save after transition
+      if (!this.targetPC || this.targetPC.hp <= 0 || this.targetPC.iscamping) {
+        await giveUpAndReanchor(this, gridId);
         break;
       }
-      
-      // First check if we can still see the target at all
-      const canStillSeeTarget = canSeeTarget(this.position, this.targetPC.position);
-      if (!canStillSeeTarget) {
-        console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} during pursuit. Returning to roam.`);
-        this.state = 'roam';
-        this.pursueTimerStart = null;
-        this.targetPC = null;
-        await updateThisNPC.call(this, gridId);
+
+      // Lost sight of the player: settle here (a new home, not the old one)
+      if (!canSeeTarget(this.position, this.targetPC.position)) {
+        await giveUpAndReanchor(this, gridId);
         break;
       }
       
@@ -107,18 +144,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       // Give up if: 
       // 1. Target is too far AND we've been chasing for a while, OR
       // 2. We can't see the target anymore (behind wall)
-      const canSeeTargetNow = canSeeTarget(this.position, this.targetPC.position);
-      
-      if ((distance > this.range * 2 && timeSincePursueStart > 5000) || !canSeeTargetNow) {
-        if (!canSeeTargetNow) {
-          console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} (wall blocking). Giving up pursuit.`);
-        } else {
-          console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username} (too far).`);
-        }
-        this.state = 'roam';
-        this.pursueTimerStart = null;
-        this.targetPC = null;
-        await updateThisNPC.call(this, gridId);
+      if (distance > this.range * 2 && timeSincePursueStart > 5000) {
+        await giveUpAndReanchor(this, gridId); // the chase timed out: settle where it gave up
         break;
       }
 
@@ -167,17 +194,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     case 'attack': {
       this.targetPC = refreshTarget(this.targetPC, localPC); // Refresh position from latest state
 
-      if (!this.targetPC) {
-        //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
-        this.pursueTimerStart = null;
-        this.state = 'roam';
-        await updateThisNPC.call(this, gridId); // Save after transition
+      if (!this.targetPC || this.targetPC.hp <= 0 || this.targetPC.iscamping) {
+        await giveUpAndReanchor(this, gridId); // gone, dead or camping
         break;
-      }
-      if (this.targetPC.hp <= 0 || this.targetPC.iscamping) {
-        this.state = 'roam';
-        await updateThisNPC.call(this, gridId);
-        break; // ✅ Skip PCs that are dead or camping
       }
       const distanceToTarget = reach(this.position, this.targetPC.position);
       if (distanceToTarget > this.attackrange) {
@@ -200,6 +219,11 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
     case 'roam': {
       this.pursueTimerStart = null;
+      const here = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
+      if (Math.max(Math.abs(here.x - this.leash.home.x), Math.abs(here.y - this.leash.home.y)) > this.leash.radius) {
+        anchorHere(this); // drifted out (an unstick wander): this is home now
+        await updateThisNPC.call(this, gridId);
+      }
       await this.handleRoamState(tiles, resources, npcs, () => {
         // Don't change state - stay in roam
         // This callback is called after roam completes, but we just continue roaming

@@ -13,7 +13,7 @@ citizen brains and a tuning pass. Parent document with file:line findings:
 `docs/audits/combat-and-npc-review-2026-10-07.md`. NPC kinds (owner, 2026-10-08): Enemies
 (`attack`), Spawners (`spawn`), Citizens (`quest`/`trade`/`heal`/`worker`) and Farm Animals
 (`graze`). Tracks: 1 action loop (built), 2 kill route (built), 3a movement feel (built),
-3b Enemies with a movable home + leash, 4 Citizens (shared idle/roam, then motives/habits),
+3b Enemies with a movable home + leash (built 2026-10-09), 4 Citizens (shared idle/roam, then motives/habits),
 5 tuning.
 
 **Owner's framing.** Casual, timing-game combat with strong board feedback and little UI to
@@ -22,7 +22,7 @@ read as alive (per-NPC cadence, pauses, home anchors, A\*); town "brains" (motiv
 little stories, lighter than SimGame) as the even-more-future track; enemies get a simpler
 brain.
 
-**Next.** Track 3b (Enemies), then Track 4 (Citizens).
+**Next.** The rest of Track 4 (Citizens: motives, schedules, stories), then Track 5 (tuning).
 
 ### EPIC: Build the World ("World", opened 2026-10-09)
 

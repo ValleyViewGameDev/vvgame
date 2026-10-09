@@ -382,6 +382,16 @@ by every kind. **BUILT 2026-10-08** (see the status note at the end of this sect
 
 ### Track 3b. Enemies: a creature brain with a movable home
 
+**BUILT 2026-10-09** (`GameFeatures/NPCs/NPCEnemyBehavior.js`): home = the tile the enemy first
+stands on (layout or spawn tile), saved as `homeX`/`homeY` on the NPC record; roam stays inside
+a leash of 4 tiles (a template's `leashradius` overrides); pursuit walks the A\* route
+(`followPath`, ends beside the player, diagonals as the keyboard allows); giving up for ANY
+reason (sight lost, chase timed out, player gone / dead / camping) re-anchors home where it
+stands; an enemy found outside its leash (after an unstick wander) re-anchors too. Open points
+defaulted: no maximum drift, no drifting back, Spawners unchanged. Not done: a pursuit speed
+that can close on the player (enemies step at `movespeed`, 0.6-2.2 tiles/s; the player walks
+~11), which is tuning (Track 5).
+
 Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor MOVES.
 
 - Each Enemy gets a **home tile** (its spawn/layout position) and a **leash** radius; roam
@@ -446,7 +456,7 @@ or be deleted. Follow docs/tuning.md.
 1. **Track 1** (client action loop). Built 2026-10-07.
 2. **The kill route from Track 2.** Built 2026-10-08.
 3. **Track 3a** (movement feel, all kinds). Built 2026-10-08.
-4. **Track 3b** (Enemies: movable home + leash, A\* pursuit).
+4. **Track 3b** (Enemies: movable home + leash, A\* pursuit). Built 2026-10-09.
 5. **Track 4** (Citizens: shared idle/roam, then motives and habits). State loop, workers, eating, socializing built 2026-10-09; motives remain.
 6. **Track 5** tuning, once the loops exist to tune against.
 
