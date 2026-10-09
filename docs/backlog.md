@@ -24,6 +24,62 @@ brain.
 
 **Next.** Track 3b (Enemies), then Track 4 (Citizens).
 
+### EPIC: Build the World ("World", opened 2026-10-09)
+
+Added 2026-10-09.
+
+**What.** Make the world itself the content: finished and more interesting grid templates,
+final Regions that matter to play, the Citizens' storylines tied off, and stronger reasons to
+explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-only).
+
+- **W-1. Write `docs/world-design.md`.** The design doc this epic needs: regions, template
+  inventory, storylines, exploration motivations. Not written yet.
+- **W-2. Finish all the grid templates.** Every grid that still lacks a template gets one.
+- **W-3. Iterate on existing templates** to create more interesting scenarios.
+- **W-4. Finalize all the Regions.**
+- **W-5. Region names as persistent floating UI**, not only the toasts shown on entering or
+  leaving a Region.
+- **W-6. Make Regions matter more to gameplay.**
+- **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
+  epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
+  side; this is the story side.
+- **W-8. Better surface the Quest for Hope** and create more motivations for players to explore.
+  The Quest for Hope UI must let players tap an uncollected item to see what it is (added
+  2026-10-09).
+- **W-9. Valley shops stock different goods** (added 2026-10-09). Buildings in the Valley
+  (Armory, Magic Shop, ...) currently all sell the same items. Give each its own stock, so that
+  finding a new mini-Town in the Valley, D&D style, makes you want to check its shops for new
+  and interesting things to buy.
+
+### EPIC: UI Updates ("UI", opened 2026-10-09)
+
+Added 2026-10-09.
+
+**What.** Interface polish across the HUD and panels. Tasks are numbered UI-n (append-only).
+
+- **UI-1. Timers and notifications on the HUD buttons** such as Season and Town News.
+- **UI-2. Revise the Town News panel to be more interesting:** show goods with their icons, as
+  other UIs do, and give the timers a different color.
+- **UI-3. Discord button on the How to Play panel, under the Email button;** then remove Email
+  and Discord from the Map panel (formerly the base panel).
+
+Already-built UI items that belong here (built 2026-10-08 on `backlog/bl-2-13`, awaiting a
+live check; their entries stay below): BL-2, BL-3, BL-4, BL-9, BL-10, BL-11, BL-12, BL-13.
+
+### EPIC: Spells (opened 2026-10-09)
+
+Added 2026-10-09.
+
+**What.** A third kind of combat item after Weapons and Armor: Spells, including consumables.
+Related to the NPC / Combat epic (combat loop, `GameFeatures/Combat/Combat.js`). Tasks are
+numbered SP-n (append-only).
+
+- **SP-1. Spells as a combat function**, alongside weapons and armor, including consumable
+  spells.
+- **SP-2. The spells themselves** (the set of spells and what each does).
+- **SP-3. Spell VFX.**
+- **SP-4. Spells for sale at the Magic Shop.**
+
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
 **DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.

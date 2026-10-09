@@ -14,6 +14,7 @@
  * Rendering strategy by settlement type:
  * - homesteadSet: 8×8 mini-grid showing 🏠 for owned homesteads, dirt bg for unowned
  * - valley0Set-3Set: 8×8 mini-grid of tree emojis (🌳 or 🌲)
+ * - Visited town/valley grids (any settlement): a tile thumbnail instead of the icon (frontierThumbnails.js)
  * - Current settlement: Skipped - rendered by PixiRendererSettlementGrids
  * - Padding settlements (row/col < 0 or >= 8): Solid gray (not playable)
  */
@@ -21,6 +22,7 @@
 import React, { useMemo } from 'react';
 import { WORLD_PADDING_SETTLEMENTS, SETTLEMENTS_PER_FRONTIER } from './UnifiedCamera';
 import { isGridVisited } from '../../Utils/gridsVisitedUtils';
+import { useFrontierThumbnails, settlementThumbnailImage } from './frontierThumbnails';
 
 // Background colors by settlement type
 const SETTLEMENT_COLORS = {
@@ -90,7 +92,7 @@ function getValleyTreeEmoji(settlementType) {
  * @param {Function} onGridClick - Callback when a grid cell is clicked (gridData, gridRow, gridCol, settlementRow, settlementCol)
  * @param {boolean} isRelocating - Whether in relocation mode (enables grid-level clicks)
  */
-function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating) {
+function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating, thumbCells) {
   const cells = [];
   const grids = settlementGridData?.grid?.flat() || [];
   const isValley = settlement?.settlementType?.startsWith('valley');
@@ -113,6 +115,8 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       if (grid?.gridId === currentPlayer?.location?.g) {
         content = currentPlayer.icon || '👤'; // Player is here
         cellBg = '#82bb4d'; // Green background for player location
+      } else if (thumbCells?.has(`${row}-${col}`)) {
+        // Visited town/valley: the settlement's thumbnail image shows through (frontierThumbnails.js)
       } else if (grid?.gridType === 'homestead' && grid.gridId) {
         content = '🏠'; // Owned homestead (a closed settlement's free cells are unavailable but empty)
         cellBg = '#82bb4d'; // Green background behind house emoji
@@ -126,7 +130,7 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       // Visited valley grids show empty (no tree) - the trees have been cleared
 
       // For homestead settlements without grid data, show dirt color
-      if (!isValley && !grid && settlement?.settlementType?.startsWith('homestead')) {
+      if (!isValley && !grid && settlement?.settlementType?.startsWith('homestead') && !thumbCells?.has(`${row}-${col}`)) {
         cellBg = '#c0834a';
       }
 
@@ -164,7 +168,7 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
 /**
  * Settlement cell component - renders one settlement as an 8×8 mini-grid
  */
-const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, screenScale = zoomScale, settlementRow, settlementCol, onGridClick, isRelocating = false }) => {
+const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, currentPlayer, zoomScale, screenScale = zoomScale, settlementRow, settlementCol, onGridClick, isRelocating = false, thumbnail = null }) => {
   const scaledSize = size * zoomScale;
   const bgColor = getSettlementBackgroundColor(settlement?.settlementType);
   const k = zoomScale / screenScale; // layout px per on-screen px
@@ -181,6 +185,10 @@ const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, cu
         width: scaledSize,
         height: scaledSize,
         backgroundColor: bgColor,
+        // Visited grids: one thumbnail image for the whole settlement, under the mini-grid's cells
+        backgroundImage: thumbnail ? `url(${thumbnail.url})` : undefined,
+        backgroundSize: '100% 100%',
+        imageRendering: 'pixelated',
         border: `${0.5 * k}px solid ${GRASS_BORDER}`,
         boxSizing: 'border-box',
         display: 'grid',
@@ -191,7 +199,7 @@ const FrontierSettlementCell = ({ x, y, size, settlement, settlementGridData, cu
         pointerEvents: isRelocating ? 'auto' : 'none',
       }}
     >
-      {renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating)}
+      {renderMiniGrid(settlement, settlementGridData, currentPlayer, settlementRow, settlementCol, onGridClick, isRelocating, thumbnail?.cells)}
     </div>
   );
 };
@@ -231,6 +239,7 @@ const PixiRendererFrontierSettlements = ({
 }) => {
   const currentRow = currentSettlementPosition?.row ?? 3;
   const currentCol = currentSettlementPosition?.col ?? 3;
+  const thumbnails = useFrontierThumbnails(isActive, currentPlayer);
 
   // UNIFIED WORLD MODEL: Use padding from UnifiedCamera to match scroll container
   const paddingSettlements = WORLD_PADDING_SETTLEMENTS;
@@ -329,6 +338,7 @@ const PixiRendererFrontierSettlements = ({
             settlementCol={col}
             onGridClick={onGridClick}
             isRelocating={isRelocating}
+            thumbnail={settlementThumbnailImage(thumbnails, row, col)}
           />
         );
       }
@@ -336,7 +346,7 @@ const PixiRendererFrontierSettlements = ({
 
     // Renders 8×8 settlements plus spillover padding for fixed player position camera
     return cells;
-  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, screenScale, isRelocating, onGridClick]);
+  }, [frontierData, currentRow, currentCol, settlementPixelSize, frontierSettlementGrids, currentPlayer, zoomScale, screenScale, isRelocating, onGridClick, thumbnails]);
 
   // Only render content when data is available
   // Content will smoothly appear when data loads rather than showing placeholders

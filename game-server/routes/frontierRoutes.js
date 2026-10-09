@@ -11,6 +11,8 @@ const tuningConfig = require('../tuning/globalTuning.json');
 const seasonConfig = require('../tuning/seasons.json');
 const { getTemplate } = require('../utils/templateUtils');
 const { ObjectId } = require("mongodb");
+const Player = require('../models/player');
+const { buildFrontierThumbnails, THUMB_SIZE } = require('../utils/gridThumbnails');
 
 // ========================
 // Coordinate Calculation
@@ -388,6 +390,28 @@ router.get('/frontier/:frontierId/seasonlog', async (req, res) => {
 
 
 // ✅ Bundled frontier data with settlement grids
+// GET /api/frontier-thumbnails/:frontierId?playerId= - small tile thumbnails for every town/valley grid
+// the player has visited anywhere in the frontier (utils/gridThumbnails.js), keyed by gridCoord
+router.get('/frontier-thumbnails/:frontierId', async (req, res) => {
+  try {
+    const { frontierId } = req.params;
+    const playerId = req.query?.playerId;
+    if (!playerId) return res.status(400).json({ error: 'playerId is required' });
+    const [frontier, player] = await Promise.all([
+      Frontier.findById(frontierId).select('settlements').lean(),
+      Player.findById(playerId).select('gridsVisited'),
+    ]);
+    if (!frontier || !player) return res.status(404).json({ error: 'Frontier or player not found' });
+    const settlementIds = frontier.settlements.flat().map((t) => t && t.settlementId).filter(Boolean);
+    const settlements = await Settlement.find({ _id: { $in: settlementIds } }).select('grids').lean();
+    const thumbs = await buildFrontierThumbnails(player, settlements);
+    res.json({ success: true, size: THUMB_SIZE, thumbs });
+  } catch (error) {
+    console.error('❌ Error in /frontier-thumbnails:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/frontier-bundle/:frontierId', async (req, res) => {
   try {
     const { frontierId } = req.params;
