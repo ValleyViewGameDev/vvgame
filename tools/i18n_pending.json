@@ -42,6 +42,34 @@
         "FR"
       ],
       "ts": "2026-10-07T18:00:00.000Z"
+    },
+    {
+      "key": "9005",
+      "en_old": "Use the A-W-S-D keys, the arrow keys, or click a tile to MOVE. Click to interact with things within your interaction radius.",
+      "en_new": "Use the A-W-S-D keys, the arrow keys, or click a tile to MOVE. Walk over an item to pick it up. Click to interact with things within your interaction radius.",
+      "langs": [
+        "FI",
+        "IT",
+        "NO",
+        "PT",
+        "RU",
+        "SV"
+      ],
+      "ts": "2026-10-09T00:13:09.000Z"
+    },
+    {
+      "key": "9005_touch",
+      "en_old": "Tap a tile to MOVE. Tap to interact with things within your interaction radius.",
+      "en_new": "Tap a tile to MOVE. Walk over an item to pick it up. Tap to interact with things within your interaction radius.",
+      "langs": [
+        "FI",
+        "IT",
+        "NO",
+        "PT",
+        "RU",
+        "SV"
+      ],
+      "ts": "2026-10-09T00:13:09.000Z"
     }
   ]
 }

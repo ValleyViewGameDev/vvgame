@@ -1,18 +1,19 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; // Importing the shared Panel component
 import { useStrings } from '../StringsContext';
-import { uiString } from '../../Utils/inputMode';
+import { EmailUsButton } from './FeedbackLinks';
 
 const HowToPanel = memo(({ onClose }) => {
   const strings = useStrings();
   return (
     <Panel onClose={onClose} descriptionKey="1018" titleKey="1118" panelName="HowToPanel">
       <div className="panel-content">
+        <EmailUsButton />
         <h2>{strings[9001]}</h2>
         <p>{strings[9002]}</p>
         <p>{strings[9003]}</p>
         <h3>{strings[9004]}</h3>
-        <p>{uiString(strings, 9005)}</p>
+        <p>{strings[9005]}</p>
         <p>{strings[9006]}</p>
         <p>{strings[9007]}</p>
         <h3>{strings[9008]}</h3>
