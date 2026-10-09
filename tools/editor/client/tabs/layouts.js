@@ -17,7 +17,7 @@ import { GridCanvas } from '../layouts/GridCanvas.js';
 
 const DIRS = ['valleyFixedCoord', 'town', 'dungeon', 'homestead', 'miniTemplates'];
 const GRID_TYPES = ['valley0', 'valley1', 'valley2', 'valley3', 'town', 'homestead', 'dungeon'];
-const SHORTCUT_HELP = 'Click: select. Click again: cycle tile. Letter keys paint the tile with the brush (g d s w p l n o x y z c v u). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
+const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g d s w p l n o x y z c v u). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
 
 const T = {
   idx: null, canvas: null, history: new History(50),
@@ -168,10 +168,8 @@ function renderEditor() {
   root.append(tb, el('div', { class: 'grid-body' }, [canvasWrap, tools]));
   T.canvas = new GridCanvas(canvasWrap, {
     idx: T.idx, tileColors,
-    onCellClick: (row, col) => {
-      if (T.selected && T.selected.row === row && T.selected.col === col) commit({ grid: M.cycleType(T.state.grid, row, col, T.idx) });
-      else select(row, col);
-    },
+    // A click only selects; tile types change through the letter keys (brush) or the tools (BL-8)
+    onCellClick: (row, col) => select(row, col),
   });
   T.canvas.setState({ grid: T.state.grid, selected: T.selected, tileSize: T.tileSize, brush: T.brush });
   renderTools();

@@ -109,14 +109,6 @@ export function setResource(grid, row, col, resourceType) {
   g[row][col].resource = resourceType || '';
   return g;
 }
-export function cycleType(grid, row, col, idx) {
-  const options = ['**', ...idx.tileLayoutKeys];
-  const g = cloneGrid(grid);
-  const i = options.indexOf(g[row][col].type);
-  g[row][col].type = options[(i + 1) % options.length];
-  return g;
-}
-
 /** Stamp a mini template with its top-left at (row, col); blank template cells leave the grid alone. */
 export function placeTemplate(grid, row, col, template, idx) {
   const g = cloneGrid(grid);
