@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
+import './BulkSelectModals.css';
 import { canAfford, gainIngredients, deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
 import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -152,148 +153,87 @@ export function BulkCraftingModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={strings[1109] || "Bulk Crafting"} size="large">
-      <div style={{ padding: '20px', fontSize: '16px' }}>
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-          <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
-            <button
-              className="btn-basic btn-success btn-modal-small"
-              onClick={selectAllCollect}
-            >
-              {strings[316] || 'Select All'}
-            </button>
-            <button
-              className="btn-basic btn-neutral btn-modal-small"
-              onClick={selectNoneCollect}
-            >
-              {strings[317] || 'Deselect All'}
-            </button>
+      <div className="bulk-select">
+        <div className="bulk-select-toolbar">
+          <div className="bulk-select-group">
+            {hasBulkRestartCraft && <span className="bulk-select-group-label">{strings[346] || 'Collect?'}</span>}
+            <div className="shared-buttons">
+              <button className="btn-basic btn-success btn-modal-small" onClick={selectAllCollect}>{strings[316] || 'Select All'}</button>
+              <button className="btn-basic btn-neutral btn-modal-small" onClick={selectNoneCollect}>{strings[317] || 'Deselect All'}</button>
+            </div>
           </div>
-
           {hasBulkRestartCraft && (
-            <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto', marginRight: '20px' }}>
-              <button
-                className="btn-basic btn-success btn-modal-small"
-                onClick={selectAllRestarts}
-              >
-                {strings[316] || 'Select All'}
-              </button>
-              <button
-                className="btn-basic btn-neutral btn-modal-small"
-                onClick={selectNoneRestarts}
-              >
-                {strings[317] || 'Deselect All'}
-              </button>
+            <div className="bulk-select-group">
+              <span className="bulk-select-group-label">{strings[475] || 'Restart?'}</span>
+              <div className="shared-buttons">
+                <button className="btn-basic btn-success btn-modal-small" onClick={selectAllRestarts}>{strings[316] || 'Select All'}</button>
+                <button className="btn-basic btn-neutral btn-modal-small" onClick={selectNoneRestarts}>{strings[317] || 'Deselect All'}</button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Header row */}
-        <div style={{ display: 'flex', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-          <div style={{ width: '50px', textAlign: 'center' }}>{strings[346] || 'Collect'}</div>
-          <div style={{ width: '180px', textAlign: 'left', paddingLeft: '10px' }}>{strings[476] || 'Station'}</div>
-          <div style={{ flex: 1, textAlign: 'left' }}>{strings[161] || 'Item'}</div>
-          {hasBulkRestartCraft && (
-            <div style={{ width: '60px', textAlign: 'center' }}>{strings[475] || 'Restart'}</div>
-          )}
-          <div style={{ width: '150px', textAlign: 'center' }}>{strings[177] || 'Cost'}</div>
+        {/* Column header (desktop only; phones label the cells instead) */}
+        <div className="bulk-select-head">
+          <div className="bs-check">{strings[346] || 'Collect?'}</div>
+          <div className="bs-name">{strings[161] || 'Item'}</div>
+          <div className="bs-meta">{strings[476] || 'Station'}</div>
+          {hasBulkRestartCraft && <div className="bs-opt">{strings[475] || 'Restart?'}</div>}
+          <div className="bs-cost">{strings[177] || 'Need'}</div>
         </div>
 
-        {/* Station list with slot rows */}
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {stationGroups.map((station) => {
-            const stationKey = `${station.x}-${station.y}`;
+        {/* One row per ready slot */}
+        <div className="bulk-select-list">
+          {stationGroups.map((station) => station.readySlots.map((slot, slotIdx) => {
+            const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
+            const selection = selectedSlots[slotKey] || { collect: false, restart: false };
+            const needs = calculateSlotNeeds(slot);
+            const isLastOfStation = slotIdx === station.readySlots.length - 1;
+
             return (
-              <div key={stationKey} style={{ marginBottom: '8px', borderBottom: '1px solid #eee' }}>
-                {/* Each ready slot gets its own row */}
-                {station.readySlots.map((slot, slotIdx) => {
-                  const slotKey = `${station.x}-${station.y}-${slot.slotIndex}`;
-                  const selection = selectedSlots[slotKey] || { collect: false, restart: false };
-                  const needs = calculateSlotNeeds(slot);
-
-                  return (
-                    <div
-                      key={slotKey}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '4px 5px',
-                        backgroundColor: slotIdx % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)'
-                      }}
-                    >
-                      {/* Collect checkbox */}
-                      <div style={{ width: '50px', textAlign: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={selection.collect}
-                          onChange={() => handleToggleCollect(slotKey)}
-                          style={{ width: '18px', height: '18px' }}
-                        />
-                      </div>
-
-                      {/* Station name (only show on first slot row) */}
-                      <div style={{ width: '180px', textAlign: 'left', fontWeight: 'bold', paddingLeft: '10px' }}>
-                        {slotIdx === 0 ? (
-                          <>
-                            {station.stationSymbol} {getLocalizedString(station.stationType, strings)}
-                            {station.readySlots.length > 1 && (
-                              <span style={{ fontSize: '12px', color: '#666', marginLeft: '4px' }}>
-                                ({station.readySlots.length} slots)
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span style={{ color: '#999', fontSize: '12px', paddingLeft: '20px' }}>└ slot {slot.slotIndex + 1}</span>
-                        )}
-                      </div>
-
-                      {/* Crafted item */}
-                      <div style={{ flex: 1, textAlign: 'left' }}>
-                        {slot.craftedSymbol} {getLocalizedString(slot.craftedItem, strings)}
-                      </div>
-
-                      {/* Restart checkbox */}
-                      {hasBulkRestartCraft && (
-                        <div style={{ width: '60px', textAlign: 'center' }}>
-                          {slot.canRestart ? (
-                            <input
-                              type="checkbox"
-                              checked={selection.restart}
-                              onChange={() => slot.affordable && handleToggleRestart(slotKey)}
-                              disabled={!slot.affordable}
-                              style={{
-                                width: '18px',
-                                height: '18px',
-                                opacity: slot.affordable ? 1 : 0.4,
-                                cursor: slot.affordable ? 'pointer' : 'not-allowed'
-                              }}
-                              title={slot.affordable ? '' : (strings[347] || 'Not enough resources')}
-                            />
-                          ) : (
-                            <span style={{ fontSize: '12px', color: '#999' }}>{strings[346] || 'Locked'}</span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Cost/Needs column */}
-                      <div style={{ width: '150px', textAlign: 'center', fontSize: '12px' }}>
-                        {needs && Object.entries(needs).map(([type, data], idx) => {
-                          const hasEnough = data.available >= data.needed;
-                          return (
-                            <span key={idx} style={{ color: hasEnough ? 'green' : 'red', marginRight: '6px' }}>
-                              {data.symbol}{data.needed}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div key={slotKey} className={`bulk-select-row ${isLastOfStation ? '' : 'bulk-select-row--sub'}`}>
+                <div className="bs-check">
+                  <input
+                    type="checkbox"
+                    aria-label={strings[346] || 'Collect?'}
+                    checked={selection.collect}
+                    onChange={() => handleToggleCollect(slotKey)}
+                  />
+                </div>
+                <div className="bs-name" onClick={() => handleToggleCollect(slotKey)}>
+                  {slot.craftedSymbol} {getLocalizedString(slot.craftedItem, strings)}
+                </div>
+                <div className="bs-meta">
+                  {station.stationSymbol} {getLocalizedString(station.stationType, strings)}
+                  {station.readySlots.length > 1 && <span className="bs-sub"> · slot {slot.slotIndex + 1}</span>}
+                </div>
+                {hasBulkRestartCraft && (
+                  <label className="bs-opt" data-label={strings[475] || 'Restart?'}>
+                    {slot.canRestart ? (
+                      <input
+                        type="checkbox"
+                        checked={selection.restart}
+                        onChange={() => slot.affordable && handleToggleRestart(slotKey)}
+                        disabled={!slot.affordable}
+                      />
+                    ) : (
+                      <span className="bs-note">🔒</span>
+                    )}
+                  </label>
+                )}
+                <div className="bs-cost">
+                  {needs && Object.entries(needs).map(([type, data], idx) => (
+                    <span key={idx} className={data.available >= data.needed ? 'ok' : 'short'}>
+                      {data.symbol}{data.needed}
+                    </span>
+                  ))}
+                </div>
               </div>
             );
-          })}
+          }))}
         </div>
 
-        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
+        <div className="shared-buttons bulk-select-footer">
           <button
             className="btn-basic btn-success btn-modal"
             onClick={handleExecute}

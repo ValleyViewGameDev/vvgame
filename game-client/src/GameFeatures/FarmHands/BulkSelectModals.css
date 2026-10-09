@@ -1,0 +1,80 @@
+/* The Farm Hand / Rancher / Crafter bulk selection modals (BulkHarvest.js, BulkAnimalCollect.js,
+   BulkCrafting.js) share one layout: a toolbar of Select All / Deselect All groups, a list of
+   rows (primary checkbox, name, meta, an optional second checkbox, a cost), and the commit
+   button. Desktop is a table-like row with fixed columns; the phone layout (two-line rows, no
+   column header) is the "bulk-select" block in UI/Styles/mobile.css, like the resource tables'
+   .res-rows. Role classes: .bs-check, .bs-name, .bs-meta, .bs-opt (data-label prints before it
+   on phones), .bs-cost. */
+
+.bulk-select {
+  padding: 16px 20px 0;
+  font-size: 16px;
+  font-family: var(--font-text-1-family);
+}
+
+.bulk-select-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+.bulk-select-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bulk-select-group + .bulk-select-group { margin-left: auto; }
+.bulk-select-group-label {
+  font-size: 14px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.bulk-select-group .shared-buttons {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+}
+.bulk-select-group .shared-buttons .btn-basic { width: auto; white-space: nowrap; }
+
+.bulk-select-head,
+.bulk-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bulk-select-head {
+  padding: 0 6px 6px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.bulk-select-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+.bulk-select-row {
+  padding: 6px;
+  border-bottom: 1px solid var(--color-border, #eee);
+}
+.bulk-select-row:nth-child(even) { background-color: rgba(0, 0, 0, 0.02); }
+.bulk-select-row.bulk-select-row--sub { border-bottom: none; }
+
+.bulk-select .bs-check { flex: 0 0 34px; text-align: center; }
+.bulk-select .bs-name { flex: 1 1 auto; min-width: 0; text-align: left; }
+.bulk-select .bs-meta { flex: 0 0 170px; text-align: left; font-size: 14px; }
+.bulk-select .bs-opt { flex: 0 0 90px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.bulk-select .bs-cost { flex: 0 0 140px; text-align: center; font-size: 13px; }
+.bulk-select-row input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
+.bulk-select-row input[type="checkbox"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bulk-select .bs-sub { color: var(--color-text-muted, #999); font-size: 12px; }
+.bulk-select .bs-note { color: var(--color-text-muted, #888); font-size: 12px; white-space: nowrap; }
+.bulk-select .bs-cost .ok { color: var(--color-success, green); margin-right: 6px; }
+.bulk-select .bs-cost .short { color: var(--color-error, red); margin-right: 6px; }
+
+.bulk-select-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}

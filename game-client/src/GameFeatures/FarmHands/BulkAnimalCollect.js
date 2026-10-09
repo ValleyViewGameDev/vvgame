@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '../../UI/Modals/Modal';
+import './BulkSelectModals.css';
 import { handleNPCClick } from '../NPCs/NPCUtils';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
@@ -46,55 +47,46 @@ export function BulkAnimalModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={strings[319] || "Select Animals to Collect"} size="medium">
-      <div style={{ padding: '20px', fontSize: '16px' }}>           
-        <div className="shared-buttons" style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-          <button 
-            className="btn-basic btn-success btn-modal-small"
-            onClick={() => {
-              const allSelected = {};
-              animals.forEach(animal => {
-                allSelected[animal.type] = true;
-              });
-              setSelectedAnimalTypes(allSelected);
-            }}
-          >
-            {strings[316] || 'Select All'}
-          </button>
-          <button 
-            className="btn-basic btn-danger btn-modal-small"
-            onClick={() => setSelectedAnimalTypes({})}
-          >
-            {strings[317] || 'Deselect All'}
-          </button>
-        </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          {animals.map((animal, index) => (
-            <div key={animal.type} style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginBottom: '10px',
-              padding: '5px',
-              backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--color-bg-light)'
-            }}>
-              <input
-                type="checkbox"
-                checked={selectedAnimalTypes[animal.type] || false}
-                onChange={(e) => {
-                  setSelectedAnimalTypes(prev => ({
-                    ...prev,
-                    [animal.type]: e.target.checked
-                  }));
+      <div className="bulk-select">
+        <div className="bulk-select-toolbar">
+          <div className="bulk-select-group">
+            <div className="shared-buttons">
+              <button
+                className="btn-basic btn-success btn-modal-small"
+                onClick={() => {
+                  const allSelected = {};
+                  animals.forEach(animal => { allSelected[animal.type] = true; });
+                  setSelectedAnimalTypes(allSelected);
                 }}
-                style={{ marginRight: '10px' }}
-              />
-              <span>{animal.symbol} {getLocalizedString(animal.type, strings)} ({animal.count})</span>
+              >
+                {strings[316] || 'Select All'}
+              </button>
+              <button className="btn-basic btn-neutral btn-modal-small" onClick={() => setSelectedAnimalTypes({})}>
+                {strings[317] || 'Deselect All'}
+              </button>
             </div>
-          ))}
+          </div>
         </div>
-        
-        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
-          <button 
+
+        <div className="bulk-select-list">
+          {animals.map((animal) => {
+            const toggle = (checked) => setSelectedAnimalTypes(prev => ({ ...prev, [animal.type]: checked }));
+            const checked = selectedAnimalTypes[animal.type] || false;
+            return (
+              <div key={animal.type} className="bulk-select-row">
+                <div className="bs-check">
+                  <input type="checkbox" checked={checked} onChange={(e) => toggle(e.target.checked)} />
+                </div>
+                <div className="bs-name" onClick={() => handleToggleAnimal(animal.type)}>
+                  {animal.symbol} {getLocalizedString(animal.type, strings)} ({animal.count})
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="shared-buttons bulk-select-footer">
+          <button
             className="btn-basic btn-success btn-modal"
             onClick={handleExecute}
             disabled={Object.values(selectedAnimalTypes).every(selected => !selected)}

@@ -69,6 +69,13 @@ value rather than trust this page.
   level, someone else's claim) do nothing. A disabled `<button>` swallows taps on its children,
   so those cards get `pointer-events: none` when disabled and the wrapper around them catches
   the tap; the card's look must not change (no new colour for "cannot afford").
+- The bulk selection modals (Farm Hand harvest, Rancher animals, Crafter crafting) share
+  `GameFeatures/FarmHands/BulkSelectModals.css`: a toolbar of labelled Select All / Deselect All
+  groups, rows of role cells (`.bs-check`, `.bs-name`, `.bs-meta`, `.bs-opt` with a `data-label`,
+  `.bs-cost`) and the commit button. On phones (the `bulk-select` block in `mobile.css`) the
+  column header goes, each group gets its own full-width row, and a row with a cost wraps to
+  two lines (checkbox, name, station; then the labelled second checkbox and the cost); the
+  name toggles the row's checkbox. A new bulk modal uses these classes, not inline widths.
 - Full-screen modals with a commit button over scrolling content pin the footer below the
   scroll area; do not float a button over the content.
 - Multi-column modal layouts (the Store's paired and tripled offer cards) collapse to a one-

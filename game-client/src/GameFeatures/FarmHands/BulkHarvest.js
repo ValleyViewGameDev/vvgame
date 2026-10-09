@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
+import './BulkSelectModals.css';
 import { calculateBulkHarvestCapacity, buildBulkHarvestOperations } from './BulkHarvestUtils';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
@@ -167,181 +168,129 @@ export function BulkHarvestModal({
 
   if (!isOpen) return null;
 
+  const seasonOk = (crop) => {
+    if (!currentSeason || !masterResources) return true;
+    const farmplot = masterResources.find(r => r.category === 'farmplot' && r.output === crop.type);
+    return !(farmplot && farmplot.season) || farmplot.season === currentSeason;
+  };
+
+  const selectAllHarvest = () => {
+    const allSelected = {};
+    const repeatableReplants = {};
+    crops.forEach(crop => {
+      allSelected[crop.type] = true;
+      // Auto-check replant for repeatable crops when selecting all harvests
+      if (crop.repeatable) repeatableReplants[crop.type] = true;
+    });
+    setSelectedCropTypes(allSelected);
+    setSelectedReplantTypes(prev => ({ ...prev, ...repeatableReplants }));
+  };
+  const deselectAllHarvest = () => {
+    setSelectedCropTypes({});
+    // When deselecting all harvest, also deselect all replant (including repeatable)
+    setSelectedReplantTypes({});
+  };
+  const selectAllReplant = () => {
+    const allReplantSelected = {};
+    const allHarvestSelected = {};
+    crops.forEach(crop => {
+      // Repeatable crops: keep replant checked if harvest is checked
+      if (crop.repeatable) {
+        if (selectedCropTypes[crop.type]) allReplantSelected[crop.type] = true;
+        allHarvestSelected[crop.type] = selectedCropTypes[crop.type] || false;
+        return;
+      }
+      if (hasRequiredSkill(crop.replantRequires) && seasonOk(crop)) {
+        allReplantSelected[crop.type] = true;
+        // When selecting replant, also select harvest
+        allHarvestSelected[crop.type] = true;
+      } else {
+        // Keep existing harvest selection for crops that can't be replanted
+        allHarvestSelected[crop.type] = selectedCropTypes[crop.type] || false;
+      }
+    });
+    setSelectedReplantTypes(allReplantSelected);
+    setSelectedCropTypes(prev => ({ ...prev, ...allHarvestSelected }));
+  };
+  const deselectAllReplant = () => {
+    // Keep repeatable crops selected only if they're being harvested
+    const keepRepeatable = {};
+    crops.forEach(crop => {
+      if (crop.repeatable && selectedCropTypes[crop.type]) keepRepeatable[crop.type] = true;
+    });
+    setSelectedReplantTypes(keepRepeatable);
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={strings[315] || "Select Crops to Harvest"} size="medium">
-      <div style={{ padding: '20px', fontSize: '16px' }}>
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-          <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
-            <button
-              className="btn-basic btn-success btn-modal-small"
-              onClick={() => {
-                const allSelected = {};
-                const repeatableReplants = {};
-                crops.forEach(crop => {
-                  allSelected[crop.type] = true;
-                  // Auto-check replant for repeatable crops when selecting all harvests
-                  if (crop.repeatable) {
-                    repeatableReplants[crop.type] = true;
-                  }
-                });
-                setSelectedCropTypes(allSelected);
-                setSelectedReplantTypes(prev => ({ ...prev, ...repeatableReplants }));
-              }}
-            >
-              {strings[316] || 'Select All'}
-            </button>
-            <button
-              className="btn-basic btn-neutral btn-modal-small"
-              onClick={() => {
-                setSelectedCropTypes({});
-                // When deselecting all harvest, also deselect all replant (including repeatable)
-                setSelectedReplantTypes({});
-              }}
-            >
-              {strings[317] || 'Deselect All'}
-            </button>
+      <div className="bulk-select">
+        <div className="bulk-select-toolbar">
+          <div className="bulk-select-group">
+            {showBulkReplant && <span className="bulk-select-group-label">{strings[342] || 'Harvest?'}</span>}
+            <div className="shared-buttons">
+              <button className="btn-basic btn-success btn-modal-small" onClick={selectAllHarvest}>{strings[316] || 'Select All'}</button>
+              <button className="btn-basic btn-neutral btn-modal-small" onClick={deselectAllHarvest}>{strings[317] || 'Deselect All'}</button>
+            </div>
           </div>
-          
           {showBulkReplant && (
-            <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
-              <button
-                className="btn-basic btn-success btn-modal-small"
-                onClick={() => {
-                  const allReplantSelected = {};
-                  const allHarvestSelected = {};
-                  crops.forEach(crop => {
-                    // Repeatable crops: keep replant checked if harvest is checked
-                    if (crop.repeatable) {
-                      if (selectedCropTypes[crop.type]) {
-                        allReplantSelected[crop.type] = true;
-                      }
-                      allHarvestSelected[crop.type] = selectedCropTypes[crop.type] || false;
-                      return;
-                    }
-
-                    // Check if player has required skill
-                    const hasSkill = hasRequiredSkill(crop.replantRequires);
-
-                    // Check if crop is in season
-                    let isInSeason = true;
-                    if (currentSeason && masterResources) {
-                      const farmplot = masterResources.find(r =>
-                        r.category === 'farmplot' && r.output === crop.type
-                      );
-                      if (farmplot && farmplot.season) {
-                        isInSeason = farmplot.season === currentSeason;
-                      }
-                    }
-
-                    if (hasSkill && isInSeason) {
-                      allReplantSelected[crop.type] = true;
-                      // When selecting replant, also select harvest
-                      allHarvestSelected[crop.type] = true;
-                    } else {
-                      // Keep existing harvest selection for crops that can't be replanted
-                      allHarvestSelected[crop.type] = selectedCropTypes[crop.type] || false;
-                    }
-                  });
-                  setSelectedReplantTypes(allReplantSelected);
-                  setSelectedCropTypes(prev => ({
-                    ...prev,
-                    ...allHarvestSelected
-                  }));
-                }}
-              >
-                {strings[316] || 'Select All'}
-              </button>
-              <button
-                className="btn-basic btn-neutral btn-modal-small"
-                onClick={() => {
-                  // Keep repeatable crops selected only if they're being harvested
-                  const keepRepeatable = {};
-                  crops.forEach(crop => {
-                    if (crop.repeatable && selectedCropTypes[crop.type]) {
-                      keepRepeatable[crop.type] = true;
-                    }
-                  });
-                  setSelectedReplantTypes(keepRepeatable);
-                }}
-              >
-                {strings[317] || 'Deselect All'}
-              </button>
+            <div className="bulk-select-group">
+              <span className="bulk-select-group-label">{strings[343] || 'Replant?'}</span>
+              <div className="shared-buttons">
+                <button className="btn-basic btn-success btn-modal-small" onClick={selectAllReplant}>{strings[316] || 'Select All'}</button>
+                <button className="btn-basic btn-neutral btn-modal-small" onClick={deselectAllReplant}>{strings[317] || 'Deselect All'}</button>
+              </div>
             </div>
           )}
         </div>
-        
+
         {showBulkReplant && (
-          <div style={{ display: 'flex', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
-            <div style={{ width: '30px', paddingLeft: '5px' }}>{strings[342] || 'Harvest?'}</div>
-            <div style={{ flex: 1 }}></div>
-            <div style={{ width: '140px', textAlign: 'center' }}>{strings[343] || 'Replant?'}</div>
+          <div className="bulk-select-head">
+            <div className="bs-check">{strings[342] || 'Harvest?'}</div>
+            <div className="bs-name"></div>
+            <div className="bs-opt">{strings[343] || 'Replant?'}</div>
           </div>
         )}
-        
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+
+        <div className="bulk-select-list">
           {crops.map(crop => {
-            // Check if player has required skill
-            const hasSkill = hasRequiredSkill(crop.replantRequires);
-            
-            // Check if crop is in season
-            let isInSeason = true;
-            if (currentSeason && masterResources) {
-              // Find the farmplot that produces this crop to check its season
-              const farmplot = masterResources.find(r => 
-                r.category === 'farmplot' && r.output === crop.type
-              );
-              if (farmplot && farmplot.season) {
-                isInSeason = farmplot.season === currentSeason;
-              }
-            }
-            
-            const canReplant = hasSkill && isInSeason;
+            const isInSeason = seasonOk(crop);
+            const canReplant = hasRequiredSkill(crop.replantRequires) && isInSeason;
             const isRepeatable = crop.repeatable === true;
             // Repeatable crops follow harvest state and cannot be manually toggled
             const replantChecked = selectedReplantTypes[crop.type] || false;
             const replantDisabled = isRepeatable || !canReplant;
 
             return (
-              <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', padding: '5px', borderBottom: '1px solid #eee' }}>
-                <div style={{ width: '30px' }}>
+              <div key={crop.type} className="bulk-select-row">
+                <div className="bs-check">
                   <input
                     type="checkbox"
+                    aria-label={strings[342] || 'Harvest?'}
                     checked={selectedCropTypes[crop.type] || false}
                     onChange={() => handleToggleCrop(crop.type)}
-                    style={{ width: '20px' }}
                   />
                 </div>
-                <div style={{ flex: 1, textAlign: 'left' }}>
+                <div className="bs-name" onClick={() => handleToggleCrop(crop.type)}>
                   {crop.symbol} {getLocalizedString(crop.type, strings)} ({crop.count})
                 </div>
-                {showBulkReplant && (() => {
-                  return (
-                    <div style={{ marginLeft: '60px', width: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {!isRepeatable && !isInSeason && (
-                        <span style={{ fontSize: '12px', color: '#888', marginRight: '5px' }}>off season</span>
-                      )}
-                      <input
-                        type="checkbox"
-                        checked={replantChecked}
-                        onChange={() => !isRepeatable && canReplant && handleToggleReplant(crop.type)}
-                        disabled={replantDisabled}
-                        style={{
-                          width: '20px',
-                          opacity: canReplant ? 1 : 0.5,
-                          cursor: replantDisabled ? 'not-allowed' : 'pointer'
-                        }}
-                        title={isRepeatable ? 'Auto-replants for free' : (canReplant ? '' : (!isInSeason ? `${crop.type} is not available in current season` : `Requires ${crop.replantRequires || 'unknown skill'} to replant ${crop.type}`))}
-                      />
-                    </div>
-                  );
-                })()}
+                {showBulkReplant && (
+                  <label className="bs-opt" data-label={strings[343] || 'Replant?'}>
+                    {!isRepeatable && !isInSeason && <span className="bs-note">off season</span>}
+                    <input
+                      type="checkbox"
+                      checked={replantChecked}
+                      onChange={() => !isRepeatable && canReplant && handleToggleReplant(crop.type)}
+                      disabled={replantDisabled}
+                    />
+                  </label>
+                )}
               </div>
             );
           })}
         </div>
-        
-        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
-          <button 
+
+        <div className="shared-buttons bulk-select-footer">
+          <button
             className={`btn-basic ${isProcessing ? 'btn-neutral' : 'btn-success'} btn-modal`}
             onClick={handleExecute}
             disabled={isProcessing || Object.values(selectedCropTypes).every(selected => !selected)}
