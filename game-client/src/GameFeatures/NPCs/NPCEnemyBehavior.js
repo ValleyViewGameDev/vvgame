@@ -122,26 +122,13 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
 
-      // Use a custom pursue handler that checks line of sight
+      // Chase along an A* path (AllNPCsShared.followPath: the NPC's own terrain, no corner
+      // cutting, never onto the player's or another NPC's tile), ending beside the player.
+      // A single greedy step toward the player stalled whenever that one direction was
+      // blocked (a rock on the diagonal's corner), leaving the enemy unable to reach a player
+      // who could still hit it.
       const handlePursueWithLineOfSight = async () => {
-        const dx = this.targetPC.position.x - this.position.x;
-        const dy = this.targetPC.position.y - this.position.y;
-
-        let direction = null;
-        if (Math.abs(dx) > Math.abs(dy)) {
-          direction = dx > 0 ? 'E' : 'W';
-        } else if (dy !== 0) {
-          direction = dy > 0 ? 'S' : 'N';
-        }
-        // Add diagonal movement if applicable
-        if (Math.abs(dx) === Math.abs(dy)) {
-          if (dx > 0 && dy > 0) direction = 'SE';
-          else if (dx > 0 && dy < 0) direction = 'NE';
-          else if (dx < 0 && dy > 0) direction = 'SW';
-          else if (dx < 0 && dy < 0) direction = 'NW';
-        } 
-        
-        // Check if already in attack range AND can see target BEFORE attempting to move
+        // Check if already in attack range AND can hit target BEFORE attempting to move
         const distanceToPlayer = reach(this.position, this.targetPC.position);
         if (distanceToPlayer <= this.attackrange) {
           if (canHitTarget(this.position, this.targetPC.position)) {
@@ -151,29 +138,28 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
             return;
           }
         }
-        
-        if (!direction) return;
 
-        const moved = await this.moveOneTile(direction, tiles, resources, npcs);
-        if (!moved) {
-          console.log(`NPC ${this.id} could not move in direction ${direction}.`);
-          
-          // If we're stuck, use idle state to pick a random direction
-          if (!this.stuckCounter) this.stuckCounter = 0;
-          this.stuckCounter++;
-          
-          if (this.stuckCounter >= 3) {
-            console.log(`NPC ${this.id} appears stuck after ${this.stuckCounter} failed moves. Using idle to unstick.`);
-            this.state = 'idle';
-            this.stuckCounter = 0;
-            await updateThisNPC.call(this, gridId);
-          }
-        } else {
-          // Reset stuck counter on successful move
+        const before = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
+        const result = this.followPath(
+          Math.floor(this.targetPC.position.x), Math.floor(this.targetPC.position.y),
+          tiles, resources, npcs, { stopShort: true }
+        );
+        const moved = Math.floor(this.position.x) !== before.x || Math.floor(this.position.y) !== before.y;
+        if (moved) { this.stuckCounter = 0; return; }
+        if (result === 'arrived') return; // beside the player, waiting on a clear swing
+
+        // No route this tick (or none at all): after a few tries, wander to get unstuck
+        if (!this.stuckCounter) this.stuckCounter = 0;
+        this.stuckCounter++;
+        if (result === 'blocked' || this.stuckCounter >= 3) {
+          console.log(`NPC ${this.id} has no route to ${this.targetPC?.username}. Using idle to unstick.`);
+          this.state = 'idle';
           this.stuckCounter = 0;
+          this.path = null;
+          await updateThisNPC.call(this, gridId);
         }
       };
-      
+
       await handlePursueWithLineOfSight();
       break;
     }
