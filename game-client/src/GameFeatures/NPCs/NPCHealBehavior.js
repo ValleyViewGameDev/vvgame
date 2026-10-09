@@ -31,7 +31,7 @@ async function handleHealBehavior(gridId) {
     const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc =>
         calculateDistance(pc.position, this.position) <= (this.range || 3) &&
         pc.hp > 0 &&
-        !isWallBlocking(this.position, pc.position)
+        !isWallBlocking(this.position, pc.position, { trees: true })
     );
     
     if (pcsInRange) {

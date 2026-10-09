@@ -4,88 +4,18 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { createImpactEffect } from '../../VFX/VFX';
+import { isWallBlocking } from '../../Utils/GridManagement';
 
-/** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
-function getLineOfSightTiles(start, end) {
-    const tiles = [];
-    let x0 = Math.floor(start.x);
-    let y0 = Math.floor(start.y);
-    const x1 = Math.floor(end.x);
-    const y1 = Math.floor(end.y);
-
-    const dx = Math.abs(x1 - x0);
-    const dy = Math.abs(y1 - y0);
-    const sx = x0 < x1 ? 1 : -1;
-    const sy = y0 < y1 ? 1 : -1;
-    let err = dx - dy;
-
-    let prevX = x0;
-    let prevY = y0;
-
-    while (true) {
-        // Don't include the start or end positions
-        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) &&
-            (x0 !== x1 || y0 !== y1)) {
-            tiles.push({ x: x0, y: y0 });
-
-            // Check if we moved diagonally - if so, add the two adjacent tiles
-            // to prevent line of sight going through corners
-            if (prevX !== x0 && prevY !== y0) {
-                tiles.push({ x: prevX, y: y0 }); // Vertical neighbor of previous position
-                tiles.push({ x: x0, y: prevY }); // Horizontal neighbor of current position
-            }
-        }
-
-        if (x0 === x1 && y0 === y1) break;
-
-        prevX = x0;
-        prevY = y0;
-
-        const e2 = 2 * err;
-        if (e2 > -dy) {
-            err -= dy;
-            x0 += sx;
-        }
-        if (e2 < dx) {
-            err += dx;
-            y0 += sy;
-        }
-    }
-
-    return tiles;
-}
-
-/** Helper to check if a position falls within a wall's footprint **/
-function isWithinWallFootprint(x, y, wall) {
-    const tileSpan = wall.size || 1;
-    // For walls with size > 1, check if (x, y) falls within the footprint
-    // Wall footprint extends from anchor (wall.x, wall.y) down and right
-    return (
-        x >= wall.x &&
-        x < wall.x + tileSpan &&
-        y >= wall.y &&
-        y < wall.y + tileSpan
-    );
-}
-
-/** Helper to check if NPC can see the target (no walls blocking) **/
+/**
+ * Sight vs. a clear swing (Utils/GridManagement.isWallBlocking, one line-of-sight rule for the
+ * whole game). Walls and doors block both. Trees only block the swing: an enemy still notices
+ * and chases you past a tree, but cannot hit you through one, the same as you cannot hit it.
+ */
 function canSeeTarget(npcPosition, targetPosition) {
-    const resources = GlobalGridStateTilesAndResources.getResources();
-    const lineOfSightTiles = getLineOfSightTiles(npcPosition, targetPosition);
-
-    // Check each tile in the line of sight for walls or doors
-    for (const tile of lineOfSightTiles) {
-        // Check if this tile is blocked by any wall (including large walls)
-        const wall = resources.find(res =>
-            (res.action === 'wall' || res.action === 'door') &&
-            isWithinWallFootprint(tile.x, tile.y, res)
-        );
-        if (wall) {
-            return false; // Wall or door found blocking the view
-        }
-    }
-
-    return true; // Clear line of sight
+    return !isWallBlocking(npcPosition, targetPosition);
+}
+function canHitTarget(npcPosition, targetPosition) {
+    return !isWallBlocking(npcPosition, targetPosition, { trees: true });
 }
 
 const updateThisNPC = async function(gridId) {
@@ -163,8 +93,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       // Check if already in attack range AND can see target before pursuing
       const currentDistance = reach(this.position, this.targetPC.position);
       if (currentDistance <= this.attackrange) {
-        // Verify line of sight before switching to attack
-        if (canSeeTarget(this.position, this.targetPC.position)) {
+        // Verify a clear swing before switching to attack
+        if (canHitTarget(this.position, this.targetPC.position)) {
           this.state = 'attack';
           await updateThisNPC.call(this, gridId);
           performAttack.call(this, gridId, TILE_SIZE); // no dead tick between arriving and swinging
@@ -214,7 +144,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         // Check if already in attack range AND can see target BEFORE attempting to move
         const distanceToPlayer = reach(this.position, this.targetPC.position);
         if (distanceToPlayer <= this.attackrange) {
-          if (canSeeTarget(this.position, this.targetPC.position)) {
+          if (canHitTarget(this.position, this.targetPC.position)) {
             this.state = 'attack';
             await updateThisNPC.call(this, gridId);
             performAttack.call(this, gridId, TILE_SIZE);
@@ -271,9 +201,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
       
-      // Check line of sight before attacking
-      if (!canSeeTarget(this.position, this.targetPC.position)) {
-        console.log(`NPC ${this.id} lost sight of ${this.targetPC.username} due to walls. Returning to 'pursue' state.`);
+      // Check for a clear swing (walls, doors, trees) before attacking
+      if (!canHitTarget(this.position, this.targetPC.position)) {
         this.state = 'pursue';
         await updateThisNPC.call(this, gridId);
         break;
@@ -337,7 +266,7 @@ function performAttack(gridId, TILE_SIZE) {
     // Re-read the live PC: it may have stepped away during the wind-up
     const live = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
     if (!live || live.playerId !== target.playerId) return;
-    if (reach(this.position, live.position) > this.attackrange || !canSeeTarget(this.position, live.position)) return;
+    if (reach(this.position, live.position) > this.attackrange || !canHitTarget(this.position, live.position)) return;
 
     const attackRoll = Math.floor(Math.random() * 20) + 1;
     const isAHit = attackRoll + (this.attackbonus || 0) >= (live.armorclass || 0);

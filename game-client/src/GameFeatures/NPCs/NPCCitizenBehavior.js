@@ -297,7 +297,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
   // ---- waiting: the player is near a quest/trade/heal citizen
   if (WAITS_FOR_PLAYER.includes(this.action)) {
     const pc = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
-    const near = !!pc && pc.hp > 0 && calculateDistance(pc.position, this.position) <= (this.range || 3) && !isWallBlocking(this.position, pc.position);
+    const near = !!pc && pc.hp > 0 && calculateDistance(pc.position, this.position) <= (this.range || 3) && !isWallBlocking(this.position, pc.position, { trees: true });
     if (near) {
       if (this.citizenState !== 'waiting') {
         this.citizenResume = { state: this.citizenState, remainingMs: Math.max(0, (this.citizenStateUntil || now) - now) };

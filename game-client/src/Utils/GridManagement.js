@@ -705,34 +705,41 @@ export function getLineOfSightTiles(start, end) {
 }
 
 /** Helper to check if a position falls within a wall's footprint **/
-function isWithinWallFootprint(x, y, wall) {
-    const tileSpan = wall.size || 1;
-    // For walls with size > 1, check if (x, y) falls within the footprint
-    // Wall footprint extends from anchor (wall.x, wall.y) down and right
-    return (
-        x >= wall.x &&
-        x < wall.x + tileSpan &&
-        y >= wall.y &&
-        y < wall.y + tileSpan
-    );
-}
+// Trees block sight for NPC talk and combat the way walls do (they already block routing).
+// Fruit trees are passable farmplots, so only the impassable ones count.
+const isSightBlockingTree = (r) => r.passable === false && typeof r.type === 'string' && /Tree$/.test(r.type);
+const blocksSight = (r, trees) => r.action === 'wall' || r.action === 'door' || (trees && isSightBlockingTree(r));
 
-/** Helper to check if there's a wall blocking line of sight **/
-export function isWallBlocking(start, end) {
-    const resources = GlobalGridStateTilesAndResources.getResources();
+/**
+ * Is the straight line between two tiles blocked? Walls and doors always block; with
+ * `{ trees: true }` impassable trees block too (NPC interaction and combat, not resource
+ * clicks, so a tree behind a tree can still be chopped). A multi-tile blocker blocks its
+ * whole footprint: its shadow tiles (AppInit.enrichGridResources: anchor x..x+size-1,
+ * y-size+1..y) resolve to the anchor through parentAnchorKey.
+ */
+export function isWallBlocking(start, end, { trees = false } = {}) {
+    const resources = GlobalGridStateTilesAndResources.getResources() || [];
     const lineOfSightTiles = getLineOfSightTiles(start, end);
+    if (lineOfSightTiles.length === 0) return false;
 
-    // Check each tile in the line of sight for walls
+    const byTile = new Map();
+    for (const r of resources) {
+        if (!r) continue;
+        const key = `${r.x},${r.y}`;
+        const list = byTile.get(key);
+        if (list) list.push(r); else byTile.set(key, [r]);
+    }
+    const anchorOf = (shadow) => {
+        const m = /^(.*)[-_](\d+)[-_](\d+)$/.exec(shadow.parentAnchorKey || '');
+        if (!m) return null;
+        return (byTile.get(`${m[2]},${m[3]}`) || []).find((r) => r.type === m[1]) || null;
+    };
+
     for (const tile of lineOfSightTiles) {
-        // Check if this tile is blocked by any wall (including large walls)
-        const wall = resources.find(res =>
-            (res.action === 'wall' || res.action === 'door') &&
-            isWithinWallFootprint(tile.x, tile.y, res)
-        );
-        if (wall) {
-            return true; // Wall found blocking the path
+        for (const r of byTile.get(`${tile.x},${tile.y}`) || []) {
+            const src = r.type === 'shadow' ? anchorOf(r) : r;
+            if (src && blocksSight(src, trees)) return true;
         }
     }
-
-    return false; // No walls blocking
+    return false;
 }

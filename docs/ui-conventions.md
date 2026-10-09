@@ -189,6 +189,12 @@ value rather than trust this page.
   helper NPC is walked up to (stopping beside it) and opened on arrival; an out-of-range
   resource or empty tile is walked to; beyond the grid edge walks to the edge and crosses.
   Long-press shows the tooltip, pinch zooms, one-finger drag and the wheel pan the camera.
+- Line of sight is one rule, `isWallBlocking` in `Utils/GridManagement.js`: walls and doors
+  block everything; `{ trees: true }` adds impassable trees, and every NPC interaction (talk,
+  quest, heal, the citizens' waiting check) and every swing (yours and an enemy's) passes it.
+  Resource clicks do not, so a tree behind a tree can still be chopped; an enemy still sees and
+  chases you past a tree, it just cannot hit you through one. Multi-tile blockers block their
+  whole footprint (shadow tiles resolve to their anchor).
 - Hit-testing uses `PixiCamera.screenToTile`; never read `.pixi-container` offsets. DOM that
   must line up with the world goes inside `.pixi-world-container`.
 - Movement cadence is `MOVEMENT_STEP_MS` (90 ms) with `HOLD_REPEAT_DELAY_MS` before a held

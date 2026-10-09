@@ -153,7 +153,7 @@ export function handleNPCClickShared(npc, {
       }
 
       // Check for walls blocking line of sight
-      if (isWallBlocking(playerPos, npcPos)) {
+      if (isWallBlocking(playerPos, npcPos, { trees: true })) {
         FloatingTextManager.addFloatingText(40, npcPos.x, npcPos.y, TILE_SIZE); // string[40] for wall blocking
         console.log('Wall blocking interaction from player to NPC');
         return false;

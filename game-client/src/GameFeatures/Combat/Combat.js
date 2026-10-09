@@ -96,7 +96,7 @@ export function findEnemyInReach(gridId, playerId) {
   for (const npc of Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {})) {
     if (!isHostile(npc) || !npc.position || npc.hp <= 0) continue;
     const d = reachDistance(player.position, npc.position);
-    if (d > reach || isWallBlocking(player.position, npc.position)) continue;
+    if (d > reach || isWallBlocking(player.position, npc.position, { trees: true })) continue;
     const euclid = Math.hypot(player.position.x - npc.position.x, player.position.y - npc.position.y);
     if (euclid < bestD) { bestD = euclid; best = npc; }
   }
@@ -117,7 +117,7 @@ function checkRange(player, target, TILE_SIZE) {
         FloatingTextManager.addFloatingText(501, targetPos.x, targetPos.y, TILE_SIZE);
         return false;
     }
-    if (isWallBlocking(playerPos, targetPos)) {
+    if (isWallBlocking(playerPos, targetPos, { trees: true })) {
         FloatingTextManager.addFloatingText(40, targetPos.x, targetPos.y, TILE_SIZE);
         return false;
     }
