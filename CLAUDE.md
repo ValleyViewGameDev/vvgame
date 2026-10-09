@@ -25,7 +25,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 
 ## Deployment
 
-- **A push to `main` is a production deploy** (Render auto-deploys both services). Work on `refactor/phase-N` branches, squash-merge when the phase's done-criteria pass. Deploy order: server first, then client. Service modes via `SERVICE_MODE` (`normal` | `notice` = dismissable update modal on every refresh | `maintenance` = blocking modal, developers get an Ignore button and bypass the 503). Only Phase 2 takes the game down (maintenance mode + Winter restart); see `docs/refactor-plan.md` §8.
+- **A push to `main` is a production deploy** (Render auto-deploys both services). Work directly on `main`, no feature branches (workspace `../CLAUDE.md`, "Commit and sync"); the old `refactor/phase-N` branches are history. A commit that needs a migration script run first says so in its message: run it (backup first) before pushing. Service modes via `SERVICE_MODE` (`normal` | `notice` = dismissable update modal on every refresh | `maintenance` = blocking modal, developers get an Ignore button and bypass the 503). Only Phase 2 takes the game down (maintenance mode + Winter restart); see `docs/refactor-plan.md` §8.
 - Server: Render web service `vvgame-server` → `https://vvgame-server.onrender.com`. `PORT` injected by Render; `NODE_ENV=production` enables the schedulers.
 - Client: Render static site `vvgame-client` (`render.yaml`) → `https://vvgame.onrender.com`, also `https://www.valleyviewgame.com` and `https://www.secretsofelsinore.com`. CORS allowlist in `game-server/server.js`.
 - Env (names only): `MONGODB_URI`, `SECRET_KEY`, `STRIPE_SECRET_KEY`, `YOUR_DOMAIN`, `ALERT_EMAIL_*`, client `REACT_APP_STRIPE_PUBLISHABLE_KEY`, `REACT_APP_SERVER_URL`.
