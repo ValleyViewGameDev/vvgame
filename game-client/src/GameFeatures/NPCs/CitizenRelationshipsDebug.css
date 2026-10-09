@@ -1,0 +1,13 @@
+/* Developer-only citizen relationship matrix (CitizenRelationshipsDebug.js) */
+.citizen-rel-debug .crd-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.citizen-rel-debug .crd-legend { margin: 6px 0 10px; font-size: 12px; color: var(--color-text-muted, #888); }
+.citizen-rel-debug .crd-scroll { overflow: auto; max-height: 65vh; }
+.citizen-rel-debug .crd-table { border-collapse: collapse; font-family: var(--font-text-1-family); font-size: 12px; }
+.citizen-rel-debug .crd-table th,
+.citizen-rel-debug .crd-table td { border: 1px solid var(--color-border, #ddd); padding: 3px 5px; text-align: center; white-space: nowrap; }
+.citizen-rel-debug .crd-row { position: sticky; left: 0; background: var(--color-bg-panel, #fff); text-align: right; z-index: 1; }
+.citizen-rel-debug .crd-col { vertical-align: bottom; height: 110px; position: sticky; top: 0; background: var(--color-bg-panel, #fff); }
+.citizen-rel-debug .crd-col span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); }
+.citizen-rel-debug .crd-self { background: #ccc; }
+.citizen-rel-debug .crd-seeded { font-style: italic; color: var(--color-text-muted, #888); }
+.citizen-rel-debug .crd-cell sup { font-size: 9px; margin-left: 1px; }

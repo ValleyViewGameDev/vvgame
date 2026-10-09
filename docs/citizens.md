@@ -167,7 +167,7 @@ Waiting applies (as to quest and trade). The rest of the healer loop is an open 
 ## Showing the state to the player (2026-10-09)
 
 Like a Farm Animal ("Cow is grazing. 3m 2s"), a Citizen tells you what it is doing in two
-places, both from `GameFeatures/NPCs/citizenStatus.js` (pure; strings 17501-17514):
+places, both from `GameFeatures/NPCs/citizenStatus.js` (pure; strings 17501-17513, 17515):
 
 - the board tooltip (hover, or long-press on touch): name, the state line, the time left in
   that state;
@@ -176,5 +176,7 @@ places, both from `GameFeatures/NPCs/citizenStatus.js` (pure; strings 17501-1751
 
 Working is told per worker and task (Lumberjack: heading to a tree / collecting the wood /
 carrying wood to the Warehouse; Rancher, Farm Hand, Crafter one line each; talkers "is
-working."). Waiting reads "is waiting for you." on the board and "is talking with you." in the
-panel. A citizen with no state loop shows nothing new.
+working."). Waiting reads "is waiting for you." on the board and in the panel. A worker
+switched off with its panel's "Automatically work?" box (`npc.autoWork`, saved on the NPC record;
+default on, except the Crafter, owner 2026-10-09) stands by near home through its working state:
+"is standing by." A citizen with no state loop shows nothing new.

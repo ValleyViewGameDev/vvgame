@@ -21,7 +21,7 @@ export default function CitizenStatusLine({ npc, gridId }) {
 
   if (!npc) return null;
   const live = (gridId && NPCsInGridManager.getNPCsInGrid(gridId)?.[npc.id || npc._id]) || npc;
-  const text = citizenStatusText(live, strings, { inPanel: true });
+  const text = citizenStatusText(live, strings);
   if (!text) return null;
   const clock = citizenCountdown(live);
   return (

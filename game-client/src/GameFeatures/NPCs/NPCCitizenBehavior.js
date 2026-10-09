@@ -98,6 +98,13 @@ const nextContext = (ms = 500) => new Promise((resolve) => {
 const noop = () => {};
 
 export const isCitizen = (npc) => !!npc && CITIZEN_ACTIONS.includes(npc.action);
+/**
+ * Does this worker do its job on its own in the working state? The worker panel's
+ * "Automatically work?" switch (npc.autoWork, saved on the NPC record). Unset = on, except the
+ * Crafter: auto-collecting the stations would undo a player who restarts crafts with Bulk
+ * Crafting (owner, 2026-10-09). Switched off, the worker stands by near home while working.
+ */
+export const workerAutoWorks = (npc) => (typeof npc?.autoWork === 'boolean' ? npc.autoWork : npc?.type !== 'Crafter');
 export const stateSeconds = (npc, state) => Math.max(0, Number(npc?.[STATE_FIELD[state]]) || 0);
 export const hasStateLoop = (npc) => CITIZEN_STATES.some((s) => stateSeconds(npc, s) > 0);
 
@@ -574,6 +581,10 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
     case 'working': {
       if (!isWorker) { // talkers: anchored wander inside a short leash of the template tile
         this.leash = { home, radius: TALKER_LEASH };
+        return this.handleRoamState(tiles, resources, npcs, () => {});
+      }
+      if (!workerAutoWorks(this)) { // switched off in its panel: stand by near home
+        this.leash = { home, radius: ROAM_LEASH };
         return this.handleRoamState(tiles, resources, npcs, () => {});
       }
       const result = await workTick(this, gridId, tiles, resources, npcs);

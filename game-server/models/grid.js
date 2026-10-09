@@ -32,6 +32,8 @@ const GridSchema = new mongoose.Schema({
       citizenTask: { type: mongoose.Schema.Types.Mixed },
       homeX: { type: Number },
       homeY: { type: Number },
+      // Workers: the panel's "Automatically work?" switch (unset = the type's default)
+      autoWork: { type: Boolean },
     }),
     default: {}
   },

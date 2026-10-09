@@ -439,6 +439,7 @@ class GridStateManager {
         citizenTask: npc.citizenTask ?? null,
         homeX: npc.homeX ?? null,
         homeY: npc.homeY ?? null,
+        autoWork: npc.autoWork ?? null,
       };
 
       // For spawner NPCs, include spawner-specific properties

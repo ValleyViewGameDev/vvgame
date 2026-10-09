@@ -20,7 +20,7 @@ const S = {
   eatingGoing: 17511,
   socializing: 17512,
   waiting: 17513,
-  talking: 17514,
+  standingBy: 17515,
 };
 const FALLBACK = {
   17501: 'is working.', 17502: 'is heading to a tree.', 17503: 'is collecting the wood.',
@@ -28,11 +28,15 @@ const FALLBACK = {
   17506: 'is harvesting crops.', 17507: 'is collecting from the crafting stations.',
   17508: 'is resting.', 17509: 'is out for a walk.', 17510: 'is looking for something to eat.',
   17511: 'is going to eat.', 17512: 'is socializing.', 17513: 'is waiting for you.',
-  17514: 'is talking with you.',
+  17515: 'is standing by.',
 };
 const t = (strings, key) => strings?.[key] || FALLBACK[key];
 
+// Mirrors NPCCitizenBehavior.workerAutoWorks (kept import-free for the renderer)
+const autoWorks = (npc) => (typeof npc?.autoWork === 'boolean' ? npc.autoWork : npc?.type !== 'Crafter');
+
 function workingKey(npc) {
+  if (npc.action === 'worker' && !autoWorks(npc)) return S.standingBy;
   const phase = npc.citizenTask?.phase;
   switch (npc.type) {
     case 'Lumberjack':
@@ -58,14 +62,13 @@ export function citizenCountdown(npc, now = Date.now()) {
 
 /**
  * The status sentence (without the name), e.g. "is resting.", or null when the citizen has no
- * loop state. `inPanel`: the player has this citizen's panel open, so "waiting for you" reads
- * "talking with you".
+ * loop state. Waiting reads "is waiting for you." on the board and in the panel alike.
  */
-export function citizenStatusText(npc, strings, { inPanel = false } = {}) {
+export function citizenStatusText(npc, strings) {
   const state = npc?.citizenState;
   if (!state) return null;
   switch (state) {
-    case 'waiting': return t(strings, inPanel ? S.talking : S.waiting);
+    case 'waiting': return t(strings, S.waiting);
     case 'working': return t(strings, workingKey(npc));
     case 'resting': return t(strings, S.resting);
     case 'roaming': return t(strings, S.roaming);

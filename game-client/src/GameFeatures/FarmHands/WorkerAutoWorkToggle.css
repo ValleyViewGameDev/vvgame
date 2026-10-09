@@ -1,0 +1,19 @@
+/* "Automatically work?" at the top of a worker's panel (WorkerAutoWorkToggle.js) */
+.worker-autowork {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0 0 6px 0;
+  font-family: var(--font-text-1-family);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.worker-autowork input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+}

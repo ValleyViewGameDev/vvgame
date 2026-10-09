@@ -25,6 +25,8 @@ import BulkCraftingResultsModal from './BulkCraftingResultsModal';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
+import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
+import CitizenRelationshipsDebug from '../NPCs/CitizenRelationshipsDebug';
 
 const FarmHandPanel = ({
   onClose,
@@ -826,7 +828,9 @@ const FarmHandPanel = ({
   return (
     <Panel onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${npcType}` : npcType} panelName="FarmHandPanel">
       <div className="standard-panel">
+        <WorkerAutoWorkToggle npc={npc} gridId={currentPlayer?.location?.g} />
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />
+        <CitizenRelationshipsDebug isDeveloper={isDeveloper} currentPlayer={currentPlayer} masterResources={masterResources} />
 
         {showBulkHarvest && skills?.some(item => item.type === 'Bulk Harvest') && (
           <div>
