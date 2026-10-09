@@ -295,7 +295,19 @@
 .trade-slot-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
+  /* Same width as the slot: a locked slot's "Unlock for N Wood" button is wider than 150 px,
+     which used to widen its column and leave the card hugging the left edge (BL-9). */
+  width: 150px;
+}
+
+.trade-slot-container .trade-button-container {
+  width: 100%;
+}
+
+.trade-slot-container .trade-button-container .btn-basic {
+  white-space: normal;
 }
 
 /* Base trade slot styling - overrides for div elements using button classes */
