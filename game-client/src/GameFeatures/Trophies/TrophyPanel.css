@@ -20,7 +20,7 @@
 .trophy-card {
     background: linear-gradient(135deg, #fff540, #e5dc3b);
     border-radius: 12px;
-    padding: 5px 5px;
+    padding: 5px 20px 5px 5px; /* right: room for the ℹ️ badge */
     position: relative;
     box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
     transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
@@ -169,28 +169,6 @@
     background-color: #9e9e9e;
 }
 
-/* Tooltip styling - instant, no duplicates */
-@media (hover: hover) {
-  .trophy-card[data-tooltip]:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: calc(100% - 15px); /* Moved 10px down (from +5px to -5px) */
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: normal; /* Allow text wrapping */
-      word-wrap: break-word;
-      max-width: 160px; /* Reduced from 200px to prevent edge touching */
-      width: max-content;
-      z-index: 1000;
-      pointer-events: none;
-      line-height: 1.4;
-  }
-}
 
 /* Gem reward icon for uncollected trophies */
 .trophy-reward-gem {
@@ -260,11 +238,9 @@
     100% { transform: translateY(-40px); opacity: 0; }
 }
 
-/* How to earn it, printed on the card on touch screens (no hovertip there) */
-.trophy-hint {
-    margin-top: 2px;
-    font-size: 12px;
-    line-height: 1.3;
-    font-family: var(--font-text-1-family);
-    color: var(--color-text-secondary);
+
+/* ℹ️ badge (UI/Buttons/InfoButton.js), top-right of the card; the gem badge sits bottom-right */
+.trophy-card .trophy-info-button {
+    top: 4px;
+    right: 6px;
 }

@@ -7,7 +7,7 @@ import './TrophyPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
-import { canHover } from '../../Utils/inputMode';
+import InfoButton from '../../UI/Buttons/InfoButton';
 
 // Matches the trophyGemFloat animation in TrophyPanel.css.
 const GEM_FLOAT_MS = 1800;
@@ -206,7 +206,6 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                 <div 
                                     key={index} 
                                     className={`trophy-card ${!isEarned ? 'unearned' : ''} ${hasUncollectedReward ? 'collectable' : ''} trophy-${(trophyDef.type || 'Event').toLowerCase()}`}
-                                    data-tooltip={trophyDef.tooltip || ''}
                                     onClick={hasUncollectedReward && !isCollecting ? () => handleCollectReward(trophyDef.name) : undefined}
                                     style={hasUncollectedReward ? { cursor: isCollecting ? 'wait' : 'pointer' } : undefined}
                                 >
@@ -220,10 +219,6 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                         <div className="trophy-name">
                                             {getLocalizedString(trophyDef.name, strings)}
                                         </div>
-                                        {/* Touch screens have no hovertip: how to earn it is printed on the card */}
-                                        {!canHover() && trophyDef.tooltip && (
-                                            <div className="trophy-hint">{trophyDef.tooltip}</div>
-                                        )}
                                         {trophyDef.type === 'Progress' && progressInfo && (
                                             <div className="trophy-progress-container">
                                                 <div className="progress-text">
@@ -247,6 +242,10 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                             </div>
                                         )}
                                     </div>
+                                    {/* How to earn it: hover on desktop, tap on touch (same badge as ResourceButton) */}
+                                    {trophyDef.tooltip && (
+                                        <InfoButton className="trophy-info-button" info={getLocalizedString(trophyDef.tooltip, strings)} />
+                                    )}
                                     {gemFloats.filter(f => f.trophyName === trophyDef.name).map(f => (
                                         <span key={f.id} className="trophy-gem-float">{f.text}</span>
                                     ))}
