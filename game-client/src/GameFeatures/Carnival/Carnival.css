@@ -1,12 +1,16 @@
+/* Hover only where a real pointer hovers: on touch screens :hover sticks after a tap and
+   leaves the button showing its (pale) hover colour until something else is tapped. */
 /* Only override unclaimed offers - everything else uses ResourceButton defaults */
 .resource-button.unclaimed {
     background: linear-gradient(to bottom, #f8cfed, #ffa8e5);
     border: 1px solid #daa520;
 }
 
-.resource-button.unclaimed:hover {
-    background: linear-gradient(to bottom, #ffffff, #ffa8e5);
-    transform: scale(1.02);
+@media (hover: hover) {
+  .resource-button.unclaimed:hover {
+      background: linear-gradient(to bottom, #ffffff, #ffa8e5);
+      transform: scale(1.02);
+  }
 }
 
 .resource-button.unclaimed:active {
@@ -87,8 +91,10 @@
     line-height: 1;
 }
 
-.carnival-logic-modal-close:hover {
-    color: #999;
+@media (hover: hover) {
+  .carnival-logic-modal-close:hover {
+      color: #999;
+  }
 }
 
 .carnival-logic-modal h3 {
@@ -119,8 +125,10 @@
     cursor: pointer;
 }
 
-.carnival-logic-button:hover {
-    background-color: #5ab048;
+@media (hover: hover) {
+  .carnival-logic-button:hover {
+      background-color: #5ab048;
+  }
 }
 
 /* Carnival rewards container styling */

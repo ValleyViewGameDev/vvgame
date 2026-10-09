@@ -159,6 +159,10 @@ value rather than trust this page.
   `btn-success` (confirm/collect), `btn-neutral` (cancel/secondary), `btn-danger`,
   `btn-gold` (premium/gems), `btn-sell`, `btn-collect`, and a size: `btn-mini`, `btn-modal`,
   `btn-modal-small`, `btn-header`. No ad-hoc button styling in feature CSS.
+- Button `:hover` rules live inside `@media (hover: hover) { }`. On touch screens `:hover`
+  sticks after a tap, so an unguarded hover colour (the ResourceButton's is near-white) leaves a
+  tapped button looking spent until something else is tapped (BL-3). A transaction-mode button
+  stays locked until its handler returns, so do not await follow-up refreshes inside it.
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

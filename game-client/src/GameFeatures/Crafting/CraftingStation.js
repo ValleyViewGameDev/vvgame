@@ -348,8 +348,9 @@ const CraftingStation = ({
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         setResources(updatedGlobalResources);
 
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+        // Refresh player data to ensure consistency. Not awaited: the craft button stays locked
+        // (processing) until this handler returns, so a second round trip here kept it pale.
+        refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         // Show "Added" floating text on the slot
         setSlotAddedAnimation(slotIndex);
