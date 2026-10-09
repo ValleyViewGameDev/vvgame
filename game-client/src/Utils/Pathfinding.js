@@ -6,8 +6,9 @@
  * tile with `passable === false` blocks it unless it is a door the player holds the key for
  * (Doors.checkDoorAccess, the same rule keyboard movement applies; the step through the
  * door still runs canPassThroughDoor with its sound and message), and an impassable NPC
- * blocks the tile it stands on. Eight directions, no corner cutting (a diagonal step
- * needs both orthogonal neighbours open), octile heuristic.
+ * blocks the tile it stands on. Eight directions, and a diagonal only needs its target tile
+ * open, exactly like keyboard movement (holding two arrows): it may slip between two trees.
+ * Octile heuristic. Used for the player's tap-to-walk and every NPC route (followPath).
  *
  * If the goal itself is blocked (a tree, a building, an NPC) the path ends on the nearest
  * reachable tile adjacent to it, which is what "tap the thing you want to reach" means.
@@ -168,8 +169,6 @@ export function findPath(start, goal, passable, { stopShort = false } = {}) {
         if (dx === 0 && dy === 0) continue;
         const nx = x + dx, ny = y + dy;
         if (!passable(nx, ny)) continue;
-        // No corner cutting: a diagonal needs both orthogonal neighbours open
-        if (dx !== 0 && dy !== 0 && (!passable(x + dx, y) || !passable(x, y + dy))) continue;
         const nk = key(nx, ny);
         if (closed.has(nk)) continue;
         const ng = g + (dx !== 0 && dy !== 0 ? SQRT2 : 1);

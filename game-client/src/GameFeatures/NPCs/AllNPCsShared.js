@@ -389,7 +389,7 @@ getAdjacentTile(direction) {
   };
 }
 
-// Terrain + resources only (no NPC / player checks): the part a corner-cut check reuses
+// Terrain + resources only (no NPC / player checks): what an A* route may cross
 terrainOpen(x, y, tiles, resources) {
   if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) return false;
   if (this[`validon${tiles[y][x]}`] !== true) return false;
@@ -444,12 +444,8 @@ isValidTile(x, y, tiles, resources, npcs) {
       }
     }
   
-  // **Step 3: the same rules the player's own pathfinding applies (Utils/Pathfinding.js)**
-  // No diagonal corner cutting: both orthogonal neighbours of a diagonal step must be open
-  const dx = x - Math.floor(this.position.x); const dy = y - Math.floor(this.position.y);
-  if (dx !== 0 && dy !== 0 && Math.abs(dx) === 1 && Math.abs(dy) === 1) {
-    if (!this.terrainOpen(x, Math.floor(this.position.y), tiles, resources) || !this.terrainOpen(Math.floor(this.position.x), y, tiles, resources)) return false;
-  }
+  // **Step 3: the same rules as the player (keyboard and Utils/Pathfinding.js)**
+  // A diagonal step only needs its target tile open: it may slip between two trees.
   // Never onto the player's tile
   const me = playersInGridManager.getLocalRecord?.()?.position;
   if (me && Math.round(me.x) === x && Math.round(me.y) === y) return false;
