@@ -55,7 +55,7 @@ import { handleNPCClick } from './NPCUtils';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { prepareBulkCraftingData, executeBulkCrafting } from '../FarmHands/BulkCrafting';
 import { createCollectEffect } from '../../VFX/VFX';
-import { startHeadlineEffect, stopHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
+import { startHeadlineEffect, stopHeadlineEffect } from '../../VFX/NPCVFX';
 import { playNPCConversation } from '../Relationships/Conversation';
 import ConversationManager from '../Relationships/ConversationManager';
 import { getNPCRelationship, updateNPCRelationship } from '../Relationships/RelationshipUtils';
@@ -109,6 +109,12 @@ export function nextCitizenState(npc, from) {
   return order.find((s) => stateSeconds(npc, s) > 0) || null;
 }
 
+/**
+ * The headline the state calls for is up and follows the NPC. Called on every state change
+ * AND every tick: a citizen that loads already resting (the state is persisted), or whose
+ * grid change cleared every headline, never passes through enterCitizenState, so the tick
+ * has to start it. Cheap when it is already up (NPCVFX just moves it).
+ */
 function setHeadline(npc, state) {
   const h = HEADLINE[state];
   if (h) startHeadlineEffect(npc.id, h.type, npc.position, { emoji: h.emoji });
@@ -529,7 +535,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
         this.path = null;
         setHeadline(this, 'waiting');
       }
-      updateHeadlineEffectPosition(this.id, this.position);
+      setHeadline(this, 'waiting');
       return;
     }
     if (this.citizenState === 'waiting') {
@@ -561,7 +567,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
   if (!this.citizenState || !CITIZEN_STATES.includes(this.citizenState) || now >= (this.citizenStateUntil || 0)) {
     enterCitizenState(this, nextCitizenState(this, this.citizenState) || 'working', gridId, now);
   }
-  updateHeadlineEffectPosition(this.id, this.position);
+  setHeadline(this, this.citizenState); // started here too: a resumed state never entered via enterCitizenState
 
   // ---- inside the state
   switch (this.citizenState) {
