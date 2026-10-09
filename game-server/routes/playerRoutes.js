@@ -1675,8 +1675,10 @@ router.post('/mark-grid-visited', async (req, res) => {
 
 // POST /api/grids-tiles - Fetch tiles for multiple grids by gridCoord
 router.post('/grids-tiles', async (req, res) => {
-  // Settlement-view thumbnails. Homestead cells show the owned grid's tiles; town/valley cells show the
-  // VIEWER's own copy (per-player world). Cells the viewer has never materialised are simply absent.
+  // Settlement-view thumbnails for the cells the client says are visited. Homestead cells show the owned
+  // grid's tiles; town/valley cells show the VIEWER's own copy (per-player world). A visited cell with no
+  // copy yet (copies are made on first entry; the "Set All Grids Visited" debug sets bits only) falls back
+  // to the template instance the copy would be created from (Settlement.grids[].gridId).
   const { playerId, settlementId, gridCoords } = req.body;
   if (!settlementId || !Array.isArray(gridCoords)) {
     return res.status(400).json({ error: 'settlementId and gridCoords array are required.' });
@@ -1687,10 +1689,14 @@ router.post('/grids-tiles', async (req, res) => {
     const wanted = new Set(gridCoords.map(Number));
     const homesteadIds = [];
     const copyCoords = [];
+    const templateIdByCoord = new Map();
     for (const cell of settlement.grids.flat()) {
       if (!cell || !wanted.has(Number(cell.gridCoord))) continue;
       if (cell.gridType === 'homestead') { if (cell.gridId) homesteadIds.push(cell.gridId); }
-      else copyCoords.push(Number(cell.gridCoord));
+      else {
+        copyCoords.push(Number(cell.gridCoord));
+        if (cell.gridId) templateIdByCoord.set(Number(cell.gridCoord), cell.gridId);
+      }
     }
     const tilesMap = {};
     if (homesteadIds.length) {
@@ -1700,6 +1706,14 @@ router.post('/grids-tiles', async (req, res) => {
     if (playerId && copyCoords.length) {
       const copies = await Grid.find({ ownerId: playerId, gridCoord: { $in: copyCoords } }).select('tiles gridCoord').lean();
       for (const g of copies) tilesMap[g.gridCoord] = g.tiles;
+    }
+    const templateIds = copyCoords.filter((c) => tilesMap[c] == null && templateIdByCoord.has(c)).map((c) => templateIdByCoord.get(c));
+    if (templateIds.length) {
+      const templates = await Grid.find({ _id: { $in: templateIds } }).select('tiles').lean();
+      const tilesById = new Map(templates.map((g) => [String(g._id), g.tiles]));
+      for (const [coord, id] of templateIdByCoord) {
+        if (tilesMap[coord] == null && tilesById.get(String(id))) tilesMap[coord] = tilesById.get(String(id));
+      }
     }
     res.json({ success: true, tilesMap });
   } catch (error) {

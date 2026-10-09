@@ -1,10 +1,10 @@
 /**
  * NPCVFX - headline effects: a small looping effect that floats above an NPC's head for as
- * long as a state lasts (Zzz while resting, an emoji while waiting, talking, and so on).
+ * long as a state lasts (Zzz while resting, ??? while waiting, an emoji while eating, and so on).
  * Ported from SimGame's NPCVFX for docs/citizens.md (Track 4). DOM particles in the
  * camera-mirrored overlay (BASE px, current grid at the origin), like VFX.js.
  *
- *   startHeadlineEffect(npcId, 'Zzz', position)
+ *   startHeadlineEffect(npcId, 'Zzz', position)          // or 'question': ? ? ?, shrinking like Zzz
  *   startHeadlineEffect(npcId, 'emoji', position, { emoji: '💬' })
  *   updateHeadlineEffectPosition(npcId, position)   // when the NPC moves
  *   stopHeadlineEffect(npcId)
@@ -15,6 +15,7 @@ const HEADLINE_VERTICAL_OFFSET = 0.75; // tiles above the sprite's centre (NPCs 
 
 const VFX_CONFIG = {
   Zzz: { duration: 2000, stagger: 600, count: 3, loopEvery: 2600 },
+  question: { duration: 2000, stagger: 600, count: 3, loopEvery: 2600 },
   emoji: { duration: 1800, stagger: 500, count: 3, loopEvery: 2400 },
 };
 
@@ -54,12 +55,15 @@ function spawnGlyph(effect, char, { size, color = 'white', index = 0, duration }
   });
 }
 
+const TEXT_SERIES = { Zzz: ['Z', 'z', 'z'], question: ['?', '?', '?'] };
+
 function runWave(effect, type, options) {
   const cfg = VFX_CONFIG[type] || VFX_CONFIG.emoji;
   for (let i = 0; i < cfg.count; i++) {
     effect.timeoutIds.push(setTimeout(() => {
-      if (type === 'Zzz') {
-        const chars = ['Z', 'z', 'z']; const sizes = [1.0, 0.8, 0.6];
+      if (TEXT_SERIES[type]) {
+        // Shrinking text glyphs, big to small (Zzz, ???)
+        const chars = TEXT_SERIES[type]; const sizes = [1.0, 0.8, 0.6];
         spawnGlyph(effect, chars[i % 3], { size: effect.t * 0.5 * sizes[i % 3], index: i, duration: cfg.duration });
       } else {
         spawnGlyph(effect, options.emoji || '❓', { size: effect.t * 0.45, index: i, duration: cfg.duration });
@@ -71,7 +75,7 @@ function runWave(effect, type, options) {
 /**
  * Start (or replace) the headline effect above an NPC. Loops until stopped.
  * @param {string} npcId
- * @param {'Zzz'|'emoji'} effectType
+ * @param {'Zzz'|'question'|'emoji'} effectType
  * @param {{x:number,y:number}} position  tile position
  * @param {{emoji?: string}|string} [options]
  */

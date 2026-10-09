@@ -751,16 +751,23 @@ const PixiRenderer = ({
 
   // Trackpad / mouse wheel pans the view (the old scroll container did this for free).
   // Native listener because React registers wheel as passive and preventDefault would be ignored.
+  // Also on the world overlay: preview cells that opt into pointer events (developer grid travel at
+  // Settlement zoom, relocation at Frontier zoom) sit over the canvas and would swallow the wheel.
   useEffect(() => {
     const host = containerRef.current;
     if (!host) return undefined;
+    const overlay = overlayRef.current;
     const onWheel = (event) => {
       event.preventDefault();
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? host.clientHeight : 1;
       PixiCamera.panBy(-event.deltaX * unit, -event.deltaY * unit);
     };
     host.addEventListener('wheel', onWheel, { passive: false });
-    return () => host.removeEventListener('wheel', onWheel);
+    if (overlay) overlay.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      host.removeEventListener('wheel', onWheel);
+      if (overlay) overlay.removeEventListener('wheel', onWheel);
+    };
   }, []);
 
   // Grid offset is always 0 - the current grid renders at origin (0,0)

@@ -58,7 +58,7 @@ const ROAM_LEASH = 4;     // tiles a worker wanders from its slot while roaming
 const EAT_FAIL_MS = 20000; // give up on a food target you cannot reach after this long
 
 const STATE_FIELD = { working: 'stateWorking', resting: 'stateResting', roaming: 'stateRoaming', eating: 'stateEating', socializing: 'stateSocializing' };
-const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'emoji', emoji: '?' }, eating: { type: 'emoji', emoji: '🍽️' } };
+const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'question' }, eating: { type: 'emoji', emoji: '🍽️' } };
 
 // ---------------------------------------------------------------- context from App
 let ctx = null; // { currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources, updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE, openPanel, masterTrophies }
