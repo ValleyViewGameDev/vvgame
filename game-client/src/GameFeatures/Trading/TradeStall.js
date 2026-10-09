@@ -444,11 +444,15 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
     // Check if selling all of a crop item
     if (amount === resourceInInventory.quantity && isACrop(resource, masterResources)) {
-      // Check if the plot for this crop has a cost
+      // Warn only when replanting this crop COSTS this crop (Corn Plot costs 1 Corn), so selling
+      // the last one ends it. Not for crops off self-regenerating trees (Olive, Apple: the doober
+      // is `repeatable` and its tree costs Money), nor for any plot that costs something else.
+      const cropDef = masterResources.find(res => res.type === resource);
       const plotResource = masterResources.find(res => res.output === resource && res.category === 'farmplot');
-      const plotHasCost = plotResource && plotResource.ingredient1qty > 0;
-      
-      // Only show confirmation if the plot has a cost (e.g., Corn Plot costs 1 Corn)
+      const plotCostsTheCrop = !!plotResource && Array.from({ length: 10 }, (_, i) => i + 1)
+        .some(i => plotResource[`ingredient${i}`] === resource && plotResource[`ingredient${i}qty`] > 0);
+      const plotHasCost = plotCostsTheCrop && cropDef?.repeatable !== true;
+
       if (plotHasCost) {
         // Show confirmation modal using standard modal system
         setModalContent({
