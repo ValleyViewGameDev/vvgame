@@ -1847,40 +1847,45 @@ const PixiRenderer = ({
           pointerEvents: 'none',
         }}
       >
-        {/* Frontier settlement previews; hidden during zoom animation to avoid a flash */}
-        <PixiRendererFrontierSettlements
-          isActive={isFrontierZoom && !isZoomAnimating}
-          currentSettlementPosition={currentSettlementPosition}
-          frontierData={frontierData}
-          frontierSettlementGrids={frontierSettlementGrids}
-          currentPlayer={currentPlayer}
-          settlementPixelSize={singleSettlementPixelSizeBase}
-          zoomScale={1}
-          screenScale={zoomScale}
-          onGridClick={onFrontierGridClick}
-          containerOffset={frontierOffset}
-          isRelocating={isRelocating}
-        />
-        {/* Settlement grid previews (the current grid itself is the live canvas) */}
-        <PixiRendererSettlementGrids
-          isActive={(isSettlementZoom || isFrontierZoom) && !isZoomAnimating}
-          currentGridPosition={currentGridPosition}
-          settlementData={settlementData}
-          visitedGridTiles={visitedGridTiles}
-          players={settlementPlayers}
-          TILE_SIZE={TILE_SIZE}
-          zoomScale={1}
-          screenScale={zoomScale}
-          masterResources={masterResources}
-          onGridClick={onSettlementGridClick}
-          strings={strings}
-          settlementOffset={settlementOffset}
-          isFrontierZoom={isFrontierZoom}
-          isDeveloper={isDeveloper}
-          isRelocating={isRelocating}
-          onRelocationGridClick={onFrontierGridClick}
-          currentSettlementPosition={currentSettlementPosition}
-        />
+        {/* Settlement and frontier previews, laid out in ON-SCREEN px: this wrapper undoes the
+            camera's scale, so a settlement at frontier zoom is ~130 px of DOM, not 23,040 px
+            shrunk 1/180 (iOS Safari rasterised that at full size and killed the tab). */}
+        <div style={{ position: 'absolute', left: 0, top: 0, width: 0, height: 0, overflow: 'visible', transform: `scale(${1 / zoomScale})`, transformOrigin: '0 0' }}>
+          {/* Frontier settlement previews; hidden during zoom animation to avoid a flash */}
+          <PixiRendererFrontierSettlements
+            isActive={isFrontierZoom && !isZoomAnimating}
+            currentSettlementPosition={currentSettlementPosition}
+            frontierData={frontierData}
+            frontierSettlementGrids={frontierSettlementGrids}
+            currentPlayer={currentPlayer}
+            settlementPixelSize={singleSettlementPixelSizeBase}
+            zoomScale={zoomScale}
+            screenScale={zoomScale}
+            onGridClick={onFrontierGridClick}
+            containerOffset={frontierOffset}
+            isRelocating={isRelocating}
+          />
+          {/* Settlement grid previews (the current grid itself is the live canvas) */}
+          <PixiRendererSettlementGrids
+            isActive={(isSettlementZoom || isFrontierZoom) && !isZoomAnimating}
+            currentGridPosition={currentGridPosition}
+            settlementData={settlementData}
+            visitedGridTiles={visitedGridTiles}
+            players={settlementPlayers}
+            TILE_SIZE={TILE_SIZE}
+            zoomScale={zoomScale}
+            screenScale={zoomScale}
+            masterResources={masterResources}
+            onGridClick={onSettlementGridClick}
+            strings={strings}
+            settlementOffset={settlementOffset}
+            isFrontierZoom={isFrontierZoom}
+            isDeveloper={isDeveloper}
+            isRelocating={isRelocating}
+            onRelocationGridClick={onFrontierGridClick}
+            currentSettlementPosition={currentSettlementPosition}
+          />
+        </div>
         {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
         {doinkerType !== 'button' && doinkerType !== 'element' && (
           <PixiRendererDoinker

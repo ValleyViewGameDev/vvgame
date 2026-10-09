@@ -123,16 +123,20 @@ export function clearGridSnapshotCache() {
  * At frontier zoom: no border (cells are too small for visible borders)
  * At settlement zoom: thin border (0.5px)
  */
-const getGridBorder = (borderColor, isFrontierZoom, screenScale = 1) => {
+// k = layout px per on-screen px (zoomScale / screenScale)
+const getGridBorder = (borderColor, isFrontierZoom, k = 1) => {
   if (isFrontierZoom) return 'none';
-  return `${0.5 / screenScale}px solid ${borderColor}`;
+  return `${0.5 * k}px solid ${borderColor}`;
 };
 
 /**
  * LAYOUT MODEL: this component now lives inside the `.pixi-world-container` overlay, which
- * PixiCamera CSS-transforms to match the Pixi world. Positions and sizes are BASE px
- * (`zoomScale` is passed as 1); `screenScale` is the real on-screen zoom, used only to keep
- * text, borders and glows the same on-screen size they had before (base px = screen px / scale).
+ * PixiCamera CSS-transforms to match the Pixi world, inside a wrapper that undoes that scale
+ * (PixiRenderer), so the cells are laid out in ON-SCREEN px: `zoomScale` (base -> layout) and
+ * `screenScale` (base -> screen) are both the real zoom, and k = zoomScale / screenScale = 1
+ * converts on-screen sizes for text, borders and glows. Laying the previews out in base px
+ * (a settlement is 23,040 px) and shrinking them 1/180 at frontier zoom made iOS Safari
+ * rasterise 2,000 px emoji and 7,200 px glow blurs and kill the tab (2026-10-09).
  */
 
 /**
@@ -156,7 +160,7 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, screenScale = zoomScale, 
         width: size * zoomScale,
         height: size * zoomScale,
         backgroundColor: bgColor,
-        border: getGridBorder(borderColor, isFrontierZoom, screenScale),
+        border: getGridBorder(borderColor, isFrontierZoom, zoomScale / screenScale),
         boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
@@ -168,10 +172,10 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, screenScale = zoomScale, 
       {displayLabel && (
         <span style={{
           color: textColor,
-          fontSize: Math.max(8, size * screenScale * 0.08) / screenScale,
+          fontSize: Math.max(8, size * screenScale * 0.08) * zoomScale / screenScale,
           fontFamily: 'sans-serif',
           fontWeight: isUnoccupiedHomestead ? 'bold' : 'normal',
-          textShadow: isUnoccupiedHomestead ? `${1 / screenScale}px ${1 / screenScale}px ${2 / screenScale}px rgba(0, 0, 0, 0.7)` : 'none',
+          textShadow: isUnoccupiedHomestead ? `${zoomScale / screenScale}px ${zoomScale / screenScale}px ${2 * zoomScale / screenScale}px rgba(0, 0, 0, 0.7)` : 'none',
         }}>
           {displayLabel}
         </span>
@@ -191,9 +195,9 @@ const CurrentGridGlow = ({ x, y, size, zoomScale, screenScale = zoomScale }) => 
       top: y * zoomScale,
       width: size * zoomScale,
       height: size * zoomScale,
-      border: `${4 / screenScale}px solid ${CURRENT_GRID_GLOW}`,
+      border: `${4 * zoomScale / screenScale}px solid ${CURRENT_GRID_GLOW}`,
       boxSizing: 'border-box',
-      boxShadow: `0 0 ${20 / screenScale}px ${CURRENT_GRID_GLOW}, 0 0 ${40 / screenScale}px ${CURRENT_GRID_GLOW}, inset 0 0 ${20 / screenScale}px rgba(255, 215, 0, 0.3)`,
+      boxShadow: `0 0 ${20 * zoomScale / screenScale}px ${CURRENT_GRID_GLOW}, 0 0 ${40 * zoomScale / screenScale}px ${CURRENT_GRID_GLOW}, inset 0 0 ${20 * zoomScale / screenScale}px rgba(255, 215, 0, 0.3)`,
       pointerEvents: 'none',
       zIndex: 10,
     }}
@@ -212,7 +216,7 @@ const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, screenScale = zoomSc
       top: y * zoomScale,
       width: size * zoomScale,
       height: size * zoomScale,
-      border: getGridBorder(GRASS_BORDER, isFrontierZoom, screenScale),
+      border: getGridBorder(GRASS_BORDER, isFrontierZoom, zoomScale / screenScale),
       boxSizing: 'border-box',
       backgroundImage: `url(${dataUrl})`,
       backgroundSize: 'cover',
@@ -235,7 +239,7 @@ const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, screenScale = zoomSc
 const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomScale, masterResources, isFrontierZoom = false, onClick, isClickable = false }) => {
   const scaledSize = size * zoomScale;
   const screenSize = size * screenScale;          // on-screen px, for choosing text sizes
-  const px = (screenPx) => screenPx / screenScale; // on-screen px -> base px
+  const px = (screenPx) => screenPx * zoomScale / screenScale; // on-screen px -> layout px
 
   // At frontier zoom, show house emoji instead of text (text is too small to read)
   if (isFrontierZoom) {
@@ -250,7 +254,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
           width: scaledSize,
           height: scaledSize,
           backgroundColor: HOMESTEAD_BG,
-          border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, screenScale),
+          border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, zoomScale / screenScale),
           boxSizing: 'border-box',
           display: 'flex',
           alignItems: 'center',
@@ -312,7 +316,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         width: scaledSize,
         height: scaledSize,
         backgroundColor: HOMESTEAD_BG,
-        border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, screenScale),
+        border: getGridBorder(HOMESTEAD_BORDER, isFrontierZoom, zoomScale / screenScale),
         boxSizing: 'border-box',
         padding: px(3),
         display: 'flex',
@@ -421,7 +425,7 @@ const PixiRendererSettlementGrids = ({
   visitedGridTiles,            // Map of gridCoord → base64 encoded tiles
   players,                     // Map of playerId → player data
   TILE_SIZE,                   // Tile size in pixels
-  zoomScale = 1,               // Layout scale (1 inside the camera-mirrored overlay)
+  zoomScale = 1,               // Layout scale: base px -> layout px. PixiRenderer passes the real zoom inside a 1/zoom counter-scaled wrapper, so layout px == screen px
   screenScale = zoomScale,     // Real on-screen zoom (for text/border sizing)
   masterResources,             // Master resources list (for trade stall symbols)
   onGridClick,                 // Callback when a grid is clicked (gridData, row, col) => void
