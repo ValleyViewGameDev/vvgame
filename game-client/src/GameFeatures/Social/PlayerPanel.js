@@ -405,23 +405,20 @@ const PlayerPanel = ({
         </button>
       </div>
 
-<br />
-
-      {/* Skills - Clickable H3 */}
-      <h3
-        onClick={() => openPanel('SkillsPanel')}
-        style={{ cursor: 'pointer', textDecoration: 'underline' }}
-      >
-        {strings[1105]} ({currentPlayer.skills?.length || 0})
-      </h3>
-
-      {/* Combat Stats - Clickable H3 */}
-      <h3
-        onClick={() => openPanel('CombatPanel')}
-        style={{ cursor: 'pointer', textDecoration: 'underline' }}
-      >
-        {strings[1124]}
-      </h3>
+      {/* Inventory, Skills, Combat */}
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => openPanel('InventoryPanel')}>
+          {strings[10103]}
+        </button>
+      </div>
+      <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
+        <button className="btn-basic" style={{ flex: 1 }} onClick={() => openPanel('SkillsPanel')}>
+          {strings[1105]} ({currentPlayer.skills?.length || 0})
+        </button>
+        <button className="btn-basic" style={{ flex: 1 }} onClick={() => openPanel('CombatPanel')}>
+          {strings[1124]}
+        </button>
+      </div>
 <br />
 
       {/* Settings - Clickable H3 */}

@@ -4,6 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { useStrings } from '../../UI/StringsContext';
+import { usePanelContext } from '../../UI/Panels/PanelContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
@@ -23,6 +24,7 @@ const WarehousePanel = ({
   masterWarehouse,
   updateStatus,
 }) => {
+  const { openPanel } = usePanelContext();
   const strings = useStrings();
   const inventory = currentPlayer?.inventory || [];
   const [currentLevel, setCurrentLevel] = useState(0);
@@ -202,7 +204,11 @@ const WarehousePanel = ({
           )}
         </div>
 
-
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={() => openPanel('InventoryPanel')}>
+            {strings[10103]}
+          </button>
+        </div>
 
         {nextLevel ? (
           <>
