@@ -414,19 +414,16 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   // Edge crossings (isValidMove triggers them) must not keep stepping while the grid changes
   if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) stopMovement();
 
-  // Walking into a signpost takes it (BL-7). Signposts stay impassable in resources.json, so
-  // A*, NPCs and placement still route around them; a step onto one runs the same path as a
-  // tap on it (App's onEnterTile -> handleTileClick), like an edge crossing does for the edge.
+  // Walking into a signpost takes it (BL-7): the avatar steps ONTO the signpost, then the same
+  // path as a tap on it runs (App's onEnterTile -> handleTileClick). Signposts stay impassable in
+  // resources.json, so A*, NPCs and placement still route around them; only this deliberate
+  // step may enter one.
   const signpost = onEnterTile && GlobalGridStateTilesAndResources.getResources()?.find(
     (r) => r && r.x === targetX && r.y === targetY && typeof r.type === 'string' && r.type.startsWith('Signpost')
   );
-  if (signpost) {
-    stopMovement();
-    onEnterTile(targetY, targetX, signpost);
-    return false;
-  }
+  if (signpost) stopMovement();
 
-  if (!(await isValidMove(targetX, targetY, masterResources,
+  if (!signpost && !(await isValidMove(targetX, targetY, masterResources,
     currentPlayer,
     setCurrentPlayer,
     setGridId,
@@ -474,6 +471,8 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
     );
     if (here || readyAnimal) onEnterTile(targetY, targetX, here || null);
   }
+  // Let the step onto the signpost play before the trip starts
+  if (signpost) setTimeout(() => onEnterTile(targetY, targetX, signpost), MOVEMENT_STEP_MS);
   return true;
 }
 
