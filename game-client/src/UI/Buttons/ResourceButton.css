@@ -160,25 +160,40 @@
 /* INFO TOOLTIP
 
 
-/* Tooltip or info button */
+/* ℹ️ details badge (InfoButton.js): a sibling of the <button> inside the wrapper, so offsets
+   include the button's 4px top margin */
 .info-button {
   position: absolute;
-  top: 5px;
+  top: 9px;
   right: 10px;
   cursor: help;
   font-size: 12px;
   color: var(--color-text-secondary);
+  z-index: 10;
+}
+
+/* Touch: the badge is a tap target, so give it a 36px hit area without moving the glyph */
+@media (hover: none) {
+  .info-button {
+    padding: 12px;
+    margin: -12px;
+  }
+}
+
+.resource-button-wrapper--mini > .info-button {
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Gem purchase button */
 .gem-button {
   position: absolute;
-  top: 29px;
+  top: 34px; /* on the "Requires:" row, clear of the title */
   right: 10px;
   cursor: pointer;
   font-size: 12px;
   background-color: var(--color-btn-gem);
-  color: var(--color-text-white);
+  color: var(--color-btn-gem-hover); /* blue on the pale-blue chip; white on the dark hover */
   border-radius: 3px;
   padding: 2px 6px;
   display: inline-flex;
@@ -193,6 +208,7 @@
 @media (hover: hover) {
   .gem-button:hover:not(.disabled) {
     background-color: var(--color-btn-gem-hover);
+    color: var(--color-text-white);
     box-shadow: 0 2px 4px var(--color-shadow);
   }
 }
@@ -214,6 +230,11 @@
     background-color: var(--color-text-muted);
     box-shadow: 0 1px 3px var(--color-shadow);
   }
+}
+
+/* Tap-opened details (touch): anchored under the badge, not centred on a cursor */
+.info-toaster.info-toaster--tap {
+  transform: none;
 }
 
 /* ✅ Floating Info Toaster - Renders on top of everything */
@@ -351,7 +372,6 @@
   display: none;
 }
 
-.resource-button.mini .info-button {
-  position: static;
-  margin-left: auto;
+.resource-button.mini {
+  padding-right: 28px; /* room for the ℹ️ badge beside the button text */
 }

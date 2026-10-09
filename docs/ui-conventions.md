@@ -169,10 +169,13 @@ value rather than trust this page.
 - No hovertips on touch screens (BL-4). Every hover tooltip checks `canHover()`
   (`Utils/inputMode.js`) before it opens; touch browsers fake mouseenter on a tap, so an
   unguarded tip pops up under the finger and sticks. Whatever a tip says that the player needs
-  goes on the control itself: the gem button prints its cost (`💎12`, every layout), the
-  crafting station prints the next slot's unlock cost under the slots, a trophy card prints
-  how to earn it. The ℹ️ badge on resource buttons is desktop only. The board's long-press
-  tooltip is a touch gesture, not a hovertip, and stays.
+  goes on the control itself: the gem button prints its cost (`💎12`, blue on the pale-blue
+  chip, every layout), the crafting station prints the next slot's unlock cost under the slots
+  and a gem slot's price on its lock. Secondary details go behind the ℹ️ badge,
+  `UI/Buttons/InfoButton.js` (resource buttons, trophy cards): hover on desktop, a TAP on touch
+  opens it under the badge and the next tap anywhere closes it; the tap never reaches the
+  control underneath. Render it outside a `<button>` (a disabled button swallows taps). The
+  board's long-press tooltip is a touch gesture, not a hovertip, and stays.
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

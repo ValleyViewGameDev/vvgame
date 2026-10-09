@@ -5,6 +5,7 @@ import { useStrings } from '../StringsContext';
 import { usePanelContext } from '../Panels/PanelContext';
 import { formatNumber } from '../Timers';
 import { canHover } from '../../Utils/inputMode';
+import InfoButton from './InfoButton';
 import './ResourceButton.css';
 
 // Function to format numbers in HTML details strings
@@ -60,8 +61,6 @@ const ResourceButton = ({
 }) => {
   const strings = useStrings();
   const { openPanel } = usePanelContext();
-  const [showInfo, setShowInfo] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [internalProcessing, setInternalProcessing] = useState(false);
   // Combined processing state - either internal (transaction mode) or external (cursor mode)
   const isProcessing = internalProcessing || externalProcessing;
@@ -69,8 +68,8 @@ const ResourceButton = ({
   const [showGemTooltip, setShowGemTooltip] = useState(false);
   const [gemTooltipPosition, setGemTooltipPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
-  // Touch screens get no hovertips: the ℹ️ badge is dropped and the gem cost is printed on the
-  // gem button itself (it is also shown on desktop, where the tooltip adds the breakdown).
+  // Touch screens get no hovertips: ℹ️ opens on a tap (InfoButton) and the gem cost is printed on
+  // the gem button itself (every layout; desktop's hover tooltip adds the breakdown).
   const hoverTips = canHover();
   
   // Only create gem calculation when we have gem functionality enabled
@@ -103,13 +102,6 @@ const ResourceButton = ({
       console.log(`📱 [RESOURCE_BUTTON] Processing state changed: ${isProcessing} for ${transactionKey}`);
     }
   }, [isProcessing, transactionKey, isTransactionMode]);
-
-  const updateTooltipPosition = (event) => {
-    setTooltipPosition({
-      top: event.clientY + window.scrollY + 10, // ✅ Adjust Y position (below cursor)
-      left: event.clientX + window.scrollX + 15, // ✅ Adjust X position (to the right of cursor)
-    });
-  };
 
   const updateGemTooltipPosition = (event) => {
     setGemTooltipPosition({
@@ -163,7 +155,7 @@ const ResourceButton = ({
   return (
     <>
       <div
-        className="resource-button-wrapper"
+        className={`resource-button-wrapper ${/\bmini\b/.test(className || '') ? 'resource-button-wrapper--mini' : ''}`}
         data-resource-type={resourceType || name}
       >
         <button
@@ -207,22 +199,11 @@ const ResourceButton = ({
           {/* ✅ Render children properly (fixes missing text issue) */}
           {children}
           
-          {/* ✅ Hide "ℹ️" info button when `hideInfo` is true */}
-          {!hideInfo && info && hoverTips && (
-            <span
-              className="info-button"
-              onMouseEnter={(event) => {
-                setShowInfo(true);
-                updateTooltipPosition(event);
-              }}
-              onMouseMove={updateTooltipPosition} // ✅ Dynamically reposition on cursor move
-              onMouseLeave={() => setShowInfo(false)}
-            >
-              ℹ️
-            </span>
-            )}
-
         </button>
+
+        {/* ℹ️ details: hover on desktop, tap on touch. Outside the <button> so a tap on it never
+            fires the button, and still works when the button is disabled. */}
+        {!hideInfo && info && <InfoButton info={info} />}
 
         {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
         {/* Hidden when level requirement not met - cannot bypass level requirements with gems */}
@@ -242,25 +223,6 @@ const ResourceButton = ({
           </span>
         )}
       </div>
-
-      {/* ✅ Render info toaster inside `document.body` for proper layering */}
-      {showInfo && info && hoverTips && ReactDOM.createPortal(
-        <div
-          className="info-toaster"
-          style={{
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-            position: 'absolute', // ✅ Prevents clipping
-          }}
-        >
-          {typeof info === 'string' ? (
-            <p dangerouslySetInnerHTML={{ __html: info }} />
-          ) : (
-            <>{info}</> // ✅ Supports JSX rendering
-          )}
-        </div>,
-        document.body
-      )}
 
       {/* ✅ Render gem tooltip inside `document.body` for proper layering */}
       {showGemTooltip && gemCalculation && hoverTips && ReactDOM.createPortal(

@@ -119,6 +119,27 @@
   transform: scale(0.95);
 }
 
+/* A locked gem slot's price, under the lock: blue on a pale-blue chip like the gem button */
+.crafting-slot-gem-cost {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  border-radius: 3px;
+  background-color: var(--color-btn-gem);
+  color: var(--color-btn-gem-hover);
+  font-size: 12px;
+  font-weight: bold;
+  font-family: var(--font-text-1-family);
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.crafting-slot.locked:has(.crafting-slot-gem-cost) .crafting-slot-icon.locked {
+  transform: translateY(-6px);
+}
+
 .crafting-slot-icon.locked {
   font-size: 22px;
 }

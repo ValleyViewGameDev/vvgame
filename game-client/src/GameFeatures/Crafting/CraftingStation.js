@@ -819,7 +819,13 @@ const CraftingStation = ({
                                 }}
                               >
                                 {!isUnlocked ? (
-                                  <span className="crafting-slot-icon locked">&#x1F512;</span>
+                                  <>
+                                    <span className="crafting-slot-icon locked">&#x1F512;</span>
+                                    {/* Gem slots print their price on the lock (every layout) */}
+                                    {globalTuning?.craftingStationSlotCosts?.[`slot${i}`]?.Gem > 0 && (
+                                      <span className="crafting-slot-gem-cost">💎{formatNumber(globalTuning.craftingStationSlotCosts[`slot${i}`].Gem)}</span>
+                                    )}
+                                  </>
                                 ) : slotIsEmpty ? (
                                   <span className="crafting-slot-icon"></span>
                                 ) : (
