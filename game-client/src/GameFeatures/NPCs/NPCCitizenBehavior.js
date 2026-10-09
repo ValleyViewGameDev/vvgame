@@ -52,7 +52,7 @@ import soundManager from '../../Sound/SoundManager';
 export const CITIZEN_ACTIONS = ['quest', 'trade', 'heal', 'worker'];
 export const CITIZEN_STATES = ['working', 'resting', 'roaming', 'eating', 'socializing'];
 const WAITS_FOR_PLAYER = ['quest', 'trade', 'heal'];
-const WORKER_SLOT_FOR = { 'Farm Hand': 'Farm Hand Slot', Lumberjack: 'Lumberjack Slot', Rancher: 'Rancher Slot', Crafter: 'Crafter Slot', Farmer: 'Farm Hand Slot' };
+const WORKER_SLOT_FOR = { 'Farm Hand': 'Farm Hand Slot', Lumberjack: 'Lumberjack Slot', Rancher: 'Rancher Slot', Crafter: 'Crafter Slot' };
 const TALKER_LEASH = 3;   // tiles a quest/trade/heal citizen wanders from its template tile
 const ROAM_LEASH = 4;     // tiles a worker wanders from its slot while roaming
 const EAT_FAIL_MS = 20000; // give up on a food target you cannot reach after this long
@@ -62,7 +62,17 @@ const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'emoji', emoji: '?
 
 // ---------------------------------------------------------------- context from App
 let ctx = null; // { currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources, updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE, openPanel, masterTrophies }
-export function setCitizenContext(next) { ctx = next; }
+let ctxWaiters = [];
+export function setCitizenContext(next) {
+  ctx = next;
+  const waiting = ctxWaiters; ctxWaiters = [];
+  waiting.forEach((resolve) => resolve());
+}
+/** Resolves on App's next render (or after `ms`), so ctx then carries any state set before. */
+const nextContext = (ms = 500) => new Promise((resolve) => {
+  const timer = setTimeout(resolve, ms);
+  ctxWaiters.push(() => { clearTimeout(timer); resolve(); });
+});
 const noop = () => {};
 
 export const isCitizen = (npc) => !!npc && CITIZEN_ACTIONS.includes(npc.action);
@@ -185,10 +195,13 @@ async function collectDoober(doober, gridId) {
  * Replant the crop a worker just harvested, on the same tile, through the player's own
  * planting path (Farming.handleFarmPlotPlacement: the seed / ingredient cost is spent, the
  * grow timer starts, the server confirms or it rolls back). A repeatable crop has already
- * been replanted for free by handleDooberClick, so it is skipped. Reads `ctx` AFTER the
- * harvest's awaits, so the inventory it spends from already holds the harvested crop.
+ * been replanted for free by handleDooberClick, so it is skipped. A crop's plot costs that
+ * crop, so the one just harvested always pays for it: the replant waits for App's next render
+ * so `ctx.inventory` already holds it. Short anyway (the edge case): the replant fails, the
+ * tile stays empty and the Farm Hand moves on.
  */
 async function replantCrop(crop, gridId) {
+  await nextContext();
   const c = ctx; if (!c) return false;
   const master = c.masterResources || [];
   if (crop.repeatable === true || masterOf(crop.type)?.repeatable === true) return true;
@@ -266,8 +279,7 @@ async function workTick(npc, gridId, tiles, resources, npcs) {
       if (r === 'arrived') await collectAnimal(animal, gridId);
       return 'busy';
     }
-    case 'Farm Hand':
-    case 'Farmer': {
+    case 'Farm Hand': {
       const crop = findReadyCrop(npc);
       if (!crop) return 'done';
       if (!warehouseHasRoom(crop.type, crop.qtycollected || 1)) return 'failed';
