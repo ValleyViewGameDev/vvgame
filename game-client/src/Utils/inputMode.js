@@ -39,9 +39,27 @@ export function withTouchVariants(file) {
  * only: on a touch screen the browser fakes mouseenter/mousemove on every tap, so a hovertip
  * pops up under the finger and sticks. Every hover tooltip checks this before opening, and
  * anything a tooltip says that the player needs (a gem cost, an unlock cost) is printed on
- * the control itself when this is false (docs/ui-conventions.md §5).
+ * the control itself when this is false (docs/ui-conventions.md §5). A touch-first device is
+ * never treated as hovering, even when it reports `(hover: hover)` (several Android phones do).
  */
 export function canHover() {
   if (typeof window === 'undefined' || !window.matchMedia) return true;
+  if (isTouchPrimary()) return false;
   return window.matchMedia('(hover: hover)').matches;
+}
+
+/**
+ * Tag <html> with `touch-ui` on a touch-first device, and keep it current. Some phones (several
+ * Android models) report `(hover: hover)`, so `@media (hover: hover)` alone lets a tapped button
+ * keep its pale hover colour; the resource and quest button hover rules also require
+ * `:where(html:not(.touch-ui))` (zero specificity, so they still lose to .disabled and friends).
+ */
+export function installTouchClass() {
+  if (typeof window === 'undefined' || !window.matchMedia) return;
+  const update = () => document.documentElement.classList.toggle('touch-ui', isTouchPrimary());
+  update();
+  for (const q of ['(pointer: coarse)', '(pointer: fine)']) {
+    const mql = window.matchMedia(q);
+    if (mql.addEventListener) mql.addEventListener('change', update); else if (mql.addListener) mql.addListener(update);
+  }
 }

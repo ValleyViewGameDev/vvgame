@@ -171,10 +171,17 @@ value rather than trust this page.
   `btn-modal-small`, `btn-header`. No ad-hoc button styling in feature CSS.
 - Button `:hover` rules live inside `@media (hover: hover) { }`. On touch screens `:hover`
   sticks after a tap, so an unguarded hover colour (the ResourceButton's is near-white) leaves a
-  tapped button looking spent until something else is tapped (BL-3). A transaction-mode button
+  tapped button looking spent until something else is tapped (BL-3). Some phones claim
+  `(hover: hover)`, so the ResourceButton, QuestButton and Carnival resource-button hover rules
+  also require `:where(html:not(.touch-ui))`: `installTouchClass()` (`Utils/inputMode.js`, run
+  from `index.js`) puts `touch-ui` on `<html>` on a touch-first device, and `:where` adds no
+  specificity, so `.disabled` and the state colours still win. Those cards also set
+  `-webkit-tap-highlight-color: transparent`: on touch, a tap changes nothing but the press
+  (owner 2026-10-09, "let's see how that feels"). A transaction-mode button
   stays locked until its handler returns, so do not await follow-up refreshes inside it.
 - No hovertips on touch screens (BL-4). Every hover tooltip checks `canHover()`
-  (`Utils/inputMode.js`) before it opens; touch browsers fake mouseenter on a tap, so an
+  (`Utils/inputMode.js`) before it opens (false on any touch-first device, even one that
+  reports `(hover: hover)`); touch browsers fake mouseenter on a tap, so an
   unguarded tip pops up under the finger and sticks. Whatever a tip says that the player needs
   goes on the control itself: the gem button prints its cost (`💎12`, blue on the pale-blue
   chip, every layout), the crafting station prints the next slot's unlock cost under the slots

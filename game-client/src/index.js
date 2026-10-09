@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './UI/Styles/mobile.css'; // phone layout; imported after App so it follows every component stylesheet
 import reportWebVitals from './reportWebVitals';
+import { installTouchClass } from './Utils/inputMode';
 import { StatusBarProvider } from './UI/StatusBar/StatusBar';
 import { PanelProvider } from './UI/Panels/PanelContext';
 import { GridStateProvider } from './GridState/GridStateContext';
@@ -13,6 +14,8 @@ import { UILockProvider } from './UI/UILockContext';
 import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
 import { TransitionProvider } from './UI/TransitionContext';
+
+installTouchClass(); // html.touch-ui: no hover colours on resource/quest buttons on touch screens
 
 console.warn("🔥 index.js evaluated again — app may remount");
 

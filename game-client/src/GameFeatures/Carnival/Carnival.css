@@ -7,7 +7,7 @@
 }
 
 @media (hover: hover) {
-  .resource-button.unclaimed:hover {
+  :where(html:not(.touch-ui)) .resource-button.unclaimed:hover {
       background: linear-gradient(to bottom, #ffffff, #ffa8e5);
       transform: scale(1.02);
   }
