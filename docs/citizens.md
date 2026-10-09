@@ -138,3 +138,18 @@ Waiting applies (as to quest and trade). The rest of the healer loop is an open 
 5. Socializing: partner choice, approach, the conversation through `ConversationManager`,
    relationship storage, the fallbacks.
 6. Motives, schedules and little stories (the former "brains" track) on top of this loop.
+
+## Showing the state to the player (2026-10-09)
+
+Like a Farm Animal ("Cow is grazing. 3m 2s"), a Citizen tells you what it is doing in two
+places, both from `GameFeatures/NPCs/citizenStatus.js` (pure; strings 17501-17514):
+
+- the board tooltip (hover, or long-press on touch): name, the state line, the time left in
+  that state;
+- the top of its panel (NPC panel for talkers, Farm Hand panel for workers):
+  `CitizenStatusLine.js`, reading the live NPC every second.
+
+Working is told per worker and task (Lumberjack: heading to a tree / collecting the wood /
+carrying wood to the Warehouse; Rancher, Farm Hand, Crafter one line each; talkers "is
+working."). Waiting reads "is waiting for you." on the board and "is talking with you." in the
+panel. A citizen with no state loop shows nothing new.

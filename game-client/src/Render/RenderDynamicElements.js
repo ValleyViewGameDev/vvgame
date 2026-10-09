@@ -1,5 +1,6 @@
 import { getLocalizedString } from '../Utils/stringLookup';
 import questCache from '../Utils/QuestCache';
+import { citizenStatusText, citizenCountdown } from '../GameFeatures/NPCs/citizenStatus';
 
 /**
  * Generate tooltip content for a resource - shared between Canvas and DOM
@@ -100,6 +101,14 @@ export function generateResourceTooltip(resource, strings, timers = null) {
 /**
  * Generate tooltip content for NPCs - shared between Canvas and DOM
  */
+/** A Citizen's state line (+ countdown) for the tooltip; '' without a state loop. */
+function citizenStatusHtml(npc, strings) {
+  const text = citizenStatusText(npc, strings);
+  if (!text) return '';
+  const clock = citizenCountdown(npc);
+  return `<p>${text}</p>${clock ? `<p>${clock}</p>` : ''}`;
+}
+
 export function generateNPCTooltip(npc, strings) {
   const localizedNPCType = getLocalizedString(npc.type, strings);
   let tooltipContent = `<p>${localizedNPCType}</p>`;
@@ -143,10 +152,16 @@ export function generateNPCTooltip(npc, strings) {
     }
     case 'quest':
       if (npc.type === 'Kent') {
-        tooltipContent = `<p>${localizedNPCType}</p><p>"${strings?.[47] || 'I have special offers!'}"</p>`;
+        tooltipContent = `<p>${localizedNPCType}</p>${citizenStatusHtml(npc, strings)}<p>"${strings?.[47] || 'I have special offers!'}"</p>`;
       } else {
-        tooltipContent = `<p>${localizedNPCType}</p><p>"${strings?.[48] || 'I might have work for you.'}"</p>`;
+        tooltipContent = `<p>${localizedNPCType}</p>${citizenStatusHtml(npc, strings)}<p>"${strings?.[48] || 'I might have work for you.'}"</p>`;
       }
+      break;
+    case 'trade':
+    case 'heal':
+    case 'worker':
+      // Citizens: what they are doing and how long for, like a Farm Animal's state line
+      tooltipContent = `<p>${localizedNPCType}</p>${citizenStatusHtml(npc, strings)}`;
       break;
     case 'attack':
     case 'spawn':

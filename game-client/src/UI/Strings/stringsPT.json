@@ -1279,5 +1279,19 @@
     "4117": "or",
     "4119": "Google sign-in failed.",
     "4120": "Open the browser menu and choose Add to Home screen. The game then opens full screen, without the browser bars.",
-    "7053": "Welcome to your Homestead! This land is yours to build. Make Money by selling your goods to Kent."
+    "7053": "Welcome to your Homestead! This land is yours to build. Make Money by selling your goods to Kent.",
+    "17501": "is working.",
+    "17502": "is heading to a tree.",
+    "17503": "is collecting the wood.",
+    "17504": "is carrying wood to the Warehouse.",
+    "17505": "is tending the animals.",
+    "17506": "is harvesting crops.",
+    "17507": "is collecting from the crafting stations.",
+    "17508": "is resting.",
+    "17509": "is out for a walk.",
+    "17510": "is looking for something to eat.",
+    "17511": "is going to eat.",
+    "17512": "is socializing.",
+    "17513": "is waiting for you.",
+    "17514": "is talking with you."
 }

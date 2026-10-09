@@ -25,6 +25,7 @@ import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
+import CitizenStatusLine from './CitizenStatusLine';
 import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
@@ -900,6 +901,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     <Panel onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
+          <CitizenStatusLine npc={npcData} gridId={currentPlayer?.location?.g} />
 
 {/* //////////////////// QUESTS //////////////////////// */}
 

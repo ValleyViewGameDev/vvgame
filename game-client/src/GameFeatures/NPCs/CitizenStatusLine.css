@@ -1,0 +1,8 @@
+/* "<Name> is resting. 2m 10s": the Citizen's state line (CitizenStatusLine.js), in the NPC and Farm Hand
+   panels; reads like the Farm Animal panel's status line */
+.citizen-status-line {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-family: var(--font-text-1-family);
+  text-align: center;
+}
