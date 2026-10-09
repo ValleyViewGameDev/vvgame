@@ -235,6 +235,24 @@ const playerSchema = new mongoose.Schema({
     }
   ],
 
+  // Citizen-to-citizen relationships as THIS player's world has them (docs/citizens.md §2.2,
+  // decision 7): one row per unordered pair of NPC types (`a` < `b`), seeded from the static
+  // RelationshipMatrix the first time the pair talks and moved by their conversations
+  // (POST /api/npc-relationship). Flags follow the score (utils/npcRelationships.js).
+  npcRelationships: [
+    {
+      a: { type: String, required: true },
+      b: { type: String, required: true },
+      relscore: { type: Number, default: 0 },
+      friend: { type: Boolean, default: false },
+      rival: { type: Boolean, default: false },
+      love: { type: Boolean, default: false },
+      talks: { type: Number, default: 0 },
+      lastTalkAt: { type: Date, default: null },
+      _id: false
+    }
+  ],
+
   trophies: [
     {
       name: { type: String, required: true },

@@ -366,3 +366,45 @@ export const getRelationshipMultiplier = (npcName, currentPlayer, strings) => {
   
   return { multiplier: 1, bonusMessage: '' };
 };
+
+// ---------------------------------------------------------------------------------------------
+// Citizen-to-citizen relationships (docs/citizens.md §2.2, decision 7). One row per unordered
+// pair of NPC types on the Player (`npcRelationships`); a pair the player's world has not seen
+// talk yet reads as the static RelationshipMatrix says (seeded on the first conversation).
+
+export const NPC_FRIEND_AT = 30;
+export const NPC_RIVAL_AT = -30;
+const npcPair = (a, b) => (String(a) < String(b) ? [String(a), String(b)] : [String(b), String(a)]);
+
+/** What the static matrix says about a pair: { relscore, love } (either side naming the other). */
+export const seedNPCRelationship = (a, b) => {
+  const says = (from, to) => RelationshipMatrix.find((e) => e.type === from)?.[to];
+  const r = says(a, b) || says(b, a);
+  if (r === 'love') return { relscore: 80, love: true };
+  if (r === 'friend') return { relscore: 50, love: false };
+  if (r === 'rival') return { relscore: -50, love: false };
+  return { relscore: 0, love: false };
+};
+
+/** The pair's row as this player's world has it, else the seeded static one (`seeded: true`). */
+export const getNPCRelationship = (currentPlayer, a, b) => {
+  const [x, y] = npcPair(a, b);
+  const row = (currentPlayer?.npcRelationships || []).find((r) => r.a === x && r.b === y);
+  if (row) return row;
+  const seed = seedNPCRelationship(x, y);
+  return { a: x, b: y, relscore: seed.relscore, love: seed.love, friend: seed.relscore >= NPC_FRIEND_AT, rival: seed.relscore <= NPC_RIVAL_AT, talks: 0, seeded: true };
+};
+
+/** A conversation between a and b moved their score by delta; the server keeps the row. */
+export const updateNPCRelationship = async (currentPlayer, a, b, delta) => {
+  try {
+    const playerId = currentPlayer._id || currentPlayer.playerId;
+    const current = getNPCRelationship(currentPlayer, a, b);
+    const seed = current.seeded ? { relscore: current.relscore, love: current.love } : undefined;
+    const response = await axios.post(`${API_BASE}/api/npc-relationship`, { playerId, a, b, delta, seed });
+    return { success: !!response.data?.success, relationship: response.data?.relationship, npcRelationships: response.data?.npcRelationships };
+  } catch (error) {
+    console.error('Error updating npc relationship:', error);
+    return { success: false, error: error.message };
+  }
+};

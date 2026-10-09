@@ -2,6 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/AllNPCsShared';
 import { stopAllHeadlineEffects } from '../VFX/NPCVFX';
+import { abortAllConversations } from '../GameFeatures/NPCs/NPCCitizenBehavior';
 import { loadMasterResources } from '../Utils/TuningManager';
 
 class GridStateManager {
@@ -233,6 +234,7 @@ class GridStateManager {
   async initializeFromData(gridId, NPCsInGridData) {
     this.startBatchSaveTimer(); // idempotent: back on after a logout stopped it
     stopAllHeadlineEffects(); // the previous grid's Zzz and the like
+    abortAllConversations(); // and any citizens mid-conversation there
 
     if (!gridId) {
       console.error('initializeFromData: gridId is undefined.');

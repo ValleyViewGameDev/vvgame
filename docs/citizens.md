@@ -38,8 +38,30 @@ before the behaviours are built. Code: `game-client/src/GameFeatures/NPCs/NPCCit
   (4 tiles of home). **eating** walks to a random food doober (master `hp > 0`), eats it
   (the doober is gone), then straight back to working; an unreachable food is dropped after
   20 s.
-- **Talkers' working** = anchored wander within 3 tiles of the template tile; **socializing
-  is not built yet** (behaves like working).
+- **Talkers' working** = anchored wander within 3 tiles of the template tile.
+- **Socializing (2026-10-09):** the citizen picks a partner (one of the three nearest citizens
+  with a socializing length that is not waiting on the player, not already in or walking to a
+  conversation, and did not change state in the last minute), walks to a tile on the partner's
+  row within 3 tiles (2 away on its own side first, then 1, then 3, else any free tile within
+  2), pulls the partner into socializing (held at most 60 s, their task says who holds them),
+  and the Talk plays through the player's own conversation system
+  (`Relationships/Conversation.playNPCConversation`: the same bubbles, the same topic
+  resolution with both sides reading their interests from `RelationshipMatrix.json`, the same
+  match / rival comparison, the partner reacting to what the initiator shows). The roll is the
+  player's Talk rule on a 0.6 base (+0.1 per match, -0.15 per rival topic, +0.15 friends,
+  +0.25 love, -0.15 rivals); 👍 / 👎 float over both, the pair's score moves ±8, and both go to
+  their next state. Nobody about = wander near home and look again every 5 s; an unreachable
+  partner (blocked path, 45 s without arriving, the partner walked off or got taken) is a
+  failure and another partner is tried; the third failure abandons the state. The player
+  walking into range of either citizen ends the conversation at once (waiting comes first).
+- **Citizen-to-citizen relationships** live on the Player as `npcRelationships` (one row per
+  unordered pair of NPC types: `a`, `b`, `relscore`, `friend` / `rival` / `love`, `talks`,
+  `lastTalkAt`), saved by `POST /api/npc-relationship` (`utils/npcRelationships.js` clamps
+  the score to ±100 and keeps the flags in step: friend at ≥ 30, rival at ≤ -30, a seeded love
+  lost under 70). A pair with no row reads as the static matrix says (love 80, friend 50,
+  rival -50, else 0) and is seeded from that on its first talk
+  (`RelationshipUtils.getNPCRelationship` / `updateNPCRelationship`). Nothing shows these to
+  the player yet.
 
 Current numbers (seconds; the owner's spec for the Lumberjack, copied to the other workers
 and placeholders for the talkers until tuned):
@@ -129,6 +151,7 @@ Waiting applies (as to quest and trade). The rest of the healer loop is an open 
 7. **Citizen-to-citizen relationships persist with the player's saved state**: storage is
    added now, on the Player document, seeded from the static type-to-type relationships in
    `RelationshipMatrix.json` and changed by conversation outcomes.
+   Built 2026-10-09 as `Player.npcRelationships` (see §1).
 
 ## 4. Build order (once agreed)
 
@@ -138,7 +161,7 @@ Waiting applies (as to quest and trade). The rest of the healer loop is an open 
 3. Eating.
 4. Talkers: anchored working with the idle leash; waiting polish (face the player).
 5. Socializing: partner choice, approach, the conversation through `ConversationManager`,
-   relationship storage, the fallbacks.
+   relationship storage, the fallbacks. (Built 2026-10-09.)
 6. Motives, schedules and little stories (the former "brains" track) on top of this loop.
 
 ## Showing the state to the player (2026-10-09)

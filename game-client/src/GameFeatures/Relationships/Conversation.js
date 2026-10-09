@@ -249,6 +249,49 @@ export const playConversation = async (
 };
 
 
+/**
+ * A conversation between two CITIZENS (docs/citizens.md §2.2): the same bubbles, the same
+ * topic resolution and the same comparison as the player's Talk, except that both sides
+ * resolve their topics as an NPC does (interests from the RelationshipMatrix) and the partner
+ * reacts to what the initiator shows exactly as an NPC reacts to the player. Speakers are the
+ * two NPC types (the renderer finds an NPC speaker by type). `control.aborted`, set by the
+ * caller, ends it between beats with both bubbles removed.
+ *
+ * Resolves { aborted, results } where results counts the matching and rival topics.
+ */
+export const playNPCConversation = async ({
+  initiatorType, partnerType, initiatorEmoji = '🙂', partnerEmoji = '🙂',
+  interaction = null, masterResources = null, relscore = 0, control = {},
+}) => {
+  const results = { matchingInterests: 0, matchingRandom: 0, matchingTopics: 0, rivalTopics: 0, totalRounds: 0 };
+  const rounds = interaction?.rounds || 3;
+  const base = { masterResources, relscore, interaction };
+  const clear = () => { ConversationManager.removeSpeech(initiatorType); ConversationManager.removeSpeech(partnerType); };
+  const beat = async (ms) => { await delay(ms); return !control.aborted; };
+  for (let i = 0; i < rounds; i++) {
+    const roundNum = i + 1;
+    results.totalRounds = roundNum;
+    const aKey = interaction?.[`playertopic${roundNum}`] || 'random';
+    const aTopic = getTopicSymbol(aKey, { ...base, npcId: initiatorType, npcIcon: initiatorEmoji, roundNum }, false);
+    ConversationManager.addSpeech(initiatorType, initiatorEmoji, aTopic, false);
+    if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
+    ConversationManager.removeSpeech(initiatorType);
+    if (!(await beat(400))) { clear(); return { aborted: true, results }; }
+
+    const bKey = interaction?.[`npctopic${roundNum}`] || 'random';
+    const bTopic = getTopicSymbol(bKey, { ...base, npcId: partnerType, npcIcon: partnerEmoji, playerTopic: aTopic, roundNum }, false);
+    const { matchState } = compareTopics(aTopic, bTopic, partnerType, interaction, roundNum);
+    if (matchState === 'match') results.matchingTopics++;
+    else if (matchState === 'rival') results.rivalTopics++;
+    ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState);
+    if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
+    ConversationManager.removeSpeech(partnerType);
+    if (!(await beat(400))) { clear(); return { aborted: true, results }; }
+  }
+  return { aborted: false, results };
+};
+
+
 // Convert topic key to actual symbol/emoji
 export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => {
   if (!topicKey) return '❓'; // Default fallback

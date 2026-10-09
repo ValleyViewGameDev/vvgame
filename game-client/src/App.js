@@ -2893,7 +2893,7 @@ cursorModeRef.current = cursorMode;
 // the brain gets the live React context every render (GameFeatures/NPCs/NPCCitizenBehavior.js)
 setCitizenContext({
   currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources,
-  updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE: activeTileSize, openPanel, masterTrophies,
+  updateStatus, masterResources, masterSkills, masterInteractions, globalTuning, strings, TILE_SIZE: activeTileSize, openPanel, masterTrophies,
 });
 
 // What a walk-over needs from App (refreshed every render; the handler below is created once)

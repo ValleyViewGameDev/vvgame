@@ -403,7 +403,12 @@ Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor M
 **Design doc: `docs/citizens.md`** (owner's state-loop spec of 2026-10-08 + open questions).
 **Scaffold built 2026-10-08:** one shared brain for the four actions, the state loop with
 per-type lengths in resources.json, Zzz headline effect while resting (`VFX/NPCVFX.js`),
-the waiting interrupt. Inside each state the legacy behaviour still runs.
+the waiting interrupt. **Built 2026-10-09:** persistence of the loop on the NPC record,
+per-type worker slots as homes, A\* routes, the four workers' work cycles, eating, and
+socializing (two citizens meet on a row and Talk through the player's own conversation
+system; their relationship persists on the Player as `npcRelationships`). What remains of
+this track is the second half: motives, schedules and little stories. Status and detail in
+`docs/citizens.md` §1.
 
 Quest givers, Traders, Healers and Workers are one kind ("citizens") with one shared
 behaviour, and this track is about making the Town feel alive and its people feel smart.
@@ -442,7 +447,7 @@ or be deleted. Follow docs/tuning.md.
 2. **The kill route from Track 2.** Built 2026-10-08.
 3. **Track 3a** (movement feel, all kinds). Built 2026-10-08.
 4. **Track 3b** (Enemies: movable home + leash, A\* pursuit).
-5. **Track 4** (Citizens: shared idle/roam, then motives and habits).
+5. **Track 4** (Citizens: shared idle/roam, then motives and habits). State loop, workers, eating, socializing built 2026-10-09; motives remain.
 6. **Track 5** tuning, once the loops exist to tune against.
 
 ## Cleanup to fold into whichever track touches the file

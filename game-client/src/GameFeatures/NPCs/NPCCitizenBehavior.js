@@ -26,7 +26,16 @@
  *   roaming  leashed wander around home (Track 3a legs and pauses).
  *   eating   route to a random food doober (hp > 0) and eat it (a running cost); -> working.
  * Talkers (quest / trade / heal): working = anchored wander inside a short leash of their
- * template tile. Socializing (§2.2) is not built yet: it currently behaves like working.
+ * template tile.
+ *   socializing (§2.2): pick another citizen with a socializing length (not one that changed
+ *            state in the last minute, not one already in a conversation, not one waiting on
+ *            the player), walk to a tile on their row within 3 tiles, pull them into
+ *            socializing too, and have the Talk conversation through the player's own
+ *            conversation system (Relationships/Conversation.playNPCConversation: the same
+ *            bubbles, topics and matching). The outcome moves the pair's relationship on the
+ *            Player (`npcRelationships`, POST /api/npc-relationship), then both go to their
+ *            next state. An unreachable partner is a failure; the third failure abandons the
+ *            state. No partner about = wander and look again every few seconds.
  *
  * Work and eating run through the SAME client code the player and the Bulk commands use
  * (ResourceClicking.handleDooberClick / handleSourceConversion, NPCUtils.handleNPCClick,
@@ -47,6 +56,9 @@ import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { prepareBulkCraftingData, executeBulkCrafting } from '../FarmHands/BulkCrafting';
 import { createCollectEffect } from '../../VFX/VFX';
 import { startHeadlineEffect, stopHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
+import { playNPCConversation } from '../Relationships/Conversation';
+import ConversationManager from '../Relationships/ConversationManager';
+import { getNPCRelationship, updateNPCRelationship } from '../Relationships/RelationshipUtils';
 import soundManager from '../../Sound/SoundManager';
 
 export const CITIZEN_ACTIONS = ['quest', 'trade', 'heal', 'worker'];
@@ -56,12 +68,22 @@ const WORKER_SLOT_FOR = { 'Farm Hand': 'Farm Hand Slot', Lumberjack: 'Lumberjack
 const TALKER_LEASH = 3;   // tiles a quest/trade/heal citizen wanders from its template tile
 const ROAM_LEASH = 4;     // tiles a worker wanders from its slot while roaming
 const EAT_FAIL_MS = 20000; // give up on a food target you cannot reach after this long
+const SOCIAL_RANGE = 3;          // tiles: stand on the partner's row within this many tiles
+const SOCIAL_RECENT_MS = 60000;  // skip a partner that changed state this recently (they may walk off)
+const SOCIAL_FAILS = 3;          // the third failure abandons socializing
+const SOCIAL_RETRY_MS = 5000;    // look for a partner again after this long with none about
+const SOCIAL_APPROACH_MS = 45000; // a partner not reached in this long counts as a failure
+const SOCIAL_TALK_CAP_MS = 60000; // a partner is never held in a conversation longer than this
+const SOCIAL_BASE_CHANCE = 0.6;  // a citizen talk's base chance of going well (the player's Talk: 0.9)
+const SOCIAL_SCORE = 8;          // the relationship moves this much either way (the player's Talk: 8)
+// the player's Talk, when interactions.json is not loaded: 3 rounds, interest / random / people
+const TALK_FALLBACK = { interaction: 'Talk', rounds: 3, chance: 0.9, relscoreresult: 8, playertopic1: 'interest', playertopic2: 'random', playertopic3: 'people', npctopic1: 'interest', npctopic2: 'random', npctopic3: 'people' };
 
 const STATE_FIELD = { working: 'stateWorking', resting: 'stateResting', roaming: 'stateRoaming', eating: 'stateEating', socializing: 'stateSocializing' };
 const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'question' }, eating: { type: 'emoji', emoji: '🍽️' } };
 
 // ---------------------------------------------------------------- context from App
-let ctx = null; // { currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources, updateStatus, masterResources, masterSkills, globalTuning, strings, TILE_SIZE, openPanel, masterTrophies }
+let ctx = null; // { currentPlayer, setCurrentPlayer, inventory, setInventory, backpack, setBackpack, resources, setResources, updateStatus, masterResources, masterSkills, masterInteractions, globalTuning, strings, TILE_SIZE, openPanel, masterTrophies }
 let ctxWaiters = [];
 export function setCitizenContext(next) {
   ctx = next;
@@ -105,6 +127,7 @@ function persist(npc, gridId) {
 export function enterCitizenState(npc, state, gridId, now = Date.now()) {
   npc.citizenState = state;
   npc.citizenStateUntil = now + stateSeconds(npc, state) * 1000;
+  npc.citizenStateAt = now; // memory only: "changed state recently" for partner choice
   npc.citizenTask = null;
   npc.path = null;
   setHeadline(npc, state);
@@ -324,6 +347,167 @@ async function eatTick(npc, gridId, tiles, resources, npcs, now) {
   return 'done';
 }
 
+// ---------------------------------------------------------------- socializing (docs/citizens.md §2.2)
+
+const liveConversations = new Set(); // { npc, partnerId, control }
+
+/** Another citizen this one could go and talk to right now. */
+function canBePartner(me, n, now) {
+  if (!n || n.id === me.id || !isCitizen(n) || stateSeconds(n, 'socializing') <= 0) return false;
+  if (n.citizenState === 'waiting') return false; // (citizens carry no hp)
+  if (n.citizenTask?.partnerId) return false; // already in (or walking to) a conversation
+  if (n.citizenStateAt && now - n.citizenStateAt < SOCIAL_RECENT_MS) return false;
+  return true;
+}
+
+/** A partner: one of the three nearest eligible citizens, not one already tried this state. */
+function pickPartner(me, npcs, now, tried = []) {
+  const options = npcs.filter((n) => canBePartner(me, n, now) && !tried.includes(n.id))
+    .map((n) => ({ n, d: Math.hypot(n.position.x - me.position.x, n.position.y - me.position.y) }))
+    .sort((a, b) => a.d - b.d).slice(0, 3);
+  return options.length ? options[Math.floor(Math.random() * options.length)].n : null;
+}
+
+/** Where to stand to talk: the partner's row, 2 tiles away on my side (then 1, then 3); else any free tile nearby. */
+function meetTile(me, partner, tiles, resources, npcs) {
+  const px = Math.floor(partner.position.x); const py = Math.floor(partner.position.y);
+  const side = Math.sign(Math.floor(me.position.x) - px) || (Math.random() < 0.5 ? -1 : 1);
+  const free = (x, y) => me.terrainOpen(x, y, tiles, resources) && !npcs.some((n) => n && n.id !== me.id && Math.floor(n.position?.x) === x && Math.floor(n.position?.y) === y);
+  for (const d of [2, 1, 3]) for (const sgn of [side, -side]) { const x = px + sgn * d; if (free(x, py)) return { x, y: py }; }
+  for (let r = 1; r <= 2; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (free(px + dx, py + dy)) return { x: px + dx, y: py + dy }; }
+  return null;
+}
+
+/** In talking position: on the partner's row within range, or right next to them. */
+const inTalkRange = (me, partner) => {
+  const dx = Math.abs(Math.floor(me.position.x) - Math.floor(partner.position.x));
+  const dy = Math.abs(Math.floor(me.position.y) - Math.floor(partner.position.y));
+  return (dy === 0 && dx <= SOCIAL_RANGE) || (dx <= 1 && dy <= 1);
+};
+
+const faceEachOther = (a, b) => {
+  const dx = Math.floor(b.position.x) - Math.floor(a.position.x);
+  if (dx) { a.facing = dx > 0 ? 1 : -1; b.facing = dx > 0 ? -1 : 1; }
+};
+
+/**
+ * Start the conversation: the partner is pulled into socializing (held for the talk, capped),
+ * the Talk plays through the conversation system, and the outcome moves the pair's
+ * relationship. Resolves when both are free to move on.
+ */
+function startConversation(me, partner, gridId, now) {
+  const c = ctx;
+  enterCitizenState(partner, 'socializing', gridId, now);
+  partner.citizenStateUntil = now + SOCIAL_TALK_CAP_MS;
+  setTask(partner, gridId, { phase: 'partner', partnerId: me.id });
+  setTask(me, gridId, { ...(me.citizenTask || {}), phase: 'talk', partnerId: partner.id });
+  faceEachOther(me, partner);
+
+  const control = { aborted: false };
+  const live = { npc: me, partnerId: partner.id, control };
+  liveConversations.add(live);
+  const interaction = (c?.masterInteractions || []).find((i) => i.interaction === 'Talk') || TALK_FALLBACK;
+  const rel = getNPCRelationship(c?.currentPlayer, me.type, partner.type);
+  const promise = playNPCConversation({
+    initiatorType: me.type, partnerType: partner.type, initiatorEmoji: me.symbol, partnerEmoji: partner.symbol,
+    interaction, masterResources: c?.masterResources, relscore: rel.relscore, control,
+  }).then(({ aborted, results }) => {
+    liveConversations.delete(live);
+    if (aborted || !c?.currentPlayer) return;
+    // the roll: the player's Talk rules (matches help, rivals hurt), plus how they already feel
+    let chance = SOCIAL_BASE_CHANCE + 0.1 * results.matchingTopics - 0.15 * results.rivalTopics;
+    if (rel.love) chance += 0.25; else if (rel.friend) chance += 0.15;
+    if (rel.rival) chance -= 0.15;
+    const success = Math.random() <= Math.max(0.05, Math.min(1, chance));
+    const delta = success ? SOCIAL_SCORE : -SOCIAL_SCORE;
+    ConversationManager.showOutcome(me.type, success);
+    ConversationManager.showOutcome(partner.type, success);
+    updateNPCRelationship(c.currentPlayer, me.type, partner.type, delta).then((r) => {
+      if (r.success && r.npcRelationships && c.setCurrentPlayer) c.setCurrentPlayer((prev) => (prev ? { ...prev, npcRelationships: r.npcRelationships } : prev));
+    });
+  }).catch(() => liveConversations.delete(live));
+  live.promise = promise;
+  return promise;
+}
+
+/** Release a partner this citizen pulled into a conversation (they go to their next state). */
+function releasePartner(me, gridId, npcs, now) {
+  const partner = npcs.find((n) => n && n.id === me.citizenTask?.partnerId);
+  if (partner && partner.citizenState === 'socializing' && partner.citizenTask?.phase === 'partner' && partner.citizenTask.partnerId === me.id) {
+    enterCitizenState(partner, nextCitizenState(partner, 'socializing') || 'working', gridId, now);
+  }
+}
+
+/** This citizen is done with its conversation, whichever side it was on: free the other one. */
+function leaveConversation(me, gridId, npcs, now) {
+  for (const live of liveConversations) if (live.npc === me || live.partnerId === me.id) live.control.aborted = true;
+  if (me.citizenTask?.phase === 'partner') {
+    // I was pulled in: the initiator's conversation is aborted above; it moves on by itself
+    ConversationManager.removeSpeech(me.type);
+  } else {
+    releasePartner(me, gridId, npcs, now);
+  }
+  me.citizenTask = null;
+}
+
+/** Everything off (grid change): no bubbles, no outcomes for citizens that are no longer here. */
+export function abortAllConversations() {
+  for (const live of liveConversations) live.control.aborted = true;
+  liveConversations.clear();
+}
+
+/** One tick of socializing; 'busy' or 'done' (talked, or gave up). */
+async function socialTick(me, gridId, tiles, resources, npcs, now, home) {
+  const task = me.citizenTask || { phase: 'seek', failures: 0, tried: [] };
+  const fail = () => {
+    const failures = (task.failures || 0) + 1;
+    if (failures >= SOCIAL_FAILS) { setTask(me, gridId, null); return 'done'; }
+    setTask(me, gridId, { phase: 'seek', failures, tried: [...(task.tried || []), task.partnerId].filter(Boolean), retryAt: now + 1000 });
+    return 'busy';
+  };
+  const partner = task.partnerId ? npcs.find((n) => n && n.id === task.partnerId) : null;
+
+  switch (task.phase) {
+    case 'partner': {
+      // pulled into someone else's conversation: stand still until they let go (or the cap)
+      const initiator = partner;
+      if (!initiator || initiator.citizenTask?.partnerId !== me.id) { setTask(me, gridId, null); return 'done'; }
+      return 'busy';
+    }
+    case 'talk': {
+      const mine = [...liveConversations].find((l) => l.npc === me);
+      if (mine) return 'busy'; // talking
+      releasePartner(me, gridId, npcs, now); // the talk ended (or never survived a reload)
+      setTask(me, gridId, null);
+      return 'done';
+    }
+    case 'approach': {
+      // the partner walked off the board, is waiting on the player, or got taken by someone else
+      const lost = !partner || partner.citizenState === 'waiting' || (partner.citizenTask?.partnerId && partner.citizenTask.partnerId !== me.id);
+      if (lost) return fail();
+      if (now - (task.since || now) > SOCIAL_APPROACH_MS) return fail();
+      if (inTalkRange(me, partner)) { startConversation(me, partner, gridId, now); return 'busy'; } // runs on its own; 'talk' waits on it
+      const tile = meetTile(me, partner, tiles, resources, npcs);
+      if (!tile) return fail();
+      const r = walkTo(me, tile.x, tile.y, tiles, resources, npcs);
+      if (r === 'blocked') return fail();
+      if (r === 'arrived') me.path = null; // they moved since: re-aim next tick
+      return 'busy';
+    }
+    default: { // seek
+      if (task.retryAt && now < task.retryAt) { me.leash = { home, radius: TALKER_LEASH }; await me.handleRoamState(tiles, resources, npcs, () => {}); return 'busy'; }
+      const pick = pickPartner(me, npcs, now, task.tried || []);
+      if (!pick) {
+        // nobody about: wander near home and look again in a while
+        setTask(me, gridId, { ...task, phase: 'seek', retryAt: now + SOCIAL_RETRY_MS });
+        return 'busy';
+      }
+      setTask(me, gridId, { phase: 'approach', partnerId: pick.id, failures: task.failures || 0, tried: task.tried || [], since: now });
+      return 'busy';
+    }
+  }
+}
+
 // ---------------------------------------------------------------- the brain
 async function handleCitizenBehavior(gridId, TILE_SIZE) {
   const now = Date.now();
@@ -339,6 +523,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
     const near = !!pc && pc.hp > 0 && calculateDistance(pc.position, this.position) <= (this.range || 3) && !isWallBlocking(this.position, pc.position, { trees: true });
     if (near) {
       if (this.citizenState !== 'waiting') {
+        if (this.citizenState === 'socializing') leaveConversation(this, gridId, npcs, now); // the player comes first
         this.citizenResume = { state: this.citizenState, remainingMs: Math.max(0, (this.citizenStateUntil || now) - now) };
         this.citizenState = 'waiting';
         this.path = null;
@@ -406,9 +591,9 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
       return undefined;
     }
     case 'socializing': {
-      // not built yet (docs/citizens.md §2.2): behaves like working for talkers
-      this.leash = { home, radius: TALKER_LEASH };
-      return this.handleRoamState(tiles, resources, npcs, () => {});
+      const result = await socialTick(this, gridId, tiles, resources, npcs, now, home);
+      if (result === 'done') enterCitizenState(this, nextCitizenState(this, 'socializing') || 'working', gridId, now);
+      return undefined;
     }
     default:
       return undefined;

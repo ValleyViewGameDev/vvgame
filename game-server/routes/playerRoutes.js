@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const Player = require('../models/player'); // Import the Player model
+const { applyDelta: applyNpcDelta } = require('../utils/npcRelationships');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
@@ -715,6 +716,28 @@ router.post('/add-or-update-relationship-status', async (req, res) => {
   } catch (error) {
     console.error('Error updating relationship status:', error);
     res.status(500).json({ error: 'Failed to update relationship status.' });
+  }
+});
+
+
+// A conversation between two citizens moved their relationship (docs/citizens.md §2.2).
+// POST /api/npc-relationship { playerId, a, b, delta, seed?: { relscore, love } }
+// → { success, relationship, npcRelationships }
+router.post('/npc-relationship', async (req, res) => {
+  const { playerId, a, b, delta, seed } = req.body || {};
+  if (!playerId || !a || !b || a === b || !Number.isFinite(Number(delta))) {
+    return res.status(400).json({ error: 'playerId, two different NPC types and a numeric delta are required.' });
+  }
+  if (Math.abs(Number(delta)) > 50) return res.status(400).json({ error: 'delta out of range' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    const relationship = applyNpcDelta(player, a, b, Number(delta), seed || {});
+    await player.save();
+    res.json({ success: true, relationship, npcRelationships: player.npcRelationships });
+  } catch (error) {
+    console.error('Error updating npc relationship:', error);
+    res.status(500).json({ error: 'Failed to update npc relationship.' });
   }
 });
 
