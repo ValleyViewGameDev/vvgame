@@ -1689,6 +1689,15 @@ const PixiRenderer = ({
 
   const handlePointerDown = useCallback((event) => {
     if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+    if (event.isPrimary) {
+      // The first finger of a new touch: no other finger is down, so nothing from the last
+      // gesture may leak into this one (a lost pointerup, a pinch flag that outlived its pinch)
+      touchPointersRef.current.clear();
+      pinchBaselineRef.current = null;
+      pinchedRef.current = false;
+      dragPannedRef.current = false;
+      suppressClickRef.current = false;
+    }
     touchPointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY });
     if (touchPointersRef.current.size === 2) {
       // Second finger: this is a pinch, not a tap, a long-press or a drag
@@ -1722,6 +1731,8 @@ const PixiRenderer = ({
       return;
     }
     if (touchPointersRef.current.size !== 1) return;
+    // The finger left over after a pinch is still the pinch, not a drag-pan
+    if (pinchBaselineRef.current) return;
     const moved = Math.hypot(p.x - p.startX, p.y - p.startY);
     if (moved > LONG_PRESS_MOVE_TOLERANCE_PX) {
       cancelLongPress();
@@ -1741,15 +1752,16 @@ const PixiRenderer = ({
     touchPointersRef.current.delete(event.pointerId);
     cancelLongPress();
     if (touchPointersRef.current.size === 0) {
-      if (dragPannedRef.current) {
-        dragPannedRef.current = false;
-        suppressClickRef.current = true;
-      } else if (pinchedRef.current || pinchBaselineRef.current) {
-        suppressClickRef.current = true; // the tap-click after a pinch is not a tap
-        pinchBaselineRef.current = null;
-        pinchedRef.current = false;
-      } else if (longPressFiredRef.current) {
-        suppressClickRef.current = true;
+      // A drag, a pinch or a long-press is not a tap: swallow the click that follows. Every
+      // gesture flag is cleared here, whichever one ended it (a pinch whose last finger slid
+      // used to leave the pinch flag set and swallow the NEXT real tap).
+      const wasPinch = pinchedRef.current || !!pinchBaselineRef.current;
+      const wasGesture = dragPannedRef.current || wasPinch || longPressFiredRef.current;
+      dragPannedRef.current = false;
+      pinchBaselineRef.current = null;
+      pinchedRef.current = false;
+      if (wasGesture) suppressClickRef.current = true;
+      if (longPressFiredRef.current) {
         longPressFiredRef.current = false;
         if (tooltipClearTimerRef.current) clearTimeout(tooltipClearTimerRef.current);
         tooltipClearTimerRef.current = setTimeout(() => {
