@@ -147,10 +147,88 @@ function findResource(grid, type) {
   return gridResourceManager.getResources(grid).find((r) => r.type === type) || null;
 }
 
-/** Position next to a named resource on a grid, or the fallback. */
+const masterByType = new Map(require('../tuning/resources.json').map((r) => [r.type, r]));
+
+/**
+ * Open-tile test for a grid: inside it, a passable tile type (resources.json tile rows; water
+ * is not), and no impassable resource on it, including the footprint of a multi-tile one
+ * (anchor x..x+size-1, y-size+1..y, as AppInit.enrichGridResources lays out the shadows).
+ */
+function openTileTest(grid) {
+  const tiles = gridTileManager.getTiles(grid) || [];
+  const rows = tiles.length;
+  const cols = rows ? tiles[0].length : 0;
+  const blocked = new Set();
+  for (const r of gridResourceManager.getResources(grid)) {
+    const def = masterByType.get(r.type);
+    const passable = r.passable !== undefined ? r.passable : def?.passable;
+    if (passable !== false) continue;
+    for (const [x, y] of footprint(r)) blocked.add(`${x},${y}`);
+  }
+  return (x, y) => {
+    if (x < 0 || y < 0 || y >= rows || x >= cols) return false;
+    return !!masterByType.get(tiles[y]?.[x])?.passable && !blocked.has(`${x},${y}`);
+  };
+}
+
+function footprint(r) {
+  const def = masterByType.get(r.type);
+  const size = Number(def?.size) > 1 ? Number(def.size) : 1;
+  const cells = [];
+  for (let dx = 0; dx < size; dx++) {
+    for (let dy = 0; dy < size; dy++) cells.push([r.x + dx, r.y - dy]);
+  }
+  return cells;
+}
+
+/** The open tile nearest to `pos` (pos itself when open), searched in rings out to maxRadius. */
+function nearestOpenTile(grid, pos, maxRadius = 8, open = openTileTest(grid)) {
+  if (!pos) return pos;
+  const x0 = Math.round(pos.x);
+  const y0 = Math.round(pos.y);
+  if (open(x0, y0)) return { x: x0, y: y0 };
+  for (let radius = 1; radius <= maxRadius; radius++) {
+    let best = null;
+    for (let dy = -radius; dy <= radius; dy++) {
+      for (let dx = -radius; dx <= radius; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== radius || !open(x0 + dx, y0 + dy)) continue;
+        const d = dx * dx + dy * dy;
+        if (!best || d < best.d) best = { x: x0 + dx, y: y0 + dy, d };
+      }
+    }
+    if (best) return { x: best.x, y: best.y };
+  }
+  return { x: x0, y: y0 };
+}
+
+/**
+ * Position next to a named resource on a grid, or the fallback, never on a blocked tile (BL-6:
+ * the towns put a Stone Wall right under the Dungeon Entrance). When the preferred spot is
+ * blocked, the player goes to the open tile TOUCHING the resource that is closest to it, so
+ * they stay on the resource's side of any wall; only when nothing touching it is open does the
+ * plain ring search run.
+ */
 function spawnNextTo(grid, type, offset, fallback) {
   const r = findResource(grid, type);
-  return r ? { x: r.x + (offset?.x || 0), y: r.y + (offset?.y || 0) } : fallback;
+  const open = openTileTest(grid);
+  if (!r) return nearestOpenTile(grid, fallback, 8, open);
+  const pos = { x: r.x + (offset?.x || 0), y: r.y + (offset?.y || 0) };
+  if (open(pos.x, pos.y)) return pos;
+  const cells = footprint(r);
+  const inside = new Set(cells.map(([x, y]) => `${x},${y}`));
+  let best = null;
+  for (const [cx, cy] of cells) {
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const x = cx + dx;
+        const y = cy + dy;
+        if (inside.has(`${x},${y}`) || !open(x, y)) continue;
+        const d = (x - pos.x) ** 2 + (y - pos.y) ** 2;
+        if (!best || d < best.d) best = { x, y, d };
+      }
+    }
+  }
+  return best ? { x: best.x, y: best.y } : nearestOpenTile(grid, pos, 8, open);
 }
 
 /** Same shape as GET /load-grid plus the NPC/PC maps, trimmed to this player's PC record. */
@@ -209,6 +287,6 @@ async function sendPlayerHome(player, { save = true } = {}) {
 
 module.exports = {
   parseGridCoord, findCell, findTownCoord, resolveCellGrid, resolveDungeonCopy, dungeonTemplateForEntrance,
-  applySeasonCatchUp, applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo,
+  applySeasonCatchUp, applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, nearestOpenTile,
   FTUE_TEMPLATE, FTUE_KEY,
 };
