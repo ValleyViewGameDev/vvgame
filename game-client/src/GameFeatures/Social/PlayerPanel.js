@@ -421,13 +421,12 @@ const PlayerPanel = ({
       </div>
 <br />
 
-      {/* Settings - Clickable H3 */}
-      <h3
-        onClick={() => openPanel('ProfilePanel')}
-        style={{ cursor: 'pointer', textDecoration: 'underline' }}
-      >
-        {strings[1190]}
-      </h3>
+      {/* Settings: a gray (neutral) button under the others */}
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={() => openPanel('ProfilePanel')}>
+          {strings[1190]}
+        </button>
+      </div>
 
       {/* Change Icon Modal */}
       {showChangeIconModal && (
