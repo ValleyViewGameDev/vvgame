@@ -105,12 +105,12 @@ const FarmHandPanel = ({
   
   // Determine which features to show based on NPC type
   const npcType = npc?.type || stationType; // Use NPC type from the npc object, fallback to stationType
-  const showBulkHarvest = ['Farmer', 'Farm Hand'].includes(npcType);
-  const showBulkReplant = ['Farmer', 'Farm Hand'].includes(npcType) && hasBulkReplant;
-  const showBulkAnimalCollect = ['Farmer', 'Rancher'].includes(npcType);
-  const showLogging = ['Farmer', 'Lumberjack'].includes(npcType);
-  const showCropPurchase = ['Farmer', 'Farm Hand'].includes(npcType);
-  const showBulkCrafting = ['Farmer', 'Crafter'].includes(npcType);
+  const showBulkHarvest = npcType === 'Farm Hand';
+  const showBulkReplant = npcType === 'Farm Hand' && hasBulkReplant;
+  const showBulkAnimalCollect = npcType === 'Rancher';
+  const showLogging = npcType === 'Lumberjack';
+  const showCropPurchase = npcType === 'Farm Hand';
+  const showBulkCrafting = npcType === 'Crafter';
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {
@@ -187,12 +187,8 @@ const FarmHandPanel = ({
     
     // Get skills from multiple sources based on NPC type
     let validSources = ['Farm Hand']; // Always include Farm Hand skills
-    if (npcType === 'Crafter' || npcType === 'Farmer') {
-      validSources.push('Crafter'); // Include Crafter skills for Crafter and Farmer NPCs
-    }
-    if (npcType === 'Rancher' || npcType === 'Farmer') {
-      validSources.push('Rancher'); // Include Rancher skills for Rancher and Farmer NPCs
-    }
+    if (npcType === 'Crafter') validSources.push('Crafter');
+    if (npcType === 'Rancher') validSources.push('Rancher');
     
     let skills = masterResources.filter(res =>
       res.category === 'skill' &&
@@ -210,7 +206,6 @@ const FarmHandPanel = ({
     } else if (npcType === 'Crafter') {
       skills = skills.filter(res => ['Bulk Crafting', 'Bulk Restart Craft'].includes(res.type));
     }
-    // For 'Farmer', show all skills from all valid sources
 
     setFarmhandSkills(skills);
   }, [masterResources, currentPlayer, npcType]);
@@ -310,8 +305,8 @@ const FarmHandPanel = ({
       return;
     }
     
-    // Find the appropriate worker NPC to apply busy overlay (Farmer or Rancher)
-    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+    // Find the appropriate worker NPC to apply busy overlay (the Rancher)
+    const workerNPC = npcs.find(npc => npc.type === 'Rancher');
     if (workerNPC) {
       setBusyOverlay(workerNPC.id);
     }
@@ -349,9 +344,9 @@ const FarmHandPanel = ({
     onClose();
     setErrorMessage('');
     
-    // Find the appropriate worker NPC to apply busy overlay (Farmer or Rancher)
+    // Find the appropriate worker NPC to apply busy overlay (the Rancher)
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+    const workerNPC = npcs.find(npc => npc.type === 'Rancher');
     if (workerNPC) {
       setBusyOverlay(workerNPC.id);
     }
@@ -391,9 +386,9 @@ const FarmHandPanel = ({
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
     
-    // Find the appropriate worker NPC to apply busy overlay (Lumberjack or Farmer)
+    // Find the appropriate worker NPC to apply busy overlay (the Lumberjack)
     let npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Lumberjack'].includes(npc.type));
+    const workerNPC = npcs.find(npc => npc.type === 'Lumberjack');
     if (workerNPC) {
       setBusyOverlay(workerNPC.id);
     }
@@ -417,10 +412,10 @@ const FarmHandPanel = ({
         return;
       }
 
-      // Step 2: Find the center position for tree selection (Lumberjack → Farmer → Player)
+      // Step 2: Find the center position for tree selection (Lumberjack → Farm Hand → Player)
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
       const lumberjackNPC = npcs.find(npc => npc.type === 'Lumberjack');
-      const farmerNPC = npcs.find(npc => npc.type === 'Farmer' || npc.type === 'Farm Hand');
+      const farmHandNPC = npcs.find(npc => npc.type === 'Farm Hand');
       
       let centerPos;
       let centerType;
@@ -428,9 +423,9 @@ const FarmHandPanel = ({
       if (lumberjackNPC) {
         centerPos = lumberjackNPC.position;
         centerType = "Lumberjack";
-      } else if (farmerNPC) {
-        centerPos = farmerNPC.position;
-        centerType = "Farmer";
+      } else if (farmHandNPC) {
+        centerPos = farmHandNPC.position;
+        centerType = "Farm Hand";
       } else {
         // Use player position as fallback
         const playerData = playersInGridManager.getPlayersInGrid(gridId)?.[currentPlayer.playerId];
@@ -559,7 +554,7 @@ const FarmHandPanel = ({
       
       // Clear busy overlay when operation completes
       const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Lumberjack'].includes(npc.type));
+      const workerNPCCleanup = npcsCleanup.find(npc => npc.type === 'Lumberjack');
       if (workerNPCCleanup) {
         clearNPCOverlay(workerNPCCleanup.id);
       }
@@ -609,9 +604,9 @@ const FarmHandPanel = ({
     setIsHarvestModalOpen(false);
     setErrorMessage('');
 
-    // Find the Farmer NPC to apply busy overlay
+    // Find the Farm Hand to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'worker');
+    const farmerNPC = npcs.find(npc => npc.type === 'Farm Hand');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -689,7 +684,7 @@ const FarmHandPanel = ({
 
     // Find the appropriate worker NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+    const workerNPC = npcs.find(npc => npc.type === 'Crafter');
     if (workerNPC) {
       setBusyOverlay(workerNPC.id);
     }
@@ -1015,7 +1010,7 @@ const FarmHandPanel = ({
           setIsAnimalModalOpen(false);
           // Clear busy overlay when modal is closed
           const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-          const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+          const workerNPC = npcs.find(npc => npc.type === 'Rancher');
           if (workerNPC) {
             clearNPCOverlay(workerNPC.id);
           }
@@ -1033,7 +1028,7 @@ const FarmHandPanel = ({
           setIsCraftingModalOpen(false);
           // Clear busy overlay when modal is closed
           const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-          const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+          const workerNPC = npcs.find(npc => npc.type === 'Crafter');
           if (workerNPC) {
             clearNPCOverlay(workerNPC.id);
           }

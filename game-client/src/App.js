@@ -1093,7 +1093,7 @@ const handleNPCPanel = (npc) => {
       setActiveQuestGiver(npc);  // Set the active quest giver globally
       // Set activeStation data for NPC-based access to ensure gridId is available
       setActiveStation({
-        type: npc.type, // Use the actual NPC type (Farmer, Farm Hand, Rancher, Lumberjack)
+        type: npc.type, // Use the actual NPC type (Farm Hand, Rancher, Lumberjack, Crafter)
         position: npc.position,
         gridId: currentPlayer.location?.g
       });

@@ -46,7 +46,7 @@ and placeholders for the talkers until tuned):
 
 | Action | working | resting | roaming | eating | socializing |
 |---|---|---|---|---|---|
-| worker (Lumberjack, Farm Hand, Rancher, Crafter, Farmer) | 600 | 1800 | 30 | 120 | 0 |
+| worker (Lumberjack, Farm Hand, Rancher, Crafter) | 600 | 1800 | 30 | 120 | 0 |
 | quest, trade | 900 | 0 | 0 | 0 | 300 |
 | heal | 900 | 0 | 0 | 0 | 0 |
 

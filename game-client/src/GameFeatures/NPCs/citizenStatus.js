@@ -40,8 +40,7 @@ function workingKey(npc) {
       if (phase === 'toWarehouse') return S.toWarehouse;
       return S.toTree;
     case 'Rancher': return S.rancher;
-    case 'Farm Hand':
-    case 'Farmer': return S.farmHand;
+    case 'Farm Hand': return S.farmHand;
     case 'Crafter': return S.crafter;
     default: return S.working;
   }

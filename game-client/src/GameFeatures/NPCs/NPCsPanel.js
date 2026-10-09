@@ -336,7 +336,7 @@ const NPCPanel = ({
               initialProgress[`goal${i}`] = 0; // Start at 0
           }
       } else if (goalAction === "Craft") {
-          // Check if crafted item already exists as an NPC on the homestead (e.g., Rancher, Farmer)
+          // Check if crafted item already exists as an NPC on the homestead (e.g., Rancher, Farm Hand)
           const homesteadNPCs = Object.values(NPCsInGridManager.getNPCsInGrid(currentPlayer.gridId) || {});
           const itemExistsOnHomestead = homesteadNPCs.some(npc => npc.type === goalItem);
           if (itemExistsOnHomestead) {
