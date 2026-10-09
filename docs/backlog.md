@@ -57,8 +57,9 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   then tiles / resources / enemies, then sets, mini-towns and regions), following
   `docs/SoE - GRID DESIGN.xlsx` only where no manual template exists (existing work always
   wins). Design doc and log: `docs/making-original-grids.md`; scripts in `tools/gridgen/`.
-  First pass 2026-10-09: six Haunted River grids in the South-West (1015166, 1015167,
-  1015176, 1015177, 1015260, 1015270), awaiting the owner's evaluation.
+  Eight phases (doc §1). Done 2026-10-09: the six Haunted River grids (1015166, 1015167,
+  1015176, 1015177, 1015260, 1015270) and **phase 1, the base build** (all 1,915 valley grids
+  that had no template). Next: phase 2, mountain ranges.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
 

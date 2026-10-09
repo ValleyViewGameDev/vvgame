@@ -1,0 +1,215 @@
+{
+  "note": "Rivers phase 1 draws through grids Claude generated (docs/making-original-grids.md). Coordinates are [frontierRow, frontierCol] floats (1 = one grid). A river is a list of segments joined end to end: 'spline' (Catmull-Rom through points, light wobble) or 'meander' (a Kinoshita curve: real-river goosenecks, fitted between its two ends). 'oxbows' are cut-off crescent lakes; 'terminal' is the little water system a river ends in. Every other river on the SoE overview (Valley Creek, Deep Woods River, King's Circle River) lives in the owner's templates, closed at their edges, and is not redrawn.",
+  "rivers": [
+    {
+      "name": "Haunted River",
+      "widthTiles": [
+        18,
+        28
+      ],
+      "segments": [
+        {
+          "type": "spline",
+          "points": [
+            [
+              40.32,
+              8.0
+            ],
+            [
+              40.85,
+              8.7
+            ],
+            [
+              41.45,
+              9.25
+            ]
+          ],
+          "wobbleTiles": 0
+        },
+        {
+          "type": "meander",
+          "to": [
+            43.2,
+            11.0
+          ],
+          "wavelengthTiles": 280,
+          "thetaDeg": 100,
+          "skew": 0.2
+        },
+        {
+          "type": "spline",
+          "points": [
+            [
+              44.05,
+              11.55
+            ],
+            [
+              44.7,
+              12.55
+            ],
+            [
+              45.4,
+              13.2
+            ],
+            [
+              46.3,
+              14.0
+            ],
+            [
+              46.52,
+              14.375
+            ],
+            [
+              46.7,
+              14.48
+            ],
+            [
+              46.89,
+              14.53
+            ],
+            [
+              47.09,
+              14.52
+            ],
+            [
+              47.31,
+              14.59
+            ],
+            [
+              47.5,
+              14.78
+            ],
+            [
+              47.61,
+              15.0
+            ],
+            [
+              47.66,
+              15.31
+            ],
+            [
+              47.8,
+              15.375
+            ],
+            [
+              48.0,
+              15.44
+            ],
+            [
+              48.45,
+              15.6
+            ],
+            [
+              48.9,
+              16.35
+            ],
+            [
+              49.4,
+              16.9
+            ]
+          ],
+          "wobbleTiles": 10
+        },
+        {
+          "type": "meander",
+          "to": [
+            51.3,
+            19.9
+          ],
+          "wavelengthTiles": 320,
+          "thetaDeg": 104,
+          "skew": -0.18
+        },
+        {
+          "type": "spline",
+          "points": [
+            [
+              51.95,
+              20.45
+            ],
+            [
+              52.45,
+              21.5
+            ],
+            [
+              53.25,
+              21.95
+            ],
+            [
+              53.85,
+              22.75
+            ],
+            [
+              54.2,
+              23.6
+            ],
+            [
+              54.2,
+              24.4
+            ],
+            [
+              53.65,
+              24.95
+            ],
+            [
+              52.95,
+              25.35
+            ],
+            [
+              52.5,
+              26.15
+            ],
+            [
+              52.65,
+              27.15
+            ],
+            [
+              53.1,
+              28.05
+            ],
+            [
+              53.42,
+              28.9
+            ]
+          ],
+          "wobbleTiles": 12,
+          "narrowTo": 12
+        }
+      ],
+      "oxbows": [],
+      "terminal": {
+        "center": [
+          53.55,
+          29.6
+        ],
+        "pond": [
+          21,
+          15
+        ],
+        "creeks": [
+          [
+            -160,
+            40
+          ],
+          [
+            -75,
+            46
+          ],
+          [
+            15,
+            52
+          ],
+          [
+            100,
+            36
+          ],
+          [
+            60,
+            28
+          ]
+        ],
+        "creekWidth": 4
+      }
+    }
+  ]
+}
