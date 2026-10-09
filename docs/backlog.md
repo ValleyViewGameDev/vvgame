@@ -50,6 +50,17 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   (Armory, Magic Shop, ...) currently all sell the same items. Give each its own stock, so that
   finding a new mini-Town in the Valley, D&D style, makes you want to check its shops for new
   and interesting things to buy.
+- **W-10. A Region-to-Region transport trader** (added 2026-10-09). A trader who instantly
+  transports you to another Region, but only to Regions you have already visited.
+- **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). An ongoing
+  process: a template for every valley0-3 grid, built in passes (geography everywhere first,
+  then tiles / resources / enemies, then sets, mini-towns and regions), following
+  `docs/SoE - GRID DESIGN.xlsx` only where no manual template exists (existing work always
+  wins). Design doc and log: `docs/making-original-grids.md`; scripts in `tools/gridgen/`.
+  First pass 2026-10-09: six Haunted River grids in the South-West (1015166, 1015167,
+  1015176, 1015177, 1015260, 1015270), awaiting the owner's evaluation.
+- **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
+  Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
