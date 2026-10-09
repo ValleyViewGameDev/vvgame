@@ -65,14 +65,14 @@ orientations.
 
 ### BL-2: Floating text when collecting Gems on the Trophy panel
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (2d3ac89b); not yet checked in the live game.
 
 **What.** Collecting Gems from the Trophy panel should fire the floating-text feedback that
 other collections already show, so the reward reads on the spot.
 
 ### BL-3: Panel resource buttons stay light after a tap instead of returning to green
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (42b48d91); not yet checked in the live game.
 
 **What.** Tapping a green (active) button in a panel, e.g. starting a craft at a
 craftingStation, turns it light as tap feedback, but it stays light. If the player still has
@@ -82,7 +82,7 @@ resource buttons in panels, so the fix probably belongs in the shared button, no
 
 ### BL-4: Turn off hovertips on mobile entirely
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (7081033e); not yet checked in the live game.
 
 **What.** No hovertips on mobile. The catch: some buttons (gem buttons among them) carry
 critical information, such as the quantity, only in the hovertip, so mobile players would lose
@@ -91,14 +91,14 @@ without crowding. Audit which hovertips hold must-have info before switching the
 
 ### BL-5: Bears should be faster
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (fbda7305); not yet checked in the live game.
 
 **What.** Bears move too slowly; speed them up. A tuning item; it fits Track 5 (tuning) of the
 NPC / Combat epic above, so fold it in there if that track starts first.
 
 ### BL-6: Bug: exiting a dungeon placed the player on top of a wall
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (1b448b76); not yet checked in the live game.
 
 **What.** Leaving a dungeon put the PC avatar on a wall tile. The arrival position after a
 dungeon exit needs to land on a passable tile (fall back to the nearest passable one if the
@@ -106,14 +106,14 @@ target is blocked).
 
 ### BL-7: Signposts passable; walking onto one triggers the grid transition
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (7a76fd7d); not yet checked in the live game.
 
 **What.** Signposts should not block movement. Walking the avatar onto a signpost should
 simply trigger its grid transition, with no separate interaction step.
 
 ### BL-8: Editor Layouts tab: clicking a tile should select it, not change its tileType
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (68430a94); not yet checked in the live game.
 
 **What.** In the Editor's Layouts tab with a layout loaded, clicking a tile currently changes
 its tileType. A click should only select the tile; changing the type should be a deliberate
@@ -121,14 +121,14 @@ separate action.
 
 ### BL-9: Trade Stall panel: Locked cards aren't centered
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (e1eea14f); not yet checked in the live game.
 
 **What.** In the Trade Stall panel, the Locked cards are not centered the way the unlocked
 cards are. Match their alignment.
 
 ### BL-10: Inventory buttons on the Warehouse and Player Character panels; Profile links become buttons
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (2c1bcea4); not yet checked in the live game.
 
 **What.** Three changes:
 - Add an Inventory button to the Warehouse panel (the one that opens when you click the
@@ -139,21 +139,21 @@ Added 2026-10-08.
 
 ### BL-11: Town News moves off the Map panel into a floating button below the Season button
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (03625525); not yet checked in the live game.
 
 **What.** Remove the "Read the Town News" button from the Map panel. Replace it with a
 floating button just below the Season button that opens the Town News in a right panel.
 
 ### BL-12: Settings panel header says "Profile"; change to "Settings"
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (fea78339); not yet checked in the live game.
 
 **What.** The Settings panel's header reads "Profile". Change it to "Settings" (all ten
 languages).
 
 ### BL-13: Refresh the How to Play text for single-player; add Email Us at the top
 
-Added 2026-10-08.
+Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (6f148538); not yet checked in the live game.
 
 **What.** The How to Play text predates the single-player refactor. Rewrite it to reflect the
 gameplay changes since then (all ten languages). Also put a copy of the Email Us button at the
