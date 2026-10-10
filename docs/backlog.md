@@ -99,6 +99,19 @@ numbered SP-n (append-only).
 - **SP-3. Spell VFX.**
 - **SP-4. Spells for sale at the Magic Shop.**
 
+### EPIC: Tuning ("T", opened 2026-10-10)
+
+Added 2026-10-10.
+
+**What.** Economy and progression tuning: level gates, recipes, prices, pacing (rules in
+`docs/tuning.md`). Combat tuning stays in Track 5 of the NPC / Combat epic. Tasks are numbered
+T-n (append-only).
+
+- **T-1. Mill crafts arrive long before anything uses them** (added 2026-10-10). In levels 7-9
+  the player makes lots of Flour, Sugar and Cornmeal with nothing to do with them, because the
+  Oven only unlocks at level 10. Push some of the Mill crafts back in levels. Today: Mill L4,
+  Flour L4, Sugar L4, Cornmeal L5 (Chicken Feed L5), Oven L10 (`game-server/tuning/resources.json`).
+
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
 **DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.
