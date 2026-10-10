@@ -1,1573 +1,208 @@
 {
- "note": "Hard slate seams in the south-east blended by slate_blend.mjs (found 2026-10-09). Re-applied to Claude's grids on every rebuild; owner grids keep the blend written once.",
- "seams": [
+ "note": "Straight slate/land boundaries in the south-east (found 2026-10-09 on the un-blended world, with the class field in slate_class.bin.gz), blended by slate_blend.mjs. Re-applied to Claude's grids on every rebuild; owner grids keep the blend written once.",
+ "lines": [
   {
-   "a": 1013567,
-   "b": 1013660,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     4,
-     13
-    ]
-   ]
-  },
-  {
-   "a": 1013664,
-   "b": 1013674,
    "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     39,
-     56
-    ]
-   ]
+   "line": 2943,
+   "slate": -1,
+   "from": 2519,
+   "to": 2551
   },
   {
-   "a": 1013477,
-   "b": 1013570,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     4,
-     21
-    ]
-   ]
-  },
-  {
-   "a": 1013572,
-   "b": 1014502,
    "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     55,
-     63
-    ]
-   ]
+   "line": 2803,
+   "slate": -1,
+   "from": 2625,
+   "to": 2682
   },
   {
-   "a": 1013673,
-   "b": 1013674,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     15,
-     22
-    ]
-   ]
-  },
-  {
-   "a": 1014507,
-   "b": 1014600,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     45,
-     55
-    ]
-   ]
-  },
-  {
-   "a": 1014606,
-   "b": 1014607,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     41,
-     48
-    ]
-   ]
-  },
-  {
-   "a": 1014512,
-   "b": 1014513,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     22,
-     29
-    ]
-   ]
-  },
-  {
-   "a": 1014513,
-   "b": 1014514,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     11,
-     23
-    ]
-   ]
-  },
-  {
-   "a": 1014611,
-   "b": 1014621,
    "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     22,
-     29
-    ]
-   ]
+   "line": 3074,
+   "slate": -1,
+   "from": 2663,
+   "to": 2692
   },
   {
-   "a": 1014615,
-   "b": 1014616,
+   "axis": "horizontal",
+   "line": 2819,
+   "slate": -1,
+   "from": 2712,
+   "to": 2746
+  },
+  {
+   "axis": "horizontal",
+   "line": 2943,
+   "slate": -1,
+   "from": 2761,
+   "to": 2788
+  },
+  {
+   "axis": "horizontal",
+   "line": 3010,
+   "slate": -1,
+   "from": 2824,
+   "to": 2874
+  },
+  {
+   "axis": "horizontal",
+   "line": 2816,
+   "slate": -1,
+   "from": 2911,
+   "to": 2939
+  },
+  {
+   "axis": "horizontal",
+   "line": 2739,
+   "slate": -1,
+   "from": 3013,
+   "to": 3071
+  },
+  {
+   "axis": "horizontal",
+   "line": 2496,
+   "slate": -1,
+   "from": 3076,
+   "to": 3192
+  },
+  {
+   "axis": "horizontal",
+   "line": 2693,
+   "slate": -1,
+   "from": 3082,
+   "to": 3166
+  },
+  {
+   "axis": "horizontal",
+   "line": 2749,
+   "slate": 1,
+   "from": 1956,
+   "to": 1981
+  },
+  {
+   "axis": "horizontal",
+   "line": 2504,
+   "slate": 1,
+   "from": 2436,
+   "to": 2466
+  },
+  {
+   "axis": "horizontal",
+   "line": 2814,
+   "slate": 1,
+   "from": 2456,
+   "to": 2479
+  },
+  {
+   "axis": "horizontal",
+   "line": 2816,
+   "slate": 1,
+   "from": 2522,
+   "to": 2683
+  },
+  {
+   "axis": "horizontal",
+   "line": 2426,
+   "slate": 1,
+   "from": 2617,
+   "to": 2673
+  },
+  {
+   "axis": "horizontal",
+   "line": 2756,
+   "slate": 1,
+   "from": 2628,
+   "to": 2668
+  },
+  {
+   "axis": "horizontal",
+   "line": 2951,
+   "slate": 1,
+   "from": 2758,
+   "to": 2791
+  },
+  {
+   "axis": "horizontal",
+   "line": 2432,
+   "slate": 1,
+   "from": 2868,
+   "to": 2939
+  },
+  {
+   "axis": "horizontal",
+   "line": 2495,
+   "slate": 1,
+   "from": 2974,
+   "to": 3050
+  },
+  {
+   "axis": "horizontal",
+   "line": 2516,
+   "slate": 1,
+   "from": 3077,
+   "to": 3165
+  },
+  {
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     50,
-     59
-    ]
-   ]
+   "line": 2869,
+   "slate": -1,
+   "from": 2306,
+   "to": 2365
   },
   {
-   "a": 1014625,
-   "b": 1014626,
    "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     9,
-     25
-    ]
-   ]
+   "line": 2945,
+   "slate": -1,
+   "from": 2437,
+   "to": 2473
   },
   {
-   "a": 1014626,
-   "b": 1014627,
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     33,
-     44
-    ]
-   ]
+   "line": 3169,
+   "slate": -1,
+   "from": 2520,
+   "to": 2686
   },
   {
-   "a": 1014626,
-   "b": 1014636,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     35,
-     46
-    ]
-   ]
-  },
-  {
-   "a": 1014531,
-   "b": 1014532,
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     26,
-     41
-    ]
-   ]
+   "line": 3076,
+   "slate": -1,
+   "from": 2699,
+   "to": 2734
   },
   {
-   "a": 1014532,
-   "b": 1014533,
    "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     47,
-     63
-    ]
-   ]
+   "line": 2944,
+   "slate": -1,
+   "from": 2762,
+   "to": 2811
   },
   {
-   "a": 1014533,
-   "b": 1014534,
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     24,
-     35
-    ]
-   ]
+   "line": 2881,
+   "slate": -1,
+   "from": 2837,
+   "to": 3003
   },
   {
-   "a": 1014533,
-   "b": 1014534,
    "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     37,
-     44
-    ]
-   ]
+   "line": 2680,
+   "slate": 1,
+   "from": 2394,
+   "to": 2418
   },
   {
-   "a": 1014534,
-   "b": 1014544,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     56,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014534,
-   "b": 1014544,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     22,
-     34
-    ],
-    [
-     42,
-     60
-    ]
-   ]
-  },
-  {
-   "a": 1014633,
-   "b": 1014634,
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     15,
-     25
-    ]
-   ]
+   "line": 2429,
+   "slate": 1,
+   "from": 2512,
+   "to": 2543
   },
   {
-   "a": 1014544,
-   "b": 1014545,
    "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     12,
-     26
-    ],
-    [
-     42,
-     53
-    ]
-   ]
-  },
-  {
-   "a": 1014544,
-   "b": 1014554,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     49,
-     61
-    ]
-   ]
-  },
-  {
-   "a": 1014545,
-   "b": 1014555,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     53,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014640,
-   "b": 1014650,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     24,
-     32
-    ]
-   ]
-  },
-  {
-   "a": 1014555,
-   "b": 1014565,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014556,
-   "b": 1014557,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     12,
-     19
-    ]
-   ]
-  },
-  {
-   "a": 1014557,
-   "b": 1014567,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     56,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014565,
-   "b": 1014566,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     0,
-     33
-    ],
-    [
-     49,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014566,
-   "b": 1014576,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     41,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014567,
-   "b": 1014577,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     45
-    ]
-   ]
-  },
-  {
-   "a": 1014660,
-   "b": 1014670,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     0,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014661,
-   "b": 1014671,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     0,
-     57
-    ]
-   ]
-  },
-  {
-   "a": 1014665,
-   "b": 1014675,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     9,
-     20
-    ]
-   ]
-  },
-  {
-   "a": 1014471,
-   "b": 1015401,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     56,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1014577,
-   "b": 1014670,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     0,
-     23
-    ]
-   ]
-  },
-  {
-   "a": 1014671,
-   "b": 1014672,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     22,
-     30
-    ]
-   ]
-  },
-  {
-   "a": 1014677,
-   "b": 1015607,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     40,
-     48
-    ]
-   ]
-  },
-  {
-   "a": 1015601,
-   "b": 1015602,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     43,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015611,
-   "b": 1015612,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     37,
-     46
-    ]
-   ]
-  },
-  {
-   "a": 1015611,
-   "b": 1015621,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     33,
-     46
-    ]
-   ]
-  },
-  {
-   "a": 1015615,
-   "b": 1015616,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     23,
-     30
-    ]
-   ]
-  },
-  {
-   "a": 1015327,
-   "b": 1015420,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     54,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015420,
-   "b": 1015421,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     26,
-     35
-    ]
-   ]
-  },
-  {
-   "a": 1015425,
-   "b": 1015435,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     12,
-     20
-    ],
-    [
-     35,
-     53
-    ]
-   ]
-  },
-  {
-   "a": 1015426,
-   "b": 1015436,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     31,
-     40
-    ]
-   ]
-  },
-  {
-   "a": 1015521,
-   "b": 1015531,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     54,
-     61
-    ]
-   ]
-  },
-  {
-   "a": 1015526,
-   "b": 1015527,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     51,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015526,
-   "b": 1015536,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     49,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015431,
-   "b": 1015432,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     28,
-     35
-    ]
-   ]
-  },
-  {
-   "a": 1015432,
-   "b": 1015433,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     25,
-     33
-    ]
-   ]
-  },
-  {
-   "a": 1015436,
-   "b": 1015446,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     16,
-     26
-    ],
-    [
-     35,
-     58
-    ]
-   ]
-  },
-  {
-   "a": 1015437,
-   "b": 1015447,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     24,
-     52
-    ]
-   ]
-  },
-  {
-   "a": 1015530,
-   "b": 1015531,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     48,
-     57
-    ]
-   ]
-  },
-  {
-   "a": 1015530,
-   "b": 1015540,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     2,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015531,
-   "b": 1015532,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     50,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015531,
-   "b": 1015541,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015533,
-   "b": 1015543,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     3,
-     17
-    ]
-   ]
-  },
-  {
-   "a": 1015535,
-   "b": 1015536,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     19,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015535,
-   "b": 1015545,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     28,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015630,
-   "b": 1015631,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     44,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015630,
-   "b": 1015631,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     39,
-     46
-    ]
-   ]
-  },
-  {
-   "a": 1015636,
-   "b": 1015637,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     36,
-     43
-    ]
-   ]
-  },
-  {
-   "a": 1015443,
-   "b": 1015444,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     41,
-     51
-    ]
-   ]
-  },
-  {
-   "a": 1015541,
-   "b": 1015551,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     17,
-     25
-    ]
-   ]
-  },
-  {
-   "a": 1015544,
-   "b": 1015545,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     17,
-     50
-    ]
-   ]
-  },
-  {
-   "a": 1015457,
-   "b": 1015467,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     28,
-     37
-    ]
-   ]
-  },
-  {
-   "a": 1015553,
-   "b": 1015554,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     33,
-     40
-    ]
-   ]
-  },
-  {
-   "a": 1015554,
-   "b": 1015555,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     13,
-     24
-    ],
-    [
-     35,
-     47
-    ]
-   ]
-  },
-  {
-   "a": 1015367,
-   "b": 1015460,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     28,
-     35
-    ]
-   ]
-  },
-  {
-   "a": 1015466,
-   "b": 1015467,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     3,
-     10
-    ]
-   ]
-  },
-  {
-   "a": 1015564,
-   "b": 1015565,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     10,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015564,
-   "b": 1015574,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     13,
-     22
-    ],
-    [
-     46,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1015565,
-   "b": 1015575,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     23,
-     32
-    ]
-   ]
-  },
-  {
-   "a": 1015665,
-   "b": 1015666,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     10,
-     17
-    ],
-    [
-     51,
-     60
-    ]
-   ]
-  },
-  {
-   "a": 1015376,
-   "b": 1016306,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     10
-    ]
-   ]
-  },
-  {
-   "a": 1015471,
-   "b": 1016401,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     47,
-     56
-    ]
-   ]
-  },
-  {
-   "a": 1015475,
-   "b": 1016405,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     8,
-     18
-    ]
-   ]
-  },
-  {
-   "a": 1015573,
-   "b": 1015574,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     36,
-     49
-    ]
-   ]
-  },
-  {
-   "a": 1015677,
-   "b": 1016607,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     3,
-     22
-    ]
-   ]
-  },
-  {
-   "a": 1016306,
-   "b": 1016307,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     11,
-     19
-    ]
-   ]
-  },
-  {
-   "a": 1016307,
-   "b": 1016317,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     31,
-     40
-    ]
-   ]
-  },
-  {
-   "a": 1016402,
-   "b": 1016412,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     10
-    ]
-   ]
-  },
-  {
-   "a": 1016407,
-   "b": 1016500,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     53,
-     63
-    ]
-   ]
-  },
-  {
-   "a": 1016501,
-   "b": 1016502,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     20,
-     28
-    ]
-   ]
-  },
-  {
-   "a": 1016503,
-   "b": 1016504,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     18,
-     30
-    ]
-   ]
-  },
-  {
-   "a": 1016503,
-   "b": 1016513,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     2,
-     13
-    ]
-   ]
-  },
-  {
-   "a": 1016506,
-   "b": 1016507,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     20,
-     28
-    ]
-   ]
-  },
-  {
-   "a": 1016507,
-   "b": 1016600,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     17,
-     29
-    ]
-   ]
-  },
-  {
-   "a": 1016316,
-   "b": 1016317,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     32,
-     49
-    ]
-   ]
-  },
-  {
-   "a": 1016413,
-   "b": 1016423,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     1,
-     9
-    ]
-   ]
-  },
-  {
-   "a": 1016414,
-   "b": 1016415,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     14,
-     23
-    ]
-   ]
-  },
-  {
-   "a": 1016416,
-   "b": 1016426,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     25,
-     36
-    ]
-   ]
-  },
-  {
-   "a": 1016516,
-   "b": 1016526,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     34,
-     41
-    ]
-   ]
-  },
-  {
-   "a": 1016421,
-   "b": 1016422,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     24,
-     37
-    ]
-   ]
-  },
-  {
-   "a": 1016421,
-   "b": 1016431,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     12,
-     29
-    ]
-   ]
-  },
-  {
-   "a": 1016424,
-   "b": 1016434,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     45,
-     53
-    ]
-   ]
-  },
-  {
-   "a": 1016425,
-   "b": 1016435,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     4,
-     12
-    ]
-   ]
-  },
-  {
-   "a": 1016425,
-   "b": 1016435,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     52,
-     61
-    ]
-   ]
-  },
-  {
-   "a": 1016623,
-   "b": 1016633,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     1,
-     17
-    ]
-   ]
-  },
-  {
-   "a": 1016625,
-   "b": 1016626,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     0,
-     8
-    ]
-   ]
-  },
-  {
-   "a": 1016336,
-   "b": 1016337,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     27,
-     34
-    ]
-   ]
-  },
-  {
-   "a": 1016432,
-   "b": 1016442,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     47,
-     56
-    ]
-   ]
-  },
-  {
-   "a": 1016437,
-   "b": 1016530,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     37,
-     45
-    ]
-   ]
-  },
-  {
-   "a": 1016530,
-   "b": 1016540,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     27,
-     37
-    ]
-   ]
-  },
-  {
-   "a": 1016634,
-   "b": 1016635,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     43,
-     50
-    ]
-   ]
-  },
-  {
-   "a": 1016635,
-   "b": 1016645,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     12,
-     19
-    ]
-   ]
-  },
-  {
-   "a": 1016636,
-   "b": 1016637,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     40,
-     48
-    ]
-   ]
-  },
-  {
-   "a": 1016441,
-   "b": 1016451,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     53,
-     60
-    ]
-   ]
-  },
-  {
-   "a": 1016442,
-   "b": 1016443,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     11,
-     24
-    ]
-   ]
-  },
-  {
-   "a": 1016443,
-   "b": 1016444,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     42,
-     49
-    ]
-   ]
-  },
-  {
-   "a": 1016445,
-   "b": 1016446,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     48,
-     55
-    ]
-   ]
-  },
-  {
-   "a": 1016447,
-   "b": 1016457,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     30,
-     43
-    ]
-   ]
-  },
-  {
-   "a": 1016544,
-   "b": 1016554,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     13,
-     20
-    ]
-   ]
-  },
-  {
-   "a": 1016645,
-   "b": 1016646,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     35,
-     49
-    ]
-   ]
-  },
-  {
-   "a": 1016453,
-   "b": 1016463,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     7,
-     15
-    ]
-   ]
-  },
-  {
-   "a": 1016652,
-   "b": 1016662,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     40,
-     48
-    ]
-   ]
-  },
-  {
-   "a": 1016463,
-   "b": 1016464,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     43,
-     50
-    ]
-   ]
-  },
-  {
-   "a": 1016463,
-   "b": 1016473,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     27,
-     34
-    ]
-   ]
-  },
-  {
-   "a": 1016466,
-   "b": 1016476,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     35,
-     43
-    ]
-   ]
-  },
-  {
-   "a": 1016560,
-   "b": 1016570,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     8,
-     18
-    ]
-   ]
-  },
-  {
-   "a": 1016564,
-   "b": 1016574,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     23,
-     30
-    ]
-   ]
-  },
-  {
-   "a": 1016661,
-   "b": 1016662,
-   "axis": "vertical",
-   "slateSide": "b",
-   "runs": [
-    [
-     18,
-     26
-    ]
-   ]
-  },
-  {
-   "a": 1016662,
-   "b": 1016672,
-   "axis": "horizontal",
-   "slateSide": "a",
-   "runs": [
-    [
-     25,
-     34
-    ]
-   ]
-  },
-  {
-   "a": 1016662,
-   "b": 1016672,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     5,
-     12
-    ]
-   ]
-  },
-  {
-   "a": 1016665,
-   "b": 1016675,
-   "axis": "horizontal",
-   "slateSide": "b",
-   "runs": [
-    [
-     44,
-     51
-    ]
-   ]
-  },
-  {
-   "a": 1016570,
-   "b": 1016571,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     14,
-     22
-    ]
-   ]
-  },
-  {
-   "a": 1016574,
-   "b": 1016575,
-   "axis": "vertical",
-   "slateSide": "a",
-   "runs": [
-    [
-     43,
-     50
-    ]
-   ]
+   "line": 2681,
+   "slate": 1,
+   "from": 2647,
+   "to": 2671
   }
  ]
 }

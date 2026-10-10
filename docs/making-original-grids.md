@@ -452,3 +452,52 @@ Fixed in `seam_fix.mjs`: fills are driven only by the mountains as built, and th
 matches the other side's edge exactly is preferred. Rebuilt cleanly (owner grids from their
 committed versions, re-patched, re-seamed). 1014337 | 1014430 now covers rows 28-49 on both sides.
 Frontier-wide: 7 stray tiles left, plus the owner's 10 genuine range ends.
+
+### 2026-10-09: organic slate edges in the south-east
+
+Owner: in the bottom of settlement 4_5 and much of 5_5, large slate regions end in straight lines
+(grid edges, grid-sized steps) with no transition into grass or dirt; make them organic like the
+SW of 5_5. The hard edges where water canals separate slate from lava are intentional: leave them.
+
+Done with `tools/gridgen/slate_blend.mjs` (frontier rows/cols 30-55):
+- Every tile is classed slate / land by a 7x7 majority (grass is flecked with slate, so single
+  tiles say nothing); water, lava, sand, roads and snow are neither, so a canal is never an edge.
+- A boundary is straight where 15 of 21 tiles along it sit within 2 tiles of one line; runs of 24+
+  tiles become lines (29 lines, 1737 tiles of edge). Already organic edges (the SW of 5_5) are left.
+- Near a line (30 tiles, tapering 14 past its ends) the class field is domain-warped by noise up to
+  22 tiles: slate pushes into the grass and grass into the slate. New ground takes the region's own
+  resource mix (grass ~50% oak/pine and a few herbs, slate ~5% Rocks and ~2% Stone). Slate is never
+  pulled across water or lava; tiles holding anything but a tree, rock or doober are never changed.
+- 14,694 tiles changed in 67 grids, 27 of them the owner's: only slate/grass/dirt swapped, only
+  trees, rocks and doobers replaced (audited against the phase-1 commit).
+- The class field and lines are stored (`data/slate_class.bin.gz`, `data/slate_seams.json`), so
+  `phase1_build.mjs --write` re-applies the same blend to Claude's grids; a second rebuild changes
+  nothing. Ranges re-checked sealed; mountain seams unchanged (163).
+
+A first, gentler version of this blend (straight grid-edge seams only) went out in commit 581fa588;
+this replaces it. A first attempt at a frontier-wide detector caught texture as edges (1.5M tiles)
+and was rolled back before anything was committed.
+
+### 2026-10-10: lava islands of dirt and stone; lava down to the river
+
+Owner: in 1014571, 1015511 and 1015427 the land surrounded by lava has no grass: all dirt and
+stone. Keep the rule that lava always meets the land through stone, then dirt (not grass) inside.
+In the lower part of the lava field, 1015435 to 1015530, the lava must reach the river's north bank
+with a little stone between lava and water.
+
+Done with `tools/gridgen/lava_rules.mjs` (re-applied by `phase1_build.mjs --write` to Claude's
+grids after the slate blend; the owner's grids keep what was written once):
+- River: per column from 1015435 to 1015530, land between the lava field and the first water below
+  becomes lava (ragged top where it cuts under land, ragged west end); new lava within 2 tiles of
+  water becomes stone (the shore); a 2-tile stone rim spreads from the new lava through land only.
+  The peninsula in 1015427 is now cut off from the bank and became the third island.
+- Islands: land wholly enclosed by lava that touches the three grids: within 2 tiles of lava stone,
+  the rest dirt (grass, moss and clay become dirt; trees kept, grass-only doobers redrawn).
+- The owner's river grids changed: 1015434 (56 tiles), 1015435 (2314), 1015436 (1264), 1015437
+  (1206), 1015530 (1393), 1015531 (6). Eight of his NPCs stood on the new lava and were moved to the
+  nearest free land tile of their own grid: 1015435 Ogres (11,24)->(0,38), (13,22)->(32,40), Bears
+  (15,31)->(28,43), (16,29)->(30,43), (18,33)->(27,44); 1015437 Spider (23,6)->(7,20), Spider Spawner
+  (56,15)->(52,19); 1015530 Spider (62,13)->(34,40).
+- Where a meander's inner strand runs north into the new lava, the land beside it became a thin
+  stone shore too (the stone-between-lava-and-water rule).
+- Ranges sealed, seams 163, rebuild is a fixed point (second rebuild changes nothing).

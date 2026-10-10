@@ -13,6 +13,8 @@ import * as M from '../editor/client/layouts/GridModel.js';
 import crypto from 'crypto';
 import { rangeMasks, packMountains } from './mountains.mjs';
 import { fixSeams } from './seam_fix.mjs';
+import { blendGrid, loadRecorded } from './slate_blend.mjs';
+import { applyLavaRules } from './lava_rules.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GS = path.join(HERE, '..', '..', 'game-server');
@@ -574,6 +576,35 @@ if (WRITE) {
   const sf = fixSeams({ isGenerated: (c) => !!manifest[c] && !manifest[c].ownerEdited, allowOwner: false, resourcesByKey: new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x])) });
   for (const c of sf.written) if (manifest[c]) manifest[c].sha1 = sha1(fs.readFileSync(path.join(FIXED, `${c}.json`)));
   console.log(`seam mountains placed in generated grids: ${sf.placed} (${sf.written.length} grids)`);
+}
+// straight slate boundaries recorded by slate_blend.mjs: re-apply the same organic blend to Claude's grids
+const SLATE = WRITE ? loadRecorded() : null;
+if (SLATE) {
+  const byKey = new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x]));
+  let n = 0;
+  for (const c of Object.keys(manifest).map(Number)) {   // blendGrid itself skips grids no line reaches
+    if (!manifest[c] || manifest[c].ownerEdited) continue;
+    const f = path.join(FIXED, `${c}.json`), L = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (blendGrid(c, L, SLATE.lines, byKey, SLATE.cls)) { fs.writeFileSync(f, JSON.stringify(L)); manifest[c].sha1 = sha1(fs.readFileSync(f)); n++; }
+  }
+  console.log(`slate seams blended in ${n} generated grids`);
+}
+// lava rules (lava_rules.mjs): lava islands are dirt and stone; the lava runs down to the river
+if (WRITE) {
+  const byKey = new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x]));
+  const cache = new Map();
+  const load = (fr, fc) => {
+    const c = 1010000 + Math.floor(fr / 8) * 1000 + Math.floor(fc / 8) * 100 + (fr % 8) * 10 + (fc % 8);
+    if (!cache.has(c)) { const f = path.join(FIXED, `${c}.json`); cache.set(c, fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null); }
+    return cache.get(c);
+  };
+  const { changed } = applyLavaRules(load, byKey);
+  let n = 0;
+  for (const c of changed.keys()) {
+    if (!manifest[c] || manifest[c].ownerEdited) continue;   // the owner's grids keep what was written once
+    const f = path.join(FIXED, `${c}.json`); fs.writeFileSync(f, JSON.stringify(cache.get(c))); manifest[c].sha1 = sha1(fs.readFileSync(f)); n++;
+  }
+  console.log(`lava rules applied in ${n} generated grids`);
 }
 for (const c of OWNER_EDITED) manifest[c] = { ...PREV[c], ownerEdited: true };   // keep the record, never touch the file
 fs.writeFileSync(path.join(OUT, 'phase1-manifest.json'), JSON.stringify(manifest, null, 1));
