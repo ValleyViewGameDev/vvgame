@@ -134,6 +134,7 @@ import StartScreenAnimation from './UI/StartScreenAnimation';
 import LoginScreenButterflies from './UI/LoginScreenButterflies';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
+import KeyArtImage from './UI/KeyArtImage';
 
 import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement, walkTo } from './PlayerMovement';
@@ -3437,11 +3438,7 @@ return (
 
       {showKeyArt && (
         <div className="keyart-wrapper">
-          <img
-            src="/assets/images/ValleyViewLoadScreen.png"
-            alt="Valley View Key Art"
-            className="keyart-image"
-          />
+          <KeyArtImage />
           <LoginScreenButterflies />
           <StartScreenAnimation />
         </div>
@@ -3449,8 +3446,11 @@ return (
 
       {/* Loading Screen - shown until app data is initialized */}
       {/* TransitionProvider handles fade-to-black overlay while camera centers after this */}
+      {/* A returning player (a player in localStorage) loads over a plain board: no key art
+          flash on every refresh. Only a new visitor who has just tapped Begin keeps the key art
+          they were already looking at. */}
       {!showKeyArt && !isAppInitialized && (hasStoredPlayer || isSilentCreating) && (
-        <LoadingScreen message="Preparing your adventure..." />
+        <LoadingScreen message="Preparing your adventure..." showKeyArt={isSilentCreating} />
       )}
 
       {/* Game Renderer - only render when ALL data is ready */}

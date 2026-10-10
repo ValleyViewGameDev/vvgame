@@ -12,8 +12,11 @@
  */
 
 import React, { useEffect } from 'react';
+import KeyArtImage from './KeyArtImage';
 
-const LoadingScreen = ({ message = 'Loading Valley View...' }) => {
+// `showKeyArt`: only for a new visitor's first load (they were already on the key art); a
+// returning player's refresh loads over a plain board colour, so the art never flashes.
+const LoadingScreen = ({ message = 'Loading Valley View...', showKeyArt = false }) => {
   // Log when LoadingScreen mounts/unmounts to verify it's being rendered
   useEffect(() => {
     console.log('⏳ LoadingScreen mounted');
@@ -31,18 +34,9 @@ const LoadingScreen = ({ message = 'Loading Valley View...' }) => {
         zIndex: 100,
       }}
     >
-      {/* Background image - matches keyart-image class sizing */}
-      <img
-        src="/assets/images/ValleyViewLoadScreen.png"
-        alt="Valley View"
-        className="keyart-image"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          opacity: 0.9,
-        }}
-      />
+      {showKeyArt && (
+        <KeyArtImage style={{ position: 'absolute', top: 0, left: 0, opacity: 0.9 }} />
+      )}
 
       {/* Overlay content - centered on the image */}
       <div

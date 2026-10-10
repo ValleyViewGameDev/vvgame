@@ -474,7 +474,8 @@
 
   /* ---------- login / key art ---------- */
   .keyart-wrapper { left: var(--m-safe-left); top: var(--m-header-height); right: 0; bottom: 0; width: auto; height: auto; }
-  .keyart-image { width: 100%; height: 100%; object-fit: cover; }
+  /* the key art stays pinned top-left at its natural size on phones too (App.css; KeyArtImage.js
+     serves the phone file) */
 
   /* The Ko-fi floating widget (injected by index.html) lands on the nav; off on phones */
   [id^="kofi-widget-overlay"] { display: none !important; }

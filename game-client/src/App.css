@@ -591,7 +591,7 @@ body {
 
 /* The key art (login and loading) is pinned to the top-left at its natural size (1698 x 1545):
    it never rescales or re-crops as the window changes, a bigger window just shows more of it.
-   Phones keep a cover fit (mobile.css). */
+   Every layout, phones included; phones can get their own file (UI/KeyArtImage.js). */
 .keyart-image {
   display: block;
   width: auto;
