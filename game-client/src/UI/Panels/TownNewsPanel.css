@@ -82,10 +82,12 @@
     text-overflow: ellipsis;
 }
 
-/* Carnival: the order counts on one short line */
+/* Carnival: the order counts, one per line */
 .town-news-panel .tn-counts {
+    margin: 4px 0 6px;
     font-family: var(--font-text-1-family);
     font-size: 14px;
+    line-height: 1.5;
 }
 
 /* Countdowns: coloured text so the time left reads at a glance */

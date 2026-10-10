@@ -67,6 +67,8 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
     const [trainTimer, setTrainTimer] = useState("");
     const [electionTimer, setElectionTimer] = useState("");
     const [bankTimer, setBankTimer] = useState("");
+    const [carnivalPhase, setCarnivalPhase] = useState("");
+    const [carnivalTimer, setCarnivalTimer] = useState("");
 
     // Goods for the chips. The Train is per player since the single-player refactor
     // (Player.train.*TrainOffers: item, quantity); the settlement's old shared offers
@@ -93,10 +95,12 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
         setBankPhase(storedTimers.bank?.phase || "");
         setTrainPhase(storedTimers.train?.phase || "");
         setElectionPhase(storedTimers.elections?.phase || "");
+        setCarnivalPhase(storedTimers.carnival?.phase || "");
         const now = Date.now();
         setTrainTimer(formatCountdown(storedTimers.train?.endTime, now));
         setElectionTimer(formatCountdown(storedTimers.elections?.endTime, now));
         setBankTimer(formatCountdown(storedTimers.bank?.endTime, now));
+        setCarnivalTimer(formatCountdown(storedTimers.carnival?.endTime, now));
     };
 
     const fetchTownData = async () => {
@@ -218,9 +222,13 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
             {carnivalOffers.length > 0 && (
                 <section className="tn-article">
                     <div className="tn-article-head">{getLocalizedString('Carnival', strings)}</div>
-                    <p className="tn-counts">
-                        {strings[2002] || 'Completed'} {carnivalCounts.filled} · {strings[2007] || 'Claimed'} {carnivalCounts.claimed} · {strings[10156] || 'Available'} {carnivalCounts.open}
-                    </p>
+                    {/* while it is here, its phase ends when the Carnival leaves */}
+                    {carnivalPhase === 'here' && <p>{strings[10121]} <Timer value={carnivalTimer} /></p>}
+                    <div className="tn-counts">
+                        <div>{strings[2002] || 'Completed'} {carnivalCounts.filled}</div>
+                        <div>{strings[2007] || 'Claimed'} {carnivalCounts.claimed}</div>
+                        <div>{strings[10156] || 'Available'} {carnivalCounts.open}</div>
+                    </div>
                     <GoodsList goods={carnivalGoods} masterResources={masterResources} strings={strings} inventory={inventory} backpack={backpack} />
                 </section>
             )}
