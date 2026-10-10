@@ -113,9 +113,12 @@ value rather than trust this page.
   BEHIND the pill (1000). They slide in from the left and back out on close in both
   orientations; the exit is a static clone of the removed node (`UI/Panels/panelExitGhost.js`),
   so every close path animates. Keep `--m-anim-in` / `--m-anim-out` and the ghost timer in step.
-- A tap on the board closes the open panel on phones (`onBoardTap` in `App.js`), EXCEPT the
-  Farming and Tools panels, which stay open for repeated placement. Add to that exemption list
-  deliberately, not per feature.
+- Phones: the avatar never moves while a panel is open. A tap on the board with a panel open
+  is a DISMISS (`onBoardTap` in `App.js` returns true and `PixiRenderer.handleClick` stops):
+  the panel closes and nothing else happens, no walk, no interaction. The one exception is a
+  tap that places from a placement cursor: it places; the Farming and Tools panels stay open
+  for it (repeated planting / tilling), any other panel that armed the cursor closes. Add to
+  that exemption deliberately, not per feature.
 - When a panel action needs the avatar visible (relationship actions), call
   `revealPlayerBesidePanels()` so the camera eases the avatar into the uncovered part of the
   board; never move the panel.

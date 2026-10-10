@@ -3597,16 +3597,23 @@ return (
           doinkerVisible={!!doinkerTargets}
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
           onPlayerClick={() => openMyProfile()}
-          onBoardTap={() => {
-            // A tap on the board while a panel is open closes it on
-            // phones; the tap still does its own thing (move, collect, interact)
-            if (isPhoneLayout) {
-              // Farming and Tools panels stay open: players place or till many tiles in a row from them
-              if (activePanel && activePanel !== 'FarmingPanel' && activePanel !== 'ToolsPanel') closePanel();
-              // Best effort to tuck the browser's bars away again: Safari collapses them on a
-              // page scroll, so the document is kept 1 px taller than the viewport (mobile.css)
-              if (window.scrollY < 1) window.scrollTo(0, 1);
+          onBoardTap={({ placing } = {}) => {
+            // Phones: the avatar never moves while a panel is open. A tap on the board with a
+            // panel open is a DISMISS: the panel closes and the tap does nothing else (returns
+            // true). Exception: a tap that places from a placement cursor still places; Farming
+            // and Tools stay open for it (players plant or till many tiles in a row), any other
+            // panel that armed the cursor (Build, Buy, ...) closes as the placement happens.
+            if (!isPhoneLayout) return false;
+            // Best effort to tuck the browser's bars away again: Safari collapses them on a
+            // page scroll, so the document is kept 1 px taller than the viewport (mobile.css)
+            if (window.scrollY < 1) window.scrollTo(0, 1);
+            if (!activePanel) return false;
+            if (placing) {
+              if (activePanel !== 'FarmingPanel' && activePanel !== 'ToolsPanel') closePanel();
+              return false;
             }
+            closePanel();
+            return true;
           }}
           onWalkTo={(row, col, options) => {
             if (activeModal || isOffSeason) return;

@@ -359,7 +359,7 @@ const PixiRenderer = ({
   doinkerType,            // 'resource' or 'button'
   doinkerVisible = false, // Whether doinker should be visible
   // Touch / tap-to-walk
-  onBoardTap,             // () => void: any real tap/click on the board (phones close an open panel)
+  onBoardTap,             // ({ placing }) => boolean: any real tap/click on the board; true = the tap only dismissed a panel (phones) and does nothing else
   onPlayerClick,          // () => void: the local avatar's tile was clicked (opens the Player Character panel)
   onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
   onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
@@ -1456,7 +1456,9 @@ const PixiRenderer = ({
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
     if (suppressClickRef.current) { suppressClickRef.current = false; return; } // long-press or pinch
-    if (onBoardTap) onBoardTap();
+    // Phones: a tap while a panel is open dismisses it and stops here (no walking, no acting),
+    // unless it places from a placement cursor (App's onBoardTap decides)
+    if (onBoardTap && onBoardTap({ placing: !!cursorMode })) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
