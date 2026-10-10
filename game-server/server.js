@@ -192,6 +192,8 @@ app.use((req, res, next) => {
 
 
 console.log('Setting up authentication routes...');
+// One writer per grid at a time: queues grid write requests per grid id (utils/gridWriteLock.js)
+app.use('/api', require('./utils/gridWriteLock').gridWriteLock);
 app.use('/api', authRoutes); // <-- Use auth routes for player registration/login
 app.use('/api', require('./routes/unsubscribe')); // one-click unsubscribe from email footers (no session)
 app.use('/api', require('./routes/dev')); // Edit Mode writes (developers, local dev only)
