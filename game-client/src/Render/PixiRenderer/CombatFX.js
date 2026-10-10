@@ -172,6 +172,15 @@ export function text(x, y, label, kind = 'damage') {
 
 // ---------------------------------------------------------------- enemy reactions
 
+// A sprite's resting tint, recorded the first time a flash touches it. Reading obj.tint at the
+// start of each flash is wrong when flashes overlap: the second hit would record the first
+// one's red as "resting" and leave the sprite red for good (seen on the player in coyote packs).
+const restTints = new WeakMap();
+function restTint(obj) {
+  if (!restTints.has(obj)) restTints.set(obj, obj.tint ?? 0xffffff);
+  return restTints.get(obj);
+}
+
 /** Flash, pop and knock the enemy's sprite back a little, away from (fromX, fromY). */
 export function hitEnemy(npcId, fromX, fromY, toX, toY) {
   const obj = getNpcDisplay(npcId);
@@ -180,7 +189,7 @@ export function hitEnemy(npcId, fromX, fromY, toX, toY) {
   const dx = ((toX - fromX) / len) * FX.KNOCKBACK_TILES * TILE;
   const dy = ((toY - fromY) / len) * FX.KNOCKBACK_TILES * TILE;
   const start = Date.now();
-  const baseTint = obj.tint ?? 0xffffff;
+  const baseTint = restTint(obj);
   const total = FX.KNOCKBACK_MS * 2.4;
   run({
     update(now) {
@@ -402,7 +411,7 @@ export function playerHit() {
   const obj = getPcDisplay();
   if (!ready() || !obj || obj.destroyed) return;
   const start = Date.now();
-  const baseTint = obj.tint ?? 0xffffff;
+  const baseTint = restTint(obj);
   run({
     update(now) {
       if (obj.destroyed) return false;
