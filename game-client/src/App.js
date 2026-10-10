@@ -3841,6 +3841,7 @@ return (
         <TownNewsPanel
           onClose={closePanel}
           currentPlayer={currentPlayer}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'TrophyPanel' && (

@@ -6,11 +6,40 @@ import './TownNewsPanel.css';
 import { useStrings } from '../StringsContext';
 import { formatCountdown } from '../Timers';
 import { getMayorUsername } from '../../GameFeatures/Government/GovUtils';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 // Town News: a right panel opened by the floating 📰 button under the season button
 // (docs/ui-conventions.md §3). Settlement and bank data are fetched on open and every 30 s;
-// the phase countdowns tick from the stored timers every second.
-function TownNewsPanel({ onClose, currentPlayer }) {
+// the phase countdowns tick from the stored timers every second. Three "articles"
+// (Courthouse, Train, Bank), goods shown as icon chips like the other trading UIs, and every
+// countdown in its own coloured pill (UI-2, 2026-10-09).
+
+/** One good as an icon chip: the resource's SVG when it has one, else its emoji, then name and qty. */
+function GoodChip({ type, qty, masterResources, strings }) {
+    const def = (masterResources || []).find(r => r.type === type);
+    return (
+        <span className="tn-good">
+            {def?.filename
+                ? <img className="tn-good-icon" src={`/assets/resources/${def.filename}`} alt="" />
+                : <span className="tn-good-icon">{def?.symbol || '📦'}</span>}
+            <span className="tn-good-name">{getLocalizedString(type, strings)}</span>
+            {qty > 0 && <span className="tn-good-qty">×{qty.toLocaleString()}</span>}
+        </span>
+    );
+}
+
+function GoodsList({ goods, masterResources, strings }) {
+    if (!goods?.length) return null;
+    return (
+        <div className="tn-goods">
+            {goods.map((g, i) => <GoodChip key={`${g.type}-${i}`} {...g} masterResources={masterResources} strings={strings} />)}
+        </div>
+    );
+}
+
+const Timer = ({ value }) => (value ? <span className="tn-timer">⏳ {value}</span> : null);
+
+function TownNewsPanel({ onClose, currentPlayer, masterResources }) {
     const strings = useStrings();
     // Settlement data
     const [settlementName, setSettlementName] = useState("");
@@ -32,12 +61,16 @@ function TownNewsPanel({ onClose, currentPlayer }) {
     const [electionTimer, setElectionTimer] = useState("");
     const [bankTimer, setBankTimer] = useState("");
 
-    // Simplify to just show unique items
-    const formatOffers = (offers) => {
-        if (!offers?.length) return "no items";
-        const uniqueItems = [...new Set(offers.map(offer => offer.itemBought))];
-        return uniqueItems.join(", ");
+    // Goods for the chips. The Train is per player since the single-player refactor
+    // (Player.train.*TrainOffers: item, quantity); the settlement's old shared offers
+    // (itemBought, qtyBought) are only a fallback until the player's Train has been generated.
+    const trainGoods = (playerOffers, settlementOffers) => {
+        if (playerOffers?.length) return playerOffers.map(o => ({ type: o.item, qty: o.quantity }));
+        return (settlementOffers || []).map(o => ({ type: o.itemBought, qty: o.qtyBought }));
     };
+    const currentGoods = trainGoods(currentPlayer?.train?.currentTrainOffers, currentTrainOffers);
+    const nextGoods = trainGoods(currentPlayer?.train?.nextTrainOffers, nextTrainOffers);
+    const bankGoods = (bankOffers || []).map(o => ({ type: o.itemBought, qty: o.qtyBought }));
 
     const updateTimers = () => {
         const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
@@ -87,52 +120,72 @@ function TownNewsPanel({ onClose, currentPlayer }) {
         return () => { clearInterval(dataInterval); clearInterval(timerInterval); };
     }, [currentPlayer?.settlementId, currentPlayer?.frontierId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const showElection = ['Campaigning', 'Voting', 'Counting'].includes(electionPhase);
+    const showTrain = ['arriving', 'departing', 'loading'].includes(trainPhase);
+    const showBank = ['active', 'refreshing'].includes(bankPhase);
+
     return (
         <Panel onClose={onClose} panelName="TownNewsPanel" title={strings[5040]}>
           <div className="town-news-panel">
             <h3>{strings["1501"]} "{settlementName || "..."}"</h3>
-            
+
             {mayor ? (
                 /* The current mayor is */
-                <p>{strings["1502"]} {mayor}{strings["1503"]} {taxRate}%.</p>  
+                <p className="tn-standfirst">{strings["1502"]} {mayor}{strings["1503"]} {taxRate}%.</p>
             ) : (
                 /* No mayor */
-                <> <p>{strings["1512"]} {strings["1515"]} {taxRate}%.</p>  </>
+                <p className="tn-standfirst">{strings["1512"]} {strings["1515"]} {taxRate}%.</p>
             )}
-            
+
             <h4>{strings["1504"]}</h4>
 
-            {/* Election Updates */}
-            {electionPhase === "Campaigning" && (
-                <p>{strings["1505"]}</p>
-            )}
-            {electionPhase === "Voting" && (
-                <p>{strings["1506"]} {strings["10121"]} {electionTimer}</p>
-
-            )}
-            {electionPhase === "Counting" && (
-                <p>{strings["1518"]} {electionTimer}.</p>
+            {showElection && (
+                <section className="tn-article">
+                    <div className="tn-article-head">🗳️ {getLocalizedString('Courthouse', strings)}</div>
+                    {electionPhase === "Campaigning" && <p>{strings["1505"]}</p>}
+                    {electionPhase === "Voting" && <p>{strings["1506"]} {strings["10121"]} <Timer value={electionTimer} /></p>}
+                    {electionPhase === "Counting" && <p>{strings["1518"]} <Timer value={electionTimer} /></p>}
+                </section>
             )}
 
-            {/* Modified Train Updates */}
-            {trainPhase === "arriving" && (
-                <p>{strings["1507"]} {formatOffers(currentTrainOffers)}.</p>
-            )}
-            {trainPhase === "departing" && (
-                <p>{strings["1513"]} {trainTimer}. {strings["1514"]} {formatOffers(nextTrainOffers)}.</p>
-            )}
-            {trainPhase === "loading" && (
-                <>
-                    <p>{strings["1509"]} {formatOffers(currentTrainOffers)}. {strings["1517"]} {trainTimer}.</p>
-                </>
+            {showTrain && (
+                <section className="tn-article">
+                    <div className="tn-article-head">🚂 {getLocalizedString('Train', strings)}</div>
+                    {trainPhase === "arriving" && (
+                        <>
+                            <p>{strings["1507"]}</p>
+                            <GoodsList goods={currentGoods} masterResources={masterResources} strings={strings} />
+                        </>
+                    )}
+                    {trainPhase === "loading" && (
+                        <>
+                            <p>{strings["1509"]}</p>
+                            <GoodsList goods={currentGoods} masterResources={masterResources} strings={strings} />
+                            <p>{strings["1517"]} <Timer value={trainTimer} /></p>
+                        </>
+                    )}
+                    {trainPhase === "departing" && (
+                        <>
+                            <p>{strings["1513"]} <Timer value={trainTimer} /></p>
+                            <p>{strings["1514"]}</p>
+                            <GoodsList goods={nextGoods} masterResources={masterResources} strings={strings} />
+                        </>
+                    )}
+                </section>
             )}
 
-            {/* Bank Updates */}
-            {bankPhase === "active" && (
-                <p>{strings["1516"]} {formatOffers(bankOffers)}. {strings[10124]}{bankTimer}</p>
-            )}
-            {bankPhase === "refreshing" && (
-                <p>{strings["1511"]}</p>
+            {showBank && (
+                <section className="tn-article">
+                    <div className="tn-article-head">🏦 {getLocalizedString('Bank', strings)}</div>
+                    {bankPhase === "active" && (
+                        <>
+                            <p>{strings["1516"]}</p>
+                            <GoodsList goods={bankGoods} masterResources={masterResources} strings={strings} />
+                            <p>{strings[10124]} <Timer value={bankTimer} /></p>
+                        </>
+                    )}
+                    {bankPhase === "refreshing" && <p>{strings["1511"]}</p>}
+                </section>
             )}
           </div>
         </Panel>

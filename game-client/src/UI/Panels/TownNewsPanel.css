@@ -1,5 +1,7 @@
 /* Town News panel (TownNewsPanel.js): a newspaper page inside a standard right panel.
-   Times New Roman for the copy is deliberate (newsprint), the headline keeps the title font. */
+   Times New Roman for the copy is deliberate (newsprint), the headline keeps the title font.
+   Each feature (Courthouse, Train, Bank) is an "article" with a small headline; goods are
+   icon chips (.tn-good) and every countdown is a coloured pill (.tn-timer). */
 
 .town-news-panel {
     background-color: #f4f1e9;
@@ -30,13 +32,64 @@
     font-family: "Times New Roman", Times, serif;
     font-size: 16px;
     line-height: 1.5;
-    margin: 10px 0;
+    margin: 6px 0;
     color: #222;
 }
 
 /* The mayor / tax line reads as the standfirst */
-.town-news-panel p:first-of-type {
+.town-news-panel .tn-standfirst {
     font-style: italic;
     border-bottom: 1px dotted var(--color-text-muted);
     padding-bottom: 10px;
+}
+
+/* One article per feature, ruled off like newspaper columns */
+.town-news-panel .tn-article {
+    padding: 10px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+.town-news-panel .tn-article-head {
+    font-family: var(--font-title-3-family);
+    font-size: var(--font-title-3-size, 16px);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+}
+
+/* Goods as icon chips, like the trading panels */
+.town-news-panel .tn-goods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 8px;
+}
+.town-news-panel .tn-good {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font-family: var(--font-text-1-family);
+    font-size: 14px;
+    white-space: nowrap;
+}
+.town-news-panel .tn-good-icon { width: 18px; height: 18px; font-size: 16px; line-height: 18px; text-align: center; }
+.town-news-panel .tn-good-qty { color: var(--color-text-secondary, #555); font-weight: bold; }
+
+/* Countdowns: their own colour, so the time left reads at a glance */
+.town-news-panel .tn-timer {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #7a1f1f;
+    color: #fff;
+    font-family: var(--font-text-1-family);
+    font-size: 14px;
+    font-weight: bold;
+    font-style: normal;
+    white-space: nowrap;
 }
