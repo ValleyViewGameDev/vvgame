@@ -177,8 +177,8 @@
   font-style: italic;
 }
 /* ////////////// TO DO LIST CARD (QuestButton) /////////////// */
-/* Compact: status top-right, title tight under the icon, tasks straight after the title */
-.quest-card { gap: 0; }
+/* Compact but relaxed: status top-right, title close under the icon, tasks after the title */
+.quest-card { gap: 3px; }
 .quest-card .quest-header { min-height: 28px; }
 .quest-card .quest-symbol { display: inline-flex; align-items: center; font-size: 24px; line-height: 1; }
 .quest-card .quest-checkmark { font-size: 20px; line-height: 1; }
@@ -190,14 +190,14 @@
   white-space: nowrap;
 }
 .panel-content .quest-card h2.quest-title,
-.quest-card h2.quest-title { margin: 2px 0 0; line-height: 1.2; }
+.quest-card h2.quest-title { margin: 4px 0 2px; line-height: 1.3; }
 .quest-card .quest-return-hint { font-style: italic; }
 .quest-card .quest-tasks { margin: 0; }
-.quest-card .quest-tasks p { margin: 0; }
+.quest-card .quest-tasks p { margin: 0; line-height: 1.45; }
 .quest-card .quest-task--done { color: green; }
 /* Quest giver card: the level sits top-right (beside ✅ once the reward is ready), goals straight under the title */
 .quest-card .quest-header-right { display: inline-flex; align-items: center; gap: 6px; }
 .quest-card .quest-level.ok { color: green; }
 .quest-card .quest-level.short { color: red; }
 .quest-card .quest-goals { margin: 0; }
-.quest-card .quest-goals p { margin: 0; }
+.quest-card .quest-goals p { margin: 0; line-height: 1.45; }
