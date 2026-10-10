@@ -12,6 +12,14 @@
   font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
 }
 
+.panel-container[data-panel-name="MapPanel"] {
+    /* The Map panel ends where its content ends (map, range note, controls), capped at the usual
+       panel height and scrolling past it. Phones restate the cap in mobile.css. */
+    height: auto;
+    max-height: calc(100vh - var(--d-top) - var(--d-gap) - var(--d-nav-reserve));
+}
+.panel-container[data-panel-name="MapPanel"] .panel-content { flex: 0 1 auto; min-height: 0; }
+
 .panel-container {
     /* floats over the board right of the zoom/map column, clear of the bottom nav bar (desktop vars in App.css; phones: mobile.css) */
     position: fixed;

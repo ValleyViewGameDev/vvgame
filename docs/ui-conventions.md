@@ -136,7 +136,8 @@ value rather than trust this page.
   Short timers use `formatCompactCountdown` (`UI/Timers.js`): at most two units, "2d 4h" /
   "3h 12m" / "4m 30s" / "45s" (crafting slots too, which stay white).
 - The Map panel (`ZoomedOut/MapPanel.js`, formerly the base panel / Home sheet) is an
-  ordinary `Panel`: map, range note, plus the keyboard Controls
+  ordinary `Panel` whose box ends where its content ends (`height: auto`, capped at the usual
+  panel height per layout: `[data-panel-name="MapPanel"]` in `Panel.css` and `mobile.css`): map, range note, plus the keyboard Controls
   text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, at the bottom of the Settings panel;
   its two buttons (`EmailUsButton`, `DiscordButton`) also open How to Play.

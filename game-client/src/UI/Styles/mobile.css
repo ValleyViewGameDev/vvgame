@@ -292,6 +292,11 @@
     overflow: hidden;
     z-index: 990; /* BELOW the nav pill (1000) and the zoom buttons: panels slide in and out behind the pill */
   }
+  /* the Map panel is as tall as its content, up to the panel box (Panel.css) */
+  .panel-container[data-panel-name="MapPanel"] {
+    max-height: calc(100vh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
+    max-height: calc(100dvh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
+  }
   .panel-buffer-space { display: none; }
   .panel-content { font-size: 13px; }
   .panel-close-btn { padding: 6px 10px; }
@@ -658,6 +663,10 @@
     height: calc(100vh - var(--m-top) - 2 * var(--m-gap));
     height: calc(100dvh - var(--m-top) - 2 * var(--m-gap));
     border-radius: var(--m-panel-radius);
+  }
+  .panel-container[data-panel-name="MapPanel"] {
+    max-height: calc(100vh - var(--m-top) - 2 * var(--m-gap));
+    max-height: calc(100dvh - var(--m-top) - 2 * var(--m-gap));
   }
 
 }
