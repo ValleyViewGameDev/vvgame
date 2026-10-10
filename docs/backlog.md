@@ -59,9 +59,14 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   wins). Design doc and log: `docs/making-original-grids.md`; scripts in `tools/gridgen/`.
   Eight phases (doc §1). Done 2026-10-09: the six Haunted River grids (1015166, 1015167,
   1015176, 1015177, 1015260, 1015270) and **phase 1, the base build** (all 1,915 valley grids
-  that had no template). Next: phase 2, mountain ranges.
+  that had no template), with iterations on the Haunted River, Hell's Mouth, Demon Horn Lake
+  and Star Lake. Phase 2 (mountain ranges) started: Prospero's Range (the C).
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
+- **W-13. A new character with his hut on Hell's Mouth's peninsula** (added 2026-10-09). The
+  long skinny peninsula at 1016632, in Hell's Mouth Lake (the devil's grin), is a place the
+  owner likes: create a new character and put his hut there. Character to be designed; the hut
+  and the character go in with phase 3 (towns and scenarios) of W-11.
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
@@ -71,7 +76,9 @@ Added 2026-10-09.
 
 - **UI-1. Timers and notifications on the HUD buttons** such as Season and Town News.
 - **UI-2. Revise the Town News panel to be more interesting:** show goods with their icons, as
-  other UIs do, and give the timers a different color.
+  other UIs do, and give the timers a different color. **Built 2026-10-09:** Courthouse / Train / Bank articles,
+  goods as icon chips with quantities, countdowns in a dark-red pill; Train goods now come from
+  the player's own Train (Player.train), not the settlement's legacy offers.
 - **UI-3. Discord button on the How to Play panel, under the Email button;** then remove Email
   and Discord from the Map panel (formerly the base panel).
 

@@ -50,23 +50,18 @@ def make_noise(cell, seed):
         b = g[iy + 1][ix] * (1 - sx) + g[iy + 1][ix + 1] * sx
         return a * (1 - sy) + b * sy
     return f
-n_bank, n_width = make_noise(5, 4), make_noise(14, 5)
+n_bank = make_noise(5, 4)
 
-# ---------------------------------------------------------------- river (Catmull-Rom spline)
-CTRL = [(-12, 14), (0, 19), (13, 23), (24, 33), (31, 45), (34, 57), (33, 70), (38, 84), (50, 96),
-        (64, 103), (76, 102), (84, 106), (88, 115), (92, 128), (96, 140)]
-def catmull(p0, p1, p2, p3, t):
-    t2, t3 = t * t, t * t * t
-    return tuple(0.5 * ((2 * p1[i]) + (-p0[i] + p2[i]) * t + (2 * p0[i] - 5 * p1[i] + 4 * p2[i] - p3[i]) * t2
-                        + (-p0[i] + 3 * p1[i] - 3 * p2[i] + p3[i]) * t3) for i in range(2))
-pts = [catmull(CTRL[i - 1], CTRL[i], CTRL[i + 1], CTRL[i + 2], k / 40) for i in range(1, len(CTRL) - 2) for k in range(40)]
-for y in range(H):
-    for x in range(min(W, 141)):
-        best, bp = 1e9, None
-        for (px, py) in pts:
-            d = (px - x) ** 2 + (py - y) ** 2
-            if d < best: best, bp = d, (px, py)
-        if math.sqrt(best) <= 3.6 + 2.4 * n_width(*bp): base[y][x] = 'WA'
+# ---------------------------------------------------------------- river: from phase1_build.mjs
+# The Haunted River is drawn once, valley-wide, by phase1_build.mjs (data/rivers.json); its water
+# for these six grids is in data/pilot-water.json. Run phase1_build.mjs first.
+import base64
+PW = json.load(open(os.path.join(HERE, 'data', 'pilot-water.json')))['water']
+for name, (coord, x0, y0, _) in GRIDS.items():
+    m = base64.b64decode(PW[str(coord)])
+    for y in range(64):
+        for x in range(64):
+            if m[y * 64 + x]: base[y0 + y][x0 + x] = 'WA'
 # the mere in E, and the Scriptorium island in it
 def ell(x, y, c, r): return ((x - c[0]) / r[0]) ** 2 + ((y - c[1]) / r[1]) ** 2
 for y in range(H):
@@ -93,6 +88,11 @@ def force(x, y, tile=None, res=None):
     if tile is not None: otile[y][x] = tile
     if res is not None: ores[y][x] = res
 
+# the Old Ferry Landing sits just off the river's east bank on row 31 of A
+LY = 31
+_wet = [x for x in range(0, 64) if base[LY][x] == 'WA']
+LX = (max(_wet) + 5) if _wet else 27            # just off the river's east bank
+
 # ---------------------------------------------------------------- town: valleyTown02 in B
 town = json.load(open(GS + '/layouts/gridLayouts/miniTemplates/valleyTown02.json'))
 TX, TY = 64 + 30, 14
@@ -107,11 +107,10 @@ for ty, row in enumerate(town['resources']):
         if k not in ('**', '') and k in BY_KEY: force(TX + tx, TY + ty, None, BY_KEY[k]['type'])
 YARD = (TX + 2, TY + 14)
 lay_road([(YARD[0], YARD[1] + 2), (YARD[0] - 3, YARD[1] + 10), (YARD[0] - 2, 46), (YARD[0] - 6, 58), (88, 70), (86, 80), (86, 88)])   # Ferry Road
-lay_road([(YARD[0] - 2, YARD[1] + 1), (80, 30), (66, 32), (52, 31), (40, 30), (31, 31)])                                              # Landing Lane
+lay_road([(YARD[0] - 2, YARD[1] + 1), (80, 30), (66, 32), (52, 31), (max(40, LX + 8), 30), (LX + 4, 31)])                         # Landing Lane
 lay_road([(86, 88), (85, 93), (83, 96), (82, 98)], width=2)                                                                          # causeway
 
 # ---------------------------------------------------------------- Old Ferry Landing (A)
-LX, LY = 27, 31
 for y in range(LY - 3, LY + 4):
     for x in range(LX - 5, LX + 4):
         if base[y][x] != 'WA': force(x, y, 'SA', '')

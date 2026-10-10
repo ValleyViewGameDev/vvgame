@@ -1,0 +1,377 @@
+{
+  "note": "Mountain ranges (phase 2, docs/making-original-grids.md). Points are [frontierRow, frontierCol] grid units along the crest; halfWidthTiles = [at the tips, in the middle]; ground = the tile under and around the mountains (DI dirt in green country, SL slate in slate country such as the Inferno or Halloween). Ranges are completely impassable: every band tile is covered.",
+  "ranges": [
+    {
+      "name": "Prospero's Range, north-east arm",
+      "purpose": "With the south-west arm, a big C round Prospero's home (1013320) that players must go round one way or the other on the way to the Oracle. East tip in 1013305.",
+      "ground": "DI",
+      "halfWidthTiles": [
+        4,
+        12
+      ],
+      "taperStart": 0.12,
+      "taperEnd": 0.3,
+      "points": [
+        [
+          26.36,
+          24.72
+        ],
+        [
+          26.3,
+          25.08
+        ],
+        [
+          25.78,
+          25.62
+        ],
+        [
+          25.18,
+          26.3
+        ],
+        [
+          24.72,
+          27.1
+        ],
+        [
+          24.46,
+          27.9
+        ],
+        [
+          24.36,
+          28.7
+        ],
+        [
+          24.45,
+          29.38
+        ]
+      ]
+    },
+    {
+      "name": "Prospero's Range, south-west arm",
+      "purpose": "The other half of the C; south tip in 1013266.",
+      "ground": "DI",
+      "halfWidthTiles": [
+        4,
+        12
+      ],
+      "taperStart": 0.12,
+      "taperEnd": 0.3,
+      "points": [
+        [
+          26.64,
+          24.56
+        ],
+        [
+          27.06,
+          24.42
+        ],
+        [
+          27.6,
+          23.92
+        ],
+        [
+          28.25,
+          23.3
+        ],
+        [
+          28.9,
+          22.76
+        ],
+        [
+          29.55,
+          22.5
+        ],
+        [
+          30.15,
+          22.45
+        ],
+        [
+          30.56,
+          22.5
+        ]
+      ]
+    },
+    {
+      "name": "King's Circle north bank range",
+      "purpose": "Hugs the north (inland) bank of King's Circle River from 1015321 to 1015337, ending on the north bank above the little town in 1015336; the crest follows the real bank, on slate about 8.5 tiles inland, the band within 0-3 tiles of the water.",
+      "ground": "SL",
+      "halfWidthTiles": [
+        3,
+        7
+      ],
+      "fringeTiles": 3,
+      "taperStart": 0.06,
+      "taperEnd": 0.1,
+      "points": [
+        [
+          42.443,
+          25.0
+        ],
+        [
+          42.474,
+          25.25
+        ],
+        [
+          42.506,
+          25.5
+        ],
+        [
+          42.553,
+          25.75
+        ],
+        [
+          42.568,
+          26.0
+        ],
+        [
+          42.506,
+          26.25
+        ],
+        [
+          42.631,
+          26.5
+        ],
+        [
+          42.99,
+          26.75
+        ],
+        [
+          43.068,
+          27.0
+        ],
+        [
+          43.115,
+          27.25
+        ],
+        [
+          43.256,
+          27.5
+        ],
+        [
+          43.303,
+          27.75
+        ],
+        [
+          43.303,
+          28.0
+        ],
+        [
+          43.256,
+          28.25
+        ],
+        [
+          43.287,
+          28.5
+        ],
+        [
+          43.396,
+          28.75
+        ],
+        [
+          43.459,
+          29.0
+        ],
+        [
+          43.474,
+          29.25
+        ],
+        [
+          43.381,
+          29.5
+        ],
+        [
+          43.506,
+          29.75
+        ],
+        [
+          43.521,
+          30.0
+        ],
+        [
+          43.474,
+          30.25
+        ],
+        [
+          43.178,
+          30.5
+        ],
+        [
+          43.037,
+          30.75
+        ],
+        [
+          43.115,
+          31.0
+        ],
+        [
+          43.193,
+          31.25
+        ]
+      ],
+      "fillToWaterTiles": 3
+    },
+    {
+      "name": "King's Circle north bank range, spur (west)",
+      "purpose": "Mountains bleeding inland off the bank range.",
+      "ground": "SL",
+      "halfWidthTiles": [
+        3,
+        9
+      ],
+      "taperStart": 0.5,
+      "taperEnd": 0.5,
+      "points": [
+        [
+          42.47,
+          25.9
+        ],
+        [
+          42.1,
+          26.05
+        ],
+        [
+          41.78,
+          25.95
+        ],
+        [
+          41.55,
+          26.1
+        ]
+      ]
+    },
+    {
+      "name": "King's Circle north bank range, spur (east)",
+      "purpose": "Mountains bleeding inland off the bank range.",
+      "ground": "SL",
+      "halfWidthTiles": [
+        3,
+        8
+      ],
+      "taperStart": 0.5,
+      "taperEnd": 0.5,
+      "points": [
+        [
+          43.25,
+          28.75
+        ],
+        [
+          42.95,
+          29.0
+        ],
+        [
+          42.7,
+          29.35
+        ],
+        [
+          42.55,
+          29.7
+        ]
+      ]
+    },
+    {
+      "name": "The Swoop (C range east of centre)",
+      "purpose": "A swooping C: lower-left tip in 1014337, east along the bottom, then curving up and north-east to its tip in 1014403; opens to the west. Passes east of the spreadsheet's \ud83e\udec5 anchor at (33,34), which stays free for its scenario. Grass under the mountains (owner's call).",
+      "ground": "GR",
+      "halfWidthTiles": [
+        4,
+        12
+      ],
+      "taperStart": 0.2,
+      "taperEnd": 0.22,
+      "points": [
+        [
+          35.45,
+          31.25
+        ],
+        [
+          35.64,
+          32.25
+        ],
+        [
+          35.62,
+          33.25
+        ],
+        [
+          35.35,
+          34.12
+        ],
+        [
+          34.8,
+          34.82
+        ],
+        [
+          34.1,
+          35.22
+        ],
+        [
+          33.4,
+          35.4
+        ],
+        [
+          32.85,
+          35.5
+        ],
+        [
+          32.45,
+          35.72
+        ]
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "name": "across Prospero's home (the joint of the two arms)",
+      "from": [
+        25.05,
+        23.05
+      ],
+      "to": [
+        27.95,
+        25.95
+      ],
+      "box": [
+        25.0,
+        23.0,
+        28.0,
+        26.0
+      ]
+    }
+  ],
+  "ownerPatched": {
+    "note": "Owner grids already extended by phase2_owner_patch.mjs (run it ONCE per grid and range; it adds on top of what is there). Owner-approved: 1013320 (2026-10-09, Prospero's Range); 1015320-1015322 and 1015332-1015337 (2026-10-09, King's Circle north bank range).",
+    "grids": [
+      1013320,
+      1015320,
+      1015321,
+      1015322,
+      1015332,
+      1015333,
+      1015334,
+      1015335,
+      1015336,
+      1015337
+    ]
+  },
+  "seamFixed": {
+    "note": "Owner grids whose mountain seams seam_fix.mjs --owner --loose-owner closed on 2026-10-09 (owner asked for every gap between grids closed): only trees, rocks and doobers cleared; never water, roads, cobbles or snow; sand and lava keep their ground. After restoring/re-patching any owner grid, run the seam fix again.",
+    "grids": [
+      1011143,
+      1011144,
+      1011154,
+      1012304,
+      1012314,
+      1012324,
+      1012334,
+      1012535,
+      1012542,
+      1012550,
+      1012551,
+      1012552,
+      1014277,
+      1014533,
+      1014534,
+      1015226,
+      1015620
+    ]
+  }
+}

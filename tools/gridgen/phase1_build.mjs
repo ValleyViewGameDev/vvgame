@@ -10,6 +10,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as M from '../editor/client/layouts/GridModel.js';
+import crypto from 'crypto';
+import { rangeMasks, packMountains } from './mountains.mjs';
+import { fixSeams } from './seam_fix.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GS = path.join(HERE, '..', '..', 'game-server');
@@ -34,7 +37,16 @@ const existing = new Set(fs.readdirSync(FIXED).filter((f) => /^\d+\.json$/.test(
 // rebuilt here; the six pass-1 Haunted River grids (PILOT) carry their sets and are rebuilt by the
 // haunted_river_02 scripts, which take their river water from data/pilot-water.json written here.
 const MANIFEST_PATH = path.join(HERE, 'data', 'phase1-manifest.json');
-const OWNED = new Set(fs.existsSync(MANIFEST_PATH) ? Object.keys(JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'))).map(Number) : []);
+// A file counts as Claude's only while it is byte-identical to what was written (manifest sha1);
+// the moment the owner saves it in the editor it is his, and is never regenerated again.
+const sha1 = (buf) => crypto.createHash('sha1').update(buf).digest('hex');
+const PREV = fs.existsSync(MANIFEST_PATH) ? JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8')) : {};
+const OWNED = new Set(Object.entries(PREV).filter(([c, v]) => {
+  const f = path.join(FIXED, `${c}.json`);
+  if (!fs.existsSync(f) || v.ownerEdited) return false;
+  return !v.sha1 || sha1(fs.readFileSync(f)) === v.sha1;
+}).map(([c]) => Number(c)));
+const OWNER_EDITED = Object.entries(PREV).filter(([c]) => !OWNED.has(Number(c)) && fs.existsSync(path.join(FIXED, `${c}.json`))).map(([c]) => Number(c));
 const PILOT = new Set([1015166, 1015167, 1015260, 1015176, 1015177, 1015270]);
 const hasTemplate = (fr, fc) => { const c = coordOf(fr, fc); return existing.has(c) && !OWNED.has(c) && !PILOT.has(c); };   // the owner's work
 const isPilot = (fr, fc) => PILOT.has(coordOf(fr, fc));
@@ -149,18 +161,31 @@ function meanderPath(A, B, lambda, thetaDeg, skew) {
   const ca = Math.cos(ang) * sc, sa = Math.sin(ang) * sc;
   return raw.map(([u, v]) => [A[0] + u * ca - v * sa, A[1] + u * sa + v * ca]);
 }
-function stampDisc(X, Y, half) {
+let riverTiles = null;                       // buckets of main-channel tiles, for oxbow clearance
+const bucketKey = (x, y) => `${Math.floor(x / 16)},${Math.floor(y / 16)}`;
+function stampDisc(X, Y, half, record = false) {
   let n = 0;
   for (let yy = Math.floor(Y - half); yy <= Math.ceil(Y + half); yy++)
     for (let xx = Math.floor(X - half); xx <= Math.ceil(X + half); xx++)
-      if ((xx + 0.5 - X) ** 2 + (yy + 0.5 - Y) ** 2 <= half * half) { setWater(xx, yy); n++; }
+      if ((xx + 0.5 - X) ** 2 + (yy + 0.5 - Y) ** 2 <= half * half) {
+        setWater(xx, yy); n++;
+        if (record) { const k = bucketKey(xx, yy); if (!riverTiles.has(k)) riverTiles.set(k, []); riverTiles.get(k).push([xx, yy]); }
+      }
   return n;
+}
+function riverWithin(x, y, r) {             // is any main-channel tile within r tiles?
+  const r2 = r * r;
+  for (let by = Math.floor((y - r) / 16); by <= Math.floor((y + r) / 16); by++)
+    for (let bx = Math.floor((x - r) / 16); bx <= Math.floor((x + r) / 16); bx++)
+      for (const [tx, ty] of riverTiles.get(`${bx},${by}`) || []) if ((tx - x) ** 2 + (ty - y) ** 2 < r2) return true;
+  return false;
 }
 const RIVERS = JSON.parse(fs.readFileSync(path.join(HERE, 'data', 'rivers.json'), 'utf8')).rivers;
 const riverStats = [];
 for (const rv of RIVERS) {
   // assemble one dense centreline from the segments
-  const pts = []; let narrowFrom = null, narrowTo = null;
+  const pts = []; let narrowFrom = null, narrowTo = null; riverTiles = new Map();
+  const segRange = [];   // [startIndex, endIndex] of each segment in pts
   for (const sg of rv.segments) {
     const start = pts.length ? pts[pts.length - 1] : null;
     let seg;
@@ -178,7 +203,9 @@ for (const rv of RIVERS) {
     }
     else seg = meanderPath(start, toXY(sg.to), sg.wavelengthTiles, sg.thetaDeg, sg.skew || 0);
     if (sg.narrowTo) { narrowFrom = pts.length; narrowTo = sg.narrowTo; }
+    const from = pts.length;
     pts.push(...(start ? seg.slice(1) : seg));
+    segRange.push([from, pts.length - 1]);
   }
   const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
   const [wLo, wHi] = rv.widthTiles;
@@ -187,12 +214,32 @@ for (const rv of RIVERS) {
     let w = wLo + (wHi - wLo) * noise(cum[i], 0, 60, 77);
     if (narrowFrom !== null && i >= narrowFrom) { const t = (i - narrowFrom) / Math.max(1, pts.length - 1 - narrowFrom); w = w * (1 - t) + narrowTo * t; }
     const half = (w / 2) * (0.92 + 0.16 * noise(cum[i], 7, 9, 5));     // ragged banks
-    drawn += stampDisc(pts[i][0], pts[i][1], half);
+    drawn += stampDisc(pts[i][0], pts[i][1], half, true);
   }
-  for (const ox of rv.oxbows || []) {        // cut-off crescents beside the meanders
-    const [cx, cy] = toXY(ox.center);
+  for (const ox of rv.oxbows || []) {        // cut-off crescents beside a meander, placed automatically:
+    // the candidate nearest the river whose whole crescent keeps >= minGap tiles of land from it
+    const [i0, i1] = segRange[ox.segment];
+    const rr = (ox.radiusTiles || 26) * 1.0, arcAt = (cx, cy, a) => [cx + rr * Math.cos(a * Math.PI / 180), cy + rr * Math.sin(a * Math.PI / 180)];
+    let best = null;
+    const need = (ox.minGap || 10) + ox.widthTiles / 2;
+    for (let i = i0; i <= i1; i += 10) for (const off of [-1, 1]) for (let dist = rr + 14; dist <= rr + 60; dist += 6) {
+      const a = pts[Math.max(i0, i - 3)], b = pts[Math.min(i1, i + 3)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+      const cx = pts[i][0] - (dy / l) * off * dist, cy = pts[i][1] + (dx / l) * off * dist;
+      // open side of the crescent faces the river
+      const face = Math.atan2(pts[i][1] - cy, pts[i][0] - cx) * 180 / Math.PI;
+      const from = face + 70, to = face + 290;
+      let clear = true;
+      for (let ang = from; ang <= to && clear; ang += 8) { const [x, y] = arcAt(cx, cy, ang); if (riverWithin(x, y, need)) clear = false; }
+      if (!clear) continue;
+      // nearest clear spot to the channel wins (it reads as the river's own cut-off loop)
+      const gap = dist;
+      if (!best || gap < best.gap) best = { cx, cy, from, to, gap };
+    }
+    if (!best) { riverStats.push(`  oxbow on segment ${ox.segment}: no room`); continue; }
+    const cx = best.cx, cy = best.cy; ox.fromDeg = best.from; ox.toDeg = best.to;
+    riverStats.push(`  oxbow on segment ${ox.segment} at row ${(cy / N).toFixed(2)}, col ${(cx / N).toFixed(2)}`);
     for (let a = ox.fromDeg; a <= ox.toDeg; a += 0.5) {
-      const r = ox.radiusTiles * (0.92 + 0.16 * noise(a, 3, 20, 81));
+      const r = rr * (0.92 + 0.16 * noise(a, 3, 20, 81));
       stampDisc(cx + r * Math.cos(a * Math.PI / 180), cy + r * Math.sin(a * Math.PI / 180), (ox.widthTiles / 2) * Math.sin(Math.PI * (a - ox.fromDeg) / (ox.toDeg - ox.fromDeg)) ** 0.35);
     }
   }
@@ -200,12 +247,21 @@ for (const rv of RIVERS) {
     const T = rv.terminal, [cx, cy] = toXY(T.center), [rx, ry] = T.pond;
     for (let yy = Math.floor(cy - ry - 8); yy <= cy + ry + 8; yy++) for (let xx = Math.floor(cx - rx - 8); xx <= cx + rx + 8; xx++) {
       const e = ((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2 + 0.55 * (noise(xx, yy, 6, 83) - 0.5);
-      const isle = ((xx - cx - 2) / (rx * 0.32)) ** 2 + ((yy - cy + 1) / (ry * 0.3)) ** 2;
+      const isle = T.style === 'rivulets' ? 9 : ((xx - cx - 2) / (rx * 0.32)) ** 2 + ((yy - cy + 1) / (ry * 0.3)) ** 2;
       if (e <= 1 && isle > 1) setWater(xx, yy);
     }
     for (const [deg, len] of T.creeks) {
       const a = deg * Math.PI / 180, A = [cx + rx * 0.8 * Math.cos(a), cy + ry * 0.8 * Math.sin(a)], B = [A[0] + len * Math.cos(a), A[1] + len * Math.sin(a)];
-      for (const [x, y] of meanderPath(A, B, 34, 55, 0.1)) stampDisc(x, y, T.creekWidth / 2);
+      const creek = T.style === 'rivulets' ? meanderPath(A, B, 16, 60, 0.2) : meanderPath(A, B, 34, 55, 0.1);
+      for (const [x, y] of creek) stampDisc(x, y, T.creekWidth / 2);
+      if (T.branch) {   // rivulets fork again half-way, like the owner's 1011203
+        const m = creek[Math.floor(creek.length * (0.45 + 0.2 * noise(deg, len, 5, 121)))];
+        for (const side of [-1, 1]) {
+          if (noise(deg * 3 + side, 7, 3, 123) < 0.35) continue;
+          const b = a + side * (0.55 + 0.3 * noise(deg, side, 4, 125)), l2 = len * (0.45 + 0.3 * noise(side, deg, 4, 127));
+          for (const [x, y] of meanderPath(m, [m[0] + l2 * Math.cos(b), m[1] + l2 * Math.sin(b)], 14, 60, 0.2)) stampDisc(x, y, T.creekWidth / 2);
+        }
+      }
     }
   }
   riverStats.push(`${rv.name}: ${Math.round(cum[cum.length - 1])} tiles long, ${drawn} stamps`);
@@ -244,7 +300,9 @@ function field(X, Y, f, members, seed) {
 // members per feature: NEW cells carrying it. A new LAKE that only touches the owner's lake
 // along a shore he closed (no water across any shared edge) is not built: his shore wins.
 const members = { lake: new Set(), lava: new Set(), stone: new Set(), sand: new Set() };
-for (const [fr, fc] of NEW) { const f = feature(fr, fc); if (members[f]) members[f].add(coordOf(fr, fc)); }
+const SHAPES = JSON.parse(fs.readFileSync(path.join(HERE, 'data', 'rivers.json'), 'utf8')).shapes || [];
+const replacedBy = (fr, fc) => SHAPES.find((sh) => sh.replacesLabel && (LABELS[`${fr},${fc}`] || '').toLowerCase().replace(/[^a-z]/g, '').startsWith(sh.replacesLabel));
+for (const [fr, fc] of NEW) { const f = feature(fr, fc); if (members[f] && !(f === 'lake' && replacedBy(fr, fc))) members[f].add(coordOf(fr, fc)); }
 {
   const seen = new Set(); let dropped = 0;
   for (const c0 of [...members.lake]) {
@@ -292,6 +350,85 @@ for (const [fr, fc] of NEW) {
   }
 }
 
+// ------------------------------------------------------------------------------ drawn lake shapes (data/rivers.json 'shapes')
+// A lake with a meaning (Hell's Mouth = a devil's grin) is drawn as water between two lips, not
+// grown from cells; noise keeps the banks organic. Only grids Claude generated receive water.
+function lipAt(points, col) {          // smooth (cosine) interpolation of [col, row] points at col
+  if (col <= points[0][0]) return points[0][1];
+  for (let i = 0; i < points.length - 1; i++) {
+    const [c0, r0] = points[i], [c1, r1] = points[i + 1];
+    if (col <= c1) { const t = (col - c0) / (c1 - c0), e = (1 - Math.cos(Math.PI * t)) / 2; return r0 + (r1 - r0) * e; }
+  }
+  return points[points.length - 1][1];
+}
+// 'parts' shapes: water = union of ellipses / tapered strokes / polygons, minus 'islands' (same
+// kinds, land). Ellipse banks are roughened by noise; strokes taper and wobble like a channel.
+function pointInPoly(x, y, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function rasterPart(pt, mark, nz) {      // pt coords: [row, col] in grids; mark(X, Y)
+  if (pt.type === 'ellipse') {
+    const cy = pt.center[0] * N, cx = pt.center[1] * N, ry = pt.radii[0] * N, rx = pt.radii[1] * N, rot = (pt.rotDeg || 0) * Math.PI / 180;
+    const R = Math.max(rx, ry) + nz + 2;
+    for (let Y = Math.floor(cy - R); Y <= cy + R; Y++) for (let X = Math.floor(cx - R); X <= cx + R; X++) {
+      const dx = X - cx, dy = Y - cy, u = dx * Math.cos(rot) + dy * Math.sin(rot), v = -dx * Math.sin(rot) + dy * Math.cos(rot);
+      const e = Math.sqrt((u / rx) ** 2 + (v / ry) ** 2), rEff = Math.min(rx, ry);
+      if (e * rEff <= rEff + (noise(X, Y, 8, 111) - 0.5) * 2 * nz) mark(X, Y);
+    }
+  } else if (pt.type === 'stroke') {
+    const P = splinePath(pt.points.map(([r, c]) => [c * N, r * N]));
+    const cum = [0]; for (let i = 1; i < P.length; i++) cum.push(cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+    const L = cum[cum.length - 1];
+    P.forEach(([X, Y], i) => {
+      const t = cum[i] / L, w = pt.widthFrom + (pt.widthTo - pt.widthFrom) * t;
+      const half = (w / 2) * (0.85 + 0.3 * noise(cum[i], 3, 9, 113));
+      for (let yy = Math.floor(Y - half); yy <= Math.ceil(Y + half); yy++) for (let xx = Math.floor(X - half); xx <= Math.ceil(X + half); xx++)
+        if ((xx + 0.5 - X) ** 2 + (yy + 0.5 - Y) ** 2 <= half * half) mark(xx, yy);
+    });
+  } else if (pt.type === 'polygon') {
+    const poly = pt.points.map(([r, c]) => [c * N, r * N]);
+    const xs = poly.map((p) => p[0]), ys = poly.map((p) => p[1]);
+    for (let Y = Math.floor(Math.min(...ys)) - 2; Y <= Math.max(...ys) + 2; Y++) for (let X = Math.floor(Math.min(...xs)) - 2; X <= Math.max(...xs) + 2; X++) {
+      const j = (noise(X, Y, 4, 117) - 0.5) * 2 * (pt.jitter ?? 1.5);
+      if (pointInPoly(X + j, Y - j, poly)) mark(X, Y);
+    }
+  }
+}
+for (const sh of SHAPES.filter((x) => x.parts)) {
+  const wet = new Set(), key = (X, Y) => `${X},${Y}`;
+  for (const pt of sh.parts) rasterPart(pt, (X, Y) => wet.add(key(X, Y)), sh.edgeNoiseTiles || 3);
+  for (const pt of sh.islands || []) rasterPart(pt, (X, Y) => wet.delete(key(X, Y)), 1.5);
+  for (const k of wet) { const [X, Y] = k.split(',').map(Number); setWater(X, Y); }
+  // islands are land even where a river channel was drawn through them earlier
+  for (const pt of sh.islands || []) rasterPart(pt, (X, Y) => setWater(X, Y, 0), 1.5);
+  riverStats.push(`${sh.name}: ${wet.size} water tiles drawn`);
+}
+for (const sh of SHAPES.filter((x) => !x.parts)) {
+  let n = 0;
+  const c0 = Math.floor(sh.upper[0][0] * N), c1 = Math.ceil(sh.upper[sh.upper.length - 1][0] * N);
+  for (let X = c0; X <= c1; X++) {
+    const col = X / N;
+    const up = lipAt(sh.upper, col) * N, lo = lipAt(sh.lower, col) * N;
+    for (let Y = Math.floor(Math.min(up, lo)) - 6; Y <= Math.ceil(Math.max(up, lo)) + 6; Y++) {
+      const nU = (noise(X, Y, 7, 101) - 0.5) * 2 * sh.edgeNoiseTiles, nL = (noise(X, Y, 7, 103) - 0.5) * 2 * sh.edgeNoiseTiles;
+      if (!(Y > up + nU && Y < lo + nL)) continue;
+      // fangs: land teeth hanging from the upper lip
+      let fang = false;
+      for (const [fcol, bw, depth] of sh.fangs || []) {
+        const dx = Math.abs(X - fcol * N), into = Y - up;
+        if (into >= 0 && into < depth && dx < (bw / 2) * (1 - into / depth) + (noise(X, Y, 3, 107) - 0.5) * 2) fang = true;
+      }
+      if (!fang) { setWater(X, Y); n++; }
+    }
+  }
+  riverStats.push(`${sh.name}: ${n} water tiles drawn`);
+}
+
 // ------------------------------------------------------------------------------ meet the existing edges
 let coves = 0, bandFixes = 0;
 for (const [fr, fc] of NEW) {
@@ -334,7 +471,10 @@ function candidates(fr, fc) {
 const assigned = new Map(), usage = new Map();
 const order = NEW.slice(); { const r = mulberry32(20261009); for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; } }
 const pickR = mulberry32(99);
+// rows already chosen in an earlier run stay (stable files); only cells without one are assigned
+for (const [fr, fc] of order) { const prev = PREV[coordOf(fr, fc)]?.row; if (prev) { assigned.set(coordOf(fr, fc), prev); usage.set(prev, (usage.get(prev) || 0) + 1); } }
 for (const [fr, fc] of order) {
+  if (assigned.has(coordOf(fr, fc))) continue;
   const c = candidates(fr, fc);
   const near = (dirs) => new Set(dirs.map(([dr, dc]) => assigned.get(coordOf(fr + dr, fc + dc))).filter(Boolean));
   const n4 = near([[-1, 0], [1, 0], [0, -1], [0, 1]]), n8 = near([[-1, -1], [-1, 1], [1, -1], [1, 1]]);
@@ -346,6 +486,11 @@ for (const [fr, fc] of order) {
   const row = best[Math.floor(pickR() * best.length)];
   assigned.set(coordOf(fr, fc), row.layout); usage.set(row.layout, (usage.get(row.layout) || 0) + 1);
 }
+
+// ------------------------------------------------------------------------------ mountain ranges (phase 2, data/mountains.json)
+const MOUNTAINS = JSON.parse(fs.readFileSync(path.join(HERE, 'data', 'mountains.json'), 'utf8')).ranges;
+const MTN = rangeMasks(MOUNTAINS, noise, coordOf);
+const mtnStats = [];
 
 // ------------------------------------------------------------------------------ build each grid
 const letterOf = (key) => idx.tileByLayoutKey.get(key)?.type;
@@ -397,6 +542,11 @@ for (const [fr, fc] of NEW) {
       }
     }
   }
+  if (MTN.has(coord)) {   // mountain ranges go over everything Quick Generate placed
+    const { mask, range } = MTN.get(coord);
+    const r = packMountains(g, mask, mulberry32(coord * 13), { ground: range.ground || 'DI', fillToWaterTiles: range.fillToWaterTiles || 0, keep: (x, y) => { const t = g[y][x].resource; return !!t && idx.byType.get(t)?.category === 'npc' && !isEnemy(t); } });
+    mtnStats.push(`${coord}: ${r.large} large, ${r.small} small${r.open ? `, ${r.open} band tiles OPEN` : ''}`);
+  }
   if (f === 'deadzone' || f === 'graveyard') {   // Halloween: a third of the trees are dead
     g.forEach((r) => r.forEach((cell) => { if ((cell.resource === 'Oak Tree' || cell.resource === 'Pine Tree') && rand() < 0.33) cell.resource = 'Dead Tree'; }));
   }
@@ -417,10 +567,19 @@ for (const [fr, fc] of NEW) {
     else if (fs.existsSync(target)) skipped++;                                       // never anyone else's
     else { fs.writeFileSync(target, json, { flag: 'wx' }); written++; }
   }
-  manifest[coord] = { frontier: [fr, fc], valleyType: vt, feature: f, row: row.layout, water: m.reduce((s, v) => s + v, 0), enemies: en };
+  manifest[coord] = { frontier: [fr, fc], valleyType: vt, feature: f, row: row.layout, water: m.reduce((s, v) => s + v, 0), enemies: en, sha1: sha1(Buffer.from(json)) };
 }
+// mountain seams between generated grids (seam_fix.mjs); their fingerprints follow the fix
+if (WRITE) {
+  const sf = fixSeams({ isGenerated: (c) => !!manifest[c] && !manifest[c].ownerEdited, allowOwner: false, resourcesByKey: new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x])) });
+  for (const c of sf.written) if (manifest[c]) manifest[c].sha1 = sha1(fs.readFileSync(path.join(FIXED, `${c}.json`)));
+  console.log(`seam mountains placed in generated grids: ${sf.placed} (${sf.written.length} grids)`);
+}
+for (const c of OWNER_EDITED) manifest[c] = { ...PREV[c], ownerEdited: true };   // keep the record, never touch the file
 fs.writeFileSync(path.join(OUT, 'phase1-manifest.json'), JSON.stringify(manifest, null, 1));
+if (OWNER_EDITED.length) console.log(`owner-edited (left alone): ${OWNER_EDITED.join(', ')}`);
 console.log(`new cells ${NEW.length}; template water edges facing new cells ${pins.length}; coves ${coves}; edge-band fixes ${bandFixes}; invalid dropped ${droppedTotal}`);
 riverStats.forEach((s) => console.log('  ' + s));
+if (mtnStats.length) { console.log(`mountains in ${mtnStats.length} grids`); mtnStats.filter((x) => x.includes('OPEN')).forEach((x) => console.log('  ' + x)); }
 console.log('row usage', JSON.stringify(Object.fromEntries([...usage.entries()].sort())));
 if (WRITE) console.log(`written ${written}, skipped (already existed) ${skipped}`);

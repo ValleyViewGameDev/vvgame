@@ -176,7 +176,20 @@
           "narrowTo": 12
         }
       ],
-      "oxbows": [],
+      "oxbows": [
+        {
+          "segment": 1,
+          "radiusTiles": 24,
+          "widthTiles": 10,
+          "minGap": 10
+        },
+        {
+          "segment": 3,
+          "radiusTiles": 28,
+          "widthTiles": 11,
+          "minGap": 10
+        }
+      ],
       "terminal": {
         "center": [
           53.55,
@@ -210,6 +223,521 @@
         ],
         "creekWidth": 4
       }
+    },
+    {
+      "name": "Haunted River (east fork)",
+      "widthTiles": [
+        10,
+        14
+      ],
+      "segments": [
+        {
+          "type": "spline",
+          "points": [
+            [
+              45.42,
+              13.62
+            ],
+            [
+              45.35,
+              14.2
+            ],
+            [
+              45.25,
+              14.75
+            ]
+          ],
+          "wobbleTiles": 0
+        },
+        {
+          "type": "meander",
+          "to": [
+            44.95,
+            16.3
+          ],
+          "wavelengthTiles": 200,
+          "thetaDeg": 108,
+          "skew": 0.15
+        },
+        {
+          "type": "spline",
+          "points": [
+            [
+              44.7,
+              16.75
+            ],
+            [
+              44.55,
+              17.15
+            ],
+            [
+              44.48,
+              17.42
+            ]
+          ],
+          "wobbleTiles": 6,
+          "narrowTo": 5
+        }
+      ],
+      "terminal": {
+        "style": "rivulets",
+        "center": [
+          44.47,
+          17.5
+        ],
+        "pond": [
+          7,
+          5
+        ],
+        "creeks": [
+          [
+            -150,
+            22
+          ],
+          [
+            -100,
+            30
+          ],
+          [
+            -45,
+            34
+          ],
+          [
+            10,
+            38
+          ],
+          [
+            55,
+            30
+          ],
+          [
+            105,
+            26
+          ],
+          [
+            150,
+            20
+          ]
+        ],
+        "creekWidth": 1.6,
+        "branch": true
+      },
+      "note": "Contained in rows 44-45 (1015156, 1015157, 1015250, 1015241): it must not reach the pilot grids 1015167 / 1015260 to the south (owner, 2026-10-09)."
+    }
+  ],
+  "shapes": [
+    {
+      "name": "Hell's Mouth Lake (a devil's grin)",
+      "replacesLabel": "hellsmouth",
+      "note": "Water lies between 'upper' and 'lower' lips ([col, row] points, frontier units, left to right); both meet in pointed tips that curl up towards the owner's thin upper band in row 50. 'fangs': land teeth hanging from the upper lip [col, baseWidthTiles, depthTiles]. Owner cells (row 50 cols 40-50, row 51 cols 42-46) are untouched; the right of the mouth opens into his water where it crosses down.",
+      "upper": [
+        [
+          40.55,
+          51.06
+        ],
+        [
+          41.1,
+          51.3
+        ],
+        [
+          41.7,
+          51.75
+        ],
+        [
+          42.2,
+          52.07
+        ],
+        [
+          43.3,
+          52.13
+        ],
+        [
+          45.0,
+          52.24
+        ],
+        [
+          46.3,
+          52.12
+        ],
+        [
+          46.95,
+          51.6
+        ],
+        [
+          47.4,
+          51.0
+        ],
+        [
+          49.6,
+          51.0
+        ],
+        [
+          50.4,
+          51.02
+        ],
+        [
+          50.9,
+          51.07
+        ]
+      ],
+      "lower": [
+        [
+          40.55,
+          51.08
+        ],
+        [
+          41.0,
+          51.5
+        ],
+        [
+          41.6,
+          52.0
+        ],
+        [
+          42.6,
+          52.45
+        ],
+        [
+          44.0,
+          52.72
+        ],
+        [
+          45.4,
+          52.82
+        ],
+        [
+          46.9,
+          52.72
+        ],
+        [
+          48.2,
+          52.42
+        ],
+        [
+          49.3,
+          52.0
+        ],
+        [
+          50.2,
+          51.55
+        ],
+        [
+          50.9,
+          51.09
+        ]
+      ],
+      "fangs": [
+        [
+          43.75,
+          26,
+          26
+        ],
+        [
+          46.15,
+          26,
+          26
+        ]
+      ],
+      "edgeNoiseTiles": 3
+    },
+    {
+      "name": "Demon Horn Lake (a demon)",
+      "replacesLabel": "demonhornlake",
+      "note": "Coordinates [row, col] in grids. Head with two horns, slanted eye islands, shoulders tapering into the owner's pointed water at 1015663 (46,51), and a tail sweeping out to the lower right, curling back, ending in a barb. Body kept right of col 50.15 near row 42 so it does not run along the owner's slate cells (42,48-49).",
+      "edgeNoiseTiles": 4,
+      "parts": [
+        {
+          "type": "ellipse",
+          "center": [
+            39.45,
+            51.55
+          ],
+          "radii": [
+            1.2,
+            1.15
+          ]
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            42.9,
+            51.6
+          ],
+          "radii": [
+            2.15,
+            1.45
+          ]
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            41.65,
+            51.62
+          ],
+          "radii": [
+            0.62,
+            1.33
+          ]
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            40.8,
+            51.57
+          ],
+          "radii": [
+            0.42,
+            0.5
+          ]
+        },
+        {
+          "type": "polygon",
+          "points": [
+            [
+              44.6,
+              50.75
+            ],
+            [
+              44.6,
+              52.45
+            ],
+            [
+              46.05,
+              51.67
+            ],
+            [
+              46.05,
+              51.4
+            ]
+          ],
+          "jitter": 2
+        },
+        {
+          "type": "stroke",
+          "points": [
+            [
+              38.75,
+              50.55
+            ],
+            [
+              37.95,
+              50.05
+            ],
+            [
+              37.1,
+              49.65
+            ],
+            [
+              36.35,
+              49.55
+            ],
+            [
+              35.85,
+              49.75
+            ]
+          ],
+          "widthFrom": 30,
+          "widthTo": 3
+        },
+        {
+          "type": "stroke",
+          "points": [
+            [
+              38.75,
+              52.55
+            ],
+            [
+              37.95,
+              53.05
+            ],
+            [
+              37.1,
+              53.45
+            ],
+            [
+              36.35,
+              53.55
+            ],
+            [
+              35.85,
+              53.35
+            ]
+          ],
+          "widthFrom": 30,
+          "widthTo": 3
+        },
+        {
+          "type": "stroke",
+          "points": [
+            [
+              44.9,
+              52.55
+            ],
+            [
+              45.7,
+              53.05
+            ],
+            [
+              46.45,
+              53.55
+            ],
+            [
+              47.25,
+              53.65
+            ],
+            [
+              47.95,
+              53.25
+            ],
+            [
+              48.35,
+              52.6
+            ],
+            [
+              48.45,
+              52.05
+            ]
+          ],
+          "widthFrom": 14,
+          "widthTo": 8
+        },
+        {
+          "type": "polygon",
+          "points": [
+            [
+              48.2,
+              52.15
+            ],
+            [
+              48.95,
+              51.62
+            ],
+            [
+              48.62,
+              52.35
+            ],
+            [
+              48.75,
+              52.85
+            ]
+          ],
+          "jitter": 1
+        }
+      ],
+      "islands": [
+        {
+          "type": "ellipse",
+          "center": [
+            39.25,
+            51.05
+          ],
+          "radii": [
+            0.1,
+            0.17
+          ],
+          "rotDeg": 20
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            39.25,
+            52.05
+          ],
+          "radii": [
+            0.1,
+            0.17
+          ],
+          "rotDeg": -20
+        }
+      ]
+    },
+    {
+      "name": "Star Lake (Haunted River, future scenario)",
+      "note": "A big lake ballooned on the Haunted River where 1015154 meets 1015144, 1015145 and 1015155 (corner at row 45, col 13), with a five-pointed star island in the middle. Island ground and resources are plain valley1 Quick Generate for now; a scenario goes here later. The east fork leaves its south-east shore.",
+      "edgeNoiseTiles": 6,
+      "parts": [
+        {
+          "type": "ellipse",
+          "center": [
+            45.0,
+            13.0
+          ],
+          "radii": [
+            0.86,
+            0.9
+          ]
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            44.72,
+            12.62
+          ],
+          "radii": [
+            0.5,
+            0.55
+          ]
+        },
+        {
+          "type": "ellipse",
+          "center": [
+            45.3,
+            13.4
+          ],
+          "radii": [
+            0.5,
+            0.52
+          ]
+        }
+      ],
+      "islands": [
+        {
+          "type": "polygon",
+          "points": [
+            [
+              44.625,
+              13.0
+            ],
+            [
+              44.8736,
+              13.0918
+            ],
+            [
+              44.8841,
+              13.3566
+            ],
+            [
+              45.0483,
+              13.1486
+            ],
+            [
+              45.3034,
+              13.2204
+            ],
+            [
+              45.1562,
+              13.0
+            ],
+            [
+              45.3034,
+              12.7796
+            ],
+            [
+              45.0483,
+              12.8514
+            ],
+            [
+              44.8841,
+              12.6434
+            ],
+            [
+              44.8736,
+              12.9082
+            ]
+          ],
+          "jitter": 2
+        }
+      ]
     }
   ]
 }

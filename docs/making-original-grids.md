@@ -156,6 +156,47 @@ Quick Generate rows must be well spread: no row repeated in edge-adjacent grids 
 diagonal neighbours where the choice allows), and overall usage kept balanced across a valley
 type, so the same outcome never runs several grids in a row.
 
+### 8d. Mountain ranges (phase 2)
+
+Owner's rules (2026-10-09):
+
+- Ranges **block travel completely**: no way through, not even by boat (a hot-air balloon may come
+  one day). Every tile of a range's band is covered by a mountain footprint; because players may
+  step diagonally between two blockers, a band with a gap at a corner is a door.
+- **Mix 'Mountain' (3x3) and 'Mountain Large' (4x4)**: large ones in the middle of a thick range,
+  small ones along the edges. Organic, not perfect (1011153 is a good example).
+- Mountains stand on **dirt or slate, or a mixture**: dirt in grassy country, slate in
+  slate-heavy country (the Inferno, Halloween), or slate where the owner asks (the King's Circle
+  north bank range). A ragged fringe of the same ground round them. A range along a river may run
+  right down to the water (`fillToWaterTiles`).
+- Ranges **funnel** players into a few access points, above all towards the Oracle in the centre
+  of the continent.
+
+How (`tools/gridgen/mountains.mjs`, ranges in `data/mountains.json`): each range is a crest line
+with a half-width that tapers to the tips; large mountains pack the core, small ones the band, then
+a seal pass covers every band tile left (footprints may overlap; no footprint swallows another
+anchor; every footprint stays inside its own grid, so each side of an edge seals itself; never on
+water). Generated grids get ranges inside `phase1_build.mjs`, so rebuilds keep them. An owner grid
+is only extended on request, with `phase2_owner_patch.mjs`: new footprints only on grass, dirt,
+slate, moss or clay, clearing only trees; his mountains, doobers, NPCs and buildings stay.
+`check_ranges.py` proves each range sealed (a search across the band in 8 directions, tips
+excluded) plus any `checks` boxes in `data/mountains.json`.
+
+**Seams (owner, 2026-10-09).** Where a range continues from one grid into the next, the mountains
+and their ground run on across the shared edge: no strip of grass and resources at the seam.
+`mountains.mjs` lines every grid edge the band reaches with mountains first and lays the ground
+solid within 4 tiles of an edge; `seam_fix.mjs` then reconciles both sides of every edge (a
+mountain covering one side's edge tile gets a partner on the other side). Only each grid's
+mountains **as built** drive a fill, never another seam fill, and placements that overhang the
+other side's edge are penalised, so a seam is exactly as wide as the range (owner: the mountains run
+for the width of the range, not along the whole seam). `phase1_build.mjs` runs it for generated grids on every `--write`; owner grids get it from
+`node tools/gridgen/seam_fix.mjs --owner --loose-owner` (trees, rocks, doobers may go; never water,
+roads, cobbles or snow; sand and lava keep their ground), to be re-run after any owner grid is
+restored or re-patched. A range of the owner's that genuinely ends at a grid edge (nothing on the
+other side) is left alone. `check_seams.py` lists every edge still covered on one side only.
+Placement only ever clears tiles no mountain covered yet, so overlapping footprints never erase an
+anchor.
+
 ## 9. Method (how Claude builds a section)
 
 The basics of every grid (deposit clumps of slate, clay and moss, the tile mix, resource
@@ -191,20 +232,21 @@ everything else, so the order is:
    (section 10) and the log, then write only files that do not exist yet.
 9. The owner plays them; feedback lands in the log.
 
-## 10. Edge contracts (water crossing tiles, for the next grids to meet)
+## 10. Rivers and edges
 
-Tile ranges are inclusive, 0-63, along that edge of the named grid.
+Rivers through generated grids are drawn once, valley-wide, from `tools/gridgen/data/rivers.json`
+(segments: `spline` with an optional slow wobble, `meander` = a Kinoshita curve fitted between two
+points, irregular in sweep and pace; `oxbows` placed automatically beside a meander segment with
+at least 10 tiles of land between them and the channel; `terminal` = the small pond-and-creeks
+system a river ends in). Seams cannot occur between generated grids because they share one
+drawing. Where a generated grid meets an owner's template, the 2-3 tiles at the edge copy his
+edge exactly and lakes lean towards his water and away from his land.
 
-| Grid | Edge | Water tiles | Joins |
-|---|---|---|---|
-| 1015166 | W | rows 15-23 | 1015165 (Haunted River upstream, not built) |
-| 1015166 | S | cols 29-38 | 1015176 |
-| 1015176 | E | rows 34-43 | 1015177 |
-| 1015177 | S | cols 22-33 | 1016107 (Haunted River downstream, not built) |
-
-Roads: Landing Lane leaves 1015167 westward into 1015166 near row 31 and ends at the Old
-Ferry Landing on the river; Ferry Road runs from the town in 1015167 south across the
-1015167/1015177 edge (cols ~24-26) to the causeway. No road leaves the block yet.
+**Rule for regenerating**: a generated file is Claude's only while it is byte-identical to what
+was written (sha1 in `data/phase1-manifest.json`). As soon as the owner saves it (editor, any
+change) it is his: marked `ownerEdited` and never regenerated (first case: 1012544, edited
+2026-10-09). Quick Generate rows are pinned in the manifest so a rebuild changes only the grids
+whose geography changed.
 
 ## 11. Log
 
@@ -271,3 +313,142 @@ What it did and the calls made:
 Notes for the owner: three of these cells already had player copies from the old random
 generation (1011121, 1011136, 1011241); those players see the new template after a reset or the
 season turn. The template folder is now ~120 MB (each new file ~41 KB minified).
+
+### 2026-10-09: phase 1 iteration, the Haunted River
+
+Owner's notes: wider (the widest river in Elsinore, much wider than Deep Woods River); not ruler
+-diagonal; must not cut off the south-west homesteads (nobody should need a boat to explore the
+valley); turn north near 1016267, then east and down, ending around 1016355 in a little water
+system like 1012304 (a town goes there later, not yet); two meandering stretches like Deep Woods
+River (1012152, 1012153); one or two oxbow lakes.
+
+Done: width 18-28 tiles (Deep Woods ~8-12), narrowing to 12 at the end; enters from the west
+edge at 1015100, meanders twice (rows 41-43 and 49-51), runs through the pass-1 grids, turns north
+at 1016267, then east and down into a pond with five creeks and a small island in 1016355. It no
+longer reaches the south edge, so the south-west can be walked round its east end. Oxbows at row
+41.1 / col 9.7 and row 48.9 / col 17.4 (separate water bodies, checked). The six pass-1 grids were
+rebuilt on the wider river (town, causeway and Scriptorium kept; the Old Ferry Landing moved to
+the new east bank). 1012544, edited by the owner after the commit, was restored and is protected.
+
+### 2026-10-09: phase 1 iteration, Hell's Mouth Lake
+
+Owner's note: zoomed out, the lake should read as a devil's grin, corner to corner; organic,
+not perfect; the footprint across the grids was about right.
+
+Done: Hell's Mouth is now a drawn shape (`shapes` in `data/rivers.json`, replacing the generic
+lake fill for its cells): water between an upper and a deeper lower lip that pinch to pointed tips
+curling up towards the owner's thin band in row 50 (his upper lip), opening into his water on the
+right where it already crossed down, with two triangular land fangs hanging from the upper lip;
+3-tile ragged banks. The owner's cells (row 50 cols 40-50, row 51 cols 42-46) are untouched; 22
+generated grids changed.
+
+### 2026-10-09: phase 1 iteration, Demon Horn Lake
+
+Owner's note: shaped roughly like a demon: a couple of horns at the top, a head and body, and a
+tail wandering off at the bottom with a barb on the end; same footprint, recognisable without
+being precise. (He liked the grin, especially the long skinny peninsula at 1016632: backlog W-13,
+a new character's hut there.)
+
+Done: Demon Horn Lake is a `parts` shape in `data/rivers.json` (ellipses, tapered strokes and
+polygons, minus land islands): two tapered horns curving up and out, a round head with two
+slanted land islands for eyes, a narrow neck, shoulders and a body tapering into the owner's own
+pointed water at 1015663 (46,51), and a tail that leaves the lower right of the body, sweeps down
+and curls back to an arrowhead barb near row 48.5. The body is kept off the owner's slate cells at
+(42,48-49) so no shore runs straight along their edge. Owner cells untouched; 51 generated grids
+changed.
+
+### 2026-10-09: phase 1 iteration, Star Lake and the Haunted River's east fork
+
+Owner's note: balloon the Haunted River where it crosses the corner of 1015154 (with 1015144,
+1015145, 1015155) into a big lake with a roughly star-shaped island in the middle; plain valley1
+trees and resources for now, a scenario later. Fork a second branch off the lake's south-east
+that heads east, meandering, and ends at 1015241 with much smaller tributaries, like 1011203.
+
+Done: Star Lake is a `parts` shape (about 110 tiles across, ragged shore) with a five-pointed star
+island (outer radius 24 tiles, inner 10) centred on the corner at row 45, col 13; islands now clear
+water even where the main channel was drawn first. The east fork is a second river in
+`data/rivers.json` (10-14 tiles wide, narrowing to 5): out of the south-east shore, a meander east,
+then a small pool in 1015241 that fans into seven thin rivulets, most of them forking again half-
+way (terminal style `rivulets`). The main Haunted River runs on unchanged (pilot water identical).
+12 generated grids changed; owner cells untouched. Scenario for the star island: phase 3.
+
+### 2026-10-09: phase 2 starts, Prospero's Range (the C)
+
+Owner's brief: extend the range that rings Prospero's home (1013320) north-east for many grids,
+curving east, and south-west for many grids, curving south, into a big C with Prospero at its
+centre, ending at 1013305 (east tip) and 1013266 (south tip), so players must go round it one way
+or the other.
+
+Done: two arms in `data/mountains.json` (half-width 12 tiles in the middle, 4 at the tips, dirt
+ground), across 14 generated grids. 1013320 is the owner's: with his go-ahead to extend his range,
+`phase2_owner_patch.mjs` filled the margin between his ring and the grid's east and south edges
+(9 large + 70 small mountains on trees only; his snow clearing, Prospero, his own mountains,
+doobers and NPCs untouched; his committed file is the fallback). Checks: both arms sealed, and no
+path crosses Prospero's grid from north-west to south-east; Prospero is still reached from outside
+the C through his west entrance, not from inside.
+
+### 2026-10-09: phase 2, King's Circle north bank range
+
+Owner's brief: a range along the north bank of King's Circle River from 1015321, hugging the river
+closely, to 1015337, ending on the north bank above the little town; organic, with mountains
+bleeding further inland in a couple of places.
+
+Done: the crest was traced from the real north bank (about 10 tiles inland of the northmost water,
+every quarter grid), half-width 3-7 tiles on dirt, leaving a ragged 2-4 tile strip of bank along
+the water; two inland spurs (near col 26 and col 29.3). The river runs through the owner's grids,
+so with his go-ahead `phase2_owner_patch.mjs` extended nine of them (1015320-1015322,
+1015332-1015337: trees cleared, nothing else of his changed; the town in 1015336 sits inside the
+river loop, south of the water, untouched). 7 generated grids changed. All ranges re-checked:
+sealed. `data/mountains.json` now lists `ownerPatched` grids; the patch refuses to run twice on one.
+
+Iteration (same day): owner asked to hug the river even closer and use slate, not dirt, under the
+mountains. The crest now sits about 8.5 tiles inland of the northmost water and the range has
+`fillToWaterTiles: 3` (`mountains.mjs`): land within 3 tiles of both the band and the water joins
+the band, so the mountains run right down to the river with no walkable strip (this also closed a
+gap by the town's loop that the seal check caught). Ground SL for the range and both spurs. The
+nine owner grids were restored to his committed versions and re-patched (1,096 new mountain
+anchors, all on slate; nothing of his but trees changed); all ranges re-checked sealed.
+
+### 2026-10-09: phase 2, The Swoop (a second C)
+
+Owner's brief: another C, lower-left tip at 1014337, heading east, then curving up and north-east to
+end at 1014403; a swooping C, not a diagonal; grass under the mountains (no dirt or slate).
+
+Done: `data/mountains.json` "The Swoop" (half-width 12 tiles in the middle, 4 at the tips, ground GR),
+all in generated grids; it opens to the west and passes east of the spreadsheet's 🫅 anchor at
+(33,34), which stays free for its scenario. Sealed.
+
+### 2026-10-09: phase 2, seams between grids
+
+Owner: wherever a range continues between two grids (e.g. 1015333 / 1015334), the edge must not be
+grass with resources and no mountains; mountains and their dirt or slate continue across. Fix it
+everywhere in the frontier.
+
+Done: frontier-wide, mismatched edge tiles went from 694 (91 grid edges) to 234 (40 edges), of which
+216 are 26 places where one of the owner's own ranges genuinely ends at a grid edge (left alone,
+listed by `seam_fix.mjs`) and 18 are single tiles where the only possible mountain would stand on a
+road, water or something that must stay. All ranges re-checked sealed. Owner grids touched by the
+seam pass: the ten already opened to Claude's ranges plus 23 more (`data/mountains.json`
+`seamFixed`); in them only trees, rocks and doobers were cleared (146 non-tree items: Daisies,
+Mushrooms, Rosemary, Rocks, Stone, Bones, a few Clay Pits, Honey, a Silver and a Potion A).
+
+### 2026-10-09: the east fork kept out of the pilot grids
+
+Owner: the east fork's water ended at the bottom of 1015157 and 1015250 without continuing into
+the grids south of them (the pilot grids 1015167 town and 1015260 bee meadow, made earlier and not
+redrawn); leave those alone and contain the river in 1015157 and 1015250.
+
+Done: the fork starts a quarter grid further north and its meander wavelength went from 170 to
+200 tiles (same 108 degree sweep), found by a search over shapes; all its water now stays at least
+14 tiles above row 46. No fork water falls in 1015167 or 1015260 (checked against
+`pilot-water.json`), so the pilot grids need no rebuild.
+
+### 2026-10-09: seams as wide as the range
+
+Owner: at 1014337 | 1014430 the range crosses at its own width, but at the border mountains ran the
+whole length of the grid edge. Cause: the seam pass cascaded (each seam mountain covered a tile or
+two past the range, which the next round matched on the other side, and so on along the edge).
+Fixed in `seam_fix.mjs`: fills are driven only by the mountains as built, and the placement that
+matches the other side's edge exactly is preferred. Rebuilt cleanly (owner grids from their
+committed versions, re-patched, re-seamed). 1014337 | 1014430 now covers rows 28-49 on both sides.
+Frontier-wide: 7 stray tiles left, plus the owner's 10 genuine range ends.
