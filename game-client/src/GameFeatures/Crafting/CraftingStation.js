@@ -289,6 +289,21 @@ const CraftingStation = ({
 
 
   // Protected function to start crafting using transaction system (slot-based)
+  // Put the server's slots / level for this station into the local grid state (a conflict
+  // answer from start-craft carries them)
+  const applyServerStation = ({ slots, stationLevel } = {}) => {
+    if (!Array.isArray(slots)) return;
+    console.warn(`🔄 [CRAFT] Station at (${currentStationPosition.x}, ${currentStationPosition.y}) was out of sync; applying the server's slots`);
+    const synced = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        ? { ...res, slots, ...(Number.isInteger(stationLevel) ? { stationLevel } : {}) }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(synced);
+    setResources(synced);
+    setStationRefreshKey(prev => prev + 1);
+  };
+
   const handleCraft = async (transactionId, transactionKey, recipe) => {
     console.log(`🔒 [PROTECTED CRAFTING] Starting protected craft for ${recipe.type}`);
     setErrorMessage('');
@@ -328,6 +343,7 @@ const CraftingStation = ({
 
       if (response.data.success) {
         const { slots: newSlots, slotIndex, inventory, backpack } = response.data;
+        if (!Array.isArray(newSlots)) return; // a repeat answer with no station state: nothing to apply
 
         // Update inventory from server response
         if (inventory) {
@@ -366,6 +382,9 @@ const CraftingStation = ({
       if (error.response?.status === 429) {
         updateStatus(451);
       } else if (error.response?.data?.code === 'SLOTS_FULL') {
+        // Our copy showed a free slot and the server's did not: take the server's state so the
+        // panel shows the truth at once (it used to need a page refresh)
+        applyServerStation(error.response.data);
         updateStatus(409); // "All crafting slots are full."
       } else if (error.response?.status === 400) {
         updateStatus(450);

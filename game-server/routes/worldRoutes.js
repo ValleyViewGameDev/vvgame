@@ -1230,7 +1230,10 @@ router.post('/crafting/start-craft', async (req, res) => {
     const lastTxData = player.lastTransactionIds.get(transactionKey);
     const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
     if (lastTxId === transactionId) {
-      return res.json({ success: true, message: 'Craft already started' });
+      // A repeat of a craft that already went through: answer with the station as it is now
+      const doneGrid = await Grid.findOne({ _id: gridId });
+      const doneStation = doneGrid ? gridResourceManager.getResources(doneGrid).find(r => r.x === stationX && r.y === stationY) : null;
+      return res.json({ success: true, message: 'Craft already started', slots: doneStation?.slots, stationLevel: doneStation?.stationLevel ?? 0 });
     }
 
     // Check if there's an active transaction for this action
@@ -1308,7 +1311,12 @@ router.post('/crafting/start-craft', async (req, res) => {
     if (targetSlotIndex === -1) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
-      return res.status(400).json({ error: 'All crafting slots are full', code: 'SLOTS_FULL' });
+      // Send the station's real state back: the client only asks when its own copy shows a free
+      // slot, so its copy is stale; it applies these and shows the truth without a refresh
+      return res.status(400).json({
+        error: 'All crafting slots are full', code: 'SLOTS_FULL',
+        slots, stationLevel: stationResource.stationLevel ?? 0,
+      });
     }
 
     // Check if player can afford the recipe (server-side validation)
