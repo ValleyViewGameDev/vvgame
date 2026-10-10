@@ -21,7 +21,8 @@ const playerHas = (type, inventory, backpack) => getPlayerQuantity(type, invento
 
 /**
  * One good per line: symbol, name, need / have. `who` (a username) sits at the right of the
- * line; `done` (a filled Carnival order) greys the counts, since nothing is needed any more.
+ * line; `done` (a filled Train card, a filled or claimed Carnival order) is struck through and
+ * greyed, since nothing is needed from this player any more.
  */
 function GoodsList({ goods, masterResources, strings, inventory, backpack }) {
     if (!goods?.length) return null;
@@ -74,14 +75,14 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
     // (Player.train.*TrainOffers: item, quantity); the settlement's old shared offers
     // (itemBought, qtyBought) are only a fallback until the player's Train has been generated.
     const trainGoods = (playerOffers, settlementOffers) => {
-        if (playerOffers?.length) return playerOffers.map(o => ({ type: o.item, qty: o.quantity }));
-        return (settlementOffers || []).map(o => ({ type: o.itemBought, qty: o.qtyBought }));
+        if (playerOffers?.length) return playerOffers.map(o => ({ type: o.item, qty: o.quantity, done: !!o.completed }));
+        return (settlementOffers || []).map(o => ({ type: o.itemBought, qty: o.qtyBought, done: !!o.filled }));
     };
     const currentGoods = trainGoods(currentPlayer?.train?.currentTrainOffers, currentTrainOffers);
     const nextGoods = trainGoods(currentPlayer?.train?.nextTrainOffers, nextTrainOffers);
     const bankGoods = (bankOffers || []).map(o => ({ type: o.itemBought, qty: o.qtyBought }));
     const carnivalGoods = (carnivalOffers || []).map(o => ({
-        type: o.itemBought, qty: o.qtyBought, done: !!o.filled,
+        type: o.itemBought, qty: o.qtyBought, done: !!(o.filled || o.claimedBy),
         who: o.claimedBy ? (usernames[String(o.claimedBy)] || '…') : null,
     }));
     const carnivalCounts = {

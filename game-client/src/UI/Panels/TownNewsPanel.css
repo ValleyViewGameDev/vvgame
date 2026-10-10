@@ -74,7 +74,7 @@
 }
 .town-news-panel .tn-enough { color: green; }
 .town-news-panel .tn-short { color: red; }
-.town-news-panel .tn-done { color: var(--color-text-muted, #888); }
+.town-news-panel .tn-done { color: var(--color-text-muted, #888); text-decoration: line-through; }
 .town-news-panel .tn-who {
     color: var(--color-text-secondary, #555);
     white-space: nowrap;
