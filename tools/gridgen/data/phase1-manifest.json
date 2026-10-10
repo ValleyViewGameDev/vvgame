@@ -17511,7 +17511,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "f986ffa3757b8f36c098ecea524c94bba775dee4"
+  "sha1": "3684584339b73b116b012cbf21332c56198cce84"
  },
  "1015202": {
   "frontier": [
@@ -17525,7 +17525,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "60886e67489e83d33bbb63cb7733c79ac0a66843"
+  "sha1": "186931febed4e32dd1662bc58ecbe70fdd184b1f"
  },
  "1015203": {
   "frontier": [
@@ -17540,7 +17540,7 @@
    "Zombie": 5,
    "Zombie Spawner": 8
   },
-  "sha1": "7bf10338dfd8a902b0f6e6a266c8f2925a56a68c"
+  "sha1": "e3eb50807d3297f76b8e948118214c3b743455e0"
  },
  "1015204": {
   "frontier": [
@@ -17554,7 +17554,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "d5923b47ead3bfe870738b110d978395ee39d32d"
+  "sha1": "892db87fe1e2e29d5c903945d6a27fde2b6f4430"
  },
  "1015210": {
   "frontier": [
@@ -17580,7 +17580,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "252dc152854a8574dc04a2e3b8613f5028a4f631"
+  "sha1": "a20ebada478df4ebd3eafc55c037c19c2e34aab3"
  },
  "1015212": {
   "frontier": [
@@ -17595,7 +17595,7 @@
    "Zombie": 5,
    "Zombie Spawner": 5
   },
-  "sha1": "cc3acfa7e49b90402c088482525b437b3a13ef9e"
+  "sha1": "5c9d60d25243c3f8ae738bef062fb34ba805d7c4"
  },
  "1015213": {
   "frontier": [
@@ -17610,7 +17610,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "94d266326e91566ddf974d5bcbd022e2c834108e"
+  "sha1": "060f294b8e4d94b227b08e1964ecd556dd361c8d"
  },
  "1015214": {
   "frontier": [
@@ -17625,7 +17625,7 @@
    "Zombie Spawner": 5,
    "Zombie": 5
   },
-  "sha1": "d7e5c8d73a6accb353ca583e02ad7bbed7cac847"
+  "sha1": "da35e49fdf093571159187ebce95db706f55d70a"
  },
  "1015215": {
   "frontier": [
@@ -17639,7 +17639,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "f72a16bd752b08b1778d59524ee2c1684927dbc0"
+  "sha1": "09494bd715361d273af906a8b451bdf6597c48a9"
  },
  "1015220": {
   "frontier": [
@@ -17651,7 +17651,7 @@
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "d07f624feaced3480fd0e1b0ba791911811455ca"
+  "sha1": "1a52793f313ff755011677ef8955aeec38f71cff"
  },
  "1015221": {
   "frontier": [
@@ -17663,7 +17663,7 @@
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "f35f9c5918b033f5c09af3f227266ecb4bc07bb3"
+  "sha1": "bcd7a9fd7ae1c10fc85b36b04d1e393e05457245"
  },
  "1015222": {
   "frontier": [
@@ -17678,7 +17678,7 @@
    "Zombie Spawner": 8,
    "Zombie": 5
   },
-  "sha1": "798e378323ca856d0946a3f320085f15be114212"
+  "sha1": "a091ea1237ed78437a9373ad9a5e70a1a1541b02"
  },
  "1015223": {
   "frontier": [
@@ -17693,7 +17693,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "7d713f8be562b12122a54938eca1070f4bfa26a0"
+  "sha1": "a1fdcc89dd400649107a7aa0fd658c4720fc6b95"
  },
  "1015224": {
   "frontier": [
@@ -17707,7 +17707,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "1015997e5db59bcff1c3436ed03c120994abc15c"
+  "sha1": "67155da3acf3741ab2e6721e319ef5744a953b8f"
  },
  "1015225": {
   "frontier": [
@@ -17722,7 +17722,7 @@
    "Zombie": 5,
    "Zombie Spawner": 8
   },
-  "sha1": "69a75ecda679fce13ccadbbf450e5284fd6bc0ec"
+  "sha1": "a362c1cd67a74cf1724357518cd48740e2f214d4"
  },
  "1015230": {
   "frontier": [
@@ -17734,7 +17734,7 @@
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "05506fa6b2a87181b081d9b1944dc8c5bfa553bb"
+  "sha1": "9d9dbde7be26f216e740c24bccd35176f9f506a8"
  },
  "1015231": {
   "frontier": [
@@ -17749,7 +17749,7 @@
    "Zombie Spawner": 5,
    "Zombie": 5
   },
-  "sha1": "3b29f23cacbf0221929a126c63488d5304aa3820"
+  "sha1": "6bdd070037667381e830a1f8f95bfb68f1507baa"
  },
  "1015232": {
   "frontier": [
@@ -17764,7 +17764,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "747fbbb7abec05a2da04a89e6ef8e83ef973c0fb"
+  "sha1": "ff226b45f379c1b8dd8a06043226d2bbbc6a77c2"
  },
  "1015233": {
   "frontier": [
@@ -17779,7 +17779,7 @@
    "Zombie Spawner": 5,
    "Zombie": 5
   },
-  "sha1": "08aa00c2cb954c5d66526684f70383830a0574f1"
+  "sha1": "c82d6b05063325242f837784440b84c57c131a8c"
  },
  "1015234": {
   "frontier": [
@@ -17794,7 +17794,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "4e33e9434477fb5dc4294e94a0f8d00f7cfa6740"
+  "sha1": "03d7088f9cc32ea9be0022be80aa2128ba5b10ad"
  },
  "1015235": {
   "frontier": [
@@ -17809,7 +17809,7 @@
    "Zombie": 5,
    "Zombie Spawner": 5
   },
-  "sha1": "00f49764d862675b83036d903694570cf46ade2a"
+  "sha1": "422b585c69b0ad47d4763bacddbf70b22b51cce0"
  },
  "1015237": {
   "frontier": [
@@ -17821,7 +17821,7 @@
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "061b1bdf52eed2dac987156d1878972c4262e014"
+  "sha1": "981644f12aa0cb94486dc7c332e927cbe4942ec7"
  },
  "1015240": {
   "frontier": [
@@ -17833,7 +17833,7 @@
   "row": "valley2Layout2",
   "water": 653,
   "enemies": {},
-  "sha1": "d57b98cbfa9301f658524c28f0c4b34926c0b7a5"
+  "sha1": "6770e7de9463ae9388a6fcb2b02eb667bd5e6455"
  },
  "1015241": {
   "frontier": [
@@ -17845,7 +17845,7 @@
   "row": "valley2LayoutDaisy",
   "water": 981,
   "enemies": {},
-  "sha1": "1ca9d019877b21b5cc4d2435508fd3827910125b"
+  "sha1": "97da49d89b8e519523bbe45fd5b200f153d8e26f"
  },
  "1015242": {
   "frontier": [
@@ -17859,7 +17859,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "9b49d3dc5714f55b36b2f3b3f74f5638757382cd"
+  "sha1": "421e6f26009a2ef1bab5a243df2b4a3a3f5fb44e"
  },
  "1015243": {
   "frontier": [
@@ -17874,7 +17874,7 @@
    "Zombie": 5,
    "Zombie Spawner": 8
   },
-  "sha1": "093853552dbcd9b4e11b2fec7651acdbcd306b30"
+  "sha1": "06bd05a90439324c54e266ff26e7e7b12ddcc47f"
  },
  "1015244": {
   "frontier": [
@@ -17889,7 +17889,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "2ad8d97d36ebe82f2eee0fefc92e2562dfdd27d2"
+  "sha1": "3ea36283f86908a60db1e3c1ce15617ddd6f469a"
  },
  "1015245": {
   "frontier": [
@@ -17903,7 +17903,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "8f28677a976037bcb8c7f09e62f8f202d6855c05"
+  "sha1": "774c890d43fd65610ac644a80f1cf441f6529aad"
  },
  "1015247": {
   "frontier": [
@@ -17917,7 +17917,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "4ca23132fd529c073c89c884cd5b989b9d9bb3e6"
+  "sha1": "21363e9e4e16aa3e5a1a3f226564b65eaced1a71"
  },
  "1015250": {
   "frontier": [
@@ -17946,7 +17946,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "6f6919859ab1ebd35c130d1282ef72f844e1f765"
+  "sha1": "6697d5cbc8d623540a2d0c1e463adb620af8d254"
  },
  "1015252": {
   "frontier": [
@@ -17961,7 +17961,7 @@
    "Zombie": 5,
    "Zombie Spawner": 5
   },
-  "sha1": "e629bf21a42ac5c6021d17de1e4b94d1dc7b172a"
+  "sha1": "5a024bfa2425bdfb92ccfbeb46b863a9ae7bc2ed"
  },
  "1015253": {
   "frontier": [
@@ -17976,7 +17976,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "24ccd02fc57632ce029aeceecbd214e6c89503d0"
+  "sha1": "d8f4f89bfc7ce7bdd434a0055eb15f254e533f62"
  },
  "1015254": {
   "frontier": [
@@ -17991,7 +17991,7 @@
    "Zombie Spawner": 5,
    "Zombie": 5
   },
-  "sha1": "b8167230d72a7d42305383b480ba40149a05cea4"
+  "sha1": "f643ecd22f2155284daee1661e58c56cffd1e01c"
  },
  "1015255": {
   "frontier": [
@@ -18006,7 +18006,7 @@
    "Zombie": 5,
    "Zombie Spawner": 8
   },
-  "sha1": "24df38334dba74cc68f0f561eb21d8607665d270"
+  "sha1": "eec2d60450ae02fa70499f440466b9d71e9e3018"
  },
  "1015256": {
   "frontier": [
@@ -18045,7 +18045,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "eb467f5b11652ffed4ba3c7fe01af1ae6b87c249"
+  "sha1": "a570440bf1d77b70830ca7be1f4f4c2b4a0461a4"
  },
  "1015262": {
   "frontier": [
@@ -18059,7 +18059,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "ecf866ef4f86c4f75ae9436415ad013612ed727e"
+  "sha1": "9596b205b040ea4fab61cec2df167a01d90705ff"
  },
  "1015263": {
   "frontier": [
@@ -18074,7 +18074,7 @@
    "Zombie Spawner": 8,
    "Zombie": 5
   },
-  "sha1": "373bb13e1b53ae02e8a1b4c34b32b7f9987eecee"
+  "sha1": "d95e68ec247201fce5e215def84d6ace39d642f9"
  },
  "1015264": {
   "frontier": [
@@ -18089,7 +18089,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "92354af36b9725f9171505b007acd71da5aa79ce"
+  "sha1": "33186115ade3fb454691c96700e9a2036e3869de"
  },
  "1015265": {
   "frontier": [
@@ -18104,7 +18104,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "52949ef76d04c175efcdb1ce5cc60bc003646500"
+  "sha1": "1c8b93f7a441dd15628d1bf086c239fce22af929"
  },
  "1015266": {
   "frontier": [
@@ -18176,7 +18176,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "76ea0f584e6e24d4ef3a11df9965d91283c905e0"
+  "sha1": "bef29754d59e6f0db77c71ab79bd9ed4c1e14431"
  },
  "1015274": {
   "frontier": [
@@ -18190,7 +18190,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "864784bebb9571cc1ea3adc868245cb005958fd4"
+  "sha1": "a336f8775d1563596c1734c5c15e26a9b1f85a19"
  },
  "1015275": {
   "frontier": [
@@ -18338,7 +18338,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "dd34bb84650bf166a45f0c1e2436fb0dda2424f0"
+  "sha1": "aa6e224f1fdd59ea4685ce4af7c20dee7b6dcd44"
  },
  "1015311": {
   "frontier": [
@@ -18507,7 +18507,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "98d09e97c7101fdba2b6ed45d3d97a4d10670a8d"
+  "sha1": "d5647b347c0799cbeddd88ceca732541a46ff359"
  },
  "1015331": {
   "frontier": [

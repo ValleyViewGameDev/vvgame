@@ -5,6 +5,9 @@
  * layouts/gridLayouts/valleyFixedCoord/<coord>.json (grids without a file are random at
  * creation and drawn hatched), towns from town/town<POS>.json and homesteads from
  * homestead/homestead.json. Drag to pan, wheel to zoom around the cursor, click to pick.
+ * Regions as in the Grid view: shift+click toggles a grid in the selection, shift+drag selects a
+ * rectangle, and the panel sets the region of the picked grid or of every selected grid (live
+ * writes through world.js saveRegion / bulkSaveRegion, each behind its confirm).
  *
  * Used by tabs/world.js; it owns no route of its own.
  */
@@ -23,7 +26,10 @@ const T = {
   grids: new Map(),      // gridCoord -> { gridCoord, gridType, source, image }
   loadedFor: null, loading: null, lastErrors: [],
   pan: { x: 0, y: 0 }, zoom: 1, drag: null, hover: null, picked: null,
-  show: { resources: false, random: true, bounds: true },
+  sel: [],               // gridCoords in the multi-selection (picked is the last one clicked)
+  rect: null,            // shift+drag: { start, end } grid positions
+  regionPick: '',        // region dropdown value (single + bulk)
+  show: { resources: false, random: true, bounds: true, regions: true },
 };
 
 // ----------------------------------------------------------------------------- data
@@ -126,9 +132,35 @@ function gridAt(e) {
   return { row, col, coord, cell: T.shared.gridMap.get(coord) || null, entry: T.grids.get(coord) || null };
 }
 
+// ----------------------------------------------------------------------------- selection (regions)
+const cellOf = (coord) => T.shared.gridMap.get(Number(coord)) || null;
+const selectedCells = () => T.sel.map(cellOf).filter(Boolean);
+function syncRegionPick() { if (T.sel.length <= 1) T.regionPick = (T.picked && cellOf(T.picked.coord)?.region) || ''; }
+const pickOf = (coord) => { const p = coordParts(coord); return p ? { row: p.row, col: p.col, coord, cell: cellOf(coord), entry: T.grids.get(coord) || null } : null; };
+function toggle(g) {
+  if (!g.cell) return;
+  const removing = T.sel.includes(g.coord);
+  T.sel = removing ? T.sel.filter((c) => c !== g.coord) : [...T.sel, g.coord];
+  // picked follows the selection: a grid toggled off is no longer the one the panel shows
+  T.picked = removing ? (T.sel.length ? pickOf(T.sel[T.sel.length - 1]) : null) : g;
+  syncRegionPick();
+}
+function selectRect(a, b) {
+  const out = [];
+  for (let r = Math.min(a.row, b.row); r <= Math.max(a.row, b.row); r++) for (let c = Math.min(a.col, b.col); c <= Math.max(a.col, b.col); c++) {
+    const coord = coordFrom(T.shared.prefix, r, c); if (cellOf(coord)) out.push(coord);
+  }
+  T.sel = out; T.picked = b; syncRegionPick();
+}
+function clearSelection() { T.sel = []; T.picked = null; T.regionPick = ''; renderPanel(); draw(); }
+
 function bindCanvas(cv) {
-  cv.addEventListener('mousedown', (e) => { T.drag = { x: e.clientX - T.pan.x, y: e.clientY - T.pan.y, moved: false }; cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('mousedown', (e) => {
+    if (e.shiftKey) { const g = gridAt(e); if (g) T.rect = { start: g, end: g }; return; }
+    T.drag = { x: e.clientX - T.pan.x, y: e.clientY - T.pan.y, moved: false }; cv.style.cursor = 'grabbing';
+  });
   cv.addEventListener('mousemove', (e) => {
+    if (T.rect) { const g = gridAt(e); if (g && (g.row !== T.rect.end.row || g.col !== T.rect.end.col)) { T.rect.end = g; draw(); } }
     if (T.drag) {
       const nx = e.clientX - T.drag.x, ny = e.clientY - T.drag.y;
       if (nx !== T.pan.x || ny !== T.pan.y) T.drag.moved = true;
@@ -138,7 +170,13 @@ function bindCanvas(cv) {
     if ((g?.coord ?? null) !== (T.hover?.coord ?? null)) { T.hover = g; renderHover(); draw(); }
   });
   const end = (e) => {
-    if (T.drag && !T.drag.moved && e) { T.picked = gridAt(e); renderPanel(); draw(); }
+    if (T.rect) {
+      const { start, end: last } = T.rect; T.rect = null;
+      if (start.row === last.row && start.col === last.col) toggle(start);   // shift+click
+      else selectRect(start, last);
+      renderPanel(); draw();
+    }
+    if (T.drag && !T.drag.moved && e) { const g = gridAt(e); T.picked = g; T.sel = g?.cell ? [g.coord] : []; syncRegionPick(); renderPanel(); draw(); }
     T.drag = null; cv.style.cursor = 'grab';
   };
   cv.addEventListener('mouseup', end);
@@ -184,9 +222,20 @@ function draw() {
     for (let i = 0; i <= BOARD; i += GRIDS_PER_SETTLEMENT) { ctx.moveTo(i * GRID_PX, 0); ctx.lineTo(i * GRID_PX, WORLD_PX); ctx.moveTo(0, i * GRID_PX); ctx.lineTo(WORLD_PX, i * GRID_PX); }
     ctx.stroke();
   }
-  const outline = (g, color) => { if (!g) return; ctx.strokeStyle = color; ctx.lineWidth = 3 / T.zoom; ctx.strokeRect(g.col * GRID_PX, g.row * GRID_PX, GRID_PX, GRID_PX); };
+  if (T.show.regions) {
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+    for (const c of T.shared.gridMap.values()) { if (!c.region) continue; const p = coordParts(c.gridCoord); if (p) ctx.fillRect(p.col * GRID_PX, p.row * GRID_PX, GRID_PX, GRID_PX); }
+  }
+  const outline = (g, color, w = 3) => { if (!g) return; ctx.strokeStyle = color; ctx.lineWidth = w / T.zoom; ctx.strokeRect(g.col * GRID_PX, g.row * GRID_PX, GRID_PX, GRID_PX); };
   outline(T.hover, '#3f8a2f');
+  for (const coord of T.sel) { const p = coordParts(coord); if (p) outline(p, '#c0392b', 2); }
   outline(T.picked, '#c0392b');
+  if (T.rect) {
+    const { start: a, end: b } = T.rect;
+    ctx.fillStyle = 'rgba(192, 57, 43, 0.15)'; ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2 / T.zoom;
+    const x = Math.min(a.col, b.col) * GRID_PX, y = Math.min(a.row, b.row) * GRID_PX, w = (Math.abs(a.col - b.col) + 1) * GRID_PX, h = (Math.abs(a.row - b.row) + 1) * GRID_PX;
+    ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+  }
 }
 
 // ----------------------------------------------------------------------------- panels
@@ -222,13 +271,29 @@ function renderPanel() {
     check('resources', 'Show resources (white dots)', rerasterizeAll),
     check('random', 'Hatch random valley grids (no layout file)', draw),
     check('bounds', 'Show settlement bounds', draw),
+    check('regions', 'Show regions (red tint)', draw),
   );
-  s.appendChild(el('div', { class: 'note' }, 'Templates only: what a grid looks like when it is created for a player, never any player\'s current copy. Drag to pan, scroll to zoom, click a grid to pick it.'));
+  s.appendChild(el('div', { class: 'note' }, 'Templates only: what a grid looks like when it is created for a player, never any player\'s current copy. Drag to pan, scroll to zoom, click a grid to pick it; shift+click toggles a grid, shift+drag selects a rectangle.'));
+
+  const regionSelect = () => el('select', { onchange: (e) => { T.regionPick = e.target.value; renderPanel(); } }, [
+    el('option', { value: '', selected: !T.regionPick }, '(none)'),
+    ...(S.regions || []).map((r) => el('option', { value: r.type, selected: T.regionPick === r.type }, `${r.symbol || ''} ${r.type}`)),
+  ]);
+  if (T.sel.length > 1) {
+    const grids = selectedCells(), inDb = grids.filter((g) => g.gridId);
+    s.appendChild(el('h3', {}, `${grids.length} grids selected`));
+    s.appendChild(el('div', { class: 'note mono' }, `${inDb.length} in database · ${grids.filter((g) => g.region).length} with a region`));
+    s.appendChild(el('div', { class: 'row' }, [el('button', { onclick: clearSelection }, 'Clear selection')]));
+    s.appendChild(el('h3', {}, 'Region for all'));
+    s.appendChild(el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !inDb.length, onclick: () => S.bulkSaveRegion(grids, T.regionPick || null) }, `Save region (${inDb.length} in db)`)]));
+    if (inDb.length < grids.length) s.appendChild(el('div', { class: 'note' }, `${grids.length - inDb.length} selected grids are not in the database and are skipped.`));
+    return;
+  }
 
   s.appendChild(el('h3', {}, 'Picked grid'));
   const p = T.picked;
   if (!p) { s.appendChild(el('div', { class: 'note' }, 'Click a grid on the map.')); return; }
-  const cell = p.cell;
+  const cell = cellOf(p.coord);
   s.appendChild(el('div', { class: 'mono' }, String(p.coord)));
   s.appendChild(el('div', { class: 'note' }, cell ? `${cell.gridType} · ${cell.settlementName}${cell.region ? ` · region ${cell.region}` : ''}` : 'Not a grid of this frontier.'));
   s.appendChild(el('div', { class: 'note mono' }, p.entry ? `${p.entry.source.dir}/${p.entry.source.name}.json` : (cell && isValleyType(cell.gridType) ? 'no layout file: random at creation' : 'no template')));
@@ -238,6 +303,12 @@ function renderPanel() {
     cell ? el('button', { onclick: () => S.ctx.navigate(`world/grid/${S.frontierId}/${p.coord}`) }, 'Open in Grid view') : null,
     openRoute ? el('button', { class: 'primary', onclick: () => S.ctx.navigate(openRoute) }, p.entry ? 'Open layout' : 'Create layout') : null,
   ]));
+  if (!cell) return;
+  s.appendChild(el('h3', {}, 'Region'));
+  s.appendChild(el('div', { class: 'note' }, `Current: ${cell.region || '(none)'}`));
+  s.appendChild(cell.gridId
+    ? el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: (T.regionPick || '') === (cell.region || ''), onclick: () => S.saveRegion(cell, T.regionPick || null) }, 'Save region')])
+    : el('div', { class: 'note' }, 'Create the grid in the live game before assigning a region.'));
 }
 
 // ----------------------------------------------------------------------------- API for world.js
@@ -246,6 +317,8 @@ export const tileView = {
   mount(editorEl, panelEl, shared) {
     const switching = T.shared?.frontierId !== shared.frontierId;
     T.shared = shared; T.els.panel = panelEl;
+    if (switching) { T.sel = []; T.picked = null; T.regionPick = ''; }
+    else T.sel = T.sel.filter((c) => shared.gridMap.has(Number(c)));
     T.els.hoverInfo = el('span', { class: 'muted mono' }, '');
     const tb = el('div', { class: 'toolbar' }, [
       el('strong', {}, shared.frontier?.name || shared.frontierId), el('span', { class: 'badge' }, `prefix ${shared.prefix || '?'} · ${shared.gridMap.size} grids · 2 px per tile · templates only`),

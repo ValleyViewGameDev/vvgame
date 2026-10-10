@@ -7,7 +7,8 @@
  * assign its region; multi-select (shift+click to toggle, drag for a rectangle) for bulk
  * region / create / reset. Every live write goes through a confirm naming the target.
  * Tile view (world/tileView.js): the same frontier drawn tile by tile from the TEMPLATE
- * layouts on disk, nothing from any player's copy (the old Atlas tab, minus the database).
+ * layouts on disk, nothing from any player's copy (the old Atlas tab, minus the database); it
+ * has the same single and bulk region assignment, through saveRegion / bulkSaveRegion here.
  *
  * Selection panel: frontier picker, then the sub-view's own controls.
  * Route: #world/<grid|tiles>/<frontierId>[/<gridCoord>]  (older #world/<frontierId>[/<coord>]
@@ -141,9 +142,9 @@ async function resetGridLive(g) {
   } catch (err) { failModal(`Reset grid ${g.gridCoord} failed`, err); }
 }
 
-async function saveRegion(g) {
+// shared with the Tile view (world/tileView.js), which has its own selection and region pick
+async function saveRegion(g, region = W.regionPick || null) {
   if (!g?.gridId) return toast('Create the grid in the live game before assigning a region.', 'warn');
-  const region = W.regionPick || null;
   const ok = await confirm(el('div', {}, [el('p', {}, `Set region to "${region || 'none'}" on this grid in the live game?`), describe(g), serverNote()]), { title: 'Update grid region', okLabel: 'Save region' });
   if (!ok) return;
   try {
@@ -153,10 +154,9 @@ async function saveRegion(g) {
   } catch (err) { failModal(`Update region of ${g.gridCoord} failed`, err); }
 }
 
-async function bulkSaveRegion() {
-  const grids = selectedGrids().filter((g) => g.gridId);
+async function bulkSaveRegion(selection = selectedGrids(), region = W.regionPick || null) {
+  const grids = selection.filter((g) => g.gridId);
   if (!grids.length) return toast('None of the selected grids exist in the live game yet.', 'warn');
-  const region = W.regionPick || null;
   const ok = await confirm(el('div', {}, [el('p', {}, `Set region to "${region || 'none'}" on ${grids.length} grids in the live game?`), el('div', { class: 'mono', style: { maxHeight: '160px', overflow: 'auto' } }, grids.map((g) => g.gridCoord).join(', ')), serverNote()]), { title: 'Bulk update grid regions', okLabel: `Save region (${grids.length})` });
   if (!ok) return;
   try {
@@ -245,7 +245,7 @@ function renderEditor() {
     el('button', { class: W.view === 'tiles' ? 'on' : '', onclick: () => setView('tiles') }, 'Tile view'),
   ]));
   if (W.view === 'tiles') {
-    tileView.mount(root, W.els.tilePanel, { ctx: W.ctx, frontierId: W.frontierId, frontier: W.frontier, gridMap: W.gridMap, prefix: W.prefix, layoutCoords: W.layoutCoords, res: W.res });
+    tileView.mount(root, W.els.tilePanel, { ctx: W.ctx, frontierId: W.frontierId, frontier: W.frontier, gridMap: W.gridMap, prefix: W.prefix, layoutCoords: W.layoutCoords, res: W.res, regions: W.regions, saveRegion, bulkSaveRegion });
     return;
   }
   const grids = [...W.gridMap.values()];
@@ -351,7 +351,7 @@ function renderInspector() {
       el('button', { onclick: clearSelection }, 'Clear selection'),
     ]);
     section('Region for all', [
-      el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !resettable.length, onclick: bulkSaveRegion }, `Save region (${resettable.length} in db)`)]),
+      el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !resettable.length, onclick: () => bulkSaveRegion() }, `Save region (${resettable.length} in db)`)]),
       resettable.length < grids.length ? el('div', { class: 'note' }, `${grids.length - resettable.length} selected grids are not in the database and are skipped.`) : null,
     ]);
     section('Live game', [

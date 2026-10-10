@@ -539,3 +539,8 @@ grids are painted once with `--owner`; a second rebuild changes nothing):
 - Follow-up (owner: the grass patches looked like a golf course, too manicured): islands and patches
   are now soft. Their edge is ragged (a finer noise on top), grass fades into dirt over a ramp
   instead of a cut line, ~18% dirt is speckled through the grass and ~4% grass flecks the dirt.
+  Then (owner: the fade should be more dirt-heavy at the edges, the centres are good): the fade is
+  wider (about 10 tiles) and weighted to dirt (`gamma` 2.6), with the same solid centres.
+- Follow-up (owner: a fair number of coyotes randomly over the new dirt): regions can scatter their
+  own creatures (`npcs`); the dirt region puts a Coyote on 0.25% of its deep dirt tiles, about 208
+  over the 38 mostly-dirt grids (1-11 a grid, ~5.5 on average; Quick Generate grass has ~4).

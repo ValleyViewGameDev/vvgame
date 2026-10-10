@@ -7,8 +7,9 @@
 // A region is a corridor (centreline of [frontierRow, frontierCol] points, half width in grids that
 // swells in the middle) plus blobs ({ at, radius }), its edge warped by noise (wobble scales it).
 //   ground       'DI' | 'SL'
-//   islands      { ground, cell, above, soft?, speck?, fleck? }: soft patches of another ground deep inside
+//   islands      { ground, cell, above, soft?, gamma?, speck?, fleck? }: soft patches of another ground deep inside
 //   patches      { ground, cell, above, soft?, speck?, fleck? }: soft patches near the rim (dirt on slate)
+//   npcs         [{ key, rate }]: creatures scattered over the region's own ground deep inside
 //   ownerGrids   owner grids the owner asked to be painted too (open ground only)
 //   clearOutside owner grids whose straight blocks of slate / dirt outside every region go back to grass
 //
@@ -50,7 +51,7 @@ const MIX = {
 function soft(spec, X, Y, seed) {
   const n = 0.75 * noise(X, Y, spec.cell, seed) + 0.25 * noise(X, Y, spec.cell / 3.5, seed + 1);
   const w = spec.soft ?? 0.07, t = (n - (spec.above - w)) / (2 * w);
-  const p = t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+  const p = t <= 0 ? 0 : t >= 1 ? 1 : Math.pow(t * t * (3 - 2 * t), spec.gamma ?? 1);   // gamma > 1: the fringe stays mostly the surrounding ground
   return hash2(X, Y, seed + 3) < p * (1 - (spec.speck ?? 0.18)) + (1 - p) * (spec.fleck ?? 0);
 }
 const pick = (mix, r) => { for (const [k, p] of mix) { if (r < p) return k; r -= p; } return '**'; };
@@ -136,7 +137,9 @@ export function applyGroundRegions(load, resourcesByKey, { isGen, owner = false 
       // deep inside, trees and bare ground are redrawn from the region's own mix: one texture across
       // the field, whatever density each grid's base had (doobers valid on the ground stay)
       if (deep && (k === '**' || TREES.has(k) || !valid(k, want))) {
-        const nk = pick(MIX[want], hash2(X, Y, s + 23));
+        let nk = pick(MIX[want], hash2(X, Y, s + 23));
+        // the region's own creatures, scattered over its ground (e.g. coyotes on the dirt)
+        if (from && want === from.ground) for (const npc of from.npcs || []) if (hash2(X, Y, s + 29 + npc.key.charCodeAt(1)) < npc.rate) nk = npc.key;
         if (want !== t || nk !== k) { L.tiles[y][x] = want; L.resources[y][x] = nk; n++; }
         continue;
       }
