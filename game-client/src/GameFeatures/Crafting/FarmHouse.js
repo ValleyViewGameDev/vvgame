@@ -8,7 +8,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
 import { updateGridResource } from '../../Utils/GridManagement';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -697,9 +697,7 @@ const FarmHouse = ({
                 const qty = recipe[`ingredient${i}qty`];
                 if (!type || !qty) return '';
 
-                const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
+                const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;

@@ -7,6 +7,7 @@ import { useStrings } from '../StringsContext';
 import { formatCountdown } from '../Timers';
 import { getMayorUsername } from '../../GameFeatures/Government/GovUtils';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 
 // Town News: a right panel opened by the floating 📰 button under the season button
 // (docs/ui-conventions.md §3). Settlement and bank data are fetched on open and every 30 s;
@@ -15,9 +16,8 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 // need / have treatment ("🌾 Wheat 40 / 12", green when the player has enough, red when not;
 // inventory and backpack counted together), and countdowns are coloured text.
 
-const playerHas = (type, inventory, backpack) =>
-    (Array.isArray(inventory) ? inventory : []).filter(i => i.type === type).reduce((n, i) => n + (i.quantity || 0), 0)
-    + (Array.isArray(backpack) ? backpack : []).filter(i => i.type === type).reduce((n, i) => n + (i.quantity || 0), 0);
+// Have = backpack + warehouse, the one count for every need / have (InventoryManagement)
+const playerHas = (type, inventory, backpack) => getPlayerQuantity(type, inventory, backpack);
 
 /**
  * One good per line: symbol, name, need / have. `who` (a username) sits at the right of the

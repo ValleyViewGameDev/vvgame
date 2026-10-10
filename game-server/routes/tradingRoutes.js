@@ -1,3 +1,4 @@
+const { heldQuantity, takeFromHoldings } = require('../utils/playerHoldings');
 const express = require('express');
 const router = express.Router();
 const Player = require('../models/player'); // Ensure the player schema includes tradeStall
@@ -553,9 +554,8 @@ router.post('/trade-stall/fulfill-request', async (req, res) => {
       return res.status(400).json({ error: 'Invalid or empty request' });
     }
 
-    // Check if seller has the requested items in inventory
-    const sellerItem = seller.inventory.find(item => item.type === request.resource);
-    if (!sellerItem || sellerItem.quantity < request.amount) {
+    // Check the seller holds enough (backpack + warehouse, utils/playerHoldings.js)
+    if (heldQuantity(seller.inventory, seller.backpack, request.resource) < request.amount) {
       await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
       return res.status(400).json({ error: 'Seller does not have enough items' });
     }
@@ -571,11 +571,8 @@ router.post('/trade-stall/fulfill-request', async (req, res) => {
       });
     }
 
-    // Deduct items from seller's inventory
-    sellerItem.quantity -= request.amount;
-    if (sellerItem.quantity === 0) {
-      seller.inventory = seller.inventory.filter(item => item.type !== request.resource);
-    }
+    // Take the items from the seller: backpack first, then the warehouse
+    takeFromHoldings(seller.inventory, seller.backpack, request.resource, request.amount);
 
     // Add money to seller's inventory
     const sellerMoney = seller.inventory.find(item => item.type === 'Money');
@@ -620,6 +617,7 @@ router.post('/trade-stall/fulfill-request', async (req, res) => {
       amount: request.amount,
       tradeStallRequests: buyer.tradeStallRequests,
       sellerInventory: seller.inventory,
+      sellerBackpack: seller.backpack,
       buyerInventory: buyer.inventory
     });
 

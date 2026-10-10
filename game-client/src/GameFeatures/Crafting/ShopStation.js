@@ -4,7 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
+import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -394,9 +394,7 @@ const ShopStation = ({
                 const type = recipe[`ingredient${i}`];
                 const qty = recipe[`ingredient${i}qty`];
                 if (!type || !qty) return '';
-                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
+                const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;

@@ -18,7 +18,7 @@ import { formatCountdown } from '../../UI/Timers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
@@ -503,9 +503,7 @@ const CourthousePanel = ({
                                         const qty = resource[`ingredient${i}qty`];
                                         if (!type || !qty) return '';
 
-                                        const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                                        const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                                        const playerQty = inventoryQty + backpackQty;
+                                        const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                                         const color = playerQty >= qty ? 'green' : 'red';
                                         const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                                         return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;

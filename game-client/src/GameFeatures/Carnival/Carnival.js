@@ -6,7 +6,7 @@ import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import './Carnival.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
@@ -41,27 +41,12 @@ function CarnivalPanel({
   const [carnivalTimer, setCarnivalTimer] = useState("⏳");
   const [nextOffers, setNextOffers] = useState([]);
   const [carnivalRewards, setCarnivalRewards] = useState([]);
-  const [latestInventory, setLatestInventory] = useState([]);
   const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
-  const [isContentLoading, setIsContentLoading] = useState(false);
   const [currentCarnivalNumber, setCurrentCarnivalNumber] = useState(null);
 
   // 1. Initial load for the player
   useEffect(() => {
-    const fetchInventory = async () => {
-      if (!currentPlayer?.playerId) return;
-      setIsContentLoading(true);
-      try {
-        const response = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        setLatestInventory(response.data.inventory || []);
-      } catch (error) {
-        console.error("❌ Error fetching latest inventory:", error);
-      } finally {
-        setIsContentLoading(false);
-      }
-    };
-    fetchInventory();
-
+    // Holdings come from App's live inventory / backpack (props), not a one-off fetch
     if (currentPlayer?.settlementId) {
       fetchCarnivalOffers();
     }
@@ -454,11 +439,9 @@ function CarnivalPanel({
         {offers.map((offer, index) => {
           const isYours = offer.claimedBy === currentPlayer.playerId;
           const isCompleted = offer.filled;
-          const affordable = latestInventory?.some(
-            (item) => item.type === offer.itemBought && item.quantity >= offer.qtyBought
-          ) || false;
-
-          const playerQty = latestInventory?.find(inv => inv.type === offer.itemBought)?.quantity || 0;
+          // Have = backpack + warehouse; handleFulfill spends backpack first (InventoryManagement)
+          const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack);
+          const affordable = playerQty >= offer.qtyBought;
           const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
           const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
           const rewardDisplay = `${getSymbol(offer.itemGiven)} ${offer.qtyGiven.toLocaleString()}`;
@@ -540,8 +523,6 @@ function CarnivalPanel({
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <h2>{strings[1352] || "This is not your home settlement."}</h2>
           </div>
-        ) : isContentLoading ? (
-          <p>{strings[98]}</p>
         ) : (
           <>
             <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(#${currentCarnivalNumber})` : ''}</h3>

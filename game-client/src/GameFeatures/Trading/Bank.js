@@ -4,7 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
@@ -210,9 +210,7 @@ function BankPanel({
                   {bankOffers.length > 0 ? (
                     bankOffers.map((offer, index) => {
                       // Calculate player's total quantity from inventory and backpack
-                      const inventoryQty = inventory?.find(item => item.type === offer.itemBought)?.quantity || 0;
-                      const backpackQty = backpack?.find(item => item.type === offer.itemBought)?.quantity || 0;
-                      const playerQty = inventoryQty + backpackQty;
+                      const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack); // backpack + warehouse
 
                       return (
                         <ResourceButton

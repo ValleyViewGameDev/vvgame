@@ -3,7 +3,7 @@ import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
 import './BulkSelectModals.css';
-import { canAfford, gainIngredients, deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
+import { canAfford, gainIngredients, deriveWarehouseAndBackpackCapacity, isCurrency, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -87,9 +87,7 @@ export function BulkCraftingModal({
       const ingredientType = slot.recipe[`ingredient${i}`];
       const ingredientQty = slot.recipe[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {
-        const inventoryQty = inventory?.find(item => item.type === ingredientType)?.quantity || 0;
-        const backpackQty = backpack?.find(item => item.type === ingredientType)?.quantity || 0;
-        const totalAvailable = inventoryQty + backpackQty;
+        const totalAvailable = getPlayerQuantity(ingredientType, inventory, backpack); // backpack + warehouse
         needs[ingredientType] = {
           needed: ingredientQty,
           available: totalAvailable,

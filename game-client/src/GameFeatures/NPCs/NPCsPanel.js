@@ -6,7 +6,7 @@ import '../Crafting/ScrollStation.css'; // Import for shared station panel style
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
+import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { QuestGiverButton } from '../../UI/Buttons/QuestButton';
@@ -1589,9 +1589,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const qty = req.quantity;
                       if (!type || !qty) return '';
 
-                      const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                      const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                      const playerQty = inventoryQty + backpackQty;
+                      const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                       return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
@@ -1604,9 +1602,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       const qty = recipe[`ingredient${i}qty`];
                       if (!type || !qty) continue;
 
-                      const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                      const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                      const playerQty = inventoryQty + backpackQty;
+                      const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                       const color = playerQty >= qty ? 'green' : 'red';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                       ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);

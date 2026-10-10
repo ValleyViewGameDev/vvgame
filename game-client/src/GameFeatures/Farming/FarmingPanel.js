@@ -4,7 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { handleFarmPlotPlacement } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -229,9 +229,7 @@ const FarmingPanel = ({
                 const qty = item[`ingredient${i}qty`];
                 if (!type || !qty) return '';
 
-                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
+                const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
@@ -390,9 +390,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     const qty = resource[`ingredient${i}qty`];
                     if (!type || !qty) return '';
 
-                    const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                    const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                    const playerQty = inventoryQty + backpackQty;
+                    const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                     const color = playerQty >= qty ? 'green' : 'red';
                     const symbol = allResources.find(r => r.type === type)?.symbol || '';
                     return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;

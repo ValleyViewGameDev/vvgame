@@ -8,7 +8,7 @@ import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { canAfford, calculateSkillMultiplier, applySkillMultiplier } from '../../Utils/InventoryManagement';
+import { canAfford, calculateSkillMultiplier, applySkillMultiplier, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -922,9 +922,7 @@ const CraftingStation = ({
                 const qty = recipe[`ingredient${idx}qty`];
                 if (!type || !qty) return '';
 
-                const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
+                const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
@@ -1033,9 +1031,7 @@ const CraftingStation = ({
                     .map(([resourceType, qty]) => {
                       const resourceInfo = masterResources?.find(r => r.type === resourceType);
                       const symbol = resourceInfo?.symbol || '';
-                      const inventoryQty = inventory?.find(item => item.type === resourceType)?.quantity || 0;
-                      const backpackQty = backpack?.find(item => item.type === resourceType)?.quantity || 0;
-                      const playerQty = inventoryQty + backpackQty;
+                      const playerQty = getPlayerQuantity(resourceType, inventory, backpack); // backpack + warehouse
                       const hasEnough = playerQty >= qty;
                       return (
                         <div key={resourceType} style={{ color: hasEnough ? 'green' : 'red' }}>

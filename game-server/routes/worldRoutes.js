@@ -1,3 +1,4 @@
+const { heldQuantity, takeFromHoldings, recipeCosts, canAffordCosts, spendCosts } = require('../utils/playerHoldings');
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 const fs = require('fs');
@@ -1314,60 +1315,12 @@ router.post('/crafting/start-craft', async (req, res) => {
     const inventory = player.inventory || [];
     const backpack = player.backpack || [];
     
-    // Validate ingredients
-    for (let i = 1; i <= 4; i++) {
-      const ingredientType = recipe[`ingredient${i}`];
-      const ingredientQty = recipe[`ingredient${i}qty`];
-      
-      if (ingredientType && ingredientQty) {
-        const inventoryQty = inventory.find(item => item.type === ingredientType)?.quantity || 0;
-        const backpackQty = backpack.find(item => item.type === ingredientType)?.quantity || 0;
-        const totalQty = inventoryQty + backpackQty;
-        
-        if (totalQty < ingredientQty) {
-          player.activeTransactions.delete(transactionKey);
-          await player.save();
-          return res.status(400).json({ error: `Insufficient ${ingredientType}` });
-        }
-      }
-    }
-
-    // Spend ingredients server-side
-    for (let i = 1; i <= 4; i++) {
-      const ingredientType = recipe[`ingredient${i}`];
-      const ingredientQty = recipe[`ingredient${i}qty`];
-      
-      if (ingredientType && ingredientQty) {
-        let remaining = ingredientQty;
-        
-        // Try inventory first
-        const inventoryItem = inventory.find(item => item.type === ingredientType);
-        if (inventoryItem && remaining > 0) {
-          const takeFromInventory = Math.min(inventoryItem.quantity, remaining);
-          inventoryItem.quantity -= takeFromInventory;
-          remaining -= takeFromInventory;
-          
-          if (inventoryItem.quantity <= 0) {
-            const index = inventory.findIndex(item => item.type === ingredientType);
-            inventory.splice(index, 1);
-          }
-        }
-        
-        // Then backpack if needed
-        if (remaining > 0) {
-          const backpackItem = backpack.find(item => item.type === ingredientType);
-          if (backpackItem) {
-            const takeFromBackpack = Math.min(backpackItem.quantity, remaining);
-            backpackItem.quantity -= takeFromBackpack;
-            remaining -= takeFromBackpack;
-            
-            if (backpackItem.quantity <= 0) {
-              const index = backpack.findIndex(item => item.type === ingredientType);
-              backpack.splice(index, 1);
-            }
-          }
-        }
-      }
+    // Validate and spend (backpack + warehouse, backpack first: utils/playerHoldings.js)
+    if (!spendCosts(recipe, inventory, backpack)) {
+      const short = recipeCosts(recipe).find(([type, qty]) => heldQuantity(inventory, backpack, type) < qty);
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: `Insufficient ${short ? short[0] : 'ingredients'}` });
     }
 
     // Update player inventory
@@ -1519,49 +1472,14 @@ router.post('/crafting/upgrade-station', async (req, res) => {
       return res.status(400).json({ error: 'No cost defined for this slot' });
     }
 
-    // Validate player can afford and deduct ingredients
+    // Validate and deduct the slot cost (backpack + warehouse, backpack first: utils/playerHoldings.js)
     const inventory = player.inventory || [];
     const backpack = player.backpack || [];
-
-    for (const [resourceType, qty] of Object.entries(slotCosts)) {
-      if (qty <= 0) continue;
-      const inventoryQty = inventory.find(item => item.type === resourceType)?.quantity || 0;
-      const backpackQty = backpack.find(item => item.type === resourceType)?.quantity || 0;
-      if (inventoryQty + backpackQty < qty) {
-        player.activeTransactions.delete(transactionKey);
-        await player.save();
-        return res.status(400).json({ error: `Insufficient ${resourceType}` });
-      }
-    }
-
-    // Deduct ingredients (inventory first, then backpack)
-    for (const [resourceType, qty] of Object.entries(slotCosts)) {
-      if (qty <= 0) continue;
-      let remaining = qty;
-
-      const inventoryItem = inventory.find(item => item.type === resourceType);
-      if (inventoryItem && remaining > 0) {
-        const take = Math.min(inventoryItem.quantity, remaining);
-        inventoryItem.quantity -= take;
-        remaining -= take;
-        if (inventoryItem.quantity <= 0) {
-          const idx = inventory.findIndex(item => item.type === resourceType);
-          inventory.splice(idx, 1);
-        }
-      }
-
-      if (remaining > 0) {
-        const backpackItem = backpack.find(item => item.type === resourceType);
-        if (backpackItem) {
-          const take = Math.min(backpackItem.quantity, remaining);
-          backpackItem.quantity -= take;
-          remaining -= take;
-          if (backpackItem.quantity <= 0) {
-            const idx = backpack.findIndex(item => item.type === resourceType);
-            backpack.splice(idx, 1);
-          }
-        }
-      }
+    if (!spendCosts(slotCosts, inventory, backpack, { table: true })) {
+      const short = recipeCosts(slotCosts, { table: true }).find(([type, qty]) => heldQuantity(inventory, backpack, type) < qty);
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: `Insufficient ${short ? short[0] : 'resources'}` });
     }
 
     // Update player inventory
@@ -2164,33 +2082,9 @@ router.post('/bulk-harvest', async (req, res) => {
           }
 
           if (canReplant) {
-            // Consume seeds from backpack first, then inventory
+            // Consume seeds from backpack first, then the warehouse (utils/playerHoldings.js)
             for (const [seedType, needed] of Object.entries(seedsToConsume)) {
-              let remaining = needed;
-              
-              // Take from backpack first
-              const backpackItem = player.backpack?.find(item => item.type === seedType);
-              if (backpackItem && backpackItem.quantity > 0) {
-                const toTake = Math.min(remaining, backpackItem.quantity);
-                backpackItem.quantity -= toTake;
-                remaining -= toTake;
-                
-                if (backpackItem.quantity === 0) {
-                  player.backpack = player.backpack.filter(item => item.type !== seedType);
-                }
-              }
-              
-              // Take remaining from inventory
-              if (remaining > 0) {
-                const invItem = player.inventory.find(item => item.type === seedType);
-                if (invItem) {
-                  invItem.quantity -= remaining;
-                  if (invItem.quantity === 0) {
-                    player.inventory = player.inventory.filter(item => item.type !== seedType);
-                  }
-                }
-              }
-
+              takeFromHoldings(player.inventory, player.backpack, seedType, needed);
               harvestResults.seedsUsed[seedType] = (harvestResults.seedsUsed[seedType] || 0) + needed;
             }
 
@@ -2468,69 +2362,13 @@ router.post('/crafting/collect-bulk', async (req, res) => {
   }
 });
 
-// Helper function to check if player can afford recipe
+// Bulk-crafting restarts: the shared rule (backpack + warehouse, backpack first)
 function checkCanAfford(recipe, inventory, backpack) {
-  for (let i = 1; i <= 4; i++) {
-    const ingredientType = recipe[`ingredient${i}`];
-    const ingredientQty = recipe[`ingredient${i}qty`];
-    
-    if (ingredientType && ingredientQty > 0) {
-      const invItem = inventory.find(item => item.type === ingredientType);
-      const backpackItem = backpack.find(item => item.type === ingredientType);
-      const totalQty = (invItem?.quantity || 0) + (backpackItem?.quantity || 0);
-      
-      if (totalQty < ingredientQty) {
-        return false;
-      }
-    }
-  }
-  return true;
+  return canAffordCosts(recipe, inventory, backpack);
 }
 
-// Helper function to spend ingredients from inventory/backpack
 function spendIngredients(recipe, inventory, backpack) {
-  // First check if we can afford everything
-  if (!checkCanAfford(recipe, inventory, backpack)) {
-    return false;
-  }
-
-  // Then spend the ingredients
-  for (let i = 1; i <= 4; i++) {
-    const ingredientType = recipe[`ingredient${i}`];
-    let ingredientQty = recipe[`ingredient${i}qty`];
-    
-    if (ingredientType && ingredientQty > 0) {
-      // Try to spend from inventory first
-      const invItem = inventory.find(item => item.type === ingredientType);
-      if (invItem && invItem.quantity > 0) {
-        const spent = Math.min(invItem.quantity, ingredientQty);
-        invItem.quantity -= spent;
-        ingredientQty -= spent;
-        
-        // Remove item if quantity reaches 0
-        if (invItem.quantity === 0) {
-          const index = inventory.indexOf(invItem);
-          inventory.splice(index, 1);
-        }
-      }
-      
-      // Then spend remaining from backpack
-      if (ingredientQty > 0) {
-        const backpackItem = backpack.find(item => item.type === ingredientType);
-        if (backpackItem && backpackItem.quantity >= ingredientQty) {
-          backpackItem.quantity -= ingredientQty;
-          
-          // Remove item if quantity reaches 0
-          if (backpackItem.quantity === 0) {
-            const index = backpack.indexOf(backpackItem);
-            backpack.splice(index, 1);
-          }
-        }
-      }
-    }
-  }
-  
-  return true;
+  return spendCosts(recipe, inventory, backpack);
 }
 
 // Make it snow - convert all grass tiles to snow tiles

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import Modal from '../../UI/Modals/Modal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import axios from 'axios';
@@ -336,11 +337,8 @@ function GlobalMarketModal({
                       // Find the actual slot index in the full requests array
                       const actualSlotIndex = requests.findIndex(s => s === slot);
 
-                      // Check if current player has enough of this resource
-                      const playerInventoryItem = currentPlayer.inventory?.find(
-                        item => item.type === slot.resource
-                      );
-                      const playerHasAmount = playerInventoryItem?.quantity || 0;
+                      // Check if current player has enough of this resource (backpack + warehouse)
+                      const playerHasAmount = getPlayerQuantity(slot.resource, currentPlayer.inventory, currentPlayer.backpack);
                       const canFulfill = playerHasAmount >= slot.amount;
 
                       return (

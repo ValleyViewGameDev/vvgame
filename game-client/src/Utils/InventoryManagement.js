@@ -361,6 +361,30 @@ export async function gainIngredients({
 }
 
 
+/**
+ * GIVING UP RESOURCES (trading with an NPC, Kent, the Train, the Carnival, the Bank, a Trade
+ * Stall sale or request, crafting, buying): one rule everywhere.
+ *   - "Have" counts the backpack AND the warehouse together: getPlayerQuantity / canAfford.
+ *   - Spending takes from the backpack first, then the warehouse: spendIngredients (recipe
+ *     shape: ingredient1 / ingredient1qty ...). A single item is { ingredient1: type,
+ *     ingredient1qty: qty }.
+ * Never read only `inventory` for an amount the player can hand over.
+ */
+export const getPlayerQuantity = (type, inventory = [], backpack = []) => {
+  const sum = (list) => (Array.isArray(list) ? list : []).reduce((n, item) => (item?.type === type ? n + (item.quantity || 0) : n), 0);
+  return sum(backpack) + sum(inventory);
+};
+
+/** Backpack and warehouse as one { type, quantity } list (pickers that offer what you hold). */
+export const mergeHoldings = (inventory = [], backpack = []) => {
+  const totals = new Map();
+  for (const item of [...(Array.isArray(backpack) ? backpack : []), ...(Array.isArray(inventory) ? inventory : [])]) {
+    if (!item?.type) continue;
+    totals.set(item.type, (totals.get(item.type) || 0) + (item.quantity || 0));
+  }
+  return [...totals].map(([type, quantity]) => ({ type, quantity })).filter((item) => item.quantity > 0);
+};
+
 ////////////////////////////////////////
 export async function spendIngredients({
   playerId,

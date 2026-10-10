@@ -9,7 +9,7 @@ import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modals/Modal.css';
 import '../../UI/Buttons/SharedButtons.css';
-import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate, getPlayerQuantity, mergeHoldings } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
@@ -370,11 +370,14 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       });
 
       if (response.data.success) {
-        // Update seller's (current player's) inventory using the returned data
+        // Update seller's (current player's) holdings using the returned data (the items may
+        // have come out of the backpack: utils/playerHoldings.js takes backpack first)
         setInventory(response.data.sellerInventory);
+        if (response.data.sellerBackpack) setBackpack(response.data.sellerBackpack);
         setCurrentPlayer(prev => ({
           ...prev,
-          inventory: response.data.sellerInventory
+          inventory: response.data.sellerInventory,
+          ...(response.data.sellerBackpack ? { backpack: response.data.sellerBackpack } : {}),
         }));
 
         updateStatus(`Sold ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} for 💰${response.data.earned}`);
@@ -415,8 +418,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   
   
   const handleAmountChange = (type, value) => {
-    const resourceInInventory = inventory.find((item) => item.type === type);
-    const inventoryAmount = resourceInInventory ? resourceInInventory.quantity : 0;
+    const inventoryAmount = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
     const slotConfig = getSlotConfig(selectedSlotIndex);
     const maxAmount = Math.min(inventoryAmount, slotConfig.maxAmount);
   
@@ -428,9 +430,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const handleAddToSlot = async (transactionId, transactionKey, resource) => {
     let amount = amounts[resource] || 0;
-    const resourceInInventory = inventory.find((item) => item.type === resource);
+    const held = getPlayerQuantity(resource, inventory, backpack); // backpack + warehouse
 
-    if (selectedSlotIndex === null || amount <= 0 || !resourceInInventory || amount > resourceInInventory.quantity) {
+    if (selectedSlotIndex === null || amount <= 0 || held <= 0 || amount > held) {
       console.warn('Invalid amount or resource exceeds available quantity.');
       return;
     }
@@ -443,7 +445,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     }
 
     // Check if selling all of a crop item
-    if (amount === resourceInInventory.quantity && isACrop(resource, masterResources)) {
+    if (amount === held && isACrop(resource, masterResources)) {
       // Warn only when replanting this crop COSTS this crop (Corn Plot costs 1 Corn), so selling
       // the last one ends it. Not for crops off self-regenerating trees (Olive, Apple: the doober
       // is `repeatable` and its tree costs Money), nor for any plot that costs something else.
@@ -511,24 +513,24 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     };
 
     try {
+      // The goods leave the player first, the standard way (backpack, then the warehouse), so a
+      // failed spend never puts goods in the stall
+      const spent = await spendIngredients({
+        playerId: currentPlayer.playerId,
+        recipe: { type: resource, ingredient1: resource, ingredient1qty: amount },
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+      });
+      if (!spent) throw new Error('Not enough to add to the Trade Stall');
+
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: currentPlayer.playerId,
         tradeStall: updatedSlots,
       });
-
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: inventory.map((item) =>
-          item.type === resource
-            ? { ...item, quantity: item.quantity - amount }
-            : item
-        ).filter((item) => item.quantity > 0),
-      });
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      setInventory(refreshedInventory.data.inventory);
 
       setTradeSlots(updatedSlots);
       setSelectedSlotIndex(null);
@@ -1095,7 +1097,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       <TradingInventoryModal
         isOpen={selectedSlotIndex !== null}
         onClose={() => setSelectedSlotIndex(null)}
-        inventory={inventory}
+        inventory={mergeHoldings(inventory, backpack)}
         resourceData={resourceData}
         amounts={amounts}
         handleAmountChange={handleAmountChange}

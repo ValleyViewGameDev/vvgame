@@ -6,7 +6,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade, generateNewKentOffers } from './KentOfferLogic';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
@@ -685,9 +685,7 @@ function KentPanel({
 
                       // Calculate player quantities for each item
                       const itemsWithQty = offerItems.map(offerItem => {
-                          const inventoryQty = inventory?.find(item => item.type === offerItem.item)?.quantity || 0;
-                          const backpackQty = backpack?.find(item => item.type === offerItem.item)?.quantity || 0;
-                          const playerQty = inventoryQty + backpackQty;
+                          const playerQty = getPlayerQuantity(offerItem.item, inventory, backpack); // backpack + warehouse
                           return { ...offerItem, playerQty, hasEnough: playerQty >= offerItem.quantity };
                       });
 

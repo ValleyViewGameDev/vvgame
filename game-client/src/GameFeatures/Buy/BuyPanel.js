@@ -5,7 +5,7 @@ import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
@@ -381,9 +381,7 @@ const BuyPanel = ({
                 const qty = effectiveItem[`ingredient${i}qty`];
                 if (!type || !qty) return '';
 
-                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(bpItem => bpItem.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
+                const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
