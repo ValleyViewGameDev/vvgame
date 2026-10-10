@@ -258,7 +258,7 @@ Hand, and so on).
 
 ### BL-15: Kent always offers at least one basic crop, through level 12
 
-Added 2026-10-10.
+Added 2026-10-10. **Built 2026-10-10:** `BASIC_CROP_GUARANTEE_MAX_LEVEL` / `BASIC_CROPS` in KentOfferLogic.js; docs/tuning.md §Kent.
 
 **What.** Around levels 8-10 Kent's offers lean too hard on progression items, so the player
 is often left with no Kent offer they can fill. Through level 12, guarantee at least one Kent

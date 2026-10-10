@@ -95,6 +95,12 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   50% to level 7, free after; multi-item offers 0 through level 5, usually 1 at level 6,
   usually 2 at 7, 3 at 8 to 9, 5 at 10+; crop quantities and non-crop quantities step up per
   level band (level 6: crops 3 to 10, non-crops 2 to 4).
+- **Basic-crop guarantee** (BL-15, 2026-10-10): through level 12
+  (`BASIC_CROP_GUARANTEE_MAX_LEVEL`) the board always holds at least one single-item offer for a
+  basic crop (`BASIC_CROPS`: Wheat, Carrot, Corn, Sugarcane), so a player can always grow, sell
+  and earn XP, and empty a full warehouse, while multi-item offers take over levels 8 to 12. When
+  the last one is traded, its replacement is a basic crop. Off from level 13; the owner is
+  watching how that feels.
 - **Duplicates.** An item appears in at most 2 offers (1 if it is a new unlock at the player's
   exact level), and never twice as a single-item offer.
 - **Reward.** Money = sum of `maxprice` x quantity over the items (`minprice` or 10 as

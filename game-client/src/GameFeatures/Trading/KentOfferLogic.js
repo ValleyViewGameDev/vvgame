@@ -26,6 +26,13 @@ const CROP_PERCENTAGE_BY_LEVEL = [
     { maxLevel: Infinity, percentage: 0 } // Levels 8+: no enforcement
 ];
 
+// Basic-crop guarantee (BL-15, owner 2026-10-10): through this level Kent always holds at least
+// one single-item offer for a basic crop, so the grow-sell loop never stalls (and a full
+// warehouse can be emptied) while multi-item and progression offers take over the board.
+// Above it the rule goes away. Eligibility (level, season) still applies to the crop.
+const BASIC_CROP_GUARANTEE_MAX_LEVEL = 12;
+const BASIC_CROPS = ['Wheat', 'Carrot', 'Corn', 'Sugarcane'];
+
 // Minimum level for valley bonus rewards on Kent offers
 const VALLEY_BONUS_MIN_LEVEL = 11;
 
@@ -278,6 +285,16 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         offersToGenerate
     });
     const nonCropOffersNeeded = offersToGenerate - cropOffersNeeded;
+
+    // Basic-crop guarantee: needed when no remaining offer is already a single-item basic crop.
+    // The first new offer fills it (after a trade that is the card in the traded card's slot).
+    const isBasicCropOffer = (offer) => {
+        const offerItems = offer.items?.length ? offer.items : (offer.item ? [{ item: offer.item }] : []);
+        return offerItems.length === 1 && BASIC_CROPS.includes(offerItems[0].item);
+    };
+    let basicCropStillNeeded = playerLevel <= BASIC_CROP_GUARANTEE_MAX_LEVEL
+        && !existingOffers.some(isBasicCropOffer)
+        && eligibleResources.some(r => BASIC_CROPS.includes(r.type));
     let cropOffersGenerated = 0;
 
     // Helper to get available resources excluding already-used ones
@@ -335,6 +352,13 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             }
         }
 
+        // Basic-crop guarantee: this offer is a single basic crop. Taken from all eligible basic
+        // crops, so the duplicate caps never leave the board without one.
+        const forceBasicCrop = basicCropStillNeeded;
+        if (forceBasicCrop) {
+            availableResources = eligibleResources.filter(r => BASIC_CROPS.includes(r.type));
+        }
+
         // If no resources available (all have 2+ offers), break out of loop
         if (availableResources.length === 0) {
             console.log('🤠 No more unique resources available (all have 2+ offers)');
@@ -346,7 +370,9 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         const singleItemStillNeeded = offersToGenerate - i - multiItemStillNeeded;
         // Force multi-item if we need more and don't have room for singles, otherwise random choice weighted by need
         let isMultiItem;
-        if (multiItemStillNeeded > 0 && singleItemStillNeeded <= 0) {
+        if (forceBasicCrop) {
+            isMultiItem = false;
+        } else if (multiItemStillNeeded > 0 && singleItemStillNeeded <= 0) {
             isMultiItem = true;
         } else if (multiItemStillNeeded <= 0) {
             isMultiItem = false;
@@ -357,7 +383,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
 
         // For single-item offers, filter out items that already have a single-item offer
         // (to avoid duplicate single-item offers for the same resource)
-        if (!isMultiItem) {
+        if (!isMultiItem && !forceBasicCrop) {
             const allExistingOffers = [...existingOffers, ...newOffers];
             const singleItemTypes = new Set();
             allExistingOffers.forEach(offer => {
@@ -482,6 +508,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         };
 
         newOffers.push(newOffer);
+        if (forceBasicCrop) basicCropStillNeeded = false;
     }
     
     console.log(`Generated ${newOffers.length} new Kent offers:`, newOffers);
