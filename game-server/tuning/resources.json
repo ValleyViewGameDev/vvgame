@@ -12965,5 +12965,33 @@
   {
     "type": "Angelo's Keep",
     "category": "region"
+  },
+  {
+    "type": "The Blasted Heath",
+    "category": "region"
+  },
+  {
+    "type": "Harfleur",
+    "category": "region"
+  },
+  {
+    "type": "Mantua",
+    "category": "region"
+  },
+  {
+    "type": "Navarre",
+    "category": "region"
+  },
+  {
+    "type": "Lethe Wharf",
+    "category": "region"
+  },
+  {
+    "type": "Willow Brook",
+    "category": "region"
+  },
+  {
+    "type": "Sycorax Fen",
+    "category": "region"
   }
 ]
