@@ -233,3 +233,23 @@ Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (6f148538); n
 **What.** The How to Play text predates the single-player refactor. Rewrite it to reflect the
 gameplay changes since then (all ten languages). Also put a copy of the Email Us button at the
 top of the How to Play panel.
+
+### BL-14: How to Play text, second pass to match the new gameplay
+
+Added 2026-10-10. Follow-up to BL-13 (built 2026-10-08).
+
+**What.** Update the How to Play text again so it better matches the game as it plays now
+(all ten languages). BL-13 rewrote it for single-player; gameplay has moved on since (workers
+with "Automatically work?", Town News, HUD timers, the Farmer removed in favour of the Farm
+Hand, and so on).
+
+### BL-15: Kent always offers at least one basic crop, through level 12
+
+Added 2026-10-10.
+
+**What.** Around levels 8-10 Kent's offers lean too hard on progression items, so the player
+is often left with no Kent offer they can fill. Through level 12, guarantee at least one Kent
+offer is a basic crop (Wheat, Carrot, Corn, Sugarcane, ...), so the player can always grow,
+sell, earn XP and empty a full warehouse. Above level 12 the rule goes away; the owner will
+see how that feels. Touch point: the offer generator in
+`game-client/src/GameFeatures/Trading/KentOfferLogic.js`.
