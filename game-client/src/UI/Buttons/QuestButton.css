@@ -176,3 +176,22 @@
   transition: opacity 0.2s ease;
   font-style: italic;
 }
+/* ////////////// TO DO LIST CARD (QuestButton) /////////////// */
+/* Compact: status top-right, title tight under the icon, tasks straight after the title */
+.quest-card { gap: 0; }
+.quest-card .quest-header { min-height: 28px; }
+.quest-card .quest-symbol { display: inline-flex; align-items: center; font-size: 24px; line-height: 1; }
+.quest-card .quest-checkmark { font-size: 20px; line-height: 1; }
+.quest-card .quest-status {
+  font-family: var(--font-text-1-family);
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--color-text-secondary, #555);
+  white-space: nowrap;
+}
+.panel-content .quest-card h2.quest-title,
+.quest-card h2.quest-title { margin: 2px 0 0; line-height: 1.2; }
+.quest-card .quest-return-hint { font-style: italic; }
+.quest-card .quest-tasks { margin: 0; }
+.quest-card .quest-tasks p { margin: 0; }
+.quest-card .quest-task--done { color: green; }

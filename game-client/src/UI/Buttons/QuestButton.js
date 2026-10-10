@@ -33,30 +33,37 @@ const SymbolDisplay = ({ symbol, masterResources, size = 32 }) => {
   return symbol;
 };
 
+// A To Do list card (QuestPanel): status in the top-right (✅ when done, "In Progress" while
+// not), the title tight under the icon, then one line per task, "Collect Wheat: 3/10"
+// (green once done), and a bold "Reward:".
 const QuestButton = ({ quest, state, onClick, masterResources }) => {
   const strings = useStrings();
   const { symbol, title, completed, goals = [], reward, rewardqty } = quest;
 
   return (
     <div
-      className={`quest-item ${state}`}
+      className={`quest-item quest-card ${state}`}
       onClick={onClick}
     >
       <div className="quest-header">
-        <h2><SymbolDisplay symbol={symbol} masterResources={masterResources} /></h2>
-        {state === 'reward' && <span className="quest-checkmark">✅</span>}
+        <span className="quest-symbol"><SymbolDisplay symbol={symbol} masterResources={masterResources} size={28} /></span>
+        {state === 'reward'
+          ? <span className="quest-checkmark">✅</span>
+          : <span className="quest-status">{strings[207]}</span>}
       </div>
-      <h2>{title}</h2>
-      <h4>{completed ? strings[206] : strings[207]}</h4>
-      {goals.map((goal, index) =>
-        goal.action && goal.item && goal.qty ? (
-          <p key={index}>
-            {goal.action} {goal.item} x{goal.qty}: {goal.progress} of {goal.qty}
-          </p>
-        ) : null
-      )}
+      <h2 className="quest-title">{title}</h2>
+      {completed && <p className="quest-return-hint">{strings[206]}</p>}
+      <div className="quest-tasks">
+        {goals.map((goal, index) =>
+          goal.action && goal.item && goal.qty ? (
+            <p key={index} className={goal.progress >= goal.qty ? 'quest-task--done' : ''}>
+              {goal.action} {goal.item}: {goal.progress}/{goal.qty}
+            </p>
+          ) : null
+        )}
+      </div>
       {reward && rewardqty && (
-        <p>Reward: {rewardqty} {reward}</p>
+        <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {reward}</p>
       )}
     </div>
   );
@@ -137,7 +144,7 @@ const QuestGiverButton = ({
           ) : null
         )}
       </div>
-      <p>Reward: {rewardqty} {reward}</p>
+      <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {reward}</p>
       {xpReward && state === 'reward' && (
         <p style={{ color: '#4CAF50', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
       )}
