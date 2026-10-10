@@ -8389,7 +8389,7 @@
     "symbol": "🐖",
     "layoutkey": "pg",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Bacon",
