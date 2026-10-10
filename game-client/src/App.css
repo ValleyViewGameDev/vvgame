@@ -586,12 +586,18 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
+  background-color: #81bc4d; /* the art's own edge green, for windows larger than the art */
 }
 
+/* The key art (login and loading) is pinned to the top-left at its natural size (1698 x 1545):
+   it never rescales or re-crops as the window changes, a bigger window just shows more of it.
+   Phones keep a cover fit (mobile.css). */
 .keyart-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
 }
 
 /* Tile Colors */
