@@ -59,12 +59,12 @@ can check the current value rather than trust this page.
 ## 3. The level curve (xpLevels.json)
 
 XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches
-level N+1), as of 2026-10-05 after the smoothing:
+level N+1), as of 2026-10-10:
 
 | To level | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Threshold | 25 | 50 | 100 | 200 | 330 | 480 | 640 | 810 | 990 | 1280 | 1700 | 2260 | 2960 |
-| XP gap | 20 | 25 | 50 | 100 | 130 | 150 | 160 | 170 | 180 | 290 | 420 | 560 | 700 |
+| Threshold | 25 | 50 | 100 | 200 | 330 | 480 | 600 | 780 | 990 | 1280 | 1700 | 2260 | 2960 |
+| XP gap | 20 | 25 | 50 | 100 | 130 | 150 | 120 | 180 | 210 | 290 | 420 | 560 | 700 |
 
 Rule: the gap should grow smoothly with what the player can earn per hour at that level.
 Before 2026-10-05 the 6 to 7 step was 280 (480 threshold), nearly three times the previous
@@ -74,6 +74,12 @@ at level 12 (1280). **Changing a threshold never demotes anyone as long as the n
 at or below the old one** (levels are derived from XP); every value in that change was lower,
 checked against every production player before the commit. A player who crosses a lowered
 threshold simply sees the level-up modal on their next session.
+
+2026-10-10 (owner: "level 8 is a little too long"): the level 8 to 9 step went 160 to 120 XP
+(threshold 640 to 600) and the 9 to 10 threshold 810 to 780, so the next step is 180 rather
+than 210; from level 10 the curve is unchanged. Level 8 is the Bank's first level and still
+has only Kent and the Bank as XP outlets, so it had read as a wait. Both values are lower:
+nobody is demoted (one production player in range, 693 XP, stays level 9).
 
 ## 4. Kent (KentOfferLogic.js, Kent.js, globalTuning.json)
 
