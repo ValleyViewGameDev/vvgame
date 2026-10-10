@@ -571,7 +571,10 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
 
   // ---- the loop's clock
   const home = ensureHome(this, gridId);
-  if (!this.citizenState || !CITIZEN_STATES.includes(this.citizenState) || now >= (this.citizenStateUntil || 0)) {
+  // A state whose length is now 0 (tuned off, e.g. workers' eating) is left at once, even by a
+  // citizen that was saved part-way through it
+  if (!this.citizenState || !CITIZEN_STATES.includes(this.citizenState) || now >= (this.citizenStateUntil || 0)
+      || stateSeconds(this, this.citizenState) === 0) {
     enterCitizenState(this, nextCitizenState(this, this.citizenState) || 'working', gridId, now);
   }
   setHeadline(this, this.citizenState); // started here too: a resumed state never entered via enterCitizenState
