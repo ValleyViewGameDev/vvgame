@@ -195,3 +195,9 @@
 .quest-card .quest-tasks { margin: 0; }
 .quest-card .quest-tasks p { margin: 0; }
 .quest-card .quest-task--done { color: green; }
+/* Quest giver card: the level sits top-right (beside ✅ once the reward is ready), goals straight under the title */
+.quest-card .quest-header-right { display: inline-flex; align-items: center; gap: 6px; }
+.quest-card .quest-level.ok { color: green; }
+.quest-card .quest-level.short { color: red; }
+.quest-card .quest-goals { margin: 0; }
+.quest-card .quest-goals p { margin: 0; }

@@ -119,7 +119,7 @@ const QuestGiverButton = ({
 
   return (
     <div
-      className={`quest-item ${state}${isDisabled ? ' disabled' : ''}${isProcessing ? ' processing' : ''}`}
+      className={`quest-item quest-card ${state}${isDisabled ? ' disabled' : ''}${isProcessing ? ' processing' : ''}`}
       onClick={handleClick}
       style={{
         opacity: (isDisabled || isProcessing) ? 0.6 : 1,
@@ -128,15 +128,17 @@ const QuestGiverButton = ({
       }}
     >
       <div className="quest-header">
-        <h2><SymbolDisplay symbol={symbol} masterResources={masterResources} /></h2>
-        {state === 'reward' && <span className="quest-checkmark">✅</span>}
+        <span className="quest-symbol"><SymbolDisplay symbol={symbol} masterResources={masterResources} size={28} /></span>
+        <span className="quest-header-right">
+          {level && (
+            <span className={`quest-status quest-level ${meetsLevelRequirement ? 'ok' : 'short'}`}>
+              {strings[10149] || 'Level'} {level}
+            </span>
+          )}
+          {state === 'reward' && <span className="quest-checkmark">✅</span>}
+        </span>
       </div>
-      <h2>{title}</h2>
-      {level && (
-        <p style={{ color: meetsLevelRequirement ? 'green' : 'red', margin: '2px 0', fontWeight: 'bold' }}>
-          {strings[10149] || 'Level'} {level}
-        </p>
-      )}
+      <h2 className="quest-title">{title}</h2>
       <div className="quest-goals">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (
