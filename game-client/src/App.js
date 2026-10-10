@@ -3842,6 +3842,8 @@ return (
           onClose={closePanel}
           currentPlayer={currentPlayer}
           masterResources={masterResources}
+          inventory={inventory}
+          backpack={backpack}
         />
       )}
       {activePanel === 'TrophyPanel' && (

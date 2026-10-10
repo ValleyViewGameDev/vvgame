@@ -58,38 +58,39 @@
     margin-bottom: 4px;
 }
 
-/* Goods as icon chips, like the trading panels */
+/* Goods: one per line, "🌾 Wheat 40 / 12" in the standard need / have colours */
 .town-news-panel .tn-goods {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 6px 0 8px;
+    list-style: none;
+    margin: 4px 0 8px;
+    padding: 0;
 }
 .town-news-panel .tn-good {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 0;
     font-family: var(--font-text-1-family);
     font-size: 14px;
-    white-space: nowrap;
 }
-.town-news-panel .tn-good-icon { width: 18px; height: 18px; font-size: 16px; line-height: 18px; text-align: center; }
-.town-news-panel .tn-good-qty { color: var(--color-text-secondary, #555); font-weight: bold; }
+.town-news-panel .tn-enough { color: green; }
+.town-news-panel .tn-short { color: red; }
+.town-news-panel .tn-done { color: var(--color-text-muted, #888); }
+.town-news-panel .tn-who {
+    color: var(--color-text-secondary, #555);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-/* Countdowns: their own colour, so the time left reads at a glance */
-.town-news-panel .tn-timer {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 10px;
-    background: #7a1f1f;
-    color: #fff;
+/* Carnival: the order counts on one short line */
+.town-news-panel .tn-counts {
     font-family: var(--font-text-1-family);
     font-size: 14px;
+}
+
+/* Countdowns: coloured text so the time left reads at a glance */
+.town-news-panel .tn-timer {
+    color: #a32020;
     font-weight: bold;
-    font-style: normal;
     white-space: nowrap;
 }
