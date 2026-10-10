@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; // Importing the shared Panel component
 import { useStrings } from '../StringsContext';
-import { EmailUsButton } from './FeedbackLinks';
+import { EmailUsButton, DiscordButton } from './FeedbackLinks';
 
 const HowToPanel = memo(({ onClose }) => {
   const strings = useStrings();
@@ -9,6 +9,7 @@ const HowToPanel = memo(({ onClose }) => {
     <Panel onClose={onClose} descriptionKey="1018" titleKey="1118" panelName="HowToPanel">
       <div className="panel-content">
         <EmailUsButton />
+        <DiscordButton />
         <h2>{strings[9001]}</h2>
         <p>{strings[9002]}</p>
         <p>{strings[9003]}</p>

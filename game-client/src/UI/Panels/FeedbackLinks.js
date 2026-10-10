@@ -16,20 +16,28 @@ export function EmailUsButton() {
   );
 }
 
+/** The "Join Discord Server" button on its own (How to Play, under Email Us). */
+export function DiscordButton() {
+  const strings = useStrings();
+  return (
+    <div className="shared-buttons">
+      <button className="btn-basic" onClick={() => window.open(DISCORD_INVITE, '_blank')}>
+        {strings[98001] || 'Join Discord Server'}
+      </button>
+    </div>
+  );
+}
+
 /**
- * "Have Feedback?" with the Discord and email buttons. Shown on the Map panel
- * (ZoomedOut/MapPanel.js) and at the bottom of the Settings panel; keep the two in step by using this.
+ * "Have Feedback?" with the Discord and email buttons, at the bottom of the Settings panel.
+ * How to Play shows the same two buttons at its top (EmailUsButton, DiscordButton).
  */
 export default function FeedbackLinks() {
   const strings = useStrings();
   return (
     <div className="feedback-links">
       <h2 style={{ textAlign: 'center' }}>{strings[96]}</h2>
-      <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => window.open(DISCORD_INVITE, '_blank')}>
-          Join Discord Server
-        </button>
-      </div>
+      <DiscordButton />
       <EmailUsButton />
     </div>
   );
