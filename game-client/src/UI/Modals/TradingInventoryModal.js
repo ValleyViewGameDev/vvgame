@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import TransactionButton from '../Buttons/TransactionButton';
@@ -23,6 +23,10 @@ const TradingInventoryModal = ({
   const strings = useStrings();
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
+  // Every opening starts alphabetical by Item (the modal stays mounted between openings)
+  useEffect(() => {
+    if (isOpen) { setSortField('name'); setSortDirection('asc'); }
+  }, [isOpen]);
 
   // Sort inventory data
   const sortedInventory = useMemo(() => {
@@ -45,10 +49,6 @@ const TradingInventoryModal = ({
           const bResource = resourceData.find(res => res.type === b.type);
           aValue = aResource?.maxprice || 0;
           bValue = bResource?.maxprice || 0;
-          break;
-        case 'amount':
-          aValue = amounts[a.type] || 0;
-          bValue = amounts[b.type] || 0;
           break;
         default:
           return 0;
@@ -105,8 +105,8 @@ const TradingInventoryModal = ({
                 <th onClick={() => handleSort('price')} className="sortable-header">
                   {strings[163]} {getSortIcon('price')}
                 </th>
-                <th onClick={() => handleSort('amount')} className="sortable-header">
-                  {isRequestMode ? 'Amount to Request' : strings[164]} {getSortIcon('amount')}
+                <th>
+                  {isRequestMode ? 'Amount to Request' : strings[164]}
                 </th>
                 <th></th>
               </tr>
