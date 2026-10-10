@@ -501,3 +501,41 @@ grids after the slate blend; the owner's grids keep what was written once):
 - Where a meander's inner strand runs north into the new lava, the land beside it became a thin
   stone shore too (the stone-between-lava-and-water rule).
 - Ranges sealed, seams 163, rebuild is a fixed point (second rebuild changes nothing).
+
+### 2026-10-10: the settlement 5_2 dirt between the rivers, slate at the King's Circle gap
+
+Owner, in two steps the same day: (1) from 1015241 north-east, the gap between the Haunted River and
+the King's Circle should be a natural slate region over most of settlement 5_2, a land bridge
+leading into the King's Circle gap at 1014276; then flow it through his grids too, all the way to
+1014267 ("my grids have awkward seams"). (2) Then change the concept: the frontier lacks a big dirt
+region, so the whole region between the rivers is dirt with some grass here and there, turning to
+slate at the gap so that the areas just north and south of it are fully slate; leave the vampire
+grid (1014265) alone and blend back into the grassier grids above.
+
+Done with `tools/gridgen/ground_regions.mjs` and `data/ground_regions.json` (two regions, the slate
+one lying over the dirt one; `phase1_build.mjs --write` re-applies them to Claude's grids, the owner's
+grids are painted once with `--owner`; a second rebuild changes nothing):
+- Dirt between the rivers: corridor from the Haunted River's east-fork terminus in 1015241 to the
+  gap, swelling to two grids half-width, plus six blobs over most of 5_2 and the land west of the
+  King's Circle river; grass islands deep inside; a speckled 10-tile transition into the grass.
+- Slate at the gap: from fr41 (the top of the owner's old strip) through 1014276 to 1014266 and
+  1014267, a smaller wobble, a few dirt patches; it fades into the dirt to the south and into the
+  grass of fr37 to the north.
+- Deep inside a region trees and bare ground are redrawn from the region's own mix (dirt ~48% oak
+  and pine; slate ~5% Rocks, ~2% Stone, ~1% dead trees), so the field has one texture whatever each
+  grid's base had.
+- Owner grids painted (open ground only; NPCs, buildings, water, roads untouched; audited):
+  1015205, 1015206, 1015207, 1015216, 1015217, 1015226, 1015227, 1015236, 1015246 (dirt, the old
+  straight slate strip with its dirt margins gone back to the region or to grass), 1014275,
+  1014276, 1014277, 1014266, 1014267 (slate; leftover straight slate blocks in 1014266/1014267
+  outside the region went back to grass). The vampire grid 1014265 and every other owner grid are
+  untouched; next to them the regions keep 8-30 tiles off the seam unless the owner's edge already
+  shows the region's ground.
+- 56 of Claude's grids carry the regions. Ranges sealed, seams 163.
+- Follow-up (owner: 1014267's southern transition was a straight slate line): the owner's slate rim
+  on the north shore of the King's Circle lake (1014277, 1014370) filled the top row of those grids
+  while 1014267 and 1014360 above were grass. A third, small slate region now bulges north from the
+  rim across that seam into 1014267 and 1014360, tapering at both ends.
+- Follow-up (owner: the grass patches looked like a golf course, too manicured): islands and patches
+  are now soft. Their edge is ragged (a finer noise on top), grass fades into dirt over a ramp
+  instead of a cut line, ~18% dirt is speckled through the grass and ~4% grass flecks the dirt.

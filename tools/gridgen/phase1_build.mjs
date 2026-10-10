@@ -15,6 +15,7 @@ import { rangeMasks, packMountains } from './mountains.mjs';
 import { fixSeams } from './seam_fix.mjs';
 import { blendGrid, loadRecorded } from './slate_blend.mjs';
 import { applyLavaRules } from './lava_rules.mjs';
+import { applyGroundRegions, loadRegions } from './ground_regions.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GS = path.join(HERE, '..', '..', 'game-server');
@@ -605,6 +606,19 @@ if (WRITE) {
     const f = path.join(FIXED, `${c}.json`); fs.writeFileSync(f, JSON.stringify(cache.get(c))); manifest[c].sha1 = sha1(fs.readFileSync(f)); n++;
   }
   console.log(`lava rules applied in ${n} generated grids`);
+}
+// natural ground regions (ground_regions.mjs, data/ground_regions.json), e.g. the dirt between the rivers in 5_2
+if (WRITE) {
+  const byKey = new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x]));
+  const cache = new Map();
+  const load = (fr, fc) => {
+    const c = 1010000 + Math.floor(fr / 8) * 1000 + Math.floor(fc / 8) * 100 + (fr % 8) * 10 + (fc % 8);
+    if (!cache.has(c)) { const f = path.join(FIXED, `${c}.json`); cache.set(c, fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null); }
+    return cache.get(c);
+  };
+  const changed = applyGroundRegions(load, byKey, { isGen: (c) => !!manifest[c] && !manifest[c].ownerEdited }, loadRegions());
+  for (const c of changed.keys()) { const f = path.join(FIXED, `${c}.json`); fs.writeFileSync(f, JSON.stringify(cache.get(c))); manifest[c].sha1 = sha1(fs.readFileSync(f)); }
+  console.log(`ground regions laid in ${changed.size} generated grids`);
 }
 for (const c of OWNER_EDITED) manifest[c] = { ...PREV[c], ownerEdited: true };   // keep the record, never touch the file
 fs.writeFileSync(path.join(OUT, 'phase1-manifest.json'), JSON.stringify(manifest, null, 1));

@@ -1,0 +1,201 @@
+{
+ "note": "Natural ground regions laid by ground_regions.mjs, in order (later ones lie over earlier ones). points: [frontierRow, frontierCol] centreline; halfWidth [at the ends, in the middle] in grids; blobs { at: [row, col], radius } in grids; wobble scales the edge noise. ownerGrids: owner grids the owner asked to be painted (2026-10-10); clearOutside: owner grids whose straight slate/dirt blocks outside the regions go back to grass.",
+ "regions": [
+  {
+   "name": "Dirt between the rivers: settlement 5_2, Haunted River (1015241) to the King's Circle (owner, 2026-10-10)",
+   "ground": "DI",
+   "points": [
+    [
+     44.4,
+     17.4
+    ],
+    [
+     43.5,
+     18.5
+    ],
+    [
+     42.5,
+     19.7
+    ],
+    [
+     41.6,
+     20.8
+    ],
+    [
+     40.9,
+     21.6
+    ],
+    [
+     40.4,
+     22.2
+    ]
+   ],
+   "halfWidth": [
+    1.0,
+    2.0
+   ],
+   "blobs": [
+    {
+     "at": [
+      44.2,
+      20.0
+     ],
+     "radius": 2.5
+    },
+    {
+     "at": [
+      45.8,
+      18.9
+     ],
+     "radius": 1.5
+    },
+    {
+     "at": [
+      41.9,
+      18.3
+     ],
+     "radius": 1.4
+    },
+    {
+     "at": [
+      42.7,
+      21.5
+     ],
+     "radius": 1.4
+    },
+    {
+     "at": [
+      43.6,
+      22.6
+     ],
+     "radius": 1.4
+    },
+    {
+     "at": [
+      41.4,
+      22.9
+     ],
+     "radius": 0.9
+    }
+   ],
+   "islands": {
+    "ground": "GR",
+    "cell": 21,
+    "above": 0.6,
+    "soft": 0.08,
+    "speck": 0.18,
+    "fleck": 0.04
+   },
+   "ownerGrids": [
+    1015205,
+    1015206,
+    1015207,
+    1015216,
+    1015217,
+    1015226,
+    1015227,
+    1015236,
+    1015246
+   ],
+   "clearOutside": [
+    1015206,
+    1015216,
+    1015226,
+    1015236,
+    1015246
+   ]
+  },
+  {
+   "name": "Slate at the King's Circle gap (1014276): just south of it (fr40-41) and just north of it (1014266, 1014267) (owner, 2026-10-10)",
+   "ground": "SL",
+   "points": [
+    [
+     41.3,
+     22.3
+    ],
+    [
+     40.3,
+     22.4
+    ],
+    [
+     39.5,
+     22.5
+    ],
+    [
+     38.7,
+     22.8
+    ],
+    [
+     38.2,
+     23.1
+    ]
+   ],
+   "halfWidth": [
+    0.8,
+    1.05
+   ],
+   "blobs": [
+    {
+     "at": [
+      38.4,
+      22.9
+     ],
+     "radius": 0.95
+    }
+   ],
+   "wobble": 0.4,
+   "patches": {
+    "ground": "DI",
+    "cell": 9,
+    "above": 0.8
+   },
+   "ownerGrids": [
+    1015205,
+    1015206,
+    1015207,
+    1015216,
+    1014275,
+    1014276,
+    1014277,
+    1014266,
+    1014267
+   ],
+   "clearOutside": [
+    1014266,
+    1014267
+   ]
+  },
+  {
+   "name": "Slate over the King's Circle lake's north rim (1014277/1014370) into 1014267 and 1014360, so the rim does not end in a straight line at the seam (owner, 2026-10-10)",
+   "ground": "SL",
+   "points": [
+    [
+     38.95,
+     23.3
+    ],
+    [
+     38.88,
+     23.9
+    ],
+    [
+     38.97,
+     24.5
+    ]
+   ],
+   "halfWidth": [
+    0.12,
+    0.36
+   ],
+   "wobble": 0.3,
+   "patches": {
+    "ground": "DI",
+    "cell": 9,
+    "above": 0.82
+   },
+   "ownerGrids": [
+    1014267,
+    1014277
+   ]
+  }
+ ]
+}
