@@ -22,6 +22,7 @@ body {
   --d-board-left: 0px;                /* the board starts at the window's left edge */
   --d-top: 84px;                      /* header 60px + status bar 24px */
   --d-gap: 10px;                      /* pills' distance from the board edges */
+  --hud-countdown-h: 16px;            /* room under a timed round button for its countdown (UI/HudCountdown.css) */
   --d-pill-w: 53px;                   /* zoom pill / round button width (phone 48px, +10% on desktop) */
   --d-zoom-h: 110px;                  /* zoom pill height (two round buttons) */
   --d-nav-h: 58px;                    /* the bottom nav bar's height */
@@ -238,7 +239,7 @@ body {
 
 /* TOWN NEWS: the season button's twin, right under it; toggles the Town News panel */
 .season-controls.news-controls {
-  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--hud-countdown-h) + var(--d-gap));
 }
 .season-button.news-button.selected { background-color: var(--color-button-hover); }
 

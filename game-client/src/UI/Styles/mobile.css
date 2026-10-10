@@ -245,7 +245,7 @@
 
   /* ---------- town news: under the season button (landscape moves it under the map button,
      which takes this spot there) ---------- */
-  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 48px + var(--m-gap)); }
+  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 48px + var(--hud-countdown-h) + var(--m-gap)); }
 
   /* ---------- zoom: two stacked round buttons (placed per orientation) ---------- */
   .zoom-controls {
@@ -628,11 +628,11 @@
   /* map: zoom lives in the header here and the nav pill owns the left edge, so the map
      button sits under the season button at the board's top-right */
   .map-controls {
-    top: calc(var(--m-top) + var(--m-gap) + 48px + var(--m-gap));
+    top: calc(var(--m-top) + var(--m-gap) + 48px + var(--hud-countdown-h) + var(--m-gap)); /* under the season timer */
     right: var(--m-gap);
     left: auto;
   }
-  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 2 * (48px + var(--m-gap))); }
+  .season-controls.news-controls { top: calc(var(--m-top) + var(--m-gap) + 2 * (48px + var(--m-gap)) + var(--hud-countdown-h)); }
 
   /* the pill, vertical at the left, from just under the status bar */
   .nav-column {

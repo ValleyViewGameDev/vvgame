@@ -24,30 +24,24 @@ export const formatCountdown = (endTime, now) => {
 // - >=24h: XXd XXh
 // - >=60 min and <24h: XXh XXm
 // - <60 min: XXm XXs
+/**
+ * The condensed countdown: never more than TWO units, the two largest that apply.
+ *   >= 1 day: "2d 4h" · >= 1 hour: "3h 12m" · >= 1 minute: "4m 30s" · under a minute: "45s".
+ * Used by the crafting station slots and the HUD timers under Season / Town News
+ * (UI/HudCountdown.js); use it anywhere a timer must stay short.
+ */
 export const formatCompactCountdown = (endTime, now) => {
-    if (!endTime || endTime <= now) return "0m 0s";
+    if (!endTime || endTime <= now) return "0s";
 
-    const timeDiff = endTime - now;
-    const totalSeconds = Math.floor(timeDiff / 1000);
+    const totalSeconds = Math.floor((endTime - now) / 1000);
     const totalMinutes = Math.floor(totalSeconds / 60);
     const totalHours = Math.floor(totalMinutes / 60);
     const days = Math.floor(totalHours / 24);
 
-    if (days >= 1) {
-        // >=24 hours: show days and hours
-        const hours = totalHours % 24;
-        return `${days}d ${hours}h`;
-    } else if (totalMinutes >= 60) {
-        // >=60 min: show hours and minutes
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        return `${hours}h ${minutes}m`;
-    } else {
-        // <60 min: show minutes and seconds
-        const minutes = totalMinutes;
-        const seconds = totalSeconds % 60;
-        return `${minutes}m ${seconds}s`;
-    }
+    if (days >= 1) return `${days}d ${totalHours % 24}h`;
+    if (totalHours >= 1) return `${totalHours}h ${totalMinutes % 60}m`;
+    if (totalMinutes >= 1) return `${totalMinutes}m ${totalSeconds % 60}s`;
+    return `${totalSeconds}s`;
 };
 
 // Utility function to format numbers with locale-specific comma separators

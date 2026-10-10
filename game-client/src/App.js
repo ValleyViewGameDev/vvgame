@@ -115,6 +115,7 @@ import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNewsPanel from './UI/Panels/TownNewsPanel.js';
+import HudCountdown from './UI/HudCountdown';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
@@ -3294,6 +3295,7 @@ return (
     {currentPlayer && (
       <div className="season-controls">
         <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
+        <HudCountdown endTimes={timers?.seasons?.endTime} />
       </div>
     )}
 
@@ -3302,6 +3304,8 @@ return (
     {currentPlayer && (
       <div className="season-controls news-controls">
         <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} title={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><span>📰</span></button>
+        {/* the soonest of the Train, Bank and Carnival countdowns */}
+        <HudCountdown endTimes={[timers?.train?.endTime, timers?.bank?.endTime, timers?.carnival?.endTime]} />
       </div>
     )}
 
