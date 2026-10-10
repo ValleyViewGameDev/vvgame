@@ -84,13 +84,20 @@ export function frontierPrefix(gridMap) {
   return null;
 }
 
+// Town layouts that exist in layouts/gridLayouts/town (keep in step with that folder)
+const TOWN_LAYOUTS = new Set(['townN', 'townS', 'townE', 'townW']);
+
 /** Which town layout file the game server would use for this settlement (town<POS>), or null. */
 export function townLayoutName(frontier, settlementId) {
   const rows = Array.isArray(frontier?.settlements) ? frontier.settlements : [];
   for (const row of rows) {
     if (!Array.isArray(row)) continue;
     const entry = row.find((e) => e && idOf(e.settlementId) === String(settlementId));
-    if (entry) { const m = String(entry.settlementType || '').match(/homesteadSet([NSEW]+)$/); return m ? `town${m[1]}` : null; }
+    if (!entry) continue;
+    // Same rule as the game server (templateUtils.getTownLayoutFile): the settlement's own
+    // town<POS> layout when one exists, else the standard townN
+    const m = String(entry.settlementType || '').match(/homesteadSet([NSEW]+)$/);
+    return m && TOWN_LAYOUTS.has(`town${m[1]}`) ? `town${m[1]}` : 'townN';
   }
   return null;
 }

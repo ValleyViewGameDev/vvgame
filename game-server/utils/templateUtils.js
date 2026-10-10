@@ -216,8 +216,10 @@ function getTownLayoutFile(seasonType, position = '') {
     }
   }
   
-  // Fall back to default town layout
-  return 'town_default.json';
+  // Every settlement without its own town layout gets the standard town. (This used to name
+  // town_default.json, which never existed; the corner layouts townNE/SE/NW/SW were removed
+  // 2026-10-10, corner settlements being closed.)
+  return 'townN.json';
 }
 
 module.exports = { getTemplate, getRandomValleyLayout, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType };

@@ -27,7 +27,7 @@ Fix opportunistically, or fold into the phase that touches the file. Sourced fro
 - `electionScheduler` leaves stale `votes`/`campaignPromises` when there is no winner.
 - `mainScheduler` `*Processing` lock fields are not in the schema and are stripped under strict mode; only the `endTime` compare-and-set protects transitions.
 - `mainScheduler` computes `delayMs` to the real `endTime` and then ignores it, polling every 15 s.
-- `templateUtils.getTownLayoutFile` falls back to `town/town_default.json`, which does not exist.
+- ~~`templateUtils.getTownLayoutFile` falls back to `town/town_default.json`, which does not exist.~~ Falls back to `townN.json` since 2026-10-10.
 - `tuningConfig` is `require`d at boot in four files, so `POST /tuning` edits are invisible until restart.
 - ~~Client: eight socket `useEffect`s in `App.js` never return their cleanup, so handlers accumulate on every `currentPlayer` change.~~ Deleted in Phase 1.
 - ~~Client: `socket.off(event)` without a handler removes every listener for that event.~~ Fixed in Phase 1 (named handlers everywhere).

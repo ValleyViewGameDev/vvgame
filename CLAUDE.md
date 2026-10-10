@@ -11,7 +11,7 @@ Solo project. Scope discipline over completeness: ship the smallest version that
 ## Current status
 
 - Last real commit before the refactor: 2026-05-06. Commit messages in this repo are historically placeholders; from now on write real ones.
-- No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77255`). Their data must survive every migration. Other players' data is nice-to-have.
+- No active users for a month except **Oberon and moehong** (both in settlement `684743fab301fcbdbcb77297`, settlement (0,1); they were moved there from the NW corner `684743fab301fcbdbcb77255`, now closed like every corner settlement). Their data must survive every migration. Other players' data is nice-to-have.
 - Production DB: 11 players, ~1,060 grids (73 MB), 64 settlements, 1 frontier. Database name is `test`.
 - Refactor phase: **0, 1, 2 and Phase 3 slices 1-2 are on `main` (2026-10-03). `SERVICE_MODE` is still `maintenance` until the owner flips it.** Decisions D1-D5 confirmed 2026-10-01 (full per-player grid copies, lazy tree top-up, lazy dungeon reset, Outpost cut, read-only homestead snapshots). Next: the rest of Phase 3 (delete `Grid.playersInGrid` + PC routes, NPC snapshots) and Phase 4 client performance, whose plan is now `docs/audits/client-review-2026-10-03.md` (atlas first, then Pixi camera + movement loop). Phase checklist and ship sequence live in the plan.
 
