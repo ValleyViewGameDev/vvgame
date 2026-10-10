@@ -306,6 +306,8 @@ const PixiRenderer = ({
   npcs,
   pcs,
   currentPlayer,
+  inventory,              // Live warehouse / backpack (Kent's overlay counts these, like his panel)
+  backpack,
   TILE_SIZE,              // Now constant (30) - base rendering size
   zoomScale = 1,          // GPU transform scale (activeTileSize / TILE_SIZE)
   zoomLevel,
@@ -1959,6 +1961,8 @@ const PixiRenderer = ({
         app={appRef.current}
         npcs={npcs}
         currentPlayer={currentPlayer}
+        inventory={inventory}
+        backpack={backpack}
         masterResources={masterResources}
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}

@@ -1,5 +1,6 @@
 import { getLocalizedString } from '../Utils/stringLookup';
 import questCache from '../Utils/QuestCache';
+import { getPlayerQuantity } from '../Utils/InventoryManagement';
 import { citizenStatusText, citizenCountdown } from '../GameFeatures/NPCs/citizenStatus';
 
 /**
@@ -251,7 +252,7 @@ export const checkTradeNPCStatus = (npc, masterResources) => {
 /**
  * Check Kent NPC status - shared logic for overlays
  */
-export const checkKentNPCStatus = (npc, currentPlayer) => {
+export const checkKentNPCStatus = (npc, currentPlayer, inventory, backpack) => {
   if (npc.type !== 'Kent' || !currentPlayer) return null;
 
   try {
@@ -262,26 +263,18 @@ export const checkKentNPCStatus = (npc, currentPlayer) => {
     let cardCooldowns = {};
     try { cardCooldowns = JSON.parse(localStorage.getItem(`kentCardCooldowns_${currentPlayer?.playerId || currentPlayer?._id}`) || '{}'); } catch (_) { cardCooldowns = {}; }
 
-    // Check if player can afford any of Kent's offers that are not cooling down
+    // Count holdings exactly as Kent's panel does: the live warehouse + backpack state. The copies on
+    // currentPlayer go stale after selling or spending, which lit the check for offers you could no
+    // longer fill. They are only the fallback when the live lists are not passed in.
+    const warehouse = Array.isArray(inventory) ? inventory : currentPlayer?.inventory;
+    const pack = Array.isArray(backpack) ? backpack : currentPlayer?.backpack;
+
+    // The check shows only when a card that is not cooling down can be filled in full right now
     const canAffordAny = kentOffers.some((offer, index) => {
       if ((cardCooldowns[index] || 0) > now) return false;
-      // Handle multi-item offers (items array with multiple items)
-      if (offer.items && offer.items.length > 0) {
-        // Must be able to afford ALL items in the offer
-        return offer.items.every(item => {
-          const inventoryQty = currentPlayer?.inventory?.find(i => i.type === item.item)?.quantity || 0;
-          const backpackQty = currentPlayer?.backpack?.find(i => i.type === item.item)?.quantity || 0;
-          const playerQty = inventoryQty + backpackQty;
-          return playerQty >= item.quantity;
-        });
-      }
-
-      // Legacy single-item offer format
-      const inventoryQty = currentPlayer?.inventory?.find(item => item.type === offer.item)?.quantity || 0;
-      const backpackQty = currentPlayer?.backpack?.find(item => item.type === offer.item)?.quantity || 0;
-      const playerQty = inventoryQty + backpackQty;
-
-      return playerQty >= offer.quantity;
+      const offerItems = offer.items?.length ? offer.items : [{ item: offer.item, quantity: offer.quantity }];
+      return offerItems.every(({ item, quantity }) =>
+        item && Number(quantity) > 0 && getPlayerQuantity(item, warehouse, pack) >= Number(quantity));
     });
 
     return canAffordAny ? 'completed' : null;

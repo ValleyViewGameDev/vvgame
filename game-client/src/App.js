@@ -3464,6 +3464,8 @@ return (
           npcs={npcs}
           pcs={pcs}
           currentPlayer={currentPlayer}
+          inventory={inventory}
+          backpack={backpack}
           TILE_SIZE={PIXI_BASE_TILE_SIZE}
           zoomScale={currentZoomScale}
           zoomLevel={zoomLevel}

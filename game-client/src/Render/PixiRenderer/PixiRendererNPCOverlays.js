@@ -121,6 +121,8 @@ const PixiRendererNPCOverlays = ({
   app,                    // PixiJS Application instance
   npcs,                   // Array of NPCs
   currentPlayer,          // Current player object (for quest/Kent status)
+  inventory,              // Live warehouse + backpack: Kent's check counts these, as his panel does
+  backpack,
   masterResources,        // Master resources (for trade NPCs)
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
@@ -299,7 +301,7 @@ const PixiRendererNPCOverlays = ({
 
           // For Kent, also check affordable offers if no quest overlay
           if (!overlayType && npc.type === 'Kent') {
-            overlayType = checkKentNPCStatus(npc, currentPlayer);
+            overlayType = checkKentNPCStatus(npc, currentPlayer, inventory, backpack);
           }
         }
         // Check trade NPCs
@@ -395,7 +397,7 @@ const PixiRendererNPCOverlays = ({
     return () => {
       statusCacheRef.current.clear();
     };
-  }, [npcs, currentPlayer, masterResources, TILE_SIZE, gridOffset, overlayTick,
+  }, [npcs, currentPlayer, inventory, backpack, masterResources, TILE_SIZE, gridOffset, overlayTick,
       getOverlayFromPool, hideUnusedOverlays, getOverlaySize, getNPCRenderPosition]);
 
   // Start animation ticker on-demand when NPC animations are detected
