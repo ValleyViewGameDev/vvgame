@@ -383,7 +383,8 @@ const PixiRendererSpeech = ({
       const startY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.5;
 
       outcomeObj.text.text = outcome.emoji || (outcome.type === 'positive' ? '👍' : '👎');
-      outcomeObj.text.style.fontSize = TILE_SIZE * 1.2;
+      // A small badge over the head, not a second NPC: ~half a tile (it was 1.2 tiles, cartoonishly big)
+      outcomeObj.text.style.fontSize = TILE_SIZE * 0.55;
       outcomeObj.text.x = startX;
       outcomeObj.text.y = startY;
       outcomeObj.text.alpha = 1;
