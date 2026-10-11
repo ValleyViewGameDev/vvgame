@@ -5,6 +5,7 @@ import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
+import TrainCompleteModal from '../../UI/Modals/TrainCompleteModal';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { generateCompleteTrainData } from './TrainOfferLogic';
 import './Train.css';
@@ -49,6 +50,24 @@ function NewTrainPanel({
   const [nextTrainRewards, setNextTrainRewards] = useState([]);
   const [isTrading, setIsTrading] = useState(false);
   const [rewardsDeliveredMessage, setRewardsDeliveredMessage] = useState("");
+  const [showTrainComplete, setShowTrainComplete] = useState(false); // "All Train orders filled!" celebration
+
+  // Mail this Train's rewards (message 101) through the server's atomic $push, which also lights
+  // the mailbox badge; the local list gets the same entry so the UI agrees before the next fetch.
+  // Throws on failure, so the caller leaves lastRewardDeliveryTrainNumber alone and the
+  // departure check delivers them later instead.
+  const mailTrainRewards = async (rewards) => {
+    const customRewards = rewards.map(reward => ({ item: reward.item, qty: reward.quantity }));
+    await axios.post(`${API_BASE}/api/send-mailbox-message`, {
+      playerId: currentPlayer.playerId,
+      messageId: 101,
+      customRewards,
+    });
+    setCurrentPlayer(prev => ({
+      ...prev,
+      messages: [...(prev?.messages || []), { messageId: 101, receivedAt: new Date(), collected: false, neverPurge: false, rewards: customRewards }],
+    }));
+  };
 
   // Initialize train data on component load
   useEffect(() => {
@@ -213,57 +232,25 @@ function NewTrainPanel({
       if (allOffersCompleted && existingCurrentRewards.length > 0) {
         console.log('🚂 All current train offers completed! Delivering rewards to mailbox:', existingCurrentRewards);
         
-        // Generate a unique message ID based on timestamp
-        const messageId = Date.now();
-        
-        // Create the message for the mailbox
-        const newMessage = {
-          messageId: 101,
-          timestamp: new Date(),
-          rewards: existingCurrentRewards.map(reward => ({
-            item: reward.item,
-            qty: reward.quantity
-          })),
-          read: false,
-          collected: false,
-          neverPurge: false
-        };
-        
         try {
-          // Add the message to player's messages array AND update lastRewardDeliveryTrainNumber
-          const currentMessages = currentPlayer?.messages || [];
-          const updatedMessages = [...currentMessages, newMessage];
-          
+          await mailTrainRewards(existingCurrentRewards);
           const updatedTrainData = {
             ...currentPlayer.train,
             lastRewardDeliveryTrainNumber: trainNumber
           };
-          
           const response = await axios.post(`${API_BASE}/api/update-profile`, {
             playerId: currentPlayer.playerId,
-            updates: { 
-              messages: updatedMessages,
-              train: updatedTrainData
-            }
+            updates: { train: updatedTrainData }
           });
-          
           if (response.data.success) {
-            // Update local player state
-            setCurrentPlayer(prev => ({
-              ...prev,
-              messages: updatedMessages,
-              train: updatedTrainData
-            }));
-            
-            // Create reward summary for status message
-            const rewardSummary = existingCurrentRewards.map(reward => 
-              `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
-            ).join(', ');
-            
-            updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
-            setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
-            console.log('✅ Current train rewards successfully delivered to mailbox');
+            setCurrentPlayer(prev => ({ ...prev, train: updatedTrainData }));
           }
+          const rewardSummary = existingCurrentRewards.map(reward =>
+            `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
+          ).join(', ');
+          updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
+          setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+          console.log('✅ Current train rewards successfully delivered to mailbox');
         } catch (error) {
           console.error('❌ Error delivering current train rewards to mailbox:', error);
         }
@@ -300,6 +287,9 @@ function NewTrainPanel({
   const checkAndDeliverPreviousTrainRewards = async () => {
     const existingCurrentOffers = currentPlayer?.train?.currentTrainOffers || [];
     const existingCurrentRewards = currentPlayer?.train?.currentTrainRewards || [];
+    // Already mailed for this Train (the moment its last order was filled, or at departure)
+    const previousTrainNumber = currentPlayer?.train?.currentTrainNumber || 0;
+    if ((currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) >= previousTrainNumber && previousTrainNumber > 0) return;
     
     // Check if all current offers were completed
     if (existingCurrentOffers.length > 0) {
@@ -308,48 +298,14 @@ function NewTrainPanel({
       if (allOffersCompleted && existingCurrentRewards.length > 0) {
         console.log('🚂 All train offers completed! Delivering rewards to mailbox:', existingCurrentRewards);
         
-        // Generate a unique message ID based on timestamp
-        const messageId = Date.now();
-        
-        // Create the message for the mailbox
-        const newMessage = {
-          messageId: 101,
-          timestamp: new Date(),
-          rewards: existingCurrentRewards.map(reward => ({
-            item: reward.item,
-            qty: reward.quantity
-          })),
-          read: false,
-          collected: false,
-          neverPurge: false
-        };
-        
         try {
-          // Add the message to player's messages array
-          const currentMessages = currentPlayer?.messages || [];
-          const updatedMessages = [...currentMessages, newMessage];
-          
-          const response = await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { messages: updatedMessages }
-          });
-          
-          if (response.data.success) {
-            // Update local player state
-            setCurrentPlayer(prev => ({
-              ...prev,
-              messages: updatedMessages
-            }));
-            
-            // Create reward summary for status message
-            const rewardSummary = existingCurrentRewards.map(reward => 
-              `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
-            ).join(', ');
-            
-            updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
-            setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
-            console.log('✅ Train rewards successfully delivered to mailbox');
-          }
+          await mailTrainRewards(existingCurrentRewards);
+          const rewardSummary = existingCurrentRewards.map(reward =>
+            `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
+          ).join(', ');
+          updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
+          setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+          console.log('✅ Train rewards successfully delivered to mailbox');
         } catch (error) {
           console.error('❌ Error delivering train rewards to mailbox:', error);
         }
@@ -408,6 +364,7 @@ function NewTrainPanel({
     // Update player in database
     const updatedTrainData = {
       currentTrainNumber: newTrainNumber,
+      lastRewardDeliveryTrainNumber: currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0, // the no-double-mail guard
       currentTrainOffers: newCurrentOffers,
       currentTrainRewards: newCurrentRewards,
       nextTrainOffers: nextTrainData.offers,
@@ -462,6 +419,7 @@ function NewTrainPanel({
 
     const updatedTrainData = {
       currentTrainNumber: trainNumber,
+      lastRewardDeliveryTrainNumber: currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0, // the no-double-mail guard
       currentTrainOffers: currentTrainData.offers,
       currentTrainRewards: currentTrainData.rewards,
       nextTrainOffers: nextTrainData.offers,
@@ -581,6 +539,24 @@ function NewTrainPanel({
         ...currentPlayer.train,
         currentTrainOffers: updatedCurrentOffers
       };
+
+      // The last order filled: the rewards go to the mailbox now, not when the Train departs.
+      // The celebration opens at once (optimistic); recording this Train as delivered keeps the
+      // departure check from mailing them a second time. If the mail fails, nothing is recorded
+      // and the departure check delivers them instead.
+      const trainNumber = currentPlayer?.train?.currentTrainNumber || playerTrainNumber;
+      const allFilled = updatedCurrentOffers.length > 0 && updatedCurrentOffers.every(o => o.completed === true);
+      const deliverNow = allFilled && currentTrainRewards.length > 0
+        && (currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) < trainNumber;
+      if (deliverNow) {
+        setShowTrainComplete(true);
+        try {
+          await mailTrainRewards(currentTrainRewards);
+          updatedTrainData.lastRewardDeliveryTrainNumber = trainNumber;
+        } catch (error) {
+          console.error('❌ Error mailing train rewards on the last order:', error);
+        }
+      }
 
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
@@ -836,6 +812,7 @@ function NewTrainPanel({
         )}
       </LevelLock>
     </Panel>
+    {showTrainComplete && <TrainCompleteModal onClose={() => setShowTrainComplete(false)} />}
     {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
     </>
   );
