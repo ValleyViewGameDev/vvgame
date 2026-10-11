@@ -55,7 +55,7 @@ const LoadingScreen = ({ message = 'Loading Valley View...', showKeyArt = false 
         {/* Animated hourglass */}
         <div
           style={{
-            fontSize: '64px',
+            fontSize: '40px',
             animation: 'loadingSpinner 2s ease-in-out infinite',
           }}
         >
@@ -67,7 +67,6 @@ const LoadingScreen = ({ message = 'Loading Valley View...', showKeyArt = false 
           style={{
             color: '#fff',
             fontSize: '24px',
-            fontWeight: 'bold',
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)',
             padding: '10px 20px',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',

@@ -3482,7 +3482,7 @@ return (
           flash on every refresh. Only a new visitor who has just tapped Begin keeps the key art
           they were already looking at. */}
       {!showKeyArt && !isAppInitialized && (hasStoredPlayer || isSilentCreating) && (
-        <LoadingScreen message="Preparing your adventure..." showKeyArt={isSilentCreating} />
+        <LoadingScreen message={strings?.[3054] || 'Loading...'} showKeyArt={isSilentCreating} />
       )}
 
       {/* Game Renderer - only render when ALL data is ready */}
