@@ -941,6 +941,31 @@ const headerIcon = (label, fallback = '') => {
 };
 const headerLabel = (label, fallback = '') => (isPhoneLayout ? headerIcon(label, fallback) : label);
 const { closeAllPanels } = usePanelContext(); 
+
+// Coming home with a loaded backpack opens Backpack Management (owner, 2026-10-11): when the player's
+// location changes from somewhere else to the player's own homestead, they have the Backpack skill, and
+// the backpack holds anything that can be moved (not money, not special items such as the Tent,
+// the Boat or keys, which the modal will not move), the Inventory panel opens with the Backpack
+// Management modal on top. A load or refresh at home is not a return, so it never fires then.
+const [autoOpenBackpackModal, setAutoOpenBackpackModal] = useState(false);
+// Keyed on currentPlayer.location.g, the field the modal itself reads to decide "at home": its
+// buttons become Discard / Discard All away from home, so it must never open before location agrees.
+const lastLocationGridRef = useRef(null);
+const locationGridId = currentPlayer?.location?.g ? String(currentPlayer.location.g) : null;
+useEffect(() => {
+  const previous = lastLocationGridRef.current;
+  lastLocationGridRef.current = locationGridId;
+  if (!previous || !locationGridId || previous === locationGridId) return;
+  if (!currentPlayer?.gridId || locationGridId !== String(currentPlayer.gridId)) return;
+  if (currentPlayer?.firsttimeuser) return; // never in the middle of the FTUE
+  if (!currentPlayer?.skills?.some(item => item.type === 'Backpack')) return;
+  const movable = (Array.isArray(backpack) ? backpack : []).filter(item =>
+    item?.quantity > 0 && !isCurrency(item.type)
+    && masterResources?.find(r => r.type === item.type)?.category !== 'special');
+  if (movable.length === 0) return;
+  setAutoOpenBackpackModal(true);
+  openPanel('InventoryPanel');
+}, [locationGridId]); // eslint-disable-line react-hooks/exhaustive-deps
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
@@ -3842,6 +3867,8 @@ return (
           setActiveStation={setActiveStation}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
+          autoOpenBackpackModal={autoOpenBackpackModal}
+          onBackpackModalAutoOpened={() => setAutoOpenBackpackModal(false)}
         />
       )}
       {activePanel === 'WarehousePanel' && (

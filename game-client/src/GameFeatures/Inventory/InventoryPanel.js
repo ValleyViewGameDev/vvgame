@@ -1,5 +1,5 @@
 import API_BASE from '../../config';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
@@ -12,7 +12,7 @@ import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../.
 import ManageContentsModal from './ManageContentsModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 
-function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
+function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen, autoOpenBackpackModal = false, onBackpackModalAutoOpened }) {
 
     const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
@@ -21,6 +21,12 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
     const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+    // App asks for Backpack Management on returning home with a loaded backpack (App.js)
+    useEffect(() => {
+        if (!autoOpenBackpackModal) return;
+        setShowBackpackModal(true);
+        if (onBackpackModalAutoOpened) onBackpackModalAutoOpened();
+    }, [autoOpenBackpackModal]); // eslint-disable-line react-hooks/exhaustive-deps
     const [inventorySortField, setInventorySortField] = useState('name');
     const [inventorySortDirection, setInventorySortDirection] = useState('asc');
     const [backpackSortField, setBackpackSortField] = useState('name');
