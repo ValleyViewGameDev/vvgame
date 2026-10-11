@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
@@ -6,6 +6,7 @@ import './LevelUpModal.css';
 import { useStrings } from '../StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import questCache from '../../Utils/QuestCache';
+import { playCelebrationFireworks } from '../../VFX/Celebration';
 
 // Categories to show in unlock list
 const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco', 'station'];
@@ -38,6 +39,15 @@ const LevelUpModal = ({
 
   const strings = useStrings();
   const [questGivers, setQuestGivers] = useState([]);
+
+  // Fireworks as the modal lands, once per level reached (the ref keeps a re-render or
+  // StrictMode's double effect from firing a second burst)
+  const celebratedLevel = useRef(null);
+  useEffect(() => {
+    if (!isOpen || !currentLevel || celebratedLevel.current === currentLevel) return;
+    celebratedLevel.current = currentLevel;
+    playCelebrationFireworks();
+  }, [isOpen, currentLevel]);
 
   // Fetch quests and find givers with quests at this level
   useEffect(() => {

@@ -1,0 +1,32 @@
+/* Celebration VFX overlay (VFX/fireworks.js, copied verbatim from House's
+   render/vfx/fireworks.js; these rules are House's ui/styles.css .vfx-overlay /
+   .vfx-overlay--over-modal / .vfx-fireworks-canvas). VVGame has no <main>, so the
+   stage is the whole viewport. pointer-events stay none: the fireworks never block
+   the modal's button underneath. Only the over-modal z-index differs from House:
+   VVGame's .modal-overlay sits at 100000. .vfx-stage is VVGame's own: the viewport-sized
+   host Celebration.js gives the fireworks (House sizes them from its <main> panel). */
+.vfx-stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100001;
+}
+.vfx-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 50;
+}
+.vfx-overlay.vfx-overlay--over-modal {
+  position: fixed;
+  inset: auto;
+  z-index: 100001;
+}
+.vfx-fireworks-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
