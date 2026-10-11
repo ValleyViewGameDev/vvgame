@@ -38,7 +38,10 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 - **W-3. Iterate on existing templates** to create more interesting scenarios.
 - **W-4. Finalize all the Regions.**
 - **W-5. Region names as persistent floating UI**, not only the toasts shown on entering or
-  leaving a Region.
+  leaving a Region. **Built 2026-10-10:** `.region-name` in App.js / App.css (mobile.css for
+  phones): the current Region in white Berkshire Swash with a shadow, top centre of the board at
+  the pills' height, under the toasts and panels; fades in on a new Region; grid zooms only, never
+  in a dungeon. The enter/leave toasts stay. Not yet checked in the live game.
 - **W-6. Make Regions matter more to gameplay.**
 - **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
   epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
@@ -60,7 +63,14 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   Eight phases (doc §1). Done 2026-10-09: the six Haunted River grids (1015166, 1015167,
   1015176, 1015177, 1015260, 1015270) and **phase 1, the base build** (all 1,915 valley grids
   that had no template), with iterations on the Haunted River, Hell's Mouth, Demon Horn Lake
-  and Star Lake. Phase 2 (mountain ranges) started: Prospero's Range (the C).
+  and Star Lake. Phase 2 (mountain ranges) in progress: Prospero's Range (the C), the King's
+  Circle north bank range (slate, hugging the river), The Swoop (a C on grass), and mountain
+  seams closed across grid edges everywhere (a seam only as wide as its range). Ground passes
+  (2026-10-09/10): organic slate edges across the south-east (`slate_blend.mjs`); lava islands
+  of dirt and stone and the lava run down to the river's north bank in 1015435-1015530
+  (`lava_rules.mjs`); the big dirt region between the Haunted River and the King's Circle in
+  settlement 5_2, with soft grass patches, coyotes, and slate through the King's Circle gap
+  (`ground_regions.mjs`, owner grids painted on request). Phases 3-8 not started.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
 - **W-13. A new character with his hut on Hell's Mouth's peninsula** (added 2026-10-09). The

@@ -3292,6 +3292,13 @@ return (
       </div>
     )}
 
+    {/* Region name (backlog W-5): the Region the player stands in, floating at the top centre of
+        the board, behind where the toasts drop in; only at grid zoom levels and never in a
+        dungeon. Keyed by the name so a new Region fades in. */}
+    {currentPlayer?.location?.region && currentPlayer.location.gtype !== 'dungeon' && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && (
+      <div key={currentPlayer.location.region} className="region-name">{currentPlayer.location.region}</div>
+    )}
+
     {/* Season: a round button floating over the board's top-right corner, the zoom pill's twin */}
     {currentPlayer && (
       <div className="season-controls">

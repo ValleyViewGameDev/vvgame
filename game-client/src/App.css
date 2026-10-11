@@ -217,6 +217,25 @@ body {
   -webkit-backdrop-filter: blur(6px);
   z-index: 980;
 }
+/* Region name (backlog W-5): white Berkshire Swash with a shadow, top centre of the board, at
+   the pills' height. Under the toasts (985), which drop in over it, and under every panel (990). */
+.region-name {
+  position: fixed;
+  top: calc(var(--d-top) + var(--d-gap));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 975;
+  pointer-events: none;
+  font-family: var(--font-title-1-family);
+  font-size: 28px;
+  line-height: 1.2;
+  color: #ffffff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.7), 0 0 14px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  animation: regionNameIn 700ms ease-out both;
+}
+@keyframes regionNameIn { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
 .season-button {
   width: 45px;
   height: 45px;

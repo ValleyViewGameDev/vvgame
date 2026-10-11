@@ -461,6 +461,15 @@
 
   /* ---------- notifications: same drop-down toast from behind the header, nearly full width ---------- */
   #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
+  /* region name: same top as the pills, kept clear of the zoom pill (left) and season button (right) */
+  .region-name {
+    top: calc(var(--m-top) + var(--m-gap));
+    left: calc(50% + var(--m-safe-left) / 2);
+    font-size: 21px;
+    max-width: calc(100% - var(--m-safe-left) - 2 * (48px + 2 * var(--m-gap)));
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .notification,
   .notification.notification-persistent {
     border-radius: var(--m-panel-radius);
