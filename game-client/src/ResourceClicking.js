@@ -10,6 +10,7 @@ import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { showNotification } from './UI/Notifications/Notifications';
 import { createCollectEffect, createSourceConversionEffect, createPlantGrowEffect, calculateTileCenter } from './VFX/VFX';
 import soundManager from './Sound/SoundManager';
+import CombatFX from './Render/PixiRenderer/CombatFX';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
@@ -821,6 +822,13 @@ export async function handleSourceConversion(
     
     // Add the new resource to the filtered list
     const finalResources = [...filteredResources, enrichedNewResource];
+
+    // A doober drops in the way a kill's loot does (CombatFX.dropBounce): it holds the board's
+    // sprite hidden from this call until its fall-and-bounce ends, so it must start before the
+    // resource lands in state below.
+    if (enrichedNewResource.category === 'doober') {
+      CombatFX.dropBounce(x, y, { symbol: enrichedNewResource.symbol, filename: enrichedNewResource.filename || null });
+    }
     
     // Update both global and local state with the same filtered array - exactly like ProtectedSelling does
     GlobalGridStateTilesAndResources.setResources(finalResources);
