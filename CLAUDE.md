@@ -61,6 +61,7 @@ vvgame/
 │   ├── tuning.md             # tuning principles, knobs, level curve, Kent offer rules, compatibility; check before any tuning change
 │   ├── email-setup.md        # Render env vars + Loops template setup for the welcome/event emails (what to click, which IDs go where)
 │   ├── onboarding-plan.md    # PLAN (2026-10-05): first screen, passwordless silent account, name at the Home Deed, email + Loops, FTUE arc; read before touching login/FTUE/email
+│   ├── avatar-plan.md        # PLAN (2026-10-11, decisions agreed, nothing built): parts-based busts for the PC and later the Citizens (rig, catalogue sheets, compositor, equip feed, per-part pricing, blinking); read before touching PlayerIcons / ChangeIconModal / PixiRendererPCs
 │   ├── citizens.md           # Citizens (quest/trade/heal/worker NPCs): the state loop (working/resting/roaming/eating/socializing + waiting), per-type lengths, open questions; read before touching NPCCitizenBehavior.js
 │   └── audits/               # deep read-only audits with file:line citations (six from 2026-10-01; client-review-2026-10-03.md = whole-client + renderer strategy; combat-and-npc-review-2026-10-07.md = the NPC/Combat overhaul epic's parent doc, five tracks)
 ├── game-server/
