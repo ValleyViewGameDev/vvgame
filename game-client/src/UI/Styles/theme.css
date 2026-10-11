@@ -68,7 +68,7 @@
 
   /* ========== MODAL COLORS ========== */
   --color-modal-title: rgb(154, 106, 22);  /* Brown/gold panel header color */
-  --color-modal-overlay: rgba(0, 0, 0, 0.6);
+  --color-modal-overlay: rgba(0, 0, 0, 0.4); /* lightened from 0.6 (owner, 2026-10-11) */
   --color-table-alt-row: #f9f9f9;          /* Alternating table row background */
 
   /* ========== PANEL COLORS ========== */

@@ -12,11 +12,15 @@ import './Celebration.css';
  */
 export function playCelebrationFireworks() {
   try {
-    const stage = document.createElement('div');
-    stage.className = 'vfx-stage';
-    document.body.appendChild(stage);
-    return playFireworks({ rootEl: stage, overModal: true, overlayClass: 'vfx-overlay--over-modal' })
-      .finally(() => stage.remove());
+    // Mounted a frame later, so the stage is also after the modal's portal in the DOM (the
+    // modal opens in the same commit as this call); its z-index already puts it on top.
+    return new Promise((resolve) => requestAnimationFrame(() => {
+      const stage = document.createElement('div');
+      stage.className = 'vfx-stage';
+      document.body.appendChild(stage);
+      playFireworks({ rootEl: stage, overModal: true, overlayClass: 'vfx-overlay--over-modal' })
+        .finally(() => { stage.remove(); resolve(); });
+    }));
   } catch (err) {
     console.warn('[vfx] fireworks failed', err);
     return Promise.resolve();
