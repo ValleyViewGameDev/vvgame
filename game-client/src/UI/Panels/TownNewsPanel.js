@@ -8,6 +8,7 @@ import { formatCountdown } from '../Timers';
 import { getMayorUsername } from '../../GameFeatures/Government/GovUtils';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { handleTransitSignpost } from '../../GameFeatures/Transit/Transit';
 
 // Town News: a right panel opened by the floating 📰 button under the season button
 // (docs/ui-conventions.md §3). Settlement and bank data are fetched on open and every 30 s;
@@ -45,7 +46,9 @@ function GoodsList({ goods, masterResources, strings, inventory, backpack }) {
 
 const Timer = ({ value }) => (value ? <span className="tn-timer">{value}</span> : null);
 
-function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, backpack }) {
+function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, backpack,
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, updateStatus, TILE_SIZE,
+    closeAllPanels, bulkOperationContext, masterTrophies, transitionFadeControl }) {
     const strings = useStrings();
     // Settlement data
     const [settlementName, setSettlementName] = useState("");
@@ -153,6 +156,9 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
     }, [currentPlayer?.settlementId, currentPlayer?.frontierId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const showElection = ['Campaigning', 'Voting', 'Counting'].includes(electionPhase);
+    const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
+    const isInHomeTown = currentPlayer?.location?.gtype === 'town' && !!currentPlayer?.location?.s && !!currentPlayer?.settlementId
+        && currentPlayer.location.s.toString() === currentPlayer.settlementId.toString();
     const showTrain = ['arriving', 'departing', 'loading'].includes(trainPhase);
     const showBank = ['active', 'refreshing'].includes(bankPhase);
 
@@ -232,6 +238,24 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
                     </div>
                     <GoodsList goods={carnivalGoods} masterResources={masterResources} strings={strings} inventory={inventory} backpack={backpack} />
                 </section>
+            )}
+
+            {/* Go to Town: the Map panel's Town signpost (FrontierMiniMap), same transit and rules:
+                not offered inside a dungeon, greyed out when already in the home town */}
+            {!isInDungeon && (
+                <div className="shared-buttons tn-go-to-town">
+                    <button
+                        className="btn-basic btn-success"
+                        disabled={isInHomeTown}
+                        onClick={() => handleTransitSignpost(
+                            currentPlayer, "Signpost Town Home", setCurrentPlayer, setGridId, setGrid, setTileTypes,
+                            setResources, updateStatus, TILE_SIZE, currentPlayer.skills, closeAllPanels,
+                            bulkOperationContext, masterResources, strings, masterTrophies, transitionFadeControl
+                        )}
+                    >
+                        🏛️ {strings[1519] || 'Go to Town'}
+                    </button>
+                </div>
             )}
           </div>
         </Panel>

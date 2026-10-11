@@ -3891,6 +3891,17 @@ return (
           masterResources={masterResources}
           inventory={inventory}
           backpack={backpack}
+          setCurrentPlayer={setCurrentPlayer}
+          setGridId={setGridId}
+          setGrid={setGrid}
+          setTileTypes={setTileTypes}
+          setResources={setResources}
+          updateStatus={updateStatus}
+          TILE_SIZE={activeTileSize}
+          closeAllPanels={closeAllPanels}
+          bulkOperationContext={bulkOperationContext}
+          masterTrophies={masterTrophies}
+          transitionFadeControl={transitionFadeControl}
         />
       )}
       {activePanel === 'TrophyPanel' && (
