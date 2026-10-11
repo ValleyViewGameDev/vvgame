@@ -124,9 +124,14 @@ value rather than trust this page.
   board; never move the panel.
 - The zoom buttons are their own small pill (portrait: top-left under the status bar, z 980,
   so panels cover them; landscape: the header's first column). They are not children of the
-  nav pill: its backdrop-filter would make it their containing block. The season button (📅,
-  opens the Season panel) is the zoom pill's twin at the board's top-right on every layout
-  (`.season-controls`). The map button (`.map-controls`, 🗺️) is its other twin: under the
+  nav pill: its backdrop-filter would make it their containing block. The right-hand HUD stack
+  at the board's top-right, on every layout, is Quest, Season, Town News (Map joins it after
+  Season in landscape). The Quest button (`.season-controls.quest-controls`, 📜) is on top and
+  toggles the To Do list (`QuestPanel`; it left the nav bar 2026-10-11); its badge at the lower
+  left (`.hud-badge`) is the quest-ready ✅ (`assets/overlays/checkmark.svg`) when a quest can be
+  turned in, a yellow "?" when quests are active but none is done
+  (`GameFeatures/Quests/questBadge.js`). The season button (📅, opens the Season panel,
+  `.season-controls.season-main`) sits under it. The map button (`.map-controls`, 🗺️) is its other twin: under the
   zoom pill on desktop and in portrait, under the season button in landscape (zoom lives in
   the header there). It toggles the Map panel (a second tap closes it); on phones it sits
   behind an open panel like the zoom pill, so the panel's × or a board tap closes it there.

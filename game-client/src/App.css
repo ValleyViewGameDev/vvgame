@@ -256,11 +256,44 @@ body {
 .season-button:hover { background-color: var(--color-button-hover); }
 .season-button:active { transform: scale(0.92); }
 
-/* TOWN NEWS: the season button's twin, right under it; toggles the Town News panel */
-.season-controls.news-controls {
-  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--hud-countdown-h) + var(--d-gap));
+/* The right-hand HUD stack, top to bottom: Quest (.quest-controls, the base .season-controls
+   spot), Season (.season-main), Town News (.news-controls). Season and Town News carry a
+   countdown under them (--hud-countdown-h); Quest does not. */
+.season-controls.season-main {
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
 }
-.season-button.news-button.selected { background-color: var(--color-button-hover); }
+/* TOWN NEWS: under the season button and its countdown; toggles the Town News panel */
+.season-controls.news-controls {
+  top: calc(var(--d-top) + var(--d-gap) + 2 * (var(--d-pill-w) + var(--d-gap)) + var(--hud-countdown-h));
+}
+.season-button.news-button.selected,
+.season-button.quest-button.selected { background-color: var(--color-button-hover); }
+
+/* HUD button badge (Quest): lower left of the round button, over its rim. The ✅ is the board's
+   quest-ready overlay art (assets/overlays/checkmark.svg); "?" is drawn to the same size. */
+.hud-badge {
+  position: absolute;
+  left: -3px;
+  bottom: -3px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+.hud-badge--question {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #f2b705;
+  color: #3a2a00;
+  border: 1.5px solid #ffffff;
+  box-sizing: border-box;
+  font-family: var(--font-text-1-family);
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+}
 
 /* MAP: one round button under the zoom pill, the season button's twin; toggles the Map panel */
 

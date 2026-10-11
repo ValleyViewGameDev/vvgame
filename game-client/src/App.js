@@ -116,6 +116,7 @@ import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNewsPanel from './UI/Panels/TownNewsPanel.js';
 import HudCountdown from './UI/HudCountdown';
+import { questBadgeState } from './GameFeatures/Quests/questBadge';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
@@ -948,6 +949,18 @@ const { closeAllPanels } = usePanelContext();
 // the Boat or keys, which the modal will not move), the Inventory panel opens with the Backpack
 // Management modal on top. A load or refresh at home is not a return, so it never fires then.
 const [autoOpenBackpackModal, setAutoOpenBackpackModal] = useState(false);
+
+// Quest HUD button badge: ✅ when a quest is ready to turn in, ? when quests are active but none
+// is done (GameFeatures/Quests/questBadge.js). Current quest titles come from the quest cache, so
+// stale quests the To Do panel hides never light the badge.
+const [questTitles, setQuestTitles] = useState(null);
+useEffect(() => {
+  let alive = true;
+  questCache.getQuests().then(qs => { if (alive) setQuestTitles(new Set((qs || []).map(q => q.title))); }).catch(() => {});
+  return () => { alive = false; };
+}, []);
+const questBadge = useMemo(() => questBadgeState(currentPlayer, questTitles),
+  [currentPlayer?.activeQuests, currentPlayer?.skills, currentPlayer?.powers, questTitles]); // eslint-disable-line react-hooks/exhaustive-deps
 // Keyed on currentPlayer.location.g, the field the modal itself reads to decide "at home": its
 // buttons become Discard / Discard All away from home, so it must never open before location agrees.
 const lastLocationGridRef = useRef(null);
@@ -3324,9 +3337,20 @@ return (
       <div key={currentPlayer.location.region} className="region-name">{currentPlayer.location.region}</div>
     )}
 
-    {/* Season: a round button floating over the board's top-right corner, the zoom pill's twin */}
+    {/* Quest: the To Do list, a round button at the top of the right-hand HUD stack (above Season
+        and Town News); toggles the Quest panel. Badge at its lower left: ✅ a quest is ready to
+        turn in, ? quests are active but none is done */}
     {currentPlayer && (
-      <div className="season-controls">
+      <div className="season-controls quest-controls">
+        <button className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
+        {questBadge === 'completed' && <img className="hud-badge" src="/assets/overlays/checkmark.svg" alt="" />}
+        {questBadge === 'active' && <span className="hud-badge hud-badge--question">?</span>}
+      </div>
+    )}
+
+    {/* Season: a round button on the board's top-right, under the Quest button */}
+    {currentPlayer && (
+      <div className="season-controls season-main">
         <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
         <HudCountdown endTimes={timers?.seasons?.endTime} />
       </div>
@@ -3373,7 +3397,6 @@ return (
           return icon;
         })()}
       </button>
-      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>{renderNavIcon('QuestPanel', '✅')}</button>
 
       {/* Hide these panels during early FTUE steps (1-2: Gertrude's story, the walk to Elbow) */}
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
