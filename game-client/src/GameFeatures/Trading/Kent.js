@@ -714,7 +714,9 @@ function KentPanel({
                             // A card the player cannot afford is a disabled <button>, which swallows taps, so
                             // Kent.css gives it pointer-events: none and the wrapper catches the tap anywhere on
                             // the card: ResourceModalSmall opens for the first item the player is short of.
-                            if (canAffordAll || isCardInactive || isTrading) return;
+                            // It works while Kent is away too (so you can plan what to gather); only a card on
+                            // its own cooldown, which shows a timer instead of its goods, ignores the tap.
+                            if (canAffordAll || cardOnCooldown || isTrading) return;
                             const missing = itemsWithQty.find((item) => !item.hasEnough);
                             if (missing) setInfoResource(missing.item);
                           }}
