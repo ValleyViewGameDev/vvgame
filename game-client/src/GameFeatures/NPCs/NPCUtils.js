@@ -78,10 +78,14 @@ async function handleProtectedFarmAnimalCollection(
   createCollectEffect(col, row, TILE_SIZE);
   FloatingTextManager.addFloatingText(`+${expectedQuantity} ${expectedSymbol} ${getLocalizedString(expectedItem, strings)}`, col, row, TILE_SIZE);
 
-  // NOTE: Do NOT update NPC state here - the server needs to see the NPC in 'processing' state
-  // to validate the collection. We'll update the state after server confirms.
+  // 3. The ✅ goes NOW: a client-only collectPending mark hides it (markLocal never saves).
+  //    The NPC's real state stays 'processing' until the server confirms, because the server
+  //    validates the collection against its stored 'processing' state. Every refusal below
+  //    clears the mark, so the ✅ comes back.
+  NPCsInGridManager.markLocal(currentGridId, npc.id, { collectPending: true });
+  const restoreCheckmark = () => NPCsInGridManager.markLocal(currentGridId, npc.id, { collectPending: false });
 
-  // 3. Show optimistic status message
+  // 4. Show optimistic status message
   const statusMessage = formatSingleCollection('animal', expectedItem, expectedQuantity,
     skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
   updateStatus(statusMessage);
@@ -127,12 +131,13 @@ async function handleProtectedFarmAnimalCollection(
 
       // Update NPC with authoritative server state (or fallback to grazing)
       if (updatedNPC) {
-        await NPCsInGridManager.updateNPC(currentGridId, npc.id, updatedNPC);
+        await NPCsInGridManager.updateNPC(currentGridId, npc.id, { ...updatedNPC, collectPending: false });
       } else {
         // Fallback: set to grazing state if server didn't provide updated state
         await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
           state: 'grazing',
-          grazeEnd: null
+          grazeEnd: null,
+          collectPending: false
         });
       }
 
@@ -155,6 +160,7 @@ async function handleProtectedFarmAnimalCollection(
     } else {
       // Server returned success: false
       console.error('❌ Server rejected collection');
+      restoreCheckmark();
       updateStatus('❌ Failed to collect from animal');
 
       if (window._processingAnimalCollects) {
@@ -165,8 +171,8 @@ async function handleProtectedFarmAnimalCollection(
   } catch (error) {
     console.error('Error in protected farm animal collection:', error);
 
-    // Note: No rollback needed since we didn't change NPC state optimistically
-    // Visual feedback (sound, floating text) already played but that's acceptable UX
+    // Roll back the hidden ✅ (the 'already collected' case below then sets the server's state)
+    restoreCheckmark();
 
     if (error.response?.status === 429) {
       updateStatus(471);

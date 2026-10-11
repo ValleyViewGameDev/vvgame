@@ -432,8 +432,13 @@ const CraftingStation = ({
     const craftedItemResource = masterResources.find(r => r.type === craftedItemType);
     const craftedSymbol = craftedItemResource?.symbol || '🎁';
 
-    // Save original slot state for potential rollback
+    // Save original slot state for potential rollback. A station from before multi-slot crafting
+    // keeps its craft on the station itself (craftEnd / craftedItem, which effectiveSlots shows
+    // as slot 0): the optimistic clear works from the slots the panel shows and clears those
+    // legacy fields too, so its ✅ goes at once like any other.
     const originalSlots = [...(station?.slots || [])];
+    const legacyFields = { craftEnd: station?.craftEnd ?? null, craftedItem: station?.craftedItem ?? null, qty: station?.qty ?? null };
+    const shownSlots = [...(effectiveSlots || [])];
 
     // ===== OPTIMISTIC UI: Show feedback immediately =====
     // 1. Play sound immediately
@@ -444,12 +449,12 @@ const CraftingStation = ({
     setTimeout(() => setSlotCollectedAnimation(null), 1800);
 
     // 3. Optimistically clear the slot visually
-    const optimisticSlots = originalSlots.map((s, i) =>
+    const optimisticSlots = shownSlots.map((s, i) =>
       i === slotIndex ? { craftEnd: null, craftedItem: null, qty: null } : s
     );
     const optimisticGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
       res.x === currentStationPosition.x && res.y === currentStationPosition.y
-        ? { ...res, slots: optimisticSlots }
+        ? { ...res, slots: optimisticSlots, ...(originalSlots.length === 0 ? { craftEnd: null, craftedItem: null, qty: null } : {}) }
         : res
     );
     GlobalGridStateTilesAndResources.setResources(optimisticGlobalResources);
@@ -501,7 +506,7 @@ const CraftingStation = ({
             // Rollback the optimistic slot update
             const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
               res.x === currentStationPosition.x && res.y === currentStationPosition.y
-                ? { ...res, slots: originalSlots }
+                ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
                 : res
             );
             GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
@@ -544,7 +549,7 @@ const CraftingStation = ({
         console.error('❌ Server rejected collection - rolling back');
         const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: originalSlots }
+            ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
             : res
         );
         GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
@@ -557,7 +562,7 @@ const CraftingStation = ({
       // Rollback the optimistic slot update
       const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
         res.x === currentStationPosition.x && res.y === currentStationPosition.y
-          ? { ...res, slots: originalSlots }
+          ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
           : res
       );
       GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);

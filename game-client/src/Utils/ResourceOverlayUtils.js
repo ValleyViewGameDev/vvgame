@@ -84,8 +84,9 @@ export const OVERLAY_EMOJI_MAPPING = {
 export const getNPCOverlayStatus = (npc) => {
   if (!npc) return null;
 
-  // Check for graze NPCs (farm animals) that are ready for collection
-  if (npc.action === 'graze' && npc.state === 'processing') {
+  // Check for graze NPCs (farm animals) that are ready for collection. collectPending: tapped,
+  // the server is confirming; the ✅ goes at once (NPCUtils.handleProtectedFarmAnimalCollection)
+  if (npc.action === 'graze' && npc.state === 'processing' && !npc.collectPending) {
     const currentTime = Date.now();
     if (npc.grazeEnd && currentTime >= npc.grazeEnd) {
       return { type: 'ready', priority: 1 };

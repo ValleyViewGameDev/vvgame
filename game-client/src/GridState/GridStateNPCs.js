@@ -396,6 +396,19 @@ class GridStateManager {
   }
 
   /**
+   * Set client-only properties on an NPC and re-render, WITHOUT saving it to the server
+   * (updateNPC below saves). For optimistic UI while the server validates against the NPC's
+   * stored state, e.g. `collectPending` hiding a farm animal's ✅ the moment it is tapped
+   * (NPCUtils.handleProtectedFarmAnimalCollection). Never put persisted fields through here.
+   */
+  markLocal(gridId, npcId, props) {
+    const npc = this.NPCsInGrid[gridId]?.npcs?.[npcId];
+    if (!npc) return;
+    Object.assign(npc, props);
+    this.syncReact(gridId);
+  }
+
+  /**
    * Update an NPC in the NPCsInGrid using the per-NPC save model.
    */
   async updateNPC(gridId, npcId, newProperties) {
