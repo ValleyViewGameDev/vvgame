@@ -37,11 +37,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 - **W-2. Finish all the grid templates.** Every grid that still lacks a template gets one.
 - **W-3. Iterate on existing templates** to create more interesting scenarios.
 - **W-4. Finalize all the Regions.**
-- **W-5. Region names as persistent floating UI**, not only the toasts shown on entering or
-  leaving a Region. **Built 2026-10-10:** `.region-name` in App.js / App.css (mobile.css for
-  phones): the current Region in white Berkshire Swash with a shadow, top centre of the board at
-  the pills' height, under the toasts and panels; fades in on a new Region; grid zooms only, never
-  in a dungeon. The enter/leave toasts stay. Not yet checked in the live game.
 - **W-6. Make Regions matter more to gameplay.**
 - **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
   epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
@@ -49,6 +44,12 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 - **W-8. Better surface the Quest for Hope** and create more motivations for players to explore.
   The Quest for Hope UI must let players tap an uncollected item to see what it is (added
   2026-10-09).
+  **Built 2026-10-11:** the seven Quest for Hope slots (Player Character and Leaderboard panels,
+  `GameFeatures/Social/HopeQuest.js`) show a very faint icon of each uncollected artifact; tapping
+  the title or any slot opens `QuestForHopeModal.js` (the seven listed with icon and name, OK
+  button), and tapping an uncollected one opens a small "Hint:" modal with a riddle (strings
+  200803-200817; EN, DE, ES, FR; the partly translated languages fall back to English). The
+  "more motivations to explore" half is still open. Not yet checked in the live game.
 - **W-9. Valley shops stock different goods** (added 2026-10-09). Buildings in the Valley
   (Armory, Magic Shop, ...) currently all sell the same items. Give each its own stock, so that
   finding a new mini-Town in the Valley, D&D style, makes you want to check its shops for new
@@ -92,8 +93,6 @@ Added 2026-10-09.
 - **UI-3. Discord button on the How to Play panel, under the Email button;** then remove Email
   and Discord from the Map panel (formerly the base panel).
 
-Already-built UI items that belong here (built 2026-10-08 on `backlog/bl-2-13`, awaiting a
-live check; their entries stay below): BL-2, BL-3, BL-4, BL-9, BL-10, BL-11, BL-12, BL-13.
 
 ### EPIC: Spells (opened 2026-10-09)
 
@@ -161,39 +160,6 @@ right instructions for the platform; inside the installed app it never appears; 
 remembered; the installed app launches straight into the game full-screen in both
 orientations.
 
-### BL-2: Floating text when collecting Gems on the Trophy panel
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (2d3ac89b); not yet checked in the live game.
-
-**What.** Collecting Gems from the Trophy panel should fire the floating-text feedback that
-other collections already show, so the reward reads on the spot.
-
-### BL-3: Panel resource buttons stay light after a tap instead of returning to green
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (42b48d91); not yet checked in the live game.
-
-**What.** Tapping a green (active) button in a panel, e.g. starting a craft at a
-craftingStation, turns it light as tap feedback, but it stays light. If the player still has
-the resources for another go, the button should return to green right away so they can tap
-again. Inactive is still correct when the resources really are short. Appears to affect all
-resource buttons in panels, so the fix probably belongs in the shared button, not per panel.
-
-### BL-4: Turn off hovertips on mobile entirely
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (7081033e); not yet checked in the live game.
-
-**What.** No hovertips on mobile. The catch: some buttons (gem buttons among them) carry
-critical information, such as the quantity, only in the hovertip, so mobile players would lose
-it. That information has to move onto the button itself, which needs some finesse to fit
-without crowding. Audit which hovertips hold must-have info before switching them off.
-
-### BL-5: Bears should be faster
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (fbda7305); not yet checked in the live game.
-
-**What.** Bears move too slowly; speed them up. A tuning item; it fits Track 5 (tuning) of the
-NPC / Combat epic above, so fold it in there if that track starts first.
-
 ### BL-6: Bug: exiting a dungeon placed the player on top of a wall
 
 Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (1b448b76); not yet checked in the live game.
@@ -201,70 +167,6 @@ Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (1b448b76); n
 **What.** Leaving a dungeon put the PC avatar on a wall tile. The arrival position after a
 dungeon exit needs to land on a passable tile (fall back to the nearest passable one if the
 target is blocked).
-
-### BL-7: Signposts passable; walking onto one triggers the grid transition
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (7a76fd7d); not yet checked in the live game.
-
-**What.** Signposts should not block movement. Walking the avatar onto a signpost should
-simply trigger its grid transition, with no separate interaction step.
-
-### BL-8: Editor Layouts tab: clicking a tile should select it, not change its tileType
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (68430a94); not yet checked in the live game.
-
-**What.** In the Editor's Layouts tab with a layout loaded, clicking a tile currently changes
-its tileType. A click should only select the tile; changing the type should be a deliberate
-separate action.
-
-### BL-9: Trade Stall panel: Locked cards aren't centered
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (e1eea14f); not yet checked in the live game.
-
-**What.** In the Trade Stall panel, the Locked cards are not centered the way the unlocked
-cards are. Match their alignment.
-
-### BL-10: Inventory buttons on the Warehouse and Player Character panels; Profile links become buttons
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (2c1bcea4); not yet checked in the live game.
-
-**What.** Three changes:
-- Add an Inventory button to the Warehouse panel (the one that opens when you click the
-  warehouse resource on the grid).
-- Add an Inventory button to the Player Character panel, below the Eat button.
-- Both Inventory buttons open the InventoryPanel.
-- On the player profile, turn the Skills and Combat links into buttons.
-
-### BL-11: Town News moves off the Map panel into a floating button below the Season button
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (03625525); not yet checked in the live game.
-
-**What.** Remove the "Read the Town News" button from the Map panel. Replace it with a
-floating button just below the Season button that opens the Town News in a right panel.
-
-### BL-12: Settings panel header says "Profile"; change to "Settings"
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (fea78339); not yet checked in the live game.
-
-**What.** The Settings panel's header reads "Profile". Change it to "Settings" (all ten
-languages).
-
-### BL-13: Refresh the How to Play text for single-player; add Email Us at the top
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (6f148538); not yet checked in the live game.
-
-**What.** The How to Play text predates the single-player refactor. Rewrite it to reflect the
-gameplay changes since then (all ten languages). Also put a copy of the Email Us button at the
-top of the How to Play panel.
-
-### BL-14: How to Play text, second pass to match the new gameplay
-
-Added 2026-10-10. Follow-up to BL-13 (built 2026-10-08).
-
-**What.** Update the How to Play text again so it better matches the game as it plays now
-(all ten languages). BL-13 rewrote it for single-player; gameplay has moved on since (workers
-with "Automatically work?", Town News, HUD timers, the Farmer removed in favour of the Farm
-Hand, and so on).
 
 ### BL-15: Kent always offers at least one basic crop, through level 12
 

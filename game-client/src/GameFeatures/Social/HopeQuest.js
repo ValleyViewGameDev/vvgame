@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStrings } from '../../UI/StringsContext';
+import QuestForHopeModal from './QuestForHopeModal';
+import './QuestForHope.css';
 
 /**
  * HopeQuest Component
  *
  * A reusable component that displays the 7 boxes representing Oracle quest progress.
  * This component is pure/presentational - it does not make any API calls.
+ * Uncollected slots show a very faint icon of the artifact; tapping the title or any slot opens
+ * the QuestForHopeModal (list + hints, backlog W-8).
  *
  * @param {Array} inventory - Player's inventory items
  * @param {Array} backpack - Player's backpack items
@@ -23,6 +27,7 @@ function HopeQuest({
   size = 'normal'
 }) {
   const strings = useStrings();
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Dynamically load Oracle recipe items from masterTraders
   const oracleRecipe = masterTraders?.find(trader => trader.trader === 'Oracle');
@@ -61,13 +66,16 @@ function HopeQuest({
     return resource?.symbol || '?';
   };
 
+  const items = oracleItems.map((item) => ({ name: item.name, symbol: getSymbol(item.name), collected: hasEnoughItems(item.name, item.qty) }));
+  const open = () => setModalOpen(true);
+
   // Size-based styling
   const fontSize = size === 'small' ? '14px' : '20px';
   const gap = size === 'small' ? '2px' : '4px';
   const marginBottom = size === 'small' ? '8px' : '16px';
 
   return (
-    <>
+    <div className="hope-quest" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') open(); }}>
       {showTitle && (
         <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>
           {strings[200801]}
@@ -80,9 +88,8 @@ function HopeQuest({
         marginBottom: marginBottom,
         width: '100%'
       }}>
-        {oracleItems.map((item, index) => {
-          const playerHasItem = hasEnoughItems(item.name, item.qty);
-          const symbol = getSymbol(item.name);
+        {items.map((item, index) => {
+          const playerHasItem = item.collected;
 
           return (
             <div key={index} style={{
@@ -95,12 +102,18 @@ function HopeQuest({
               justifyContent: 'center',
               fontSize: fontSize
             }}>
-              {playerHasItem ? symbol : ''}
+              <span className={`hope-quest-slot-icon ${playerHasItem ? 'collected' : 'uncollected'}`}>{item.symbol}</span>
             </div>
           );
         })}
       </div>
-    </>
+      {modalOpen && (
+        // the modal portals to <body>; stop its clicks bubbling back here through the React tree
+        <div onClick={(e) => e.stopPropagation()}>
+          <QuestForHopeModal items={items} onClose={() => setModalOpen(false)} />
+        </div>
+      )}
+    </div>
   );
 }
 

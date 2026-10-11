@@ -1,0 +1,55 @@
+/* Quest for Hope (backlog W-8): the seven slots in the Player Character and Leaderboard panels,
+   and the modal they open. Theme variables are in /UI/Styles/theme.css. */
+
+/* the slots: tappable as a whole (title included) */
+.hope-quest { cursor: pointer; }
+.hope-quest-slot-icon { line-height: 1; }
+.hope-quest-slot-icon.uncollected { opacity: 0.18; }   /* a very faint picture of what to find */
+
+/* the modal list: one row per artifact, icon then name */
+.qfh-note {
+  margin: 0 0 10px;
+  font-family: var(--font-text-2-family);
+  font-size: 14px;
+  opacity: 0.8;
+}
+.qfh-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.qfh-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.05);
+  font-family: var(--font-text-2-family);   /* rows use the body font, not the title font */
+  font-size: 16px;
+  text-align: left;
+  color: inherit;
+}
+.qfh-row:disabled { opacity: 1; cursor: default; }        /* collected rows are not "greyed out" */
+.qfh-row.uncollected { cursor: pointer; }
+.qfh-row.uncollected:active { background-color: rgba(0, 0, 0, 0.12); }
+.qfh-icon { font-size: 26px; line-height: 1; width: 32px; text-align: center; flex: none; }
+.qfh-row.uncollected .qfh-icon { opacity: 0.25; }
+.qfh-name { flex: 1; }
+.qfh-row.uncollected .qfh-name { opacity: 0.75; }
+.qfh-row.collected .qfh-name { font-weight: bold; }
+.qfh-mark { flex: none; font-weight: bold; opacity: 0.7; }
+.qfh-row.collected .qfh-mark { color: var(--color-btn-primary); opacity: 1; }
+
+/* the hint */
+.qfh-hint-icon { font-size: 36px; line-height: 1; margin-bottom: 8px; opacity: 0.5; }
+.qfh-hint-text {
+  font-family: var(--font-text-2-family);
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 0;
+}
