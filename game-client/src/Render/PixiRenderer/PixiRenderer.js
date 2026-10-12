@@ -1855,10 +1855,24 @@ const PixiRenderer = ({
         }}
       />
       {/* DOM overlay mirrored to the Pixi world (transform set by PixiCamera). pointer-events
-          none so the canvas gets clicks; preview cells that are clickable opt back in. */}
+          none so the canvas gets clicks; preview cells that are clickable opt back in
+          (developer grid travel at Settlement zoom covers the whole settlement, relocation at
+          Frontier zoom). Their touches bubble here so a drag that starts on one still pans and
+          pinches like the canvas; the click a drag or pinch leaves behind is swallowed in the
+          capture phase so it never reaches the cell. */}
       <div
         ref={overlayRef}
         className="pixi-world-container"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onClickCapture={(event) => {
+          if (!suppressClickRef.current) return;
+          suppressClickRef.current = false;
+          event.stopPropagation();
+          event.preventDefault();
+        }}
         style={{
           position: 'absolute',
           top: 0,
