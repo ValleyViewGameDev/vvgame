@@ -16,6 +16,7 @@
  *                (a size-5 building is 375 CSS px at the closest zoom, 750 px on a 2x screen)
  *   playerIcons/ every `filename` in src/Authentication/PlayerIcons.json   slot = 256 px
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
+ *   avatar/      every file named in game-server/tuning/avatarParts.json   slot = 256 px
  *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
  *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
  *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
@@ -51,6 +52,7 @@ const PUBLIC = path.join(CLIENT_ROOT, 'public', 'assets');
 const OUT_DIR = path.join(PUBLIC, 'atlas');
 const RESOURCES_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 'resources.json');
 const PLAYER_ICONS_JSON = path.join(CLIENT_ROOT, 'src', 'Authentication', 'PlayerIcons.json');
+const AVATAR_PARTS_JSON = path.resolve(CLIENT_ROOT, '..', 'game-server', 'tuning', 'avatarParts.json');
 
 const SHEET_SIZE = 2048;
 const PADDING = 2;                 // transparent gutter inside each slot (stops linear-filter bleed)
@@ -134,6 +136,23 @@ function listEmojiSources() {
   return items;
 }
 
+/** Every avatar part file (docs/avatar-plan.md §2.3): `avatar/<folder>/<file>`, one bust-sized slot each. */
+function listAvatarSources() {
+  if (!fs.existsSync(AVATAR_PARTS_JSON)) return [];
+  const rows = readJson(AVATAR_PARTS_JSON);
+  const folderFor = (slot, which) => (slot === 'hair' ? (which === 'backFile' ? 'hairBack' : 'hairFront') : slot);
+  const seen = new Map();
+  for (const r of rows) {
+    if (!r || !r.slot) continue;
+    for (const which of ['file', 'file2', 'backFile', 'underHat', 'blinkFile']) {
+      if (!r[which]) continue;
+      const rel = `${folderFor(r.slot, which)}/${r[which]}`;
+      if (!seen.has(rel)) seen.set(rel, { key: `avatar/${rel}`, src: path.join(PUBLIC, 'avatar', rel), cell: BASE_CELL });
+    }
+  }
+  return [...seen.values()];
+}
+
 function listOverlaySources() {
   const dir = path.join(PUBLIC, 'overlays');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.svg')).map((file) => ({
@@ -212,7 +231,7 @@ function sourceHash(items) {
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listOverlaySources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced SVGs not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);

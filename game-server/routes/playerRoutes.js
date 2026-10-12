@@ -5,6 +5,8 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 const Player = require('../models/player'); // Import the Player model
 const { applyDelta: applyNpcDelta } = require('../utils/npcRelationships');
+const avatarCatalogue = require('../utils/avatarCatalogue');
+const { spendCosts } = require('../utils/playerHoldings');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
@@ -738,6 +740,55 @@ router.post('/npc-relationship', async (req, res) => {
   } catch (error) {
     console.error('Error updating npc relationship:', error);
     res.status(500).json({ error: 'Failed to update npc relationship.' });
+  }
+});
+
+
+////////// AVATAR ROUTES (docs/avatar-plan.md §2.6, §2.7) ///////////
+
+// POST /api/player/avatar { playerId, avatar } → { success, player }
+// The only writer of `avatar`: every id is checked against the catalogue and the palettes,
+// paid parts against what the player has bought.
+router.post('/player/avatar', async (req, res) => {
+  const { playerId, avatar } = req.body || {};
+  if (!playerId || !avatar || typeof avatar !== 'object') return res.status(400).json({ error: 'playerId and avatar are required.' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    const spec = avatarCatalogue.cleanSpec(avatar);
+    const problems = avatarCatalogue.validateSpec(spec, { owned: player.avatarParts || [] });
+    if (problems.length) return res.status(422).json({ error: 'avatar rejected', problems });
+    player.avatar = spec;
+    player.markModified('avatar');
+    await player.save();
+    res.json({ success: true, player: publicPlayer(player) });
+  } catch (error) {
+    console.error('Error saving avatar:', error);
+    res.status(500).json({ error: 'Failed to save avatar.' });
+  }
+});
+
+// POST /api/player/avatar-part { playerId, partId } → { success, partId, gemcost, avatarParts, inventory, backpack }
+// Buys one paid part or swatch for gems (spent here, backpack first: the holdings rule).
+router.post('/player/avatar-part', async (req, res) => {
+  const { playerId, partId } = req.body || {};
+  if (!playerId || !partId) return res.status(400).json({ error: 'playerId and partId are required.' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    if ((player.avatarParts || []).includes(partId)) return res.json({ success: true, partId, gemcost: 0, alreadyOwned: true, avatarParts: player.avatarParts });
+    const item = avatarCatalogue.purchasable(partId);
+    if (!item) return res.status(400).json({ error: 'That part is not for sale.' });
+    if (!spendCosts({ Gem: item.gemcost }, player.inventory, player.backpack, { table: true })) {
+      return res.status(400).json({ error: 'Not enough gems.', code: 'not-enough-gems', gemcost: item.gemcost });
+    }
+    player.avatarParts = [...(player.avatarParts || []), partId];
+    player.markModified('inventory'); player.markModified('backpack');
+    await player.save();
+    res.json({ success: true, partId, gemcost: item.gemcost, avatarParts: player.avatarParts, inventory: player.inventory, backpack: player.backpack });
+  } catch (error) {
+    console.error('Error buying avatar part:', error);
+    res.status(500).json({ error: 'Failed to buy avatar part.' });
   }
 });
 

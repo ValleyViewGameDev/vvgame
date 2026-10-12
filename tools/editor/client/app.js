@@ -13,6 +13,7 @@ import { dungeonsTab } from './tabs/dungeons.js';
 import { eventsTab } from './tabs/events.js';
 import { playersTab } from './tabs/players.js';
 import { feedbackTab } from './tabs/feedback.js';
+import { avatarLabTab } from './tabs/avatarlab.js';
 
 const TABS = [
   layoutsTab(),
@@ -24,6 +25,8 @@ const TABS = [
   sheetTab('resources', '💰'),
   sheetTab('quests', '📜'),
   sheetTab('traders', '🤝'),
+  avatarLabTab(),
+  sheetTab('avatarParts', '🧩'),
   sheetsTab(),
 ];
 

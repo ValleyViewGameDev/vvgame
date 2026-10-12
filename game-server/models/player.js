@@ -112,6 +112,22 @@ const playerSchema = new mongoose.Schema({
     default: 'Free',
   },
   avatarsUnlocked: { type: Boolean, default: false }, // Premium avatars unlocked via gem purchase
+  // The parts-based bust (docs/avatar-plan.md §2.1): catalogue ids (tuning/avatarParts.json) and
+  // palette ids (tuning/avatarPalettes.json), written only by POST /api/player/avatar.
+  // `null` = the player has never set one (the client draws the starter look, or the legacy
+  // `icon` until slice D). avatarParts = paid part / swatch ids this player has bought.
+  avatar: {
+    type: new mongoose.Schema({
+      v: { type: Number, default: 1 },
+      skin: { type: String, default: null }, skinTone: { type: String, default: null },
+      hair: { type: String, default: null }, hairColor: { type: String, default: null },
+      eyes: { type: String, default: null }, eyeColor: { type: String, default: null },
+      facialHair: { type: String, default: null }, hat: { type: String, default: null },
+      top: { type: String, default: null },
+    }, { _id: false }),
+    default: null,
+  },
+  avatarParts: { type: [String], default: [] },
   role: {
     type: String,
     enum: ['Citizen', 'Mayor', 'Governor', 'President'],

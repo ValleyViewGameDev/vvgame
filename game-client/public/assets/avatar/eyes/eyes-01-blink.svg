@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- closed lids: white, tinted by skinTone; the lashes stay black -->
+<ellipse cx="104" cy="100" rx="12" ry="9" fill="#ffffff"/><ellipse cx="152" cy="100" rx="12" ry="9" fill="#ffffff"/>
+<path d="M93 102 Q104 108 115 102" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M141 102 Q152 108 163 102" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M90 86 Q104 80 118 86" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+<path d="M138 86 Q152 80 166 86" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+</svg>

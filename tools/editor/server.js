@@ -133,6 +133,23 @@ function validateLayout(layout) {
   return problems.slice(0, 50);
 }
 
+// ----------------------------------------------------------------------------- avatar lab
+const AVATAR_DIR = path.join(REPO_ROOT, 'game-client', 'public', 'assets', 'avatar');
+const AVATAR_FOLDERS = ['skin', 'hairBack', 'hairFront', 'facialHair', 'eyes', 'hat', 'top', 'hand', 'npc'];
+/** Every part file per folder, and every candidate per _lab/<source>/ (docs/avatar-plan.md §2.3). */
+function avatarFiles() {
+  const list = (dir, ext) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => !f.startsWith('.') && (!ext || ext.some((e) => f.endsWith(e)))).sort() : []);
+  const folders = {};
+  for (const f of AVATAR_FOLDERS) folders[f] = list(path.join(AVATAR_DIR, f), ['.svg']);
+  const lab = {};
+  const labDir = path.join(AVATAR_DIR, '_lab');
+  for (const source of list(labDir)) {
+    const dir = path.join(labDir, source);
+    if (fs.statSync(dir).isDirectory()) lab[source] = list(dir, ['.svg', '.png', '.json', '.txt']);
+  }
+  return { folders, lab };
+}
+
 // ----------------------------------------------------------------------------- tuning (sheets)
 function tuningFileFor(def) { return path.join(GAME_SERVER_DIR, def.file); }
 
@@ -185,6 +202,10 @@ async function handle(req, res) {
   if (p === '/' || p === '/index.html') return serveStatic(res, CLIENT_DIR, 'index.html');
   if (p.startsWith('/sheets/')) return serveStatic(res, SHEETS_DIR, p.slice('/sheets/'.length));
   if (p === '/game-client/tileColors.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'UI', 'Styles'), 'tileColors.js'); // the client's own module, dependency-free
+  // the avatar system's pure modules and part files, so the Avatar Lab composes busts exactly as the game does
+  if (p === '/game-client/avatarLook.js' || p === '/game-client/avatarCompositor.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'Avatar'), p.slice('/game-client/'.length));
+  if (p.startsWith('/avatar-assets/')) return serveStatic(res, AVATAR_DIR, decodeURIComponent(p.slice('/avatar-assets/'.length)));
+  if (p === '/api/local/avatar/files') return sendJSON(res, 200, avatarFiles());
   if (p.startsWith('/api/game/')) return proxyToGame(req, res, p.slice('/api/game'.length), url.search);
 
   if (p === '/api/local/info') {

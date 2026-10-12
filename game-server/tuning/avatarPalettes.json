@@ -1,0 +1,21 @@
+[
+  { "id": "tone-1", "slot": "skinTone", "label": "Porcelain", "hex": "#F6DCC8", "tier": "free" },
+  { "id": "tone-2", "slot": "skinTone", "label": "Fair", "hex": "#EFC6A4", "tier": "free" },
+  { "id": "tone-3", "slot": "skinTone", "label": "Honey", "hex": "#D9A777", "tier": "free" },
+  { "id": "tone-4", "slot": "skinTone", "label": "Olive", "hex": "#B98659", "tier": "free" },
+  { "id": "tone-5", "slot": "skinTone", "label": "Brown", "hex": "#8C5A3C", "tier": "free" },
+  { "id": "tone-6", "slot": "skinTone", "label": "Deep", "hex": "#5C3A28", "tier": "free" },
+  { "id": "hair-black", "slot": "hairColor", "label": "Black", "hex": "#262129", "tier": "free" },
+  { "id": "hair-brown", "slot": "hairColor", "label": "Brown", "hex": "#5B3A21", "tier": "free" },
+  { "id": "hair-chestnut", "slot": "hairColor", "label": "Chestnut", "hex": "#8B4A2B", "tier": "free" },
+  { "id": "hair-blonde", "slot": "hairColor", "label": "Blonde", "hex": "#E3C27A", "tier": "free" },
+  { "id": "hair-auburn", "slot": "hairColor", "label": "Auburn", "hex": "#A8431E", "tier": "free" },
+  { "id": "hair-grey", "slot": "hairColor", "label": "Grey", "hex": "#B5B3B0", "tier": "free" },
+  { "id": "hair-white", "slot": "hairColor", "label": "White", "hex": "#F1EEE8", "tier": "free" },
+  { "id": "hair-teal", "slot": "hairColor", "label": "Teal", "hex": "#2E8B87", "tier": "paid", "gemcost": 30 },
+  { "id": "eye-brown", "slot": "eyeColor", "label": "Brown", "hex": "#5B3A21", "tier": "free" },
+  { "id": "eye-hazel", "slot": "eyeColor", "label": "Hazel", "hex": "#8E7B3A", "tier": "free" },
+  { "id": "eye-green", "slot": "eyeColor", "label": "Green", "hex": "#3E8E5A", "tier": "free" },
+  { "id": "eye-blue", "slot": "eyeColor", "label": "Blue", "hex": "#3F7FBF", "tier": "free" },
+  { "id": "eye-grey", "slot": "eyeColor", "label": "Grey", "hex": "#7D8A94", "tier": "free" }
+]

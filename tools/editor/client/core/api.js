@@ -32,6 +32,7 @@ export const local = {
   patchPhase: (event, phase, minutes) => request('PATCH', '/api/local/tuning/globalTuning/phase', { event, phase, minutes }),
   settlementLayouts: () => request('GET', '/api/local/settlement-layouts'),
   frontierLayouts: () => request('GET', '/api/local/frontier-layouts'),
+  avatarFiles: () => request('GET', '/api/local/avatar/files'),
 };
 
 export const game = {

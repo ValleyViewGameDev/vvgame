@@ -1,0 +1,13 @@
+[
+  { "id": "skin-01", "slot": "skin", "label": "Face", "tier": "free", "file": "skin-01.svg", "tint": "skinTone" },
+  { "id": "eyes-01", "slot": "eyes", "label": "Eyes", "tier": "free", "file": "eyes-01.svg", "file2": "eyes-01-iris.svg", "tint2": "eyeColor", "blinkFile": "eyes-01-blink.svg", "blinkTint": "skinTone" },
+  { "id": "hair-01", "slot": "hair", "label": "Short", "tier": "free", "file": "hair-01.svg", "backFile": "hair-01-back.svg", "tint": "hairColor" },
+  { "id": "hair-none", "slot": "hair", "label": "None", "tier": "free" },
+  { "id": "beard-01", "slot": "facialHair", "label": "Beard", "tier": "free", "file": "beard-01.svg", "tint": "hairColor" },
+  { "id": "beard-none", "slot": "facialHair", "label": "None", "tier": "free" },
+  { "id": "hat-none", "slot": "hat", "label": "None", "tier": "free" },
+  { "id": "hat-01", "slot": "hat", "label": "Cap", "tier": "paid", "gemcost": 50, "file": "hat-01.svg" },
+  { "id": "top-01", "slot": "top", "label": "Tunic", "tier": "free", "file": "top-01.svg" },
+  { "id": "hand-sword-01", "slot": "hand", "label": "Sword", "tier": "npc", "file": "sword-01.svg", "file2": "fist-01.svg", "tint2": "skinTone" },
+  { "id": "hand-bow-01", "slot": "hand", "label": "Bow", "tier": "npc", "file": "bow-01.svg", "file2": "fist-01.svg", "tint2": "skinTone" }
+]

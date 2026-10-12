@@ -197,3 +197,29 @@ table.sheet.players td.fb-pos, table.sheet.players td.fb-neg { white-space: norm
 .subtabs button.on { background: var(--bg); color: var(--ink); font-weight: 600; }
 .atlas-wrap { flex: 1; min-height: 0; position: relative; overflow: hidden; background: #fff; }
 .atlas-canvas { position: absolute; top: 0; left: 0; cursor: grab; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* ---------------------------------------------------------------- Avatar Lab */
+.lab-top { display: flex; gap: 16px; padding: 12px; align-items: flex-start; }
+.lab-canvas { width: 384px; height: 384px; background: repeating-conic-gradient(#e6e6e0 0 25%, #fff 0 50%) 0 0 / 24px 24px; border: 1px solid var(--line); border-radius: 6px; flex: none; }
+.lab-layers { font-family: ui-monospace, Menlo, monospace; font-size: 12px; flex: 1; min-width: 0; }
+.lab-key { color: var(--muted); margin-bottom: 8px; word-break: break-all; }
+.lab-layer { display: flex; gap: 10px; align-items: center; padding: 2px 0; }
+.lab-layer.missing .src { color: #b33; }
+.lab-layer .z { width: 18px; color: var(--muted); text-align: right; }
+.lab-layer .swatch { padding: 0 6px; border-radius: 3px; color: #fff; text-shadow: 0 0 2px #000; }
+.lab-h { padding: 8px 12px 0; margin: 0; }
+.lab-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 12px; }
+.lab-fig { margin: 0; width: 96px; cursor: pointer; text-align: center; font-size: 11px; color: var(--muted); }
+.lab-thumb { width: 96px; height: 96px; background: repeating-conic-gradient(#e6e6e0 0 25%, #fff 0 50%) 0 0 / 16px 16px; border: 1px solid var(--line); border-radius: 4px; object-fit: contain; }
+.lab-thumb.unknown { border-style: dashed; }
+.lab-fig figcaption { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lab-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+.lab-row > span { width: 86px; color: var(--muted); flex: none; }
+.lab-row select { flex: 1; min-width: 0; }
+.lab-swatches { display: flex; flex-wrap: wrap; gap: 4px; }
+.lab-swatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.lab-swatch.on { border-color: #222; }
+.lab-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.bad { color: #b33; }
+.small { font-size: 12px; }
+#editor:has(.lab-top) { overflow: auto; }
