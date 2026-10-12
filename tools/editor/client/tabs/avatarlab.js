@@ -38,20 +38,23 @@ export function avatarLabTab() {
   }
 
   // ---------------------------------------------------------------- preview
+  let drawSeq = 0; // quick successive changes: only the latest draw may paint
   async function drawPreview() {
     const canvasEl = $('#lab-preview', editorEl);
     if (!canvasEl) return;
+    const seq = ++drawSeq;
+    if (blinkTimer) { clearInterval(blinkTimer); blinkTimer = null; }
     missing = new Set();
     const l = look.lookFor(spec, data, equip);
     const onMissing = (src) => missing.add(src);
     const open = await renderLook(l.layers, { size: PREVIEW, onMissing });
     const blink = l.blinkLayers ? await renderLook(l.blinkLayers, { size: PREVIEW, onMissing }) : null;
+    if (seq !== drawSeq) return; // a newer draw is on its way
     const ctx = canvasEl.getContext('2d');
     const paint = (c) => { ctx.clearRect(0, 0, PREVIEW, PREVIEW); ctx.drawImage(c, 0, 0); if (showRig) drawRig(ctx); };
     paint(open);
-    if (blinkTimer) { clearInterval(blinkTimer); blinkTimer = null; }
     if (blink && blinking) {
-      blinkTimer = setInterval(() => { paint(blink); setTimeout(() => paint(open), 120); }, 3000 + Math.random() * 3000);
+      blinkTimer = setInterval(() => { if (seq !== drawSeq) return; paint(blink); setTimeout(() => { if (seq === drawSeq) paint(open); }, 120); }, 3000 + Math.random() * 3000);
     }
     const layersEl = $('#lab-layers', editorEl);
     clear(layersEl);
