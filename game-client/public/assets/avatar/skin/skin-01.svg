@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<g transform="translate(0 12)">
 <!-- placeholder part on the rig: tinted by skinTone -->
 <rect x="108" y="150" width="40" height="44" fill="#ffffff" stroke="#111" stroke-width="3"/>
 <rect x="110" y="152" width="36" height="14" fill="#d9d9d9"/>
@@ -8,4 +9,5 @@
 <ellipse cx="128" cy="104" rx="60" ry="62" fill="#ffffff" stroke="#111" stroke-width="3"/>
 <path d="M110 136 Q128 150 146 136" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"/>
 <ellipse cx="128" cy="118" rx="5" ry="7" fill="#cfcfcf"/>
+</g>
 </svg>

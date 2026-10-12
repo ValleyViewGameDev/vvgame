@@ -33,6 +33,7 @@ function parseArgs(argv) {
     if (a === '--min-paths') out.minPaths = Number(argv[++i]);
     else if (a === '--merge') out.merge = Number(argv[++i]);
     else if (a === '--split') out.split = Number(argv[++i]);
+    else if (a === '--zoom') out.zoom = argv[++i].split(',').map(Number);
     else if (!a.startsWith('--')) out.name = a.replace(/\.svg$/, '');
   }
   return out;
@@ -182,7 +183,8 @@ async function main() {
   for (const f of fs.readdirSync(outDir)) if (/^\d\d-/.test(f) || f === 'groups.json' || f === 'sheet.png' || f === 'source.svg') fs.unlinkSync(path.join(outDir, f));
   fs.copyFileSync(src, path.join(outDir, 'source.svg'));
 
-  const groups = groupByFill(paths, args.merge).filter((g) => g.paths.length >= args.minPaths);
+  // a gradient fill is one big path (a face, a hair mass): never drop it as noise
+  const groups = groupByFill(paths, args.merge).filter((g) => g.paths.length >= args.minPaths || g.fill.startsWith('url(') || groupStats(g).area > 400);
   const report = [];
   const sheetItems = [];
   groups.forEach((g, i) => {
@@ -205,6 +207,12 @@ async function main() {
   });
   fs.writeFileSync(path.join(outDir, 'groups.json'), JSON.stringify({ source: `${args.name}.svg`, viewBox, totalPaths: paths.length, merge: args.merge, groups: report }, null, 2));
   await contactSheet(sheetItems, 160, 6, path.join(outDir, 'sheet.png'));
+  if (args.zoom) {
+    const [zx, zy, zw, zh] = args.zoom;
+    const zoomed = sheetItems.map((it) => ({ ...it, svg: it.svg.replace(/viewBox="[^"]+"/, `viewBox="${zx} ${zy} ${zw} ${zh}"`) }));
+    await contactSheet(zoomed, 200, 6, path.join(outDir, 'sheet-zoom.png'));
+    console.log(`  zoom sheet (${args.zoom.join(',')}) -> sheet-zoom.png`);
+  }
   console.log(`${args.name}: ${paths.length} paths -> ${groups.length} colour groups in ${path.relative(ROOT, outDir)}`);
   for (const r of report) console.log(`  ${r.id} ${r.fill} ×${String(r.paths).padStart(4)}  bbox ${r.bbox?.join(',')}  centroid ${r.centroid?.join(',')}  area ${r.area}${r.merged.length > 1 ? `  (merged ${r.merged.length} shades)` : ''}`);
 }

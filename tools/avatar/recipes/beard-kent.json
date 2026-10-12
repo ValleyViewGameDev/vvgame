@@ -1,0 +1,23 @@
+{
+  "out": "facialHair/beard-02.svg",
+  "source": "npc-kent",
+  "include": [
+    {
+      "groups": [
+        0
+      ],
+      "clipEllipse": {
+        "cx": 100,
+        "cy": 148,
+        "rx": 46,
+        "ry": 26
+      },
+      "recolor": "white"
+    }
+  ],
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -6
+  }
+}

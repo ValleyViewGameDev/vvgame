@@ -1,0 +1,67 @@
+{
+  "out": "eyes/eyes-02-iris.svg",
+  "source": "npc-juliet",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -12
+  },
+  "include": [
+    {
+      "groups": [
+        23
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 145,
+        "yMin": 84,
+        "yMax": 120
+      },
+      "recolor": "lum",
+      "ref": "#3DD172",
+      "floor": 0.45
+    },
+    {
+      "groups": [
+        23
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 145,
+        "yMin": 84,
+        "yMax": 120
+      },
+      "recolor": "lum",
+      "ref": "#3DD172",
+      "floor": 0.45,
+      "mirror": 99.5
+    },
+    {
+      "groups": [
+        52,
+        53
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 145,
+        "yMin": 84,
+        "yMax": 120
+      },
+      "recolor": "black"
+    },
+    {
+      "groups": [
+        52,
+        53
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 145,
+        "yMin": 84,
+        "yMax": 120
+      },
+      "recolor": "black",
+      "mirror": 99.5
+    }
+  ]
+}

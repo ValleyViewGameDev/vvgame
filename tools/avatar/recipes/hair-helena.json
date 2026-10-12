@@ -1,0 +1,40 @@
+{
+  "out": "hairFront/hair-03.svg",
+  "source": "npc-helena",
+  "include": [
+    {
+      "groups": [
+        2,
+        5,
+        4,
+        20,
+        16,
+        12,
+        10,
+        11,
+        24,
+        32,
+        38,
+        30,
+        36
+      ],
+      "recolor": "lum",
+      "ref": "#4F9E36",
+      "floor": 0.3
+    },
+    {
+      "groups": [
+        1
+      ],
+      "region": {
+        "yMax": 85
+      },
+      "recolor": "white"
+    }
+  ],
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -8
+  }
+}

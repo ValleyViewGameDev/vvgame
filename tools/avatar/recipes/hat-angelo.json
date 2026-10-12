@@ -1,0 +1,31 @@
+{
+  "out": "hat/hat-02.svg",
+  "source": "npc-angelo",
+  "include": [
+    {
+      "groups": [
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        13,
+        14
+      ],
+      "region": {
+        "yMax": 70
+      },
+      "recolor": "keep"
+    }
+  ],
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  }
+}

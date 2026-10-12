@@ -70,8 +70,8 @@ export function avatarLabTab() {
     const s = PREVIEW / 256;
     ctx.save(); ctx.scale(s, s);
     ctx.strokeStyle = 'rgba(200,60,60,0.8)'; ctx.lineWidth = 1 / s;
-    ctx.beginPath(); ctx.ellipse(128, 104, 60, 62, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(68, 100); ctx.lineTo(188, 100); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(128, 118, 64, 72, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(64, 112); ctx.lineTo(192, 112); ctx.stroke();
     ctx.strokeStyle = 'rgba(60,60,200,0.8)';
     ctx.beginPath(); ctx.moveTo(24, 190); ctx.lineTo(232, 190); ctx.stroke();
     ctx.strokeStyle = 'rgba(200,140,40,0.8)';

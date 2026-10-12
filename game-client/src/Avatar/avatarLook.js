@@ -16,7 +16,7 @@
  */
 
 /** Draw order, back to front. `hair` contributes its backFile at the front of the list. */
-export const Z_ORDER = ['hairBack', 'top', 'skin', 'eyes', 'facialHair', 'hairFront', 'hat', 'hand'];
+export const Z_ORDER = ['hairBack', 'skin', 'top', 'eyes', 'facialHair', 'hairFront', 'hat', 'hand']; // the top's collar draws over the skin's neck
 
 /** The spec's part keys and the catalogue slot each one picks from. */
 export const SLOT_OF_SPEC_KEY = { skin: 'skin', hair: 'hair', facialHair: 'facialHair', eyes: 'eyes', hat: 'hat', top: 'top' };
@@ -132,8 +132,8 @@ export function lookFor(spec, { catalogue, palettes }, equip = {}) {
   for (const z of Z_ORDER) {
     switch (z) {
       case 'hairBack': if (hairRow) both(hairRow, 'backFile', hairRow.tint); break;
-      case 'top': twoFiles(topRow); break;
       case 'skin': twoFiles(part('skin')); break;
+      case 'top': twoFiles(topRow); break;
       case 'eyes': {
         const eyes = part('eyes');
         if (!eyes) break;

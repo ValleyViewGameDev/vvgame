@@ -34,6 +34,7 @@ function parseArgs(argv) {
     else if (a === '--out') out.out = next();
     else if (a === '--blink') out.blink = true;
     else if (a === '--sheet') out.sheet = true;
+    else if (a === '--parts') out.parts = true;
   }
   return out;
 }
@@ -73,7 +74,25 @@ async function main() {
   const data = { catalogue: readJson(path.join(TUNING, 'avatarParts.json')), palettes: readJson(path.join(TUNING, 'avatarPalettes.json')) };
   const base = look.defaultSpec(data.catalogue, data.palettes);
   const size = args.size;
-  const out = args.out || path.join(ROOT, 'game-client', 'public', 'assets', 'avatar', '_lab', args.sheet ? 'sheet.png' : 'render.png');
+  const out = args.out || path.join(ROOT, 'game-client', 'public', 'assets', 'avatar', '_lab', args.parts ? 'parts.png' : args.sheet ? 'sheet.png' : 'render.png');
+
+  if (args.parts) {
+    // every file the catalogue names, alone, over a faint rig, labelled by its path
+    const folderFor = (slot, which) => (slot === 'hair' ? (which === 'backFile' ? 'hairBack' : 'hairFront') : slot);
+    const srcs = [];
+    for (const r of data.catalogue) for (const which of ['file', 'file2', 'backFile', 'underHat', 'blinkFile']) if (r[which]) srcs.push({ src: `${folderFor(r.slot, which)}/${r[which]}`, tint: r[which === 'file2' ? 'tint2' : which === 'blinkFile' ? 'blinkTint' : 'tint'] });
+    const rig = await sharp(path.join(ASSETS, 'rig.svg'), { density: Math.ceil((72 * size) / 256) }).resize(size, size).ensureAlpha().modulate({ brightness: 1 }).png().toBuffer();
+    const buffers = [];
+    for (const { src, tint } of srcs) {
+      const tintHex = tint ? { skinTone: '#D9A777', hairColor: '#8B4A2B', eyeColor: '#3E8E5A' }[tint] : null;
+      const part = await layerBuffer(src, tintHex, size);
+      const label = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="18"><rect width="${size}" height="18" fill="#333"/><text x="4" y="13" font-family="monospace" font-size="11" fill="#fff">${src}</text></svg>`);
+      buffers.push(await sharp({ create: { width: size, height: size, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: rig, left: 0, top: 0 }, ...(part ? [{ input: part, left: 0, top: 0 }] : []), { input: label, left: 0, top: size - 18 }]).png().toBuffer());
+    }
+    fs.writeFileSync(out, await contactSheet(buffers, size, 6));
+    console.log(`parts: ${srcs.length} files -> ${out}`);
+    return;
+  }
 
   if (args.sheet) {
     const specs = [];

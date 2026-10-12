@@ -4,3 +4,6 @@ node_modules/
 game-client/build/
 game-server/backups/
 
+
+# avatar art scratch (deconstruction candidates, render output): docs/avatar-plan.md §0
+game-client/public/assets/avatar/_lab/

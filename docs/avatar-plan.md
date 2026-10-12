@@ -6,8 +6,38 @@ same look as the Citizen busts (`npc-kent.svg`, `npc-portia.svg` …). Equipment
 armour changes the clothes, an equipped weapon shows as a hand holding it, and weapons are
 put away in Town and on the Homestead and drawn in the Valley.
 
-Status: **plan agreed 2026-10-11 (decisions in §9), nothing built.** The art pipeline is a
-separate pass after the scaffolding (§9, decision 7).
+Status: **slices 0 and 1 built 2026-10-12** (§3); nothing player-facing yet. The art pipeline
+proper is a separate pass after the scaffolding (§9, decision 7); slice 1's prototype parts
+come out of the existing Citizen busts.
+
+## 0. What is built today (2026-10-12)
+
+- **Assets**: `game-client/public/assets/avatar/` with `rig.svg` (guides), one folder per
+  slot (`skin`, `hairBack`, `hairFront`, `facialHair`, `eyes`, `hat`, `top`, `hand`, `npc`),
+  placeholder parts drawn to the rig (`*-01`), prototype parts assembled from the Citizen
+  busts (`*-02`, `hair-03`), and `_lab/` (scratch: deconstruction candidates and render
+  output, never committed, never atlased).
+- **Catalogue**: `tuning/avatarParts.json` and `tuning/avatarPalettes.json`, editor sheets
+  AVATAR PARTS and AVATAR COLOURS (§2.2); ECONOMY has `avatarTop` / `avatarHand` (empty).
+- **Code**: `src/Avatar/avatarLook.js` (pure: z order, `defaultSpec`, `validateSpec`,
+  `lookFor`, `equipFor`), `src/Avatar/avatarCompositor.js` (canvas + multiply tint, cached
+  per look), `scripts/build-atlas.js` `avatar/` namespace, `Player.avatar` +
+  `Player.avatarParts`, `utils/avatarCatalogue.js`, `POST /api/player/avatar`,
+  `POST /api/player/avatar-part`. No client code calls any of it yet.
+- **Tools**: the editor's **Avatar Lab** tab (`tools/editor/client/tabs/avatarlab.js`;
+  preview: launch `vvgame-editor-lab`, port 8772, or your own editor on 8770 after a
+  restart) composes a bust from the sheets exactly as the game will; `tools/avatar/render.js`
+  renders a spec, `--sheet` (every tone / colour / hair / hat / beard, open and blink) or
+  `--parts` (every file alone over the rig) to PNG; `tools/avatar/deconstruct.js npc-x`
+  splits a traced bust into colour groups (`_lab/npc-x/NN-hex.svg`, `groups.json`,
+  `sheet.png`, `--zoom x,y,w,h` for a region); `tools/avatar/assemble.js --all` builds
+  parts from `tools/avatar/recipes/*.json` (groups, region, clip / clipEllipse, mirror,
+  recolour keep / white / black / grey / lum, fit, under / extra).
+- **Prototype set (slice 1)**: Juliet's face (`skin-02`, one drawing, six tones), Juliet's
+  eyes (`eyes-02`: the clean right eye mirrored, whites drawn in, iris tinted, a blink
+  frame), Juliet's bob (`hair-02`) and Helena's leafy hair (`hair-03`), Kent's beard clipped
+  to a chin beard (`beard-02`), Cassio's tunic (`top-02`), Angelo's crown (`hat-02`, paid).
+  Hands stay placeholders (no weapon art in the busts).
 
 ## 1. What exists today (file:line)
 
@@ -75,14 +105,14 @@ a definition in `tools/editor/sheets/definitions.js` (free sheet, validation, CS
 |---|---|
 | `id` | persisted identifier (never renamed in place) |
 | `slot` | `skin` / `hairBack` / `hairFront` / `facialHair` / `eyes` / `hat` / `top` / `hand` |
-| `file` | svg under `public/assets/avatar/<slot>/` |
-| `blinkFile` | eyes only: the closed-lids drawing (§2.4 blinking) |
-| `tint` | `true` = drawn white-fill black-line and coloured at runtime from a palette |
+| `file`, `tint` | the drawing under `public/assets/avatar/<folder>/` and the palette slot multiplied into it (`skinTone` / `hairColor` / `eyeColor`, blank = drawn as is) |
+| `file2`, `tint2` | a second drawing over the first with its own tint (an iris over the eye whites, a skin-toned fist under a weapon) |
+| `backFile` | hair only: the hairBack drawing (hair is ONE row: `file` = hairFront) |
+| `underHat` | hair only: the hairFront drawing when a hat is worn (blank = the hat covers it) |
+| `blinkFile`, `blinkTint` | eyes only: the closed-lids drawing, replacing `file` + `file2` on the blink frame |
 | `tier` | `free` / `paid` / `npc` (`npc` = Citizens only, never offered to players) |
 | `gemcost` | paid parts: the price of THIS part (bought once, stored in `player.avatarParts`) |
 | `label` | picker label (string key) |
-| `underHat` | hair only: the file to use when a hat is worn (or blank = the hat covers it) |
-| `pairs` | hairFront ↔ hairBack link, so a style is one choice in the picker |
 
 `avatarPalettes.json`: named swatches per colour slot (`skinTone`, `hairColor`, `eyeColor`),
 `{ id, hex, tier, gemcost }`. Facial hair takes `hairColor`.
@@ -94,12 +124,15 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
 
 ### 2.3 The rig and the art
 
-- One 256×256 frame for every part, the bust placed exactly where the Citizen busts sit
-  (head centre, shoulder line, chin height fixed), so layers simply stack with no per-part
-  offsets. A reference `rig.svg` with guides ships in `public/assets/avatar/`.
-- **Z order** (back to front): `hairBack` → `top` (torso, collar, neck) → `skin` (head and
-  neck) → `eyes` → `facialHair` → `hairFront` → `hat` → `hand` (bottom right, in front of
-  the shoulder).
+- One 256×256 frame for every part, measured from the Citizen busts (a 200 px bust scaled
+  by 1.28 with its eye line moved to y 112): head centre (128, 118), eyes at x 96 / 160 on
+  y 112, mouth y ~150, chin y ~190, neck x 108..148 under the top, shoulder line y 190,
+  hand slot centre (204, 214). Layers stack with no per-part offsets; `rig.svg` holds the
+  guides. A source bust is fitted by `assemble.js` (`fit.scale` 1.28, `fit.dy` per source so
+  its eyes land on y 112).
+- **Z order** (back to front): `hairBack` → `skin` (head and neck) → `top` (torso and
+  collar, drawn OVER the neck) → `eyes` → `facialHair` → `hairFront` → `hat` → `hand`
+  (bottom right, in front of the shoulder).
 - **Look**: front-facing, storybook (the Citizen busts are the reference); no facing flip,
   ever, for any bust on this rig.
 - **Colour by tint.** Tintable parts (skin, hair, iris) are drawn with WHITE fills, BLACK
@@ -195,6 +228,8 @@ FTUE avatar beat with `freeOnly`):
 - `/players`, leaderboard and market selects include `avatar`.
 
 ## 3. Build order (slices; each ships on its own)
+
+(Re-cut 2026-10-12 into slices 0 to 6, see the session plan; 0 and 1 are built, §0.)
 
 - **A. Rig + catalogue + compositor + board render.** Parts folders, `rig.svg`, the two JSON
   files and their editor sheet, the atlas namespace, `avatarCompositor.js` (any bust, two

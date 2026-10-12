@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<g transform="translate(0 12)">
 <path d="M74 118 C78 166, 100 182, 128 182 C156 182, 178 166, 182 118 C176 150, 156 164, 128 164 C100 164, 80 150, 74 118 Z" fill="#ffffff" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+</g>
 </svg>

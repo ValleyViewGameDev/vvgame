@@ -1,0 +1,24 @@
+{
+  "out": "top/top-02.svg",
+  "source": "npc-cassio",
+  "include": [
+    {
+      "groups": "all",
+      "exclude": [
+        0,
+        18,
+        34,
+        45
+      ],
+      "region": {
+        "yMin": 146
+      },
+      "recolor": "keep"
+    }
+  ],
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  }
+}
