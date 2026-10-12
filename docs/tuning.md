@@ -83,14 +83,20 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
 
 ## 4. Kent (KentOfferLogic.js, Kent.js, globalTuning.json)
 
-- **Slots and growth.** Up to `maxKentOffers` (6). Completing a trade replaces the offer in
-  place and adds one more slot until the cap. Discard-all regenerates a full set.
+- **Slots and growth.** The board size depends on level (`MAX_OFFERS_BY_LEVEL` in
+  `KentOfferLogic.js`, 2026-10-12; replaced `maxKentOffers`): 6 through level 7, 7 at level 8, 8
+  from level 9, so the two guaranteed cards below never crowd out the random ones. Completing a
+  trade replaces the offer in place and adds one more slot until the cap. Discard-all
+  regenerates a full set.
 - **Timers.** `kentRefreshTimerSeconds` (20) after a trade before Kent trades again;
   `kentCardCooldownSeconds` (30) per discarded card. These are the throughput cap: a level's
   XP per hour is roughly (XP per offer) x (3600 / refresh seconds) at best.
 - **Eligibility.** Doobers only; not `noBank`, not `source: valley`, not epic/legendary
   `scrollchance`, in season (item and ingredients), item level and source level at or below
-  the player's, enemy outputs gated by the Explore the Valley trophy.
+  the player's, every ingredient (recursively) unlocked at the player's level too
+  (`areIngredientsUnlocked`, 2026-10-12: Runic Tunic at 10 needs Ink from 17, the soups and
+  Pizza need Olive Oil from the level-22 Winery), enemy outputs gated by the Explore the Valley
+  trophy. Owning the source station is NOT required: Kent advertises stations before purchase.
 - **Mix by level** (constants at the top of `KentOfferLogic.js`): crop share 80% to level 3,
   50% to level 7, free after; multi-item offers 0 through level 5, usually 1 at level 6,
   usually 2 at 7, 3 at 8 to 9, 5 at 10+; crop quantities and non-crop quantities step up per
@@ -101,10 +107,18 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   and earn XP, and empty a full warehouse, while multi-item offers take over levels 8 to 12. When
   the last one is traded, its replacement is a basic crop. Off from level 13; the owner is
   watching how that feels.
+- **Newest-station guarantee** (2026-10-12): the board always holds one single-item offer for a
+  good from the newest crafting station the player's level has unlocked (the highest-level
+  `category: crafting` station at or below the level with an eligible good: Mill from 4, Dairy
+  6, Loom 7, Chicken Coop 8, Oven 10, Beehive 13, Kitchen 14, ...), owned or not. It is the
+  card that sells the station. When it is traded, its replacement is another one. Generated
+  after the basic-crop card when both are missing.
 - **Duplicates.** An item appears in at most 2 offers (1 if it is a new unlock at the player's
-  exact level), and never twice as a single-item offer.
+  exact level), never twice as a single-item offer, and never twice on one two-item card.
 - **Reward.** Money = sum of `maxprice` x quantity over the items (`minprice` or 10 as
-  fallback). XP = 2 x sum of the items' `xp` (1 if undefined). From level 11 a bonus valley
+  fallback). XP (`calculateKentOfferXP`, the one function for the card and the award) = 2 x the
+  sum of the items' `xp` (1 if undefined), plus 2 per item whose quantity is in the top half of
+  the player's quantity band for that kind of item (crop or not). From level 11 a bonus valley
   item rolls at `harvestDropRate` (10%), weighted by rarity.
 - **Level 6 tuning (2026-10-05).** Besides the curve: Butter `xp` 3 to 4 and Cheese 3 to 5
   (two- and four-Milk Dairy products deserved more than raw Milk's 2; Cornmeal, the Mill
@@ -121,42 +135,49 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   Kent XP: Wheat 2, Grower 4, Green Thumb 4 to 10 (mostly 6 to 8), Fruit Fingers 10. Watch the
   level 10+ pace in the Users tab; if it runs fast, raise the xpLevels.json thresholds rather
   than lowering the fruit again.
+- **Crafted-goods XP ladder (2026-10-12).** A crafted good's `xp` = the highest of its old
+  value, its station's base, and its top ingredient's `xp` + 1, so selling the pie always beats
+  selling the pumpkin and a newer station's goods pay more than an older one's. Station bases:
+  Mill 3, Dairy / Loom / Chicken Coop 4, Oven / Beehive 6, Kitchen / Lumber Yard 7, Studio /
+  Beverage Station 8, Winery / Coffee Factory 9, Silkery 10. Examples: Bread 4 to 6, Corn
+  Chowder 3 to 7, Olive Oil 3 to 9; recipes with a late ingredient sit higher (Runic Tunic 12
+  from Ink 11). Keep the rule when adding a recipe. Watch levels 10+ in the Users tab; slow the
+  curve (xpLevels.json) before lowering these.
 - **Where to intervene for pacing.** In order of safety: (a) item `xp` values and level gates
   in resources.json (data only, no format change); (b) the per-level constants in
-  `KentOfferLogic.js` (multi-item target, quantity bands, crop share); (c) the timers in
-  globalTuning; (d) the reward formula. Anything that changes the stored offer shape
+  `KentOfferLogic.js` (multi-item target, quantity bands, crop share, board size); (c) the
+  timers in globalTuning; (d) the reward formula. Anything that changes the stored offer shape
   (`kentOffers.offers[].items/rewards`) must keep reading the legacy single-item form and
   must not invalidate offers already on players.
 
-## 5. Compatibility rules (what a tuning change must not break)
+## 4b. Train (TrainOfferLogic.js, NewTrain.js, 2026-10-12)
 
-- `resources.json` `type` and `layoutkey`, quest `title`, trophy `name` are persisted on
-  players and grids: never rename, duplicate instead (the editor locks them).
-- Stored player state that tuning reads: `xp` (levels derive from it), `kentOffers`,
-  `inventory`/`backpack` quantities, `completedQuests`, trophies. Removing an item from
-  resources.json strands those entries; retire by raising its level or setting `noBank`
-  instead.
-- The game server caches resources, globalTuning, seasons, store and messages at boot. A
-  tuning save in the editor is live only after a restart locally and a deploy in production.
-- Both clients must agree: Kent offers are generated on the client from the same
-  resources.json the server serves, so a resources change ships with the next deploy and
-  applies to new offers only; existing offers keep their stored items and rewards.
+- **Shape.** `maxTrainOffers` (8) orders per Train in three bands, stored on each order as
+  `band`: 2 **basic** crops (plots unlocked 3+ levels ago when there are any), 4 **easy** goods
+  (non-crops the player has the skills for; crafted goods only from stations unlocked 2+ levels
+  ago), 2 **aspirational** (⭐ in the panel) from the newest station the player's level has
+  unlocked, owned or not, skill or not; fallback the highest-`xp` goods they can already make.
+  First-time users get crops only. Same eligibility as Kent otherwise (season, levels,
+  ingredients unlocked, no valley / epic / noBank).
+- **Quantities** (`QUANTITY_BY_LEVEL`): to level 12 basic 10-20, easy 3-8, aspirational 2-4;
+  to 19 basic 15-30, easy 5-10, aspirational 3-5; then 20-40, 8-15, 4-6. Goods with `maxprice`
+  of 2,000 or more are asked for in half (rounded up).
+- **Rewards, tiered.** Each order is worth `xp` x 2 x ceil(quantity / 5) XP. The **base tier**
+  (XP of the basic and easy orders) is mailed the moment every order but the aspirational ones
+  is filled (6 of 8); the **full tier** (XP of the aspirational orders + 1 to 3 seasonal hearts)
+  when all are filled, with the celebration. Money per order on delivery is unchanged
+  (`maxprice` x quantity). Markers on `player.train`: `lastBaseRewardTrainNumber`,
+  `lastRewardDeliveryTrainNumber` (full; also set at departure). Trains saved before tiers read
+  their XP as the base tier and the rest as the full tier. Typical totals: about 80 XP at level
+  9 to 10, 100 at 11, 200 at 14, 240 at 20 (was a flat 15 to 45 for all eight).
+- **Why tiered:** aspirational orders are a stretch, never a wall; without tiers one unfillable
+  order voided the whole Train.
 
-## 6. Goals (owner, 2026-10-05)
+## 4c. Trophies
 
-- Early levels should each take a comparable, short stretch of play; no single level should
-  feel like a wall. Level 6 to 7 is the current wall.
-- Kent is the early-game economy until the Train and Bank unlock; his offers at levels 5 to
-  8 should pull the player through the new unlocks (Mill, Dairy, animals) by asking for what
-  those produce, with XP that reflects the extra steps.
-- Keep the Trading Post as the money outlet, not an XP outlet.
-
-## Combat (Track 1, 2026-10-07)
-
-Knobs live in `globalTuning.json` → `combat`; the loop is `GameFeatures/Combat/Combat.js`
-(player) and `GameFeatures/NPCs/NPCEnemyBehavior.js` (enemies); see
-docs/audits/combat-and-npc-review-2026-10-07.md.
-
+- **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50]` (2026-10-12; was 3, 5, 10, 50,
+  100 with 56 skills in the game). Milestones fire on an exact count, so a change never pays
+  retroactively.
 - **Swing cooldown**: `attackCooldownMinMs` (400) + `(speed - 1) × attackCooldownPerSpeedMs`
   (100), clamped to `attackCooldownMaxMs` (800). Speed 1 → 0.4 s, speed 5 (starter) → 0.8 s;
   speed-reducing powers (Jab, Flurry, Barrage, Magic Gloves) make swings faster, never

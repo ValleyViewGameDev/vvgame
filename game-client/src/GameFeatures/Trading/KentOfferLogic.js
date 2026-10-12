@@ -1,4 +1,4 @@
-import { isACrop } from '../../Utils/ResourceHelpers';
+import { isACrop, areIngredientsUnlocked } from '../../Utils/ResourceHelpers';
 import { selectWeightedRandomItem } from '../../Economy/DropRates';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
@@ -32,6 +32,22 @@ const CROP_PERCENTAGE_BY_LEVEL = [
 // Above it the rule goes away. Eligibility (level, season) still applies to the crop.
 const BASIC_CROP_GUARANTEE_MAX_LEVEL = 12;
 const BASIC_CROPS = ['Wheat', 'Carrot', 'Corn', 'Sugarcane'];
+
+// Board size by player level (2026-10-12): 6 cards through level 7, 7 at level 8, 8 from level 9,
+// when the basic-crop and newest-station guarantees would otherwise crowd out the random cards.
+// The board still grows one card per trade up to this size.
+const MAX_OFFERS_BY_LEVEL = [
+    { maxLevel: 7, count: 6 },
+    { maxLevel: 8, count: 7 },
+    { maxLevel: Infinity, count: 8 }
+];
+
+// Newest-station guarantee (2026-10-12): the board always holds one single-item offer for a good
+// from the newest crafting station the player's LEVEL has unlocked (Oven at 10 to 12, Beehive at
+// 13, Kitchen at 14, ...), owned or not, so Kent advertises the station before it is bought. When
+// that card is traded, its replacement is another one. Those goods carry a higher `xp` than the
+// crops and older goods (resources.json), so the card is also the best-paying one.
+const STATION_CATEGORY = 'crafting';
 
 // Minimum level for valley bonus rewards on Kent offers
 const VALLEY_BONUS_MIN_LEVEL = 11;
@@ -88,6 +104,51 @@ function getQuantityRange(isCrop, playerLevel) {
     // Fallback (shouldn't reach here due to Infinity)
     const last = ranges[ranges.length - 1];
     return { min: last.min, max: last.max };
+}
+
+/**
+ * How many cards Kent's board holds at this level
+ */
+export function getMaxKentOffers(playerLevel) {
+    return (MAX_OFFERS_BY_LEVEL.find(band => playerLevel <= band.maxLevel) || MAX_OFFERS_BY_LEVEL[MAX_OFFERS_BY_LEVEL.length - 1]).count;
+}
+
+/**
+ * The eligible goods of the newest crafting station the player's level has unlocked: the
+ * highest-level station at or below the player's level that has at least one eligible good.
+ * Returns a Set of resource types (empty below the first station).
+ */
+function getNewestStationGoods(eligibleResources, masterResources, playerLevel) {
+    const stations = masterResources
+        .filter(r => r.category === STATION_CATEGORY && r.level && r.level <= playerLevel)
+        .sort((a, b) => b.level - a.level);
+    for (let i = 0; i < stations.length; i++) {
+        // Stations unlocked at the same level count together
+        const sameLevel = stations.filter(s => s.level === stations[i].level).map(s => s.type);
+        const goods = eligibleResources.filter(r => sameLevel.includes(r.source));
+        if (goods.length > 0) return new Set(goods.map(r => r.type));
+        i += sameLevel.length - 1;
+    }
+    return new Set();
+}
+
+/**
+ * XP a Kent offer pays. One function for the card's "🔷 XP" and the award, so the card stays
+ * exactly what the trade pays (tuning.md principle 3). Per item: 2 x its `xp` (1 if undefined),
+ * plus 2 more when the asked quantity is in the top half of the player's quantity band for that
+ * kind of item (crop or not), so a big ask pays more than a small one of the same good.
+ */
+export function calculateKentOfferXP(offer, masterResources, playerLevel) {
+    const offerItems = offer?.items?.length ? offer.items : [{ item: offer?.item, quantity: offer?.quantity }];
+    let totalXP = 0;
+    for (const { item, quantity } of offerItems) {
+        const resource = masterResources.find(r => r.type === item);
+        let itemXP = resource?.xp || 1;
+        const { min, max } = getQuantityRange(isACrop(item, masterResources), playerLevel);
+        if (Number(quantity) > (min + max) / 2) itemXP += 1;
+        totalXP += itemXP;
+    }
+    return totalXP * 2;
 }
 
 /**
@@ -184,6 +245,11 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             return false;
         }
 
+        // No dead ends: every ingredient (and theirs) must be unlocked at this level too
+        if (!areIngredientsUnlocked(resource, masterResources, playerLevel)) {
+            return false;
+        }
+
         return true;
     });
     
@@ -193,7 +259,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     }
     
     const newOffers = [];
-    const maxOffers = globalTuning?.maxKentOffers || 6;
+    const maxOffers = getMaxKentOffers(playerLevel);
     const existingOffers = currentPlayer?.kentOffers?.offers || [];
     const currentOfferCount = existingOffers.length;
 
@@ -297,6 +363,14 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         && eligibleResources.some(r => BASIC_CROPS.includes(r.type));
     let cropOffersGenerated = 0;
 
+    // Newest-station guarantee: needed when no remaining offer asks for one of its goods
+    const newestStationGoods = getNewestStationGoods(eligibleResources, masterResources, playerLevel);
+    const hasStationGood = (offer) => {
+        const offerItems = offer.items?.length ? offer.items : (offer.item ? [{ item: offer.item }] : []);
+        return offerItems.some(it => newestStationGoods.has(it.item));
+    };
+    let stationGoodStillNeeded = newestStationGoods.size > 0 && !existingOffers.some(hasStationGood);
+
     // Helper to get available resources excluding already-used ones
     const getAvailableResources = (usedResourceTypes = []) => {
         // Get all existing Kent offers to check for duplicates
@@ -359,6 +433,14 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             availableResources = eligibleResources.filter(r => BASIC_CROPS.includes(r.type));
         }
 
+        // Newest-station guarantee (after the basic crop): a single good from that station,
+        // within the duplicate caps when possible.
+        const forceStationGood = !forceBasicCrop && stationGoodStillNeeded;
+        if (forceStationGood) {
+            const capped = getAvailableResources().filter(r => newestStationGoods.has(r.type));
+            availableResources = capped.length > 0 ? capped : eligibleResources.filter(r => newestStationGoods.has(r.type));
+        }
+
         // If no resources available (all have 2+ offers), break out of loop
         if (availableResources.length === 0) {
             console.log('🤠 No more unique resources available (all have 2+ offers)');
@@ -370,7 +452,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         const singleItemStillNeeded = offersToGenerate - i - multiItemStillNeeded;
         // Force multi-item if we need more and don't have room for singles, otherwise random choice weighted by need
         let isMultiItem;
-        if (forceBasicCrop) {
+        if (forceBasicCrop || forceStationGood) {
             isMultiItem = false;
         } else if (multiItemStillNeeded > 0 && singleItemStillNeeded <= 0) {
             isMultiItem = true;
@@ -383,7 +465,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
 
         // For single-item offers, filter out items that already have a single-item offer
         // (to avoid duplicate single-item offers for the same resource)
-        if (!isMultiItem && !forceBasicCrop) {
+        if (!isMultiItem && !forceBasicCrop && !forceStationGood) {
             const allExistingOffers = [...existingOffers, ...newOffers];
             const singleItemTypes = new Set();
             allExistingOffers.forEach(offer => {
@@ -425,7 +507,8 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         // Pick second item if multi-item offer
         if (isMultiItem) {
             // Get available resources excluding the first item
-            let availableForSecond = getAvailableResources([firstPick.resource.type]);
+            let availableForSecond = getAvailableResources([firstPick.resource.type])
+                .filter(r => r.type !== firstPick.resource.type); // never the same good twice on one card
 
             // For multi-item, don't enforce crop balance on second item - just pick randomly
             if (availableForSecond.length > 0) {
@@ -509,6 +592,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
 
         newOffers.push(newOffer);
         if (forceBasicCrop) basicCropStillNeeded = false;
+        if (forceStationGood) stationGoodStillNeeded = false;
     }
     
     console.log(`Generated ${newOffers.length} new Kent offers:`, newOffers);

@@ -301,11 +301,13 @@ const playerSchema = new mongoose.Schema({
   train: {
     currentTrainNumber: { type: Number, default: 0 }, // Current train number player is on
     lastRewardDeliveryTrainNumber: { type: Number, default: 0 }, // Last train number for which rewards were delivered
+    lastBaseRewardTrainNumber: { type: Number, default: 0 }, // Last train number whose base reward tier (all but the aspirational orders) was mailed
     currentTrainOffers: [
       {
         item: { type: String, required: true },
         quantity: { type: Number, required: true },
         completed: { type: Boolean, default: false },
+        band: { type: String }, // 'basic' | 'easy' | 'aspirational' (TrainOfferLogic.js); absent on older Trains
         _id: false
       }
     ],
@@ -313,6 +315,7 @@ const playerSchema = new mongoose.Schema({
       {
         item: { type: String, required: true },
         quantity: { type: Number, required: true },
+        tier: { type: String }, // 'base' | 'full'; absent on older Trains (XP = base, the rest = full)
         _id: false
       }
     ],
@@ -320,6 +323,7 @@ const playerSchema = new mongoose.Schema({
       {
         item: { type: String, required: true },
         quantity: { type: Number, required: true },
+        band: { type: String },
         _id: false
       }
     ],
@@ -327,6 +331,7 @@ const playerSchema = new mongoose.Schema({
       {
         item: { type: String, required: true },
         quantity: { type: Number, required: true },
+        tier: { type: String }, // 'base' | 'full'; absent on older Trains (XP = base, the rest = full)
         _id: false
       }
     ]

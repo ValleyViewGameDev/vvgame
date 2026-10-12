@@ -204,3 +204,22 @@ export function isVisibleToPlayer(resource, isDeveloper) {
   return true;
 }
 
+/**
+ * No dead ends (docs/tuning.md principle 5): whether every ingredient of a resource, and every
+ * ingredient of those, is unlocked at this level (its own level and its source's level). Kent and
+ * the Train use it so they never ask for a good whose recipe needs something from a later level,
+ * e.g. Runic Tunic (level 10) needs Ink (level 17).
+ */
+export function areIngredientsUnlocked(resource, masterResources, playerLevel, depth = 0) {
+  if (!resource || depth > 6) return true;
+  const ingredients = [resource.ingredient1, resource.ingredient2, resource.ingredient3, resource.ingredient4].filter(Boolean);
+  for (const ingredient of ingredients) {
+    const ingredientResource = masterResources.find(r => r.type === ingredient);
+    if (!ingredientResource) continue;
+    if (ingredientResource.level && ingredientResource.level > playerLevel) return false;
+    const source = masterResources.find(r => r.type === ingredientResource.source);
+    if (source?.level && source.level > playerLevel) return false;
+    if (!areIngredientsUnlocked(ingredientResource, masterResources, playerLevel, depth + 1)) return false;
+  }
+  return true;
+}

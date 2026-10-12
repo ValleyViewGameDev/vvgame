@@ -287,6 +287,6 @@ async function sendPlayerHome(player, { save = true } = {}) {
 
 module.exports = {
   parseGridCoord, findCell, findTownCoord, resolveCellGrid, resolveDungeonCopy, dungeonTemplateForEntrance,
-  applySeasonCatchUp, applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, nearestOpenTile,
+  applySeasonCatchUp, applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, nearestOpenTile, openTileTest,
   FTUE_TEMPLATE, FTUE_KEY,
 };

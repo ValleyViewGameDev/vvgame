@@ -4382,6 +4382,13 @@ return (
           currentSettlementPosition={currentSettlementPosition}
           globalTuning={globalTuning}
           isDeveloper={isDeveloper}
+          onSnugTravel={(gridCoord, x, y, player) => changePlayerLocation(
+            // the player as the payment left them, so the move cannot restore the Money just spent
+            player || currentPlayer, { type: 'coord', gridCoord, x, y },
+            setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
+            updateStatus, closeAllPanels, bulkOperationContext, strings, transitionFadeControl,
+            { x, y, noPrefetch: true }
+          )}
         />
       )}
       {activePanel === 'FarmHandPanel' && (

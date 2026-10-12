@@ -7,7 +7,7 @@ import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import TrainCompleteModal from '../../UI/Modals/TrainCompleteModal';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
-import { generateCompleteTrainData } from './TrainOfferLogic';
+import { generateCompleteTrainData, getTrainBaseThreshold, splitTrainRewards } from './TrainOfferLogic';
 import './Train.css';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
@@ -68,6 +68,45 @@ function NewTrainPanel({
       messages: [...(prev?.messages || []), { messageId: 101, receivedAt: new Date(), collected: false, neverPurge: false, rewards: customRewards }],
     }));
   };
+
+  // Rewards are tiered (TrainOfferLogic.js): the base tier once every order but the aspirational
+  // ones is filled, the full tier once all of them are. Mails whichever tier this Train has earned
+  // and not yet mailed. Markers: lastBaseRewardTrainNumber (base) and lastRewardDeliveryTrainNumber
+  // (full; also set at departure, which closes the Train). A tier whose mail fails is not marked,
+  // so the next check retries it.
+  const deliverEarnedTrainRewards = async (offers, rewards, trainNumber, trainData) => {
+    const filled = (offers || []).filter(o => o.completed === true).length;
+    const allFilled = offers?.length > 0 && filled === offers.length;
+    const { base, full } = splitTrainRewards(rewards);
+    const fullDone = (trainData?.lastRewardDeliveryTrainNumber || 0) >= trainNumber;
+    const baseDone = fullDone || (trainData?.lastBaseRewardTrainNumber || 0) >= trainNumber;
+    const markers = {};
+    const delivered = [];
+    let failed = false;
+
+    if (!baseDone && offers?.length > 0 && filled >= getTrainBaseThreshold(offers)) {
+      try {
+        if (base.length > 0) { await mailTrainRewards(base); delivered.push(...base); }
+        markers.lastBaseRewardTrainNumber = trainNumber;
+      } catch (error) {
+        console.error('❌ Error mailing base train rewards:', error);
+        failed = true;
+      }
+    }
+    if (!fullDone && allFilled && !failed) {
+      try {
+        if (full.length > 0) { await mailTrainRewards(full); delivered.push(...full); }
+        markers.lastRewardDeliveryTrainNumber = trainNumber;
+      } catch (error) {
+        console.error('❌ Error mailing full train rewards:', error);
+        failed = true;
+      }
+    }
+    return { markers, delivered, failed };
+  };
+
+  const rewardSummaryText = (rewards) =>
+    rewards.map(reward => `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`).join(', ');
 
   // Initialize train data on component load
   useEffect(() => {
@@ -224,97 +263,53 @@ function NewTrainPanel({
   const checkAndDeliverCurrentTrainRewards = async (trainNumber) => {
     const existingCurrentOffers = currentPlayer?.train?.currentTrainOffers || [];
     const existingCurrentRewards = currentPlayer?.train?.currentTrainRewards || [];
-    
-    // Check if all current offers were completed
-    if (existingCurrentOffers.length > 0) {
-      const allOffersCompleted = existingCurrentOffers.every(offer => offer.completed === true);
-      
-      if (allOffersCompleted && existingCurrentRewards.length > 0) {
-        console.log('🚂 All current train offers completed! Delivering rewards to mailbox:', existingCurrentRewards);
-        
-        try {
-          await mailTrainRewards(existingCurrentRewards);
-          const updatedTrainData = {
-            ...currentPlayer.train,
-            lastRewardDeliveryTrainNumber: trainNumber
-          };
-          const response = await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { train: updatedTrainData }
-          });
-          if (response.data.success) {
-            setCurrentPlayer(prev => ({ ...prev, train: updatedTrainData }));
-          }
-          const rewardSummary = existingCurrentRewards.map(reward =>
-            `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
-          ).join(', ');
-          updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
-          setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
-          console.log('✅ Current train rewards successfully delivered to mailbox');
-        } catch (error) {
-          console.error('❌ Error delivering current train rewards to mailbox:', error);
-        }
-      } else {
-        // Some offers were not completed
-        const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
-        console.log(`🚂 Train departing with ${completedCount}/${existingCurrentOffers.length} offers completed`);
-        
-        // Still update lastRewardDeliveryTrainNumber to prevent future attempts
-        try {
-          const updatedTrainData = {
-            ...currentPlayer.train,
-            lastRewardDeliveryTrainNumber: trainNumber
-          };
-          
-          const response = await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { train: updatedTrainData }
-          });
-          
-          if (response.data.success) {
-            setCurrentPlayer(prev => ({
-              ...prev,
-              train: updatedTrainData
-            }));
-          }
-        } catch (error) {
-          console.error('❌ Error updating lastRewardDeliveryTrainNumber:', error);
-        }
+    if (existingCurrentOffers.length === 0) return;
+
+    // The Train is leaving: mail what was earned, then close it (lastRewardDeliveryTrainNumber)
+    // unless a mail failed, so the next check retries.
+    const { markers, delivered, failed } = await deliverEarnedTrainRewards(
+      existingCurrentOffers, existingCurrentRewards, trainNumber, currentPlayer?.train);
+    const updatedTrainData = {
+      ...currentPlayer.train,
+      ...markers,
+      ...(failed ? {} : { lastRewardDeliveryTrainNumber: trainNumber })
+    };
+    try {
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { train: updatedTrainData }
+      });
+      if (response.data.success) {
+        setCurrentPlayer(prev => ({ ...prev, train: updatedTrainData }));
       }
+    } catch (error) {
+      console.error('❌ Error updating train reward markers:', error);
+    }
+    if (delivered.length > 0) {
+      updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
+      setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+    } else {
+      const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
+      console.log(`🚂 Train departing with ${completedCount}/${existingCurrentOffers.length} offers completed`);
     }
   };
 
   const checkAndDeliverPreviousTrainRewards = async () => {
     const existingCurrentOffers = currentPlayer?.train?.currentTrainOffers || [];
     const existingCurrentRewards = currentPlayer?.train?.currentTrainRewards || [];
-    // Already mailed for this Train (the moment its last order was filled, or at departure)
     const previousTrainNumber = currentPlayer?.train?.currentTrainNumber || 0;
-    if ((currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) >= previousTrainNumber && previousTrainNumber > 0) return;
-    
-    // Check if all current offers were completed
-    if (existingCurrentOffers.length > 0) {
-      const allOffersCompleted = existingCurrentOffers.every(offer => offer.completed === true);
-      
-      if (allOffersCompleted && existingCurrentRewards.length > 0) {
-        console.log('🚂 All train offers completed! Delivering rewards to mailbox:', existingCurrentRewards);
-        
-        try {
-          await mailTrainRewards(existingCurrentRewards);
-          const rewardSummary = existingCurrentRewards.map(reward =>
-            `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`
-          ).join(', ');
-          updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummary}`);
-          setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
-          console.log('✅ Train rewards successfully delivered to mailbox');
-        } catch (error) {
-          console.error('❌ Error delivering train rewards to mailbox:', error);
-        }
-      } else if (existingCurrentOffers.length > 0) {
-        // Some offers were not completed
-        const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
-        console.log(`🚂 Train expired with ${completedCount}/${existingCurrentOffers.length} offers completed`);
-        updateStatus(`🚂 Previous train left with ${completedCount}/${existingCurrentOffers.length} orders completed`);
-      }
+    if (existingCurrentOffers.length === 0 || previousTrainNumber === 0) return;
+
+    // A Train that left while the player was away: mail any tier earned and not yet mailed. The
+    // markers are not saved; the player's train data moves on to the new Train right after.
+    const { delivered } = await deliverEarnedTrainRewards(
+      existingCurrentOffers, existingCurrentRewards, previousTrainNumber, currentPlayer?.train);
+    if (delivered.length > 0) {
+      updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
+      setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+    } else if ((currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) < previousTrainNumber) {
+      const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
+      updateStatus(`🚂 Previous train left with ${completedCount}/${existingCurrentOffers.length} orders completed`);
     }
   };
 
@@ -365,6 +360,7 @@ function NewTrainPanel({
     const updatedTrainData = {
       currentTrainNumber: newTrainNumber,
       lastRewardDeliveryTrainNumber: currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0, // the no-double-mail guard
+      lastBaseRewardTrainNumber: currentPlayer?.train?.lastBaseRewardTrainNumber || 0,
       currentTrainOffers: newCurrentOffers,
       currentTrainRewards: newCurrentRewards,
       nextTrainOffers: nextTrainData.offers,
@@ -420,6 +416,7 @@ function NewTrainPanel({
     const updatedTrainData = {
       currentTrainNumber: trainNumber,
       lastRewardDeliveryTrainNumber: currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0, // the no-double-mail guard
+      lastBaseRewardTrainNumber: currentPlayer?.train?.lastBaseRewardTrainNumber || 0,
       currentTrainOffers: currentTrainData.offers,
       currentTrainRewards: currentTrainData.rewards,
       nextTrainOffers: nextTrainData.offers,
@@ -540,23 +537,18 @@ function NewTrainPanel({
         currentTrainOffers: updatedCurrentOffers
       };
 
-      // The last order filled: the rewards go to the mailbox now, not when the Train departs.
-      // The celebration opens at once (optimistic); recording this Train as delivered keeps the
-      // departure check from mailing them a second time. If the mail fails, nothing is recorded
-      // and the departure check delivers them instead.
+      // A reward tier earned by this order goes to the mailbox now, not when the Train departs:
+      // the base tier on the order that reaches the threshold, the full tier on the last order.
+      // The celebration opens at once (optimistic) when every order is filled.
       const trainNumber = currentPlayer?.train?.currentTrainNumber || playerTrainNumber;
       const allFilled = updatedCurrentOffers.length > 0 && updatedCurrentOffers.every(o => o.completed === true);
-      const deliverNow = allFilled && currentTrainRewards.length > 0
-        && (currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) < trainNumber;
-      if (deliverNow) {
+      if (allFilled && (currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) < trainNumber) {
         setShowTrainComplete(true);
-        try {
-          await mailTrainRewards(currentTrainRewards);
-          updatedTrainData.lastRewardDeliveryTrainNumber = trainNumber;
-        } catch (error) {
-          console.error('❌ Error mailing train rewards on the last order:', error);
-        }
       }
+      const { markers, delivered } = await deliverEarnedTrainRewards(
+        updatedCurrentOffers, currentTrainRewards, trainNumber, currentPlayer?.train);
+      Object.assign(updatedTrainData, markers);
+      const tierText = delivered.length > 0 ? ` 🚂 Rewards sent to your mailbox: ${rewardSummaryText(delivered)}` : '';
 
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
@@ -575,7 +567,7 @@ function NewTrainPanel({
         // Play sound effect for successful sale
         soundManager.playSFX('collect_money');
 
-        updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for ${getSymbol('Money')} ${moneyReward.toLocaleString()}.`);
+        updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for ${getSymbol('Money')} ${moneyReward.toLocaleString()}.${tierText}`);
       }
     } catch (error) {
       console.error("❌ Error fulfilling train offer:", error);
@@ -682,7 +674,7 @@ function NewTrainPanel({
             buttonText = '';
           } else {
             const costColor = affordable ? 'green' : 'red';
-            costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
+            costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
             const rewardDisplay = `${getSymbol('Money')} ${moneyReward.toLocaleString()}`;
             details = `<div>${costDisplay}</div>${strings[42]} ${rewardDisplay}`;
             buttonText = '';
@@ -725,19 +717,34 @@ function NewTrainPanel({
   };
 
   const renderCurrentRewards = () => {
+    // Two tiers (TrainOfferLogic.js): the base tier for every order but the stretch (⭐) ones,
+    // the full tier for all of them
+    const { base, full } = splitTrainRewards(currentTrainRewards);
+    const threshold = getTrainBaseThreshold(currentTrainOffers);
+    const total = currentTrainOffers.length;
+    const renderList = (rewards) => (
+      <div className="train-rewards-container">
+        {rewards.map((reward, index) => (
+          <div key={index} className="train-reward-item">
+            {getSymbol(reward.item)} {reward.quantity} {reward.item}
+          </div>
+        ))}
+      </div>
+    );
     return (
       <div className="reward-section">
-        <h4>{strings[2019]}</h4>
-        {currentTrainRewards.length > 0 ? (
-          <div className="train-rewards-container">
-            {currentTrainRewards.map((reward, index) => (
-              <div key={index} className="train-reward-item">
-                {getSymbol(reward.item)} {reward.quantity} {reward.item}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No rewards available</p>
+        {currentTrainRewards.length === 0 && <p>No rewards available</p>}
+        {base.length > 0 && threshold < total && (
+          <>
+            <h4>{(strings[2024] || 'Rewards for filling {n} of {m} orders:').replace('{n}', threshold).replace('{m}', total)}</h4>
+            {renderList(base)}
+          </>
+        )}
+        {(full.length > 0 || (base.length > 0 && threshold >= total)) && (
+          <>
+            <h4>{strings[2019]}</h4>
+            {renderList(threshold >= total ? [...base, ...full] : full)}
+          </>
         )}
       </div>
     );

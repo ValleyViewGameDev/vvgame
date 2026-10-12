@@ -8,7 +8,8 @@ import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { updateKentOffersAfterTrade, generateNewKentOffers } from './KentOfferLogic';
+import { updateKentOffersAfterTrade, generateNewKentOffers, calculateKentOfferXP } from './KentOfferLogic';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/Buttons/ResourceButton.css';
 import './Kent.css';
@@ -589,24 +590,9 @@ function KentPanel({
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 
-    // Calculate XP for Kent offer based on resource.xp value
-    const calculateKentXP = (offer) => {
-        // Handle both multi-item and single-item offers
-        if (offer.items && offer.items.length > 0) {
-            // Sum XP from all items in multi-item offer
-            let totalXP = 0;
-            for (const item of offer.items) {
-                const resource = masterResources.find(res => res.type === item.item);
-                totalXP += (resource?.xp || 1);
-            }
-            return totalXP * 2; // 2x Kent multiplier
-        } else {
-            // Single-item offer (legacy)
-            const resource = masterResources.find(res => res.type === offer.item);
-            const baseXP = resource?.xp || 1; // Default to 1 XP if no xp value defined
-            return baseXP * 2; // 2x Kent multiplier
-        }
-    };
+    // XP for a Kent offer: the same function pays the trade and labels the card
+    const calculateKentXP = (offer) =>
+        calculateKentOfferXP(offer, masterResources, getDerivedLevel(currentPlayer, masterXPLevels));
 
     // Helper to get Kent NPC position for floating text
     const getKentPosition = () => {

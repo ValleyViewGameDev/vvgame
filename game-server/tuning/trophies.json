@@ -17,7 +17,7 @@
         "name": "Skill Builder",
         "tooltip": "Keep acquiring skills.",
         "type": "Progress",
-        "progress": [ 3, 5, 10, 50, 100 ],
+        "progress": [ 1, 5, 10, 15, 20, 30, 40, 50 ],
         "visible": true,
         "reward": 1
     },

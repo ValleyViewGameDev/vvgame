@@ -72,7 +72,6 @@
   "baseHoursForTrain": 16,
   "kentRefreshTimerSeconds": 20,
   "kentCardCooldownSeconds": 30,
-  "maxKentOffers": 6,
   "tradeStallSlots": [
     {
       "slotIndex": 0,
@@ -208,5 +207,12 @@
       "Purple Heart",
       "XP"
     ]
+  },
+  "snugTravel": {
+    "_note": "Travel with Snug (routes/snugTravelRoutes.js): cost = minCost + (maxCost - minCost) * min(1, gridDistance / fullCostDistance), rounded to roundTo. gridDistance = straight-line distance in grids between the current grid and the destination on the 64x64 frontier.",
+    "minCost": 100,
+    "maxCost": 2000,
+    "fullCostDistance": 56,
+    "roundTo": 10
   }
 }

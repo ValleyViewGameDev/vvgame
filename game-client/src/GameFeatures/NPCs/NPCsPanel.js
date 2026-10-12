@@ -30,6 +30,7 @@ import CitizenRelationshipsDebug from './CitizenRelationshipsDebug';
 import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
+import SnugTravelModal from './SnugTravelModal';
 import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -59,8 +60,13 @@ const NPCPanel = ({
   currentSettlementPosition, // Settlement position within frontier for camera centering
   globalTuning,
   isDeveloper,
+  onSnugTravel,             // App: (gridCoord, x, y, player) => changePlayerLocation to a tile next to Snug
 }) => {
   const strings = useStrings();
+  const [snugTravelOpen, setSnugTravelOpen] = useState(false);
+  // Travel with Snug: on Snug's panel once the player has greeted him
+  const canTravelWithSnug = npcData?.type === 'Snug' && !!onSnugTravel
+    && !!currentPlayer?.relationships?.some((r) => r.name === 'Snug' && r.met);
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
@@ -1694,17 +1700,26 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
         </div>
         
-        {/* Pinned footer with sell/refund button */}
-        {isDeveloper && (
+        {/* Pinned footer: Travel with Snug (Snug, once greeted); sell/refund (developers) */}
+        {(isDeveloper || canTravelWithSnug) && (
           <div className="station-panel-footer">
-            <div className="shared-buttons">
-              <button 
-                className="btn-basic btn-danger" 
-                onClick={handleSellNPC}
-              >
-                {strings[490]}
-              </button>
-            </div>
+            {canTravelWithSnug && (
+              <div className="shared-buttons">
+                <button className="btn-basic btn-success" onClick={() => setSnugTravelOpen(true)}>
+                  {strings[10191] || 'Travel with Snug'}
+                </button>
+              </div>
+            )}
+            {isDeveloper && (
+              <div className="shared-buttons">
+                <button 
+                  className="btn-basic btn-danger" 
+                  onClick={handleSellNPC}
+                >
+                  {strings[490]}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1725,6 +1740,20 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         npcFilename={npcData?.filename}
       />
     </Panel>
+    {snugTravelOpen && (
+      <SnugTravelModal
+        currentPlayer={currentPlayer}
+        inventory={inventory}
+        backpack={backpack}
+        setInventory={setInventory}
+        setBackpack={setBackpack}
+        setCurrentPlayer={setCurrentPlayer}
+        masterResources={masterResources}
+        updateStatus={updateStatus}
+        onTravel={onSnugTravel}
+        onClose={() => setSnugTravelOpen(false)}
+      />
+    )}
     {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
     {pendingDeedTrade && (
       <NameDeedModal
