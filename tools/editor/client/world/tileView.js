@@ -13,6 +13,7 @@
  */
 import { el, clear } from '../core/dom.js';
 import { local } from '../core/api.js';
+import { allRegionsSelect, unusedRegionsSelect } from './regionPicker.js';
 import { modal, toast, setStatus } from '../core/ui.js';
 import { coordParts, coordFrom, isValleyType, townLayoutName, BOARD, GRIDS_PER_SETTLEMENT } from '../core/world.js';
 import { tileColors, LAYOUT_KEY_TO_TILE_TYPE } from '/game-client/tileColors.js';
@@ -275,10 +276,9 @@ function renderPanel() {
   );
   s.appendChild(el('div', { class: 'note' }, 'Templates only: what a grid looks like when it is created for a player, never any player\'s current copy. Drag to pan, scroll to zoom, click a grid to pick it; shift+click toggles a grid, shift+drag selects a rectangle.'));
 
-  const regionSelect = () => el('select', { onchange: (e) => { T.regionPick = e.target.value; renderPanel(); } }, [
-    el('option', { value: '', selected: !T.regionPick }, '(none)'),
-    ...(S.regions || []).map((r) => el('option', { value: r.type, selected: T.regionPick === r.type }, `${r.symbol || ''} ${r.type}`)),
-  ]);
+  const pickRegion = (value) => { T.regionPick = value; renderPanel(); };
+  const regionSelect = () => allRegionsSelect(S.regions, T.regionPick, pickRegion);
+  const unusedRegionSelect = () => unusedRegionsSelect(S.regions, S.gridMap, T.regionPick, pickRegion);
   if (T.sel.length > 1) {
     const grids = selectedCells(), inDb = grids.filter((g) => g.gridId);
     s.appendChild(el('h3', {}, `${grids.length} grids selected`));
@@ -286,6 +286,7 @@ function renderPanel() {
     s.appendChild(el('div', { class: 'row' }, [el('button', { onclick: clearSelection }, 'Clear selection')]));
     s.appendChild(el('h3', {}, 'Region for all'));
     s.appendChild(el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !inDb.length, onclick: () => S.bulkSaveRegion(grids, T.regionPick || null) }, `Save region (${inDb.length} in db)`)]));
+    s.appendChild(el('div', { class: 'row' }, [unusedRegionSelect()]));
     if (inDb.length < grids.length) s.appendChild(el('div', { class: 'note' }, `${grids.length - inDb.length} selected grids are not in the database and are skipped.`));
     return;
   }
@@ -307,7 +308,10 @@ function renderPanel() {
   s.appendChild(el('h3', {}, 'Region'));
   s.appendChild(el('div', { class: 'note' }, `Current: ${cell.region || '(none)'}`));
   s.appendChild(cell.gridId
-    ? el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: (T.regionPick || '') === (cell.region || ''), onclick: () => S.saveRegion(cell, T.regionPick || null) }, 'Save region')])
+    ? el('div', {}, [
+      el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: (T.regionPick || '') === (cell.region || ''), onclick: () => S.saveRegion(cell, T.regionPick || null) }, 'Save region')]),
+      el('div', { class: 'row' }, [unusedRegionSelect()]),
+    ])
     : el('div', { class: 'note' }, 'Create the grid in the live game before assigning a region.'));
 }
 

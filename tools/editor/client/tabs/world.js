@@ -20,6 +20,7 @@ import { loadResources } from '../core/resources.js';
 import { modal, confirm, toast, setStatus } from '../core/ui.js';
 import { loadWorld, gridMapOf, coordParts, frontierPrefix, isValleyType, townLayoutName, BOARD, GRIDS_PER_SETTLEMENT } from '../core/world.js';
 import { tileView } from '../world/tileView.js';
+import { allRegionsSelect, unusedRegionsSelect } from '../world/regionPicker.js';
 
 const FILL = { none: '#f4f5f1', valley: '#d0f0c0', homestead: '#e4d5b7', town: '#e4d5b7', reserved: '#dcdcdc', db: '#cdcd21', region: 'rgba(255, 0, 0, 0.3)' };
 
@@ -331,12 +332,9 @@ function draw() {
 }
 
 // ----------------------------------------------------------------------------- inspector
-function regionSelect() {
-  return el('select', { onchange: (e) => { W.regionPick = e.target.value; renderInspector(); } }, [
-    el('option', { value: '', selected: !W.regionPick }, '(none)'),
-    ...W.regions.map((r) => el('option', { value: r.type, selected: W.regionPick === r.type }, `${r.symbol || ''} ${r.type}`)),
-  ]);
-}
+const pickRegion = (value) => { W.regionPick = value; renderInspector(); };
+const regionSelect = () => allRegionsSelect(W.regions, W.regionPick, pickRegion);
+const unusedRegionSelect = () => unusedRegionsSelect(W.regions, W.gridMap, W.regionPick, pickRegion);
 
 function renderInspector() {
   const box = W.els.inspector; if (!box) return;
@@ -352,6 +350,7 @@ function renderInspector() {
     ]);
     section('Region for all', [
       el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !resettable.length, onclick: () => bulkSaveRegion() }, `Save region (${resettable.length} in db)`)]),
+      el('div', { class: 'row' }, [unusedRegionSelect()]),
       resettable.length < grids.length ? el('div', { class: 'note' }, `${grids.length - resettable.length} selected grids are not in the database and are skipped.`) : null,
     ]);
     section('Live game', [
@@ -383,7 +382,10 @@ function renderInspector() {
   section('Region', [
     el('div', { class: 'note' }, `Current: ${g.region || '(none)'}`),
     g.gridId
-      ? el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !dirty, onclick: () => saveRegion(g) }, 'Save region')])
+      ? el('div', {}, [
+        el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !dirty, onclick: () => saveRegion(g) }, 'Save region')]),
+        el('div', { class: 'row' }, [unusedRegionSelect()]),
+      ])
       : el('div', { class: 'note' }, 'Create the grid in the live game before assigning a region.'),
   ]);
 }
