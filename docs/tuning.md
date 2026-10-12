@@ -113,6 +113,14 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   effect: the 6 to 7 stretch drops from 280 XP at about 5 XP per offer to 130 XP at about 7,
   roughly a quarter of the trades. Measure in the dashboard's Users tab (level, xp) before
   touching it again.
+- **Skill-tier XP (2026-10-12).** Kent ignores quantity and skill, so a crop's `xp` is the only
+  thing that makes a harder offer pay more; gated crops should sit above the tier below. Fruit
+  Fingers fruit (Apple, Lemon, Peach, Pear, Tomato, Cherry) 4 to 5 and Orange already 5, so a
+  fruit offer pays 10 XP instead of 8; Strawberry 3 to 5; Grapes 2 to 4; Mulberry Leaf 5 to 4.
+  Olive stays at 5 (Green Thumb, but the slow grow earns it the top of the tier). Ladder in
+  Kent XP: Wheat 2, Grower 4, Green Thumb 4 to 10 (mostly 6 to 8), Fruit Fingers 10. Watch the
+  level 10+ pace in the Users tab; if it runs fast, raise the xpLevels.json thresholds rather
+  than lowering the fruit again.
 - **Where to intervene for pacing.** In order of safety: (a) item `xp` values and level gates
   in resources.json (data only, no format change); (b) the per-level constants in
   `KentOfferLogic.js` (multi-item target, quantity bands, crop share); (c) the timers in

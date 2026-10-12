@@ -274,6 +274,7 @@ const PixiRendererNPCOverlays = ({
 
     const renderOverlays = async () => {
       let overlaysUsed = 0;
+      const overlayIds = new Set();
       const overlaySize = getOverlaySize();
 
       for (const npc of npcs) {
@@ -316,8 +317,10 @@ const PixiRendererNPCOverlays = ({
         // Check if render is still current after async call
         if (thisRenderVersion !== renderVersionRef.current) return;
 
-        // Skip if no overlay needed
-        if (!overlayType) continue;
+        // No overlay: drop this NPC's pool assignment too, or the animation ticker keeps moving
+        // its old pool slot (now another NPC's overlay) onto this NPC, e.g. a check on Kent with
+        // nothing he can trade.
+        if (!overlayType) { overlayAssignmentsRef.current.delete(npc.id); continue; }
 
         // Get SVG filename and emoji fallback
         let svgFilename = OVERLAY_SVG_MAPPING[overlayType];
@@ -341,6 +344,7 @@ const PixiRendererNPCOverlays = ({
 
         // Track this overlay's assignment to the NPC for animation updates
         overlayAssignmentsRef.current.set(npc.id, { overlay, overlaySize, npc });
+        overlayIds.add(npc.id);
 
         // Try to load SVG texture
         if (svgFilename) {
@@ -378,10 +382,9 @@ const PixiRendererNPCOverlays = ({
       // Hide unused overlays
       hideUnusedOverlays(overlaysUsed);
 
-      // Clean up assignments for NPCs that no longer have overlays
-      const currentNpcIds = new Set(npcs.filter(n => n.position).map(n => n.id));
+      // Keep assignments only for NPCs that got an overlay in this pass
       for (const npcId of overlayAssignmentsRef.current.keys()) {
-        if (!currentNpcIds.has(npcId)) {
+        if (!overlayIds.has(npcId)) {
           overlayAssignmentsRef.current.delete(npcId);
         }
       }
