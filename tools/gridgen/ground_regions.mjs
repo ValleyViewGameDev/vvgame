@@ -6,7 +6,9 @@
 //
 // A region is a corridor (centreline of [frontierRow, frontierCol] points, half width in grids that
 // swells in the middle) plus blobs ({ at, radius }), its edge warped by noise (wobble scales it).
-//   ground       'DI' | 'SL'
+//   ground       'DI' | 'SL' | 'SA' | 'LV' (lava: crisp edge with a ragged slate rim, no speckle)
+//   band         width of the speckled transition (tiles each side, default 5)
+//   seed         [row, col]: only land joined to this point without crossing water is painted
 //   islands      { ground, cell, above, soft?, gamma?, speck?, fleck? }: soft patches of another ground deep inside
 //   patches      { ground, cell, above, soft?, speck?, fleck? }: soft patches near the rim (dirt on slate)
 //   npcs         [{ key, rate }]: creatures scattered over the region's own ground deep inside
@@ -16,7 +18,8 @@
 // Each tile's ground is decided over all regions first, then written once (idempotent). Claude's
 // grids are always written; owner grids only when listed and with --owner. Next to any other owner
 // grid whose edge does not already show the region's ground, the region keeps 8-30 tiles off the
-// seam (varying along it, never a straight line). Water, lava, sand, roads, cobbles and snow never
+// seam (varying with 2D noise and measured to the nearest point of any neighbouring owner grid, diagonal
+// ones included, so the edge is one curve across grid lines, never a straight line). Water, lava, sand, roads, cobbles and snow never
 // change, nor any tile holding an NPC, a building or anything but a tree, rock or doober.
 //   node tools/gridgen/ground_regions.mjs [--owner]
 import fs from 'fs';
@@ -27,7 +30,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXED = path.join(HERE, '..', '..', 'game-server', 'layouts', 'gridLayouts', 'valleyFixedCoord');
 const N = 64, BAND = 5;
 const coordOf = (fr, fc) => 1010000 + Math.floor(fr / 8) * 1000 + Math.floor(fc / 8) * 100 + (fr % 8) * 10 + (fc % 8);
-const OPEN = new Set(['GR', 'DI', 'SL', 'ZZ']);
+const OPEN = new Set(['GR', 'DI', 'SL', 'ZZ', 'SA']);
 const TREES = new Set(['OT', 'PT', 'dt']);
 
 function hash2(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 2147483647) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
@@ -44,6 +47,8 @@ const MIX = {
   GR: [['OT', 0.31], ['PT', 0.19], ['h2', 0.005], ['f1', 0.003], ['dt', 0.002]],
   DI: [['OT', 0.35], ['PT', 0.13], ['h2', 0.005]],
   SL: [['RO', 0.054], ['st', 0.016], ['dt', 0.012]],
+  SA: [['LT', 0.02], ['RO', 0.006], ['st', 0.003]],
+  LV: [],   // lava carries nothing   // the owner's sand is near bare; a beach gets a few palms
 };
 // islands and patches are soft, not cut out: ragged edges (a finer noise on top), a smooth ramp of
 // probability across the edge (soft, in noise units), the surrounding ground speckled through them
@@ -92,7 +97,27 @@ export function applyGroundRegions(load, resourcesByKey, { isGen, owner = false 
   const writable = (c) => isGen(c) || (owner && allOwners.has(c));
   const inRegionSet = (c) => isGen(c) || allOwners.has(c);   // grids that are part of the painting
   const clearable = (k) => k === '**' || ['source', 'doober'].includes(resourcesByKey.get(k)?.category);
-  const valid = (k, t) => k !== '**' && !!resourcesByKey.get(k)?.[`validon${({ SL: 's', GR: 'g', DI: 'd' })[t]}`];
+  const valid = (k, t) => k !== '**' && !!resourcesByKey.get(k)?.[`validon${({ SL: 's', GR: 'g', DI: 'd', SA: 'n', LV: 'l' })[t]}`];
+  // regions with a seed only reach the land joined to it without crossing water (a beach on one
+  // bank of a river never jumps to the other)
+  for (const r of R) {
+    if (!r.seed) continue;
+    const tileAt = (X, Y) => { const L = load(Math.floor(Y / N), Math.floor(X / N)); return L ? L.tiles[Y % N][X % N] : null; };
+    const X0 = r.box[2] * N, X1 = (r.box[3] + 1) * N, Y0 = r.box[0] * N, Y1 = (r.box[1] + 1) * N;
+    const inArea = (X, Y) => X >= X0 && X < X1 && Y >= Y0 && Y < Y1 && depth(r, X, Y) > -(r.band ?? BAND) - 1;
+    const start = Math.round(r.seed[0] * N) * 100000 + Math.round(r.seed[1] * N);
+    const reach = new Set([start]), stack = [start];
+    while (stack.length) {
+      const k = stack.pop(), X = k % 100000, Y = Math.floor(k / 100000);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nX = X + dx, nY = Y + dy, nk = nY * 100000 + nX;
+        if (reach.has(nk) || !inArea(nX, nY)) continue;
+        const t = tileAt(nX, nY); if (!t || t === 'WA' || t === 'LV') continue;
+        reach.add(nk); stack.push(nk);
+      }
+    }
+    r.reach = reach;
+  }
   const grids = new Set();
   for (const r of R) for (let fr = r.box[0]; fr <= r.box[1]; fr++) for (let fc = r.box[2]; fc <= r.box[3]; fc++) grids.add(fr * 100 + fc);
   const changed = new Map();
@@ -102,32 +127,57 @@ export function applyGroundRegions(load, resourcesByKey, { isGen, owner = false 
     const L = load(fr, fc); if (!L) continue;
     const clearOut = owner && R.some((r) => r.clear.has(c));
     // neighbours outside the painting: the region keeps off them unless they show its ground already
-    const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]].map(([dr, dc]) => ({ dr, dc, B: inRegionSet(coordOf(fr + dr, fc + dc)) ? null : load(fr + dr, fc + dc) }));
+    // owner grids outside the painting, among the 8 neighbours (diagonals too, so the edge kept off
+    // them is one continuous curve across grid lines, not a per-grid rectangle)
+    const blockers = [];
+    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+      if (!dr && !dc) continue;
+      const c2 = coordOf(fr + dr, fc + dc); if (inRegionSet(c2)) continue;
+      const B = load(fr + dr, fc + dc); if (!B) continue;
+      blockers.push({ B, x0: (fc + dc) * N, y0: (fr + dr) * N });
+    }
     let n = 0;
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const X = fc * N + x, Y = fr * N + y, t = L.tiles[y][x], k = L.resources[y][x];
-      if (!OPEN.has(t) || !clearable(k)) continue;
+      if ((!OPEN.has(t) && !(t === 'CY' && R.some((r) => r.ground === 'LV'))) || !clearable(k)) continue;
       let want = null, from = null, inside = false, deep = false;
       for (const r of R) {
         let v = depth(r, X, Y);
-        if (v < -BAND - 1) continue;
-        for (const { dr, dc, B } of sides) {
-          if (!B) continue;
-          const d = dc === -1 ? x : dc === 1 ? N - 1 - x : dr === -1 ? y : N - 1 - y;
-          const fade = 8 + 22 * noise(dc !== 0 ? Y : X, dr * 7 + dc * 13, 17, r.s + 21);
+        if (t === 'CY' && r.ground !== 'LV') continue;   // clay deposits: only lava swallows them
+        const band = r.band ?? BAND;
+        if (v < -band - 1) continue;
+        if (r.reach && !r.reach.has(Y * 100000 + X)) continue;   // the far side of a river
+        for (const { B, x0, y0 } of blockers) {
+          // distance from this tile to the owner grid, and whether his side already shows our ground there
+          const nx = Math.max(x0, Math.min(X, x0 + N - 1)), ny = Math.max(y0, Math.min(Y, y0 + N - 1));
+          const d = Math.hypot(X - nx, Y - ny);
+          const fade = 6 + 16 * noise(X, Y, 23, r.s + 21) + 10 * noise(X, Y, 8, r.s + 22);   // two octaves: never a ruled line
           if (d >= fade) continue;
+          const sx = Math.sign(nx - X), sy = Math.sign(ny - Y);
           let same = false;
-          for (let e = 0; e < 16 && !same; e++) { const [bx, by] = dc === -1 ? [N - 1 - e, y] : dc === 1 ? [e, y] : dr === -1 ? [x, N - 1 - e] : [x, e]; same = B.tiles[by][bx] === r.ground; }
-          if (!same) v = Math.min(v, (d - fade) * 3);
+          for (let e = 0; e < 16 && !same; e++) {
+            const bx = nx + sx * e - x0, by = ny + sy * e - y0;
+            if (bx < 0 || by < 0 || bx >= N || by >= N) break;
+            same = B.tiles[by][bx] === r.ground || (r.ground === 'LV' && B.tiles[by][bx] === 'SL');   // lava's own slate rim counts
+          }
+          if (!same) v = Math.min(v, (d - fade) * 1.5);   // gentle, so the speckled band survives
+          else if (r.ground === 'LV' && depth(r, X, Y) > -40) v = Math.max(v, (12 - d) * 2);   // lava next to his lava always joins it
         }
-        if (v > BAND) {
+        if (r.ground === 'LV') {
+          // lava has a crisp edge and a ragged slate rim (2-4 tiles), never a speckle
+          const rim = 2 + 2 * noise(X, Y, 5, r.s + 13);
+          if (v > 0) { inside = true; from = r; deep = true; want = 'LV'; }
+          else if (v > -rim && t !== 'CY') { inside = true; from = r; deep = false; want = 'SL'; }
+          continue;
+        }
+        if (v > band) {
           inside = true; from = r; deep = true;
           if (r.islands && v > 14 && soft(r.islands, X, Y, r.s + 9)) want = r.islands.ground;
           else if (r.patches && v < 26 && soft(r.patches, X, Y, r.s + 11)) want = r.patches.ground;
           else want = r.ground;
-        } else if (v > -BAND) {
+        } else if (v > -band) {
           inside = true; deep = false;
-          const p = (v + BAND) / (2 * BAND);
+          const p = (v + band) / (2 * band);
           if (hash2(X, Y, r.s + 7) < p * p * (3 - 2 * p)) { want = r.ground; from = r; }   // else: what lies under it stays
         }
       }

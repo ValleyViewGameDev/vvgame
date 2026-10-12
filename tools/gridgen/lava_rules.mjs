@@ -3,7 +3,7 @@
 //  1. ISLANDS: land wholly enclosed by lava that touches 1014571, 1015511 or 1015427 is dirt and
 //     stone, no grass: grass, moss and clay become dirt; a stone rim at least RIM tiles wide lines
 //     the lava.
-//  2. RIVER: from 1015435 to 1015530 the lava runs right down to the river's north bank: land between
+//  2. RIVER: from 1015435 to 1015531 the lava runs right down to the river's north bank: land between
 //     the lava field and the first water below it becomes lava, the last RIM tiles before the water
 //     stone, and the new lava gets the stone rim wherever it meets land.
 // Only tiles holding nothing or a tree, rock or doober change (an NPC or building blocks the tile and
@@ -25,7 +25,12 @@ const ISLAND_GRIDS = [1014571, 1015511, 1015427];
 const AREA = { r0: 36, r1: 46, c0: 35, c1: 44 };   // the lava field round them (frontier rows/cols)
 // the river stretch: 1015435 (row 43, col 37) to 1015530 (row 43, col 40); the lava field's south
 // edge is near world row 2746, the north bank below it
-const RIVER = { x0: 37 * N, x1: 41 * N, top: 2740, bottom: 44 * N };
+// (2026-10-12: on to 1015531, col 41, whose part north of the river is solid lava too)
+const RIVER = { x0: 37 * N, x1: 42 * N, top: 2740, bottom: 44 * N };
+// 3. ALL LAVA (2026-10-12): these grids are lava through and through; land of the neighbouring
+// grids listed in `margin` that lies within an organic 4-14 tiles of them goes too (the island tip
+// that crossed into 1015521 is cut back raggedly, not along the grid line)
+const ALL_LAVA = [{ grid: 1015521, margin: [1015511] }];
 const LANDISH = new Set(['GR', 'DI', 'ZZ', 'CY', 'SL']);   // ground that may become lava / stone / dirt
 
 function hash2(x, y, s) { let h = (x * 374761393 + y * 668265263 + s * 2147483647) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; }
@@ -116,6 +121,19 @@ export function applyLavaRules(load, resourcesByKey) {
       }
     }
     front = next;
+  }
+
+  // 3. ALL LAVA, before the islands so their rim follows the new edge
+  for (const { grid, margin } of ALL_LAVA) {
+    const [gr, gc] = cellOf(grid), gx0 = gc * N, gy0 = gr * N;
+    for (let Y = gy0; Y < gy0 + N; Y++) for (let X = gx0; X < gx0 + N; X++) if (LANDISH.has(tile(X, Y))) set(X, Y, 'LV');
+    for (const m of margin) {
+      const [mr, mc] = cellOf(m);
+      for (let Y = mr * N; Y < (mr + 1) * N; Y++) for (let X = mc * N; X < (mc + 1) * N; X++) {
+        const d = Math.hypot(X - Math.max(gx0, Math.min(X, gx0 + N - 1)), Y - Math.max(gy0, Math.min(Y, gy0 + N - 1)));
+        if (d < 4 + 10 * noise(X, Y, 7, 417) && LANDISH.has(tile(X, Y))) set(X, Y, 'LV');
+      }
+    }
   }
 
   // 1. ISLANDS: components of non-lava, non-water ground that never reach the edge of the area

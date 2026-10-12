@@ -1,0 +1,22 @@
+{
+ "note": "Owner overrides of the SoE - GRID DESIGN overview features, by 'frontierRow,frontierCol'; null = no feature (a plain random grid of its valley type). 2026-10-12: the oasis sand from 1012562 east is dropped; only the sunflower lake's (owner) sand stays.",
+ "cells": {
+  "20,47": null,
+  "21,43": null,
+  "21,44": null,
+  "21,45": null,
+  "21,46": null,
+  "21,47": null,
+  "22,42": null,
+  "22,43": null,
+  "22,44": null,
+  "22,45": null,
+  "22,46": null,
+  "22,47": null,
+  "23,44": null,
+  "23,45": null,
+  "20,48": null,
+  "20,49": null,
+  "21,48": null
+ }
+}

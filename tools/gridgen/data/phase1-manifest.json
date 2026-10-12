@@ -397,7 +397,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "801676d51dd250474f750edcfd7317099e8a33e4"
+  "sha1": "32b3265a655f4d0ecd81e1a13f22b1c180787fdc"
  },
  "1011166": {
   "frontier": [
@@ -683,7 +683,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "bda5a0da732e58784dbfcb1b53fb338f84030637"
+  "sha1": "181db4c17e7aae07edb642c8bfd402db70562734"
  },
  "1011233": {
   "frontier": [
@@ -966,7 +966,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "466893b64372b33fe0f36d63b082adf995a5df34"
+  "sha1": "a68b52b206ab28640ba6059d2e75021eac4b3f11"
  },
  "1011261": {
   "frontier": [
@@ -4532,7 +4532,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "ffa685456afa283b99fd950e69bcce916bbaf4b2"
+  "sha1": "c918849aa8eaf1a90d92687f12725a45bc61b5a6"
  },
  "1012143": {
   "frontier": [
@@ -4867,7 +4867,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "ea45ca436efd80042d834807c5570eac5a11d336"
+  "sha1": "fe28b57562a01642d1949624ee46c24ba2275e27"
  },
  "1012214": {
   "frontier": [
@@ -5620,7 +5620,7 @@
   "row": "valley2Layout2",
   "water": 22,
   "enemies": {},
-  "sha1": "545a7a1a42f79311eff7a0e55d14055abaed67b0"
+  "sha1": "485ba605a448e338e8fc898dbacdcfd934b5b7d9"
  },
  "1012352": {
   "frontier": [
@@ -5632,7 +5632,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "65846c24d1653cb3bec0033ff5c18d1dbbce8709"
+  "sha1": "ece2beeaa16f64056b52a29d11b18f5e7025c1ef"
  },
  "1012353": {
   "frontier": [
@@ -6520,10 +6520,10 @@
   "row": "valley2LayoutSpider2",
   "water": 0,
   "enemies": {
-   "Spider Spawner": 9,
-   "Spider": 7
+   "Spider Spawner": 10,
+   "Spider": 8
   },
-  "sha1": "9606464a08745616078e651d7f3feb8b15c3152a"
+  "sha1": "98947291d13c435962e6b3065f7847602cfd27b6"
  },
  "1012544": {
   "frontier": [
@@ -6547,7 +6547,7 @@
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "b3c0f118c8cb65fd73cc7f27446aac7eabe94670"
+  "sha1": "4d28d5fa28fbc52e20ff80f81dac6d0feec6459d"
  },
  "1012547": {
   "frontier": [
@@ -6555,11 +6555,11 @@
    47
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "d6348ac894c193bacf990e1f467f98e7703cfd83"
+  "sha1": "95439879e2a0d1439a0782c1fd790e5f0776900e"
  },
  "1012553": {
   "frontier": [
@@ -6567,11 +6567,11 @@
    43
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "15dbcb79a10977202d8273b1a5084b4a94e31a1f"
+  "sha1": "fad4ee13f62edba46cd942fb4d6a8b53ef914a1f"
  },
  "1012554": {
   "frontier": [
@@ -6579,11 +6579,11 @@
    44
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "2fd49708870d5aa3aab43fec9887c080b8088c08"
+  "sha1": "c6791aaf99e26f8c3865d6de1b5c0f84dc1abfa3"
  },
  "1012555": {
   "frontier": [
@@ -6591,11 +6591,14 @@
    45
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutSpider2",
   "water": 0,
-  "enemies": {},
-  "sha1": "cedc2865234cd7a332b871d66a4ad6507a882749"
+  "enemies": {
+   "Spider Spawner": 10,
+   "Spider": 8
+  },
+  "sha1": "fc06b2b006a0621409519ae2340482b412f6ace6"
  },
  "1012556": {
   "frontier": [
@@ -6603,11 +6606,11 @@
    46
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "8c034eb6c3eacc0e86f4b0e4e23be41c5998e277"
+  "sha1": "2a1b37a9cd4bce598d7b2acaffb83709207befda"
  },
  "1012557": {
   "frontier": [
@@ -6615,11 +6618,11 @@
    47
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "c988eb029d21b85b62e25e561a74cd50b5f45882"
+  "sha1": "b63e62df724e100b68d83c91b5ce875d9595098b"
  },
  "1012562": {
   "frontier": [
@@ -6627,11 +6630,13 @@
    42
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutOgre",
   "water": 0,
-  "enemies": {},
-  "sha1": "fa2745bd8b057e3b07753641834e8f499c3eb6d8"
+  "enemies": {
+   "Ogre": 6
+  },
+  "sha1": "69f22fc3b3461ae5e14518198fc62d02059ee8ea"
  },
  "1012563": {
   "frontier": [
@@ -6639,11 +6644,14 @@
    43
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutSpider2",
   "water": 0,
-  "enemies": {},
-  "sha1": "ea8338f22e1695ca0da17c8b7d41858033dcdfd9"
+  "enemies": {
+   "Spider Spawner": 10,
+   "Spider": 8
+  },
+  "sha1": "27783ae2d8ed58f69b5f5ed2a3d1b879f007bae0"
  },
  "1012564": {
   "frontier": [
@@ -6651,11 +6659,14 @@
    44
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutSpider1",
   "water": 0,
-  "enemies": {},
-  "sha1": "fc889d5071cadd36d9198011230ac5a48bec0656"
+  "enemies": {
+   "Spider Spawner": 5,
+   "Spider": 6
+  },
+  "sha1": "e75194d140f369db1a139ebe332099c0de3e2864"
  },
  "1012565": {
   "frontier": [
@@ -6663,11 +6674,11 @@
    45
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "50d1ac1c757dc923efd7bce813d82340b7cb7cdd"
+  "sha1": "5979544452671722f92761517b131284977c69a1"
  },
  "1012566": {
   "frontier": [
@@ -6675,11 +6686,14 @@
    46
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2LayoutSpider1",
   "water": 0,
-  "enemies": {},
-  "sha1": "9d04964b2d3f44ad96248f4e66762abc0b37e2e3"
+  "enemies": {
+   "Spider Spawner": 5,
+   "Spider": 6
+  },
+  "sha1": "4f82cc012c257957799e74c7be933164975f0a26"
  },
  "1012567": {
   "frontier": [
@@ -6687,11 +6701,11 @@
    47
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "e1d6b6b7b96884980f69e7c7ab7d2b4316d801f2"
+  "sha1": "72dffc208be2f8c777a86d977df13989ee68c30e"
  },
  "1012570": {
   "frontier": [
@@ -6715,7 +6729,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "269051e22f47ad678f093ff84b44b618a8c36b40"
+  "sha1": "b53802b403c3dc10e0a01200f00e222e8c03c56c"
  },
  "1012573": {
   "frontier": [
@@ -6727,7 +6741,7 @@
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "012e169152c449ee9b77f40939225d694a2a2795"
+  "sha1": "659cb0aacf1dfadcf9b1ba78fa547332854afb29"
  },
  "1012574": {
   "frontier": [
@@ -6735,11 +6749,11 @@
    44
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "d209d68ecc9c73d80d94b77f138ee4e4ddf2aa74"
+  "sha1": "4a9220a810dbdb418721ef0d1cc853389b888254"
  },
  "1012575": {
   "frontier": [
@@ -6747,11 +6761,11 @@
    45
   ],
   "valleyType": "valley2",
-  "feature": "sand",
+  "feature": null,
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "fd754c6008059160f9ebf1319b856899bb13230e"
+  "sha1": "ba18e947ba2d3a3a51ec63b90d96dd3d826dff26"
  },
  "1012576": {
   "frontier": [
@@ -6763,7 +6777,7 @@
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "ea0c1b1d4facef7d215802c0c2c7fbb2da77c18c"
+  "sha1": "eb6d79e897a8d3d91f3fadf27d7f4cf9886b472f"
  },
  "1012577": {
   "frontier": [
@@ -6778,7 +6792,7 @@
    "Spider": 8,
    "Spider Spawner": 10
   },
-  "sha1": "a1a689d99fa0732fd6370e7cdfa804831b81ee72"
+  "sha1": "72289c79bf49b94b7d1c763b1082ebfa7759289e"
  },
  "1012604": {
   "frontier": [
@@ -6969,7 +6983,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "4f92b61836d3925c51a2f90d155c4d584bddd6f7"
+  "sha1": "24e0d2f60e97223cd7fd31d2dc855eb39ae5679b"
  },
  "1012631": {
   "frontier": [
@@ -6984,7 +6998,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "7b264c032c9d6eeb1d373f043d05ab91db7cff35"
+  "sha1": "a6b32ca9ff5f16c3c8d9df71a5411f06000528e8"
  },
  "1012632": {
   "frontier": [
@@ -7079,13 +7093,13 @@
    48
   ],
   "valleyType": "valley1",
-  "feature": "sand",
+  "feature": null,
   "row": "valley1LayoutDaisy",
   "water": 0,
   "enemies": {
-   "Bear": 1
+   "Bear": 12
   },
-  "sha1": "2bba2ab5a579c4b7da07511ab786b55f7cd67ecb"
+  "sha1": "5c27371348cdb1649ab091b08e8448b402e62192"
  },
  "1012641": {
   "frontier": [
@@ -7093,13 +7107,14 @@
    49
   ],
   "valleyType": "valley1",
-  "feature": "sand",
+  "feature": null,
   "row": "valley1LayoutBear",
   "water": 0,
   "enemies": {
-   "Bear Spawner": 1
+   "Bear Spawner": 8,
+   "Bear": 8
   },
-  "sha1": "a9bd153428e73a2c4c54683c1db3351c419c3af8"
+  "sha1": "4db47e86cdfc4f926c412d6f10d29484e3200d51"
  },
  "1012642": {
   "frontier": [
@@ -7113,7 +7128,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "e7ec5b68e2f126aff34e9f49f4b0ddbdcb92ffd7"
+  "sha1": "ea7b89fa250e8adccaabd638289b409a0545c119"
  },
  "1012643": {
   "frontier": [
@@ -7194,11 +7209,11 @@
    48
   ],
   "valleyType": "valley1",
-  "feature": "sand",
+  "feature": null,
   "row": "valley1Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "e936ecfc57ca3b6b415fcadf1d6b1b65493085c3"
+  "sha1": "c40d6ddb95763b1a9021e2d9cedba9d2c7c57ec6"
  },
  "1012651": {
   "frontier": [
@@ -7213,7 +7228,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "140bd82b6f3298e1289b6b2e3b700b32de835902"
+  "sha1": "36f0c5487357d11638076e9fd28a645a62ff93b8"
  },
  "1012652": {
   "frontier": [
@@ -7312,7 +7327,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "85ea6aa8e91ddbfd648bec3d26e18357256f5116"
+  "sha1": "31e93a2b5a8256889693981d4a3f1b22136bf747"
  },
  "1012661": {
   "frontier": [
@@ -10714,7 +10729,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "b024a76be9add14afc5ee0dc79ba52bc1d769202"
+  "sha1": "f4139cfedbb1fc94efd1e65ffa7f46b1a717cdc9"
  },
  "1013505": {
   "frontier": [
@@ -10728,7 +10743,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "bc4bd1aa0e31c0a3e8a9e1591db4fea8d2973542"
+  "sha1": "f1450cdd1e6a7b80cf2831f8327f17492a08819d"
  },
  "1013506": {
   "frontier": [
@@ -10776,7 +10791,7 @@
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "63ec8cab5e2b315585091c5c7ec54aaa969a667b"
+  "sha1": "aa3ff3d5f3fdc29138868e15c7a4b4c1a322252b"
  },
  "1013514": {
   "frontier": [
@@ -10791,7 +10806,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "1c9c0c99055e64d4bc3469a0312f759b90e61ac4"
+  "sha1": "83f38448e3e49964a2997dbf68243b7b453b53ad"
  },
  "1013515": {
   "frontier": [
@@ -10806,7 +10821,7 @@
    "Spider": 8,
    "Spider Spawner": 10
   },
-  "sha1": "e8c9c4a43465536e96f46563387c49e85dd865d8"
+  "sha1": "6368adfb08243e7d7f62d4f06eaa7f95b815692d"
  },
  "1013516": {
   "frontier": [
@@ -10818,7 +10833,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "93d1bab88ae68276c839dc50e4c05ae40fdc0659"
+  "sha1": "36f7551f257c0cb8356192be13f7b72f66f2f639"
  },
  "1013517": {
   "frontier": [
@@ -10871,7 +10886,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "775b0855977b833c999c9516dfeb25522f7cba5a"
+  "sha1": "d672c08a1676aa0b198d0a786109982ad330d219"
  },
  "1013524": {
   "frontier": [
@@ -10885,7 +10900,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "6b5b160a1a111bef2edd20d0317aac993fb30ae1"
+  "sha1": "39b364f026c3f9fea33db52abc0773a84037cc38"
  },
  "1013525": {
   "frontier": [
@@ -10897,7 +10912,7 @@
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "729237e12d755c4386cacd733b5e965267ebba0f"
+  "sha1": "0e84edf60cf180070a338d5a3fd14e4fd54ed235"
  },
  "1013526": {
   "frontier": [
@@ -10909,7 +10924,7 @@
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "12a6eec088be51fadd3d1ae831c9ca99de05c6fb"
+  "sha1": "36a1045891fd40af18a65b084e54746b66f607f4"
  },
  "1013527": {
   "frontier": [
@@ -10963,7 +10978,7 @@
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "5e129ef367103dbd629884a795a5aba89833b782"
+  "sha1": "e0084ff2ca740ed97b552515498180a5035dc173"
  },
  "1013535": {
   "frontier": [
@@ -10975,7 +10990,7 @@
   "row": "valley2LayoutClay",
   "water": 0,
   "enemies": {},
-  "sha1": "87948e1093dcab83d811ff71ed072f475679ecc5"
+  "sha1": "b5d56c719ffdcf36cef7efab9d106f08a17864b7"
  },
  "1013536": {
   "frontier": [
@@ -10987,7 +11002,7 @@
   "row": "valley2LayoutDaisy",
   "water": 0,
   "enemies": {},
-  "sha1": "b93601b10cac969718f30be65435cb8954930ba0"
+  "sha1": "2578034fda3a68a461279224a63030d04dabfb33"
  },
  "1013537": {
   "frontier": [
@@ -10999,7 +11014,7 @@
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "f06a8183e72aea7020d270941f707a6af7fadb0d"
+  "sha1": "3e23a7a1826841a38c563920036643211c51b6db"
  },
  "1013540": {
   "frontier": [
@@ -11050,7 +11065,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "be81b3a77beff6d7a54ac3305a21f0bc3860c0e4"
+  "sha1": "a5281c4067ddb41d629186fcd4e13505da5bbd37"
  },
  "1013545": {
   "frontier": [
@@ -11062,7 +11077,7 @@
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "55c8c0f25611f7a2b22c551f5d3bc17523b6c43c"
+  "sha1": "d9be40628ed07624821b04bcb1d54478da59d850"
  },
  "1013546": {
   "frontier": [
@@ -11074,7 +11089,7 @@
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "27ea9d2a93b22c6a8a8ecba36dead303463ae72b"
+  "sha1": "f26b7f1d55f8b96effc2a992da52befdabb379eb"
  },
  "1013547": {
   "frontier": [
@@ -11089,7 +11104,7 @@
    "Spider": 6,
    "Spider Spawner": 5
   },
-  "sha1": "5b2fc007ef216d7a2bd37cc9a6ee493c1280fdf7"
+  "sha1": "6d5c62396e24e9f11b0592a45c85f9f1c5bcd170"
  },
  "1013550": {
   "frontier": [
@@ -11141,7 +11156,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "a434936d8bf6ee478afb011e4e2c651a9a237b52"
+  "sha1": "430a4e716d87f1c6b60320d2ddff3a233498056e"
  },
  "1013556": {
   "frontier": [
@@ -11153,7 +11168,7 @@
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "de57b65a54216615b07778cdeac66d8fee1b5b9c"
+  "sha1": "47b0c08dcef4ebd6aa695ee9475c35735aa587de"
  },
  "1013557": {
   "frontier": [
@@ -11167,7 +11182,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "597ce7485dac81a4fbe03f27608693770efc7009"
+  "sha1": "db0a4b50aee13648fa40749786d1a417135df27e"
  },
  "1013560": {
   "frontier": [
@@ -11235,7 +11250,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "e393767318db8633f3779f63496dcb2219dff024"
+  "sha1": "cab1ef9ad42278fe89687780463749e99d42ca90"
  },
  "1013567": {
   "frontier": [
@@ -11250,7 +11265,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "9d5309e9a6f3f8cf7d92b610a11eeca9c93c8fd3"
+  "sha1": "244ce5a56897588a9b730f2a7449a8e1c41d1cd5"
  },
  "1013570": {
   "frontier": [
@@ -11313,7 +11328,7 @@
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "aad3297fc9e55afcc4dc07828f6daf5b0db32082"
+  "sha1": "d506a8961bb8cc8c7befe980b5a66f619e154347"
  },
  "1013576": {
   "frontier": [
@@ -14324,7 +14339,7 @@
   "row": "valley3Layout6",
   "water": 0,
   "enemies": {},
-  "sha1": "a173ac2d5d6d7e20b21a1fd98b7654ece7a98dbc"
+  "sha1": "67201bfca039b79e01b409d8689fc7966308a1d3"
  },
  "1014361": {
   "frontier": [
@@ -15395,7 +15410,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "420689d563dbd94bcc2d5dc6881eb10394253b72"
+  "sha1": "122ecf336c24c7f87a8c5593e3bd58de8331d9d0"
  },
  "1014516": {
   "frontier": [
@@ -15467,7 +15482,7 @@
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "617431cd917923ffc373aba2f0fea341c7e4217b"
+  "sha1": "07021c33a7d78e5f74129b174135542f473bf51a"
  },
  "1014526": {
   "frontier": [
@@ -15520,7 +15535,7 @@
   "row": "valley2LayoutStone",
   "water": 0,
   "enemies": {},
-  "sha1": "757b4878f1def7c4092f6b12cd2b666c5d5b0b90"
+  "sha1": "8a1392a27bcbc3161652b31774cf1c612b4a8fc4"
  },
  "1014535": {
   "frontier": [
@@ -15583,7 +15598,7 @@
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "652bc01a4393031c06501a6811a44fa042900d1e"
+  "sha1": "ba3475a82b131575484dba8d1890ba1f585b38b8"
  },
  "1014545": {
   "frontier": [
@@ -15646,7 +15661,7 @@
   "row": "valley2Layout1",
   "water": 0,
   "enemies": {},
-  "sha1": "03ef944d1277b3fd49ae97c9dfcd9010e107f97d"
+  "sha1": "92c5c9977d767174cc04531098ac2a7de340682d"
  },
  "1014555": {
   "frontier": [
@@ -16129,7 +16144,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "bca6c70c93efd6b6fd5edb2531c035b6cdd59d90"
+  "sha1": "40c8f048c6fc8282cb95b2d6456bd7cbecf22b90"
  },
  "1014632": {
   "frontier": [
@@ -16184,7 +16199,7 @@
   "row": "valley1Layout2",
   "water": 46,
   "enemies": {},
-  "sha1": "de630aa4d5838bc1702610b9440228e9ffffdd75"
+  "sha1": "c640adcc507f79e65d15de234220c5a9dee5c7bb"
  },
  "1014636": {
   "frontier": [
@@ -16240,7 +16255,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "4024836049da1ee4ba405b3d3c44fadfee3b2886"
+  "sha1": "4ed5174ae14100cc9be57ac19c3e9066709ed893"
  },
  "1014642": {
   "frontier": [
@@ -16299,7 +16314,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "5752cd26e2700c9f4598c3952ab52e48be94af60"
+  "sha1": "d14d8bef88be0d7ee53c90347787af06e0a03c3e"
  },
  "1014646": {
   "frontier": [
@@ -16354,7 +16369,7 @@
   "row": "valley1Layout2",
   "water": 997,
   "enemies": {},
-  "sha1": "03a3922498c0bd8a5942c5c8dcb0c0e6cbe4ac8a"
+  "sha1": "ffe116b4b619a6676dae1e80711dfeea14e31d7b"
  },
  "1014652": {
   "frontier": [
@@ -16368,7 +16383,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "2a8b9417fdd32ac9cb87770f78ae72acfbc19923"
+  "sha1": "b6241d956ad33df1664164c3deaed737d51dac0d"
  },
  "1014653": {
   "frontier": [
@@ -16397,7 +16412,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "8e18f4864d4f1d45f66467394ea52ebbdc404a49"
+  "sha1": "2f6b6fb06d43a4646633f46a68f5c9db8e451023"
  },
  "1014655": {
   "frontier": [
@@ -16409,7 +16424,7 @@
   "row": "valley1Layout2",
   "water": 1154,
   "enemies": {},
-  "sha1": "583f188638a0b6ef425e3dae9226a5fb5e0800e2"
+  "sha1": "099e58094c5297243f9850701eb1daec9eb8ec72"
  },
  "1014656": {
   "frontier": [
@@ -16481,7 +16496,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "87637a2f7ab96e7a342f62a5639334a49f553f3c"
+  "sha1": "338bffa6f5e634e9fadae176123de72f27d094d1"
  },
  "1014663": {
   "frontier": [
@@ -16493,7 +16508,7 @@
   "row": "valley1Layout2",
   "water": 2858,
   "enemies": {},
-  "sha1": "d8f4f4cad8cb253ec92ca8d4dba54ea333eb43bd"
+  "sha1": "525428ca0ec73d6549f5618f295cce9d56c7ed8a"
  },
  "1014664": {
   "frontier": [
@@ -16508,7 +16523,7 @@
    "Coyote Spawner": 8,
    "Coyote": 8
   },
-  "sha1": "87b6fba7f04c30f0b0f272d5c9c5e5e0c0513fcc"
+  "sha1": "838ea15c2977925f2b4f2b8a4b8038c2ee8d47ec"
  },
  "1014665": {
   "frontier": [
@@ -16522,7 +16537,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "38266a7fb407688d9caff042cb03d6dab6c5bdea"
+  "sha1": "84daecab436cb9d42cf4fb2e6d7845d226ed5ee5"
  },
  "1014666": {
   "frontier": [
@@ -16566,7 +16581,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "573e9f182af63158ec8f8688883e8b154cbb7a79"
+  "sha1": "bdb490f685b6caf88349d9fd2824ab0adbcfc09e"
  },
  "1014673": {
   "frontier": [
@@ -16580,7 +16595,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "3449d1fda5e0fe47bb31808a71ec6797c91e61fd"
+  "sha1": "ecf6386a5ec4bb0417f2ca4d3b66b37cda4b86fa"
  },
  "1014674": {
   "frontier": [
@@ -16594,7 +16609,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "ff7ea1b676a8d478a4c201b917a3b30d402570be"
+  "sha1": "eeab7541a395fd15a3207b111b2c188504efab76"
  },
  "1014675": {
   "frontier": [
@@ -16650,7 +16665,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "81c264efadb5d74dbaa7bdb60538d7f92bc87ec9"
+  "sha1": "d9f02d5b9cb542799202254e4d8199cbdb607d65"
  },
  "1015101": {
   "frontier": [
@@ -16664,7 +16679,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "84b07b1f7eb0a77830a7b5003a9f87d5522ed976"
+  "sha1": "6b23b53f979233219d7187dc9bca44aa0ce323c2"
  },
  "1015102": {
   "frontier": [
@@ -16676,7 +16691,7 @@
   "row": "valley1Layout2",
   "water": 124,
   "enemies": {},
-  "sha1": "a664573d4bb3f49179e0a00d61476a7bd98d69df"
+  "sha1": "87abe3f5975f902047fa64591595d314e9e89619"
  },
  "1015103": {
   "frontier": [
@@ -16764,7 +16779,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "2f188ab279761a8ae5e5ef2fb6cc4676d7446ac6"
+  "sha1": "caf98cb366f512cc47dc150f3c8414f189aec2a0"
  },
  "1015111": {
   "frontier": [
@@ -16778,7 +16793,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "59498eec6652f78fe40b15e5c4411d94a512f898"
+  "sha1": "a18bdde1cba4424ca4402869c993018fffd2a520"
  },
  "1015112": {
   "frontier": [
@@ -16793,7 +16808,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "0711f77d915664ed405cc96a6da90afbb5078e8b"
+  "sha1": "c4f461354433e4664191cd732314a5a1c671f606"
  },
  "1015113": {
   "frontier": [
@@ -16807,7 +16822,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "917cf32e93900e9404c729c43e78c3848eb1bf32"
+  "sha1": "466ae75a602c7300e0c0bd6609b4b25f84de958f"
  },
  "1015114": {
   "frontier": [
@@ -16892,7 +16907,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "70227b2444b3566952227978356380b8db43df0f"
+  "sha1": "12ec21bcc04a0e6ed9f2e156ede017aa228c9f35"
  },
  "1015122": {
   "frontier": [
@@ -16904,7 +16919,7 @@
   "row": "valley1Layout2",
   "water": 1930,
   "enemies": {},
-  "sha1": "280783a5dc5f8455d258f5fc62101874a1c38a45"
+  "sha1": "f3cf3ba0a4dc251039cbe320c75d470a9c34acad"
  },
  "1015123": {
   "frontier": [
@@ -16919,7 +16934,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "2701cbae4822102189a552abaece06b4de366c80"
+  "sha1": "184f9d4c84fa63f77a4be779930a05f78e7a497b"
  },
  "1015124": {
   "frontier": [
@@ -17005,7 +17020,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "8fd13aab369b3a51f53521fe2bc28b6917918739"
+  "sha1": "af620c255102bda3a568df3f66ae4ae581df6c33"
  },
  "1015132": {
   "frontier": [
@@ -17020,7 +17035,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "9f221111cfa8000450a8b631cb8ba29e2f2f5775"
+  "sha1": "f8dd8308e613ed9666758484028d4ff469a004ec"
  },
  "1015133": {
   "frontier": [
@@ -17034,7 +17049,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "c9a91bf75de9ff4c9eaf193e531eb07833ccf73d"
+  "sha1": "e4fc2e45b48cac958134c3f9725cd988c41b1c38"
  },
  "1015134": {
   "frontier": [
@@ -17145,7 +17160,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "cafbd57f5b027bdfb0f021345d06ff947dd78bdb"
+  "sha1": "f71759f1507d8a8827022fdc084adbc512ab9622"
  },
  "1015144": {
   "frontier": [
@@ -17159,7 +17174,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "969599a053981559df34d7f5096d29528fda9865"
+  "sha1": "99e82c2995de50a32f618ca12e21a4c61bd4e84b"
  },
  "1015145": {
   "frontier": [
@@ -17174,7 +17189,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "53483eca5387a80ee410124dc3230033906fcba4"
+  "sha1": "8f0dfc56f4206e9be8c769c9504c165b06fb644e"
  },
  "1015146": {
   "frontier": [
@@ -17202,7 +17217,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "fa2d7551dbb258f6a3d4d3fa3384adc7b1312a82"
+  "sha1": "283839fa90bd841d871154d58988ad2e2c0d89bf"
  },
  "1015150": {
   "frontier": [
@@ -17276,7 +17291,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "ac5462f110e65dfd5fef5ef0b6d7a75284dcf599"
+  "sha1": "3a7e1b5ad1e9cdd1d5edaa9114792feb273631b2"
  },
  "1015155": {
   "frontier": [
@@ -17288,7 +17303,7 @@
   "row": "valley1Layout2",
   "water": 3332,
   "enemies": {},
-  "sha1": "8a538d10e5f2c0a9db95fe88a41a7ae837bc9686"
+  "sha1": "742e387965f0d69ac16bea5a030dc44784b57f23"
  },
  "1015156": {
   "frontier": [
@@ -17303,7 +17318,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "092fa3ad6516382abcc1461a12a41b2e76774342"
+  "sha1": "6cf410f445d837f6d6e797f5c3636bbd0431a3b2"
  },
  "1015157": {
   "frontier": [
@@ -17317,7 +17332,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "d3df1515f709f4dc36ff8c0e47131a50ec110c51"
+  "sha1": "ef0af4676163ba7b568d1533ae6beef4a764fbdb"
  },
  "1015160": {
   "frontier": [
@@ -17400,7 +17415,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "415b4ad192685c3d98dbc232d7988cd67371b485"
+  "sha1": "ad9a533dcbda52f70f5401fa8cbf17399c501168"
  },
  "1015170": {
   "frontier": [
@@ -17415,7 +17430,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "1d8e85ecc1a056b711a45d7dbeac63363227c6d6"
+  "sha1": "177f5ed0368f6fb4b12a42fb2c632aefc9e105a2"
  },
  "1015171": {
   "frontier": [
@@ -17430,7 +17445,7 @@
    "Coyote Spawner": 8,
    "Coyote": 8
   },
-  "sha1": "34aaad12ff7d632f3d5ab01a3ae0ec64fb614490"
+  "sha1": "7f26023108bc3481b6e3900bb12432a16bae14d1"
  },
  "1015172": {
   "frontier": [
@@ -17540,7 +17555,7 @@
    "Zombie": 5,
    "Zombie Spawner": 8
   },
-  "sha1": "e3eb50807d3297f76b8e948118214c3b743455e0"
+  "sha1": "87ee70d7cb6186537b4f7d46dfef7abf45abc455"
  },
  "1015204": {
   "frontier": [
@@ -17554,7 +17569,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "892db87fe1e2e29d5c903945d6a27fde2b6f4430"
+  "sha1": "99be3b33fb20c8a1d7e5e0d057df021c2f91450f"
  },
  "1015210": {
   "frontier": [
@@ -17833,7 +17848,7 @@
   "row": "valley2Layout2",
   "water": 653,
   "enemies": {},
-  "sha1": "6770e7de9463ae9388a6fcb2b02eb667bd5e6455"
+  "sha1": "a390762abae7cc44d451d6e7091f1dfb6031d116"
  },
  "1015241": {
   "frontier": [
@@ -17845,7 +17860,7 @@
   "row": "valley2LayoutDaisy",
   "water": 981,
   "enemies": {},
-  "sha1": "97da49d89b8e519523bbe45fd5b200f153d8e26f"
+  "sha1": "c835e57c565d040a011297db44572649f09f8196"
  },
  "1015242": {
   "frontier": [
@@ -17859,7 +17874,7 @@
   "enemies": {
    "Ghost": 6
   },
-  "sha1": "421e6f26009a2ef1bab5a243df2b4a3a3f5fb44e"
+  "sha1": "168f01779c9465ea48e32bbb4481be749bf0b02b"
  },
  "1015243": {
   "frontier": [
@@ -17932,7 +17947,7 @@
    "Spider Spawner": 10,
    "Spider": 8
   },
-  "sha1": "863fd028731aace2628e00e070678ddce0968c58"
+  "sha1": "381e55e722115d3dac309d3f7066993517933327"
  },
  "1015251": {
   "frontier": [
@@ -18045,7 +18060,7 @@
    "Spider Spawner": 5,
    "Spider": 6
   },
-  "sha1": "a570440bf1d77b70830ca7be1f4f4c2b4a0461a4"
+  "sha1": "4a1a67c4c697a9b6d2b6264d57e602b9d48f1206"
  },
  "1015262": {
   "frontier": [
@@ -18338,7 +18353,7 @@
   "enemies": {
    "Ogre": 6
   },
-  "sha1": "aa6e224f1fdd59ea4685ce4af7c20dee7b6dcd44"
+  "sha1": "e2a11672ea2bb2d08ff556f363ec718aab7f92ac"
  },
  "1015311": {
   "frontier": [
@@ -19612,7 +19627,7 @@
    "Spider Spawner": 7,
    "Spider": 6
   },
-  "sha1": "1e1c43cc06c28d0eacbf947dfc5dcdc8f5536c49"
+  "sha1": "129fd8862d71779ce21b8151be6d9e8d44965038"
  },
  "1015520": {
   "frontier": [
@@ -19638,7 +19653,7 @@
   "row": "valley2Layout2",
   "water": 0,
   "enemies": {},
-  "sha1": "6d2e3364c23f3206ceefecbeb09ed956dbcc1998"
+  "sha1": "41ce0137d1624c4e7e45571f527265b443d6ef6d"
  },
  "1015536": {
   "frontier": [
@@ -19679,7 +19694,7 @@
   "enemies": {
    "Spider Spawner": 2
   },
-  "sha1": "90765243e9484e9adfad51a6f23ea02dd56d455d"
+  "sha1": "aefc94c54596a2899b02cf2c6d12250ad88bf4bf"
  },
  "1015541": {
   "frontier": [
@@ -19691,7 +19706,7 @@
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "504d5bdcff0dd1c8a8d4af14c0018e683a5da67a"
+  "sha1": "cec28e67525b1011abc7db9be3d4fce1c01f273f"
  },
  "1015542": {
   "frontier": [
@@ -19705,7 +19720,7 @@
   "enemies": {
    "Ogre": 4
   },
-  "sha1": "1c6fbb96d06efbebd79e9eae02b35aeb64899751"
+  "sha1": "e00752353d04a9595aa9a0c6f1d91ef727656128"
  },
  "1015543": {
   "frontier": [
@@ -20048,7 +20063,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "900aa3c4645e68036a7e1f4d58a5428535717a1f"
+  "sha1": "77ce759c928dadb195c4777de7609cb3d22b631e"
  },
  "1015603": {
   "frontier": [
@@ -20063,7 +20078,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "14bf92f5831950b4c0275731cd240a91f396b283"
+  "sha1": "6a24284e1e1d7941bce184a09dc20a90c54f4944"
  },
  "1015604": {
   "frontier": [
@@ -20077,7 +20092,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "a0d3f9e21d5cacfe308df4cd6fab3dfaa65411ea"
+  "sha1": "be98bf41b1be955ec211eb42d5b3a98e14e697f4"
  },
  "1015605": {
   "frontier": [
@@ -20131,7 +20146,7 @@
   "row": "valley1Layout2",
   "water": 2030,
   "enemies": {},
-  "sha1": "3111e764ec534841b5357a52df173ecfd4ef2876"
+  "sha1": "eaca6ffcdb5cc7045717d2ab9af4e7c13d4287c4"
  },
  "1015613": {
   "frontier": [
@@ -20157,7 +20172,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "621974a44fb2130c697663f93015cdac3d71dcca"
+  "sha1": "55710091c7cdaf8562d9b35fe6e0e4fbdb0d1e17"
  },
  "1015615": {
   "frontier": [
@@ -20172,7 +20187,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "2735e2bacbbb35e8db5b3ddd74f0cc0e4c20a503"
+  "sha1": "6fe8a256c5a8d1b7c0e3b3255a26780b6d5afdf9"
  },
  "1015616": {
   "frontier": [
@@ -20216,7 +20231,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "7905824c9fba21c026bb8812181e940e0d7cec42"
+  "sha1": "09ab5123cf5573788b507b1c6d6c69d9ff5914d3"
  },
  "1015623": {
   "frontier": [
@@ -20243,7 +20258,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "dc3b6277f14a7c18c87850d566ccf395401cecc4"
+  "sha1": "682d95d88bbcf97d9e4ece539734ff7c24fb8f06"
  },
  "1015625": {
   "frontier": [
@@ -20257,7 +20272,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "307f7e217e5addbd8b544ac3c7152a920a4391f2"
+  "sha1": "05a89a9bafa7eff7a587896271ae63daf291926f"
  },
  "1015626": {
   "frontier": [
@@ -20330,7 +20345,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "246357e4055a5a37165c1d7d4f9faf0ae898f580"
+  "sha1": "afb433219a4f405eea27f5bfcadeb9ad392f63e7"
  },
  "1015633": {
   "frontier": [
@@ -20357,7 +20372,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "7a95ba9758df12eee6a14a011e32858c93655bd2"
+  "sha1": "6a698531c68001c5b9d9a83421e274de9164ca2e"
  },
  "1015635": {
   "frontier": [
@@ -20369,7 +20384,7 @@
   "row": "valley1Layout2",
   "water": 112,
   "enemies": {},
-  "sha1": "3464357e97090e7a6db975b340af844e1ffb160a"
+  "sha1": "e78249ce76f5f86bda4f0659fb469356ba557975"
  },
  "1015636": {
   "frontier": [
@@ -20442,7 +20457,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "4316a07de7de8ecb6e20e0e77620fc3403e02d25"
+  "sha1": "f37c39ed1fa8676e6d98535e559f235e13311a36"
  },
  "1015643": {
   "frontier": [
@@ -20469,7 +20484,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "0f5beda7f600e36f81fc832c8fd82ceac3fcc397"
+  "sha1": "04adb498e3c61fc3ebf8be213fadf518b572ff8f"
  },
  "1015645": {
   "frontier": [
@@ -20554,7 +20569,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "cd635de7bb779b724a5d9c3ec6dccb5d7b86243e"
+  "sha1": "9401eb353c7baa2cc93f002a6d22f4415aa6a082"
  },
  "1015653": {
   "frontier": [
@@ -20568,7 +20583,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "debf628e2fb2631609d4cf20345732adccd8b224"
+  "sha1": "d1d53b1ffb5952d29aa21e948a80fe91f95d1cc0"
  },
  "1015654": {
   "frontier": [
@@ -20583,7 +20598,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "d6f567475eb1c54b7a0fdabbb7a9b34af9c9bfe6"
+  "sha1": "9e4ac3c650640f9f2db4d103fb1b2df67ff92c88"
  },
  "1015655": {
   "frontier": [
@@ -20595,7 +20610,7 @@
   "row": "valley1Layout2",
   "water": 391,
   "enemies": {},
-  "sha1": "cd10a4cdcef96878190f915ff3db60957f19055f"
+  "sha1": "8b28248c683216b93a5fc4a893a8ec6a9999cf03"
  },
  "1015656": {
   "frontier": [
@@ -20695,7 +20710,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "929fd9cc2de3f8cd51bf58e643d48cb1f19c316a"
+  "sha1": "bf50ea570812b6707cc4441a560910ada872454e"
  },
  "1015666": {
   "frontier": [
@@ -20810,7 +20825,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "16b46cdcfba190606c38ea56e86bbdf4b62b9da1"
+  "sha1": "3d1dffa0c04531a9cbcfdc9d0a3085718be0a9c0"
  },
  "1015676": {
   "frontier": [
@@ -20853,7 +20868,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "cd4ff939b7ce95948cdcd0d8f9aa49def1ecae03"
+  "sha1": "72ab4e8f45f5e7f051f6dd72d45d50d8f04bb81c"
  },
  "1016102": {
   "frontier": [
@@ -20939,7 +20954,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "fc31a096b9dae54f8dc69fedcac924ee87f73a0c"
+  "sha1": "6a890ae508f8d259b87d8ed9f4e24ce834455fc1"
  },
  "1016110": {
   "frontier": [
@@ -21750,7 +21765,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "aba40d1c63f3ead5abd2a2a60e4aded24f85e095"
+  "sha1": "2faa806f6d8dab01d3da57d24fd192bfa2567041"
  },
  "1016201": {
   "frontier": [
@@ -21765,7 +21780,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "07199652a97cee08e04b9c815b39ada582070a54"
+  "sha1": "88d1d153605c250801477d9faaa30a07f9a06cdd"
  },
  "1016202": {
   "frontier": [
@@ -21864,7 +21879,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "4620734e0f5a9bf633af29590b9509a7b8100ee0"
+  "sha1": "2b88d49290c423bdd56455853af553cbdd9dda25"
  },
  "1016211": {
   "frontier": [
@@ -21878,7 +21893,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "ea0f90efe500318220e73d07bb20437b08d5b7b7"
+  "sha1": "9087a2804d683861d7c78ec17baf855e7e774945"
  },
  "1016212": {
   "frontier": [
@@ -21980,7 +21995,7 @@
    "Coyote Spawner": 8,
    "Coyote": 8
   },
-  "sha1": "4c612cc70b69e24df9cc3438c660d15309b30af4"
+  "sha1": "30f2aea2bedb8d051439a60f839a65ede004acc8"
  },
  "1016221": {
   "frontier": [
@@ -21992,7 +22007,7 @@
   "row": "valley1Layout2",
   "water": 1760,
   "enemies": {},
-  "sha1": "aceaa7009f0623b45b0c392b2bd04b658c098acd"
+  "sha1": "fc4bf7e416eb93051dea2c3af33b34434864aecf"
  },
  "1016222": {
   "frontier": [
@@ -22007,7 +22022,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "b03e458acf707bc65795669622e9410ae1ad3549"
+  "sha1": "e159d7cd436e604829d3a677c6bcf6ee1ddda889"
  },
  "1016223": {
   "frontier": [
@@ -22095,7 +22110,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "ce487bba39b4432169537226a6faafbf0c7ca3c6"
+  "sha1": "1e3ee62828d9a22178acdd16ff7b98ee9da0b5e0"
  },
  "1016231": {
   "frontier": [
@@ -22109,7 +22124,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "fc4ef4849b520a6cc508fd572c55b97dde6cb390"
+  "sha1": "f5b6b555830b57acad015d7aa2514359622aab67"
  },
  "1016232": {
   "frontier": [
@@ -22124,7 +22139,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "caf419d14069372a72d444902f1ad9ddb79db2f5"
+  "sha1": "5928a6c860ce7ac26a271bbd5a62b6cfe8fe04bc"
  },
  "1016233": {
   "frontier": [
@@ -22138,7 +22153,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "17e2b77b917ee7453acd6494efc146af052b398c"
+  "sha1": "2396ef2579543cfaf58ad8e4b407026b9714acfe"
  },
  "1016234": {
   "frontier": [
@@ -22153,7 +22168,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "9c10303114ee6e6cef1050e2370b0236d00385c7"
+  "sha1": "ca51dc3762b7f3caab230082eacebff5d8bebf4d"
  },
  "1016235": {
   "frontier": [
@@ -22167,7 +22182,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "5770738d4f492a0bf9959c8dec9627474456bc42"
+  "sha1": "424067a810c536bf7f58d05802c398e31041a8c4"
  },
  "1016236": {
   "frontier": [
@@ -22224,7 +22239,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "531ca7eb55a72fc444e2acccb2367eaab8649f8b"
+  "sha1": "63de9aea5ddfe3eeb0c1acc145b60ba06ee6b962"
  },
  "1016242": {
   "frontier": [
@@ -22236,7 +22251,7 @@
   "row": "valley1Layout2",
   "water": 1845,
   "enemies": {},
-  "sha1": "06e2d98b32a27b24deea9cf4840cdfacdbe6cd21"
+  "sha1": "f7480e7e09ae1c51e794fd4126c5bc78c8d1f98b"
  },
  "1016243": {
   "frontier": [
@@ -22250,7 +22265,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "e9f12011af0885eedcc6103745ae31f62eb05a77"
+  "sha1": "61a1b1d440addafeb1a700b52f889d932f0ef829"
  },
  "1016244": {
   "frontier": [
@@ -22264,7 +22279,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "98c7239ce57e300fbd56ab2059599249a61f8583"
+  "sha1": "851aaa45f159d3971847d6d226e2b96ec1aa17e2"
  },
  "1016245": {
   "frontier": [
@@ -22279,7 +22294,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "b97f71eb0deae08741fb8698676f35a205364bc3"
+  "sha1": "960e2b2c792f78c2d0b33e67358d27b91e09b186"
  },
  "1016246": {
   "frontier": [
@@ -22291,7 +22306,7 @@
   "row": "valley1Layout2",
   "water": 6,
   "enemies": {},
-  "sha1": "4674a519370e00f5e15c83016eeade0abf7faa04"
+  "sha1": "8ba542aa6ff8203ae47510dd1968379984d256f5"
  },
  "1016247": {
   "frontier": [
@@ -22394,7 +22409,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "59d3f82fab8ddccd483991745cd6f8fbaf7f818f"
+  "sha1": "358e9940721e59f6db8bff08307addf59c3d7e8c"
  },
  "1016256": {
   "frontier": [
@@ -22409,7 +22424,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "35fb2284fba6c0d8d807294e192bda0330079d31"
+  "sha1": "7aa84afc34f0cad4e542f9fa1f1d45c1bb5c9a9c"
  },
  "1016257": {
   "frontier": [
@@ -22423,7 +22438,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "a1294adbe4605c2389930247fa2caf3e1ca69110"
+  "sha1": "b3720d1bf4f8dabc007554d18d479d8ae66f9605"
  },
  "1016260": {
   "frontier": [
@@ -22525,7 +22540,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "218e89c6e8128f881766dcffd760d5e3e0a1dd36"
+  "sha1": "159e398012e0c21da618338ba348b4cbe6bb5e67"
  },
  "1016267": {
   "frontier": [
@@ -22539,7 +22554,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "5d3b450aafeb657d74e7ff67ffb6e7ca515af72f"
+  "sha1": "bff9fc708d61ad6be6076d5ac898229a5bc039fc"
  },
  "1016270": {
   "frontier": [
@@ -23134,7 +23149,7 @@
    "Coyote Spawner": 8,
    "Coyote": 8
   },
-  "sha1": "444b7da647e2a3b80baa992ff952b1f8542d4788"
+  "sha1": "96d0b85088609b5efbf703a5e5adc5aefad652ef"
  },
  "1016342": {
   "frontier": [
@@ -23146,7 +23161,7 @@
   "row": "valley1Layout2",
   "water": 865,
   "enemies": {},
-  "sha1": "020c1e31f86e66687642ce356c43d6c7b930bd01"
+  "sha1": "466f774237eb3a7e6364f0aca7783268fd1cd9d3"
  },
  "1016343": {
   "frontier": [
@@ -23161,7 +23176,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "54ff0849581cac4ff9e8a18d9dc79a12a02266d6"
+  "sha1": "840cf0731026bc4038c9144fa28429eb30740eee"
  },
  "1016344": {
   "frontier": [
@@ -23175,7 +23190,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "0edf76d426b78cf8184a60c61dfbde0ea6d2e567"
+  "sha1": "a3440a9f2afdc082f25f546a93abfbd41f8d81ac"
  },
  "1016345": {
   "frontier": [
@@ -23190,7 +23205,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "dcdc10ecdce16ef63e73e55058d7fb602da4a659"
+  "sha1": "52e11f852bf9f227e7caebd496d0be5af5ce3c69"
  },
  "1016346": {
   "frontier": [
@@ -23234,7 +23249,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "201f1a4077cbed3cabd1ed8f7c3ba9a25928a94e"
+  "sha1": "10f4b6003617551868b1b835fb5ad63069065cec"
  },
  "1016351": {
   "frontier": [
@@ -23249,7 +23264,7 @@
    "Bear Spawner": 8,
    "Bear": 8
   },
-  "sha1": "1fc2ac08297342ad9875b91c1795d4bb6afcc7bf"
+  "sha1": "12ba4ac445ada4ca4f37b86aa6d4fa0b22eb0d2e"
  },
  "1016352": {
   "frontier": [
@@ -23277,7 +23292,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "88fe49d7dab55bc57e079f6f869907b30caaff92"
+  "sha1": "af6eda15eaeb0640161d90a709410e35d8a48cf0"
  },
  "1016354": {
   "frontier": [
@@ -23292,7 +23307,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "08b884c597abfb0a12bd91fdb7a5efa1e42acae1"
+  "sha1": "efda91ff223773fb57dd6bfbe4cdebd0b7d6dacb"
  },
  "1016355": {
   "frontier": [
@@ -23304,7 +23319,7 @@
   "row": "valley1Layout2",
   "water": 1325,
   "enemies": {},
-  "sha1": "01f8746d006c9a76060da79e5f8dfb21392b7655"
+  "sha1": "9cc4be5cd40403491bcd836e3afc50075a66b98c"
  },
  "1016356": {
   "frontier": [
@@ -23319,7 +23334,7 @@
    "Coyote Spawner": 8,
    "Coyote": 8
   },
-  "sha1": "fcf2282d1c0a2a12defb0da1abd699bb2df75c55"
+  "sha1": "27409da9855459e63a0325c3ee69dbb15d362afb"
  },
  "1016357": {
   "frontier": [
@@ -23349,7 +23364,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "7001643288a623013a4dc6dd664e5e42543bc1da"
+  "sha1": "2f04cfb8f531eb0ae3cf2e01ece26c35356cd512"
  },
  "1016361": {
   "frontier": [
@@ -23421,7 +23436,7 @@
    "Bear": 3,
    "Coyote": 6
   },
-  "sha1": "16cbbabc5777c830db76f294b8f4645c58202da0"
+  "sha1": "a2d6ce71236a927034dfd469d191b942a6afa9f7"
  },
  "1016366": {
   "frontier": [
@@ -24714,7 +24729,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "5dc7ab4fa491556cc2011255938fa6885e9d3196"
+  "sha1": "e71358127f24f833eaa05367652e19b6304fc0e8"
  },
  "1016531": {
   "frontier": [
@@ -24726,7 +24741,7 @@
   "row": "valley1Layout2",
   "water": 996,
   "enemies": {},
-  "sha1": "afe34b27d80d980f4200f351e3b19eea9bc026b0"
+  "sha1": "d82f1eedfc23d459505f77fe1cfbe45dc6984d71"
  },
  "1016537": {
   "frontier": [
@@ -24741,7 +24756,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "d838651393bcd0e524a827cc5858a3c0846f878c"
+  "sha1": "69fc1708c14d0b9d03c91e123e1b727217aee303"
  },
  "1016540": {
   "frontier": [
@@ -24770,7 +24785,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "c426df77d41b644ca444cfe808e08882be18b510"
+  "sha1": "cdd148234ae4aa7820e0f27f227b28f12f00c03e"
  },
  "1016542": {
   "frontier": [
@@ -24785,7 +24800,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "9d9f79290790f5e789db6910d72e58050f824695"
+  "sha1": "dd3e5c9e182e8a51093bb719020ca02be18ccd43"
  },
  "1016543": {
   "frontier": [
@@ -24800,7 +24815,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "07a5a5c39e2c36d523203e86d9d962674ca34681"
+  "sha1": "b81556b42a99fa0cdf3715fceab6b804b735aeea"
  },
  "1016544": {
   "frontier": [
@@ -24815,7 +24830,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "b7fe13a7565dadeb4a2da5f72a289c1de7fd925e"
+  "sha1": "3a3bb92c6cd0431e18963d51ac65979e16abf838"
  },
  "1016545": {
   "frontier": [
@@ -24830,7 +24845,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "01439ae1935fba320abd48443b5aa794f1c3aa54"
+  "sha1": "731f238caf132a13be25a5c7f4c7cd5a8584d336"
  },
  "1016546": {
   "frontier": [
@@ -24844,7 +24859,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "a4f4aefd3b696bef7094ff91dd07efe69aa7f065"
+  "sha1": "ec60e85b228f8f925891c08d4115d36a53bc795f"
  },
  "1016547": {
   "frontier": [
@@ -24859,7 +24874,7 @@
    "Coyote": 4,
    "Bear": 2
   },
-  "sha1": "48d133b8615b2f0c829062a696e186975ee82dc5"
+  "sha1": "4324aadd0ee3a1a797c55b14f02e58a7ad724828"
  },
  "1016550": {
   "frontier": [
@@ -25254,7 +25269,7 @@
    "Bear": 2,
    "Coyote": 4
   },
-  "sha1": "0d7151569af620347377e6eaf86f42cf768413db"
+  "sha1": "a19cce9e97fddd46616768569e42e58499a7f4d3"
  },
  "1016604": {
   "frontier": [
@@ -25268,7 +25283,7 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "d356d857f1426b1397a729cc6e8a09edca484e2d"
+  "sha1": "35fe8afe11ad0a68b3e8b17a8f7cfa27deef6ced"
  },
  "1016605": {
   "frontier": [
@@ -25283,7 +25298,7 @@
    "Coyote": 8,
    "Coyote Spawner": 8
   },
-  "sha1": "45a80c3058d2606ec42eefe0ddb6a51ec32f4639"
+  "sha1": "c89ab8e919e45a3414349ab630a77a24d535e4f9"
  },
  "1016606": {
   "frontier": [
@@ -25504,7 +25519,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "1155de469b67c0463f5a43990a7541e1570757a2"
+  "sha1": "e42e6f0cca5ffa1af3aced4ca537337b90c0f0ca"
  },
  "1016632": {
   "frontier": [
@@ -25519,7 +25534,7 @@
    "Bear": 8,
    "Bear Spawner": 8
   },
-  "sha1": "bd0d2c791be712d18a283968d06b40baf2cf9eee"
+  "sha1": "fb818dad809f2b5847b8cf433cdf016d57281b62"
  },
  "1016633": {
   "frontier": [
@@ -25606,7 +25621,7 @@
   "enemies": {
    "Coyote": 12
   },
-  "sha1": "687759752d502b30883f5d19536903b4b91a9e2f"
+  "sha1": "69ace81608370d52a7fc6f4d7f07611d5095e9fe"
  },
  "1016641": {
   "frontier": [
@@ -25621,7 +25636,7 @@
    "Coyote": 6,
    "Bear": 3
   },
-  "sha1": "949933b50d4197ce039548f894c804e8edf9c916"
+  "sha1": "e6d575e0f7bd0c90e84367b34cde52c28ed5b6ba"
  },
  "1016642": {
   "frontier": [

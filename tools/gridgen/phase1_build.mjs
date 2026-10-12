@@ -16,6 +16,7 @@ import { fixSeams } from './seam_fix.mjs';
 import { blendGrid, loadRecorded } from './slate_blend.mjs';
 import { applyLavaRules } from './lava_rules.mjs';
 import { applyGroundRegions, loadRegions } from './ground_regions.mjs';
+import { applyBank, loadRecord as loadBankRecord } from './banks.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GS = path.join(HERE, '..', '..', 'game-server');
@@ -57,7 +58,11 @@ const isNew = (fr, fc) => isValley(fr, fc) && !hasTemplate(fr, fc) && !isPilot(f
 const tplCache = new Map();
 const tpl = (fr, fc) => { const c = coordOf(fr, fc); if (!tplCache.has(c)) tplCache.set(c, JSON.parse(fs.readFileSync(path.join(FIXED, `${c}.json`), 'utf8'))); return tplCache.get(c); };
 
+// owner overrides of the design sheet's features, by "row,col" (null = no feature: a plain random
+// grid of its valley type), data/feature_overrides.json
+const FEATURE_OVERRIDES = (() => { const f = path.join(HERE, 'data', 'feature_overrides.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')).cells : {}; })();
 function feature(fr, fc) {
+  if (Object.prototype.hasOwnProperty.call(FEATURE_OVERRIDES, `${fr},${fc}`)) return FEATURE_OVERRIDES[`${fr},${fc}`];
   const raw = LABELS[`${fr},${fc}`]; if (!raw) return null;
   const b = raw.toLowerCase().replace(/[^a-z]/g, '');
   if (b.startsWith('hauntedriver')) return 'river:haunted';
@@ -619,6 +624,18 @@ if (WRITE) {
   const changed = applyGroundRegions(load, byKey, { isGen: (c) => !!manifest[c] && !manifest[c].ownerEdited }, loadRegions());
   for (const c of changed.keys()) { const f = path.join(FIXED, `${c}.json`); fs.writeFileSync(f, JSON.stringify(cache.get(c))); manifest[c].sha1 = sha1(fs.readFileSync(f)); }
   console.log(`ground regions laid in ${changed.size} generated grids`);
+}
+// river and lake banks (banks.mjs, recorded in data/banks.bin.gz): the same bank on every rebuild
+const BANK = WRITE ? loadBankRecord() : null;
+if (BANK) {
+  const byKey = new Map(resources.filter((x) => x.layoutkey).map((x) => [x.layoutkey, x]));
+  let n = 0;
+  for (const c of BANK.keys()) {
+    if (!manifest[c] || manifest[c].ownerEdited) continue;
+    const f = path.join(FIXED, `${c}.json`), L = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (applyBank(c, L, BANK, byKey)) { fs.writeFileSync(f, JSON.stringify(L)); manifest[c].sha1 = sha1(fs.readFileSync(f)); n++; }
+  }
+  console.log(`banks laid in ${n} generated grids`);
 }
 for (const c of OWNER_EDITED) manifest[c] = { ...PREV[c], ownerEdited: true };   // keep the record, never touch the file
 fs.writeFileSync(path.join(OUT, 'phase1-manifest.json'), JSON.stringify(manifest, null, 1));

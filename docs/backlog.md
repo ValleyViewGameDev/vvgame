@@ -71,7 +71,11 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   of dirt and stone and the lava run down to the river's north bank in 1015435-1015530
   (`lava_rules.mjs`); the big dirt region between the Haunted River and the King's Circle in
   settlement 5_2, with soft grass patches, coyotes, and slate through the King's Circle gap
-  (`ground_regions.mjs`, owner grids painted on request). Phases 3-8 not started.
+  (`ground_regions.mjs`, owner grids painted on request); the oasis sand from 1012562 east
+  dropped (`feature_overrides.json`) and a sand beach on the King's Circle's east bank from 1013522
+  to 1013554 instead (2026-10-12). Phase 6 (river and lake banks) done 2026-10-12 (`banks.mjs`:
+  dirt banks 1-3 tiles, slate near slate, the owner's banks, sand, lava and towns left alone).
+  Phases 3-5, 7, 8 not started.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
 - **W-13. A new character with his hut on Hell's Mouth's peninsula** (added 2026-10-09). The

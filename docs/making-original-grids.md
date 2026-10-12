@@ -544,3 +544,68 @@ grids are painted once with `--owner`; a second rebuild changes nothing):
 - Follow-up (owner: a fair number of coyotes randomly over the new dirt): regions can scatter their
   own creatures (`npcs`); the dirt region puts a Coyote on 0.25% of its deep dirt tiles, about 208
   over the 38 mostly-dirt grids (1-11 a grid, ~5.5 on average; Quick Generate grass has ~4).
+
+### 2026-10-12: sand moved from the oasis to the King's Circle's east bank
+
+Owner: the sand-based grids from 1012562 east become standard random valley2 / valley1 grids; only
+the sunflower lake's grids to the north stay sandy. Then new sandy regions from 1013522 down to
+1013554 (the little town surrounded by sand): a beach along the King's Circle river's east bank,
+and sand reaching 2-3 grids east of it, looking natural and blending into random valley2 grids.
+
+Done:
+- `tools/gridgen/data/feature_overrides.json` (read by `phase1_build.mjs` before the design
+  sheet's labels): the 17 "Oasis" cells there (rows 20-23, cols 42-49) have no feature, so they
+  build as plain grids of their valley type. The owner's sand round the sunflower lake is untouched.
+- A sand region in `data/ground_regions.json` (`ground_regions.mjs` gained sand, a per-region
+  transition width `band` and a `seed`): from the bank of 1013522 down past the town in 1013554,
+  swelling 2-3 grids east, with a few soft grassy oases, ~2% palm trees and a 9-tile speckled edge.
+  The `seed` floods only land joined to the east bank without crossing water, so the west bank
+  stays green. Owner grids painted on request (open ground only, town untouched, audited):
+  1013522, 1013532, 1013533, 1013543, 1013553, 1013554.
+- `ground_regions.mjs` now keeps regions off unlisted owner grids by the true distance to the
+  nearest point of any neighbouring owner grid (diagonals included), two octaves of noise and a
+  gentle slope, so that edge is one curve across grid lines (it used to be worked out per grid
+  and per side, which left a straight seam where one grid kept off and its neighbour did not).
+  The 5_2 regions were re-applied with it (owner grids from their originals).
+- Ranges sealed, seams 163, a second rebuild changes nothing.
+
+### 2026-10-12: lava edge at 1014541, 1015521 / 1015531 solid lava
+
+Owner: the lava at 1014541 ends more organically with a slate border; north of the river in 1015531
+blends into solid lava; 1015521 is all lava.
+
+Done: `ground_regions.mjs` gained lava (`ground: 'LV'`: crisp edge, a 2-4 tile ragged slate rim,
+never a speckle; next to the owner's lava it always joins it, his slate rim counting as lava; lava
+swallows clay deposits). A narrow lava region along the seam with the owner's 1014542 bulges the
+field organically into 1014541 / 1014551 / 1014561. `lava_rules.mjs`: the lava-to-the-river stretch
+now runs to 1015531 (col 41), and 1015521 is all lava, the dirt island's tip that crossed into it cut
+back raggedly in 1015511 so the island keeps an organic stone rim.
+
+### 2026-10-12: phase 6, river and lake banks
+
+Owner: banks for every river and lake, organic, 1-3 tiles deep (the 1-tile dirt bank at 1014243 is
+the model), some wider for variety; mostly dirt, slate near slate-heavy ground (mixing in from the
+dirt), sand regions left alone; the big lava section left alone; resources on the bank kept and only
+allowed ones (else the tile is skipped); towns and man-made places skipped; the owner's own
+pre-made banks skipped.
+
+Done with `tools/gridgen/banks.mjs`, found once on the world and recorded in `data/banks.bin.gz`
+(re-applied by `phase1_build.mjs --write` to Claude's grids; owner grids written once):
+- Depth: within 1-3 tiles of water (Chebyshev), the width varying slowly across the frontier (noise
+  over ~6 grids), ragged locally, with the odd gap like the 1014243 bank.
+- Ground: dirt; slate where the ground within ~20 tiles is 18-40% slate or more (mixed in).
+- Left alone: shores whose land is mostly not grass already (the owner's banks, sand, slate and
+  mountain banks, lava canals), anything within 48 tiles of lava, within 6 tiles of a road, cobble,
+  paving or snow tile or of a building, station, farm plot, shop or decoration, tiles under a
+  mountain, and any tile holding a resource not allowed on the new ground. Only grass and moss
+  become bank.
+- 41,591 bank tiles (264 slate): 12,080 in 128 of Claude's grids, 28,673 in 172 owner grids (audited
+  against a backup taken just before: only grass/moss to dirt/slate, no resource changed). Left
+  alone: 4,628 at existing banks, 2,101 near lava, 2,366 near man-made places, 38 under mountains.
+- Ranges sealed, seams 163, a second rebuild changes nothing.
+
+Run order when everything is redone: owner-grid passes first (`phase2_owner_patch.mjs --again`,
+`seam_fix.mjs --owner --loose-owner`, `slate_blend.mjs --owner`, `lava_rules.mjs --owner`,
+`ground_regions.mjs --owner`, `banks.mjs --owner`), then `phase1_build.mjs --write` last (it lays
+Claude's grids in its own order: seams, slate blend, lava rules, ground regions, banks), then copy
+its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the builder run settles them.
