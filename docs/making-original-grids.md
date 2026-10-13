@@ -95,11 +95,11 @@ settlement col × 8 + grid col. Rows grow south, columns east. One parser on the
   distribution sliders with Generate (blanks only / overwrite all), resource Regenerate / Add,
   Populate random enemies, and "Place mini template…" (stamps at the selected tile, top-left).
   Saves go through `/api/local/*` (validated, one `.bak`).
-- **World**: the frontier as a grid of cells. ✅ marks cells with a saved layout, yellow cells
-  exist in the database, red tint = has a region. Select one or many (shift-click, drag) to
-  open its layout, create or reset the live grid, or assign a region. Every live write asks
-  first. Tile view shows the template layouts stitched together, which is the quickest way to
-  check edges.
+- **World** (Tile view): the template layouts stitched together, which is the quickest way to
+  check edges; red tint = has a region. Click a grid (or Find grid by its coord), shift-click /
+  shift-drag for many, to open its layout, assign a region (All regions / Unused regions), or
+  create / reset the live grid (Reset rebuilds the template AND every player's copy). Every
+  live write asks first.
 - **Dungeons**: dungeon templates and their entrances (`layouts/gridLayouts/dungeon`). More
   dungeons are a separate World task (W-12).
 

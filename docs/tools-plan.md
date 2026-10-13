@@ -233,6 +233,12 @@ settlement event participation from the settlement logs. Owner to add the rest.
   the only game-server reads are frontiers and settlements for the cell structure. `#atlas`
   links redirect to `#world/tiles`.
 
+- **2026-10-13, Grid view removed.** Every valley cell had a layout and a database grid by then,
+  so Grid view's colour coding (layout / in database) said nothing. Tile view became the World
+  tab's only view and took over Find grid and the live create / reset (template + every
+  player's copy); the random-grid hatching went with it. `#world/grid/...` links open Tile view
+  with that grid picked.
+
 ## 4. Delivery slices (each a commit, each runnable)
 
 1. **Skeleton + sheets.** Editor server, client shell, core modules, the sheet engine and the

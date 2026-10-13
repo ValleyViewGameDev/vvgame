@@ -77,7 +77,8 @@ async function loadTemplates(force = false) {
   const wanted = new Map(); // "dir/name" -> source
   for (const c of cells) { const src = sourceFor(c); if (src) wanted.set(`${src.dir}/${src.name}`, src); }
   const me = { done: 0, total: wanted.size, cancelled: false, errors: [] };
-  T.loading = me; T.grids = new Map(); T.loadedFor = S.frontierId; T.picked = null;
+  T.loading = me; T.grids = new Map(); T.loadedFor = S.frontierId;
+  if (T.picked && !S.gridMap.has(Number(T.picked.coord))) T.picked = null; // keep a pick (Find grid, a #world link) on this frontier
   if (force) T.files = new Map();
   renderPanel(); draw();
   const keys = [...wanted.keys()].filter((k) => !T.files.has(k));
@@ -94,6 +95,7 @@ async function loadTemplates(force = false) {
     draw();
   }
   placeAll(cells);
+  if (T.picked) T.picked = pickOf(Number(T.picked.coord)); // now with its template entry
   if (T.loading === me) T.loading = null;
   T.lastErrors = me.errors;
   if (me.cancelled) toast('Tile view load cancelled', 'warn');
@@ -122,6 +124,21 @@ function fit() {
   draw(); renderZoom();
 }
 function resetView() { T.zoom = 1; T.pan = { x: 0, y: 0 }; draw(); renderZoom(); }
+/** Centre the view on a grid, zoomed in to at least 100%. */
+function centerOn(coord) {
+  const p = coordParts(coord); const wrap = T.els.wrap;
+  if (!p || !wrap) return;
+  T.zoom = Math.max(T.zoom, 1);
+  T.pan = { x: wrap.clientWidth / 2 - (p.col + 0.5) * GRID_PX * T.zoom, y: wrap.clientHeight / 2 - (p.row + 0.5) * GRID_PX * T.zoom };
+  draw(); renderZoom();
+}
+/** Find grid: pick it (as a click would) and bring it into view. */
+function findGrid(text) {
+  const coord = Number(String(text).trim());
+  if (!T.shared.gridMap.has(coord)) return toast(`${text} is not a grid of this frontier`, 'warn');
+  T.picked = pickOf(coord); T.sel = [coord]; syncRegionPick();
+  centerOn(coord); renderPanel();
+}
 function renderZoom() { if (T.els.zoomInfo) T.els.zoomInfo.textContent = `${Math.round(T.zoom * 100)}%`; }
 
 function gridAt(e) {
@@ -244,6 +261,7 @@ function renderPanel() {
   s.appendChild(el('div', { class: 'row' }, ['Zoom ', T.els.zoomInfo, el('span', { class: 'spacer' }), el('button', { onclick: fit }, 'Fit'), el('button', { onclick: resetView }, '100%')]));
   renderZoom();
   const S = T.shared;
+  s.appendChild(el('input', { placeholder: 'Find grid: gridCoord, e.g. 1011100', class: 'mono', style: { width: '100%', margin: '4px 0' }, onkeydown: (e) => { if (e.key === 'Enter') findGrid(e.target.value); } }));
   s.appendChild(el('div', { class: 'note mono' }, `${T.grids.size} grids drawn from ${T.files.size} template files`));
   if (T.loading) {
     T.els.progress = el('div', { class: 'badge warn' }, `${T.loading.done} / ${T.loading.total} files`);
@@ -288,7 +306,6 @@ function renderPanel() {
   const openRoute = p.entry ? `layouts/${p.entry.source.dir}/${encodeURIComponent(p.entry.source.name)}?type=${encodeURIComponent(cell?.gridType || 'valley1')}`
     : (cell && isValleyType(cell.gridType) ? `layouts/valleyFixedCoord/${p.coord}?type=${encodeURIComponent(cell.gridType)}&new=1` : null);
   s.appendChild(el('div', { class: 'row' }, [
-    cell ? el('button', { onclick: () => S.ctx.navigate(`world/grid/${S.frontierId}/${p.coord}`) }, 'Open in Grid view') : null,
     openRoute ? el('button', { class: 'primary', onclick: () => S.ctx.navigate(openRoute) }, p.entry ? 'Open layout' : 'Create layout') : null,
   ]));
   if (!cell) return;
@@ -343,6 +360,7 @@ export const tileView = {
     T.ro.observe(T.els.wrap);
     renderPanel();
     if (switching || !T.grids.size) fit(); else draw();
+    if (shared.pickCoord && shared.gridMap.has(Number(shared.pickCoord))) centerOn(Number(shared.pickCoord));
     loadTemplates(); // cached per frontier; file reads only
   },
   /** After a layout save elsewhere: forget the file so the next mount re-reads it. */
