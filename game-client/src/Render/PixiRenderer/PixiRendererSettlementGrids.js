@@ -33,7 +33,9 @@ const HOMESTEAD_UNOCCUPIED_BORDER = '#8b5a2b';
 // Current grid (player location) glow color
 const CURRENT_GRID_GLOW = '#ffd700';  // Gold/yellow
 
-// Cache for grid snapshot data URLs
+// Cache for grid snapshot data URLs: gridId -> { encodedTiles, dataUrl }. A picture is reused only
+// while the server sends the SAME tiles; a reset grid (or a new copy replacing the template it fell
+// back to) draws a fresh one instead of the session's first picture.
 const gridSnapshotCache = new Map();
 
 /**
@@ -86,9 +88,8 @@ function tileIndexToType(index) {
  * Generate a snapshot data URL for a visited valley/town grid
  */
 function generateGridSnapshotDataUrl(encodedTiles, gridId) {
-  if (gridSnapshotCache.has(gridId)) {
-    return gridSnapshotCache.get(gridId);
-  }
+  const cached = gridSnapshotCache.get(gridId);
+  if (cached && cached.encodedTiles === encodedTiles) return cached.dataUrl;
 
   const tiles = decodeTiles(encodedTiles);
   if (!tiles) return null;
@@ -107,7 +108,7 @@ function generateGridSnapshotDataUrl(encodedTiles, gridId) {
   }
 
   const dataUrl = canvas.toDataURL();
-  gridSnapshotCache.set(gridId, dataUrl);
+  gridSnapshotCache.set(gridId, { encodedTiles, dataUrl });
   return dataUrl;
 }
 
