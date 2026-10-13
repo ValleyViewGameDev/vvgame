@@ -53,7 +53,7 @@
       "GR",
       "DI",
       "PA",
-      "DI",
+      "PA",
       "DI",
       "GR",
       "SL",
@@ -4279,7 +4279,7 @@
       "OT",
       "**",
       "**",
-      "PT",
+      "**",
       "PT",
       "OT",
       "**",
@@ -8469,7 +8469,7 @@
   },
   "resourceDistribution": {
     "Oak Tree": 1300,
-    "Pine Tree": 900,
+    "Pine Tree": 899,
     "Daisy": 250,
     "Potion A": 1
   },
