@@ -11,13 +11,16 @@ import { loadResources } from '../core/resources.js';
 import { setDirty } from '../core/dirty.js';
 import { History } from '../core/history.js';
 import { modal, confirm, prompt, toast, setStatus } from '../core/ui.js';
-import { tileColors } from '/game-client/tileColors.js';
+import { tileColors, tileNames } from '/game-client/tileColors.js';
+
+// "Grass (g, GR)": a tile letter's name for tooltips
+const tileLabel = (k, layoutkey) => `${tileNames[k] || k} (${k}${layoutkey ? `, ${layoutkey}` : ''})`;
 import * as M from '../layouts/GridModel.js';
 import { GridCanvas } from '../layouts/GridCanvas.js';
 
 const DIRS = ['valleyFixedCoord', 'town', 'dungeon', 'homestead', 'miniTemplates'];
 const GRID_TYPES = ['valley0', 'valley1', 'valley2', 'valley3', 'town', 'homestead', 'dungeon'];
-const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g d s w p l n o x y z c v u). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
+const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g grass, d dirt, s slate, w water, p pavement, l lava, n sand, o snow, x cobblestone, y dungeon, z moss, c clay, v/u tbd). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
 
 const T = {
   idx: null, canvas: null, history: new History(50),
@@ -221,7 +224,7 @@ function renderTools() {
     } });
     const tile = idx.tileByType.get(k);
     sliderEls[k] = { input, val };
-    return el('div', { class: 'row slider-row' }, [el('span', { class: 'swatch', style: { background: tileColors[k] }, title: tile?.layoutkey || k }, k), input, val]);
+    return el('div', { class: 'row slider-row' }, [el('span', { class: 'swatch', style: { background: tileColors[k] }, title: tileLabel(k, tile?.layoutkey) }, k), input, val]);
   });
   t.appendChild(section('Tiles', [
     el('div', { class: 'row' }, [
@@ -237,7 +240,7 @@ function renderTools() {
       el('button', { class: 'danger', onclick: () => commit({ grid: M.clearTileTypes(st.grid, M.TILE_KEYS.filter((k) => T.deleteTypes[k]), idx) }) }, 'Delete checked tile types'),
       el('button', { class: 'danger', onclick: async () => { if (await confirm('Clear every tile and resource?', { danger: true, okLabel: 'Clear grid' })) { T.selected = null; commit({ grid: M.clearAll() }); } } }, 'Clear grid'),
     ]),
-    el('div', { class: 'chips' }, M.TILE_KEYS.map((k) => el('label', { class: 'chip', style: { borderColor: tileColors[k] } }, [el('input', { type: 'checkbox', checked: T.deleteTypes[k], onchange: (e) => { T.deleteTypes[k] = e.target.checked; } }), ` ${k}`]))),
+    el('div', { class: 'chips' }, M.TILE_KEYS.map((k) => el('label', { class: 'chip', style: { borderColor: tileColors[k] }, title: tileLabel(k, idx.tileByType.get(k)?.layoutkey) }, [el('input', { type: 'checkbox', checked: T.deleteTypes[k], onchange: (e) => { T.deleteTypes[k] = e.target.checked; } }), ` ${k}`]))),
   ]));
 
   // enemies
@@ -278,7 +281,7 @@ function renderSelectedTile() {
   const { row, col } = T.selected;
   const cell = T.state.grid[row][col];
   const tile = T.idx.tileByLayoutKey.get(cell.type);
-  box.appendChild(el('div', { class: 'mono' }, `row ${row}, col ${col}: ${tile ? `${tile.layoutkey} (${tile.type})` : 'none'}; ${cell.resource || 'no resource'}`));
+  box.appendChild(el('div', { class: 'mono' }, `row ${row}, col ${col}: ${tile ? `${tileNames[tile.type] || tile.type} (${tile.type}, ${tile.layoutkey})` : 'none'}; ${cell.resource || 'no resource'}`));
   const mkSelect = (label, items, icon) => {
     const sel = el('select', { onchange: (e) => { commit({ grid: M.setResource(T.state.grid, row, col, e.target.value) }); } }, [el('option', { value: '' }, 'None'), ...items.map((r) => el('option', { value: r.type, selected: cell.resource === r.type }, `${icon ? icon : r.symbol || ''} ${r.type}`))]);
     return el('div', { class: 'row' }, [el('label', { style: { minWidth: '70px' } }, label), sel]);

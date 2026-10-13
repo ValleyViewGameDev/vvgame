@@ -26,6 +26,25 @@ export const tileColors = {
   u: '#1b712cff',  // tbdTile2
 };
 
+// Display names for the single-letter tile types (the editor's tooltips and labels).
+// v and u are placeholder tiles that have no use yet.
+export const tileNames = {
+  g: 'Grass',
+  s: 'Slate',
+  d: 'Dirt',
+  w: 'Water',
+  p: 'Pavement',
+  l: 'Lava',
+  n: 'Sand',
+  o: 'Snow',
+  x: 'Cobblestone',
+  y: 'Dungeon',
+  z: 'Moss',
+  c: 'Clay',
+  v: 'TBD tile 1',
+  u: 'TBD tile 2',
+};
+
 // Mapping from two-letter layout keys to single-letter tile types
 // Used by game-editor's Tile.jsx to look up colors from tileColors
 export const LAYOUT_KEY_TO_TILE_TYPE = {
