@@ -181,5 +181,13 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": false
+  },
+  {
+    "id": 1003,
+    "title": "🐄 Animal Stalls retired",
+    "body": "Farm animals no longer need an Animal Stall: they are ready to collect right where they graze. Your Animal Stalls have been removed, and here is what you spent building them.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true
   }
 ]

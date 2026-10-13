@@ -3,13 +3,8 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { calculateDistance } from '../../Utils/worldHelpers';
 
-// ============================================================================
-// TESTING FLAG: Skip Animal Stall
-// When true: Animals enter 'processing' state immediately after grazing ends,
-//            without walking to the Animal Stall. Collection happens in-place.
-// When false: Original behavior - animals walk to Animal Stall before processing.
-// ============================================================================
-const SKIP_STALL_AFTER_GRAZING = true;
+// Farm animals finish grazing and are ready to collect where they stand ('processing');
+// the Animal Stall they once walked to was removed 2026-10-13.
 
 // Behavior handler for farm animals (e.g., cows)
 async function handleFarmAnimalBehavior(gridId) {
@@ -52,12 +47,7 @@ async function handleFarmAnimalBehavior(gridId) {
 //              console.log(`🔁 Retrying after idle for NPC ${this.id}`);
               // Check if we have grazeEnd to determine next state
               if (this.grazeEnd && Date.now() >= this.grazeEnd) {
-                if (SKIP_STALL_AFTER_GRAZING) {
-                  // TESTING: Skip stall, go directly to processing
-                  this.state = 'processing';
-                } else {
-                  this.state = 'stall';
-                }
+                this.state = 'processing';
               } else {
                 this.state = 'hungry';
               }
@@ -69,7 +59,7 @@ async function handleFarmAnimalBehavior(gridId) {
               return;
             }
 
-            // If idle completed and `onTransition` fired, the state is now "stall" or "processing"
+            // If idle completed and `onTransition` fired, the state is now "hungry" or "processing"
             break;
           }
 
@@ -79,14 +69,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
             const currentTime = Date.now();
             if (this.grazeEnd && currentTime >= this.grazeEnd) {
-                if (SKIP_STALL_AFTER_GRAZING) {
-                    // TESTING: Skip stall, go directly to processing
-                    console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry. SKIP_STALL mode: entering processing.`);
-                    this.state = 'processing';
-                } else {
-                    console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry.`);
-                    this.state = 'stall';
-                }
+                this.state = 'processing';
                 await updateThisNPC();
                 break;
             }
@@ -264,15 +247,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
             // ✅ Check if grazing is complete
             if (currentTime >= this.grazeEnd) {
-                if (SKIP_STALL_AFTER_GRAZING) {
-                    // TESTING: Skip stall, go directly to processing in-place
-                    console.log(`🐄 NPC ${this.id} finished grazing. SKIP_STALL mode: entering processing state in-place.`);
-                    this.state = 'processing';
-                } else {
-                    // Original behavior: walk to stall first
-                    //console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
-                    this.state = 'stall';
-                }
+                this.state = 'processing';
                 await updateThisNPC();
             }
             break;
@@ -280,166 +255,14 @@ async function handleFarmAnimalBehavior(gridId) {
 
 
         case 'stall': {
-            //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
-            const fullGridState = NPCsInGridManager.getNPCsInGrid(gridId);
-            
-            // Initialize retry counter and failed stalls list
-            if (!this.stallRetries) this.stallRetries = 0;
-            if (!this.failedStalls) this.failedStalls = [];
-    
-            // Step 1: If no stall is currently assigned, find the nearest available stall
-            if (!this.targetStall) {
-                //console.log(`NPC ${this.id} finding nearest stall.`);
-                this.targetStall = this.findNearestResource('stall', tiles, resources, this.failedStalls);
-                if (!this.targetStall) {
-                    console.log('No availalbe stall, returning to idle.');
-                    this.state = 'idle';
-                    this.stallRetries = 0;
-                    this.failedStalls = [];
-                    break;
-                }
-            }
-        
-            // Step 5: Confirm the stall is still valid before proceeding
-            const stallResource = resources.find(
-                (res) => res.x === this.targetStall.x && res.y === this.targetStall.y
-            );
-            if (!stallResource) {
-                console.warn(`Target stall at (${this.targetStall.x}, ${this.targetStall.y}) is no longer valid. Transitioning to idle.`);
-                this.state = 'idle';
-                this.targetStall = null;
-                break;
-            }
-        
-            // Step 6: Calculate movement direction towards the stall
-            const dx = this.targetStall.x - Math.floor(this.position.x);
-            const dy = this.targetStall.y - Math.floor(this.position.y);
-            let direction = null;
-        
-            // ✅ Prefer diagonals if both dx and dy are non-zero
-            if (dx !== 0 && dy !== 0) {
-                if (dx > 0 && dy > 0) direction = 'SE';
-                else if (dx > 0 && dy < 0) direction = 'NE';
-                else if (dx < 0 && dy > 0) direction = 'SW';
-                else if (dx < 0 && dy < 0) direction = 'NW';
-            } else if (dx !== 0) {
-                direction = dx > 0 ? 'E' : 'W';
-            } else if (dy !== 0) {
-                direction = dy > 0 ? 'S' : 'N';
-            }
-        
-            // Step 7: If a valid movement direction isn't determined, revert to idle state
-            if (!direction &&
-                (   Math.floor(this.position.x) !== this.targetStall.x &&
-                    Math.floor(this.position.y) !== this.targetStall.y )
-                ) {
-                    console.warn(`NPC ${this.id} could not determine direction to stall.`);
-                    this.state = 'idle';
-                    this.targetStall = null;
-                    break;
-                }
-        
-            // Step 8: Move the NPC one tile towards the stall
-            if (!this.isMoving) {
-                this.isMoving = true;
-                const moved = await this.moveOneTile(direction, tiles, resources, npcs);
-                this.position.x = Math.floor(this.position.x);
-                this.position.y = Math.floor(this.position.y);
-                this.isMoving = false;
-                
-                if (!moved) {
-                    this.stallRetries++;
-                    
-                    if (this.stallRetries < 5) {
-                        // Try a different direction or wait
-                        //console.log(`NPC ${this.id} blocked, retry ${this.stallRetries}/5`);
-                    } else {
-                        // Add this stall to failed list and try another
-                        console.warn(`NPC ${this.id} cannot reach stall at (${this.targetStall.x}, ${this.targetStall.y}). Trying alternative.`);
-                        if (!this.failedStalls) this.failedStalls = [];
-                        this.failedStalls.push({ x: this.targetStall.x, y: this.targetStall.y });
-                        this.targetStall = null;
-                        this.stallRetries = 0;
-                        
-                        // Try to find another stall
-                        const alternativeStall = this.findNearestResource('stall', tiles, resources, this.failedStalls);
-                        if (!alternativeStall) {
-                            //console.log('No alternative stalls available, returning to idle.');
-                            this.state = 'idle';
-                            this.failedStalls = [];
-                            this.triedStall = true;
-                        }
-                    }
-                    await updateThisNPC(); // ✅ Save state
-                    break;
-                }
-                
-                await updateThisNPC(); // ✅ Save successful movement
-                }
-        
-            // Step 9: If NPC reaches the stall, transition to processing state
-            const atStall = Math.floor(this.position.x) === this.targetStall.x &&
-                           Math.floor(this.position.y) === this.targetStall.y;
-            const nearStall = Math.abs(Math.floor(this.position.x) - this.targetStall.x) <= 1 &&
-                             Math.abs(Math.floor(this.position.y) - this.targetStall.y) <= 1;
-            
-            // Accept being adjacent to stall if we've tried multiple times
-            if (atStall || (nearStall && this.stallRetries > 2)) {
-            
-                // Check if another animal is already at this position
-                const otherNPCsAtStall = Object.values(fullGridState || {}).filter(otherNpc => 
-                    otherNpc.id !== this.id &&
-                    Math.floor(otherNpc.position?.x) === this.targetStall.x &&
-                    Math.floor(otherNpc.position?.y) === this.targetStall.y &&
-                    otherNpc.action === 'graze'
-                );
-                
-                console.log(`🐮 NPC ${this.id} reached stall at (${this.targetStall.x}, ${this.targetStall.y}). Other animals at same position: ${otherNPCsAtStall.length}`);
-                
-                if (otherNPCsAtStall.length > 0) {
-                    console.log(`🐮 Stall is occupied! Adding to failed list and trying another.`);
-                    if (!this.failedStalls) this.failedStalls = [];
-                    this.failedStalls.push({ x: this.targetStall.x, y: this.targetStall.y });
-                    this.targetStall = null;
-                    this.stallRetries = 0;
-                    // Don't transition to processing - stay in stall state to find another
-                    await updateThisNPC();
-                    break;
-                }
-                
-                // ✅ Keep grazeEnd for server validation - it will be cleared after successful collection
-                // Allow multiple animals to be in processing state at the same stall
-                this.state = 'processing';
-                console.log(`🐮✅ NPC ${this.id} transitioning to processing state. GrazeEnd: ${this.grazeEnd}`);
-                
-                // Save the state change immediately and wait for confirmation
-                try {
-                    await updateThisNPC();
-                    console.log(`🐮✅ NPC ${this.id} state update to 'processing' sent to server`);
-                    
-                    // Wait longer for the update to propagate to the server
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Verify the update was successful
-                    const updatedNPC = NPCsInGridManager.getNPCsInGrid(gridId)?.[this.id];
-                    if (updatedNPC && updatedNPC.state !== 'processing') {
-                        console.error(`❌ State update verification failed! NPC ${this.id} state is ${updatedNPC.state} instead of 'processing'`);
-                        // Try to update again with longer wait
-                        this.state = 'processing';
-                        await updateThisNPC();
-                        console.log(`🐮🔄 Retried state update for NPC ${this.id}`);
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    } else {
-                        console.log(`🐮✅ Verified NPC ${this.id} is in processing state`);
-                    }
-                } catch (error) {
-                    console.error(`❌ Failed to update NPC ${this.id} to processing state:`, error);
-                }
-                }
-
+            // Legacy: the Animal Stall is gone (2026-10-13). An animal saved mid-walk to a stall
+            // is simply ready to collect where it stands.
+            this.state = 'processing';
+            if (!this.grazeEnd) this.grazeEnd = Date.now();
+            await updateThisNPC();
             break;
         }
- 
+
         case 'processing': {
             // awaiting handleNPCClick
             // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
@@ -461,7 +284,6 @@ async function handleFarmAnimalBehavior(gridId) {
 
         case 'emptystall': {
             // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-            this.targetStall = null;
             this.grazeEnd = null; // Clear grazeEnd so cow will go hungry after roaming
             this.state = 'roam'; // Transition to roam state
             await updateThisNPC(); // Save after transition

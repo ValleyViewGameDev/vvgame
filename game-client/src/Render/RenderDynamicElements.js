@@ -142,9 +142,6 @@ export function generateNPCTooltip(npc, strings) {
         case 'roam':
           tooltipContent = `<p>${localizedNPCType}</p><p>is roaming.</p>`;
           break;
-        case 'stall':
-          tooltipContent = `<p>${localizedNPCType}</p><p>is looking for an Animal Stall.</p>`;
-          break;
         default:
           tooltipContent = `<p>${localizedNPCType}</p>`;
           break;

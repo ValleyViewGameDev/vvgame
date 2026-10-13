@@ -7002,22 +7002,6 @@
     "filename": "door-gold.svg"
   },
   {
-    "type": "Animal Stall",
-    "symbol": "🟫",
-    "layoutkey": "AS",
-    "category": "stall",
-    "action": "openUI",
-    "passable": true,
-    "qtycollected": 1,
-    "ingredient1": "Money",
-    "ingredient1qty": 25,
-    "ingredient2": "Wood",
-    "ingredient2qty": 20,
-    "gemcost": 24,
-    "crafttime": 0,
-    "totalnestedtime": 100
-  },
-  {
     "type": "School",
     "symbol": "🏫",
     "layoutkey": "sC",

@@ -88,8 +88,6 @@ const AnimalPanel = ({
         return "is grazing.";
       case 'roam':
         return "is roaming.";
-      case 'stall':
-        return "is looking for an Animal Stall.";
       default:
         return `is in ${npc.state} state.`;
     }
@@ -199,8 +197,6 @@ const AnimalPanel = ({
         backpack: backpack 
       }));
 
-      // Note: We don't remove the animal stall building here - only the NPC
-      // The stall building can be sold separately from the AnimalStall panel
 
       // Remove the animal NPC from NPCsInGrid using the specific NPC ID
       try {

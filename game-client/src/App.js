@@ -106,7 +106,6 @@ import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import ScrollStation from './GameFeatures/Crafting/ScrollStation';
 import PetPanel from './GameFeatures/Pets/PetPanel';
-import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
@@ -2780,10 +2779,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('ShopStation');
     } 
-    else if (resource.category === 'stall') {
-      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('AnimalStall');
-    } 
     else if (resource.category === 'farmplot') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, resource: resource });
       openPanel('CropPanel');
@@ -4434,25 +4429,6 @@ return (
           masterXPLevels={masterXPLevels}
           masterTraders={masterTraders}
           openPanel={openPanel}
-        />
-      )}
-      {activePanel === 'AnimalStall' && (
-        <AnimalStall
-          onClose={closePanel}
-          inventory={inventory}
-          setInventory={setInventory}
-          backpack={backpack}
-          setBackpack={setBackpack}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
-          gridId={activeStation?.gridId} 
-          TILE_SIZE={activeTileSize}
-          updateStatus={updateStatus}
-          masterResources={masterResources}
-          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'AnimalPanel' && (
