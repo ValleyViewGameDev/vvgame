@@ -128,6 +128,49 @@ router.post('/reset-grid', async (req, res) => {
   }
 });
 
+// reset-grid-all-copies: the editor's Reset grid (owner, 2026-10-13). Since the single-player
+// refactor a player plays on their OWN copy of a town/valley cell (made from the layout on first
+// entry), so resetting only the template instance changed nothing anyone could see. This resets
+// the template (gridId) AND every player's copy of the same cell from the layout file, each copy
+// through its own grid write lock (the route's own lock covers the template). The season turn
+// does NOT do this: it only replants trees and applies season tiles (gridResolver.applySeasonCatchUp).
+router.post('/reset-grid-all-copies', async (req, res) => {
+  const { gridCoord, gridId, gridType } = req.body;
+  if (!gridId || !gridType || gridCoord == null) {
+    return res.status(400).json({ error: 'gridId, gridType and gridCoord are required.' });
+  }
+  if (gridType === 'homestead' || gridType === 'dungeon') {
+    return res.status(400).json({ error: `${gridType} grids have no per-player copies to reset here.` });
+  }
+  try {
+    const template = await Grid.findById(gridId, { frontierId: 1 }).lean();
+    if (!template) return res.status(404).json({ error: 'Grid not found.' });
+    await performGridReset(gridId, gridType, gridCoord);
+
+    const copies = await Grid.find({
+      _id: { $ne: template._id },
+      frontierId: template.frontierId,
+      gridCoord: Number(gridCoord),
+      ownerId: { $ne: null },
+      gridType: { $nin: ['homestead', 'dungeon'] },
+    }, { _id: 1, gridType: 1, gridCoord: 1 }).lean();
+
+    const failed = [];
+    for (const copy of copies) {
+      await new Promise((resolve) => queue.enqueueByKey(String(copy._id), async () => {
+        try { await performGridReset(String(copy._id), copy.gridType, copy.gridCoord); }
+        catch (err) { console.error(`reset-grid-all-copies: copy ${copy._id} failed`, err); failed.push(String(copy._id)); }
+        finally { resolve(); }
+      }));
+    }
+    console.log(`🔄 reset-grid-all-copies ${gridCoord}: template + ${copies.length - failed.length}/${copies.length} copies`);
+    res.status(200).json({ success: true, copies: copies.length, copiesReset: copies.length - failed.length, failed });
+  } catch (error) {
+    console.error('Error in reset-grid-all-copies:', error);
+    res.status(500).json({ error: 'Failed to reset grid.' });
+  }
+});
+
 // plant-new-trees - Replant trees on a valley grid
 router.post('/plant-new-trees/:gridId', async (req, res) => {
   const { gridId } = req.params;

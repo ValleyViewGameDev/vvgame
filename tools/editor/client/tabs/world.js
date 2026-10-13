@@ -120,6 +120,10 @@ const describe = (g) => el('div', { class: 'mono' }, [`gridCoord ${g.gridCoord}`
 const serverNote = () => el('p', { class: 'note' }, `Target: ${document.querySelector('#target')?.textContent || 'game server'}`);
 const createPayload = (g) => ({ gridCoord: g.gridCoord, gridType: g.gridType, settlementId: g.settlementId, frontierId: g.frontierId });
 const resetPayload = (g) => ({ gridCoord: g.gridCoord, gridId: g.gridId, gridType: g.gridType, settlementId: g.settlementId, frontierId: g.frontierId });
+// Players play on their OWN copy of a town/valley cell, so Reset rebuilds the template AND every
+// player's copy from the layout (/api/reset-grid-all-copies). A homestead is one owned grid.
+const resetPath = (g) => (g.gridType === 'homestead' ? '/api/reset-grid' : '/api/reset-grid-all-copies');
+const resetSummary = (r) => (r && Number.isFinite(r.copies) ? `template + ${r.copiesReset} of ${r.copies} player copies${r.failed?.length ? ` (${r.failed.length} failed)` : ''}` : (r?.message || 'ok'));
 
 async function createGridLive(g) {
   if (!canCreate(g)) return toast(g?.gridId ? 'This grid already exists in the database; reset it instead.' : 'Only valley grids are created from here (towns and homesteads are made by the game).', 'warn');
@@ -134,11 +138,14 @@ async function createGridLive(g) {
 
 async function resetGridLive(g) {
   if (!canReset(g)) return toast('This grid has not been created in the live game yet.', 'warn');
-  const ok = await confirm(el('div', {}, [el('p', {}, 'Reset this grid in the live game? All of its tiles and resources are regenerated from the layout; player-placed content on it is lost.'), describe(g), serverNote()]), { title: 'Reset grid (live game)', okLabel: 'Reset grid', danger: true });
+  const allCopies = resetPath(g) !== '/api/reset-grid';
+  const ok = await confirm(el('div', {}, [el('p', {}, allCopies
+    ? 'Reset this grid in the live game for EVERY player? The template and each player\'s own copy of this cell are regenerated from the layout; anything players placed or changed on it is lost.'
+    : 'Reset this grid in the live game? All of its tiles and resources are regenerated from the layout; player-placed content on it is lost.'), describe(g), serverNote()]), { title: 'Reset grid (live game)', okLabel: 'Reset grid', danger: true });
   if (!ok) return;
   try {
-    const r = await game.post('/api/reset-grid', resetPayload(g));
-    toast(`Grid ${g.gridCoord} reset: ${r?.message || 'ok'}`);
+    const r = await game.post(resetPath(g), resetPayload(g));
+    toast(`Grid ${g.gridCoord} reset: ${resetSummary(r)}`);
     await refresh();
   } catch (err) { failModal(`Reset grid ${g.gridCoord} failed`, err); }
 }
@@ -168,15 +175,16 @@ async function bulkSaveRegion(selection = selectedGrids(), region = W.regionPick
 }
 
 /** Sequential live writes with a progress modal, then a summary modal listing failures. */
-async function bulkWrite({ title, grids, verb, path, payload, danger }) {
-  const ok = await confirm(el('div', {}, [el('p', {}, `${verb} ${grids.length} grids in the live game? Each one is a separate ${path} call.`), el('div', { class: 'mono', style: { maxHeight: '160px', overflow: 'auto' } }, grids.map((g) => g.gridCoord).join(', ')), serverNote()]), { title, okLabel: `${verb} ${grids.length} grids`, danger });
+async function bulkWrite({ title, grids, verb, path, payload, danger, note }) {
+  const pathOf = typeof path === 'function' ? path : () => path;
+  const ok = await confirm(el('div', {}, [el('p', {}, `${verb} ${grids.length} grids in the live game? ${note || `Each one is a separate ${path} call.`}`), el('div', { class: 'mono', style: { maxHeight: '160px', overflow: 'auto' } }, grids.map((g) => g.gridCoord).join(', ')), serverNote()]), { title, okLabel: `${verb} ${grids.length} grids`, danger });
   if (!ok) return;
   const progress = el('div', {}, `0 / ${grids.length}`);
   const m = modal({ title, body: el('div', {}, [progress, el('div', { class: 'note' }, 'Running; do not close the page.')]), buttons: [] });
   const failures = [];
   let done = 0;
   for (const g of grids) {
-    try { await game.post(path, payload(g)); }
+    try { await game.post(pathOf(g), payload(g)); }
     catch (err) { failures.push(`${g.gridCoord}: ${err.message}${err.body?.error ? ` (${err.body.error})` : ''}`); }
     progress.textContent = `${++done} / ${grids.length}${failures.length ? `, ${failures.length} failed` : ''}`;
   }
@@ -187,7 +195,8 @@ async function bulkWrite({ title, grids, verb, path, payload, danger }) {
   await refresh();
 }
 const bulkCreate = () => bulkWrite({ title: 'Bulk create grids (live game)', grids: selectedGrids().filter(canCreate), verb: 'Create', path: '/api/create-grid', payload: createPayload, danger: false });
-const bulkReset = () => bulkWrite({ title: 'Bulk reset grids (live game)', grids: selectedGrids().filter(canReset), verb: 'Reset', path: '/api/reset-grid', payload: resetPayload, danger: true });
+const bulkReset = () => bulkWrite({ title: 'Bulk reset grids (live game)', grids: selectedGrids().filter(canReset), verb: 'Reset', path: resetPath, payload: resetPayload, danger: true,
+  note: 'Each grid\'s template AND every player\'s copy of it are regenerated from the layout; anything players placed or changed on them is lost.' });
 
 // ----------------------------------------------------------------------------- selection panel
 function renderSelection() {

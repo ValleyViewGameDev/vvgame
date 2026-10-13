@@ -251,20 +251,16 @@ const DebugPanel = ({
   
       const gridType = gridData.gridType;
 
-      let gridCoord = null;
-      for (const row of settlement.grids) {
-        for (const cell of row) {
-          if (cell.gridId && String(cell.gridId) === String(currentGridId)) {
-            gridCoord = cell.gridCoord;
-            break;
-          }
-        }
-        if (gridCoord !== null) break;
-      }
+      // The grid this player stands on: since the single-player refactor that is usually THEIR
+      // OWN copy of the cell, which the settlement's cell does not point at (it points at the
+      // shared template), so the coordinate comes from the grid document itself. Resetting it
+      // rebuilds this player's copy from the layout file, the forced version of what a brand-new
+      // copy gets (the season turn only replants trees).
+      const gridCoord = gridData.gridCoord ?? currentPlayer?.location?.gridCoord ?? null;
 
-      if (gridCoord === null) {
-        console.error('Could not resolve gridCoord from settlement.');
-        alert('Could not resolve gridCoord from settlement.');
+      if (gridCoord === null || gridCoord === undefined) {
+        console.error('Could not resolve gridCoord for this grid.');
+        alert('Could not resolve gridCoord for this grid.');
         return;
       }
 
