@@ -64,8 +64,6 @@ const CraftingStation = ({
   const [slotCountdowns, setSlotCountdowns] = useState({});
   // Slot index showing "Added" floating text animation (null when none)
   const [slotAddedAnimation, setSlotAddedAnimation] = useState(null);
-  // Slot collection animation state: { slotIndex, text } or null
-  const [slotCollectedAnimation, setSlotCollectedAnimation] = useState(null);
 
   // Tooltip position update function (similar to ResourceButton)
   const updateSlotTooltipPosition = (event, slotIndex) => {
@@ -444,9 +442,15 @@ const CraftingStation = ({
     // 1. Play sound immediately
     soundManager.playSFX('collect_item');
 
-    // 2. Show floating text animation immediately
-    setSlotCollectedAnimation({ slotIndex, text: `+${finalQtyCollected} ${craftedSymbol} ${getLocalizedString(craftedItemType, strings)}` });
-    setTimeout(() => setSlotCollectedAnimation(null), 1800);
+    // 2. The collected goods rise from the slot and fly home (UI/FlyToTarget.js): Money to the money
+    //    counter, anything you can hold to Inventory; a craft that makes an NPC just rises and fades
+    const slotEl = document.querySelector(`[data-craft-slot="${slotIndex}"]`);
+    if (slotEl) {
+      const r = slotEl.getBoundingClientRect();
+      const flyTo = craftedItemType === 'Money' ? 'money' : craftedItemResource?.category === 'npc' ? null : 'inventory';
+      FloatingTextManager.addFloatingTextAt(`+${finalQtyCollected} ${craftedSymbol} ${getLocalizedString(craftedItemType, strings)}`,
+        r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '18px' });
+    }
 
     // 3. Optimistically clear the slot visually
     const optimisticSlots = shownSlots.map((s, i) =>
@@ -826,6 +830,7 @@ const CraftingStation = ({
                           return (
                             <div className="crafting-slot-wrapper" key={i}>
                               <div
+                                data-craft-slot={i}
                                 className={`crafting-slot ${isUnlocked ? 'unlocked' : 'locked'} ${!isUnlocked && isNextSlot ? 'clickable' : ''} ${!isUnlocked && canAffordSlot && isNextSlot ? 'affordable' : ''} ${slotIsCrafting ? 'crafting' : ''} ${slotIsReady ? 'ready' : ''}`}
                                 onMouseEnter={(e) => canHover() && updateSlotTooltipPosition(e, i)}
                                 onMouseMove={(e) => canHover() && updateSlotTooltipPosition(e, i)}
@@ -861,10 +866,6 @@ const CraftingStation = ({
                                 {/* "Added" floating text animation on slot */}
                                 {slotAddedAnimation === i && (
                                   <span className="crafting-slot-added-text">{strings[300]}</span>
-                                )}
-                                {/* "Collected" floating text animation on slot */}
-                                {slotCollectedAnimation?.slotIndex === i && (
-                                  <span className="crafting-slot-collected-text">{slotCollectedAnimation.text}</span>
                                 )}
                                 {/* Countdown timer overlay at bottom of slot */}
                                 {slotIsCrafting && slotCountdowns[i] !== undefined && (

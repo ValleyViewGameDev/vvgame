@@ -178,7 +178,8 @@
     "maxprice": 216,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 80
   },
   {
     "type": "Rosemary",
@@ -214,7 +215,8 @@
     "maxprice": 296,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 160
   },
   {
     "type": "Feverfew",
@@ -251,7 +253,8 @@
     "maxprice": 352,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 240
   },
   {
     "type": "Mushroom",
@@ -287,7 +290,8 @@
     "maxprice": 192,
     "gemcost": 24,
     "crafttime": 64800,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "effort": 60
   },
   {
     "type": "Daisy",
@@ -324,7 +328,8 @@
     "maxprice": 296,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 160
   },
   {
     "type": "Tulip",
@@ -361,7 +366,8 @@
     "maxprice": 352,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 240
   },
   {
     "type": "Sunflower",
@@ -398,7 +404,8 @@
     "maxprice": 216,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 80
   },
   {
     "type": "Magic Mushroom",
@@ -433,7 +440,8 @@
     "maxprice": 296,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 2880
   },
   {
     "type": "Wood",
@@ -466,7 +474,8 @@
     "gemcost": 1,
     "crafttime": 5,
     "totalnestedtime": 5,
-    "filename": "wood.svg"
+    "filename": "wood.svg",
+    "effort": 0.02
   },
   {
     "type": "Rocks",
@@ -519,7 +528,8 @@
     "growtime": 172800,
     "filename": "rock.svg",
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "parallel": 18
   },
   {
     "type": "Stone",
@@ -554,7 +564,8 @@
     "gemcost": 1,
     "filename": "stone.svg",
     "crafttime": 5,
-    "totalnestedtime": 5
+    "totalnestedtime": 5,
+    "effort": 0.03
   },
   {
     "type": "Clay Pit",
@@ -606,7 +617,8 @@
     "growtime": 86400,
     "filename": "clay-source.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "parallel": 18
   },
   {
     "type": "Clay",
@@ -643,7 +655,8 @@
     "gemcost": 15,
     "filename": "clay.svg",
     "crafttime": 21600,
-    "totalnestedtime": 21600
+    "totalnestedtime": 21600,
+    "effort": 6.67
   },
   {
     "type": "Oak Tree",
@@ -1297,7 +1310,8 @@
     "validonu": false,
     "growtime": 60,
     "crafttime": 60,
-    "totalnestedtime": 60
+    "totalnestedtime": 60,
+    "parallel": 18
   },
   {
     "type": "Carrot Plot",
@@ -1327,7 +1341,8 @@
     "ingredient1": "Carrot",
     "ingredient1qty": 1,
     "crafttime": 240,
-    "totalnestedtime": 480
+    "totalnestedtime": 480,
+    "parallel": 18
   },
   {
     "type": "Corn Plot",
@@ -1357,7 +1372,8 @@
     "ingredient1": "Corn",
     "ingredient1qty": 1,
     "crafttime": 480,
-    "totalnestedtime": 960
+    "totalnestedtime": 960,
+    "parallel": 18
   },
   {
     "type": "Sugarcane Plot",
@@ -1387,7 +1403,8 @@
     "ingredient1": "Sugarcane",
     "ingredient1qty": 1,
     "crafttime": 600,
-    "totalnestedtime": 1200
+    "totalnestedtime": 1200,
+    "parallel": 18
   },
   {
     "type": "Pumpkin Plot",
@@ -1418,7 +1435,8 @@
     "ingredient1": "Pumpkin",
     "ingredient1qty": 1,
     "crafttime": 28800,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "parallel": 18
   },
   {
     "type": "Lettuce Plot",
@@ -1449,7 +1467,8 @@
     "ingredient1": "Lettuce",
     "ingredient1qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 18
   },
   {
     "type": "Pepper Plot",
@@ -1480,7 +1499,8 @@
     "ingredient1": "Pepper",
     "ingredient1qty": 1,
     "crafttime": 7200,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "parallel": 18
   },
   {
     "type": "Potato Plot",
@@ -1511,7 +1531,8 @@
     "ingredient1": "Potato",
     "ingredient1qty": 1,
     "crafttime": 900,
-    "totalnestedtime": 1800
+    "totalnestedtime": 1800,
+    "parallel": 18
   },
   {
     "type": "Strawberry Plot",
@@ -1542,7 +1563,8 @@
     "ingredient1": "Strawberry",
     "ingredient1qty": 1,
     "crafttime": 21600,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "parallel": 18
   },
   {
     "type": "Onion Plot",
@@ -1572,7 +1594,8 @@
     "ingredient1": "Onion",
     "ingredient1qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "parallel": 18
   },
   {
     "type": "Garlic Plot",
@@ -1603,7 +1626,8 @@
     "ingredient1": "Garlic",
     "ingredient1qty": 1,
     "crafttime": 172800,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "parallel": 18
   },
   {
     "type": "Olive Tree",
@@ -1635,7 +1659,8 @@
     "ingredient1qty": 500,
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "parallel": 16
   },
   {
     "type": "Lemon Tree",
@@ -1667,7 +1692,8 @@
     "ingredient1qty": 500,
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "parallel": 18
   },
   {
     "type": "Apple Tree",
@@ -1700,7 +1726,8 @@
     "ingredient1qty": 500,
     "filename": "fruit-tree.svg",
     "crafttime": 64800,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "parallel": 33
   },
   {
     "type": "Tomato Vine",
@@ -1731,7 +1758,8 @@
     "ingredient1": "Tomato",
     "ingredient1qty": 1,
     "crafttime": 57600,
-    "totalnestedtime": 115200
+    "totalnestedtime": 115200,
+    "parallel": 18
   },
   {
     "type": "Pear Tree",
@@ -1764,7 +1792,8 @@
     "ingredient1qty": 2000,
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 15
   },
   {
     "type": "Peach Tree",
@@ -1797,7 +1826,8 @@
     "ingredient1qty": 3000,
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 15
   },
   {
     "type": "Orange Tree",
@@ -1830,7 +1860,8 @@
     "ingredient1qty": 4000,
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "parallel": 15
   },
   {
     "type": "Cherry Tree",
@@ -1863,7 +1894,8 @@
     "ingredient1qty": 3000,
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 15
   },
   {
     "type": "Ginger Plot",
@@ -1893,7 +1925,8 @@
     "ingredient1": "Ginger",
     "ingredient1qty": 1,
     "crafttime": 28800,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "parallel": 18
   },
   {
     "type": "Coconut Tree",
@@ -1925,7 +1958,8 @@
     "ingredient1qty": 10000,
     "filename": "palm-tree.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 4
   },
   {
     "type": "Blueberry Plot",
@@ -1954,7 +1988,8 @@
     "ingredient1": "Blueberry",
     "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "parallel": 18
   },
   {
     "type": "Rosemary Plot",
@@ -1981,7 +2016,8 @@
     "validonu": false,
     "growtime": 172800,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "parallel": 18
   },
   {
     "type": "Feverfew Plot",
@@ -2008,7 +2044,8 @@
     "validonu": false,
     "growtime": 259200,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "parallel": 18
   },
   {
     "type": "Mushroom Plot",
@@ -2035,7 +2072,8 @@
     "validonu": false,
     "growtime": 64800,
     "crafttime": 64800,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "parallel": 18
   },
   {
     "type": "Daisy Plot",
@@ -2063,7 +2101,8 @@
     "validonu": false,
     "growtime": 172800,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "parallel": 18
   },
   {
     "type": "Tulip Plot",
@@ -2091,7 +2130,8 @@
     "validonu": false,
     "growtime": 259200,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "parallel": 18
   },
   {
     "type": "Sunflower Plot",
@@ -2119,7 +2159,8 @@
     "validonu": false,
     "growtime": 86400,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "parallel": 18
   },
   {
     "type": "Grape Vine",
@@ -2149,7 +2190,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "parallel": 30
   },
   {
     "type": "Mulberry Tree",
@@ -2181,7 +2223,8 @@
     "ingredient1qty": 1,
     "filename": "mulberry-tree.svg",
     "crafttime": 345600,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "parallel": 15
   },
   {
     "type": "Coffee Plant",
@@ -2211,7 +2254,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "parallel": 18
   },
   {
     "type": "Oak Tree Plot",
@@ -2241,7 +2285,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 18
   },
   {
     "type": "Wheat",
@@ -2273,7 +2318,8 @@
     "maxprice": 8,
     "gemcost": 1,
     "crafttime": 60,
-    "totalnestedtime": 60
+    "totalnestedtime": 60,
+    "effort": 0.06
   },
   {
     "type": "Carrot",
@@ -2305,7 +2351,8 @@
     "maxprice": 16,
     "gemcost": 2,
     "crafttime": 240,
-    "totalnestedtime": 240
+    "totalnestedtime": 240,
+    "effort": 0.22
   },
   {
     "type": "Corn",
@@ -2337,7 +2384,8 @@
     "maxprice": 24,
     "gemcost": 3,
     "crafttime": 480,
-    "totalnestedtime": 480
+    "totalnestedtime": 480,
+    "effort": 0.44
   },
   {
     "type": "Sugarcane",
@@ -2369,7 +2417,8 @@
     "maxprice": 24,
     "gemcost": 3,
     "crafttime": 600,
-    "totalnestedtime": 600
+    "totalnestedtime": 600,
+    "effort": 0.56
   },
   {
     "type": "Pumpkin",
@@ -2402,7 +2451,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 27
   },
   {
     "type": "Lettuce",
@@ -2435,7 +2485,8 @@
     "maxprice": 96,
     "gemcost": 12,
     "crafttime": 14400,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "effort": 13
   },
   {
     "type": "Pepper",
@@ -2468,7 +2519,8 @@
     "maxprice": 72,
     "gemcost": 9,
     "crafttime": 7200,
-    "totalnestedtime": 7200
+    "totalnestedtime": 7200,
+    "effort": 6.67
   },
   {
     "type": "Potato",
@@ -2501,7 +2553,8 @@
     "maxprice": 32,
     "gemcost": 4,
     "crafttime": 900,
-    "totalnestedtime": 900
+    "totalnestedtime": 900,
+    "effort": 0.83
   },
   {
     "type": "Ginger",
@@ -2533,7 +2586,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 27
   },
   {
     "type": "Onion",
@@ -2565,7 +2619,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 27
   },
   {
     "type": "Garlic",
@@ -2600,7 +2655,8 @@
     "maxprice": 355,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 160
   },
   {
     "type": "Olive",
@@ -2634,7 +2690,8 @@
     "gemcost": 44,
     "filename": "tree-olive.svg",
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 270
   },
   {
     "type": "Strawberry",
@@ -2647,7 +2704,7 @@
     "passable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 5,
     "level": 10,
     "scrollqty": 24,
     "scrollchance": "common",
@@ -2670,7 +2727,8 @@
     "maxprice": 132,
     "gemcost": 15,
     "crafttime": 21600,
-    "totalnestedtime": 21600
+    "totalnestedtime": 21600,
+    "effort": 20
   },
   {
     "type": "Apple",
@@ -2685,7 +2743,7 @@
     "requires": "Fruit Fingers",
     "qtycollected": 1,
     "hp": 2,
-    "xp": 4,
+    "xp": 5,
     "level": 10,
     "pricemod": 1.1,
     "validong": true,
@@ -2707,7 +2765,8 @@
     "gemcost": 24,
     "filename": "tree-apple.svg",
     "crafttime": 64800,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "effort": 33
   },
   {
     "type": "Lemon",
@@ -2720,7 +2779,7 @@
     "repeatable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 10,
     "scrollqty": 15,
     "scrollchance": "uncommon",
@@ -2744,7 +2803,8 @@
     "gemcost": 27,
     "filename": "tree-lemon.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 80
   },
   {
     "type": "Orange",
@@ -2780,7 +2840,8 @@
     "gemcost": 27,
     "filename": "tree-orange.svg",
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 96
   },
   {
     "type": "Peach",
@@ -2794,7 +2855,7 @@
     "repeatable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 10,
     "pricemod": 1,
     "validong": true,
@@ -2816,7 +2877,8 @@
     "gemcost": 17,
     "filename": "tree-peach.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 32
   },
   {
     "type": "Pear",
@@ -2830,7 +2892,7 @@
     "repeatable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 10,
     "pricemod": 1,
     "validong": true,
@@ -2852,7 +2914,8 @@
     "gemcost": 17,
     "filename": "tree-pear.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 32
   },
   {
     "type": "Tomato",
@@ -2865,7 +2928,7 @@
     "passable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 11,
     "pricemod": 1,
     "validong": true,
@@ -2886,7 +2949,8 @@
     "maxprice": 176,
     "gemcost": 22,
     "crafttime": 57600,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "effort": 53
   },
   {
     "type": "Cherry",
@@ -2900,7 +2964,7 @@
     "repeatable": true,
     "requires": "Fruit Fingers",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 11,
     "pricemod": 1,
     "validong": true,
@@ -2922,7 +2986,8 @@
     "gemcost": 17,
     "filename": "tree-cherry.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 32
   },
   {
     "type": "Coconut",
@@ -2956,7 +3021,8 @@
     "gemcost": 17,
     "filename": "tree-coconut.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 120
   },
   {
     "type": "Grapes",
@@ -2969,7 +3035,7 @@
     "repeatable": true,
     "requires": "Winemaker",
     "qtycollected": 1,
-    "xp": 2,
+    "xp": 4,
     "level": 20,
     "scrollqty": 12,
     "scrollchance": "common",
@@ -2992,7 +3058,8 @@
     "maxprice": 192,
     "gemcost": 20,
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "effort": 24
   },
   {
     "type": "Mulberry Leaf",
@@ -3004,7 +3071,7 @@
     "passable": true,
     "repeatable": true,
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 4,
     "level": 50,
     "scrollqty": 10,
     "scrollchance": "rare",
@@ -3028,7 +3095,8 @@
     "gemcost": 50,
     "filename": "tree-mulberry.svg",
     "crafttime": 345600,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "effort": 384
   },
   {
     "type": "Coffee Cherry",
@@ -3061,7 +3129,8 @@
     "maxprice": 352,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 240
   },
   {
     "type": "Milk",
@@ -3094,7 +3163,8 @@
     "maxprice": 32,
     "gemcost": 4,
     "crafttime": 720,
-    "totalnestedtime": 720
+    "totalnestedtime": 720,
+    "effort": 1.09
   },
   {
     "type": "Wool",
@@ -3127,7 +3197,8 @@
     "maxprice": 96,
     "gemcost": 12,
     "crafttime": 14400,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "effort": 20
   },
   {
     "type": "Bacon",
@@ -3160,7 +3231,8 @@
     "maxprice": 95,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 120
   },
   {
     "type": "Flour",
@@ -3194,7 +3266,8 @@
     "ingredient1qty": 6,
     "gemcost": 9,
     "crafttime": 300,
-    "totalnestedtime": 660
+    "totalnestedtime": 660,
+    "effort": 1.17
   },
   {
     "type": "Sugar",
@@ -3228,7 +3301,8 @@
     "ingredient1qty": 4,
     "gemcost": 16,
     "crafttime": 900,
-    "totalnestedtime": 3300
+    "totalnestedtime": 3300,
+    "effort": 4.72
   },
   {
     "type": "Chicken Feed",
@@ -3266,7 +3340,8 @@
     "ingredient3qty": 2,
     "gemcost": 18,
     "crafttime": 600,
-    "totalnestedtime": 2640
+    "totalnestedtime": 2640,
+    "effort": 3.56
   },
   {
     "type": "Cornmeal",
@@ -3300,7 +3375,8 @@
     "ingredient1qty": 6,
     "gemcost": 35,
     "crafttime": 28800,
-    "totalnestedtime": 31680
+    "totalnestedtime": 31680,
+    "effort": 83
   },
   {
     "type": "Butter",
@@ -3335,7 +3411,8 @@
     "ingredient1qty": 2,
     "gemcost": 11,
     "crafttime": 600,
-    "totalnestedtime": 2040
+    "totalnestedtime": 2040,
+    "effort": 4.18
   },
   {
     "type": "Cheese",
@@ -3373,7 +3450,8 @@
     "ingredient1qty": 4,
     "gemcost": 20,
     "crafttime": 720,
-    "totalnestedtime": 3600
+    "totalnestedtime": 3600,
+    "effort": 6.76
   },
   {
     "type": "Cream",
@@ -3385,7 +3463,7 @@
     "passable": true,
     "requires": "Husbandry",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 4,
     "level": 7,
     "pricemod": 1.1,
     "validong": true,
@@ -3410,7 +3488,8 @@
     "ingredient2qty": 2,
     "gemcost": 44,
     "crafttime": 900,
-    "totalnestedtime": 4140
+    "totalnestedtime": 4140,
+    "effort": 15
   },
   {
     "type": "Pepper Cheese",
@@ -3423,7 +3502,7 @@
     "requires": "Husbandry",
     "qtycollected": 1,
     "hp": 5,
-    "xp": 4,
+    "xp": 5,
     "level": 7,
     "scrollqty": 4,
     "scrollchance": "rare",
@@ -3452,7 +3531,8 @@
     "ingredient3qty": 2,
     "gemcost": 187,
     "crafttime": 28800,
-    "totalnestedtime": 436320
+    "totalnestedtime": 436320,
+    "effort": 476
   },
   {
     "type": "Thread",
@@ -3463,7 +3543,7 @@
     "source": "Loom",
     "passable": true,
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 4,
     "level": 7,
     "pricemod": 1,
     "validong": true,
@@ -3486,7 +3566,8 @@
     "ingredient1qty": 1,
     "gemcost": 15,
     "crafttime": 300,
-    "totalnestedtime": 14700
+    "totalnestedtime": 14700,
+    "effort": 22
   },
   {
     "type": "Cloth",
@@ -3497,7 +3578,7 @@
     "source": "Loom",
     "passable": true,
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 4,
     "level": 7,
     "pricemod": 1,
     "validong": true,
@@ -3520,7 +3601,8 @@
     "ingredient1qty": 3,
     "gemcost": 39,
     "crafttime": 600,
-    "totalnestedtime": 43800
+    "totalnestedtime": 43800,
+    "effort": 63
   },
   {
     "type": "Sweater",
@@ -3532,7 +3614,7 @@
     "passable": true,
     "requires": "Textiles",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 8,
     "pricemod": 1.1,
     "validong": true,
@@ -3559,7 +3641,8 @@
     "ingredient3qty": 2,
     "gemcost": 153,
     "crafttime": 7200,
-    "totalnestedtime": 52200
+    "totalnestedtime": 52200,
+    "effort": 270
   },
   {
     "type": "Runic Tunic",
@@ -3571,7 +3654,7 @@
     "passable": true,
     "requires": "Artistry",
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 12,
     "level": 10,
     "scrollqty": 1,
     "scrollchance": "rare",
@@ -3600,7 +3683,8 @@
     "ingredient3qty": 2,
     "gemcost": 921,
     "crafttime": 43200,
-    "totalnestedtime": 75600
+    "totalnestedtime": 75600,
+    "effort": 2177
   },
   {
     "type": "Jacket",
@@ -3612,7 +3696,7 @@
     "passable": true,
     "requires": "Tailor",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 12,
     "pricemod": 1.2,
     "validong": true,
@@ -3641,7 +3725,8 @@
     "ingredient4qty": 2,
     "gemcost": 193,
     "crafttime": 14400,
-    "totalnestedtime": 102900
+    "totalnestedtime": 102900,
+    "effort": 1272
   },
   {
     "type": "Heavy Jacket",
@@ -3653,7 +3738,7 @@
     "passable": true,
     "requires": "Tailor",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 7,
     "level": 12,
     "pricemod": 1.3,
     "validong": true,
@@ -3680,7 +3765,8 @@
     "ingredient3qty": 1,
     "gemcost": 292,
     "crafttime": 28800,
-    "totalnestedtime": 216900
+    "totalnestedtime": 216900,
+    "effort": 4377
   },
   {
     "type": "Silk Dress",
@@ -3692,7 +3778,7 @@
     "passable": true,
     "requires": "Tailor",
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 11,
     "level": 50,
     "pricemod": 0.1,
     "validong": true,
@@ -3717,7 +3803,8 @@
     "ingredient2qty": 3,
     "gemcost": 3238,
     "crafttime": 57600,
-    "totalnestedtime": 189600
+    "totalnestedtime": 189600,
+    "effort": 25773
   },
   {
     "type": "Silk",
@@ -3729,7 +3816,7 @@
     "passable": true,
     "requires": "Sericulture",
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 10,
     "level": 50,
     "scrollqty": 1,
     "scrollchance": "rare",
@@ -3754,7 +3841,8 @@
     "ingredient1qty": 20,
     "gemcost": 1020,
     "crafttime": 43200,
-    "totalnestedtime": 6955200
+    "totalnestedtime": 6955200,
+    "effort": 8400
   },
   {
     "type": "Egg",
@@ -3789,7 +3877,8 @@
     "ingredient1qty": 2,
     "gemcost": 45,
     "crafttime": 7200,
-    "totalnestedtime": 8400
+    "totalnestedtime": 8400,
+    "effort": 19
   },
   {
     "type": "Bread",
@@ -3801,7 +3890,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 6,
-    "xp": 4,
+    "xp": 6,
     "level": 10,
     "pricemod": 1.2,
     "validong": true,
@@ -3826,7 +3915,8 @@
     "ingredient2qty": 1,
     "gemcost": 38,
     "crafttime": 7200,
-    "totalnestedtime": 8400
+    "totalnestedtime": 8400,
+    "effort": 31
   },
   {
     "type": "Cornbread",
@@ -3838,7 +3928,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 10,
-    "xp": 4,
+    "xp": 6,
     "level": 10,
     "pricemod": 1.2,
     "validong": true,
@@ -3867,7 +3957,8 @@
     "ingredient4qty": 1,
     "gemcost": 192,
     "crafttime": 14400,
-    "totalnestedtime": 87300
+    "totalnestedtime": 87300,
+    "effort": 257
   },
   {
     "type": "Pumpkin Pie",
@@ -3880,7 +3971,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 6,
     "level": 11,
     "pricemod": 1.2,
     "validong": true,
@@ -3909,7 +4000,8 @@
     "ingredient4qty": 2,
     "gemcost": 68,
     "crafttime": 1200,
-    "totalnestedtime": 32400
+    "totalnestedtime": 32400,
+    "effort": 45
   },
   {
     "type": "Lemon Cookie",
@@ -3922,7 +4014,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 14,
-    "xp": 3,
+    "xp": 6,
     "level": 11,
     "scrollqty": 5,
     "scrollchance": "common",
@@ -3953,7 +4045,8 @@
     "ingredient4qty": 4,
     "gemcost": 223,
     "crafttime": 2700,
-    "totalnestedtime": 193800
+    "totalnestedtime": 193800,
+    "effort": 227
   },
   {
     "type": "Ginger Cookie",
@@ -3966,7 +4059,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 14,
-    "xp": 3,
+    "xp": 6,
     "level": 11,
     "pricemod": 1.3,
     "validong": true,
@@ -3995,7 +4088,8 @@
     "ingredient4qty": 4,
     "gemcost": 237,
     "crafttime": 2700,
-    "totalnestedtime": 136200
+    "totalnestedtime": 136200,
+    "effort": 174
   },
   {
     "type": "Olive Bread",
@@ -4008,7 +4102,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 14,
-    "xp": 4,
+    "xp": 6,
     "level": 11,
     "pricemod": 1.2,
     "validong": true,
@@ -4037,7 +4131,8 @@
     "ingredient4qty": 1,
     "gemcost": 500,
     "crafttime": 14400,
-    "totalnestedtime": 2275500
+    "totalnestedtime": 2275500,
+    "effort": 2407
   },
   {
     "type": "Garlic Bread",
@@ -4050,7 +4145,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 14,
-    "xp": 4,
+    "xp": 7,
     "level": 11,
     "pricemod": 1.3,
     "validong": true,
@@ -4075,7 +4170,8 @@
     "ingredient2qty": 3,
     "gemcost": 156,
     "crafttime": 3600,
-    "totalnestedtime": 529200
+    "totalnestedtime": 529200,
+    "effort": 523
   },
   {
     "type": "Apple Pie",
@@ -4088,7 +4184,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 6,
     "level": 12,
     "pricemod": 1.2,
     "validong": true,
@@ -4117,7 +4213,8 @@
     "ingredient4qty": 2,
     "gemcost": 99,
     "crafttime": 1200,
-    "totalnestedtime": 133200
+    "totalnestedtime": 133200,
+    "effort": 84
   },
   {
     "type": "Strawberry Pie",
@@ -4130,7 +4227,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 6,
     "level": 12,
     "pricemod": 1.2,
     "validong": true,
@@ -4159,7 +4256,8 @@
     "ingredient4qty": 2,
     "gemcost": 179,
     "crafttime": 1800,
-    "totalnestedtime": 70500
+    "totalnestedtime": 70500,
+    "effort": 106
   },
   {
     "type": "Peach Pie",
@@ -4172,7 +4270,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 6,
     "level": 12,
     "pricemod": 1.2,
     "validong": true,
@@ -4201,7 +4299,8 @@
     "ingredient4qty": 3,
     "gemcost": 200,
     "crafttime": 2700,
-    "totalnestedtime": 236100
+    "totalnestedtime": 236100,
+    "effort": 283
   },
   {
     "type": "Cherry Pie",
@@ -4214,7 +4313,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 6,
     "level": 12,
     "pricemod": 1.2,
     "validong": true,
@@ -4243,7 +4342,8 @@
     "ingredient4qty": 2,
     "gemcost": 478,
     "crafttime": 3600,
-    "totalnestedtime": 698100
+    "totalnestedtime": 698100,
+    "effort": 799
   },
   {
     "type": "Queen's Cake",
@@ -4257,7 +4357,7 @@
     "requires": "Baker",
     "qtycollected": 1,
     "hp": 14,
-    "xp": 4,
+    "xp": 7,
     "level": 13,
     "scrollqty": 1,
     "scrollchance": "uncommon",
@@ -4288,7 +4388,8 @@
     "ingredient4qty": 4,
     "gemcost": 1125,
     "crafttime": 28800,
-    "totalnestedtime": 400200
+    "totalnestedtime": 400200,
+    "effort": 1366
   },
   {
     "type": "Honey",
@@ -4299,7 +4400,7 @@
     "source": "Beehive",
     "passable": true,
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 6,
     "level": 13,
     "pricemod": 1.2,
     "validong": true,
@@ -4322,7 +4423,8 @@
     "ingredient1qty": 75,
     "gemcost": 37,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 144
   },
   {
     "type": "Corn Chowder",
@@ -4334,7 +4436,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 7,
     "level": 14,
     "pricemod": 1.1,
     "validong": true,
@@ -4361,7 +4463,8 @@
     "ingredient3qty": 1,
     "gemcost": 47,
     "crafttime": 1200,
-    "totalnestedtime": 7080
+    "totalnestedtime": 7080,
+    "effort": 14
   },
   {
     "type": "Carrot Soup",
@@ -4373,7 +4476,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 7,
     "level": 14,
     "pricemod": 1.3,
     "validong": true,
@@ -4402,7 +4505,8 @@
     "ingredient4qty": 3,
     "gemcost": 187,
     "crafttime": 2700,
-    "totalnestedtime": 437040
+    "totalnestedtime": 437040,
+    "effort": 425
   },
   {
     "type": "Pumpkin Soup",
@@ -4414,7 +4518,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 10,
-    "xp": 4,
+    "xp": 10,
     "level": 14,
     "pricemod": 1.2,
     "validong": true,
@@ -4443,7 +4547,8 @@
     "ingredient4qty": 3,
     "gemcost": 410,
     "crafttime": 3600,
-    "totalnestedtime": 72060
+    "totalnestedtime": 72060,
+    "effort": 1580
   },
   {
     "type": "Omelette",
@@ -4456,7 +4561,7 @@
     "requires": "Cooking",
     "qtycollected": 1,
     "hp": 20,
-    "xp": 3,
+    "xp": 7,
     "level": 15,
     "pricemod": 1.3,
     "validong": true,
@@ -4485,7 +4590,8 @@
     "ingredient4qty": 1,
     "gemcost": 483,
     "crafttime": 600,
-    "totalnestedtime": 1069980
+    "totalnestedtime": 1069980,
+    "effort": 1200
   },
   {
     "type": "Potato Bake",
@@ -4498,7 +4604,7 @@
     "requires": "Cooking",
     "qtycollected": 1,
     "hp": 30,
-    "xp": 4,
+    "xp": 7,
     "level": 15,
     "pricemod": 1.2,
     "validong": true,
@@ -4527,7 +4633,8 @@
     "ingredient4qty": 2,
     "gemcost": 264,
     "crafttime": 14400,
-    "totalnestedtime": 370800
+    "totalnestedtime": 370800,
+    "effort": 427
   },
   {
     "type": "Mixed Salad",
@@ -4539,7 +4646,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 7,
     "level": 14,
     "pricemod": 1.2,
     "validong": true,
@@ -4568,7 +4675,8 @@
     "ingredient4qty": 4,
     "gemcost": 339,
     "crafttime": 900,
-    "totalnestedtime": 1275300
+    "totalnestedtime": 1275300,
+    "effort": 1315
   },
   {
     "type": "Sandwich",
@@ -4580,7 +4688,7 @@
     "passable": true,
     "qtycollected": 1,
     "hp": 20,
-    "xp": 3,
+    "xp": 7,
     "level": 14,
     "pricemod": 1.3,
     "validong": true,
@@ -4609,7 +4717,8 @@
     "ingredient4qty": 2,
     "gemcost": 218,
     "crafttime": 2700,
-    "totalnestedtime": 276300
+    "totalnestedtime": 276300,
+    "effort": 683
   },
   {
     "type": "Pizza",
@@ -4622,7 +4731,7 @@
     "requires": "Cooking",
     "qtycollected": 1,
     "hp": 30,
-    "xp": 3,
+    "xp": 10,
     "level": 15,
     "pricemod": 1.2,
     "validong": true,
@@ -4651,7 +4760,8 @@
     "ingredient4qty": 4,
     "gemcost": 405,
     "crafttime": 900,
-    "totalnestedtime": 241620
+    "totalnestedtime": 241620,
+    "effort": 1714
   },
   {
     "type": "Tomato Soup",
@@ -4664,7 +4774,7 @@
     "requires": "Cooking",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 10,
     "level": 15,
     "pricemod": 1.3,
     "validong": true,
@@ -4693,7 +4803,8 @@
     "ingredient4qty": 3,
     "gemcost": 810,
     "crafttime": 1800,
-    "totalnestedtime": 364500
+    "totalnestedtime": 364500,
+    "effort": 2885
   },
   {
     "type": "Poached Pear",
@@ -4706,7 +4817,7 @@
     "requires": "Cooking",
     "qtycollected": 1,
     "hp": 10,
-    "xp": 3,
+    "xp": 10,
     "level": 20,
     "pricemod": 1.4,
     "validong": true,
@@ -4731,7 +4842,8 @@
     "ingredient2qty": 3,
     "gemcost": 762,
     "crafttime": 0,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 2352
   },
   {
     "type": "Lumber",
@@ -4743,7 +4855,7 @@
     "passable": true,
     "requires": "Mechanics",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 7,
     "level": 3,
     "pricemod": 1,
     "validong": true,
@@ -4766,7 +4878,8 @@
     "ingredient1qty": 20,
     "gemcost": 25,
     "crafttime": 1800,
-    "totalnestedtime": 1900
+    "totalnestedtime": 1900,
+    "effort": 4.17
   },
   {
     "type": "Pottery",
@@ -4777,7 +4890,7 @@
     "source": "Studio",
     "passable": true,
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 8,
     "level": 16,
     "pricemod": 1.1,
     "validong": true,
@@ -4800,7 +4913,8 @@
     "ingredient1qty": 3,
     "gemcost": 51,
     "crafttime": 2700,
-    "totalnestedtime": 67500
+    "totalnestedtime": 67500,
+    "effort": 31
   },
   {
     "type": "Furniture",
@@ -4812,7 +4926,7 @@
     "passable": true,
     "requires": "Artistry",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 8,
     "level": 16,
     "pricemod": 1.1,
     "validong": true,
@@ -4839,7 +4953,8 @@
     "ingredient3qty": 2,
     "gemcost": 139,
     "crafttime": 43200,
-    "totalnestedtime": 48000
+    "totalnestedtime": 48000,
+    "effort": 295
   },
   {
     "type": "Ink",
@@ -4850,7 +4965,7 @@
     "source": "Studio",
     "passable": true,
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 11,
     "level": 17,
     "scrollqty": 2,
     "scrollchance": "common",
@@ -4879,7 +4994,8 @@
     "ingredient3qty": 1,
     "gemcost": 347,
     "crafttime": 14400,
-    "totalnestedtime": 561600
+    "totalnestedtime": 561600,
+    "effort": 808
   },
   {
     "type": "Urns",
@@ -4891,7 +5007,7 @@
     "passable": true,
     "requires": "Artistry",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 12,
     "level": 17,
     "pricemod": 1.3,
     "validong": true,
@@ -4918,7 +5034,8 @@
     "ingredient3qty": 1,
     "gemcost": 620,
     "crafttime": 7200,
-    "totalnestedtime": 118800
+    "totalnestedtime": 118800,
+    "effort": 990
   },
   {
     "type": "Lemonade",
@@ -4929,7 +5046,7 @@
     "source": "Beverage Station",
     "passable": true,
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 8,
     "level": 18,
     "pricemod": 1.1,
     "validong": true,
@@ -4954,7 +5071,8 @@
     "ingredient2qty": 2,
     "gemcost": 198,
     "crafttime": 900,
-    "totalnestedtime": 521100
+    "totalnestedtime": 521100,
+    "effort": 494
   },
   {
     "type": "Coconut Milk",
@@ -4965,7 +5083,7 @@
     "source": "Beverage Station",
     "passable": true,
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 8,
     "level": 19,
     "pricemod": 1.1,
     "validong": true,
@@ -4988,7 +5106,8 @@
     "ingredient1qty": 3,
     "gemcost": 60,
     "crafttime": 7200,
-    "totalnestedtime": 93600
+    "totalnestedtime": 93600,
+    "effort": 400
   },
   {
     "type": "Belmont Tea",
@@ -5000,7 +5119,7 @@
     "passable": true,
     "requires": "Barista",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 9,
     "level": 30,
     "pricemod": 1.1,
     "validong": true,
@@ -5025,7 +5144,8 @@
     "ingredient2qty": 8,
     "gemcost": 412,
     "crafttime": 14400,
-    "totalnestedtime": 1800000
+    "totalnestedtime": 1800000,
+    "effort": 1733
   },
   {
     "type": "Apple Cider",
@@ -5036,7 +5156,7 @@
     "source": "Winery",
     "passable": true,
     "qtycollected": 1,
-    "xp": 5,
+    "xp": 9,
     "level": 10,
     "pricemod": 1.1,
     "validong": true,
@@ -5059,7 +5179,8 @@
     "ingredient1qty": 12,
     "gemcost": 325,
     "crafttime": 172800,
-    "totalnestedtime": 950400
+    "totalnestedtime": 950400,
+    "effort": 3273
   },
   {
     "type": "Olive Oil",
@@ -5070,7 +5191,7 @@
     "source": "Winery",
     "passable": true,
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 11,
     "pricemod": 1.1,
     "validong": true,
@@ -5093,7 +5214,8 @@
     "ingredient1qty": 5,
     "gemcost": 229,
     "crafttime": 7200,
-    "totalnestedtime": 1303200
+    "totalnestedtime": 1303200,
+    "effort": 1470
   },
   {
     "type": "Wine",
@@ -5105,7 +5227,7 @@
     "passable": true,
     "requires": "Winemaker",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 20,
     "pricemod": 1.2,
     "validong": true,
@@ -5130,7 +5252,8 @@
     "ingredient2qty": 3,
     "gemcost": 220,
     "crafttime": 28800,
-    "totalnestedtime": 460815
+    "totalnestedtime": 460815,
+    "effort": 720
   },
   {
     "type": "Port",
@@ -5142,7 +5265,7 @@
     "passable": true,
     "requires": "Winemaker",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 20,
     "pricemod": 1.1,
     "validong": true,
@@ -5169,7 +5292,8 @@
     "ingredient3qty": 4,
     "gemcost": 248,
     "crafttime": 3600,
-    "totalnestedtime": 522020
+    "totalnestedtime": 522020,
+    "effort": 444
   },
   {
     "type": "Brandy",
@@ -5181,7 +5305,7 @@
     "passable": true,
     "requires": "Winemaker",
     "qtycollected": 1,
-    "xp": 6,
+    "xp": 9,
     "level": 22,
     "scrollqty": 12,
     "scrollchance": "uncommon",
@@ -5210,7 +5334,8 @@
     "ingredient3qty": 1,
     "gemcost": 416,
     "crafttime": 28800,
-    "totalnestedtime": 1238405
+    "totalnestedtime": 1238405,
+    "effort": 1920
   },
   {
     "type": "Aged Wine",
@@ -5222,7 +5347,7 @@
     "passable": true,
     "requires": "Winemaker",
     "qtycollected": 6,
-    "xp": 5,
+    "xp": 10,
     "level": 24,
     "scrollqty": 6,
     "scrollchance": "rare",
@@ -5249,7 +5374,8 @@
     "ingredient2qty": 6,
     "gemcost": 686,
     "crafttime": 43200,
-    "totalnestedtime": 129630
+    "totalnestedtime": 129630,
+    "effort": 2880
   },
   {
     "type": "Green Coffee Bean",
@@ -5260,7 +5386,7 @@
     "source": "Mill",
     "passable": true,
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 5,
     "level": 28,
     "pricemod": 0.1,
     "validong": true,
@@ -5283,7 +5409,8 @@
     "ingredient1qty": 6,
     "gemcost": 271,
     "crafttime": 3600,
-    "totalnestedtime": 1558800
+    "totalnestedtime": 1558800,
+    "effort": 1450
   },
   {
     "type": "Light Roast Coffee Bean",
@@ -5295,7 +5422,7 @@
     "passable": true,
     "requires": "Roaster",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 30,
     "pricemod": 0.05,
     "validong": true,
@@ -5320,7 +5447,8 @@
     "ingredient2qty": 4,
     "gemcost": 2729,
     "crafttime": 21600,
-    "totalnestedtime": 57620
+    "totalnestedtime": 57620,
+    "effort": 14860
   },
   {
     "type": "Medium Roast Coffee Bean",
@@ -5332,7 +5460,7 @@
     "passable": true,
     "requires": "Roaster",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 30,
     "pricemod": 0.05,
     "validong": true,
@@ -5357,7 +5485,8 @@
     "ingredient2qty": 8,
     "gemcost": 3280,
     "crafttime": 43200,
-    "totalnestedtime": 86440
+    "totalnestedtime": 86440,
+    "effort": 18120
   },
   {
     "type": "Dark Roast Coffee Bean",
@@ -5369,7 +5498,7 @@
     "passable": true,
     "requires": "Roaster",
     "qtycollected": 1,
-    "xp": 3,
+    "xp": 9,
     "level": 32,
     "pricemod": 0.05,
     "validong": true,
@@ -5394,7 +5523,8 @@
     "ingredient2qty": 10,
     "gemcost": 4096,
     "crafttime": 50400,
-    "totalnestedtime": 104450
+    "totalnestedtime": 104450,
+    "effort": 22590
   },
   {
     "type": "Common Coffee",
@@ -5405,7 +5535,7 @@
     "source": "Beverage Station",
     "passable": true,
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 10,
     "level": 30,
     "pricemod": 0.05,
     "validong": true,
@@ -5428,7 +5558,8 @@
     "ingredient1qty": 5,
     "gemcost": 16404,
     "crafttime": 900,
-    "totalnestedtime": 216900
+    "totalnestedtime": 216900,
+    "effort": 90606
   },
   {
     "type": "Coffee Elsinore",
@@ -5440,7 +5571,7 @@
     "passable": true,
     "requires": "Barista",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 10,
     "level": 30,
     "pricemod": 0.05,
     "validong": true,
@@ -5465,7 +5596,8 @@
     "ingredient2qty": 6,
     "gemcost": 22058,
     "crafttime": 1200,
-    "totalnestedtime": 692400
+    "totalnestedtime": 692400,
+    "effort": 119751
   },
   {
     "type": "Coffee Latte",
@@ -5477,7 +5609,7 @@
     "passable": true,
     "requires": "Barista",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 10,
     "level": 30,
     "pricemod": 0.05,
     "validong": true,
@@ -5504,7 +5636,8 @@
     "ingredient3qty": 4,
     "gemcost": 26317,
     "crafttime": 1800,
-    "totalnestedtime": 352440
+    "totalnestedtime": 352440,
+    "effort": 144992
   },
   {
     "type": "Queen's Coffee",
@@ -5516,7 +5649,7 @@
     "passable": true,
     "requires": "Barista",
     "qtycollected": 1,
-    "xp": 4,
+    "xp": 10,
     "level": 32,
     "pricemod": 0.05,
     "validong": true,
@@ -5543,7 +5676,8 @@
     "ingredient3qty": 1,
     "gemcost": 49410,
     "crafttime": 2700,
-    "totalnestedtime": 625500
+    "totalnestedtime": 625500,
+    "effort": 271554
   },
   {
     "type": "Amulet",
@@ -5577,7 +5711,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Beans",
@@ -5609,7 +5744,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Oyster",
@@ -5641,7 +5777,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Meat",
@@ -5673,7 +5810,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Fish",
@@ -5705,7 +5843,8 @@
     "maxprice": 280,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 1440
   },
   {
     "type": "Trumpet",
@@ -5739,7 +5878,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Ancient Coin",
@@ -5773,7 +5913,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Fan",
@@ -5805,7 +5946,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Saw",
@@ -5842,7 +5984,8 @@
     "maxprice": 216,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 1440
   },
   {
     "type": "Shovel",
@@ -5879,7 +6022,8 @@
     "maxprice": 296,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 2880
   },
   {
     "type": "Screwdriver",
@@ -5916,7 +6060,8 @@
     "maxprice": 352,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "effort": 4320
   },
   {
     "type": "Potion A",
@@ -5958,7 +6103,8 @@
     "ingredient4qty": 6,
     "gemcost": 520,
     "crafttime": 28800,
-    "totalnestedtime": 1946880
+    "totalnestedtime": 1946880,
+    "effort": 2266
   },
   {
     "type": "Potion B",
@@ -6000,7 +6146,8 @@
     "ingredient4qty": 2,
     "gemcost": 4542,
     "crafttime": 57600,
-    "totalnestedtime": 2102400
+    "totalnestedtime": 2102400,
+    "effort": 20769
   },
   {
     "type": "Potion C",
@@ -6042,7 +6189,8 @@
     "ingredient4qty": 10,
     "gemcost": 19658,
     "crafttime": 129600,
-    "totalnestedtime": 4017600
+    "totalnestedtime": 4017600,
+    "effort": 90215
   },
   {
     "type": "Book",
@@ -6083,7 +6231,8 @@
     "ingredient3qty": 3,
     "gemcost": 3007,
     "crafttime": 3,
-    "totalnestedtime": 45003
+    "totalnestedtime": 45003,
+    "effort": 2555
   },
   {
     "type": "Pelt",
@@ -6116,7 +6265,8 @@
     "maxprice": 136,
     "gemcost": 17,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "effort": 480
   },
   {
     "type": "Bear Skin",
@@ -6147,7 +6297,8 @@
     "maxprice": 296,
     "gemcost": 37,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "effort": 2880
   },
   {
     "type": "Bones",
@@ -6182,7 +6333,8 @@
     "ingredient1qty": 1000,
     "gemcost": 200,
     "crafttime": 864000,
-    "totalnestedtime": 864000
+    "totalnestedtime": 864000,
+    "effort": 14400
   },
   {
     "type": "Silver",
@@ -6218,7 +6370,8 @@
     "ingredient1qty": 1000,
     "gemcost": 200,
     "crafttime": 864000,
-    "totalnestedtime": 864000
+    "totalnestedtime": 864000,
+    "effort": 14400
   },
   {
     "type": "Gold",
@@ -6254,7 +6407,8 @@
     "ingredient1qty": 1000,
     "gemcost": 215,
     "crafttime": 1296000,
-    "totalnestedtime": 1296000
+    "totalnestedtime": 1296000,
+    "effort": 21600
   },
   {
     "type": "Diamond Ring",
@@ -6289,7 +6443,8 @@
     "ingredient1qty": 1000,
     "gemcost": 227,
     "crafttime": 1728000,
-    "totalnestedtime": 1728000
+    "totalnestedtime": 1728000,
+    "effort": 28800
   },
   {
     "type": "King's Crown",
@@ -6311,7 +6466,8 @@
     "ingredient1qty": 1,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 1440
   },
   {
     "type": "Portrait",
@@ -6345,7 +6501,8 @@
     "maxprice": 160,
     "gemcost": 20,
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "effort": 720
   },
   {
     "type": "Trident",
@@ -6367,7 +6524,8 @@
     "ingredient1qty": 1,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "effort": 1440
   },
   {
     "type": "Phoenix Feather",
@@ -6400,7 +6558,8 @@
     "maxprice": 600,
     "gemcost": 75,
     "crafttime": 864000,
-    "totalnestedtime": 864000
+    "totalnestedtime": 864000,
+    "effort": 14400
   },
   {
     "type": "Brass Bell",
@@ -6420,7 +6579,8 @@
     "maxprice": 600,
     "gemcost": 75,
     "crafttime": 864000,
-    "totalnestedtime": 864000
+    "totalnestedtime": 864000,
+    "effort": 14400
   },
   {
     "type": "Prospero's Orb",
@@ -6440,7 +6600,8 @@
     "maxprice": 976,
     "gemcost": 122,
     "crafttime": 2592000,
-    "totalnestedtime": 2592000
+    "totalnestedtime": 2592000,
+    "effort": 43200
   },
   {
     "type": "Vampire's Blood",
@@ -6460,7 +6621,8 @@
     "maxprice": 816,
     "gemcost": 102,
     "crafttime": 1728000,
-    "totalnestedtime": 1728000
+    "totalnestedtime": 1728000,
+    "effort": 28800
   },
   {
     "type": "Home Deed",
@@ -6721,7 +6883,8 @@
     "maxprice": 1,
     "gemcost": 1,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "effort": 0.17
   },
   {
     "type": "Reveal Scroll",
@@ -6925,7 +7088,8 @@
     "gemcost": 2300,
     "filename": "hospital.svg",
     "crafttime": 0,
-    "totalnestedtime": 72250
+    "totalnestedtime": 72250,
+    "parallel": 1
   },
   {
     "type": "Library",
@@ -6962,7 +7126,8 @@
     "gemcost": 2440,
     "filename": "library.svg",
     "crafttime": 0,
-    "totalnestedtime": 432250
+    "totalnestedtime": 432250,
+    "parallel": 1
   },
   {
     "type": "Mill",
@@ -6997,7 +7162,8 @@
     "gemcost": 125,
     "filename": "mill.svg",
     "crafttime": 0,
-    "totalnestedtime": 375
+    "totalnestedtime": 375,
+    "parallel": 6
   },
   {
     "type": "Dairy",
@@ -7034,7 +7200,8 @@
     "gemcost": 208,
     "filename": "dairy.svg",
     "crafttime": 0,
-    "totalnestedtime": 850
+    "totalnestedtime": 850,
+    "parallel": 5
   },
   {
     "type": "Loom",
@@ -7071,7 +7238,8 @@
     "gemcost": 235,
     "filename": "loom.svg",
     "crafttime": 0,
-    "totalnestedtime": 1050
+    "totalnestedtime": 1050,
+    "parallel": 3
   },
   {
     "type": "Chicken Coop",
@@ -7104,7 +7272,8 @@
     "ingredient2qty": 75,
     "gemcost": 200,
     "crafttime": 0,
-    "totalnestedtime": 375
+    "totalnestedtime": 375,
+    "parallel": 10
   },
   {
     "type": "Oven",
@@ -7143,7 +7312,8 @@
     "gemcost": 2985,
     "filename": "oven.svg",
     "crafttime": 0,
-    "totalnestedtime": 3241800
+    "totalnestedtime": 3241800,
+    "parallel": 5
   },
   {
     "type": "Beehive",
@@ -7176,7 +7346,8 @@
     "ingredient2qty": 90,
     "gemcost": 1090,
     "crafttime": 0,
-    "totalnestedtime": 450
+    "totalnestedtime": 450,
+    "parallel": 10
   },
   {
     "type": "Kitchen",
@@ -7213,7 +7384,8 @@
     "gemcost": 6050,
     "filename": "kitchen.svg",
     "crafttime": 0,
-    "totalnestedtime": 6481500
+    "totalnestedtime": 6481500,
+    "parallel": 5
   },
   {
     "type": "Lumber Yard",
@@ -7250,7 +7422,8 @@
     "gemcost": 1550,
     "filename": "lumber-yard.svg",
     "crafttime": 0,
-    "totalnestedtime": 7000
+    "totalnestedtime": 7000,
+    "parallel": 8
   },
   {
     "type": "Studio",
@@ -7287,7 +7460,8 @@
     "gemcost": 8875,
     "filename": "studio.svg",
     "crafttime": 0,
-    "totalnestedtime": 8712000
+    "totalnestedtime": 8712000,
+    "parallel": 4
   },
   {
     "type": "Beverage Station",
@@ -7326,7 +7500,8 @@
     "gemcost": 4330,
     "filename": "beverage-station.svg",
     "crafttime": 0,
-    "totalnestedtime": 1116400
+    "totalnestedtime": 1116400,
+    "parallel": 3
   },
   {
     "type": "Winery",
@@ -7365,7 +7540,8 @@
     "gemcost": 21120,
     "filename": "winery.svg",
     "crafttime": 0,
-    "totalnestedtime": 17388600
+    "totalnestedtime": 17388600,
+    "parallel": 1
   },
   {
     "type": "Coffee Factory",
@@ -7404,7 +7580,8 @@
     "gemcost": 73050,
     "filename": "coffee-factory.svg",
     "crafttime": 0,
-    "totalnestedtime": 13051500
+    "totalnestedtime": 13051500,
+    "parallel": 1
   },
   {
     "type": "Silkery",
@@ -7442,7 +7619,8 @@
     "ingredient4qty": 1,
     "gemcost": 52225,
     "crafttime": 0,
-    "totalnestedtime": 482100
+    "totalnestedtime": 482100,
+    "parallel": 1
   },
   {
     "type": "Ancient Temple",
@@ -7469,7 +7647,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "ancient-temple.svg"
+    "filename": "ancient-temple.svg",
+    "parallel": 1
   },
   {
     "type": "Adventure Camp",
@@ -8346,7 +8525,8 @@
     "ingredient1qty": 500,
     "gemcost": 67,
     "crafttime": 720,
-    "totalnestedtime": 720
+    "totalnestedtime": 720,
+    "parallel": 11
   },
   {
     "type": "Sheep",
@@ -8383,7 +8563,8 @@
     "ingredient1qty": 1500,
     "gemcost": 200,
     "crafttime": 14400,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "parallel": 6
   },
   {
     "type": "Pig",
@@ -8421,7 +8602,8 @@
     "gemcost": 392,
     "filename": "npc-pig.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "parallel": 2
   },
   {
     "type": "Brown Cow",
@@ -8458,7 +8640,8 @@
     "ingredient1qty": 6,
     "gemcost": 27279,
     "crafttime": 86400,
-    "totalnestedtime": 432000
+    "totalnestedtime": 432000,
+    "parallel": 3
   },
   {
     "type": "Ram",
@@ -8495,7 +8678,8 @@
     "ingredient1qty": 3,
     "gemcost": 59001,
     "crafttime": 86400,
-    "totalnestedtime": 475200
+    "totalnestedtime": 475200,
+    "parallel": 4
   },
   {
     "type": "Doctor",
@@ -12961,10 +13145,6 @@
   },
   {
     "type": "Hope Mountain",
-    "category": "region"
-  },
-  {
-    "type": "Angelo's Keep",
     "category": "region"
   },
   {

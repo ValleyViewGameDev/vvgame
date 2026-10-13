@@ -14,6 +14,7 @@ import { updateBadge } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
+import FloatingTextManager from '../../UI/FloatingText';
 
 function Mailbox({ 
   onClose, 
@@ -76,10 +77,45 @@ function Mailbox({
 }, []);
 
 
+  // Where a collected reward flies (UI/FlyToTarget.js): Money to the money counter, Gems to the gem
+  // counter, XP to the Level bar, any other resource you can hold (a doober) to Inventory; skills,
+  // powers and the like just rise and fade
+  const flyTargetFor = (item) => {
+    if (item === 'Money') return 'money';
+    if (item === 'Gem') return 'gems';
+    if (item === 'XP') return 'xp';
+    const def = (masterResources || resources || []).find((r) => r.type === item);
+    return def?.category === 'doober' ? 'inventory' : null;
+  };
+
+  // On the tap (house rule: never wait for the server to react): each reward pops up over the
+  // message's reward line, one after another, and flies into its header counter
+  const showCollectFloats = (messageIndex) => {
+    const msg = visibleMessages[messageIndex];
+    const template = templates.find((t) => t.id === msg?.messageId);
+    const rewards = (msg?.rewards?.length ? msg.rewards : template?.rewards) || [];
+    const anchor = document.querySelector(`[data-mail-index="${messageIndex}"] .reward-summary`)
+      || document.querySelector(`[data-mail-index="${messageIndex}"]`);
+    if (!anchor || !rewards.length) return;
+    const r = anchor.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    rewards.forEach((reward, i) => {
+      setTimeout(() => {
+        FloatingTextManager.addFloatingTextAt(
+          `+${Number(reward.qty || 0).toLocaleString()} ${getSymbol(reward.item) || reward.item}`,
+          cx + ((i % 3) - 1) * 26, cy - 6 + Math.floor(i / 3) * 22,
+          { flyTo: flyTargetFor(reward.item), size: '20px' }
+        );
+      }, i * 180);
+    });
+  };
+
   // Protected function to collect mailbox rewards using transaction system
   const handleCollect = async (transactionId, transactionKey, messageIndex) => {
     console.log(`🔒 [PROTECTED MAILBOX] Starting protected collection for message ${messageIndex}`);
-    
+    showCollectFloats(messageIndex);
+    soundManager.playSFX('collect_money');
+
     try {
       const response = await axios.post(`${API_BASE}/api/mailbox/collect-rewards`, {
         playerId: currentPlayer.playerId,
@@ -125,8 +161,6 @@ function Mailbox({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
-        soundManager.playSFX('collect_money');
         updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
         // FTUE: the welcome gift collected is the beat before the avatar picker (tuning/FTUEsteps.json)
         tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -220,7 +254,7 @@ const renderRewards = (rewards) => {
             : template.rewards;
 
           return (
-            <div key={index} className="mailbox-message">
+            <div key={index} className="mailbox-message" data-mail-index={visibleMessages.length - 1 - index}>
               {/* Left side: message content */}
               <div className="message-left">
                 <h3>

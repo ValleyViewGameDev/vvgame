@@ -1,6 +1,7 @@
 import { isACrop, areIngredientsUnlocked } from '../../Utils/ResourceHelpers';
 import { selectWeightedRandomItem } from '../../Economy/DropRates';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { getAskCenter, pickAskQuantity } from '../../Economy/askSizing';
 
 // ============================================================================
 // TUNING CONSTANTS - Adjust these to balance Kent offers
@@ -61,50 +62,13 @@ const VALLEY_BONUS_QUANTITY = {
     common: { min: 1, max: 3 }
 };
 
-// Quantity ranges for CROP items by player level
-// { maxLevel: { min, max } } - checked in order, first match wins
-const CROP_QUANTITY_BY_LEVEL = [
-    { maxLevel: 2, min: 2, max: 3 },
-    { maxLevel: 5, min: 3, max: 8 },
-    { maxLevel: 6, min: 3, max: 10 },
-    { maxLevel: 7, min: 5, max: 12 },
-    { maxLevel: 8, min: 6, max: 15 },
-    { maxLevel: 10, min: 10, max: 30 },
-    { maxLevel: 20, min: 20, max: 40 },
-    { maxLevel: Infinity, min: 25, max: 50 }
-];
-
-// Quantity ranges for NON-CROP items by player level
-// { maxLevel: { min, max } } - checked in order, first match wins
-const NON_CROP_QUANTITY_BY_LEVEL = [
-    { maxLevel: 2, min: 1, max: 2 },
-    { maxLevel: 5, min: 1, max: 3 },
-    { maxLevel: 6, min: 2, max: 4 },
-    { maxLevel: 7, min: 3, max: 6 },
-    { maxLevel: 8, min: 4, max: 8 },
-    { maxLevel: 10, min: 5, max: 10 },
-    { maxLevel: 20, min: 8, max: 20 },
-    { maxLevel: Infinity, min: 15, max: 35 }
-];
+// Quantities: sized by each good's `effort` (production minutes per unit, resources.json) with
+// the `askSizing.kent` table in globalTuning.json; see Economy/askSizing.js (2026-10-12; replaced
+// the crop / non-crop quantity bands).
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
-
-/**
- * Helper to calculate quantity range based on crop status and player level
- */
-function getQuantityRange(isCrop, playerLevel) {
-    const ranges = isCrop ? CROP_QUANTITY_BY_LEVEL : NON_CROP_QUANTITY_BY_LEVEL;
-    for (const range of ranges) {
-        if (playerLevel <= range.maxLevel) {
-            return { min: range.min, max: range.max };
-        }
-    }
-    // Fallback (shouldn't reach here due to Infinity)
-    const last = ranges[ranges.length - 1];
-    return { min: last.min, max: last.max };
-}
 
 /**
  * How many cards Kent's board holds at this level
@@ -135,35 +99,29 @@ function getNewestStationGoods(eligibleResources, masterResources, playerLevel) 
 /**
  * XP a Kent offer pays. One function for the card's "🔷 XP" and the award, so the card stays
  * exactly what the trade pays (tuning.md principle 3). Per item: 2 x its `xp` (1 if undefined),
- * plus 2 more when the asked quantity is in the top half of the player's quantity band for that
- * kind of item (crop or not), so a big ask pays more than a small one of the same good.
+ * plus 2 more when the asked quantity is above the good's usual ask at this level (the center of
+ * its effort-sized ask), so a big ask pays more than a small one of the same good.
  */
-export function calculateKentOfferXP(offer, masterResources, playerLevel) {
+export function calculateKentOfferXP(offer, masterResources, playerLevel, globalTuning) {
     const offerItems = offer?.items?.length ? offer.items : [{ item: offer?.item, quantity: offer?.quantity }];
     let totalXP = 0;
     for (const { item, quantity } of offerItems) {
         const resource = masterResources.find(r => r.type === item);
         let itemXP = resource?.xp || 1;
-        const { min, max } = getQuantityRange(isACrop(item, masterResources), playerLevel);
-        if (Number(quantity) > (min + max) / 2) itemXP += 1;
+        if (resource && Number(quantity) > Math.round(getAskCenter(resource, playerLevel, globalTuning, 'kent'))) itemXP += 1;
         totalXP += itemXP;
     }
     return totalXP * 2;
 }
 
 /**
- * Helper to pick a random item and calculate its quantity
+ * Helper to pick a random item and size its ask by effort
  * Returns { resource, quantity } or null if no resources available
  */
-function pickItemWithQuantity(availableResources, playerLevel, masterResources) {
+function pickItemWithQuantity(availableResources, playerLevel, globalTuning) {
     if (availableResources.length === 0) return null;
-
     const randomResource = availableResources[Math.floor(Math.random() * availableResources.length)];
-    const isCrop = isACrop(randomResource.type, masterResources);
-    const { min, max } = getQuantityRange(isCrop, playerLevel);
-    const quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-
-    return { resource: randomResource, quantity };
+    return { resource: randomResource, quantity: pickAskQuantity(randomResource, playerLevel, globalTuning, 'kent') };
 }
 
 /**
@@ -488,7 +446,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         let totalRewardAmount = 0;
 
         // Pick first item
-        const firstPick = pickItemWithQuantity(availableResources, playerLevel, masterResources);
+        const firstPick = pickItemWithQuantity(availableResources, playerLevel, globalTuning);
         if (!firstPick) {
             console.log('🤠 Could not pick first item');
             break;
@@ -512,7 +470,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
 
             // For multi-item, don't enforce crop balance on second item - just pick randomly
             if (availableForSecond.length > 0) {
-                const secondPick = pickItemWithQuantity(availableForSecond, playerLevel, masterResources);
+                const secondPick = pickItemWithQuantity(availableForSecond, playerLevel, globalTuning);
                 if (secondPick) {
                     items.push({ item: secondPick.resource.type, quantity: secondPick.quantity });
                     const secondMaxPrice = secondPick.resource.maxprice || secondPick.resource.minprice || 10;
@@ -648,9 +606,18 @@ export function removeCompletedOffer(kentOffers, completedOffer) {
  * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Object} Updated kentOffers object
  */
-export function updateKentOffersAfterTrade(currentPlayer, completedOffer, masterResources, globalTuning, currentSeason, masterXPLevels) {
-    // Remove the completed offer and get its position
-    const { kentOffers: kentOffersWithoutCompleted, removedIndex } = removeCompletedOffer(currentPlayer.kentOffers, completedOffer);
+export function updateKentOffersAfterTrade(currentPlayer, completedOffer, masterResources, globalTuning, currentSeason, masterXPLevels, slotIndex = null) {
+    // Remove the completed offer and get its position. The panel passes the slot it was in
+    // (slotIndex): matching by content picked the first card with the same first item and
+    // quantity, so a replacement could land in another card's slot (2026-10-12).
+    let kentOffersWithoutCompleted, removedIndex;
+    const list = currentPlayer.kentOffers?.offers || [];
+    if (Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < list.length) {
+        removedIndex = slotIndex;
+        kentOffersWithoutCompleted = { ...currentPlayer.kentOffers, offers: list.filter((_, i) => i !== slotIndex) };
+    } else {
+        ({ kentOffers: kentOffersWithoutCompleted, removedIndex } = removeCompletedOffer(currentPlayer.kentOffers, completedOffer));
+    }
 
     // Generate new offers (limit to 1 to replace the removed offer)
     const newOffers = generateNewKentOffers(

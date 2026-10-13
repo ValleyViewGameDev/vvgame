@@ -1,5 +1,6 @@
 import { isACrop, areIngredientsUnlocked } from '../../Utils/ResourceHelpers';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { getAskCenter, pickAskQuantity, getTrainBandScale } from '../../Economy/askSizing';
 
 // ============================================================================
 // TUNING CONSTANTS (docs/tuning.md, Train) - 2026-10-12
@@ -17,18 +18,10 @@ const BASIC_CROP_LEAD_LEVELS = 3;
 // Crafted goods count as easy when their station unlocked at least this many levels ago
 const EASY_STATION_LEAD_LEVELS = 2;
 
-// Quantity ranges per band by player level ([min, max]); first match wins
-const QUANTITY_BY_LEVEL = [
-    { maxLevel: 12, basic: [10, 20], easy: [3, 8], aspirational: [2, 4] },
-    { maxLevel: 19, basic: [15, 30], easy: [5, 10], aspirational: [3, 5] },
-    { maxLevel: Infinity, basic: [20, 40], easy: [8, 15], aspirational: [4, 6] }
-];
+// Quantities are sized by each good's `effort` with the `askSizing.train` table and
+// `trainBandScale` in globalTuning.json (Economy/askSizing.js). First-time users get crops only,
+// in this fixed range.
 const FIRST_TIME_CROP_QUANTITY = [5, 20];
-// Goods at or above this maxprice are asked for in half the quantity (rounded up)
-const EXPENSIVE_PRICE = 2000;
-
-// Train XP per order: 2 x the item's xp per started block of QTY_PER_XP_STEP items
-const QTY_PER_XP_STEP = 5;
 
 const STATION_CATEGORY = 'crafting';
 
@@ -40,22 +33,21 @@ const randomInt = ([min, max]) => Math.floor(Math.random() * (max - min + 1)) + 
 
 const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
 
-function getQuantityBand(playerLevel) {
-    return QUANTITY_BY_LEVEL.find(b => playerLevel <= b.maxLevel) || QUANTITY_BY_LEVEL[QUANTITY_BY_LEVEL.length - 1];
-}
-
-function orderQuantity(resource, band, playerLevel, firstTimeUser) {
+function orderQuantity(resource, band, playerLevel, firstTimeUser, globalTuning) {
     if (firstTimeUser) return randomInt(FIRST_TIME_CROP_QUANTITY);
-    const qty = randomInt(getQuantityBand(playerLevel)[band]);
-    return (resource.maxprice || 0) >= EXPENSIVE_PRICE ? Math.ceil(qty / 2) : qty;
+    return pickAskQuantity(resource, playerLevel, globalTuning, 'train', getTrainBandScale(globalTuning, band));
 }
 
 /**
- * XP one Train order is worth (counted into the tier it belongs to)
+ * XP one Train order is worth: what Kent would pay for the same goods. The order counts as
+ * quantity / (Kent's usual ask for that good at this level) Kent cards, at least one, each paying
+ * 2 x the good's xp.
  */
-export function getTrainOrderXP(offer, masterResources) {
+export function getTrainOrderXP(offer, masterResources, playerLevel, globalTuning) {
     const resource = masterResources.find(r => r.type === offer.item);
-    return (resource?.xp || 1) * 2 * Math.ceil((offer.quantity || 0) / QTY_PER_XP_STEP);
+    const kentAsk = resource ? Math.max(1, getAskCenter(resource, playerLevel, globalTuning, 'kent')) : 1;
+    const kentCards = Math.max(1, Math.round((offer.quantity || 0) / kentAsk));
+    return (resource?.xp || 1) * 2 * kentCards;
 }
 
 /**
@@ -162,7 +154,7 @@ export function generateNewTrainOffers(currentPlayer, masterResources, globalTun
             if (available.length === 0) continue;
             const resource = pickRandom(available);
             used.add(resource.type);
-            offers.push({ item: resource.type, quantity: orderQuantity(resource, band, playerLevel, firstTimeUser), band });
+            offers.push({ item: resource.type, quantity: orderQuantity(resource, band, playerLevel, firstTimeUser, globalTuning), band });
             return true;
         }
         return false;
@@ -202,10 +194,12 @@ export function generateTrainRewards(trainOffers, currentPlayer, masterResources
     }
 
     if (seasonalRewards.includes('XP')) {
+        const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+        const orderXP = (o) => getTrainOrderXP(o, masterResources, playerLevel, globalTuning);
         const threshold = getTrainBaseThreshold(trainOffers);
         const isAspirational = (o, i) => (o.band ? o.band === 'aspirational' : i >= threshold);
-        const baseXP = trainOffers.filter((o, i) => !isAspirational(o, i)).reduce((sum, o) => sum + getTrainOrderXP(o, masterResources), 0);
-        const fullXP = trainOffers.filter((o, i) => isAspirational(o, i)).reduce((sum, o) => sum + getTrainOrderXP(o, masterResources), 0);
+        const baseXP = trainOffers.filter((o, i) => !isAspirational(o, i)).reduce((sum, o) => sum + orderXP(o), 0);
+        const fullXP = trainOffers.filter((o, i) => isAspirational(o, i)).reduce((sum, o) => sum + orderXP(o), 0);
         if (baseXP > 0) rewards.push({ item: 'XP', quantity: baseXP, tier: 'base' });
         if (fullXP > 0) rewards.push({ item: 'XP', quantity: fullXP, tier: 'full' });
     }

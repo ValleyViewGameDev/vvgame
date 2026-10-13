@@ -15,6 +15,8 @@ import '../../UI/Buttons/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import soundManager from '../../Sound/SoundManager';
+import { getLocalizedString } from '../../Utils/stringLookup';
+import FloatingTextManager from '../../UI/FloatingText';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
@@ -188,6 +190,24 @@ const ShopStation = ({
       }
     }
 
+    // where the bought card is, taken on the tap: the purchase rises from it and flies home
+    // (UI/FlyToTarget.js) like the Skills panel's: a power (weapon, armor, magic) into the Combat
+    // button on the nav bar, a skill into Skills, Money / Gems into their counters, anything else
+    // into Inventory
+    const cardRect = document.querySelector(`[data-resource-type="${CSS.escape(recipe.type)}"]`)?.getBoundingClientRect() || null;
+    const boughtDef = masterResources?.find((r) => r.type === recipe.type) || recipe;
+    const floatPurchase = () => {
+      if (!cardRect) return;
+      const name = getLocalizedString(recipe.type, strings);
+      const category = recipe.category || boughtDef.category;
+      const [text, flyTo] =
+        category === 'power' ? [`+${recipe.symbol || boughtDef.symbol || ''} ${name}`, 'combat']
+        : category === 'skill' ? [(strings[10201] || '+{skill} Skill').replace('{skill}', name), 'skills']
+        : [`+${recipe.qtycollected || 1} ${recipe.symbol || boughtDef.symbol || ''} ${name}`,
+           recipe.type === 'Money' ? 'money' : recipe.type === 'Gem' ? 'gems' : 'inventory'];
+      FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo, size: '18px' });
+    };
+
     const success = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
@@ -199,6 +219,7 @@ const ShopStation = ({
       updateStatus,
     });
     if (!success) return;
+    floatPurchase();
 
     // Refresh player to update money display after any purchase
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);

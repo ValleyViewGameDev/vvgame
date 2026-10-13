@@ -19,7 +19,11 @@
  * column.immutable: locked once the row exists on disk (persisted identifiers)
  * identity: the key(s) that must be unique together; immutable columns are usually these
  * presetsFromData: column presets are computed per value of categoryKey from the keys rows use
+ * column.derived: computed by def.derive (read-only in the grid; recomputed live and on every save)
+ * derive(rows): recomputes the derived columns in place; returns how many rows changed
  */
+
+import { deriveResources } from './economy.js';
 
 const VALIDON = ['g', 'd', 's', 'p', 'w', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
 
@@ -42,12 +46,15 @@ export const DEFINITIONS = [
     categoryKey: 'category',
     presetsFromData: true,
     restartNeeded: true,
+    derive: deriveResources,
     columns: [
       { ...str('type'), immutable: true, required: true },
       { ...str('layoutkey'), immutable: true },
       { ...str('category'), type: 'enum', enum: ['tile', 'special', 'doober', 'source', 'farmplot', 'travel', 'editor', 'deco', 'stall', 'training', 'crafting', 'trainingAndShop', 'station', 'farmhouse', 'shop', 'npc', 'skill', 'power', 'pet', 'region'], required: true },
       str('symbol'), str('filename'), str('action'), bool('passable'), num('level'), str('source'), str('requires'),
       num('size'), num('qtycollected'), num('xp'), num('gemcost'), num('crafttime'), num('totalnestedtime'),
+      { ...num('parallel'), label: 'parallel (producers run at once)' },
+      { ...num('effort'), label: 'effort (min/unit, derived)', derived: true },
       { ...ref('output', 'resource'), refAllow: ['noBank', 'hp', 'noRel', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), bool('repeatable'),
       ref('ingredient1', 'resource'), num('ingredient1qty'), ref('ingredient2', 'resource'), num('ingredient2qty'),
       ref('ingredient3', 'resource'), num('ingredient3qty'), ref('ingredient4', 'resource'), num('ingredient4qty'),

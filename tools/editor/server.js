@@ -266,6 +266,7 @@ async function handle(req, res) {
     if (!def) return sendError(res, 404, 'unknown sheet');
     const body = await readJSONBody(req);
     if (!body || body.data === undefined) return sendError(res, 400, 'body must be { data }');
+    if (def.derive && def.shape === 'array') def.derive(body.data); // derived columns are the server's, never the client's
     const rows = defs.toRows(def, body.data);
     const refs = refsForValidation();
     const file = tuningFileFor(def);

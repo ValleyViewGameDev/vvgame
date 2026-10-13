@@ -258,8 +258,7 @@ export const checkKentNPCStatus = (npc, currentPlayer, inventory, backpack) => {
   try {
     const kentOffers = currentPlayer?.kentOffers?.offers || [];
     const now = Date.now();
-    // Kent's own timer (set when offers refresh) and the per-card cooldowns Kent.js keeps in localStorage.
-    if ((currentPlayer?.kentOffers?.endTime || 0) > now) return null;
+    // The per-card cooldowns Kent.js keeps in localStorage (Kent himself never leaves: no panel-wide timer).
     let cardCooldowns = {};
     try { cardCooldowns = JSON.parse(localStorage.getItem(`kentCardCooldowns_${currentPlayer?.playerId || currentPlayer?._id}`) || '{}'); } catch (_) { cardCooldowns = {}; }
 

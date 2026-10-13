@@ -159,6 +159,7 @@ import { processRelocation } from './Utils/Relocation';
 import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
+import { useHeldValue } from './UI/FlyToTarget';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -508,6 +509,11 @@ useEffect(() => {
 }, [resources, masterResources]);
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
+// Header counters that floating texts fly into (UI/FlyToTarget.js): while a "+480 💰" is in the air
+// the counter waits, and it rolls up when the text hits it
+const headerMoney = useHeldValue(Array.isArray(currentPlayer?.inventory) ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0) : null, 'money');
+const headerXP = useHeldValue(currentPlayer?.xp || 0, 'xp');
+const headerGems = useHeldValue(Array.isArray(currentPlayer?.inventory) ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0) : null, 'gems');
 
 // PixiJS is now the only renderer - always enabled
 const usePixiJS = true;
@@ -3167,30 +3173,31 @@ return (
           </button>
 
 
-          <button className="header-link" disabled={!currentPlayer} onClick={() => {
+          <button className="header-link" data-fly-target="xp" disabled={!currentPlayer} onClick={() => {
             if (currentPlayer) {
               openMyProfile();
             }
           }}>
-            {strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}
+            {strings[10150]} {getDerivedLevel(currentPlayer ? { ...currentPlayer, xp: headerXP } : currentPlayer, masterXPLevels)}
           </button>
-          <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
+          <button className="header-link" data-fly-target="inventory" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
             {strings[10103]}
           </button>
           {/* Row 2 - Progress bars (4px tall) */}
           <span></span>
           {/* XP Progress Bar - thin bar below Level */}
           {(() => {
-            const playerXP = currentPlayer?.xp || 0;
-            const currentLevelVal = getDerivedLevel(currentPlayer, masterXPLevels);
+            const playerXP = headerXP;   // held while an XP text flies in (UI/FlyToTarget.js)
+            const heldPlayer = currentPlayer ? { ...currentPlayer, xp: headerXP } : currentPlayer;
+            const currentLevelVal = getDerivedLevel(heldPlayer, masterXPLevels);
             const prevLevelXP = currentLevelVal > 1 ? (masterXPLevels?.[currentLevelVal - 2] || 0) : 0;
-            const nextLevelXP = getXpForNextLevel(currentPlayer, masterXPLevels);
+            const nextLevelXP = getXpForNextLevel(heldPlayer, masterXPLevels);
             const xpIntoLevel = playerXP - prevLevelXP;
             const xpNeededForLevel = nextLevelXP - prevLevelXP;
             const progressPercent = xpNeededForLevel > 0 ? Math.min(100, (xpIntoLevel / xpNeededForLevel) * 100) : 100;
             return (
-              <div className="header-xp-bar" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
-                <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#fff' }} />
+              <div className="header-xp-bar" data-fly-target="xp" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
+                <div style={{ width: `${progressPercent}%`, height: '100%', backgroundColor: '#fff', transition: 'width 0.35s ease-out' }} />
               </div>
             );
           })()}
@@ -3205,7 +3212,7 @@ return (
             const usagePercent = Math.min(100, Math.max(0, (currentUsage / maxCapacity) * 100));
             const barColor = usagePercent >= 90 ? '#ff4444' : '#fff';
             return (
-              <div className="header-inventory-bar" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
+              <div className="header-inventory-bar" data-fly-target="inventory" style={{ width: '100px', height: '2px', backgroundColor: 'rgba(255,255,255,0.3)' }}>
                 <div style={{ width: `${usagePercent}%`, height: '100%', backgroundColor: barColor, transition: 'width 0.3s ease, background-color 0.3s ease' }} />
               </div>
             );
@@ -3220,15 +3227,11 @@ return (
             {strings[10112]}
           </button>
           <div className="header-currency-group">
-            <button className="header-link" onClick={() => openPanel('HowToGemsPanel')}>
-              💎 {Array.isArray(currentPlayer?.inventory)
-                ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
-                : "..."}
+            <button className="header-link" data-fly-target="gems" onClick={() => openPanel('HowToGemsPanel')}>
+              💎 {headerGems != null ? headerGems.toLocaleString() : "..."}
             </button>
-            <button className="header-link" onClick={() => openPanel('HowToMoneyPanel')}>
-              💰 {Array.isArray(currentPlayer?.inventory)
-                ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
-                : "..."}
+            <button className="header-link" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
+              💰 {headerMoney != null ? headerMoney.toLocaleString() : "..."}
             </button>
           </div>
           {/* Row 4 - Progress bars (4px tall) */}
@@ -3433,7 +3436,7 @@ return (
               openPanel('BuildPanel');
             }}
           >{renderNavIcon('BuildPanel', '🛖')}</button>
-          <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
+          <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} data-fly-target="skills" onClick={() => {
               setActiveStation(null); // ✅ Reset activeStation
               openPanel("SkillsPanel"); // ✅ Open the panel normally
             }}>{renderNavIcon('SkillsPanel', '💪')}</button>
@@ -3464,7 +3467,7 @@ return (
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
+        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} data-fly-target="combat" onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
       )}
 
       {!currentPlayer?.firsttimeuser && (

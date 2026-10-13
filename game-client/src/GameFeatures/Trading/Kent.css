@@ -1,19 +1,5 @@
 /* Kent Panel Specific Styles */
 
-/* Fixed height header area to prevent card shifting */
-.kent-header-area {
-  min-height: 40px; /* Compact height - timer on same line */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.kent-header-area h2 {
-  margin: 1px 0;
-  text-align: center;
-}
-
 /* Kent Offer Button - Always Yellow */
 .kent-offer-button {
   background-color: #f9d71c !important; /* Bright yellow */
@@ -21,12 +7,13 @@
   color: #2c3e50 !important;
   font-size: 16px !important;
   font-weight: bold !important;
-  padding: 4px 15px !important;
-  margin: 4px 0 !important;
+  padding: 4px 8px !important;
+  margin: 0 !important;
   border-radius: 8px !important;
   cursor: pointer !important;
   transition: top 0.1s ease, box-shadow 0.1s ease !important;
-  height: 90px !important;
+  height: 112px !important;   /* every card the same height, room for rewards on two lines */
+  width: 100% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -54,25 +41,34 @@
   transform: none !important;
 }
 
-/* When panel is locked (cooldown), gray out the buttons */
-.kent-offer-button.disabled {
+/* A slot cooling down (after a sale or a dismiss) shows its countdown on a gray card */
+.kent-offer-button.kent-cooling {
   background-color: #bdc3c7 !important; /* Gray during cooldown */
   border-color: #95a5a6 !important;
   opacity: 0.7 !important;
   cursor: not-allowed !important;
 }
 
+/* Offers: two cards a row, every row the same height */
+.kent-offers-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 4px;
+}
+
 /* Kent Offer Wrapper - Contains both button and dismiss */
 .kent-offer-wrapper {
   position: relative;
-  width: 100%;
+  min-width: 0;
+  perspective: 700px;   /* for the flip */
 }
 
 /* Dismiss Button - Upper Right Corner */
 .kent-dismiss-button {
   position: absolute !important;
-  top: 5px !important;
-  right: 0px !important;
+  top: -5px !important;
+  right: -5px !important;
   width: 20px !important;
   height: 20px !important;
   background-color: #ba200f !important;
@@ -126,9 +122,9 @@
   text-align: center;
 }
 
-/* Large Symbol - First Row */
+/* Item symbol: one size on every card, single- or two-item */
 .kent-offer-symbol {
-  font-size: 28px !important;
+  font-size: 32px !important;
   line-height: 1;
 }
 
@@ -174,12 +170,24 @@
   color: #e74c3c; /* Red when player doesn't have enough */
 }
 
-/* Reward Section - Third Row */
+/* Reward Section: two fixed rows (Kent.js): Money alone, then any other reward and the XP.
+   No height cap: both rows always fit the card (an emoji line is taller than its text). */
 .kent-offer-reward {
-  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.3;
   color: #2c3e50;
   font-weight: normal;
 }
+.kent-reward-row {
+  display: flex;
+  justify-content: center;
+  gap: 0 8px;
+  white-space: nowrap;
+}
+.kent-offer-button .resource-details .kent-reward-chip { white-space: nowrap; margin: 0; font-size: inherit; }
 
 /* Dismiss All Link */
 .kent-dismiss-all-link {
@@ -212,13 +220,19 @@
   gap: 2px;
 }
 
+/* Two items side by side need the card's full width: "50 / 15k" beside "48 / 9.9k" */
+.kent-offer-button.multi-item {
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+
 /* Row containing multiple items side by side */
 .kent-multi-item-row {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: 6px;
   width: 100%;
 }
 
@@ -233,13 +247,22 @@
 }
 
 .kent-multi-item-cell .kent-offer-symbol {
-  font-size: 24px !important;
+  font-size: 32px !important;
 }
 
-/* Quantity text below symbol for multi-item offers */
+/* Quantity text below symbol for multi-item offers (same as a single item's). It may wrap, only
+   after the slash (Kent.js CardQty), when two big counts share a narrow card. */
 .kent-multi-item-qty {
   font-size: 14px;
   font-weight: bold;
+  line-height: 1.15;
+}
+/* ResourceButton.css makes every .resource-details span a block with margins; not these */
+.kent-offer-button .resource-details .kent-qty-part {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+  white-space: nowrap;
 }
 
 .kent-multi-item-qty.sufficient {
@@ -255,7 +278,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* Quantity text below symbol for single-item offers */
@@ -274,22 +297,20 @@
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .kent-offer-symbol {
-    font-size: 24px !important;
+  .kent-offer-symbol,
+  .kent-multi-item-cell .kent-offer-symbol {
+    font-size: 30px !important;
   }
 
   .kent-offer-item {
     font-size: 15px;
   }
 
-  .kent-offer-reward {
-    font-size: 14px;
+  .kent-single-item-qty {
+    font-size: 13px;
   }
 
-  .kent-multi-item-cell .kent-offer-symbol {
-    font-size: 20px !important;
-  }
-
+  .kent-multi-item-row { gap: 0; }
   .kent-multi-item-qty {
     font-size: 12px;
   }
@@ -298,3 +319,34 @@
    wrapper (Kent.js), which opens ResourceModalSmall for the first item the player is short of */
 .kent-offer-button:disabled { pointer-events: none; }
 .kent-offer-wrapper { cursor: default; }
+
+/* ---------------------------------------------------------------- sale and refresh animations
+   The animations run on .kent-card-anim, the wrapper round the button (the button itself carries
+   !important transforms). Kent.js sets kent-fx-<type> on the slot for each phase. */
+.kent-card-anim { position: relative; transform-origin: 50% 50%; will-change: transform, opacity; }
+
+/* 1. the sold card: a punchy pop, then gone */
+.kent-fx-burst .kent-card-anim { animation: kentPop 300ms cubic-bezier(0.3, 0, 0.6, 1) forwards; }
+@keyframes kentPop {
+  0%   { transform: scale(1);    filter: brightness(1);   opacity: 1; }
+  28%  { transform: scale(1.12); filter: brightness(1.7); opacity: 1; }
+  100% { transform: scale(0.1);  filter: brightness(2);   opacity: 0; }
+}
+/* (the burst itself: UI/SaleBurst.css) */
+
+/* 2. the slot's countdown card slides in from the left */
+.kent-fx-slidein .kent-card-anim { animation: kentSlideIn 440ms cubic-bezier(0.2, 0.9, 0.25, 1.18) both; }
+@keyframes kentSlideIn {
+  0%   { transform: translateX(-115%) rotate(-5deg); opacity: 0.3; }
+  100% { transform: translateX(0) rotate(0); opacity: 1; }
+}
+
+/* 3. the countdown is over: the card flips over to show the new offer */
+.kent-fx-flipout .kent-card-anim { animation: kentFlipOut 220ms ease-in forwards; }
+.kent-fx-flipin  .kent-card-anim { animation: kentFlipIn 320ms cubic-bezier(0.2, 0.8, 0.3, 1.15) both; }
+@keyframes kentFlipOut { from { transform: rotateY(0); } to { transform: rotateY(90deg); } }
+@keyframes kentFlipIn  { from { transform: rotateY(-90deg); } to { transform: rotateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .kent-card-anim { animation-duration: 1ms !important; }
+}

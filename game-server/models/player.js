@@ -284,8 +284,22 @@ const playerSchema = new mongoose.Schema({
     endTime: { type: Number, default: 0 }, // Timestamp when offers become available
     offers: [
       {
-        item: { type: String, required: true },
+        item: { type: String, required: true },     // legacy single-item form (= items[0])
         quantity: { type: Number, required: true },
+        // Every good the card asks for (multi-item offers). Without this path Mongoose dropped it
+        // on save and a two-item card reloaded as its first item at the two-item price.
+        // default undefined: legacy single-item cards must load WITHOUT an empty items array
+        // (Kent.js reads `offer.items || [legacy item]`).
+        items: {
+          type: [
+            {
+              item: { type: String, required: true },
+              quantity: { type: Number, required: true },
+              _id: false
+            }
+          ],
+          default: undefined
+        },
         rewards: [
           {
             item: { type: String, required: true },

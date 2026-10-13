@@ -3,9 +3,14 @@ import { createPortal } from 'react-dom';
 import './FloatingText.css';
 import { useStrings } from '../UI/StringsContext';
 import PixiCamera from '../Render/PixiRenderer/PixiCamera';
+import { registerFlight, flyToTarget } from './FlyToTarget';
 
-// Global array to store floating texts - shared across all instances
+// Global array to store floating texts - shared across all instances. World texts (addFloatingText)
+// follow the map; screen texts (addFloatingTextAt) sit on the UI, e.g. a Kent card.
+// options.flyTo = '<key>': at the end of its rise the text does not fade but flies into the header
+// element marked data-fly-target="<key>" (UI/FlyToTarget.js), which pulses as it is hit.
 let globalFloatingTexts = [];
+let globalScreenTexts = [];
 let globalForceUpdate = null;
 
 /**
@@ -81,6 +86,7 @@ const FloatingTextManager = () => {
                 finalY = centerY - OFFSET_AMOUNT;
             }
 
+            if (options.flyTo) registerFlight(options.flyTo);
             globalFloatingTexts.push({
                 id: newId,
                 text: displayText,
@@ -88,9 +94,23 @@ const FloatingTextManager = () => {
                 y: finalY,
                 timestamp: Date.now(),
                 color: options.color,
-                size: options.size
+                size: options.size,
+                flyTo: options.flyTo || null,
             });
 
+            if (globalForceUpdate) globalForceUpdate();
+        };
+
+        // A floating text at a SCREEN point (client px), for things that happen on the UI
+        FloatingTextManager.addFloatingTextAt = (message, clientX, clientY, options = {}) => {
+            const displayText = typeof message === 'number' ? (strings[message] || `Missing string for code: ${message}`) : message;
+            if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return;
+            if (options.flyTo) registerFlight(options.flyTo);
+            globalScreenTexts.push({
+                id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+                text: displayText, x: clientX, y: clientY,
+                color: options.color, size: options.size, flyTo: options.flyTo || null,
+            });
             if (globalForceUpdate) globalForceUpdate();
         };
     }, [strings]);
@@ -99,38 +119,63 @@ const FloatingTextManager = () => {
     const container = document.querySelector('.pixi-world-container') || document.querySelector('.homestead');
     if (!container) return null;
 
-    return createPortal(
-        <div className="floating-text-container">
-            {globalFloatingTexts.map(({ id, text, x, y, color, size }) => (
-                <div
-                    key={id}
-                    className="floating-text"
-                    style={{
-                        position: 'absolute',
-                        left: x,
-                        top: y - 30,
-                        transform: 'translate(-50%, -50%)',
-                        color: color || undefined,
-                        fontSize: size || undefined
-                    }}
-                    onAnimationEnd={(e) => {
-                        // Immediately hide the element to prevent visual artifacts
-                        e.target.style.display = 'none';
+    // end of the rise: a flying text goes on to its header target, the rest are done
+    const finish = (list, id, flyTo, el) => {
+        if (flyTo) flyToTarget(el, flyTo);
+        el.style.display = 'none';   // hide at once (no flash of the end frame)
+        if (list === 'screen') globalScreenTexts = globalScreenTexts.filter(t => t.id !== id);
+        else globalFloatingTexts = globalFloatingTexts.filter(t => t.id !== id);
+        if (globalForceUpdate) globalForceUpdate();
+    };
 
-                        globalFloatingTexts = globalFloatingTexts.filter(t => t.id !== id);
-                        if (globalForceUpdate) globalForceUpdate();
-                    }}
-                >
-                    {text}
-                </div>
-            ))}
-        </div>,
-        container
+    return (
+        <>
+            {createPortal(
+                <div className="floating-text-container">
+                    {globalFloatingTexts.map(({ id, text, x, y, color, size, flyTo }) => (
+                        <div
+                            key={id}
+                            className={`floating-text ${flyTo ? 'floating-text--flies' : ''}`}
+                            style={{
+                                position: 'absolute',
+                                left: x,
+                                top: y - 30,
+                                transform: 'translate(-50%, -50%)',
+                                color: color || undefined,
+                                fontSize: size || undefined
+                            }}
+                            onAnimationEnd={(e) => { if (e.target === e.currentTarget) finish('world', id, flyTo, e.currentTarget); }}
+                        >
+                            {text}
+                        </div>
+                    ))}
+                </div>,
+                container
+            )}
+            {globalScreenTexts.length > 0 && createPortal(
+                <div className="floating-text-container floating-text-container--screen">
+                    {globalScreenTexts.map(({ id, text, x, y, color, size, flyTo }) => (
+                        <div
+                            key={id}
+                            className={`floating-text floating-text--screen ${flyTo ? 'floating-text--flies' : ''}`}
+                            style={{ left: x, top: y, color: color || undefined, fontSize: size || undefined }}
+                            onAnimationEnd={(e) => { if (e.target === e.currentTarget) finish('screen', id, flyTo, e.currentTarget); }}
+                        >
+                            {text}
+                        </div>
+                    ))}
+                </div>,
+                document.body
+            )}
+        </>
     );
 };
 
 // Will be assigned inside useEffect
 FloatingTextManager.addFloatingText = (...args) => {
+    console.warn('FloatingTextManager not ready yet', ...args);
+};
+FloatingTextManager.addFloatingTextAt = (...args) => {
     console.warn('FloatingTextManager not ready yet', ...args);
 };
 

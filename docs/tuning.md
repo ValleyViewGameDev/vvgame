@@ -88,9 +88,11 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   from level 9, so the two guaranteed cards below never crowd out the random ones. Completing a
   trade replaces the offer in place and adds one more slot until the cap. Discard-all
   regenerates a full set.
-- **Timers.** `kentRefreshTimerSeconds` (20) after a trade before Kent trades again;
-  `kentCardCooldownSeconds` (30) per discarded card. These are the throughput cap: a level's
-  XP per hour is roughly (XP per offer) x (3600 / refresh seconds) at best.
+- **Timers.** `kentCardCooldownSeconds` (30) per slot, after a sale or a discard: that slot
+  shows a countdown and then flips over to its new offer; the other slots stay open (since
+  2026-10-12 there is no panel-wide "Kent is away" pause, so `kentRefreshTimerSeconds` is no
+  longer read). The throughput cap is now per slot: at best (slots) x (XP per offer) x
+  (3600 / cooldown seconds) XP an hour, several times the old one-sale-per-pause rate.
 - **Eligibility.** Doobers only; not `noBank`, not `source: valley`, not epic/legendary
   `scrollchance`, in season (item and ingredients), item level and source level at or below
   the player's, every ingredient (recursively) unlocked at the player's level too
@@ -99,8 +101,7 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   trophy. Owning the source station is NOT required: Kent advertises stations before purchase.
 - **Mix by level** (constants at the top of `KentOfferLogic.js`): crop share 80% to level 3,
   50% to level 7, free after; multi-item offers 0 through level 5, usually 1 at level 6,
-  usually 2 at 7, 3 at 8 to 9, 5 at 10+; crop quantities and non-crop quantities step up per
-  level band (level 6: crops 3 to 10, non-crops 2 to 4).
+  usually 2 at 7, 3 at 8 to 9, 5 at 10+. Quantities are sized by effort (§4c, `askSizing.kent`).
 - **Basic-crop guarantee** (BL-15, 2026-10-10): through level 12
   (`BASIC_CROP_GUARANTEE_MAX_LEVEL`) the board always holds at least one single-item offer for a
   basic crop (`BASIC_CROPS`: Wheat, Carrot, Corn, Sugarcane), so a player can always grow, sell
@@ -117,8 +118,8 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   exact level), never twice as a single-item offer, and never twice on one two-item card.
 - **Reward.** Money = sum of `maxprice` x quantity over the items (`minprice` or 10 as
   fallback). XP (`calculateKentOfferXP`, the one function for the card and the award) = 2 x the
-  sum of the items' `xp` (1 if undefined), plus 2 per item whose quantity is in the top half of
-  the player's quantity band for that kind of item (crop or not). From level 11 a bonus valley
+  sum of the items' `xp` (1 if undefined), plus 2 per item whose quantity is above that good's
+  usual ask at this level (the rounded center of its effort-sized ask, §4c). From level 11 a bonus valley
   item rolls at `harvestDropRate` (10%), weighted by rarity.
 - **Level 6 tuning (2026-10-05).** Besides the curve: Butter `xp` 3 to 4 and Cheese 3 to 5
   (two- and four-Milk Dairy products deserved more than raw Milk's 2; Cornmeal, the Mill
@@ -145,7 +146,8 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   curve (xpLevels.json) before lowering these.
 - **Where to intervene for pacing.** In order of safety: (a) item `xp` values and level gates
   in resources.json (data only, no format change); (b) the per-level constants in
-  `KentOfferLogic.js` (multi-item target, quantity bands, crop share, board size); (c) the
+  `KentOfferLogic.js` (multi-item target, crop share, board size) and `askSizing` in
+  globalTuning (§4c); (c) the
   timers in globalTuning; (d) the reward formula. Anything that changes the stored offer shape
   (`kentOffers.offers[].items/rewards`) must keep reading the legacy single-item form and
   must not invalidate offers already on players.
@@ -159,21 +161,67 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   unlocked, owned or not, skill or not; fallback the highest-`xp` goods they can already make.
   First-time users get crops only. Same eligibility as Kent otherwise (season, levels,
   ingredients unlocked, no valley / epic / noBank).
-- **Quantities** (`QUANTITY_BY_LEVEL`): to level 12 basic 10-20, easy 3-8, aspirational 2-4;
-  to 19 basic 15-30, easy 5-10, aspirational 3-5; then 20-40, 8-15, 4-6. Goods with `maxprice`
-  of 2,000 or more are asked for in half (rounded up).
-- **Rewards, tiered.** Each order is worth `xp` x 2 x ceil(quantity / 5) XP. The **base tier**
+- **Quantities** are sized by effort (§4c, `askSizing.train`), the aspirational band at
+  `trainBandScale.aspirational` (0.6) of a normal order. First-time users: crops, 5 to 20.
+- **Rewards, tiered.** Each order is worth what Kent would pay for the same goods: 2 x the
+  good's `xp` per Kent card it equals, where cards = quantity / Kent's usual ask for that good at
+  this level (rounded, at least 1). The **base tier**
   (XP of the basic and easy orders) is mailed the moment every order but the aspirational ones
   is filled (6 of 8); the **full tier** (XP of the aspirational orders + 1 to 3 seasonal hearts)
   when all are filled, with the celebration. Money per order on delivery is unchanged
   (`maxprice` x quantity). Markers on `player.train`: `lastBaseRewardTrainNumber`,
   `lastRewardDeliveryTrainNumber` (full; also set at departure). Trains saved before tiers read
-  their XP as the base tier and the rest as the full tier. Typical totals: about 80 XP at level
-  9 to 10, 100 at 11, 200 at 14, 240 at 20 (was a flat 15 to 45 for all eight).
+  their XP as the base tier and the rest as the full tier. Typical totals (simulated): about 90
+  to 110 XP at levels 9 to 11, 140 at 14, 190 at 20 (was a flat 15 to 45 for all eight). To pay
+  the Train more, raise `askSizing.train` qtyAt1Min: bigger orders count as more Kent cards.
 - **Why tiered:** aspirational orders are a stretch, never a wall; without tiers one unfillable
   order voided the whole Train.
 
-## 4c. Trophies
+## 4c. Effort and ask sizing (2026-10-12)
+
+How many units Kent and the Train ask for. Before this, Kent asked 15 to 35 of any non-crop above
+level 20 whatever it cost to make (29 Silk = 580 Mulberry Leaves, paying 260,304), and the
+Train halved anything over $2,000. Now every ask is sized by how much production one unit costs.
+
+- **Effort** (`effort` column in ECONOMY, minutes per unit, read-only, derived): production time
+  through the whole recipe chain, the way a player actually produces it:
+  `effort = crafttime / 60 / (yield x parallel) + sum(ingredient qty x ingredient effort)`.
+  `crafttime` is the good's own cycle (grow time, animal or tree cycle, craft time); `yield` is
+  the farm animal's `qtycollected` for animal products, 1 for crafted goods, the good's own
+  `qtycollected` otherwise; `parallel` is the producer's column (below). Math:
+  `tools/editor/sheets/economy.js`. The editor recomputes it live and on every ECONOMY save;
+  after a hand edit outside the editor run `node tools/derive-economy.js --write`.
+  `totalnestedtime` (hand-entered, end-to-end sum, used by the Carnival) is left as it was.
+- **parallel** (ECONOMY column on producer rows: plots, trees, animals, stations): how many of
+  that producer a typical player runs at once. Without it a chain sums every step end to end
+  and 20 Mulberry Leaves count as 20 x 96 h. Seeded 2026-10-12 from the production backup:
+  the median count per producer over homesteads of players level 5+ (Oberon, moehong,
+  Entropoly, Sheyona, Fiona, Mobile, Dreamerr), where at least 3 players own one. Measured:
+  Cow 11, Sheep 6, Pig 2, Brown Cow 3; Olive Tree 16, Lemon Tree 18, Apple Tree 33, Coconut
+  Tree 4, Grape Vine 30; Mill 6, Dairy 5, Loom 3, Chicken Coop 10, Oven 5, Beehive 10, Kitchen
+  5, Lumber Yard 8, Studio 4, Beverage Station 3, Winery 1. Fallbacks where too few own one:
+  every crop plot 18 (plots are interchangeable, so one value; the per-crop medians were 16 to
+  20), other trees 15, other animals 4, other stations 1. Re-measure as the player base grows.
+- **Check:** effort ranks goods in nearly the same order as `maxprice` (Spearman 0.80 over the
+  118 sellable goods; the old `totalnestedtime` 0.78, a good's own `crafttime` 0.08). The goods
+  that disagree most are price problems, not effort problems: the coffee chain (Coffee Latte
+  145,000 effort-minutes for $10,526), Silk Dress ($2,590 from $28,176 of inputs), Olive.
+- **Ask sizing** (`Economy/askSizing.js`, knobs in globalTuning `askSizing`, the globalTuning
+  sheet): `center = qtyAt1Min(level) x effort ^ -exponent`, then a random `spread` (±25%) and
+  the level's `[min, max]`. Separate level tables for `kent` and `train`; `trainBandScale`
+  multiplies a Train band. `exponent` 0.4 is Hay Day's boat-crate curve (below): ten times the
+  effort asks for about 2.5 times fewer units, so slow goods come in a handful and quick ones in
+  dozens, but a slow-good ask is still the bigger job.
+- **Hay Day (research, 2026-10-12).** Supercell sizes boat crates by the item's production time,
+  not by player level: Wheat (2 min) 50 to 101 a crate, Soybean (20 min) 24 to 47, Pumpkin (3 h)
+  9 to 15, Cherry (27 h) 5 to 7; that is quantity ~ 100 x minutes ^ -0.4. Its prices are
+  ingredients' value plus a value for the production time, and its XP is close to a fixed share
+  of price (about price / 8.4 across Bread 21/3, Cheese 122/15, Blanket 1,098/131, Chocolate Roll
+  604/72), so a good's XP and money rise together. Ours set `xp` by hand (the crafted-goods
+  ladder in §4); an XP-from-price rule is a possible next step, not adopted. Sources: Hay Day
+  wiki Boat and Crops List pages; the shootingspeed.com goods list.
+
+## 4d. Trophies
 
 - **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50]` (2026-10-12; was 3, 5, 10, 50,
   100 with 56 skills in the game). Milestones fire on an exact count, so a change never pays

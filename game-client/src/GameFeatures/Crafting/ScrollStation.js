@@ -248,6 +248,18 @@ const ScrollStation = ({
 
 
   // Handle reveal scroll - spend scroll and start crafting random item
+  // The temple's floating texts rise from the card that was tapped, not from the building on the
+  // map, and goods fly into the header (UI/FlyToTarget.js). The card's place is taken on the tap:
+  // the panel changes once the server answers.
+  const cardRect = React.useRef(null);
+  const rememberCard = (selector) => { cardRect.current = document.querySelector(selector)?.getBoundingClientRect() || null; };
+  const floatFromCard = (text, flyTo = null) => {
+    const r = cardRect.current;
+    if (!r) { FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo }); return; }
+    FloatingTextManager.addFloatingTextAt(text, r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '18px' });
+  };
+  const flyTargetFor = (item, resource) => (item === 'Money' ? 'money' : resource?.category === 'doober' ? 'inventory' : null);
+
   const handleRevealScroll = async (transactionId, transactionKey) => {
     
     if (scrollCount === 0) {
@@ -336,8 +348,6 @@ const ScrollStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        // Update status
-        FloatingTextManager.addFloatingText(strings[829], currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
 
         // Track quest progress for scroll spending
         await trackQuestProgress(currentPlayer, 'Spend', 'Scroll', 1, setCurrentPlayer);
@@ -358,7 +368,8 @@ const ScrollStation = ({
     }
 
     setIsCollecting(true);
-    
+    rememberCard('.scroll-collect-button');
+
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
         playerId: currentPlayer.playerId,
@@ -385,7 +396,7 @@ const ScrollStation = ({
           if (craftedResource) {
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           }
-          FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          floatFromCard(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`);   // an NPC walks out: nothing to fly
         } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power')) {
           // Check if player already has this skill/power
           const alreadyOwned = revealedResource.category === 'skill' 
@@ -400,7 +411,7 @@ const ScrollStation = ({
             const displayName = getLocalizedString(collectedItem, strings);
             const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
                                 revealedResource.category === 'power' ? '⚡' : '🔧';
-            FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName} (Already Owned)`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+            floatFromCard(`${categoryEmoji} ${displayName} (Already Owned)`);
           } else {
             // Handle skills, powers, and upgrades
             const success = await gainSkillOrPower({
@@ -423,7 +434,7 @@ const ScrollStation = ({
             const displayName = getLocalizedString(collectedItem, strings);
             const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
                                 revealedResource.category === 'power' ? '⚡' : '🔧';
-            FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+            floatFromCard(`${categoryEmoji} ${displayName}`);
             
             // Handle combat stats updates for powers (mimic ShopStation logic)
             if (revealedResource.category === 'power') {
@@ -486,7 +497,7 @@ const ScrollStation = ({
             return;
           }
           
-          FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          floatFromCard(`+${collectedQty} ${revealedResource?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`, flyTargetFor(collectedItem, revealedResource));
         }
 
         // Track quest progress

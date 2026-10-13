@@ -160,3 +160,16 @@
 /* An order you cannot fill is a disabled button; the tap passes through to the wrapper in
    NewTrain.js, which opens ResourceModalSmall (where to find the item) */
 .train-offer-card:disabled { pointer-events: none; }
+
+/* A completed order: the card flashes and pops (and settles back: orders are not replaced) under
+   the sale burst (UI/SaleBurst.js). The pop runs on the wrapper, since the button carries its own
+   !important transforms. */
+.train-offer-wrap.train-fx-burst { animation: trainPop 420ms cubic-bezier(0.2, 1.4, 0.4, 1); }
+@keyframes trainPop {
+  0%   { transform: scale(1);    filter: brightness(1); }
+  25%  { transform: scale(1.08); filter: brightness(1.6); }
+  100% { transform: scale(1);    filter: brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .train-offer-wrap.train-fx-burst { animation-duration: 1ms; }
+}

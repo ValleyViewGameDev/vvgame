@@ -41,6 +41,7 @@ export class Sheet {
   // ---------------------------------------------------------------- state
   load(rows) {
     this.rows = withIds(clone(rows));
+    if (this.def.derive) this.def.derive(this.rows);
     this.orig = new Map(this.rows.map((r) => [r.__id, clone(r)]));
     this.baseline = errorSignatures(this.def, this.rows, this.refs);
     this.history.clear();
@@ -74,6 +75,8 @@ export class Sheet {
     this.afterChange(rerenderAll);
   }
   afterChange(rerenderAll) {
+    // Derived columns follow every edit (one change can move many rows: an ingredient's effort)
+    if (this.def.derive && this.def.derive(this.rows) > 0) rerenderAll = true;
     this.validate();
     if (rerenderAll) this.renderTable(); else this.refreshRows();
     this.renderProblems();
@@ -191,7 +194,7 @@ export class Sheet {
       el('th', { class: 'rownum' }, '#'),
       ...cols.map((c) => el('th', {
         class: this.sort?.key === c.key ? `sorted ${this.sort.dir}` : '',
-        title: `${c.key} (${c.type}${c.immutable ? ', immutable' : ''}${c.ref ? `, ref ${c.ref}` : ''})`,
+        title: `${c.key} (${c.type}${c.immutable ? ', immutable' : ''}${c.derived ? ', derived' : ''}${c.ref ? `, ref ${c.ref}` : ''})`,
         onclick: () => this.toggleSort(c.key),
       }, c.label || c.key)),
     ]));
@@ -213,7 +216,7 @@ export class Sheet {
   }
   cellElement(row, col) {
     const v = row[col.key];
-    const locked = col.immutable && this.rowExistsOnDisk(row) && this.orig.get(row.__id)[col.key] !== undefined;
+    const locked = col.derived || (col.immutable && this.rowExistsOnDisk(row) && this.orig.get(row.__id)[col.key] !== undefined);
     const td = el('td', { class: [col.type === 'boolean' && 'bool', col.type === 'number' && 'num', locked && 'immutable'].filter(Boolean).join(' '), dataset: { key: col.key } });
     const prob = this.cellProblems.get(`${row.__id}:${col.key}`);
     if (prob) { td.classList.add(prob.kind); td.title = prob.message; }
@@ -294,6 +297,7 @@ export class Sheet {
     const row = this.rowById(id);
     const col = this.cols.find((c) => c.key === key);
     if (!row || !col) return;
+    if (col.derived) { toast(`${key} is derived: edit its inputs instead`, 'warn'); return; }
     if (col.immutable && this.rowExistsOnDisk(row) && this.orig.get(id)[key] !== undefined) {
       toast(`${key} is a persisted identifier: duplicate the row instead of renaming`, 'warn');
       return;
@@ -419,7 +423,7 @@ export class Sheet {
         line.forEach((cellText, dc) => {
           const col = this.cols[c0 + dc];
           if (!col) return;
-          if (col.immutable && this.rowExistsOnDisk(liveRow) && this.orig.get(liveRow.__id)[col.key] !== undefined) return;
+          if (col.derived || (col.immutable && this.rowExistsOnDisk(liveRow) && this.orig.get(liveRow.__id)[col.key] !== undefined)) return;
           const v = coerce(cellText, col);
           if (v === undefined) delete liveRow[col.key]; else liveRow[col.key] = v;
         });

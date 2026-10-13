@@ -12,6 +12,8 @@ import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import soundManager from '../../Sound/SoundManager';
+import SaleBurst from '../../UI/SaleBurst';
+import FloatingTextManager from '../../UI/FloatingText';
 import '../../UI/Buttons/SharedButtons.css';
 
 function BankPanel({
@@ -43,6 +45,8 @@ function BankPanel({
     const [bankTimer, setBankTimer] = useState("");
     const [bankPhase, setBankPhase] = useState("");
     const [coolingDownButtons, setCoolingDownButtons] = useState(new Set());
+    // A sale's burst on its card: { index, id } (a new id replays it); the offer stays, so no flip
+    const [saleFx, setSaleFx] = useState(null);
     const COOLDOWN_DURATION = 1500; // 3x longer for bank transactions
 
     // Fetch data - separated from timer logic
@@ -128,13 +132,27 @@ function BankPanel({
 
         await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
 
-        soundManager.playSFX('collect_money');
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 
     // Wrap handleTrade with cooldown to prevent spam clicking
     const handleTradeWithCooldown = async (offer, buttonIndex) => {
         if (coolingDownButtons.has(buttonIndex)) return;
+
+        // On the tap (house rule: never wait for the server): the card pops under a burst of sparkles
+        // and the payment rises from it and flies into its header counter (UI/FlyToTarget.js)
+        const fxId = Date.now() + Math.random();
+        setSaleFx({ index: buttonIndex, id: fxId });
+        setTimeout(() => setSaleFx((fx) => (fx?.id === fxId ? null : fx)), 900);
+        soundManager.playSFX('collect_money');
+        try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+        const card = document.querySelector(`[data-bank-slot="${buttonIndex}"]`);
+        if (card) {
+            const r = card.getBoundingClientRect();
+            const given = masterResources.find((res) => res.type === offer.itemGiven);
+            const flyTo = offer.itemGiven === 'Money' ? 'money' : offer.itemGiven === 'Gem' ? 'gems' : given?.category === 'doober' ? 'inventory' : null;
+            FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} ${getSymbol(offer.itemGiven)}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '20px' });
+        }
         
         console.log(`Starting cooldown for button ${buttonIndex}, duration: ${COOLDOWN_DURATION}ms (${COOLDOWN_DURATION / 1000}s)`);
         
@@ -213,8 +231,8 @@ function BankPanel({
                       const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack); // backpack + warehouse
 
                       return (
+                        <div key={index} data-bank-slot={index} className={saleFx?.index === index ? 'sale-pop' : ''} style={{ position: 'relative' }}>
                         <ResourceButton
-                          key={index}
                           className={coolingDownButtons.has(index) ? 'cooldown' : ''}
                           style={coolingDownButtons.has(index) ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                           onClick={() => handleTradeWithCooldown(offer, index)}
@@ -232,6 +250,8 @@ function BankPanel({
                             {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
                           </div>
                         </ResourceButton>
+                        {saleFx?.index === index && <SaleBurst key={saleFx.id} />}
+                        </div>
                       );
                     })
                   ) : (

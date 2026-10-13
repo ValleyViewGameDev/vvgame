@@ -12,6 +12,8 @@ import './Train.css';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
+import SaleBurst from '../../UI/SaleBurst';
+import FloatingTextManager from '../../UI/FloatingText';
 
 function NewTrainPanel({
   onClose,
@@ -49,6 +51,9 @@ function NewTrainPanel({
   const [nextTrainOffers, setNextTrainOffers] = useState([]);
   const [nextTrainRewards, setNextTrainRewards] = useState([]);
   const [isTrading, setIsTrading] = useState(false);
+  // A completed order's burst: { index, id } (a new id replays it); no slide-in or flip, the order
+  // simply turns completed
+  const [orderFx, setOrderFx] = useState(null);
   const [rewardsDeliveredMessage, setRewardsDeliveredMessage] = useState("");
   const [showTrainComplete, setShowTrainComplete] = useState(false); // "All Train orders filled!" celebration
 
@@ -473,7 +478,7 @@ function NewTrainPanel({
     return false;
   };
 
-  const handleFulfillOffer = async (offer) => {
+  const handleFulfillOffer = async (offer, offerIndex) => {
     if (!offer || !currentPlayer || isTrading) return;
     
     // Check if loading phase has expired (client-side authority)
@@ -484,7 +489,25 @@ function NewTrainPanel({
     
     // Set trading flag to prevent spam clicks
     setIsTrading(true);
-    
+
+    // On the tap (house rule: never wait for the server): the card bursts into sparkles, the order
+    // shows completed, and its Money rises from the card and flies into the header counter.
+    // A refused delivery puts the order back.
+    const offersBefore = currentTrainOffers;
+    const earned = (masterResources.find(r => r.type === offer.item)?.maxprice || 100) * offer.quantity;
+    const fxId = Date.now() + Math.random();
+    setOrderFx({ index: offerIndex, id: fxId });
+    setTimeout(() => setOrderFx((fx) => (fx?.id === fxId ? null : fx)), 900);
+    setCurrentTrainOffers((prev) => prev.map((o, i) => (i === offerIndex ? { ...o, completed: true } : o)));
+    soundManager.playSFX('collect_money');
+    try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+    const card = document.querySelector(`[data-train-slot="${offerIndex}"]`);
+    if (card) {
+      const r = card.getBoundingClientRect();
+      FloatingTextManager.addFloatingTextAt(`+${earned.toLocaleString()} ${getSymbol('Money')}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money', size: '20px' });
+    }
+    let committed = false;   // the server saved the delivery
+
     try {
       // Spend the ingredients (the item being delivered)
       const success = await spendIngredients({
@@ -502,7 +525,7 @@ function NewTrainPanel({
         updateStatus,
       });
       
-      if (!success) return;
+      if (!success) return;   // (finally puts the order back)
       // Calculate money reward
       const resource = masterResources.find(r => r.type === offer.item);
       const moneyReward = (resource?.maxprice || 100) * offer.quantity;
@@ -523,13 +546,8 @@ function NewTrainPanel({
         globalTuning,
       });
 
-      // Mark the fulfilled offer as completed instead of removing it
-      const updatedCurrentOffers = currentTrainOffers.map(o => {
-        if (o.item === offer.item && o.quantity === offer.quantity && !o.completed) {
-          return { ...o, completed: true };
-        }
-        return o;
-      });
+      // Mark the fulfilled offer as completed instead of removing it (the one tapped, by its slot)
+      const updatedCurrentOffers = offersBefore.map((o, i) => (i === offerIndex ? { ...o, completed: true } : o));
 
       // Update player train data in database
       const updatedTrainData = {
@@ -563,9 +581,7 @@ function NewTrainPanel({
         }));
 
         setCurrentTrainOffers(updatedCurrentOffers);
-
-        // Play sound effect for successful sale
-        soundManager.playSFX('collect_money');
+        committed = true;
 
         updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for ${getSymbol('Money')} ${moneyReward.toLocaleString()}.${tierText}`);
       }
@@ -573,6 +589,7 @@ function NewTrainPanel({
       console.error("❌ Error fulfilling train offer:", error);
       updateStatus('❌ Trade failed. Please try again.');
     } finally {
+      if (!committed) setCurrentTrainOffers(offersBefore);   // revert the optimistic completion
       // Always clear the trading flag
       setIsTrading(false);
     }
@@ -683,12 +700,14 @@ function NewTrainPanel({
           return (
             <div
               key={index}
+              data-train-slot={index}
+              className={`train-offer-wrap ${orderFx?.index === index ? 'train-fx-burst' : ''}`}
               style={{ position: 'relative' }}
               onClick={() => { if (!affordable && !isCompleted && !loadingExpired && !isTrading) setInfoResource(offer.item); }} // the disabled card lets the tap through (NewTrain.css): where to find the item
             >
               <ResourceButton
                 className={`train-offer-card ${isCompleted ? 'completed' : ''}`}
-                onClick={() => !isTrading && affordable && !isCompleted ? handleFulfillOffer(offer) : null}
+                onClick={() => !isTrading && affordable && !isCompleted ? handleFulfillOffer(offer, index) : null}
                 disabled={isCompleted || !affordable || isTrading}
                 details={details}
                 noClickSfx={true}
@@ -709,6 +728,7 @@ function NewTrainPanel({
                   ✅
                 </div>
               )}
+              {orderFx?.index === index && <SaleBurst key={orderFx.id} />}
             </div>
           );
         })}

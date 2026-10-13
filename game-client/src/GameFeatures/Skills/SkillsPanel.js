@@ -18,6 +18,7 @@ import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
+import FloatingTextManager from '../../UI/FloatingText';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
 const SkillsPanel = ({
@@ -134,6 +135,11 @@ const handleGemPurchase = async (modifiedRecipe) => {
 const handlePurchase = async (resourceType, customRecipe = null) => {
   const resource = skillsToAcquire.find((item) => item.type === resourceType);
   const recipeToUse = customRecipe || resource;
+  // where the bought card is, taken on the tap: "+Grower Skill" rises from it (UI/FlyToTarget.js)
+  const cardRect = document.querySelector(`.skills-to-acquire [data-resource-type="${CSS.escape(resourceType)}"]`)?.getBoundingClientRect() || null;
+  const floatFromCard = (text, flyTo) => {
+    if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo, size: '18px' });
+  };
 
   // Check if this is an item (special category) vs a skill
   const isItem = resource.category === 'special';
@@ -205,6 +211,8 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       return;
     }
 
+    // a bought item goes to the warehouse / backpack: it flies into Inventory
+    floatFromCard(`+${resource.qtycollected || 1} ${resource.symbol || ''} ${getLocalizedString(resource.type, strings)}`, 'inventory');
     await trackQuestProgress(currentPlayer, 'Buy', resource.type, 1, setCurrentPlayer);
     updateStatus(`${strings[80]} ${getLocalizedString(resource.type, strings)}.`);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -214,6 +222,8 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     // Add the new skill
     updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
     setOwnedSkills(updatedSkills);
+    // "+Grower Skill" rises from the card and flies into the Skills button on the nav bar
+    floatFromCard((strings[10201] || '+{skill} Skill').replace('{skill}', getLocalizedString(resource.type, strings)), 'skills');
     updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
 
     try {

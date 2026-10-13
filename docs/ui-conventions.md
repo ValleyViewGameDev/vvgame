@@ -272,6 +272,24 @@ value rather than trust this page.
   breath, not a scene change (they were 600 / 900 until 2026-10-07 and read as "slow"). The
   overlay stops blocking taps the moment the fade-up starts, since the new grid is already in
   place. The fade stays until grid-to-grid travel is seamless (docs/phase-3-contract.md §4.3).
+- Rewards fly home (2026-10-13): a reward the player just earned rises as a floating text and
+  then flies into the header counter it adds to, which pulses on the hit and only then rolls up
+  (`UI/FlyToTarget.js`). Use `FloatingTextManager.addFloatingText(..., { flyTo })` on the board
+  or `addFloatingTextAt(text, clientX, clientY, { flyTo })` on the UI; targets are elements with
+  `data-fly-target`: `money`, `gems`, `xp` (Level + XP bar), `inventory` (Inventory + capacity
+  bar), `skills` (the Skills button on the nav bar: a skill bought in a Skills panel, "+Grower Skill",
+  string 10201), `combat` (the Combat button on the nav bar: a power, i.e. a weapon, armor or magic,
+  bought in a shop: Warrior's Den, Armory, Magic Shop; `ShopStation.js`). Money goes to `money`, Gems to `gems`, XP to `xp`, any doober to `inventory`; anything
+  else (skills, powers) rises and fades. A header number that a flight lands on reads
+  `useHeldValue(value, key)`. Timing: rise and hold 0.9 s, flight 620 ms accelerating (cubic
+  ease-in along a curve that keeps the upward momentum), hit pulse 520 ms; several rewards
+  stagger by ~180-260 ms. In use: Kent sales (from the sold card), Mailbox Collect (from the
+  message's reward line), Train orders (from the order card), crafting-station slot collection
+  (from the slot; a craft that makes an NPC only rises), the Ancient Temple (from its collect
+  card, on collecting the revealed reward only; skills, powers and NPCs only rise).
+  Bank sales (from the offer card). A sale whose card stays (Bank, Train) also gets the sparkle
+  burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
+  every modal and the FTUE scrim.
 - Preview the change on a phone viewport (375x812 portrait and a 500 px-tall landscape) as
   well as desktop before calling it done; the two orientations have separate rules.
 

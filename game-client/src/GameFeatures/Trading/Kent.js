@@ -1,6 +1,6 @@
 import API_BASE from '../../config.js';
 import { canHover } from '../../Utils/inputMode';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
@@ -13,15 +13,24 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/Buttons/ResourceButton.css';
 import './Kent.css';
-import { formatCountdown } from '../../UI/Timers.js';
+import SaleBurst from '../../UI/SaleBurst';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
-import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import soundManager from '../../Sound/SoundManager';
 
-// Base tile size for FloatingText positioning (FloatingText.js derives scaled size from pixi-container)
-const TILE_SIZE = 30;
+// Held counts of 1,000 and up in compact form (1.2k, 15k): card quantities stay short
+const compactCount = (n) => {
+    if (n < 1000) return String(n);
+    if (n < 10000) return `${(Math.floor(n / 100) / 10).toString()}k`;
+    return `${Math.floor(n / 1000)}k`;
+};
+// "asked / held" on a card: thin spaces, and the only break point is after the slash, so when two
+// big counts share a phone card each wraps to "asked /" over "held" instead of running together
+const CardQty = ({ asked, held }) => (
+    <><span className="kent-qty-part">{asked}{'\u202F/'}</span>{'\u2009'}<span className="kent-qty-part">{compactCount(held)}</span></>
+);
+
 
 function KentPanel({
     onClose,
@@ -42,9 +51,21 @@ function KentPanel({
     const [isContentLoading, setIsContentLoading] = useState(false);
     const [kentOffers, setKentOffers] = useState([]);
     const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap an item on a card you cannot trade
-    const [kentTimer, setKentTimer] = useState("");
-    const [kentPhase, setKentPhase] = useState("");
     const [isTrading, setIsTrading] = useState(false);
+    // Card animations by slot (not persisted): { [index]: { type: 'burst' | 'slidein' | 'flipout' | 'flipin', id } }
+    //   burst   - the sold card pops into sparkles (on the tap, before the server answers)
+    //   slidein - the slot's countdown card slides in from the left
+    //   flipout - the countdown has run out: the countdown face turns away...
+    //   flipin  - ...and the new offer turns in
+    const [cardFx, setCardFx] = useState({});
+    const fxTimers = useRef([]);
+    useEffect(() => () => fxTimers.current.forEach(clearTimeout), []);
+    const later = (ms, fn) => { fxTimers.current.push(setTimeout(fn, ms)); };
+    const setFx = (index, type, extra = {}) => setCardFx((prev) => {
+        const next = { ...prev };
+        if (type) next[index] = { type, id: Date.now() + Math.random(), ...extra }; else delete next[index];
+        return next;
+    });
     // Per-card cooldowns: { [offerIndex]: endTime (ms) } — persisted in localStorage
     const cooldownStorageKey = `kentCardCooldowns_${currentPlayer?.playerId}`;
     const [cardCooldowns, setCardCooldowns] = useState(() => {
@@ -130,7 +151,6 @@ function KentPanel({
                 setKentOffers(kentData.offers || []);
             }
 
-            setKentPhase('active'); // Kent is always active
         } catch (error) {
             console.error('❌ Error fetching Kent offers:', error);
         } finally {
@@ -138,31 +158,24 @@ function KentPanel({
         }
     };
 
-    // Kent timer logic + per-card cooldown ticks
+    // Per-card cooldown ticks: redraw the countdowns, and flip a card over when its countdown ends
+    // (Kent never leaves: each slot cools down on its own after a sale or a dismiss)
     useEffect(() => {
-        const updateTimers = () => {
+        const interval = setInterval(() => {
             const now = Date.now();
-            const kentData = currentPlayer?.kentOffers;
-            const endTime = kentData?.endTime || 0;
-
-            if (endTime > now) {
-                // Timer is active - panel locked
-                setKentTimer(formatCountdown(endTime, now));
-                setKentPhase('locked');
-            } else {
-                // Timer expired - offers available
-                setKentTimer(strings[45]);
-                setKentPhase('active');
-            }
-
-            // Tick for per-card countdown display
             setTick(t => t + 1);
-        };
-
-        updateTimers();
-        const interval = setInterval(updateTimers, 1000);
+            Object.entries(cardCooldowns).forEach(([index, endTime]) => {
+                if (endTime > now || cardFx[index]?.type === 'flipout') return;
+                setFx(index, 'flipout');                     // the countdown face turns away...
+                later(220, () => {
+                    setCardCooldowns((prev) => { const next = { ...prev }; delete next[index]; return next; });
+                    setFx(index, 'flipin');                  // ...and the offer turns in
+                    later(320, () => setFx(index, null));
+                });
+            });
+        }, 250);
         return () => clearInterval(interval);
-    }, [currentPlayer?.kentOffers?.endTime]);
+    }, [cardCooldowns, cardFx]);   // eslint-disable-line react-hooks/exhaustive-deps
 
     // Initial load
     useEffect(() => {
@@ -186,16 +199,34 @@ function KentPanel({
         return remaining > 0 ? Math.ceil(remaining / 1000) : 0;
     };
 
-    // Handle trade transaction with protection against spam clicking
-    const handleTrade = async (offer) => {
-        if (!offer || !currentPlayer || isTrading) return;
+    const startCardCooldown = (index) => {
+        const seconds = globalTuning?.kentCardCooldownSeconds || 30;
+        setCardCooldowns(prev => ({ ...prev, [index]: Date.now() + seconds * 1000 }));
+    };
+    const clearCardCooldown = (index) => setCardCooldowns(prev => { const next = { ...prev }; delete next[index]; return next; });
 
-        // Check Kent timer before allowing any trade
-        if (isKentOnCooldown()) {
-            console.log('🚫 Kent trade blocked: Timer still active');
-            updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
-            return;
-        }
+    // A sale: the card bursts into sparkles ON THE TAP and its slot starts its cooldown at once
+    // (house rule: never gate the visual on the round trip); the trade runs in parallel and the
+    // card comes back only if it fails.
+    const sellCard = (offer, index, originalOffer) => {
+        if (!offer || !currentPlayer || isTrading || isCardOnCooldown(index)) return;
+        setFx(index, 'burst', { offer: originalOffer });   // the sold card keeps its face while it bursts
+        startCardCooldown(index);
+        soundManager.playSFX('collect_money');
+        try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+        const moneyReward = originalOffer?.rewards?.find(r => r.item === 'Money');
+        showSaleFloatingText(moneyReward?.quantity || offer.qtyGiven || 0, calculateKentXP(originalOffer), index);
+        later(300, () => { setFx(index, 'slidein'); later(460, () => setFx(index, null)); });
+        handleTrade(offer, index).then((ok) => {
+            if (ok) return;
+            clearCardCooldown(index);                        // revert: the offer is still there
+            setFx(index, null);
+        });
+    };
+
+    // Handle trade transaction with protection against spam clicking. Resolves true on success.
+    const handleTrade = async (offer, offerIndex) => {
+        if (!offer || !currentPlayer || isTrading) return false;
 
         // Set trading flag to prevent spam clicks
         setIsTrading(true);
@@ -221,7 +252,7 @@ function KentPanel({
 
                     if (!success) {
                         setIsTrading(false);
-                        return;
+                        return false;
                     }
                 }
             } else {
@@ -242,7 +273,7 @@ function KentPanel({
 
                 if (!success) {
                     setIsTrading(false);
-                    return;
+                    return false;
                 }
             }
 
@@ -303,7 +334,7 @@ function KentPanel({
               allRewardsSuccess = gainSuccess;
             }
 
-            if (!allRewardsSuccess) return;
+            if (!allRewardsSuccess) return false;
 
             // Award XP for the trade
             const xpToAward = calculateKentXP(originalOffer);
@@ -325,14 +356,7 @@ function KentPanel({
               // Don't fail the trade if XP award fails, just log it
             }
 
-            // Show floating text over Kent NPC for the sale
-            // Find Money reward amount from the original offer
-            const moneyReward = originalOffer?.rewards?.find(r => r.item === 'Money');
-            const moneyAmount = moneyReward?.quantity || offer.qtyGiven || 0;
-            showSaleFloatingText(moneyAmount, xpToAward);
-
-            // Play sound effect for successful sale
-            soundManager.playSFX('collect_money');
+            // (the floating text, sound and burst already played on the tap: sellCard)
 
             // Create status message for multiple rewards
             const rewardText = originalOffer && originalOffer.rewards
@@ -344,7 +368,7 @@ function KentPanel({
               ? offer.itemsBought.map(item => `${item.quantity} ${item.item}`).join(' + ')
               : `${offer.qtyBought} ${offer.itemBought}`;
 
-            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${soldText} for ${rewardText} and +${xpToAward} XP.`);
+            await replaceSoldOffer(offer, offerIndex, `✅ Exchanged ${soldText} for ${rewardText} and +${xpToAward} XP.`);
 
             // Track quest progress for each item sold
             if (offer.itemsBought && offer.itemsBought.length > 0) {
@@ -357,18 +381,19 @@ function KentPanel({
 
             // Try to advance FTUE if this is the player's first sale to Kent
             await tryAdvanceFTUEByTrigger('SoldToKent', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+            return true;
 
         } catch (error) {
             console.error('❌ Error in Kent trade:', error);
             updateStatus('❌ Trade failed. Please try again.');
+            return false;
         } finally {
             // Always clear the trading flag
             setIsTrading(false);
         }
     };
 
-    // Handle dismissing an individual offer — generates replacement immediately with per-card cooldown
-    // Dismiss works even when Kent is "away" (overall timer active) — only blocked by per-card cooldown
+    // Handle dismissing an individual offer: a replacement is made at once, behind the slot's cooldown
     const handleDismiss = async (offer, offerIndex) => {
         if (!offer || !currentPlayer || isTrading) return;
 
@@ -386,11 +411,11 @@ function KentPanel({
                 masterResources,
                 globalTuning,
                 currentSeason,
-                masterXPLevels
+                masterXPLevels,
+                offerIndex
             );
 
-            // Keep the existing overall timer (no reset for dismiss)
-            updatedKentOffers.endTime = currentPlayer?.kentOffers?.endTime || 0;
+            updatedKentOffers.endTime = 0;   // Kent never leaves; only the slot cools down
 
             // Save to DB
             const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
@@ -405,13 +430,11 @@ function KentPanel({
                 }));
                 setKentOffers(updatedKentOffers.offers || []);
 
-                // Start per-card cooldown on the slot where the new offer was inserted
-                const cardCooldownSeconds = globalTuning?.kentCardCooldownSeconds || 30;
-                const cooldownEndTime = Date.now() + (cardCooldownSeconds * 1000);
-                setCardCooldowns(prev => ({
-                    ...prev,
-                    [offerIndex]: cooldownEndTime
-                }));
+                // Start per-card cooldown on the slot where the new offer was inserted; its countdown card slides in
+                startCardCooldown(offerIndex);
+                setFx(offerIndex, 'slidein');
+                later(460, () => setFx(offerIndex, null));
+                startGrowthSlots(currentPlayer?.kentOffers?.offers?.length || 0, (updatedKentOffers.offers || []).length);
             }
 
         } catch (error) {
@@ -421,8 +444,7 @@ function KentPanel({
         }
     };
 
-    // Handle dismissing all offers at once — all cards get per-card cooldowns
-    // Handle dismissing all offers — works even when Kent is "away", only blocked by per-card cooldowns
+    // Handle dismissing all offers at once: every slot gets its cooldown
     const handleDismissAll = async () => {
         if (!currentPlayer || isTrading || kentOffers.length === 0) return;
 
@@ -448,7 +470,7 @@ function KentPanel({
             );
 
             const updatedKentOffers = {
-                endTime: currentPlayer?.kentOffers?.endTime || 0, // Keep existing overall timer
+                endTime: 0,
                 offers: newOffers
             };
 
@@ -471,8 +493,10 @@ function KentPanel({
                 const newCooldowns = {};
                 for (let i = 0; i < newOffers.length; i++) {
                     newCooldowns[i] = cooldownEndTime;
+                    setFx(i, 'slidein');
                 }
                 setCardCooldowns(newCooldowns);
+                later(460, () => setCardFx({}));
             }
 
         } catch (error) {
@@ -489,9 +513,6 @@ function KentPanel({
         setIsTrading(true);
 
         try {
-            // Keep the existing timer - don't reset it
-            const existingEndTime = currentPlayer?.kentOffers?.endTime || Date.now();
-
             // Remember how many offers we had before
             const previousOfferCount = kentOffers.length || 6;
 
@@ -507,7 +528,7 @@ function KentPanel({
             );
 
             const updatedKentOffers = {
-                endTime: existingEndTime, // Keep existing timer
+                endTime: 0,
                 offers: newOffers
             };
 
@@ -527,7 +548,7 @@ function KentPanel({
                 setCardCooldowns({});
             }
 
-            updateStatus(`🔧 Debug: Refreshed ${newOffers.length} offers (timer unchanged).`);
+            updateStatus(`🔧 Debug: Refreshed ${newOffers.length} offers.`);
         } catch (error) {
             console.error('❌ Error in debug refresh:', error);
             updateStatus('❌ Debug refresh failed.');
@@ -536,52 +557,45 @@ function KentPanel({
         }
     };
 
-    // Shared function to refresh offers and set timer (used by trade only)
-    const refreshOffersAndSetTimer = async (offer, statusMessage) => {
-        // Reset Kent timer and update offers
-        const kentRefreshSeconds = globalTuning?.kentRefreshTimerSeconds || 5;
-        const newEndTime = Date.now() + (kentRefreshSeconds * 1000);
-
-        // Update Kent offers: remove completed offer and add new ones
+    // After a sale: the sold offer is replaced in its slot (the slot's cooldown already runs, from the tap)
+    const replaceSoldOffer = async (offer, offerIndex, statusMessage) => {
         const updatedKentOffers = updateKentOffersAfterTrade(
             currentPlayer,
             offer,
             masterResources,
             globalTuning,
             currentSeason,
-            masterXPLevels
+            masterXPLevels,
+            offerIndex
         );
+        updatedKentOffers.endTime = 0;   // no "Kent is away": he never leaves
 
-        // Set the new timer
-        updatedKentOffers.endTime = newEndTime;
-
-        // Update player's kentOffers with new timer
         const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
             playerId: currentPlayer.playerId,
             updates: { kentOffers: updatedKentOffers }
         });
 
         if (updateResponse.data.success) {
-            // Update local player state
+            const before = currentPlayer?.kentOffers?.offers?.length || 0;
             setCurrentPlayer(prev => ({
                 ...prev,
                 kentOffers: updatedKentOffers
             }));
-
-            // Update local kentOffers display
             setKentOffers(updatedKentOffers.offers || []);
+            startGrowthSlots(before, (updatedKentOffers.offers || []).length);
         }
 
         updateStatus(statusMessage);
     };
 
-
-    // Helper function to check if Kent is currently on cooldown
-    const isKentOnCooldown = () => {
-        const now = Date.now();
-        const kentData = currentPlayer?.kentOffers;
-        const endTime = kentData?.endTime || 0;
-        return endTime > now;
+    // A trade can add a slot (Kent's list grows to its cap): a new slot arrives like any other,
+    // as a countdown card sliding in, and flips to its offer when the countdown ends
+    const startGrowthSlots = (before, after) => {
+        for (let i = before; i < after; i++) {
+            startCardCooldown(i);
+            setFx(i, 'slidein');
+            later(460, () => setFx(i, null));
+        }
     };
 
     // Lookup function for symbols from `masterResources`
@@ -592,34 +606,19 @@ function KentPanel({
 
     // XP for a Kent offer: the same function pays the trade and labels the card
     const calculateKentXP = (offer) =>
-        calculateKentOfferXP(offer, masterResources, getDerivedLevel(currentPlayer, masterXPLevels));
+        calculateKentOfferXP(offer, masterResources, getDerivedLevel(currentPlayer, masterXPLevels), globalTuning);
 
-    // Helper to get Kent NPC position for floating text
-    const getKentPosition = () => {
-        const gridId = currentPlayer?.location?.g;
-        if (!gridId) return null;
-
-        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-        if (!npcsInGrid) return null;
-
-        // Find Kent NPC in the grid
-        const kentNPC = Object.values(npcsInGrid).find(npc => npc && npc.type === 'Kent');
-        return kentNPC?.position || null;
-    };
-
-    // Show floating text over Kent NPC for sale rewards
-    // Uses same positioning as farm animal collection (NPCUtils.js) - directly at NPC position
-    const showSaleFloatingText = (moneyAmount, xpAmount) => {
-        const kentPos = getKentPosition();
-        if (!kentPos) return;
-
-        // Show money first at NPC position (emoji only, no text needed)
-        FloatingTextManager.addFloatingText(`+${moneyAmount.toLocaleString()} 💰`, kentPos.x, kentPos.y, TILE_SIZE);
-
-        // Show XP with delay, same position so it follows the same path
+    // The sale's rewards rise from the middle of the card that was sold and fly into the header:
+    // Money into the money counter, XP into the Level bar (FloatingText flyTo, UI/FlyToTarget.js)
+    const showSaleFloatingText = (moneyAmount, xpAmount, slotIndex) => {
+        const card = document.querySelector(`[data-kent-slot="${slotIndex}"]`);
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        FloatingTextManager.addFloatingTextAt(`+${moneyAmount.toLocaleString()} 💰`, cx, cy - 8, { flyTo: 'money', size: '20px' });
         setTimeout(() => {
-            FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, kentPos.x, kentPos.y, TILE_SIZE);
-        }, 800);
+            FloatingTextManager.addFloatingTextAt(`+${xpAmount} 🔷 XP`, cx, cy + 14, { flyTo: 'xp', size: '18px' });
+        }, 260);
     };
 
     // Check if any card has an active cooldown (for Dismiss All button)
@@ -627,47 +626,28 @@ function KentPanel({
 
     return (
       <>
-      <Panel onClose={onClose}  titleKey="1138" panelName="KentPanel">
+      <Panel onClose={onClose} titleKey="45" panelName="KentPanel">
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
           <>
-            {/* Show timer at top with fixed height */}
-            <div className="kent-header-area">
-              {kentPhase === 'locked' ? (
-                <h2>{strings[46]} <span className="countdown-timer">{kentTimer}</span></h2>
-              ) : (
-                <h2 className="countdown-timer">{kentTimer}</h2>
-              )}
-            </div>
-
-            {/* Always show offers, but disable during cooldown */}
-            <>
-              {kentOffers.length > 0 ? (
-                <>
-                  {kentOffers.map((offer, index) => {
-                      const cardOnCooldown = isCardOnCooldown(index);
+            {kentOffers.length > 0 ? (
+              <>
+                <div className="kent-offers-grid">
+                  {kentOffers.map((slotOffer, index) => {
+                      const fx = cardFx[index];
+                      // a bursting card shows the offer that was sold, even if its replacement is already here
+                      const offer = fx?.type === 'burst' && fx.offer ? fx.offer : slotOffer;
+                      // the countdown face shows while the slot cools down, and through the first half of
+                      // its flip; the sold card keeps its own face while it bursts
+                      const showCountdown = fx?.type !== 'burst' && (isCardOnCooldown(index) || fx?.type === 'flipout');
+                      const cardOnCooldown = isCardOnCooldown(index) || !!fx;
                       const cardCooldownSeconds = getCardCooldownRemaining(index);
-
-                      // Check if Kent panel is locked (use both phase state and real-time check)
-                      const isKentLocked = kentPhase === 'locked' || isKentOnCooldown();
-                      // Card is inactive if Kent is locked OR this card is on cooldown
-                      const isCardInactive = isKentLocked || cardOnCooldown;
+                      const isCardInactive = cardOnCooldown;
 
                       // Determine if this is a multi-item offer
                       const isMultiItem = offer.items && offer.items.length > 1;
                       const offerItems = offer.items || [{ item: offer.item, quantity: offer.quantity }];
-
-                      // Debug: Log offer structure to catch data corruption issues
-                      console.log(`🎯 Kent offer ${index}:`, {
-                          hasItemsArray: !!offer.items,
-                          itemsLength: offer.items?.length,
-                          items: offer.items?.map(i => `${i.item} x${i.quantity}`),
-                          legacyItem: offer.item,
-                          legacyQty: offer.quantity,
-                          rewards: offer.rewards?.map(r => `${r.item}: ${r.quantity}`),
-                          isMultiItem
-                      });
 
                       // Calculate player quantities for each item
                       const itemsWithQty = offerItems.map(offerItem => {
@@ -692,145 +672,141 @@ function KentPanel({
                               qtyGiven: offer.rewards[0]?.quantity || 0
                             };
 
+                      const itemHover = (item) => ({
+                        onMouseEnter: (e) => canHover() && setItemTooltip({
+                          show: true,
+                          itemName: getLocalizedString(item.item, strings),
+                          top: e.clientY + window.scrollY + 10,
+                          left: e.clientX + window.scrollX + 15
+                        }),
+                        onMouseMove: (e) => setItemTooltip(prev => ({
+                          ...prev,
+                          top: e.clientY + window.scrollY + 10,
+                          left: e.clientX + window.scrollX + 15
+                        })),
+                        onMouseLeave: () => setItemTooltip({ show: false, itemName: '', top: 0, left: 0 }),
+                      });
+
+                      // Rewards in two fixed rows: Money alone on the first, then any other reward
+                      // (the valley bonus) and the XP on the second
+                      const moneyRewards = offer.rewards.filter(reward => reward.item === 'Money');
+                      const otherRewards = offer.rewards.filter(reward => reward.item !== 'Money');
+                      const rewardChip = (reward, key) => (
+                        <span key={key} className="kent-reward-chip">{getSymbol(reward.item)} {reward.quantity.toLocaleString()}</span>
+                      );
+                      const rewards = (
+                        <div className="kent-offer-reward">
+                          <div className="kent-reward-row">{moneyRewards.map(rewardChip)}</div>
+                          <div className="kent-reward-row">
+                            {otherRewards.map(rewardChip)}
+                            <span className="kent-reward-chip">🔷 {calculateKentXP(offer)}</span>
+                          </div>
+                        </div>
+                      );
+
                       return (
                         <div
                           key={index}
-                          className="kent-offer-wrapper"
+                          data-kent-slot={index}
+                          className={`kent-offer-wrapper ${fx ? `kent-fx-${fx.type}` : ''}`}
                           onClick={() => {
                             // A card the player cannot afford is a disabled <button>, which swallows taps, so
                             // Kent.css gives it pointer-events: none and the wrapper catches the tap anywhere on
                             // the card: ResourceModalSmall opens for the first item the player is short of.
-                            // It works while Kent is away too (so you can plan what to gather); only a card on
-                            // its own cooldown, which shows a timer instead of its goods, ignores the tap.
+                            // A card on its own cooldown, which shows a timer instead of its goods, ignores the tap.
                             if (canAffordAll || cardOnCooldown || isTrading) return;
                             const missing = itemsWithQty.find((item) => !item.hasEnough);
                             if (missing) setInfoResource(missing.item);
                           }}
                         >
-                          <ResourceButton
-                            className={`kent-offer-button ${isCardInactive ? 'disabled' : ''} ${isMultiItem ? 'multi-item' : ''}`}
-                            onClick={() => !isCardInactive && !isTrading && handleTrade(convertedOffer)}
-                            disabled={isCardInactive || isTrading || !canAffordAll}
-                            hideInfo={true}
-                            noClickSfx={true}
-                          >
-                            <div className="resource-details">
-                              <div className={`kent-offer-content ${isMultiItem ? 'multi-item' : ''}`}>
-                                {cardOnCooldown ? (
-                                  <div className="kent-card-cooldown-timer">{cardCooldownSeconds}s</div>
-                                ) : isMultiItem ? (
-                                  <>
-                                    <div className="kent-multi-item-row">
-                                      {itemsWithQty.map((item, itemIdx) => (
-                                        <div
-                                          key={itemIdx}
-                                          className="kent-multi-item-cell"
-                                          onMouseEnter={(e) => canHover() && setItemTooltip({
-                                            show: true,
-                                            itemName: getLocalizedString(item.item, strings),
-                                            top: e.clientY + window.scrollY + 10,
-                                            left: e.clientX + window.scrollX + 15
-                                          })}
-                                          onMouseMove={(e) => setItemTooltip(prev => ({
-                                            ...prev,
-                                            top: e.clientY + window.scrollY + 10,
-                                            left: e.clientX + window.scrollX + 15
-                                          }))}
-                                          onMouseLeave={() => setItemTooltip({ show: false, itemName: '', top: 0, left: 0 })}
-                                        >
-                                          <div className="kent-offer-symbol">
-                                            {getSymbol(item.item)}
+                          {/* keys: the card layer and the burst are siblings, so their keys must differ (a shared
+                              fx.id made React keep the sold card's layer under the new one: a double-height slot) */}
+                          <div key={`card-${fx?.id || 'still'}`} className="kent-card-anim">
+                            <ResourceButton
+                              className={`kent-offer-button ${showCountdown ? 'kent-cooling' : ''} ${isMultiItem ? 'multi-item' : ''}`}
+                              onClick={() => !isCardInactive && !isTrading && sellCard(convertedOffer, index, offer)}
+                              disabled={isCardInactive || isTrading || !canAffordAll}
+                              hideInfo={true}
+                              noClickSfx={true}
+                            >
+                              <div className="resource-details">
+                                <div className={`kent-offer-content ${isMultiItem ? 'multi-item' : ''}`}>
+                                  {showCountdown ? (
+                                    <div className="kent-card-cooldown-timer">{cardCooldownSeconds}s</div>
+                                  ) : isMultiItem ? (
+                                    <>
+                                      <div className="kent-multi-item-row">
+                                        {itemsWithQty.map((item, itemIdx) => (
+                                          <div key={itemIdx} className="kent-multi-item-cell" {...itemHover(item)}>
+                                            <div className="kent-offer-symbol">{getSymbol(item.item)}</div>
+                                            <div className={`kent-multi-item-qty ${item.hasEnough ? 'sufficient' : 'insufficient'}`}>
+                                              <CardQty asked={item.quantity} held={item.playerQty} />
+                                            </div>
                                           </div>
-                                          <div className={`kent-multi-item-qty ${item.hasEnough ? 'sufficient' : 'insufficient'}`}>
-                                            x{item.quantity} / {item.playerQty}
-                                          </div>
+                                        ))}
+                                      </div>
+                                      {rewards}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="kent-single-item-cell" {...itemHover(itemsWithQty[0])}>
+                                        <div className="kent-offer-symbol">{getSymbol(itemsWithQty[0].item)}</div>
+                                        <div className={`kent-single-item-qty ${itemsWithQty[0].hasEnough ? 'sufficient' : 'insufficient'}`}>
+                                          <CardQty asked={itemsWithQty[0].quantity} held={itemsWithQty[0].playerQty} />
                                         </div>
-                                      ))}
-                                    </div>
-                                    <div className="kent-offer-reward">
-                                      {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
-                                        `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                      ).join('')} 🔷 {calculateKentXP(offer)}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <>
-                                    <div
-                                      className="kent-single-item-cell"
-                                      onMouseEnter={(e) => canHover() && setItemTooltip({
-                                        show: true,
-                                        itemName: getLocalizedString(itemsWithQty[0].item, strings),
-                                        top: e.clientY + window.scrollY + 10,
-                                        left: e.clientX + window.scrollX + 15
-                                      })}
-                                      onMouseMove={(e) => setItemTooltip(prev => ({
-                                        ...prev,
-                                        top: e.clientY + window.scrollY + 10,
-                                        left: e.clientX + window.scrollX + 15
-                                      }))}
-                                      onMouseLeave={() => setItemTooltip({ show: false, itemName: '', top: 0, left: 0 })}
-                                    >
-                                      <div className="kent-offer-symbol">
-                                        {getSymbol(itemsWithQty[0].item)}
                                       </div>
-                                      <div className={`kent-single-item-qty ${itemsWithQty[0].hasEnough ? 'sufficient' : 'insufficient'}`}>
-                                        x{itemsWithQty[0].quantity} / {itemsWithQty[0].playerQty}
-                                      </div>
-                                    </div>
-                                    <div className="kent-offer-reward">
-                                      {strings[42]} {offer.rewards.map((reward, rewardIndex) =>
-                                        `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                      ).join('')} 🔷 {calculateKentXP(offer)}
-                                    </div>
-                                  </>
-                                )}
+                                      {rewards}
+                                    </>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          </ResourceButton>
-                          <div
-                            className={`kent-dismiss-button ${cardOnCooldown ? 'disabled' : ''}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!cardOnCooldown) {
-                                handleDismiss(convertedOffer, index);
-                              }
-                            }}
-                          >
-                            ×
+                            </ResourceButton>
                           </div>
+                          {fx?.type === 'burst' && <SaleBurst key={`burst-${fx.id}`} />}
+                          {!showCountdown && !fx && (
+                            <div
+                              className="kent-dismiss-button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!cardOnCooldown) handleDismiss(convertedOffer, index);
+                              }}
+                            >
+                              ×
+                            </div>
+                          )}
                         </div>
                       );
                   })}
-                  {/* Dismiss all link */}
+                </div>
+                {/* Dismiss all link */}
+                <div
+                  className={`kent-dismiss-all-link ${(isTrading || anyCardOnCooldown) ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (!(isTrading || anyCardOnCooldown)) {
+                      handleDismissAll();
+                    }
+                  }}
+                >
+                  {strings[190] || "Dismiss all"}
+                </div>
+                {/* Debug refresh button - dev only */}
+                {isDeveloper && (
                   <div
-                    className={`kent-dismiss-all-link ${(isTrading || anyCardOnCooldown) ? 'disabled' : ''}`}
+                    className={`kent-dismiss-all-link ${isTrading ? 'disabled' : ''}`}
                     onClick={() => {
-                      if (!(isTrading || anyCardOnCooldown)) {
-                        handleDismissAll();
+                      if (!isTrading) {
+                        handleDebugRefresh();
                       }
                     }}
+                    style={{ color: '#ff9800', marginTop: '4px' }}
                   >
-                    {strings[190] || "Dismiss all"}
+                    🔧 Debug Refresh
                   </div>
-                  {/* Debug refresh button - dev only */}
-                  {isDeveloper && (
-                    <div
-                      className={`kent-dismiss-all-link ${isTrading ? 'disabled' : ''}`}
-                      onClick={() => {
-                        if (!isTrading) {
-                          handleDebugRefresh();
-                        }
-                      }}
-                      style={{ color: '#ff9800', marginTop: '4px' }}
-                    >
-                      🔧 Debug Refresh (no timer)
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p>No offers available from Kent.</p>
-              )}
-            </>
+                )}
+              </>
+            ) : (
+              <p>No offers available from Kent.</p>
+            )}
           </>
         )}
       </Panel>

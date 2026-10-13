@@ -1,0 +1,28 @@
+/* FlyToTarget.js: the flying clone and the hit pulse on the target. */
+
+.fly-to-target {
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin: 0 !important;
+  width: auto !important;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2147483001;   /* the flight, over everything (modals are 100000) */
+  will-change: transform;
+}
+
+/* the hit: a quick swell with a bright glow, settling back */
+.fly-hit {
+  animation: flyHit 520ms cubic-bezier(0.2, 1.6, 0.4, 1) !important;
+  transform-origin: center;
+}
+@keyframes flyHit {
+  0%   { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(255, 230, 120, 0)); }
+  25%  { transform: scale(1.32); filter: drop-shadow(0 0 8px rgba(255, 230, 120, 0.95)) brightness(1.35); }
+  100% { transform: scale(1);    filter: drop-shadow(0 0 0 rgba(255, 230, 120, 0)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fly-hit { animation-duration: 1ms !important; }
+}

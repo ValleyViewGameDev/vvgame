@@ -54,7 +54,7 @@ Root: `translate.js`, `testFileUtils.js`, top-level `package.json` (openai dep, 
 ## Found 2026-10-03 while testing Phase 3 (fixed on `refactor/phase-3a-player-state`)
 
 - Badges set or cleared by panels (`Mailbox`, `Store`, `Chat` call `updateBadge` with a no-op setter) never reached App state; the header dot and the mailbox overlay only changed through the old socket echo. `updateBadge` now dispatches `vv-badge-change`, which App subscribes to.
-- The Kent overlay (`checkKentNPCStatus`) ignored Kent's timer and the per-card cooldowns, so the checkmark stayed after a purchase. It now reads `kentOffers.endTime` and the `kentCardCooldowns_<playerId>` localStorage entry, and NPC overlays re-evaluate every 10 s so time-based states expire visibly.
+- The Kent overlay (`checkKentNPCStatus`) ignored Kent's timer and the per-card cooldowns, so the checkmark stayed after a purchase. It now reads the `kentCardCooldowns_<playerId>` localStorage entry (Kent's panel-wide `endTime` was retired 2026-10-12), and NPC overlays re-evaluate every 10 s so time-based states expire visibly.
 
 
 ## Found 2026-10-03 in the client review (not yet fixed; details in `audits/client-review-2026-10-03.md`)
