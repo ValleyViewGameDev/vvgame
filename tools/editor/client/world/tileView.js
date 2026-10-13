@@ -30,7 +30,7 @@ const T = {
   sel: [],               // gridCoords in the multi-selection (picked is the last one clicked)
   rect: null,            // shift+drag: { start, end } grid positions
   regionPick: '',        // region dropdown value (single + bulk)
-  show: { resources: false, random: true, bounds: true, regions: true },
+  show: { resources: false, bounds: true, regions: true },
 };
 
 // ----------------------------------------------------------------------------- data
@@ -207,17 +207,6 @@ function draw() {
     const p = coordParts(e.gridCoord); if (!p || !e.image) continue;
     ctx.drawImage(e.image, p.col * GRID_PX, p.row * GRID_PX);
   }
-  if (T.show.random) {
-    // valley grids with no layout file: generated at creation, so nothing to draw; hatch them
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1 / T.zoom;
-    for (const c of T.shared.gridMap.values()) {
-      if (!isValleyType(c.gridType) || T.grids.has(c.gridCoord)) continue;
-      const p = coordParts(c.gridCoord); if (!p) continue;
-      const x = p.col * GRID_PX, y = p.row * GRID_PX;
-      ctx.beginPath(); ctx.moveTo(x, y + GRID_PX); ctx.lineTo(x + GRID_PX, y); ctx.moveTo(x, y); ctx.lineTo(x + GRID_PX, y + GRID_PX); ctx.stroke();
-      ctx.strokeRect(x, y, GRID_PX, GRID_PX);
-    }
-  }
   if (T.show.bounds) {
     ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)'; ctx.lineWidth = 1.5 / T.zoom; ctx.beginPath();
     for (let i = 0; i <= BOARD; i += GRIDS_PER_SETTLEMENT) { ctx.moveTo(i * GRID_PX, 0); ctx.lineTo(i * GRID_PX, WORLD_PX); ctx.moveTo(0, i * GRID_PX); ctx.lineTo(WORLD_PX, i * GRID_PX); }
@@ -250,13 +239,12 @@ function renderHover() {
 function renderPanel() {
   const s = T.els.panel; if (!s) return;
   clear(s);
-  s.appendChild(el('h3', {}, 'Tile view'));
+  s.appendChild(el('h3', {}, ['Tile view', el('span', { class: 'info-dot', title: 'Templates only: what a grid looks like when it is created for a player, never any player\'s current copy. Drag to pan, scroll to zoom, click a grid to pick it; shift+click toggles a grid, shift+drag selects a rectangle.' }, 'ℹ️')]));
   T.els.zoomInfo = el('span', { class: 'mono' }, '');
   s.appendChild(el('div', { class: 'row' }, ['Zoom ', T.els.zoomInfo, el('span', { class: 'spacer' }), el('button', { onclick: fit }, 'Fit'), el('button', { onclick: resetView }, '100%')]));
   renderZoom();
   const S = T.shared;
-  const randomCount = [...S.gridMap.values()].filter((c) => isValleyType(c.gridType) && !S.layoutCoords.has(c.gridCoord)).length;
-  s.appendChild(el('div', { class: 'note mono' }, `${T.grids.size} grids drawn from ${T.files.size} template files · ${randomCount} valley grids random (no file)`));
+  s.appendChild(el('div', { class: 'note mono' }, `${T.grids.size} grids drawn from ${T.files.size} template files`));
   if (T.loading) {
     T.els.progress = el('div', { class: 'badge warn' }, `${T.loading.done} / ${T.loading.total} files`);
     s.appendChild(el('div', { class: 'row' }, [T.els.progress, el('button', { onclick: () => { T.loading.cancelled = true; } }, 'Cancel')]));
@@ -270,11 +258,9 @@ function renderPanel() {
   const check = (key, label, onchange) => el('label', { class: 'row', style: { cursor: 'pointer' } }, [el('input', { type: 'checkbox', checked: T.show[key], onchange: (e) => { T.show[key] = e.target.checked; onchange(); } }), label]);
   s.append(
     check('resources', 'Show resources (white dots)', rerasterizeAll),
-    check('random', 'Hatch random valley grids (no layout file)', draw),
     check('bounds', 'Show settlement bounds', draw),
     check('regions', 'Show regions (red tint)', draw),
   );
-  s.appendChild(el('div', { class: 'note' }, 'Templates only: what a grid looks like when it is created for a player, never any player\'s current copy. Drag to pan, scroll to zoom, click a grid to pick it; shift+click toggles a grid, shift+drag selects a rectangle.'));
 
   const pickRegion = (value) => { T.regionPick = value; renderPanel(); };
   const regionSelect = () => allRegionsSelect(S.regions, T.regionPick, pickRegion);
@@ -288,6 +274,7 @@ function renderPanel() {
     s.appendChild(el('div', { class: 'row' }, [regionSelect(), el('button', { class: 'primary', disabled: !inDb.length, onclick: () => S.bulkSaveRegion(grids, T.regionPick || null) }, `Save region (${inDb.length} in db)`)]));
     s.appendChild(el('div', { class: 'row' }, [unusedRegionSelect()]));
     if (inDb.length < grids.length) s.appendChild(el('div', { class: 'note' }, `${grids.length - inDb.length} selected grids are not in the database and are skipped.`));
+    liveSection(s, grids);
     return;
   }
 
@@ -296,7 +283,7 @@ function renderPanel() {
   if (!p) { s.appendChild(el('div', { class: 'note' }, 'Click a grid on the map.')); return; }
   const cell = cellOf(p.coord);
   s.appendChild(el('div', { class: 'mono' }, String(p.coord)));
-  s.appendChild(el('div', { class: 'note' }, cell ? `${cell.gridType} · ${cell.settlementName}${cell.region ? ` · region ${cell.region}` : ''}` : 'Not a grid of this frontier.'));
+  s.appendChild(el('div', { class: 'note' }, cell ? `${cell.gridType} · ${cell.settlementName}` : 'Not a grid of this frontier.'));
   s.appendChild(el('div', { class: 'note mono' }, p.entry ? `${p.entry.source.dir}/${p.entry.source.name}.json` : (cell && isValleyType(cell.gridType) ? 'no layout file: random at creation' : 'no template')));
   const openRoute = p.entry ? `layouts/${p.entry.source.dir}/${encodeURIComponent(p.entry.source.name)}?type=${encodeURIComponent(cell?.gridType || 'valley1')}`
     : (cell && isValleyType(cell.gridType) ? `layouts/valleyFixedCoord/${p.coord}?type=${encodeURIComponent(cell.gridType)}&new=1` : null);
@@ -313,6 +300,22 @@ function renderPanel() {
       el('div', { class: 'row' }, [unusedRegionSelect()]),
     ])
     : el('div', { class: 'note' }, 'Create the grid in the live game before assigning a region.'));
+  liveSection(s, [cell]);
+}
+
+/** Live game: create a grid that is not in the database yet, or reset it (template + every
+ * player's copy) from its layout. One grid uses world.js's single confirm; several, its bulk run. */
+function liveSection(s, grids) {
+  const S = T.shared;
+  const creatable = grids.filter(S.canCreate), resettable = grids.filter(S.canReset);
+  if (!creatable.length && !resettable.length) return;
+  s.appendChild(el('h3', {}, 'Live game'));
+  const one = grids.length === 1 ? grids[0] : null;
+  s.appendChild(el('div', { class: 'row' }, [
+    creatable.length ? el('button', { class: 'primary', onclick: () => (one ? S.createGridLive(one) : S.bulkCreate(grids)) }, one ? 'Create grid' : `Create ${creatable.length} grids`) : null,
+    resettable.length ? el('button', { class: 'danger', onclick: () => (one ? S.resetGridLive(one) : S.bulkReset(grids)) }, one ? 'Reset grid' : `Reset ${resettable.length} grids`) : null,
+  ]));
+  s.appendChild(el('div', { class: 'note' }, resettable.length ? 'Reset regenerates the grid from its layout for every player (template and each player\'s copy).' : 'Creates the Grid document from its layout.'));
 }
 
 // ----------------------------------------------------------------------------- API for world.js
@@ -323,6 +326,7 @@ export const tileView = {
     T.shared = shared; T.els.panel = panelEl;
     if (switching) { T.sel = []; T.picked = null; T.regionPick = ''; }
     else T.sel = T.sel.filter((c) => shared.gridMap.has(Number(c)));
+    if (shared.pickCoord && shared.gridMap.has(Number(shared.pickCoord))) { T.picked = pickOf(Number(shared.pickCoord)); T.sel = [Number(shared.pickCoord)]; syncRegionPick(); }
     T.els.hoverInfo = el('span', { class: 'muted mono' }, '');
     const tb = el('div', { class: 'toolbar' }, [
       el('strong', {}, shared.frontier?.name || shared.frontierId), el('span', { class: 'badge' }, `prefix ${shared.prefix || '?'} · ${shared.gridMap.size} grids · 2 px per tile · templates only`),

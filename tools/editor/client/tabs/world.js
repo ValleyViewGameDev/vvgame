@@ -6,9 +6,9 @@
  * actions: open or create its layout in Layouts, create or reset the grid in the live game,
  * assign its region; multi-select (shift+click to toggle, drag for a rectangle) for bulk
  * region / create / reset. Every live write goes through a confirm naming the target.
- * Tile view (world/tileView.js): the same frontier drawn tile by tile from the TEMPLATE
+ * Tile view (world/tileView.js, the default sub-view): the same frontier drawn tile by tile from the TEMPLATE
  * layouts on disk, nothing from any player's copy (the old Atlas tab, minus the database); it
- * has the same single and bulk region assignment, through saveRegion / bulkSaveRegion here.
+ * has the same single and bulk region assignment and live create / reset, through the functions here.
  *
  * Selection panel: frontier picker, then the sub-view's own controls.
  * Route: #world/<grid|tiles>/<frontierId>[/<gridCoord>]  (older #world/<frontierId>[/<coord>]
@@ -26,7 +26,7 @@ const FILL = { none: '#f4f5f1', valley: '#d0f0c0', homestead: '#e4d5b7', town: '
 
 const W = {
   ctx: null, els: {}, active: false,
-  view: 'grid',           // 'grid' | 'tiles'
+  view: 'tiles',          // 'tiles' (default) | 'grid'
   world: null, frontierId: null, frontier: null, gridMap: new Map(), cells: [], prefix: null,
   layoutCoords: new Set(), regions: [], res: null,
   selected: null,         // gridCoord last clicked (single inspector)
@@ -195,8 +195,8 @@ async function bulkWrite({ title, grids, verb, path, payload, danger, note }) {
   await refresh();
 }
 const bulkCreate = () => bulkWrite({ title: 'Bulk create grids (live game)', grids: selectedGrids().filter(canCreate), verb: 'Create', path: '/api/create-grid', payload: createPayload, danger: false });
-const bulkReset = () => bulkWrite({ title: 'Bulk reset grids (live game)', grids: selectedGrids().filter(canReset), verb: 'Reset', path: resetPath, payload: resetPayload, danger: true,
-  note: 'Each grid\'s template AND every player\'s copy of it are regenerated from the layout; anything players placed or changed on them is lost.' });
+const BULK_RESET_NOTE = 'Each grid\'s template AND every player\'s copy of it are regenerated from the layout; anything players placed or changed on them is lost.';
+const bulkReset = () => bulkWrite({ title: 'Bulk reset grids (live game)', grids: selectedGrids().filter(canReset), verb: 'Reset', path: resetPath, payload: resetPayload, danger: true, note: BULK_RESET_NOTE });
 
 // ----------------------------------------------------------------------------- selection panel
 function renderSelection() {
@@ -251,11 +251,14 @@ function renderEditor() {
   }
   if (!W.frontierId) { root.appendChild(el('div', { class: 'stub' }, 'The game server returned no frontiers.')); return; }
   root.appendChild(el('div', { class: 'subtabs' }, [
-    el('button', { class: W.view === 'grid' ? 'on' : '', onclick: () => setView('grid') }, 'Grid view'),
     el('button', { class: W.view === 'tiles' ? 'on' : '', onclick: () => setView('tiles') }, 'Tile view'),
+    el('button', { class: W.view === 'grid' ? 'on' : '', onclick: () => setView('grid') }, 'Grid view'),
   ]));
   if (W.view === 'tiles') {
-    tileView.mount(root, W.els.tilePanel, { ctx: W.ctx, frontierId: W.frontierId, frontier: W.frontier, gridMap: W.gridMap, prefix: W.prefix, layoutCoords: W.layoutCoords, res: W.res, regions: W.regions, saveRegion, bulkSaveRegion });
+    tileView.mount(root, W.els.tilePanel, { ctx: W.ctx, frontierId: W.frontierId, frontier: W.frontier, gridMap: W.gridMap, prefix: W.prefix, layoutCoords: W.layoutCoords, res: W.res, regions: W.regions, saveRegion, bulkSaveRegion,
+      pickCoord: W.selected, canCreate, canReset, createGridLive, resetGridLive,
+      bulkCreate: (grids) => bulkWrite({ title: 'Bulk create grids (live game)', grids: grids.filter(canCreate), verb: 'Create', path: '/api/create-grid', payload: createPayload, danger: false }),
+      bulkReset: (grids) => bulkWrite({ title: 'Bulk reset grids (live game)', grids: grids.filter(canReset), verb: 'Reset', path: resetPath, payload: resetPayload, danger: true, note: BULK_RESET_NOTE }) });
     return;
   }
   const grids = [...W.gridMap.values()];
@@ -406,7 +409,7 @@ export function worldTab() {
     async mount(selectionEl, editorEl, ctx, route) {
       W.ctx = ctx; W.els.selection = selectionEl; W.els.editor = editorEl; W.active = true;
       const parts = route.split('/');
-      let view = 'grid', rawFrontier, rawCoord;
+      let view = 'tiles', rawFrontier, rawCoord;
       if (parts[0] === 'atlas') { view = 'tiles'; [, rawFrontier] = parts; }           // old Atlas links
       else if (parts[1] === 'grid' || parts[1] === 'tiles') { [, view, rawFrontier, rawCoord] = parts; }
       else { [, rawFrontier, rawCoord] = parts; }                                     // old #world/<frontier>/<coord>

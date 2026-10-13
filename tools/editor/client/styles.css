@@ -223,3 +223,6 @@ table.sheet.players td.fb-pos, table.sheet.players td.fb-neg { white-space: norm
 .bad { color: #b33; }
 .small { font-size: 12px; }
 #editor:has(.lab-top) { overflow: auto; }
+
+/* A small info badge with its explanation in the tooltip (World > Tile view header) */
+.info-dot { cursor: help; margin-left: 6px; font-size: 13px; font-weight: normal; text-transform: none; }
