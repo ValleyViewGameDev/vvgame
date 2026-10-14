@@ -223,9 +223,10 @@ Train halved anything over $2,000. Now every ask is sized by how much production
 
 ## 4d. Trophies
 
-- **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50]` (2026-10-12; was 3, 5, 10, 50,
-  100 with 56 skills in the game). Milestones fire on an exact count, so a change never pays
-  retroactively.
+- **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50, 75, 100]` (2026-10-12; 75 and
+  100 added 2026-10-13; was 3, 5, 10, 50, 100). It counts skills only (not powers): with 56
+  skills in the game, 75 and 100 wait for more skills (owner's call). Milestones fire on an
+  exact count, so a change never pays retroactively.
 - **Swing cooldown**: `attackCooldownMinMs` (400) + `(speed - 1) × attackCooldownPerSpeedMs`
   (100), clamped to `attackCooldownMaxMs` (800). Speed 1 → 0.4 s, speed 5 (starter) → 0.8 s;
   speed-reducing powers (Jab, Flurry, Barrage, Magic Gloves) make swings faster, never
