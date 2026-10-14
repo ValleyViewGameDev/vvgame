@@ -932,6 +932,14 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     <Panel onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
+          {/* Travel with Snug: first thing on Snug's panel, once the player has greeted him */}
+          {canTravelWithSnug && (
+            <div className="shared-buttons">
+              <button className="btn-basic btn-success" onClick={() => setSnugTravelOpen(true)}>
+                {strings[10191] || 'Travel with Snug'}
+              </button>
+            </div>
+          )}
           <CitizenStatusLine npc={npcData} gridId={currentPlayer?.location?.g} />
           <CitizenRelationshipsDebug isDeveloper={isDeveloper} currentPlayer={currentPlayer} masterResources={masterResources} />
 
@@ -1724,16 +1732,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
         </div>
         
-        {/* Pinned footer: Travel with Snug (Snug, once greeted); sell/refund (developers) */}
-        {(isDeveloper || canTravelWithSnug) && (
+        {/* Pinned footer: sell/refund (developers) */}
+        {isDeveloper && (
           <div className="station-panel-footer">
-            {canTravelWithSnug && (
-              <div className="shared-buttons">
-                <button className="btn-basic btn-success" onClick={() => setSnugTravelOpen(true)}>
-                  {strings[10191] || 'Travel with Snug'}
-                </button>
-              </div>
-            )}
             {isDeveloper && (
               <div className="shared-buttons">
                 <button 
