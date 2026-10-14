@@ -12,5 +12,6 @@
     "Mobile",
     "firefoxTest",
     "chromeTest",
-    "safariTest"
+    "safariTest",
+    "ftuetester"
 ]
