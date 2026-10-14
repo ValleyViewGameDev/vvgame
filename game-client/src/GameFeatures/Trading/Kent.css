@@ -355,3 +355,7 @@
 @media (prefers-reduced-motion: reduce) {
   .kent-card-anim { animation-duration: 1ms !important; }
 }
+
+/* An FTUE scrim on an offer (FTUEsteps.json "ClickedKent") leaves the card's corner in the hole:
+   no dismissing the one offer a new player has to sell to */
+body.ftue-scrim-active .kent-dismiss-button { display: none !important; }

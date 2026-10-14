@@ -82,12 +82,26 @@
     "doinker": true,
     "doinkerType": "resource",
     "doinkerTarget": "Kent",
+    "scrim": true,
     "notificationKey": 7068,
     "notificationSprite": "npc-kent.svg",
     "addQuests": []
   },
   {
     "step": 9,
+    "trigger": "ClickedKent",
+    "showModal": false,
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": "[data-kent-slot=\"0\"] .kent-offer-button",
+    "scrim": true,
+    "scrimTarget": {
+      "selector": "[data-kent-slot=\"0\"] .kent-offer-button"
+    },
+    "addQuests": []
+  },
+  {
+    "step": 10,
     "trigger": "SoldToKent",
     "showModal": false,
     "showFeedbackModalAfter": true,
@@ -106,7 +120,7 @@
     ]
   },
   {
-    "step": 10,
+    "step": 11,
     "trigger": "OpenedFarmingPanel",
     "showModal": false,
     "continue": false,
@@ -117,7 +131,7 @@
     "addQuests": []
   },
   {
-    "step": 11,
+    "step": 12,
     "trigger": "ClickedWheatPlotCard",
     "showModal": false,
     "continue": false,
@@ -135,7 +149,7 @@
     "addQuests": []
   },
   {
-    "step": 12,
+    "step": 13,
     "trigger": "PlantedFirstCrop",
     "showModal": false,
     "continue": false,
@@ -147,7 +161,7 @@
     "notificationSprite": "npc-shepherd.svg"
   },
   {
-    "step": 13,
+    "step": 14,
     "trigger": "CollectedQuest",
     "addQuests": [
       7
@@ -160,7 +174,7 @@
     "doinkerTarget": "Signpost Town"
   },
   {
-    "step": 14,
+    "step": 15,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -170,7 +184,7 @@
     "addQuests": []
   },
   {
-    "step": 15,
+    "step": 16,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -185,7 +199,7 @@
     }
   },
   {
-    "step": 16,
+    "step": 17,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -194,7 +208,7 @@
     "addQuests": []
   },
   {
-    "step": 17,
+    "step": 18,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalSprite": "npc-elbow.svg",
@@ -208,7 +222,7 @@
     "notificationSprite": "signpost-home.svg"
   },
   {
-    "step": 18,
+    "step": 19,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

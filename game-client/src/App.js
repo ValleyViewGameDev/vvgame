@@ -130,7 +130,9 @@ import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
-import StartScreenAnimation from './UI/StartScreenAnimation';
+// The characters walking random paths over the key art: off for now (they don't read as the game
+// yet); kept for a load screen that shows more of the game one day.
+// import StartScreenAnimation from './UI/StartScreenAnimation';
 import LoginScreenButterflies from './UI/LoginScreenButterflies';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
@@ -1120,6 +1122,10 @@ const handleNPCPanel = (npc) => {
   // FTUE trigger: Clicking on Constable Elbow
   if (npc.type === 'Constable Elbow' && currentPlayer?.firsttimeuser) {
     tryAdvanceFTUEByTrigger('ClickedConstableElbow', currentPlayer._id, currentPlayer, setCurrentPlayer);
+  }
+  // FTUE trigger: opening Kent's panel moves the scrim onto his first offer (the sell step's toast stays up)
+  if (npc.type === 'Kent' && currentPlayer?.firsttimeuser) {
+    tryAdvanceFTUEByTrigger('ClickedKent', currentPlayer._id, currentPlayer, setCurrentPlayer);
   }
 
   switch (npc.action) {
@@ -2383,6 +2389,9 @@ useEffect(() => {
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
+    if (isInputLocked()) return; // a cutscene or an FTUE scrim holds the player still: no keys at all
+
     // Handle inventory shortcut
     if (event.key === 'i' || event.key === 'I') {
       if (currentPlayer) {
@@ -2391,9 +2400,6 @@ useEffect(() => {
       }
       return;
     }
-    
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
-    if (isInputLocked()) return; // a cutscene or an FTUE scrim holds the player still
 
     // Attack: Space or F swings at the nearest enemy in reach (GameFeatures/Combat/Combat.js)
     if (event.key === ' ' || event.key === 'f' || event.key === 'F') {
@@ -3502,7 +3508,7 @@ return (
         <div className="keyart-wrapper">
           <KeyArtImage />
           <LoginScreenButterflies />
-          <StartScreenAnimation />
+          {/* <StartScreenAnimation /> */}
         </div>
       )}
 
