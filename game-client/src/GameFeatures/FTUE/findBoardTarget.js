@@ -6,9 +6,19 @@ export const FTUE_WHEAT_TILE_KEY = 'vv_ftue_wheat_tile'; // set by ResourceClick
 
 // The tile of a named thing on the current board: a resource (by type) first, else an NPC.
 // Returns { x, y, size } in tiles, or null. Shared by the doinker, the scrim and cutscenes.
+// With several of that type (the Collect Wheat beat), the one nearest the player, so the arrow and
+// the scrim's hole move on to the next closest as each is collected.
+export function nearestResourceOfType(resources, targetName) {
+  const matches = (resources || []).filter((r) => r && r.type === targetName);
+  if (matches.length < 2) return matches[0] || null;
+  const me = PixiCamera.debug?.()?.playerTile;
+  if (!me) return matches[0];
+  const d = (r) => (r.x + 0.5 - me.x) ** 2 + (r.y + 0.5 - me.y) ** 2;
+  return matches.reduce((best, r) => (d(r) < d(best) ? r : best), matches[0]);
+}
+
 export function findBoardTarget(targetName, gridId) {
-  const resources = GlobalGridStateTilesAndResources.getResources();
-  const res = resources?.find((r) => r && r.type === targetName);
+  const res = nearestResourceOfType(GlobalGridStateTilesAndResources.getResources(), targetName);
   if (res) return { x: res.x, y: res.y, size: res.size || 1 };
   if (gridId) {
     const npcs = NPCsInGridManager.getNPCsInGrid(gridId);

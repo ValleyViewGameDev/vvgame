@@ -515,8 +515,8 @@ class GridStatePCManager {
       newPosition &&
       (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y)
     ) {
-      // 60 ms default matches MOVEMENT_COOLDOWN_MS for smooth continuous movement
-      animateRemotePC(playerId, oldPosition, newPosition, this.tileSize);
+      // the step's tween; opts.durationMs for a deliberate move (the signpost arrival hop)
+      animateRemotePC(playerId, oldPosition, newPosition, this.tileSize, opts.durationMs);
     }
 
     const positionOnly = changedKeys.length === 1 && changedKeys[0] === 'position';

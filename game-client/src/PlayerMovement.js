@@ -566,7 +566,8 @@ async function isValidMove(targetX, targetY, masterResources,
       null, // masterResources not available
       strings,
       null,  // masterTrophies not available in PlayerMovement
-      transitionFadeControl
+      transitionFadeControl,
+      { edgeWalk: true }
     );
     return false; // Prevent normal movement handling
   };

@@ -559,6 +559,18 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
     }
   }
 
+  // ---- the FTUE cave: citizens (Constable Elbow) hold their tile, no state loop, no wander,
+  // so the doinker and the scrim stay on him (owner 2026-10-13). The waiting headline above
+  // still shows when the player is near.
+  if (GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave) {
+    this.path = null;
+    if (this.citizenState && this.citizenState !== 'waiting') {
+      this.citizenState = null;
+      stopHeadlineEffect(this.id);
+    }
+    return undefined;
+  }
+
   // ---- no loop defined for this type: legacy behaviour
   if (!hasStateLoop(this)) {
     switch (this.action) {

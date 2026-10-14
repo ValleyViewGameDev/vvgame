@@ -1,9 +1,11 @@
 /* Kent Panel Specific Styles */
 
-/* Kent Offer Button - Always Yellow */
+/* Kent Offer Button: green when the player holds everything it asks for (kent-ready), the
+   crafting station's inactive gray when they are short (kent-short); the same tokens as a
+   Crafting Station's ResourceButtons (theme.css --color-btn-primary / --color-btn-disabled) */
 .kent-offer-button {
-  background-color: #f9d71c !important; /* Bright yellow */
-  border: 2px solid #d4ac0d !important;
+  background-color: var(--color-btn-primary) !important;
+  border: 2px solid rgba(0, 0, 0, 0.08) !important;
   color: #2c3e50 !important;
   font-size: 16px !important;
   font-weight: bold !important;
@@ -17,26 +19,29 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 0 #d4ac0d !important; /* Add bottom shadow for button depth */
+  box-shadow: 0 4px 0 var(--color-shadow-button) !important; /* bottom shadow for button depth */
   position: relative !important;
   top: 0 !important;
 }
 
-.kent-offer-button:hover:not(:disabled) {
-  background-color: #f4d03f !important;
-  border-color: #b7950b !important;
-  box-shadow: 0 4px 0 #b7950b !important;
+.kent-offer-button.kent-short {
+  background-color: var(--color-btn-disabled) !important;
 }
 
-.kent-offer-button:active:not(:disabled) {
+@media (hover: hover) {
+  :where(html:not(.touch-ui)) .kent-offer-button.kent-ready:hover:not(:disabled) {
+    background-color: var(--color-btn-primary-hover) !important;
+  }
+}
+
+.kent-offer-button.kent-ready:active:not(:disabled) {
   top: 2px !important; /* Move button down */
-  box-shadow: 0 2px 0 #b7950b !important; /* Reduce shadow */
+  box-shadow: 0 2px 0 var(--color-shadow-button) !important; /* Reduce shadow */
 }
 
+/* disabled only while a trade is in flight or the slot cools down: the card keeps its color */
 .kent-offer-button:disabled {
-  background-color: #f9d71c !important; /* Keep yellow even when disabled */
-  border-color: #d4ac0d !important;
-  opacity: 1 !important; /* Same opacity as enabled buttons */
+  opacity: 1 !important;
   cursor: not-allowed !important;
   transform: none !important;
 }
@@ -163,11 +168,11 @@
 }
 
 .kent-offer-item.sufficient {
-  color: #27ae60; /* Green when player has enough */
+  color: var(--color-btn-primary-text); /* Green when player has enough */
 }
 
 .kent-offer-item.insufficient {
-  color: #e74c3c; /* Red when player doesn't have enough */
+  color: #c0392b; /* Red when player doesn't have enough (readable on the gray card) */
 }
 
 /* Reward Section: two fixed rows (Kent.js): Money alone, then any other reward and the XP.
@@ -266,11 +271,11 @@
 }
 
 .kent-multi-item-qty.sufficient {
-  color: #27ae60;
+  color: var(--color-btn-primary-text);
 }
 
 .kent-multi-item-qty.insufficient {
-  color: #e74c3c;
+  color: #c0392b;
 }
 
 /* Single-item offer cell - centered with tooltip */
@@ -288,11 +293,11 @@
 }
 
 .kent-single-item-qty.sufficient {
-  color: #27ae60;
+  color: var(--color-btn-primary-text);
 }
 
 .kent-single-item-qty.insufficient {
-  color: #e74c3c;
+  color: #c0392b;
 }
 
 /* Responsive adjustments */
@@ -315,8 +320,8 @@
     font-size: 12px;
   }
 }
-/* A card that cannot be traded keeps its look; taps pass through the disabled button to the
-   wrapper (Kent.js), which opens ResourceModalSmall for the first item the player is short of */
+/* A short card (kent-short) is a live button, so its items keep their hovertips; its tap bubbles
+   to the wrapper (Kent.js), which opens ResourceModalSmall for the first item the player is short of */
 .kent-offer-button:disabled { pointer-events: none; }
 .kent-offer-wrapper { cursor: default; }
 

@@ -10,7 +10,7 @@ import { isGoogleAvailable, renderGoogleButton, loginWithGoogle } from '../../Au
 
 /**
  * EmailModal: the one in-game ask for an email (docs/onboarding-plan.md §4.5). Shown once,
- * after the first crop harvest (in-app browsers: right after the Home Deed), and reachable
+ * right after the FTUE feedback modal (in-app browsers: right after the Home Deed), and reachable
  * again from Profile. Optional, never blocks; "Maybe later" is the decline. Saving goes
  * through /player/email, which also sends the welcome email once.
  */

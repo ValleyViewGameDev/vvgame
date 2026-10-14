@@ -710,10 +710,10 @@ function KentPanel({
                           data-kent-slot={index}
                           className={`kent-offer-wrapper ${fx ? `kent-fx-${fx.type}` : ''}`}
                           onClick={() => {
-                            // A card the player cannot afford is a disabled <button>, which swallows taps, so
-                            // Kent.css gives it pointer-events: none and the wrapper catches the tap anywhere on
-                            // the card: ResourceModalSmall opens for the first item the player is short of.
-                            // A card on its own cooldown, which shows a timer instead of its goods, ignores the tap.
+                            // A card the player cannot afford stays a live button (gray, kent-short) so its items
+                            // keep their desktop hovertips; its tap bubbles here and ResourceModalSmall opens for
+                            // the first item the player is short of. A card on its own cooldown, which shows a
+                            // timer instead of its goods, ignores the tap.
                             if (canAffordAll || cardOnCooldown || isTrading) return;
                             const missing = itemsWithQty.find((item) => !item.hasEnough);
                             if (missing) setInfoResource(missing.item);
@@ -723,9 +723,9 @@ function KentPanel({
                               fx.id made React keep the sold card's layer under the new one: a double-height slot) */}
                           <div key={`card-${fx?.id || 'still'}`} className="kent-card-anim">
                             <ResourceButton
-                              className={`kent-offer-button ${showCountdown ? 'kent-cooling' : ''} ${isMultiItem ? 'multi-item' : ''}`}
-                              onClick={() => !isCardInactive && !isTrading && sellCard(convertedOffer, index, offer)}
-                              disabled={isCardInactive || isTrading || !canAffordAll}
+                              className={`kent-offer-button ${showCountdown ? 'kent-cooling' : canAffordAll ? 'kent-ready' : 'kent-short'} ${isMultiItem ? 'multi-item' : ''}`}
+                              onClick={() => canAffordAll && !isCardInactive && !isTrading && sellCard(convertedOffer, index, offer)}
+                              disabled={isCardInactive || isTrading}
                               hideInfo={true}
                               noClickSfx={true}
                             >

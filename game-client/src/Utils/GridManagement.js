@@ -6,6 +6,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
+import { hopOffSignpost } from './arrivalHop';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
@@ -115,14 +116,26 @@ const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
  */
 export function resolveArrivalPosition(arrival = {}, target = {}, spawn = null, resources = []) {
   if (spawn && isNum(spawn.x) && isNum(spawn.y)) {
-    return { x: spawn.x, y: spawn.y, source: 'spawn' };
+    // The server's spawn wins (going home it is the open tile beside Signpost Town). After a
+    // signpost use the player still lands ON the signpost and hops off onto the spawn tile.
+    const signpost = arrival.findSignpost && !arrival.noHop
+      ? (resources || []).find((res) => res.type === arrival.findSignpost)
+      : null;
+    return {
+      x: spawn.x, y: spawn.y, source: 'spawn',
+      ...(signpost && isNum(signpost.x) && isNum(signpost.y) ? { signpost: { x: signpost.x, y: signpost.y } } : {}),
+    };
   }
 
   if (arrival.findSignpost) {
     const signpost = (resources || []).find((res) => res.type === arrival.findSignpost);
     if (signpost && isNum(signpost.x) && isNum(signpost.y)) {
       const offset = arrival.offset || SIGNPOST_ARRIVAL_OFFSETS[arrival.findSignpost] || { x: 0, y: 0 };
-      return { x: signpost.x + offset.x, y: signpost.y + offset.y, source: 'signpost' };
+      return {
+        x: signpost.x + offset.x, y: signpost.y + offset.y, source: 'signpost',
+        // a signpost use hops off the signpost on arrival (Utils/arrivalHop.js); an edge-walk does not
+        ...(arrival.noHop ? {} : { signpost: { x: signpost.x, y: signpost.y } }),
+      };
     }
     console.log(`⚠️ [ARRIVAL] ${arrival.findSignpost} not found in destination grid`);
   }
@@ -392,8 +405,11 @@ export const changePlayerLocation = async (
 
     // ---------------------------------------------------------------- arrival
     const resolved = resolveArrivalPosition(arrival, target, spawn, GlobalGridStateTilesAndResources.getResources());
-    const finalX = resolved.x;
-    const finalY = resolved.y;
+    // By signpost: the player lands ON the destination's signpost and then steps off it onto the
+    // arrival tile (Utils/arrivalHop.js), so the crossing reads as coming out of the signpost
+    const hopFrom = resolved.signpost || null;
+    const finalX = hopFrom ? hopFrom.x : resolved.x;
+    const finalY = hopFrom ? hopFrom.y : resolved.y;
     console.log(`📍 [ARRIVAL] (${finalX}, ${finalY}) via ${resolved.source}`);
 
     updatedPlayer.location = { ...mergedLocation, x: finalX, y: finalY };
@@ -471,6 +487,13 @@ export const changePlayerLocation = async (
 
     if (updateStatus && gtype) {
       updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);
+    }
+
+    if (hopFrom) {
+      hopOffSignpost({
+        gridId: toGridId, playerId, signpost: hopFrom, preferred: { x: resolved.x, y: resolved.y },
+        masterResources, currentPlayer: updatedPlayer,
+      }).catch((err) => console.error('❌ [ARRIVAL] hop off the signpost failed:', err));
     }
 
     return { x: finalX, y: finalY, toGridId, gtype, updatedPlayer };

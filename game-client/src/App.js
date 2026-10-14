@@ -37,7 +37,7 @@ import socket, {
 } from './socketManager';
 
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import FTUE from './GameFeatures/FTUE/FTUE';
+import FTUE, { FTUE_FEEDBACK_DONE_EVENT } from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 
@@ -2322,7 +2322,8 @@ useEffect(() => {
   if (isDeveloper) setDevEditContext({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
 }, [isDeveloper, currentPlayer?.playerId, currentPlayer?.language]);
 
-// The once-only email ask (docs/onboarding-plan.md §4.5): after the first crop harvest, or, in an
+// The once-only email ask (docs/onboarding-plan.md §4.5): right after the FTUE feedback modal
+// (FTUE.js FTUE_FEEDBACK_DONE_EVENT, which itself follows the first sale's level-up), or, in an
 // in-app browser where the session rarely survives, right after the Home Deed is signed. Shown
 // once per profile (email_prompt_seen_at), never to an unnamed or already-emailed player.
 useEffect(() => {
@@ -2334,10 +2335,11 @@ useEffect(() => {
     axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { email_prompt_seen_at: seenAt } }).catch(() => {});
     setEmailAsk({ inApp });
   };
+  const onFeedbackDone = () => maybeAsk(isInAppBrowser());
   const onHarvest = () => {
     const p = currentPlayerRef.current;
     const emailDue = p && !p.email && !p.email_prompt_seen_at && p.named !== false;
-    if (emailDue) { maybeAsk(isInAppBrowser()); return; }
+    if (emailDue) return; // the email ask comes first (after the FTUE feedback modal)
     // BL-1: the install invitation takes the next harvest after the email ask, on a phone
     // browser only, never inside the installed app, remembered per device.
     if (isPhone() && !isStandalone() && !installPromptDismissed() && !isInAppBrowser() && p?.named !== false) setShowInstallPrompt(true);
@@ -2345,9 +2347,10 @@ useEffect(() => {
   const onNamed = () => { if (isInAppBrowser()) setTimeout(() => maybeAsk(true), 1500); };
   const onBeforeInstall = (e) => { e.preventDefault(); deferredInstallPrompt.current = e; };
   window.addEventListener('vv:crop-harvested', onHarvest);
+  window.addEventListener(FTUE_FEEDBACK_DONE_EVENT, onFeedbackDone);
   window.addEventListener('vv:named', onNamed);
   window.addEventListener('beforeinstallprompt', onBeforeInstall);
-  return () => { window.removeEventListener('vv:crop-harvested', onHarvest); window.removeEventListener('vv:named', onNamed); window.removeEventListener('beforeinstallprompt', onBeforeInstall); };
+  return () => { window.removeEventListener('vv:crop-harvested', onHarvest); window.removeEventListener(FTUE_FEEDBACK_DONE_EVENT, onFeedbackDone); window.removeEventListener('vv:named', onNamed); window.removeEventListener('beforeinstallprompt', onBeforeInstall); };
 }, []);
 
 useEffect(() => {
@@ -3100,6 +3103,12 @@ const handleLoginSuccess = async (player) => {
   const [showTimers, setShowTimers] = useState(false);
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+  // FTUE: the whole nav bar stays hidden until the player first reaches their homestead (the
+  // first step triggered by HomesteadVisit); before that only the avatar button would show, and
+  // the header reaches the profile anyway (owner 2026-10-13)
+  const firstHomesteadFTUEStep = masterFTUEsteps.find(step => step.trigger === 'HomesteadVisit')?.step;
+  const hideNavForFTUE = currentPlayer?.firsttimeuser === true && firstHomesteadFTUEStep != null
+    && (currentPlayer?.ftuestep ?? 0) < firstHomesteadFTUEStep;
 
   // Chat panel slideout state
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -3371,7 +3380,7 @@ return (
       </div>
     )}
 
-    <div className="nav-column">
+    <div className="nav-column" style={hideNavForFTUE ? { display: 'none' } : undefined}>
 
       {currentPlayer && (
         <>
@@ -3739,6 +3748,7 @@ return (
           setActiveStation={setActiveStation}
           masterResources={masterResources}
           masterFTUEsteps={masterFTUEsteps}
+          levelUpOpen={isLevelUpModalOpen}
           setResources={setResources}
           TILE_SIZE={activeTileSize}
         />

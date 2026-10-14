@@ -15,12 +15,34 @@ import { uiString } from '../../Utils/inputMode';
 const spriteSrc = (file) => (file.startsWith('/') ? file : `/assets/resources/${file}`);
 
 
-const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps }) => {
+// The feedback beat waits for a level-up the same action caused: the level-up modal opens, the
+// player closes it, then the feedback modal. With no level-up it shows after this grace period.
+const FEEDBACK_LEVELUP_GRACE_MS = 1500;
+// Fired when the feedback beat is over (submitted, or skipped because feedback was already given):
+// App.js opens the once-only email ask on it (docs/onboarding-plan.md §4.5)
+export const FTUE_FEEDBACK_DONE_EVENT = 'vv:ftue-feedback-done';
+
+const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps, levelUpOpen = false }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [positiveReasons, setPositiveReasons] = useState([]);
   const [negativeReasons, setNegativeReasons] = useState([]);
+  // { since, sawLevelUp } while the feedback modal waits for the level-up modal to come and go
+  const [pendingFeedback, setPendingFeedback] = useState(null);
+
+  useEffect(() => {
+    if (!pendingFeedback) return undefined;
+    if (levelUpOpen) {
+      if (!pendingFeedback.sawLevelUp) setPendingFeedback((p) => (p ? { ...p, sawLevelUp: true } : p));
+      return undefined;
+    }
+    const show = () => { setPendingFeedback(null); setShowFeedbackModal(true); };
+    if (pendingFeedback.sawLevelUp) { show(); return undefined; }   // level-up closed with OK
+    const left = FEEDBACK_LEVELUP_GRACE_MS - (Date.now() - pendingFeedback.since);
+    const timer = setTimeout(show, Math.max(0, left));                // no level-up came
+    return () => clearTimeout(timer);
+  }, [pendingFeedback, levelUpOpen]);
   
   // Load the current step data based on player's ftuestep
   useEffect(() => {
@@ -136,6 +158,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
     // Continue with the step's remaining logic
     await continueStepLogic();
+    window.dispatchEvent(new CustomEvent(FTUE_FEEDBACK_DONE_EVENT));
   };
 
   // Continuation function that executes the rest of the step logic after feedback (if any)
@@ -222,14 +245,17 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         (currentPlayer.ftueFeedback.positive?.length > 0 || currentPlayer.ftueFeedback.negative?.length > 0);
 
       if (stepData?.showFeedbackModalAfter && !hasFeedback) {
-        // Show feedback modal as an intervention after OK is clicked
-        console.log(`🎓 Step ${currentStep} has showFeedbackModalAfter, showing feedback modal`);
-        setShowFeedbackModal(true);
+        // The feedback modal comes after the level-up modal this step's action raised (see the
+        // pendingFeedback effect); onFeedbackSubmit then continues the step
+        console.log(`🎓 Step ${currentStep} has showFeedbackModalAfter, feedback modal after any level-up`);
+        setPendingFeedback({ since: Date.now(), sawLevelUp: false });
         return; // Don't continue - onFeedbackSubmit will call continueStepLogic
       }
 
       // No feedback needed, continue with step logic
       await continueStepLogic();
+      // feedback already given: the beat is still over, so the email ask follows here
+      if (stepData?.showFeedbackModalAfter) window.dispatchEvent(new CustomEvent(FTUE_FEEDBACK_DONE_EVENT));
 
     } catch (error) {
       console.error('Error advancing FTUE step:', error);

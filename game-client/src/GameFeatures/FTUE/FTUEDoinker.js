@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { resolveFtueDirtTile } from './findBoardTarget';
+import { resolveFtueDirtTile, nearestResourceOfType } from './findBoardTarget';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from './DoinkerArrow';
 import './FTUE.css';
@@ -48,8 +48,8 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
         // First, check resources
         const resources = GlobalGridStateTilesAndResources.getResources();
         if (resources && resources.length > 0) {
-          // Find the first matching resource (only one doinker per target type)
-          const targetResource = resources.find(res => res.type === targetName);
+          // One doinker per target type: the instance nearest the player (findBoardTarget.js)
+          const targetResource = nearestResourceOfType(resources, targetName);
           if (targetResource) {
             foundPositions.push({
               x: targetResource.x,

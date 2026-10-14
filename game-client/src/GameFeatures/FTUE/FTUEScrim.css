@@ -9,7 +9,7 @@
 }
 .ftue-scrim-panel {
   position: absolute;
-  background: rgba(0, 0, 0, 0.62);
+  background: var(--color-modal-overlay, rgba(0, 0, 0, 0.4)); /* the modals' dim (theme.css); was 0.62 (owner, 2026-10-13) */
   pointer-events: auto;
 }
 /* What must stay readable and tappable over the scrim */

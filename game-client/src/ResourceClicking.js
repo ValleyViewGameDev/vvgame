@@ -3,7 +3,8 @@ import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
 import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
-import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
+import { loadMasterResources, loadMasterSkills, getFTUEsteps } from './Utils/TuningManager'; // Centralized tuning manager
+import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
@@ -21,6 +22,10 @@ import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
+
+// FTUE Collect Wheat beat: how many Wheat, and the counter's storage key (survives a refresh)
+const FTUE_WHEAT_NEEDED = 3;
+const FTUE_WHEAT_COUNT_KEY = 'vv_ftue_wheat_count';
 
 // FTUE Cave dungeon grid ID (must match auth.js and Dungeon.js)
 
@@ -449,6 +454,21 @@ export async function handleDooberClick(
     // The tutorial's Wheat: remember its tile so the planting beat can point back at it
     if (currentPlayer?.firsttimeuser && resource.type === 'Wheat') {
       try { localStorage.setItem('vv_ftue_wheat_tile', JSON.stringify({ x: col, y: row })); } catch (_) { /* storage off */ }
+    }
+    // The FTUE's Collect Wheat beat (the step before the one triggered by CollectedWheat): three
+    // Wheat in a row, counted across refreshes, then the step advances to selling them to Kent.
+    // It also advances when no Wheat is left on the board, so the player can never be stuck.
+    if (currentPlayer?.firsttimeuser && resource.type === 'Wheat') {
+      const wheatStep = (getFTUEsteps() || []).find((s) => s.trigger === 'CollectedWheat');
+      if (wheatStep && currentPlayer.ftuestep === wheatStep.step - 1) {
+        let count = 0;
+        try { count = Number(localStorage.getItem(FTUE_WHEAT_COUNT_KEY) || 0) + 1; localStorage.setItem(FTUE_WHEAT_COUNT_KEY, String(count)); } catch (_) { count = FTUE_WHEAT_NEEDED; }
+        const wheatLeft = (GlobalGridStateTilesAndResources.getResources() || []).some((r) => r && r.type === 'Wheat' && !(r.x === col && r.y === row));
+        if (count >= FTUE_WHEAT_NEEDED || !wheatLeft) {
+          try { localStorage.removeItem(FTUE_WHEAT_COUNT_KEY); } catch (_) { /* storage off */ }
+          tryAdvanceFTUEByTrigger('CollectedWheat', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
+      }
     }
     // A crop (its source is a farm plot) was harvested: App.js listens for the first one to make
     // the once-only email ask (docs/onboarding-plan.md §4.5).

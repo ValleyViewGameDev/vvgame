@@ -133,7 +133,8 @@ export async function handleTransitSignpost(
   masterResources,
   strings = null,
   masterTrophies = null,
-  transitionFadeControl = null
+  transitionFadeControl = null,
+  { edgeWalk = false } = {}   // a walk off the grid's edge, not a signpost: no hop off a signpost on arrival
 ) {
   const endFade = () => {
     if (transitionFadeControl?.endTransition) transitionFadeControl.endTransition();
@@ -281,6 +282,7 @@ export async function handleTransitSignpost(
       {
         findSignpost: oppositeSignpost,
         fallback: fallbackEntryPosition(direction, fromX, fromY),
+        noHop: edgeWalk,
       }
     );
   } catch (error) {

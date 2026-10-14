@@ -77,6 +77,16 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
       return;
     }
 
+    // A string with explicit page breaks (a blank line, "\n\n") is paged exactly there, so a
+    // story's page count is the writer's call in every language (FTUE opening: 3 pages)
+    if (/\n\s*\n/.test(dialogText)) {
+      setPages(dialogText.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean));
+      setCurrentPage(0);
+      setVisibleWordCount(0);
+      setIsAnimating(true);
+      return;
+    }
+
     // Split at sentence boundaries (., !, ?)
     // Keep the punctuation with the sentence
     const sentences = dialogText.match(/[^.!?]+[.!?]+/g) || [dialogText];

@@ -70,16 +70,24 @@
     "trigger": "ChoseAvatar",
     "doinker": true,
     "doinkerType": "resource",
-    "doinkerTarget": [
-      "Wheat",
-      "Kent"
-    ],
-    "notificationKey": 7053,
-    "addQuests": [],
-    "notificationSprite": "npc-kent.svg"
+    "doinkerTarget": "Wheat",
+    "scrim": true,
+    "notificationKey": 7067,
+    "notificationIcon": "🌾",
+    "addQuests": []
   },
   {
     "step": 8,
+    "trigger": "CollectedWheat",
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Kent",
+    "notificationKey": 7068,
+    "notificationSprite": "npc-kent.svg",
+    "addQuests": []
+  },
+  {
+    "step": 9,
     "trigger": "SoldToKent",
     "showModal": false,
     "showFeedbackModalAfter": true,
@@ -98,7 +106,7 @@
     ]
   },
   {
-    "step": 9,
+    "step": 10,
     "trigger": "OpenedFarmingPanel",
     "showModal": false,
     "continue": false,
@@ -109,7 +117,7 @@
     "addQuests": []
   },
   {
-    "step": 10,
+    "step": 11,
     "trigger": "ClickedWheatPlotCard",
     "showModal": false,
     "continue": false,
@@ -127,7 +135,7 @@
     "addQuests": []
   },
   {
-    "step": 11,
+    "step": 12,
     "trigger": "PlantedFirstCrop",
     "showModal": false,
     "continue": false,
@@ -139,7 +147,7 @@
     "notificationSprite": "npc-shepherd.svg"
   },
   {
-    "step": 12,
+    "step": 13,
     "trigger": "CollectedQuest",
     "addQuests": [
       7
@@ -152,7 +160,7 @@
     "doinkerTarget": "Signpost Town"
   },
   {
-    "step": 13,
+    "step": 14,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -162,7 +170,7 @@
     "addQuests": []
   },
   {
-    "step": 14,
+    "step": 15,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -177,7 +185,7 @@
     }
   },
   {
-    "step": 15,
+    "step": 16,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -186,7 +194,7 @@
     "addQuests": []
   },
   {
-    "step": 16,
+    "step": 17,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalSprite": "npc-elbow.svg",
@@ -200,7 +208,7 @@
     "notificationSprite": "signpost-home.svg"
   },
   {
-    "step": 17,
+    "step": 18,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

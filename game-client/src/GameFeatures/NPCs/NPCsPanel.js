@@ -687,6 +687,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       return;
     }
     playersInGridManager.flushAfterTransaction(); // NPC trade: save the position with it
+    // the card's place, on the tap: the gain rises from it and flies into the header
+    const tradeCardRect = recipe?.type
+      ? document.querySelector(`[data-resource-type="${CSS.escape(recipe.type)}"] .resource-button`)?.getBoundingClientRect() || null
+      : null;
     console.log(`🔒 [PROTECTED TRADE] Starting protected trade for ${recipe.type}`);
     setErrorMessage('');
     if (!recipe) {
@@ -773,6 +777,13 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
     // Play sound effect for successful trade
     soundManager.playSFX('skill_earned');
+
+    // The gain and its XP rise from the card and fly into the header, as quest rewards do (the
+    // Home Deed to Inventory). Same XP rule as the award below.
+    const gainedResource = masterResources.find(res => res.type === recipe.type);
+    const tradeXP = recipe.xp ?? masterResources.find(res => res.type === npcData.type && res.category === 'npc')?.xp ?? 1;
+    showQuestRewardFloatingText(gainedResource?.symbol || '', getLocalizedString(recipe.type, strings), quantityToGive,
+      tradeXP, tradeCardRect, questRewardFlyTo(recipe.type, gainedResource));
 
     // Track quest progress for trading (using 'Collect' action to match quest system)
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
