@@ -15,7 +15,9 @@ const playerSchema = new mongoose.Schema({
   email_source: { type: String, default: null },            // 'manual' (typed in game) | 'stripe' (billing only)
   marketing_consent: { type: Boolean, default: null },      // tri-state: true / false / null = unasked (utils/crmAudience.js decides)
   marketing_consent_at: { type: Date, default: null },
-  unsubscribe_token: { type: String, default: null, index: { unique: true, sparse: true } },
+  // no default: a sparse unique index skips a MISSING field but not a null one, so a null default
+  // makes every second new player a duplicate key (E11000 on register). Set by utils/crmAudience.js.
+  unsubscribe_token: { type: String, index: { unique: true, sparse: true } },
   email_bounced_at: { type: Date, default: null },
   welcome_email_sent_at: { type: Date, default: null },     // atomic once-only stamp (utils/emailNotifications.js)
   email_prompt_seen_at: { type: Date, default: null },      // the in-game ask is shown once
