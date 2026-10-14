@@ -175,11 +175,13 @@
   z-index: 10;
 }
 
-/* Touch: the badge is a tap target, so give it a 36px hit area without moving the glyph */
+/* Touch: the badge is a tap target, so give it a big hit area without moving the glyph. The
+   right side stops at the button's edge (10px = the badge's right offset): a full 12px there
+   poked 2px past it and gave every list without side padding (the shops) a sideways scroll. */
 @media (hover: none) {
   .info-button {
-    padding: 12px;
-    margin: -12px;
+    padding: 12px 10px 12px 12px;
+    margin: -12px -10px -12px -12px;
   }
 }
 

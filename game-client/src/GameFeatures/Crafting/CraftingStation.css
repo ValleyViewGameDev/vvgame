@@ -18,6 +18,7 @@
 .station-panel-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* a vertical list: never a sideways scroll from a pixel of overhang */
   padding: 0;
 }
 
