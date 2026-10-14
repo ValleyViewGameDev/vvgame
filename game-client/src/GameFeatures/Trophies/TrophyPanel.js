@@ -10,7 +10,6 @@ import FloatingTextManager from '../../UI/FloatingText';
 import InfoButton from '../../UI/Buttons/InfoButton';
 
 // Matches the trophyGemFloat animation in TrophyPanel.css.
-const GEM_FLOAT_MS = 1800;
 
 const addGems = (inventory, qty) => {
     const list = Array.isArray(inventory) ? inventory : [];
@@ -26,7 +25,6 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
     const [trophies, setTrophies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [collecting, setCollecting] = useState(null); // Track which trophy is being collected
-    const [gemFloats, setGemFloats] = useState([]); // "+N 💎" texts rising off collected cards
     
     useEffect(() => {
         // Fetch trophies when panel opens
@@ -50,9 +48,9 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         }
     }, [currentPlayer?.playerId]);
     
-    // Handle collecting trophy reward. Optimistic: the card flips to collected, the gems land
-    // in the header and "+N 💎" floats off the card (and over the avatar) on the tap; the
-    // server call runs in parallel and only a failure puts the card and the gems back.
+    // Handle collecting trophy reward. Optimistic: the card flips to collected and "+N 💎" rises off
+    // the card and flies into the header's gem counter (UI/FlyToTarget.js), which rolls up as it is
+    // hit; the server call runs in parallel and only a failure puts the card and the gems back.
     const handleCollectReward = async (trophyName) => {
         if (collecting) return;
         const trophyDef = masterTrophies?.find(t => t.name === trophyName);
@@ -64,16 +62,15 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
             prevTrophies.map(t => t.name === trophyName ? { ...t, collected: true } : t)
         );
         if (gemReward > 0) {
+            // the flight first, so the header holds the gems until it lands
+            const card = document.querySelector(`[data-trophy-card="${CSS.escape(trophyName)}"]`);
+            if (card) {
+                const r = card.getBoundingClientRect();
+                FloatingTextManager.addFloatingTextAt(`+${gemReward} 💎`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'gems' });
+            }
             const optimistic = addGems(inventory, gemReward);
             setInventory(optimistic);
             setCurrentPlayer(prev => ({ ...prev, inventory: optimistic }));
-            const floatId = `${trophyName}-${Date.now()}`;
-            setGemFloats(prev => [...prev, { id: floatId, trophyName, text: `+${gemReward} 💎` }]);
-            setTimeout(() => setGemFloats(prev => prev.filter(f => f.id !== floatId)), GEM_FLOAT_MS);
-            const loc = currentPlayer?.location;
-            if (loc && Number.isFinite(loc.x) && Number.isFinite(loc.y)) {
-                FloatingTextManager.addFloatingText(`+${gemReward} 💎`, loc.x, loc.y, 0);
-            }
         }
 
         try {
@@ -205,6 +202,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                             return (
                                 <div 
                                     key={index} 
+                                    data-trophy-card={trophyDef.name}
                                     className={`trophy-card ${!isEarned ? 'unearned' : ''} ${hasUncollectedReward ? 'collectable' : ''} trophy-${(trophyDef.type || 'Event').toLowerCase()}`}
                                     onClick={hasUncollectedReward && !isCollecting ? () => handleCollectReward(trophyDef.name) : undefined}
                                     style={hasUncollectedReward ? { cursor: isCollecting ? 'wait' : 'pointer' } : undefined}
@@ -246,9 +244,6 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                     {trophyDef.tooltip && (
                                         <InfoButton className="trophy-info-button" info={getLocalizedString(trophyDef.tooltip, strings)} />
                                     )}
-                                    {gemFloats.filter(f => f.trophyName === trophyDef.name).map(f => (
-                                        <span key={f.id} className="trophy-gem-float">{f.text}</span>
-                                    ))}
                                     {hasUncollectedReward && (
                                         <div 
                                             className="trophy-reward-gem"

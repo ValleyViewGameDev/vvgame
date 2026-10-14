@@ -615,9 +615,9 @@ function KentPanel({
         if (!card) return;
         const r = card.getBoundingClientRect();
         const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        FloatingTextManager.addFloatingTextAt(`+${moneyAmount.toLocaleString()} 💰`, cx, cy - 8, { flyTo: 'money', size: '20px' });
+        FloatingTextManager.addFloatingTextAt(`+${moneyAmount.toLocaleString()} 💰`, cx, cy - 8, { flyTo: 'money' });
         setTimeout(() => {
-            FloatingTextManager.addFloatingTextAt(`+${xpAmount} 🔷 XP`, cx, cy + 14, { flyTo: 'xp', size: '18px' });
+            FloatingTextManager.addFloatingTextAt(`+${xpAmount} 🔷 XP`, cx, cy + 14, { flyTo: 'xp' });
         }, 260);
     };
 

@@ -104,7 +104,7 @@ function Mailbox({
         FloatingTextManager.addFloatingTextAt(
           `+${Number(reward.qty || 0).toLocaleString()} ${getSymbol(reward.item) || reward.item}`,
           cx + ((i % 3) - 1) * 26, cy - 6 + Math.floor(i / 3) * 22,
-          { flyTo: flyTargetFor(reward.item), size: '20px' }
+          { flyTo: flyTargetFor(reward.item) }
         );
       }, i * 180);
     });

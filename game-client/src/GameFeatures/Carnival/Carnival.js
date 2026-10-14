@@ -9,6 +9,8 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import './Carnival.css';
 import FloatingTextManager from '../../UI/FloatingText';
+import SaleBurst from '../../UI/SaleBurst';
+import soundManager from '../../Sound/SoundManager';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 
@@ -311,7 +313,24 @@ function CarnivalPanel({
     }
   };
 
-  const handleFulfill = async (offer) => {
+  // A filled order: on the tap (house rule: never wait for the server) the card pops under a burst
+  // of sparkles and its Money rises from it and flies into the money counter (UI/FlyToTarget.js)
+  const [orderFx, setOrderFx] = useState(null);   // { index, id }
+  const celebrateOrder = (offer, index) => {
+    const id = Date.now() + Math.random();
+    setOrderFx({ index, id });
+    setTimeout(() => setOrderFx((fx) => (fx?.id === id ? null : fx)), 900);
+    soundManager.playSFX('collect_money');
+    try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+    const el = document.querySelector(`[data-carnival-slot="${index}"]`);
+    if (el) {
+      const r = el.getBoundingClientRect();
+      FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} ${getSymbol(offer.itemGiven)}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: offer.itemGiven === 'Money' ? 'money' : 'inventory' });
+    }
+  };
+
+  const handleFulfill = async (offer, index) => {
+    if (index != null) celebrateOrder(offer, index);
     if (!offer || offer.claimedBy !== currentPlayer.playerId) return;
 
     // Spend the ingredients (the item being delivered)
@@ -465,6 +484,9 @@ function CarnivalPanel({
           return (
             <div
               key={index}
+              data-carnival-slot={index}
+              className={orderFx?.index === index ? 'sale-pop' : ''}
+              style={{ position: 'relative' }}
               onClick={() => { if (isYours && !affordable && !isCompleted) setInfoResource(offer.itemBought); }} // the disabled card lets the tap through (Carnival.css): where to find the item
             >
             <ResourceButton
@@ -475,7 +497,7 @@ function CarnivalPanel({
               }`}
               onClick={() =>
                 isCompleted ? null :
-                isYours ? handleFulfill(offer) :
+                isYours ? handleFulfill(offer, index) :
                 !offer.claimedBy ? handleClaim(offer) : null
               }
               disabled={isCompleted || (!isYours && offer.claimedBy) || (isYours && !affordable)}
@@ -484,6 +506,7 @@ function CarnivalPanel({
               <strong>{!isCompleted && !offer.claimedBy ? buttonText : 
                !isCompleted && offer.claimedBy ? strings[2007] : ''}</strong>
             </ResourceButton>
+            {orderFx?.index === index && <SaleBurst key={orderFx.id} />}
             </div>
           );
         })}

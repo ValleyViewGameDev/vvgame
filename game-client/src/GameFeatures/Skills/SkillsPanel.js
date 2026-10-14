@@ -138,7 +138,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   // where the bought card is, taken on the tap: "+Grower Skill" rises from it (UI/FlyToTarget.js)
   const cardRect = document.querySelector(`.skills-to-acquire [data-resource-type="${CSS.escape(resourceType)}"]`)?.getBoundingClientRect() || null;
   const floatFromCard = (text, flyTo) => {
-    if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo, size: '18px' });
+    if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
   };
 
   // Check if this is an item (special category) vs a skill

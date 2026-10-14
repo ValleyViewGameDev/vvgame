@@ -120,6 +120,7 @@ const QuestGiverButton = ({
   return (
     <div
       className={`quest-item quest-card ${state}${isDisabled ? ' disabled' : ''}${isProcessing ? ' processing' : ''}`}
+      data-quest-card={quest?.title}
       onClick={handleClick}
       style={{
         opacity: (isDisabled || isProcessing) ? 0.6 : 1,

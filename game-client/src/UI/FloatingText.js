@@ -9,6 +9,8 @@ import { registerFlight, flyToTarget } from './FlyToTarget';
 // follow the map; screen texts (addFloatingTextAt) sit on the UI, e.g. a Kent card.
 // options.flyTo = '<key>': at the end of its rise the text does not fade but flies into the header
 // element marked data-fly-target="<key>" (UI/FlyToTarget.js), which pulses as it is hit.
+// options.registered = true: the caller already called registerFlight(key) (to hold the counter
+// before a delayed text appears), so the text does not register a second one.
 let globalFloatingTexts = [];
 let globalScreenTexts = [];
 let globalForceUpdate = null;
@@ -86,7 +88,7 @@ const FloatingTextManager = () => {
                 finalY = centerY - OFFSET_AMOUNT;
             }
 
-            if (options.flyTo) registerFlight(options.flyTo);
+            if (options.flyTo && !options.registered) registerFlight(options.flyTo);
             globalFloatingTexts.push({
                 id: newId,
                 text: displayText,
@@ -105,7 +107,7 @@ const FloatingTextManager = () => {
         FloatingTextManager.addFloatingTextAt = (message, clientX, clientY, options = {}) => {
             const displayText = typeof message === 'number' ? (strings[message] || `Missing string for code: ${message}`) : message;
             if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return;
-            if (options.flyTo) registerFlight(options.flyTo);
+            if (options.flyTo && !options.registered) registerFlight(options.flyTo);
             globalScreenTexts.push({
                 id: `${Date.now()}-${Math.floor(Math.random() * 10000)}`,
                 text: displayText, x: clientX, y: clientY,

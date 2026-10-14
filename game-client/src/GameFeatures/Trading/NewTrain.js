@@ -504,7 +504,7 @@ function NewTrainPanel({
     const card = document.querySelector(`[data-train-slot="${offerIndex}"]`);
     if (card) {
       const r = card.getBoundingClientRect();
-      FloatingTextManager.addFloatingTextAt(`+${earned.toLocaleString()} ${getSymbol('Money')}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money', size: '20px' });
+      FloatingTextManager.addFloatingTextAt(`+${earned.toLocaleString()} ${getSymbol('Money')}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
     }
     let committed = false;   // the server saved the delivery
 

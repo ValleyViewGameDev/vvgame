@@ -17,6 +17,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
+import { registerFlight } from '../../UI/FlyToTarget';
 import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
@@ -227,10 +228,13 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
     setTimeout(() => soundManager.playSFX('collect_money'), CombatFX.FX.DEATH_XP_DELAY_MS);
     NPCsInGridManager.forgetNPC(gridId, npc.id);
 
-    // 2. XP in the header now; the server's total replaces it when it answers
+    // 2. XP: the header's total moves now (the server's replaces it when it answers) but the shown
+    //    value holds until the "+XP" that rises from the tile once the drop lands flies into it
+    //    (UI/FlyToTarget.js); the flight is registered now so the header waits from the start
     if (xp) {
+        registerFlight('xp');
         setCurrentPlayer((prev) => ({ ...prev, xp: (prev.xp || 0) + xp }));
-        setTimeout(() => CombatFX.text(pos.x, pos.y, `+${xp} XP`, 'gain'), CombatFX.FX.DEATH_XP_DELAY_MS);
+        setTimeout(() => FloatingTextManager.addFloatingText(`+${xp} XP`, pos.x, pos.y, 0, { flyTo: 'xp', registered: true, color: '#ffe66d' }), CombatFX.FX.DEATH_XP_DELAY_MS);
     }
 
     // 3. The drop: the client's guess at the nearest free tile falls in and bounces; the server

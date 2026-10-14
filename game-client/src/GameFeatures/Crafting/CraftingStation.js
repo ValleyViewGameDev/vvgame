@@ -449,7 +449,7 @@ const CraftingStation = ({
       const r = slotEl.getBoundingClientRect();
       const flyTo = craftedItemType === 'Money' ? 'money' : craftedItemResource?.category === 'npc' ? null : 'inventory';
       FloatingTextManager.addFloatingTextAt(`+${finalQtyCollected} ${craftedSymbol} ${getLocalizedString(craftedItemType, strings)}`,
-        r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '18px' });
+        r.left + r.width / 2, r.top + r.height / 2, { flyTo });
     }
 
     // 3. Optimistically clear the slot visually

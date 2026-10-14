@@ -261,8 +261,6 @@ const PetPanel = ({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         // Update status
-        const feedMessage = `Fed ${getLocalizedString(petName, strings)} ${feedQuantity}x ${getLocalizedString(feedIngredient, strings)}`;
-        FloatingTextManager.addFloatingText(feedMessage, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
         updateStatus(`${getLocalizedString(petName, strings)}${strings[8014] || ' is searching for treasures...'}`);
 
         // Track quest progress for feeding pets
@@ -282,7 +280,15 @@ const PetPanel = ({
     }
 
     setIsCollecting(true);
-    
+    // The reward and its XP rise from the Collect card (its place taken on the tap: the panel changes
+    // once the server answers) and fly home (UI/FlyToTarget.js): Money / Gems to their counters, a
+    // skill to Skills, a power to Combat, anything else to Inventory, the XP to the Level bar
+    const cardRect = document.querySelector('.pet-collect-button')?.getBoundingClientRect() || null;
+    const floatFromCard = (text, flyTo, dy = 0) => {
+      if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2 + dy, { flyTo });
+      else FloatingTextManager.addFloatingText(text, currentPetPosition.x, currentPetPosition.y, TILE_SIZE, { flyTo });
+    };
+
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
         playerId: currentPlayer.playerId,
@@ -324,7 +330,9 @@ const PetPanel = ({
         }
         
         const rewardSymbol = rewardResource?.symbol || '🎁';
-        FloatingTextManager.addFloatingText(`+${collectedQty} ${rewardSymbol} ${getLocalizedString(collectedItem, strings)}`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
+        const rewardFlyTo = collectedItem === 'Money' ? 'money' : collectedItem === 'Gem' ? 'gems'
+          : rewardResource?.category === 'skill' ? 'skills' : rewardResource?.category === 'power' ? 'combat' : 'inventory';
+        floatFromCard(`+${collectedQty} ${rewardSymbol} ${getLocalizedString(collectedItem, strings)}`, rewardFlyTo, -8);
 
         // Award XP for collecting from pet
         const petResourceForXP = masterResources.find(res => res.type === petName);
@@ -343,9 +351,7 @@ const PetPanel = ({
             }));
 
             // Show XP floating text with delay, same position so it follows the same path
-            setTimeout(() => {
-              FloatingTextManager.addFloatingText(`+${xpToAward} 🔷 XP`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
-            }, 500);
+            setTimeout(() => floatFromCard(`+${xpToAward} 🔷 XP`, 'xp', 14), 260);
           }
         } catch (error) {
           console.error('❌ Error awarding XP for pet collection:', error);

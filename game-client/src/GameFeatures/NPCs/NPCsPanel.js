@@ -391,20 +391,33 @@ const getQuestNPCPosition = () => {
   return npcInGrid?.position || null;
 };
 
-// Show floating text for quest reward collection
-const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, xpAmount) => {
-  const npcPos = getQuestNPCPosition();
-  if (!npcPos) return;
+// Show floating text for quest reward collection: the reward and its XP rise from the quest card
+// that was tapped (cardRect, taken on the tap) and fly into the header (UI/FlyToTarget.js): Money /
+// Gems to their counters, a skill to Skills, a power to Combat, anything else to Inventory, XP to the
+// Level bar. Without the card (it was not found) they rise from the quest giver on the map.
+const questRewardFlyTo = (item, resource) => (
+  item === 'Money' ? 'money' : item === 'Gem' ? 'gems' : item === 'XP' ? 'xp'
+    : resource?.category === 'skill' ? 'skills' : resource?.category === 'power' ? 'combat'
+    : resource?.category === 'npc' ? null : 'inventory');
+const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, xpAmount, cardRect, rewardFlyTo) => {
+  const at = (text, flyTo, dy) => {
+    if (cardRect) {
+      FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2 + dy, { flyTo });
+      return;
+    }
+    const npcPos = getQuestNPCPosition();
+    if (npcPos) FloatingTextManager.addFloatingText(text, npcPos.x, npcPos.y, TILE_SIZE, { flyTo });
+  };
   // Show reward item first (emoji + localized name)
-  FloatingTextManager.addFloatingText(`+${rewardQuantity} ${rewardSymbol} ${rewardName}`, npcPos.x, npcPos.y, TILE_SIZE);
-  // Show XP after delay, same position so it follows the same path
-  setTimeout(() => {
-    FloatingTextManager.addFloatingText(`+${xpAmount} 🔷 XP`, npcPos.x, npcPos.y, TILE_SIZE);
-  }, 800);
+  at(`+${rewardQuantity} ${rewardSymbol} ${rewardName}`, rewardFlyTo, -8);
+  // Then the XP, a little below, so the two never sit on top of each other
+  setTimeout(() => at(`+${xpAmount} 🔷 XP`, 'xp', 14), 260);
 };
 
 const handleGetReward = async (transactionId, transactionKey, quest) => {
   playersInGridManager.flushAfterTransaction(); // quest reward: save the position with it
+    // the card's place, on the tap: the panel may redraw before the server answers
+    const questCardRect = document.querySelector(`[data-quest-card="${CSS.escape(quest.title)}"]`)?.getBoundingClientRect() || null;
     console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
@@ -440,7 +453,7 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
       const xpForFloatingText = quest.xp ?? npcResourceForXP?.xp ?? 1;
 
       // Show floating text for reward and XP
-      showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText);
+      showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText, questCardRect, questRewardFlyTo(quest.reward, rewardResource));
 
       // Play sound effect for collecting quest reward
       soundManager.playSFX('skill_earned');

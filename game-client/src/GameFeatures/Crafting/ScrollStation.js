@@ -256,7 +256,7 @@ const ScrollStation = ({
   const floatFromCard = (text, flyTo = null) => {
     const r = cardRect.current;
     if (!r) { FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo }); return; }
-    FloatingTextManager.addFloatingTextAt(text, r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '18px' });
+    FloatingTextManager.addFloatingTextAt(text, r.left + r.width / 2, r.top + r.height / 2, { flyTo });
   };
   const flyTargetFor = (item, resource) => (item === 'Money' ? 'money' : resource?.category === 'doober' ? 'inventory' : null);
 

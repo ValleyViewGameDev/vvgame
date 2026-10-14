@@ -16,11 +16,30 @@ import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
 // import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 import GlobalMarketModal from './GlobalMarketModal';
+import SaleBurst from '../../UI/SaleBurst';
+import FloatingTextManager from '../../UI/FloatingText';
+import soundManager from '../../Sound/SoundManager';
 
 function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources }) {
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
+  // Money coming in from a slot (collected from a buyer, or sold to the game): { index, id }
+  const [slotFx, setSlotFx] = useState(null);
+  // On the tap (house rule: never wait for the server): the slot pops under a burst of sparkles and
+  // "+💰 N" rises from it and flies into the money counter (UI/FlyToTarget.js)
+  const celebrateSlot = (index, money) => {
+    const id = Date.now() + Math.random();
+    setSlotFx({ index, id });
+    setTimeout(() => setSlotFx((fx) => (fx?.id === id ? null : fx)), 900);
+    soundManager.playSFX('collect_money');
+    try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+    const el = document.querySelector(`[data-trade-slot="${index}"]`);
+    if (el && money > 0) {
+      const r = el.getBoundingClientRect();
+      FloatingTextManager.addFloatingTextAt(`+${Number(money).toLocaleString()} 💰`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
+    }
+  };
   const [requestSlots, setRequestSlots] = useState([]);
   const [activeTab, setActiveTab] = useState('sell'); // 'sell' or 'request'
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
@@ -920,7 +939,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
           
           return (
             <React.Fragment key={index}>
-              <div className="trade-slot-container">
+              <div className={`trade-slot-container ${slotFx?.index === index ? 'sale-pop' : ''}`} data-trade-slot={index} style={{ position: 'relative' }}>
+                {slotFx?.index === index && <SaleBurst key={slotFx.id} />}
                 {/* 1. SLOT DISPLAY */}
                 <div
                   className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty && !isPurchased && !isReadyToSell ? 'filled' : ''} ${isPurchased ? 'btn-collect' : ''} ${!slotUnlocked ? 'locked' : ''} ${isReadyToSell && !isPurchased ? 'btn-sell' : ''}`}
@@ -929,9 +949,11 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       handleSlotClick(index);
                     } else if (isOwnStall && isPurchased) {
                       // Handle collect payment
+                      celebrateSlot(index, slot.boughtFor);
                       handleCollectPayment(`collect-${Date.now()}`, 'collect-payment', index);
                     } else if (isOwnStall && isReadyToSell && !isPurchased) {
                       // Handle sell to game
+                      celebrateSlot(index, slot.amount * slot.price);
                       handleSellSingle(`sell-${Date.now()}`, 'sell-to-game', index);
                     }
                   }}

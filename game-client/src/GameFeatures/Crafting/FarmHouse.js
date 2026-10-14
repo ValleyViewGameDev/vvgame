@@ -268,6 +268,9 @@ const FarmHouse = ({
   const handleCollect = async (transactionId, transactionKey, recipe) => {
     
     if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
+    // where the collected card is, taken on the tap: what it made rises from it and flies into
+    // Inventory (UI/FlyToTarget.js); an NPC (a worker, an animal) walks out instead, so it only rises
+    const cardRect = document.querySelector(`[data-resource-type="${CSS.escape(getLocalizedString(recipe.type, strings))}"]`)?.getBoundingClientRect() || null;
 
     console.log('🔍 [COLLECT DEBUG] Starting collection:', {
       craftedItem,
@@ -323,7 +326,12 @@ const FarmHouse = ({
         const finalQtyCollected = baseQtyCollected * skillMultiplier;
 
         console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
-        FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        {
+          const text = `+${finalQtyCollected} ${allResources.find((r) => r.type === collectedItem)?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`;
+          const flyTo = isNPC ? null : collectedItem === 'Money' ? 'money' : 'inventory';
+          if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
+          else FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo });
+        }
 
         // Handle NPC spawning client-side
         if (isNPC) {

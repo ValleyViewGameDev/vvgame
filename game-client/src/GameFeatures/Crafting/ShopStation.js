@@ -205,7 +205,7 @@ const ShopStation = ({
         : category === 'skill' ? [(strings[10201] || '+{skill} Skill').replace('{skill}', name), 'skills']
         : [`+${recipe.qtycollected || 1} ${recipe.symbol || boughtDef.symbol || ''} ${name}`,
            recipe.type === 'Money' ? 'money' : recipe.type === 'Gem' ? 'gems' : 'inventory'];
-      FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo, size: '18px' });
+      FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
     };
 
     const success = await spendIngredients({

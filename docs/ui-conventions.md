@@ -287,7 +287,18 @@ value rather than trust this page.
   message's reward line), Train orders (from the order card), crafting-station slot collection
   (from the slot; a craft that makes an NPC only rises), the Ancient Temple (from its collect
   card, on collecting the revealed reward only; skills, powers and NPCs only rise).
-  Bank sales (from the offer card). A sale whose card stays (Bank, Train) also gets the sparkle
+  Bank sales (from the offer card), quest rewards in a quest giver's panel (from the quest card,
+  `data-quest-card`; the reward to its counter / Skills / Combat / Inventory, then its XP to `xp`), pet rewards in the Pet panel (from the Collect card; reward, then XP;
+  feeding a pet, like starting a scroll reveal, shows no floating text), Trophy gem rewards
+  (from the trophy card, `data-trophy-card`), Trade Stall payments (from the sold slot, with the
+  burst), Carnival orders (from the order card, with the burst), Farm House collection (from the
+  recipe card; an animal only rises), and the "+XP" of a combat kill (rises from the drop tile, flies to `xp`; the caller
+  registers the flight at the kill so the header waits, `options.registered`). Not used, on
+  purpose: farm-animal and other map doobers, bulk harvest/crafting (too noisy), any spending, and
+  the Store (its rewards go to the Mailbox and the checkout sits in between; Mailbox Collect flies
+  them home). Size: every flying text is 16px, set once in `UI/FloatingText.css`; callers pass no
+  `size`.
+  A sale whose card stays (Bank, Train, Trade Stall, Carnival) also gets the sparkle
   burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
   every modal and the FTUE scrim.
 - Preview the change on a phone viewport (375x812 portrait and a 500 px-tall landscape) as

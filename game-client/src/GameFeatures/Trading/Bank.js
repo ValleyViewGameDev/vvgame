@@ -151,7 +151,7 @@ function BankPanel({
             const r = card.getBoundingClientRect();
             const given = masterResources.find((res) => res.type === offer.itemGiven);
             const flyTo = offer.itemGiven === 'Money' ? 'money' : offer.itemGiven === 'Gem' ? 'gems' : given?.category === 'doober' ? 'inventory' : null;
-            FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} ${getSymbol(offer.itemGiven)}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo, size: '20px' });
+            FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} ${getSymbol(offer.itemGiven)}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo });
         }
         
         console.log(`Starting cooldown for button ${buttonIndex}, duration: ${COOLDOWN_DURATION}ms (${COOLDOWN_DURATION / 1000}s)`);
