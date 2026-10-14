@@ -215,7 +215,7 @@ const WarehousePanel = ({
             <div className="skills-options">
               <ResourceButton
                 symbol="📦"
-                name={strings[2024] || "Upgrade Warehouse"}
+                name={strings[2025] || "Upgrade Warehouse"}
                 details={(() => {
                   // Build details string similar to CraftingStation
                   const ingredients = [];
