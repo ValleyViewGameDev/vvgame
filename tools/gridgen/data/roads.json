@@ -1,0 +1,257 @@
+{
+  "note": "Pavement roads painted by roads.py (points in WORLD tiles: R = frontier row * 64 + tile row, C likewise; smooth spline through them). Re-applying is safe. Added 2026-10-14 (owner): the Town south road with its T, the hamlet road through the new range's pass to a Y, and the T south off the river road.",
+  "roads": [
+    {
+      "name": "Town south road (1011402 stem)",
+      "purpose": "South from the Town (1010472, townN.json, south road cols 30-32) down 1011402 to the T about 90% of the way down.",
+      "width": 3,
+      "fadeTiles": 0,
+      "points": [
+        [
+          512,
+          2207
+        ],
+        [
+          530,
+          2207
+        ],
+        [
+          550,
+          2207.5
+        ],
+        [
+          569,
+          2207
+        ]
+      ]
+    },
+    {
+      "name": "T west to 1011304",
+      "purpose": "The T's west arm, meandering west through 1011401, 1011400 (the Y), 1011307, 1011306 and 1011305 (north of the new range) to the corner of the east-west road in 1011304 (rows 54-55, col 8).",
+      "width": 2,
+      "fadeTiles": 0,
+      "points": [
+        [
+          569,
+          2205
+        ],
+        [
+          568,
+          2185
+        ],
+        [
+          566,
+          2160
+        ],
+        [
+          562,
+          2125
+        ],
+        [
+          560,
+          2090
+        ],
+        [
+          561,
+          2062
+        ],
+        [
+          564,
+          2030
+        ],
+        [
+          565,
+          2000
+        ],
+        [
+          560,
+          1968
+        ],
+        [
+          556,
+          1935
+        ],
+        [
+          558,
+          1900
+        ],
+        [
+          562,
+          1868
+        ],
+        [
+          565,
+          1835
+        ],
+        [
+          566.5,
+          1812
+        ],
+        [
+          566.5,
+          1801
+        ]
+      ]
+    },
+    {
+      "name": "T east, fading",
+      "purpose": "The T's east arm: east through 1011403 and 1011404, fading out in 1011405.",
+      "width": 2,
+      "fadeTiles": 45,
+      "points": [
+        [
+          569,
+          2209
+        ],
+        [
+          568,
+          2230
+        ],
+        [
+          566,
+          2260
+        ],
+        [
+          569,
+          2295
+        ],
+        [
+          572,
+          2330
+        ],
+        [
+          569,
+          2365
+        ],
+        [
+          566,
+          2395
+        ],
+        [
+          567,
+          2420
+        ]
+      ]
+    },
+    {
+      "name": "Hamlet road through the pass to the Y",
+      "purpose": "On from the walled hamlet's east road (1011344, rows 2-3) into 1011345, through the pass in the new range, then north-east across several grids to join the T's west arm at a Y in 1011400.",
+      "width": 2,
+      "fadeTiles": 0,
+      "points": [
+        [
+          770.5,
+          1856
+        ],
+        [
+          771,
+          1870
+        ],
+        [
+          772,
+          1888
+        ],
+        [
+          771,
+          1905
+        ],
+        [
+          767,
+          1917
+        ],
+        [
+          755,
+          1930
+        ],
+        [
+          738,
+          1946
+        ],
+        [
+          718,
+          1963
+        ],
+        [
+          697,
+          1979
+        ],
+        [
+          674,
+          1996
+        ],
+        [
+          650,
+          2012
+        ],
+        [
+          626,
+          2028
+        ],
+        [
+          603,
+          2042
+        ],
+        [
+          583,
+          2054
+        ],
+        [
+          568,
+          2063
+        ],
+        [
+          562,
+          2068
+        ]
+      ]
+    },
+    {
+      "name": "T south off the river road (1012205)",
+      "purpose": "A T off the east-west road in 1012205 (rows 31-32), south through 1012215, 1012225 and 1012235, fading out in 1012245.",
+      "width": 2,
+      "fadeTiles": 50,
+      "points": [
+        [
+          1056,
+          1376
+        ],
+        [
+          1072,
+          1377
+        ],
+        [
+          1100,
+          1373
+        ],
+        [
+          1130,
+          1378
+        ],
+        [
+          1160,
+          1385
+        ],
+        [
+          1190,
+          1381
+        ],
+        [
+          1220,
+          1374
+        ],
+        [
+          1250,
+          1377
+        ],
+        [
+          1280,
+          1383
+        ],
+        [
+          1310,
+          1380
+        ]
+      ]
+    }
+  ]
+}

@@ -270,7 +270,7 @@
     },
     {
       "name": "The Swoop (C range east of centre)",
-      "purpose": "A swooping C: lower-left tip in 1014337, east along the bottom, then curving up and north-east to its tip in 1014403; opens to the west. Passes east of the spreadsheet's \ud83e\udec5 anchor at (33,34), which stays free for its scenario. Grass under the mountains (owner's call).",
+      "purpose": "A swooping C: lower-left tip in 1014337, east along the bottom, then curving up and north-east to its tip in 1014403; opens to the west. Passes east of the spreadsheet's 🫅 anchor at (33,34), which stays free for its scenario. Grass under the mountains (owner's call).",
       "ground": "GR",
       "halfWidthTiles": [
         4,
@@ -315,6 +315,73 @@
           32.45,
           35.72
         ]
+      ]
+    },
+    {
+      "name": "North-south range (1011315-1011375)",
+      "purpose": "Owner 2026-10-14: a north-south range down frontier column 29 from 1011315 to 1011375, a little organic and meandering. The road east from the walled hamlet in 1011344 crosses it through a pass at the top of 1011345, then runs north-east to meet the new east-west road at a Y in 1011400.",
+      "ground": "DI",
+      "halfWidthTiles": [
+        4,
+        10
+      ],
+      "taperStart": 0.15,
+      "taperEnd": 0.15,
+      "points": [
+        [
+          9.3,
+          29.5
+        ],
+        [
+          9.9,
+          29.62
+        ],
+        [
+          10.6,
+          29.44
+        ],
+        [
+          11.4,
+          29.38
+        ],
+        [
+          12.1,
+          29.5
+        ],
+        [
+          12.9,
+          29.63
+        ],
+        [
+          13.7,
+          29.55
+        ],
+        [
+          14.5,
+          29.39
+        ],
+        [
+          15.2,
+          29.45
+        ],
+        [
+          15.7,
+          29.52
+        ]
+      ],
+      "gaps": [
+        {
+          "from": [
+            12.06,
+            29.12
+          ],
+          "to": [
+            12.06,
+            29.9
+          ],
+          "halfWidthTiles": 4.5,
+          "note": "the pass for the hamlet road (1011345, rows 0-8)"
+        }
       ]
     }
   ],

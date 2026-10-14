@@ -609,3 +609,24 @@ Run order when everything is redone: owner-grid passes first (`phase2_owner_patc
 `ground_regions.mjs --owner`, `banks.mjs --owner`), then `phase1_build.mjs --write` last (it lays
 Claude's grids in its own order: seams, slate blend, lava rules, ground regions, banks), then copy
 its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the builder run settles them.
+
+### 2026-10-14: a north-south range, roads, and two new tools (owner request)
+
+- **Range** "North-south range (1011315-1011375)" in `data/mountains.json`: down frontier column
+  29, slightly meandering, sealed (a flood fill across its band finds no way through except the
+  pass). Ranges may now list **`gaps`** (passes): a circle `{at, radiusTiles}` or a corridor
+  `{from, to, halfWidthTiles}` (grid units) kept free of mountains; this one has an 8-tile pass at
+  the top of 1011345 for the hamlet road.
+- **`range_apply.mjs <coord>...`** applies a range to EXISTING Claude-made grids (phase-1 files):
+  like `phase2_owner_patch.mjs` but the band may also clear rocks, flowers and loose items, and
+  creatures in the band move out, so the range seals. Owner templates still go through
+  `phase2_owner_patch.mjs`.
+- **`roads.py`** paints pavement roads from **`data/roads.json`** (points in world tiles, a spline
+  through them, `width` 1-3, `fadeTiles` for a road that thins out). It refuses water, lava,
+  mountains and buildings, clears trees and rocks off the road and moves creatures to a valid
+  free tile; re-applying is safe. Roads painted: the Town's south road down 1011402 to a T (the
+  T's west arm across to the corner of the road in 1011304; its east arm fading out in 1011405),
+  the hamlet road from 1011344 through the new pass and north-east to a Y in 1011400, and a T
+  south off the river road in 1012205, fading out in 1012245.
+- Rebuild order: `phase1_build.mjs` regenerates Claude's grids from `mountains.json` (ranges and
+  gaps included) but knows nothing of roads, so **run `roads.py --apply` after any rebuild**.

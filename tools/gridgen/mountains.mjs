@@ -25,7 +25,8 @@ function centreline(points) {      // [row, col] grid units -> dense [X, Y] tile
 
 /**
  * Per-cell masks for every range: Map(coord -> { mask: Uint8Array(4096), range }) with
- * 3 = core (large mountains), 2 = band (must be covered), 1 = fringe (ground tile only).
+ * 3 = core (large mountains), 2 = band (must be covered), 1 = fringe (ground tile only); a range's
+ * `gaps` (passes) are 0.
  * noise(x, y, cell, seed) in [0,1]; coordOf(fr, fc).
  */
 export function rangeMasks(ranges, noise, coordOf) {
@@ -55,6 +56,22 @@ export function rangeMasks(ranges, noise, coordOf) {
       }
     }
   });
+  // passes: a range may list gaps kept free of mountains (a road crosses there): a circle
+  // { at: [row, col], radiusTiles } or a corridor { from: [row, col], to: [row, col], halfWidthTiles }
+  // (grid units). Applied after every range, so no band refills them.
+  ranges.forEach((rg) => (rg.gaps || []).forEach((gap) => {
+    const A = gap.from || gap.at, Bp = gap.to || gap.at, R = gap.halfWidthTiles ?? gap.radiusTiles;
+    const ax = A[1] * N, ay = A[0] * N, bx = Bp[1] * N, by = Bp[0] * N, len2 = (bx - ax) ** 2 + (by - ay) ** 2;
+    const dist = (X, Y) => {   // distance from (X, Y) to the segment A-B
+      const t = len2 ? Math.max(0, Math.min(1, ((X - ax) * (bx - ax) + (Y - ay) * (by - ay)) / len2)) : 0;
+      return Math.hypot(X - (ax + t * (bx - ax)), Y - (ay + t * (by - ay)));
+    };
+    for (let Y = Math.floor(Math.min(ay, by) - R); Y <= Math.max(ay, by) + R; Y++) for (let X = Math.floor(Math.min(ax, bx) - R); X <= Math.max(ax, bx) + R; X++) {
+      if (X < 0 || Y < 0 || dist(X + 0.5, Y + 0.5) > R) continue;
+      const c = coordOf(Math.floor(Y / N), Math.floor(X / N)), m = masks.get(c);
+      if (m) m.mask[(Y - Math.floor(Y / N) * N) * N + (X - Math.floor(X / N) * N)] = 0;
+    }
+  }));
   return masks;
 }
 
