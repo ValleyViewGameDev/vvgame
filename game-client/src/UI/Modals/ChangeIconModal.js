@@ -8,6 +8,7 @@ import { updatePlayerIcon } from '../../Authentication/ChangeIcon';
 import ICON_OPTIONS from '../../Authentication/PlayerIcons.json';
 import { useStrings } from '../StringsContext';
 import { spendIngredients, canAfford } from '../../Utils/InventoryManagement';
+import { confirmGemSpend } from './GemSpendConfirm';
 import CloseButton from '../Buttons/CloseButton';
 
 const PREMIUM_AVATAR_GEM_COST = 200;
@@ -56,6 +57,8 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
       updateStatus(`Need ${PREMIUM_AVATAR_GEM_COST} gems to unlock premium avatars`);
       return;
     }
+
+    if (!(await confirmGemSpend({ gems: PREMIUM_AVATAR_GEM_COST }))) return;
 
     setIsProcessing(true);
 

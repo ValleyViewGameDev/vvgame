@@ -181,7 +181,9 @@ export const calculateGemPurchase = ({
         ),
         getModifiedRecipe,
         hasEnoughGems,
-        gemCost
+        gemCost,
+        // what the purchase spends besides gems (owned skills are only checked, not spent)
+        spendingItems: spendingItems.filter(item => !item.isSkill)
     };
 };
 

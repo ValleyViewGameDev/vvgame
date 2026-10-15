@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { calculateGemPurchase } from '../../Economy/GemCosts';
+import { confirmGemSpend } from '../Modals/GemSpendConfirm';
 import { useStrings } from '../StringsContext';
 import { usePanelContext } from '../Panels/PanelContext';
 import { formatNumber } from '../Timers';
@@ -137,12 +138,13 @@ const ResourceButton = ({
     }
   };
 
-  const handleGemClick = (e) => {
+  const handleGemClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (onGemPurchase && gemCalculation) {
       if (gemCalculation.hasEnoughGems) {
-        // Has enough gems - execute the purchase
+        // Has enough gems - confirm (10+ gems), then execute the purchase
+        if (!(await confirmGemSpend({ gems: gemCalculation.gemCost, items: gemCalculation.spendingItems }))) return;
         const modifiedRecipe = gemCalculation.getModifiedRecipe();
         onGemPurchase(modifiedRecipe);
       } else {
