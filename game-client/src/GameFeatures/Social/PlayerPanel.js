@@ -444,6 +444,7 @@ const PlayerPanel = ({
           setCurrentPlayer={setCurrentPlayer}
           masterResources={masterResources}
           updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
           onClose={() => setShowAvatarModal(false)}
         />
       )}

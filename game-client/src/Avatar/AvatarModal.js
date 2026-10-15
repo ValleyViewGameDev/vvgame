@@ -47,7 +47,7 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '' }
   return src ? <img className={`avatar-preview ${className}`} src={src} alt="" width={size} height={size} draggable={false} /> : <div className={`avatar-preview avatar-preview-empty ${className}`} style={{ width: size, height: size }} />;
 }
 
-export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterResources, updateStatus, onClose }) {
+export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterResources, updateStatus, onClose, isDeveloper = false }) {
   const [data, setData] = useState(null);           // { catalogue, palettes }
   const [spec, setSpec] = useState(null);
   const [tab, setTab] = useState('skin');
@@ -77,7 +77,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   // put-away rule for the grid the player is standing on
   const equip = useMemo(() => (data ? equipFor(currentPlayer, masterResources, currentPlayer?.location?.gtype) : null), [currentPlayer, masterResources, data]);
   const look = useMemo(() => (data && spec ? lookFor(spec, data, equip) : null), [data, spec, equip]);
-  const owned = useMemo(() => [...(currentPlayer?.avatarParts || [])], [currentPlayer]);
+  // a developer wears any part (the server allows it too); a player only what they bought
+  const owned = useMemo(() => (isDeveloper && data ? [...data.catalogue, ...data.palettes].filter((r) => r.tier === 'paid').map((r) => r.id) : [...(currentPlayer?.avatarParts || [])]), [currentPlayer, isDeveloper, data]);
 
   const set = (key, value) => { dirtyRef.current = true; setSpec((prev) => withEyes(data.catalogue, { ...prev, [key]: value })); setProblems([]); };
 
@@ -118,7 +119,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   const tierBadge = (row) => {
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
-    return <span className={`avatar-badge ${owned.includes(row.id) ? 'owned' : ''}`}>{owned.includes(row.id) ? 'owned' : `${row.gemcost || '?'} 💎`}</span>;
+    const bought = (currentPlayer?.avatarParts || []).includes(row.id);
+    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? 'owned' : `${row.gemcost || '?'} 💎`}</span>;
   };
 
   return createPortal(

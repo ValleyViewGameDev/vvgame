@@ -756,7 +756,10 @@ router.post('/player/avatar', async (req, res) => {
     const player = await Player.findById(playerId);
     if (!player) return res.status(404).json({ error: 'Player not found.' });
     const spec = avatarCatalogue.cleanSpec(avatar);
-    const problems = avatarCatalogue.validateSpec(spec, { owned: player.avatarParts || [] });
+    // developers may wear any part without buying it (the in-game Edit Avatar preview)
+    const developer = await isDeveloperPlayerId(String(player._id));
+    const owned = developer ? avatarCatalogue.paidIds() : (player.avatarParts || []);
+    const problems = avatarCatalogue.validateSpec(spec, { owned });
     if (problems.length) return res.status(422).json({ error: 'avatar rejected', problems });
     player.avatar = spec;
     player.markModified('avatar');
