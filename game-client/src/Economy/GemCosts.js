@@ -1,6 +1,7 @@
 import React from 'react';
 import { getLocalizedString } from '../Utils/stringLookup';
 import { calculateGemSpeedupCost } from './EconomyUtils';
+import { smoothGems } from './gemPricing';
 import './GemCosts.css';
 
 // Pure function that doesn't use hooks
@@ -106,8 +107,9 @@ export const calculateGemPurchase = ({
             }
         }
         
-        // Gem cost is ONLY the cost of missing ingredients
-        gemCost = Math.ceil(missingIngredientCost);
+        // Gem cost is ONLY the cost of missing ingredients, on the same curve as the stored prices
+        // (a big shortfall costs less per unit than a small one)
+        gemCost = Math.ceil(smoothGems(missingIngredientCost));
         
         // Minimum of 1 gem if there are any missing ingredients
         if (gemCost === 0 && missingIngredientCost > 0) {

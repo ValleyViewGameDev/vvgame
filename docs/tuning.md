@@ -221,6 +221,43 @@ Train halved anything over $2,000. Now every ask is sized by how much production
   ladder in §4); an XP-from-price rule is a possible next step, not adopted. Sources: Hay Day
   wiki Boat and Crops List pages; the shootingspeed.com goods list.
 
+## 4e. Gem prices (2026-10-14, backlog T-2)
+
+What a good costs in gems (`gemcost`, ECONOMY, read-only, derived). Background and the before
+numbers: docs/economy-plan.md.
+
+- **Rule** (Hay Day's "time is diamonds"): `gemcost = ceil(smooth(sum(ingredient qty x ingredient
+  gemcost) + (crafttime minutes) ^ 0.45))`, each ingredient priced the same way first. Skills,
+  powers, buildings and goods all use it. Math: `tools/editor/sheets/economy.js computeGemcost`;
+  the editor recomputes it on every ECONOMY save, `node tools/derive-economy.js --write` after a
+  hand edit.
+- **smooth**: unchanged up to 250 gems, then `250 x (x / 250) ^ 0.35`. Below 250 (most goods)
+  prices are the plain sum; above it a deep chain or a big unlock still costs more, just not
+  absurdly more: 1,000 raw = 407, 10,000 = 910, 100,000 = 2,036. It applies at every step of a
+  chain (each ingredient is already smoothed), so real prices end lower still.
+  `GEM_PRICE` in economy.js; `game-client/src/Economy/gemPricing.js` holds the same numbers and
+  `Economy/GemCosts.js` applies the curve to what a gem purchase charges (the sum of the
+  missing ingredients), so buying the shortfall never costs more than the derived price says.
+  Keep the two copies in step.
+- **rare** (ECONOMY checkbox): the scroll-find crops (Blueberry, Rosemary, Feverfew, Mushroom,
+  Daisy, Tulip, Sunflower, Garlic). Priced on their **effort** (grow time over 18 parallel plots),
+  not their wall-clock grow: `ceil(effort ^ 0.45)`. Tulip 72 h grow = 240 effort-minutes = 12 gems
+  (was 44). They were what made the potions expensive.
+- **gemOverride** (ECONOMY): a hand price that wins over the rule. Set on the four rows whose
+  sheet price never followed it (Honey 37, Cow 67, Doctor 24, Invisible Wall 3). Rows with no
+  recipe and no crafttime (Money 0.125, gems, specials) keep their stored `gemcost`; since the
+  column is read-only in the editor, change those through gemOverride too.
+- **Potions** are Apothecary trades (traders.json), so their ECONOMY recipe is the trade:
+  Potion A = 6 Rosemary + 2 Daisy + 24 Milk; B = 1 A + 4 Mushroom + 4 Tulip + 2 Garlic;
+  C = 1 B + 12 Sunflower + 2 Ink + 1 Feverfew; no crafttime. Change a trade, change the row.
+- **Result** (2026-10-14): Potion A 520 -> 176, B 4,542 -> 258, C 19,658 -> 393, Book 3,007 ->
+  581, Silk Dress 3,238 -> 458, Common Coffee 16,404 -> 599, Queen's Coffee 49,410 -> 845 (the
+  coffee and silk lines stay the dearest goods, as late luxuries); Tailor 1,965,863 -> 1,469,
+  Long Sword 9,084 -> 500; the dearest row is Titan, 2,592. Skills and powers median 663.
+  134 of the 146 rows at or under 250 gems are unchanged (the rares and the dishes made from
+  them moved).
+- `maxprice` (sell price, ~8 x gemcost) was NOT rederived: coin prices stay as they were.
+
 ## 4d. Trophies
 
 - **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50, 75, 100]` (2026-10-12; 75 and
