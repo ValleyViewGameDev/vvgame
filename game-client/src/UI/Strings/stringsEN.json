@@ -613,6 +613,8 @@
     "2028": "Yes",
     "2029": "Cancel",
     "2031": "This also uses:",
+    "2054": "Doors",
+    "2055": "This door requires a {key}.",
     "2032": "Delete this message?",
     "2033": "Delete",
     "2034": "Delete your profile? This can't be undone.",
