@@ -132,6 +132,14 @@ T-n (append-only).
   the player makes lots of Flour, Sugar and Cornmeal with nothing to do with them, because the
   Oven only unlocks at level 10. Push some of the Mill crafts back in levels. Today: Mill L4,
   Flour L4, Sugar L4, Cornmeal L5 (Chicken Feed L5), Oven L10 (`game-server/tuning/resources.json`).
+- **T-2. Sort out the gem cost function** (added 2026-10-14). For some items the gem cost to buy
+  or finish with gems is astronomical. Find which items and why, and fix the function. Start at
+  `game-client/src/Economy/GemCosts.js` (`calculateGemPurchase`, used by ResourceButton's gem
+  button) and each resource's `gemcost` in `game-server/tuning/resources.json`.
+- **T-3. Store pass: do all the offers still make sense?** (added 2026-10-14). Review every Store
+  offer against today's game (single-player, current prices and progression) and fix or drop
+  the ones that no longer fit. Offers live in `game-server/tuning/store.json`; the panel is
+  `game-client/src/Store/Store.js`.
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
