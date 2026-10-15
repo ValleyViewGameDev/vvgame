@@ -330,6 +330,21 @@
     border-radius: var(--radius-lg);
     box-sizing: border-box;
   }
+  /* ---------- Edit Avatar modal (src/Avatar/AvatarModal.js) ----------
+     Desktop puts the big preview beside the tabs; a phone stacks them: a smaller preview on
+     top, the tabs and the part thumbnails below at the SAME thumbnail size as landscape
+     (the stage preview rule is scoped to .avatar-stage so it never reaches the thumbnails,
+     which share the .avatar-preview class). */
+  body .modal-overlay .avatar-modal { max-width: 440px; }
+  .avatar-modal .avatar-editor { flex-direction: column; align-items: stretch; gap: 10px; }
+  .avatar-modal .avatar-stage { align-items: center; }
+  .avatar-modal .avatar-stage .avatar-preview { width: 150px; height: 150px; }
+  .avatar-modal .avatar-part-grid { max-height: 34vh; max-height: 34dvh; justify-content: center; }
+  .avatar-modal .avatar-part { width: 72px; }
+  .avatar-modal .avatar-thumb { width: 60px; height: 60px; }
+  .avatar-modal .avatar-actions { flex-wrap: wrap; }
+  .avatar-modal .avatar-actions .btn-basic { flex: 1 1 30%; }
+
   /* ---------- resource management modals: tables become two-line rows ----------
      The Trading Post picker (TradingInventoryModal), Manage Backpack / Warehouse
      (ManageContentsModal) and Eat Food (Eating) are wide tables on desktop. On a phone each
