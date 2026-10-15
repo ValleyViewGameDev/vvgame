@@ -73,7 +73,7 @@ export function validateSpec(spec, catalogue, palettes, { owned = [], allowNpc =
   };
   for (const [key, slot] of Object.entries(SLOT_OF_SPEC_KEY)) {
     const id = spec[key];
-    if (id == null) { if (slot === 'skin' || slot === 'eyes') problems.push(`${key} is required`); continue; }
+    if (id == null) { if (slot === 'skin' || slot === 'eyes' || slot === 'top') problems.push(`${key} is required`); continue; }
     const row = byId(catalogue, id);
     if (!row) { problems.push(`${key}: unknown part ${id}`); continue; }
     if (row.slot !== slot) { problems.push(`${key}: ${id} is a ${row.slot}, not a ${slot}`); continue; }

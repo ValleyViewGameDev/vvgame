@@ -65,12 +65,6 @@
     "hidesHair": true
   },
   {
-    "id": "top-none",
-    "slot": "top",
-    "label": "None",
-    "tier": "free"
-  },
-  {
     "id": "top-01",
     "slot": "top",
     "label": "Tunic",

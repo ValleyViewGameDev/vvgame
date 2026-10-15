@@ -47,8 +47,8 @@ come out of the existing Citizen busts.
   whites and lashes as drawn, brows, the iris tinted, a blink frame); hair: Juliet's bob
   (`hair-02`), Helena's leafy hair (`hair-03`), Gertrude's long hair (`hair-05`); Kent's
   beard clipped to a chin beard (`beard-02`); Cassio's tunic (`top-02`) and Gertrude's robe
-  (`top-03`); Angelo's crown (`hat-02`) and Gertrude's tiara (`hat-03`), both paid. Every
-  slot but face and eyes has a None. Hands stay placeholders (no weapon art in the busts).
+  (`top-03`); Angelo's crown (`hat-02`) and Gertrude's tiara (`hat-03`), both paid. Hair,
+  facial hair and hat have a None; face, eyes and clothes always have something. Hands stay placeholders (no weapon art in the busts).
 
 ## 1. What exists today (file:line)
 
