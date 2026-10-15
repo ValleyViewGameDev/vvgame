@@ -356,7 +356,8 @@
      in TradeStall.css / InventoryPanel.css / ManageContentsModal.css / Eating.css. */
   body .inventory-modal.wider { display: flex; flex-direction: column; overflow: hidden; }
   body .inventory-modal table { min-width: 0; margin-top: 0; }
-  body .inventory-modal h2 { margin: 0 36px 4px 0; font-size: var(--text-2xl); text-align: left; }
+  body .inventory-modal h2 { margin: 0 36px 2px 0; font-size: var(--text-2xl); text-align: left; }
+  body .inventory-modal .modal-subtitle { margin: 0 36px 4px 0; font-size: var(--text-lg); text-align: left; }
   body .inventory-modal .trading-modal-subtitle { font-size: var(--text-md); text-align: left; margin-bottom: 8px; }
   body .inventory-modal .inventory-modal-container { height: auto; flex: 1 1 auto; min-height: 0; }
   body .modal-overlay .modal-container > .manage-contents-container { height: auto; flex: 1 1 auto; min-height: 0; }
@@ -468,6 +469,21 @@
   .store-modal .store-offer-card-third .store-offer-right { align-items: flex-end; }
   .store-modal .store-offer-right { min-width: 96px; }
   /* Mailbox rows: text above, rewards and buttons below, instead of one row that overflows */
+  /* Global Market (Trading/GlobalMarketModal.js): a wide modal on desktop (slot tiles three to a
+     row); on a phone each player is a card and each slot a full-width row, the item on the left
+     and its Buy / Sell button on the right. The modal's own content area scrolls (no inner cap). */
+  .global-market-modal .global-market-content { max-height: none; overflow: visible; padding: 0; }
+  .global-market-modal .tab-navigation .tab-button { flex: 1 1 0; white-space: normal; line-height: 1.2; padding: 8px 6px; }
+  .global-market-modal .player-row { padding: 8px; }
+  .global-market-modal .player-info { flex-wrap: wrap; gap: 2px 8px; }
+  .global-market-modal .player-slots { flex-direction: column; flex-wrap: nowrap; gap: 6px; }
+  .global-market-modal .slot-item { flex: 1 1 auto; min-width: 0; max-width: none; width: 100%; box-sizing: border-box; gap: 8px; padding: 6px 8px; }
+  .global-market-modal .slot-info { min-width: 0; }
+  .global-market-modal .slot-item-name { overflow-wrap: anywhere; margin-bottom: 0; text-align: left; }
+  .global-market-modal .slot-button { margin-left: 0; flex: none; }
+  .global-market-modal .slot-button .shared-buttons { margin: 0; }
+  .global-market-modal .slot-button .btn-basic { width: auto; white-space: nowrap; padding: 6px 10px; min-height: 36px; }
+  .global-market-modal .global-market-footer { padding: 8px 0 0; }
   body .modal-overlay .modal-container.mailbox-modal { height: 82vh; height: 82dvh; } /* fixed height, list scrolls */
   .mailbox-modal .mailbox-message { flex-wrap: wrap; gap: 8px; }
   .mailbox-modal .message-left { flex: 1 1 100%; margin-right: 0; }

@@ -1,12 +1,6 @@
 /* Global Market Modal - Bespoke styling only */
 /* Uses shared styles from Modal.css and SharedButtons.css */
 
-.global-market-modal .modal-container {
-  max-width: 800px;
-  min-width: 600px;
-    box-shadow: inset 0 -7px 0 rgba(92, 91, 91, 0.5);
-}
-
 .global-market-content {
   padding: 6px;
   max-height: 500px;
@@ -126,29 +120,4 @@
   justify-content: center;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .global-market-modal .modal-container {
-    min-width: 90vw;
-    max-width: 90vw;
-  }
-  
-  .player-slots {
-    grid-template-columns: 1fr;
-  }
-  
-  .slot-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  
-  .slot-button {
-    margin-left: 0;
-    align-self: stretch;
-  }
-  
-  .global-market-buy-btn {
-    width: 100%;
-  }
-}
+/* Phones: the portrait / landscape layout lives in UI/Styles/mobile.css (Global Market block). */

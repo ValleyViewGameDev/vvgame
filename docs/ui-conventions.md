@@ -353,7 +353,7 @@ value rather than trust this page.
   A sale whose card stays (Train, Trade Stall, Carnival) also gets the sparkle
   burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
   every modal and the FTUE scrim.
-- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; Bank offers, `Bank.js`; traders' offers (Falstaff, the Apothecary ...), `NPCsPanel.js`; collected Mailbox messages, `Mailbox.js` (the row pops, then its slot collapses and the server's list is applied only after, so nothing jumps; the Mailbox modal is a fixed height, 640 px / 80vh, 82dvh on phones, with the list scrolling inside); the motion of Kent's slots). Repeatable offers (Bank, traders) run one shared cycle, `runCardReturn` in `UI/SaleBurst.js`: pop with the burst, the slot empty for a beat, the same card slides back in from the left and lands at 1.5 s (the Bank's spam-guard cooldown), untappable while it is gone. Quest cards:
+- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; Bank offers, `Bank.js`; traders' offers (Falstaff, the Apothecary ...), `NPCsPanel.js`; collected Mailbox messages, `Mailbox.js` (the row pops, then its slot collapses and the server's list is applied only after, so nothing jumps; the Mailbox modal is a fixed height, 640 px / 80vh, 82dvh on phones, with the list scrolling inside); the motion of Kent's slots). Single-card panels that cycle offer → countdown → Collect (the Ancient Temple, `ScrollStation.js`; a Zoo Animal / pet, `PetPanel.js`) use the same cycle on their one card slot (`.card-fx-slot`): collecting pops it with the burst and the next card slides in at 1.5 s; starting a reveal or a feed is a spend, so the card leaves without sparkles (`runCardReturn(..., { out: 'leave', returnMs: 700 })`) and the countdown slides in. Repeatable offers (Bank, traders) run one shared cycle, `runCardReturn` in `UI/SaleBurst.js`: pop with the burst, the slot empty for a beat, the same card slides back in from the left and lands at 1.5 s (the Bank's spam-guard cooldown), untappable while it is gone. Quest cards:
   on the tap the card goes (house rule: the server runs in parallel and a failure brings it
   back). Completed with a reward: `.card-fx-pop` plus `<SaleBurst />`; taken without one (a quest
   accepted): `.card-fx-leave`. If the same card comes straight back (a repeatable quest) it
@@ -382,7 +382,7 @@ class. `node scripts/check-styles.js` (in `game-client/`) reports every line tha
 and body text gets Arial through its role, so an element that sets nothing reads as a Lora
 label, never as a decorative title. Section headings inside a panel's content use
 `.panel-subheading` (Lora bold 18, title gold; `Panel.css`), not the panel-title face;
-control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; Google Fonts loads Berkshire Swash and Lora only (`public/index.html`).
+control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; a modal that names an action under its title splits them: the place as the Berkshire `.modal-title` ("Trading Post"), the action as a Lora `.modal-subtitle` under it ("Add Items to Sell"), never one "Place: action" string; Google Fonts loads Berkshire Swash and Lora only (`public/index.html`).
 
 **Six text roles** (family + size + color, `--font-<role>-*`): `title-1` modal title (display,
 28), `title-2` panel title (display, 22), `title-3` sub-heading (heading, 16, bold), `title-4`

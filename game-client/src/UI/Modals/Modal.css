@@ -189,3 +189,14 @@ h2.modal-title {
 /* The game's confirm / alert (GameDialog.js): over every panel and modal, like the gem confirm */
 .modal-overlay.game-dialog-overlay { z-index: 2147482000; }
 .game-dialog .modal-message { font-size: var(--text-md); }
+
+/* A modal's sub-header: the action under the modal's title ("Trading Post" / "Add Items to
+   Sell"). Lora, the sub-heading face (docs/ui-conventions.md §9). */
+.modal-subtitle {
+    margin: 0 0 6px;
+    font-family: var(--font-heading);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-xl);
+    color: var(--color-text-heading);
+    text-align: center;
+}

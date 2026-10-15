@@ -86,7 +86,9 @@ const TradingInventoryModal = ({
     <div className="inventory-modal wider">
       <CloseButton corner onClick={onClose} />
 
-      <h2>{isRequestMode ? strings[10180] : strings[160]}</h2>
+      {/* Title (Berkshire, the modal-title role) over a Lora sub-header naming the action */}
+      <h2 className="modal-title">{strings[200023] || 'Trading Post'}</h2>
+      <h3 className="modal-subtitle">{isRequestMode ? (strings[10180] || 'Request Items to Buy') : (strings[160] || 'Add Items to Sell')}</h3>
 
       <p className="trading-modal-subtitle">
         {slotConfig.maxAmount} {isRequestMode ? strings[10181] : strings[158]}

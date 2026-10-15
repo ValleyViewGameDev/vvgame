@@ -5,6 +5,7 @@ import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
+import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -54,6 +55,10 @@ const ScrollStation = ({
   const [craftingCountdown, setCraftingCountdown] = useState(null);
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
+  // The panel's one card in motion (runCardReturn, UI/SaleBurst.js): a collected reveal pops away
+  // with the sparkles, starting a reveal shrinks the card away, and after a beat the next card
+  // (the countdown, or Reveal Scroll again) slides in from the left
+  const [cardFx, setCardFx] = useState(null);
   const [scrollCount, setScrollCount] = useState(0);
   const [revealedItemQty, setRevealedItemQty] = useState(1);
   const [isCollecting, setIsCollecting] = useState(false);
@@ -261,7 +266,8 @@ const ScrollStation = ({
   const flyTargetFor = (item, resource) => (item === 'Money' ? 'money' : resource?.category === 'doober' ? 'inventory' : null);
 
   const handleRevealScroll = async (transactionId, transactionKey) => {
-    
+    let revertCard = () => {};
+
     if (scrollCount === 0) {
       updateStatus(strings[820] || 'You need at least 1 scroll to reveal');
       return;
@@ -286,6 +292,7 @@ const ScrollStation = ({
         updateStatus(strings[820] || 'Failed to spend scroll');
         return;
       }
+      revertCard = runCardReturn(setCardFx, 'temple', { out: 'leave', returnMs: 700 });
 
       // Generate random reward
       const reward = getRandomScrollReveal(masterResources);
@@ -354,6 +361,7 @@ const ScrollStation = ({
 
       }
     } catch (error) {
+      revertCard();
       console.error('Error in scroll reveal process:', error);
       updateStatus(strings[830]);
     }
@@ -369,6 +377,7 @@ const ScrollStation = ({
 
     setIsCollecting(true);
     rememberCard('.scroll-collect-button');
+    const revertCard = runCardReturn(setCardFx, 'temple');
 
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
@@ -426,6 +435,7 @@ const ScrollStation = ({
             
             if (!success) {
               console.error('❌ Failed to add skill/power to player.');
+              revertCard();
               setIsCollecting(false);
               return;
             }
@@ -493,6 +503,7 @@ const ScrollStation = ({
 
           if (!gained) {
             console.error('❌ Failed to add revealed item to inventory.');
+            revertCard();
             setIsCollecting(false);
             return;
           }
@@ -543,9 +554,11 @@ const ScrollStation = ({
           setIsCollecting(false);
         }, 100);
       } else {
+        revertCard();
         setIsCollecting(false);
       }
     } catch (error) {
+      revertCard();
       console.error('Error collecting revealed item:', error);
       updateStatus('❌ Failed to collect item');
       setIsCollecting(false);
@@ -580,7 +593,9 @@ const ScrollStation = ({
           </div>
         )}
 
-        {/* Show crafting item if active, otherwise show Reveal Scroll button */}
+        {/* Show crafting item if active, otherwise show Reveal Scroll button: one card slot, animated by cardFx */}
+        <div className="card-fx-slot">
+        <div className={cardFx ? `card-fx-${cardFx.phase}` : ''}>
 
         {craftedItem && (isCrafting || isReadyToCollect) ? (
           // Show animated scroll reveal or dramatic collect interface
@@ -624,6 +639,9 @@ const ScrollStation = ({
             onTransactionAction={handleRevealScroll}
           />
         ) : null}
+        </div>
+        {cardFx?.phase === 'pop' && <SaleBurst key={cardFx.id} />}
+        </div>
         
         {/* Show message when no scrolls */}
         {scrollCount === 0 && !craftedItem && (

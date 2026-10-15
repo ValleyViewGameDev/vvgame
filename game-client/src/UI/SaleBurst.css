@@ -58,3 +58,6 @@
   .sale-spark, .sale-burst-ring, .sale-pop,
   .card-fx-pop, .card-fx-leave, .card-fx-slidein { animation-duration: 1ms !important; }
 }
+
+/* A panel's single card slot (Pet, Ancient Temple): holds the card's wrapper and the burst */
+.card-fx-slot { position: relative; }

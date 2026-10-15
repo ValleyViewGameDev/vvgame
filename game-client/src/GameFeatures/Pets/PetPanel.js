@@ -4,6 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
+import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -76,6 +77,9 @@ const PetPanel = ({
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const { updateStatus } = useContext(StatusBarContext);
+  // The panel's one card in motion (runCardReturn, UI/SaleBurst.js): a collected reward pops away
+  // with the sparkles, a feed shrinks away, and after a beat the next card slides in from the left
+  const [cardFx, setCardFx] = useState(null);
   const [activeTimer, setActiveTimer] = useState(false);
   const [rewardItem, setRewardItem] = useState(null);
   const [feedingCountdown, setFeedingCountdown] = useState(null);
@@ -173,6 +177,7 @@ const PetPanel = ({
 
   // Handle feeding the pet
   const handleFeedPet = async (transactionId, transactionKey) => {
+    let revertCard = () => {};
     if (!canAffordFeeding) {
       updateStatus(`You need ${feedQuantity}x ${getLocalizedString(feedIngredient, strings)} to feed ${getLocalizedString(petName, strings)}`);
       return;
@@ -197,6 +202,7 @@ const PetPanel = ({
         updateStatus(`Failed to feed ${getLocalizedString(petName, strings)}`);
         return;
       }
+      revertCard = runCardReturn(setCardFx, 'pet', { out: 'leave', returnMs: 700 });
 
       // Generate random reward using pet's qtycollected for better drop rates
       const petRewardRarity = petResource?.qtycollected || 1; // Default to rarity 1 if not specified
@@ -267,6 +273,7 @@ const PetPanel = ({
         await trackQuestProgress(currentPlayer, 'Feed', petName, 1, setCurrentPlayer);
       }
     } catch (error) {
+      revertCard();
       console.error('Error in pet feeding process:', error);
       updateStatus(`Failed to feed ${getLocalizedString(petName, strings)}`);
     }
@@ -280,6 +287,7 @@ const PetPanel = ({
     }
 
     setIsCollecting(true);
+    const revertCard = runCardReturn(setCardFx, 'pet');
     // The reward and its XP rise from the Collect card (its place taken on the tap: the panel changes
     // once the server answers) and fly home (UI/FlyToTarget.js): Money / Gems to their counters, a
     // skill to Skills, a power to Combat, anything else to Inventory, the XP to the Level bar
@@ -325,6 +333,7 @@ const PetPanel = ({
 
         if (!gained) {
             console.error('L Failed to add pet reward to inventory.');
+            revertCard();
             setIsCollecting(false);
             return;
         }
@@ -361,10 +370,13 @@ const PetPanel = ({
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
 
-        // Clear pet state
+        // Clear pet state: the top-level fields a feed set AND the server's slot, which the panel
+        // also reads (left behind, it kept the panel on "Collect" until a refresh, and a second
+        // tap was refused: "No item in this slot")
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentPetPosition.x && res.y === currentPetPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined }
+            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined,
+                slots: response.data.slots || (res.slots ? res.slots.map((sl, i) => (i === 0 ? { craftEnd: null, craftedItem: null, qty: 1 } : sl)) : res.slots) }
             : res
         );
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
@@ -394,10 +406,26 @@ const PetPanel = ({
           setIsCollecting(false);
         }, 100);
       } else {
+        revertCard();
         setIsCollecting(false);
       }
     } catch (error) {
       console.error('Error collecting pet reward:', error);
+      if (error.response?.data?.error === 'No item in this slot') {
+        // already collected (another tab, or a stale panel): the server's empty slot is the truth
+        const cleared = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentPetPosition.x && res.y === currentPetPosition.y
+            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined,
+                slots: res.slots ? res.slots.map((sl, i) => (i === 0 ? { craftEnd: null, craftedItem: null, qty: 1 } : sl)) : res.slots }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(cleared);
+        setResources(cleared);
+        setRewardItem(null); setIsReadyToCollect(false); setActiveTimer(false); setFeedingCountdown(null);
+        setIsCollecting(false);
+        return;
+      }
+      revertCard();
       updateStatus('L Failed to collect reward');
       setIsCollecting(false);
     }
@@ -446,7 +474,9 @@ const PetPanel = ({
             </p>
           </div>
 
-          {/* Show feeding/collection state */}
+          {/* Show feeding/collection state: one card slot, animated by cardFx */}
+          <div className="card-fx-slot">
+          <div className={cardFx ? `card-fx-${cardFx.phase}` : ''}>
           {rewardItem && (isFeeding || isReadyToCollect) ? (
             // Show animated pet searching or reward collection interface
             isFeeding ? (
@@ -494,6 +524,9 @@ const PetPanel = ({
               hideInfo={true}
             />
           ) : null}
+          </div>
+          {cardFx?.phase === 'pop' && <SaleBurst key={cardFx.id} />}
+          </div>
 
         </div>
         
