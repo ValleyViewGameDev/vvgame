@@ -627,7 +627,10 @@ its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the bu
   wandering off the guide, and bending round natural formations it lays ON the guide every
   ~40-70 tiles (moss or slate deposits, now and then a small pond, grown exactly like the
   template generator's clumps: GridModel.js generateClumps with DEFAULT_CLUMP, about 20 tiles;
-  rocks dress the slate, mushrooms and tulips the moss). `startOnRoad` / `endOnRoad` join an earlier road (T, Y,
+  rocks dress the slate, mushrooms and tulips the moss). Lakes are NOT generator clumps, so
+  they get their own shape (owner, 2026-10-14): two to four overlapping roughened ovals (bean,
+  kidney, lobed; ~60-300 tiles), set a little to one side so the guide clips the shore, and the
+  route-finder finds tiles beside water cheap, so trails hug the shoreline as they turn. `startOnRoad` / `endOnRoad` join an earlier road (T, Y,
   corner), `fadeTiles` breaks the end up, `protect` keeps formations off passes and junctions.
   Roads run in file order, each painted before the next is routed. It refuses water, lava,
   mountains and buildings, clears trees and rocks off the path and moves creatures to a valid

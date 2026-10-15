@@ -121,6 +121,34 @@ def nearest_pa(P, radius=10):
     return best[1] if best else None
 
 # ----------------------------------------------------------------------------- trail style
+def make_lake(rng, seed, gr, gc, nr, nc, protect, formations):
+    """A pond or small lake beside the guide at (gr, gc), n = the guide's unit normal: two to four
+    overlapping roughened ovals (bean, kidney, lobed), centred a little off the line so the guide
+    clips its edge and the road wraps round the shore. None if it would touch anything fixed,
+    pavement, a protected spot or another formation."""
+    side = rng.choice([-1, 1]); size = rng.uniform(7.0, 12.0)
+    lc = (gr + nr * side * size * 0.55, gc + nc * side * size * 0.55)
+    lobes = []
+    for _ in range(rng.randint(2, 4)):
+        a = rng.uniform(0, 2 * math.pi); d = rng.uniform(0, size * 0.75)
+        lobes.append((lc[0] + math.sin(a) * d, lc[1] + math.cos(a) * d, rng.uniform(size * 0.5, size * 0.9), rng.uniform(1.0, 1.9), rng.uniform(0, math.pi)))
+    span = int(size * 2.2) + 3; tiles = []
+    for R in range(int(lc[0]) - span, int(lc[0]) + span + 1):
+        for C in range(int(lc[1]) - span, int(lc[1]) + span + 1):
+            rough = (vnoise(R, C, 2.5, seed + 21) - 0.5) * 1.8 + (vnoise(R, C, 7, seed + 23) - 0.5) * 2.4
+            for (yr, yc, rad, st, ang) in lobes:
+                u = (R - yr) * math.cos(ang) + (C - yc) * math.sin(ang); v = -(R - yr) * math.sin(ang) + (C - yc) * math.cos(ang)
+                if math.hypot(u / st, v) + rough <= rad: tiles.append((R, C)); break
+    if len(tiles) < 60: return None
+    tset = set(tiles)
+    for (R, C) in tiles:
+        for dR in range(-3, 4):
+            for dC in range(-3, 4):
+                t = (R + dR, C + dC)
+                if t in formations or hard(*t) or cell(*t)[0] == 'PA': return None
+        if any(math.dist((R, C), (pr, pc)) < prad for (pr, pc, prad) in protect): return None
+    return tiles
+
 def trail(road):
     rng = random.Random(zlib.crc32(road['name'].encode()))
     seed = zlib.crc32(road['name'].encode()) % 10000
@@ -138,7 +166,7 @@ def trail(road):
         goal_tiles = {(R, C) for R in range(end[0] - 3, end[0] + 4) for C in range(end[1] - 3, end[1] + 4) if cell(R, C)[0] == 'PA'}
 
     # distance to the guide, for every tile of the corridor (D tiles either side)
-    D = road.get('corridorTiles', 16); dist = {}
+    D = road.get('corridorTiles', 30); dist = {}
     for (gr, gc) in guide[::2]:
         for R in range(int(gr) - D, int(gr) + D + 2):
             for C in range(int(gc) - D, int(gc) + D + 2):
@@ -147,14 +175,21 @@ def trail(road):
 
     # natural formations ON the guide (moss, slate, the odd pond); the path goes round them
     protect = [tuple(p) for p in road.get('protect', [])] + [(*start, 16), (*end, 16)]
-    lo, hi = road.get('obstacleEvery', [38, 70]); pond = road.get('pondChance', 0.2)
+    lo, hi = road.get('obstacleEvery', [38, 70]); pond = road.get('pondChance', 0.4)
     formations = {}; s = rng.uniform(20, lo)
     while s < L - 20:
         i = min(range(len(cum)), key=lambda j: abs(cum[j] - s))
         (gr, gc) = guide[i]; a = guide[max(0, i - 2)]; b = guide[min(len(guide) - 1, i + 2)]
         nr, nc = -(b[1] - a[1]), b[0] - a[0]; nl = math.hypot(nr, nc) or 1
-        off = rng.uniform(-1.5, 1.5); cr, cc = gr + nr / nl * off, gc + nc / nl * off
         kind = 'WA' if rng.random() < pond else rng.choice(['ZZ', 'ZZ', 'SL'])
+        if kind == 'WA':
+            lake = make_lake(rng, seed, gr, gc, nr / nl, nc / nl, protect, formations)
+            if lake:
+                for t in lake: formations[t] = 'WA'
+                s += rng.uniform(lo, hi) * 1.4      # a lake takes room: the next formation comes later
+                continue
+            kind = rng.choice(['ZZ', 'SL'])        # no room for a lake here: a deposit instead
+        off = rng.uniform(-1.5, 1.5); cr, cc = gr + nr / nl * off, gc + nc / nl * off
         # a deposit grown the way the template generator grows them (tools/editor/client/layouts/
         # GridModel.js generateClumps with DEFAULT_CLUMP): from one seed tile, adding neighbours
         # weighted by (tiles of the clump they touch) ^ clumpTightness, to clumpSize +- clumpVariation
@@ -182,10 +217,15 @@ def trail(road):
             for t in tiles: formations[t] = kind
         s += rng.uniform(lo, hi)
 
+    # tiles beside water (a new lake or one already there): the route hugs the shore
+    shore = set()
+    for t in dist:
+        if t in formations or hard(*t): continue
+        if any(formations.get((t[0] + dR, t[1] + dC)) == 'WA' or cell(t[0] + dR, t[1] + dC)[0] == 'WA' for dR, dC in NEIGHBOURS): shore.add(t)
     # A*: four-connected, near the guide, wandering with smooth noise; formations and hard tiles closed
     def cost(t):
         if t not in dist or t in formations or hard(*t): return None
-        base = 0.35 if cell(*t)[0] == 'PA' else 1.0
+        base = 0.35 if cell(*t)[0] == 'PA' else (0.55 if t in shore else 1.0)
         return base + 0.35 * (dist[t] / 8) ** 2 + 2.2 * vnoise(t[0], t[1], 14, seed) + 0.8 * vnoise(t[0], t[1], 5, seed + 1)
     goal = goal_tiles or {end}
     openh = [(0, 0, start)]; came = {start: None}; g = {start: 0}; found = None
