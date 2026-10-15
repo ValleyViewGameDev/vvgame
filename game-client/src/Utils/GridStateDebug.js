@@ -16,7 +16,7 @@ const GridStateDebugPanel = ({ gridId, gridCoord, gridType, settlementId, NPCsIn
 
   return (
     <div className="grid-debug-panel">
-      <h4 style={{ color: 'white' }}>Debug:</h4>
+      <h4 style={{ color: 'var(--color-text-white)' }}>Debug:</h4>
       <br></br>
       <h5>gridId:</h5>
       <pre>{formatJSON(gridId)}</pre>

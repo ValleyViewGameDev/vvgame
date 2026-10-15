@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { usePanelContext } from './PanelContext'; // Import the context
 import './Panel.css';
+import CloseButton from '../Buttons/CloseButton';
 import { useStrings } from '../StringsContext';
 
 // Panels that fly in from the RIGHT edge on desktop (docs/ui-conventions.md). Phones keep every
@@ -26,28 +27,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
       {/* Fixed Header with Title and Close Button */}
       <div className="panel-header">
         <h2 className="panel-title">{title || strings[titleKey] || "Panel"}</h2>
-        <button
-          className="panel-close-btn"
-          onClick={() => {
-            closePanel();
-            onClose();
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            width="24"
-            height="24"
-          >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
+        <CloseButton onClick={() => { closePanel(); onClose(); }} />
       </div>
 
       {/* Scrollable Content Area */}
@@ -56,7 +36,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
       {/* Panel Description */}
       {descriptionKey && (
         <div className="panel-description">
-          <p>{strings[descriptionKey]}</p>
+          <p className="text-hint">{strings[descriptionKey]}</p>
         </div>
       )}
       

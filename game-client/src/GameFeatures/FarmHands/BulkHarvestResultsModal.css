@@ -3,7 +3,7 @@
 /* Results content spacing */
 .bulk-harvest-results-content {
   padding: 20px;
-  font-size: 16px;
+  font-size: var(--text-lg);
   max-height: 500px;
   overflow-y: auto;
 }
@@ -17,14 +17,7 @@
   margin: 0 0 10px 0;
   padding-bottom: 5px;
   font-weight: bold;
-  font-size: 18px;
-}
-
-/* Grid layout for result items */
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px;
+  font-size: var(--text-xl);
 }
 
 /* Special 3-column grid for warehouse ingredients */
@@ -37,24 +30,24 @@
 /* Individual result item styling */
 .result-item {
   padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .result-item.crops {
-  background-color: #f0f8ff;
+  background-color: #f0f8ff; /* style-ok: art (section tint) */
 }
 
 .result-item.warehouse {
-  background-color: #fff3e0;
-  border: 2px solid #FF9800;
+  background-color: #fff3e0; /* style-ok: art (section tint) */
+  border: 2px solid var(--color-warning);
 }
 
 .result-item.replanting {
-  background-color: #f1f8e9;
+  background-color: #f1f8e9; /* style-ok: art (section tint) */
 }
 
 /* Item content styling */
@@ -67,53 +60,20 @@
   font-weight: bold;
 }
 
-.result-item-metadata {
-  font-size: 12px;
-  color: #666;
-  text-transform: capitalize;
-}
-
-.skill-bonus {
-  color: #2196F3;
-  font-size: 12px;
-  margin-left: 4px;
-}
-
 .result-item-quantity {
   font-weight: bold;
 }
 
 .result-item-quantity.crops {
-  color: #4CAF50;
+  color: var(--color-text-positive);
 }
 
 .result-item-quantity.warehouse {
-  color: #FF9800;
+  color: var(--color-warning);
 }
 
 .result-item-quantity.replanting {
-  color: #8BC34A;
-}
-
-/* Skills applied section */
-.skills-applied-list {
-  font-size: 14px;
-  color: #666;
-}
-
-.skills-applied-item {
-  margin-bottom: 4px;
-}
-
-/* Summary message styling */
-.results-summary {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #666;
-  text-align: center;
+  color: var(--color-text-positive);
 }
 
 /* Row-based layouts for simplified sections */
@@ -128,13 +88,13 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
 }
 
 .crop-symbol, .replant-symbol {
-  font-size: 18px;
+  font-size: 18px; /* style-ok: icon */
   min-width: 24px;
   text-align: left;
   order: 1;
@@ -142,7 +102,7 @@
 
 .crop-quantity, .replant-quantity {
   font-weight: bold;
-  color: #4CAF50;
+  color: var(--color-text-positive);
   min-width: 50px;
   text-align: left;
   order: 2;
@@ -157,9 +117,8 @@
 }
 
 .crop-skills, .replant-seeds-used {
-  color: #2196F3;
-  font-size: 12px;
-  font-style: italic;
+  color: var(--color-info);
+  font-size: var(--text-xs);
   flex: 1;
   text-align: left;
   order: 4;

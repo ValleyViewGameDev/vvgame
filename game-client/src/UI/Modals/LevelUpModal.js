@@ -7,6 +7,7 @@ import { useStrings } from '../StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import questCache from '../../Utils/QuestCache';
 import { playCelebrationFireworks } from '../../VFX/Celebration';
+import CloseButton from '../Buttons/CloseButton';
 
 // Categories to show in unlock list
 const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco', 'station'];
@@ -92,7 +93,7 @@ const LevelUpModal = ({
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium level-up-modal">
-        <button className="modal-close-btn" onClick={handleClose}>×</button>
+        <CloseButton corner onClick={handleClose} />
 
         <div className="modal-title">⬆️ {strings[811] || 'Level Up!'}</div>
 

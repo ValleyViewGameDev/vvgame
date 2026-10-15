@@ -6,6 +6,7 @@ import './LevelUpModal.css';
 import { useStrings } from '../StringsContext';
 import { formatCountdown } from '../Timers';
 import { playCelebrationFireworks } from '../../VFX/Celebration';
+import CloseButton from '../Buttons/CloseButton';
 
 /**
  * "All Train orders filled!": the celebration when the player fills the last order on their
@@ -39,7 +40,7 @@ const TrainCompleteModal = ({ onClose }) => {
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium level-up-modal">
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
 
         <div className="modal-title">🚂 {strings[2021] || 'All Train orders filled!'}</div>
 

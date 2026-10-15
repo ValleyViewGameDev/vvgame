@@ -47,7 +47,7 @@ export function useFrontierThumbnails(isActive, currentPlayer) {
 const rgbaCache = new Map();
 function tileRGBA(bits) {
   if (rgbaCache.has(bits)) return rgbaCache.get(bits);
-  const hex = (getTileColor(BITS_TO_TILE_TYPE[bits] || 'g') || '#82bb4d').replace('#', '');
+  const hex = (getTileColor(BITS_TO_TILE_TYPE[bits] || 'g') || getTileColor('g')).replace('#', '');
   const rgba = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).concat(255);
   rgbaCache.set(bits, rgba);
   return rgba;

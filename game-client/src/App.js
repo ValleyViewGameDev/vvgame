@@ -3350,18 +3350,19 @@ return (
       <div key={currentPlayer.location.region} className="region-name">{currentPlayer.location.region}</div>
     )}
 
-    {/* Quest: the To Do list, a round button at the top of the right-hand HUD stack (above Season
-        and Town News); toggles the Quest panel. Badge at its lower left: ✅ a quest is ready to
-        turn in, ? quests are active but none is done */}
+    {/* Quest: the To Do list, a round button in the left column under the Map button (in phone
+        landscape, under the Map button on the right); toggles the Quest panel. Badge at its lower
+        left: ✅ a quest is ready to turn in, ? quests are active but none is done. Accepted quests
+        fly into it (data-fly-target="quests", UI/FlyToTarget.js) */}
     {currentPlayer && (
-      <div className="season-controls quest-controls">
+      <div className="map-controls quest-controls" data-fly-target="quests">
         <button className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
         {questBadge === 'completed' && <img className="hud-badge" src="/assets/overlays/checkmark.svg" alt="" />}
         {questBadge === 'active' && <span className="hud-badge hud-badge--question">?</span>}
       </div>
     )}
 
-    {/* Season: a round button on the board's top-right, under the Quest button */}
+    {/* Season: a round button at the board's top-right, the top of the right-hand stack */}
     {currentPlayer && (
       <div className="season-controls season-main">
         <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>

@@ -109,7 +109,7 @@ const CourthousePanel = ({
                           <div key={j}>{c.username}: {c.votes} votes</div>
                         ))
                       ) : (
-                        <em>No candidates</em>
+                        <span className="text-empty">No candidates</span>
                       )}
                     </td>
                     <td style={{ padding: "6px 12px" }}>{entry.electedmayor || 'None'}</td>
@@ -504,12 +504,12 @@ const CourthousePanel = ({
                                         if (!type || !qty) return '';
 
                                         const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                                        const color = playerQty >= qty ? 'green' : 'red';
+                                        const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                                         const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                                         return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                                     }).join('');
 
-                                    const skillColor = meetsRequirement ? 'green' : 'red';
+                                    const skillColor = meetsRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                                     const details =
                                         (resource.requires ? `<span style="color: ${skillColor};">${strings[460] || "Requires:"} ${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
                                         `${strings[461] || "Cost:"}<div>${formattedCosts}</div>`;
@@ -543,7 +543,7 @@ const CourthousePanel = ({
                                                     <strong>Unlocks:</strong> {unlocks}
                                                 </div>
                                             )}
-                                            {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                                            {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}
                                         </div>
                                     );
 
@@ -597,7 +597,7 @@ const CourthousePanel = ({
                             </div>
                         </div>
                     ) : (
-                        <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h2>
+                        <h2 style={{ color: 'var(--color-text-title)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h2>
                     )}
  
 {/* POPULATION section */}
@@ -638,7 +638,7 @@ const CourthousePanel = ({
                     {!isMayor && (
                         <>
                             <h3>{strings[2085]}</h3>
-                            <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
+                            <h2 style={{ color: 'var(--color-text-title)' }}><strong>{mayor || "Vacant"}</strong></h2>
                         </>
                     )}
 
@@ -727,7 +727,7 @@ const CourthousePanel = ({
                                             />
                                             <div style={{ marginLeft: '10px' }}>
                                                 <strong>{candidate.username}</strong>
-                                                <div style={{ fontSize: '13px', color: '#666', marginTop: '4px' }}>
+                                                <div style={{ fontSize: 'var(--text-md)', color: 'var(--color-text-secondary)', marginTop: '4px' }}>
                                                     "{getCandidatePromise(candidate.playerId)}"
                                                 </div>
                                             </div>
@@ -764,7 +764,7 @@ const CourthousePanel = ({
 
                             {/* ✅ Extra message if no one ran */}
                             {candidateList.length === 0 && (
-                                <p><em>No one ran for mayor this election cycle.</em></p>
+                                <p className="text-empty">No one ran for mayor this election cycle.</p>
                             )}
                             
                         </div>

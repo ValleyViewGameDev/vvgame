@@ -6,7 +6,7 @@
   top: calc(100% + 2px);
   left: 50%;
   transform: translateX(-50%);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: bold;
   line-height: 14px;
   font-family: var(--font-text-1-family);
@@ -19,4 +19,4 @@
   white-space: nowrap;
   pointer-events: none;
 }
-.hud-countdown--urgent { color: #ff4d4d; }
+.hud-countdown--urgent { color: var(--color-text-negative-on-dark); }

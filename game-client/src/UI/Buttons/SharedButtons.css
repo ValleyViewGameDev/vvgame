@@ -20,16 +20,16 @@
   background-color: var(--color-btn-primary);
   color: var(--color-btn-primary-text);
   border: none;
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-family: var(--font-title-3-family);
-  font-size: 14px;
-  font-weight: var(--font-title-3-weight, bold);
+  border-radius: var(--btn-radius);
+  padding: var(--btn-padding);
+  font-family: var(--btn-font-family);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
   cursor: pointer;
   text-align: center;
   width: 100%;
-  box-shadow: 0 5px 0 var(--color-shadow-button);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--btn-shadow);
+  transition: var(--btn-transition);
   position: relative;
   overflow: hidden;
   display: inline-block;
@@ -44,19 +44,11 @@
 
 .shared-buttons .btn-basic:active {
   background-color: var(--color-btn-active);
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* LAYOUT MODIFIERS - only override what's different */
-
-/* btn-header - when combined with btn-basic, only override specific properties */
-.shared-buttons .btn-basic.btn-header {
-  width: auto;
-  line-height: 15px;
-  display: flex;
-  align-items: center;
-}
 
 /* btn-modal - when combined with btn-basic */
 .shared-buttons .btn-basic.btn-modal {
@@ -67,16 +59,16 @@
 .shared-buttons .btn-basic.btn-modal-small {
   width: 80px;
   padding: 6px 8px;
-  font-size: 12px;
+  font-size: var(--text-sm);
 }
 
 /* btn-mini - when combined with btn-basic, for very small inline buttons */
 .shared-buttons .btn-basic.btn-mini {
   width: auto;
-  padding: 4px 8px;
-  font-size: 13px;
-  border-radius: 6px;
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  padding: var(--btn-padding-sm);
+  font-size: var(--text-sm);
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
   display: inline-block;
   margin-left: 8px;
 }
@@ -86,7 +78,7 @@
   background-color: var(--color-btn-disabled);
   color: var(--color-btn-disabled-text);
   cursor: not-allowed;
-  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+  box-shadow: var(--btn-shadow-disabled);
 }
 
 @media (hover: hover) {
@@ -98,7 +90,7 @@
 
 .shared-buttons .btn-basic:disabled:active {
   transform: none;
-  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+  box-shadow: var(--btn-shadow-disabled);
 }
 
 /* COLOR MODIFIERS - only override colors */
@@ -125,8 +117,8 @@
 }
 
 .shared-buttons .btn-sell:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* Collect buttons (same as sell) */
@@ -142,8 +134,8 @@
 }
 
 .shared-buttons .btn-collect:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* Danger buttons (red) */
@@ -158,8 +150,8 @@
 }
 
 .shared-buttons .btn-danger:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* Neutral buttons (gray) */
@@ -174,15 +166,15 @@
 }
 
 .shared-buttons .btn-neutral:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* Gold buttons (special animated gradient) */
 .shared-buttons .btn-gold {
-  background: linear-gradient(135deg, #fff176 0%, #ffea00 50%, #fdd835 100%);
-  color: rgb(0, 0, 0);
-  font-weight: bold;
+  background: linear-gradient(135deg, #fff176 0%, #ffea00 50%, #fdd835 100%); /* style-ok: art */
+  color: var(--color-text-black);
+  font-weight: var(--btn-font-weight);
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
 }
 
@@ -205,7 +197,7 @@
 
 @media (hover: hover) {
   .shared-buttons .btn-gold:hover {
-    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%);
+    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%); /* style-ok: art */
   }
 }
 
@@ -216,28 +208,28 @@
 }
 
 .shared-buttons .btn-gold:active {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--btn-shadow-pressed);
 }
 
 /* Social button colors - using brand-specific colors */
 .shared-buttons .facebook-btn {
-  background-color: #3b5998;
+  background-color: #3b5998; /* style-ok: art (Facebook brand) */
   color: var(--color-text-white);
 }
 
 .shared-buttons .twitter-btn {
-  background-color: #000000;
+  background-color: #000000; /* style-ok: art (X/Twitter brand) */
   color: var(--color-text-white);
 }
 
 .shared-buttons .reddit-btn {
-  background-color: #ff4500;
+  background-color: #ff4500; /* style-ok: art (Reddit brand) */
   color: var(--color-text-white);
 }
 
 .shared-buttons .discord-btn {
-  background-color: #7289da;
+  background-color: #7289da; /* style-ok: art (Discord brand) */
   color: var(--color-text-white);
 }
 
@@ -255,3 +247,35 @@
 .app-header .shared-buttons {
   margin: 2px 0;
 }
+/* ---------------------------------------------------------------- Close (docs/ui-conventions.md §5)
+   The one close control (UI/Buttons/CloseButton.js) for panels, modals and chat: a drawn × in a
+   32px box, primary ink, red on hover. .close-btn--corner pins it to a modal's top-right. */
+.close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: var(--btn-transition);
+  -webkit-tap-highlight-color: transparent;
+}
+.close-btn--corner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+}
+@media (hover: hover) {
+  .close-btn:hover {
+    color: var(--color-error);
+    background-color: var(--color-bg-negative-tint);
+  }
+}
+.close-btn:active { transform: scale(0.92); }

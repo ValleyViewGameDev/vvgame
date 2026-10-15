@@ -4,7 +4,7 @@
     position: absolute;
     animation: float-up 1.8s ease-out; /* Slower for better readability */
     color: var(--color-text-white);
-    font-size: 16px;
+    font-size: var(--text-lg);
     font-weight: bold;
     text-shadow:
         0px 0px 3px black,
@@ -58,7 +58,7 @@
 /* A text that flies on (options.flyTo) rises a little quicker and stays solid: the flight
    (UI/FlyToTarget.js) picks it up where it stops. Every flying reward is one size, set here, not
    per call (the flight's clone copies it): 16px, with the 1.15 pop at the top of the rise */
-.floating-text--screen.floating-text--flies { font-size: 16px; }
+.floating-text--screen.floating-text--flies { font-size: var(--text-lg); }
 .floating-text.floating-text--flies { animation: float-up-hold 0.9s ease-out forwards; }
 .floating-text--screen.floating-text--flies { animation: float-up-hold-screen 0.9s ease-out forwards; }
 @keyframes float-up-hold {

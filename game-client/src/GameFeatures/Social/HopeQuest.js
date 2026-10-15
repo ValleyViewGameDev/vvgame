@@ -70,7 +70,7 @@ function HopeQuest({
   const open = () => setModalOpen(true);
 
   // Size-based styling
-  const fontSize = size === 'small' ? '14px' : '20px';
+  const fontSize = size === 'small' ? '14px' : '20px'; // icon glyph size, not type
   const gap = size === 'small' ? '2px' : '4px';
   const marginBottom = size === 'small' ? '8px' : '16px';
 
@@ -95,8 +95,8 @@ function HopeQuest({
             <div key={index} style={{
               flex: 1,
               aspectRatio: '1',
-              borderRadius: '4px',
-              backgroundColor: playerHasItem ? 'var(--color-btn-primary)' : 'rgb(154, 106, 22)',
+              borderRadius: 'var(--radius-xs)',
+              backgroundColor: playerHasItem ? 'var(--color-btn-primary)' : 'var(--brand-gold)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

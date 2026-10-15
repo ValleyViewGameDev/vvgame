@@ -8,7 +8,7 @@
 
 .bulk-select {
   padding: 16px 20px 0;
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-family: var(--font-text-1-family);
 }
 
@@ -26,7 +26,7 @@
 }
 .bulk-select-group + .bulk-select-group { margin-left: auto; }
 .bulk-select-group-label {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
   white-space: nowrap;
 }
@@ -45,7 +45,7 @@
 }
 .bulk-select-head {
   padding: 0 6px 6px;
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
 }
 .bulk-select-list {
@@ -55,23 +55,23 @@
 }
 .bulk-select-row {
   padding: 6px;
-  border-bottom: 1px solid var(--color-border, #eee);
+  border-bottom: 1px solid var(--color-border);
 }
-.bulk-select-row:nth-child(even) { background-color: rgba(0, 0, 0, 0.02); }
+.bulk-select-row:nth-child(even) { background-color: rgba(0, 0, 0, 0.02); } /* style-ok: art (row stripe over the panel) */
 .bulk-select-row.bulk-select-row--sub { border-bottom: none; }
 
 .bulk-select .bs-check { flex: 0 0 34px; text-align: center; }
 .bulk-select .bs-name { flex: 1 1 auto; min-width: 0; text-align: left; }
-.bulk-select .bs-meta { flex: 0 0 170px; text-align: left; font-size: 14px; }
+.bulk-select .bs-meta { flex: 0 0 170px; text-align: left; font-size: var(--text-md); }
 .bulk-select .bs-opt { flex: 0 0 90px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.bulk-select .bs-cost { flex: 0 0 140px; text-align: center; font-size: 13px; }
+.bulk-select .bs-cost { flex: 0 0 140px; text-align: center; font-size: var(--text-sm); }
 .bulk-select-row input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
 .bulk-select-row input[type="checkbox"]:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.bulk-select .bs-sub { color: var(--color-text-muted, #999); font-size: 12px; }
-.bulk-select .bs-note { color: var(--color-text-muted, #888); font-size: 12px; white-space: nowrap; }
-.bulk-select .bs-cost .ok { color: var(--color-success, green); margin-right: 6px; }
-.bulk-select .bs-cost .short { color: var(--color-error, red); margin-right: 6px; }
+.bulk-select .bs-sub { color: var(--color-text-muted); font-size: var(--text-xs); }
+.bulk-select .bs-note { color: var(--color-text-muted); font-size: var(--text-xs); white-space: nowrap; }
+.bulk-select .bs-cost .ok { color: var(--color-text-positive); margin-right: 6px; }
+.bulk-select .bs-cost .short { color: var(--color-text-negative); margin-right: 6px; }
 
 .bulk-select-footer {
   display: flex;

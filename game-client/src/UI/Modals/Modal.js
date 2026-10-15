@@ -3,6 +3,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
+import CloseButton from '../Buttons/CloseButton';
 
 function Modal({ isOpen = true, onClose, title, children, custom, message, message2, size = "standard", className }) {
   if (!isOpen) return null;
@@ -14,9 +15,7 @@ function Modal({ isOpen = true, onClose, title, children, custom, message, messa
     <div className="modal-overlay">
       <div className={`modal-container ${size === "small" ? "modal-small" : ""} ${className || ""}`}>
         {/* Close Button (X style) */}
-        <button className="modal-close-btn" onClick={onClose}>
-          &times;
-        </button>
+        <CloseButton corner onClick={onClose} />
 
         {title && <h2 className="modal-title">{title}</h2>}
 

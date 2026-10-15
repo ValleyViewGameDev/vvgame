@@ -137,7 +137,7 @@ export function BulkHarvestResultsModal({
           <button 
             onClick={onClose}
             className="btn-basic btn-success btn-modal"
-            style={{ fontSize: '16px', padding: '10px 20px' }}
+            style={{ padding: '10px 20px' }}
           >
             {strings[360] || "Continue"}
           </button>

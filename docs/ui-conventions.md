@@ -9,8 +9,8 @@ value rather than trust this page.
 
 - Desktop chrome is the phone pattern at desktop size, through the `--d-*` tokens in
   `App.css`: the board fills the window under the 60 px header and the full-width 24 px
-  status bar (`--d-top`); the zoom pill floats top-left with the map button under it, the
-  season button top-right, and the nav is a horizontal bar centred along the bottom (the
+  status bar (`--d-top`); the zoom pill floats top-left with the map button and the Quest
+  (To Do) button under it, the season button top-right, and the nav is a horizontal bar centred along the bottom (the
   phone's portrait pill; `--d-nav-h`); 280 px panels (`UI/Panels/Panel.css`) float right of
   the zoom/map column and stop above the nav bar (`--d-nav-reserve`). The nav bar is the
   panel yellow (`--d-nav-bg`, `--color-bg-panel`) so it stands off the grass; its selected
@@ -125,13 +125,15 @@ value rather than trust this page.
 - The zoom buttons are their own small pill (portrait: top-left under the status bar, z 980,
   so panels cover them; landscape: the header's first column). They are not children of the
   nav pill: its backdrop-filter would make it their containing block. The right-hand HUD stack
-  at the board's top-right, on every layout, is Quest, Season, Town News (Map joins it after
-  Season in landscape). The Quest button (`.season-controls.quest-controls`, 📜) is on top and
-  toggles the To Do list (`QuestPanel`; it left the nav bar 2026-10-11); its badge at the lower
+  at the board's top-right is Season, Town News (in phone landscape: Season, Map, Quest, Town
+  News). The Quest button (`.map-controls.quest-controls`, 📜) rides with the Map button,
+  directly under it (left column on desktop and in portrait, moved there 2026-10-14; under Map
+  on the right in landscape), and toggles the To Do list (`QuestPanel`; it left the nav bar
+  2026-10-11). It is the fly target `quests`: an accepted quest's 📜 flies into it. Its badge at the lower
   left (`.hud-badge`) is the quest-ready ✅ (`assets/overlays/checkmark.svg`) when a quest can be
   turned in, a yellow "?" when quests are active but none is done
   (`GameFeatures/Quests/questBadge.js`). The season button (📅, opens the Season panel,
-  `.season-controls.season-main`) sits under it. The map button (`.map-controls`, 🗺️) is its other twin: under the
+  `.season-controls.season-main`) is the top of the right-hand stack. The map button (`.map-controls`, 🗺️) is its other twin: under the
   zoom pill on desktop and in portrait, under the season button in landscape (zoom lives in
   the header there). It toggles the Map panel (a second tap closes it); on phones it sits
   behind an open panel like the zoom pill, so the panel's × or a board tap closes it there.
@@ -178,6 +180,24 @@ value rather than trust this page.
 
 ## 5. Buttons and controls
 
+- **Every tappable control is one of these kinds**, and takes its look from it. Feature CSS
+  may set layout (width, margin, flex, order) but not the face (font, color, radius, shadow,
+  press):
+
+  | Kind | Where | Look |
+  |---|---|---|
+  | Action button | `.shared-buttons .btn-basic` + role + size (`SharedButtons.css`) | Lora bold 14, leaf face, `--btn-radius` 12, `--btn-shadow`, presses down 3 px |
+  | Card button | `ResourceButton` / `QuestButton` (Kent offers, crafting recipes, shop items, quests) | Berkshire title, Arial details, radius 12, `--card-shadow`, state color = leaf (ready) / gray (short, inactive) / sell green (collect) |
+  | Chrome button | nav bar buttons, zoom / map / season pills, header links (`App.css`) | round or pill, `--d-pill-*` / `--d-nav-*` tokens |
+  | Close | `<CloseButton />` (`UI/Buttons/CloseButton.js`, class `.close-btn`; `corner` pins it to a modal's top-right) for every panel, modal and chat window | one drawn ×, 32 px box, ink, red on hover |
+  | Tab | `.tab-button` (`Panel.css`) | Lora, underline when active |
+  | Stepper | the `+` / `−` / `Max` beside an amount input | `--btn-radius-sm`, `--btn-shadow-sm` |
+  | Dismiss badge | the small round × on a card (Kent offer, notification) | `--radius-round`, berry face |
+  | Text link | "Already have a profile?", "Dismiss all" | `--font-body`, `--color-text-link` (or `negative` for destructive), no face |
+
+  Button shape and press are tokens (`--btn-radius`, `--btn-radius-sm`, `--btn-shadow`,
+  `--btn-shadow-sm`, `--btn-shadow-pressed`, `--btn-press`, `--card-shadow`); a new kind of
+  button is added here and to `theme.css`, not invented in a feature stylesheet.
 - Buttons use the shared classes in `UI/Buttons/SharedButtons.css` inside a
   `.shared-buttons` wrapper: `btn-basic` (the foundation every button takes) plus a role:
   `btn-success` (confirm/collect), `btn-neutral` (cancel/secondary), `btn-danger`,
@@ -293,7 +313,8 @@ value rather than trust this page.
   (from the trophy card, `data-trophy-card`), Trade Stall payments (from the sold slot, with the
   burst), Carnival orders (from the order card, with the burst), Farm House collection (from the
   recipe card; an animal only rises), and the "+XP" of a combat kill (rises from the drop tile, flies to `xp`; the caller
-  registers the flight at the kill so the header waits, `options.registered`). Not used, on
+  registers the flight at the kill so the header waits, `options.registered`). Accepting a quest
+  in a quest giver's panel sends a 📜 from the card to `quests` (the To Do button). Not used, on
   purpose: farm-animal and other map doobers, bulk harvest/crafting (too noisy), any spending, and
   the Store (its rewards go to the Mailbox and the checkout sits in between; Mailbox Collect flies
   them home). Size: every flying text is 16px, set once in `UI/FloatingText.css`; callers pass no
@@ -301,28 +322,116 @@ value rather than trust this page.
   A sale whose card stays (Bank, Train, Trade Stall, Carnival) also gets the sparkle
   burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
   every modal and the FTUE scrim.
+- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; the motion of Kent's slots):
+  on the tap the card goes (house rule: the server runs in parallel and a failure brings it
+  back). Completed with a reward: `.card-fx-pop` plus `<SaleBurst />`; taken without one (a quest
+  accepted): `.card-fx-leave`. If the same card comes straight back (a repeatable quest) it
+  slides in fresh (`.card-fx-slidein`); otherwise its slot collapses (Web Animations, 280 ms) so
+  the cards below glide up into the gap, never jump. Classes in `UI/SaleBurst.css`.
 - Preview the change on a phone viewport (375x812 portrait and a 500 px-tall landscape) as
   well as desktop before calling it done; the two orientations have separate rules.
 
-## 9. Type sizes
+## 9. Typography (the style guide: fonts)
 
-- The scale is the `--font-*` tokens in `UI/Styles/theme.css`: title-1 28 px (modal titles),
-  title-2 22 px (panel titles), title-3 16 px (sub-headings, timers), title-4 18 px (button
-  titles), text-1 14 px (body and UI text), text-2 12 px (captions, secondary text). Use the
-  token, not a bare number, when a new element fits one of those roles.
-- **12 px is the floor for anything the player reads**: a hint, a timestamp, a tag, a
-  "Locked" label, a progress count. Body text and anything with a number the player acts on
-  (a cost, a quantity, an XP line) is 14 px or more; small modals that show one fact
-  (`ResourceModalSmall`: 17 px line, 14 px ingredients) can go larger because there is room.
+Every font decision comes from the tokens in `UI/Styles/theme.css`. A component stylesheet
+never names a font family, a px size or a text color of its own; it picks a token or a text
+class. `node scripts/check-styles.js` (in `game-client/`) reports every line that does not
+(§11).
+
+**Three families, one job each** (`--font-display`, `--font-heading`, `--font-body`):
+
+| Family | Token | Used for | Never for |
+|---|---|---|---|
+| Berkshire Swash | `--font-display` | the logo, modal and panel titles, an NPC speaking (the Story modal), resource-card titles (ResourceButton/QuestButton `.resource-title`) | sentences, numbers, buttons |
+| Lora, bold | `--font-heading` | every action button (`btn-basic`), sub-headings, tabs, section labels | paragraphs |
+| Arial | `--font-body` | everything the player reads: sentences, numbers, costs, labels, inputs, tooltips | titles |
+
+`--font-mono` is for developer tools only (debug panels, the GridState overlay). The page
+`body` defaults to Lora (`App.css`): Berkshire is opt-in (a title role or `--font-display`)
+and body text gets Arial through its role, so an element that sets nothing reads as a Lora
+label, never as a decorative title. Section headings inside a panel's content use
+`.panel-subheading` (Lora bold 18, title gold; `Panel.css`), not the panel-title face;
+control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; Google Fonts loads Berkshire Swash and Lora only (`public/index.html`).
+
+**Six text roles** (family + size + color, `--font-<role>-*`): `title-1` modal title (display,
+28), `title-2` panel title (display, 22), `title-3` sub-heading (heading, 16, bold), `title-4`
+card title (display, 18), `text-1` body (body, 14), `text-2` caption (body, 12). Reach for the
+role first; use the raw scale below only when no role fits.
+
+**The size scale** (`--text-*`, px, never `em`/`rem`): xs 12 · sm 13 · md 14 · lg 16 · xl 18 ·
+2xl 20 · 3xl 22 · 4xl 24 · 5xl 28 · 6xl 32.
+
+- **A sentence is 14 px or more** (`--text-md`), on desktop and on phones alike: an
+  instruction, a description, a modal's body, a hint, a status line. This is the rule the Email
+  and Snug modals broke (13 px and 12 px sentences).
+- **Fine print is 13 px** (`--text-sm`, class `.text-fineprint`): legal, privacy, "we never
+  share your email", secondary table cells.
+- **12 px is the floor** (`--text-xs`, class `.text-caption`) and only for things that are
+  not sentences: counts, tags, timestamps, badges, a "Locked" label.
 - Nothing below 12 px except the two in-board overlays whose size follows the tile, not the
-  type scale: the phone status bar (11 px, one line of secondary state) and timer text drawn
-  over a board object or a crafting slot (11 px). Decorative glyphs (the 7 px butterfly VFX)
-  are not text.
-- Size in `px` (or a token), not `em`/`rem`: `rem` ignores the phone's smaller panel text and
-  `em` compounds (the Mailbox unread tag used to be 0.7em inside a 0.9em row inside the 13 px
-  phone panel: 8 px). The sweep of 2026-10-05 brought every sub-floor site up (Mailbox,
-  Inventory Gold Pass note, Trophy progress, relationship badge, BulkCrafting labels, minimap
-  dungeon timer, Trade Stall and resource/quest button details); `grep -rn "font-size: 0\."`
-  and `grep -rnE "font-size: (1?[0-9])px"` over `game-client/src` should stay empty apart
-  from the two overlays above.
+  scale: the phone status bar (11 px) and timer text drawn over a board object or crafting
+  slot (11 px). Mark them `style-ok`. Decorative glyphs (the butterfly VFX) are not text.
+- **Phones use the same scale.** `mobile.css` may move a role up or down one step for room
+  (a 22 px panel title can be 20), but never takes a sentence under 14 or fine print under 13.
+- **Text inputs are 16 px** (`--text-lg`) on touch, or iOS zooms the page when one gets focus.
+- Emoji drawn as icons (a 32 px 🐄 on a card) are icon sizes, not type: a literal px with
+  `/* style-ok: icon */` is fine.
+- A one-off size outside the scale needs a `style-ok: <reason>` comment; if two places want
+  the same off-scale size, add a token instead.
 
+**Weight**: bold (`--weight-bold`) for titles, buttons, sub-headings and the number that
+matters on a card; regular for sentences. Line height `--leading-body` (1.4) for paragraphs,
+`--leading-tight` (1.2) for titles and cards.
+
+**Italics: three uses only**, each a class in `theme.css`:
+
+| Class | When | Example |
+|---|---|---|
+| `.text-hint` | an aside that helps but asks nothing of the player | NPC panel "With a better relationship...", a quest's "return to ..." line |
+| `.text-empty` | an empty state | "No candidates", "No one ran for mayor this election cycle." |
+| `.text-quote` | in-world writing | the Town News, a letter, a sign |
+
+Never italicise an instruction, a number, a button, a title, or anything in Berkshire
+(it has no italic and the browser fakes one). Everything else that was italic (flavour lines,
+"last updated", rarity notes) is regular text in the secondary color.
+
+**Text colors** (`--color-text-*`): `primary` #333 for every sentence; `secondary` #555 for
+labels, captions and hints; `muted` #6b6b6b for fine print and empty states (#888 was too
+faint on the parchment panels); `title` (brand gold) for display titles; `heading` for
+sub-headings; `positive` (leaf ink) for "you have enough", gains and success in a sentence;
+`negative` (berry) for "you are short", losses and errors in a sentence; `warning`; `link`;
+`white` on dark faces. A component that needs another text color adds a token here first.
+
+## 10. Color (the brand palette)
+
+- **Brand palette**: the `--brand-*` block at the top of `theme.css`: grass, forest, leaf,
+  leaf-ink, gold, parchment, dirt, ink, berry, sky, sun. Every semantic token (`--color-*`,
+  `--color-btn-*`, `--color-text-*`, `--d-pill-bg` ...) derives from these, so the game's look
+  is tuned in one block.
+- **Terrain palette**: `UI/Styles/tileColors.js` holds the tile-type colors (grass `g`, slate
+  `s`, dirt `d`, water `w`, pavement `p`, lava `l`, sand `n`, snow `o`, cobblestone `x`,
+  dungeon `y`, moss `z`, clay `c`), because the Pixi renderer and the editor need them in JS.
+  `index.js` mirrors them onto `:root` as `--tile-<key>` before the first render, so a
+  stylesheet that echoes the board (gridlines, the minimap, the dirt behind it) uses
+  `var(--tile-g)`, and JS uses `getTileColor('g')`. No other file hard-codes a tile color.
+  Grass and `--brand-grass` are the same green on purpose; change both together.
+- Component stylesheets use tokens for text, faces, borders and shadows. Literal colors are
+  allowed only for art: a gradient on a premium button, a VFX, a rarity glow, a social brand's
+  own color (Facebook blue). Mark those `style-ok: art`.
+- Surface tints are tokens too: `--color-bg-tint` (a footer or row set off from the panel),
+  `--color-bg-row-hover`, `--color-bg-selected`, `--color-bg-positive-tint` /
+  `--color-bg-negative-tint` (state chips), and the crafting-slot states
+  `--color-slot-unlocked / -affordable / -affordable-hover / -crafting / -ready`. Text over the
+  board (not parchment) that must read as urgent uses `--color-text-negative-on-dark`.
+- State colors are shared, not re-invented per panel: ready/affordable = `--color-btn-primary`
+  (leaf), inactive/short = `--color-btn-disabled` (gray), collect/sell = `--color-btn-sell`,
+  danger = `--color-btn-danger`, premium = `--color-btn-gem` / `btn-gold`. Kent's offer cards
+  and the crafting stations show the same two states the same way.
+
+## 11. The style check
+
+`node scripts/check-styles.js` (in `game-client/`) lists, per stylesheet, every font family,
+px font size, sub-floor size, text or background color literal, italic and radius literal that
+is not a token; `--list` prints each line and `--strict` exits 1. A line that genuinely needs a
+literal says why on the same line: `/* style-ok: icon */`, `style-ok: art`,
+`style-ok: tile overlay`. Run it after any styling change; the count only goes down.

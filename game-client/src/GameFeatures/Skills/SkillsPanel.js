@@ -370,7 +370,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                           <strong>Unlocks:</strong> {unlocks}
                         </div>
                       )}
-                      {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                      {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}
                     </div>
                   );
 
@@ -401,13 +401,13 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     if (!type || !qty) return '';
 
                     const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                    const color = playerQty >= qty ? 'green' : 'red';
+                    const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                     const symbol = allResources.find(r => r.type === type)?.symbol || '';
                     return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
 
-                  const skillColor = meetsSkillRequirement ? 'green' : 'red';
-                  const levelColor = meetsLevel ? 'green' : 'red';
+                  const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+                  const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                   const details =
                     (resource.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${resource.level}</span>` : '') +
                     (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '') +
@@ -438,12 +438,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             </div>
 
-          <h3>{strings[10175]}</h3>
+          <p>{strings[10175]}</p>
 
             {(entryPoint === "Basic Skills") && (
               <div className="skills-owned">
                 <br></br>
-                <h2>{strings[1303]}</h2>
+                <h2 className="panel-subheading">{strings[1303]}</h2>
                 {ownedSkills.length > 0 ? (
                   ownedSkills.map((skill) => {
                     // Look up full resource data for this skill
@@ -478,7 +478,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                             <strong>Unlocks:</strong> {unlocks}
                           </div>
                         )}
-                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                        {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}
                       </div>
                     );
 

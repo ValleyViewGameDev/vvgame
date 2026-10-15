@@ -11,6 +11,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
+import CloseButton from '../../UI/Buttons/CloseButton';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen, autoOpenBackpackModal = false, onBackpackModalAutoOpened }) {
 
@@ -478,7 +479,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 {hasBackpackSkill && (
                     <div className="capacity-info">
                         {calculateTotalQuantity(backpack)} / {" "}
-                        <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                        <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
                             {finalCapacities.backpack}
                         </span>
                     </div>
@@ -488,7 +489,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             {hasBackpackSkill ? (
               <>
                 {currentPlayer?.accountStatus === "Gold" && (
-                    <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
+                    <div style={{fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
                         (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
                     </div>
                 )}
@@ -548,14 +549,14 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 <h3>{strings[181]}</h3>
                 <div className="capacity-info">
                     {calculateTotalQuantity(inventory)} / {" "}
-                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
                         {finalCapacities.warehouse}
                     </span>
                 </div>
             </div>
 
             {currentPlayer?.accountStatus === "Gold" && (
-                <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
+                <div style={{fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
                     (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
                 </div>
             )}
@@ -631,7 +632,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 return createPortal(
                     <div className="modal-overlay">
                         <div className="modal-container modal-large">
-                            <button className="modal-close-btn" onClick={() => setShowBackpackModal(false)}>×</button>
+                            <CloseButton corner onClick={() => setShowBackpackModal(false)} />
                             <div className="modal-title">{strings[187]}</div>
 
                         <ManageContentsModal
@@ -674,7 +675,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             {showWarehouseModal && createPortal(
                 <div className="modal-overlay">
                     <div className="modal-container modal-large">
-                        <button className="modal-close-btn" onClick={() => setShowWarehouseModal(false)}>×</button>
+                        <CloseButton corner onClick={() => setShowWarehouseModal(false)} />
                         <div className="modal-title">{strings[193]}</div>
 
                         <ManageContentsModal

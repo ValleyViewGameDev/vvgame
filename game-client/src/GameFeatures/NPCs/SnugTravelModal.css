@@ -2,7 +2,7 @@
    from the shared .res-rows block in mobile.css; rows use the body font, not the title font. */
 .snug-travel-note {
   font-family: var(--font-text-2-family);
-  font-size: 14px;
+  font-size: var(--text-md);
   margin: 0 0 10px;
   opacity: 0.85;
 }
@@ -10,16 +10,16 @@
 .snug-travel-table table { width: 100%; border-collapse: collapse; }
 .snug-travel-table th {
   text-align: left;
-  font-size: 13px;
+  font-size: var(--text-md);
   font-weight: bold;
   padding: 4px 8px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
-.snug-travel-table td { padding: 6px 8px; font-size: 15px; vertical-align: middle; }
-/* destination names are titles: Berkshire Swash */
-.snug-travel-table td.res-name { font-family: var(--font-title-1-family); font-size: 17px; }
+.snug-travel-table td { padding: 6px 8px; font-size: var(--text-md); vertical-align: middle; }
+/* destination names are labels in a table: body font, bold */
+.snug-travel-table td.res-name { font-family: var(--font-body); font-weight: var(--weight-bold); font-size: var(--text-lg); }
 .snug-travel-table tbody tr + tr td { border-top: 1px solid rgba(0, 0, 0, 0.08); }
 .snug-travel-table .res-action { text-align: right; white-space: nowrap; }
 .snug-travel-table .res-action .shared-buttons { display: inline-flex; justify-content: flex-end; margin: 0; }
-.snug-travel-table .snug-travel-short { color: var(--color-text-muted, #8a6d3b); }
+.snug-travel-table .snug-travel-short { color: var(--color-text-muted); }
 .snug-travel-table .snug-travel-busy { opacity: 0.6; }

@@ -1,16 +1,16 @@
 /* Tooltip styles - centralized for all tooltip rendering */
 
 .HoverTooltip {
-  background-color: rgba(131, 82, 2, 0.811) !important;
-  color: white !important;
+  background-color: rgba(131, 82, 2, 0.811) !important; /* style-ok: art (the board tooltip's brown glass) */
+  color: var(--color-text-white) !important;
   padding: 4px 8px !important;
-  font-size: 12px !important;
+  font-size: var(--text-xs) !important;
   pointer-events: none !important;
   z-index: 8999 !important;
   position: fixed !important;
   min-width: 50px !important;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4) !important;
-  font-family: 'Arial', sans-serif !important;
+  font-family: var(--font-body) !important;
 }
 
 .HoverTooltip p {

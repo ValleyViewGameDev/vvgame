@@ -1,14 +1,4 @@
-/* Note: Theme variables are defined in /UI/Styles/theme.css */
 
-.share-modal {
-  background: var(--color-bg-white);
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 400px;
-  margin: 60px auto;
-  text-align: center;
-  box-shadow: inset 0 -7px 0 var(--color-shadow-button);
-}
 
 /* DEPRECATED: Base button styling is now handled by shared-buttons system */
 /* Use shared-buttons container with appropriate modifiers instead */
@@ -78,24 +68,26 @@
 
 /* Social button color overrides - use element selectors to match SharedButtons.css specificity */
 div.modal-overlay div div.shared-buttons button.facebook-btn {
-  background-color: #3b5998 !important;
+  background-color: #3b5998 !important; /* style-ok: art (Facebook brand) */
   color: var(--color-text-white) !important;
 }
 
 div.modal-overlay div div.shared-buttons button.twitter-btn {
-  background-color: #000000 !important;
+  background-color: #000000 !important; /* style-ok: art (X/Twitter brand) */
   color: var(--color-text-white) !important;
 }
 
 div.modal-overlay div div.shared-buttons button.reddit-btn {
-  background-color: #ff4500 !important;
+  background-color: #ff4500 !important; /* style-ok: art (Reddit brand) */
   color: var(--color-text-white) !important;
 }
 
-div.modal-overlay div div.shared-buttons button.facebook-btn:hover,
-div.modal-overlay div div.shared-buttons button.twitter-btn:hover,
-div.modal-overlay div div.shared-buttons button.reddit-btn:hover {
-  opacity: 0.85 !important;
+@media (hover: hover) {
+  div.modal-overlay div div.shared-buttons button.facebook-btn:hover,
+  div.modal-overlay div div.shared-buttons button.twitter-btn:hover,
+  div.modal-overlay div div.shared-buttons button.reddit-btn:hover {
+    opacity: 0.85 !important;
+  }
 }
 
 .discord-section {
@@ -105,17 +97,18 @@ div.modal-overlay div div.shared-buttons button.reddit-btn:hover {
 
 .discord-section p {
   margin: 10px 0;
-  color: var(--color-text-muted);
-  font-style: italic;
+  color: var(--color-text-secondary);
 }
 
 div.modal-overlay div div.shared-buttons button.discord-btn {
-  background-color: #7289da !important;
+  background-color: #7289da !important; /* style-ok: art (Discord brand) */
   color: var(--color-text-white) !important;
 }
 
-div.modal-overlay div div.shared-buttons button.discord-btn:hover {
-  background-color: #5b6eae !important;
+@media (hover: hover) {
+  div.modal-overlay div div.shared-buttons button.discord-btn:hover {
+    background-color: #5b6eae !important; /* style-ok: art (Discord brand, darker) */
+  }
 }
 
 /* Social media buttons maintain their specific colors */

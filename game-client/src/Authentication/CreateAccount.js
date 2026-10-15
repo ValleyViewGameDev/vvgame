@@ -239,7 +239,7 @@ return (
       {error && <p className="error-message">{error}</p>}
 
       <div className="shared-buttons">
-        <button className="btn-basic btn-success" type="submit" disabled={isSubmitting} style={{ fontSize: '18px' }}>
+        <button className="btn-basic btn-success" type="submit" disabled={isSubmitting} style={{ fontSize: 'var(--text-xl)' }}>
           {strings[4068] || "Begin!"}
         </button>
       </div>

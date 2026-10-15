@@ -362,7 +362,7 @@ const ShopStation = ({
         <div className="station-panel-content">
           {/* ✅ Conditional TENT text for the Store */}
           {stationType === "Store" && (
-            <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
+            <p style={{ fontWeight: "bold", color: "var(--color-text-positive)" }}>
               {strings["410"]}
             </p>
           )}
@@ -406,7 +406,7 @@ const ShopStation = ({
                 
                 
                 if (effects.length > 0) {
-                  outputSummary = <span style={{ color: 'blue' }}>{effects.join(', ')}</span>;
+                  outputSummary = <span style={{ color: 'var(--color-text-link)' }}>{effects.join(', ')}</span>;
                 }
               }
 
@@ -416,13 +416,13 @@ const ShopStation = ({
                 const qty = recipe[`ingredient${i}qty`];
                 if (!type || !qty) return '';
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                const color = playerQty >= qty ? 'green' : 'red';
+                const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = meetsSkillRequirement ? 'green' : 'red';
-              const levelColor = meetsLevel ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
 
               // Build details string with multiple combat attributes for powers
               let effectsHtml = '';
@@ -439,7 +439,7 @@ const ShopStation = ({
                 
                 
                 if (effects.length > 0) {
-                  effectsHtml = `<span style="color: blue;">${effects.join(', ')}</span><br>`;
+                  effectsHtml = `<span style="color: var(--color-text-link);">${effects.join(', ')}</span><br>`;
                 }
               }
 

@@ -6,6 +6,7 @@ import '../Buttons/SharedButtons.css';
 import LANGUAGE_OPTIONS from '../Languages.json';
 import axios from 'axios';
 import { useStrings } from '../StringsContext';
+import CloseButton from '../Buttons/CloseButton';
 
 // Only these languages have been localized - exported for use in CreateAccount
 export const enabledLanguages = ['en', 'es', 'fr', 'de'];
@@ -45,7 +46,7 @@ const handleSave = async () => {
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container modal-medium" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
         <div className="modal-title">{strings[130]}</div>
         <ul className="language-list">
           {LANGUAGE_OPTIONS.map(({ code, label, flag }) => {

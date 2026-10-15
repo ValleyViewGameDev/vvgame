@@ -1,19 +1,11 @@
 /* Frontier Mini Map Styles */
 
 .frontier-mini-map {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1); /* style-ok: art (map frame tint) */
+  border-radius: var(--radius-md);
   padding: 8px;
   margin-bottom: 4px;
   text-align: center;
-}
-
-/* Container for map and overlayed buttons */
-.mini-map-container {
-  position: relative;
-  width: 128px;
-  height: 128px;
-  margin: 0 auto;
 }
 
 .mini-map-grid {
@@ -21,7 +13,7 @@
   height: 128px; /* 64 cells * 2px each = 128px */
   margin: 0 auto; /* Center the grid horizontally */
   border: 1px solid rgba(255, 255, 255, 0.3);
-  background: #000;
+  background: #000; /* style-ok: art (map) */
   image-rendering: pixelated; /* Keep crisp pixels */
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
@@ -40,25 +32,25 @@
 }
 
 .mini-map-cell.default-cell {
-  background-color: #2d5a2d; /* Dark green */
+  background-color: #2d5a2d; /* style-ok: art (map cell, dark green) */
 }
 
 .mini-map-cell.player-cell {
-  background-color: #ffffff; /* White */
+  background-color: #ffffff; /* style-ok: art (map marker, white) */
   box-shadow: 0 0 2px #ffffff; /* Subtle white glow */
 }
 
 .mini-map-cell.homestead-cell {
-  background-color: #ff8c00; /* Orange */
+  background-color: #ff8c00; /* style-ok: art (map marker, orange) */
   box-shadow: 0 0 2px #ff8c00; /* Subtle orange glow */
 }
 
 /* Dungeon timer info (only shown when in dungeon) */
 .mini-map-dungeon-info {
-  font-size: 12px;
-  color: var(--color-text);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
   margin-top: 4px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-body);
   text-align: center;
 }
 
@@ -88,7 +80,7 @@
 /* Transit buttons - just emoji icons */
 .minimap-signpost-button {
   cursor: pointer;
-  font-size: 18px;
+  font-size: 18px; /* style-ok: icon */
   padding: 2px;
   transition: transform 0.1s ease;
   user-select: none;
@@ -96,8 +88,10 @@
   line-height: 1;
 }
 
-.minimap-signpost-button:hover {
-  transform: scale(1.2);
+@media (hover: hover) {
+  .minimap-signpost-button:hover {
+    transform: scale(1.2);
+  }
 }
 
 .minimap-signpost-button:active {

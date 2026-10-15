@@ -625,8 +625,8 @@ const FarmHouse = ({
               const meetsSkillRequirement = hasRequiredSkill(recipe.requires);
               const meetsLevel = meetsLevelRequirement(recipe.level);
               const requirementsMet = meetsSkillRequirement && meetsLevel;
-              const skillColor = meetsSkillRequirement ? 'green' : 'red';
-              const levelColor = meetsLevel ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
               
@@ -706,7 +706,7 @@ const FarmHouse = ({
                 if (!type || !qty) return '';
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                const color = playerQty >= qty ? 'green' : 'red';
+                const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');

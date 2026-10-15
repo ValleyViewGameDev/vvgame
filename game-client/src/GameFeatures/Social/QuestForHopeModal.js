@@ -59,7 +59,7 @@ export default function QuestForHopeModal({ items = [], onClose }) {
       {hintFor && (
         <Modal size="small" onClose={() => setHintFor(null)} title={t(200803)} className="qfh-hint-modal">
           <div className="qfh-hint-icon" aria-hidden="true">{hintFor.symbol}</div>
-          <p className="qfh-hint-text">{t(HINT_STRING[hintFor.name])}</p>
+          <p className="qfh-hint-text text-quote">{t(HINT_STRING[hintFor.name])}</p>
           <div className="modal-buttons shared-buttons">
             <button className="btn-basic btn-modal btn-success" onClick={() => setHintFor(null)}>{t(796)}</button>
           </div>

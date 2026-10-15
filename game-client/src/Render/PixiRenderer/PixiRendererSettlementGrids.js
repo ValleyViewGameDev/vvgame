@@ -21,10 +21,10 @@ import { getTileColor, BITS_TO_TILE_TYPE } from '../../UI/Styles/tileColors';
 const GRID_TILES = 64;  // Each grid is 64×64 tiles
 
 // Grass green color for empty/unvisited grids
-const GRASS_GREEN = '#82bb4d';
+const GRASS_GREEN = getTileColor('g'); // terrain grass
 const GRASS_BORDER = '#5a8f3a';
 // Occupied homestead uses primary green from theme
-const HOMESTEAD_BG = '#82bb4d';          // --color-primary-green
+const HOMESTEAD_BG = getTileColor('g');   // terrain grass (= --brand-grass)
 const HOMESTEAD_BORDER = '#5a8f3a';
 // Unoccupied homestead uses dirt brown from theme
 const HOMESTEAD_UNOCCUPIED_BG = '#c0834a';  // --color-bg-dirt
@@ -147,7 +147,7 @@ const getGridBorder = (borderColor, isFrontierZoom, k = 1) => {
 const EmptyGridCell = ({ x, y, size, label, zoomScale, screenScale = zoomScale, isUnoccupiedHomestead = false, strings, isFrontierZoom = false, onClick, isClickable = false }) => {
   const bgColor = isUnoccupiedHomestead ? HOMESTEAD_UNOCCUPIED_BG : GRASS_GREEN;
   const borderColor = isUnoccupiedHomestead ? HOMESTEAD_UNOCCUPIED_BORDER : GRASS_BORDER;
-  const textColor = isUnoccupiedHomestead ? '#ffffff' : '#3d5c1f';
+  const textColor = isUnoccupiedHomestead ? 'var(--color-text-white)' : '#3d5c1f'; // dark green label on the grass
   // Hide text labels at frontier zoom - they're too small to read and clutter the view
   const displayLabel = isFrontierZoom ? null : (isUnoccupiedHomestead ? (strings?.['10190'] || 'Unoccupied') : label);
 
@@ -174,7 +174,7 @@ const EmptyGridCell = ({ x, y, size, label, zoomScale, screenScale = zoomScale, 
         <span style={{
           color: textColor,
           fontSize: Math.max(8, size * screenScale * 0.08) * zoomScale / screenScale,
-          fontFamily: 'sans-serif',
+          fontFamily: 'var(--font-body)',
           fontWeight: isUnoccupiedHomestead ? 'bold' : 'normal',
           textShadow: isUnoccupiedHomestead ? `${zoomScale / screenScale}px ${zoomScale / screenScale}px ${2 * zoomScale / screenScale}px rgba(0, 0, 0, 0.7)` : 'none',
         }}>
@@ -331,8 +331,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       {/* Header */}
       <div style={{
         fontSize: smallFontSize,
-        fontFamily: 'sans-serif',
-        color: '#333',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--color-text-primary)',
         fontWeight: 'bold',
         lineHeight: 1.3,
         marginBottom: px(2),
@@ -344,8 +344,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       <div style={{
         ...rowStyle,
         fontSize,
-        fontFamily: 'sans-serif',
-        color: 'white',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--color-text-white)',
         fontWeight: 'bold',
         textShadow,
       }}>
@@ -357,8 +357,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       <div style={{
         ...rowStyle,
         fontSize,
-        fontFamily: 'sans-serif',
-        color: isMayor ? 'rgb(215, 215, 4)' : 'white',
+        fontFamily: 'var(--font-body)',
+        color: isMayor ? 'rgb(215, 215, 4)' : 'var(--color-text-white)',
         fontWeight: isMayor ? 'bold' : 'normal',
         textShadow,
       }}>
@@ -370,8 +370,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       <div style={{
         ...rowStyle,
         fontSize: smallFontSize,
-        fontFamily: 'sans-serif',
-        color: '#333',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--color-text-primary)',
       }}>
         <span style={{ fontSize: emojiSize }}>💰</span>
         <span>&nbsp;Net Worth:</span>
@@ -380,8 +380,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       {/* Net worth value */}
       <div style={{
         fontSize,
-        fontFamily: 'sans-serif',
-        color: '#333',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--color-text-primary)',
         fontWeight: 'bold',
         lineHeight: 1.3,
         marginBottom: px(2),
@@ -393,8 +393,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
       <div style={{
         ...rowStyle,
         fontSize: smallFontSize,
-        fontFamily: 'sans-serif',
-        color: '#333',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--color-text-primary)',
         marginTop: px(2),
       }}>
         <span style={{ fontSize: emojiSize }}>📥</span>

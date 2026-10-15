@@ -2,7 +2,7 @@
   margin: 10px 0;
   border: none;
   height: 2px;
-  background-color: #ccc;
+  background-color: var(--color-border-dark);
 }
 
 .inventory-section-header {
@@ -13,52 +13,19 @@
 }
 
 .inventory-section-header h3 {
-  font-size: 14px;
+  font-size: var(--text-md);
   margin: 0;
 }
 
 .capacity-info {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
 }
 
 .capacity-display {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
   margin-bottom: 10px;
-}
-
-.inventory-table {
-  display: flex;
-  flex-direction: column;
-  gap: 6px; /* Space between rows */
-  font-size: 13px;
-}
-
-.inventory-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.inventory-cell {
-  padding: 2px 2px;
-  text-align: left;
-}
-
-.symbol-cell {
-  width: 10%; /* Adjust width for symbol */
-  text-align: center;
-}
-
-.name-cell {
-  width: 50%; /* Adjust width for name */
-  text-align: left;
-}
-
-.quantity-cell {
-  width: 40%; /* Adjust width for quantity */
-  text-align: right;
 }
 
 /* Inventory Modal Table Styling */
@@ -73,12 +40,12 @@
 .inventory-modal td {
   text-align: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
 .inventory-modal th {
-  background: #f8f9fa;
+  background: var(--color-bg-light);
   font-weight: bold;
 }
 
@@ -114,16 +81,13 @@
 .inventory-modal .amount-input button {
   width: 25px; /* Reduce from 30px */
   height: 25px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
-/* Gold Pass promotion text */
+/* Gold Pass promotion text: an aside; the JSX adds .text-hint (theme.css) for the look */
 .gold-pass-info {
-  font-size: 12px;
   text-align: center;
-  color: #666;
   margin-bottom: 10px;
-  font-style: italic;
 }
 
 /* Scrollable content for inventory modal */
@@ -142,7 +106,7 @@
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 
 .currency-column {
@@ -158,13 +122,13 @@
 }
 
 .currency-emoji {
-  font-size: 14px;
+  font-size: var(--text-md);
   line-height: 1;
 }
 
 .currency-amount {
-  font-size: 13px;
-  color: #333;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
 }
 
 /* Inventory table with sticky header styles */
@@ -217,8 +181,10 @@
   text-align: right; /* Right-align quantity numbers */
 }
 
-.inventory-table-header th:hover {
-  background-color: #e9ecef;
+@media (hover: hover) {
+  .inventory-table-header th:hover {
+    background-color: var(--color-btn-active);
+  }
 }
 
 .inventory-table-scroll {
@@ -238,8 +204,6 @@
   padding: 6px 8px;
   vertical-align: middle;
 }
-
-
 
 .sortable-header {
   cursor: pointer;
@@ -298,8 +262,10 @@
   text-align: right; /* Right-align quantity numbers */
 }
 
-.backpack-table-header th:hover {
-  background-color: #e9ecef;
+@media (hover: hover) {
+  .backpack-table-header th:hover {
+    background-color: var(--color-btn-active);
+  }
 }
 
 .backpack-table-scroll {

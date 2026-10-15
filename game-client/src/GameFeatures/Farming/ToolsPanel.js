@@ -188,7 +188,7 @@ const ToolsPanel = ({
           marginBottom: '10px',
           padding: '5px 0'
         }}>
-          <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
+          <label className="cursor-toggle-label">
             {strings[10187] || 'Use with cursor'}
           </label>
           <input
@@ -229,8 +229,8 @@ const ToolsPanel = ({
                 const displayName = actionName.charAt(0).toUpperCase() + actionName.slice(1);
 
                 // Build details string with level and skill requirements
-                const skillColor = meetsSkill ? 'green' : 'red';
-                const levelColor = meetsLevel ? 'green' : 'red';
+                const skillColor = meetsSkill ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+                const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 let details = '';
                 if (requiredLevel) {
                   details += `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${requiredLevel}</span>`;

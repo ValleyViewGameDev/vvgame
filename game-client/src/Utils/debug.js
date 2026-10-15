@@ -1059,19 +1059,19 @@ const handleGetRich = async () => {
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       {/* Performance Metrics Section */}
       <div style={{
-        backgroundColor: '#f0f0f0',
+        backgroundColor: 'var(--color-bg-light)',
         padding: '10px',
         marginBottom: '15px',
-        borderRadius: '5px',
-        fontFamily: 'monospace',
-        fontSize: '11px'
+        borderRadius: 'var(--radius-sm)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 'var(--text-xs)'
       }}>
-        <h3 style={{ margin: '0 0 8px 0', color: '#333', fontSize: '12px' }}>⚡ Performance Metrics</h3>
+        <h3 style={{ margin: '0 0 8px 0', color: 'var(--color-text-primary)', fontSize: 'var(--text-xs)' }}>⚡ Performance Metrics</h3>
 
         {/* Rendering Mode - PixiJS is now the only renderer */}
-        <div style={{ marginBottom: '8px', color: '#666' }}>
+        <div style={{ marginBottom: '8px', color: 'var(--color-text-secondary)' }}>
           <div>🎨 Rendering Mode:</div>
-          <div><strong style={{ color: '#1e88e5' }}>PixiJS (WebGL)</strong></div>
+          <div><strong style={{ color: 'var(--color-text-link)' }}>PixiJS (WebGL)</strong></div>
         </div>
 
         {/* PixiJS is now the only renderer - V2 tiles and PixiJS toggles removed */}
@@ -1082,10 +1082,10 @@ const handleGetRich = async () => {
           <div><strong>FPS:</strong></div>
           <div><strong>Render Mode:</strong></div>
           {/* Row 2: Values */}
-          <div style={{ color: performanceMetrics.fps >= 30 ? 'green' : performanceMetrics.fps >= 15 ? 'orange' : 'red', marginBottom: '6px' }}>
+          <div style={{ color: performanceMetrics.fps >= 30 ? 'var(--color-text-positive)' : performanceMetrics.fps >= 15 ? 'var(--color-text-warning)' : 'var(--color-text-negative)', marginBottom: '6px' }}>
             {performanceMetrics.fps}
           </div>
-          <div style={{ color: performanceMetrics.renderMode === 'Canvas' ? 'green' : 'blue', marginBottom: '6px' }}>
+          <div style={{ color: performanceMetrics.renderMode === 'Canvas' ? 'var(--color-text-positive)' : 'var(--color-text-link)', marginBottom: '6px' }}>
             {performanceMetrics.renderMode}
           </div>
           {/* Row 3: Labels */}
@@ -1103,7 +1103,7 @@ const handleGetRich = async () => {
               const newCap = toggleFPSCap();
               setFpsCap(newCap);
             }}
-            style={{ width: '100%', fontSize: '11px' }}
+            style={{ width: '100%', fontSize: 'var(--text-xs)' }}
           >
             FPS Cap: {fpsCap} → Toggle to {fpsCap === 30 ? 60 : 30}
           </button>

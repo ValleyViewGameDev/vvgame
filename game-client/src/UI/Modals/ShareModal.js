@@ -6,6 +6,7 @@ import './Modal.css';
 import './ShareModal.css';
 import '../Buttons/SharedButtons.css';
 import { DISCORD_INVITE } from '../../config';
+import CloseButton from '../Buttons/CloseButton';
 
 function ShareModal({ onClose }) {
 
@@ -15,7 +16,7 @@ function ShareModal({ onClose }) {
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium">
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
         <div className="modal-title">📢 Share "Secrets of Elsinore"</div>
         <p>{strings[95]}</p>
         

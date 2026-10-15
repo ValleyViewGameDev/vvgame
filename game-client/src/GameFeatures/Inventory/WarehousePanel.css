@@ -9,17 +9,17 @@
 }
 
 .warehouse-capacity-display h3 {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: normal;
-  color: #333;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 /* Simple text for upgrade info */
 .upgrade-info {
-  font-size: 14px;
+  font-size: var(--text-md);
   margin: 10px 0 20px 0;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .max-level {
@@ -28,12 +28,12 @@
 }
 
 .max-level h3 {
-  color: #4CAF50;
-  font-size: 24px;
+  color: var(--color-text-positive);
+  font-size: var(--text-4xl);
   margin-bottom: 10px;
 }
 
 .max-level p {
-  color: #666;
-  font-size: 16px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-lg);
 }

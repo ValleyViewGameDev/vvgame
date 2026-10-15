@@ -2,7 +2,7 @@
 
 /* Pet emoji display */
 .pet-display {
-  font-size: 48px;
+  font-size: 48px; /* style-ok: icon */
   text-align: center;
 }
 
@@ -11,14 +11,9 @@
   text-align: center;
 }
 
-.pet-info .pet-name {
-  font-size: 16px;
-  font-weight: bold;
-}
-
 .pet-info .pet-status {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
 }
 
 /* Pet searching animation - reuse scroll reveal animation but simpler */
@@ -28,9 +23,9 @@
 }
 
 .pet-searching-countdown {
-  font-size: 20px;
+  font-size: var(--text-2xl);
   font-weight: bold;
-  color: #666;
+  color: var(--color-text-secondary);
   margin-top: 10px;
 }
 
@@ -44,26 +39,26 @@
 
 /* Override the large title font size from scroll-collect-button */
 .pet-collect-button.scroll-collect-button .resource-title {
-  font-size: 18px !important;
+  font-size: var(--text-xl) !important;
   margin-bottom: 5px !important;
 }
 
 /* Override the details text if present */
 .pet-collect-button.scroll-collect-button .resource-details {
-  font-size: 18px !important;
+  font-size: var(--text-xl) !important;
   letter-spacing: normal !important;
-  color: #ecf0f1 !important;
+  color: var(--color-text-white) !important;
   text-align: center !important;
 }
 
 /* Processing state - override any text that appears */
 .pet-collect-button.collecting {
-  font-size: 18px !important;
+  font-size: var(--text-xl) !important;
 }
 
 /* Any text that appears during processing */
 .pet-collect-button.collecting * {
-  font-size: 18px !important;
+  font-size: var(--text-xl) !important;
 }
 
 /* Reuse station panel container styles */
@@ -82,7 +77,7 @@
 /* Footer section for sell button */
 .pet-panel-footer {
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-bg-tint);
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -90,16 +85,4 @@
   display: none; /* Hide the hr since we have border-top */
 }
 
-/* Center the button container */
-.pet-panel-footer .standard-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0;
-}
-
-/* Ensure button text is centered */
-.pet-panel-footer .standard-buttons button {
-  text-align: center;
-  min-width: 150px; /* Give it a minimum width for better appearance */
-}
+/* The sell button is a standard action button: .shared-buttons > .btn-basic.btn-success (SharedButtons.css). */

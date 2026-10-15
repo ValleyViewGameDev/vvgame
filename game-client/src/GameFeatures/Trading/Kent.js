@@ -798,7 +798,7 @@ function KentPanel({
                         handleDebugRefresh();
                       }
                     }}
-                    style={{ color: '#ff9800', marginTop: '4px' }}
+                    style={{ color: 'var(--color-text-warning)', marginTop: '4px' }}
                   >
                     🔧 Debug Refresh
                   </div>

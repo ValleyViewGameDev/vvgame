@@ -20,11 +20,11 @@
   width: 100%;
   padding: 6px 8px;
   margin: 4px 0;
-  font-size: 14px;
+  font-size: var(--text-md);
   text-align: left;
   white-space: normal;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--btn-radius);
   background-color: var(--color-btn-primary);
   color: var(--color-btn-primary-text);
   cursor: pointer;
@@ -32,8 +32,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
-  box-shadow: 0 6px 0 var(--color-shadow-button);
-  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  box-shadow: var(--card-shadow);
+  transition: var(--btn-transition);
   box-sizing: border-box;
   max-width: 100%;
   outline: none;
@@ -50,8 +50,8 @@
 
 /* Active state - button push effect */
 .resource-button:active {
-  transform: translateY(3px);
-  box-shadow: 0 3px 0 var(--color-shadow-button);
+  transform: var(--btn-press);
+  box-shadow: var(--card-shadow-pressed);
 }
 
 /* Disabled button state */
@@ -82,8 +82,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  background-color: rgba(255, 215, 0, 0.3); /* Semi-transparent gold */
+  font-size: 32px; /* style-ok: icon */
+  background-color: rgba(255, 215, 0, 0.3); /* style-ok: art (semi-transparent gold veil) */
   border-radius: inherit;
   pointer-events: none;
   z-index: 5;
@@ -98,22 +98,22 @@
 .resource-button.ready.btn-sell {
   background-color: var(--color-btn-sell) !important;
   color: var(--color-text-white) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 5px 0 var(--color-shadow-button) !important;
+  border-radius: var(--btn-radius) !important;
+  box-shadow: var(--btn-shadow) !important;
 }
 
 @media (hover: hover) {
   :where(html:not(.touch-ui)) .resource-button.ready.btn-sell:hover {
     background-color: var(--color-btn-sell-hover) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 0 var(--color-shadow-button) !important;
+    box-shadow: var(--card-shadow) !important;
   }
 }
 
 .resource-button.ready.btn-sell:active {
   background-color: var(--color-btn-sell) !important;
-  transform: translateY(3px) !important;
-  box-shadow: 0 2px 0 var(--color-shadow-button) !important;
+  transform: var(--btn-press) !important;
+  box-shadow: var(--btn-shadow-pressed) !important;
 }
 
 /* Make sure text inside is also white */
@@ -146,7 +146,7 @@
 /* Details or subtitle styling */
 .resource-details {
   margin: 2px 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
   white-space: pre-line;
 }
@@ -155,7 +155,7 @@
 .resource-details span {
   display: block;
   margin: 2px 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 
 
@@ -170,7 +170,7 @@
   top: 9px;
   right: 10px;
   cursor: help;
-  font-size: 12px;
+  font-size: 12px; /* style-ok: icon (the ℹ️ glyph) */
   color: var(--color-text-secondary);
   z-index: 10;
 }
@@ -196,10 +196,10 @@
   top: 34px; /* on the "Requires:" row, clear of the title */
   right: 10px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--text-xs);
   background-color: var(--color-btn-gem);
   color: var(--color-btn-gem-hover); /* blue on the pale-blue chip; white on the dark hover */
-  border-radius: 3px;
+  border-radius: var(--btn-radius-sm);
   padding: 2px 6px;
   display: inline-flex;
   align-items: center;
@@ -245,11 +245,11 @@
 /* ✅ Floating Info Toaster - Renders on top of everything */
 .info-toaster {
   position: absolute;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.95); /* style-ok: art (near-white translucent tooltip) */
   border: 1px solid var(--color-border-dark);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   padding: 8px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-primary);
   z-index: 99999;
   box-shadow: 4px 6px 10px var(--color-shadow);
@@ -273,11 +273,11 @@
 /* ✅ Gem tooltip styling */
 .gem-toaster {
   position: absolute;
-  background: rgba(30, 136, 229, 0.95);
+  background: rgba(30, 136, 229, 0.95); /* style-ok: art (translucent gem-blue tooltip) */
   border: 1px solid var(--color-btn-gem-hover);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   padding: 6px 10px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-white);
   z-index: 99999;
   box-shadow: 4px 6px 10px var(--color-shadow);
@@ -335,7 +335,7 @@
 /* ✅ Cursor-selected state (for plant with cursor mode) */
 .resource-button.cursor-selected {
   background-color: var(--color-btn-ready);
-  box-shadow: 0 6px 0 var(--color-shadow-button), 0 0 0 3px var(--color-success);
+  box-shadow: var(--card-shadow), 0 0 0 3px var(--color-success);
 }
 
 @media (hover: hover) {
@@ -356,7 +356,7 @@
 
 @media (hover: hover) {
   :where(html:not(.touch-ui)) .resource-button.dev-only:hover {
-    background-color: #ffe0e0;
+    background-color: #ffe0e0; /* style-ok: art (dev-only hover tint, no token) */
   }
 }
 

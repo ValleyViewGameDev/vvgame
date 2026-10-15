@@ -4,7 +4,7 @@
 .trading-modal-subtitle {
   text-align: center;
   margin: 0 0 0 0; /* Remove bottom margin */
-  font-size: 16px; /* 2px bigger than default 14px */
+  font-size: var(--text-lg);
   color: var(--color-info); /* Light blue color */
   font-weight: bold;
   font-family: var(--font-text-2-family);
@@ -61,8 +61,10 @@
   transition: background-color 0.2s;
 }
 
-.sortable-header:hover {
-  background-color: var(--color-btn-active) !important;
+@media (hover: hover) {
+  .sortable-header:hover {
+    background-color: var(--color-btn-active) !important;
+  }
 }
 
 /* Scrollable content area */
@@ -87,8 +89,10 @@
   background-color: var(--color-table-alt-row);
 }
 
-.inventory-modal-scroll tr:hover {
-  background-color: #f0f8ff;
+@media (hover: hover) {
+  .inventory-modal-scroll tr:hover {
+    background-color: var(--color-bg-row-hover);
+  }
 }
 
 /* Amount input styling (scoped: Eating.css and ManageContentsModal.css have their own) */
@@ -103,20 +107,23 @@
   padding: 4px;
   text-align: center;
   border: 1px solid var(--color-border-dark);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 .inventory-modal-scroll .amount-input button {
   padding: 4px 8px;
   border: 1px solid var(--color-border-dark);
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
   background: var(--color-bg-white);
   cursor: pointer;
   min-width: 24px;
 }
 
-.inventory-modal-scroll .amount-input button:hover:not(:disabled) {
-  background: var(--color-btn-hover-light);
+@media (hover: hover) {
+  .inventory-modal-scroll .amount-input button:hover:not(:disabled) {
+    background: var(--color-btn-hover-light);
+  }
 }
 
 .inventory-modal-scroll .amount-input button:disabled {
@@ -128,15 +135,20 @@
 .add-button {
   padding: 6px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
   background: var(--color-success);
   color: var(--color-text-white);
   cursor: pointer;
-  font-size: 12px;
+  font-family: var(--btn-font-family);
+  font-size: var(--text-sm);
+  font-weight: var(--btn-font-weight);
 }
 
-.add-button:hover:not(:disabled) {
-  background: var(--color-btn-sell);
+@media (hover: hover) {
+  .add-button:hover:not(:disabled) {
+    background: var(--color-btn-sell);
+  }
 }
 
 .add-button:disabled {

@@ -23,12 +23,6 @@
     overflow-x: hidden;
 }
 
-/* Reduce spacing around panel buttons */
-.courthouse-panel .panel-buttons {
-    margin-top: 8px; 
-    margin-bottom: 8px;
-}
-
 .courthouse-panel .debug-buttons {
     padding: 0;  /* Remove all padding */
     margin: 0;   /* Remove all margin */
@@ -38,9 +32,9 @@
 .campaign-promises {
     max-height: 150px;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-dark);
     padding: 8px;
-    background-color: #f8f8f8;
+    background-color: var(--color-table-alt-row);
     padding-left: 0;
     padding-right: 0;
     margin-left: 0;
@@ -50,7 +44,7 @@
 
 .campaign-entry {
     padding: 6px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .candidate-row {
@@ -64,12 +58,12 @@
 
 .candidate-tooltip {
     position: fixed;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: rgba(0, 0, 0, 0.8); /* style-ok: art (dark tooltip face, no token) */
+    color: var(--color-text-white);
     padding: 10px;
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
     max-width: 300px;
-    font-size: 14px;
+    font-size: var(--text-md);
     pointer-events: none;
     z-index: 1000;
 }
@@ -77,8 +71,8 @@
 .voting-section {
     margin: 15px 0;
     padding: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1); /* style-ok: art (faint tint) */
+    border-radius: var(--radius-xs);
     padding-left: 0;
     padding-right: 0;
     margin-left: 0;
@@ -88,7 +82,7 @@
 
 .voting-section p {
     text-align: left; /* Changed from center to left */
-    font-size: 1.1em;
+    font-size: var(--text-lg);
 }
 
 .voting-section button {

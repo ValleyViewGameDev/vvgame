@@ -35,6 +35,7 @@ import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
+import SaleBurst from '../../UI/SaleBurst';
 
 const NPCPanel = ({
   onClose,
@@ -68,6 +69,13 @@ const NPCPanel = ({
   const canTravelWithSnug = npcData?.type === 'Snug' && !!onSnugTravel
     && !!currentPlayer?.relationships?.some((r) => r.name === 'Snug' && r.met);
   const [questList, setQuestList] = useState([]);
+  // Quest cards in motion (house rule: the card reacts on the tap, the server runs in parallel):
+  // { [title]: { type: 'pop' | 'leave' | 'slidein', quest, index, id } }. A leaving card is kept on
+  // screen from its snapshot until its slot has collapsed, even after the list drops it.
+  const [questFx, setQuestFx] = useState({});
+  // Titles taken off the list on the tap (a quest accepted, a one-time reward collected), hidden
+  // until the server-driven list no longer has them (or the action fails and they come back)
+  const [goneQuests, setGoneQuests] = useState(() => new Set());
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap a requirement on a trade you cannot afford
@@ -310,6 +318,61 @@ const NPCPanel = ({
     }
   };
 
+  // ---------- quest card motion (UI/SaleBurst.css .card-fx-*) ----------
+  const setQuestCardFx = (title, fx) => setQuestFx((prev) => {
+    const next = { ...prev };
+    if (fx) next[title] = { ...fx, id: Date.now() + Math.random() }; else delete next[title];
+    return next;
+  });
+  const setQuestGone = (title, gone) => setGoneQuests((prev) => {
+    const next = new Set(prev);
+    if (gone) next.add(title); else next.delete(title);
+    return next;
+  });
+  // The slot shrinks to nothing so the cards below glide up into the gap, then the card is gone
+  const collapseQuestSlot = (title) => {
+    const finish = () => setQuestCardFx(title, null);
+    const el = document.querySelector(`[data-quest-slot="${CSS.escape(title)}"]`);
+    if (!el || typeof el.animate !== 'function') { finish(); return; }
+    const h = el.offsetHeight;
+    const anim = el.animate(
+      [{ height: `${h}px`, paddingTop: '4px', paddingBottom: '4px' }, { height: '0px', paddingTop: '0px', paddingBottom: '0px' }],
+      { duration: 280, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' }
+    );
+    anim.onfinish = finish;
+  };
+  // A card leaves the list: `pop` (reward collected: burst + sparkles) or `leave` (accepted). A
+  // repeatable reward slides straight back in as a fresh card; anything else collapses its slot.
+  // Returns a revert for a failed server call.
+  const sendQuestCardAway = (quest, kind, comesBack) => {
+    const title = quest.title;
+    const index = Math.max(0, questList.findIndex((q) => q.title === title));
+    setQuestCardFx(title, { type: kind, quest, index });
+    if (!comesBack) setQuestGone(title, true);
+    const outMs = kind === 'pop' ? 300 : 220;
+    const timer = setTimeout(() => {
+      if (comesBack) setQuestCardFx(title, { type: 'slidein', quest, index });
+      else collapseQuestSlot(title);
+    }, outMs);
+    return () => { clearTimeout(timer); setQuestCardFx(title, null); setQuestGone(title, false); };
+  };
+  // the list no longer has a hidden title: the server has caught up, stop hiding it
+  useEffect(() => {
+    if (!goneQuests.size) return;
+    const listed = new Set(questList.map((q) => q.title));
+    const stale = [...goneQuests].filter((t) => !listed.has(t));
+    if (stale.length) setGoneQuests((prev) => { const next = new Set(prev); stale.forEach((t) => next.delete(t)); return next; });
+  }, [questList]); // eslint-disable-line react-hooks/exhaustive-deps
+  // What the panel shows: the list minus titles taken away on the tap, plus any leaving card the
+  // list has already dropped (kept at its old place until its slot has collapsed)
+  const displayQuests = (() => {
+    const list = questList.filter((q) => !goneQuests.has(q.title) || questFx[q.title]);
+    Object.entries(questFx).forEach(([title, fx]) => {
+      if (fx.quest && !list.some((q) => q.title === title)) list.splice(Math.min(fx.index, list.length), 0, fx.quest);
+    });
+    return list;
+  })();
+
   const handleAcceptQuest = async (transactionId, transactionKey, questTitle) => {
     console.log(`🔒 [PROTECTED QUEST] Starting accept quest for ${questTitle}`);
     if (!questTitle) return;
@@ -359,6 +422,14 @@ const NPCPanel = ({
     // If all goals are completed before even accepting, mark the quest as completed
     const isQuestCompleted = totalGoals > 0 && goalsCompleted === totalGoals;
 
+    // On the tap: a scroll rises from the card and flies into the To Do button on the HUD
+    // (data-fly-target="quests"), and the card leaves the list (the cards below glide up)
+    const acceptCardRect = document.querySelector(`[data-quest-card="${CSS.escape(questTitle)}"]`)?.getBoundingClientRect();
+    if (acceptCardRect) {
+      FloatingTextManager.addFloatingTextAt('📜', acceptCardRect.left + acceptCardRect.width / 2, acceptCardRect.top + acceptCardRect.height / 2, { flyTo: 'quests' });
+    }
+    const revertAccept = sendQuestCardAway(acceptedQuest, 'leave', false);
+
     try {
       const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
         playerId: currentPlayer.playerId,
@@ -373,9 +444,11 @@ const NPCPanel = ({
         updateStatus(202);
         // No need to invalidate cache when accepting quests
       } else {
+        revertAccept();
         setStatusMessage(`Failed to accept quest: ${response.data.error}`);
       }
     } catch (error) {
+      revertAccept();
       console.error('Error accepting quest:', error);
       setStatusMessage('Error accepting quest. Check console.');
     }
@@ -419,11 +492,27 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
     // the card's place, on the tap: the panel may redraw before the server answers
     const questCardRect = document.querySelector(`[data-quest-card="${CSS.escape(quest.title)}"]`)?.getBoundingClientRect() || null;
     console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
+    let revertReward = () => {};
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
       const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
       const rewardQuantity = Math.floor((quest.rewardqty || 1) * multiplier);
-      
+
+      // On the tap (house rule): the reward and its XP rise from the card and fly home, the card
+      // bursts into sparkles, and either slides back in fresh (a repeatable quest) or its slot
+      // collapses so the cards below glide up. The server runs in parallel; a failure brings the
+      // card back.
+      const rewardResource = masterResources.find(r => r.type === quest.reward);
+      const rewardSymbol = rewardResource?.symbol || '🎁';
+      const rewardName = getLocalizedString(quest.reward, strings);
+      const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+      const xpForFloatingText = quest.xp ?? npcResourceForXP?.xp ?? 1;
+      const repeatable = quest.repeatable === true || quest.repeatable === 'true';
+      revertReward = sendQuestCardAway(quest, 'pop', repeatable);
+      showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText, questCardRect, questRewardFlyTo(quest.reward, rewardResource));
+      soundManager.playSFX('skill_earned');
+      try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+
       // Ensure inventory and backpack are valid arrays
       const safeInventory = Array.isArray(inventory) ? inventory : [];
       const safeBackpack = Array.isArray(backpack) ? backpack : [];
@@ -443,20 +532,7 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
         globalTuning,
       });
       // Check if gainIngredients failed (returns object with success: false, or falsy value)
-      if (success !== true && (!success || success.success === false)) return;
-
-      // Get reward details for FloatingText and calculate XP to show
-      const rewardResource = masterResources.find(r => r.type === quest.reward);
-      const rewardSymbol = rewardResource?.symbol || '🎁';
-      const rewardName = getLocalizedString(quest.reward, strings);
-      const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-      const xpForFloatingText = quest.xp ?? npcResourceForXP?.xp ?? 1;
-
-      // Show floating text for reward and XP
-      showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText, questCardRect, questRewardFlyTo(quest.reward, rewardResource));
-
-      // Play sound effect for collecting quest reward
-      soundManager.playSFX('skill_earned');
+      if (success !== true && (!success || success.success === false)) { revertReward(); return; }
 
       // Award trophies for specific quest rewards
       try {
@@ -553,7 +629,10 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
         completedQuests: updatedPlayer.completedQuests,
         activeQuests: updatedActiveQuests,
       }));
-      setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
+      // a one-time quest leaves the list (its card already has); a repeatable one stays, fresh
+      if (!repeatable) setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
+      // the slid-back card shows "accept" from its fx until here; now the player data agrees
+      if (repeatable) setTimeout(() => setQuestCardFx(quest.title, null), 480);
 
       // FTUE: Trigger CollectedQuest when player collects their first quest reward
       await tryAdvanceFTUEByTrigger('CollectedQuest', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -567,6 +646,7 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
 
     } catch (error) {
       console.error('Error collecting quest reward:', error);
+      revertReward();
       alert('Failed to collect quest reward.');
     }
   };
@@ -1161,42 +1241,36 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
-            <div style={{
+            <div className="text-hint" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
-              borderRadius: '5px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              color: 'var(--color-text-muted)'
+              textAlign: 'center'
             }}>
               {strings[625]}{npcData.type}.
             </div>
           )}
 
           {canQuest && hasHiddenQuests && (
-            <div style={{
+            <div className="text-hint" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
-              borderRadius: '5px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              color: 'var(--color-text-muted)'
+              textAlign: 'center'
             }}>
               {strings[627]?.replace('{npc}', npcData?.type || '')}
             </div>
           )}
 
-          {canQuest && questList.length === 0 && !hasHiddenQuests && (
-            <div style={{
+          {canQuest && displayQuests.length === 0 && !hasHiddenQuests && (
+            <div className="text-empty" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
-              borderRadius: '5px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              color: 'var(--color-text-muted)'
+              textAlign: 'center'
             }}>
               {strings[205]}
             </div>
@@ -1204,15 +1278,17 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
           {canQuest && (
             <>
-              {questList.length > 0 && (
+              {displayQuests.length > 0 && (
                 <h3>{strings[204]}</h3>
               )}
-              {questList.map((quest) => {
+              {displayQuests.map((quest) => {
+            const fx = questFx[quest.title];
             const isRewardable = currentPlayer.activeQuests.some(
               (q) => q.questId === quest.title && q.completed && !q.rewardCollected
             );
 
-            const state = isRewardable ? 'reward' : 'accept';
+            // a repeatable quest that has just been collected slides back in as a fresh offer
+            const state = fx?.type === 'slidein' ? 'accept' : isRewardable ? 'reward' : 'accept';
             const questMeetsLevel = meetsLevelRequirement(quest.level);
 
             // Get XP for this quest (use quest-specific XP if available, else fall back to NPC's XP)
@@ -1225,34 +1301,40 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               : `quest-accept-${npcData.type}-${quest.title}`;
 
             return (
-              <QuestGiverButton
-                key={quest.title}
-                quest={{
-                  symbol: quest.symbol,
-                  title: quest.title,
-                  textbody: quest.textbody,
-                  goals: [
-                    { action: quest.goal1action, item: quest.goal1item, qty: quest.goal1qty },
-                    { action: quest.goal2action, item: quest.goal2item, qty: quest.goal2qty },
-                    { action: quest.goal3action, item: quest.goal3item, qty: quest.goal3qty },
-                  ],
-                  reward: quest.reward,
-                  rewardqty: quest.rewardqty,
-                }}
-                state={state}
-                isTransactionMode={true}
-                transactionKey={transactionKey}
-                onTransactionAction={(txId, txKey) =>
-                  state === 'reward'
-                    ? handleGetReward(txId, txKey, quest)
-                    : handleAcceptQuest(txId, txKey, quest.title)
-                }
-                xpReward={xpToAward}
-                level={quest.level}
-                meetsLevelRequirement={questMeetsLevel}
-                noClickSfx={state === 'reward'}
-                masterResources={masterResources}
-              />
+              <div key={quest.title} className="quest-slot" data-quest-slot={quest.title}>
+                {/* not keyed by the fx: remounting would drop the button's transaction lock mid-call;
+                    a class change restarts the animation */}
+                <div className={`quest-slot-card ${fx ? `card-fx-${fx.type}` : ''}`}>
+                  <QuestGiverButton
+                    quest={{
+                      symbol: quest.symbol,
+                      title: quest.title,
+                      textbody: quest.textbody,
+                      goals: [
+                        { action: quest.goal1action, item: quest.goal1item, qty: quest.goal1qty },
+                        { action: quest.goal2action, item: quest.goal2item, qty: quest.goal2qty },
+                        { action: quest.goal3action, item: quest.goal3item, qty: quest.goal3qty },
+                      ],
+                      reward: quest.reward,
+                      rewardqty: quest.rewardqty,
+                    }}
+                    state={state}
+                    isTransactionMode={true}
+                    transactionKey={transactionKey}
+                    onTransactionAction={(txId, txKey) =>
+                      state === 'reward'
+                        ? handleGetReward(txId, txKey, quest)
+                        : handleAcceptQuest(txId, txKey, quest.title)
+                    }
+                    xpReward={xpToAward}
+                    level={quest.level}
+                    meetsLevelRequirement={questMeetsLevel}
+                    noClickSfx={state === 'reward'}
+                    masterResources={masterResources}
+                  />
+                </div>
+                {fx?.type === 'pop' && <SaleBurst key={`burst-${fx.id}`} />}
+              </div>
             );
               })}
             </>
@@ -1552,14 +1634,12 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
           {/* Show message if trade interaction is not available due to relationship */}
           {!canTrade && (
-            <div style={{
+            <div className="text-hint" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
-              borderRadius: '5px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              color: 'var(--color-text-muted)'
+              textAlign: 'center'
             }}>
               {strings[626]}{npcData.type}.
             </div>
@@ -1568,14 +1648,12 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           {/* Show message if some trades are hidden due to relationship requirements */}
           {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
           {!hideRelationshipUI && canTrade && hasHiddenTrades && (
-            <div style={{
+            <div className="text-hint" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
-              borderRadius: '5px',
+              borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              color: 'var(--color-text-muted)'
+              textAlign: 'center'
             }}>
               {strings[628]?.replace('{npc}', npcData?.type || '')}
             </div>
@@ -1628,7 +1706,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       if (!type || !qty) return '';
 
                       const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                      const color = playerQty >= qty ? 'green' : 'red';
+                      const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                       return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                     }).join('');
@@ -1641,7 +1719,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       if (!type || !qty) continue;
 
                       const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                      const color = playerQty >= qty ? 'green' : 'red';
+                      const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                       const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                       ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                     }
@@ -1652,10 +1730,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                   const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
                   const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
 
-                  const levelColor = meetsLevel ? 'green' : 'red';
+                  const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                   const details =
                     (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
-                    `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`;
+                    `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: var(--color-text-positive);">🔷 +${xpToAward} XP</div>`;
 
                   const isDisabled = !affordable || !requirementsMet;
 
@@ -1720,7 +1798,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               // Replace {username} placeholder with actual player username
               const storyText = strings[dialogStringId].replace(/\{username\}/gi, currentPlayer?.username || 'Adventurer');
               return (
-                <div className="trader-story">
+                <div className="trader-story text-quote">
                   <p>{storyText}</p>
                 </div>
               );

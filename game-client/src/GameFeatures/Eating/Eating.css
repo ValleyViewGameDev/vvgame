@@ -9,7 +9,7 @@
 
 /* Override modal title to use shared styling */
 .eating-modal-container .modal-title {
-  font-size: 22px;
+  font-size: var(--text-3xl);
   font-weight: bold;
   margin-bottom: 10px;
   text-align: center;
@@ -23,8 +23,8 @@
 .eating-section h3 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  color: var(--color-text-heading);
+  border-bottom: 2px solid var(--color-border);
   padding-bottom: 8px;
 }
 
@@ -39,8 +39,8 @@
   max-height: 250px;
   display: flex;
   flex-direction: column;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
 }
 
 /* Sticky header container */
@@ -48,7 +48,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: white;
+  background: var(--color-bg-white);
   flex-shrink: 0;
   padding-right: 17px; /* Compensate for scrollbar width */
   box-sizing: border-box;
@@ -63,12 +63,12 @@
 
 .eating-header th {
   padding: 8px 12px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #ddd;
+  background: var(--color-bg-light);
+  border-bottom: 1px solid var(--color-border);
   text-align: left;
   font-weight: bold;
-  font-size: 14px;
-  color: #495057;
+  font-size: var(--text-md);
+  color: var(--color-text-heading);
 }
 
 /* Column width definitions to match content */
@@ -97,7 +97,7 @@
   padding: 8px 12px;
   border-bottom: 1px solid #eee;
   vertical-align: middle;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 /* Matching column widths for content */
@@ -109,11 +109,13 @@
 .eating-scroll td:nth-child(6) { width: 14%; } /* Action */
 
 .eating-scroll tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--color-table-alt-row);
 }
 
-.eating-scroll tr:hover {
-  background-color: #f0f8ff;
+@media (hover: hover) {
+  .eating-scroll tr:hover {
+    background-color: var(--color-bg-row-hover);
+  }
 }
 
 /* Amount input styling (scoped to this modal) */
@@ -128,19 +130,20 @@
   width: 40px;
   padding: 2px;
   text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  font-size: 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
 }
 
 .eating-scroll .amount-input button {
   width: 25px;
   height: 25px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding: 2px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  background: white;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
+  background: var(--color-bg-white);
   cursor: pointer;
 }
 
@@ -149,8 +152,15 @@
   width: 50px;
 }
 
-.eating-scroll .amount-input button:hover:not(:disabled) {
-  background: #f0f0f0;
+@media (hover: hover) {
+  .eating-scroll .amount-input button:hover:not(:disabled) {
+    background: var(--color-btn-hover-light);
+  }
+}
+
+.eating-scroll .amount-input button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 .eating-scroll .amount-input button:disabled {
@@ -162,33 +172,40 @@
 .eat-button {
   padding: 4px 8px;
   border: none;
-  border-radius: 4px;
-  background: #28a745;
-  color: white;
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
+  background: var(--color-btn-sell);
+  color: var(--color-text-white);
   cursor: pointer;
-  font-size: 12px;
-  font-weight: bold;
+  font-family: var(--btn-font-family);
+  font-size: var(--text-sm);
+  font-weight: var(--btn-font-weight);
+  transition: var(--btn-transition);
 }
 
-.eat-button:hover:not(:disabled) {
-  background: #218838;
+@media (hover: hover) {
+  .eat-button:hover:not(:disabled) {
+    background: var(--color-btn-sell-hover);
+  }
+}
+
+.eat-button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 .eat-button:disabled {
-  background: #6c757d;
+  background: var(--color-btn-disabled);
+  color: var(--color-btn-disabled-text);
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
-/* No food message */
+/* No food message: an empty state; the JSX adds .text-empty (theme.css) for the look */
 .no-food-message {
   text-align: center;
   padding: 40px 20px;
-  color: #6c757d;
-  font-style: italic;
 }
 
 .no-food-message p {
   margin: 0;
-  font-size: 16px;
 }

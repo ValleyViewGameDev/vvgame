@@ -889,7 +889,7 @@ const FarmHandPanel = ({
                 if (!type || !qty) return '';
                 const playerQty = (inventory.find((item) => item.type === type)?.quantity || 0) +
                                   (backpack.find((item) => item.type === type)?.quantity || 0);
-                const color = playerQty >= qty ? 'green' : 'red';
+                const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
               }).join('');

@@ -23,12 +23,15 @@ import React, { useMemo } from 'react';
 import { WORLD_PADDING_SETTLEMENTS, SETTLEMENTS_PER_FRONTIER } from './UnifiedCamera';
 import { isGridVisited } from '../../Utils/gridsVisitedUtils';
 import { useFrontierThumbnails, settlementThumbnailImage } from './frontierThumbnails';
+import { getTileColor } from '../../UI/Styles/tileColors';
+
+const GRASS = getTileColor('g'); // terrain grass (docs/ui-conventions.md §10)
 
 // Background colors by settlement type
 const SETTLEMENT_COLORS = {
   homesteadSet: '#c0834a',    // Dirt brown for homestead settlements
-  valley0Set: '#82bb4d',      // Grass green for oak valleys
-  valley1Set: '#82bb4d',      // Grass green for oak valleys
+  valley0Set: GRASS,      // Grass green for oak valleys
+  valley1Set: GRASS,      // Grass green for oak valleys
   valley2Set: '#5a8f3a',      // Darker green for pine valleys
   valley3Set: '#5a8f3a',      // Darker green for pine valleys
 };
@@ -43,7 +46,7 @@ const CURRENT_SETTLEMENT_GLOW = '#ffd700';  // Gold/yellow
  * Get background color for a settlement based on its type
  */
 function getSettlementBackgroundColor(settlementType) {
-  if (!settlementType) return '#82bb4d';
+  if (!settlementType) return GRASS;
 
   // Check for exact matches first
   if (SETTLEMENT_COLORS[settlementType]) {
@@ -57,7 +60,7 @@ function getSettlementBackgroundColor(settlementType) {
     }
   }
 
-  return '#82bb4d'; // Default grass green
+  return GRASS; // Default grass green
 }
 
 /**
@@ -114,12 +117,12 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       // Determine content based on grid type
       if (grid?.gridId === currentPlayer?.location?.g) {
         content = currentPlayer.icon || '👤'; // Player is here
-        cellBg = '#82bb4d'; // Green background for player location
+        cellBg = GRASS; // Green background for player location
       } else if (thumbCells?.has(`${row}-${col}`)) {
         // Visited town/valley: the settlement's thumbnail image shows through (frontierThumbnails.js)
       } else if (grid?.gridType === 'homestead' && grid.gridId) {
         content = '🏠'; // Owned homestead (a closed settlement's free cells are unavailable but empty)
-        cellBg = '#82bb4d'; // Green background behind house emoji
+        cellBg = GRASS; // Green background behind house emoji
       } else if (grid?.gridType === 'town') {
         content = '🏛️'; // Town (classical building)
         cellBg = '#4a4a4a'; // Dark gray background for town

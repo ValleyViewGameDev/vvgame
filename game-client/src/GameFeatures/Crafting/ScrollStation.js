@@ -562,7 +562,7 @@ const ScrollStation = ({
         <div style={{
           padding: '10px',
           textAlign: 'center',
-          fontSize: '16px',
+          fontSize: 'var(--text-lg)',
           fontWeight: 'bold',
          }}>
           {strings[825]}: <br></br>{scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
@@ -570,12 +570,11 @@ const ScrollStation = ({
 
 
         {skillMessage && (
-          <div style={{
+          <div className="text-hint" style={{
             marginBottom: '15px',
             padding: '10px',
             backgroundColor: 'var(--color-bg-light)',
-            borderRadius: '5px',
-            fontStyle: 'italic'
+            borderRadius: 'var(--radius-sm)',
           }}>
             {skillMessage}
           </div>
@@ -628,7 +627,7 @@ const ScrollStation = ({
         
         {/* Show message when no scrolls */}
         {scrollCount === 0 && !craftedItem && (
-          <p style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+          <p className="text-empty" style={{ textAlign: 'center', padding: '20px' }}>
             {strings[832]}
           </p>
         )}

@@ -22,25 +22,25 @@ html.dev-edit-mode.dev-edit-string * {
 .dev-string-panel {
   position: fixed; left: 50%; bottom: 2.5rem; transform: translateX(-50%); z-index: 10000;
   width: min(38rem, calc(100vw - 2rem));
-  background: #1c1c1e; color: #f2f2f2; border: 1px solid #444; border-radius: 10px; padding: 0.75rem;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5); font-family: system-ui, sans-serif; cursor: auto !important;
+  background: #1c1c1e; color: #f2f2f2; border: 1px solid #444; border-radius: var(--radius-md); padding: 0.75rem; /* style-ok: dev tool (dark panel) */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5); font-family: var(--font-body); cursor: auto !important;
 }
 .dev-string-panel * { cursor: auto !important; }
 .dev-string-panel button { cursor: pointer !important; }
 .dev-string-panel .dsp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
-.dev-string-panel .dsp-title { font-weight: 700; font-size: 0.95rem; }
-.dev-string-panel .dsp-x { background: none; border: none; color: #bbb; font-size: 1.2rem; line-height: 1; }
-.dev-string-panel .dsp-key { display: block; font-size: 0.75rem; color: #7fd1ff; word-break: break-all; margin-bottom: 0.4rem; }
-.dev-string-panel .dsp-input { width: 100%; box-sizing: border-box; background: #111; color: #f2f2f2; border: 1px solid #555; border-radius: 6px; padding: 0.5rem; font: 400 0.9rem/1.45 system-ui, sans-serif; resize: vertical; }
-.dev-string-panel .dsp-tokens { font-size: 0.72rem; color: #c8a34a; margin-top: 0.35rem; word-break: break-word; }
-.dev-string-panel .dsp-msg { min-height: 1.1rem; margin: 0.35rem 0 0; font-size: 0.75rem; color: #aaa; }
-.dev-string-panel .dsp-msg.dsp-err { color: #ff8a8a; }
-.dev-string-panel .dsp-msg.dsp-warn { color: #ffce6b; }
+.dev-string-panel .dsp-title { font-weight: 700; font-size: var(--text-md); }
+.dev-string-panel .dsp-x { background: none; border: none; color: #bbb; font-size: var(--text-xl); line-height: 1; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-key { display: block; font-size: var(--text-xs); color: #7fd1ff; word-break: break-all; margin-bottom: 0.4rem; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-input { width: 100%; box-sizing: border-box; background: #111; color: #f2f2f2; border: 1px solid #555; border-radius: var(--radius-sm); padding: 0.5rem; font: 400 var(--text-md)/1.45 var(--font-body); resize: vertical; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-tokens { font-size: var(--text-xs); color: #c8a34a; margin-top: 0.35rem; word-break: break-word; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-msg { min-height: 1.1rem; margin: 0.35rem 0 0; font-size: var(--text-xs); color: #aaa; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-msg.dsp-err { color: #ff8a8a; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-msg.dsp-warn { color: #ffce6b; } /* style-ok: dev tool (dark panel) */
 .dev-string-panel .dsp-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
-.dev-string-panel .dsp-actions button { border-radius: 6px; border: 1px solid #555; padding: 0.35rem 0.9rem; font-size: 0.85rem; background: #2c2c2e; color: #f2f2f2; }
-.dev-string-panel .dsp-save { background: #2f6fd0; border-color: #2f6fd0; font-weight: 700; }
+.dev-string-panel .dsp-actions button { border-radius: var(--btn-radius-sm); border: 1px solid #555; padding: 0.35rem 0.9rem; font-size: var(--text-md); background: #2c2c2e; color: #f2f2f2; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-save { background: #2f6fd0; border-color: #2f6fd0; font-weight: 700; } /* style-ok: dev tool (dark panel) */
 .dev-string-panel .dsp-save:disabled { opacity: 0.5; }
 .dev-string-panel .dsp-list { max-height: 40vh; overflow-y: auto; }
-.dev-string-panel .dsp-pick { display: block; width: 100%; text-align: left; background: #2c2c2e; border: 1px solid #444; border-radius: 6px; color: #f2f2f2; padding: 0.4rem 0.5rem; margin-bottom: 0.3rem; }
-.dev-string-panel .dsp-pick code { display: block; color: #7fd1ff; font-size: 0.72rem; }
-.dev-string-panel .dsp-pick span { display: block; color: #bbb; font-size: 0.75rem; }
+.dev-string-panel .dsp-pick { display: block; width: 100%; text-align: left; background: #2c2c2e; border: 1px solid #444; border-radius: var(--radius-sm); color: #f2f2f2; padding: 0.4rem 0.5rem; margin-bottom: 0.3rem; } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-pick code { display: block; color: #7fd1ff; font-size: var(--text-xs); } /* style-ok: dev tool (dark panel) */
+.dev-string-panel .dsp-pick span { display: block; color: #bbb; font-size: var(--text-xs); } /* style-ok: dev tool (dark panel) */

@@ -135,7 +135,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             {settlementData && (
               <>
                 <h3><strong>{strings["3001"]}</strong></h3>  
-                <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h2>
+                <h2 style={{ color: 'var(--color-text-title)' }}><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h2>
                 <h3>{strings["3002"]} <strong>{population}</strong></h3>
               </>
             )}
@@ -150,7 +150,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
 
 {/* CURRENT MAYOR section */}
             <h3>{strings[2085]}</h3>
-            <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
+            <h2 style={{ color: 'var(--color-text-title)' }}><strong>{mayor || "Vacant"}</strong></h2>
 
             <p>{strings["3005"]}</p>
             <p>{strings["3009"]}</p>

@@ -7,7 +7,7 @@
   min-height: 44px;
   margin: 0 0 6px 0;
   font-family: var(--font-text-1-family);
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
   cursor: pointer;
 }

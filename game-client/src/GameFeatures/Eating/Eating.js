@@ -4,6 +4,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import './Eating.css';
+import CloseButton from '../../UI/Buttons/CloseButton';
 
 const EatingModal = ({
   isOpen,
@@ -287,7 +288,7 @@ const EatingModal = ({
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container eating-modal-container">
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
         
         <div className="modal-title">{strings[10161]} ({currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.hp ?? "?" : "?"}/{currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"})</div>
         
@@ -301,7 +302,7 @@ const EatingModal = ({
           )}
           
           {backpackFoods.length === 0 && warehouseFoods.length === 0 && (
-            <div className="no-food-message">
+            <div className="no-food-message text-empty">
               <p>{strings[10162]} {
                 currentPlayer.location?.gtype === 'homestead' 
                   ? 'backpack or warehouse' 

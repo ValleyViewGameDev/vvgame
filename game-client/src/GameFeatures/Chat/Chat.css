@@ -5,9 +5,9 @@
   flex-direction: column;
   height: 100%;
   width: 250px;
-  background-color: #f5f5f5;
-  border-radius: 6px;
-  font-family: sans-serif;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
   overflow: hidden;
 }
 
@@ -25,8 +25,8 @@
   align-items: center;
   padding-right: 6px;
   padding-left: 6px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #ccc;
+  background-color: var(--color-bg-white);
+  border-bottom: 1px solid var(--color-border-dark);
   z-index: 2;
 }
 
@@ -39,62 +39,12 @@
   padding: 8px 0;
 }
 
-.chat-close-button {
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  color: #888;
-}
-
-.chat-close-button:hover {
-  color: #000;
-}
-
-.chat-tabs {
-  flex-shrink: 0;
-  display: flex;
-  background-color: #ddd;
-  border-bottom: 1px solid #ccc;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
-  padding: 2px;
-  z-index: 2;
-}
-
-.chat-tab {
-  flex: 1;
-  text-align: center;
-  padding: 8px 0;
-  cursor: pointer;
-  font-size: 12px;
-  background-color: #ccc;
-  border: 1px solid #aaa;
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  margin-right: 2px;
-  box-shadow: inset 0 1px 0 #fff;
-}
-
-.chat-tab.active {
-  background-color: #f5f5f5;
-  border: 1px solid #aaa;
-  border-bottom: 1px solid #f5f5f5; /* merge tab with panel bg */
-  font-weight: bold;
-  z-index: 2;
-}
-
-.chat-tab:not(.active) {
-  background-color: #ddd;
-  color: #555;
-}
-
 .chat-messages {
   flex: 1;
   overflow-y: auto;
   padding: 6px;
-  background: #ebebeb;
-  font-size: 12px;
+  background: var(--color-bg-light);
+  font-size: var(--text-md);
 }
 
 .chat-message {
@@ -104,8 +54,8 @@
 
 .chat-input {
   display: flex;
-  border-top: 1px solid #ccc;
-    background-color: rgba(255, 0, 0, 0.1); /* light red */
+  border-top: 1px solid var(--color-border-dark);
+    background-color: rgba(255, 0, 0, 0.1); /* light red */ /* style-ok: art (decorative tint, no token) */
   z-index: 1001; /* just to force it on top */
 }
 
@@ -113,24 +63,33 @@
   flex: 1;
   padding: 6px;
   border: none;
-  font-size: 12px;
+  font-size: var(--text-lg); /* text input: 16 stops iOS zoom */
 }
 
-
 .chat-input button {
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--color-btn-sell);
+  color: var(--color-text-white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--btn-radius-sm);
   padding: 6px 10px;
   margin: 4px;
   cursor: pointer;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-
+  font-family: var(--btn-font-family);
+  font-size: var(--text-sm);
+  font-weight: var(--btn-font-weight);
+  box-shadow: var(--btn-shadow-sm);
+  transition: var(--btn-transition);
 }
 
-.chat-input button:hover {
-  background-color: #45a049;
+@media (hover: hover) {
+  .chat-input button:hover {
+    background-color: var(--color-btn-sell-hover);
+  }
+}
+
+.chat-input button:active {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 /* Chat panel slideout for App.js */
@@ -158,7 +117,7 @@
   right: 0;
   width: 250px;
   height: calc(100% - 60px); /* Adjust if needed to account for header */
-  background-color: #f5f5f5;
+  background-color: var(--color-bg-light);
   display: flex;
   flex-direction: column;
   z-index: 1000;

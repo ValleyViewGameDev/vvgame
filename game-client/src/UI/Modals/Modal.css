@@ -9,14 +9,14 @@
       - .modal-medium (400px width)
       - .modal-large (600px width)
       - .modal-xlarge (800px width)
-   3. Always include .modal-close-btn for the X button
+   3. Always include <CloseButton corner onClick={onClose} /> (UI/Buttons/CloseButton.js) for the X
    4. Use .modal-title for the heading 
    5. Wrap content in .modal-content for scrollable areas
 
    Example:
    <div className="modal-overlay">
      <div className="modal-container modal-medium">
-       <button className="modal-close-btn" onClick={onClose}>×</button>
+       <CloseButton corner onClick={onClose} />
        <div className="modal-title">Your Title Here</div>
        <div className="modal-content">
          Your content here
@@ -43,7 +43,7 @@
 .modal-container {
     background: var(--color-bg-white);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     width: 80vw;
     max-width: 1000px;
     min-width: 400px;
@@ -107,32 +107,6 @@ h2.modal-title {
 }
 
 /* STANDARDIZED Close Button - Bold style for ALL modals */
-.modal-close-btn {
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    background: transparent;
-    border: none;
-    color: var(--color-text-primary);
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.modal-close-btn:hover {
-    background-color: rgba(244, 67, 54, 0.1);
-    color: var(--color-error);
-    transform: scale(1.1);
-}
 
 /* Modal content area */
 .modal-content {
@@ -145,14 +119,8 @@ h2.modal-title {
   
 /* Modal message text */
 .modal-message {
-    font-size: 14px;
+    font-size: var(--text-md);
     margin-bottom: 20px;
-}
-
-/* Modal image styling */
-.modal-image {
-    max-width: 100px;
-    margin-bottom: 10px;
 }
 
 /* STANDARDIZED Modal Buttons Container */
@@ -169,44 +137,18 @@ h2.modal-title {
    =========================================== */
 
 /* Legacy support - these will be phased out */
-.icon-modal,
-.share-modal,
+
 .eating-modal-container {
     /* Inherit from standardized modal-container */
     background: var(--color-bg-white);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     padding: 20px;
     text-align: center;
     position: relative;
     box-shadow: inset 0 -7px 0 var(--color-shadow-button);
 }
 
-.icon-modal {
-    max-width: 400px;
-    margin: 60px auto;
-}
-
-.share-modal {
-    max-width: 400px;
-    margin: 60px auto;
-}
-
 /* Legacy close button support */
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    color: var(--color-text-primary);
-}
-
-.close-button:hover {
-    color: var(--color-error);
-}
-
 
 /* Shared styling for log tables */
 .tax-log-table,
@@ -216,7 +158,7 @@ h2.modal-title {
   text-align: left;
   border-collapse: collapse;
   margin-top: 12px;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 .tax-log-table th,

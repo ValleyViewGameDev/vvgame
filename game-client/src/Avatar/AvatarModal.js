@@ -17,6 +17,7 @@ import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
 import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
+import CloseButton from '../UI/Buttons/CloseButton';
 
 const SLOT_LABEL = { skin: 'Face', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
 const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
@@ -106,7 +107,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
   if (!data || !spec || !look) {
     return createPortal(
-      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><button className="modal-close-btn" onClick={onClose}>×</button><div className="modal-title">Edit Avatar</div><p className="avatar-muted">Loading the catalogue…</p></div></div>,
+      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><CloseButton corner onClick={onClose} /><div className="modal-title">Edit Avatar</div><p className="avatar-muted">Loading the catalogue…</p></div></div>,
       document.body,
     );
   }
@@ -122,7 +123,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-large avatar-modal">
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
         <div className="modal-title">Edit Avatar <span className="avatar-dev-tag">developer preview</span></div>
 
         <div className="avatar-editor">

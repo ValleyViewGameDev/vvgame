@@ -3,7 +3,7 @@
 
 /* Level Up Modal Specific Styles - extends standard modal */
 .level-up-modal {
-  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* style-ok: art */
   border: 3px solid var(--color-warning);
   animation: levelUpBounce 0.6s ease-out;
 }
@@ -25,7 +25,7 @@
 
 /* Style the shared modal-title for level up */
 .level-up-modal .modal-title {
-  color: #d35400;
+  color: #d35400; /* style-ok: art (celebratory orange) */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   animation: titleGlow 2s ease-in-out infinite alternate;
 }
@@ -42,33 +42,26 @@
 /* Remove this section - use default modal-content styles */
 
 .level-up-message {
-  font-size: 20px;
+  font-size: var(--text-2xl);
   font-weight: 600;
-  color: #8b4513;
+  color: #8b4513; /* style-ok: art (celebratory brown) */
   margin-bottom: 15px;
   line-height: 1.4;
-}
-
-.level-up-details {
-  font-size: 16px;
-  color: #6c5ce7;
-  margin-bottom: 25px;
-  font-style: italic;
 }
 
 /* Unlocked resources section */
 .unlocked-resources {
   margin: 15px 0;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.6); /* style-ok: art (frosted panel on the gold gradient) */
+  border-radius: var(--radius-md);
   border: 1px solid rgba(211, 84, 0, 0.3);
 }
 
 .unlocked-title {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 600;
-  color: #d35400;
+  color: #d35400; /* style-ok: art (celebratory orange) */
   margin-bottom: 8px;
 }
 
@@ -80,8 +73,8 @@
 }
 
 .unlocked-list li {
-  font-size: 15px;
-  color: #8b4513;
+  font-size: var(--text-lg);
+  color: #8b4513; /* style-ok: art (celebratory brown) */
   padding: 4px 0;
 }
 

@@ -7,7 +7,7 @@ export default function PrivacyPolicyModal({ onClose }) {
   return (
     <Modal isOpen={true} onClose={onClose} title="Privacy Policy" size="standard">
       <div className="privacy-policy-content" style={{ textAlign: 'left', maxHeight: '60vh', overflowY: 'auto', padding: '0 8px' }}>
-        <p><em>Last updated: May 6, 2026</em></p>
+        <p style={{ color: 'var(--color-text-secondary)' }}>Last updated: May 6, 2026</p>
 
         <p>
           We respect your privacy. This Privacy Policy explains what information we collect when you
@@ -81,7 +81,7 @@ export default function PrivacyPolicyModal({ onClose }) {
           please contact us through the support channels listed in the game.
         </p>
 
-        <p style={{ marginTop: '16px', fontSize: '13px', color: '#666' }}>
+        <p className="text-fineprint" style={{ marginTop: '16px' }}>
           You can also view this policy on the web at{' '}
           <a href="https://www.secretsofelsinore.com/privacy" target="_blank" rel="noopener noreferrer">
             secretsofelsinore.com/privacy

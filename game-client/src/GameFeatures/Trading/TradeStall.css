@@ -1,90 +1,16 @@
-/* Note: Theme variables are defined in /UI/Styles/theme.css */
-/* TRADE STALL SLOTS */
 
-.username-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 0;
-  width: 100%;
-  max-width: 400px; /* Adjust as needed */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.arrow-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem; /* Adjust size for better visibility */
-  cursor: pointer;
-  color: #333; /* Optional: Customize color */
-}
-
-.arrow-button:disabled {
-  color: #ccc; /* Optional: Indicate disabled state visually */
-  cursor: not-allowed;
-}
 
 .username {
   font-family: var(--font-title-2-family);
-  font-size: 1.4rem; /* Customize the font size */
+  font-size: var(--font-title-2-size);
   font-weight: normal;
 }
 
-.username.clickable:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .username.clickable:hover {
+    text-decoration: underline;
+  }
 }
-
-/* Player dropdown menu */
-.player-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  margin-top: 5px;
-  min-width: 150px;
-  max-height: 280px; /* Increased from 200px to accommodate 3-4 more names */
-  overflow-y: auto;
-}
-
-.player-dropdown-item {
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: var(--font-title-2-family);
-  font-size: 1.1rem; /* Slightly smaller than the 1.4rem used for main username */
-  font-weight: normal;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.player-dropdown-item:last-child {
-  border-bottom: none;
-}
-
-.player-dropdown-item:hover {
-  background-color: #f4f4f4;
-}
-
-.player-dropdown-loading {
-  padding: 20px;
-  text-align: center;
-  font-size: 1.5rem;
-}
-
-.player-resources {
-  display: flex;
-  gap: 4px;
-  font-size: 14px;
-  margin-top: 4px;
-}
-
 
 .trade-stall-slots {
   display: flex;
@@ -93,27 +19,14 @@
   gap: 10px;
 }
 
-/* Gold Pass button styling within trade stall */
-.trade-stall-slots .standard-buttons {
-  flex: 0 0 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* Gold Pass divider specific styling */
-.trade-stall-slots .gold-pass-divider {
-  margin: 5px 0;
-  padding: 5px 0;
-}
-
 /* Old trade slot styles removed - using shared button styles */
 
 .trade-slot .sell-button {
-  font-size: 1.1rem;
+  font-size: var(--text-xl);
 }
 
 .trade-slot .countdown {
-  font-size: 1.1rem;
+  font-size: var(--text-xl);
 }
 
 .sell-button-container {
@@ -123,21 +36,21 @@
 }
 
 .sell-button {
-  background-color: #4caf50; /* Green background */
-  color: white; /* White text */
+  background-color: var(--color-success);
+  color: var(--color-text-white);
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--btn-radius-sm);
   cursor: pointer;
-  font-size: 16px;
+  font-family: var(--font-heading); /* = --btn-font-family */
+  font-size: var(--text-lg);
   font-weight: bold;
 }
 
 .sell-button:disabled {
-  background-color: #ccc; /* Grey background when disabled */
+  background-color: var(--color-btn-disabled);
   cursor: not-allowed;
 }
-
 
 /* INVENTORY MODAL */
 .inventory-modal {
@@ -145,10 +58,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: var(--color-bg-white);
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000; /* Ensures it floats above other content */
   width: 900px; /* Configurable width */
@@ -156,21 +69,6 @@
   max-height: 70vh; /* Prevents it from being too tall */
   overflow-y: auto; /* Scrollable if content exceeds height */
     box-shadow: inset 0 -7px 0 rgba(92, 91, 91, 0.5);
-}
-
-.inventory-modal .close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  color: #333;
-}
-
-.inventory-modal .close-button:hover {
-  color: #f00;
 }
 
 /* TABLE STYLING */
@@ -186,11 +84,11 @@
 .inventory-modal td {
   text-align: center;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
 }
 
 .inventory-modal th {
-  background: #f9f9f9;
+  background: var(--color-table-alt-row);
   font-weight: bold;
 }
 
@@ -223,7 +121,8 @@
 
 .inventory-modal table th,
 .inventory-modal table td {
-  font-size: 14px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
 }
 
 /* AMOUNT INPUT */
@@ -242,39 +141,42 @@
 .inventory-modal .amount-input button {
   width: 30px;
   height: 30px;
-  background: #ccc;
+  background: var(--color-btn-disabled);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.inventory-modal .amount-input button:hover {
-  background: #bbb;
+@media (hover: hover) {
+  .inventory-modal .amount-input button:hover {
+    background: var(--color-border-dark);
+  }
 }
 
 .inventory-modal .amount-input button:disabled {
-  background: #eee;
+  background: var(--color-btn-active);
   cursor: not-allowed;
 }
 
 /* ADD BUTTON */
 .inventory-modal .add-button {
   padding: 5px 10px;
-  background-color: #28a745;
-  color: white;
+  background-color: var(--color-btn-sell);
+  color: var(--color-text-white);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
   cursor: pointer;
-  font-size: 14px;
+  font-family: var(--font-heading); /* = --btn-font-family */
+  font-size: var(--text-md);
 }
 
 .inventory-modal .add-button:disabled {
-  background-color: #ccc;
+  background-color: var(--color-btn-disabled);
   cursor: not-allowed;
-  color: #777;
+  color: var(--color-btn-disabled-text);
 }
 
 /* SCROLLABLE CONTENT */
@@ -319,7 +221,7 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  font-size: 1.0rem;
+  font-size: var(--text-lg);
   position: relative;
   text-align: center;
   line-height: normal;
@@ -352,22 +254,22 @@
 /* When filled but not using button styling (timer state) */
 .shared-buttons .trade-slot.filled:not(.btn-sell):not(.btn-collect) {
   width: 150px;
-  background-color: #fff;
-  border: 2px solid #ccc;
-  border-radius: 12px;
+  background-color: var(--color-bg-white);
+  border: 2px solid var(--color-border-dark);
+  border-radius: var(--btn-radius);
   cursor: default;
-  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
+  box-shadow: var(--btn-shadow);
 }
 
 .trade-slot-empty-text {
   text-align: center;
-  color: #666;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: var(--text-md);
 }
 
 .trade-slot-content {
   text-align: center;
-  font-size: 1rem;
+  font-size: var(--text-lg);
 }
 
 .trade-slot-item-name {
@@ -376,16 +278,16 @@
 }
 
 .trade-slot-status {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
 }
 
 .trade-slot-status.timer {
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .trade-slot-status.ready {
-  color: #008000;
+  color: var(--color-text-positive);
 }
 
 .trade-button-container {
@@ -393,73 +295,12 @@
   gap: 4px;
 }
 
-.trade-buy-button {
-  flex: 1;
-  font-size: 14px;
-  padding: 6px 4px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: white;
-}
-
-.trade-buy-button.enabled {
-  background-color: #4CAF50;
-  cursor: pointer;
-}
-
-.trade-buy-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.trade-collect-button {
-  flex: 1;
-  font-size: 14px;
-  padding: 6px 4px;
-  border: none;
-  border-radius: 8px;
-  color: white;
-}
-
-.trade-collect-button.not-yours {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.trade-collect-button.collect-payment {
-  background-color: #FF9800;
-  cursor: pointer;
-}
-
-.trade-collect-button.sell-to-game {
-  background-color: #4CAF50;
-  cursor: pointer;
-}
-
-.trade-collect-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
 /* LOCKED SLOT STYLING */
 .trade-slot.locked {
-  background-color: #e9e9e9;
-  border: 2px dashed #c0c0c0;
+  background-color: var(--color-btn-active);
+  border: 2px dashed var(--color-border-dark);
   cursor: default;
   min-height: 85px;
-}
-
-/* GOLD PASS SLOT STYLING (slots 5-6) - inherits from btn-gold when locked */
-.shared-buttons .trade-slot.gold-slot.locked {
-  width: 150px;
-}
-
-/* Override gold slot text color for locked state */
-.shared-buttons .trade-slot.gold-slot.locked .trade-slot-lock-icon,
-.shared-buttons .trade-slot.gold-slot.locked .trade-slot-lock-text,
-.shared-buttons .trade-slot.gold-slot.locked div {
-  color: inherit; /* Use btn-gold's black text */
 }
 
 .trade-slot-locked {
@@ -468,21 +309,16 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #999;
+  color: var(--color-text-muted);
 }
 
 .trade-slot-locked div {
-  color: #b6b6b6;
+  color: var(--color-btn-disabled-text);
 }
 
 .trade-slot-lock-icon {
-  font-size: 1.5rem;
+  font-size: 24px; /* style-ok: icon (lock glyph) */
   margin-bottom: 4px;
-}
-
-.trade-slot-lock-text {
-  font-size: 14px;
-  font-weight: bold;
 }
 
 /* Remove clickable slot states - using shared button classes instead */

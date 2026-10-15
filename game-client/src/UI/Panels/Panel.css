@@ -7,11 +7,6 @@
   font-family: var(--font-text-1-family);
 }
 
-/* Example: To use a monospace font for debugging panels, you could add: */
-.debug-panel, .debug-panel * {
-  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
-}
-
 .panel-container[data-panel-name="MapPanel"] {
     /* The Map panel ends where its content ends (map, range note, controls), capped at the usual
        panel height and scrolling past it. Phones restate the cap in mobile.css. */
@@ -36,7 +31,6 @@
     flex-direction: column;
     overflow: hidden; /* Prevent container overflow, let content handle it */
   }
-
 
 /* Fixed Panel Header (Title + Close Button) */
 .panel-header {
@@ -70,7 +64,7 @@
 .panel-content {
   padding: 12px;
   margin: 0;
-  font-size: 12px;
+  font-size: var(--text-md);
   flex: 1;
   overflow-y: auto; /* Allows scrolling */
   touch-action: pan-y; /* Enable smooth trackpad scrolling on Windows */
@@ -98,6 +92,25 @@
   color: var(--font-title-3-color);
 }
 
+/* A section heading inside a panel's content (not the panel title): Lora, the sub-heading face,
+   one step above h3. "How to Earn Gems", "Skills you have", the Money panel's sections, the
+   leaderboard's "Top players". docs/ui-conventions.md §9. */
+.panel-container .panel-content .panel-subheading {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-xl);
+  color: var(--color-text-title);
+}
+
+/* "Plant / Place / Use with cursor" toggle on the Farming, Tools, Pets, Build, Buy and
+   Decorations panels: a control label, so Lora */
+.cursor-toggle-label {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+  cursor: pointer;
+}
+
 /* Countdown timers should use Lora (title-3) for better number readability */
 .countdown-timer {
   font-family: var(--font-title-3-family) !important;
@@ -106,26 +119,6 @@
 
   
 /* Panel Close Button */
-.panel-close-btn {
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.panel-close-btn:hover {
-  transform: scale(1.05);
-  color: var(--color-error);
-}
-
-/* Button list layout */
-.panel-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 10px;
-}
 
 /* See SharedButtons.css for button styles */
 
@@ -135,10 +128,7 @@
     margin-top: auto; /* Push to bottom */
     padding: 1px 10px; /* Reduced top/bottom padding from 10px to 5px */
     border-top: 1px solid var(--color-border-dark);
-    font-size: 12px;
-    color: var(--color-text-muted);
-    text-align: left;
-    font-style: italic;
+    text-align: left; /* the text is .text-hint (Panel.js) */
     background-color: var(--color-bg-panel); /* Match panel background */
     min-height: fit-content; /* Ensure it expands to fit content */
     flex-shrink: 0; /* Prevent shrinking */
@@ -151,20 +141,9 @@
     flex-shrink: 0; /* Prevent shrinking */
   }
 
-
 /* Debug Panel */
 
 /* General panel content styling */
-
-
-
-/* Player location section styling */
-
-.debug-player-location {
-  margin-top: 20px;
-  border-top: 1px solid var(--color-border-dark);
-  padding-top: 10px;
-}
 
 /* Timer section styling */
 .debug-timers {
@@ -180,14 +159,14 @@
 
 .debug-timers li {
   margin: 5px 0;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 /* Trader story text styling */
 .trader-story {
   margin-top: 16px;
-  font-style: italic;
-  font-size: 16px;
+  /* italic: .text-quote on the element (an NPC's own words) */
+  font-size: var(--text-lg);
   color: var(--color-text-secondary);
   line-height: 1.2;
   font-family: var(--font-text-2-family);
@@ -208,16 +187,19 @@
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  font-size: 14px;
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
   font-weight: 500;
   color: var(--color-text-muted);
   transition: all 0.2s ease;
   margin-bottom: -2px;
 }
 
-.tab-button:hover {
-  background-color: var(--color-tab-hover-bg);
-  color: var(--color-text-primary);
+@media (hover: hover) {
+  .tab-button:hover {
+    background-color: var(--color-tab-hover-bg);
+    color: var(--color-text-primary);
+  }
 }
 
 .tab-button.active {

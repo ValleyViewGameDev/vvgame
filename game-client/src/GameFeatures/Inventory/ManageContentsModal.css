@@ -13,7 +13,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: white;
+  background: var(--color-bg-white);
   flex-shrink: 0;
 }
 
@@ -26,18 +26,20 @@
 
 .manage-contents-header th {
   padding: 8px 12px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #ddd;
+  background: var(--color-bg-light);
+  border-bottom: 1px solid var(--color-border);
   text-align: center; /* Center align headers */
   font-weight: bold;
-  font-size: 15px; /* Increased from default for better readability */
+  font-size: var(--text-md);
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
 }
 
-.manage-contents-header th:hover {
-  background-color: #e9ecef;
+@media (hover: hover) {
+  .manage-contents-header th:hover {
+    background-color: var(--color-btn-active);
+  }
 }
 
 /* Sortable header styles */
@@ -47,8 +49,10 @@
   transition: background-color 0.2s;
 }
 
-.sortable-header:hover {
-  background-color: #e9ecef !important;
+@media (hover: hover) {
+  .sortable-header:hover {
+    background-color: var(--color-btn-active) !important;
+  }
 }
 
 /* Scrollable content area */
@@ -67,10 +71,10 @@
 
 .manage-contents-scroll td {
   padding: 8px 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
   text-align: center; /* Center align all table data */
-  font-size: 15px; /* Increased from default for better readability */
+  font-size: var(--text-md);
 }
 
 /* Center align the first column (food emoji + hp value) and make it narrow */
@@ -87,11 +91,13 @@
 }
 
 .manage-contents-scroll tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--color-table-alt-row);
 }
 
-.manage-contents-scroll tr:hover {
-  background-color: #f0f8ff;
+@media (hover: hover) {
+  .manage-contents-scroll tr:hover {
+    background-color: var(--color-bg-row-hover);
+  }
 }
 
 /* Amount input styling for actions (scoped to this modal) */
@@ -106,24 +112,32 @@
   width: 40px;
   padding: 2px;
   text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  font-size: 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
 }
 
 .manage-contents-scroll .amount-input button {
   width: 25px;
   height: 25px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding: 2px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  background: white;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--btn-radius-sm);
+  box-shadow: var(--btn-shadow-sm);
+  background: var(--color-bg-white);
   cursor: pointer;
 }
 
-.manage-contents-scroll .amount-input button:hover:not(:disabled) {
-  background: #f0f0f0;
+@media (hover: hover) {
+  .manage-contents-scroll .amount-input button:hover:not(:disabled) {
+    background: var(--color-btn-hover-light);
+  }
+}
+
+.manage-contents-scroll .amount-input button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 .manage-contents-scroll .amount-input button:disabled {
@@ -176,7 +190,7 @@
 
 /* Action buttons in table rows - larger font size */
 .manage-contents-scroll .shared-buttons .btn-mini {
-  font-size: 13px; /* Increased from default 11px for better readability */
+  font-size: var(--text-sm);
 }
 
 /* Old .add-button styling removed - now using shared-buttons system */

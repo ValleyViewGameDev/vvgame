@@ -4,11 +4,11 @@
    icon chips (.tn-good) and every countdown is a coloured pill (.tn-timer). */
 
 .town-news-panel {
-    background-color: #f4f1e9;
-    color: #222;
+    background-color: #f4f1e9; /* style-ok: art (newsprint) */
+    color: var(--color-text-primary);
     text-align: left;
     padding: 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
 }
 
 .town-news-panel h3 {
@@ -21,24 +21,23 @@
 }
 
 .town-news-panel h4 {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 18px;
+    font-family: "Times New Roman", Times, serif; /* style-ok: in-world newspaper face */
+    font-size: var(--text-xl);
     font-weight: bold;
     color: var(--color-text-primary);
     margin: 14px 0 10px 0;
 }
 
 .town-news-panel p {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 16px;
+    font-family: "Times New Roman", Times, serif; /* style-ok: in-world newspaper face */
+    font-size: var(--text-lg);
     line-height: 1.5;
     margin: 6px 0;
-    color: #222;
+    color: var(--color-text-primary);
 }
 
-/* The mayor / tax line reads as the standfirst */
+/* The mayor / tax line reads as the standfirst (italic via .text-quote in TownNewsPanel.js) */
 .town-news-panel .tn-standfirst {
-    font-style: italic;
     border-bottom: 1px dotted var(--color-text-muted);
     padding-bottom: 10px;
 }
@@ -70,10 +69,10 @@
     gap: 8px;
     padding: 2px 0;
     font-family: var(--font-text-1-family);
-    font-size: 14px;
+    font-size: var(--text-md);
 }
-.town-news-panel .tn-enough { color: green; }
-.town-news-panel .tn-short { color: red; }
+.town-news-panel .tn-enough { color: var(--color-text-positive); }
+.town-news-panel .tn-short { color: var(--color-text-negative); }
 .town-news-panel .tn-done { color: var(--color-text-muted, #888); text-decoration: line-through; }
 .town-news-panel .tn-who {
     color: var(--color-text-secondary, #555);
@@ -86,13 +85,13 @@
 .town-news-panel .tn-counts {
     margin: 4px 0 6px;
     font-family: var(--font-text-1-family);
-    font-size: 14px;
+    font-size: var(--text-md);
     line-height: 1.5;
 }
 
 /* Countdowns: coloured text so the time left reads at a glance */
 .town-news-panel .tn-timer {
-    color: #a32020;
+    color: var(--color-text-negative);
     font-weight: bold;
     white-space: nowrap;
 }

@@ -10,7 +10,7 @@
   width: 72px;
   height: 72px;
   margin: 2px auto 8px;
-  font-size: 52px;
+  font-size: 52px; /* style-ok: icon */
   line-height: 1;
 }
 .resource-modal-small .rms-icon img {
@@ -20,12 +20,12 @@
 }
 .resource-modal-small .rms-source {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
 }
 .resource-modal-small .rms-ingredients {
   margin: 8px 0 0;
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-secondary);
 }
 .resource-modal-small .rms-label { font-weight: bold; }

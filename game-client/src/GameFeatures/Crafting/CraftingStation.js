@@ -911,7 +911,7 @@ const CraftingStation = ({
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
               const requirementsMet = hasRequiredSkill(recipe.requires);
-              const skillColor = requirementsMet ? 'green' : 'red';
+              const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
 
               // Check if this is a healer and if we've hit the hospital capacity limit
               const isHealer = recipe.action === 'heal';
@@ -948,7 +948,7 @@ const CraftingStation = ({
                 if (!type || !qty) return '';
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                const color = playerQty >= qty ? 'green' : 'red';
+                const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
@@ -960,7 +960,7 @@ const CraftingStation = ({
                   name={getLocalizedString(recipe.type, strings)}
                   className="resource-button"
                   details={
-                    (healerLimitReached ? `<span style="color: red;">${strings[408]}</span><br>` : '') +
+                    (healerLimitReached ? `<span style="color: var(--color-text-negative);">${strings[408]}</span><br>` : '') +
                     (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
                     `${craftTimeText}<br>` +
                     `${strings[461]}<div>${formattedCosts}</div>`
@@ -1059,7 +1059,7 @@ const CraftingStation = ({
                       const playerQty = getPlayerQuantity(resourceType, inventory, backpack); // backpack + warehouse
                       const hasEnough = playerQty >= qty;
                       return (
-                        <div key={resourceType} style={{ color: hasEnough ? 'green' : 'red' }}>
+                        <div key={resourceType} style={{ color: hasEnough ? 'var(--color-text-positive)' : 'var(--color-text-negative)' }}>
                           {symbol} {getLocalizedString(resourceType, strings)}: {qty} / {playerQty}
                         </div>
                       );
@@ -1069,7 +1069,7 @@ const CraftingStation = ({
               // Crafting or ready slot - show item info (quantity is shown in Output badge)
               <div>
                 <div>{masterResources?.find(r => r.type === slot.craftedItem)?.symbol || '🎁'} {getLocalizedString(slot.craftedItem, strings)}</div>
-                {slotIsReady && <div style={{ color: 'green' }}>{strings[457] || 'Ready to collect!'}</div>}
+                {slotIsReady && <div style={{ color: 'var(--color-text-positive)' }}>{strings[457] || 'Ready to collect!'}</div>}
               </div>
             )}
           </div>,

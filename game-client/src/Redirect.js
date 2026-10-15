@@ -24,24 +24,24 @@ function Redirect() {
       zIndex: 999999
     }}>
       <div style={{
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--color-bg-white)',
         padding: '40px',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-lg)',
         textAlign: 'center',
         maxWidth: '400px',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
       }}>
-        <h2 style={{ marginTop: 0, color: '#333' }}>
+        <h2 style={{ marginTop: 0, color: 'var(--color-text-primary)' }}>
           This game has moved!
         </h2>
-        <p style={{ fontSize: '16px', color: '#555', lineHeight: 1.5 }}>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-lg)', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
           Please visit the new site and log in there with your username and password:
         </p>
         <p style={{
-          fontFamily: "'Lora', serif",
-          fontSize: '18px',
+          fontFamily: 'var(--font-heading)',
+          fontSize: 'var(--text-xl)',
           fontWeight: 'bold',
-          color: '#2563eb',
+          color: 'var(--color-text-link)',
           margin: '20px 0'
         }}>
           {NEW_DOMAIN.replace('https://', '')}
@@ -49,13 +49,15 @@ function Redirect() {
         <button
           onClick={handleGo}
           style={{
-            backgroundColor: '#4caf50',
-            color: '#fff',
+            backgroundColor: 'var(--color-success)',
+            color: 'var(--color-text-white)',
             border: 'none',
             padding: '12px 40px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            borderRadius: '8px',
+            fontFamily: 'var(--btn-font-family)',
+            fontSize: 'var(--text-xl)',
+            fontWeight: 'var(--btn-font-weight)',
+            borderRadius: 'var(--btn-radius)',
+            boxShadow: 'var(--btn-shadow)',
             cursor: 'pointer',
             marginTop: '10px'
           }}

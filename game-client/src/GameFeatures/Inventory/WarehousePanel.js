@@ -193,12 +193,12 @@ const WarehousePanel = ({
         <div className="warehouse-capacity-display">
           <h3>
             {strings[183]} {currentUsage} / {" "}
-            <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+            <span style={currentPlayer?.accountStatus === "Gold" ? {color: "var(--color-text-title)"} : {}}>
               {finalCapacities.warehouse}
             </span>
           </h3>
           {currentPlayer?.accountStatus === "Gold" && (
-            <p style={{fontSize: "14px", color: "#666", margin: "5px 0"}}>
+            <p style={{fontSize: "var(--text-md)", color: "var(--color-text-secondary)", margin: "5px 0"}}>
               (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
             </p>
           )}
@@ -226,7 +226,7 @@ const WarehousePanel = ({
                     
                     const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
                     const playerQty = inventoryQty;
-                    const color = playerQty >= qty ? 'green' : 'red';
+                    const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                     const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                     ingredients.push(`<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                   }
@@ -265,7 +265,7 @@ const WarehousePanel = ({
                 {strings[9061]}
               </button>
             </div>
-            <div className="gold-pass-info" style={{ textAlign: 'center', marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+            <div className="gold-pass-info text-hint" style={{ textAlign: 'center', marginBottom: '20px' }}>
               {strings[199]}
             </div>
           </>
@@ -279,10 +279,10 @@ const WarehousePanel = ({
             style={{
               background: 'none',
               border: 'none',
-              color: '#B8860B',
+              color: 'var(--color-text-title)',
               textDecoration: 'underline',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: 'var(--text-md)',
             }}
           >
             {strings[10131] || "Gold Pass Benefits"}

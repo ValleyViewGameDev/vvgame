@@ -7,6 +7,7 @@ import { useStrings } from '../StringsContext';
 import stringsEN from '../Strings/stringsEN.json';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
+import CloseButton from '../Buttons/CloseButton';
 
 function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
   const strings = useStrings();
@@ -20,7 +21,7 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
     return createPortal(
       <div className="modal-overlay" style={{ zIndex: 100000 }}>
         <div className="modal-container">
-          <button className="modal-close-btn" onClick={() => setNoticeDismissed(true)}>&times;</button>
+          <CloseButton corner onClick={() => setNoticeDismissed(true)} />
           <h2 className="modal-title">{t(10010)}</h2>
           <div className="modal-content">
             <p className="modal-message">{t(10011)}</p>

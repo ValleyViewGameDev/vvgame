@@ -2,7 +2,7 @@
    panels; reads like the Farm Animal panel's status line */
 .citizen-status-line {
   margin: 0 0 10px 0;
-  font-size: 14px;
+  font-size: var(--text-md);
   font-family: var(--font-text-1-family);
   text-align: center;
 }

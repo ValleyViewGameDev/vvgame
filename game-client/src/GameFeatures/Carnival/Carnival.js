@@ -461,7 +461,7 @@ function CarnivalPanel({
           // Have = backpack + warehouse; handleFulfill spends backpack first (InventoryManagement)
           const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack);
           const affordable = playerQty >= offer.qtyBought;
-          const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
+          const costColor = playerQty >= offer.qtyBought ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
           const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
           const rewardDisplay = `${getSymbol(offer.itemGiven)} ${offer.qtyGiven.toLocaleString()}`;
           const details = `<div>${costDisplay}</div><br>${strings[42]}: ${rewardDisplay}`;

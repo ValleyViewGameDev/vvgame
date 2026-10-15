@@ -11,9 +11,9 @@
   margin-bottom: 12px;
   padding: 12px;
   cursor: default;
-  background-color: #fffbea;
+  background-color: #fffbea; /* style-ok: art (gold player card) */
   border: 4px solid #C9A034;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .player-header {
@@ -24,12 +24,12 @@
 }
 
 .player-rank {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
 }
 
 .player-info {
-  font-size: 14px;
+  font-size: var(--text-md);
   text-decoration: none;
 }
 
@@ -40,26 +40,26 @@
 }
 
 .player-networth {
-  font-size: 14px;
+  font-size: var(--text-md);
   margin-bottom: 4px;
 }
 
 .player-stats {
-  font-size: 14px;
+  font-size: var(--text-md);
   margin-bottom: 4px;
 }
 
 .xp-bar-container {
   width: 100%;
   height: 6px;
-  background-color: #2d5a2f;
-  border-radius: 2px;
+  background-color: #2d5a2f; /* style-ok: art (xp bar track) */
+  border-radius: var(--radius-xs);
   overflow: hidden;
   margin-bottom: 8px;
 }
 
 .xp-bar-fill {
   height: 100%;
-  background-color: #74ee66;
+  background-color: var(--color-primary-green-light);
   transition: width 0.3s ease;
 }

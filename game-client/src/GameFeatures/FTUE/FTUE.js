@@ -366,13 +366,15 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
                   {strings[788]}
                 </label>
               </div>
-              <button
-                className="ftue-button ftue-button-primary"
-                onClick={() => onFeedbackSubmit(true)}
-                disabled={positiveReasons.length === 0}
-              >
-                {strings[783]}
-              </button>
+              <div className="shared-buttons">
+                <button
+                  className="btn-basic btn-success btn-modal"
+                  onClick={() => onFeedbackSubmit(true)}
+                  disabled={positiveReasons.length === 0}
+                >
+                  {strings[783]}
+                </button>
+              </div>
             </div>
 
             {/* Negative feedback section */}
@@ -412,13 +414,15 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
                   {strings[793]}
                 </label>
               </div>
-              <button
-                className="ftue-button ftue-button-primary"
-                onClick={() => onFeedbackSubmit(false)}
-                disabled={negativeReasons.length === 0}
-              >
-                {strings[794]}
-              </button>
+              <div className="shared-buttons">
+                <button
+                  className="btn-basic btn-success btn-modal"
+                  onClick={() => onFeedbackSubmit(false)}
+                  disabled={negativeReasons.length === 0}
+                >
+                  {strings[794]}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -63,7 +63,7 @@ function RevivalModal({
               style={{ marginRight: '10px', opacity: hasEnoughGems ? 1 : 0.7 }}
             >
               {strings["5072"] || "Revive for"}<br />
-              <span style={{ color: hasEnoughGems ? '#2ecc71' : '#e74c3c' }}>
+              <span style={{ color: hasEnoughGems ? 'var(--color-text-positive)' : 'var(--color-text-negative)' }}>
                 💎 {reviveCost} / {playerGems}
               </span>
             </button>

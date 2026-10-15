@@ -9,26 +9,21 @@
 }
 
 .level-lock-icon {
-  font-size: 64px;
+  font-size: 64px; /* style-ok: icon */
   margin-bottom: 20px;
   opacity: 0.8;
 }
 
 .level-lock-message {
-  font-size: 18px;
+  font-size: var(--text-xl);
   font-weight: bold;
   color: var(--color-text-primary);
   margin-bottom: 10px;
 }
 
 .level-lock-current {
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-text-muted);
   margin-bottom: 15px;
 }
 
-.level-lock-feature {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  font-style: italic;
-}

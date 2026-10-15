@@ -17,14 +17,14 @@
 /* Each message row */
 .mailbox-message {
   display: flex;
-  font-family: 'Arial', sans-serif;
+  font-family: var(--font-body);
   justify-content: space-between;
   align-items: center;
-  background: #f4f4f4;
+  background: var(--color-bg-light);
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 /* Left side (title/body/time) */
@@ -35,53 +35,33 @@
 
 .message-left h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--text-lg);
   text-align: left;
 
 }
 
 .message-body {
   margin: 4px 0;
-  color: #444;
-  font-size: 14px;
+  color: var(--color-text-primary);
+  font-size: var(--text-md);
   text-align: left;
 }
-
 
 /* Unread tag */
 .unread-tag {
   display: inline-block;
-  background-color: #ff5252;
-  color: white;
-  font-size: 12px;
+  background-color: var(--color-error);
+  color: var(--color-text-white);
+  font-size: var(--text-xs);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   margin-left: 6px;
-}
-
-/* Inline reward display */
-.mailbox-reward-list {
-  display: inline;
-  padding-left: 0;
-  margin: 0;
-  font-size: 14px;
-  color: #333;
-  text-align: left;
-
-}
-
-.mailbox-reward-list li {
-  display: inline;
-  margin-right: 10px;
-  list-style: none;
-  text-align: left;
-
 }
 
 /* Timestamp */
 .mailbox-timestamp {
-  font-size: 12px;
-  color: #777;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
   margin-top: 4px;
   text-align: left;
 
@@ -90,21 +70,12 @@
 /* Buttons */
 .collect-btn {
   padding: 6px 10px;
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--color-btn-sell);
+  color: var(--color-text-white);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
   cursor: pointer;
   margin-right: 6px;
-}
-
-.delete-btn {
-  padding: 6px 10px;
-  background-color: #dcdcdc;
-  color: black;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .message-actions {
@@ -115,19 +86,10 @@
   gap: 6px;
 }
 
-/* Wrap just the buttons in a row */
-.button-row {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-
 .reward-summary {
   margin-bottom: 6px;
-  font-size: 14px;
-  color: #333;
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -135,8 +97,7 @@
 }
 
 /* Show buttons side-by-side */
-.message-actions .collect-btn,
-.message-actions .delete-btn {
+.message-actions .collect-btn{
   margin: 2px;
 }
 

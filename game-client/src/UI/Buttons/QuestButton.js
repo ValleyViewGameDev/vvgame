@@ -52,7 +52,7 @@ const QuestButton = ({ quest, state, onClick, masterResources }) => {
           : <span className="quest-status">{strings[207]}</span>}
       </div>
       <h2 className="quest-title">{title}</h2>
-      {completed && <p className="quest-return-hint">{strings[206]}</p>}
+      {completed && <p className="quest-return-hint text-hint">{strings[206]}</p>}
       <div className="quest-tasks">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (
@@ -149,7 +149,7 @@ const QuestGiverButton = ({
       </div>
       <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {reward}</p>
       {xpReward && state === 'reward' && (
-        <p style={{ color: '#4CAF50', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
+        <p style={{ color: 'var(--color-text-positive)', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
       )}
       <button
         className={`quest-giver-button${isProcessing ? ' processing' : ''}`}

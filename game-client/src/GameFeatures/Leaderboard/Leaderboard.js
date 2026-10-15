@@ -95,7 +95,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
         <p>Loading leaderboard...</p>
       ) : (
         <>
-          <h2 className="leaderboard-title">Top players by net worth:</h2>
+          <h2 className="leaderboard-title panel-subheading">Top players by net worth:</h2>
           {leaderboardData.length > 0 ? (
             <div className="leaderboard-container">
               {leaderboardData.slice(0, 10).map((player, index) => {

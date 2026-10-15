@@ -1,18 +1,18 @@
 .grid-debug-panel {
-  background-color: #111;
-  color: lime;
+  background-color: #111; /* style-ok: dev tool */
+  color: lime; /* style-ok: dev tool */
   padding: 1rem;
-  font-size: 12px;
+  font-size: var(--text-xs);
   max-height: 900px;
   overflow-y: auto;
   overflow-x: auto; /* Enable horizontal scroll if content overflows */
   line-height: 1.2;
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
 
 .grid-debug-panel h4,
 .grid-debug-panel h5 {
-  color: white;
+  color: var(--color-text-white);
   margin: 0.5em 0 0.2em;
   white-space: pre; /* Prevent wrapping */
 }

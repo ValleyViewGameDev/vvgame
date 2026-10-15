@@ -3,6 +3,7 @@ import socket, { emitChatMessage, socketListenForChatMessages } from '../../sock
 import { updateBadge } from '../../Utils/appUtils';
 import './Chat.css';
 import API_BASE from '../../config';
+import CloseButton from '../../UI/Buttons/CloseButton';
 
 const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPlayer, onClose }) => {
 
@@ -102,7 +103,7 @@ return (
 
     <div className="chat-panel-header">
       <h3>💬 Chat</h3>
-      <button className="chat-close-button" onClick={onClose}>✖</button>
+      <CloseButton onClick={onClose} />
     </div>
 
     <div className="chat-panel">

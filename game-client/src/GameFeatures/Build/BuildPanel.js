@@ -270,7 +270,7 @@ const BuildPanel = ({
           marginBottom: '10px',
           padding: '5px 0'
         }}>
-          <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
+          <label className="cursor-toggle-label">
             {strings[10187] || 'Place with cursor'}
           </label>
           <input
@@ -313,16 +313,16 @@ const BuildPanel = ({
                 if (!type || !qty) return '';
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                const color = playerQty >= qty ? 'green' : 'red';
+                const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = meetsSkillRequirement ? 'green' : 'red';
-              const levelColor = meetsLevel ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const details = craftingStationLimitReached
-                ? `<span style="color: red;">${strings[407]} (${maxCraftingStationsPerType})</span>`
-                : (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span>` : '') +
+                ? `<span style="color: var(--color-text-negative);">${strings[407]} (${maxCraftingStationsPerType})</span>`
+                : (townBuildingLimitReached ? `<span style="color: var(--color-text-negative);">${strings[407]}</span>` : '') +
                   (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
                   (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                   `${strings[461]}<div>${formattedCosts}</div>`;

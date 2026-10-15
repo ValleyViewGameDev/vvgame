@@ -125,3 +125,12 @@ export const defaultTileColor = '#ff0000'; // debug red
 export function getTileColor(tileType) {
   return tileColors[tileType] || defaultTileColor;
 }
+
+// The terrain palette as CSS custom properties on :root (--tile-g, --tile-d, ...), so stylesheets
+// that echo the board (gridlines, minimap, the dirt behind it) use the same colors. Called once
+// from index.js before the first render. theme.css explains the split: UI brand colors there,
+// terrain colors here.
+export function applyTileColorVars(root = typeof document !== 'undefined' ? document.documentElement : null) {
+  if (!root) return;
+  Object.entries(tileColors).forEach(([key, color]) => root.style.setProperty(`--tile-${key}`, color));
+}

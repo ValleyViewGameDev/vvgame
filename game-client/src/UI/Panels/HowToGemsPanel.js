@@ -32,7 +32,7 @@ const HowToGemsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
     <Panel onClose={onClose} descriptionKey="1034" titleKey="1134" panelName="HowToGemsPanel">
       <div className="panel-content">
 
-        <h2>{strings[9030]}</h2>
+        <h2 className="panel-subheading">{strings[9030]}</h2>
         <p>{strings[9031]}</p>
         <p>{strings[9032]}</p>
 

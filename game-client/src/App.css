@@ -9,7 +9,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-title-1-family);
+  font-family: var(--font-heading); /* the page default is Lora; Berkshire is opt-in (titles), Arial is set by body-text roles */
   background-color: var(--color-bg-dirt);
 }
 
@@ -41,15 +41,12 @@ body {
   margin-left: 0; /* the nav is a floating pill now, not a rail */
 }
 
-
-
-
 /* MAP PANEL (ZoomedOut/MapPanel.js): the old base panel's text styles ///////////////////// */
 
 .map-panel p {
   margin: 0;
   padding: 0;
-  font-size: 12px;
+  font-size: var(--text-md);
   color: var(--color-text-green);
   text-align: left;
   font-family: var(--font-text-1-family);
@@ -59,7 +56,7 @@ body {
 .map-panel h1 {
   margin: 0;
   padding: 0;
-  font-size: 1.9em;
+  font-size: var(--font-title-2-size);
   font-weight: normal;
   color: var(--color-modal-title);
   text-align: left;
@@ -69,7 +66,7 @@ body {
 .map-panel h2 {
   margin: 0;
   padding: 0;
-  font-size: 1.4em;
+  font-size: var(--text-xl);
   font-weight: normal;
   color: var(--color-modal-title);
   text-align: left;
@@ -79,7 +76,7 @@ body {
 .map-panel h3 {
   margin: 0;
   padding: 0;
-  font-size: 1em;
+  font-size: var(--text-md);
   color: var(--color-text-green);
   text-align: left;
   font-family: var(--font-text-1-family);
@@ -88,13 +85,11 @@ body {
 .map-panel h4 {
   margin: 0;
   padding: 0;
-  font-size: 14px;
+  font-size: var(--text-md);
   color: var(--color-modal-title);
   text-align: left;
   font-family: var(--font-text-1-family);
 }
-
-
 
 /* NAV BAR: a floating horizontal pill centred along the board's bottom edge, like the
    phone's portrait pill ////////////////////////////////////////////////////////////// */
@@ -128,7 +123,7 @@ body {
 .nav-button {
   background: none;
   border: none;
-  font-size: 26px;
+  font-size: 26px; /* style-ok: icon */
   margin: 0 1px;
   cursor: pointer;
   color: var(--color-text-white);
@@ -136,7 +131,7 @@ body {
   min-width: 0;
   height: 48px;
   flex: 0 0 auto;
-  border-radius: 24px;
+  border-radius: var(--radius-round);
   transition: background-color 0.15s ease, transform 0.15s ease;
   display: flex;
   align-items: center;
@@ -147,9 +142,6 @@ body {
 .nav-button.selected {
   background-color: var(--color-primary-green);
 }
-
-
-
 
 /* HEADER /////////////////////////////// */
 
@@ -181,7 +173,7 @@ body {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: var(--text-4xl);
   font-weight: bold;
   background-color: var(--color-primary-green-dark);
   color: var(--color-text-white);
@@ -194,13 +186,14 @@ body {
   justify-content: center;
   padding: 0;
 }
-.zoom-button:hover:enabled { background-color: var(--color-button-hover); }
+@media (hover: hover) {
+  .zoom-button:hover:enabled { background-color: var(--color-button-hover); }
+}
 .zoom-button:active:enabled { transform: scale(0.92); }
 .zoom-button:disabled { opacity: 0.5; cursor: not-allowed; }
 .zoom-button.zoom-in { top: 7px; }
 .zoom-button.zoom-out { top: 59px; }
 .zoom-button span { position: static; }
-.zoom-label { display: none; }
 
 /* SEASON: one round button at the board's top-right, the zoom pill's twin ///////////////// */
 
@@ -227,9 +220,9 @@ body {
   z-index: 975;
   pointer-events: none;
   font-family: var(--font-title-1-family);
-  font-size: 28px;
+  font-size: var(--font-title-1-size);
   line-height: 1.2;
-  color: #ffffff;
+  color: var(--color-text-white);
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.7), 0 0 14px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
   animation: regionNameIn 700ms ease-out both;
@@ -244,7 +237,7 @@ body {
   border-radius: 50%;
   background-color: var(--color-primary-green-dark);
   color: var(--color-text-white);
-  font-size: 24px;
+  font-size: 24px; /* style-ok: icon */
   line-height: 45px;
   padding: 0;
   cursor: pointer;
@@ -253,18 +246,17 @@ body {
   align-items: center;
   justify-content: center;
 }
-.season-button:hover { background-color: var(--color-button-hover); }
+@media (hover: hover) {
+  .season-button:hover { background-color: var(--color-button-hover); }
+}
 .season-button:active { transform: scale(0.92); }
 
-/* The right-hand HUD stack, top to bottom: Quest (.quest-controls, the base .season-controls
-   spot), Season (.season-main), Town News (.news-controls). Season and Town News carry a
-   countdown under them (--hud-countdown-h); Quest does not. */
-.season-controls.season-main {
-  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
-}
+/* The right-hand HUD stack, top to bottom: Season (.season-main, the base .season-controls
+   spot), Town News (.news-controls). Both carry a countdown under them (--hud-countdown-h).
+   The Quest button lives in the left column under the Map button (.map-controls.quest-controls). */
 /* TOWN NEWS: under the season button and its countdown; toggles the Town News panel */
 .season-controls.news-controls {
-  top: calc(var(--d-top) + var(--d-gap) + 2 * (var(--d-pill-w) + var(--d-gap)) + var(--hud-countdown-h));
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-pill-w) + var(--d-gap) + var(--hud-countdown-h));
 }
 .season-button.news-button.selected,
 .season-button.quest-button.selected { background-color: var(--color-button-hover); }
@@ -285,12 +277,12 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: #f2b705;
-  color: #3a2a00;
+  background-color: #f2b705; /* style-ok: art (quest badge, matches the checkmark overlay) */
+  color: var(--color-text-primary);
   border: 1.5px solid #ffffff;
   box-sizing: border-box;
   font-family: var(--font-text-1-family);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: bold;
   line-height: 1;
 }
@@ -323,12 +315,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 24px; /* style-ok: icon */
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
-.map-button:hover, .map-button.selected { background-color: var(--color-button-hover); }
+.map-button.selected { background-color: var(--color-button-hover); }
+@media (hover: hover) { .map-button:hover { background-color: var(--color-button-hover); } }
 .map-button:active { transform: scale(0.92); }
 .map-button .nav-icon { width: 30px; height: 30px; }
+/* QUEST (To Do): the map button's twin, directly under it in the left column */
+.map-controls.quest-controls {
+  top: calc(var(--d-top) + var(--d-gap) + var(--d-zoom-h) + var(--d-gap) + var(--d-pill-w) + var(--d-gap));
+}
 
 /* HEADER /////////////////////////////////// */
 
@@ -352,7 +349,7 @@ body {
   width: auto;
   flex-shrink: 0;
   display: flex;
-  font-size: 17px;
+  font-size: var(--text-xl);
   align-items: center;
   margin-right: 22px;
 }
@@ -394,7 +391,7 @@ body {
   display: block;
   width: 100% !important;  /* the inline 100px becomes the column's width */
   height: 3px !important;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   overflow: hidden;
 }
 
@@ -443,7 +440,7 @@ body {
   border: none;
   color: var(--color-text-white);
   font-family: var(--font-title-3-family);
-  font-size: 15px;
+  font-size: var(--text-md);
   font-weight: bold;
   cursor: pointer;
   text-decoration: none;
@@ -454,8 +451,10 @@ body {
   white-space: nowrap;
 }
 
-.header-link:hover {
-  opacity: 0.8;
+@media (hover: hover) {
+  .header-link:hover {
+    opacity: 0.8;
+  }
 }
 
 .header-link:disabled {
@@ -470,9 +469,10 @@ body {
 }
 
 .app-header h1 {
+  font-family: var(--font-display); /* the logo: Berkshire (the page default is Lora) */
   margin: 0;
   padding-right: 0;
-  font-size: 1.35em;
+  font-size: var(--text-3xl);
   line-height: 1.05;
   white-space: normal;
   max-width: 5.6em; /* "Secrets of" / "Elsinore" */
@@ -501,18 +501,12 @@ body {
   position: relative;
 }
 
-.nav-button-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
 /* Nav button SVG icons */
 .nav-icon {
   width: 35px;
   height: 35px;
   object-fit: contain;
 }
-
 
 /* GAME BOARD */
 
@@ -530,22 +524,12 @@ body {
   touch-action: none; /* gestures belong to the game, not the page */
 }
 
-
-
 /* PLAYER ICON /////////////////////////////// */
 
 .player {
   position: relative;
   z-index: 50;
 }
-
-.range-indicator {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none; /* ✅ Ensures it doesn't interfere with gameplay */
-  transition: left 0.1s linear, top 0.1s linear; /* ✅ Smooth movement */
-}
-
 
 /*  */
 
@@ -567,31 +551,14 @@ body {
 .modal-container {
   background-color: var(--color-bg-white);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: 0 4px 6px var(--color-shadow);
   width: 90%;
   max-width: 400px;
   position: relative;
 }
 
-.modal-close-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.modal-close-btn:hover {
-  color: var(--color-error);
-}
-
 /* Tooltips - moved to src/Render/Tooltip.css */
-
-
 
 /* Animations */
 @keyframes fadeIn {
@@ -605,31 +572,6 @@ body {
   }
 }
 
-/* Inventory Content */
-.inventory-content {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 10px;
-}
-
-.inventory-content ul {
-  list-style: none;
-  padding: 0;
-}
-
-.inventory-content li {
-  padding: 5px;
-  background-color: var(--color-bg-light);
-  margin-bottom: 5px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
-}
-
-.inventory-content p {
-  color: var(--color-text-secondary);
-  text-align: center;
-}
-
 .keyart-wrapper {
   /* fills the board under the header and status bar (the Begin modal and the login panel sit on it) */
   position: fixed;
@@ -638,7 +580,7 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background-color: #81bc4d; /* the art's own edge green, for windows larger than the art */
+  background-color: #81bc4d; /* style-ok: art (the key art's own edge green, for windows larger than the art) */
 }
 
 /* The key art (login and loading) is pinned to the top-left at its natural size (1698 x 1545):
@@ -671,8 +613,6 @@ body {
   height: 100%;
   position: absolute;
 }
-
-
 
 /* PANEL MOTION: slide-in panels fly in from the left and back out (Panel.css places them;
    UI/Panels/panelExitGhost.js clones a removed panel so every close path animates) */

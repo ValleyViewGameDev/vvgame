@@ -434,7 +434,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                               </div>
                             ))
                           ) : (
-                            <div className="no-combat-effects">
+                            <div className="no-combat-effects text-empty">
                               (No combat effects)
                             </div>
                           )}
@@ -443,7 +443,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                     );
                   })
               ) : (
-                <p>{strings[527]}</p>
+                <p className="text-empty">{strings[527]}</p>
               )}
             </div>
           </>

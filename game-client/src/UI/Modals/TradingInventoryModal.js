@@ -5,6 +5,7 @@ import TransactionButton from '../Buttons/TransactionButton';
 import { useStrings } from '../StringsContext';
 import { isCurrency } from '../../Utils/InventoryManagement';
 import './TradingInventoryModal.css';
+import CloseButton from '../Buttons/CloseButton';
 
 const TradingInventoryModal = ({
   isOpen,
@@ -83,7 +84,7 @@ const TradingInventoryModal = ({
   // (docs/ui-conventions.md, Modals).
   return createPortal(
     <div className="inventory-modal wider">
-      <button className="close-button" onClick={onClose}>✖</button>
+      <CloseButton corner onClick={onClose} />
 
       <h2>{isRequestMode ? strings[10180] : strings[160]}</h2>
 

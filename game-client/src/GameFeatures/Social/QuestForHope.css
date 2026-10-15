@@ -10,7 +10,7 @@
 .qfh-note {
   margin: 0 0 10px;
   font-family: var(--font-text-2-family);
-  font-size: 14px;
+  font-size: var(--text-md);
   opacity: 0.8;
 }
 .qfh-list {
@@ -26,17 +26,17 @@
   width: 100%;
   padding: 6px 12px;
   border: none;
-  border-radius: 8px;
-  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-tint);
   font-family: var(--font-text-2-family);   /* rows use the body font, not the title font */
-  font-size: 16px;
+  font-size: var(--text-lg);
   text-align: left;
   color: inherit;
 }
 .qfh-row:disabled { opacity: 1; cursor: default; }        /* collected rows are not "greyed out" */
 .qfh-row.uncollected { cursor: pointer; }
-.qfh-row.uncollected:active { background-color: rgba(0, 0, 0, 0.12); }
-.qfh-icon { font-size: 26px; line-height: 1; width: 32px; text-align: center; flex: none; }
+.qfh-row.uncollected:active { background-color: rgba(0, 0, 0, 0.12); } /* style-ok: art (row tint) */
+.qfh-icon { font-size: 26px; /* style-ok: icon */ line-height: 1; width: 32px; text-align: center; flex: none; }
 .qfh-row.uncollected .qfh-icon { opacity: 0.25; }
 .qfh-name { flex: 1; }
 .qfh-row.uncollected .qfh-name { opacity: 0.75; }
@@ -44,12 +44,11 @@
 .qfh-mark { flex: none; font-weight: bold; opacity: 0.7; }
 .qfh-row.collected .qfh-mark { color: var(--color-btn-primary); opacity: 1; }
 
-/* the hint */
-.qfh-hint-icon { font-size: 36px; line-height: 1; margin-bottom: 8px; opacity: 0.5; }
+/* the hint: an oracle's riddle, in-world writing, so the JSX adds .text-quote (theme.css) for the italic */
+.qfh-hint-icon { font-size: 36px; /* style-ok: icon */ line-height: 1; margin-bottom: 8px; opacity: 0.5; }
 .qfh-hint-text {
-  font-family: var(--font-text-2-family);
-  font-style: italic;
-  font-size: 15px;
-  line-height: 1.4;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
   margin: 0;
 }

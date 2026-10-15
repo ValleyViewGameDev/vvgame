@@ -920,7 +920,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
       {/* LOADING INDICATOR */}
       {isLoadingInitial ? (
-        <div style={{ textAlign: 'center', padding: '40px', fontSize: '1.2rem' }}>
+        <div style={{ textAlign: 'center', padding: '40px', fontSize: 'var(--text-xl)' }}>
           {strings[98]}
         </div>
       ) : (
@@ -962,20 +962,20 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                     // Show unlock UI for locked slots on own stall
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
-                      <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
                         {strings[173]} {config.maxAmount}
                       </div>
-                      <div style={{ fontSize: '13px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)' }}>
                         {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
                       </div>
                     </div>
                   ) : isEmpty ? (
                     <div className="trade-slot-empty-text">
                       <div>➕ {strings[156]}</div>
-                      <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
                         {strings[173]} {config.maxAmount}
                       </div>
-                      <div style={{ fontSize: '13px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)' }}>
                         {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
                       </div>
                     </div>
@@ -1054,14 +1054,14 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                     // Show unlock UI for locked slots
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
-                      <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
                         {strings[173]} {config.maxAmount}
                       </div>
                     </div>
                   ) : isEmpty ? (
                     <div className="trade-slot-empty-text">
                       <div>➕ Add Request</div>
-                      <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
                         {strings[173]} {config.maxAmount}
                       </div>
                     </div>

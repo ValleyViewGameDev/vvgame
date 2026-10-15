@@ -6,12 +6,12 @@
 .kent-offer-button {
   background-color: var(--color-btn-primary) !important;
   border: 2px solid rgba(0, 0, 0, 0.08) !important;
-  color: #2c3e50 !important;
-  font-size: 16px !important;
+  color: var(--color-text-primary) !important;
+  font-size: var(--text-lg) !important;
   font-weight: bold !important;
   padding: 4px 8px !important;
   margin: 0 !important;
-  border-radius: 8px !important;
+  border-radius: var(--btn-radius) !important;
   cursor: pointer !important;
   transition: top 0.1s ease, box-shadow 0.1s ease !important;
   height: 112px !important;   /* every card the same height, room for rewards on two lines */
@@ -19,7 +19,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 0 var(--color-shadow-button) !important; /* bottom shadow for button depth */
+  box-shadow: var(--card-shadow) !important; /* card button (ui-conventions §5) */
   position: relative !important;
   top: 0 !important;
 }
@@ -35,8 +35,8 @@
 }
 
 .kent-offer-button.kent-ready:active:not(:disabled) {
-  top: 2px !important; /* Move button down */
-  box-shadow: 0 2px 0 var(--color-shadow-button) !important; /* Reduce shadow */
+  top: 3px !important; /* the card press: --card-shadow -> --card-shadow-pressed */
+  box-shadow: var(--card-shadow-pressed) !important;
 }
 
 /* disabled only while a trade is in flight or the slot cools down: the card keeps its color */
@@ -48,8 +48,8 @@
 
 /* A slot cooling down (after a sale or a dismiss) shows its countdown on a gray card */
 .kent-offer-button.kent-cooling {
-  background-color: #bdc3c7 !important; /* Gray during cooldown */
-  border-color: #95a5a6 !important;
+  background-color: var(--color-btn-disabled) !important; /* Gray during cooldown */
+  border-color: var(--color-border-dark) !important;
   opacity: 0.7 !important;
   cursor: not-allowed !important;
 }
@@ -76,11 +76,11 @@
   right: -5px !important;
   width: 20px !important;
   height: 20px !important;
-  background-color: #ba200f !important;
-  color: white !important;
+  background-color: var(--brand-berry) !important;   /* dismiss badge (ui-conventions §5) */
+  color: var(--color-text-white) !important;
   border: none !important;
-  border-radius: 50% !important;
-  font-size: 18px !important;
+  border-radius: var(--radius-round) !important;
+  font-size: 18px !important; /* style-ok: icon (the x glyph in a 20px badge) */
   font-weight: bold !important;
   cursor: pointer !important;
   display: flex !important;
@@ -90,12 +90,14 @@
   transition: background-color 0.2s ease !important;
 }
 
-.kent-dismiss-button:hover:not(.disabled) {
-  background-color: #a39e9d !important;
+@media (hover: hover) {
+  .kent-dismiss-button:hover:not(.disabled) {
+    background-color: var(--color-btn-disabled-text) !important;
+  }
 }
 
 .kent-dismiss-button.disabled {
-  background-color: #bdc3c7 !important;
+  background-color: var(--color-btn-disabled) !important;
   cursor: not-allowed !important;
 }
 
@@ -129,50 +131,8 @@
 
 /* Item symbol: one size on every card, single- or two-item */
 .kent-offer-symbol {
-  font-size: 32px !important;
+  font-size: 32px !important; /* style-ok: icon */
   line-height: 1;
-}
-
-/* Item Details - Second Row */
-.kent-offer-details {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  text-align: center;
-}
-
-/* Override ResourceButton.css with more specific selectors */
-.kent-offer-button .resource-details .kent-offer-details {
-  font-size: 16px !important; /* Or whatever size you want */
-}
-
-.kent-offer-button .kent-offer-details .kent-offer-item {
-  font-size: 14px !important; /* Override the 17px with your desired size */
-}
-
-.kent-offer-button .kent-offer-details .kent-offer-reward {
-  font-size: 14px !important; /* Override the 14px with your desired size */
-}
-
-/* Item Name and Quantity - Second Row */
-.kent-offer-requirement {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.kent-offer-item {
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.kent-offer-item.sufficient {
-  color: var(--color-btn-primary-text); /* Green when player has enough */
-}
-
-.kent-offer-item.insufficient {
-  color: #c0392b; /* Red when player doesn't have enough (readable on the gray card) */
 }
 
 /* Reward Section: two fixed rows (Kent.js): Money alone, then any other reward and the XP.
@@ -181,9 +141,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.3;
-  color: #2c3e50;
+  color: var(--color-text-primary);
   font-weight: normal;
 }
 .kent-reward-row {
@@ -198,26 +158,23 @@
 .kent-dismiss-all-link {
   text-align: center;
   margin-top: 10px;
-  color: #e74c3c;
-  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--color-text-negative);
+  font-size: var(--text-md);
   cursor: pointer;
   text-decoration: underline;
 }
 
-.kent-dismiss-all-link:hover:not(.disabled) {
-  color: #c0392b;
-}
-
 .kent-dismiss-all-link.disabled {
-  color: #95a5a6;
+  color: var(--color-text-muted);
   cursor: not-allowed;
 }
 
 /* Per-card cooldown timer text - shown inside the same resource-details structure */
 .kent-card-cooldown-timer {
-  font-size: 22px;
+  font-size: var(--text-3xl);
   font-weight: bold;
-  color: #7f8c8d;
+  color: var(--color-text-secondary);
 }
 
 /* Multi-item offer styles - same height as single-item */
@@ -252,13 +209,13 @@
 }
 
 .kent-multi-item-cell .kent-offer-symbol {
-  font-size: 32px !important;
+  font-size: 32px !important; /* style-ok: icon */
 }
 
 /* Quantity text below symbol for multi-item offers (same as a single item's). It may wrap, only
    after the slash (Kent.js CardQty), when two big counts share a narrow card. */
 .kent-multi-item-qty {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
   line-height: 1.15;
 }
@@ -271,11 +228,11 @@
 }
 
 .kent-multi-item-qty.sufficient {
-  color: var(--color-btn-primary-text);
+  color: var(--color-text-positive);
 }
 
 .kent-multi-item-qty.insufficient {
-  color: #c0392b;
+  color: var(--color-text-negative);
 }
 
 /* Single-item offer cell - centered with tooltip */
@@ -288,36 +245,32 @@
 
 /* Quantity text below symbol for single-item offers */
 .kent-single-item-qty {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
 }
 
 .kent-single-item-qty.sufficient {
-  color: var(--color-btn-primary-text);
+  color: var(--color-text-positive);
 }
 
 .kent-single-item-qty.insufficient {
-  color: #c0392b;
+  color: var(--color-text-negative);
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .kent-offer-symbol,
   .kent-multi-item-cell .kent-offer-symbol {
-    font-size: 30px !important;
-  }
-
-  .kent-offer-item {
-    font-size: 15px;
+    font-size: 30px !important; /* style-ok: icon */
   }
 
   .kent-single-item-qty {
-    font-size: 13px;
+    font-size: var(--text-sm);
   }
 
   .kent-multi-item-row { gap: 0; }
   .kent-multi-item-qty {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 /* A short card (kent-short) is a live button, so its items keep their hovertips; its tap bubbles

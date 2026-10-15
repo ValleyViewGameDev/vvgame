@@ -30,10 +30,10 @@
 .login-form-input {
   width: 100%;
   padding: 12px;
-  font-size: 14px;
+  font-size: var(--text-lg); /* 16: stops iOS zooming in on focus (§9) */
   font-family: var(--font-text-1-family);
   border: 1px solid var(--color-input-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background-color: var(--color-input-bg);
   color: var(--color-input-text);
   box-shadow: inset 0 2px 4px var(--color-input-shadow);
@@ -55,7 +55,6 @@
 #create-account-form input::placeholder,
 .login-form-input::placeholder {
   color: var(--color-input-placeholder);
-  font-style: italic;
 }
 
 /* Select dropdown styling */
@@ -82,7 +81,7 @@
 }
 
 .login-panel-form .form-group label {
-  font-size: 14px;
+  font-size: var(--text-md);
   font-weight: bold;
   color: var(--color-text-primary);
 }
@@ -90,8 +89,8 @@
 /* Error message styling */
 .error-message,
 #create-account-form .error-message {
-  color: var(--color-error);
-  font-size: 12px;
+  color: var(--color-text-negative);
+  font-size: var(--text-md);
   margin: 4px 0;
   text-align: center;
 }
@@ -103,7 +102,7 @@
 
 /* Extra info text */
 #create-account-form p {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
   text-align: center;
   margin: 4px 0;
@@ -113,7 +112,7 @@
 .login-link-text {
   text-align: center;
   margin: 16px 0;
-  font-size: 14px;
+  font-size: var(--text-md);
 }
 
 .login-link-text a {
@@ -122,14 +121,10 @@
   cursor: pointer;
 }
 
-.login-link-text a:hover {
-  color: var(--color-primary-green-dark);
-}
-
-/* Avatar Header */
-.avatar-header {
-  text-align: center;
-  margin-bottom: 1px;
+@media (hover: hover) {
+  .login-link-text a:hover {
+    color: var(--color-primary-green-dark);
+  }
 }
 
 /* Avatar Carousel */
@@ -147,17 +142,19 @@
 .avatar-scroll-btn {
   background: none;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--btn-radius-sm);
   padding: 6px 8px;
-  font-size: 16px;
+  font-size: 16px; /* style-ok: icon (arrow glyph) */
   cursor: pointer;
   color: var(--color-text-primary);
   transition: background-color 0.2s ease;
   flex-shrink: 0;
 }
 
-.avatar-scroll-btn:hover:not(:disabled) {
-  background: var(--color-primary-green-light);
+@media (hover: hover) {
+  .avatar-scroll-btn:hover:not(:disabled) {
+    background: var(--color-primary-green-light);
+  }
 }
 
 .avatar-scroll-btn:disabled {
@@ -183,21 +180,23 @@
 .avatar-icon-btn {
   width: 40px;
   height: 40px;
-  font-size: 32px;
+  font-size: 32px; /* style-ok: icon */
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--color-input-border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--color-input-bg);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.avatar-icon-btn:hover {
-  border-color: var(--color-primary-green);
-  transform: scale(1.1);
+@media (hover: hover) {
+  .avatar-icon-btn:hover {
+    border-color: var(--color-primary-green);
+    transform: scale(1.1);
+  }
 }
 
 .avatar-icon-btn.selected {
@@ -209,5 +208,5 @@
 
 /* Google sign-in under the sign-in form (Authentication/googleSignIn.js) */
 .login-google { margin-top: 12px; text-align: center; }
-.login-divider { margin: 0 0 8px; font-size: 13px; color: var(--color-text-muted); }
+.login-divider { margin: 0 0 8px; font-size: var(--text-sm); color: var(--color-text-muted); }
 .login-google-button { display: flex; justify-content: center; }

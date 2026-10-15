@@ -169,10 +169,10 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
 
             {mayor ? (
                 /* The current mayor is */
-                <p className="tn-standfirst">{strings["1502"]} {mayor}{strings["1503"]} {taxRate}%.</p>
+                <p className="tn-standfirst text-quote">{strings["1502"]} {mayor}{strings["1503"]} {taxRate}%.</p>
             ) : (
                 /* No mayor */
-                <p className="tn-standfirst">{strings["1512"]} {strings["1515"]} {taxRate}%.</p>
+                <p className="tn-standfirst text-quote">{strings["1512"]} {strings["1515"]} {taxRate}%.</p>
             )}
 
             <h4>{strings["1504"]}</h4>

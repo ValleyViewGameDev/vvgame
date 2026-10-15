@@ -5,6 +5,7 @@ import './StoryModal.css';
 import '../Buttons/SharedButtons.css';
 import { useStrings } from '../StringsContext';
 import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMatrix.json';
+import CloseButton from '../Buttons/CloseButton';
 
 /**
  * StoryModal Component
@@ -203,9 +204,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     <div className="modal-overlay">
       <div className="modal-container modal-small story-modal">
         {/* Close Button */}
-        <button className="modal-close-btn" onClick={onClose}>
-          &times;
-        </button>
+        <CloseButton corner onClick={onClose} />
 
         {/* Character Symbol (NPC or PC) - use SVG if filename provided, otherwise emoji */}
         <div className="story-modal-symbol">

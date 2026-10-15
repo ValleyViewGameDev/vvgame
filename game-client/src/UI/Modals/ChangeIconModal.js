@@ -8,6 +8,7 @@ import { updatePlayerIcon } from '../../Authentication/ChangeIcon';
 import ICON_OPTIONS from '../../Authentication/PlayerIcons.json';
 import { useStrings } from '../StringsContext';
 import { spendIngredients, canAfford } from '../../Utils/InventoryManagement';
+import CloseButton from '../Buttons/CloseButton';
 
 const PREMIUM_AVATAR_GEM_COST = 200;
 
@@ -109,7 +110,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-medium">
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <CloseButton corner onClick={onClose} />
         <div className="modal-title">Choose Your Avatar</div>
         {intro && <p className="icon-modal-intro">{intro}</p>}
 

@@ -682,15 +682,15 @@ function NewTrainPanel({
           let costDisplay, details, buttonText;
           
           if (isCompleted) {
-            costDisplay = `<span style="color: green;">${getSymbol(offer.item)} ${offer.item} ${offer.quantity}</span>`;
+            costDisplay = `<span style="color: var(--color-text-positive);">${getSymbol(offer.item)} ${offer.item} ${offer.quantity}</span>`;
             details = `<div>${costDisplay}</div>Completed`;
             buttonText = '';
           } else if (loadingExpired) {
-            costDisplay = `<span style="color: gray;">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
+            costDisplay = `<span style="color: var(--color-text-muted);">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
             details = `<div>${costDisplay}</div>Train Departed`;
             buttonText = '';
           } else {
-            const costColor = affordable ? 'green' : 'red';
+            const costColor = affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
             costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
             const rewardDisplay = `${getSymbol('Money')} ${moneyReward.toLocaleString()}`;
             details = `<div>${costDisplay}</div>${strings[42]} ${rewardDisplay}`;
@@ -720,8 +720,8 @@ function NewTrainPanel({
                   top: '50%',
                   right: '10px',
                   transform: 'translateY(-50%)',
-                  fontSize: '2em',
-                  color: 'green',
+                  fontSize: '2em', // style-ok: icon (the ✅ glyph)
+                  color: 'var(--color-text-positive)',
                   pointerEvents: 'none',
                   zIndex: 10
                 }}>
@@ -819,7 +819,7 @@ function NewTrainPanel({
                 color: 'var(--color-text-white)',
                 padding: '10px',
                 margin: '10px 0',
-                borderRadius: '5px',
+                borderRadius: 'var(--radius-sm)',
                 textAlign: 'center',
                 fontWeight: 'bold'
               }}>
