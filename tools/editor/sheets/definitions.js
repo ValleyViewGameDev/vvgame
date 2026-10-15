@@ -75,7 +75,7 @@ export const DEFINITIONS = [
     label: 'AVATAR PARTS',
     group: 'avatar',
     file: 'tuning/avatarParts.json',
-    description: 'The avatar catalogue (tuning/avatarParts.json, docs/avatar-plan.md §2.2): one row per part. id is persisted on player records: never rename in place. Files live under game-client/public/assets/avatar/<slot>/ (hair: file = hairFront, backFile = hairBack; a hat with hidesHair covers the hair unless the hair has an underHat drawing; a skin row's eyes names the eyes part that face always wears). tint / tint2 / blinkTint name a palette slot (skinTone, hairColor, eyeColor) multiplied into that file. tier npc = Citizens only. Preview in the Avatar Lab tab. The game server caches this file at boot.',
+    description: 'The avatar catalogue (tuning/avatarParts.json, docs/avatar-plan.md §2.2): one row per part. id is persisted on player records: never rename in place. Files live under game-client/public/assets/avatar/<slot>/ (hair: file = hairFront, backFile = hairBack; a hat with hidesHair covers the hair unless the hair has an underHat drawing; a skin row\'s eyes names the eyes part that face always wears). tint / tint2 / blinkTint name a palette slot (skinTone, hairColor, eyeColor) multiplied into that file. tier npc = Citizens only. Preview in the Avatar Lab tab. The game server caches this file at boot.',
     shape: 'array',
     identity: ['id'],
     categoryKey: 'slot',
