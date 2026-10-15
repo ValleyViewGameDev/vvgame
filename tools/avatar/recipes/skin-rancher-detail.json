@@ -18,7 +18,11 @@
         "yMax": 125
       },
       "recolor": "grey",
-      "grey": 0.3
+      "grey": 0.3,
+      "offset": {
+        "dx": 0,
+        "dy": 7
+      }
     },
     {
       "groups": [
@@ -30,7 +34,11 @@
         "yMin": 116,
         "yMax": 130
       },
-      "recolor": "white"
+      "recolor": "white",
+      "offset": {
+        "dx": 0,
+        "dy": 7
+      }
     },
     {
       "groups": [
@@ -43,7 +51,11 @@
         "yMax": 130
       },
       "recolor": "grey",
-      "grey": 0.88
+      "grey": 0.88,
+      "offset": {
+        "dx": 0,
+        "dy": 7
+      }
     }
   ]
 }

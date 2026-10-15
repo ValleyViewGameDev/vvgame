@@ -38,7 +38,7 @@ function defaultSpec() {
     v: SPEC_VERSION,
     skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest
     hair: firstFree('hair'), hairColor: swatches('hairColor')[0]?.id || null,
-    eyes: firstFree('eyes'), eyeColor: swatches('eyeColor')[0]?.id || null,
+    eyes: byId(catalogue, firstFree('skin'))?.eyes || firstFree('eyes'), eyeColor: swatches('eyeColor')[0]?.id || null,
     facialHair: inSlot('facialHair').find((p) => !p.file)?.id || null,
     hat: inSlot('hat').find((p) => !p.file)?.id || null,
     top: firstFree('top'),
@@ -63,8 +63,9 @@ function validateSpec(spec, { owned = [], allowNpc = false } = {}) {
     if (tier === 'npc' && !allowNpc) problems.push(`${what} ${row.id} is not available to players`);
     else if (tier === 'paid' && !ownedSet.has(row.id)) problems.push(`${what} ${row.id} is not owned`);
   };
+  const face = byId(catalogue, spec.skin);
   for (const [key, slot] of Object.entries(SLOT_OF_SPEC_KEY)) {
-    const id = spec[key];
+    const id = key === 'eyes' ? ((face && face.eyes) || spec.eyes) : spec[key]; // the face chooses the eyes
     if (id == null) { if (REQUIRED_PARTS.includes(slot)) problems.push(`${key} is required`); continue; }
     const row = byId(catalogue, id);
     if (!row) { problems.push(`${key}: unknown part ${id}`); continue; }

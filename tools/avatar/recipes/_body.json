@@ -1,0 +1,40 @@
+{
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": 6
+  },
+  "frame": 256,
+  "eyeLine": 122,
+  "eyesX": [
+    96,
+    160
+  ],
+  "mouth": 160,
+  "chin": 186.5,
+  "hairTop": 12,
+  "crown": 41.8,
+  "shoulderLine": 204,
+  "collarTop": 184,
+  "handSlot": {
+    "cx": 204,
+    "cy": 214,
+    "r": 30
+  },
+  "neck": {
+    "x": 108,
+    "y": 176,
+    "w": 40,
+    "h": 28
+  },
+  "female": {
+    "headSrc": "M 100 141 C 118 141 134 132 142 118 C 150 104 151 88 150 76 C 149 50 128 28 100 28 C 72 28 51 50 50 76 C 49 88 50 104 58 118 C 66 132 82 141 100 141 Z",
+    "headRig": "M 128.0 186.5 C 151.0 186.5 171.5 175.0 181.8 157.0 C 192.0 139.1 193.3 118.6 192.0 103.3 C 190.7 70.0 163.8 41.8 128.0 41.8 C 92.2 41.8 65.3 70.0 64.0 103.3 C 62.7 118.6 64.0 139.1 74.2 157.0 C 84.5 175.0 105.0 186.5 128.0 186.5 Z"
+  },
+  "male": {
+    "headSrc": "M 100 142 C 113 142 125 140 131 135 C 139 126 145 116 148 106 C 151 97 151 88 150 76 C 149 50 128 28 100 28 C 72 28 51 50 50 76 C 49 88 49 97 52 106 C 55 116 61 126 69 135 C 75 140 87 142 100 142 Z",
+    "headRig": "M 128.0 187.8 C 144.6 187.8 160.0 185.2 167.7 178.8 C 177.9 167.3 185.6 154.5 189.4 141.7 C 193.3 130.2 193.3 118.6 192.0 103.3 C 190.7 70.0 163.8 41.8 128.0 41.8 C 92.2 41.8 65.3 70.0 64.0 103.3 C 62.7 118.6 62.7 130.2 66.6 141.7 C 70.4 154.5 78.1 167.3 88.3 178.8 C 96.0 185.2 111.4 187.8 128.0 187.8 Z"
+  },
+  "bust": "M 108 198 C 100 204, 82 207, 71 212 L 71 212 L 61 216 L 56 220 L 54 224 L 52 228 L 51 232 L 50 236 L 48 240 L 47 244 L 46 248 L 45 256 L 210 256 L 209 248 L 208 244 L 206 240 L 205 236 L 204 232 L 203 228 L 201 224 L 199 220 L 194 216 L 182 212 C 174 207, 156 204, 148 198 Z",
+  "note": "The body contract (docs/avatar-plan.md \u00a72.3): every attachment conforms to these contours. Heads are traced from Gertrude (female) and the Crafter's angled jaw with rounded corners (male) in the 200 px bust units, fitted by `fit`; the bust is the tunic's measured outline. tools/avatar/rig.js draws rig.svg and public/assets/avatar/body.json from this file."
+}

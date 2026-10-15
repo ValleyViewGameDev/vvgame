@@ -41,3 +41,5 @@
   .avatar-stage { align-items: center; }
   .avatar-preview { width: 192px; height: 192px; }
 }
+
+.avatar-small-left { font-size: var(--text-sm); margin: 4px 0 8px; }

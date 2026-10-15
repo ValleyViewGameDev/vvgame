@@ -140,9 +140,11 @@ a definition in `tools/editor/sheets/definitions.js` (free sheet, validation, CS
 | `id` | persisted identifier (never renamed in place) |
 | `slot` | `skin` / `hairBack` / `hairFront` / `facialHair` / `eyes` / `hat` / `top` / `hand` |
 | `file`, `tint` | the drawing under `public/assets/avatar/<folder>/` and the palette slot multiplied into it (`skinTone` / `hairColor` / `eyeColor`, blank = drawn as is) |
+| `fileMale` | a cut of `file` for the male body (the beard follows the male jaw) |
 | `file2`, `tint2` | a second drawing over the first with its own tint (an iris over the eye whites, a skin-toned fist under a weapon) |
 | `backFile` | hair only: the hairBack drawing (hair is ONE row: `file` = hairFront) |
 | `underHat` | hair only: the hairFront drawing under a hat that `hidesHair` (blank = that hat covers the hair) |
+| `body`, `eyes` | skin only: which body this face is (female / male) and the eyes part it always wears |
 | `hidesHair` | hat only: true for a cap or hood that covers the head; false for a tiara or crown, which sits on the full hair |
 | `blinkFile`, `blinkTint` | eyes only: the closed-lids drawing, replacing `file` + `file2` on the blink frame |
 | `tier` | `free` / `paid` / `npc` (`npc` = Citizens only, never offered to players) |
@@ -159,12 +161,21 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
 
 ### 2.3 The rig and the art
 
-- One 256×256 frame for every part, measured from the Citizen busts (a 200 px bust scaled
-  by 1.28 with its eye line moved to y 122): head centre (128, 128), eyes at x 96 / 160 on
-  y 122, mouth y ~160, chin y ~186 sitting on the tunic's collar, neck x 108..148 under the
-  top, shoulder line y 190, hand slot centre (204, 214). Layers stack with no per-part offsets; `rig.svg` holds the
-  guides. A source bust is fitted by `assemble.js` (`fit.scale` 1.28, `fit.dy` per source so
-  its eyes land on y 122).
+- **The body contract** (`tools/avatar/recipes/_body.json`, 2026-10-14). One 256×256 frame.
+  The BODY is one female head (traced from Gertrude), one male head (the shared crown with
+  the Crafter's angled jaw, rounded corners, a slightly square chin), and the shared neck and
+  bust (the tunic's outline, measured from its drawing). Every attachment conforms to these
+  contours: hair covers the band from y 12 (Waves' top) to the crown at y ~42, hats sit on
+  that band, clothes fill the bust's footprint and draw over the neck, beards are cut to the
+  jaw, eyes sit on the eye line (y 122, x 96 / 160). `tools/avatar/rig.js` draws `rig.svg`
+  (guides to draw over) and `public/assets/avatar/body.json` (the Lab's guides) from that
+  file; `assemble.js` recipes read the same contours (`clipRig`). Edit `_body.json`, run
+  `rig.js`, re-assemble: nothing else knows the numbers. The 200 px busts are fitted by
+  `fit` (scale 1.28, `dy` per source so their eye line lands on y 122).
+- **The skin part IS the body**: head, neck and bust in one skin-tinted drawing, so No
+  Clothes shows the bare bust and every top covers the same footprint. A skin row names its
+  `body` (female / male) and its `eyes`: the eyes follow the face (the Eyes tab is colour
+  only). A part may carry `fileMale`, a cut of its main drawing for the male jaw (the beard).
 - **Z order** (back to front): `hairBack` → `skin` (head and neck) → `top` (torso and
   collar, drawn OVER the neck) → `eyes` → `facialHair` → `hairFront` → `hat` → `hand`
   (bottom right, in front of the shoulder).
@@ -177,10 +188,9 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
 - **Hair band.** No hair tops out above Waves (`hair-02`, rig y 12) and none ends above the
   head's own crown (rig y ~44), so every hairFront covers y 12..44 and hats are fitted to
   that band (Angelo's crown rim sits on it).
-- **Two faces**, Female (traced from Gertrude) and Male (the shared crown with the Rancher's
-  rounder, fuller jaw traced from his bust, `_head-male.json`; his ear lines and smile with
-  teeth, the teeth in an untinted `file2`; Gertrude's nose borrowed through an include's
-  `source`), each with its own eyes.
+- **Two bodies**, Female (Gertrude's head; her nose and mouth) and Male (the Crafter's jaw;
+  the Rancher's smile with teeth in an untinted `file2`, Gertrude's nose borrowed through an
+  include's `source`); both wear the Rancher's ear lines on ellipse ears. Each names its eyes.
 - **Hats over hair.** A hat draws over `hairFront`. A hat that covers the head (`hidesHair`)
   shows the hair's `underHat` variant (flattened) or hides the hair; a tiara or crown sits on
   the full hair. This is the one cross-part dependency and it is data, not code.

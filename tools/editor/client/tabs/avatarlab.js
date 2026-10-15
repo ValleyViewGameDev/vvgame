@@ -69,16 +69,18 @@ export function avatarLabTab() {
     setStatus(missing.size ? `${missing.size} part file(s) missing` : '');
   }
 
+  let body = null; // public/assets/avatar/body.json: the contours every part conforms to
+  async function loadBody() { try { body = await (await fetch('/avatar-assets/body.json', { cache: 'no-store' })).json(); } catch (e) { body = null; } }
   function drawRig(ctx) {
+    if (!body) return;
     const s = PREVIEW / 256;
-    ctx.save(); ctx.scale(s, s);
-    ctx.strokeStyle = 'rgba(200,60,60,0.8)'; ctx.lineWidth = 1 / s;
-    ctx.beginPath(); ctx.ellipse(128, 128, 64, 70, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(64, 122); ctx.lineTo(192, 122); ctx.stroke();
-    ctx.strokeStyle = 'rgba(60,60,200,0.8)';
-    ctx.beginPath(); ctx.moveTo(24, 190); ctx.lineTo(232, 190); ctx.stroke();
-    ctx.strokeStyle = 'rgba(200,140,40,0.8)';
-    ctx.beginPath(); ctx.ellipse(204, 214, 30, 30, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.save(); ctx.scale(s, s); ctx.lineWidth = 1 / s;
+    const stroke = (d, color, dash) => { ctx.strokeStyle = color; ctx.setLineDash(dash || []); ctx.stroke(new Path2D(d)); };
+    stroke(body.bust, 'rgba(60,60,200,0.8)'); ctx.strokeRect(body.neck.x, body.neck.y, body.neck.w, body.neck.h);
+    stroke(body.female.headRig, 'rgba(200,60,60,0.8)'); stroke(body.male.headRig, 'rgba(50,100,220,0.8)', [3, 2]);
+    ctx.setLineDash([2, 3]); ctx.strokeStyle = 'rgba(200,60,60,0.8)'; ctx.beginPath(); ctx.moveTo(64, body.eyeLine); ctx.lineTo(192, body.eyeLine); ctx.stroke();
+    ctx.setLineDash([6, 3]); ctx.strokeStyle = 'rgba(170,100,170,0.8)'; ctx.beginPath(); ctx.moveTo(40, body.hairTop); ctx.lineTo(216, body.hairTop); ctx.stroke();
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(200,140,40,0.8)'; ctx.beginPath(); ctx.arc(body.handSlot.cx, body.handSlot.cy, body.handSlot.r, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
 
@@ -149,7 +151,7 @@ export function avatarLabTab() {
   }
 
   function inCatalogue(folder, file) {
-    return data.catalogue.some((r) => ['file', 'file2', 'backFile', 'underHat', 'blinkFile'].some((w) => r[w] === file && look.partFolder(r.slot, w) === folder));
+    return data.catalogue.some((r) => ['file', 'fileMale', 'file2', 'backFile', 'underHat', 'blinkFile'].some((w) => r[w] === file && look.partFolder(r.slot, w) === folder));
   }
 
   function thumb(src, label, known) {
@@ -177,7 +179,7 @@ export function avatarLabTab() {
     id: 'avatarlab', label: 'Avatar Lab', icon: '🧑‍🎨', group: 'avatar',
     async mount(sel, ed) {
       selectionEl = sel; editorEl = ed;
-      await load();
+      await Promise.all([load(), loadBody()]);
       renderSelection();
       renderEditor();
     },

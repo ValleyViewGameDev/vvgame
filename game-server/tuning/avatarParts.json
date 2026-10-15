@@ -6,7 +6,9 @@
     "tier": "free",
     "file": "skin-03.svg",
     "tint": "skinTone",
-    "notes": "assembled from npc-gertrude"
+    "notes": "the Female body: Gertrude's traced head, the shared neck and bust, the Rancher's ears; her nose and mouth tinted",
+    "eyes": "eyes-03",
+    "body": "female"
   },
   {
     "id": "skin-04",
@@ -15,8 +17,10 @@
     "tier": "free",
     "file": "skin-04.svg",
     "tint": "skinTone",
-    "notes": "the shared crown with the Rancher's jaw; his nose shading tinted, his smile and teeth as drawn (file2)",
-    "file2": "skin-04-detail.svg"
+    "notes": "the Male body: the shared crown with the Crafter's angled jaw, the shared neck and bust, the Rancher's ears and smile (teeth in file2), Gertrude's nose",
+    "file2": "skin-04-detail.svg",
+    "eyes": "eyes-04",
+    "body": "male"
   },
   {
     "id": "eyes-03",
@@ -78,7 +82,8 @@
     "tier": "free",
     "file": "beard-03.svg",
     "tint": "hairColor",
-    "notes": "Kent's beard cut to the base face's jaw"
+    "notes": "Kent's beard cut to each body's jaw (file = female, fileMale = male)",
+    "fileMale": "beard-03-male.svg"
   },
   {
     "id": "hat-none",
@@ -117,7 +122,8 @@
     "id": "top-none",
     "slot": "top",
     "label": "No Clothes",
-    "tier": "free"
+    "tier": "free",
+    "notes": "the bare bust is part of the body (skin)"
   },
   {
     "id": "top-02",

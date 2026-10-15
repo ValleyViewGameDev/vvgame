@@ -15,7 +15,7 @@ import '../UI/Modals/Modal.css';
 import '../UI/Buttons/SharedButtons.css';
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
-import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec } from './avatarLook';
+import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
 import CloseButton from '../UI/Buttons/CloseButton';
 
@@ -68,7 +68,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
       const known = new Set([...d.catalogue, ...d.palettes].map((r) => r.id));
       const own = currentPlayer?.avatar && currentPlayer.avatar.skin ? cleanSpec(currentPlayer.avatar) : null;
       const sane = own ? Object.fromEntries(Object.entries(own).map(([k, v]) => [k, k === 'v' || v == null || known.has(v) ? v : starter[k]])) : null;
-      setSpec((prev) => prev || sane || starter);
+      setSpec((prev) => prev || (sane ? withEyes(d.catalogue, sane) : starter));
     });
     return () => { live = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -79,7 +79,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   const look = useMemo(() => (data && spec ? lookFor(spec, data, equip) : null), [data, spec, equip]);
   const owned = useMemo(() => [...(currentPlayer?.avatarParts || [])], [currentPlayer]);
 
-  const set = (key, value) => { dirtyRef.current = true; setSpec((prev) => ({ ...prev, [key]: value })); setProblems([]); };
+  const set = (key, value) => { dirtyRef.current = true; setSpec((prev) => withEyes(data.catalogue, { ...prev, [key]: value })); setProblems([]); };
 
   /** The thumbnail for one part: the current bust with just that slot swapped. */
   const thumbLook = (key, id) => lookFor({ ...spec, [key]: id }, data, equip);
@@ -113,7 +113,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   }
 
   const slot = SLOT_OF_SPEC_KEY[tab];
-  const parts = partsInSlot(data.catalogue, slot).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0)); // "None" (no drawing) leads
+  // "None" (no drawing) leads; the Eyes tab lists no parts (the eyes follow the face), only the colour
+  const parts = tab === 'eyes' ? [] : partsInSlot(data.catalogue, slot).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0));
   const tierBadge = (row) => {
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
@@ -141,6 +142,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
               ))}
             </div>
 
+            {tab === 'eyes' && <div className="avatar-muted avatar-small-left">The eyes come with the face. Pick their colour.</div>}
             <div className="avatar-part-grid">
               {parts.map((row) => (
                 <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={row.label || row.id} onClick={() => set(tab, row.id)}>

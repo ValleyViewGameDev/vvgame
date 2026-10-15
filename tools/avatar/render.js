@@ -80,7 +80,7 @@ async function main() {
     // every file the catalogue names, alone, over a faint rig, labelled by its path
     const folderFor = (slot, which) => (slot === 'hair' ? (which === 'backFile' ? 'hairBack' : 'hairFront') : slot);
     const srcs = [];
-    for (const r of data.catalogue) for (const which of ['file', 'file2', 'backFile', 'underHat', 'blinkFile']) if (r[which]) srcs.push({ src: `${folderFor(r.slot, which)}/${r[which]}`, tint: r[which === 'file2' ? 'tint2' : which === 'blinkFile' ? 'blinkTint' : 'tint'] });
+    for (const r of data.catalogue) for (const which of ['file', 'fileMale', 'file2', 'backFile', 'underHat', 'blinkFile']) if (r[which]) srcs.push({ src: `${folderFor(r.slot, which)}/${r[which]}`, tint: r[which === 'file2' ? 'tint2' : which === 'blinkFile' ? 'blinkTint' : 'tint'] });
     const rig = await sharp(path.join(ASSETS, 'rig.svg'), { density: Math.ceil((72 * size) / 256) }).resize(size, size).ensureAlpha().modulate({ brightness: 1 }).png().toBuffer();
     const buffers = [];
     for (const { src, tint } of srcs) {

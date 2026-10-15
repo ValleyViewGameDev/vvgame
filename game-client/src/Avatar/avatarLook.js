@@ -28,7 +28,7 @@ export const SPEC_VERSION = 1;
 export const ARMED_GRID_KINDS = ['valley', 'dungeon'];
 
 /** Where a part's file lives (and its atlas frame name): `<folder>/<file>`. */
-export const partFolder = (slot, which = 'file') => (slot === 'hair' ? (which === 'backFile' ? 'hairBack' : 'hairFront') : slot);
+export const partFolder = (slot, which = 'file') => (slot === 'hair' ? (which === 'backFile' ? 'hairBack' : 'hairFront') : slot); // fileMale lives beside file
 export const partSrc = (part, which = 'file') => (part && part[which] ? `${partFolder(part.slot, which)}/${part[which]}` : null);
 
 export const byId = (rows, id) => (id ? (rows || []).find((r) => r && r.id === id) || null : null);
@@ -41,21 +41,31 @@ export function colorOf(palettes, id) {
   return row && typeof row.hex === 'string' ? row.hex : null;
 }
 
-/** The starter look: the first free part of every slot, the middle skin tone. */
+/** The eyes a face calls for (a skin row's `eyes`), falling back to the spec's own or the first eyes. */
+export function eyesForFace(catalogue, spec) {
+  const face = byId(catalogue, spec?.skin);
+  return (face && face.eyes) || spec?.eyes || partsInSlot(catalogue, 'eyes')[0]?.id || null;
+}
+
+/** The spec with its eyes set from the face. */
+export const withEyes = (catalogue, spec) => ({ ...spec, eyes: eyesForFace(catalogue, spec) });
+
+/** The starter look: the first free part of every slot, the second-lightest skin tone. */
 export function defaultSpec(catalogue, palettes) {
   const firstFree = (slot) => partsInSlot(catalogue, slot).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const firstColor = (slot) => palette(palettes, slot)[0]?.id || null;
   const tones = palette(palettes, 'skinTone');
-  return {
+  return withEyes(catalogue, {
     v: SPEC_VERSION,
     skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest (owner 2026-10-14)
     hair: firstFree('hair'), hairColor: firstColor('hairColor'),
-    eyes: firstFree('eyes'), eyeColor: firstColor('eyeColor'),
+    eyes: null, eyeColor: firstColor('eyeColor'),
     facialHair: partsInSlot(catalogue, 'facialHair').find((p) => !p.file)?.id || null,
     hat: partsInSlot(catalogue, 'hat').find((p) => !p.file)?.id || null,
     top: firstFree('top'),
-  };
+  });
 }
+
 
 /**
  * Check a spec against the catalogue and the palettes. Returns a list of problems (empty =
@@ -72,7 +82,7 @@ export function validateSpec(spec, catalogue, palettes, { owned = [], allowNpc =
     else if (tier === 'paid' && !ownedSet.has(row.id)) problems.push(`${what} ${row.id} is not owned`);
   };
   for (const [key, slot] of Object.entries(SLOT_OF_SPEC_KEY)) {
-    const id = spec[key];
+    const id = key === 'eyes' ? eyesForFace(catalogue, spec) : spec[key];
     if (id == null) { if (slot === 'skin' || slot === 'eyes') problems.push(`${key} is required`); continue; }
     const row = byId(catalogue, id);
     if (!row) { problems.push(`${key}: unknown part ${id}`); continue; }
@@ -110,7 +120,7 @@ export function cleanSpec(spec) {
  * @returns {{ key: string, layers: Array<{src: string, tint: string|null}>, blinkLayers: Array|null }}
  */
 export function lookFor(spec, { catalogue, palettes }, equip = {}) {
-  const s = spec || {};
+  const s = { ...(spec || {}), eyes: eyesForFace(catalogue, spec) }; // the face chooses the eyes
   const color = (key) => colorOf(palettes, s[key]);
   const tintFor = (name) => (name ? color(name) : null);
   const part = (key) => byId(catalogue, s[key]);
@@ -122,8 +132,11 @@ export function lookFor(spec, { catalogue, palettes }, equip = {}) {
 
   const layers = [];
   const blinkLayers = [];
+  const bodyKind = (part('skin') && part('skin').body) || 'female';
   const push = (list, row, which, tintName) => {
-    const src = partSrc(row, which);
+    // a part may carry a male cut of its main drawing (fileMale) that follows the male jaw
+    const w = which === 'file' && bodyKind === 'male' && row.fileMale ? 'fileMale' : which;
+    const src = partSrc(row, w);
     if (src) list.push({ src, tint: tintFor(tintName) });
   };
   const both = (row, which, tintName) => { push(layers, row, which, tintName); push(blinkLayers, row, which, tintName); };

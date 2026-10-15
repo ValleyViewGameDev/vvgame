@@ -144,7 +144,7 @@ function listAvatarSources() {
   const seen = new Map();
   for (const r of rows) {
     if (!r || !r.slot) continue;
-    for (const which of ['file', 'file2', 'backFile', 'underHat', 'blinkFile']) {
+    for (const which of ['file', 'fileMale', 'file2', 'backFile', 'underHat', 'blinkFile']) {
       if (!r[which]) continue;
       const rel = `${folderFor(r.slot, which)}/${r[which]}`;
       if (!seen.has(rel)) seen.set(rel, { key: `avatar/${rel}`, src: path.join(PUBLIC, 'avatar', rel), cell: BASE_CELL });
