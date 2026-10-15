@@ -83,6 +83,24 @@ export async function loadMasterInteractions() {
   return masterInteractions;
 }
 
+let avatarCatalogue = null;
+/**
+ * Fetch and cache the avatar catalogue + palettes ({ catalogue, palettes }; docs/avatar-plan.md §2.2)
+ */
+export async function loadAvatarCatalogue() {
+  if (!avatarCatalogue) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/avatar-catalogue`);
+      avatarCatalogue = { catalogue: response.data?.catalogue || [], palettes: response.data?.palettes || [] };
+    } catch (error) {
+      console.error('Error fetching avatar catalogue:', error);
+      avatarCatalogue = { catalogue: [], palettes: [] };
+    }
+  }
+  return avatarCatalogue;
+}
+export function getAvatarCatalogue() { return avatarCatalogue; }
+
 /**
  * Fetch and cache traders.json
  */
@@ -184,6 +202,7 @@ export function getFTUEsteps() {
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
+  avatarCatalogue = null;
   masterSkills = null;
   masterResources = null;
   masterTraders = null;

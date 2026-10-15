@@ -932,6 +932,18 @@ router.get('/skills-tuning', (req, res) => {
   }
 });
 
+// The avatar catalogue and palettes (docs/avatar-plan.md §2.2), loaded once by the client
+// through Utils/TuningManager like the other tuning files.
+router.get('/avatar-catalogue', (req, res) => {
+  try {
+    const { catalogue, palettes } = avatarCatalogue.load();
+    res.json({ catalogue, palettes });
+  } catch (error) {
+    console.error('Error loading avatar catalogue:', error);
+    res.status(500).json({ error: 'Failed to load avatar catalogue.' });
+  }
+});
+
 router.get('/interactions', (req, res) => {
   try {
     const filePath = path.join(__dirname, '../tuning/interactions.json');
