@@ -17,6 +17,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { confirmGemSpend } from '../../UI/Modals/GemSpendConfirm';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
 import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
@@ -231,6 +232,10 @@ const CraftingStation = ({
 
   const handleUpgradeSlot = async (slotIndex) => {
     if (isUpgrading) return;
+    // The server spends the slot's cost, so ask here ("Spend X Gems?" for 10+ gems)
+    const slotCosts = globalTuning?.craftingStationSlotCosts?.[`slot${slotIndex}`] || {};
+    const otherCosts = Object.entries(slotCosts).filter(([type, qty]) => type !== 'Gem' && qty > 0).map(([type, amount]) => ({ type, amount }));
+    if (!(await confirmGemSpend({ gems: slotCosts.Gem || 0, items: otherCosts, oneShot: false }))) return;
     setIsUpgrading(true);
 
     try {

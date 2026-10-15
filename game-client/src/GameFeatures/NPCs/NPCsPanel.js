@@ -9,6 +9,7 @@ import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
+import { confirmRecipeGemSpend } from '../../UI/Modals/GemSpendConfirm';
 import { QuestGiverButton } from '../../UI/Buttons/QuestButton';
 import { modifyPlayerStatsInGridState, getDerivedLevel } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -823,6 +824,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     // On the tap (house rule), the Bank's motion: the offer pops away under a burst of sparkles,
     // the gain and its XP rise from it and fly home, and after a beat the same offer slides back
     // in from the left (trader offers are repeatable). A failed trade brings the card back at once.
+    // 10+ Gem trades ask before the card animates (spendIngredients then uses this Yes)
+    if (!(await confirmRecipeGemSpend(recipe, { leaveToken: true }))) return;
     const tradeSlot = `${recipe.source}-${recipe.index}`;
     const revertTradeCard = runCardReturn(setTradeFx, tradeSlot);
     soundManager.playSFX('skill_earned');

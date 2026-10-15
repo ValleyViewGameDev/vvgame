@@ -161,7 +161,7 @@ import { fetchWorldMap } from './Utils/WorldMap';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
-import { confirmGemSpend } from './UI/Modals/GemSpendConfirm';
+import { confirmGemSpend, setGemConfirmResources } from './UI/Modals/GemSpendConfirm';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -423,6 +423,7 @@ useEffect(() => {
   const [tileTypes, setTileTypes] = useState([]);
   const [grid, setGrid] = useState([]);
   const [masterResources, setMasterResources] = useState([]);
+  useEffect(() => { setGemConfirmResources(masterResources); }, [masterResources]); // symbols in "Spend X Gems?"
   const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
   const [masterWarehouse, setMasterWarehouse] = useState([]);
@@ -1570,7 +1571,7 @@ const handleRevive = async () => {
   
   // Check if player has enough gems
   if (playerGems >= reviveCost) {
-    if (!(await confirmGemSpend({ gems: reviveCost }))) return;
+    if (!(await confirmGemSpend({ gems: reviveCost, oneShot: false }))) return;
     console.log("✅ Player has enough gems, reviving...");
     
     // Calculate HP to restore

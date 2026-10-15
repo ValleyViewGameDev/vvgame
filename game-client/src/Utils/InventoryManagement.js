@@ -1,4 +1,5 @@
 import API_BASE from '../config';
+import { confirmRecipeGemSpend } from '../UI/Modals/GemSpendConfirm';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
@@ -400,6 +401,8 @@ export async function spendIngredients({
   let updatedBackpack = [...backpack];
 
   if (!canAfford(recipe, inventory, backpack, 1)) { updateStatus(4); return false; }
+  // 10+ Gem in the recipe: "Spend X Gems?" first (skipped when the caller already asked)
+  if (!(await confirmRecipeGemSpend(recipe))) return false;
 
   // Build delta changes array
   const deltaChanges = [];
