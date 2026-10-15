@@ -58,11 +58,11 @@ export const GemSpendConfirmHost = () => {
             </div>
           )}
           <div className="modal-buttons shared-buttons">
-            <button className="btn-basic btn-success btn-modal" onClick={() => answer(true)}>
-              {strings[2028] || 'Yes'}
-            </button>
             <button className="btn-basic btn-neutral btn-modal" onClick={() => answer(false)}>
               {strings[2029] || 'Cancel'}
+            </button>
+            <button className="btn-basic btn-success btn-modal" onClick={() => answer(true)}>
+              {strings[2028] || 'Yes'}
             </button>
           </div>
         </div>
