@@ -35,7 +35,7 @@ import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
-import SaleBurst from '../../UI/SaleBurst';
+import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 
 const NPCPanel = ({
   onClose,
@@ -76,6 +76,8 @@ const NPCPanel = ({
   // Titles taken off the list on the tap (a quest accepted, a one-time reward collected), hidden
   // until the server-driven list no longer has them (or the action fails and they come back)
   const [goneQuests, setGoneQuests] = useState(() => new Set());
+  // A trader's offer in motion after a trade (runCardReturn, UI/SaleBurst.js): { slot, id, phase }
+  const [tradeFx, setTradeFx] = useState(null);
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap a requirement on a trade you cannot afford
@@ -818,6 +820,18 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       return;
     }
 
+    // On the tap (house rule), the Bank's motion: the offer pops away under a burst of sparkles,
+    // the gain and its XP rise from it and fly home, and after a beat the same offer slides back
+    // in from the left (trader offers are repeatable). A failed trade brings the card back at once.
+    const tradeSlot = `${recipe.source}-${recipe.index}`;
+    const revertTradeCard = runCardReturn(setTradeFx, tradeSlot);
+    soundManager.playSFX('skill_earned');
+    try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+    const gainedResource = masterResources.find(res => res.type === recipe.type);
+    const tradeXP = recipe.xp ?? masterResources.find(res => res.type === npcData.type && res.category === 'npc')?.xp ?? 1;
+    showQuestRewardFloatingText(gainedResource?.symbol || '', getLocalizedString(recipe.type, strings), quantityToGive,
+      tradeXP, tradeCardRect, questRewardFlyTo(recipe.type, gainedResource));
+
     const spendResult = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
@@ -830,6 +844,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     });
 
     if (!spendResult || (spendResult.success !== undefined && !spendResult.success)) {
+      revertTradeCard();
       setErrorMessage('Not enough ingredients.');
       return;
     }
@@ -851,19 +866,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     });
     
     if (!gained) {
+      revertTradeCard();
       setErrorMessage('Failed to complete trade.');
       return;
     }
-
-    // Play sound effect for successful trade
-    soundManager.playSFX('skill_earned');
-
-    // The gain and its XP rise from the card and fly into the header, as quest rewards do (the
-    // Home Deed to Inventory). Same XP rule as the award below.
-    const gainedResource = masterResources.find(res => res.type === recipe.type);
-    const tradeXP = recipe.xp ?? masterResources.find(res => res.type === npcData.type && res.category === 'npc')?.xp ?? 1;
-    showQuestRewardFloatingText(gainedResource?.symbol || '', getLocalizedString(recipe.type, strings), quantityToGive,
-      tradeXP, tradeCardRect, questRewardFlyTo(recipe.type, gainedResource));
 
     // Track quest progress for trading (using 'Collect' action to match quest system)
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
@@ -1749,6 +1755,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                         if (line) setInfoResource(line.dataset.resource);
                       }}
                     >
+                    <div className={tradeFx?.slot === `${recipe.source}-${recipe.index}` ? `card-fx-${tradeFx.phase}` : ''}>
                     <ResourceButton
                       resourceType={recipe.type}
                       symbol={recipe.symbol}
@@ -1767,6 +1774,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       currentPlayer={currentPlayer}
                       devOnly={false}
                     />
+                    </div>
+                    {tradeFx?.slot === `${recipe.source}-${recipe.index}` && <SaleBurst key={tradeFx.id} />}
                     </div>
                   );
                   });

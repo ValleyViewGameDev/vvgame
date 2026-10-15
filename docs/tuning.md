@@ -177,6 +177,20 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
 - **Why tiered:** aspirational orders are a stretch, never a wall; without tiers one unfillable
   order voided the whole Train.
 
+## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
+
+- Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)
+  random offers for doobers within ±1 of the season level (not `noBank`), then appends the
+  permanent Silver x10 / Diamond Ring x1 / Gold x2 offers unless a random one already took that
+  resource. Payout: a price per unit between `minprice` and the min/max midpoint, x qty x 0.9,
+  always Money.
+- **Variety rule (2026-10-14): no two offers in a round are the same resource.** Picks are drawn
+  without replacement. Only if the level's pool is smaller than the number of offers can a
+  resource repeat, and then never at the same quantity (`rollDistinctQty`). Before this, picks
+  were independent, so two identical offers (Diamond Ring x8 twice) could appear.
+- Offers are repeatable for the whole round: a sale puts the card on a short cooldown, it does
+  not use the offer up.
+
 ## 4c. Effort and ask sizing (2026-10-12)
 
 How many units Kent and the Train ask for. Before this, Kent asked 15 to 35 of any non-crop above

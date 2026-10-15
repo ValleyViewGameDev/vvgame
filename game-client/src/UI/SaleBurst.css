@@ -38,6 +38,7 @@
    .card-fx-leave    taken away without a reward (a quest accepted): a quick shrink and fade
    .card-fx-slidein  a repeatable card comes back: slides in from the left */
 .card-fx-pop { animation: cardFxPop 300ms cubic-bezier(0.3, 0, 0.6, 1) forwards; }
+.card-fx-pop, .card-fx-leave { pointer-events: none; } /* a card that has gone cannot be tapped */
 @keyframes cardFxPop {
   0%   { transform: scale(1);    filter: brightness(1);   opacity: 1; }
   28%  { transform: scale(1.12); filter: brightness(1.7); opacity: 1; }

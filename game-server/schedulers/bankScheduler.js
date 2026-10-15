@@ -73,6 +73,16 @@ async function bankScheduler(frontierId, phase, frontier = null) {
     }
 }
 
+// A quantity no other offer for the same resource already uses: step up (then down) from the roll
+function rollDistinctQty(qty, takenQtys) {
+    if (!takenQtys.includes(qty)) return qty;
+    for (let d = 1; d < 100; d++) {
+        if (!takenQtys.includes(qty + d)) return qty + d;
+        if (qty - d >= 1 && !takenQtys.includes(qty - d)) return qty - d;
+    }
+    return qty;
+}
+
 // ✅ Function to generate offers based on `masterResources`
 function generateBankOffers(seasonLevel) {
     const offers = [];
@@ -92,14 +102,19 @@ function generateBankOffers(seasonLevel) {
         return Math.abs(resourceLevel - seasonLevel) <= 1;
     });
 
+    // Variety (docs/tuning.md, Bank): every offer in a round is a different resource. Picks are
+    // drawn WITHOUT replacement; only when the level's pool is smaller than the number of offers
+    // does a resource come up twice, and then never at the same quantity (rollDistinctQty).
+    let pool = [];
     for (let i = 0; i < numOffers; i++) {
         if (validResources.length === 0) {
             console.warn("⚠️ No valid resources found for current season level!");
             break;
         }
 
-        // ✅ Pick a random resource
-        const selectedItem = validResources[Math.floor(Math.random() * validResources.length)];
+        // ✅ Pick a random resource not yet offered this round (refill the bag only if it runs dry)
+        if (pool.length === 0) pool = [...validResources];
+        const selectedItem = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
 
         // ✅ Generate quantity based on whether it's a crop and its grow time
         let qtyBought;
@@ -120,7 +135,8 @@ function generateBankOffers(seasonLevel) {
         } else {
             // Non-crops: 1-10 (existing logic)
             qtyBought = Math.floor(Math.random() * 10) + 1;
-        } 
+        }
+        qtyBought = rollDistinctQty(qtyBought, offers.filter((o) => o.itemBought === selectedItem.type).map((o) => o.qtyBought));
 
         // ✅ Always give Money
         const itemGiven = "Money";

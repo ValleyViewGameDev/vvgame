@@ -319,10 +319,10 @@ value rather than trust this page.
   the Store (its rewards go to the Mailbox and the checkout sits in between; Mailbox Collect flies
   them home). Size: every flying text is 16px, set once in `UI/FloatingText.css`; callers pass no
   `size`.
-  A sale whose card stays (Bank, Train, Trade Stall, Carnival) also gets the sparkle
+  A sale whose card stays (Train, Trade Stall, Carnival) also gets the sparkle
   burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
   every modal and the FTUE scrim.
-- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; the motion of Kent's slots):
+- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; Bank offers, `Bank.js`; traders' offers (Falstaff, the Apothecary ...), `NPCsPanel.js`; the motion of Kent's slots). Repeatable offers (Bank, traders) run one shared cycle, `runCardReturn` in `UI/SaleBurst.js`: pop with the burst, the slot empty for a beat, the same card slides back in from the left and lands at 1.5 s (the Bank's spam-guard cooldown), untappable while it is gone. Quest cards:
   on the tap the card goes (house rule: the server runs in parallel and a failure brings it
   back). Completed with a reward: `.card-fx-pop` plus `<SaleBurst />`; taken without one (a quest
   accepted): `.card-fx-leave`. If the same card comes straight back (a repeatable quest) it

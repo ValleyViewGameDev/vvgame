@@ -12,7 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import soundManager from '../../Sound/SoundManager';
-import SaleBurst from '../../UI/SaleBurst';
+import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import '../../UI/Buttons/SharedButtons.css';
 
@@ -139,11 +139,13 @@ function BankPanel({
     const handleTradeWithCooldown = async (offer, buttonIndex) => {
         if (coolingDownButtons.has(buttonIndex)) return;
 
-        // On the tap (house rule: never wait for the server): the card pops under a burst of sparkles
-        // and the payment rises from it and flies into its header counter (UI/FlyToTarget.js)
-        const fxId = Date.now() + Math.random();
-        setSaleFx({ index: buttonIndex, id: fxId });
-        setTimeout(() => setSaleFx((fx) => (fx?.id === fxId ? null : fx)), 900);
+        // On the tap (house rule: never wait for the server), the motion of Kent's offers: the card
+        // pops away under a burst of sparkles, the payment rises from it and flies into its header
+        // counter (UI/FlyToTarget.js), and the card slides back in fresh (a Bank offer is good for the
+        // whole round, so the same offer returns). Classes: UI/SaleBurst.css .card-fx-*.
+        // The slot stays empty for the spam-guard cooldown: the card lands back exactly as
+        // COOLDOWN_DURATION ends, the moment it can be tapped again (runCardReturn, UI/SaleBurst.js).
+        runCardReturn(setSaleFx, buttonIndex, { returnMs: COOLDOWN_DURATION });
         soundManager.playSFX('collect_money');
         try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
         const card = document.querySelector(`[data-bank-slot="${buttonIndex}"]`);
@@ -196,7 +198,7 @@ function BankPanel({
     };
 
     return (
-      <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
+      <Panel onClose={onClose} titleKey="1117" panelName="BankPanel">
         <LevelLock
           currentPlayer={currentPlayer}
           masterXPLevels={masterXPLevels}
@@ -231,7 +233,8 @@ function BankPanel({
                       const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack); // backpack + warehouse
 
                       return (
-                        <div key={index} data-bank-slot={index} className={saleFx?.index === index ? 'sale-pop' : ''} style={{ position: 'relative' }}>
+                        <div key={index} data-bank-slot={index} style={{ position: 'relative' }}>
+                        <div className={saleFx?.slot === index ? `card-fx-${saleFx.phase}` : ''}>
                         <ResourceButton
                           className={coolingDownButtons.has(index) ? 'cooldown' : ''}
                           style={coolingDownButtons.has(index) ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
@@ -245,12 +248,13 @@ function BankPanel({
                         >
                           <div className="resource-details">
                             <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
-                            {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought} / {playerQty}
+                            {getSymbol(offer.itemBought)} {offer.itemBought} x{Number(offer.qtyBought).toLocaleString()} / {Number(playerQty).toLocaleString()}
                             <br />
-                            {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
+                            {strings["1404"]} {getSymbol(offer.itemGiven)} {Number(offer.qtyGiven).toLocaleString()} {/* "for" */}
                           </div>
                         </ResourceButton>
-                        {saleFx?.index === index && <SaleBurst key={saleFx.id} />}
+                        </div>
+                        {saleFx?.slot === index && <SaleBurst key={saleFx.id} />}
                         </div>
                       );
                     })

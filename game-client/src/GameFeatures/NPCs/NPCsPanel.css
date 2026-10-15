@@ -2,4 +2,4 @@
    swallow taps; let the tap through to .trader-offer-wrap, which opens ResourceModalSmall for
    the first requirement the player is short of (docs/ui-conventions.md). */
 .trader-offer-wrap .resource-button:disabled { pointer-events: none; }
-.trader-offer-wrap { cursor: default; }
+.trader-offer-wrap { cursor: default; position: relative; } /* holds the sale burst (UI/SaleBurst.js) */

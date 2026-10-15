@@ -26,3 +26,21 @@ export default function SaleBurst() {
         </div>
     );
 }
+
+// The repeatable-card cycle (Bank offers, traders' offers): the card pops away with the burst, the
+// slot stays empty for a beat, and the same card slides back in from the left, landing at
+// `returnMs` (the Bank's spam-guard cooldown). Classes in SaleBurst.css (.card-fx-pop, .card-fx-slidein).
+export const CARD_CYCLE = { popMs: 300, slideMs: 440, returnMs: 1500 };
+/**
+ * Run the cycle on a fx state setter: setFx receives { slot, id, phase: 'pop' | 'slidein' } and
+ * null at the end. Render `card-fx-${fx.phase}` on the card's wrapper and <SaleBurst key={fx.id} />
+ * beside it while fx.slot matches. Returns a revert (a failed server call brings the card back now).
+ */
+export function runCardReturn(setFx, slot, { returnMs = CARD_CYCLE.returnMs } = {}) {
+    const id = Date.now() + Math.random();
+    const { popMs, slideMs } = CARD_CYCLE;
+    setFx({ slot, id, phase: 'pop' });
+    const t1 = setTimeout(() => setFx((fx) => (fx?.id === id ? { ...fx, phase: 'slidein' } : fx)), Math.max(popMs, returnMs - slideMs));
+    const t2 = setTimeout(() => setFx((fx) => (fx?.id === id ? null : fx)), Math.max(popMs + slideMs, returnMs) + 20);
+    return () => { clearTimeout(t1); clearTimeout(t2); setFx((fx) => (fx?.id === id ? null : fx)); };
+}
