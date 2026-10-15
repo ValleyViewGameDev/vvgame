@@ -1,10 +1,9 @@
 {
-  "note": "Pavement roads painted by roads.py (points in WORLD tiles: R = frontier row * 64 + tile row, C likewise; smooth spline through them). Re-applying is safe. Added 2026-10-14 (owner): the Town south road with its T, the hamlet road through the new range's pass to a Y, and the T south off the river road.",
+  "note": "Roads painted by roads.py, in this order (a later road may join an earlier one). Points are a GUIDE in WORLD tiles (R = frontier row * 64 + tile row, C likewise). style 'trail' (default): a one-tile dirt-path road found round moss / slate deposits and the odd pond laid on the guide (see roads.py). Added 2026-10-14 (owner): the Town south road with its T, the hamlet road through the new range's pass to a Y, and the T south off the river road; redone as trails the same day.",
   "roads": [
     {
       "name": "Town south road (1011402 stem)",
       "purpose": "South from the Town (1010472, townN.json, south road cols 30-32) down 1011402 to the T about 90% of the way down.",
-      "width": 3,
       "fadeTiles": 0,
       "points": [
         [
@@ -23,12 +22,19 @@
           569,
           2207
         ]
+      ],
+      "style": "trail",
+      "protect": [
+        [
+          569,
+          2207,
+          14
+        ]
       ]
     },
     {
       "name": "T west to 1011304",
       "purpose": "The T's west arm, meandering west through 1011401, 1011400 (the Y), 1011307, 1011306 and 1011305 (north of the new range) to the corner of the east-west road in 1011304 (rows 54-55, col 8).",
-      "width": 2,
       "fadeTiles": 0,
       "points": [
         [
@@ -91,12 +97,26 @@
           566.5,
           1801
         ]
+      ],
+      "style": "trail",
+      "startOnRoad": true,
+      "endOnRoad": true,
+      "protect": [
+        [
+          569,
+          2207,
+          14
+        ],
+        [
+          562,
+          2068,
+          14
+        ]
       ]
     },
     {
       "name": "T east, fading",
       "purpose": "The T's east arm: east through 1011403 and 1011404, fading out in 1011405.",
-      "width": 2,
       "fadeTiles": 45,
       "points": [
         [
@@ -131,12 +151,20 @@
           567,
           2420
         ]
+      ],
+      "style": "trail",
+      "startOnRoad": true,
+      "protect": [
+        [
+          569,
+          2207,
+          14
+        ]
       ]
     },
     {
       "name": "Hamlet road through the pass to the Y",
       "purpose": "On from the walled hamlet's east road (1011344, rows 2-3) into 1011345, through the pass in the new range, then north-east across several grids to join the T's west arm at a Y in 1011400.",
-      "width": 2,
       "fadeTiles": 0,
       "points": [
         [
@@ -203,12 +231,26 @@
           562,
           2068
         ]
+      ],
+      "style": "trail",
+      "startOnRoad": true,
+      "endOnRoad": true,
+      "protect": [
+        [
+          772,
+          1888,
+          26
+        ],
+        [
+          562,
+          2068,
+          14
+        ]
       ]
     },
     {
       "name": "T south off the river road (1012205)",
       "purpose": "A T off the east-west road in 1012205 (rows 31-32), south through 1012215, 1012225 and 1012235, fading out in 1012245.",
-      "width": 2,
       "fadeTiles": 50,
       "points": [
         [
@@ -251,7 +293,9 @@
           1310,
           1380
         ]
-      ]
+      ],
+      "style": "trail",
+      "startOnRoad": true
     }
   ]
 }

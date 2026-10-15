@@ -621,10 +621,16 @@ its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the bu
   like `phase2_owner_patch.mjs` but the band may also clear rocks, flowers and loose items, and
   creatures in the band move out, so the range seals. Owner templates still go through
   `phase2_owner_patch.mjs`.
-- **`roads.py`** paints pavement roads from **`data/roads.json`** (points in world tiles, a spline
-  through them, `width` 1-3, `fadeTiles` for a road that thins out). It refuses water, lava,
-  mountains and buildings, clears trees and rocks off the road and moves creatures to a valid
-  free tile; re-applying is safe. Roads painted: the Town's south road down 1011402 to a T (the
+- **`roads.py`** paints roads from **`data/roads.json`** (points in world tiles, a GUIDE). The
+  default `trail` style is the hand-made look (owner: "like hiking trails or dirt paths", cf.
+  1011270 and 1012102): one tile wide, four-connected, straight runs with small side-steps,
+  wandering off the guide, and bending round natural formations it lays ON the guide every
+  ~40-70 tiles (irregular moss or slate outcrops, now and then a small pond; rocks dress the
+  slate, mushrooms and tulips the moss). `startOnRoad` / `endOnRoad` join an earlier road (T, Y,
+  corner), `fadeTiles` breaks the end up, `protect` keeps formations off passes and junctions.
+  Roads run in file order, each painted before the next is routed. It refuses water, lava,
+  mountains and buildings, clears trees and rocks off the path and moves creatures to a valid
+  free tile. `style: "smooth"` keeps the old spline painter for formal roads. Roads painted: the Town's south road down 1011402 to a T (the
   T's west arm across to the corner of the road in 1011304; its east arm fading out in 1011405),
   the hamlet road from 1011344 through the new pass and north-east to a Y in 1011400, and a T
   south off the river road in 1012205, fading out in 1012245.
