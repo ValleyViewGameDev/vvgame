@@ -29,6 +29,12 @@ export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
   }
 };
 
+// Store rows on desktop (store.json ids): starter packs, gem packs, item packs (Adventurer's,
+// Politician's, Farmer's), money packs. Every card is a third of the modal wide; mobile.css
+// stacks them one per row.
+const GEM_PACK_IDS = [6, 7, 8];
+const STORE_ROWS = [[3, 4], GEM_PACK_IDS, [20, 30, 40], [9, 50, 70]];
+
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox, setModalContent, setIsModalOpen }) {
   const strings = useStrings();
   const [offers, setOffers] = useState([]);
@@ -119,147 +125,10 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
       <div className="store-offers">
         {(() => {
           const activeOffers = offers.filter((offer) => !isOfferExpired(offer));
-          const processedIds = new Set();
-          
-          return activeOffers.map((offer) => {
-            // Skip if already processed
-            if (processedIds.has(offer.id)) return null;
-            
-            // Process offers 3 & 4 together
-            if (offer.id === 3 || offer.id === 4) {
-              const offer3 = activeOffers.find(o => o.id === 3);
-              const offer4 = activeOffers.find(o => o.id === 4);
-              
-              if (offer3) processedIds.add(3);
-              if (offer4) processedIds.add(4);
-              
-              return (
-                <div key="group-3-4" className="store-offer-row">
-                  {offer3 && (
-                    <div className="store-offer-card store-offer-card-half">
-                      <div className="store-offer-left">
-                        <h3>{offer3.title}</h3>
-                        <p>{offer3.body}</p>
-                        <p className="store-reward-line">
-                          {offer3.rewards.map(r => {
-                            const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                          }).join(", ")}
-                        </p>
-                      </div>
-                      <div className="store-offer-right">
-                        <div className="store-price">USD ${offer3.price.toFixed(2)}</div>
-                        <div className="shared-buttons">
-                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer3.id, currentPlayer, updateStatus)}>Buy</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {offer4 && (
-                    <div className="store-offer-card store-offer-card-half">
-                      <div className="store-offer-left">
-                        <h3>{offer4.title}</h3>
-                        <p>{offer4.body}</p>
-                        <p className="store-reward-line">
-                          {offer4.rewards.map(r => {
-                            const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                          }).join(", ")}
-                        </p>
-                      </div>
-                      <div className="store-offer-right">
-                        <div className="store-price">USD ${offer4.price.toFixed(2)}</div>
-                        <div className="shared-buttons">
-                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer4.id, currentPlayer, updateStatus)}>Buy</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            }
-            
-            // Process offers 6, 7 & 8 together
-            if (offer.id === 6 || offer.id === 7 || offer.id === 8) {
-              const offer6 = activeOffers.find(o => o.id === 6);
-              const offer7 = activeOffers.find(o => o.id === 7);
-              const offer8 = activeOffers.find(o => o.id === 8);
-              
-              if (offer6) processedIds.add(6);
-              if (offer7) processedIds.add(7);
-              if (offer8) processedIds.add(8);
-              
-              return (
-                <div key="group-6-7-8" className="store-offer-row">
-                  {offer6 && (
-                    <div className="store-offer-card store-offer-card-third store-offer-card-gem">
-                      <div className="store-offer-left">
-                        <h3>{offer6.title}</h3>
-                        <p>{offer6.body}</p>
-                        <p className="store-reward-line">
-                          {offer6.rewards.map(r => {
-                            const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                          }).join(", ")}
-                        </p>
-                      </div>
-                      <div className="store-offer-right">
-                        <div className="store-price">USD ${offer6.price.toFixed(2)}</div>
-                        <div className="shared-buttons">
-                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer6.id, currentPlayer, updateStatus)}>Buy</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {offer7 && (
-                    <div className="store-offer-card store-offer-card-third store-offer-card-gem">
-                      <div className="store-offer-left">
-                        <h3>{offer7.title}</h3>
-                        <p>{offer7.body}</p>
-                        <p className="store-reward-line">
-                          {offer7.rewards.map(r => {
-                            const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                          }).join(", ")}
-                        </p>
-                      </div>
-                      <div className="store-offer-right">
-                        <div className="store-price">USD ${offer7.price.toFixed(2)}</div>
-                        <div className="shared-buttons">
-                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer7.id, currentPlayer, updateStatus)}>Buy</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {offer8 && (
-                    <div className="store-offer-card store-offer-card-third store-offer-card-gem">
-                      <div className="store-offer-left">
-                        <h3>{offer8.title}</h3>
-                        <p>{offer8.body}</p>
-                        <p className="store-reward-line">
-                          {offer8.rewards.map(r => {
-                            const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                            return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                          }).join(", ")}
-                        </p>
-                      </div>
-                      <div className="store-offer-right">
-                        <div className="store-price">USD ${offer8.price.toFixed(2)}</div>
-                        <div className="shared-buttons">
-                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer8.id, currentPlayer, updateStatus)}>Buy</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            }
-            
-            // Mark as processed and render normally
-            processedIds.add(offer.id);
-            
+          const renderCard = (offer) => {
+            const variant = GEM_PACK_IDS.includes(offer.id) ? ' store-offer-card-gem' : String(offer.id) === '1' ? ' store-offer-card-gold' : '';
             return (
-              <div key={offer.id} className={`store-offer-card${String(offer.id) === "1" ? ' store-offer-card-gold' : ''}`}>
+              <div key={offer.id} className={`store-offer-card-third${variant}`}>
                 <div className="store-offer-left">
                   <h3>{offer.title}</h3>
                   <p>{offer.body}</p>
@@ -278,7 +147,20 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                 </div>
               </div>
             );
-          });
+          };
+          // The named rows first (each starts its own row, missing offers just leave a gap at
+          // the end), then every other offer three to a row in store.json order
+          const grouped = new Set(STORE_ROWS.flat());
+          const rows = STORE_ROWS
+            .map((ids) => ids.map((id) => activeOffers.find((o) => o.id === id)).filter(Boolean))
+            .filter((row) => row.length);
+          const rest = activeOffers.filter((o) => !grouped.has(o.id));
+          for (let i = 0; i < rest.length; i += 3) rows.push(rest.slice(i, i + 3));
+          return rows.map((row) => (
+            <div key={row.map((o) => o.id).join('-')} className="store-offer-row">
+              {row.map(renderCard)}
+            </div>
+          ));
         })()}
       </div>
     </Modal>

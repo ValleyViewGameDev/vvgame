@@ -162,9 +162,10 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  /* Third-width cards for 3-column layout */
+  /* Third-width cards for 3-column layout: always a third, even in a row of one or two */
   .store-offer-card-third {
-    flex: 1;
+    flex: 0 0 calc((100% - 24px) / 3);
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     border: 1px solid rgba(0, 0, 0, 0.1);
