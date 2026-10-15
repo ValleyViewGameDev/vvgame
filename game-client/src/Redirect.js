@@ -24,7 +24,7 @@ function Redirect() {
       zIndex: 999999
     }}>
       <div style={{
-        backgroundColor: 'var(--color-bg-white)',
+        backgroundColor: 'var(--color-bg-modal)',
         padding: '40px',
         borderRadius: 'var(--radius-lg)',
         textAlign: 'center',

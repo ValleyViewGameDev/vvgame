@@ -112,6 +112,7 @@
 
   /* ========== PANEL COLORS ========== */
   --color-bg-panel: var(--brand-parchment);    /* Yellow panel background */
+  --color-bg-modal: var(--color-bg-panel);     /* Modal boxes: the same warm parchment as panels */
   --color-panel-shadow: rgba(106, 106, 106, 0.253);  /* Panel box shadow */
   --color-heading: rgb(58, 58, 58);        /* Heading text color */
   --color-tab-hover-bg: rgba(0, 0, 0, 0.05);  /* Tab hover background */

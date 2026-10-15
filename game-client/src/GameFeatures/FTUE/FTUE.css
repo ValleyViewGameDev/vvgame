@@ -14,7 +14,7 @@
 
 /* FTUE Modal */
 .ftue-modal {
-  background-color: var(--color-bg-white);
+  background-color: var(--color-bg-modal);
   border-radius: var(--radius-md);
   width: 90%;
   max-width: 800px;

@@ -549,7 +549,7 @@ body {
 }
 
 .modal-container {
-  background-color: var(--color-bg-white);
+  background-color: var(--color-bg-modal);
   padding: 20px;
   border-radius: var(--radius-md);
   box-shadow: 0 4px 6px var(--color-shadow);
