@@ -301,9 +301,10 @@ export async function gainIngredients({
   }
 
   // ✅ Apply gain
+  // (a new item object: the caller's array must not be mutated through the shared reference)
   const index = target.findIndex((item) => item.type === resource);
   if (index >= 0) {
-    target[index].quantity += quantity;
+    target[index] = { ...target[index], quantity: target[index].quantity + quantity };
   } else {
     target.push({ type: resource, quantity });
   }

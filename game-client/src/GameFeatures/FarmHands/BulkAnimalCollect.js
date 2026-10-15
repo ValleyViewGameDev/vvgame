@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import Modal from '../../UI/Modals/Modal';
 import './BulkSelectModals.css';
 import { handleNPCClick } from '../NPCs/NPCUtils';
-import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
+import { isCurrency, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import soundManager from '../../Sound/SoundManager';
@@ -130,6 +129,22 @@ export async function executeBulkAnimalCollect({
   const successfulCollects = {};
   const animalSkillsInfo = {};
 
+  // The running holdings. `currentPlayer` is the snapshot this call started with, so the
+  // capacity check in gainIngredients would never count what the earlier animals in this
+  // run added; each animal gets a copy with those gains applied (the same storage rule as
+  // gainIngredients: currency and homestead collections go to the warehouse, the rest to
+  // the backpack).
+  const onHomestead = currentPlayer?.location?.gtype === 'homestead';
+  const holdings = {
+    inventory: (currentPlayer?.inventory || []).map((item) => ({ ...item })),
+    backpack: (currentPlayer?.backpack || []).map((item) => ({ ...item })),
+  };
+  const addToHoldings = (type, quantity) => {
+    const list = isCurrency(type) || onHomestead ? holdings.inventory : holdings.backpack;
+    const row = list.find((item) => item.type === type);
+    if (row) row.quantity += quantity; else list.push({ type, quantity });
+  };
+
   // Process each animal
   for (const npc of animalsToCollect) {
     const result = await handleNPCClick(
@@ -150,12 +165,16 @@ export async function executeBulkAnimalCollect({
       updateStatus,
       () => {}, // openPanel (not used here)
       () => {}, // setActiveStation (not used here)
-      strings
+      strings,
+      null, // masterTrophies
+      null, // globalTuning
+      { inventory: holdings.inventory.map((item) => ({ ...item })), backpack: holdings.backpack.map((item) => ({ ...item })) }
     );
 
     // Check if collection was successful
     if (result && result.type === 'success' && result.collectedItem) {
       const { collectedItem, collectedQuantity, skillsApplied } = result;
+      if (result.stored !== false) addToHoldings(collectedItem, collectedQuantity);
 
       // Play collect sound for each successful collection
       soundManager.playSFX('collect_item');

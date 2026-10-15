@@ -155,7 +155,8 @@ async function handleProtectedFarmAnimalCollection(
         type: 'success',
         message: `Collected ${collectedQuantity} ${collectedItem}.`,
         collectedItem,
-        collectedQuantity
+        collectedQuantity,
+        stored: gained === true // false when the warehouse or backpack had no room
       };
     } else {
       // Server returned success: false
@@ -208,7 +209,7 @@ async function handleProtectedFarmAnimalCollection(
             grazeEnd: null
           });
 
-          updateStatus(strings["815"] || "This animal was already collected");
+          updateStatus(473); // "This animal was already collected."
         }
       } else {
         updateStatus(`❌ ${errorMessage}`);
@@ -269,7 +270,8 @@ export async function handleNPCClick(
   setActiveStation,
   strings = {},
   masterTrophies = null,
-  globalTuning = null
+  globalTuning = null,
+  holdings = null // { inventory, backpack }: fresher than currentPlayer's, from a caller collecting in a loop
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -343,7 +345,8 @@ export async function handleNPCClick(
             setActiveStation,
             strings,
             masterTrophies,
-            globalTuning
+            globalTuning,
+            holdings
           );
         }
 
@@ -377,7 +380,9 @@ export async function handleNPCClick(
         currentGridId,
         updateStatus,
         strings,
-        globalTuning
+        globalTuning,
+        holdings?.inventory || null,
+        holdings?.backpack || null
       );
     }
 
