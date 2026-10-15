@@ -54,16 +54,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   (Armory, Magic Shop, ...) currently all sell the same items. Give each its own stock, so that
   finding a new mini-Town in the Valley, D&D style, makes you want to check its shops for new
   and interesting things to buy.
-- **W-10. A Region-to-Region transport trader** (added 2026-10-09). A trader who instantly
-  transports you to another Region, but only to Regions you have already visited.
-  **Built 2026-10-12 as "Travel with Snug":** on Snug's NPC panel, once the player has greeted
-  him, a "Travel with Snug" button opens `GameFeatures/NPCs/SnugTravelModal.js`: one row per
-  visited Region that has a Snug (template layouts, key n13) plus the home Town, never the place
-  the player is in, each with its cost and a Travel button. `game-server/routes/snugTravelRoutes.js`
-  (GET destinations, POST pay + arrival tile next to Snug in the player's copy of the grid); the
-  client moves with `changePlayerLocation`. Cost: `globalTuning.json` `snugTravel` (100 to 2,000,
-  linear in straight-line grid distance, full price from 56 grids). Visited Regions come from
-  `gridsVisited`, so existing players need no migration. Not yet checked in the live game.
 - **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). An ongoing
   process: a template for every valley0-3 grid, built in passes (geography everywhere first,
   then tiles / resources / enemies, then sets, mini-towns and regions), following
