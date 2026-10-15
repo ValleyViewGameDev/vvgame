@@ -40,6 +40,11 @@ const FX = {
   HP_BAR_LINGER_MS: 2500,
   HP_BAR_FADE_MS: 400,
   WINDUP_MS: 300,
+  FIREBALL_MS_PER_TILE: 95,  // fireballs fly a little slower than arrows, so they read
+  EMBER_EVERY_MS: 28,        // a fireball sheds an ember this often
+  EMBER_MS: 320,
+  LEAP_SHAKE_PX: 2.5,        // an enemy's leap wind-up: how hard it vibrates
+  LEAP_ARC_TILES: 0.7,       // how high the leap rises at its middle
 };
 
 let app = null;
@@ -370,37 +375,119 @@ export async function dropBounce(x, y, { symbol, filename } = {}) {
 
 // ---------------------------------------------------------------- projectiles
 
+// One shot's look (resources.json `projectile` on the enemy; the player's bows are arrows):
+// 'arrow', 'fireball' (the Dragon), 'fireball-small' (the Demon), 'blob' (the Spider's spit).
+// Each is drawn along +x and rotated to the flight direction.
+function drawShot(g, style) {
+  const len = TILE * 0.45;
+  if (style === 'fireball' || style === 'fireball-small') {
+    const r = TILE * (style === 'fireball' ? 0.3 : 0.17);
+    g.beginFill(0xff4500, 0.35); g.drawEllipse(-r * 0.35, 0, r * 1.55, r * 1.15); g.endFill(); // glow, trailing
+    g.beginFill(0xff7a00, 0.9); g.drawEllipse(-r * 0.15, 0, r * 1.15, r * 0.9); g.endFill();
+    g.beginFill(0xffc23a, 1); g.drawCircle(r * 0.1, 0, r * 0.62); g.endFill();
+    g.beginFill(0xfff4b8, 1); g.drawCircle(r * 0.22, 0, r * 0.3); g.endFill();    // white-hot core
+    return { ember: r * 0.45, msPerTile: FX.FIREBALL_MS_PER_TILE };
+  }
+  if (style === 'blob') {
+    const r = TILE * 0.13;
+    g.beginFill(0x111111, 0.95); g.drawEllipse(0, 0, r * 2.1, r); g.endFill();          // elongated, no point
+    g.beginFill(0x3a3a3a, 0.9); g.drawEllipse(r * 0.5, -r * 0.35, r * 0.6, r * 0.25); g.endFill(); // a wet sheen
+    return { ember: 0, msPerTile: FX.PROJECTILE_MS_PER_TILE };
+  }
+  // the arrow: shaft, head, fletching
+  g.lineStyle(2, 0x3a2a14, 1); g.moveTo(-len / 2, 0); g.lineTo(len / 2 - 4, 0);
+  g.beginFill(0x8a8a8a, 1); g.moveTo(len / 2, 0); g.lineTo(len / 2 - 7, -3.5); g.lineTo(len / 2 - 7, 3.5); g.closePath(); g.endFill();
+  g.lineStyle(2, 0xd9c48b, 1); g.moveTo(-len / 2, 0); g.lineTo(-len / 2 + 5, -3); g.moveTo(-len / 2, 0); g.lineTo(-len / 2 + 5, 3);
+  return { ember: 0, msPerTile: FX.PROJECTILE_MS_PER_TILE };
+}
+
+/** A fading ember left behind a fireball. */
+function ember(x, y, r) {
+  const e = new Graphics();
+  e.beginFill(Math.random() < 0.5 ? 0xff8a1a : 0xffc23a, 1); e.drawCircle(0, 0, r * (0.6 + Math.random() * 0.6)); e.endFill();
+  e.x = x + (Math.random() - 0.5) * r; e.y = y + (Math.random() - 0.5) * r;
+  fxContainer.addChild(e);
+  const start = Date.now();
+  run({
+    update(now) {
+      const p = Math.min(1, (now - start) / FX.EMBER_MS);
+      e.alpha = 1 - p; e.scale.set(1 - 0.6 * p); e.y -= 0.25;
+      if (p >= 1) { fxContainer.removeChild(e); e.destroy(); return false; }
+      return true;
+    },
+  });
+}
+
 /**
- * A ranged shot: a small arrow flies from tile (fromX, fromY) to (toX, toY), then `onArrive`
- * runs (the hit or miss feedback). Without the renderer, onArrive runs at once.
+ * A ranged shot flies from tile (fromX, fromY) to (toX, toY), then `onArrive` runs (the hit or
+ * miss feedback). `style` picks the look (drawShot). Without the renderer, onArrive runs at once.
  */
-export function projectile(fromX, fromY, toX, toY, onArrive) {
+export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow') {
   if (!ready()) { if (onArrive) onArrive(); return; }
   const x0 = (fromX + 0.5) * TILE; const y0 = (fromY + 0.5) * TILE;
   const x1 = (toX + 0.5) * TILE; const y1 = (toY + 0.5) * TILE;
   const dist = Math.hypot(x1 - x0, y1 - y0) / TILE;
-  const duration = Math.max(FX.PROJECTILE_MIN_MS, dist * FX.PROJECTILE_MS_PER_TILE);
   const g = new Graphics();
-  const len = TILE * 0.45;
-  // an arrow drawn along +x: shaft, head, fletching
-  g.lineStyle(2, 0x3a2a14, 1); g.moveTo(-len / 2, 0); g.lineTo(len / 2 - 4, 0);
-  g.beginFill(0x8a8a8a, 1); g.moveTo(len / 2, 0); g.lineTo(len / 2 - 7, -3.5); g.lineTo(len / 2 - 7, 3.5); g.closePath(); g.endFill();
-  g.lineStyle(2, 0xd9c48b, 1); g.moveTo(-len / 2, 0); g.lineTo(-len / 2 + 5, -3); g.moveTo(-len / 2, 0); g.lineTo(-len / 2 + 5, 3);
+  const look = drawShot(g, style);
+  const duration = Math.max(FX.PROJECTILE_MIN_MS, dist * look.msPerTile);
   g.rotation = Math.atan2(y1 - y0, x1 - x0);
   g.x = x0; g.y = y0;
   fxContainer.addChild(g);
   const start = Date.now();
+  let lastEmber = start;
   let done = false;
   run({
     update(now) {
       const p = Math.min(1, (now - start) / duration);
       g.x = x0 + (x1 - x0) * p; g.y = y0 + (y1 - y0) * p;
+      if (look.ember && now - lastEmber >= FX.EMBER_EVERY_MS) { lastEmber = now; ember(g.x, g.y, look.ember); }
+      if (look.ember) g.scale.set(1 + 0.08 * Math.sin(now / 40)); // a flicker
       if (p >= 1 && !done) {
         done = true;
         fxContainer.removeChild(g); g.destroy();
         if (onArrive) { try { onArrive(); } catch (e) { console.error('projectile onArrive failed', e); } }
         return false;
       }
+      return true;
+    },
+  });
+}
+
+// ---------------------------------------------------------------- enemy leap (the Ogre)
+
+/** The leap's wind-up: the enemy vibrates in place for `ms`. */
+export function enemyLeapCharge(npcId, ms) {
+  const obj = getNpcDisplay(npcId);
+  if (!ready() || !obj || obj.destroyed) return;
+  const start = Date.now();
+  run({
+    update(now) {
+      if (obj.destroyed) return false;
+      const e = now - start;
+      const r = rest(obj);
+      if (e >= ms) { setPivotOffset(obj, 0, 0, r.x, r.y); applyScale(obj, 1, 1); return false; }
+      const k = FX.LEAP_SHAKE_PX * (0.5 + 0.5 * (e / ms));          // it builds
+      setPivotOffset(obj, (Math.random() - 0.5) * 2 * k, (Math.random() - 0.5) * k, r.x, r.y);
+      const crouch = Math.min(1, e / ms);
+      applyScale(obj, 1 + 0.08 * crouch, 1 - 0.12 * crouch);           // gathering itself
+      return true;
+    },
+  });
+}
+
+/** The leap itself: an arc above the tween the NPC layer runs over the same `ms`. */
+export function enemyLeapArc(npcId, ms) {
+  const obj = getNpcDisplay(npcId);
+  if (!ready() || !obj || obj.destroyed) return;
+  const start = Date.now();
+  run({
+    update(now) {
+      if (obj.destroyed) return false;
+      const p = Math.min(1, (now - start) / ms);
+      const r = rest(obj);
+      setPivotOffset(obj, 0, -Math.sin(p * Math.PI) * FX.LEAP_ARC_TILES * TILE, r.x, r.y);
+      applyScale(obj, 1 - 0.1 * Math.sin(p * Math.PI), 1 + 0.12 * Math.sin(p * Math.PI)); // stretched in the air
+      if (p >= 1) { setPivotOffset(obj, 0, 0, r.x, r.y); applyScale(obj, 1, 1); return false; }
       return true;
     },
   });
@@ -492,5 +579,5 @@ function tickHpBars(now) {
   }
 }
 
-const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, killEnemy, playerLunge, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
+const CombatFX = { attach, detach, registerPC, text, hitEnemy, enemyWindup, enemyLeapCharge, enemyLeapArc, killEnemy, playerLunge, playerHit, showCooldown, engageEnemy, projectile, dropBounce, FX };
 export default CombatFX;

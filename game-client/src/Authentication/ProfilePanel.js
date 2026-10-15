@@ -19,6 +19,7 @@ import { showNotification } from '../UI/Notifications/Notifications';
 import FeedbackLinks from '../UI/Panels/FeedbackLinks';
 import { authErrorText } from './authErrors';
 import EmailModal from '../UI/Modals/EmailModal';
+import { gameConfirm, gameAlert } from '../UI/Modals/GameDialog';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -522,7 +523,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           <button
             className="btn-basic btn-danger"
             onClick={async () => {
-              const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+              const confirmed = await gameConfirm({ message: strings[2034] || "Delete your profile? This can't be undone.", confirmLabel: strings[2033] || 'Delete', danger: true });
               if (!confirmed) return;
 
               try {
@@ -531,15 +532,15 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
                 });
 
                 if (response.data.success) {
-                  alert("Account deleted successfully.");
+                  await gameAlert({ message: strings[2052] || 'Your profile has been deleted.' });
                   localStorage.removeItem('player');
                   window.location.reload();
                 } else {
-                  alert("Failed to delete account.");
+                  gameAlert({ message: strings[2053] || "Couldn't delete your profile. Please try again." });
                 }
               } catch (err) {
                 console.error("Error deleting account:", err);
-                alert("An error occurred while trying to delete your account.");
+                gameAlert({ message: strings[2053] || "Couldn't delete your profile. Please try again." });
               }
             }}
           >

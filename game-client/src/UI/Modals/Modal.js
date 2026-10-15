@@ -13,7 +13,9 @@ function Modal({ isOpen = true, onClose, title, children, custom, message, messa
   // the fixed overlay)
   return createPortal(
     <div className="modal-overlay">
-      <div className={`modal-container ${size === "small" ? "modal-small" : ""} ${className || ""}`}>
+      {/* size: "small" | "narrow" | "medium" | "large" | "xlarge" (docs/ui-conventions.md §2, modal
+          widths); "standard" (the default) takes no tier class */}
+      <div className={`modal-container ${size && size !== "standard" ? `modal-${size}` : ""} ${className || ""}`}>
         {/* Close Button (X style) */}
         <CloseButton corner onClick={onClose} />
 

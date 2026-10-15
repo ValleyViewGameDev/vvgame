@@ -123,9 +123,3 @@
   text-align: left;
   order: 4;
 }
-
-/* Modal container adjustments for better sizing */
-.bulk-harvest-results-modal .modal-container {
-  max-width: 500px;
-  min-width: 500px;
-}

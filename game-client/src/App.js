@@ -109,6 +109,7 @@ import PetPanel from './GameFeatures/Pets/PetPanel';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
+import DoorPanel from './GameFeatures/Doors/DoorPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
@@ -2803,7 +2804,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       }
       
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('DecoPanel');
+      openPanel(resource.action === 'door' ? 'DoorPanel' : 'DecoPanel');
     } 
     else if (resource.category === 'pet') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -4513,6 +4514,23 @@ return (
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId} 
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          isDeveloper={isDeveloper}
+        />
+      )}
+      {activePanel === 'DoorPanel' && (
+        <DoorPanel
+          onClose={closePanel}
+          currentPlayer={currentPlayer}
+          setInventory={setInventory}
+          setBackpack={setBackpack}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
+          gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}

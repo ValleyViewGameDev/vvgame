@@ -27,6 +27,30 @@ value rather than trust this page.
 
 ## 2. Modals
 
+- **Modal widths: size a modal by its columns, not by the screen.** Every modal picks one tier
+  (`UI/Modals/Modal.css`); none takes the bare default (80vw, up to 1000 px), which leaves a
+  short row stranded in blank space on a desktop.
+
+  | Tier | Width | Content | Phone portrait | Examples |
+  |---|---|---|---|---|
+  | `modal-small` | 320 px | one message or one fact, plus buttons | the same modal | GameDialog, Spend Gems, Begin, Email ask, Name Deed, Install prompt, ResourceModalSmall, Progress, a hint |
+  | `modal-narrow` | 440 px | a list, or 2 to 3 columns (icon, name, mark; name, cost, button) | the same modal: 440 px is the phone's own modal width, so ONE layout serves both | Quest for Hope, Language picker, Share, Snug travel, Level Up / Train complete, Revival, Gold Pass benefits, bulk results |
+  | `modal-medium` | up to 600 px | reading text or a wrapping grid | the same modal, reflowed | Privacy policy, Off-season notice, Change Icon grid |
+  | `modal-large` / `-xlarge` (or a feature's own wide box) | 800 to 1000 px | a table of 4+ columns the player compares across | its own portrait layout in `mobile.css` (rows become cards: `res-rows`) | Trading inventory, Inventory manage (backpack / warehouse), Eating, Global Market, Store, Mailbox, bulk select (harvest, animals, crafting), Avatar |
+
+  A new modal starts at the narrowest tier its content fits. Going wide is a commitment: it
+  needs a phone portrait version, so prefer fewer columns over a wide modal.
+
+- **Never the browser's dialogs.** No `window.confirm`, `window.alert` or `window.prompt` in
+  anything a player sees: they look like the operating system, not the game. Ask with
+  `await gameConfirm({ message, confirmLabel, danger })` and tell with `gameAlert({ message })`
+  (`UI/Modals/GameDialog.js`; promises, callable from anywhere; one `<GameDialogHost />` at the
+  app root, above every panel and modal). A destructive confirm (delete, remove) passes
+  `danger: true` and names the action on the button ("Delete", not "Yes"). Gem spends keep their
+  own confirm (`GemSpendConfirm.js`). A confirmation that needs no answer ("Copied to
+  clipboard") is a quick notice (§4), not an alert. Developer-only tools (`Utils/debug.js`,
+  `Utils/WorldGeneration.js`, `Dev/`) may still use the browser's.
+
 - Every modal is `.modal-overlay > .modal-container` with a size class (`modal-small` 320 px,
   `modal-medium` 50vw/600 max, `modal-large` 80vw/800 max, `modal-xlarge` 90vw/1400 max; the
   bare container is 80vw/1000 max). Use `UI/Modals/Modal.js` (`size`, `className`, `title`)
@@ -153,6 +177,13 @@ value rather than trust this page.
   its two buttons (`EmailUsButton`, `DiscordButton`) also open How to Play.
 
 ## 4. Header, status bar, notifications
+
+- **Three ways to tell the player something**, by weight: a **quick notice**
+  (`showQuickNotice(message)`, `UI/QuickNotice.js`: one short line in a dark pill at the top
+  of the board where the toasts land, above every modal, fades away after ~1.6 s, never takes a tap) for a confirmation that
+  needs nothing back, e.g. "Copied to clipboard"; a **header toast** (`showNotification`,
+  `UI/Notifications`) for news and FTUE instructions (it sits behind modals, z 985); a **game
+  alert** (`gameAlert`, §2) only when the player must acknowledge it.
 
 - Phone header rows are fixed by orientation (see the `mobile.css` header comment): portrait
   row 1 is the name at the left edge and gems + money at the right edge (16px), row 2 the
@@ -322,7 +353,7 @@ value rather than trust this page.
   A sale whose card stays (Train, Trade Stall, Carnival) also gets the sparkle
   burst (`UI/SaleBurst.js`) and a `.sale-pop` on the card; Kent's sold card bursts away instead. Floating texts and flights sit above
   every modal and the FTUE scrim.
-- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; Bank offers, `Bank.js`; traders' offers (Falstaff, the Apothecary ...), `NPCsPanel.js`; the motion of Kent's slots). Repeatable offers (Bank, traders) run one shared cycle, `runCardReturn` in `UI/SaleBurst.js`: pop with the burst, the slot empty for a beat, the same card slides back in from the left and lands at 1.5 s (the Bank's spam-guard cooldown), untappable while it is gone. Quest cards:
+- **Cards that leave a list** (quest givers' panels, `NPCsPanel.js`; Bank offers, `Bank.js`; traders' offers (Falstaff, the Apothecary ...), `NPCsPanel.js`; collected Mailbox messages, `Mailbox.js` (the row pops, then its slot collapses and the server's list is applied only after, so nothing jumps; the Mailbox modal is a fixed height, 640 px / 80vh, 82dvh on phones, with the list scrolling inside); the motion of Kent's slots). Repeatable offers (Bank, traders) run one shared cycle, `runCardReturn` in `UI/SaleBurst.js`: pop with the burst, the slot empty for a beat, the same card slides back in from the left and lands at 1.5 s (the Bank's spam-guard cooldown), untappable while it is gone. Quest cards:
   on the tap the card goes (house rule: the server runs in parallel and a failure brings it
   back). Completed with a reward: `.card-fx-pop` plus `<SaleBurst />`; taken without one (a quest
   accepted): `.card-fx-leave`. If the same card comes straight back (a repeatable quest) it

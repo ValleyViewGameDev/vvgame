@@ -34,7 +34,7 @@ export default function QuestForHopeModal({ items = [], onClose }) {
 
   return (
     <>
-      <Modal onClose={onClose} title={title} className="quest-for-hope-modal">
+      <Modal onClose={onClose} title={title} className="modal-narrow quest-for-hope-modal">
         <p className="qfh-note">{t(200804)}</p>
         <div className="qfh-list">
           {items.map((item) => (
@@ -47,7 +47,7 @@ export default function QuestForHopeModal({ items = [], onClose }) {
             >
               <span className="qfh-icon" aria-hidden="true">{item.symbol}</span>
               <span className="qfh-name">{getLocalizedString(item.name, strings)}</span>
-              <span className="qfh-mark" aria-hidden="true">{item.collected ? '✓' : '?'}</span>
+              <span className="qfh-mark" aria-hidden="true">{item.collected ? '✅' : '?'}</span>
             </button>
           ))}
         </div>

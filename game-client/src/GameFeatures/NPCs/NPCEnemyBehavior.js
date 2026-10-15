@@ -39,6 +39,75 @@ const updateThisNPC = async function(gridId) {
  */
 const ENEMY_LEASH = 4; // tiles; a template may override with `leashradius` in resources.json
 
+/**
+ * The leap (the Ogre; any enemy with `leapcooldown` > 0 in resources.json, owner 2026-10-15):
+ * chasing a player who is far off, with a clear line (no walls, doors or trees) to a free tile
+ * beside them, it stops, vibrates for LEAP_CHARGE_MS, then leaps there in LEAP_MS. Not again
+ * for `leapcooldown` seconds after landing.
+ */
+const LEAP_CHARGE_MS = 1000;
+const LEAP_MS = 280;
+const LEAP_MIN_REACH = 3;    // closer than this it just walks
+const LEAP_MAX_REACH = 10;   // farther than this it walks closer first
+
+/** The free tile beside the player the enemy can leap to in a straight, clear line, or null. */
+function leapLanding(npc, target, tiles, resources, npcs) {
+  const from = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
+  const px = Math.floor(target.position.x), py = Math.floor(target.position.y);
+  const options = [];
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (!dx && !dy) continue;
+      const t = { x: px + dx, y: py + dy };
+      if (!npc.isValidTile(t.x, t.y, tiles, resources, npcs)) continue;
+      if (isWallBlocking(from, t, { trees: true })) continue;   // walls, doors and trees stop a leap
+      options.push({ ...t, d: (t.x - from.x) ** 2 + (t.y - from.y) ** 2 });
+    }
+  }
+  options.sort((a, b) => a.d - b.d);   // the near side of the player
+  return options[0] || null;
+}
+
+/** Start a leap if this enemy can and should; true when it did (the tick is spent). */
+function tryLeap(npc, gridId, tiles, resources, npcs) {
+  const cooldownMs = Number(npc.leapcooldown) * 1000;
+  if (!(cooldownMs > 0) || npc.leaping || Date.now() < (npc.nextLeapAt || 0) || !npc.targetPC) return false;
+  const far = reach(npc.position, npc.targetPC.position);
+  if (far < LEAP_MIN_REACH || far > LEAP_MAX_REACH) return false;
+  if (!leapLanding(npc, npc.targetPC, tiles, resources, npcs)) return false;
+
+  npc.leaping = true;
+  npc.path = null;
+  npc.nextUpdateAt = Date.now() + LEAP_CHARGE_MS + LEAP_MS;   // its own clock waits out the leap
+  CombatFX.enemyLeapCharge(npc.id, LEAP_CHARGE_MS);
+  setTimeout(async () => {
+    try {
+      // the player moved during the wind-up: aim at where they are now, if still clear
+      const live = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
+      const liveNpcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const landing = live && live.hp > 0
+        ? leapLanding(npc, live, GlobalGridStateTilesAndResources.getTiles(), GlobalGridStateTilesAndResources.getResources(), liveNpcs)
+        : null;
+      if (!landing) return;
+      if (landing.x !== Math.floor(npc.position.x)) npc.facing = landing.x > npc.position.x ? 1 : -1;
+      npc.position.x = landing.x;
+      npc.position.y = landing.y;
+      npc.lastStepMs = LEAP_MS;          // the renderer tweens the whole leap in this time
+      npc.stepStartedAt = Date.now();
+      NPCsInGridManager.updateNPCPosition(npc.gridId || gridId, npc.id, { x: landing.x, y: landing.y });
+      CombatFX.enemyLeapArc(npc.id, LEAP_MS);
+    } catch (err) {
+      console.error('Enemy leap failed:', err);
+    } finally {
+      setTimeout(() => {
+        npc.leaping = false;
+        npc.nextLeapAt = Date.now() + cooldownMs;
+      }, LEAP_MS);
+    }
+  }, LEAP_CHARGE_MS);
+  return true;
+}
+
 function enemyLeashRadius(npc) {
   const r = Number(npc.leashradius);
   return r > 0 ? r : ENEMY_LEASH;
@@ -84,6 +153,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     await updateThisNPC.call(this, gridId);
   }
  
+  if (this.leaping) return; // mid-leap (wind-up or flight): the leap's own timers finish it
+
   // Check whether the PC is visible at the start of any state (immediate reaction)
   const pcVisibleInRange = !!localPC &&
     localPC.hp > 0 &&
@@ -165,6 +236,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
             return;
           }
         }
+
+        // Far off and in the clear: the Ogre leaps to the player instead of walking
+        if (tryLeap(this, gridId, tiles, resources, npcs)) return;
 
         const before = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
         const result = this.followPath(
@@ -293,9 +367,13 @@ function performAttack(gridId, TILE_SIZE) {
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
       if (newHP <= 0) playersInGridManager.flushAfterTransaction(); // death is worth saving now
     };
-    // A ranged enemy's shot flies to the player; a melee blow lands at once
-    if (reach(this.position, live.position) > 1) CombatFX.projectile(this.position.x, this.position.y, live.position.x, live.position.y, land);
-    else land();
+    // A ranged enemy's shot flies to the player in its own look (resources.json `projectile`:
+    // arrow, fireball, fireball-small, blob); `none` is a melee enemy with reach (the Ogre's 2):
+    // its blow lands at once, as a melee blow beside the player does
+    const shot = this.projectile || 'arrow';
+    if (shot !== 'none' && reach(this.position, live.position) > 1) {
+      CombatFX.projectile(this.position.x, this.position.y, live.position.x, live.position.y, land, shot);
+    } else land();
   }, CombatFX.FX.WINDUP_MS);
 }
 

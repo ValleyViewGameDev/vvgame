@@ -92,7 +92,7 @@ const LevelUpModal = ({
 
   return createPortal(
     <div className="modal-overlay">
-      <div className="modal-container modal-medium level-up-modal">
+      <div className="modal-container modal-narrow level-up-modal">
         <CloseButton corner onClick={handleClose} />
 
         <div className="modal-title">⬆️ {strings[811] || 'Level Up!'}</div>

@@ -222,7 +222,7 @@ export function BulkHarvestModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={strings[315] || "Select Crops to Harvest"} size="medium">
+    <Modal isOpen={isOpen} onClose={onClose} title={strings[315] || "Select Crops to Harvest"} size="large">
       <div className="bulk-select">
         <div className="bulk-select-toolbar">
           <div className="bulk-select-group">

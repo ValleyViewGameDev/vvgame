@@ -1,3 +1,5 @@
+import { showQuickNotice } from '../UI/QuickNotice';
+
 export function shareToNetwork(network, url) {
   let shareUrl = '';
 
@@ -19,8 +21,8 @@ export function shareToNetwork(network, url) {
   window.open(shareUrl, '_blank', 'noopener,noreferrer');
 }
 
-export function copyToClipboard(text) {
+export function copyToClipboard(text, strings = {}) {
   navigator.clipboard.writeText(text)
-    .then(() => alert('✅ Link copied to clipboard!'))
-    .catch(() => alert('❌ Failed to copy link.'));
+    .then(() => showQuickNotice(strings[2049] || 'Copied to clipboard', { icon: '📋' }))
+    .catch(() => showQuickNotice(strings[2051] || "Couldn't copy the link."));
 }

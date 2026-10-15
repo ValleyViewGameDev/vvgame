@@ -468,6 +468,7 @@
   .store-modal .store-offer-card-third .store-offer-right { align-items: flex-end; }
   .store-modal .store-offer-right { min-width: 96px; }
   /* Mailbox rows: text above, rewards and buttons below, instead of one row that overflows */
+  body .modal-overlay .modal-container.mailbox-modal { height: 82vh; height: 82dvh; } /* fixed height, list scrolls */
   .mailbox-modal .mailbox-message { flex-wrap: wrap; gap: 8px; }
   .mailbox-modal .message-left { flex: 1 1 100%; margin-right: 0; }
   .mailbox-modal .message-actions { flex: 1 1 100%; }
@@ -477,6 +478,7 @@
 
   /* ---------- notifications: same drop-down toast from behind the header, nearly full width ---------- */
   #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
+  .quick-notice { top: calc(var(--m-top) + 10px); } /* where the toasts land on a phone */
   /* region name: same top as the pills, kept clear of the zoom pill (left) and season button (right) */
   .region-name {
     top: calc(var(--m-top) + var(--m-gap));

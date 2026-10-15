@@ -15,7 +15,7 @@ function ShareModal({ onClose }) {
 
   return createPortal(
     <div className="modal-overlay">
-      <div className="modal-container modal-medium">
+      <div className="modal-container modal-narrow">
         <CloseButton corner onClick={onClose} />
         <div className="modal-title">📢 Share "Secrets of Elsinore"</div>
         <p>{strings[95]}</p>
@@ -30,7 +30,7 @@ function ShareModal({ onClose }) {
         <div className="copy-link">
           <input type="text" readOnly value={url} />
           <div className="shared-buttons">
-            <button className="btn-basic btn-modal-small" onClick={() => copyToClipboard(url)}>📋 Copy</button>
+            <button className="btn-basic btn-modal-small" onClick={() => copyToClipboard(url, strings)}>📋 Copy</button>
           </div>
         </div>
 

@@ -60,7 +60,7 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
   const nameOf = (d) => (d.kind === 'town' ? strings[10196] : getLocalizedString(d.region, loc));
 
   return (
-    <Modal onClose={onClose} title={strings[10191]} className="modal-medium snug-travel-modal">
+    <Modal onClose={onClose} title={strings[10191]} className="modal-narrow snug-travel-modal">
       <p className="snug-travel-note">{strings[10197]}</p>
       {error && <p className="snug-travel-note">{error}</p>}
       {!error && destinations === null && <p className="snug-travel-note">…</p>}

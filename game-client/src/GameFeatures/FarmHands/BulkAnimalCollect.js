@@ -45,7 +45,7 @@ export function BulkAnimalModal({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={strings[319] || "Select Animals to Collect"} size="medium">
+    <Modal isOpen={isOpen} onClose={onClose} title={strings[319] || "Select Animals to Collect"} size="large">
       <div className="bulk-select">
         <div className="bulk-select-toolbar">
           <div className="bulk-select-group">

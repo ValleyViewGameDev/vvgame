@@ -240,6 +240,17 @@ Train halved anything over $2,000. Now every ask is sized by how much production
 What a good costs in gems (`gemcost`, ECONOMY, read-only, derived). Background and the before
 numbers: docs/economy-plan.md.
 
+- **Never for gems** (`nogems`, ECONOMY tick box, owner 2026-10-15): some things are earned, not
+  bought, whatever their derived price. A `nogems` item gets no gem button and no gem speed-up,
+  and neither does any recipe whose MISSING ingredients include one (Economy/GemCosts.js
+  `calculateGemPurchase`). Ticked: the Oracle's artifacts (Trident, King's Crown, Prospero's
+  Orb, Brass Bell, Phoenix Feather, Vampire's Blood; not the Scroll, an ordinary pet find), Hope,
+  the Home Deed, the keys (Skeleton, Golden, Town, Dungeon, Mirror) and the seven Secrets. An
+  ingredient or skill with no `gemcost` at all is also not gem-buyable (it used to fall back to
+  1 gem, which sold the Shrine's Trident for 1 gem by skipping the Skeleton Key). `output:
+  noBank` is a different thing: it only keeps an item off Kent, the Train and the Bank.
+  Trader (NPC) trades never offer a gem buy-through; the healer's heal is the one NPC gem button.
+
 - **Rule** (Hay Day's "time is diamonds"): `gemcost = ceil(Money x 0.01 + smooth(sum(other
   ingredient qty x ingredient gemcost) + (crafttime minutes) ^ 0.45))`, each ingredient priced
   the same way first. Skills, powers, buildings and goods all use it. Math: `tools/editor/sheets/economy.js computeGemcost`;
@@ -288,23 +299,72 @@ numbers: docs/economy-plan.md.
   100 added 2026-10-13; was 3, 5, 10, 50, 100). It counts skills only (not powers): with 56
   skills in the game, 75 and 100 wait for more skills (owner's call). Milestones fire on an
   exact count, so a change never pays retroactively.
+## 5. Combat (globalTuning `combat`, Combat.js, NPCEnemyBehavior.js, CombatFX.js)
+
 - **Swing cooldown**: `attackCooldownMinMs` (400) + `(speed - 1) × attackCooldownPerSpeedMs`
   (100), clamped to `attackCooldownMaxMs` (800). Speed 1 → 0.4 s, speed 5 (starter) → 0.8 s;
   speed-reducing powers (Jab, Flurry, Barrage, Magic Gloves) make swings faster, never
   below the minimum. The cooldown starts only on a valid swing (never on a refused click).
 - **Reach is Chebyshev** (board distance): the eight neighbours are 1 away for both the
-  player's `attackrange` and an enemy's. Enemy `attackrange` in resources.json is now 1 for
-  melee beasts (Coyote, Bear, Polar Bear, Zombie), 2 Ogre / Duke Angelo, 3 Demon, 4 Spider /
-  Dragon, 5 Ghost / Phoenix. Sight (`range`) stays larger so there is an approach. Anything
-  beyond reach 1 is a ranged attack for an ENEMY and shows a projectile. For the player,
-  melee vs ranged is the equipped weapon's `ranged` flag (resources.json, ECONOMY sheet column
-  `ranged`): bows, crossbows and Darts are ranged (they keep their `attackrange` bonus and show a
-  projectile); swords, axes, spears and halberds are melee and their `attackrange` is 0.
-  Reach-adding powers (Horizon Eye and the like) still extend a melee swing. Owner note
-  2026-10-08: reconsider that once the melee/ranged split settles (a sword with reach 3 is odd).
+  player's `attackrange` and an enemy's. Sight (`range`) stays larger than reach so there is an
+  approach. The numbers are in §5a. An enemy beyond reach 1 shows a projectile in its
+  `projectile` look unless that is `none` (a melee enemy with reach, the Ogre). For the player,
+  melee vs ranged is the equipped weapon's `ranged` flag (ECONOMY column `ranged`): bows,
+  crossbows and Darts show an arrow; swords, spears and halberds are melee, and a spear or a
+  halberd's +1 reach is a longer swing, not a shot.
 - **Rolls** are unchanged: d20 + attack bonus vs armour class; damage = stat + d6. Enemies
   roll on the tick they come into reach (after a 300 ms wind-up) and once per tick after;
   enemy `speed` still does not set the attack rate (a per-type interval is open work).
 - **Death**: `respawnHpFree` (40) for free accounts, `respawnHpGoldFraction` (0.5) of the
   derived max hp for Gold; max hp is re-derived from base + maxhp powers
   (`PlayersInGrid.derivedMaxhp`) so no bonus is lost on death or revive.
+
+
+### 5a. Reach and sniping (owner, 2026-10-15)
+
+**Philosophy.** Reach decides how a fight is fought. A player who out-ranges an enemy can
+"snipe" it: hit it from tiles it cannot answer from. Reach was generous (bows at +6 to +12), so
+most fights were won from a distance and the close engagements the enemies are built for never
+happened. Reach is now short: players engage closely, and out-ranging a strong enemy is
+something a player BUILDS toward (the right weapon plus the reach magic items), not the
+default. Weapons and magic items will increasingly be tuned around specific enemies and
+scenarios; keep each new one honest against this table: what can it snipe, and what must it
+face up close?
+
+**How reach adds up** (`utils/combatStats.js`, mirrored by the client's `powerModifiers`):
+base 1 + the EQUIPPED weapon's `attackrange` + every reach magic item owned (Focus +1,
+Precision +1, Horizon Eye +1, legendary). A player out-ranges an enemy when their reach is
+greater than the enemy's `attackrange`.
+
+| Weapon | attackrange | reach alone | with all 3 magic items |
+|---|---|---|---|
+| Spear, Halberd, Magic Halberd (melee) | +1 | 2 | 5 |
+| Darts | +2 | 3 | 6 |
+| Magic Spear (melee, attack bonus +5) | +2 | 3 | 6 |
+| Short Bow | +3 | 4 | 7 |
+| Crossbow | +4 | 5 | 8 |
+| Long Bow | +5 | 6 | 9 |
+| Magic Crossbow (legendary) | +6 | 7 | 10 |
+| Legendary Crossbow (legendary) | +8 | 9 | 12 |
+| Titania's Bow (legendary) | +9 | 10 | 13 |
+
+| Enemy | attackrange | out-ranged by |
+|---|---|---|
+| Ogre | 2 (melee, `projectile: none`; damage 50, attack bonus 16; leaps) | Darts and up |
+| Spider | 3 (faster: `movespeed` 2.4, was 1.8 with reach 4) | Short Bow and up |
+| Demon | 7 (`projectile: fireball-small`) | Crossbow + all 3 magic items; Long Bow + 2; Magic Crossbow + 1; the legendary bows alone |
+| Dragon | 9 (`projectile: fireball`) | Magic Crossbow + all 3 magic items; Legendary Crossbow + 1; Titania's Bow alone |
+
+So a Dragon is sniped only with legendary gear: the Magic Crossbow needs all three reach items,
+the Legendary Crossbow one, and Titania's Bow none (it is the rarest find; revisit if that is
+too easy).
+
+**Enemy shot looks** (`projectile`, ECONOMY column, CombatFX.drawShot): `arrow` (default),
+`fireball` (Dragon: large, ember trail, a little slower so it reads), `fireball-small` (Demon),
+`blob` (Spider: an elongated black spit, no point), `none` (melee at any reach).
+
+**The leap** (`leapcooldown` seconds, ECONOMY column; today the Ogre at 5): an enemy chasing a
+player 3 to 10 tiles away, with a straight line clear of walls, doors and trees to a free tile
+beside the player, stops, vibrates for 1 s, then leaps there in 0.28 s; not again until the
+cooldown has passed after landing (NPCEnemyBehavior.js `tryLeap`). It lets a slow melee enemy
+close the gap a sniper relies on.

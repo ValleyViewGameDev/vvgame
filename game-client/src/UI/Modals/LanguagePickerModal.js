@@ -45,7 +45,7 @@ const handleSave = async () => {
 
   return createPortal(
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container modal-medium" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-container modal-narrow" onClick={(e) => e.stopPropagation()}>
         <CloseButton corner onClick={onClose} />
         <div className="modal-title">{strings[130]}</div>
         <ul className="language-list">

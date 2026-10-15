@@ -3,16 +3,23 @@
 
 .modal-container.mailbox-modal {
   width: 800px;
-  max-height: 80vh;
-  overflow-y: auto;
+  /* fixed height: the modal keeps its size whatever the mail count; the list scrolls inside it */
+  height: min(640px, 80vh);
+  max-height: none;
+  overflow: hidden;
   padding: 20px;
   text-align: left;
 }
+.mailbox-modal .modal-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 
 /* Center the mailbox modal title */
 .mailbox-modal .modal-title {
   text-align: center;
 }
+
+/* A message's slot: holds the row's spacing (flow-root keeps the row's margin inside it) so it
+   can collapse to nothing when the message is collected, and the sparkle burst (Mailbox.js) */
+.mailbox-slot { position: relative; display: flow-root; }
 
 /* Each message row */
 .mailbox-message {

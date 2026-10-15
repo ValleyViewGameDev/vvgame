@@ -113,7 +113,7 @@ function OffSeasonModal({ onClose, currentPlayer }) {
       title={title}
       message={message}
       message2={message2}
-      size="standard"
+      size="medium"
     >
       <h2 className="countdown-timer"><strong>{seasonData.type} begins in:</strong> {countdown}</h2>
 

@@ -12,6 +12,7 @@ import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { GemSpendConfirmHost } from './UI/Modals/GemSpendConfirm';
+import { GameDialogHost } from './UI/Modals/GameDialog';
 import { UILockProvider } from './UI/UILockContext';
 import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
@@ -70,6 +71,7 @@ if (!window.__app_rendered__) {
                       <ModalProvider>
                         <App />
                         <GemSpendConfirmHost />
+                        <GameDialogHost />
                       </ModalProvider>
                     </PanelProvider>
                   </StatusBarProvider>

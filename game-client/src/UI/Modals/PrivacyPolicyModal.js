@@ -5,7 +5,7 @@ import '../Buttons/SharedButtons.css';
 
 export default function PrivacyPolicyModal({ onClose }) {
   return (
-    <Modal isOpen={true} onClose={onClose} title="Privacy Policy" size="standard">
+    <Modal isOpen={true} onClose={onClose} title="Privacy Policy" size="medium">
       <div className="privacy-policy-content" style={{ textAlign: 'left', maxHeight: '60vh', overflowY: 'auto', padding: '0 8px' }}>
         <p style={{ color: 'var(--color-text-secondary)' }}>Last updated: May 6, 2026</p>
 

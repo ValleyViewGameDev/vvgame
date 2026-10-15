@@ -6,6 +6,7 @@
    1. Use .modal-overlay as the outer container
    2. Use .modal-container with size variant for the modal box:
       - .modal-small (280px width)
+      - .modal-narrow (440px: lists, 2-3 columns; same as phone portrait)
       - .modal-medium (400px width)
       - .modal-large (600px width)
       - .modal-xlarge (800px width)
@@ -60,8 +61,17 @@
     width: 320px; /* Slightly larger for modern displays */
     min-width: 280px;
     max-width: 90vw;
-    max-height: 300px;
+    max-height: 80vh;   /* sized by its content; the cap only stops a long message running off-screen */
     padding: 16px;
+}
+
+/* Narrow modal: a list or 2-3 columns (docs/ui-conventions.md §2, modal widths). The same width
+   a phone in portrait gets (mobile.css clamps every modal to 84vw / 440px), so desktop and phone
+   share one layout and the modal never stretches a short row across a wide screen. */
+.modal-container.modal-narrow {
+    width: 440px;
+    min-width: 0;
+    max-width: 92vw;
 }
 
 /* Medium modal variant - good for forms and simple content */
@@ -176,3 +186,6 @@ h2.modal-title {
 .election-log-table tbody tr:nth-child(even) {
   background-color: var(--color-table-alt-row);
 }
+/* The game's confirm / alert (GameDialog.js): over every panel and modal, like the gem confirm */
+.modal-overlay.game-dialog-overlay { z-index: 2147482000; }
+.game-dialog .modal-message { font-size: var(--text-md); }

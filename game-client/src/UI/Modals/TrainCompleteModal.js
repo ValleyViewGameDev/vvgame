@@ -39,7 +39,7 @@ const TrainCompleteModal = ({ onClose }) => {
 
   return createPortal(
     <div className="modal-overlay">
-      <div className="modal-container modal-medium level-up-modal">
+      <div className="modal-container modal-narrow level-up-modal">
         <CloseButton corner onClick={onClose} />
 
         <div className="modal-title">🚂 {strings[2021] || 'All Train orders filled!'}</div>

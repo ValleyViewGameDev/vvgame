@@ -42,7 +42,7 @@
 .qfh-row.uncollected .qfh-name { opacity: 0.75; }
 .qfh-row.collected .qfh-name { font-weight: bold; }
 .qfh-mark { flex: none; font-weight: bold; opacity: 0.7; }
-.qfh-row.collected .qfh-mark { color: var(--color-btn-primary); opacity: 1; }
+.qfh-row.collected .qfh-mark { opacity: 1; }   /* the green ✅ emoji, as on quest cards */
 
 /* the hint: an oracle's riddle, in-world writing, so the JSX adds .text-quote (theme.css) for the italic */
 .qfh-hint-icon { font-size: 36px; /* style-ok: icon */ line-height: 1; margin-bottom: 8px; opacity: 0.5; }

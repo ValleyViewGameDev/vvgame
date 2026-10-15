@@ -44,7 +44,7 @@ export function BulkHarvestResultsModal({
       isOpen={isOpen} 
       onClose={onClose} 
       title={strings[356] || "Bulk Harvest Results"} 
-      size="medium"
+      size="narrow"
       className="bulk-harvest-results-modal"
     >
       <div className="bulk-harvest-results-content">

@@ -10,6 +10,7 @@ import { useStrings } from '../StringsContext';
 import { spendIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { confirmGemSpend } from './GemSpendConfirm';
 import CloseButton from '../Buttons/CloseButton';
+import { gameAlert } from './GameDialog';
 
 const PREMIUM_AVATAR_GEM_COST = 200;
 
@@ -40,7 +41,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
       await updatePlayerIcon(currentPlayer, setCurrentPlayer, playerId, selectedIcon);
       onSave(selectedIcon);
     } catch (err) {
-      alert("Failed to update icon.");
+      gameAlert({ message: strings[2039] || "Couldn't change your icon. Please try again." });
     }
   };
 

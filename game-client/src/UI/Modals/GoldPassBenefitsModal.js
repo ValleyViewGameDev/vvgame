@@ -10,7 +10,7 @@ function GoldPassBenefitsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={strings[10131] || "Gold Pass Benefits"} size="medium">
+    <Modal isOpen={isOpen} onClose={onClose} title={strings[10131] || "Gold Pass Benefits"} size="narrow">
       <div style={{
         textAlign: 'left',
         padding: '0 10px',

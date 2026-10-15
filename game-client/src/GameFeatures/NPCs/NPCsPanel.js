@@ -37,6 +37,7 @@ import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
+import { gameAlert } from '../../UI/Modals/GameDialog';
 
 const NPCPanel = ({
   onClose,
@@ -650,7 +651,7 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
     } catch (error) {
       console.error('Error collecting quest reward:', error);
       revertReward();
-      alert('Failed to collect quest reward.');
+      gameAlert({ message: strings[2038] || "Couldn't collect the quest reward. Please try again." });
     }
   };
 

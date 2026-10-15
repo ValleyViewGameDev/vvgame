@@ -1,0 +1,27 @@
+/* QuickNotice.js: a short line that drops in at the top of the board, where the header toasts
+   land (#notification-container: under the header and status bar), and fades away.
+   Above every modal and the game dialog; never takes a tap. */
+.quick-notice {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--d-top, 84px) + 10px);
+  transform: translateX(-50%);
+  z-index: 2147482500;
+  pointer-events: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background-color: rgba(30, 30, 30, 0.88); /* style-ok: art (dark glass pill) */
+  color: var(--color-text-white);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  animation: quickNoticeIn 220ms ease-out both;
+}
+.quick-notice--out { animation: quickNoticeOut 300ms ease-in forwards; }
+@keyframes quickNoticeIn  { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes quickNoticeOut { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -10px); } }
+@media (prefers-reduced-motion: reduce) {
+  .quick-notice, .quick-notice--out { animation-duration: 1ms; }
+}

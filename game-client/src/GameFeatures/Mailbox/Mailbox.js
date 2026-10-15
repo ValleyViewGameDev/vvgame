@@ -1,6 +1,6 @@
 import API_BASE from '../../config';
 import axios from 'axios';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import Modal from '../../UI/Modals/Modal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
@@ -15,6 +15,8 @@ import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
+import SaleBurst from '../../UI/SaleBurst';
+import { gameConfirm } from '../../UI/Modals/GameDialog';
 
 function Mailbox({ 
   onClose, 
@@ -34,12 +36,43 @@ function Mailbox({
   const [markedReadIds, setMarkedReadIds] = useState([]);
   const gridId = currentPlayer?.location?.g;
   const [visibleMessages, setVisibleMessages] = useState(currentPlayer?.messages || []);
+  // Rows in motion (docs/ui-conventions.md §8, cards that leave a list): { [key]: { id, type } },
+  // type 'pop' (collected: burst + sparkles) or 'leave' (deleted: a quick shrink and fade).
+  // A collected message pops away with the sparkle burst on the tap, then its row collapses so the
+  // messages below slide up; the server's list is applied only after that, so nothing jumps.
+  const [mailFx, setMailFx] = useState({});
+  const rowAnims = useRef({});   // key -> the row's collapse Animation (cancelled if the collect fails)
+  const collecting = useRef(0);  // collects in flight: the player's message list waits for them
+  // a row's identity: template + timestamp, plus its occurrence among identical copies (two copies
+  // of one message sent in the same millisecond must still be two rows)
+  const msgKey = (m, list = visibleMessages) => {
+    const base = `${m?.messageId}-${m?.timestamp}`;
+    const at = list.indexOf(m);
+    const dup = at > 0 ? list.slice(0, at).filter((x) => `${x?.messageId}-${x?.timestamp}` === base).length : 0;
+    return `${base}-${dup}`;
+  };
 
   useEffect(() => {
-    if (Array.isArray(currentPlayer?.messages)) {
+    if (Array.isArray(currentPlayer?.messages) && collecting.current === 0) {
       setVisibleMessages(currentPlayer.messages);
     }
   }, [currentPlayer?.messages]);
+
+  // the row shrinks to nothing (its spacing too) so the rows below glide up into the gap
+  const collapseRow = (key) => new Promise((resolve) => {
+    const el = document.querySelector(`[data-mail-key="${CSS.escape(key)}"]`);
+    if (!el || typeof el.animate !== 'function') { resolve(); return; }
+    const cs = getComputedStyle(el);
+    const anim = el.animate(
+      [
+        { height: `${el.offsetHeight}px`, paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginBottom: cs.marginBottom },
+        { height: '0px', paddingTop: '0px', paddingBottom: '0px', marginBottom: '0px' },
+      ],
+      { duration: 280, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' }
+    );
+    rowAnims.current[key] = anim;
+    anim.onfinish = () => resolve();
+  });
  
   useEffect(() => {
   const fetchTemplatesAndMessages = async () => {
@@ -115,6 +148,21 @@ function Mailbox({
     console.log(`🔒 [PROTECTED MAILBOX] Starting protected collection for message ${messageIndex}`);
     showCollectFloats(messageIndex);
     soundManager.playSFX('collect_money');
+    try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
+
+    // On the tap: the row pops away under the burst, then collapses (house rule: the server runs
+    // in parallel; a failure brings the row back)
+    const key = msgKey(visibleMessages[messageIndex]);
+    setMailFx((prev) => ({ ...prev, [key]: { id: Date.now() + Math.random(), type: 'pop' } }));
+    collecting.current += 1;
+    const rowGone = new Promise((resolve) => setTimeout(() => collapseRow(key).then(resolve), 300));
+    const restoreRow = () => {
+      collecting.current = Math.max(0, collecting.current - 1);
+      rowAnims.current[key]?.cancel();
+      delete rowAnims.current[key];
+      setMailFx((prev) => { const next = { ...prev }; delete next[key]; return next; });
+    };
+    let done = false;
 
     try {
       const response = await axios.post(`${API_BASE}/api/mailbox/collect-rewards`, {
@@ -127,6 +175,11 @@ function Mailbox({
       if (response.data.success) {
         // Update local state with server response
         const { messages, inventory, backpack, skills, powers, relocations, xp, collectedItems } = response.data;
+        await rowGone;   // let the row finish leaving before the list changes under it
+        done = true;
+        collecting.current -= 1;
+        delete rowAnims.current[key];
+        setMailFx((prev) => { const next = { ...prev }; delete next[key]; return next; });
 
         // Update all player data from server response
         setCurrentPlayer(prev => ({
@@ -167,8 +220,10 @@ function Mailbox({
         // That was the last message: close rather than show the empty state
         if (!(messages || []).length) handleClose();
       }
+      else { restoreRow(); }
     } catch (error) {
       console.error('Error in protected mailbox collection:', error);
+      if (!done) restoreRow();
       if (error.response?.status === 429) {
         updateStatus(471);
       } else {
@@ -204,7 +259,13 @@ const renderRewards = (rewards) => {
 
   // messageIndex is the index in the STORED order (visibleMessages), not the on-screen order:
   // the list renders newest first, so callers un-reverse the row index the way handleCollect does.
+  // On the confirm: the row shrinks away and its slot collapses (rows below glide up) while the
+  // server call runs; the new list is applied once both are done, and a failure brings it back
   const deleteMessage = async (playerId, messageIndex) => {
+    const key = msgKey(visibleMessages[messageIndex]);
+    setMailFx((prev) => ({ ...prev, [key]: { id: Date.now() + Math.random(), type: 'leave' } }));
+    collecting.current += 1;
+    const rowGone = new Promise((resolve) => setTimeout(() => collapseRow(key).then(resolve), 220));
     try {
       const updatedMessages = [...visibleMessages];
       updatedMessages.splice(messageIndex, 1); // Remove the one at this index only
@@ -213,7 +274,11 @@ const renderRewards = (rewards) => {
         playerId,
         messages: updatedMessages,
       });
-  
+
+      await rowGone;
+      collecting.current = Math.max(0, collecting.current - 1);
+      delete rowAnims.current[key];
+      setMailFx((prev) => { const next = { ...prev }; delete next[key]; return next; });
       setVisibleMessages(updatedMessages);
       setCurrentPlayer((prev) => ({
         ...prev,
@@ -223,6 +288,10 @@ const renderRewards = (rewards) => {
       updateStatus(1607);
     } catch (error) {
       console.error("❌ Error deleting message:", error);
+      collecting.current = Math.max(0, collecting.current - 1);
+      rowAnims.current[key]?.cancel();
+      delete rowAnims.current[key];
+      setMailFx((prev) => { const next = { ...prev }; delete next[key]; return next; });
       updateStatus("❌ Failed to delete message.");
     }
   };
@@ -254,7 +323,10 @@ const renderRewards = (rewards) => {
             : template.rewards;
 
           return (
-            <div key={index} className="mailbox-message" data-mail-index={visibleMessages.length - 1 - index}>
+            // the slot collapses (rows below glide up); the message inside pops; the burst sits beside it
+            <div key={msgKey(msg)} className="mailbox-slot" data-mail-key={msgKey(msg)}>
+            {mailFx[msgKey(msg)]?.type === 'pop' && <SaleBurst key={mailFx[msgKey(msg)].id} />}
+            <div className={`mailbox-message ${mailFx[msgKey(msg)] ? `card-fx-${mailFx[msgKey(msg)].type}` : ''}`} data-mail-index={visibleMessages.length - 1 - index}>
               {/* Left side: message content */}
               <div className="message-left">
                 <h3>
@@ -287,16 +359,16 @@ const renderRewards = (rewards) => {
                     className="btn-basic btn-neutral btn-modal-small"
                     style={{ width: '40px', backgroundColor: 'var(--color-btn-active)' }}
                     title="Delete"
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to delete this message?")) {
-                        deleteMessage(currentPlayer.playerId, visibleMessages.length - 1 - index); // rows are newest-first
-                      }
+                    onClick={async () => {
+                      const ok = await gameConfirm({ message: strings[2032] || 'Delete this message?', confirmLabel: strings[2033] || 'Delete', danger: true });
+                      if (ok) deleteMessage(currentPlayer.playerId, visibleMessages.length - 1 - index); // rows are newest-first
                     }}
                   >
                     🗑️
                   </button>
                 </div>
               </div>
+            </div>
             </div>
           );
         })

@@ -27,6 +27,7 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
 import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
 import CitizenRelationshipsDebug from '../NPCs/CitizenRelationshipsDebug';
+import { gameConfirm } from '../../UI/Modals/GameDialog';
 
 const FarmHandPanel = ({
   onClose,
@@ -949,9 +950,8 @@ const FarmHandPanel = ({
             <button
               className="btn-basic btn-danger"
               onClick={async () => {
-                if (!window.confirm(`Are you sure you want to remove this ${npc.type} from the grid?`)) {
-                  return;
-                }
+                const ok = await gameConfirm({ message: (strings[2035] || 'Remove this {type} from the grid?').replace('{type}', npc.type), confirmLabel: strings[2036] || 'Remove', danger: true });
+                if (!ok) return;
                 try {
                   // Remove from NPCsInGridManager
                   const npcId = npc.id || npc._id;

@@ -4,7 +4,16 @@ import { calculateGemSpeedupCost } from './EconomyUtils';
 import { GEM_PRICE, smoothGems } from './gemPricing';
 import './GemCosts.css';
 
-// Pure function that doesn't use hooks
+/**
+ * Can this thing ever be had for gems? (owner 2026-10-15) Not when it is marked `nogems` in
+ * resources.json (quest items and the Oracle's artifacts: the keys, the Secrets, Hope, the Home
+ * Deed, the Trident, ...), and not when it has no gem price at all (it was never meant to be
+ * sold for gems; this used to fall back to 1 gem, so a Skeleton Key could be skipped for 1).
+ */
+export const isGemBuyable = (resource) => !!resource && resource.nogems !== true && typeof resource.gemcost === 'number';
+
+// Pure function that doesn't use hooks. Returns null (no gem button) when gems cannot pay for
+// this: the item itself is `nogems`, or a missing ingredient or skill cannot be had for gems.
 export const calculateGemPurchase = ({ 
     resource, 
     inventory, 
@@ -14,6 +23,9 @@ export const calculateGemPurchase = ({
     strings,
     overrideGemCost = null
 }) => {
+    // A nogems item is never bought or sped up with gems, whatever the cost
+    if (!resource || resource.nogems === true) return null;
+
     // Ensure arrays are defined
     const safeInventory = inventory || [];
     const safeBackpack = backpack || [];
@@ -92,7 +104,8 @@ export const calculateGemPurchase = ({
                 
                 if (missingQty > 0) {
                     const resourceData = safeMasterResources.find(r => r.type === ingredientType);
-                    const ingredientGemCost = resourceData?.gemcost || 1;
+                    if (!isGemBuyable(resourceData)) return null; // e.g. the Shrine's Skeleton Key
+                    const ingredientGemCost = resourceData.gemcost;
                     if (ingredientType === GEM_PRICE.linear) missingFlatCost += ingredientGemCost * missingQty;
                     else missingIngredientCost += ingredientGemCost * missingQty;
                 }
@@ -104,7 +117,8 @@ export const calculateGemPurchase = ({
             const hasSkill = ownedSkills.some(skill => skill.type === resource.requires);
             if (!hasSkill) {
                 const requiredSkill = safeMasterResources.find(r => r.type === resource.requires);
-                const skillGemCost = requiredSkill?.gemcost || 1;
+                if (!isGemBuyable(requiredSkill)) return null;
+                const skillGemCost = requiredSkill.gemcost;
                 missingIngredientCost += skillGemCost;
             }
         }

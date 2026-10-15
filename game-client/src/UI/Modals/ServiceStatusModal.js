@@ -20,7 +20,7 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
     if (noticeDismissed) return null;
     return createPortal(
       <div className="modal-overlay" style={{ zIndex: 100000 }}>
-        <div className="modal-container">
+        <div className="modal-container modal-narrow">
           <CloseButton corner onClick={() => setNoticeDismissed(true)} />
           <h2 className="modal-title">{t(10010)}</h2>
           <div className="modal-content">
@@ -38,7 +38,7 @@ function ServiceStatusModal({ status, isDeveloper, onIgnoreMaintenance }) {
   // maintenance
   return createPortal(
     <div className="modal-overlay" style={{ zIndex: 100000 }}>
-      <div className="modal-container">
+      <div className="modal-container modal-narrow">
         <h2 className="modal-title">{t(10012)}</h2>
         <div className="modal-content">
           <p className="modal-message">{status.message || t(10013)}</p>

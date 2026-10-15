@@ -6472,7 +6472,8 @@
     "gemcost": 27,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 1440
+    "effort": 1440,
+    "nogems": true
   },
   {
     "type": "Portrait",
@@ -6530,7 +6531,8 @@
     "gemcost": 27,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 1440
+    "effort": 1440,
+    "nogems": true
   },
   {
     "type": "Phoenix Feather",
@@ -6564,7 +6566,8 @@
     "gemcost": 75,
     "crafttime": 864000,
     "totalnestedtime": 864000,
-    "effort": 14400
+    "effort": 14400,
+    "nogems": true
   },
   {
     "type": "Brass Bell",
@@ -6585,7 +6588,8 @@
     "gemcost": 75,
     "crafttime": 864000,
     "totalnestedtime": 864000,
-    "effort": 14400
+    "effort": 14400,
+    "nogems": true
   },
   {
     "type": "Prospero's Orb",
@@ -6606,7 +6610,8 @@
     "gemcost": 122,
     "crafttime": 2592000,
     "totalnestedtime": 2592000,
-    "effort": 43200
+    "effort": 43200,
+    "nogems": true
   },
   {
     "type": "Vampire's Blood",
@@ -6627,7 +6632,8 @@
     "gemcost": 102,
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
-    "effort": 28800
+    "effort": 28800,
+    "nogems": true
   },
   {
     "type": "Home Deed",
@@ -6641,7 +6647,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 1
+    "level": 1,
+    "nogems": true
   },
   {
     "type": "Skeleton Key",
@@ -6655,7 +6662,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 1
+    "level": 1,
+    "nogems": true
   },
   {
     "type": "Golden Key",
@@ -6669,7 +6677,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 1
+    "level": 1,
+    "nogems": true
   },
   {
     "type": "Town Key",
@@ -6683,7 +6692,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 2
+    "level": 2,
+    "nogems": true
   },
   {
     "type": "Dungeon Key",
@@ -6697,7 +6707,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 12
+    "level": 12,
+    "nogems": true
   },
   {
     "type": "Mirror Key",
@@ -6711,7 +6722,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "level": 14
+    "level": 14,
+    "nogems": true
   },
   {
     "type": "Portia's Secret",
@@ -6723,7 +6735,8 @@
     "source": "Portia",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Gertrude's Secret",
@@ -6735,7 +6748,8 @@
     "source": "Gertrude",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Prospero's Secret",
@@ -6747,7 +6761,8 @@
     "source": "Prospero",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Titania's Secret",
@@ -6759,7 +6774,8 @@
     "source": "Titania",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Caliban's Secret",
@@ -6771,7 +6787,8 @@
     "source": "Caliban",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Juliet's Secret",
@@ -6783,7 +6800,8 @@
     "source": "Juliet",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Mermaid's Secret",
@@ -6795,7 +6813,8 @@
     "source": "Mermaid",
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Hope",
@@ -6808,7 +6827,8 @@
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1
+    "xp": 1,
+    "nogems": true
   },
   {
     "type": "Yellow Heart",
@@ -9869,7 +9889,7 @@
     "layoutkey": "nS",
     "category": "npc",
     "artFacing": "left",
-    "movespeed": 1.8,
+    "movespeed": 2.4,
     "action": "attack",
     "output": "Thread",
     "passable": false,
@@ -9881,7 +9901,7 @@
     "speed": 3,
     "damage": 15,
     "attackbonus": 12,
-    "attackrange": 4,
+    "attackrange": 3,
     "validong": false,
     "validond": true,
     "validons": true,
@@ -9895,7 +9915,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "projectile": "blob"
   },
   {
     "type": "Zombie",
@@ -9981,8 +10002,8 @@
     "maxhp": 400,
     "armorclass": 30,
     "speed": 1,
-    "damage": 38,
-    "attackbonus": 12,
+    "damage": 50,
+    "attackbonus": 16,
     "attackrange": 2,
     "validong": true,
     "validond": true,
@@ -9997,7 +10018,9 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "projectile": "none",
+    "leapcooldown": 5
   },
   {
     "type": "Demon",
@@ -10017,7 +10040,7 @@
     "speed": 1,
     "damage": 38,
     "attackbonus": 18,
-    "attackrange": 3,
+    "attackrange": 7,
     "validong": false,
     "validond": true,
     "validons": true,
@@ -10031,7 +10054,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "projectile": "fireball-small"
   },
   {
     "type": "Duke Angelo",
@@ -10086,7 +10110,7 @@
     "speed": 1,
     "damage": 238,
     "attackbonus": 18,
-    "attackrange": 4,
+    "attackrange": 9,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -10100,7 +10124,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "projectile": "fireball"
   },
   {
     "type": "Phoenix",
@@ -11309,7 +11334,7 @@
     "hp": 1,
     "level": 4,
     "damage": 4,
-    "attackrange": 4,
+    "attackrange": 2,
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 250,
@@ -11370,7 +11395,7 @@
     "level": 7,
     "damage": 5,
     "attackbonus": 2,
-    "attackrange": 6,
+    "attackrange": 3,
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
@@ -11485,7 +11510,7 @@
     "level": 14,
     "damage": 6,
     "attackbonus": 1,
-    "attackrange": 8,
+    "attackrange": 5,
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
@@ -11664,7 +11689,8 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 1087
+    "gemcost": 1087,
+    "attackrange": 1
   },
   {
     "type": "Maelstrom",
@@ -11742,7 +11768,8 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1550
+    "gemcost": 1550,
+    "attackrange": 1
   },
   {
     "type": "Mystic Armor",
@@ -11771,7 +11798,7 @@
     "level": 31,
     "damage": 10,
     "attackbonus": 3,
-    "attackrange": 6,
+    "attackrange": 4,
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 20000,
@@ -11873,10 +11900,11 @@
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 10,
-    "attackbonus": 1,
+    "attackbonus": 5,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "attackrange": 2
   },
   {
     "type": "Titan",
@@ -11930,7 +11958,7 @@
     "scrollchance": "legendary",
     "damage": 12,
     "attackbonus": 6,
-    "attackrange": 5,
+    "attackrange": 6,
     "ranged": true,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -11950,7 +11978,8 @@
     "damage": 20,
     "ranged": false,
     "ingredient1": "Only Found in Scrolls",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "attackrange": 1
   },
   {
     "type": "Caliban's Breastplate",
@@ -12020,7 +12049,7 @@
     "armorclass": 1,
     "damage": 14,
     "attackbonus": 2,
-    "attackrange": 12,
+    "attackrange": 9,
     "ranged": true,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
@@ -12077,7 +12106,7 @@
     "scrollchance": "legendary",
     "damage": 22,
     "attackbonus": 2,
-    "attackrange": 12,
+    "attackrange": 8,
     "ranged": true,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
