@@ -15,7 +15,8 @@
     "tier": "free",
     "file": "skin-04.svg",
     "tint": "skinTone",
-    "notes": "the female outline with a square jaw; nose, mouth and teeth from npc-rancher"
+    "notes": "the shared crown with the Rancher's jaw; his nose shading tinted, his smile and teeth as drawn (file2)",
+    "file2": "skin-04-detail.svg"
   },
   {
     "id": "eyes-03",

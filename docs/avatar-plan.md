@@ -40,8 +40,8 @@ come out of the existing Citizen busts.
   splits a traced bust into colour groups (`_lab/npc-x/NN-hex.svg`, `groups.json`,
   `sheet.png`, `--zoom x,y,w,h` for a region); `tools/avatar/assemble.js --all` builds
   parts from `tools/avatar/recipes/*.json` (groups, region, maxArea, clip / clipEllipse /
-  clipPath in source units, clipRig in rig units, mirror, recolour keep / white / black /
-  grey / lum, fit, under / extra).
+  clipPath in source units, clipRig in rig units, mirror, offset, a per-include `source`,
+  recolour keep / white / black / grey / lum, fit, under / extra).
 - **Prototype set (slice 1, revised 2026-10-14)**: ONE face and ONE pair of eyes. The
   head is a traced outline of Gertrude's face (`tools/avatar/recipes/_head.json`: chin at
   source y 141, cheeks x 50..150, crown y 28; `skin-03`: that outline, a short neck, ears,
@@ -177,8 +177,10 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
 - **Hair band.** No hair tops out above Waves (`hair-02`, rig y 12) and none ends above the
   head's own crown (rig y ~44), so every hairFront covers y 12..44 and hats are fitted to
   that band (Angelo's crown rim sits on it).
-- **Two faces**, Female (traced from Gertrude) and Male (the same crown and cheeks with a
-  square jaw; nose, mouth and teeth from the Rancher), each with its own eyes.
+- **Two faces**, Female (traced from Gertrude) and Male (the shared crown with the Rancher's
+  rounder, fuller jaw traced from his bust, `_head-male.json`; his ear lines and smile with
+  teeth, the teeth in an untinted `file2`; Gertrude's nose borrowed through an include's
+  `source`), each with its own eyes.
 - **Hats over hair.** A hat draws over `hairFront`. A hat that covers the head (`hidesHair`)
   shows the hair's `underHat` variant (flattened) or hides the hair; a tiara or crown sits on
   the full hair. This is the one cross-part dependency and it is data, not code.

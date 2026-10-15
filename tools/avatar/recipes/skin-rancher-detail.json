@@ -1,0 +1,49 @@
+{
+  "out": "skin/skin-04-detail.svg",
+  "source": "npc-rancher",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": 6
+  },
+  "include": [
+    {
+      "groups": [
+        20
+      ],
+      "region": {
+        "xMin": 78,
+        "xMax": 124,
+        "yMin": 114,
+        "yMax": 125
+      },
+      "recolor": "grey",
+      "grey": 0.3
+    },
+    {
+      "groups": [
+        14
+      ],
+      "region": {
+        "xMin": 80,
+        "xMax": 122,
+        "yMin": 116,
+        "yMax": 130
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        21
+      ],
+      "region": {
+        "xMin": 80,
+        "xMax": 122,
+        "yMin": 116,
+        "yMax": 130
+      },
+      "recolor": "grey",
+      "grey": 0.88
+    }
+  ]
+}

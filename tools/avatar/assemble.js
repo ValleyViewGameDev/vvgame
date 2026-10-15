@@ -19,6 +19,7 @@
  *
  * groups: ids from groups.json, or "all" (with an optional `exclude` list).
  * offset: { dx, dy } in source units, nudges the include (a mouth a touch lower).
+ * source: an include may name another bust to borrow from (same fit applies).
  * mirror: an x (source units) to flip the include about, drawn flipped (an eye for the other side).
  * clipRig: a path `d` in RIG coordinates that cuts the include (the base face's outline).
  * clipPath: a path `d` in SOURCE units; clip: { xMin, xMax, yMin, yMax } or clipEllipse: { cx, cy, rx, ry } (source units) cuts the
@@ -123,8 +124,9 @@ function gradientColors(defs) {
 }
 
 function assemble(recipe, recipeFile) {
-  const sourceDir = path.join(LAB, recipe.source);
-  const groups = JSON.parse(fs.readFileSync(path.join(sourceDir, 'groups.json'), 'utf8')).groups;
+  const groupsOf = {};
+  const sourceDirOf = (name) => path.join(LAB, name);
+  const groupsFor = (name) => { if (!groupsOf[name]) groupsOf[name] = JSON.parse(fs.readFileSync(path.join(sourceDirOf(name), 'groups.json'), 'utf8')).groups; return groupsOf[name]; };
   const fit = { scale: 1.28, dx: 0, dy: 0, ...(recipe.fit || {}) };
   let defs = '';
   const body = [];
@@ -132,6 +134,10 @@ function assemble(recipe, recipeFile) {
   let clipN = 0;
   const fitTransform = `translate(${fit.dx} ${fit.dy}) scale(${fit.scale})`;
   for (const inc of recipe.include) {
+    // an include may borrow from another bust (inc.source): a nose from Gertrude on the Rancher's jaw
+    const sourceName = inc.source || recipe.source;
+    const sourceDir = sourceDirOf(sourceName);
+    const groups = groupsFor(sourceName);
     // clipRig: an SVG path `d` in RIG coordinates (outside the fit), so a part can be cut to
     // the base face's own outline (a beard that follows the chin) whatever bust it came from
     if (inc.clipRig) {
@@ -157,7 +163,7 @@ function assemble(recipe, recipeFile) {
     const ids = inc.groups === 'all' ? groups.map((r) => Number(r.id)).filter((id) => !(inc.exclude || []).includes(id)) : inc.groups;
     for (const gid of ids) {
       const g = groups.find((r) => Number(r.id) === Number(gid));
-      if (!g) { console.warn(`  ${recipeFile}: group ${gid} not in ${recipe.source}`); continue; }
+      if (!g) { console.warn(`  ${recipeFile}: group ${gid} not in ${sourceName}`); continue; }
       const { defs: d, paths } = loadGroup(sourceDir, g.file);
       if (d && !defs) defs = d;
       const gc = gradientColors(d);
