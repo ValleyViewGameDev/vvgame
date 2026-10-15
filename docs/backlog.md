@@ -88,7 +88,13 @@ Added 2026-10-09.
 **What.** Interface polish across the HUD and panels. Tasks are numbered UI-n (append-only).
 
 UI-1 (HUD timers), UI-2 (Town News revamp) and UI-3 (Discord on How to Play) are done and
-verified by the owner (2026-10-14). No open UI tasks; the next one is UI-4.
+verified by the owner (2026-10-14).
+
+- **UI-4. A live gameboard behind the Begin screen** (added 2026-10-15). Today the loading /
+  "Begin the Adventure" screen shows a static board. Make it a real gameboard on a custom,
+  bespoke grid (homestead type) built for this: a small farm, but still mostly trees. A couple
+  of farm workers work it autonomously, so the moment before the player starts feels alive and
+  immersive.
 
 ### EPIC: Spells (opened 2026-10-09)
 
