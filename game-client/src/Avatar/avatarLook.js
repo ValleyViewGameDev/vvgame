@@ -48,7 +48,7 @@ export function defaultSpec(catalogue, palettes) {
   const tones = palette(palettes, 'skinTone');
   return {
     v: SPEC_VERSION,
-    skin: firstFree('skin'), skinTone: tones[Math.floor(tones.length / 2)]?.id || firstColor('skinTone'),
+    skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest (owner 2026-10-14)
     hair: firstFree('hair'), hairColor: firstColor('hairColor'),
     eyes: firstFree('eyes'), eyeColor: firstColor('eyeColor'),
     facialHair: partsInSlot(catalogue, 'facialHair').find((p) => !p.file)?.id || null,

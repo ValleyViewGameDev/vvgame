@@ -50,26 +50,19 @@
     "tier": "free"
   },
   {
+    "id": "beard-03",
+    "slot": "facialHair",
+    "label": "Beard",
+    "tier": "free",
+    "file": "beard-03.svg",
+    "tint": "hairColor",
+    "notes": "Kent's beard cut to the base face's jaw"
+  },
+  {
     "id": "hat-none",
     "slot": "hat",
     "label": "None",
     "tier": "free"
-  },
-  {
-    "id": "hat-01",
-    "slot": "hat",
-    "label": "Cap",
-    "tier": "paid",
-    "gemcost": 50,
-    "file": "hat-01.svg",
-    "hidesHair": true
-  },
-  {
-    "id": "top-01",
-    "slot": "top",
-    "label": "Tunic",
-    "tier": "free",
-    "file": "top-01.svg"
   },
   {
     "id": "hand-sword-01",
@@ -92,34 +85,16 @@
   {
     "id": "hair-02",
     "slot": "hair",
-    "label": "Waves (Juliet)",
+    "label": "Waves",
     "tier": "free",
     "file": "hair-02.svg",
     "tint": "hairColor",
     "notes": "assembled from npc-juliet"
   },
   {
-    "id": "hair-03",
-    "slot": "hair",
-    "label": "Leafy (Helena)",
-    "tier": "free",
-    "file": "hair-03.svg",
-    "tint": "hairColor",
-    "notes": "assembled from npc-helena"
-  },
-  {
-    "id": "beard-02",
-    "slot": "facialHair",
-    "label": "Full beard (Kent)",
-    "tier": "free",
-    "file": "beard-02.svg",
-    "tint": "hairColor",
-    "notes": "assembled from npc-kent"
-  },
-  {
     "id": "top-02",
     "slot": "top",
-    "label": "Tunic (Cassio)",
+    "label": "Tunic",
     "tier": "free",
     "file": "top-02.svg",
     "notes": "assembled from npc-cassio"
@@ -127,7 +102,7 @@
   {
     "id": "hat-02",
     "slot": "hat",
-    "label": "Crown (Angelo)",
+    "label": "Crown",
     "tier": "paid",
     "gemcost": 120,
     "file": "hat-02.svg",
@@ -137,7 +112,7 @@
   {
     "id": "hair-05",
     "slot": "hair",
-    "label": "Long (Gertrude)",
+    "label": "Long",
     "tier": "free",
     "file": "hair-05.svg",
     "tint": "hairColor",
@@ -146,19 +121,11 @@
   {
     "id": "hat-03",
     "slot": "hat",
-    "label": "Tiara (Gertrude)",
+    "label": "Tiara",
     "tier": "paid",
     "gemcost": 150,
     "file": "hat-03.svg",
     "notes": "assembled from npc-gertrude",
     "hidesHair": false
-  },
-  {
-    "id": "top-03",
-    "slot": "top",
-    "label": "Robe (Gertrude)",
-    "tier": "free",
-    "file": "top-03.svg",
-    "notes": "assembled from npc-gertrude"
   }
 ]

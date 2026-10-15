@@ -6,54 +6,24 @@
     "dx": 0,
     "dy": -4
   },
+  "under": [
+    "<path d=\"M 128.0 176.5 C 151.0 176.5 171.5 165.0 181.8 147.0 C 192.0 129.1 193.3 108.6 192.0 93.3 C 190.7 60.0 163.8 31.8 128.0 31.8 C 92.2 31.8 65.3 60.0 64.0 93.3 C 62.7 108.6 64.0 129.1 74.2 147.0 C 84.5 165.0 105.0 176.5 128.0 176.5 Z\" fill=\"#ffffff\"/>",
+    "<rect x=\"107.5\" y=\"147.0\" width=\"41.0\" height=\"61.5\" fill=\"#ffffff\"/>",
+    "<ellipse cx=\"61.4\" cy=\"121.4\" rx=\"9\" ry=\"13\" fill=\"#ffffff\"/>",
+    "<ellipse cx=\"194.6\" cy=\"121.4\" rx=\"9\" ry=\"13\" fill=\"#ffffff\"/>"
+  ],
   "include": [
     {
       "groups": [
-        0
+        73
       ],
-      "clipEllipse": {
-        "cx": 100,
-        "cy": 92,
-        "rx": 54,
-        "ry": 60
+      "region": {
+        "yMin": 138
       },
-      "recolor": "white"
-    },
-    {
-      "groups": [
-        0
-      ],
-      "clip": {
-        "xMin": 84,
-        "xMax": 116,
-        "yMin": 120,
-        "yMax": 182
-      },
-      "recolor": "white"
-    },
-    {
-      "groups": [
-        0
-      ],
-      "clipEllipse": {
-        "cx": 49,
-        "cy": 99,
-        "rx": 8,
-        "ry": 11
-      },
-      "recolor": "white"
-    },
-    {
-      "groups": [
-        0
-      ],
-      "clipEllipse": {
-        "cx": 151,
-        "cy": 99,
-        "rx": 8,
-        "ry": 11
-      },
-      "recolor": "white"
+      "recolor": "lum",
+      "ref": "#DDB16E",
+      "floor": 0.55,
+      "clipPath": "M 84 141 H 116 V 166 H 84 Z"
     },
     {
       "groups": [
@@ -63,20 +33,19 @@
         "xMin": 70,
         "xMax": 130,
         "yMin": 40,
-        "yMax": 150
+        "yMax": 138
       },
       "recolor": "white"
     },
     {
       "groups": [
-        75,
-        74
+        75
       ],
       "region": {
-        "xMin": 62,
-        "xMax": 138,
-        "yMin": 95,
-        "yMax": 150
+        "xMin": 86,
+        "xMax": 114,
+        "yMin": 100,
+        "yMax": 130
       },
       "recolor": "lum",
       "ref": "#DDB16E",
@@ -84,15 +53,13 @@
     },
     {
       "groups": [
-        76,
-        73,
-        72
+        76
       ],
       "region": {
-        "xMin": 62,
-        "xMax": 138,
-        "yMin": 95,
-        "yMax": 165
+        "xMin": 78,
+        "xMax": 122,
+        "yMin": 105,
+        "yMax": 135
       },
       "recolor": "lum",
       "ref": "#DDB16E",

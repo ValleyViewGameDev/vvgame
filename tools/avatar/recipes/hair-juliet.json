@@ -1,7 +1,21 @@
 {
   "out": "hairFront/hair-02.svg",
   "source": "npc-juliet",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -12
+  },
   "include": [
+    {
+      "groups": [
+        0
+      ],
+      "clip": {
+        "yMax": 48
+      },
+      "recolor": "white"
+    },
     {
       "groups": [
         2,
@@ -29,10 +43,5 @@
       },
       "recolor": "white"
     }
-  ],
-  "fit": {
-    "scale": 1.28,
-    "dx": 0,
-    "dy": -12
-  }
+  ]
 }

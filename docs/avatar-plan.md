@@ -39,6 +39,29 @@ come out of the existing Citizen busts.
   `--parts` (every file alone over the rig) to PNG; `tools/avatar/deconstruct.js npc-x`
   splits a traced bust into colour groups (`_lab/npc-x/NN-hex.svg`, `groups.json`,
   `sheet.png`, `--zoom x,y,w,h` for a region); `tools/avatar/assemble.js --all` builds
+  parts from `tools/avatar/recipes/*.json` (groups, region, maxArea, clip / clipEllipse /
+  clipPath in source units, clipRig in rig units, mirror, recolour keep / white / black /
+  grey / lum, fit, under / extra).
+- **Prototype set (slice 1, revised 2026-10-14)**: ONE face and ONE pair of eyes. The
+  head is a traced outline of Gertrude's face (`tools/avatar/recipes/_head.json`: chin at
+  source y 141, cheeks x 50..150, crown y 28; `skin-03`: that outline, a short neck, ears,
+  her nose and mouth lines tinted with the skin, her chin shadow on the NECK only);
+  `eyes-03` is her clean right eye mirrored (whites, lashes, brows as drawn; iris tinted;
+  a blink frame). Hair: Juliet's bob with its crown filled in (`hair-02`), Gertrude's long
+  hair (`hair-05`). Beard: Kent's beard mass cut to the base face's own jaw (`beard-03`,
+  `clipRig` = the head outline, a curved top edge under the mouth, hanging a little below
+  the chin). Clothes: Cassio's tunic (`top-02`, the base to perfect). Hats: Angelo's crown
+  (`hat-02`) and Gertrude's tiara (`hat-03`, its shadow blob dropped so hair shows through
+  the cut-outs), both paid. Hair, facial hair and hat have a None; face, eyes and clothes
+  always have something. The starter look is the second-lightest skin tone. Hands stay
+  placeholders (no weapon art in the busts).
+- **Tools**: the editor's **Avatar Lab** tab (`tools/editor/client/tabs/avatarlab.js`;
+  preview: launch `vvgame-editor-lab`, port 8772, or your own editor on 8770 after a
+  restart) composes a bust from the sheets exactly as the game will; `tools/avatar/render.js`
+  renders a spec, `--sheet` (every tone / colour / hair / hat / beard, open and blink) or
+  `--parts` (every file alone over the rig) to PNG; `tools/avatar/deconstruct.js npc-x`
+  splits a traced bust into colour groups (`_lab/npc-x/NN-hex.svg`, `groups.json`,
+  `sheet.png`, `--zoom x,y,w,h` for a region); `tools/avatar/assemble.js --all` builds
   parts from `tools/avatar/recipes/*.json` (groups, region, clip / clipEllipse, mirror,
   recolour keep / white / black / grey / lum, fit, under / extra).
 - **Prototype set (slice 1, revised 2026-10-14)**: ONE face and ONE pair of eyes, from

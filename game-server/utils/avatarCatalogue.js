@@ -36,7 +36,7 @@ function defaultSpec() {
   const tones = swatches('skinTone');
   return {
     v: SPEC_VERSION,
-    skin: firstFree('skin'), skinTone: tones[Math.floor(tones.length / 2)]?.id || null,
+    skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest
     hair: firstFree('hair'), hairColor: swatches('hairColor')[0]?.id || null,
     eyes: firstFree('eyes'), eyeColor: swatches('eyeColor')[0]?.id || null,
     facialHair: inSlot('facialHair').find((p) => !p.file)?.id || null,

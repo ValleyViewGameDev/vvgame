@@ -11,10 +11,18 @@
       "groups": [
         2,
         8,
+        19
+      ],
+      "region": {
+        "yMax": 62
+      },
+      "maxArea": 300,
+      "recolor": "keep"
+    },
+    {
+      "groups": [
         12,
         13,
-        19,
-        33,
         50,
         51,
         52,

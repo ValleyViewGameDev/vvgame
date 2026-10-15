@@ -19,9 +19,11 @@
  *
  * groups: ids from groups.json, or "all" (with an optional `exclude` list).
  * mirror: an x (source units) to flip the include about, drawn flipped (an eye for the other side).
- * clip: { xMin, xMax, yMin, yMax } or clipEllipse: { cx, cy, rx, ry } (source units) cuts the
+ * clipRig: a path `d` in RIG coordinates that cuts the include (the base face's outline).
+ * clipPath: a path `d` in SOURCE units; clip: { xMin, xMax, yMin, yMax } or clipEllipse: { cx, cy, rx, ry } (source units) cuts the
  * include's paths, for one traced shape that holds two parts (Kent's hair and beard).
  * region: xMin / xMax / yMin / yMax in SOURCE units, tested on each path's bbox centre.
+ * maxArea: skip paths whose bbox area (source units²) is larger (a shadow blob among filigree).
  * recolor: "keep" (original fill, gradients included) | "white" | "black" |
  *          "grey" (flat, `grey` 0..1) | "lum" (grey = the fill's luminance relative to
  *          `ref`, so a tintable part keeps its shading: ref -> white, darker -> grey).
@@ -127,14 +129,24 @@ function assemble(recipe, recipeFile) {
   const body = [];
   let kept = 0;
   let clipN = 0;
+  const fitTransform = `translate(${fit.dx} ${fit.dy}) scale(${fit.scale})`;
   for (const inc of recipe.include) {
+    // clipRig: an SVG path `d` in RIG coordinates (outside the fit), so a part can be cut to
+    // the base face's own outline (a beard that follows the chin) whatever bust it came from
+    if (inc.clipRig) {
+      const id = `clip${clipN++}`;
+      defs += `<defs><clipPath id="${id}"><path d="${inc.clipRig}"/></clipPath></defs>`;
+      body.push(`<g clip-path="url(#${id})">`);
+    }
+    body.push(`<g transform="${fitTransform}">`);
     // clip: { xMin, xMax, yMin, yMax } in source units cuts a path that spans two parts (one
     // traced shape holding hair AND beard) instead of filtering whole paths by region
     let clipId = null;
-    if (inc.clip || inc.clipEllipse) {
+    if (inc.clip || inc.clipEllipse || inc.clipPath) {
       clipId = `clip${clipN++}`;
       let shape;
-      if (inc.clipEllipse) { const e = inc.clipEllipse; shape = `<ellipse cx="${e.cx}" cy="${e.cy}" rx="${e.rx}" ry="${e.ry}"/>`; }
+      if (inc.clipPath) shape = `<path d="${inc.clipPath}"/>`;
+      else if (inc.clipEllipse) { const e = inc.clipEllipse; shape = `<ellipse cx="${e.cx}" cy="${e.cy}" rx="${e.rx}" ry="${e.ry}"/>`; }
       else { const c = { xMin: -1000, xMax: 1000, yMin: -1000, yMax: 1000, ...inc.clip }; shape = `<rect x="${c.xMin}" y="${c.yMin}" width="${c.xMax - c.xMin}" height="${c.yMax - c.yMin}"/>`; }
       defs += `<defs><clipPath id="${clipId}">${shape}</clipPath></defs>`;
       body.push(`<g clip-path="url(#${clipId})">`);
@@ -149,7 +161,11 @@ function assemble(recipe, recipeFile) {
       if (d && !defs) defs = d;
       const gc = gradientColors(d);
       for (const p of paths) {
-        if (!inRegion(bboxOf(p.attrs), inc.region)) continue;
+        const bb = bboxOf(p.attrs);
+        if (!inRegion(bb, inc.region)) continue;
+        // maxArea: skip a path whose bbox area (source units²) is above it: a traced shadow
+        // blob hiding in a group of fine filigree
+        if (inc.maxArea != null && bb && (bb.maxX - bb.minX) * (bb.maxY - bb.minY) > inc.maxArea) continue;
         const attrs = recolorAttrs(p.attrs, inc.recolor || 'keep', inc, gc);
         body.push(`<path${attrs}/>`);
         kept++;
@@ -157,6 +173,8 @@ function assemble(recipe, recipeFile) {
     }
     if (inc.mirror != null) body.push('</g>');
     if (clipId) body.push('</g>');
+    body.push('</g>');
+    if (inc.clipRig) body.push('</g>');
   }
   const usesGradient = body.some((b) => /url\(#(?!clip)/.test(b)) || clipN > 0;
   const svg = `<?xml version="1.0" encoding="utf-8"?>
@@ -164,9 +182,7 @@ function assemble(recipe, recipeFile) {
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256" height="256" viewBox="0 0 256 256">
 ${usesGradient ? defs : ''}
 ${(recipe.under || []).join('\n')}
-<g transform="translate(${fit.dx} ${fit.dy}) scale(${fit.scale})">
 ${body.join('\n')}
-</g>
 ${(recipe.extra || []).join('\n')}
 </svg>
 `;
@@ -178,7 +194,7 @@ ${(recipe.extra || []).join('\n')}
 
 function main() {
   let files = process.argv.slice(2);
-  if (files.includes('--all')) files = fs.readdirSync(RECIPES).filter((f) => f.endsWith('.json')).map((f) => path.join(RECIPES, f));
+  if (files.includes('--all')) files = fs.readdirSync(RECIPES).filter((f) => f.endsWith('.json') && !f.startsWith('_')).map((f) => path.join(RECIPES, f));
   if (!files.length) { console.error('usage: node tools/avatar/assemble.js recipe.json [...] | --all'); process.exit(1); }
   for (const f of files) assemble(JSON.parse(fs.readFileSync(f, 'utf8')), f);
 }
