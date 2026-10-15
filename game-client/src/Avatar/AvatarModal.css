@@ -1,39 +1,40 @@
 /* AvatarModal (docs/avatar-plan.md §2.6). Theme variables: UI/Styles/theme.css */
 
-.avatar-modal { max-width: 720px; width: calc(100vw - 32px); }
-.avatar-dev-tag { font-size: 11px; font-weight: normal; color: var(--color-text-muted, #777); margin-left: 8px; vertical-align: middle; }
+.avatar-modal { max-width: 720px; width: calc(100vw - 32px); text-align: left; }
+/* Berkshire (the modal title, centred like every modal) stays on .modal-title only; everything else in here is Lora */
+.avatar-modal .modal-title { text-align: center; }
+.avatar-modal .avatar-editor, .avatar-modal .avatar-actions, .avatar-modal .avatar-problems { font-family: var(--font-heading); }
+.avatar-dev-tag { font-size: var(--text-xs); font-weight: normal; color: var(--color-text-muted, #777); margin-left: 8px; vertical-align: middle; }
 
 .avatar-editor { display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
 .avatar-stage { flex: none; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.avatar-stage-controls { display: flex; flex-direction: column; gap: 4px; align-items: center; font-size: 13px; }
-.avatar-stage-controls select { margin-left: 6px; }
-.avatar-preview { display: block; image-rendering: auto; background: repeating-conic-gradient(#ececе6 0 25%, #f8f8f4 0 50%) 0 0 / 24px 24px; border-radius: 8px; }
-.avatar-preview-empty { background: var(--color-bg-light, #eee); border-radius: 8px; }
-.avatar-thumb { width: 72px; height: 72px; background: none; border-radius: 6px; }
+.avatar-preview { display: block; image-rendering: auto; background: repeating-conic-gradient(#ecece6 0 25%, #f8f8f4 0 50%) 0 0 / 24px 24px; border-radius: var(--radius-md); }
+.avatar-preview-empty { background: var(--color-bg-light, #eee); border-radius: var(--radius-md); }
+.avatar-thumb { width: 72px; height: 72px; background: none; border-radius: var(--radius-sm); }
 
 .avatar-controls { flex: 1; min-width: 0; }
 .avatar-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
-.avatar-tab { padding: 6px 10px; border: 1px solid var(--color-border, #ccc); border-radius: 6px; background: var(--color-bg-light, #f3f3f0); cursor: pointer; font: inherit; font-size: 13px; }
+.avatar-tab { padding: 6px 10px; border: 1px solid var(--color-border, #ccc); border-radius: var(--btn-radius-sm); background: var(--color-bg-light, #f3f3f0); cursor: pointer; font-family: var(--font-heading); font-size: var(--text-sm); }
 .avatar-tab.active { background: var(--color-btn-primary-hover, #d9ead3); border-color: var(--color-btn-primary-text, #2d6a2d); font-weight: bold; }
 
 .avatar-part-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
-.avatar-part { position: relative; width: 84px; padding: 4px 2px 2px; border: 2px solid transparent; border-radius: 8px; background: var(--color-bg-light, #f3f3f0); cursor: pointer; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.avatar-part { position: relative; width: 84px; padding: 4px 2px 2px; border: 2px solid transparent; border-radius: var(--radius-md); background: var(--color-bg-light, #f3f3f0); cursor: pointer; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .avatar-part.selected { border-color: var(--color-btn-primary-text, #2d6a2d); background: var(--color-btn-primary-hover, #d9ead3); }
-.avatar-part-label { font-size: 11px; line-height: 1.1; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.avatar-badge { position: absolute; top: 2px; right: 2px; font-size: 10px; padding: 1px 4px; border-radius: 8px; background: #fff3c4; border: 1px solid #e0c060; }
-.avatar-badge.owned { background: #dff3df; border-color: #7fbf7f; }
+.avatar-part-label { font-family: var(--font-heading); font-size: var(--text-xs); line-height: 1.1; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar-badge { position: absolute; top: 2px; right: 2px; font-size: var(--text-xs); padding: 1px 4px; border-radius: var(--radius-md); background: #fff3c4; border: 1px solid #e0c060; } /* style-ok: art (badge tint) */
+.avatar-badge.owned { background: #dff3df; border-color: #7fbf7f; } /* style-ok: art (badge tint) */
 
-.avatar-colors { margin-top: 10px; }
-.avatar-colors-label { font-size: 12px; color: var(--color-text-muted, #666); margin-bottom: 4px; }
+.avatar-colors { margin-top: 10px; text-align: left; }
+.avatar-colors-label { font-family: var(--font-heading); font-size: var(--text-sm); color: var(--color-text-primary, #333); margin-bottom: 4px; text-align: left; }
 .avatar-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
 .avatar-swatch { position: relative; width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.15); cursor: pointer; padding: 0; }
 .avatar-swatch.selected { border-color: #222; box-shadow: 0 0 0 2px #fff inset; }
-.avatar-swatch-lock { position: absolute; right: -4px; bottom: -4px; font-size: 11px; }
+.avatar-swatch-lock { position: absolute; right: -4px; bottom: -4px; font-size: 11px; } /* style-ok: icon */
 
-.avatar-problems { margin-top: 8px; color: #b33; font-size: 13px; }
+.avatar-problems { margin-top: 8px; color: var(--color-text-negative); font-size: var(--text-md); }
 .avatar-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 .avatar-muted { color: var(--color-text-muted, #777); }
-.avatar-small { font-size: 11px; text-align: center; max-width: 256px; }
+.avatar-small { font-size: var(--text-xs); text-align: center; max-width: 256px; }
 
 @media (max-width: 640px) {
   .avatar-editor { flex-direction: column; align-items: stretch; }

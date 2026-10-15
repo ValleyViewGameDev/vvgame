@@ -1,0 +1,32 @@
+{
+  "out": "hat/hat-03.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": [
+        2,
+        8,
+        12,
+        13,
+        19,
+        33,
+        50,
+        51,
+        52,
+        40,
+        41,
+        43,
+        72
+      ],
+      "region": {
+        "yMax": 62
+      },
+      "recolor": "keep"
+    }
+  ]
+}

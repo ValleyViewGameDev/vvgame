@@ -15,7 +15,7 @@ const PALETTES_FILE = path.join(__dirname, '../tuning/avatarPalettes.json');
 
 const SLOT_OF_SPEC_KEY = { skin: 'skin', hair: 'hair', facialHair: 'facialHair', eyes: 'eyes', hat: 'hat', top: 'top' };
 const PALETTE_OF_SPEC_KEY = { skinTone: 'skinTone', hairColor: 'hairColor', eyeColor: 'eyeColor' };
-const REQUIRED_PARTS = ['skin', 'eyes', 'top'];
+const REQUIRED_PARTS = ['skin', 'eyes']; // every other slot has a None
 const SPEC_VERSION = 1;
 
 let cache = null;

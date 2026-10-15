@@ -1,0 +1,38 @@
+{
+  "out": "hairFront/hair-05.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": [
+        0
+      ],
+      "clip": {
+        "yMax": 50
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        82,
+        86,
+        83,
+        87,
+        84,
+        88,
+        85,
+        89,
+        3,
+        4,
+        26
+      ],
+      "recolor": "lum",
+      "ref": "#6B3712",
+      "floor": 0.3
+    }
+  ]
+}

@@ -21,7 +21,6 @@ import { renderLookDataUrl } from './avatarCompositor';
 const SLOT_LABEL = { skin: 'Face', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
 const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
-const GRID_KINDS = ['homestead', 'town', 'valley', 'dungeon'];
 const PREVIEW_PX = 256;
 
 /** One composed bust as an <img>, blinking when the look has a blink frame. */
@@ -51,7 +50,6 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   const [data, setData] = useState(null);           // { catalogue, palettes }
   const [spec, setSpec] = useState(null);
   const [tab, setTab] = useState('skin');
-  const [gtype, setGtype] = useState(currentPlayer?.location?.gtype || 'valley');
   const [saving, setSaving] = useState(false);
   const [problems, setProblems] = useState([]);
   const dirtyRef = useRef(false);
@@ -63,13 +61,20 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
     loadAvatarCatalogue().then((d) => {
       if (!live) return;
       setData(d);
+      // the saved spec, with any id the catalogue no longer has (a part retired since it was
+      // saved) replaced by the starter look's choice for that slot
+      const starter = defaultSpec(d.catalogue, d.palettes);
+      const known = new Set([...d.catalogue, ...d.palettes].map((r) => r.id));
       const own = currentPlayer?.avatar && currentPlayer.avatar.skin ? cleanSpec(currentPlayer.avatar) : null;
-      setSpec((prev) => prev || own || defaultSpec(d.catalogue, d.palettes));
+      const sane = own ? Object.fromEntries(Object.entries(own).map(([k, v]) => [k, k === 'v' || v == null || known.has(v) ? v : starter[k]])) : null;
+      setSpec((prev) => prev || sane || starter);
     });
     return () => { live = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const equip = useMemo(() => (data ? equipFor(currentPlayer, masterResources, gtype) : null), [currentPlayer, masterResources, gtype, data]);
+  // the equipment feed as the board will apply it: the equipped weapon and armour, and the
+  // put-away rule for the grid the player is standing on
+  const equip = useMemo(() => (data ? equipFor(currentPlayer, masterResources, currentPlayer?.location?.gtype) : null), [currentPlayer, masterResources, data]);
   const look = useMemo(() => (data && spec ? lookFor(spec, data, equip) : null), [data, spec, equip]);
   const owned = useMemo(() => [...(currentPlayer?.avatarParts || [])], [currentPlayer]);
 
@@ -107,7 +112,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   }
 
   const slot = SLOT_OF_SPEC_KEY[tab];
-  const parts = partsInSlot(data.catalogue, slot).filter((p) => (p.tier || 'free') !== 'npc');
+  const parts = partsInSlot(data.catalogue, slot).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0)); // "None" (no drawing) leads
   const tierBadge = (row) => {
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
@@ -123,15 +128,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         <div className="avatar-editor">
           <div className="avatar-stage">
             <AvatarPreview look={look} />
-            <div className="avatar-stage-controls">
-              <label>Where
-                <select value={gtype} onChange={(e) => setGtype(e.target.value)}>
-                  {GRID_KINDS.map((g) => <option key={g} value={g}>{g}</option>)}
-                </select>
-              </label>
-              <div className="avatar-muted avatar-small">
-                weapon: {currentPlayer?.settings?.equippedWeapon || 'none'}{equip?.weaponHand ? '' : ' (no hand art)'} · armour: {currentPlayer?.settings?.equippedArmor || 'none'}{equip?.armorTop ? '' : ' (no top art)'}
-              </div>
+            <div className="avatar-muted avatar-small">
+              {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
             </div>
           </div>
 

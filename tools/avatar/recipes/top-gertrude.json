@@ -1,0 +1,34 @@
+{
+  "out": "top/top-03.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": "all",
+      "exclude": [
+        0,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        2,
+        8,
+        12,
+        19,
+        33
+      ],
+      "region": {
+        "yMin": 148
+      },
+      "recolor": "keep"
+    }
+  ]
+}

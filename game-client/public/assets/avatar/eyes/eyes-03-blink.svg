@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- assembled by tools/avatar/assemble.js from npc-gertrude (eyes-gertrude-blink.json); edit the recipe, not this file -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="256" height="256" viewBox="0 0 256 256">
+
+
+<g transform="translate(0 -4) scale(1.28)">
+<g transform="matrix(-1 0 0 1 201 0)">
+</g>
+</g>
+<ellipse cx="97" cy="113" rx="17" ry="10" fill="#ffffff"/>
+<ellipse cx="160" cy="113" rx="17" ry="10" fill="#ffffff"/>
+<path d="M83 115 Q97 123 111 115" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M146 115 Q160 123 174 115" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,77 @@
+{
+  "out": "eyes/eyes-03-iris.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": [
+        93,
+        95,
+        97,
+        100,
+        94,
+        98,
+        99
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "lum",
+      "ref": "#0C558E",
+      "floor": 0.35
+    },
+    {
+      "groups": [
+        93,
+        95,
+        97,
+        100,
+        94,
+        98,
+        99
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "lum",
+      "ref": "#0C558E",
+      "floor": 0.35,
+      "mirror": 100.5
+    },
+    {
+      "groups": [
+        91
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "black"
+    },
+    {
+      "groups": [
+        91
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "black",
+      "mirror": 100.5
+    }
+  ]
+}

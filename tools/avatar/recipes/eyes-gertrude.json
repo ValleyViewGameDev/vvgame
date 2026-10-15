@@ -1,0 +1,90 @@
+{
+  "out": "eyes/eyes-03.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": [
+        13
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        13
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "white",
+      "mirror": 100.5
+    },
+    {
+      "groups": [
+        92,
+        96
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "black"
+    },
+    {
+      "groups": [
+        92,
+        96
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 101
+      },
+      "recolor": "black",
+      "mirror": 100.5
+    },
+    {
+      "groups": [
+        11
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 86
+      },
+      "recolor": "grey",
+      "grey": 0.22
+    },
+    {
+      "groups": [
+        11
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 70,
+        "yMax": 86
+      },
+      "recolor": "grey",
+      "grey": 0.22,
+      "mirror": 100.5
+    }
+  ]
+}

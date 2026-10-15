@@ -41,11 +41,14 @@ come out of the existing Citizen busts.
   `sheet.png`, `--zoom x,y,w,h` for a region); `tools/avatar/assemble.js --all` builds
   parts from `tools/avatar/recipes/*.json` (groups, region, clip / clipEllipse, mirror,
   recolour keep / white / black / grey / lum, fit, under / extra).
-- **Prototype set (slice 1)**: Juliet's face (`skin-02`, one drawing, six tones), Juliet's
-  eyes (`eyes-02`: the clean right eye mirrored, whites drawn in, iris tinted, a blink
-  frame), Juliet's bob (`hair-02`) and Helena's leafy hair (`hair-03`), Kent's beard clipped
-  to a chin beard (`beard-02`), Cassio's tunic (`top-02`), Angelo's crown (`hat-02`, paid).
-  Hands stay placeholders (no weapon art in the busts).
+- **Prototype set (slice 1, revised 2026-10-14)**: ONE face and ONE pair of eyes, from
+  Gertrude (`skin-03`: the head cut out of her silhouette as a bald head with ears and
+  neck, her face lines tinted with it, six tones; `eyes-03`: her clean right eye mirrored,
+  whites and lashes as drawn, brows, the iris tinted, a blink frame); hair: Juliet's bob
+  (`hair-02`), Helena's leafy hair (`hair-03`), Gertrude's long hair (`hair-05`); Kent's
+  beard clipped to a chin beard (`beard-02`); Cassio's tunic (`top-02`) and Gertrude's robe
+  (`top-03`); Angelo's crown (`hat-02`) and Gertrude's tiara (`hat-03`), both paid. Every
+  slot but face and eyes has a None. Hands stay placeholders (no weapon art in the busts).
 
 ## 1. What exists today (file:line)
 
@@ -116,7 +119,8 @@ a definition in `tools/editor/sheets/definitions.js` (free sheet, validation, CS
 | `file`, `tint` | the drawing under `public/assets/avatar/<folder>/` and the palette slot multiplied into it (`skinTone` / `hairColor` / `eyeColor`, blank = drawn as is) |
 | `file2`, `tint2` | a second drawing over the first with its own tint (an iris over the eye whites, a skin-toned fist under a weapon) |
 | `backFile` | hair only: the hairBack drawing (hair is ONE row: `file` = hairFront) |
-| `underHat` | hair only: the hairFront drawing when a hat is worn (blank = the hat covers it) |
+| `underHat` | hair only: the hairFront drawing under a hat that `hidesHair` (blank = that hat covers the hair) |
+| `hidesHair` | hat only: true for a cap or hood that covers the head; false for a tiara or crown, which sits on the full hair |
 | `blinkFile`, `blinkTint` | eyes only: the closed-lids drawing, replacing `file` + `file2` on the blink frame |
 | `tier` | `free` / `paid` / `npc` (`npc` = Citizens only, never offered to players) |
 | `gemcost` | paid parts: the price of THIS part (bought once, stored in `player.avatarParts`) |
@@ -147,9 +151,9 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
   line work and grey shading. A multiply tint keeps black lines black, turns white into the
   swatch and greys into darker swatch: one hair drawing serves every hair colour, one skin
   drawing every tone. Hats and clothes are full-colour art (no tint), as armour will be.
-- **Hats over hair.** A hat draws over `hairFront`; a style whose volume would poke out of a
-  hat has an `underHat` variant (flattened), otherwise the hat covers it. This is the one
-  cross-part dependency and it is data (the `underHat` column), not code.
+- **Hats over hair.** A hat draws over `hairFront`. A hat that covers the head (`hidesHair`)
+  shows the hair's `underHat` variant (flattened) or hides the hair; a tiara or crown sits on
+  the full hair. This is the one cross-part dependency and it is data, not code.
 - **Mouth / expression** stays part of the skin drawing (one friendly expression); no eye
   shapes: eyes are one drawing per catalogue row with a colour from the palette.
 - Atlas: `build-atlas.js` gets an `avatar/` namespace (`avatar/<slot>/<file>`, slot 256 px);

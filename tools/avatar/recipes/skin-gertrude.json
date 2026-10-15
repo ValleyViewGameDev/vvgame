@@ -1,0 +1,102 @@
+{
+  "out": "skin/skin-03.svg",
+  "source": "npc-gertrude",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": -4
+  },
+  "include": [
+    {
+      "groups": [
+        0
+      ],
+      "clipEllipse": {
+        "cx": 100,
+        "cy": 92,
+        "rx": 54,
+        "ry": 60
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        0
+      ],
+      "clip": {
+        "xMin": 84,
+        "xMax": 116,
+        "yMin": 120,
+        "yMax": 182
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        0
+      ],
+      "clipEllipse": {
+        "cx": 49,
+        "cy": 99,
+        "rx": 8,
+        "ry": 11
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        0
+      ],
+      "clipEllipse": {
+        "cx": 151,
+        "cy": 99,
+        "rx": 8,
+        "ry": 11
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        39
+      ],
+      "region": {
+        "xMin": 70,
+        "xMax": 130,
+        "yMin": 40,
+        "yMax": 150
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        75,
+        74
+      ],
+      "region": {
+        "xMin": 62,
+        "xMax": 138,
+        "yMin": 95,
+        "yMax": 150
+      },
+      "recolor": "lum",
+      "ref": "#DDB16E",
+      "floor": 0.55
+    },
+    {
+      "groups": [
+        76,
+        73,
+        72
+      ],
+      "region": {
+        "xMin": 62,
+        "xMax": 138,
+        "yMin": 95,
+        "yMax": 165
+      },
+      "recolor": "lum",
+      "ref": "#DDB16E",
+      "floor": 0.5
+    }
+  ]
+}
