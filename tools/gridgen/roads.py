@@ -34,6 +34,9 @@ KEYOF = {r['type']: r['layoutkey'] for r in RES if r.get('layoutkey')}
 TILE_LETTER = {r['layoutkey']: r['type'] for r in RES if r.get('category') == 'tile'}
 BLOCK_TILES = {'WA', 'LV'}
 CLEARABLE = {'source', 'doober'}
+# the template generator's clump settings (tools/editor/client/layouts/GridModel.js DEFAULT_CLUMP)
+CLUMP = {'clumpSize': 20, 'clumpVariation': 5, 'minClumpSize': 5, 'clumpTightness': 2.5}
+NEIGHBOURS = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
 
 def coord_of(GR, GC): return 1010000 + (GR // 8) * 1000 + (GC // 8) * 100 + (GR % 8) * 10 + (GC % 8)
 def origin(coord): s = str(coord); return (int(s[3]) * 8 + int(s[5])) * 64, (int(s[4]) * 8 + int(s[6])) * 64
@@ -152,20 +155,31 @@ def trail(road):
         nr, nc = -(b[1] - a[1]), b[0] - a[0]; nl = math.hypot(nr, nc) or 1
         off = rng.uniform(-1.5, 1.5); cr, cc = gr + nr / nl * off, gc + nc / nl * off
         kind = 'WA' if rng.random() < pond else rng.choice(['ZZ', 'ZZ', 'SL'])
-        rad = rng.uniform(3.0, 4.8) if kind == 'WA' else rng.uniform(3.0, 5.8)
-        # an irregular, stretched outcrop: an ellipse at a random angle, edges roughened at two scales
-        stretch, ang = rng.uniform(1.0, 1.9), rng.uniform(0, math.pi)
-        ca, sa = math.cos(ang), math.sin(ang)
-        def inside(R, C):
-            u, v = (R - cr) * ca + (C - cc) * sa, -(R - cr) * sa + (C - cc) * ca
-            d = math.hypot(u / stretch, v * stretch ** 0.35)
-            return d + (vnoise(R, C, 2.5, seed + 7) - 0.5) * 2.6 + (vnoise(R, C, 6, seed + 11) - 0.5) * 2.2 <= rad
-        span = int(rad * stretch) + 4
-        blob = [(R, C) for R in range(int(cr) - span, int(cr) + span + 1) for C in range(int(cc) - span, int(cc) + span + 1) if inside(R, C)]
-        near_bad = any(math.dist((R, C), (pr, pc)) < prad for (R, C) in blob for (pr, pc, prad) in protect)
-        clear_ring = all(not hard(R, C) and cell(R, C)[0] != 'PA' for R in range(int(cr) - span - 2, int(cr) + span + 3) for C in range(int(cc) - span - 2, int(cc) + span + 3))
-        if blob and not near_bad and clear_ring:
-            for t in blob: formations[t] = kind
+        # a deposit grown the way the template generator grows them (tools/editor/client/layouts/
+        # GridModel.js generateClumps with DEFAULT_CLUMP): from one seed tile, adding neighbours
+        # weighted by (tiles of the clump they touch) ^ clumpTightness, to clumpSize +- clumpVariation
+        seed_t = (round(cr), round(cc))
+        ring_ok = all(not hard(R, C) and cell(R, C)[0] != 'PA' for R in range(seed_t[0] - 7, seed_t[0] + 8) for C in range(seed_t[1] - 7, seed_t[1] + 8))
+        near_bad = any(math.dist(seed_t, (pr, pc)) < prad + 4 for (pr, pc, prad) in protect)
+        if ring_ok and not near_bad:
+            target = min(99, max(CLUMP['minClumpSize'], CLUMP['clumpSize'] + rng.randint(-CLUMP['clumpVariation'], CLUMP['clumpVariation'])))
+            tiles = [seed_t]; inset = {seed_t}
+            ok = lambda t: t not in formations and not hard(*t) and cell(*t)[0] != 'PA' and math.dist(t, seed_t) <= 7
+            while len(tiles) < target:
+                cand = {}
+                for (R, C) in tiles:
+                    for dR, dC in NEIGHBOURS:
+                        n = (R + dR, C + dC)
+                        if n in inset or n in cand or not ok(n): continue
+                        adj = sum(1 for aR, aC in NEIGHBOURS if (n[0] + aR, n[1] + aC) in inset)
+                        cand[n] = adj ** CLUMP['clumpTightness']
+                if not cand: break
+                pick = rng.random() * sum(cand.values())
+                for n, w in cand.items():
+                    pick -= w
+                    if pick <= 0: break
+                tiles.append(n); inset.add(n)
+            for t in tiles: formations[t] = kind
         s += rng.uniform(lo, hi)
 
     # A*: four-connected, near the guide, wandering with smooth noise; formations and hard tiles closed

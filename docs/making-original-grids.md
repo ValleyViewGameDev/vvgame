@@ -625,8 +625,9 @@ its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the bu
   default `trail` style is the hand-made look (owner: "like hiking trails or dirt paths", cf.
   1011270 and 1012102): one tile wide, four-connected, straight runs with small side-steps,
   wandering off the guide, and bending round natural formations it lays ON the guide every
-  ~40-70 tiles (irregular moss or slate outcrops, now and then a small pond; rocks dress the
-  slate, mushrooms and tulips the moss). `startOnRoad` / `endOnRoad` join an earlier road (T, Y,
+  ~40-70 tiles (moss or slate deposits, now and then a small pond, grown exactly like the
+  template generator's clumps: GridModel.js generateClumps with DEFAULT_CLUMP, about 20 tiles;
+  rocks dress the slate, mushrooms and tulips the moss). `startOnRoad` / `endOnRoad` join an earlier road (T, Y,
   corner), `fadeTiles` breaks the end up, `protect` keeps formations off passes and junctions.
   Roads run in file order, each painted before the next is routed. It refuses water, lava,
   mountains and buildings, clears trees and rocks off the path and moves creatures to a valid
