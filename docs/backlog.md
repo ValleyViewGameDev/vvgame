@@ -97,14 +97,8 @@ Added 2026-10-09.
 
 **What.** Interface polish across the HUD and panels. Tasks are numbered UI-n (append-only).
 
-- **UI-1. Timers and notifications on the HUD buttons** such as Season and Town News.
-- **UI-2. Revise the Town News panel to be more interesting:** show goods with their icons, as
-  other UIs do, and give the timers a different color. **Built 2026-10-09:** Courthouse / Train / Bank articles,
-  goods as icon chips with quantities, countdowns in a dark-red pill; Train goods now come from
-  the player's own Train (Player.train), not the settlement's legacy offers.
-- **UI-3. Discord button on the How to Play panel, under the Email button;** then remove Email
-  and Discord from the Map panel (formerly the base panel).
-
+UI-1 (HUD timers), UI-2 (Town News revamp) and UI-3 (Discord on How to Play) are done and
+verified by the owner (2026-10-14). No open UI tasks; the next one is UI-4.
 
 ### EPIC: Spells (opened 2026-10-09)
 
