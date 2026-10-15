@@ -174,6 +174,11 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
   line work and grey shading. A multiply tint keeps black lines black, turns white into the
   swatch and greys into darker swatch: one hair drawing serves every hair colour, one skin
   drawing every tone. Hats and clothes are full-colour art (no tint), as armour will be.
+- **Hair band.** No hair tops out above Waves (`hair-02`, rig y 12) and none ends above the
+  head's own crown (rig y ~44), so every hairFront covers y 12..44 and hats are fitted to
+  that band (Angelo's crown rim sits on it).
+- **Two faces**, Female (traced from Gertrude) and Male (the same crown and cheeks with a
+  square jaw; nose, mouth and teeth from the Rancher), each with its own eyes.
 - **Hats over hair.** A hat draws over `hairFront`. A hat that covers the head (`hidesHair`)
   shows the hair's `underHat` variant (flattened) or hides the hair; a tiara or crown sits on
   the full hair. This is the one cross-part dependency and it is data, not code.

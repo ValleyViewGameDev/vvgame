@@ -1,0 +1,88 @@
+{
+  "out": "eyes/eyes-04.svg",
+  "source": "npc-rancher",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": 6
+  },
+  "include": [
+    {
+      "groups": [
+        18
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "black"
+    },
+    {
+      "groups": [
+        18
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "black",
+      "mirror": 102
+    },
+    {
+      "groups": [
+        14
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "white"
+    },
+    {
+      "groups": [
+        14
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "white",
+      "mirror": 102
+    },
+    {
+      "groups": [
+        1
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 68,
+        "yMax": 84
+      },
+      "recolor": "grey",
+      "grey": 0.22
+    },
+    {
+      "groups": [
+        1
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 68,
+        "yMax": 84
+      },
+      "recolor": "grey",
+      "grey": 0.22,
+      "mirror": 102
+    }
+  ]
+}

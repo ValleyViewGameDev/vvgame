@@ -2,16 +2,25 @@
   {
     "id": "skin-03",
     "slot": "skin",
-    "label": "Face",
+    "label": "Female",
     "tier": "free",
     "file": "skin-03.svg",
     "tint": "skinTone",
     "notes": "assembled from npc-gertrude"
   },
   {
+    "id": "skin-04",
+    "slot": "skin",
+    "label": "Male",
+    "tier": "free",
+    "file": "skin-04.svg",
+    "tint": "skinTone",
+    "notes": "the female outline with a square jaw; nose, mouth and teeth from npc-rancher"
+  },
+  {
     "id": "eyes-03",
     "slot": "eyes",
-    "label": "Eyes",
+    "label": "Female",
     "tier": "free",
     "file": "eyes-03.svg",
     "file2": "eyes-03-iris.svg",
@@ -19,6 +28,18 @@
     "blinkFile": "eyes-03-blink.svg",
     "blinkTint": "skinTone",
     "notes": "assembled from npc-gertrude"
+  },
+  {
+    "id": "eyes-04",
+    "slot": "eyes",
+    "label": "Male",
+    "tier": "free",
+    "file": "eyes-04.svg",
+    "file2": "eyes-04-iris.svg",
+    "tint2": "eyeColor",
+    "blinkFile": "eyes-04-blink.svg",
+    "blinkTint": "skinTone",
+    "notes": "assembled from npc-rancher"
   },
   {
     "id": "hair-01",
@@ -90,6 +111,12 @@
     "file": "hair-02.svg",
     "tint": "hairColor",
     "notes": "assembled from npc-juliet"
+  },
+  {
+    "id": "top-none",
+    "slot": "top",
+    "label": "No Clothes",
+    "tier": "free"
   },
   {
     "id": "top-02",

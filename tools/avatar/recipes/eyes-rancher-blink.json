@@ -1,0 +1,44 @@
+{
+  "out": "eyes/eyes-04-blink.svg",
+  "source": "npc-rancher",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": 6
+  },
+  "include": [
+    {
+      "groups": [
+        1
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 68,
+        "yMax": 84
+      },
+      "recolor": "grey",
+      "grey": 0.22
+    },
+    {
+      "groups": [
+        1
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 68,
+        "yMax": 84
+      },
+      "recolor": "grey",
+      "grey": 0.22,
+      "mirror": 102
+    }
+  ],
+  "extra": [
+    "<ellipse cx=\"102.4\" cy=\"121.2\" rx=\"17\" ry=\"9\" fill=\"#ffffff\"/>",
+    "<ellipse cx=\"158.7\" cy=\"121.2\" rx=\"17\" ry=\"9\" fill=\"#ffffff\"/>",
+    "<path d=\"M88.4 122.2 Q102.4 129.2 116.4 122.2\" fill=\"none\" stroke=\"#111\" stroke-width=\"3\" stroke-linecap=\"round\"/>",
+    "<path d=\"M144.7 122.2 Q158.7 129.2 172.7 122.2\" fill=\"none\" stroke=\"#111\" stroke-width=\"3\" stroke-linecap=\"round\"/>"
+  ]
+}

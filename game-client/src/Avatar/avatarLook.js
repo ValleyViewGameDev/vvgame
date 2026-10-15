@@ -43,7 +43,7 @@ export function colorOf(palettes, id) {
 
 /** The starter look: the first free part of every slot, the middle skin tone. */
 export function defaultSpec(catalogue, palettes) {
-  const firstFree = (slot) => partsInSlot(catalogue, slot).find((p) => (p.tier || 'free') === 'free')?.id || null;
+  const firstFree = (slot) => partsInSlot(catalogue, slot).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const firstColor = (slot) => palette(palettes, slot)[0]?.id || null;
   const tones = palette(palettes, 'skinTone');
   return {
@@ -73,7 +73,7 @@ export function validateSpec(spec, catalogue, palettes, { owned = [], allowNpc =
   };
   for (const [key, slot] of Object.entries(SLOT_OF_SPEC_KEY)) {
     const id = spec[key];
-    if (id == null) { if (slot === 'skin' || slot === 'eyes' || slot === 'top') problems.push(`${key} is required`); continue; }
+    if (id == null) { if (slot === 'skin' || slot === 'eyes') problems.push(`${key} is required`); continue; }
     const row = byId(catalogue, id);
     if (!row) { problems.push(`${key}: unknown part ${id}`); continue; }
     if (row.slot !== slot) { problems.push(`${key}: ${id} is a ${row.slot}, not a ${slot}`); continue; }

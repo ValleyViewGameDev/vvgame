@@ -15,7 +15,7 @@ const PALETTES_FILE = path.join(__dirname, '../tuning/avatarPalettes.json');
 
 const SLOT_OF_SPEC_KEY = { skin: 'skin', hair: 'hair', facialHair: 'facialHair', eyes: 'eyes', hat: 'hat', top: 'top' };
 const PALETTE_OF_SPEC_KEY = { skinTone: 'skinTone', hairColor: 'hairColor', eyeColor: 'eyeColor' };
-const REQUIRED_PARTS = ['skin', 'eyes', 'top']; // hair, facial hair and hat have a None
+const REQUIRED_PARTS = ['skin', 'eyes']; // every other slot has a None (No Clothes included)
 const SPEC_VERSION = 1;
 
 let cache = null;
@@ -31,7 +31,7 @@ const byId = (rows, id) => (id ? rows.find((r) => r && r.id === id) || null : nu
 function defaultSpec() {
   const { catalogue, palettes } = load();
   const inSlot = (slot) => catalogue.filter((r) => r.slot === slot);
-  const firstFree = (slot) => inSlot(slot).find((p) => (p.tier || 'free') === 'free')?.id || null;
+  const firstFree = (slot) => inSlot(slot).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const swatches = (slot) => palettes.filter((r) => r.slot === slot);
   const tones = swatches('skinTone');
   return {

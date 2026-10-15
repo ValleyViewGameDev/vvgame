@@ -18,6 +18,7 @@
  *   }
  *
  * groups: ids from groups.json, or "all" (with an optional `exclude` list).
+ * offset: { dx, dy } in source units, nudges the include (a mouth a touch lower).
  * mirror: an x (source units) to flip the include about, drawn flipped (an eye for the other side).
  * clipRig: a path `d` in RIG coordinates that cuts the include (the base face's outline).
  * clipPath: a path `d` in SOURCE units; clip: { xMin, xMax, yMin, yMax } or clipEllipse: { cx, cy, rx, ry } (source units) cuts the
@@ -138,7 +139,7 @@ function assemble(recipe, recipeFile) {
       defs += `<defs><clipPath id="${id}"><path d="${inc.clipRig}"/></clipPath></defs>`;
       body.push(`<g clip-path="url(#${id})">`);
     }
-    body.push(`<g transform="${fitTransform}">`);
+    body.push(`<g transform="${fitTransform}${inc.offset ? ` translate(${inc.offset.dx || 0} ${inc.offset.dy || 0})` : ''}">`);
     // clip: { xMin, xMax, yMin, yMax } in source units cuts a path that spans two parts (one
     // traced shape holding hair AND beard) instead of filtering whole paths by region
     let clipId = null;

@@ -1,0 +1,46 @@
+{
+  "out": "eyes/eyes-04-iris.svg",
+  "source": "npc-rancher",
+  "fit": {
+    "scale": 1.28,
+    "dx": 0,
+    "dy": 6
+  },
+  "include": [
+    {
+      "groups": [
+        13,
+        15,
+        16,
+        19
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "lum",
+      "ref": "#44D87C",
+      "floor": 0.3
+    },
+    {
+      "groups": [
+        13,
+        15,
+        16,
+        19
+      ],
+      "region": {
+        "xMin": 100,
+        "xMax": 146,
+        "yMin": 80,
+        "yMax": 99
+      },
+      "recolor": "lum",
+      "ref": "#44D87C",
+      "floor": 0.3,
+      "mirror": 102
+    }
+  ]
+}

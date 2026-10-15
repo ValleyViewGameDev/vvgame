@@ -37,7 +37,11 @@
       },
       "recolor": "lum",
       "ref": "#DDB16E",
-      "floor": 0.3
+      "floor": 0.3,
+      "offset": {
+        "dx": 0,
+        "dy": 3
+      }
     },
     {
       "groups": [
@@ -51,7 +55,11 @@
       },
       "recolor": "lum",
       "ref": "#DDB16E",
-      "floor": 0.25
+      "floor": 0.25,
+      "offset": {
+        "dx": 0,
+        "dy": 3
+      }
     }
   ]
 }
