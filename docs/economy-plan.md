@@ -1,7 +1,7 @@
 # Economy plan: gem costs (T-2) and the Store (T-3)
 
-Status: T-2 BUILT 2026-10-14 (the rule, its knobs and the results are docs/tuning.md §4e); T-3
-next. Read with `docs/tuning.md` and `docs/Hay Day Economy.pdf`. Sections 2-5 are the analysis as
+Status: T-2 and T-3 BUILT 2026-10-14 (the rule, its knobs, the results and the Store changes are
+docs/tuning.md §4e). Read with `docs/tuning.md` and `docs/Hay Day Economy.pdf`. Sections 2-5 are the analysis as
 proposed; what was built differs from §4 step 2-3 as follows:
 
 - **No `effortMinutes` guesses.** The rares are the scroll-find crops (a `rare` checkbox), priced
@@ -10,7 +10,10 @@ proposed; what was built differs from §4 step 2-3 as follows:
 - **A smoothing curve instead of a review-only guardrail**: above 250 gems a price grows as
   `250 x (x / 250) ^ 0.35`, in the derived prices and in the in-game gem purchase. Nothing in the
   game is above 2,600 gems; coffee and silk stay the dearest goods (late luxuries, untrimmed).
-- **Hand prices** go in `gemOverride` (4 rows).
+- **Hand prices** go in `gemOverride` (5 rows, Money among them).
+- **Money (§3e, §5)**: the in-game rate moved to the Store's, not the reverse: 100 coins a gem,
+  added flat (never smoothed). Money packs keep their prices; Big and Mega now give 250k and
+  2.5M so value per dollar rises gently with size. Item packs left generous (owner's call).
 
 
 ## 1. What Hay Day does (the GDC 2018 talk in docs/)

@@ -138,11 +138,11 @@
 {							
 "id":		50		,			
 "title":	"Big Money Pack"	,			
-"body":	"500,000 Money credits."	,			
+"body":	"250,000 Money credits."	,			
 "price":		12.00		,			
 "priceInCents":		1200		,			
 "rewards": [							
-{ "item":"Money","qty":	500000	}
+{ "item":"Money","qty":	250000	}
 ]							
 },							
 							
@@ -171,11 +171,11 @@
 {							
 "id":		70		,			
 "title":	"Mega Money Pack"	,			
-"body":	"Five million Money credits."	,			
+"body":	"2,500,000 Money credits."	,			
 "price":		90.00		,			
 "priceInCents":		9000		,			
 "rewards": [							
-{ "item":"Money","qty":	5000000	}
+{ "item":"Money","qty":	2500000	}
 ]							
 }							
 

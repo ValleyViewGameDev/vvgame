@@ -1,7 +1,7 @@
 import React from 'react';
 import { getLocalizedString } from '../Utils/stringLookup';
 import { calculateGemSpeedupCost } from './EconomyUtils';
-import { smoothGems } from './gemPricing';
+import { GEM_PRICE, smoothGems } from './gemPricing';
 import './GemCosts.css';
 
 // Pure function that doesn't use hooks
@@ -79,6 +79,7 @@ export const calculateGemPurchase = ({
         // Only charge for missing ingredients - resource.gemcost is the total if you had nothing
         // Calculate missing ingredient costs
         let missingIngredientCost = 0;
+        let missingFlatCost = 0; // Money: added at its flat rate, never smoothed
         for (let i = 1; i <= 10; i++) {
             const ingredientType = resource[`ingredient${i}`];
             const ingredientQty = resource[`ingredient${i}qty`];
@@ -92,7 +93,8 @@ export const calculateGemPurchase = ({
                 if (missingQty > 0) {
                     const resourceData = safeMasterResources.find(r => r.type === ingredientType);
                     const ingredientGemCost = resourceData?.gemcost || 1;
-                    missingIngredientCost += ingredientGemCost * missingQty;
+                    if (ingredientType === GEM_PRICE.linear) missingFlatCost += ingredientGemCost * missingQty;
+                    else missingIngredientCost += ingredientGemCost * missingQty;
                 }
             }
         }
@@ -109,10 +111,10 @@ export const calculateGemPurchase = ({
         
         // Gem cost is ONLY the cost of missing ingredients, on the same curve as the stored prices
         // (a big shortfall costs less per unit than a small one)
-        gemCost = Math.ceil(smoothGems(missingIngredientCost));
+        gemCost = Math.ceil(missingFlatCost + smoothGems(missingIngredientCost));
         
         // Minimum of 1 gem if there are any missing ingredients
-        if (gemCost === 0 && missingIngredientCost > 0) {
+        if (gemCost === 0 && missingFlatCost + missingIngredientCost > 0) {
             gemCost = 1;
         }
     }

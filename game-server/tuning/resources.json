@@ -806,7 +806,8 @@
     "validonu": false,
     "minprice": 1,
     "maxprice": 0,
-    "gemcost": 0.125
+    "gemcost": 0.01,
+    "gemOverride": 0.01
   },
   {
     "type": "Trash",
@@ -6233,7 +6234,7 @@
     "ingredient2qty": 6,
     "ingredient3": "Ink",
     "ingredient3qty": 3,
-    "gemcost": 581,
+    "gemcost": 542,
     "crafttime": 3,
     "totalnestedtime": 45003,
     "effort": 2555
@@ -6335,7 +6336,7 @@
     "maxprice": 1920,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 200,
+    "gemcost": 85,
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400
@@ -6372,7 +6373,7 @@
     "maxprice": 2080,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 200,
+    "gemcost": 85,
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400
@@ -6409,7 +6410,7 @@
     "maxprice": 2408,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 215,
+    "gemcost": 100,
     "crafttime": 1296000,
     "totalnestedtime": 1296000,
     "effort": 21600
@@ -6445,7 +6446,7 @@
     "maxprice": 2724,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 227,
+    "gemcost": 112,
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
     "effort": 28800
@@ -7035,7 +7036,7 @@
     "ingredient1qty": 5000,
     "ingredient2": "Furniture",
     "ingredient2qty": 10,
-    "gemcost": 519,
+    "gemcost": 506,
     "filename": "school.svg",
     "crafttime": 0,
     "totalnestedtime": 432000
@@ -7073,7 +7074,7 @@
     "ingredient2qty": 40,
     "ingredient3": "Stone",
     "ingredient3qty": 50,
-    "gemcost": 544,
+    "gemcost": 514,
     "filename": "hospital.svg",
     "crafttime": 0,
     "totalnestedtime": 72250,
@@ -7111,7 +7112,7 @@
     "ingredient2qty": 10,
     "ingredient3": "Stone",
     "ingredient3qty": 50,
-    "gemcost": 555,
+    "gemcost": 542,
     "filename": "library.svg",
     "crafttime": 0,
     "totalnestedtime": 432250,
@@ -7147,7 +7148,7 @@
     "ingredient1qty": 400,
     "ingredient2": "Wood",
     "ingredient2qty": 75,
-    "gemcost": 125,
+    "gemcost": 79,
     "filename": "mill.svg",
     "crafttime": 0,
     "totalnestedtime": 375,
@@ -7185,7 +7186,7 @@
     "ingredient2qty": 150,
     "ingredient3": "Stone",
     "ingredient3qty": 20,
-    "gemcost": 208,
+    "gemcost": 173,
     "filename": "dairy.svg",
     "crafttime": 0,
     "totalnestedtime": 850,
@@ -7223,7 +7224,7 @@
     "ingredient2qty": 180,
     "ingredient3": "Stone",
     "ingredient3qty": 30,
-    "gemcost": 235,
+    "gemcost": 212,
     "filename": "loom.svg",
     "crafttime": 0,
     "totalnestedtime": 1050,
@@ -7258,7 +7259,7 @@
     "ingredient1qty": 1000,
     "ingredient2": "Wood",
     "ingredient2qty": 75,
-    "gemcost": 200,
+    "gemcost": 85,
     "crafttime": 0,
     "totalnestedtime": 375,
     "parallel": 10
@@ -7297,7 +7298,7 @@
     "ingredient3qty": 60,
     "ingredient4": "Clay",
     "ingredient4qty": 150,
-    "gemcost": 596,
+    "gemcost": 599,
     "filename": "oven.svg",
     "crafttime": 0,
     "totalnestedtime": 3241800,
@@ -7332,7 +7333,7 @@
     "ingredient1qty": 8000,
     "ingredient2": "Wood",
     "ingredient2qty": 90,
-    "gemcost": 419,
+    "gemcost": 170,
     "crafttime": 0,
     "totalnestedtime": 450,
     "parallel": 10
@@ -7369,7 +7370,7 @@
     "ingredient2qty": 300,
     "ingredient3": "Clay",
     "ingredient3qty": 300,
-    "gemcost": 763,
+    "gemcost": 804,
     "filename": "kitchen.svg",
     "crafttime": 0,
     "totalnestedtime": 6481500,
@@ -7407,7 +7408,7 @@
     "ingredient2qty": 400,
     "ingredient3": "Stone",
     "ingredient3qty": 1000,
-    "gemcost": 474,
+    "gemcost": 469,
     "filename": "lumber-yard.svg",
     "crafttime": 0,
     "totalnestedtime": 7000,
@@ -7445,7 +7446,7 @@
     "ingredient2qty": 40,
     "ingredient3": "Clay",
     "ingredient3qty": 400,
-    "gemcost": 873,
+    "gemcost": 953,
     "filename": "studio.svg",
     "crafttime": 0,
     "totalnestedtime": 8712000,
@@ -7485,7 +7486,7 @@
     "ingredient3qty": 80,
     "ingredient4": "Clay",
     "ingredient4qty": 50,
-    "gemcost": 679,
+    "gemcost": 689,
     "filename": "beverage-station.svg",
     "crafttime": 0,
     "totalnestedtime": 1116400,
@@ -7525,7 +7526,7 @@
     "ingredient3qty": 120,
     "ingredient4": "Clay",
     "ingredient4qty": 800,
-    "gemcost": 1182,
+    "gemcost": 1614,
     "filename": "winery.svg",
     "crafttime": 0,
     "totalnestedtime": 17388600,
@@ -7565,7 +7566,7 @@
     "ingredient3qty": 300,
     "ingredient4": "Clay",
     "ingredient4qty": 600,
-    "gemcost": 1824,
+    "gemcost": 5927,
     "filename": "coffee-factory.svg",
     "crafttime": 0,
     "totalnestedtime": 13051500,
@@ -7605,7 +7606,7 @@
     "ingredient3qty": 300,
     "ingredient4": "Mulberry Leaf",
     "ingredient4qty": 1,
-    "gemcost": 1622,
+    "gemcost": 4538,
     "crafttime": 0,
     "totalnestedtime": 482100,
     "parallel": 1
@@ -8550,7 +8551,7 @@
     "growtime": 14400,
     "ingredient1": "Money",
     "ingredient1qty": 1500,
-    "gemcost": 200,
+    "gemcost": 27,
     "crafttime": 14400,
     "totalnestedtime": 14400,
     "parallel": 6
@@ -8588,7 +8589,7 @@
     "growtime": 28800,
     "ingredient1": "Money",
     "ingredient1qty": 3000,
-    "gemcost": 293,
+    "gemcost": 47,
     "filename": "npc-pig.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
@@ -8752,7 +8753,7 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 150,
-    "gemcost": 39,
+    "gemcost": 21,
     "filename": "npc-surgeon.svg",
     "crafttime": 43200,
     "totalnestedtime": 43200
@@ -9632,7 +9633,7 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 440,
+    "gemcost": 105,
     "filename": "npc-farmhand.svg",
     "crafttime": 1800,
     "totalnestedtime": 1800
@@ -9673,7 +9674,7 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 441,
+    "gemcost": 112,
     "filename": "npc-rancher.svg",
     "crafttime": 14400,
     "totalnestedtime": 14400
@@ -9714,7 +9715,7 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 442,
+    "gemcost": 117,
     "filename": "npc-lumberjack.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800
@@ -9755,7 +9756,7 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 442,
+    "gemcost": 122,
     "filename": "npc-crafter.svg",
     "crafttime": 57600,
     "totalnestedtime": 57600
@@ -10369,7 +10370,7 @@
     "ingredient1qty": 200,
     "ingredient2": "Cloth",
     "ingredient2qty": 2,
-    "gemcost": 104,
+    "gemcost": 81,
     "crafttime": 3,
     "totalnestedtime": 1203
   },
@@ -10386,7 +10387,7 @@
     "level": 20,
     "ingredient1": "Money",
     "ingredient1qty": 1000000,
-    "gemcost": 2201,
+    "gemcost": 10001,
     "crafttime": 3,
     "totalnestedtime": 3
   },
@@ -10400,7 +10401,7 @@
     "level": 1,
     "ingredient1": "Money",
     "ingredient1qty": 3000,
-    "gemcost": 289
+    "gemcost": 30
   },
   {
     "type": "Axe",
@@ -10412,7 +10413,7 @@
     "level": 3,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7
+    "gemcost": 1
   },
   {
     "type": "Pickaxe",
@@ -10424,7 +10425,7 @@
     "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 75,
-    "gemcost": 10
+    "gemcost": 1
   },
   {
     "type": "Better Axe",
@@ -10438,7 +10439,7 @@
     "level": 4,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Better Pickaxe",
@@ -10452,7 +10453,7 @@
     "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
-    "gemcost": 368
+    "gemcost": 60
   },
   {
     "type": "Bulk Harvest",
@@ -10464,7 +10465,7 @@
     "level": 5,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7
+    "gemcost": 1
   },
   {
     "type": "Bulk Replant",
@@ -10477,7 +10478,7 @@
     "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Bulk Animal Collect",
@@ -10489,7 +10490,7 @@
     "level": 7,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7
+    "gemcost": 1
   },
   {
     "type": "Logging",
@@ -10515,7 +10516,7 @@
     "level": 9,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 440
+    "gemcost": 100
   },
   {
     "type": "Bulk Crafting",
@@ -10527,7 +10528,7 @@
     "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7
+    "gemcost": 1
   },
   {
     "type": "Bulk Restart Craft",
@@ -10539,7 +10540,7 @@
     "level": 5,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Backpack",
@@ -10554,7 +10555,7 @@
     "ingredient1qty": 50,
     "ingredient2": "Cloth",
     "ingredient2qty": 1,
-    "gemcost": 46
+    "gemcost": 40
   },
   {
     "type": "Tracking",
@@ -10568,7 +10569,7 @@
     "level": 3,
     "ingredient1": "Money",
     "ingredient1qty": 12000,
-    "gemcost": 469
+    "gemcost": 120
   },
   {
     "type": "Rucksack",
@@ -10586,7 +10587,7 @@
     "ingredient2qty": 10,
     "ingredient3": "Thread",
     "ingredient3qty": 1,
-    "gemcost": 669
+    "gemcost": 596
   },
   {
     "type": "Side Pack",
@@ -10602,7 +10603,7 @@
     "ingredient1qty": 20000,
     "ingredient2": "Pelt",
     "ingredient2qty": 8,
-    "gemcost": 571
+    "gemcost": 336
   },
   {
     "type": "Enchanted Pack",
@@ -10620,7 +10621,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 5,
-    "gemcost": 895
+    "gemcost": 1104
   },
   {
     "type": "Scout",
@@ -10634,7 +10635,7 @@
     "level": 8,
     "ingredient1": "Money",
     "ingredient1qty": 15000,
-    "gemcost": 507
+    "gemcost": 150
   },
   {
     "type": "Builder",
@@ -10646,7 +10647,7 @@
     "level": 4,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125
+    "gemcost": 10
   },
   {
     "type": "Masonry",
@@ -10659,7 +10660,7 @@
     "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 4000,
-    "gemcost": 319
+    "gemcost": 40
   },
   {
     "type": "Mechanics",
@@ -10671,7 +10672,7 @@
     "level": 7,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
-    "gemcost": 368
+    "gemcost": 60
   },
   {
     "type": "Roaster",
@@ -10689,7 +10690,7 @@
     "ingredient3qty": 18,
     "ingredient4": "Potion C",
     "ingredient4qty": 60,
-    "gemcost": 1427
+    "gemcost": 1836
   },
   {
     "type": "Grower",
@@ -10701,7 +10702,7 @@
     "level": 2,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "gemcost": 63
+    "gemcost": 5
   },
   {
     "type": "Husbandry",
@@ -10713,7 +10714,7 @@
     "level": 3,
     "ingredient1": "Money",
     "ingredient1qty": 750,
-    "gemcost": 94
+    "gemcost": 8
   },
   {
     "type": "Green Thumb",
@@ -10726,7 +10727,7 @@
     "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Livestock",
@@ -10741,7 +10742,7 @@
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
-    "gemcost": 469
+    "gemcost": 439
   },
   {
     "type": "Cultivation",
@@ -10756,7 +10757,7 @@
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
     "ingredient2qty": 10,
-    "gemcost": 551
+    "gemcost": 545
   },
   {
     "type": "Fruit Fingers",
@@ -10771,7 +10772,7 @@
     "ingredient1qty": 8000,
     "ingredient2": "Potion A",
     "ingredient2qty": 15,
-    "gemcost": 639
+    "gemcost": 651
   },
   {
     "type": "Keeper",
@@ -10788,7 +10789,7 @@
     "ingredient2qty": 15,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 779
+    "gemcost": 856
   },
   {
     "type": "Beekeeper",
@@ -10803,7 +10804,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 839
+    "gemcost": 841
   },
   {
     "type": "Florist",
@@ -10822,7 +10823,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 1549
+    "gemcost": 1634
   },
   {
     "type": "Sericulture",
@@ -10852,7 +10853,7 @@
     "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 4000,
-    "gemcost": 319
+    "gemcost": 40
   },
   {
     "type": "Chemistry",
@@ -10865,7 +10866,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
-    "gemcost": 487
+    "gemcost": 296
   },
   {
     "type": "Baker",
@@ -10882,7 +10883,7 @@
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 663
+    "gemcost": 683
   },
   {
     "type": "Cooking",
@@ -10899,7 +10900,7 @@
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
-    "gemcost": 685
+    "gemcost": 713
   },
   {
     "type": "Creamery",
@@ -10918,7 +10919,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Potion C",
     "ingredient4qty": 15,
-    "gemcost": 870
+    "gemcost": 935
   },
   {
     "type": "Winemaker",
@@ -10933,7 +10934,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 839
+    "gemcost": 841
   },
   {
     "type": "Textiles",
@@ -10948,7 +10949,7 @@
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
     "ingredient2qty": 10,
-    "gemcost": 708
+    "gemcost": 745
   },
   {
     "type": "Artistry",
@@ -10963,7 +10964,7 @@
     "ingredient1qty": 40000,
     "ingredient3": "Potion B",
     "ingredient3qty": 10,
-    "gemcost": 826
+    "gemcost": 966
   },
   {
     "type": "Tailor",
@@ -10978,7 +10979,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 1469
+    "gemcost": 1473
   },
   {
     "type": "Zookeeper",
@@ -10993,7 +10994,7 @@
     "ingredient1qty": 5000,
     "ingredient2": "Sunflower",
     "ingredient2qty": 50,
-    "gemcost": 410
+    "gemcost": 345
   },
   {
     "type": "Miller",
@@ -11012,7 +11013,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 50,
-    "gemcost": 1249
+    "gemcost": 1326
   },
   {
     "type": "Weaver",
@@ -11031,7 +11032,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 18,
-    "gemcost": 988
+    "gemcost": 1077
   },
   {
     "type": "Cuisinier",
@@ -11050,7 +11051,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 18,
-    "gemcost": 1037
+    "gemcost": 1158
   },
   {
     "type": "Fowler",
@@ -11069,7 +11070,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 1041
+    "gemcost": 1201
   },
   {
     "type": "Shepherding",
@@ -11088,7 +11089,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 22,
-    "gemcost": 1101
+    "gemcost": 1310
   },
   {
     "type": "Fromager",
@@ -11107,7 +11108,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 28,
-    "gemcost": 1324
+    "gemcost": 2090
   },
   {
     "type": "Barista",
@@ -11126,7 +11127,7 @@
     "ingredient3qty": 18,
     "ingredient4": "Potion C",
     "ingredient4qty": 35,
-    "gemcost": 1234
+    "gemcost": 1463
   },
   {
     "type": "Artisan",
@@ -11145,7 +11146,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
-    "gemcost": 1338
+    "gemcost": 1811
   },
   {
     "type": "Virtuose Culinaire",
@@ -11164,7 +11165,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
-    "gemcost": 1242
+    "gemcost": 1471
   },
   {
     "type": "Apiarch",
@@ -11183,7 +11184,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 50,
-    "gemcost": 1328
+    "gemcost": 1645
   },
   {
     "type": "Vintner",
@@ -11202,7 +11203,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 1811
+    "gemcost": 3558
   },
   {
     "type": "Law",
@@ -11217,7 +11218,7 @@
     "ingredient1qty": 25000,
     "ingredient2": "Gem",
     "ingredient2qty": 10,
-    "gemcost": 606
+    "gemcost": 250
   },
   {
     "type": "Medicine",
@@ -11231,7 +11232,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Gem",
     "ingredient2qty": 20,
-    "gemcost": 469
+    "gemcost": 120
   },
   {
     "type": "Surgery",
@@ -11246,7 +11247,7 @@
     "ingredient1qty": 18000,
     "ingredient2": "Gem",
     "ingredient2qty": 40,
-    "gemcost": 540
+    "gemcost": 180
   },
   {
     "type": "Padding",
@@ -11262,7 +11263,7 @@
     "ingredient1qty": 7000,
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
-    "gemcost": 441
+    "gemcost": 363
   },
   {
     "type": "Knife",
@@ -11278,7 +11279,7 @@
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125
+    "gemcost": 10
   },
   {
     "type": "Short Sword",
@@ -11295,7 +11296,7 @@
     "ranged": false,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
-    "gemcost": 407
+    "gemcost": 80
   },
   {
     "type": "Darts",
@@ -11312,7 +11313,7 @@
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 250,
-    "gemcost": 32
+    "gemcost": 3
   },
   {
     "type": "Jab",
@@ -11325,7 +11326,7 @@
     "speed": -2,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
-    "gemcost": 424
+    "gemcost": 90
   },
   {
     "type": "Focus",
@@ -11338,7 +11339,7 @@
     "attackrange": 1,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
-    "gemcost": 407
+    "gemcost": 80
   },
   {
     "type": "Light Armor",
@@ -11355,7 +11356,7 @@
     "ingredient1qty": 500,
     "ingredient2": "Pelt",
     "ingredient2qty": 8,
-    "gemcost": 199
+    "gemcost": 141
   },
   {
     "type": "Short Bow",
@@ -11373,7 +11374,7 @@
     "ranged": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Fortitude",
@@ -11386,7 +11387,7 @@
     "maxhp": 100,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
-    "gemcost": 424
+    "gemcost": 90
   },
   {
     "type": "Long Sword",
@@ -11404,7 +11405,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 500
+    "gemcost": 487
   },
   {
     "type": "Precision",
@@ -11422,7 +11423,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 1223
+    "gemcost": 1198
   },
   {
     "type": "Chainmail",
@@ -11439,7 +11440,7 @@
     "ingredient1qty": 5000,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 550
+    "gemcost": 532
   },
   {
     "type": "Steady Hand",
@@ -11452,7 +11453,7 @@
     "attackbonus": 4,
     "ingredient1": "Money",
     "ingredient1qty": 7000,
-    "gemcost": 388
+    "gemcost": 70
   },
   {
     "type": "Flurry",
@@ -11470,7 +11471,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 8,
-    "gemcost": 699
+    "gemcost": 684
   },
   {
     "type": "Long Bow",
@@ -11490,7 +11491,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 6,
-    "gemcost": 694
+    "gemcost": 704
   },
   {
     "type": "Tempest",
@@ -11507,7 +11508,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 1025
+    "gemcost": 1007
   },
   {
     "type": "Great Sword",
@@ -11525,7 +11526,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 807
+    "gemcost": 793
   },
   {
     "type": "Horizon Eye",
@@ -11545,7 +11546,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 150,
-    "gemcost": 1941
+    "gemcost": 1904
   },
   {
     "type": "Plate Armor",
@@ -11564,7 +11565,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 20,
-    "gemcost": 1025
+    "gemcost": 971
   },
   {
     "type": "Pinpoint",
@@ -11582,7 +11583,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 16,
-    "gemcost": 891
+    "gemcost": 875
   },
   {
     "type": "Stoneheart",
@@ -11603,7 +11604,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "gemcost": 1073
+    "gemcost": 1132
   },
   {
     "type": "Blessed Veil",
@@ -11624,7 +11625,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Book",
     "ingredient4qty": 65,
-    "gemcost": 1495
+    "gemcost": 1546
   },
   {
     "type": "Unerring",
@@ -11644,7 +11645,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 1158
+    "gemcost": 1278
   },
   {
     "type": "Spear",
@@ -11663,7 +11664,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 1050
+    "gemcost": 1087
   },
   {
     "type": "Maelstrom",
@@ -11683,7 +11684,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 1266
+    "gemcost": 1393
   },
   {
     "type": "Barrage",
@@ -11703,7 +11704,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 1207
+    "gemcost": 1478
   },
   {
     "type": "Heavy Armor",
@@ -11723,7 +11724,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 1375
+    "gemcost": 1396
   },
   {
     "type": "Halberd",
@@ -11741,7 +11742,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1502
+    "gemcost": 1550
   },
   {
     "type": "Mystic Armor",
@@ -11776,7 +11777,7 @@
     "ingredient1qty": 20000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1517
+    "gemcost": 1650
   },
   {
     "type": "Magic Helmet",
@@ -11810,7 +11811,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 75,
-    "gemcost": 1596
+    "gemcost": 1986
   },
   {
     "type": "Unbreakable",
@@ -11828,7 +11829,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 1481
+    "gemcost": 2189
   },
   {
     "type": "Magic Gloves",
@@ -11895,7 +11896,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 300,
-    "gemcost": 2592
+    "gemcost": 4413
   },
   {
     "type": "Sword of Song",
@@ -12365,7 +12366,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 10,
-    "gemcost": 2,
+    "gemcost": 1,
     "filename": "haybale.svg"
   },
   {
@@ -12388,7 +12389,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 10,
-    "gemcost": 2,
+    "gemcost": 1,
     "filename": "crate.svg"
   },
   {
@@ -12411,7 +12412,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3,
+    "gemcost": 1,
     "filename": "barrel.svg"
   },
   {
@@ -12440,7 +12441,7 @@
     "ingredient2qty": 20,
     "ingredient3": "Ink",
     "ingredient3qty": 2,
-    "gemcost": 465
+    "gemcost": 433
   },
   {
     "type": "Stone Wall",
@@ -12463,7 +12464,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3,
+    "gemcost": 1,
     "filename": "wall-stone.svg"
   },
   {
@@ -12488,7 +12489,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "gemcost": 63,
+    "gemcost": 5,
     "filename": "wall-stone.svg"
   },
   {
@@ -12512,7 +12513,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 1
   },
   {
     "type": "Black Wall",
@@ -12535,7 +12536,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 1
   },
   {
     "type": "Invisible Wall",
@@ -12582,7 +12583,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 1
   },
   {
     "type": "Blue Wall",
@@ -12605,7 +12606,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 1
   },
   {
     "type": "Orange Wall",
@@ -12628,7 +12629,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 1
   },
   {
     "type": "Plant",
@@ -12650,7 +12651,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 25,
-    "gemcost": 4,
+    "gemcost": 1,
     "filename": "plant.svg"
   },
   {
@@ -12673,7 +12674,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 25,
-    "gemcost": 4,
+    "gemcost": 1,
     "filename": "plant-red.svg"
   },
   {
@@ -12696,7 +12697,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 25,
-    "gemcost": 4,
+    "gemcost": 1,
     "filename": "flower-pot.svg"
   },
   {
@@ -12719,7 +12720,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7,
+    "gemcost": 1,
     "filename": "potted-plant.svg"
   },
   {
@@ -12742,7 +12743,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7,
+    "gemcost": 1,
     "filename": "cactus.svg"
   },
   {
@@ -12765,7 +12766,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 100,
-    "gemcost": 13
+    "gemcost": 1
   },
   {
     "type": "Flag",
@@ -12787,7 +12788,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 100,
-    "gemcost": 13,
+    "gemcost": 1,
     "filename": "flag.svg"
   },
   {
@@ -12810,7 +12811,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 30,
-    "gemcost": 4,
+    "gemcost": 1,
     "filename": "sack.svg"
   },
   {
@@ -12833,7 +12834,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125
+    "gemcost": 10
   },
   {
     "type": "Chair",
@@ -12855,7 +12856,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125
+    "gemcost": 10
   },
   {
     "type": "Toilet",
@@ -12877,7 +12878,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125
+    "gemcost": 10
   },
   {
     "type": "Bed",
@@ -12899,7 +12900,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 345
+    "gemcost": 50
   },
   {
     "type": "Teddy Bear",
@@ -12921,7 +12922,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 7500,
-    "gemcost": 398
+    "gemcost": 75
   },
   {
     "type": "Slide",
@@ -12944,7 +12945,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 15000,
-    "gemcost": 507
+    "gemcost": 150
   },
   {
     "type": "Birdbath",
@@ -12966,7 +12967,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
-    "gemcost": 407,
+    "gemcost": 80,
     "filename": "bird-bath.svg"
   },
   {
@@ -12989,7 +12990,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 440,
+    "gemcost": 100,
     "filename": "fountain.svg"
   },
   {
@@ -13013,7 +13014,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20000,
-    "gemcost": 560,
+    "gemcost": 200,
     "filename": "fountain-large.svg"
   },
   {
@@ -13037,7 +13038,7 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 40000,
-    "gemcost": 714,
+    "gemcost": 400,
     "filename": "palm-tree.svg"
   },
   {

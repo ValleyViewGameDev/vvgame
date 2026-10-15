@@ -72,7 +72,8 @@ export function roundEffort(e) {
 /**
  * gemcost (gems to buy one unit): Hay Day's "time is diamonds" (docs/economy-plan.md):
  *
- *   gemcost(good) = ceil( smooth( sum(ingredientQty x gemcost(ingredient)) + (crafttime minutes)^0.45 ) )
+ *   gemcost(good) = ceil( Money x Money's gemcost
+ *                         + smooth( sum(other ingredientQty x gemcost(ingredient)) + (crafttime minutes)^0.45 ) )
  *
  * Exceptions, in order:
  *   gemOverride  a hand-set price on the row wins (sheet overrides that never followed the rule).
@@ -85,10 +86,11 @@ export function roundEffort(e) {
  * rows stay unpriced. A row with no recipe and no crafttime (Money, gems) keeps its stored gemcost;
  * in the editor gemcost is read-only, so change such a price through gemOverride.
  * smooth: unchanged up to GEM_PRICE.knee, then knee x (x / knee) ^ power, so deep chains and big
- * unlocks stay expensive without reaching absurd numbers. Economy/gemPricing.js applies the same
+ * unlocks stay expensive without reaching absurd numbers. Money is never smoothed (a flat 100
+ * coins a gem): otherwise buying a big coin shortfall with gems undercuts the Store's Money packs. Economy/gemPricing.js applies the same
  * curve to what a gem purchase charges in the game; keep the two in step.
  */
-export const GEM_PRICE = { knee: 250, power: 0.35 };
+export const GEM_PRICE = { knee: 250, power: 0.35, linear: 'Money' };
 export const smoothGems = (x) => (x <= GEM_PRICE.knee ? x : GEM_PRICE.knee * (x / GEM_PRICE.knee) ** GEM_PRICE.power);
 
 /** Map of type -> derived gemcost for every row the rule prices (others keep their stored value). */
@@ -108,7 +110,11 @@ export function computeGemcost(rows) {
     visiting.add(type);
     let g;
     if (r.rare === true && !recipe.length) g = Math.ceil((efforts.get(type) || time / 60) ** 0.45);
-    else g = Math.ceil(smoothGems(recipe.reduce((n, [t, q]) => n + q * gemOf(t), 0) + (time ? (time / 60) ** 0.45 : 0)));
+    else {
+      const flat = recipe.filter(([t]) => t === GEM_PRICE.linear).reduce((n, [t, q]) => n + q * gemOf(t), 0);
+      const rest = recipe.filter(([t]) => t !== GEM_PRICE.linear).reduce((n, [t, q]) => n + q * gemOf(t), 0);
+      g = Math.ceil(flat + smoothGems(rest + (time ? (time / 60) ** 0.45 : 0)));
+    }
     visiting.delete(type);
     memo.set(type, g);
     return g;

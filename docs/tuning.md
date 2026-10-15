@@ -226,25 +226,32 @@ Train halved anything over $2,000. Now every ask is sized by how much production
 What a good costs in gems (`gemcost`, ECONOMY, read-only, derived). Background and the before
 numbers: docs/economy-plan.md.
 
-- **Rule** (Hay Day's "time is diamonds"): `gemcost = ceil(smooth(sum(ingredient qty x ingredient
-  gemcost) + (crafttime minutes) ^ 0.45))`, each ingredient priced the same way first. Skills,
-  powers, buildings and goods all use it. Math: `tools/editor/sheets/economy.js computeGemcost`;
+- **Rule** (Hay Day's "time is diamonds"): `gemcost = ceil(Money x 0.01 + smooth(sum(other
+  ingredient qty x ingredient gemcost) + (crafttime minutes) ^ 0.45))`, each ingredient priced
+  the same way first. Skills, powers, buildings and goods all use it. Math: `tools/editor/sheets/economy.js computeGemcost`;
   the editor recomputes it on every ECONOMY save, `node tools/derive-economy.js --write` after a
   hand edit.
 - **smooth**: unchanged up to 250 gems, then `250 x (x / 250) ^ 0.35`. Below 250 (most goods)
   prices are the plain sum; above it a deep chain or a big unlock still costs more, just not
   absurdly more: 1,000 raw = 407, 10,000 = 910, 100,000 = 2,036. It applies at every step of a
   chain (each ingredient is already smoothed), so real prices end lower still.
+- **Money is 100 coins a gem, never smoothed** (Money `gemOverride` 0.01; it was 0.125, 8 coins a
+  gem). Smoothed, a big coin shortfall bought with gems undercut the Store's Money packs (a
+  missing 2.5M cost less than the $90 pack). Linear, every Money pack beats buying coins with
+  gems. Money-only items are now cheap in gems (Horse 30, Builder 10) and the coin-heavy
+  buildings dear (Coffee Factory 5,927, Silkery 4,538, Boat 10,001 for its 1M coins).
   `GEM_PRICE` in economy.js; `game-client/src/Economy/gemPricing.js` holds the same numbers and
-  `Economy/GemCosts.js` applies the curve to what a gem purchase charges (the sum of the
-  missing ingredients), so buying the shortfall never costs more than the derived price says.
+  `Economy/GemCosts.js` applies them to what a gem purchase charges (the missing Money flat, the
+  other missing ingredients smoothed), so buying the shortfall never costs more than the derived
+  price says.
   Keep the two copies in step.
 - **rare** (ECONOMY checkbox): the scroll-find crops (Blueberry, Rosemary, Feverfew, Mushroom,
   Daisy, Tulip, Sunflower, Garlic). Priced on their **effort** (grow time over 18 parallel plots),
   not their wall-clock grow: `ceil(effort ^ 0.45)`. Tulip 72 h grow = 240 effort-minutes = 12 gems
   (was 44). They were what made the potions expensive.
-- **gemOverride** (ECONOMY): a hand price that wins over the rule. Set on the four rows whose
-  sheet price never followed it (Honey 37, Cow 67, Doctor 24, Invisible Wall 3). Rows with no
+- **gemOverride** (ECONOMY): a hand price that wins over the rule. Set on Money (0.01) and the
+  four rows whose sheet price never followed the rule (Honey 37, Cow 67, Doctor 24, Invisible
+  Wall 3). Rows with no
   recipe and no crafttime (Money 0.125, gems, specials) keep their stored `gemcost`; since the
   column is read-only in the editor, change those through gemOverride too.
 - **Potions** are Apothecary trades (traders.json), so their ECONOMY recipe is the trade:
@@ -252,10 +259,13 @@ numbers: docs/economy-plan.md.
   C = 1 B + 12 Sunflower + 2 Ink + 1 Feverfew; no crafttime. Change a trade, change the row.
 - **Result** (2026-10-14): Potion A 520 -> 176, B 4,542 -> 258, C 19,658 -> 393, Book 3,007 ->
   581, Silk Dress 3,238 -> 458, Common Coffee 16,404 -> 599, Queen's Coffee 49,410 -> 845 (the
-  coffee and silk lines stay the dearest goods, as late luxuries); Tailor 1,965,863 -> 1,469,
-  Long Sword 9,084 -> 500; the dearest row is Titan, 2,592. Skills and powers median 663.
-  134 of the 146 rows at or under 250 gems are unchanged (the rares and the dishes made from
-  them moved).
+  coffee and silk lines stay the dearest goods, as late luxuries); Tailor 1,965,863 -> 1,473,
+  Long Sword 9,084 -> 487, Titan 927,100 -> 4,413. Skills and powers median 651. Goods without
+  Money in their chain are unchanged at or under 250 gems except the rares and their dishes.
+- **Store Money packs** (T-3, same prices): $6 = 100,000, $12 = 250,000 (was 500,000), $90 =
+  2,500,000 (was 5,000,000). At 100 coins a gem and the 1,000-gem pack's 1 cent a gem that is
+  1.7x, 2.1x and 2.8x the price in value: the bigger pack is the better deal, like the gem packs.
+  The item packs (Farmer's, Adventurer's, starters) were left generous on purpose (~10-20x).
 - `maxprice` (sell price, ~8 x gemcost) was NOT rederived: coin prices stay as they were.
 
 ## 4d. Trophies
