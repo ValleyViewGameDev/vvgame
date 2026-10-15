@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
+import AvatarModal from '../../Avatar/AvatarModal';
 import EatingModal from '../Eating/Eating';
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -21,6 +22,7 @@ const PlayerPanel = ({
   updateStatus,
   masterTrophies,
   masterResources,
+  isDeveloper,
   masterXPLevels,
   masterTraders,
   tentCount,
@@ -35,6 +37,7 @@ const PlayerPanel = ({
   openPanel
 }) => {
   const [showChangeIconModal, setShowChangeIconModal] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false); // the parts-based avatar editor (docs/avatar-plan.md), developers only for now
   const [showEatingModal, setShowEatingModal] = useState(false);
   const strings = useStrings();
 
@@ -257,6 +260,13 @@ const PlayerPanel = ({
           {strings[4065]}
         </button>
       </div>
+      {isDeveloper && (
+        <div className="shared-buttons">
+          <button className="btn-basic btn-neutral" onClick={() => setShowAvatarModal(true)} title="Developer preview: the parts-based avatar editor (docs/avatar-plan.md). The board does not draw it yet.">
+            Edit Avatar
+          </button>
+        </div>
+      )}
 
       {/* Tent functionality */}
       {isCamping ? (
@@ -427,6 +437,16 @@ const PlayerPanel = ({
           {strings[1190]}
         </button>
       </div>
+
+      {showAvatarModal && (
+        <AvatarModal
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          masterResources={masterResources}
+          updateStatus={updateStatus}
+          onClose={() => setShowAvatarModal(false)}
+        />
+      )}
 
       {/* Change Icon Modal */}
       {showChangeIconModal && (

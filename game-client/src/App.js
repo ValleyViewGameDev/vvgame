@@ -4442,6 +4442,7 @@ return (
           updateStatus={updateStatus}
           masterTrophies={masterTrophies}
           masterResources={masterResources}
+          isDeveloper={isDeveloper}
           masterXPLevels={masterXPLevels}
           masterTraders={masterTraders}
           openPanel={openPanel}

@@ -17,6 +17,7 @@ const SocialPanel = ({
   updateStatus,
   masterTrophies,
   masterResources,
+  isDeveloper,
   masterXPLevels,
   masterTraders,
   openPanel,
@@ -58,6 +59,7 @@ const SocialPanel = ({
         updateStatus={updateStatus}
         masterTrophies={masterTrophies}
         masterResources={masterResources}
+        isDeveloper={isDeveloper}
         masterXPLevels={masterXPLevels}
         masterTraders={masterTraders}
         tentCount={tentCount}

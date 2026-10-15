@@ -24,6 +24,14 @@ come out of the existing Citizen busts.
   per look), `scripts/build-atlas.js` `avatar/` namespace, `Player.avatar` +
   `Player.avatarParts`, `utils/avatarCatalogue.js`, `POST /api/player/avatar`,
   `POST /api/player/avatar-part`. No client code calls any of it yet.
+- **In-game developer preview (2026-10-14)**: the Player Character panel shows an **Edit
+  Avatar** button under Change Avatar for developer accounts only
+  (`GameFeatures/Social/PlayerPanel.js`). It opens `src/Avatar/AvatarModal.js`: the composed
+  bust (blinking), a tab per slot with thumbnails of the current bust wearing each part, the
+  swatches, the equipment line (the equipped weapon and armour, a grid-kind picker for the
+  put-away rule), Starter look, Copy spec and Save (`POST /api/player/avatar`; the catalogue
+  comes from `GET /api/avatar-catalogue` through `TuningManager.loadAvatarCatalogue`). The
+  board does not draw the saved spec yet (slice 2).
 - **Tools**: the editor's **Avatar Lab** tab (`tools/editor/client/tabs/avatarlab.js`;
   preview: launch `vvgame-editor-lab`, port 8772, or your own editor on 8770 after a
   restart) composes a bust from the sheets exactly as the game will; `tools/avatar/render.js`
