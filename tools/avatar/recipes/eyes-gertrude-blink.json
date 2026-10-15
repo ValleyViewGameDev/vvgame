@@ -4,7 +4,7 @@
   "fit": {
     "scale": 1.28,
     "dx": 0,
-    "dy": -4
+    "dy": 6
   },
   "include": [
     {
@@ -36,9 +36,9 @@
     }
   ],
   "extra": [
-    "<ellipse cx=\"97\" cy=\"113\" rx=\"17\" ry=\"10\" fill=\"#ffffff\"/>",
-    "<ellipse cx=\"160\" cy=\"113\" rx=\"17\" ry=\"10\" fill=\"#ffffff\"/>",
-    "<path d=\"M83 115 Q97 123 111 115\" fill=\"none\" stroke=\"#111\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>",
-    "<path d=\"M146 115 Q160 123 174 115\" fill=\"none\" stroke=\"#111\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>"
+    "<ellipse cx=\"97\" cy=\"123\" rx=\"17\" ry=\"10\" fill=\"#ffffff\"/>",
+    "<ellipse cx=\"160\" cy=\"123\" rx=\"17\" ry=\"10\" fill=\"#ffffff\"/>",
+    "<path d=\"M83 125 Q97 133 111 125\" fill=\"none\" stroke=\"#111\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>",
+    "<path d=\"M146 125 Q160 133 174 125\" fill=\"none\" stroke=\"#111\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>"
   ]
 }

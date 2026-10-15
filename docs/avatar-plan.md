@@ -160,11 +160,11 @@ per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow)
 ### 2.3 The rig and the art
 
 - One 256×256 frame for every part, measured from the Citizen busts (a 200 px bust scaled
-  by 1.28 with its eye line moved to y 112): head centre (128, 118), eyes at x 96 / 160 on
-  y 112, mouth y ~150, chin y ~190, neck x 108..148 under the top, shoulder line y 190,
-  hand slot centre (204, 214). Layers stack with no per-part offsets; `rig.svg` holds the
+  by 1.28 with its eye line moved to y 122): head centre (128, 128), eyes at x 96 / 160 on
+  y 122, mouth y ~160, chin y ~186 sitting on the tunic's collar, neck x 108..148 under the
+  top, shoulder line y 190, hand slot centre (204, 214). Layers stack with no per-part offsets; `rig.svg` holds the
   guides. A source bust is fitted by `assemble.js` (`fit.scale` 1.28, `fit.dy` per source so
-  its eyes land on y 112).
+  its eyes land on y 122).
 - **Z order** (back to front): `hairBack` → `skin` (head and neck) → `top` (torso and
   collar, drawn OVER the neck) → `eyes` → `facialHair` → `hairFront` → `hat` → `hand`
   (bottom right, in front of the shoulder).
