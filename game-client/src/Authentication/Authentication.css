@@ -127,56 +127,6 @@
   }
 }
 
-/* Avatar Carousel */
-.avatar-carousel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px; /* Reduced gap between arrows and icons */
-  margin: 2px 0;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.avatar-scroll-btn {
-  background: none;
-  border: none;
-  border-radius: var(--btn-radius-sm);
-  padding: 6px 8px;
-  font-size: 16px; /* style-ok: icon (arrow glyph) */
-  cursor: pointer;
-  color: var(--color-text-primary);
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
-}
-
-@media (hover: hover) {
-  .avatar-scroll-btn:hover:not(:disabled) {
-    background: var(--color-primary-green-light);
-  }
-}
-
-.avatar-scroll-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.avatar-icons-viewport {
-  width: 150px; /* 3 icons * 40px + 2 gaps * 5px + 10px padding for scaled icons */
-  overflow: hidden; /* Clip horizontal overflow for carousel effect */
-  flex-shrink: 0;
-  padding: 8px 0; /* Vertical padding to accommodate scaled icons (1.2x) */
-}
-
-.avatar-icons-container {
-  display: flex;
-  gap: 5px;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  padding-left: 5px; /* Extra space on left for scaled first icon */
-}
-
 .avatar-icon-btn {
   width: 40px;
   height: 40px;

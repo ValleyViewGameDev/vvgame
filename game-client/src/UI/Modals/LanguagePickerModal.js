@@ -8,7 +8,7 @@ import axios from 'axios';
 import { useStrings } from '../StringsContext';
 import CloseButton from '../Buttons/CloseButton';
 
-// Only these languages have been localized - exported for use in CreateAccount
+// Only these languages have been localized
 export const enabledLanguages = ['en', 'es', 'fr', 'de'];
 
 export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, updateStatus, onClose, onSave }) {

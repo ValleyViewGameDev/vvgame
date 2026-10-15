@@ -3022,6 +3022,17 @@ const handleBeginSignIn = () => {
   setisLoginPanelOpen(true);
   openPanel("LoginPanel");
 };
+// X on the login panel: signed out, it goes back to the Begin screen (new players start there;
+// there is no create-account form). signinMode off first, or the watcher reopens the panel.
+const handleLoginPanelClose = () => {
+  closePanel();
+  setisLoginPanelOpen(false);
+  if (!localStorage.getItem('player')) {
+    signinMode.current = false;
+    setShowKeyArt(true);
+    setShowBegin(true);
+  }
+};
 
 const handleLoginSuccess = async (player) => {
   console.log('Handling login success for player:', player);  // Store player data in localStorage
@@ -3864,15 +3875,12 @@ return (
       )}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
-          onClose={closePanel}
+          onClose={handleLoginPanelClose}
           setCurrentPlayer={(player) => {
             setCurrentPlayer(player);
             closePanel(); 
           }}
-          zoomLevel={zoomLevel}
-          setZoomLevel={setZoomLevel} 
           initialUsername={signinPrefill?.username || ''}
-          initialView="signin" /* opened by a ?signin link, logout or the Begin gate's link: the sign-in form; the create form stays one link away */
           onLoginSuccess={async (username, password) => {
             await handleLoginSuccess(username, password);
           }}

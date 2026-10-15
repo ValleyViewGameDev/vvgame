@@ -2,7 +2,6 @@ import API_BASE from '../config';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panels/Panel';
-import CreateAccount from './CreateAccount';
 import '../UI/Panels/Panel.css';
 import '../UI/Buttons/SharedButtons.css';
 import './Authentication.css';
@@ -13,20 +12,19 @@ import { sendPageviewBeacon } from '../Utils/pageviewBeacon';
 import { authErrorText } from './authErrors';
 import { isGoogleAvailable, renderGoogleButton, loginWithGoogle } from './googleSignIn';
 
-// initialUsername / initialView come from a `?signin=1&u=<name>` link (App.js): the sign-in form
-// opens prefilled so a returning player never creates a second profile by mistake.
-const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess, initialUsername = '', initialView = 'signin' }) => {
+// Sign-in only: new players start from the Begin screen (a silent account, named at the Home
+// Deed), so there is no create-account form. initialUsername comes from a `?signin=1&u=<name>`
+// link (App.js): the form opens prefilled.
+const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess, initialUsername = '' }) => {
   const strings = useStrings();
   const [username, setUsername] = useState(initialUsername);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(initialView === 'signin');
   const googleRef = useRef(null);
 
   // Google button (sign in, or a new account with the Google email on file). Hidden when no
   // client id is configured or inside an in-app browser.
   useEffect(() => {
-    if (!showLoginExistingAccount) return;
     const tryRender = () => renderGoogleButton(googleRef.current, async (credential) => {
       try {
         const data = await loginWithGoogle(credential);
@@ -38,7 +36,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
       } catch (err) { setError(authErrorText(err, strings, strings[4119])); }
     });
     if (!tryRender()) { const t = setTimeout(tryRender, 1500); return () => clearTimeout(t); } // GIS script may still be loading
-  }, [showLoginExistingAccount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Play login screen music on mount, stop on unmount
   useEffect(() => {
@@ -74,87 +72,50 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
 
   return (
     <Panel onClose={onClose} descriptionKey="1021" titleKey="1121" panelName="LoginPanel">
-      {showLoginExistingAccount ? (
+      <div className="standard-panel">
+        <h3>{strings[4010]}</h3>
 
-// Existing account login form
-        <div className="standard-panel">
-          <h3>{strings[4010]}</h3>
+        <form onSubmit={handleLogin} className="panel-form login-panel-form">
+          <div className="form-group">
+            <input
+              id="username"
+              type="text"
+              className="login-form-input"
+              placeholder={strings[4003] || "Username"}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              id="password"
+              type="password"
+              className="login-form-input"
+              placeholder={strings[4072]}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+          {error && <p className="error-message">{error}</p>}
 
-          <form onSubmit={handleLogin} className="panel-form login-panel-form">
-            <div className="form-group">
-              <input
-                id="username"
-                type="text"
-                className="login-form-input"
-                placeholder={strings[4003] || "Username"}
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <input
-                id="password"
-                type="password"
-                className="login-form-input"
-                placeholder={strings[4072]}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-              />
-            </div>
-            {error && <p className="error-message">{error}</p>}
+          <div className="shared-buttons">
+            <button type="submit" className="btn-basic btn-neutral">
+              {strings[4007]}
+            </button>
+          </div>
+        </form>
 
-            <div className="shared-buttons">
-              <button type="submit" className="btn-basic btn-neutral">
-                {strings[4007]}
-              </button>
-            </div>
-          </form>
+        {isGoogleAvailable() && (
+          <div className="login-google">
+            <p className="login-divider">{strings[4117]}</p>
+            <div ref={googleRef} className="login-google-button" />
+          </div>
+        )}
 
-          {isGoogleAvailable() && (
-            <div className="login-google">
-              <p className="login-divider">{strings[4117]}</p>
-              <div ref={googleRef} className="login-google-button" />
-            </div>
-          )}
-
-          <div className="panel-buffer-space" />
-
-          <p className="login-link-text">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowLoginExistingAccount(false); }}>
-              {strings[4001]}
-            </a>
-          </p>
-        </div>
-      ) : (
-        // New account creation (default view)
-        <div className="standard-panel">
-
-          <CreateAccount
-            setCurrentPlayer={setCurrentPlayer}
-            zoomLevel={zoomLevel}
-            setZoomLevel={setZoomLevel}
-            setIsLoggedIn={() => {
-              onClose();
-            }}
-          />
-
-          <p className="login-link-text">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowLoginExistingAccount(true); }}>
-              {strings[4010]}
-            </a>
-          </p>
-
-          <div className="panel-buffer-space" />
-
-          <p className="login-link-text">
-            <a href="mailto:valleyviewgamedev@gmail.com">
-              {strings[97]}
-            </a>
-          </p>
-        </div>
-      )}
+        <div className="panel-buffer-space" />
+      </div>
     </Panel>
   );
 };

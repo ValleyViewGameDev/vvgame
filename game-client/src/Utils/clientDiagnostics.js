@@ -2,7 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 
 // Browser, OS and device diagnostics stored on the player at registration (ftueFeedback.*).
-// Shared by the typed signup (Authentication/CreateAccount.js) and the silent account (silentAccount.js).
+// Sent with the silent account (silentAccount.js).
 // Detect browser type from userAgent
 export const getBrowserType = () => {
   const userAgent = navigator.userAgent;

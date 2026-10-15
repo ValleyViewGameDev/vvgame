@@ -109,7 +109,7 @@ include them, and keep it idempotent (same `(player, day)` row).
   user agents and anything not UUID-shaped, and always answers 204.
 - **The join (numerator link).** `gatherClientInfo()` sends the same
   `visitor_id` plus the landing `utm_*`, referrer host and play surface as
-  `clientInfo` in the register payload (`Authentication/CreateAccount.js`);
+  `clientInfo` in the register payload (`Authentication/silentAccount.js`);
   `routes/auth.js` sanitizes it (`sanitizeClientInfo`, every field length-capped)
   into `players.client_info`. Register also calls `ensurePageview`, which
   reconstructs the visitor's pageview row (`backfilled: true`) if the beacon was
