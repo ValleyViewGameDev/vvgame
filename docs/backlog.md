@@ -122,6 +122,9 @@ T-n (append-only).
   the player makes lots of Flour, Sugar and Cornmeal with nothing to do with them, because the
   Oven only unlocks at level 10. Push some of the Mill crafts back in levels. Today: Mill L4,
   Flour L4, Sugar L4, Cornmeal L5 (Chicken Feed L5), Oven L10 (`game-server/tuning/resources.json`).
+  **Built 2026-10-16:** Flour L4 to L7, Cornmeal L5 to L8 (owner's option 2); Sugar stays at L4
+  for Cream (Dairy, L7). The Shepherd's "Mill by Moonlight" (L5) still rewards 8 Flour, an
+  early taste before Flour can be made.
 - **T-2. Sort out the gem cost function** (added 2026-10-14). For some items the gem cost to buy
   or finish with gems is astronomical. Find which items and why, and fix the function. Start at
   `game-client/src/Economy/GemCosts.js` (`calculateGemPurchase`, used by ResourceButton's gem
