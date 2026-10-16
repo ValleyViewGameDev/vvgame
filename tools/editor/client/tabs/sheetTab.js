@@ -80,6 +80,12 @@ function renderSelection(def, sheet, selectionEl) {
 
 let currentCtx = null;
 
+/** The rows of an open sheet, unsaved edits included, or null when it has not been opened. */
+export function liveRows(defId) {
+  const sheet = openSheets.get(defId);
+  return sheet ? sheet.rows : null;
+}
+
 export function sheetTab(defId, icon) {
   const def = byId(defId);
   return {

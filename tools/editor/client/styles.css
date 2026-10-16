@@ -226,3 +226,16 @@ table.sheet.players td.fb-pos, table.sheet.players td.fb-neg { white-space: norm
 
 /* A small info badge with its explanation in the tooltip (World > Tile view header) */
 .info-dot { cursor: help; margin-left: 6px; font-size: 13px; font-weight: normal; text-transform: none; }
+
+/* PROGRESSION tab (tabs/progression.js): one column per level, a band per category */
+.progression-filters { display: flex; flex-direction: column; gap: 4px; }
+.progression-wrap { flex: 1; overflow: auto; background: var(--panel); }
+table.progression { border-collapse: separate; border-spacing: 0; font-size: 12px; }
+table.progression th, table.progression td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 4px 6px; vertical-align: top; min-width: 120px; max-width: 160px; }
+table.progression thead th { position: sticky; top: 0; z-index: 2; background: #d9ead3; text-align: center; font-weight: bold; }
+table.progression thead th .count { font-weight: normal; color: var(--muted); font-size: 11px; min-height: 14px; }
+table.progression .band-head { position: sticky; left: 0; z-index: 1; background: #eef2e8; color: #2a5db0; text-align: left; min-width: 110px; }
+table.progression thead .band-head { z-index: 3; background: #d9ead3; color: var(--ink); }
+table.progression tbody tr.band:nth-child(even) td { background: #fafbf8; }
+table.progression .unlock { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0; cursor: default; }
+

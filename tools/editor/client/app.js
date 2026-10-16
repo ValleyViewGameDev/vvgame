@@ -14,6 +14,7 @@ import { eventsTab } from './tabs/events.js';
 import { playersTab } from './tabs/players.js';
 import { feedbackTab } from './tabs/feedback.js';
 import { avatarLabTab } from './tabs/avatarlab.js';
+import { progressionTab } from './tabs/progression.js';
 
 const TABS = [
   layoutsTab(),
@@ -23,6 +24,7 @@ const TABS = [
   playersTab(),
   feedbackTab(),
   sheetTab('resources', '💰'),
+  progressionTab(),
   sheetTab('quests', '📜'),
   sheetTab('traders', '🤝'),
   avatarLabTab(),
