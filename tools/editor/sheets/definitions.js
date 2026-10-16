@@ -36,6 +36,7 @@ const json = (key, label) => ({ key, label, type: 'json' });
 export const DEFINITIONS = [
   {
     id: 'resources',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'ECONOMY',
     group: 'economy',
     file: 'tuning/resources.json',
@@ -75,6 +76,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'avatarParts',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'AVATAR PARTS',
     group: 'avatar',
     file: 'tuning/avatarParts.json',
@@ -98,6 +100,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'avatarPalettes',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'AVATAR COLOURS',
     group: 'avatar',
     file: 'tuning/avatarPalettes.json',
@@ -115,6 +118,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'quests',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'QUESTS',
     group: 'quests',
     file: 'tuning/quests/questsEN.json',
@@ -141,6 +145,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'traders',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'TRADERS',
     group: 'traders',
     file: 'tuning/traders.json',
@@ -159,6 +164,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'store',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Store offers',
     group: 'sheets',
     file: 'tuning/store.json',
@@ -170,6 +176,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'trophies',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Trophies',
     group: 'sheets',
     file: 'tuning/trophies.json',
@@ -181,6 +188,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'interactions',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Relationship interactions',
     group: 'sheets',
     file: 'tuning/interactions.json',
@@ -198,6 +206,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'seasons',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Seasons',
     group: 'sheets',
     file: 'tuning/seasons.json',
@@ -233,6 +242,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'warehouse',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Warehouse levels',
     group: 'sheets',
     file: 'tuning/warehouse.json',
@@ -245,6 +255,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'messages',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Mailbox templates',
     group: 'sheets',
     file: 'tuning/messages.json',
@@ -256,6 +267,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'FTUEsteps',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'FTUE steps',
     group: 'sheets',
     file: 'tuning/FTUEsteps.json',
@@ -279,6 +291,7 @@ export const DEFINITIONS = [
   },
   {
     id: 'randomValleyGridLayouts',
+    freeze: 1,   // pin the name column while the sheet scrolls sideways (Sheet.js frozen columns)
     label: 'Random valley templates',
     group: 'sheets',
     file: 'layouts/gridLayouts/randomValleyGridLayouts.json',

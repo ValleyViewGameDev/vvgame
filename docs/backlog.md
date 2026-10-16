@@ -133,16 +133,15 @@ T-n (append-only).
   offer against today's game (single-player, current prices and progression) and fix or drop
   the ones that no longer fit. Offers live in `game-server/tuning/store.json`; the panel is
   `game-client/src/Store/Store.js`.
-- **T-4. Ink tuning: Ink (L17) gates far earlier things** (added 2026-10-16). Ink is a Studio
-  good at level 17, but the Book (Library, L7) needs it, and Books pay for the Long Sword (L9),
-  the Flurry and Pinpoint powers, and Tailor-line items; Runic Tunic (L10) needs Ink directly.
-  So all of those really open at 17, and their quests were pushed to 17 on 2026-10-16
-  (Hotspur's Long Blade and Rapid Is the Arrow, Feste's Ink / Urns / Fine Cut / Needle and
-  Nobility; Titania's Strike True at 19 was already past it). Decide whether Ink comes earlier, the Book recipe changes,
-  or those items move later, then put the quest levels back where they belong. Note that
-  Cassio's quests reward Books, which may be meant as the early source. Start at `Ink`, `Book`,
-  `Runic Tunic`, `Long Sword` in `game-server/tuning/resources.json` and the quests in
-  `game-server/tuning/quests/questsEN.json`.
+- **T-4. The Tailor skill costs 100 Potion C** (added 2026-10-16; the rest of the Ink pass was
+  done the same day: the Book is now Money + Thread + Cloth, the Library is built from Wood, Stone
+  and Thread, Runic Tunic moved to L17, Ghosts drop a Book, and the Long Sword / Flurry quests
+  came back to L9 / L13). Tailor (L12) costs 500 Money + 100 Potion C, and each Potion C is a
+  Potion B + 12 Sunflower + 2 Ink + 1 Feverfew, so it really opens at Ink's L17 and needs
+  hundreds of rare crops. Feste's "Needle and Nobility" (acquire Tailor) sits at L17 because of
+  it. Re-cost Tailor (fewer Potion C, or Potion B instead) and bring that quest back toward L12.
+  Start at `Tailor`, `Potion C` in `game-server/tuning/resources.json`; re-run the quest level
+  check afterwards.
 - **T-5. Split combat quests into early and late givers** (added 2026-10-16). Cassio's
   quests (kill Coyotes, Bears, Spiders, sell Pelts, then Duke Angelo for the Skeleton Key) are
   early-combat aspiration and motivation, but Cassio sits behind the Golden Key door in Town, so
@@ -153,6 +152,13 @@ T-n (append-only).
   `game-server/tuning/quests/questsEN.json` (quest `title` is a persisted id: move a quest by
   changing its `giver`, never by renaming).
 
+- **T-6. Give Blueberries a real source** (added 2026-10-16). Blueberries appear in no valley
+  template (`node tools/wild-crops.js Blueberry`), their plot (`Blueberry Plot`) is
+  developer-only with no level, so the only supply is scrolls (uncommon). Yet the Queen's Cake
+  needs them and Mistress Quickly pays 10 as a quest reward. Decide where they come from (lay
+  them into some valley templates, open the plot at a level, or both), then set price, quest
+  asks and level to match their rarity (docs/tuning.md §4h). Start at `Blueberry`,
+  `Blueberry Plot`, `Queen's Cake` in `game-server/tuning/resources.json`.
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
 **DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.

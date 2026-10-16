@@ -4571,6 +4571,7 @@ return (
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
           masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'MapPanel' && (

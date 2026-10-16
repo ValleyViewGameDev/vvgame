@@ -34,6 +34,7 @@ can check the current value rather than trust this page.
    XP; Kent trades (2x the items' `xp`), quest turn-ins, combat kills and pets do. So the
    pace of levelling is set by what Kent asks for and how often he can be served, until the
    Train (level 9) and Bank (level 8) open.
+   The Trading Post (level 5, 2026-10-16) is player-to-player: it moves goods, it pays no XP.
 3. **Scale through gameplay levers, not multipliers.** Raise a level's pace by giving the
    player richer things to sell (unlocks, multi-item offers, quantities), by shortening a
    wait, or by fixing the curve; never by a hidden global XP multiplier. The visible
@@ -177,6 +178,13 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
 - **Why tiered:** aspirational orders are a stretch, never a wall; without tiers one unfillable
   order voided the whole Train.
 
+## 4g. Station level gates
+
+A station's `level` in `resources.json` gates it twice: the Build panel will not build it below
+that level, and its panel shows the LevelLock card (`UI/Panels/LevelLock.js`) instead of its
+content. Current gates: Trading Post / Trade Stall 5 (2026-10-16; on every homestead from the
+start, so a new player sees it locked), Bank 8, Train 9, Carnival 12.
+
 ## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
 
 - Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)
@@ -293,6 +301,41 @@ numbers: docs/economy-plan.md.
   The item packs (Farmer's, Adventurer's, starters) were left generous on purpose (~10-20x).
 - `maxprice` (sell price, ~8 x gemcost) was NOT rederived: coin prices stay as they were.
 
+## 4h. Wild crops: rarity comes from the valley templates (owner, 2026-10-16)
+
+Tulip, Mushroom, Sunflower, Daisy, Rosemary, Feverfew (and Garlic) are not only plot crops or
+scroll finds: they are laid out in the hand-made valley templates
+(`layouts/gridLayouts/valleyFixedCoord/*.json`, fixed cells + `resourceDistribution`), which
+re-seed every season. Their rarity, and so their price, their quest asks and the level at which
+asking for them is fair, depends on WHICH valleys hold them. A crop's `level` or plot level alone
+says nothing about that. Re-measure with `node tools/wild-crops.js` after editing templates.
+
+**Where the valleys are** (frontierTier1): homesteads ring the frontier's edge; valley1 is the
+ring next to them (1,280 grids, the near valleys), valley2 the next ring in (768), valley3 the
+centre (256, the farthest from home, reached later).
+
+Measured 2026-10-16, average laid out per valley grid per season (share of templates with any):
+
+| Crop | valley1 (near) | valley2 (mid) | valley3 (far) | Rarity for an early player |
+|---|---|---|---|---|
+| Rosemary | 38.7 (63%) | 11.8 (42%) | 83.5 (99%) | common |
+| Daisy | 9.6 (39%) | 33.1 (50%) | 23.6 (99%) | common |
+| Mushroom | 0.6 (13%) | 16.3 (36%) | 31.4 (99%) | uncommon near, common mid/far |
+| Tulip | 0.5 (13%) | 6.2 (31%) | 10.7 (98%) | uncommon (rare near) |
+| Feverfew | 0.1 (2%) | 2.9 (33%) | 40.5 (99%) | rare near, common far |
+| Garlic | ~0 | 0.6 (11%) | 1.5 (9%) | rare |
+| Sunflower | ~0 | 1.2 (1%) | ~0 | very rare (a handful of templates) |
+| Blueberry | none | none | none | scroll / plot only |
+
+**How to use it.** An ask of N of a wild crop is fair at the level when the player can reach the
+valleys that hold enough of it. Near-valley crops (Rosemary, Daisy) suit early asks; Tulip and
+Mushroom asks belong with mid-valley access; Feverfew in quantity is a far-valley crop; wild
+Sunflowers barely exist, so Sunflower asks wait for the Florist plot (L23). Helena follows this
+since 2026-10-16: the Golden Key for 50 Daisy at L8 (it was 50 Feverfew, which a near-valley
+player could hardly find), then repeatable Tulip L9, Rosemary L10, Mushroom L12, Feverfew L14 and
+Sunflower L23 (25). Prices should follow the same order (a valley1-common crop is cheap;
+Feverfew, Garlic and Sunflower are not).
+
 ## 4d. Trophies
 
 - **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50, 75, 100]` (2026-10-12; 75 and
@@ -368,3 +411,10 @@ player 3 to 10 tiles away, with a straight line clear of walls, doors and trees 
 beside the player, stops, vibrates for 1 s, then leaps there in 0.28 s; not again until the
 cooldown has passed after landing (NPCEnemyBehavior.js `tryLeap`). It lets a slow melee enemy
 close the gap a sniper relies on.
+
+**Books are the combat currency** (owner, 2026-10-16): 23 weapons, armours and combat powers
+cost Books (Enchanted Pack L4 up to Titan L47, 300 Books), so Books must be reachable when
+combat starts to matter, not when the Studio opens. A Book is 15,000 Money + 6 Thread + 2 Cloth
+(2 h at the Library, L7; the Library is built from Money, Wood, Stone and Thread). It never takes
+Ink (L17) again: that once gated the whole combat tree at L17. Books also come from fighting:
+Ghosts drop one, and combat quests pay them (backlog T-5 moves the early ones to an early giver).

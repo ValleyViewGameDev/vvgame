@@ -3,6 +3,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel'; // Use Panel instead of Modal
+import LevelLock from '../../UI/Panels/LevelLock';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import TradingInventoryModal from '../../UI/Modals/TradingInventoryModal';
 import axios from 'axios';
@@ -20,7 +21,10 @@ import SaleBurst from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
 
-function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources }) {
+function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources, masterXPLevels }) {
+  // Level gate (like the Bank, Train and Carnival): the station's `level` in resources.json; the
+  // Trading Post and the Trade Stall both open this panel and carry the same level
+  const tradeStallRequiredLevel = (masterResources?.find(r => r.type === 'Trading Post') || masterResources?.find(r => r.type === 'Trade Stall'))?.level || 1;
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
@@ -886,6 +890,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
+      <LevelLock
+        currentPlayer={currentPlayer}
+        masterXPLevels={masterXPLevels}
+        requiredLevel={tradeStallRequiredLevel}
+        featureName="Trading Post"
+      >
 
       {/* GLOBAL MARKET BUTTON */}
 
@@ -1169,6 +1179,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         globalTuning={globalTuning}
       />
 
+    </LevelLock>
     </Panel>
   );
 };

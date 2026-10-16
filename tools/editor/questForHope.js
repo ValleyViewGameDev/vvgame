@@ -42,6 +42,23 @@ function compute(gameServerDir, clientDir) {
   const byKey = new Map(resources.filter((r) => r.layoutkey).map((r) => [r.layoutkey, r]));
   const questThreshold = interactions.find((i) => /^quest$/i.test(i.interaction))?.relscoremin || 0;
 
+  // ---- which area a grid is in: a valley grid's coord (TTFFSSGG) names its settlement, and the
+  // frontier layout says which set that settlement is (valley1Set ... ), so "valley1".."valley3"
+  let frontierLayout = [];
+  try { frontierLayout = readJSON(path.join(gameServerDir, 'layouts', 'frontierLayouts', 'frontierTier1', 'frontierLayout.json')); } catch (e) { /* optional */ }
+  const areaOf = (dir, name) => {
+    if (dir === 'dungeon') return 'dungeons';
+    if (dir === 'town') return 'the Town';
+    if (dir === 'homestead') return 'homesteads';
+    if (dir === 'valleyFixedCoord') {
+      const ssgg = Number(name) % 10000;
+      const set = frontierLayout[Math.floor(ssgg / 1000)]?.[Math.floor(ssgg / 100) % 10] || '';
+      const m = /^(valley\d)Set$/.exec(set);
+      return m ? m[1] : 'valleys';
+    }
+    return dir;
+  };
+
   // ---- layouts: where each layout key sits, and which doors lie between the way in and it
   const layoutsDir = path.join(gameServerDir, 'layouts', 'gridLayouts');
   const layoutFiles = [];
@@ -142,7 +159,7 @@ function compute(gameServerDir, clientDir) {
       const [x, y] = p.cells[0];
       const doors = doorsTo(p.layoutIndex, x, y);
       return {
-        grid: p.grid, dir: p.dir, name: p.name, count: p.cells.length,
+        grid: p.grid, dir: p.dir, name: p.name, area: areaOf(p.dir, p.name), count: p.cells.length,
         doors: (doors || []).map((d) => ({ door: d, key: byType.get(d)?.requires || null })),
         unreachable: doors === false,
       };
@@ -152,6 +169,18 @@ function compute(gameServerDir, clientDir) {
   // Prerequisites worth explaining in turn: keys, secrets and other one-off specials (not
   // ordinary goods, gems or money, which the player farms, buys or crafts)
   const isRare = (type) => byType.get(type)?.category === 'special' && !['Gem', 'Money'].includes(type);
+  // Goods worth a one-level "how to get it" under a key or secret: crafted at a station or bought
+  // at a shop (Queen's Coffee), or found out in the valleys (Ancient Coin). Their own ingredients
+  // are ordinary goods and are not explained further.
+  const CRAFT_CATS = ['crafting', 'station'];
+  const SHOP_CATS = ['shop', 'trainingAndShop'];
+  const isNotable = (type) => {
+    if (['Gem', 'Money'].includes(type)) return false;
+    const r = byType.get(type);
+    if (!r) return false;
+    const src = r.source && byType.get(r.source);
+    return r.source === 'valley' || !!(src && [...CRAFT_CATS, ...SHOP_CATS].includes(src.category));
+  };
   const goalsOf = (q) => [1, 2, 3].map((i) => q[`goal${i}item`] && { action: q[`goal${i}action`] || '', item: q[`goal${i}item`], qty: q[`goal${i}qty`] || 1 }).filter(Boolean);
   const needsOf = (t) => [1, 2, 3, 4, 5, 6, 7].map((i) => t[`requires${i}`] && { item: t[`requires${i}`], qty: t[`requires${i}qty`] || 1 }).filter(Boolean);
   const relGate = (o, who) => {
@@ -167,12 +196,15 @@ function compute(gameServerDir, clientDir) {
     return { type, symbol: r?.symbol || '', level: r?.level ?? null, places: where(type) };
   }
 
-  function explain(item, depth, seen) {
+  function explain(item, depth, seen, shallow = false) {
     if (depth > MAX_DEPTH || seen.has(item)) return [];
     const next = new Set(seen).add(item);
     const r = byType.get(item);
     const ways = [];
-    const sub = (it) => (isRare(it) ? { item: it, ways: explain(it, depth + 1, next) } : null);
+    const sub = (it) => (shallow ? null
+      : isRare(it) ? { item: it, ways: explain(it, depth + 1, next) }
+      : isNotable(it) ? { item: it, notable: true, ways: explain(it, depth + 1, next, true) }
+      : null);
 
     for (const q of quests.filter((x) => x.reward === item)) {
       const goals = goalsOf(q);
@@ -196,8 +228,12 @@ function compute(gameServerDir, clientDir) {
     }
     const ings = r ? [1, 2, 3, 4].map((i) => r[`ingredient${i}`] && { item: r[`ingredient${i}`], qty: r[`ingredient${i}qty`] || 1 }).filter(Boolean) : [];
     const src = r?.source && byType.get(r.source);
-    if (src && ['shop', 'crafting', 'station', 'trainingAndShop'].includes(src.category)) {
-      ways.push({ kind: 'shop', shop: find(r.source), needs: ings, gates: [r.level > 1 && `level ${r.level}+`].filter(Boolean), prereqs: ings.map((n) => sub(n.item)).filter(Boolean) });
+    if (src && [...CRAFT_CATS, ...SHOP_CATS].includes(src.category)) {
+      ways.push({
+        kind: CRAFT_CATS.includes(src.category) ? 'craft' : 'shop', shop: find(r.source), needs: ings,
+        crafttime: r.crafttime || null, outQty: r.qtycollected || 1,
+        gates: [r.level > 1 && `level ${r.level}+`].filter(Boolean), prereqs: ings.map((n) => sub(n.item)).filter(Boolean),
+      });
     }
     for (const n of resources.filter((x) => x.category === 'npc' && x.output === item)) {
       ways.push({ kind: 'drop', enemy: find(n.type), action: n.action, requires: n.requires || null });

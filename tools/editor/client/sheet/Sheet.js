@@ -193,7 +193,8 @@ export class Sheet {
     const thead = el('thead', {}, el('tr', {}, [
       el('th', { class: 'rownum' }, '#'),
       ...cols.map((c) => el('th', {
-        class: this.sort?.key === c.key ? `sorted ${this.sort.dir}` : '',
+        class: [this.sort?.key === c.key ? `sorted ${this.sort.dir}` : '', this.isFrozen(c.key) ? 'frozen' : ''].filter(Boolean).join(' '),
+        dataset: { key: c.key },
         title: `${c.key} (${c.type}${c.immutable ? ', immutable' : ''}${c.derived ? ', derived' : ''}${c.ref ? `, ref ${c.ref}` : ''})`,
         onclick: () => this.toggleSort(c.key),
       }, c.label || c.key)),
@@ -204,7 +205,45 @@ export class Sheet {
     const table = el('table', { class: 'sheet' }, [thead, this.tbody]);
     clear(this.wrapEl).appendChild(table);
     this.cols = cols;
+    this.layoutFrozen(table);
     this.updateToolbar();
+  }
+
+  // ---------------------------------------------------------------- frozen columns
+  // A definition's `freeze: n` pins its first n columns (after the row number) to the left edge,
+  // so the identity (ECONOMY: type, layoutkey) stays in view while the rest scrolls behind it.
+  // Widths follow the content, so the left offsets are measured after render and re-measured
+  // whenever a pinned header changes size.
+  frozenKeys() {
+    const n = this.def.freeze || 0;
+    return new Set((this.def.columns || []).slice(0, n).map((c) => c.key));
+  }
+  isFrozen(key) { return this.frozenKeys().has(key); }
+  layoutFrozen(table) {
+    this.frozenObserver?.disconnect();
+    const ths = [...table.querySelectorAll('thead th.frozen')];
+    if (!ths.length) { this.frozenLeft = null; return; }
+    const apply = () => {
+      let left = table.querySelector('thead th.rownum')?.offsetWidth || 0;
+      this.frozenLeft = new Map();
+      ths.forEach((th, i) => {
+        this.frozenLeft.set(th.dataset.key, { left, last: i === ths.length - 1 });
+        left += th.offsetWidth;
+      });
+      ths.forEach((th) => this.placeFrozen(th, th.dataset.key));
+      table.querySelectorAll('tbody td.frozen').forEach((td) => this.placeFrozen(td, td.dataset.key));
+    };
+    apply();
+    if (typeof ResizeObserver === 'function') {
+      this.frozenObserver = new ResizeObserver(() => apply());
+      ths.forEach((th) => this.frozenObserver.observe(th));
+    }
+  }
+  placeFrozen(cellEl, key) {
+    const f = this.frozenLeft?.get(key);
+    if (!f) return;
+    cellEl.style.left = `${f.left}px`;
+    cellEl.classList.toggle('frozen-last', f.last);
   }
   rowElement(row, cols) {
     const tr = el('tr', { dataset: { id: row.__id } });
@@ -217,7 +256,8 @@ export class Sheet {
   cellElement(row, col) {
     const v = row[col.key];
     const locked = col.derived || (col.immutable && this.rowExistsOnDisk(row) && this.orig.get(row.__id)[col.key] !== undefined);
-    const td = el('td', { class: [col.type === 'boolean' && 'bool', col.type === 'number' && 'num', locked && 'immutable'].filter(Boolean).join(' '), dataset: { key: col.key } });
+    const td = el('td', { class: [col.type === 'boolean' && 'bool', col.type === 'number' && 'num', locked && 'immutable', this.isFrozen(col.key) && 'frozen'].filter(Boolean).join(' '), dataset: { key: col.key } });
+    if (this.isFrozen(col.key)) this.placeFrozen(td, col.key);
     const prob = this.cellProblems.get(`${row.__id}:${col.key}`);
     if (prob) { td.classList.add(prob.kind); td.title = prob.message; }
     const o = this.orig.get(row.__id);

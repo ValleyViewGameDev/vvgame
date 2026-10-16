@@ -72,6 +72,10 @@ table.sheet th.sorted::after { content: ' ▲'; font-size: 9px; }
 table.sheet th.sorted.desc::after { content: ' ▼'; }
 table.sheet th.rownum, table.sheet td.rownum { position: sticky; left: 0; background: #eef1e8; z-index: 1; color: var(--muted); text-align: right; padding: 0 6px; width: 48px; }
 table.sheet th.rownum { z-index: 3; }
+/* frozen columns (a definition's `freeze: n`; Sheet.js sets each one's left offset) */
+table.sheet td.frozen { position: sticky; z-index: 1; background: var(--panel); }
+table.sheet th.frozen { z-index: 3; }
+table.sheet .frozen-last { box-shadow: inset -2px 0 0 #c8cdbd; }
 table.sheet td { height: 24px; }
 table.sheet td .cell { display: block; padding: 3px 6px; min-width: 60px; max-width: 420px; overflow: hidden; text-overflow: ellipsis; min-height: 24px; }
 table.sheet td.sel .cell { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -253,3 +257,5 @@ table.progression .unlock { white-space: nowrap; overflow: hidden; text-overflow
 .qfh-key { margin: 8px 0 12px; }
 .qfh-more { display: inline; margin-left: 4px; }
 .qfh-more summary { display: inline; cursor: pointer; color: var(--accent); }
+
+.qfh-cache { margin: 8px 0 10px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12px; }

@@ -3664,7 +3664,7 @@
     "requires": "Artistry",
     "qtycollected": 1,
     "xp": 12,
-    "level": 10,
+    "level": 17,
     "scrollqty": 1,
     "scrollchance": "rare",
     "pricemod": 1.3,
@@ -6232,12 +6232,12 @@
     "ingredient1qty": 15000,
     "ingredient2": "Thread",
     "ingredient2qty": 6,
-    "ingredient3": "Ink",
-    "ingredient3qty": 3,
-    "gemcost": 542,
-    "crafttime": 3,
+    "ingredient3": "Cloth",
+    "ingredient3qty": 2,
+    "gemcost": 327,
+    "crafttime": 7200,
     "totalnestedtime": 45003,
-    "effort": 2555
+    "effort": 377
   },
   {
     "type": "Pelt",
@@ -7128,15 +7128,17 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
-    "ingredient2": "Furniture",
-    "ingredient2qty": 10,
+    "ingredient2": "Wood",
+    "ingredient2qty": 40,
     "ingredient3": "Stone",
     "ingredient3qty": 50,
-    "gemcost": 542,
+    "gemcost": 320,
     "filename": "library.svg",
     "crafttime": 0,
     "totalnestedtime": 432250,
-    "parallel": 1
+    "parallel": 1,
+    "ingredient4": "Thread",
+    "ingredient4qty": 10
   },
   {
     "type": "Mill",
@@ -7859,6 +7861,7 @@
     "type": "Trade Stall",
     "symbol": "📥",
     "layoutkey": "TS",
+    "level": 5,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -7886,6 +7889,7 @@
     "type": "Trading Post",
     "symbol": "📥",
     "layoutkey": "T1",
+    "level": 5,
     "size": 1,
     "category": "station",
     "action": "openUI",
@@ -9960,7 +9964,7 @@
     "artFacing": "left",
     "movespeed": 1,
     "action": "attack",
-    "output": "Bones",
+    "output": "Book",
     "passable": false,
     "xp": 15,
     "level": 4,
@@ -10646,7 +10650,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 5,
-    "gemcost": 1104
+    "gemcost": 1020
   },
   {
     "type": "Scout",
@@ -11315,7 +11319,7 @@
     "source": "Warrior's Den",
     "passable": true,
     "hp": 1,
-    "level": 2,
+    "level": 3,
     "damage": 7,
     "attackrange": 0,
     "ranged": false,
@@ -11430,7 +11434,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 487
+    "gemcost": 409
   },
   {
     "type": "Precision",
@@ -11448,7 +11452,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 1198
+    "gemcost": 1004
   },
   {
     "type": "Chainmail",
@@ -11465,7 +11469,7 @@
     "ingredient1qty": 5000,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 532
+    "gemcost": 454
   },
   {
     "type": "Steady Hand",
@@ -11496,7 +11500,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 8,
-    "gemcost": 684
+    "gemcost": 574
   },
   {
     "type": "Long Bow",
@@ -11516,7 +11520,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 6,
-    "gemcost": 704
+    "gemcost": 605
   },
   {
     "type": "Tempest",
@@ -11533,7 +11537,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 1007
+    "gemcost": 846
   },
   {
     "type": "Great Sword",
@@ -11551,7 +11555,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 793
+    "gemcost": 666
   },
   {
     "type": "Horizon Eye",
@@ -11571,7 +11575,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 150,
-    "gemcost": 1904
+    "gemcost": 1597
   },
   {
     "type": "Plate Armor",
@@ -11590,7 +11594,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 20,
-    "gemcost": 971
+    "gemcost": 830
   },
   {
     "type": "Pinpoint",
@@ -11608,7 +11612,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 16,
-    "gemcost": 875
+    "gemcost": 735
   },
   {
     "type": "Stoneheart",
@@ -11629,7 +11633,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "gemcost": 1132
+    "gemcost": 968
   },
   {
     "type": "Blessed Veil",
@@ -11650,7 +11654,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Book",
     "ingredient4qty": 65,
-    "gemcost": 1546
+    "gemcost": 1329
   },
   {
     "type": "Unerring",
@@ -11670,7 +11674,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 1278
+    "gemcost": 1104
   },
   {
     "type": "Spear",
@@ -11689,7 +11693,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 1087,
+    "gemcost": 926,
     "attackrange": 1
   },
   {
@@ -11710,7 +11714,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 1393
+    "gemcost": 1199
   },
   {
     "type": "Barrage",
@@ -11730,7 +11734,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 1478
+    "gemcost": 1304
   },
   {
     "type": "Heavy Armor",
@@ -11750,7 +11754,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 1396
+    "gemcost": 1194
   },
   {
     "type": "Halberd",
@@ -11768,7 +11772,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1550,
+    "gemcost": 1315,
     "attackrange": 1
   },
   {
@@ -11804,7 +11808,7 @@
     "ingredient1qty": 20000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 1650
+    "gemcost": 1415
   },
   {
     "type": "Magic Helmet",
@@ -11838,7 +11842,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 75,
-    "gemcost": 1986
+    "gemcost": 1745
   },
   {
     "type": "Unbreakable",
@@ -11856,7 +11860,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 2189
+    "gemcost": 1980
   },
   {
     "type": "Magic Gloves",
@@ -11924,7 +11928,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 300,
-    "gemcost": 4413
+    "gemcost": 4022
   },
   {
     "type": "Sword of Song",
