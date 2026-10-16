@@ -153,6 +153,17 @@
     "requires1qty": 1
   },
   {
+    "trader": "Iago",
+    "index": 2,
+    "gives": "Money",
+    "givesqty": 90000,
+    "xp": 10,
+    "repeat": true,
+    "rel": "friend",
+    "requires1": "Diamond Ring",
+    "requires1qty": 1
+  },
+  {
     "trader": "Caliban",
     "index": 1,
     "gives": "Silver",

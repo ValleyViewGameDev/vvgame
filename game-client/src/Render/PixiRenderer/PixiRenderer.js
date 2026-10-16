@@ -484,8 +484,12 @@ const PixiRenderer = ({
         // when growEnd is reached, so they don't need the checkmark overlay
       } else if (res.category === 'pet') {
         const key = `${res.x}-${res.y}`;
-        if (res.craftEnd && res.craftedItem) {
-          if (res.craftEnd < now) {
+        // A pet's search is in its first slot once the grid comes from the server (crafting/start-craft
+        // writes slots); the top-level fields are only set by a feed in this session. Read either.
+        const craftEnd = res.craftEnd || res.slots?.[0]?.craftEnd;
+        const craftedItem = res.craftedItem || res.slots?.[0]?.craftedItem;
+        if (craftEnd && craftedItem) {
+          if (craftEnd < now) {
             acc.ready.push(key); // Pet has a reward ready
           } else {
             acc.inProgress.push(key); // Pet is feeding
