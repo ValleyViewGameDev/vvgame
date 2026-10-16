@@ -33,6 +33,7 @@ export const local = {
   settlementLayouts: () => request('GET', '/api/local/settlement-layouts'),
   frontierLayouts: () => request('GET', '/api/local/frontier-layouts'),
   avatarFiles: () => request('GET', '/api/local/avatar/files'),
+  questForHope: () => request('GET', '/api/local/quest-for-hope'),
 };
 
 export const game = {

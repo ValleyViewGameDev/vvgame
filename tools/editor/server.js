@@ -212,6 +212,10 @@ async function handle(req, res) {
     return sendJSON(res, 200, { gameServer: ARGS.gameServer, repoRoot: REPO_ROOT, devPlayerId: !!ARGS.devPlayerId, isProduction: /onrender\.com|secretsofelsinore|valleyviewgame/.test(ARGS.gameServer) });
   }
   if (p === '/api/local/resources') return sendJSON(res, 200, resourcesJSON());
+  if (p === '/api/local/quest-for-hope') { // the QUEST FOR HOPE tab: derived from tuning + layouts on each call
+    try { return sendJSON(res, 200, require('./questForHope.js').compute(GAME_SERVER_DIR, path.join(REPO_ROOT, 'game-client'))); }
+    catch (err) { return sendError(res, 500, err.message); }
+  }
   if (p === '/api/local/random-valley') return sendJSON(res, 200, readJSONFile(path.join(LAYOUTS_DIR, 'gridLayouts', 'randomValleyGridLayouts.json')));
   if (p === '/api/local/settlement-layouts' || p === '/api/local/frontier-layouts') {
     const sub = p.endsWith('settlement-layouts') ? 'settlementLayouts' : 'frontierLayouts';

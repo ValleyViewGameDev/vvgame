@@ -239,3 +239,17 @@ table.progression thead .band-head { z-index: 3; background: #d9ead3; color: var
 table.progression tbody tr.band:nth-child(even) td { background: #fafbf8; }
 table.progression .unlock { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0; cursor: default; }
 
+/* QUEST FOR HOPE tab (tabs/questForHope.js) */
+.qfh-page { flex: 1; overflow: auto; padding: 12px 16px 40px; }
+.qfh-card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin-bottom: 12px; max-width: 980px; }
+.qfh-card h2 { margin: 2px 0 6px; }
+.qfh-hint { font-style: italic; color: var(--muted); }
+.qfh-way { border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; margin: 8px 0; }
+.qfh-way-title { font-weight: bold; color: var(--accent); }
+.qfh-way ol { margin: 4px 0; padding-left: 20px; }
+.qfh-way li { margin: 2px 0; }
+.qfh-prereq { margin: 6px 0 4px 8px; padding-left: 10px; border-left: 2px dashed var(--line); }
+.qfh-prereq-title { font-weight: bold; margin-top: 4px; }
+.qfh-key { margin: 8px 0 12px; }
+.qfh-more { display: inline; margin-left: 4px; }
+.qfh-more summary { display: inline; cursor: pointer; color: var(--accent); }
