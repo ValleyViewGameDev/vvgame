@@ -133,6 +133,25 @@ T-n (append-only).
   offer against today's game (single-player, current prices and progression) and fix or drop
   the ones that no longer fit. Offers live in `game-server/tuning/store.json`; the panel is
   `game-client/src/Store/Store.js`.
+- **T-4. Ink tuning: Ink (L17) gates far earlier things** (added 2026-10-16). Ink is a Studio
+  good at level 17, but the Book (Library, L7) needs it, and Books pay for the Long Sword (L9),
+  the Flurry and Pinpoint powers, and Tailor-line items; Runic Tunic (L10) needs Ink directly.
+  So all of those really open at 17, and their quests were pushed to 17 on 2026-10-16
+  (Hotspur's Long Blade and Rapid Is the Arrow, Feste's Ink / Urns / Fine Cut / Needle and
+  Nobility; Titania's Strike True at 19 was already past it). Decide whether Ink comes earlier, the Book recipe changes,
+  or those items move later, then put the quest levels back where they belong. Note that
+  Cassio's quests reward Books, which may be meant as the early source. Start at `Ink`, `Book`,
+  `Runic Tunic`, `Long Sword` in `game-server/tuning/resources.json` and the quests in
+  `game-server/tuning/quests/questsEN.json`.
+- **T-5. Split combat quests into early and late givers** (added 2026-10-16). Cassio's
+  quests (kill Coyotes, Bears, Spiders, sell Pelts, then Duke Angelo for the Skeleton Key) are
+  early-combat aspiration and motivation, but Cassio sits behind the Golden Key door in Town, so
+  he should be the later-stage combat quest giver. Give the early combat quests (Coyotes and
+  the like) to an NPC the player meets early, such as Hotspur (behind the Town Door, Town Key),
+  and keep Cassio for the late-stage ones. As a stopgap Cassio's quests were pushed to levels
+  8-12 on 2026-10-16. Start at the Cassio and Hotspur rows of
+  `game-server/tuning/quests/questsEN.json` (quest `title` is a persisted id: move a quest by
+  changing its `giver`, never by renaming).
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
