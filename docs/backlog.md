@@ -169,22 +169,3 @@ per device), and `App.js` to capture `beforeinstallprompt` into a ref at boot. C
 right instructions for the platform; inside the installed app it never appears; "later" is
 remembered; the installed app launches straight into the game full-screen in both
 orientations.
-
-### BL-6: Bug: exiting a dungeon placed the player on top of a wall
-
-Added 2026-10-08. **Built 2026-10-08** on branch `backlog/bl-2-13` (1b448b76); not yet checked in the live game.
-
-**What.** Leaving a dungeon put the PC avatar on a wall tile. The arrival position after a
-dungeon exit needs to land on a passable tile (fall back to the nearest passable one if the
-target is blocked).
-
-### BL-15: Kent always offers at least one basic crop, through level 12
-
-Added 2026-10-10. **Built 2026-10-10:** `BASIC_CROP_GUARANTEE_MAX_LEVEL` / `BASIC_CROPS` in KentOfferLogic.js; docs/tuning.md §Kent.
-
-**What.** Around levels 8-10 Kent's offers lean too hard on progression items, so the player
-is often left with no Kent offer they can fill. Through level 12, guarantee at least one Kent
-offer is a basic crop (Wheat, Carrot, Corn, Sugarcane, ...), so the player can always grow,
-sell, earn XP and empty a full warehouse. Above level 12 the rule goes away; the owner will
-see how that feels. Touch point: the offer generator in
-`game-client/src/GameFeatures/Trading/KentOfferLogic.js`.
