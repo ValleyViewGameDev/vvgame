@@ -72,7 +72,7 @@ export function questForHopeTab() {
       const gateText = (p) => {
         if (p.unreachable) return ' (no way in found on this grid: walled off, or reached from a neighbouring grid)';
         if (!p.doors?.length) return '';
-        return ' behind ' + p.doors.map((d) => `the ${d.door}${d.key ? ` (needs ${d.key})` : ''}`).join(', then ');
+        return ' ' + p.doors.map((d, i) => (d.door === 'water' ? 'across water (by Boat)' : `${i ? '' : 'behind '}the ${d.door}${d.key ? ` (needs ${d.key})` : ''}`)).join(', then ');
       };
       // the same, as nodes: a key the Keys section explains is a link down to it
       const gateNodes = (p) => {
@@ -150,10 +150,11 @@ export function questForHopeTab() {
             : ['lying on ', placesNode(way.places), '.'])];
           case 'scroll': return [li('Scroll', `can come out of a Reveal Scroll (${way.chance}, ${way.qty} at a time).`)];
           case 'pets': return [li('Pets', 'a pet can bring one home.')];
+          case 'note': return [li('From', way.text)];
           default: return [li(way.kind, '')];
         }
       }
-      const WAY_TITLE = { quest: 'Quest', trade: 'Trade', shop: 'Exchange', craft: 'Craft', drop: 'Drop', lying: 'Found', scroll: 'Scroll', pets: 'Pets' };
+      const WAY_TITLE = { note: 'Known source', quest: 'Quest', trade: 'Trade', shop: 'Exchange', craft: 'Craft', drop: 'Drop', lying: 'Found', scroll: 'Scroll', pets: 'Pets' };
       const fmtTime = (sec) => (sec >= 3600 ? `${+(sec / 3600).toFixed(1)} h` : sec >= 60 ? `${Math.round(sec / 60)} min` : `${sec} s`);
 
       function waysNode(item, ways, depth = 0) {

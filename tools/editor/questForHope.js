@@ -25,6 +25,13 @@ const HINT_STRING = {
 };
 const SIZE = 64;
 const MAX_DEPTH = 4;
+// Grids left out of every answer: test grids that hold one of everything (owner, 2026-10-16)
+const TEST_GRIDS = new Set(['valleyFixedCoord/1016101']);
+// Sources the data files do not show (they are paid by code), described by hand
+const KNOWN_SOURCES = {
+  'Yellow Heart': 'Train rewards: the seasonal hearts paid when every order on a Train is filled (docs/tuning.md §4b).',
+  'Green Heart': 'Train rewards: the seasonal hearts paid when every order on a Train is filled (docs/tuning.md §4b).',
+};
 
 function readJSON(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 
@@ -65,7 +72,7 @@ function compute(gameServerDir, clientDir) {
   for (const dir of ['town', 'valleyFixedCoord', 'dungeon', 'homestead', 'miniTemplates']) {
     const full = path.join(layoutsDir, dir);
     if (!fs.existsSync(full)) continue;
-    for (const f of fs.readdirSync(full)) if (f.endsWith('.json')) layoutFiles.push({ dir, name: f.replace(/\.json$/, ''), file: path.join(full, f) });
+    for (const f of fs.readdirSync(full)) if (f.endsWith('.json') && !TEST_GRIDS.has(`${dir}/${f.replace(/\.json$/, '')}`)) layoutFiles.push({ dir, name: f.replace(/\.json$/, ''), file: path.join(full, f) });
   }
   const placements = new Map(); // layoutkey -> [{ grid, cells: [[x,y]], layoutIndex }]
   const layouts = [];
@@ -85,21 +92,25 @@ function compute(gameServerDir, clientDir) {
   }
 
   // Doors to cross, in order, to reach the thing at (x, y) from the grid's way in (its edges, or a
-  // dungeon's exit): a 0-1 search where a door step costs 1 and open ground 0, so the path found
-  // crosses the fewest doors. Trees, rocks and other clearable sources do not block (the player
-  // clears them); walls, buildings, water and mountains do. Returns [door types] ([] = no door) or
-  // false when nothing reaches it.
+  // dungeon's exit): a 0-1 search where a door step (or putting out onto water) costs 1 and open
+  // ground 0, so the path found crosses the fewest gates. Trees, rocks and other clearable sources
+  // do not block (the player clears them), nor do Stubs (layout filler the game strips when it
+  // builds a grid); walls, buildings and mountains do. Water is crossed by Boat (gate 'water').
+  // Returns [gates] ([] = none) or false when nothing reaches it.
   function doorsTo(layoutIndex, tx, ty) {
     const lay = layouts[layoutIndex];
     if (!lay.blocked) {
       const { L } = lay;
-      const blocked = new Uint8Array(SIZE * SIZE); // 1 = wall, 2 = door
+      const blocked = new Uint8Array(SIZE * SIZE); // 1 = wall, 2 = door, 3 = water (Boat)
       const doorAt = new Map();
       const tileOpen = (k) => { const t = byKey.get(k); return !t || t.category !== 'tile' || t.passable !== false; };
-      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) if (!tileOpen(L.tiles?.[y]?.[x])) blocked[y * SIZE + x] = 1;
+      for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+        const k = L.tiles?.[y]?.[x];
+        if (byKey.get(k)?.type === 'w') { blocked[y * SIZE + x] = 3; doorAt.set(y * SIZE + x, 'water'); } else if (!tileOpen(k)) blocked[y * SIZE + x] = 1;
+      }
       L.resources.forEach((row, y) => row.forEach((k, x) => {
         const r = k && k !== '**' ? byKey.get(k) : null;
-        if (!r || r.category === 'npc' || r.category === 'source' || r.category === 'doober' || r.passable !== false) return;
+        if (!r || r.type === 'Stub' || r.category === 'npc' || r.category === 'source' || r.category === 'doober' || r.passable !== false) return;
         const s = Math.max(1, Number(r.size) || 1);
         for (let dy = 0; dy < s; dy++) for (let dx = 0; dx < s; dx++) {
           const xx = x + dx, yy = y - dy;
@@ -129,12 +140,12 @@ function compute(gameServerDir, clientDir) {
     const cost = new Int16Array(SIZE * SIZE).fill(32767);
     const prev = new Int32Array(SIZE * SIZE).fill(-1);
     const dq = [];
-    for (const i of lay.starts) { const c = blocked[i] === 2 ? 1 : 0; if (c < cost[i]) { cost[i] = c; c ? dq.push(i) : dq.unshift(i); } }
+    for (const i of lay.starts) { const c = blocked[i] === 2 || blocked[i] === 3 ? 1 : 0; if (c < cost[i]) { cost[i] = c; c ? dq.push(i) : dq.unshift(i); } }
     while (dq.length) {
       const i = dq.shift();
       if (near(i)) {
         const doors = [];
-        for (let j = i; j !== -1; j = prev[j]) if (blocked[j] === 2) doors.unshift(doorAt.get(j));
+        for (let j = i; j !== -1; j = prev[j]) if (blocked[j] === 2 || blocked[j] === 3) doors.unshift(doorAt.get(j));
         return doors.filter((d, k) => d !== doors[k - 1]);
       }
       const x = i % SIZE, y = (i / SIZE) | 0;
@@ -143,7 +154,7 @@ function compute(gameServerDir, clientDir) {
         if (xx < 0 || yy < 0 || xx >= SIZE || yy >= SIZE) continue;
         const j = yy * SIZE + xx;
         if (blocked[j] === 1 && !goal.has(j)) continue;
-        const c = cost[i] + (blocked[j] === 2 ? 1 : 0);
+        const c = cost[i] + (blocked[j] === 2 || (blocked[j] === 3 && blocked[i] !== 3) ? 1 : 0);
         if (c >= cost[j]) continue;
         cost[j] = c; prev[j] = i;
         if (c > cost[i]) dq.push(j); else dq.unshift(j);
@@ -160,7 +171,7 @@ function compute(gameServerDir, clientDir) {
       const doors = doorsTo(p.layoutIndex, x, y);
       return {
         grid: p.grid, dir: p.dir, name: p.name, area: areaOf(p.dir, p.name), count: p.cells.length,
-        doors: (doors || []).map((d) => ({ door: d, key: byType.get(d)?.requires || null })),
+        doors: (doors || []).map((d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null })),
         unreachable: doors === false,
       };
     });
@@ -244,6 +255,7 @@ function compute(gameServerDir, clientDir) {
     }
     if (r?.scrollchance) ways.push({ kind: 'scroll', chance: r.scrollchance, qty: r.scrollqty || 1 });
     if (r?.source === 'pets') ways.push({ kind: 'pets' });
+    if (KNOWN_SOURCES[item]) ways.push({ kind: 'note', text: KNOWN_SOURCES[item] });
     return ways;
   }
 
