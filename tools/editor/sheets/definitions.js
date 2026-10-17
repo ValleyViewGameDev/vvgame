@@ -70,7 +70,7 @@ export const DEFINITIONS = [
       num('hp'), num('maxhp'), num('range'), num('speed'), num('damage'), num('armorclass'), num('attackbonus'), num('attackrange'), bool('ranged'),
       { ...num('hands'), label: 'hands (weapons: 1 or 2; 2 = no shield)' }, { ...bool('shield'), label: 'shield (armory: off-hand slot)' },
       { key: 'projectile', label: 'projectile (enemy shot look)', type: 'enum', enum: ['arrow', 'fireball', 'fireball-small', 'blob', 'none'] },
-      { ...num('leapcooldown'), label: 'leapcooldown (s; enemy leaps beside the player)' }, str('deathVfx'), num('movespeed'), { key: 'artFacing', type: 'enum', enum: ['left', 'right', 'front'] },
+      { ...num('leapcooldown'), label: 'leapcooldown (s; enemy leaps beside the player)' }, { ...num('attackinterval'), label: 'attackinterval (s between an enemy\'s attacks)' }, str('deathVfx'), num('movespeed'), { key: 'artFacing', type: 'enum', enum: ['left', 'right', 'front'] },
       str('workerType'), num('stateWorking'), num('stateResting'), num('stateRoaming'), num('stateEating'), num('stateSocializing'),
       str('avatarTop'), str('avatarHand'),
       ...VALIDON.map((t) => bool(`validon${t}`)),

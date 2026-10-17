@@ -356,8 +356,8 @@ Feverfew, Garlic and Sunflower are not).
   crossbows and Darts show an arrow; swords, spears and halberds are melee, and a spear or a
   halberd's +1 reach is a longer swing, not a shot.
 - **Rolls** are unchanged: d20 + attack bonus vs armour class; damage = stat + d6. Enemies
-  roll on the tick they come into reach (after a 300 ms wind-up) and once per tick after;
-  enemy `speed` still does not set the attack rate (a per-type interval is open work).
+  roll when they come into reach (after a 300 ms wind-up), then every `attackinterval` seconds
+  (ECONOMY column, 5d); an enemy without one still swings once per movement step.
 - **Death**: `respawnHpFree` (40) for free accounts, `respawnHpGoldFraction` (0.5) of the
   derived max hp for Gold; max hp is re-derived from base + maxhp powers
   (`PlayersInGrid.derivedMaxhp`) so no bonus is lost on death or revive.
@@ -393,7 +393,7 @@ greater than the enemy's `attackrange`.
 
 | Enemy | attackrange | out-ranged by |
 |---|---|---|
-| Ogre | 2 (melee, `projectile: none`; damage 50, attack bonus 16; leaps) | Darts and up |
+| Ogre | 2 (melee, `projectile: none`; damage 65, attack bonus 23 since 5d; leaps) | Darts and up |
 | Spider | 3 (faster: `movespeed` 2.4, was 1.8 with reach 4) | Short Bow and up |
 | Demon | 7 (`projectile: fireball-small`) | Crossbow + all 3 magic items; Long Bow + 2; Magic Crossbow + 1; the legendary bows alone |
 | Dragon | 9 (`projectile: fireball`) | Magic Crossbow + all 3 magic items; Legendary Crossbow + 1; Titania's Bow alone |
@@ -511,8 +511,8 @@ Player power by level under the equip rules is in 5c.
 - A player who has never chosen (no `equippedMagic`) wears their 5 highest-level magic items,
   so nobody drops to zero when the rule lands. A newly bought or found magic item goes on by
   itself while a slot is free.
-- Extra magic slots: `globalTuning.combat.magicSlotGemCosts` [500, 1000, 2000, 3500, 5000] for
-  the 6th to 10th (about $5 to $50 each at the 500-gem pack price), bought through
+- Extra magic slots: `globalTuning.combat.magicSlotGemCosts` [250, 500, 1000, 1750, 2500] for
+  the 6th to 10th (about $2.50 to $25 each at the 500-gem pack price), bought through
   `POST /api/player/buy-magic-slot`; `magicSlots` is developer-only on `/update-profile`.
 - Magic slots make magic items a CHOICE: the baseline no longer stacks every item it owns.
   Small items (+1 to +3) still matter, because slots are scarce early and players swap for
@@ -544,17 +544,95 @@ damage 15, hp 1000, speed 5).
 | 8 | 22 / 10 / 22 / 1100 | 20 / 10 / 15 / 1100 (no two-handed melee before L14) |
 | 12 | 24 / 14 / 30 / 1000 | 22 / 14 / 15 / 1000 |
 | 16 | 24 / 14 / 34 / 1000 | 21 / 14 / 18 / 1000 |
-| 20 | 25 / 18 / 31 / 1000 | 22 / 18 / 33 / 1000 |
-| 22 | 35 / 18 / 31 / 1200 | 32 / 18 / 33 / 1200 |
-| 26 | 39 / 18 / 33 / 1200 | 35 / 18 / 33 / 1200 |
-| 34 | 40 / 14 / 38 / 1200 | 36 / 15 / 41 / 1200 |
-| 42 | 40 / 11 / 40 / 1700 | 36 / 11 / 41 / 1700 |
-| 50 | 41 / 11 / 48 / 1700 | 37 / 11 / 49 / 1700 |
+| 20 | 25 / 18 / 31 / 1000 | 22 / 19 / 33 / 1000 |
+| 22 | 30 / 22 / 31 / 1200 | 27 / 23 / 33 / 1200 |
+| 26 | 34 / 23 / 33 / 1200 | 30 / 23 / 33 / 1200 |
+| 30 | 39 / 19 / 33 / 1200 | 35 / 20 / 30 / 1200 |
+| 34 | 40 / 15 / 38 / 1200 | 36 / 16 / 41 / 1200 |
+| 42 | 40 / 12 / 40 / 1700 | 36 / 12 / 41 / 1700 |
+| 50 | 41 / 12 / 48 / 1700 | 37 / 12 / 49 / 1700 |
 
 (Attack drops after L30 in this table only because the 5 slots fill with AC, damage and hp items
 ahead of Steady Hand and Pinpoint; a player facing high-AC enemies would swap them back.)
 
-The L20 to L22 step (Stoneheart AC +5, Blessed Veil AC +5) is still the biggest single jump.
-Fit the enemy stat table to these two columns: an enemy at its level should hit the sword and
-shield build about 45% and the two-hander about 55%.
+Blessed Veil moved from L22 to L27 (2026-10-17) so Stoneheart's +5 at L21 and the Veil's +5 no
+longer land together. The enemy stat table is fitted to these two columns (5d).
+
+### 5d. Fitting enemies: the method (owner, 2026-10-17)
+
+Enemy stats are not hand-picked; they are FITTED to the baseline player at the level where the
+enemy lives. Re-fit whenever the shared catalogue, the equip rules or the base stats change.
+
+**1. The baseline player at level L** (5c): base AC 10, attack +10, damage 15, hp 1000, speed 5
+(starterAccount.json); plus the best shared armour, the best shared melee weapon of the build,
+a shield for the one-handed build, and the 5 magic items worth most to a player gearing for a
+fight (AC and attack first, then damage, then hp; speed counts, lower is faster). Regional items
+and scroll finds are NOT in the baseline (5b). Two builds: sword and shield, two-hander.
+
+**2. Each enemy's targets** (its home level is where players meet it; its role sets the rest):
+
+| Enemy | Home | Role | Kill takes | One fight costs |
+|---|---|---|---|---|
+| Coyote | L3 | pack trash, valley1 | 3 s | 2% hp |
+| Bear | L6 | trash, valley1 | 6 s | 5% |
+| Spider | L12 | pack trash, reach 3, valley2 | 2 s | 2% |
+| Zombie | L14 | slow tank, valley2 | 9 s | 7% |
+| Ghost | L17 | reach 5, valley2 | 6 s | 7% |
+| Ogre | L22 | elite, leaps, valley2 and 3 | 14 s | 15% |
+| Demon | L28 | elite, reach 7, valley2 and dungeons | 15 s | 15% |
+| Dragon | L40 | boss, reach 9, valley3 and dungeons | 40 s | 50% |
+| Phoenix | L55 | boss, dungeon | 75 s | 70% |
+
+**3. The formulas** (hit when d20 + attack >= AC, so hit chance = (21 - (AC - attack)) / 20,
+clamped 5% to 95%; damage = stat + d6, average stat + 3.5; player swing = 0.4 s + 0.1 s per speed
+point above 1, at most 0.8 s):
+- enemy **attack** = player AC - 12: it hits the sword-and-shield build 45% (the two-hander,
+  about 3 AC lower, 55% to 60%);
+- enemy **AC** = player attack + 8: the player hits it 65%;
+- enemy **hp** = kill time x player damage per second (65% x (player damage + 3.5) / swing);
+- enemy **damage** = cost x player hp x attackinterval / (its hit chance x kill time) - 3.5;
+- **attackinterval** sets the feel (Spider 0.9 s, quick and light; Ogre 2.4 s, slow and heavy).
+  It is its own ECONOMY column: enemies no longer attack once per movement step
+  (NPCEnemyBehavior `performAttack`), so `movespeed` is chase speed only.
+
+**4. The fitted table** (2026-10-17; the Phoenix's AC is set by hand to 30 for a player who slots
+attack items, the fit gave 19 for an AC-first player):
+
+| Enemy | Attack | AC | Damage | Max hp | Attacks every |
+|---|---|---|---|---|---|
+| Coyote | 3 | 18 | 11 | 60 | 1.0 s |
+| Bear, Polar Bear | 8 | 18 | 26 | 170 | 1.6 s |
+| Spider | 12 | 22 | 19 | 70 | 0.9 s |
+| Zombie | 13 | 22 | 35 | 440 | 2.2 s |
+| Ghost | 17 | 22 | 38 | 240 | 1.6 s |
+| Ogre | 23 | 30 | 65 | 390 | 2.4 s |
+| Demon | 27 | 30 | 45 | 440 | 1.8 s |
+| Dragon | 30 | 27 | 115 | 1250 | 2.5 s |
+| Phoenix | 32 | 30 | 100 | 2800 | 2.0 s |
+
+**5. Check the window.** An enemy should matter for about 12 levels: costly 6 levels below its
+home, on target at home, cheap 6 levels above (the d20 covers 20 points, the player's AC grows
+about 30 over the game, so every enemy fades; harder zones carry the curve on). HP lost per
+fight with the table above, sword and shield / two-hander:
+
+| Enemy | home - 6 | home | home + 6 |
+|---|---|---|---|
+| Coyote x3 | 15% / 16% | 11% / 16% | 1% / 5% |
+| Bear | 14% / 15% | 5% / 9% | 2% / 4% |
+| Spider x3 | 36% / 57% | 12% / 26% | 5% / 8% |
+| Zombie | 22% / 35% | 7% / 17% | 4% / 6% |
+| Ghost | 16% / 33% | 7% / 8% | 5% / 6% |
+| Ogre | 53% / 108% | 17% / 19% | 7% / 7% |
+| Demon | 24% / 26% | 14% / 21% | 12% / 17% |
+| Dragon | 70% / 88% | 47% / 81% | 47% / 74% |
+
+**Levers that are not enemy stats.**
+- **Weapon attack by tier** (2026-10-17): every weapon has at least attack +1 from L17, +2 from
+  L27, +3 from L40, so attack grows with gear and not only through the 5 magic slots.
+- **Placement**: an enemy met far below its home level is the real killer (an Ogre met at L16 is
+  half your hp, more with a two-hander). Valley2 still holds Ogres (0.9 per grid) and Demons
+  (0.27 per grid) beside the Spiders; the grid plan's enemy-balance phase should move them to the
+  inner half of valley2 and to valley3.
+- **Packs**: three enemies at once already cost about three times one (they all swing on their
+  own clocks); there is no extra gang-up bonus. Revisit after play.
 

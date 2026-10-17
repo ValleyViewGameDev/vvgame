@@ -266,6 +266,9 @@ class GridStateManager {
         { ...npcTemplate, ...lightweightNPC },
         gridId
       );
+      // a saved hp from before a tuning change may be above today's maxhp
+      const npc = npcs[npcId];
+      if (Number.isFinite(npc.hp) && Number.isFinite(npc.maxhp) && npc.hp > npc.maxhp) npc.hp = npc.maxhp;
     });
 
     this.NPCsInGrid[gridId] = { npcs, NPCsInGridLastUpdated: lastUpdated };

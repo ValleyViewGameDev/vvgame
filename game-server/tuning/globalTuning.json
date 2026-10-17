@@ -6,7 +6,7 @@
     "respawnHpFree": 40,
     "respawnHpGoldFraction": 0.5,
     "magicSlotsBase": 5,
-    "magicSlotGemCosts": [500, 1000, 2000, 3500, 5000]
+    "magicSlotGemCosts": [250, 500, 1000, 1750, 2500]
   },
   "costToRevive": 50,
   "percentageToRevive": 0.25,

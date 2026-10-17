@@ -338,8 +338,23 @@ function reach(pos1, pos2) {
  * the sprite, then the roll resolves, provided the enemy is still attacking a live target in
  * reach. Called on the tick the enemy enters `attack` and on every attack tick after.
  */
+// Enemies swing on their own clock: `attackinterval` seconds (resources.json; docs/tuning.md 5d),
+// not once per movement step, so a fast walker is not a fast hitter. Without the column an enemy
+// keeps the old rate (one swing per step). A tick that arrives early pulls the next tick forward
+// to the moment the swing is due.
+function attackIntervalMs(npc) {
+  const s = Number(npc.attackinterval);
+  return s > 0 ? s * 1000 : npc.stepMs;
+}
+
 function performAttack(gridId, TILE_SIZE) {
   if (this.swingPending) return;
+  const now = Date.now();
+  if (now < (this.nextAttackAt || 0)) {
+    this.nextUpdateAt = Math.min(this.nextUpdateAt || Infinity, this.nextAttackAt);
+    return;
+  }
+  this.nextAttackAt = now + attackIntervalMs(this);
   this.swingPending = true;
   CombatFX.enemyWindup(this.id);
   CombatFX.engageEnemy(this.id, this.hp, this.maxhp);
