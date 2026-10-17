@@ -88,12 +88,30 @@ Caliban's Crossing, Prospero's Peak, Lethe Wharf, ...), mixed with originals.
 
 ## 6. Threads proposed, not built
 
-- **The wood that walks: Prospero's gate (proposed 2026-10-16, not agreed).** Prospero's home
-  on Prospero's Peak (valley 1013320) is ringed by Birnam Wood instead of the Mirror door:
-  enchanted trees no axe can fell (a door-type resource, `requires: Birnam Bough`). The witches'
-  prophecy (Macbeth) says the wood moves only for one who carries a bough of it. Caliban (The
-  Tempest), who hauled logs up that mountain for his old master for years and hates him still,
-  knows how to cut one, and will, for a drink: Falstaff's Sack (Henry IV), which Falstaff gives
-  up only to a friend. Chain: friend of Falstaff, Falstaff's Sack; friend of Caliban, the Birnam
-  Bough; the wood parts. Three plays, no new key, and the Mirror is left for Leontes' castle and
-  the Phoenix's dungeon only.
+- **Toil and Trouble: Prospero's gate (proposed 2026-10-16, not agreed; replaces "the wood
+  that walks", since Birnam Wood is already a region).**
+  - *The gate.* Prospero's home on Prospero's Peak (valley 1013320) is ringed by **Cloven
+    Pines** instead of the Mirror door: a new tree (Pine Tree's look, recoloured; the cloven
+    pine is The Tempest's prison tree, here walling Prospero in) that only a magic axe can fell.
+    It is an ordinary tree resource with `requires: Toil and Trouble`, the way Pine Tree
+    requires Better Axe. The Mirror is left for Leontes' castle and the Phoenix's dungeon.
+  - *The skill.* **Toil and Trouble**, a witch-forged axe (the Weird Sisters' chant, "Double,
+    double toil and trouble"): the third axe after Axe and Better Axe, sold in no shop.
+  - *The giver.* **Hecate** (Macbeth), queen of the witches, who has left the heath and keeps
+    her cauldron deep in Birnam Wood. She forges the axe in her cauldron, and the cauldron
+    wants something precious: **Yorick's Skull** (Hamlet), plus ordinary witch-stuff (Bones,
+    Magic Mushroom). Gate: friend of Hecate, level 30+ (an endgame step).
+  - *The skull.* **Caliban** (The Tempest) dug it up out of Yorick's Hollow and will part with
+    it, he who would do anything for a drink, for **Falstaff's Sack** (Henry IV), which
+    Falstaff gives only to a friend. Caliban is also the one who knows Prospero's mountain,
+    so his line can point the player to Hecate. (Shorter variant: drop Falstaff; Caliban
+    takes Ancient Coins, as he does for his Secret.)
+  - *Chain.* Falstaff's Sack, then Yorick's Skull from Caliban, then Toil and Trouble from
+    Hecate, then the Cloven Pines fall and Prospero gives the Orb. Four plays, no new key.
+  - *Build notes.* New rows: Cloven Pine (source, convertTo Wood, `requires: Toil and
+    Trouble`), Toil and Trouble (skill, no shop), Hecate (trade or quest NPC, art), Yorick's
+    Skull and Falstaff's Sack (specials). Code: a trade or quest reward that grants a skill
+    (none does today; skills are only bought at a shop). Layout: Cloven Pines in place of the
+    Mirror door on 1013320; Hecate on a Birnam Wood grid. Art: the recoloured pine, Hecate;
+    atlas rebuild. The QUEST FOR HOPE tab must learn that a tree needing a skill nobody starts
+    with is a gate (it treats trees as clearable today).
