@@ -10035,7 +10035,7 @@
     "artFacing": "left",
     "movespeed": 1,
     "action": "attack",
-    "output": "Book",
+    "output": "Bones",
     "passable": false,
     "xp": 15,
     "level": 4,
