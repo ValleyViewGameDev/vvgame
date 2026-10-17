@@ -207,6 +207,7 @@ class SoundManager {
       const audio = new Audio(audioPath);
       audio.loop = loop;
       audio.volume = 0; // Start silent for fade in
+      audio.muted = this.isMuted; // iOS ignores volume (read-only, always 1): muted is what silences it
 
       // Handle track end for playlist cycling
       audio.onended = () => {
@@ -243,7 +244,10 @@ class SoundManager {
           return;
         }
         if (this.isMuted) {
-          audio.volume = 0;
+          // Music off: keep the track ready (unmute plays it) but never start it
+          this.currentAudio = audio;
+          this.currentTrackName = trackName;
+          return;
         }
         audio.play().then(() => {
           this.currentAudio = audio;
@@ -271,7 +275,7 @@ class SoundManager {
    */
   setupAutoplayRetry(audio) {
     const retryPlay = () => {
-      if (this.currentAudio === audio && audio.paused) {
+      if (this.currentAudio === audio && audio.paused && !this.isMuted) {
         audio.play().then(() => {
           this.fadeIn();
           console.log('SoundManager: Autoplay retry succeeded');
@@ -384,8 +388,11 @@ class SoundManager {
    */
   mute() {
     this.isMuted = true;
+    if (this.fadeInterval) { clearInterval(this.fadeInterval); this.fadeInterval = null; }
     if (this.currentAudio) {
-      this.currentAudio.volume = 0;
+      // volume alone does nothing on iOS (read-only there): mute and pause the element
+      this.currentAudio.muted = true;
+      this.currentAudio.pause();
     }
   }
 
@@ -395,7 +402,12 @@ class SoundManager {
   unmute() {
     this.isMuted = false;
     if (this.currentAudio) {
-      this.currentAudio.volume = this.volume;
+      const audio = this.currentAudio;
+      audio.muted = false;
+      audio.volume = this.volume;
+      if (audio.paused) audio.play().catch(() => this.setupAutoplayRetry(audio));
+    } else if (this.currentPlaylist?.length) {
+      this.playCurrentPlaylistTrack();
     }
   }
 
