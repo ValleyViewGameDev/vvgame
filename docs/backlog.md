@@ -80,6 +80,16 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   long skinny peninsula at 1016632, in Hell's Mouth Lake (the devil's grin), is a place the
   owner likes: create a new character and put his hut there. Character to be designed; the hut
   and the character go in with phase 3 (towns and scenarios) of W-11.
+- **W-14. Refine and place the Coyote Dens** (added 2026-10-17). First-stab mini templates
+  `coyoteDenEast` and `coyoteDenWest` (`game-server/layouts/gridLayouts/miniTemplates/`, 15x15):
+  slate with Rocks to harvest for Stone, Coyotes and 2 Coyote Spawners, small mountains on three
+  sides, Pine Trees blocking the entrance that the player cuts through. Owner to hand-edit them,
+  then place one immediately next to each town, so every new player faces a small combat
+  scenario on first reaching the valley.
+- **W-15. Redo the Town template, then make E, S and W variations** (added 2026-10-17). First
+  re-do the current Town template; then make three variations of it for the E, S and W towns,
+  each with its entrance facing the valley (`game-server/layouts/gridLayouts/town/`, today
+  townN / townE / townS / townW).
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
