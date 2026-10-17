@@ -101,16 +101,16 @@ Caliban's Crossing, Prospero's Peak, Lethe Wharf, ...), mixed with originals.
     her cauldron deep in Birnam Wood. She forges the axe in her cauldron, and the cauldron
     wants something precious: **Yorick's Skull** (Hamlet), plus ordinary witch-stuff (Bones,
     Magic Mushroom). Gate: friend of Hecate, level 30+ (an endgame step).
-  - *The skull.* **Caliban** (The Tempest) dug it up out of Yorick's Hollow and will part with
-    it, he who would do anything for a drink, for **Falstaff's Sack** (Henry IV), which
-    Falstaff gives only to a friend. Caliban is also the one who knows Prospero's mountain,
-    so his line can point the player to Hecate. (Shorter variant: drop Falstaff; Caliban
-    takes Ancient Coins, as he does for his Secret.)
-  - *Chain.* Falstaff's Sack, then Yorick's Skull from Caliban, then Toil and Trouble from
-    Hecate, then the Cloven Pines fall and Prospero gives the Orb. Four plays, no new key.
+  - *The skull.* **Caliban** (The Tempest) dug it up out of Yorick's Hollow and trades it for
+    **52 Bones**: a new Caliban trade beside his Silver ones. The easter egg: Shakespeare died at
+    52, and his gravestone curses whoever moves his bones ("And cursed be he that moves my
+    bones"). Caliban is also the one who knows Prospero's mountain, so his line can point the
+    player to Hecate.
+  - *Chain.* 52 Bones to Caliban for Yorick's Skull, then Toil and Trouble from Hecate, then the
+    Cloven Pines fall and Prospero gives the Orb. Three plays, no new key.
   - *Build notes.* New rows: Cloven Pine (source, convertTo Wood, `requires: Toil and
     Trouble`), Toil and Trouble (skill, no shop), Hecate (trade or quest NPC, art), Yorick's
-    Skull and Falstaff's Sack (specials). Code: a trade or quest reward that grants a skill
+    Skull (special); a Caliban trade (52 Bones for the Skull). Code: a trade or quest reward that grants a skill
     (none does today; skills are only bought at a shop). Layout: Cloven Pines in place of the
     Mirror door on 1013320; Hecate on a Birnam Wood grid. Art: the recoloured pine, Hecate;
     atlas rebuild. The QUEST FOR HOPE tab must learn that a tree needing a skill nobody starts
