@@ -88,8 +88,11 @@ Caliban's Crossing, Prospero's Peak, Lethe Wharf, ...), mixed with originals.
 
 ## 6. Threads proposed, not built
 
-- **Toil and Trouble: Prospero's gate (proposed 2026-10-16, not agreed; replaces "the wood
-  that walks", since Birnam Wood is already a region).**
+- **Toil and Trouble: Prospero's gate (BUILT 2026-10-16).** Hecate lives on valley 1011257 (a
+  moss peninsula in a dark lake, a dead-tree shore with bones, five Ghosts); four Cloven Pines
+  fill the old Mirror doorway into Prospero's hall on 1013320 (the Mirror now guards only
+  Leontes' castle, in front of the Phoenix's dungeon). Hecate's art is a copy of the
+  Shepherd's for now (npc-hecate.svg); the Cloven Pine is the pine recoloured violet.
   - *The gate.* Prospero's home on Prospero's Peak (valley 1013320) is ringed by **Cloven
     Pines** instead of the Mirror door: a new tree (Pine Tree's look, recoloured; the cloven
     pine is The Tempest's prison tree, here walling Prospero in) that only a magic axe can fell.

@@ -783,6 +783,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     }
 
     let quantityToGive = recipe.tradeqty || 1;
+    // A trade can pay a skill (Hecate's Toil and Trouble): it joins player.skills, takes no room
+    const gainsSkill = masterResources.find(res => res.type === recipe.type)?.category === 'skill';
     
     // Get relationship-based multiplier from RelationshipMatrix data
     const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
@@ -803,7 +805,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
     
-    if (!hasRoom) {
+    if (!hasRoom && !gainsSkill) {
       const isHomestead = currentPlayer?.location?.gtype === 'homestead';
       const isMoney = recipe.type === "Money";
       const isGem = recipe.type === "Gem";
@@ -853,6 +855,24 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       return;
     }
     
+    if (gainsSkill) {
+      const owned = currentPlayer.skills || [];
+      const updatedSkills = owned.some(sk => sk.type === recipe.type) ? owned : [...owned, { type: recipe.type, category: 'skill', quantity: 1 }];
+      try {
+        await axios.post(`${API_BASE}/api/update-skills`, { playerId: currentPlayer.playerId, skills: updatedSkills });
+        setCurrentPlayer(prev => ({ ...prev, skills: updatedSkills }));
+        await trackQuestProgress(currentPlayer, 'Acquire', recipe.type, 1, setCurrentPlayer);
+        await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
+        updateStatus(`💪 ${getLocalizedString(recipe.type, strings)} skill acquired.`);
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      } catch (error) {
+        console.error('Skill trade failed:', error);
+        revertTradeCard();
+        setErrorMessage('Failed to complete trade.');
+      }
+      return;
+    }
+
     // Use the updated inventory and backpack from spendIngredients
     const gained = await gainIngredients({
       playerId: currentPlayer.playerId,
@@ -1681,8 +1701,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       // Check if player has this item in inventory or backpack
                       const hasInInventory = inventory?.some(item => item.type === recipe.type);
                       const hasInBackpack = backpack?.some(item => item.type === recipe.type);
+                      const hasAsSkill = currentPlayer?.skills?.some(item => item.type === recipe.type);
 
-                      if (hasInInventory || hasInBackpack) {
+                      if (hasInInventory || hasInBackpack || hasAsSkill) {
                         return false; // Don't show this offer
                       }
                     }

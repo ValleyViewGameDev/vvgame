@@ -48,6 +48,11 @@ function compute(gameServerDir, clientDir) {
   const byType = new Map(resources.map((r) => [r.type, r]));
   const byKey = new Map(resources.filter((r) => r.layoutkey).map((r) => [r.layoutkey, r]));
   const questThreshold = interactions.find((i) => /^quest$/i.test(i.interaction))?.relscoremin || 0;
+  // A tree (or other source) whose skill no shop sells is a gate, not clearable: Cloven Pines need
+  // Toil and Trouble, which only Hecate gives
+  const SHOP_CATEGORIES = new Set(['shop', 'training', 'trainingAndShop', 'crafting', 'station']);
+  const isGateSource = (r) => r?.category === 'source' && r.requires && byType.get(r.requires)?.category === 'skill'
+    && !SHOP_CATEGORIES.has(byType.get(byType.get(r.requires).source)?.category);
 
   // ---- which area a grid is in: a valley grid's coord (TTFFSSGG) names its settlement, and the
   // frontier layout says which set that settlement is (valley1Set ... ), so "valley1".."valley3"
@@ -110,13 +115,13 @@ function compute(gameServerDir, clientDir) {
       }
       L.resources.forEach((row, y) => row.forEach((k, x) => {
         const r = k && k !== '**' ? byKey.get(k) : null;
-        if (!r || r.type === 'Stub' || r.category === 'npc' || r.category === 'source' || r.category === 'doober' || r.passable !== false) return;
+        if (!r || r.type === 'Stub' || r.category === 'npc' || (r.category === 'source' && !isGateSource(r)) || r.category === 'doober' || r.passable !== false) return;
         const s = Math.max(1, Number(r.size) || 1);
         for (let dy = 0; dy < s; dy++) for (let dx = 0; dx < s; dx++) {
           const xx = x + dx, yy = y - dy;
           if (xx < 0 || yy < 0 || xx >= SIZE || yy >= SIZE) continue;
           const i = yy * SIZE + xx;
-          if (r.action === 'door') { blocked[i] = 2; doorAt.set(i, r.type); } else if (blocked[i] !== 2) blocked[i] = 1;
+          if (r.action === 'door' || isGateSource(r)) { blocked[i] = 2; doorAt.set(i, r.type); } else if (blocked[i] !== 2) blocked[i] = 1;
         }
       }));
       const starts = [];
@@ -233,7 +238,8 @@ function compute(gameServerDir, clientDir) {
       const needs = needsOf(t);
       ways.push({
         kind: 'trade', trader: find(t.trader), qty: t.givesqty || 1,
-        gates: [byType.get(t.trader)?.level && `level ${byType.get(t.trader).level}+`, relGate(t, t.trader)].filter(Boolean),
+        // the game gates a trade on the level of what it gives (NPCsPanel recipe.level)
+        gates: [byType.get(t.gives)?.level > 1 && `level ${byType.get(t.gives).level}+`, relGate(t, t.trader)].filter(Boolean),
         needs, prereqs: needs.map((n) => sub(n.item)).filter(Boolean),
       });
     }
@@ -263,7 +269,11 @@ function compute(gameServerDir, clientDir) {
   const artifacts = oracle ? needsOf(oracle).map((n) => n.item) : [];
   return {
     oracle: oracle ? { trader: find('Oracle'), gives: oracle.gives, xp: oracle.xp, gates: [relGate(oracle, 'the Oracle')].filter(Boolean) } : null,
-    keys: resources.filter((x) => x.action === 'door').map((d) => ({
+    entranceGates: Object.fromEntries((placements.get(byType.get('Dungeon Entrance')?.layoutkey) || []).map((p) => {
+      const doors = doorsTo(p.layoutIndex, p.cells[0][0], p.cells[0][1]);
+      return [p.grid, (doors || []).map((d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null }))];
+    })),
+    keys: resources.filter((x) => x.action === 'door' || isGateSource(x)).map((d) => ({
       door: d.type, symbol: d.symbol || '', key: d.requires || null, keySymbol: byType.get(d.requires)?.symbol || '',
       ways: d.requires ? explain(d.requires, 0, new Set()) : [],
     })),

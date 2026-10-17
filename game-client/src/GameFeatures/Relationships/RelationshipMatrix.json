@@ -259,6 +259,24 @@
     "interest3": "Titania",
     "Feste": "friend",
     "Titania": "love",
+    "Prospero": "rival",
+    "Hecate": "friend"
+  },
+  {
+    "type": "Hecate",
+    "symbol": "🧙‍♀️",
+    "dialogOnMet": 16022,
+    "dialogOnFriend": 16122,
+    "dialogOnLove": 16222,
+    "dialogOnRival": 16322,
+    "dialogOnMarried": 16422,
+    "buff4friend": 2,
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "interest1": "Magic Mushroom",
+    "interest2": "Bones",
+    "interest3": "Wine",
+    "Caliban": "friend",
     "Prospero": "rival"
   },
   {

@@ -65,7 +65,8 @@ export function questForHopeTab() {
         if (p.dir === 'valleyFixedCoord') return `valley ${p.name}`;
         if (p.dir === 'dungeon') {
           const from = entrances.get(p.name);
-          return `dungeon ${p.name}${from?.length ? ` (entered from valley ${from.join(', ')})` : entrances.size ? ' (no entrance registered)' : ''}`;
+          const via = (from || []).map((c) => `valley ${c}${gateText({ doors: data.entranceGates?.[`valleyFixedCoord/${c}`] || [] })}`);
+          return `dungeon ${p.name}${via.length ? ` (entered from ${via.join('; ')})` : entrances.size ? ' (no entrance registered)' : ''}`;
         }
         return `${p.dir} ${p.name}`;
       };

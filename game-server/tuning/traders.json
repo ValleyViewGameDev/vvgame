@@ -197,6 +197,29 @@
     "requires1qty": 1
   },
   {
+    "trader": "Caliban",
+    "index": 4,
+    "gives": "Yorick's Skull",
+    "givesqty": 1,
+    "xp": 20,
+    "repeat": false,
+    "requires1": "Bones",
+    "requires1qty": 52
+  },
+  {
+    "trader": "Hecate",
+    "index": 1,
+    "gives": "Toil and Trouble",
+    "givesqty": 1,
+    "xp": 50,
+    "repeat": false,
+    "rel": "friend",
+    "requires1": "Yorick's Skull",
+    "requires1qty": 1,
+    "requires2": "Magic Mushroom",
+    "requires2qty": 3
+  },
+  {
     "trader": "Leontes",
     "index": 1,
     "gives": "Gold",
