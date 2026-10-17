@@ -219,7 +219,7 @@
     "requires1qty": 1,
     "requires2": "Gertrude's Secret",
     "requires2qty": 1,
-    "requires3": "Mermaid's Secret",
+    "requires3": "Viola's Secret",
     "requires3qty": 1,
     "requires4": "Juliet's Secret",
     "requires4qty": 1,
@@ -262,7 +262,7 @@
     "requires1qty": 1
   },
   {
-    "trader": "Mermaid",
+    "trader": "Viola",
     "index": 1,
     "gives": "Gold",
     "givesqty": 25,
@@ -272,9 +272,9 @@
     "requires1qty": 1
   },
   {
-    "trader": "Mermaid",
+    "trader": "Viola",
     "index": 2,
-    "gives": "Mermaid's Secret",
+    "gives": "Viola's Secret",
     "givesqty": 1,
     "xp": 30,
     "repeat": false,

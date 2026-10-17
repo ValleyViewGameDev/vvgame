@@ -23,7 +23,7 @@ characters and storylines sit alongside them. The fun is the mix and match.
 - **Famous lines and objects are fair game,** re-aimed: a prophecy, a skull, a ring, a potion,
   a moving wood. They make the best gates, rewards and hints.
 - **No on-the-nose modern names.** A name that reads first as a film or brand character is out
-  (Ariel reads as Disney; "the Mermaid" is to become Viola, 2026-10-16).
+  (Ariel reads as Disney; "the Mermaid" became Viola, 2026-10-16).
 - **Original characters are welcome** (the Vampire, the Oracle's quest, Santa for the season),
   as long as they live in the same world and talk to the Shakespeare cast.
 
@@ -77,7 +77,7 @@ meant as the penultimate step of the whole game; the last is bringing all seven 
 | Gertrude | Hamlet | Trader; Gertrude's Secret |
 | Leontes | The Winter's Tale | The Mirror Key, for six secrets |
 | Juliet | Romeo and Juliet | Trader; Juliet's Secret |
-| The Mermaid (to become Viola) | original, to become Twelfth Night | Trader in the water; the Mermaid's Secret |
+| Viola (was the Mermaid) | Twelfth Night | Trader who lives in the water (shipwrecked, she took to the sea); Viola's Secret |
 | The Oracle | The Winter's Tale | Trades Hope for the seven artifacts |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |

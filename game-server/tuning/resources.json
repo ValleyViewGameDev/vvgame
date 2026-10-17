@@ -6804,13 +6804,13 @@
     "nogems": true
   },
   {
-    "type": "Mermaid's Secret",
+    "type": "Viola's Secret",
     "symbol": "🤫",
     "layoutkey": "sec7",
     "category": "special",
     "action": "collect",
     "output": "noBank",
-    "source": "Mermaid",
+    "source": "Viola",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
@@ -9557,7 +9557,7 @@
     "filename": "npc-juliet.svg"
   },
   {
-    "type": "Mermaid",
+    "type": "Viola",
     "symbol": "🧜‍♀️",
     "layoutkey": "mm",
     "category": "npc",
