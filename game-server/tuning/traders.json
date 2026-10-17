@@ -217,7 +217,9 @@
     "requires1": "Yorick's Skull",
     "requires1qty": 1,
     "requires2": "Magic Mushroom",
-    "requires2qty": 3
+    "requires2qty": 12,
+    "requires3": "Pelt",
+    "requires3qty": 3
   },
   {
     "trader": "Leontes",
