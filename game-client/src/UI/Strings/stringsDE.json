@@ -62,10 +62,6 @@
     "49": "Verbleibende Heilungen:",
     "50": "🚫 Dieser Benutzername ist bereits vergeben.",
     "51": "Heilungen Gesamt: ",
-    "70": "Sitzung abgelaufen",
-    "71": "Du warst eine Weile weg. Aktualisieren stellt sicher, dass deine Sitzung ordnungsgemäß funktioniert.",
-    "72": "Diese Seite wird in 30 Sekunden automatisch aktualisiert, es sei denn, du tust es jetzt.",
-    "73": "🔄 Jetzt aktualisieren",
     "74": "🎒 Ein Rucksack ist erforderlich, um ein Zelt zu besitzen.",
     "75": "Du besitzt keinen Rucksack. Du kannst einen im Abenteuerlager in der Stadt kaufen.",
     "76": "Dein Lagerhaus ist leer.",
@@ -1538,5 +1534,9 @@
     "17515": "hält sich bereit.",
     "17516": "Selbstständig arbeiten?",
     "98001": "Discord-Server beitreten",
-    "98002": "Belohnung:"
+    "98002": "Belohnung:",
+    "2056": "Das Spiel wurde aktualisiert",
+    "2057": "Eine neue Version von Secrets of Elsinore ist verfügbar. Lade die Seite neu, um sie zu laden.",
+    "2058": "Neu laden",
+    "2059": "Was dieser Auftrag braucht"
 }

@@ -62,10 +62,6 @@
     "49": "Curaciones restantes:",
     "50": "🚫 Ese nombre de usuario ya está en uso.",
     "51": "Curaciones Totales: ",
-    "70": "Sesión expirada",
-    "71": "Has estado ausente por un tiempo. Actualizar asegura que tu sesión funcione correctamente.",
-    "72": "Esta página se actualizará automáticamente en 30 segundos a menos que lo hagas ahora.",
-    "73": "🔄 Actualizar ahora",
     "74": "🎒 Se requiere una mochila para tener una tienda de campaña.",
     "75": "No tienes una mochila. Puedes comprar una en el Campamento de Aventuras en la Ciudad.",
     "76": "Tu almacén está vacío.",
@@ -1536,5 +1532,9 @@
     "17515": "está a la espera.",
     "17516": "¿Trabajar automáticamente?",
     "98001": "Únete al servidor de Discord",
-    "98002": "Recompensa:"
+    "98002": "Recompensa:",
+    "2056": "El juego se ha actualizado",
+    "2057": "Hay una nueva versión de Secrets of Elsinore disponible. Actualiza para cargar la última.",
+    "2058": "Actualizar",
+    "2059": "Lo que necesita este pedido"
 }

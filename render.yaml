@@ -5,3 +5,17 @@ services:
     rootDir: game-client
     buildCommand: npm run build
     staticPublishPath: build
+    # Fresh code after a deploy (the "The Game Has Updated" prompt reloads into it): the page
+    # itself must revalidate every load; the hashed JS/CSS under /static never change, so they
+    # cache forever. Only applies if this service is managed by this Blueprint; otherwise set
+    # the same rules in the Render dashboard (vvgame-client > Headers).
+    headers:
+      - path: /
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

@@ -62,10 +62,6 @@
     "49": "Soins restants :",
     "50": "🚫 Ce nom d'utilisateur est déjà pris.",
     "51": "Total Soins : ",
-    "70": "Session expirée",
-    "71": "Vous êtes absent depuis un moment. Actualiser garantit le bon fonctionnement de votre session.",
-    "72": "Cette page s'actualisera automatiquement dans 30 secondes sauf si vous le faites maintenant.",
-    "73": "🔄 Actualiser maintenant",
     "74": "🎒 Un sac à dos est nécessaire pour posséder une tente.",
     "75": "Vous ne possédez pas de sac à dos. Vous pouvez en acheter un au Camp d'Aventure en ville.",
     "76": "Votre entrepôt est vide.",
@@ -1538,5 +1534,9 @@
     "17515": "se tient prêt.",
     "17516": "Travailler automatiquement ?",
     "98001": "Rejoindre le serveur Discord",
-    "98002": "Récompense :"
+    "98002": "Récompense :",
+    "2056": "Le jeu a été mis à jour",
+    "2057": "Une nouvelle version de Secrets of Elsinore est disponible. Actualisez pour charger la dernière.",
+    "2058": "Actualiser",
+    "2059": "Ce que demande cette commande"
 }

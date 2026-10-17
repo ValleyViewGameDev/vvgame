@@ -29,3 +29,18 @@
   color: var(--color-text-secondary);
 }
 .resource-modal-small .rms-label { font-weight: bold; }
+
+/* "need / have" under the name (optional `needs` prop) */
+.resource-modal-small .rms-count { font-family: var(--font-body); font-size: var(--text-md); font-weight: var(--weight-bold); margin: 0 0 6px; }
+.resource-modal-small .rms-count.ok { color: var(--color-text-positive); }
+.resource-modal-small .rms-count.short { color: var(--color-text-negative); }
+
+/* Several resources (a multi-item Kent offer): one column each, side by side, smaller; the
+   resource's name heads its column since the modal title is the order, not one item */
+.resource-modal-small .rms-cols { display: grid; gap: 12px; }
+.resource-modal-small.rms-multi .rms-col { min-width: 0; }
+.resource-modal-small.rms-multi .rms-icon { width: 48px; height: 48px; margin: 0 auto 4px; font-size: 36px; /* style-ok: icon */ }
+.resource-modal-small.rms-multi .rms-icon img { width: 44px; height: 44px; }
+.resource-modal-small.rms-multi .rms-name { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--text-lg); color: var(--color-text-heading); margin-bottom: 2px; overflow-wrap: anywhere; }
+.resource-modal-small.rms-multi .rms-source { font-size: var(--text-md); }
+.resource-modal-small.rms-multi .rms-ingredients { font-size: var(--text-sm); margin-top: 4px; }

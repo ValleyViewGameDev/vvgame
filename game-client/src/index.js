@@ -13,12 +13,15 @@ import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { GemSpendConfirmHost } from './UI/Modals/GemSpendConfirm';
 import { GameDialogHost } from './UI/Modals/GameDialog';
+import { UpdatePromptHost } from './UI/Modals/UpdatePrompt';
+import { installBuildWatch } from './Utils/buildWatch';
 import { UILockProvider } from './UI/UILockContext';
 import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 import { BulkOperationProvider } from './UI/BulkOperationContext';
 import { TransitionProvider } from './UI/TransitionContext';
 
 installTouchClass(); // html.touch-ui: no hover colours on resource/quest buttons on touch screens
+installBuildWatch(); // "The Game Has Updated" prompt when a deploy lands mid-session (UI/Modals/UpdatePrompt.js)
 applyTileColorVars(); // --tile-<key> on :root from the terrain palette (UI/Styles/tileColors.js)
 
 console.warn("🔥 index.js evaluated again — app may remount");
@@ -72,6 +75,7 @@ if (!window.__app_rendered__) {
                         <App />
                         <GemSpendConfirmHost />
                         <GameDialogHost />
+                        <UpdatePromptHost />
                       </ModalProvider>
                     </PanelProvider>
                   </StatusBarProvider>

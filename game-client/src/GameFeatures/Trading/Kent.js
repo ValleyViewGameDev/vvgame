@@ -51,6 +51,7 @@ function KentPanel({
     const [isContentLoading, setIsContentLoading] = useState(false);
     const [kentOffers, setKentOffers] = useState([]);
     const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap an item on a card you cannot trade
+    const [infoNeeds, setInfoNeeds] = useState(null);       // its need / have counts (multi-item offers)
     const [isTrading, setIsTrading] = useState(false);
     // Card animations by slot (not persisted): { [index]: { type: 'burst' | 'slidein' | 'flipout' | 'flipin', id } }
     //   burst   - the sold card pops into sparkles (on the tap, before the server answers)
@@ -712,11 +713,16 @@ function KentPanel({
                           onClick={() => {
                             // A card the player cannot afford stays a live button (gray, kent-short) so its items
                             // keep their desktop hovertips; its tap bubbles here and ResourceModalSmall opens for
-                            // the first item the player is short of. A card on its own cooldown, which shows a
-                            // timer instead of its goods, ignores the tap.
+                            // the item (or, on a multi-item offer, every item side by side, with need / have).
+                            // A card on its own cooldown, which shows a timer instead of its goods, ignores the tap.
                             if (canAffordAll || cardOnCooldown || isTrading) return;
+                            if (itemsWithQty.length > 1) {
+                              setInfoResource(itemsWithQty.map((item) => item.item));
+                              setInfoNeeds(itemsWithQty.map((item) => ({ type: item.item, need: item.quantity, have: item.playerQty })));
+                              return;
+                            }
                             const missing = itemsWithQty.find((item) => !item.hasEnough);
-                            if (missing) setInfoResource(missing.item);
+                            if (missing) { setInfoResource(missing.item); setInfoNeeds(null); }
                           }}
                         >
                           {/* keys: the card layer and the burst are siblings, so their keys must differ (a shared
@@ -810,7 +816,7 @@ function KentPanel({
           </>
         )}
       </Panel>
-      {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}
+      {infoResource && <ResourceModalSmall resourceType={infoResource} needs={infoNeeds} masterResources={masterResources} onClose={() => { setInfoResource(null); setInfoNeeds(null); }} />}
 
 
       {/* Tooltip portal for multi-item offer symbols */}

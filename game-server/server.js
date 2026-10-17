@@ -77,19 +77,29 @@ const corsOptions = {
     }
   },
   credentials: true,
+  // the deploy build header (APP_BUILD below) must be readable by the cross-origin client
+  exposedHeaders: ['X-App-Build'],
 };
+
+// Deploy build id (ported from House): every response carries it as X-App-Build, so a tab left
+// open across a deploy notices the server changed and offers a refresh
+// (game-client/src/UI/Modals/UpdatePrompt.js). Render injects RENDER_GIT_COMMIT per deploy; a
+// restart of the same deploy keeps the same id, so only a real push prompts. Locally it is a
+// fixed 'dev' (nodemon restarts would otherwise prompt all day); set APP_BUILD to test the prompt.
+const APP_BUILD = process.env.APP_BUILD || process.env.RENDER_GIT_COMMIT || 'dev';
 // Declare app before using it
 const app = express();
 app.set('trust proxy', true); // Render: req.ip is the client, not the proxy (signup IP cap in routes/auth.js)
 const PORT = process.env.PORT || 3001;
 
 app.use(cors(corsOptions));
+app.use((req, res, next) => { res.set('X-App-Build', APP_BUILD); next(); });
 
 app.use(compression()); // gzip every response (grid bundles are JSON that compresses ~10x)
 app.use(express.json({ limit: '10mb' }));
 
 // Service status (update notice / maintenance). See utils/serviceMode.js.
-app.get('/api/status', (req, res) => res.json(getStatus()));
+app.get('/api/status', (req, res) => res.json({ ...getStatus(), build: APP_BUILD }));
 app.use(maintenanceGate());
 
 // Logging middleware for debugging
