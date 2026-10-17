@@ -15,6 +15,8 @@ import { toggleFPSCap, getCurrentFPSCap, getPixiActualFPS } from '../Render/Pixi
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
 import debugTravelShortcuts from './debugTravelShortcuts.json';
+import { loadMasterResources, loadGlobalTuning } from './TuningManager';
+import { isWeapon, isArmor, isShield, isMagic, settingsWearingNewMagic } from '../GameFeatures/Combat/combatGear';
 
 const DebugPanel = ({
   onClose,
@@ -453,6 +455,67 @@ const handleGetRich = async () => {
     }
   };
   
+  // Add All Weapons / Armor / Magic Items: one of every power of that kind the player lacks
+  // (scroll-only and regional included). Magic items fill any free slots; the rest wait in the
+  // Combat panel.
+  const GEAR_TESTS = { weapons: isWeapon, armor: isArmor, shields: isShield, magic: isMagic };
+  const gearMatches = (kind, r) => r?.category === 'power' && GEAR_TESTS[kind](r);
+
+  const handleAddAllPowers = async (kind) => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) return;
+      const masterResources = await loadMasterResources();
+      const globalTuning = await loadGlobalTuning();
+      const owned = new Set((currentPlayer.powers || []).map((p) => p.type));
+      const added = masterResources.filter((r) => gearMatches(kind, r) && !owned.has(r.type));
+      if (added.length === 0) { alert(`You already have every ${kind} item.`); return; }
+      const powers = [...(currentPlayer.powers || []), ...added.map((r) => ({ type: r.type, quantity: 1 }))];
+      let player = { ...currentPlayer, powers };
+      for (const r of added) {
+        const wearing = settingsWearingNewMagic(player, r.type, masterResources, globalTuning);
+        if (wearing) player = { ...player, settings: wearing };
+      }
+      await axios.post(`${API_BASE}/api/update-powers`, { playerId, powers });
+      if (player.settings !== currentPlayer.settings) await axios.post(`${API_BASE}/api/update-profile`, { playerId, updates: { settings: player.settings } });
+      setCurrentPlayer((prev) => ({ ...prev, powers, settings: player.settings }));
+      playersInGridManager.refreshCombatStats(player);
+      console.log(`Add All (${kind}): added ${added.length}:`, added.map((r) => r.type).join(', '));
+      alert(`Added ${added.length} ${kind} item${added.length === 1 ? '' : 's'}.`);
+    } catch (error) {
+      console.error(`Error adding all ${kind}:`, error);
+      alert('Failed to add items. Check console for details.');
+    }
+  };
+
+  // Remove All Weapons / Armor / Magic Items: drops every power of that kind (skills and the other
+  // kinds stay), takes it out of its equip slot, and re-derives the live stats
+  const handleRemoveAllPowers = async (kind) => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) return;
+      const masterResources = await loadMasterResources();
+      const defOf = (type) => masterResources.find((r) => r.type === type);
+      const removed = (currentPlayer.powers || []).filter((p) => gearMatches(kind, defOf(p.type)));
+      if (removed.length === 0) { alert(`You have no ${kind} items.`); return; }
+      const gone = new Set(removed.map((p) => p.type));
+      const powers = (currentPlayer.powers || []).filter((p) => !gone.has(p.type));
+      const settings = { ...(currentPlayer.settings || {}) };
+      for (const key of ['equippedWeapon', 'equippedArmor', 'equippedShield']) if (gone.has(settings[key])) settings[key] = null;
+      if (Array.isArray(settings.equippedMagic)) settings.equippedMagic = settings.equippedMagic.filter((t) => !gone.has(t));
+      await axios.post(`${API_BASE}/api/update-powers`, { playerId, powers });
+      await axios.post(`${API_BASE}/api/update-profile`, { playerId, updates: { settings } });
+      const player = { ...currentPlayer, powers, settings };
+      setCurrentPlayer((prev) => ({ ...prev, powers, settings }));
+      playersInGridManager.refreshCombatStats(player);
+      console.log(`Remove All (${kind}): removed ${removed.length}:`, removed.map((p) => p.type).join(', '));
+      alert(`Removed ${removed.length} ${kind} item${removed.length === 1 ? '' : 's'}.`);
+    } catch (error) {
+      console.error(`Error removing all ${kind}:`, error);
+      alert('Failed to remove items. Check console for details.');
+    }
+  };
+
   const handleClearTrophies = async () => {
     try {
       const playerId = currentPlayer?.playerId;
@@ -1291,6 +1354,30 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" onClick={handleGetSkills}> Get Skills </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => handleAddAllPowers('weapons')}> Add All Weapons </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => handleAddAllPowers('armor')}> Add All Armor </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => handleAddAllPowers('shields')}> Add All Shields </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => handleAddAllPowers('magic')}> Add All Magic Items </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={() => handleRemoveAllPowers('weapons')}> Remove All Weapons </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={() => handleRemoveAllPowers('armor')}> Remove All Armor </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={() => handleRemoveAllPowers('shields')}> Remove All Shields </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={() => handleRemoveAllPowers('magic')}> Remove All Magic Items </button>
       </div>
 
         <h3>Create Single Valley Grid</h3>

@@ -1,7 +1,8 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import { animateRemotePC } from '../Render/RenderAnimatePosition';
-import { loadMasterResources } from '../Utils/TuningManager';
+import { loadMasterResources, loadGlobalTuning, getGlobalTuning } from '../Utils/TuningManager';
+import { powerModifiers as gearModifiers } from '../GameFeatures/Combat/combatGear';
 
 /**
  * Single-PC store (docs/phase-3-contract.md §1).
@@ -39,8 +40,6 @@ const DEFAULT_PC_RECORD_FIELDS = {
   speed: 1,
 };
 
-const COMBAT_ATTRIBUTES = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-
 /**
  * Build the in-grid PC record from whatever shape the caller has
  * (a Player document, a previous PC record, or a hand-built payload).
@@ -66,33 +65,11 @@ function buildPCRecord(playerId, pcData = {}, now = Date.now()) {
 }
 
 /**
- * Combat-stat modifiers from powers: equipped weapon/armor + every magic
- * enhancement. Returns `{ [attr]: total }`.
+ * Combat-stat modifiers from the powers that count (combatGear.js: equipped weapon, shield
+ * beside a one-handed weapon, armour, and the equipped magic items). Returns `{ [attr]: total }`.
  */
 function powerModifiers(player, masterResources) {
-  const modifiers = {};
-  const equippedWeapon = player.settings?.equippedWeapon || null;
-  const equippedArmor = player.settings?.equippedArmor || null;
-
-  const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
-  const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
-  const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
-
-  (player.powers || []).forEach((power) => {
-    const resource = masterResources.find((r) => r.type === power.type);
-    if (!resource || resource.category !== 'power') return;
-    const powerQty = power.quantity || 0;
-    const shouldCount = isMagicEnhancement(resource) ||
-      (isWeapon(resource) && power.type === equippedWeapon) ||
-      (isArmor(resource) && power.type === equippedArmor);
-    if (!shouldCount) return;
-    COMBAT_ATTRIBUTES.forEach((attr) => {
-      if (typeof resource[attr] === 'number') {
-        modifiers[attr] = (modifiers[attr] || 0) + powerQty * resource[attr];
-      }
-    });
-  });
-  return modifiers;
+  return gearModifiers(player, masterResources, getGlobalTuning());
 }
 
 /** Max hp as the stats derive it: base + every maxhp power the player holds (death/revive use this). */
@@ -389,6 +366,7 @@ class GridStatePCManager {
     this.localPlayerId = playerId;
 
     const masterResources = await loadMasterResources();
+    await loadGlobalTuning(); // magic slot count (combatGear)
     const modifiers = powerModifiers(player, masterResources);
     const getStat = (baseKey, modKey) => (player[baseKey] || 0) + (modifiers[modKey] || 0);
 
@@ -426,6 +404,31 @@ class GridStatePCManager {
     this.startPersistence();
     this.ensureUnloadFlush();
     return pc;
+  }
+
+  /**
+   * Re-derive the local PC's combat stats from a Player document after its gear changed
+   * (equip, discard, purchase, scroll find, debug grants). hp is kept, capped at the new max.
+   */
+  async refreshCombatStats(player) {
+    const gridId = Object.keys(this.playersInGrid)[0];
+    const playerId = this.localPlayerId;
+    const pc = this.playersInGrid[gridId]?.pcs?.[playerId];
+    if (!pc || !player) return;
+    const masterResources = await loadMasterResources();
+    await loadGlobalTuning();
+    const mods = powerModifiers(player, masterResources);
+    const getStat = (baseKey, modKey) => (player[baseKey] || 0) + (mods[modKey] || 0);
+    const maxhp = getStat('baseMaxhp', 'maxhp');
+    this.updatePC(gridId, playerId, {
+      maxhp,
+      hp: Math.min(pc.hp, maxhp),
+      armorclass: getStat('baseArmorclass', 'armorclass'),
+      attackbonus: getStat('baseAttackbonus', 'attackbonus'),
+      damage: getStat('baseDamage', 'damage'),
+      attackrange: getStat('baseAttackrange', 'attackrange'),
+      speed: getStat('baseSpeed', 'speed'),
+    });
   }
 
   // ---------------------------------------------------------------------------

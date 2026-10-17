@@ -10,7 +10,8 @@ const { spendCosts } = require('../utils/playerHoldings');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
-const { derivedStats } = require('../utils/combatStats');
+const { derivedStats, magicSlotCount, magicSlotBase } = require('../utils/combatStats');
+const globalTuning = require('../tuning/globalTuning.json');
 
 // Account routes the editor uses (and the profile's own delete): the caller must be a developer
 // (x-player-id of a developer account, as the maintenance gate checks) or, for delete, the player themself.
@@ -377,7 +378,7 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
-const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp'];
+const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots'];
 
 router.post('/update-profile', async (req, res) => {
   const { playerId } = req.body;
@@ -792,6 +793,34 @@ router.post('/player/avatar-part', async (req, res) => {
   } catch (error) {
     console.error('Error buying avatar part:', error);
     res.status(500).json({ error: 'Failed to buy avatar part.' });
+  }
+});
+
+// POST /api/player/buy-magic-slot { playerId, currentSlots } → { success, magicSlots, gemcost, inventory, backpack }
+// Buys the next magic enhancement slot for gems (globalTuning.combat.magicSlotGemCosts, spent here,
+// backpack first). `currentSlots` is the count the player saw: a repeat of the same tap after
+// the first one landed finds a different count and is refused instead of charging twice.
+router.post('/player/buy-magic-slot', async (req, res) => {
+  const { playerId, currentSlots } = req.body || {};
+  if (!playerId || !Number.isFinite(currentSlots)) return res.status(400).json({ error: 'playerId and currentSlots are required.' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    const slots = magicSlotCount(player);
+    if (slots !== currentSlots) return res.status(409).json({ error: 'Slot count changed.', code: 'stale', magicSlots: slots });
+    const costs = globalTuning.combat?.magicSlotGemCosts || [];
+    const gemcost = costs[slots - magicSlotBase()];
+    if (!Number.isFinite(gemcost)) return res.status(400).json({ error: 'No more slots to buy.', code: 'max' });
+    if (!spendCosts({ Gem: gemcost }, player.inventory, player.backpack, { table: true })) {
+      return res.status(400).json({ error: 'Not enough gems.', code: 'not-enough-gems', gemcost });
+    }
+    player.magicSlots = slots + 1;
+    player.markModified('inventory'); player.markModified('backpack');
+    await player.save();
+    res.json({ success: true, magicSlots: player.magicSlots, gemcost, inventory: player.inventory, backpack: player.backpack });
+  } catch (error) {
+    console.error('Error buying magic slot:', error);
+    res.status(500).json({ error: 'Failed to buy a magic slot.' });
   }
 });
 

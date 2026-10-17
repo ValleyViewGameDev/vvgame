@@ -19,6 +19,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { settingsWearingNewMagic, isWeapon as isWeaponGear, handsIcon, handsOf } from '../Combat/combatGear';
 
 const ShopStation = ({
   onClose,
@@ -87,10 +88,10 @@ const ShopStation = ({
   // the grid it stands on (resources.json shopregion: the regional catalogue, docs/tuning.md 5b);
   // the main town has no region, so it sells the shared catalogue only
   const shopRegion = currentPlayer?.location?.region || null;
-  const soldHere = (resource) => !resource?.shopregion || resource.shopregion === shopRegion;
 
   useEffect(() => {
     if (!masterResources || !stationType) return;
+    const soldHere = (resource) => !resource?.shopregion || resource.shopregion === shopRegion;
 
     // First check if this shop has trades defined in masterTraders
     const traderOffers = masterTraders?.filter(t => t.trader === stationType);
@@ -247,43 +248,16 @@ const ShopStation = ({
         playerId: currentPlayer.playerId,
         powers: updatedPowers,
       });
-      setCurrentPlayer(prev => ({
-        ...prev,
-        powers: updatedPowers,
-      }));
+      // a magic item goes on at once when a slot is free (combatGear.js); gear waits for the
+      // Combat panel, where the player chooses what to wear
+      const owner = { ...currentPlayer, powers: updatedPowers };
+      const wearing = settingsWearingNewMagic(owner, recipe.type, masterResources, globalTuning);
+      const updatedPlayer = wearing ? { ...owner, settings: wearing } : owner;
+      setCurrentPlayer(prev => ({ ...prev, powers: updatedPowers, ...(wearing ? { settings: wearing } : {}) }));
+      if (wearing) axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
+      playersInGridManager.refreshCombatStats(updatedPlayer);
       soundManager.playSFX('skill_earned');
-      // Helper functions to categorize powers
-      const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
-      const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
-      const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
-      
-      // Only update combat stats for magic enhancements (not weapons/armor)
-      if (isMagicEnhancement(recipe)) {
-        const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
-        if (gridPlayer) {
-          const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-          const statUpdates = {};
-          
-          // Check for combat attributes on this power
-          combatAttributes.forEach(attr => {
-            if (typeof recipe[attr] === 'number') {
-              const oldValue = gridPlayer[attr] || 0;
-              const newValue = oldValue + recipe[attr];
-              statUpdates[attr] = newValue;
-              console.log(`🧠 Updated ${attr} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
-            }
-          });
-          
-          // Update all modified stats at once
-          if (Object.keys(statUpdates).length > 0) {
-            await playersInGridManager.updatePC(gridId, currentPlayer.playerId, statUpdates);
-          }
-        }
-      } else {
-        // Weapons and armor don't update combat stats until equipped
-        console.log(`${recipe.type} added to inventory - equip in Combat Panel to apply stats`);
-        
-        // Send notification for newly purchased equipment
+      if (!wearing) {
         showNotification('Message', {
           title: strings[7004] || 'Note:',
           message: strings[7017] || 'Equip in Combat Panel to use'
@@ -449,6 +423,12 @@ const ShopStation = ({
                 
                 if (effects.length > 0) {
                   effectsHtml = `<span style="color: var(--color-text-link);">${effects.join(', ')}</span><br>`;
+                }
+                // weapons show how many hands they take (a two-handed one leaves no hand for a shield)
+                const gearDef = masterResources.find(r => r.type === recipe.type) || recipe;
+                if (isWeaponGear(gearDef)) {
+                  const handsLabel = handsOf(gearDef) === 2 ? (strings[10219] || 'Two-handed') : (strings[10218] || 'One-handed');
+                  effectsHtml = `<span>${handsIcon(gearDef)} ${handsLabel}</span><br>` + effectsHtml;
                 }
               }
 

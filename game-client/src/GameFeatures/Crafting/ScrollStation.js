@@ -21,6 +21,7 @@ import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
+import { settingsWearingNewMagic } from '../Combat/combatGear';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import './ScrollStation.css';
@@ -446,37 +447,21 @@ const ScrollStation = ({
                                 revealedResource.category === 'power' ? '⚡' : '🔧';
             floatFromCard(`${categoryEmoji} ${displayName}`);
             
-            // Handle combat stats updates for powers (mimic ShopStation logic)
+            // A magic item goes on at once when a slot is free (combatGear.js); gear waits for
+            // the Combat panel, where the player chooses what to wear
             if (revealedResource.category === 'power') {
-              // Helper functions to categorize powers
-              const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
-              const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
-              const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
-              
-              if (isMagicEnhancement(revealedResource)) {
-                // Update combat stats for magic enhancements
-                const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer._id];
-                if (gridPlayer) {
-                  const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                  const statUpdates = {};
-                  
-                  // Check for combat attributes on this power
-                  combatAttributes.forEach(attr => {
-                    if (typeof revealedResource[attr] === 'number') {
-                      const oldValue = gridPlayer[attr] || 0;
-                      const newValue = oldValue + revealedResource[attr];
-                      statUpdates[attr] = newValue;
-                      console.log(`🧠 Updated ${attr} for player ${currentPlayer._id}: ${oldValue} -> ${newValue}`);
-                    }
-                  });
-                  
-                  // Update all modified stats at once
-                  if (Object.keys(statUpdates).length > 0) {
-                    await playersInGridManager.updatePC(gridId, currentPlayer._id, statUpdates);
-                  }
-                }
-              } else {
-                // Weapons and armor require equipping - send notification
+              const owned = currentPlayer.powers || [];
+              const powers = owned.some((p) => p.type === revealedResource.type)
+                ? owned.map((p) => (p.type === revealedResource.type ? { ...p, quantity: (p.quantity || 0) + collectedQty } : p))
+                : [...owned, { type: revealedResource.type, quantity: collectedQty }];
+              const owner = { ...currentPlayer, powers };
+              const wearing = settingsWearingNewMagic(owner, revealedResource.type, masterResources, globalTuning);
+              if (wearing) {
+                setCurrentPlayer((prev) => ({ ...prev, settings: wearing }));
+                axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
+              }
+              playersInGridManager.refreshCombatStats(wearing ? { ...owner, settings: wearing } : owner);
+              if (!wearing) {
                 showNotification('Message', {
                   title: strings[7001] || 'Tip',
                   message: strings[7017] || 'Equip in Combat Panel to use'

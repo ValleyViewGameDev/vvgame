@@ -68,6 +68,7 @@ export const DEFINITIONS = [
       num('scrollqty'), { key: 'scrollchance', type: 'enum', enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'] },
       { key: 'season', type: 'enum', enum: ['Spring', 'Summer', 'Fall', 'Winter'] },
       num('hp'), num('maxhp'), num('range'), num('speed'), num('damage'), num('armorclass'), num('attackbonus'), num('attackrange'), bool('ranged'),
+      { ...num('hands'), label: 'hands (weapons: 1 or 2; 2 = no shield)' }, { ...bool('shield'), label: 'shield (armory: off-hand slot)' },
       { key: 'projectile', label: 'projectile (enemy shot look)', type: 'enum', enum: ['arrow', 'fireball', 'fireball-small', 'blob', 'none'] },
       { ...num('leapcooldown'), label: 'leapcooldown (s; enemy leaps beside the player)' }, str('deathVfx'), num('movespeed'), { key: 'artFacing', type: 'enum', enum: ['left', 'right', 'front'] },
       str('workerType'), num('stateWorking'), num('stateResting'), num('stateRoaming'), num('stateEating'), num('stateSocializing'),

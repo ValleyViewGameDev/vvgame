@@ -214,9 +214,14 @@ const playerSchema = new mongoose.Schema({
     soundEffectsOn: { type: Boolean, default: true },
     equippedWeapon: { type: String, default: null },
     equippedArmor: { type: String, default: null },
+    equippedShield: { type: String, default: null },
+    // the magic items the player chose to wear (capped by magicSlots); unset = never chosen,
+    // the highest-level owned items count (utils/combatStats.js equippedMagicTypes)
+    equippedMagic: { type: [String], default: undefined },
     plantWithCursor: { type: Boolean, default: true },
   },
 
+  magicSlots: { type: Number, default: null }, // magic enhancement slots; null = globalTuning.combat.magicSlotsBase. Raised only by /player/buy-magic-slot
   relocations: { type: Number },
   iscamping: { type: Boolean, default: false },
   isinboat: { type: Boolean, default: false },

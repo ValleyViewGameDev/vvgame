@@ -65,6 +65,9 @@ export async function loadGlobalTuning() {
   return globalTuning;
 }
 
+/** The cached globalTuning, or null before loadGlobalTuning has run (sync readers). */
+export function getGlobalTuning() { return globalTuning; }
+
 /**
  * Fetch and cache interactions.json
  */

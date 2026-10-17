@@ -4,7 +4,9 @@
     "attackCooldownMaxMs": 800,
     "attackCooldownPerSpeedMs": 100,
     "respawnHpFree": 40,
-    "respawnHpGoldFraction": 0.5
+    "respawnHpGoldFraction": 0.5,
+    "magicSlotsBase": 5,
+    "magicSlotGemCosts": [500, 1000, 2000, 3500, 5000]
   },
   "costToRevive": 50,
   "percentageToRevive": 0.25,

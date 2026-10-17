@@ -494,20 +494,67 @@ re-read it with a grids query on `isTemplate: true`):
 | Lethe Wharf (2) | Ferryman's Shroud L40, AC 17, hp +200 | Lethe Scythe L42, dmg 23, atk +1, spd +1 | Draught of Lethe L40, hp +400 |
 | Acheron (2) | Ashen Plate L46, AC 18, spd +1 | Demonbane L50, dmg 25, atk +2, spd +1 | Charon's Obol L45, AC +2, hp +300 |
 
-**Player power by level** (best slot items + all magic at or below; base AC 10, attack 10,
-damage 15, hp 1000, speed 5):
+Player power by level under the equip rules is in 5c.
 
-| Lvl | Baseline AC / atk / dmg / hp | Explorer (all regional too) | Before 2026-10-17 |
-|---|---|---|---|
-| 8 | 20 / 10 / 22 / 1100 | 21 / 10 / 22 / 1100 | 18 / 10 / 22 / 1100 |
-| 12 | 22 / 14 / 30 / 1100 | 25 / 17 / 28 / 1250 | 20 / 14 / 30 / 1100 |
-| 16 | 26 / 14 / 34 / 1250 | 30 / 15 / 30 / 1500 | 20 / 14 / 33 / 1100 |
-| 20 | 27 / 18 / 36 / 1250 | 30 / 23 / 30 / 1600 | 22 / 18 / 36 / 1100 |
-| 22 | 37 / 22 / 36 / 1450 | 42 / 27 / 30 / 1800 | 32 / 22 / 36 / 1300 |
-| 26 | 40 / 22 / 40 / 1450 | 43 / 28 / 44 / 2050 | 35 / 22 / 40 / 1300 |
-| 34 | 41 / 23 / 48 / 1750 | 48 / 33 / 49 / 2650 | 35 / 22 / 45 / 1300 |
-| 42 | 44 / 26 / 48 / 2250 | 51 / 36 / 52 / 3550 | 35 / 22 / 45 / 1800 |
-| 50 | 45 / 26 / 56 / 2250 | 53 / 36 / 60 / 3750 | 35 / 22 / 53 / 1800 |
+### 5c. Equip slots: hands, shields and magic slots (owner, 2026-10-17)
 
-The biggest single step is still L20 to L22 (AC 27 to 37: Stoneheart +5 at L21 and Blessed
-Veil +5 at L22). The enemy stat table must be re-fit to the baseline column above.
+**What counts** (`game-client/src/GameFeatures/Combat/combatGear.js`, mirrored by
+`game-server/utils/combatStats.js`; the Combat panel equips, `player.settings` stores):
+
+| Slot | Holds | Rule |
+|---|---|---|
+| Weapon | 1 (`equippedWeapon`) | `hands` (ECONOMY column): 1 or 2; shown as 🤚 / 🤚🤚 in the Combat panel and on shop cards |
+| Shield | 1 (`equippedShield`) | `shield: true` rows in the Armory; counts only beside a one-handed weapon (or none). Equipping a two-hander takes it off; the Shields list greys out |
+| Armor | 1 (`equippedArmor`) | never a weapon or a shield (Titania's Bow AC +1 is a weapon) |
+| Magic | `magicSlots` (`equippedMagic`) | `globalTuning.combat.magicSlotsBase` 5; more for gems |
+
+- A player who has never chosen (no `equippedMagic`) wears their 5 highest-level magic items,
+  so nobody drops to zero when the rule lands. A newly bought or found magic item goes on by
+  itself while a slot is free.
+- Extra magic slots: `globalTuning.combat.magicSlotGemCosts` [500, 1000, 2000, 3500, 5000] for
+  the 6th to 10th (about $5 to $50 each at the 500-gem pack price), bought through
+  `POST /api/player/buy-magic-slot`; `magicSlots` is developer-only on `/update-profile`.
+- Magic slots make magic items a CHOICE: the baseline no longer stacks every item it owns.
+  Small items (+1 to +3) still matter, because slots are scarce early and players swap for
+  the fight ahead (reach and speed against Spiders, AC and hp against Ogres).
+
+**Two-handed vs one-handed.** Two-handed: every bow and crossbow, great swords, claymores, mauls,
+hammers, axes, halberds, glaives, scythes and the long spears (Lakeside, Boar). One-handed:
+knives, daggers, swords, rapiers, sabers, the Spear, the Magic Spear and the legendary swords
+(Sword of Song, Glowing Sword, Legendary Sword). A two-hander is about +3 damage over the best
+one-hander at its level; a shield is +2 to +7 AC. Shared one-handers keep that path alive after
+the Broadsword: **Arming Sword** L24 (damage 18) and **Falchion** L38 (damage 20, attack +1).
+
+**Shields** (Armory, shared catalogue):
+
+| Lvl | Shield | Stats |
+|---|---|---|
+| 5 | Buckler | AC +2 |
+| 14 | Kite Shield | AC +3 |
+| 24 | Heater Shield | AC +4 |
+| 36 | Tower Shield | AC +6, speed +1 |
+| 52 | Aegis | AC +7, max hp +100 |
+
+**Player power by level** (baseline = shared catalogue; best armour, best melee weapon of the
+build, best shield for one-handers, the 5 magic items worth most; base AC 10, attack 10,
+damage 15, hp 1000, speed 5).
+
+| Lvl | Sword and shield AC / atk / dmg / hp | Two-hander AC / atk / dmg / hp |
+|---|---|---|
+| 8 | 22 / 10 / 22 / 1100 | 20 / 10 / 15 / 1100 (no two-handed melee before L14) |
+| 12 | 24 / 14 / 30 / 1000 | 22 / 14 / 15 / 1000 |
+| 16 | 24 / 14 / 34 / 1000 | 21 / 14 / 18 / 1000 |
+| 20 | 25 / 18 / 31 / 1000 | 22 / 18 / 33 / 1000 |
+| 22 | 35 / 18 / 31 / 1200 | 32 / 18 / 33 / 1200 |
+| 26 | 39 / 18 / 33 / 1200 | 35 / 18 / 33 / 1200 |
+| 34 | 40 / 14 / 38 / 1200 | 36 / 15 / 41 / 1200 |
+| 42 | 40 / 11 / 40 / 1700 | 36 / 11 / 41 / 1700 |
+| 50 | 41 / 11 / 48 / 1700 | 37 / 11 / 49 / 1700 |
+
+(Attack drops after L30 in this table only because the 5 slots fill with AC, damage and hp items
+ahead of Steady Hand and Pinpoint; a player facing high-AC enemies would swap them back.)
+
+The L20 to L22 step (Stoneheart AC +5, Blessed Veil AC +5) is still the biggest single jump.
+Fit the enemy stat table to these two columns: an enemy at its level should hit the sword and
+shield build about 45% and the two-hander about 55%.
+

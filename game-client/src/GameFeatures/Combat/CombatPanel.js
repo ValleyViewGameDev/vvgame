@@ -1,6 +1,6 @@
 import './CombatPanel.css';
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -9,445 +9,319 @@ import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
+import { gameConfirm, gameAlert } from '../../UI/Modals/GameDialog';
+import { loadGlobalTuning } from '../../Utils/TuningManager';
+import {
+  isWeapon, isShield, isArmor, isMagic, handsOf, handsIcon, shieldUsable,
+  magicSlotCount, nextMagicSlotCost, equippedMagicTypes,
+} from './combatGear';
 
-const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
+const STAT_ATTRIBUTES = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+const COLLAPSE_KEY = 'combatPanelCollapsed';
+
+const readCollapsed = () => {
+  try { return JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '{}') || {}; } catch (e) { return {}; }
+};
+
+// A blue stat number that pulses when it changes: green when the player got better, berry when
+// worse (`lowerIsBetter` for speed, where a smaller number is a faster swing). The first real
+// reading after the panel opens sets the baseline without a pulse.
+const PulseNumber = ({ value, ready, lowerIsBetter = false, children }) => {
+  const prev = useRef(null);
+  const [fx, setFx] = useState(null);
+  useEffect(() => {
+    if (!ready) return;
+    if (prev.current !== null && prev.current !== value) {
+      const up = value > prev.current;
+      setFx({ key: Date.now(), good: lowerIsBetter ? !up : up });
+    }
+    prev.current = value;
+  }, [value, ready, lowerIsBetter]);
+  return (
+    <span key={fx?.key || 0} className={`stat-total blue-text${fx ? (fx.good ? ' stat-pulse-up' : ' stat-pulse-down') : ''}`}>
+      {children ?? value}
+    </span>
+  );
+};
+
+// A collapsible block of the panel; its open / closed state is remembered per viewer
+const Section = ({ id, title, sub, collapsed, onToggle, children }) => (
+  <div className={`combat-section combat-section-${id}`}>
+    <button type="button" className="combat-section-header" aria-expanded={!collapsed} onClick={() => onToggle(id)}>
+      <h3>{title}</h3>
+      <span className="combat-section-arrow">{collapsed ? '▸' : '▾'}</span>
+    </button>
+    {!collapsed && (
+      <div className="combat-section-body">
+        {sub && <div className="combat-section-sub">{sub}</div>}
+        {children}
+      </div>
+    )}
+  </div>
+);
+
+const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, masterResources }) => {
   const strings = useStrings();
-  const [allResources, setAllResources] = useState([]);
-  const [isContentLoading, setIsContentLoading] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
-  const [fetchTrigger, setFetchTrigger] = useState(0);
   const [playerStats, setPlayerStats] = useState({});
-  
-  // Equipment state
-  const getEquippedWeapon = () => currentPlayer.settings?.equippedWeapon || null;
-  const getEquippedArmor = () => currentPlayer.settings?.equippedArmor || null;
-  
-  // Helper functions to categorize powers
-  const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
-  const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
-  const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
-  
-  // Check if player is in a valid location for equipment changes
-  const canChangeEquipment = () => {
-//    const gridType = currentPlayer.location.gtype;
-//    return gridType === 'homestead' || gridType === 'town';
-    return true; // CHANGED: Allow equipment changes anywhere
-  };
+  const [globalTuning, setGlobalTuning] = useState(null);
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [buyingSlot, setBuyingSlot] = useState(false);
 
-  // Equipment change handlers
-  const handleEquipWeapon = async (weaponType) => {
-    if (!canChangeEquipment()) {
-      updateStatus(strings[520] || 'Cannot change equipment in this location');
-      return;
-    }
+  useEffect(() => { loadGlobalTuning().then(setGlobalTuning); }, []);
 
+  const toggleSection = (id) => setCollapsed((prev) => {
+    const next = { ...prev, [id]: !prev[id] };
+    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next)); } catch (e) { /* per-viewer nicety only */ }
+    return next;
+  });
+
+  const defOf = (type) => masterResources.find((r) => r.type === type);
+  const settings = currentPlayer.settings || {};
+  const magicSlots = magicSlotCount(currentPlayer, globalTuning);
+  const equippedMagic = equippedMagicTypes(currentPlayer, masterResources, globalTuning);
+  const shieldOk = shieldUsable(currentPlayer, masterResources);
+
+  // Every gear change is optimistic (house rule): the player record and the live stats change on
+  // the tap, the server is told in parallel, and a failure puts the old record back.
+  const applyGearChange = async ({ settings: nextSettings, powers: nextPowers }, failMessage) => {
+    const before = currentPlayer;
+    const updatedPlayer = {
+      ...currentPlayer,
+      ...(nextSettings ? { settings: nextSettings } : {}),
+      ...(nextPowers ? { powers: nextPowers } : {}),
+    };
+    setCurrentPlayer(updatedPlayer);
+    playersInGridManager.refreshCombatStats(updatedPlayer).then(readStats);
     try {
-      const updatedSettings = {
-        ...currentPlayer.settings,
-        equippedWeapon: weaponType
-      };
-      
-      await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: { settings: updatedSettings }
-      });
-
-      // Update player state first
-      const updatedPlayer = {
-        ...currentPlayer,
-        settings: updatedSettings
-      };
-      setCurrentPlayer(updatedPlayer);
-
-      // Wait a moment for state to settle, then refresh with updated player data
-      setTimeout(() => {
-        refreshCombatStatsWithPlayer(updatedPlayer);
-        // Also force immediate update of displayed stats
-        const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
-        if (stats) {
-          setPlayerStats(stats);
-        }
-      }, 100);
-
-      soundManager.playSFX('equip');
-      updateStatus(weaponType ? `Equipped ${weaponType}` : 'Unequipped weapon');
+      await Promise.all([
+        nextSettings && axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: nextSettings } }),
+        nextPowers && axios.post(`${API_BASE}/api/update-powers`, { playerId: currentPlayer.playerId, powers: nextPowers }),
+      ]);
+      return true;
     } catch (error) {
-      console.error('Error equipping weapon:', error);
-      updateStatus('Failed to equip weapon');
+      console.error(failMessage, error);
+      setCurrentPlayer(before);
+      playersInGridManager.refreshCombatStats(before);
+      updateStatus(failMessage);
+      return false;
     }
   };
-  
-  const handleEquipArmor = async (armorType) => {
-    if (!canChangeEquipment()) {
-      updateStatus(strings[520] || 'Cannot change equipment in this location');
-      return;
-    }
 
+  const equipSingle = (slotKey, type) => {
+    const next = { ...settings, [slotKey]: type };
+    // a two-handed weapon takes the shield hand
+    if (slotKey === 'equippedWeapon' && handsOf(defOf(type)) === 2) next.equippedShield = null;
+    soundManager.playSFX('equip');
+    applyGearChange({ settings: next }, 'Failed to change equipment');
+  };
+
+  const toggleMagic = (type) => {
+    const on = equippedMagic.includes(type);
+    if (!on && equippedMagic.length >= magicSlots) return;
+    const next = { ...settings, equippedMagic: on ? equippedMagic.filter((t) => t !== type) : [...equippedMagic, type] };
+    soundManager.playSFX('equip');
+    applyGearChange({ settings: next }, 'Failed to change enhancements');
+  };
+
+  // Discard: drop a piece of gear for good (old gear the player will never wear again)
+  const handleDiscard = async (powerType) => {
+    const ok = await gameConfirm({
+      title: strings[10203] || 'Discard?',
+      message: strings[10204] || 'You will lose this item permanently.',
+      confirmLabel: strings[2028] || 'Yes',
+      danger: true,
+    });
+    if (!ok) return;
+    const next = { ...settings };
+    for (const key of ['equippedWeapon', 'equippedArmor', 'equippedShield']) if (next[key] === powerType) next[key] = null;
+    if (Array.isArray(next.equippedMagic)) next.equippedMagic = next.equippedMagic.filter((t) => t !== powerType);
+    soundManager.playSFX('equip');
+    applyGearChange({ settings: next, powers: (currentPlayer.powers || []).filter((p) => p.type !== powerType) }, 'Failed to discard item');
+  };
+
+  // Upgrade: buy the next magic slot for gems (globalTuning.combat.magicSlotGemCosts). The
+  // server holds the gems, so this one waits for its answer.
+  const handleUpgradeSlots = async () => {
+    const gems = nextMagicSlotCost(currentPlayer, globalTuning);
+    if (gems === null) { gameAlert({ message: strings[10216] || 'You have every enhancement slot.' }); return; }
+    const ok = await gameConfirm({
+      title: strings[10213] || 'More Enhancements',
+      message: (strings[10214] || 'Equip {next} enhancements instead of {count}.').replace('{next}', magicSlots + 1).replace('{count}', magicSlots),
+      confirmLabel: (strings[10215] || 'Buy for 💎 {gems}').replace('{gems}', gems.toLocaleString()),
+    });
+    if (!ok || buyingSlot) return;
+    setBuyingSlot(true);
     try {
-      const updatedSettings = {
-        ...currentPlayer.settings,
-        equippedArmor: armorType
-      };
-      
-      await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: { settings: updatedSettings }
-      });
-
-      // Update player state first
-      const updatedPlayer = {
-        ...currentPlayer,
-        settings: updatedSettings
-      };
-      setCurrentPlayer(updatedPlayer);
-
-      // Wait a moment for state to settle, then refresh with updated player data
-      setTimeout(() => {
-        refreshCombatStatsWithPlayer(updatedPlayer);
-        // Also force immediate update of displayed stats
-        const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
-        if (stats) {
-          setPlayerStats(stats);
-        }
-      }, 100);
-
-      soundManager.playSFX('equip');
-      updateStatus(armorType ? `Equipped ${armorType}` : 'Unequipped armor');
+      const { data } = await axios.post(`${API_BASE}/api/player/buy-magic-slot`, { playerId: currentPlayer.playerId, currentSlots: magicSlots });
+      setCurrentPlayer((prev) => ({ ...prev, magicSlots: data.magicSlots, inventory: data.inventory, backpack: data.backpack }));
+      if (setInventory && data.inventory) setInventory(data.inventory);
+      soundManager.playSFX('skill_earned');
     } catch (error) {
-      console.error('Error equipping armor:', error);
-      updateStatus('Failed to equip armor');
+      const code = error.response?.data?.code;
+      if (code === 'not-enough-gems') gameAlert({ message: strings[10217] || 'Not enough Gems.' });
+      else if (code === 'stale' && Number.isFinite(error.response.data.magicSlots)) setCurrentPlayer((prev) => ({ ...prev, magicSlots: error.response.data.magicSlots }));
+      else { console.error('Error buying a magic slot:', error); updateStatus('Failed to buy a slot'); }
+    } finally {
+      setBuyingSlot(false);
     }
   };
 
+  function readStats() {
+    const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
+    if (stats) setPlayerStats({ ...stats });
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
       const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
-      if (stats) {
-        setPlayerStats(stats);
-      }
-    }, 500); // Poll every 500ms
-
+      if (stats) setPlayerStats(stats);
+    }, 500);
     return () => clearInterval(interval);
   }, [currentPlayer._id, currentPlayer.location.g]);
 
-  // --- Stat helpers ---
-
-  const getPlayerStats = () => {
-    return playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id] || {};
-  };
   const getStatBreakdown = (stat) => {
     const total = playerStats?.[stat] || 0;
-    // Handle special case for maxhp -> baseMaxhp (capital M)
-    let basePropertyName;
-    if (stat === 'maxhp') {
-      basePropertyName = 'baseMaxhp';
-    } else if (stat === 'hp') {
-      basePropertyName = 'baseHp';
-    } else {
-      // For other stats: damage -> baseDamage, attackrange -> baseAttackrange, etc.
-      basePropertyName = `base${stat.charAt(0).toUpperCase() + stat.slice(1)}`;
-    }
+    const basePropertyName = stat === 'maxhp' ? 'baseMaxhp' : stat === 'hp' ? 'baseHp' : `base${stat.charAt(0).toUpperCase() + stat.slice(1)}`;
     const base = currentPlayer[basePropertyName] || 0;
-    const modifier = total - base;
-    return { base, modifier, total };
+    return { base, modifier: total - base, total };
+  };
+
+  // the lists follow the progression: lowest level first, ties by name
+  const levelOf = (type) => defOf(type)?.level || 0;
+  const powersByLevel = [...(currentPlayer.powers || [])]
+    .sort((a, b) => (levelOf(a.type) - levelOf(b.type)) || a.type.localeCompare(b.type));
+  const ownedOf = (kindTest) => powersByLevel.filter((p) => kindTest(defOf(p.type)));
+
+  const statLines = (power, resource) => STAT_ATTRIBUTES
+    .filter((attr) => typeof resource[attr] === 'number')
+    .map((attr) => {
+      const value = (power.quantity || 0) * resource[attr];
+      return `${value > 0 ? '+' : ''}${value} ${strings[attr] || attr}`;
+    });
+
+  const gearRow = ({ power, checked, disabled, onToggle }) => {
+    const resource = defOf(power.type);
+    const stats = statLines(power, resource);
+    return (
+      <div key={power.type} className={`equipment-item${disabled && !checked ? ' equipment-unavailable' : ''}`}>
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onToggle}
+          onMouseDown={(e) => { setTimeout(() => e.target.blur(), 0); }} // keep focus on the board
+          className="equipment-checkbox"
+          disabled={disabled && !checked}
+        />
+        <div className="equipment-content">
+          <strong>{resource.type}</strong>
+          {isWeapon(resource) && (
+            <span className="equipment-hands" title={handsOf(resource) === 2 ? (strings[10219] || 'Two-handed') : (strings[10218] || 'One-handed')}> {handsIcon(resource)}</span>
+          )}
+          <br />
+          {stats.length > 0
+            ? stats.map((stat, i) => <div key={i} className="equipment-stat">{stat}</div>)
+            : <div className="no-combat-effects text-empty">(No combat effects)</div>}
+        </div>
+        <div className="shared-buttons equipment-discard">
+          <button className="btn-basic btn-mini btn-success" onClick={() => handleDiscard(power.type)}>
+            {strings[188] || 'Discard'}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const hp = getStatBreakdown('hp');
-  const maxhp = getStatBreakdown('maxhp');
-  const damage = getStatBreakdown('damage');
-  const armorclass = getStatBreakdown('armorclass');
-  const attackbonus = getStatBreakdown('attackbonus');
-  const attackrange = getStatBreakdown('attackrange');
-  const speed = getStatBreakdown('speed');
-
-
-
-  // Refresh function that uses current player data (for button)
-  const handleRefreshCombatStats = () => {
-    refreshCombatStatsWithPlayer(currentPlayer);
+  const statsReady = Object.keys(playerStats || {}).length > 0;
+  const statRow = (labelKey, stat) => {
+    const s = getStatBreakdown(stat);
+    const lowerIsBetter = stat === 'speed';
+    return (
+      <tr key={stat}>
+        <td>{strings[labelKey]}: <PulseNumber value={s.modifier !== 0 ? s.total : s.base} ready={statsReady} lowerIsBetter={lowerIsBetter} /></td>
+        <td className="stat-breakdown">({s.base} <PulseNumber value={s.modifier} ready={statsReady} lowerIsBetter={lowerIsBetter}>+ {s.modifier}</PulseNumber>)</td>
+      </tr>
+    );
   };
 
-  // Core refresh function that accepts player data parameter (to avoid race conditions)
-  const refreshCombatStatsWithPlayer = (playerData) => {
-    const gridId = playerData.location.g;
-    const playerId = playerData._id;
-
-    const baseStats = {
-      hp: playerData.baseHp || 0,  // Add hp calculation
-      maxhp: playerData.baseMaxhp || 0,
-      damage: playerData.baseDamage || 0,
-      armorclass: playerData.baseArmorclass || 0,
-      attackbonus: playerData.baseAttackbonus || 0,
-      attackrange: playerData.baseAttackrange || 0,
-      speed: playerData.baseSpeed || 0,
-    };
-
-    const powers = playerData.powers || [];
-    const powerBonuses = {
-      hp: 0, maxhp: 0, damage: 0, armorclass: 0, attackbonus: 0, attackrange: 0, speed: 0,
-    };
-
-    const equippedWeapon = playerData.settings?.equippedWeapon || null;
-    const equippedArmor = playerData.settings?.equippedArmor || null;
-
-    powers.forEach(power => {
-      const res = masterResources.find(r => r.type === power.type);
-      if (res && res.category === 'power') {
-        const powerQty = power.quantity || 0;
-        
-        // Only count equipped weapons and armor, or all magic enhancements
-        const shouldCount = isMagicEnhancement(res) || 
-                           (isWeapon(res) && power.type === equippedWeapon) ||
-                           (isArmor(res) && power.type === equippedArmor);
-        
-        if (shouldCount) {
-          // Check for multiple combat attributes on the power
-          Object.keys(powerBonuses).forEach(stat => {
-            if (typeof res[stat] === 'number') {
-              powerBonuses[stat] += powerQty * res[stat];
-            }
-          });
-        }
-      }
-    });
-
-    const finalStats = {};
-    Object.keys(baseStats).forEach(stat => {
-      finalStats[stat] = baseStats[stat] + (powerBonuses[stat] || 0);
-    });
-
-    // Special handling for HP - use current HP if available, otherwise use max HP
-    const currentPCStats = getPlayerStats();
-    if (currentPCStats?.hp !== undefined) {
-      finalStats.hp = currentPCStats.hp; // Keep current HP value
-    } else if (!finalStats.hp || finalStats.hp === 0) {
-      finalStats.hp = finalStats.maxhp; // Set HP to max if not already set
-    }
-
-    finalStats.playerId = playerId;
-    finalStats.username = playerData.username;
-    finalStats.position = playerData.position || {};
-    finalStats.icon = playerData.icon || "😀";
-    finalStats.iscamping = playerData.iscamping || false;
-    finalStats.isinboat = playerData.isinboat || false;
-    finalStats.lastUpdated = new Date().toISOString();
-
-    const pc = getPlayerStats();
-    const pcPosition = pc?.position;
-    finalStats.position = (pcPosition && typeof pcPosition.x === 'number' && typeof pcPosition.y === 'number')
-      ? pcPosition : { x: 0, y: 0 }; // Fallback
-      
-    playersInGridManager.updatePC(gridId, playerId, finalStats);
-  };
+  const armor = ownedOf(isArmor);
+  const weapons = ownedOf(isWeapon);
+  const shields = ownedOf(isShield);
+  const magic = ownedOf(isMagic);
 
   return (
     <Panel onClose={onClose} titleKey="1124" panelName="CombatPanel">
       <div className="standard-panel">
-      {isContentLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <>
-            <div className="combat-stats">
-              <h3>{strings[10112]} <span className="stat-total">{hp.total}</span></h3><br/>
-              <table className="stats-table">
-                <tbody>
-                  <tr>
-                    <td>{strings[550]}: <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span></td>
-                    <td className="stat-breakdown">({maxhp.base} <span className="stat-total blue-text">+ {maxhp.modifier}</span>)</td>
-                  </tr>
-                  <tr>
-                    <td>{strings[551]}: <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span></td>
-                    <td className="stat-breakdown">({armorclass.base} <span className="stat-total blue-text">+ {armorclass.modifier}</span>)</td>
-                  </tr>
-                  <tr>
-                    <td>{strings[552]}: <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span></td>
-                    <td className="stat-breakdown">({attackbonus.base} <span className="stat-total blue-text">+ {attackbonus.modifier}</span>)</td>
-                  </tr>
-                  <tr>
-                    <td>{strings[553]}: <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span></td>
-                    <td className="stat-breakdown">({damage.base} <span className="stat-total blue-text">+ {damage.modifier}</span>)</td>
-                  </tr>
-                  <tr>
-                    <td>{strings[555]}: <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span></td>
-                    <td className="stat-breakdown">({attackrange.base} <span className="stat-total blue-text">+ {attackrange.modifier}</span>)</td>
-                  </tr>
-                  <tr>
-                    <td>{strings[554]}: <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span></td>
-                    <td className="stat-breakdown">({speed.base} <span className="stat-total blue-text">+ {speed.modifier}</span>)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="shared-buttons">
-              <button className="btn-basic btn-success" onClick={handleRefreshCombatStats}>🔄 Fix Combat Stats</button>
-            </div>
-            <br></br>
+        <div className="combat-section combat-stats">
+          <h3>{strings[10112]} <span className="stat-total">{hp.total}</span></h3>
+          <table className="stats-table">
+            <tbody>
+              {statRow(550, 'maxhp')}
+              {statRow(551, 'armorclass')}
+              {statRow(552, 'attackbonus')}
+              {statRow(553, 'damage')}
+              {statRow(555, 'attackrange')}
+              {statRow(554, 'speed')}
+            </tbody>
+          </table>
+        </div>
 
-            <div className="combat-equip">
-              <h3>{strings[522]}</h3>
-              <br></br>
-              {currentPlayer.powers?.filter(power => {
-                const resource = masterResources.find(r => r.type === power.type);
-                return resource && isArmor(resource);
-              }).length > 0 ? (
-                currentPlayer.powers
-                  .filter(power => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    return resource && isArmor(resource);
-                  })
-                  .map((power, index) => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    const isEquipped = power.type === getEquippedArmor();
-                    const stats = [];
-                    
-                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                    combatAttributes.forEach(attr => {
-                      if (typeof resource[attr] === 'number') {
-                        const value = (power.quantity || 0) * resource[attr];
-                        const label = strings[attr] || attr;
-                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
-                      }
-                    });
-                    
-                    return (
-                      <div key={`armor-${index}`} className="equipment-item">
-                        <input
-                          type="checkbox"
-                          checked={isEquipped}
-                          onChange={() => handleEquipArmor(isEquipped ? null : power.type)}
-                          onMouseDown={(e) => {
-                            // Prevent focus from being taken away from game board
-                            setTimeout(() => e.target.blur(), 0);
-                          }}
-                          className="equipment-checkbox"
-                          disabled={!canChangeEquipment()}
-                        />
-                        <div className="equipment-content">
-                          <strong>{resource.type}</strong><br/>
-                          {stats.map((stat, statIndex) => (
-                            <div key={statIndex} className="equipment-stat">
-                              {stat}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })
-              ) : (
-                <p>{strings[523]}</p>
-              )}
-              
-              <br></br>
-              <h3>{strings[524]}</h3>
-              <br></br>
-              {currentPlayer.powers?.filter(power => {
-                const resource = masterResources.find(r => r.type === power.type);
-                return resource && isWeapon(resource);
-              }).length > 0 ? (
-                currentPlayer.powers
-                  .filter(power => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    return resource && isWeapon(resource);
-                  })
-                  .map((power, index) => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    const isEquipped = power.type === getEquippedWeapon();
-                    const stats = [];
-                    
-                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                    combatAttributes.forEach(attr => {
-                      if (typeof resource[attr] === 'number') {
-                        const value = (power.quantity || 0) * resource[attr];
-                        const label = strings[attr] || attr;
-                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
-                      }
-                    });
-                    
-                    return (
-                      <div key={`weapon-${index}`} className="equipment-item">
-                        <input
-                          type="checkbox"
-                          checked={isEquipped}
-                          onChange={() => handleEquipWeapon(isEquipped ? null : power.type)}
-                          onMouseDown={(e) => {
-                            // Prevent focus from being taken away from game board
-                            setTimeout(() => e.target.blur(), 0);
-                          }}
-                          className="equipment-checkbox"
-                          disabled={!canChangeEquipment()}
-                        />
-                        <div className="equipment-content">
-                          <strong>{resource.type}</strong><br/>
-                          {stats.map((stat, statIndex) => (
-                            <div key={statIndex} className="equipment-stat">
-                              {stat}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })
-              ) : (
-                <p>{strings[525]}</p>
-              )}
-            </div>
+        <Section id="armor" collapsed={!!collapsed.armor} onToggle={toggleSection} title={strings[522]} sub={strings[10205] || 'Equip 1 armor.'}>
+          {armor.length > 0
+            ? armor.map((power) => gearRow({
+              power,
+              checked: power.type === settings.equippedArmor,
+              onToggle: () => equipSingle('equippedArmor', power.type === settings.equippedArmor ? null : power.type),
+            }))
+            : <p>{strings[523]}</p>}
+        </Section>
 
-            <div className="combat-powers">
-              <h3>{strings[526]}</h3>
-              <br></br>
-              {currentPlayer.powers?.filter(power => {
-                const resource = masterResources.find(r => r.type === power.type);
-                return resource && isMagicEnhancement(resource);
-              }).length > 0 ? (
-                currentPlayer.powers
-                  .filter(power => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    return resource && isMagicEnhancement(resource);
-                  })
-                  .map((power, index) => {
-                    const resource = masterResources.find(r => r.type === power.type);
-                    if (!resource) return null;
+        <Section id="weapons" collapsed={!!collapsed.weapons} onToggle={toggleSection} title={strings[524]} sub={strings[10206] || 'Equip 1 weapon.'}>
+          {weapons.length > 0
+            ? weapons.map((power) => gearRow({
+              power,
+              checked: power.type === settings.equippedWeapon,
+              onToggle: () => equipSingle('equippedWeapon', power.type === settings.equippedWeapon ? null : power.type),
+            }))
+            : <p>{strings[525]}</p>}
+        </Section>
 
-                    const powerQty = power.quantity || 0;
-                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                    
-                    // Collect all combat stats this power provides
-                    const stats = [];
-                    combatAttributes.forEach(attr => {
-                      if (typeof resource[attr] === 'number') {
-                        const value = powerQty * resource[attr];
-                        const label = strings[attr] || attr;
-                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
-                      }
-                    });
-                    
-                    
-                    return (
-                      <div key={`magic-${index}`} className="magic-enhancement-item">
-                        <div className="equipment-content">
-                          <strong>{resource.type}</strong><br />
-                          {stats.length > 0 ? (
-                            stats.map((stat, statIndex) => (
-                              <div key={statIndex} className="equipment-stat">
-                                {stat}
-                              </div>
-                            ))
-                          ) : (
-                            <div className="no-combat-effects text-empty">
-                              (No combat effects)
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
-              ) : (
-                <p className="text-empty">{strings[527]}</p>
-              )}
+        <Section id="shields" collapsed={!!collapsed.shields} onToggle={toggleSection} title={strings[10209] || '🛡️ Shields'} sub={shieldOk ? (strings[10210] || 'Equip 1 shield.') : (strings[10212] || 'Shields need a one-handed weapon.')}>
+          {shields.length > 0
+            ? shields.map((power) => gearRow({
+              power,
+              checked: shieldOk && power.type === settings.equippedShield,
+              disabled: !shieldOk,
+              onToggle: () => equipSingle('equippedShield', power.type === settings.equippedShield ? null : power.type),
+            }))
+            : <p>{strings[10211] || 'No shields available'}</p>}
+        </Section>
+
+
+        <Section
+          id="magic"
+          collapsed={!!collapsed.magic}
+          onToggle={toggleSection}
+          title={strings[526]}
+          sub={(
+            <div className="combat-slots">
+              <span>{(strings[10207] || 'Equip {count} enhancements.').replace('{count}', magicSlots)}</span>
+              <span className="shared-buttons">
+                <button className="btn-basic btn-mini btn-gold" disabled={buyingSlot} onClick={handleUpgradeSlots}>
+                  {strings[10208] || 'Upgrade'}
+                </button>
+              </span>
             </div>
-          </>
-        )}
+          )}
+        >
+          {magic.length > 0
+            ? magic.map((power) => {
+              const on = equippedMagic.includes(power.type);
+              return gearRow({ power, checked: on, disabled: equippedMagic.length >= magicSlots, onToggle: () => toggleMagic(power.type) });
+            })
+            : <p className="text-empty">{strings[527]}</p>}
+        </Section>
       </div>
       <br />
     </Panel>

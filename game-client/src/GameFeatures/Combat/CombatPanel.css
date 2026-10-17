@@ -102,3 +102,106 @@
   text-align: right;
   font-size: var(--text-xs);
 }
+
+/* Discard sits at the right end of a weapon or armour row */
+.equipment-discard {
+  margin: 0 0 0 auto;
+  flex-shrink: 0;
+}
+.equipment-discard .btn-basic.btn-mini {
+  margin-left: 8px;
+}
+
+/* Collapsible sections: the header is a button (arrow + title) */
+.combat-section {
+  margin-bottom: 0.6rem;
+}
+.combat-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.combat-section-header h3 {
+  margin: 0;
+}
+.combat-section-arrow {
+  width: 1em;
+  text-align: center;
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary, inherit);
+}
+.combat-section-body {
+  margin: 4px 0 0 4px;
+}
+.combat-section-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary, inherit);
+  margin-bottom: 6px;
+}
+
+/* "Equip X enhancements." with the Upgrade button beside it */
+.combat-slots {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.combat-slots .shared-buttons {
+  margin: 0;
+}
+
+/* One or two hands after a weapon's name */
+.equipment-hands {
+  font-size: var(--text-sm);
+}
+
+/* A shield beside a two-handed weapon, or a magic item with every slot full */
+.equipment-unavailable .equipment-content {
+  opacity: 0.45;
+}
+
+/* The stats stay pinned at the top of the panel while the gear lists scroll under them, so an
+   equip shows its effect at once. .panel-content (the scroller) has 12px padding: the negative
+   offsets pull the pinned block flush to its top edge. */
+.combat-stats {
+  position: sticky;
+  top: -12px;
+  z-index: 2;
+  margin: -12px -12px 0.8rem;
+  padding: 12px 12px 4px;
+  background-color: var(--color-bg-panel);
+  border-bottom: 1px solid var(--color-border);
+}
+.combat-stats .stats-table {
+  margin-bottom: 4px;
+}
+
+/* A stat that changed: a quick pop in the colour of the change (the kentPop family) */
+.stat-pulse-up,
+.stat-pulse-down {
+  display: inline-block;
+  transform-origin: 50% 60%;
+  animation: statPulse 520ms cubic-bezier(0.3, 0, 0.4, 1);
+}
+.stat-pulse-up { --stat-pulse-color: var(--color-text-positive); }
+.stat-pulse-down { --stat-pulse-color: var(--color-text-negative); }
+@keyframes statPulse {
+  0%   { transform: scale(1);    color: var(--color-info); }
+  30%  { transform: scale(1.35); color: var(--stat-pulse-color); filter: brightness(1.15); }
+  100% { transform: scale(1);    color: var(--color-info); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat-pulse-up,
+  .stat-pulse-down { animation: none; }
+}
+
