@@ -977,6 +977,7 @@
     "10199": "Not enough Money for that trip.",
     "10200": "Snug cannot make that trip right now. Try again later.",
     "10201": "+{skill} Skill",
+    "10202": "Only sold in {region}",
     "11000": "ADDED STRINGS:",
     "11001": "Wait for the timer to end, or for another player to buy this item.",
     "12001": "Farming",

@@ -937,6 +937,7 @@
     "10199": "Pas assez d'Argent pour ce voyage.",
     "10200": "Snug ne peut pas faire ce voyage pour le moment. Réessayez plus tard.",
     "10201": "+Compétence {skill}",
+    "10202": "Vendu uniquement à {region}",
     "11000": "ADDED STRINGS:",
     "11001": "Attendez la fin du minuteur ou qu’un autre joueur achète cet objet.",
     "12001": "Agriculture",

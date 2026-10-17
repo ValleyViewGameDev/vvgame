@@ -418,3 +418,96 @@ combat starts to matter, not when the Studio opens. A Book is 15,000 Money + 6 T
 (2 h at the Library, L7; the Library is built from Money, Wood, Stone and Thread). It never takes
 Ink (L17) again: that once gated the whole combat tree at L17. Books also come from fighting:
 Ghosts drop one, and combat quests pay them (backlog T-5 moves the early ones to an early giver).
+
+### 5b. The shop catalogue: shared and regional (owner, 2026-10-17)
+
+**Two catalogues.** The Armory, Warrior's Den and Magic Shop sell every item whose `source` is
+their type. An item with a `shopregion` (ECONOMY column; a region type from resources.json) is
+sold only by shops standing on a grid of that region (`player.location.region`, set per grid in
+the editor's World tab), listed first with "Only sold in {region}" (string 10202). Items without
+one are the **shared catalogue**: every shop of the type, the main town included (it has no
+region). ShopStation.js `soldHere`. The shop list is client-side; the server does not check where
+a power was bought.
+
+**Who the enemies are tuned against.** The **baseline** player owns the best shared armour and
+weapon at their level plus every shared magic item at or below it. Regional items and scroll
+finds (`Only Found in Scrolls`) are bonuses ON TOP, like scrolls: a player who travels gets a
+real edge, and adding a regional item never forces an enemy retune. Weapons and armour take
+one slot each, so a new one only raises the curve if it beats the slot; magic items have no
+slot and all stack, so every shared magic item lifts the baseline for good. Keep new magic items
+small (+1 to +3) and priced as Money/Book sinks.
+
+**Rules for new items**
+- A shared item stays a notch below the scroll-only item near its level (Knight's Plate AC 16
+  at L33 vs Mystic Armor AC 16 at L29).
+- A regional item is a notch above the shared item at its level, or a sidegrade with a
+  trade-off the shared list does not have (Fen Leathers: AC 12 and faster; Dunmorrow Bastion:
+  AC 17 but speed +2; Witches' Charm: attack +2, max hp -50).
+- Near-ring towns (valley1) sell items for L8 to L24, mid-ring towns (valley2) for L20 to L50;
+  each region pays in a good it is known for (Belmont Gold, Setebos Pelt, Sunflower Lake
+  Sunflowers, Sycorax Fen Mushrooms, Mantua Potion A, Windsor Port, Lethe Wharf Potion C).
+- No new weapon passes Long Bow's reach (+5), so the sniping table in 5a still holds.
+- gemcost is derived (4e); a new row needs `gemcost: 0` once to opt in, then the editor prices it.
+
+**Shared catalogue added 2026-10-17** (fills the gaps: no armour from L11 to L19, no melee
+upgrade after L17, no magic AC before L21, flat hp until L36, nothing after L36 but Titan):
+
+| Lvl | Item | Shop | Stats |
+|---|---|---|---|
+| 8 | Warding Charm | Magic | AC +2 |
+| 13 | Broadsword | Den | damage 16 |
+| 14 | Vigor | Magic | max hp +150 |
+| 15 | Scale Mail | Armory | AC 11 |
+| 16 | Iron Skin | Magic | AC +3 |
+| 21 | War Hammer | Den | damage 20, speed +1 |
+| 22 | Recurve Bow | Den | ranged, damage 8, attack +2, reach +5 |
+| 28 | Endurance | Magic | max hp +300 (needs Stoneheart) |
+| 33 | Knight's Plate | Armory | AC 16 |
+| 34 | Bastard Sword | Den | damage 21, attack +1 |
+| 40 | Bulwark | Magic | AC +3 |
+| 42 | Heavy Crossbow | Den | ranged, damage 11, attack +4, reach +5 |
+| 42 | Fury | Magic | attack +3 (needs Unerring) |
+| 45 | Executioner's Axe | Den | damage 22, attack +1, speed +1 |
+| 48 | Gilded Plate | Armory | AC 17 |
+| 55 | Colossus | Magic | max hp +600 (needs Unbreakable) |
+
+**Regional catalogue** (one item per shop each region has; the region map is in the database,
+re-read it with a grids query on `isTemplate: true`):
+
+| Region (ring) | Armory | Warrior's Den | Magic Shop |
+|---|---|---|---|
+| Setebos Rise (1) | Setebos Hide L8, AC 9 | Stone Maul L14, dmg 17, spd +1 | Rock Totem L12, hp +100 |
+| Belmont (1) | Belmont Brigandine L12, AC 11 | Portia's Rapier L10, dmg 13, atk +2 | Lead Casket L9, AC +1, hp +50 |
+| Strathmoore (1) |  | Highland Longbow L16, ranged 7, atk +1, reach +5 | Thistle Brooch L10, AC +1, atk +1 |
+| Sunflower Lake (1) | Sunwoven Mail L16, AC 12 | Lakeside Spear L18, dmg 8, atk +2, reach +2 | Sunflower Crown L15, AC +1, hp +100 |
+| Mantua (1) |  | Mantuan Dagger L16, dmg 12, spd -1 | Apothecary's Vial L20, hp +150 |
+| Dunsinane (1) |  | Macbeth's Claymore L20, dmg 19, spd +1 | Witches' Charm L18, atk +2, hp -50 |
+| Sycorax Fen (1) | Fen Leathers L21, AC 12, spd -1 | Fen Hook L22, dmg 18, atk +2 | Sycorax's Hex L24, dmg +2 |
+| Avondale (2) | Avon Scale L22, AC 14 | Bard's Blade L21, dmg 19, atk +1 | Swan Feather L20, atk +2 |
+| Messina (2) | Don Pedro's Mail L23, AC 14 | Messina Saber L24, dmg 20, atk +1 |  |
+| Windsor (2) | Garter Plate L27, AC 15, hp +100 | Herne's Bow L26, ranged 9, atk +3, reach +5 | Falstaff's Flagon L25, hp +250, spd +1 |
+| Bohemia (2) | Bearskin Mantle L26, AC 14, hp +150 | Boar Spear L27, dmg 13, atk +2, reach +2 | Hermione's Grace L29, AC +1, hp +200 |
+| Navarre (2) |  | Courtier's Rapier L28, dmg 17, atk +3, spd -1 | Academe Tome L27, atk +2 |
+| Dunmorrow (2) | Dunmorrow Bastion L30, AC 17, spd +2 | Morrow Glaive L32, dmg 14, atk +2, reach +2 | Morrow Ward L30, AC +2 |
+| Harfleur (2) | Breach Plate L34, AC 17, hp +100 | Agincourt Longbow L35, ranged 11, atk +4, reach +5 | Crispin's Banner L33, dmg +3, atk +1 |
+| Valdoria (2) | Valdorian Mail L38, AC 17 |  | Valdorian Signet L36, dmg +3 |
+| Lethe Wharf (2) | Ferryman's Shroud L40, AC 17, hp +200 | Lethe Scythe L42, dmg 23, atk +1, spd +1 | Draught of Lethe L40, hp +400 |
+| Acheron (2) | Ashen Plate L46, AC 18, spd +1 | Demonbane L50, dmg 25, atk +2, spd +1 | Charon's Obol L45, AC +2, hp +300 |
+
+**Player power by level** (best slot items + all magic at or below; base AC 10, attack 10,
+damage 15, hp 1000, speed 5):
+
+| Lvl | Baseline AC / atk / dmg / hp | Explorer (all regional too) | Before 2026-10-17 |
+|---|---|---|---|
+| 8 | 20 / 10 / 22 / 1100 | 21 / 10 / 22 / 1100 | 18 / 10 / 22 / 1100 |
+| 12 | 22 / 14 / 30 / 1100 | 25 / 17 / 28 / 1250 | 20 / 14 / 30 / 1100 |
+| 16 | 26 / 14 / 34 / 1250 | 30 / 15 / 30 / 1500 | 20 / 14 / 33 / 1100 |
+| 20 | 27 / 18 / 36 / 1250 | 30 / 23 / 30 / 1600 | 22 / 18 / 36 / 1100 |
+| 22 | 37 / 22 / 36 / 1450 | 42 / 27 / 30 / 1800 | 32 / 22 / 36 / 1300 |
+| 26 | 40 / 22 / 40 / 1450 | 43 / 28 / 44 / 2050 | 35 / 22 / 40 / 1300 |
+| 34 | 41 / 23 / 48 / 1750 | 48 / 33 / 49 / 2650 | 35 / 22 / 45 / 1300 |
+| 42 | 44 / 26 / 48 / 2250 | 51 / 36 / 52 / 3550 | 35 / 22 / 45 / 1800 |
+| 50 | 45 / 26 / 56 / 2250 | 53 / 36 / 60 / 3750 | 35 / 22 / 53 / 1800 |
+
+The biggest single step is still L20 to L22 (AC 27 to 37: Stoneheart +5 at L21 and Blessed
+Veil +5 at L22). The enemy stat table must be re-fit to the baseline column above.

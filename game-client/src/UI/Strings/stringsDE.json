@@ -937,6 +937,7 @@
     "10199": "Nicht genug Geld für diese Reise.",
     "10200": "Snug kann diese Reise gerade nicht machen. Versuche es später noch einmal.",
     "10201": "+Fähigkeit {skill}",
+    "10202": "Nur in {region} erhältlich",
     "11000": "ADDED STRINGS:",
     "11001": "Warte, bis der Timer endet, oder bis ein anderer Spieler diesen Gegenstand kauft.",
     "12001": "Landwirtschaft",

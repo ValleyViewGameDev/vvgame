@@ -83,6 +83,12 @@ const ShopStation = ({
     syncInventory();
   }, [currentPlayer]);
 
+  // a shop sells everything whose source is its type, plus the items tagged with the region of
+  // the grid it stands on (resources.json shopregion: the regional catalogue, docs/tuning.md 5b);
+  // the main town has no region, so it sells the shared catalogue only
+  const shopRegion = currentPlayer?.location?.region || null;
+  const soldHere = (resource) => !resource?.shopregion || resource.shopregion === shopRegion;
+
   useEffect(() => {
     if (!masterResources || !stationType) return;
 
@@ -125,24 +131,27 @@ const ShopStation = ({
 
       // Filter out powers the player already has
       const finalRecipes = filteredRecipes.filter(recipe =>
+        soldHere(masterResources.find(r => r.type === recipe.type)) && (
         recipe.category !== 'power' ||
-        !currentPlayer.powers?.some(p => p.type === recipe.type)
+        !currentPlayer.powers?.some(p => p.type === recipe.type))
       );
 
       setRecipes(finalRecipes);
     } else {
       // Fallback to old method using masterResources.source
       const filteredRecipes = masterResources.filter((resource) =>
-        resource.source === stationType &&
+        resource.source === stationType && soldHere(resource) &&
         (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
       );
+      // this town's own items lead the list, then everything by level
+      filteredRecipes.sort((x, y) => ((y.shopregion ? 1 : 0) - (x.shopregion ? 1 : 0)) || ((x.level || 0) - (y.level || 0)));
       setRecipes(filteredRecipes);
     }
 
     const stationResource = masterResources.find((resource) => resource.type === stationType);
     setStationEmoji(stationResource?.symbol || '🛖');
     setStationDetails(stationResource);
-  }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers]);
+  }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers, shopRegion]);
 
 
   const handleGemPurchase = async (modifiedRecipe) => {
@@ -443,7 +452,12 @@ const ShopStation = ({
                 }
               }
 
+              const regionalHtml = recipe.shopregion
+                ? `<span style="color: var(--color-text-positive);">${(strings[10202] || 'Only sold in {region}').replace('{region}', getLocalizedString(recipe.shopregion, strings))}</span><br>`
+                : '';
+
               const details =
+                regionalHtml +
                 effectsHtml +
                 (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
                 (recipe.requires ? `<span style="color: ${skillColor};">${strings[460] || 'Requires:'} ${recipe.requires}</span>` : '') +
