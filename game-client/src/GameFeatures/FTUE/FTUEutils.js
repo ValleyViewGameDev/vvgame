@@ -167,36 +167,8 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
 // Export function to complete the FTUE tutorial
 export const completeTutorial = async (playerId, currentPlayer, setCurrentPlayer, onClose) => {
   try {
-    // First check if the Wizard quest (index=1) has already been added
-    const currentActiveQuests = currentPlayer?.activeQuests || [];
-    const wizardQuestExists = currentActiveQuests.some(q => q.questId === "Find the Wizard in the Valley");
-
-    let finalActiveQuests = currentActiveQuests;
-
-    if (!wizardQuestExists) {
-      console.log('🎓 Adding completed Wizard quest before completing tutorial');
-
-      // Add the quest with index=1
-      const updatedPlayer = await addAcceptedQuest(playerId, currentPlayer, setCurrentPlayer, 1);
-
-      // Mark it as completed
-      if (updatedPlayer.activeQuests && updatedPlayer.activeQuests.length > 0) {
-        const questIndex = updatedPlayer.activeQuests.findIndex(q => q.questId === "Find the Wizard in the Valley");
-        if (questIndex !== -1) {
-          updatedPlayer.activeQuests[questIndex].completed = true;
-          finalActiveQuests = updatedPlayer.activeQuests;
-
-          // Save the completed quest
-          await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: playerId,
-            updates: { activeQuests: finalActiveQuests }
-          });
-        }
-      }
-    } else {
-      console.log('🎓 Wizard quest already exists, skipping addition');
-    }
-
+    // (The completed "Find the Wizard in the Valley" quest used to be granted here so that Prospero
+    // would hand over his Orb; the quest is gone and Prospero trades the Orb for a riddle, 2026-10-17.)
 
     // Update the player's firsttimeuser flag to false and remove ftuestep
     const response = await axios.post(`${API_BASE}/api/update-profile`, {
@@ -213,7 +185,6 @@ export const completeTutorial = async (playerId, currentPlayer, setCurrentPlayer
         const updated = {
           ...prev,
           firsttimeuser: false,
-          activeQuests: finalActiveQuests
         };
         delete updated.ftuestep;  // Remove ftuestep from local state
         return updated;

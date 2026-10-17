@@ -127,7 +127,8 @@ export function questForHopeTab() {
           case 'trade': return [
             li('Find', [who(way.trader), ' in ', placesNode(way.trader.places), '.']),
             way.gates.length && li('Gate', way.gates.join('; ') + '.'),
-            li('Trade', [...way.needs.flatMap((n, i) => [i ? ', ' : '', `${n.qty} `, linkKey(n.item)]), '.']),
+            way.minigame ? li('Win', `the minigame "${way.minigame}" (Minigames/minigames.js): the right answer pays it, a wrong one has a cost.`)
+              : li('Trade', [...way.needs.flatMap((n, i) => [i ? ', ' : '', `${n.qty} `, linkKey(n.item)]), '.']),
           ];
           case 'shop': return [
             li('Find', [who(way.shop), ' in ', placesNode(way.shop.places), '.']),

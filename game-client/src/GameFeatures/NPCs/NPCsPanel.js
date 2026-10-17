@@ -32,6 +32,10 @@ import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
+import MinigameButton from '../../UI/Buttons/MinigameButton';
+import RiddleMinigame from '../Minigames/RiddleMinigame';
+import { MINIGAMES } from '../Minigames/minigames';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import './NPCsPanel.css';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -83,6 +87,7 @@ const NPCPanel = ({
   const [healRecipes, setHealRecipes] = useState([]);
   const [tradeRecipes, setTradeRecipes] = useState([]);
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall: tap a requirement on a trade you cannot afford
+  const [activeMinigame, setActiveMinigame] = useState(null); // an offer won in a minigame (Prospero's riddle)
   const [pendingDeedTrade, setPendingDeedTrade] = useState(null); // a silent account names itself before the Home Deed trade runs
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -150,8 +155,8 @@ const NPCPanel = ({
       }
     }
     
-    // Check if player can trade based on relationship
-    if (npcData && npcData.action === 'trade') {
+    // Check if player can trade based on relationship (traders, and quest givers who also trade)
+    if (npcData && (npcData.action === 'trade' || masterTraders?.some(t => t.trader === npcData.type))) {
       const tradeInteraction = masterInteractions.find(interaction => 
         interaction.interaction === 'Trade' || interaction.interaction === 'trade'
       );
@@ -169,23 +174,14 @@ const NPCPanel = ({
         setCanTrade(true);
       }
     }
-  }, [masterInteractions, npcData, currentPlayer]);
+  }, [masterInteractions, npcData, currentPlayer, masterTraders]);
 
   // Handle quests or healing logic
   useEffect(() => {
     if (!npcData || !npcData.type) return;
 
-    if (npcData.action === 'quest') {
-      // Add a small delay to debounce rapid changes
-      const timeoutId = setTimeout(() => {
-        fetchQuests();
-      }, 100);
-      
-      return () => clearTimeout(timeoutId);
-    } else if (npcData.action === 'heal') {
-      const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
-      setHealRecipes(filteredRecipes);
-    } else if (npcData.action === 'trade') {
+    // Trader offers (traders.json): a trader's, and a quest giver's who also trades (Prospero)
+    const loadTrades = () => {
       // Find all trades for this trader in masterTraders (new flat format)
       const traderOffers = masterTraders?.filter(t => t.trader === npcData.type);
 
@@ -235,7 +231,8 @@ const NPCPanel = ({
             repeat: offer.repeat, // Store the repeat flag from trader offer
             level: resourceDef?.level, // Level requirement from resource definition
             requires: resourceDef?.requires, // Skill requirement from resource definition
-            xp: offer.xp // XP reward for this specific trade (from traders.json)
+            xp: offer.xp, // XP reward for this specific trade (from traders.json)
+            minigame: offer.minigame || null, // won in a minigame instead of paid for (Minigames/minigames.js)
           };
 
           // Collect all requires fields into ingredient format
@@ -261,6 +258,21 @@ const NPCPanel = ({
         setTradeRecipes(filteredRecipes);
         setHasHiddenTrades(false);
       }
+    };
+
+    if (npcData.action === 'quest') {
+      // Add a small delay to debounce rapid changes
+      const timeoutId = setTimeout(() => {
+        fetchQuests();
+      }, 100);
+      if (masterTraders?.some(t => t.trader === npcData.type)) loadTrades();
+      
+      return () => clearTimeout(timeoutId);
+    } else if (npcData.action === 'heal') {
+      const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
+      setHealRecipes(filteredRecipes);
+    } else if (npcData.action === 'trade') {
+      loadTrades();
     }
   }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.relationships, masterResources, masterTraders]);
 
@@ -760,6 +772,37 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     } catch (error) {
       console.error('Error applying healing:', error);
     }
+  };
+
+  // A minigame offer's outcome: a win pays the offer through the ordinary trade path (it costs
+  // nothing), a loss runs the game's onLose (Prospero's riddle: three Dragons beside the player)
+  const handleMinigameResult = async (recipe, correct) => {
+    const game = MINIGAMES[recipe.minigame];
+    setActiveMinigame(null);
+    if (correct) {
+      updateStatus(strings[game.winKey] || game.win);
+      await handleTrade(`${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, `npc-minigame-${npcData.type}-${recipe.index}`, recipe);
+      return;
+    }
+    updateStatus(strings[game.loseKey] || game.lose);
+    const spawn = game.onLose?.spawn;
+    if (!spawn) return;
+    const gridId = currentPlayer.location?.g;
+    const me = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id || currentPlayer.playerId)) || { x: currentPlayer.location?.x, y: currentPlayer.location?.y };
+    const tiles = GlobalGridStateTilesAndResources.getTiles() || [];
+    const taken = new Set((GlobalGridStateTilesAndResources.getResources() || []).map(r => `${r.x},${r.y}`));
+    const spot = [];
+    for (let r = 2; r <= 5 && spot.length < (game.onLose.count || 1); r++) {
+      for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, -r], [r, -r], [-r, r]]) {
+        const x = Math.round(me.x) + dx, y = Math.round(me.y) + dy;
+        if (spot.length >= (game.onLose.count || 1)) break;
+        if (x < 0 || y < 0 || !tiles[y] || tiles[y][x] === undefined || tiles[y][x] === 'w' || taken.has(`${x},${y}`)) continue;
+        taken.add(`${x},${y}`);
+        spot.push({ x, y });
+      }
+    }
+    for (const pos of spot) await NPCsInGridManager.spawnNPC(gridId, spawn, pos);
+    onClose?.(); // out of the panel: the dragons are on the board
   };
 
   // Protected function to execute trades using transaction system
@@ -1454,7 +1497,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
 {/* //////////////////// TRADING //////////////////////// */}
 
-      {npcData.action === 'trade' && (
+      {(npcData.action === 'trade' || (npcData.action === 'quest' && tradeRecipes.length > 0)) && (
         <div className="trade-options">
 
           {/* NPC Interests Section - only show if player has met this NPC */}
@@ -1781,6 +1824,15 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       }}
                     >
                     <div className={tradeFx?.slot === `${recipe.source}-${recipe.index}` ? `card-fx-${tradeFx.phase}` : ''}>
+                    {recipe.minigame && MINIGAMES[recipe.minigame] ? (
+                    <MinigameButton
+                      recipe={recipe}
+                      quantity={quantityToGive}
+                      disabled={!requirementsMet}
+                      onStart={(r) => setActiveMinigame({ recipe: r })}
+                      meetsLevelRequirement={meetsLevel}
+                    />
+                    ) : (
                     <ResourceButton
                       resourceType={recipe.type}
                       symbol={recipe.symbol}
@@ -1799,6 +1851,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                       currentPlayer={currentPlayer}
                       devOnly={false}
                     />
+                    )}
                     </div>
                     {tradeFx?.slot === `${recipe.source}-${recipe.index}` && <SaleBurst key={tradeFx.id} />}
                     </div>
@@ -1889,6 +1942,13 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         updateStatus={updateStatus}
         onTravel={onSnugTravel}
         onClose={() => setSnugTravelOpen(false)}
+      />
+    )}
+    {activeMinigame && MINIGAMES[activeMinigame.recipe.minigame]?.kind === 'riddle' && (
+      <RiddleMinigame
+        game={MINIGAMES[activeMinigame.recipe.minigame]}
+        onClose={() => setActiveMinigame(null)}
+        onAnswer={(correct) => handleMinigameResult(activeMinigame.recipe, correct)}
       />
     )}
     {infoResource && <ResourceModalSmall resourceType={infoResource} masterResources={masterResources} onClose={() => setInfoResource(null)} />}

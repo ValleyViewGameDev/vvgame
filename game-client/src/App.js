@@ -4114,6 +4114,9 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           masterResources={masterResources}
+          inventory={inventory}
+          backpack={backpack}
+          masterTraders={masterTraders}
         />
       )}
       {activePanel === 'SkillsPanel' && (

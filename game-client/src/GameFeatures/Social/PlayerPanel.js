@@ -9,7 +9,6 @@ import API_BASE from '../../config.js';
 import axios from 'axios';
 import { useStrings } from '../../UI/StringsContext';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
-import HopeQuest from './HopeQuest';
 import soundManager from '../../Sound/SoundManager';
 
 const PlayerPanel = ({
@@ -359,15 +358,7 @@ const PlayerPanel = ({
         </div>
       </div>
 
-      {/* Hope Quest */}
-      <HopeQuest
-        inventory={inventory}
-        backpack={backpack}
-        masterResources={masterResources}
-        masterTraders={masterTraders}
-        showTitle={true}
-        size="normal"
-      />
+      {/* The Quest for Hope moved to the top of the To Do list (QuestPanel), 2026-10-17 */}
 
 
 <br />

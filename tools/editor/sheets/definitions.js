@@ -160,6 +160,7 @@ export const DEFINITIONS = [
       ref('gives', 'resource'), num('givesqty'), num('xp'), bool('repeat'),
       ...[1, 2, 3, 4, 5, 6, 7].flatMap((n) => [ref(`requires${n}`, 'resource'), num(`requires${n}qty`)]),
       str('rel'), num('relscore'),
+      { ...str('minigame'), label: 'minigame (won, not paid: Minigames/minigames.js id)' },
     ],
   },
   {

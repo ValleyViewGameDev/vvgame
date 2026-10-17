@@ -6,8 +6,9 @@ import { QuestButton } from '../../UI/Buttons/QuestButton';
 import '../../UI/Buttons/ResourceButton.css';
 import '../../UI/Buttons/QuestButton.css';
 import { useStrings } from '../../UI/StringsContext';
+import HopeQuest from '../Social/HopeQuest';
 
-function QuestPanel({ onClose, currentPlayer, masterResources }) {
+function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpack, masterTraders }) {
   const strings = useStrings();
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
@@ -109,6 +110,15 @@ function QuestPanel({ onClose, currentPlayer, masterResources }) {
 
   return (
     <Panel onClose={onClose} descriptionKey="1006" titleKey="1106" panelName="QuestPanel">
+      {/* The game's long aspiration, pinned above every quest: the seven artifacts for the Oracle */}
+      <HopeQuest
+        inventory={inventory || currentPlayer?.inventory || []}
+        backpack={backpack || currentPlayer?.backpack || []}
+        masterResources={masterResources}
+        masterTraders={masterTraders}
+        showTitle={true}
+        size="normal"
+      />
       {(!validQuests || validQuests.length === 0) ? (
         <p>{strings[203]}</p>
       ) : (

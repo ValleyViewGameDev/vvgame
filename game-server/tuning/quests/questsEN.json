@@ -1,19 +1,5 @@
 [
   {
-    "index": 1,
-    "title": "Find the Wizard in the Valley",
-    "symbol": "🧙🏻",
-    "level": 1,
-    "repeatable": false,
-    "giver": "Prospero",
-    "reward": "Prospero's Orb",
-    "rewardqty": 1,
-    "xp": 50,
-    "goal1action": "Collect",
-    "goal1item": "Prospero's Orb",
-    "goal1qty": 1
-  },
-  {
     "index": 101,
     "title": "Prospero's Secret",
     "symbol": "🧙🏻",

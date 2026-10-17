@@ -52,6 +52,10 @@ characters and storylines sit alongside them. The fun is the mix and match.
 The Oracle (fittingly, from The Winter's Tale) trades Hope for seven artifacts: Prospero's Orb,
 King's Crown, Trident, Brass Bell, Phoenix Feather, Vampire's Blood, Scroll. Prospero's Orb is
 meant as the penultimate step of the whole game; the last is bringing all seven to the Oracle.
+The Quest for Hope sits pinned at the top of the To Do list from the first day, as the long
+aspiration (2026-10-17; it replaced the auto-completed "Find the Wizard in the Valley" quest).
+Prospero gives his Orb for solving a puzzle (a minigame offer, `traders.json minigame`); today a
+stub riddle, the real puzzle is still to be designed.
 
 ## 5. The cast (where each comes from)
 

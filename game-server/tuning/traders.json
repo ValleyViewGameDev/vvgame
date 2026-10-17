@@ -222,6 +222,15 @@
     "requires3qty": 3
   },
   {
+    "trader": "Prospero",
+    "index": 1,
+    "gives": "Prospero's Orb",
+    "givesqty": 1,
+    "xp": 50,
+    "repeat": false,
+    "minigame": "prosperoRiddle"
+  },
+  {
     "trader": "Leontes",
     "index": 1,
     "gives": "Gold",

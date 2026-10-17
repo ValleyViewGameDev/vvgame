@@ -240,7 +240,7 @@ function compute(gameServerDir, clientDir) {
         kind: 'trade', trader: find(t.trader), qty: t.givesqty || 1,
         // the game gates a trade on the level of what it gives (NPCsPanel recipe.level)
         gates: [byType.get(t.gives)?.level > 1 && `level ${byType.get(t.gives).level}+`, relGate(t, t.trader)].filter(Boolean),
-        needs, prereqs: needs.map((n) => sub(n.item)).filter(Boolean),
+        needs, minigame: t.minigame || null, prereqs: needs.map((n) => sub(n.item)).filter(Boolean),
       });
     }
     const ings = r ? [1, 2, 3, 4].map((i) => r[`ingredient${i}`] && { item: r[`ingredient${i}`], qty: r[`ingredient${i}qty`] || 1 }).filter(Boolean) : [];
