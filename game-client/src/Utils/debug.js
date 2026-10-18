@@ -885,72 +885,25 @@ const handleGetRich = async () => {
       return;
     }
 
-    // Extract settlement row and col from the 4th and 5th digits
-    const coordStr = String(gridCoord).padStart(7, '0'); // Ensure string is long enough
-    const row = parseInt(coordStr[3], 10); // 4th digit
-    const col = parseInt(coordStr[4], 10); // 5th digit
-
-    console.log(`🔢 Parsed gridCoord ${gridCoord} → row=${row}, col=${col}`);
-
+    // The one grid-change path takes a coord target and resolves the cell itself
+    // (POST /api/enter-grid, docs/phase-2-contract.md); arrival is the server's spawn tile.
     try {
-      // 1. Call backend to get settlement data
-      const response = await axios.get(`${API_BASE}/api/get-settlement-by-coords/${row}/${col}`);
-      const settlement = response.data;
-
-      if (!settlement || !settlement.grids || settlement.grids.length === 0) {
-        console.warn('No settlement or empty grids array found.');
-        updateStatus('❌ Settlement data not found.');
-        return;
-      }
-
-      // 2. Search through grids to find the matching gridCoord
-      let matchingGridObj = null;
-      for (const row of settlement.grids) {
-        for (const cell of row) {
-          if (cell.gridCoord === gridCoord) {
-            matchingGridObj = cell;
-            break;
-          }
-        }
-        if (matchingGridObj) break;
-      }
-
-      if (!matchingGridObj) {
-        console.warn(`GridCoord ${gridCoord} not found in settlement.`);
-        updateStatus('❌ Grid not found in settlement.');
-        return;
-      }
-
-      // 3. Build toLocation using found grid data
-      const fromLocation = currentPlayer.location;
-      const toLocation = {
-        x: 0,
-        y: 0,
-        g: matchingGridObj.gridId,
-        s: settlement._id,
-        f: currentPlayer.location.f,
-        gtype: matchingGridObj.gridType,
-        gridCoord: gridCoord,
-      };
-
-      // 4. Call changePlayerLocation
-      changePlayerLocation(
+      const moved = await changePlayerLocation(
         currentPlayer,
-        fromLocation,
-        toLocation,
+        { type: 'coord', gridCoord },
         setCurrentPlayer,
         setGridId,
         setGrid,
         setTileTypes,
         setResources,
-        TILE_SIZE,
-        closeAllPanels,
         updateStatus,
-        null, // bulkOperationContext not available
-        null, // masterResources not available
-        null, // strings not available
-        null  // masterTrophies not available
+        closeAllPanels,
+        null, // bulkOperationContext not available here
+        null, // strings not available here
+        null, // no transition fade
+        { noPrefetch: true }
       );
+      if (!moved) updateStatus(`❌ Could not teleport to ${gridCoord}.`);
     } catch (error) {
       console.error('Error during teleport:', error);
       updateStatus('❌ Teleport failed due to error.');
