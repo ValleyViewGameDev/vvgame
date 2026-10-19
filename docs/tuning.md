@@ -185,6 +185,11 @@ that level, and its panel shows the LevelLock card (`UI/Panels/LevelLock.js`) in
 content. Current gates: Trading Post / Trade Stall 5 (2026-10-16; on every homestead from the
 start, so a new player sees it locked), Bank 8, Train 9, Carnival 12.
 
+A recipe's own `level` is a lock too, inside a station the player already owns (CraftingStation,
+FarmHouse, shops, 2026-10-19): below it the recipe shows "Level N" in red and cannot be made, and
+gems never skip it (they may still buy a missing skill or ingredients). So a station's menu opens
+level by level; skills are the Money gate on top of that time gate.
+
 ## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
 
 - Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)
