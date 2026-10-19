@@ -976,7 +976,7 @@ const CraftingStation = ({
                   className="resource-button"
                   details={
                     (healerLimitReached ? `<span style="color: var(--color-text-negative);">${strings[408]}</span><br>` : '') +
-                    (recipe.level > 1 && !meetsLevel ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span><br>` : '') +
+                    (recipe.level > 1 && !meetsLevel ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') + // spans are block-level here: no <br>
                     (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
                     `${craftTimeText}<br>` +
                     `${strings[461]}<div>${formattedCosts}</div>`
