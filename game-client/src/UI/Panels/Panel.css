@@ -134,12 +134,8 @@
     flex-shrink: 0; /* Prevent shrinking */
   }
 
-  /* Buffer space for Ko-fi widget */
-  .panel-buffer-space {
-    height: 60px;
-    background-color: var(--color-bg-panel); /* Match panel background */
-    flex-shrink: 0; /* Prevent shrinking */
-  }
+  /* (No Ko-fi buffer: panels stop above the nav bar, clear of the Ko-fi button, so the content
+     scrolls to the panel's bottom edge.) */
 
 /* Debug Panel */
 

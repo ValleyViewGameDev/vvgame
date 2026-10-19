@@ -114,7 +114,6 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess, initialUsername
           </div>
         )}
 
-        <div className="panel-buffer-space" />
       </div>
     </Panel>
   );

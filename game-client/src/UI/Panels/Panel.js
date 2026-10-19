@@ -34,14 +34,13 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
       <div className="panel-content">{children}</div>
 
       {/* Panel Description */}
-      {descriptionKey && (
+      {/* only when the string has text: an empty or missing one draws no footer (and no divider) */}
+      {descriptionKey && String(strings[descriptionKey] || '').trim() && (
         <div className="panel-description">
           <p className="text-hint">{strings[descriptionKey]}</p>
         </div>
       )}
-      
-      {/* Buffer space for Ko-fi widget */}
-      <div className="panel-buffer-space"></div>
+
     </div>
   );
 };
