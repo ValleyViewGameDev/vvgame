@@ -8,6 +8,9 @@
     "magicSlotsBase": 5,
     "magicSlotGemCosts": [250, 500, 1000, 1750, 2500]
   },
+  "tileHazards": {
+    "l": { "damage": 5, "everyMs": 1000 }
+  },
   "costToRevive": 50,
   "percentageToRevive": 0.25,
   "maxCrops": 1000,

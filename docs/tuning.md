@@ -358,6 +358,14 @@ Feverfew, Garlic and Sunflower are not).
 - **Rolls** are unchanged: d20 + attack bonus vs armour class; damage = stat + d6. Enemies
   roll when they come into reach (after a 300 ms wind-up), then every `attackinterval` seconds
   (ECONOMY column, 5d); an enemy without one still swings once per movement step.
+- **Ground that hurts** (`globalTuning.tileHazards`, keyed by tile letter; lava `l`: 5 hp every
+  1,000 ms; `GameFeatures/Combat/tileHazards.js`, 2026-10-19). A burn on a clock: every interval
+  spent on the hazard costs the damage, walking or standing still. Each movement step
+  (keyboard and tap-to-walk, `PlayerMovement.movePlayer`) and App's 1 s loop both advance the
+  clock, so a held arrow key across lava is charged for the time it takes (a 64-tile run at 90 ms a
+  step is about 6 s, so about 30 hp). A moment off the lava does not reset it; it cools down after a
+  full interval off. It used to be a once-a-second sample of where React thought the player stood,
+  which a fast crossing never hit; a per-tile charge that followed was too punishing.
 - **Death**: `respawnHpFree` (40) for free accounts, `respawnHpGoldFraction` (0.5) of the
   derived max hp for Gold; max hp is re-derived from base + maxhp powers
   (`PlayersInGrid.derivedMaxhp`) so no bonus is lost on death or revive.

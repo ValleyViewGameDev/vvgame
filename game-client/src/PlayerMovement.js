@@ -1,4 +1,5 @@
 import playersInGridManager from './GridState/PlayersInGrid';
+import { burnTick } from './GameFeatures/Combat/tileHazards';
 import NPCsInGridManager from './GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
@@ -452,6 +453,10 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
     position: finalPosition,
     lastUpdated: timestamp,
   });
+
+  // Ground that hurts (lava) burns on a clock, walking or standing: each step advances it, so a
+  // run across lava is charged for the time it takes
+  burnTick(gridId, playerId, TILE_SIZE);
 
   maybePrefetchAcrossEdge(currentPlayer, playerId, finalPosition);
   // The camera follows the animated position from PixiRendererPCs (PixiCamera.follow).

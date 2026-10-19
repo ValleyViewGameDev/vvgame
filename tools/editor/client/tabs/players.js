@@ -62,8 +62,8 @@ const P = {
   players: [], xpLevels: [], resources: [], frontiers: [], settlements: [],
   search: '', frontier: '', settlement: '', sort: { key: null, dir: 'asc' },
   selectedId: null,
-  pending: { wallet: {}, inventory: {}, skills: new Set(), powers: new Set() },
-  collapsed: { diagnostics: true, wallet: false, inventory: false, skills: false, powers: false, quests: true },
+  pending: { wallet: {}, inventory: {}, backpack: {}, skills: new Set(), powers: new Set() },
+  collapsed: { diagnostics: true, wallet: false, inventory: false, backpack: false, skills: false, powers: false, quests: true },
   ctx: null, els: {},
 };
 
@@ -185,8 +185,8 @@ function setSort(key) {
 }
 
 // ----------------------------------------------------------------------------- pending edits
-function hasPending() { return Object.keys(P.pending.wallet).length > 0 || Object.keys(P.pending.inventory).length > 0 || P.pending.skills.size > 0 || P.pending.powers.size > 0; }
-function clearPending() { P.pending = { wallet: {}, inventory: {}, skills: new Set(), powers: new Set() }; refreshDirty(); }
+function hasPending() { return Object.keys(P.pending.wallet).length > 0 || Object.keys(P.pending.inventory).length > 0 || Object.keys(P.pending.backpack).length > 0 || P.pending.skills.size > 0 || P.pending.powers.size > 0; }
+function clearPending() { P.pending = { wallet: {}, inventory: {}, backpack: {}, skills: new Set(), powers: new Set() }; refreshDirty(); }
 function refreshDirty() {
   const p = current();
   const dirty = !!p && hasPending();
@@ -209,12 +209,13 @@ async function selectPlayer(id) {
 async function saveChanges() {
   const p = current();
   if (!p || !hasPending()) return;
-  const { wallet, inventory, skills, powers } = P.pending;
+  const { wallet, inventory, backpack, skills, powers } = P.pending;
   const ok = await confirm(el('div', {}, [
     el('p', {}, `Save all changes for "${p.username}"?`),
     el('ul', {}, [
       el('li', {}, `Wallet items: ${Object.keys(wallet).length} changes`),
-      el('li', {}, `Inventory items: ${Object.keys(inventory).length} changes`),
+      el('li', {}, `Warehouse items: ${Object.keys(inventory).length} changes`),
+      el('li', {}, `Backpack items: ${Object.keys(backpack).length} changes`),
       el('li', {}, `Skill deletions: ${skills.size}`),
       el('li', {}, `Power deletions: ${powers.size}`),
     ]),
@@ -223,14 +224,19 @@ async function saveChanges() {
   if (!ok) return;
 
   const updates = {};
-  if (Object.keys(wallet).length || Object.keys(inventory).length) {
-    const inv = (p.inventory || []).map((i) => ({ ...i }));
-    for (const [type, qty] of [...Object.entries(wallet), ...Object.entries(inventory)]) {
-      const i = inv.findIndex((x) => x.type === type);
-      if (i >= 0) inv[i].quantity = Number(qty);
+  // a list with its edits applied: a changed quantity, a new item appended, 0 removes the item
+  const applyEdits = (list, edits) => {
+    const out = (list || []).map((i) => ({ ...i }));
+    for (const [type, qty] of edits) {
+      const i = out.findIndex((x) => x.type === type);
+      if (i >= 0) out[i].quantity = Number(qty); else out.push({ type, quantity: Number(qty) });
     }
-    updates.inventory = inv;
+    return out.filter((i) => !(Number(i.quantity) <= 0 && (edits.some(([t]) => t === i.type))));
+  };
+  if (Object.keys(wallet).length || Object.keys(inventory).length) {
+    updates.inventory = applyEdits(p.inventory, [...Object.entries(wallet), ...Object.entries(inventory)]);
   }
+  if (Object.keys(backpack).length) updates.backpack = applyEdits(p.backpack, Object.entries(backpack));
   if (skills.size) updates.skills = (p.skills || []).filter((_, i) => !skills.has(i));
   if (powers.size) updates.powers = (p.powers || []).filter((_, i) => !powers.has(i));
 
@@ -528,7 +534,7 @@ function qtyRow(sectionKey, item) {
   const sync = () => {
     const changed = pend[item.type] !== undefined;
     row.classList.toggle('pending', changed);
-    badge.textContent = changed ? `was ${num(item.quantity)}` : '';
+    badge.textContent = changed ? (item.isNew ? 'new' : `was ${num(item.quantity)}`) : '';
     revert.style.display = changed ? '' : 'none';
     refreshDirty();
   };
@@ -552,7 +558,44 @@ function deleteRow(sectionKey, obj, originalIndex, text) {
   return row;
 }
 
+// "+ item": pick any resource, give a quantity; it joins the section as a pending edit until Save
+function addItemRow(sectionKey) {
+  const listId = 'players-res-list';
+  if (!document.getElementById(listId)) document.body.appendChild(el('datalist', { id: listId }, P.resources.map((r) => el('option', { value: r.type }))));
+  const type = el('input', { placeholder: 'Add item…', list: listId, style: { width: '160px' } });
+  const qty = el('input', { type: 'number', min: 1, step: 1, value: 1, style: { width: '70px' } });
+  const add = el('button', { onclick: () => {
+    const t = type.value.trim();
+    if (!P.resources.some((r) => r.type === t)) { toast(`"${t}" is not a resource type`, 'warn'); return; }
+    const q = Number(qty.value);
+    if (!Number.isFinite(q) || q < 1) { toast('Quantity must be 1 or more', 'warn'); return; }
+    P.pending[sectionKey][t] = q;
+    refreshDirty(); renderEditor();
+  } }, '+ Add');
+  return el('div', { class: 'row qty-edit' }, [type, qty, add]);
+}
+// A held list (warehouse or backpack) with its pending additions shown as rows too
+function itemsSection(key, title, list, capacityNote) {
+  const pend = P.pending[key];
+  const rows = (list || []).filter((i) => i && i.type && i.quantity !== undefined).map((i) => qtyRow(key, i));
+  Object.keys(pend).filter((t) => !(list || []).some((i) => i.type === t)).sort().forEach((t) => rows.push(qtyRow(key, { type: t, quantity: 0, isNew: true })));
+  return section(key, title, [
+    capacityNote ? el('div', { class: 'note' }, capacityNote) : null,
+    ...(rows.length ? rows : [el('div', { class: 'note' }, 'Empty.')]),
+    el('div', { class: 'note' }, 'Set a quantity to 0 to remove the item on Save.'),
+    addItemRow(key),
+  ], (list || []).length);
+}
+
 function renderInspector(root, p) {
+  // the player list has no backpacks: load the full record once when a player is opened
+  if (p.backpack === undefined && !p.__loadingFull) {
+    p.__loadingFull = true;
+    game.get(`/api/player/${p._id}`).then((full) => {
+      p.backpack = Array.isArray(full?.backpack) ? full.backpack : [];
+      if (Array.isArray(full?.inventory)) p.inventory = full.inventory;   // the freshest warehouse too
+    }).catch(() => { p.backpack = null; }).finally(() => { p.__loadingFull = false; if (current() === p) renderEditor(); });
+  }
   setStatus(`players/${p.username}`);
   P.els.btnSave = el('button', { class: 'primary', onclick: saveChanges }, '💾 Save Changes');
   P.els.btnDiscard = el('button', { onclick: () => { clearPending(); renderEditor(); } }, 'Discard');
@@ -602,7 +645,14 @@ function renderInspector(root, p) {
   body.appendChild(section('wallet', '💰 Wallet', wallet.length ? wallet.map((i) => qtyRow('wallet', i)) : [el('div', { class: 'note' }, 'No currency.')], wallet.length));
 
   const inv = nonWalletItems(p.inventory);
-  body.appendChild(section('inventory', '📦 Inventory', inv.length ? inv.map((i) => (i && i.type && i.quantity !== undefined) ? qtyRow('inventory', i) : el('div', { class: 'note' }, 'Invalid inventory item')) : [el('div', { class: 'note' }, 'Empty.')], inv.length));
+  body.appendChild(itemsSection('inventory', '📦 Warehouse', inv, p.warehouseCapacity ? `${num(warehouseUsage(p.inventory))} of ${num(p.warehouseCapacity)} used` : null));
+
+  if (p.backpack === undefined) body.appendChild(section('backpack', '🎒 Backpack', [el('div', { class: 'note' }, 'Loading…')]));
+  else if (p.backpack === null) body.appendChild(section('backpack', '🎒 Backpack', [el('div', { class: 'note' }, 'Could not load the backpack from the game server.')]));
+  else {
+    const used = (p.backpack || []).reduce((t, i) => t + (i.quantity || 0), 0);
+    body.appendChild(itemsSection('backpack', '🎒 Backpack', [...p.backpack].sort((a, b) => a.type.localeCompare(b.type)), `${num(used)} of ${num(derivedBackpack(p))} used`));
+  }
 
   const skills = sortedByName(p.skills);
   body.appendChild(section('skills', '🔧 Skills', skills.length ? skills.map((s) => {

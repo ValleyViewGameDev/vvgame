@@ -23,6 +23,7 @@ import PixiRenderer from './Render/PixiRenderer';
 import { handleNPCClick } from './GameFeatures/NPCs/NPCUtils';
 import { setCitizenContext } from './GameFeatures/NPCs/NPCCitizenBehavior';
 import { attackNearestEnemy } from './GameFeatures/Combat/Combat';
+import { burnTick } from './GameFeatures/Combat/tileHazards';
 import { derivedMaxhp } from './GridState/PlayersInGrid';
 import { loadAtlas } from './Render/PixiRenderer/AtlasTextures';
 import { handleResourceClick } from './ResourceClicking';
@@ -1930,9 +1931,6 @@ useEffect(() => {
     if (playersInGrid && gridId && currentPlayer?._id) {
       const playerId = String(currentPlayer._id);
       const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
-      const col = playerPC?.position?.x;
-      const row = playerPC?.position?.y;
-      const onTileType = tileTypes?.[row]?.[col];
 
       if (playerPC?.hp <= 0 && currentPlayer && !revivalPending) {
         console.log("💀 Player is dead. Showing revival option...");
@@ -1950,14 +1948,9 @@ useEffect(() => {
         localStorage.setItem('revivalState', JSON.stringify(revivalState));
 
       } else {
-        // 🔥 Check for lava tile
-        if (onTileType === "l") {
-          const lavaDamage = 2;
-          playersInGridManager.updatePC(gridId, playerId, { hp: playerPC.hp - lavaDamage });
-          FloatingTextManager.addFloatingText(`- ${lavaDamage} ❤️‍🩹 HP`, col, row, activeTileSize);
-          console.log("🔥 Player is standing on lava. Applying 2 damage.");
-        }
-
+        // 🔥 Ground that hurts (lava) burns on a clock while the player is on it; steps advance the
+        // same clock from PlayerMovement (GameFeatures/Combat/tileHazards.js)
+        burnTick(gridId, playerId, activeTileSize);
       }
     }
   }, 1000);
