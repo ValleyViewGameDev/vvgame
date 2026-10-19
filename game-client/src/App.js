@@ -4093,6 +4093,7 @@ return (
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
           globalTuning={globalTuning}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'FarmHouse' && (

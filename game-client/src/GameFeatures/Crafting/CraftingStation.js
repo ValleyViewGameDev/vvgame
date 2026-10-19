@@ -25,6 +25,7 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatDuration, formatCompactCountdown, formatNumber } from '../../UI/Timers';
 import { getMayorUsername } from '../Government/GovUtils';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 import './CraftingStation.css'; // Import for crafting station panel and slot styles
 
 const CraftingStation = ({
@@ -46,6 +47,7 @@ const CraftingStation = ({
   isDeveloper,
   currentSeason,
   globalTuning,
+  masterXPLevels,
 }) => {
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
@@ -289,6 +291,11 @@ const CraftingStation = ({
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
   };
+
+  // A recipe's level is a lock, as at the FarmHouse and in shops: owning the station opens its menu
+  // level by level (skills are the Money gate on top; docs/tuning.md §4g)
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => !resourceLevel || playerLevel >= resourceLevel;
 
 
   // Protected function to start crafting using transaction system (slot-based)
@@ -915,8 +922,11 @@ const CraftingStation = ({
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
-              const requirementsMet = hasRequiredSkill(recipe.requires);
-              const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const meetsSkill = hasRequiredSkill(recipe.requires);
+              const meetsLevel = meetsLevelRequirement(recipe.level);
+              const requirementsMet = meetsSkill && meetsLevel;
+              const skillColor = meetsSkill ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
 
               // Check if this is a healer and if we've hit the hospital capacity limit
               const isHealer = recipe.action === 'heal';
@@ -966,6 +976,7 @@ const CraftingStation = ({
                   className="resource-button"
                   details={
                     (healerLimitReached ? `<span style="color: var(--color-text-negative);">${strings[408]}</span><br>` : '') +
+                    (recipe.level > 1 && !meetsLevel ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span><br>` : '') +
                     (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
                     `${craftTimeText}<br>` +
                     `${strings[461]}<div>${formattedCosts}</div>`
@@ -977,13 +988,14 @@ const CraftingStation = ({
                   transactionKey={`crafting-start-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}`}
                   onTransactionAction={(transactionId, transactionKey) => handleCraft(transactionId, transactionKey, recipe)}
                   // Gem purchase for instant craft (bypasses slot system - instant to inventory)
-                  onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet) && !healerLimitReached) ? handleGemPurchase : null}
+                  // gems may buy a missing skill or ingredients, never a level
+                  onGemPurchase={(recipe.gemcost && meetsLevel && (!affordable || !meetsSkill) && !healerLimitReached) ? handleGemPurchase : null}
                   resource={recipe}
                   inventory={inventory}
                   backpack={backpack}
                   masterResources={masterResources}
                   currentPlayer={currentPlayer}
-                  hideGem={!recipe.gemcost || healerLimitReached}
+                  hideGem={!recipe.gemcost || healerLimitReached || !meetsLevel}
                 >
                 </ResourceButton>
               );
