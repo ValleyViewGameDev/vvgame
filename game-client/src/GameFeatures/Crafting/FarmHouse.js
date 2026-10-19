@@ -152,6 +152,10 @@ const FarmHouse = ({
         });
       }
       
+      // Level-lock order: the lowest unlock level first (no level = level 1), so the list reads as
+      // what the player has now, then what opens next; recipes on the same level keep their
+      // resources.json order (Array.prototype.sort is stable)
+      filteredRecipes = [...filteredRecipes].sort((a, b) => (Number(a.level) || 1) - (Number(b.level) || 1));
       setRecipes(filteredRecipes);
       const stationResource = masterResources.find((resource) => resource.type === stationType);
       setStationEmoji(stationResource?.symbol || '🛖');

@@ -5,6 +5,7 @@ const Player = require('../models/player'); // Ensure the player schema includes
 const fs = require('fs');
 const path = require('path');
 const { isCurrency } = require('../utils/inventoryUtils');
+const { isHopeArtifact } = require('../utils/hopeArtifacts');
 
 /**
  * Transaction management helper functions
@@ -235,6 +236,10 @@ router.post('/trade-stall/sell-to-game', async (req, res) => {
     }
 
     const slot = player.tradeStall[slotIndex];
+    if (isHopeArtifact(slot.resource)) {
+      await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Quest for Hope artifacts cannot be sold', code: 'hope-artifact' });
+    }
     if (!slot.resource || slot.boughtBy || !slot.sellTime || slot.sellTime > Date.now()) {
       await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
       return res.status(400).json({ error: 'Slot not ready to sell or already sold' });
@@ -302,6 +307,10 @@ router.post('/update-player-trade-stall', async (req, res) => {
 
   if (!playerId || !tradeStall) {
     return res.status(400).send('Missing required fields: playerId or tradeStall');
+  }
+  // Quest for Hope artifacts never go on sale (utils/hopeArtifacts.js)
+  if (Array.isArray(tradeStall) && tradeStall.some((slot) => slot && isHopeArtifact(slot.resource))) {
+    return res.status(400).json({ error: 'Quest for Hope artifacts cannot be sold', code: 'hope-artifact' });
   }
 
   try {
@@ -470,6 +479,10 @@ router.post('/update-player-trade-stall-requests', async (req, res) => {
 
   if (!playerId || !tradeStallRequests) {
     return res.status(400).send('Missing required fields: playerId or tradeStallRequests');
+  }
+  // nor can anyone ask to buy one
+  if (Array.isArray(tradeStallRequests) && tradeStallRequests.some((slot) => slot && isHopeArtifact(slot.resource))) {
+    return res.status(400).json({ error: 'Quest for Hope artifacts cannot be requested', code: 'hope-artifact' });
   }
 
   try {

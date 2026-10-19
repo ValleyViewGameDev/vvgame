@@ -20,6 +20,8 @@ import GlobalMarketModal from './GlobalMarketModal';
 import SaleBurst from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
+import { loadMasterTraders } from '../../Utils/TuningManager';
+import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 
 function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources, masterXPLevels }) {
   // Level gate (like the Bank, Train and Carnival): the station's `level` in resources.json; the
@@ -52,6 +54,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   const [requestAmounts, setRequestAmounts] = useState({}); // Store amounts for request modal
   const [totalSellValue, setTotalSellValue] = useState(0);
   const [resourceData, setResourceData] = useState([]); // Store resource data
+  // Quest for Hope artifacts never go on sale or on request here (Utils/hopeArtifacts.js)
+  const [hopeItems, setHopeItems] = useState(() => new Set());
+  useEffect(() => { loadMasterTraders().then((t) => setHopeItems(hopeArtifacts(t))); }, []);
   const { updateStatus } = useContext(StatusBarContext);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true); // Loading state for initial data fetch
   const [isGlobalMarketOpen, setIsGlobalMarketOpen] = useState(false); // Global Market modal state
@@ -1129,7 +1134,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       <TradingInventoryModal
         isOpen={selectedSlotIndex !== null}
         onClose={() => setSelectedSlotIndex(null)}
-        inventory={mergeHoldings(inventory, backpack)}
+        inventory={mergeHoldings(inventory, backpack).filter((item) => !hopeItems.has(item.type))}
         resourceData={resourceData}
         amounts={amounts}
         handleAmountChange={handleAmountChange}
@@ -1144,7 +1149,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         isOpen={selectedRequestSlotIndex !== null}
         onClose={() => setSelectedRequestSlotIndex(null)}
         inventory={resourceData
-          .filter(res => res.category === 'doober')
+          .filter(res => res.category === 'doober' && !hopeItems.has(res.type))
           .map(res => {
             // Calculate actual quantity player has in inventory + backpack
             const inventoryQty = currentPlayer.inventory?.find(item => item.type === res.type)?.quantity || 0;

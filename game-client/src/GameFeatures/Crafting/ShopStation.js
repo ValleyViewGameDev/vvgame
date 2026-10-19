@@ -92,6 +92,11 @@ const ShopStation = ({
   useEffect(() => {
     if (!masterResources || !stationType) return;
     const soldHere = (resource) => !resource?.shopregion || resource.shopregion === shopRegion;
+    // Shop order: level-lock order (lowest unlock level first), except the "Only Found in Scrolls"
+    // items (shown for aspiration, never buyable: their recipe lists that placeholder), which all
+    // follow everything buyable, by level among themselves. Same level keeps the data order.
+    const scrollOnly = (r) => [1, 2, 3, 4, 5, 6, 7].some((i) => r?.[`ingredient${i}`] === 'Only Found in Scrolls');
+    const shopOrder = (x, y) => ((scrollOnly(x) ? 1 : 0) - (scrollOnly(y) ? 1 : 0)) || ((Number(x.level) || 1) - (Number(y.level) || 1));
 
     // First check if this shop has trades defined in masterTraders
     const traderOffers = masterTraders?.filter(t => t.trader === stationType);
@@ -137,15 +142,14 @@ const ShopStation = ({
         !currentPlayer.powers?.some(p => p.type === recipe.type))
       );
 
-      setRecipes(finalRecipes);
+      setRecipes([...finalRecipes].sort(shopOrder));
     } else {
       // Fallback to old method using masterResources.source
       const filteredRecipes = masterResources.filter((resource) =>
         resource.source === stationType && soldHere(resource) &&
         (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
       );
-      // this town's own items lead the list, then everything by level
-      filteredRecipes.sort((x, y) => ((y.shopregion ? 1 : 0) - (x.shopregion ? 1 : 0)) || ((x.level || 0) - (y.level || 0)));
+      filteredRecipes.sort(shopOrder);
       setRecipes(filteredRecipes);
     }
 
