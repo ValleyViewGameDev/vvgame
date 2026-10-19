@@ -162,16 +162,6 @@
   font-size: var(--text-md);
 }
 
-/* Trader story text styling */
-.trader-story {
-  margin-top: 16px;
-  /* italic: .text-quote on the element (an NPC's own words) */
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-  line-height: 1.2;
-  font-family: var(--font-text-2-family);
-}
-
 /* Shared Tab Navigation */
 .tab-navigation {
   display: flex;

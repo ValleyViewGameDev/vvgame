@@ -26,7 +26,6 @@ import { isACrop } from '../../Utils/ResourceHelpers';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
 import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
-import CitizenRelationshipsDebug from '../NPCs/CitizenRelationshipsDebug';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
 
 const FarmHandPanel = ({
@@ -831,7 +830,6 @@ const FarmHandPanel = ({
       <div className="standard-panel">
         <WorkerAutoWorkToggle npc={npc} gridId={currentPlayer?.location?.g} />
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />
-        <CitizenRelationshipsDebug isDeveloper={isDeveloper} currentPlayer={currentPlayer} masterResources={masterResources} />
 
         {showBulkHarvest && skills?.some(item => item.type === 'Bulk Harvest') && (
           <div>

@@ -1447,6 +1447,7 @@
     "200815": "Le feu qui meurt et renaît garde jalousement son plumage. Seule la lame la plus hardie arrachera une plume aux cendres.",
     "200816": "Un pâle seigneur de la nuit n'a pas soif de sang, mais de silence parmi les morts. Apaise ses voisins sans repos, et peut-être saignera-t-il pour toi.",
     "200817": "Les mots s'amassent là où dorment les dragons, et un marchand de gemmes en fait aussi commerce. On dit qu'un compagnon fidèle peut en rapporter un.",
+    "200822": "Une lumière brûle encore au fond du lac de feu, au-delà du brouillard noir et du chien à trois têtes. La reine des sorcières peut éclairer ton chemin, si tu lui apportes ce qui pique.",
     "200821": "Crâne de Yorick",
     "200820": "Peine et Tourment",
     "200819": "Pin fendu",
@@ -1556,5 +1557,11 @@
     "2056": "Le jeu a été mis à jour",
     "2057": "Une nouvelle version de Secrets of Elsinore est disponible. Actualisez pour charger la dernière.",
     "2058": "Actualiser",
-    "2059": "Ce que demande cette commande"
+    "2059": "Ce que demande cette commande",
+    "2100": "Indices",
+    "2101": "Votre rencontre",
+    "2102": "En amis",
+    "2103": "Amoureux",
+    "2104": "Mariés",
+    "2105": "En rivaux"
 }

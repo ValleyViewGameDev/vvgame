@@ -5,7 +5,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import stringsEN from '../../UI/Strings/stringsEN.json';
 import './QuestForHope.css';
 
-// One mysterious hint per artifact (strings 200811-200817), keyed by the resource type so the
+// One mysterious hint per artifact (strings 200811-200817, 200822), keyed by the resource type so the
 // Oracle's recipe order can change without the hints going to the wrong item.
 const HINT_STRING = {
   "Prospero's Orb": 200811,
@@ -14,7 +14,8 @@ const HINT_STRING = {
   'Brass Bell': 200814,
   'Phoenix Feather': 200815,
   "Vampire's Blood": 200816,
-  'Scroll': 200817,
+  'Scroll': 200817, // the seventh artifact until 2026-10-19
+  'Brief Candle': 200822,
 };
 
 /**

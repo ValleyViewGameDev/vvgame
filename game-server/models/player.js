@@ -254,6 +254,10 @@ const playerSchema = new mongoose.Schema({
       love: { type: Boolean },
       married: { type: Boolean },
       rival: { type: Boolean },
+      // The story dialogs this player has been shown with this NPC (status keys: met, friend,
+      // love, married, rival), in the order earned. Never shrinks: losing a status (a breakup, a
+      // rivalry ended) keeps its clue. Read by the Clues modal (GameFeatures/NPCs/CluesModal.js).
+      clues: { type: [String], default: undefined },
       _id: false // Disable automatic _id for relationship items
     }
   ],

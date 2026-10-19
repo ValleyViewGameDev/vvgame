@@ -582,6 +582,7 @@ and scroll finds are NOT in the baseline (5b). Two builds: sword and shield, two
 | Demon | L28 | elite, reach 7, valley2 and dungeons | 15 s | 15% |
 | Dragon | L40 | boss, reach 9, valley3 and dungeons | 40 s | 50% |
 | Phoenix | L55 | boss, dungeon | 75 s | 70% |
+| Cerberus | L34 | boss, three quick bites, the Pit of Acheron | 30 s | 40% |
 
 **3. The formulas** (hit when d20 + attack >= AC, so hit chance = (21 - (AC - attack)) / 20,
 clamped 5% to 95%; damage = stat + d6, average stat + 3.5; player swing = 0.4 s + 0.1 s per speed
@@ -595,20 +596,30 @@ point above 1, at most 0.8 s):
   It is its own ECONOMY column: enemies no longer attack once per movement step
   (NPCEnemyBehavior `performAttack`), so `movespeed` is chase speed only.
 
-**4. The fitted table** (2026-10-17; the Phoenix's AC is set by hand to 30 for a player who slots
-attack items, the fit gave 19 for an AC-first player):
+**Late enemies are fitted to a lighter loadout** (owner, 2026-10-19). From the Ogre on (home L22+),
+the baseline player in step 1 wears only ONE AC magic item (the best: Stoneheart) and fills the
+other slots with attack, damage and hp. A player who slots for offence should still be able to
+fight a Demon; one who stacks AC magic (Stoneheart + Blessed Veil + the scroll helms and gloves)
+is rewarded with cheap fights instead of being the only one who can fight at all. Each +5 AC
+magic item moves an enemy's hit chance 25 points, so fitting to the AC-first player made every
+other loadout miserable (Oberon at AC 32, no AC magic: a Demon hit 80%, now 55%).
+
+**4. The fitted table** (2026-10-17, late enemies re-fitted 2026-10-19; the Zombie's damage is
+53, +50% over the fit's 35 (owner): it is so slow that reaching one is rare, so a Zombie that
+does catch you should hurt. Its Spawner allows 10 Zombies on a grid, was 5):
 
 | Enemy | Attack | AC | Damage | Max hp | Attacks every |
 |---|---|---|---|---|---|
 | Coyote | 3 | 18 | 11 | 60 | 1.0 s |
 | Bear, Polar Bear | 8 | 18 | 26 | 170 | 1.6 s |
 | Spider | 12 | 22 | 19 | 70 | 0.9 s |
-| Zombie | 13 | 22 | 35 | 440 | 2.2 s |
+| Zombie | 13 | 22 | 53 | 440 | 2.2 s |
 | Ghost | 17 | 22 | 38 | 240 | 1.6 s |
-| Ogre | 23 | 30 | 65 | 390 | 2.4 s |
-| Demon | 27 | 30 | 45 | 440 | 1.8 s |
-| Dragon | 30 | 27 | 115 | 1250 | 2.5 s |
-| Phoenix | 32 | 30 | 100 | 2800 | 2.0 s |
+| Ogre | 18 | 30 | 65 | 520 | 2.4 s |
+| Demon | 22 | 31 | 45 | 490 | 1.8 s |
+| Dragon | 25 | 32 | 115 | 1250 | 2.5 s |
+| Phoenix | 27 | 24 | 96 | 2830 | 2.0 s |
+| Cerberus (2026-10-19; boss, home L34, melee) | 23 | 31 | 29 | 1010 | 0.9 s |
 
 **5. Check the window.** An enemy should matter for about 12 levels: costly 6 levels below its
 home, on target at home, cheap 6 levels above (the d20 covers 20 points, the player's AC grows
@@ -620,11 +631,16 @@ fight with the table above, sword and shield / two-hander:
 | Coyote x3 | 15% / 16% | 11% / 16% | 1% / 5% |
 | Bear | 14% / 15% | 5% / 9% | 2% / 4% |
 | Spider x3 | 36% / 57% | 12% / 26% | 5% / 8% |
-| Zombie | 22% / 35% | 7% / 17% | 4% / 6% |
+| Zombie (damage 53) | 32% / 51% | 10% / 25% | 6% / 9% |
 | Ghost | 16% / 33% | 7% / 8% | 5% / 6% |
-| Ogre | 53% / 108% | 17% / 19% | 7% / 7% |
-| Demon | 24% / 26% | 14% / 21% | 12% / 17% |
-| Dragon | 70% / 88% | 47% / 81% | 47% / 74% |
+| Ogre (1 AC item) | 47% / 104% | 15% / 19% | 9% / 15% |
+| Demon (1 AC item; AC-first 7% at home) | 21% / 25% | 15% / 21% | 13% / 17% |
+| Dragon (1 AC item; AC-first 32% at home) | 87% / 102% | 50% / 81% | 50% / 74% |
+
+**Drops that make a hard enemy worth it.** Demons drop a Scorpion (2026-10-19): sells for 3,500
+to 5,000 (about twice a Silver), never bought with gems; Hecate's Torch costs 12 and Acheron's
+gear (Ashen Plate, Demonbane, Charon's Obol) is priced in them, so Demon kills pay toward things
+a player wants (docs/story.md §6, the Brief Candle).
 
 **Levers that are not enemy stats.**
 - **Weapon attack by tier** (2026-10-17): every weapon has at least attack +1 from L17, +2 from

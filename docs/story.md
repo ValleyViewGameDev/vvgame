@@ -44,13 +44,21 @@ characters and storylines sit alongside them. The fun is the mix and match.
   character trusts.
 - **Secrets travel.** A character's Secret is an item: who it is sold to, and why, is a story
   (Portia's Secret buys the Brass Bell from Iago, whom she despises; Leontes collects six).
+- **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /
+  `dialogOnFriend` / `dialogOnLove` / `dialogOnMarried` / `dialogOnRival` (RelationshipMatrix,
+  strings 16xxx) play once, as a StoryModal, when the relationship first reaches that status. The
+  NPC panel's **Clues** button (`GameFeatures/NPCs/CluesModal.js`) lists every one the player has
+  been shown, the "when you met" story first, so a hint can be re-read; the server records each
+  in the relationship's `clues` and keeps it even if the status is later lost. Write these as
+  the place to leave a hint the player will need later.
 - **The QUEST FOR HOPE editor tab** shows every route to the seven artifacts with its gates.
   Check it after changing a quest, trade, door or layout on the spine.
 
 ## 4. The spine: the Quest for Hope
 
 The Oracle (fittingly, from The Winter's Tale) trades Hope for seven artifacts: Prospero's Orb,
-King's Crown, Trident, Brass Bell, Phoenix Feather, Vampire's Blood, Scroll. Prospero's Orb is
+King's Crown, Trident, Brass Bell, Phoenix Feather, Vampire's Blood, Brief Candle (the Brief
+Candle replaced the Scroll, a common drop, on 2026-10-19; see §6). Prospero's Orb is
 meant as the penultimate step of the whole game; the last is bringing all seven to the Oracle.
 The Quest for Hope sits pinned at the top of the To Do list from the first day, as the long
 aspiration (2026-10-17; it replaced the auto-completed "Find the Wizard in the Valley" quest).
@@ -69,7 +77,7 @@ stub riddle, the real puzzle is still to be designed.
 | Mistress Quickly | Henry IV / The Merry Wives of Windsor | Quests |
 | Feste | Twelfth Night | Crafting quests |
 | Helena | A Midsummer Night's Dream | The Golden Key (Feverfew) |
-| Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons) |
+| Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | The Orb, in his mountain home |
 | Caliban | The Tempest | Trader; Caliban's Secret |
 | Constable Elbow | Measure for Measure | Town and Dungeon Keys |
@@ -85,6 +93,8 @@ stub riddle, the real puzzle is still to be designed.
 | The Oracle | The Winter's Tale | Trades Hope for the seven artifacts |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |
+| Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |
+| Cerberus | myth, named in Love's Labour's Lost | The three-headed hound at the bottom of Acheron; guards the Brief Candle |
 
 Regions are named the same way (Dunsinane, Birnam Wood, Inverness, Illyria, Messina, Belmont,
 Mantua, Navarre, Harfleur, the Forest of Arden, Yorick's Hollow, Sycorax Fen, Setebos Rise,
@@ -122,3 +132,39 @@ Caliban's Crossing, Prospero's Peak, Lethe Wharf, ...), mixed with originals.
     Mirror door on 1013320; Hecate on a Birnam Wood grid. Art: the recoloured pine, Hecate;
     atlas rebuild. The QUEST FOR HOPE tab must learn that a tree needing a skill nobody starts
     with is a gate (it treats trees as clearable today).
+
+- **The Brief Candle: the Pit of Acheron (data and the Pit layout BUILT 2026-10-19; the rest of
+  Acheron is World-epic work).** Acheron is the region of lava south-east of the King's Circle.
+  Demons are hard; this thread is why a player wants to fight them.
+  - *The artifact.* **The Brief Candle** (Macbeth: "Out, out, brief candle!"), re-aimed: the one
+    light that never went out, still burning at the very bottom of Acheron. Hope as a flame in
+    the dark. It replaced the Scroll in the Oracle's seven (the Scroll is a common drop and was
+    no journey). It lies on an altar, picked up off the board like the King's Crown: it comes
+    from Acheron itself, not from a character.
+  - *The guardian.* **Cerberus**, the three-headed hound of the underworld's gate (Love's
+    Labour's Lost: "whose club killed Cerberus, that three-headed canis"; Navarre, that play's
+    region, borders Acheron; in myth he is Hecate's hound). A boss fitted by docs/tuning.md §5d:
+    home level 34, three quick bites (a bite every 0.9 s), melee, cannot cross lava.
+  - *Hecate's step.* The Pit is walled by **Black Fog** (Oberon in the Dream: a fog "as black as
+    Acheron"; in Macbeth Hecate's meeting place is "the pit of Acheron"). Only **Hecate's Torch**
+    passes it (in myth Hecate carries the torches through the underworld). She gives the Torch
+    for **12 Scorpions and 10 Bones** (Macbeth again: "O, full of scorpions is my mind"). No
+    relationship gate beyond knowing her (she already gave Toil and Trouble at friend, L30).
+  - *Scorpions.* Demons drop a **Scorpion** (their Spawners still drop Silver). It sells well
+    (3,500 to 5,000, about twice a Silver) and is never bought with gems, so the Torch and
+    Acheron's own gear (Ashen Plate, Demonbane, Charon's Obol, now priced in Scorpions) always
+    mean fighting Demons. Scorpions farmed in a dungeon only buy the Torch; the Torch only opens
+    a door at the bottom of Acheron, so the Candle always means the whole descent.
+  - *The Pit* (valley 1014571, built). A lava lake; the only way in is the slate bridge from
+    1014561, walled by two Black Fog doors. Beyond: an antechamber, a 2-wide rock walkway that
+    winds across the lava past six Demons waiting on the rock, a 2-wide neck, and the altar
+    chamber where Cerberus guards the Candle in a stone niche. Players can walk on lava (it only
+    burns, 2 hp a second), so every lava tile touching the rock carries an Invisible Wall: the
+    rock is the only ground and the fog the only way in.
+  - *Order.* Hecate's two gifts make her the late-game witch thread: the axe (Toil and Trouble,
+    L30), then the Torch and the Candle (Acheron, around L32 to 36), and Prospero's Orb last.
+  - *Still to build (World epic).* The rest of Acheron as the descent toward 1014571: the shop
+    town at 1014554 as the staging post (add a healer), outer lava grids with single Demons,
+    middle grids with Demon Spawners, and the approach through 1014561. Art for Cerberus, the
+    Candle, the Torch and the fog uses emoji for now (🐕 🕯️ 🔥 🌫️; the Scorpion is 🦂).
+

@@ -309,7 +309,8 @@ class GridStateManager {
       return;
     }
 
-    const npcId = `${Date.now()}`;
+    // time + a random tail: two spawns in the same millisecond must not share an id
+    const npcId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     let lightweightNPC;
 

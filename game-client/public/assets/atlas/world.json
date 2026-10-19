@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "2af7982d26a835e23b3bf599f7511b78132d876b",
+  "sourceHash": "b287f14b871d02b8995a5c2061beba5f0c9dbe33",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -37,7 +37,7 @@
       "json": "world-5.json",
       "png": "world-5.png",
       "webp": "world-5.webp",
-      "frames": 140
+      "frames": 145
     }
   ],
   "frames": {
@@ -210,6 +210,7 @@
     "resources/tree-pear.svg": 4,
     "resources/wood.svg": 4,
     "emoji/1f311": 4,
+    "emoji/1f32b": 4,
     "emoji/1f331": 4,
     "emoji/1f336": 4,
     "emoji/1f337": 4,
@@ -250,11 +251,12 @@
     "emoji/1f3fa": 4,
     "emoji/1f402": 4,
     "emoji/1f404": 4,
-    "emoji/1f408": 4,
+    "emoji/1f408": 5,
     "emoji/1f40f": 5,
     "emoji/1f411": 5,
     "emoji/1f412": 5,
     "emoji/1f413": 5,
+    "emoji/1f415": 5,
     "emoji/1f41d": 5,
     "emoji/1f41f": 5,
     "emoji/1f425": 5,
@@ -287,12 +289,14 @@
     "emoji/1f50f": 5,
     "emoji/1f511": 5,
     "emoji/1f514": 5,
+    "emoji/1f525": 5,
     "emoji/1f52a": 5,
     "emoji/1f52c": 5,
     "emoji/1f52d": 5,
     "emoji/1f52e": 5,
     "emoji/1f531": 5,
     "emoji/1f537": 5,
+    "emoji/1f56f": 5,
     "emoji/1f577": 5,
     "emoji/1f5bc": 5,
     "emoji/1f5dd": 5,
@@ -328,6 +332,7 @@
     "emoji/1f969": 5,
     "emoji/1f96a": 5,
     "emoji/1f96c": 5,
+    "emoji/1f982": 5,
     "emoji/1f985": 5,
     "emoji/1f986": 5,
     "emoji/1f989": 5,

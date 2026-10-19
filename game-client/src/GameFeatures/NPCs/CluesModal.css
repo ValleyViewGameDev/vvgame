@@ -1,0 +1,6 @@
+/* CluesModal.js: an NPC's story dialogs, kept to read again (docs/ui-conventions.md §2, narrow tier) */
+.clues-modal .clues-list { list-style: none; margin: 0; padding: 0; text-align: left; display: flex; flex-direction: column; gap: 12px; }
+.clues-modal .clue { padding: 10px 12px; border-radius: var(--radius-md); background-color: var(--color-bg-tint); }
+.clues-modal .clue-label { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--text-md); color: var(--color-text-heading); margin-bottom: 4px; }
+.clues-modal .clue-text { font-family: var(--font-body); font-size: var(--text-md); line-height: var(--leading-body); color: var(--color-text-primary); margin: 0 0 6px; }
+.clues-modal .clue-text:last-child { margin-bottom: 0; }

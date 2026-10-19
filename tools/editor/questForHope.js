@@ -21,7 +21,7 @@ const path = require('path');
 
 const HINT_STRING = {
   "Prospero's Orb": 200811, "King's Crown": 200812, 'Trident': 200813, 'Brass Bell': 200814,
-  'Phoenix Feather': 200815, "Vampire's Blood": 200816, 'Scroll': 200817,
+  'Phoenix Feather': 200815, "Vampire's Blood": 200816, 'Scroll': 200817, 'Brief Candle': 200822,
 };
 const SIZE = 64;
 const MAX_DEPTH = 4;

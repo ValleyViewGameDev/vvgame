@@ -90,6 +90,16 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   re-do the current Town template; then make three variations of it for the E, S and W towns,
   each with its entrance facing the valley (`game-server/layouts/gridLayouts/town/`, today
   townN / townE / townS / townW).
+- **W-16. Acheron: the descent to the Pit** (added 2026-10-19). The Brief Candle thread
+  (`docs/story.md` §6) is built in data and at its end: the Pit of Acheron on 1014571 (Black Fog
+  door, rock walkway, six Demons, Cerberus, the Candle), Hecate's Torch (12 Scorpions + 10
+  Bones), Demons dropping Scorpions, Acheron's gear priced in Scorpions. Still to do: lay out
+  the rest of Acheron (54 grids) as the descent toward it. The shop town at 1014554 as the
+  staging post (add a healer); outer lava grids with single Demons; middle grids with Demon
+  Spawners; the approach through 1014561, whose slate bridge (x 39-40 at its bottom edge) is
+  the Pit's only way in. Players can walk on lava (2 hp a second), so any lava that must stop
+  them needs a fence (the Pit uses an Invisible Wall on every lava tile touching rock). Art:
+  Cerberus, the Candle, the Torch and the fog are emoji for now (🐕 🕯️ 🔥 🌫️).
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 

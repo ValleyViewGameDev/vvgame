@@ -1445,6 +1445,7 @@
     "200815": "El fuego que muere y renace guarda celosamente su plumaje. Solo la hoja más audaz arrancará una pluma de las cenizas.",
     "200816": "Un pálido señor de la noche no ansía sangre, sino quietud entre los muertos. Da descanso a sus inquietos vecinos, y quizá sangre por ti.",
     "200817": "Las palabras se atesoran donde duermen los dragones, y un mercader de gemas también comercia con ellas. Dicen que un compañero fiel puede traer una a casa.",
+    "200822": "Una luz sigue ardiendo en el fondo del lago en llamas, más allá de la niebla negra y del perro de tres cabezas. La reina de las brujas puede alumbrar tu camino, si le llevas lo que pica.",
     "200821": "Calavera de Yorick",
     "200820": "Afán y Tormento",
     "200819": "Pino hendido",
@@ -1554,5 +1555,11 @@
     "2056": "El juego se ha actualizado",
     "2057": "Hay una nueva versión de Secrets of Elsinore disponible. Actualiza para cargar la última.",
     "2058": "Actualizar",
-    "2059": "Lo que necesita este pedido"
+    "2059": "Lo que necesita este pedido",
+    "2100": "Pistas",
+    "2101": "Cuando os conocisteis",
+    "2102": "Como amigos",
+    "2103": "Enamorados",
+    "2104": "Casados",
+    "2105": "Como rivales"
 }

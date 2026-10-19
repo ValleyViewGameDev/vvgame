@@ -1,0 +1,16 @@
+/* NPCConnections.js: one wrapping row of chips, category icon + the emoji in it */
+.npc-connections { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+.npc-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px 2px 3px; border-radius: var(--radius-pill); background-color: var(--color-bg-tint); cursor: help; }
+/* the category: a white disc with a divider after it, so it never reads as one of the subjects */
+.npc-chip-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; flex: none;
+  font-size: 13px; /* style-ok: icon */
+  border-radius: var(--radius-round);
+  background-color: var(--color-bg-white);
+  box-shadow: 0 0 0 1px var(--color-border-dark);
+  margin-right: 6px; position: relative;
+}
+.npc-chip-icon::after { content: ''; position: absolute; right: -5px; top: 3px; bottom: 3px; width: 1px; background-color: var(--color-border-dark); }
+.npc-chip-item { font-size: 20px; /* style-ok: icon */ line-height: 1.2; }
+.npc-chip-icon + .npc-chip-item { margin-left: 4px; }

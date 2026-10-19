@@ -222,6 +222,18 @@
     "requires3qty": 3
   },
   {
+    "trader": "Hecate",
+    "index": 2,
+    "gives": "Hecate's Torch",
+    "givesqty": 1,
+    "xp": 50,
+    "repeat": false,
+    "requires1": "Scorpion",
+    "requires1qty": 12,
+    "requires2": "Bones",
+    "requires2qty": 10
+  },
+  {
     "trader": "Prospero",
     "index": 1,
     "gives": "Prospero's Orb",
@@ -346,7 +358,7 @@
     "requires5qty": 1,
     "requires6": "Vampire's Blood",
     "requires6qty": 1,
-    "requires7": "Scroll",
+    "requires7": "Brief Candle",
     "requires7qty": 1
   }
 ]

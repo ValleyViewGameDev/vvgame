@@ -1521,6 +1521,7 @@
     "200815": "Fire that dies and rises again guards its plumage jealously. Only the boldest blade will pluck a feather from the ash.",
     "200816": "A pale lord of the night craves not blood, but quiet among the dead. Put his restless neighbours to rest, and he may bleed for thee.",
     "200817": "Words are hoarded where dragons sleep, and a merchant of gems trades in them too. Some say a faithful companion may carry one home.",
+    "200822": "A light still burns at the bottom of the burning lake, past the black fog and the hound with three heads. The queen of witches can light your way, if you bring her what stings.",
     "200821": "Yorick's Skull",
     "200820": "Toil and Trouble",
     "200819": "Cloven Pine",
@@ -1609,5 +1610,11 @@
     "2056": "The Game Has Updated",
     "2057": "A new version of Secrets of Elsinore is available. Refresh to load the latest.",
     "2058": "Refresh",
-    "2059": "What this order needs"
+    "2059": "What this order needs",
+    "2100": "Clues",
+    "2101": "When you met",
+    "2102": "As friends",
+    "2103": "In love",
+    "2104": "Married",
+    "2105": "As rivals"
 }

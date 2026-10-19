@@ -27,11 +27,12 @@ import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import CitizenStatusLine from './CitizenStatusLine';
-import CitizenRelationshipsDebug from './CitizenRelationshipsDebug';
 import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
+import CluesModal, { cluesFor } from './CluesModal';
+import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
 import RiddleMinigame from '../Minigames/RiddleMinigame';
 import { MINIGAMES } from '../Minigames/minigames';
@@ -104,6 +105,7 @@ const NPCPanel = ({
   // StoryModal state for relationship milestone dialogs
   const [storyModalOpen, setStoryModalOpen] = useState(false);
   const [storyRelationshipType, setStoryRelationshipType] = useState(null);
+  const [cluesOpen, setCluesOpen] = useState(false); // CluesModal: the story dialogs shown so far, to read again
 
   // Ref to track relationship status before an interaction
   const preInteractionRelationshipRef = useRef(null);
@@ -1094,111 +1096,29 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             </div>
           )}
           <CitizenStatusLine npc={npcData} gridId={currentPlayer?.location?.g} />
-          <CitizenRelationshipsDebug isDeveloper={isDeveloper} currentPlayer={currentPlayer} masterResources={masterResources} />
+
+          {/* Clues, then who and what this NPC cares about (one compact row): first after the status line */}
+          {!hideRelationshipUI && (() => {
+            const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
+            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username).length;
+            return (
+              <>
+                {count > 0 && (
+                  <div className="shared-buttons">
+                    <button className="btn-basic btn-neutral" onClick={() => setCluesOpen(true)}>
+                      🔍 {strings[2100] || 'Clues'} ({count})
+                    </button>
+                  </div>
+                )}
+                <NPCConnections npcType={npcData.type} relationship={rel} masterResources={masterResources} strings={strings} />
+              </>
+            );
+          })()}
 
 {/* //////////////////// QUESTS //////////////////////// */}
 
       {npcData.action === 'quest' && (
         <div className="quest-options">
-
-          {/* NPC Interests Section - only show if player has met this NPC */}
-          {(() => {
-            // Hide for NPCs without relationship system (e.g., The Shepherd)
-            if (hideRelationshipUI) return null;
-
-            // Check if player has met this NPC
-            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
-            if (!playerRelationship?.met) return null;
-
-            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-            if (!npcMatrix) return null;
-
-            const interests = [npcMatrix.interest1, npcMatrix.interest2, npcMatrix.interest3].filter(Boolean);
-            const uniqueInterests = [...new Set(interests)];
-
-            if (uniqueInterests.length === 0) return null;
-
-            const interestSymbols = uniqueInterests.map(interest => {
-              const resource = masterResources.find(r => r.type === interest);
-              return resource ? { type: interest, symbol: resource.symbol } : null;
-            }).filter(Boolean);
-
-            if (interestSymbols.length === 0) return null;
-
-            return (
-              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0 }}>{strings[619]}</h3>
-                {interestSymbols.map((item, index) => (
-                  <span key={index} title={item.type} style={{ fontSize: '1.5em' }}>
-                    {item.symbol}
-                  </span>
-                ))}
-              </div>
-            );
-          })()}
-
-          {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
-          {/* Only show if player has met this NPC */}
-          {(() => {
-            // Hide for NPCs without relationship system (e.g., The Shepherd)
-            if (hideRelationshipUI) return null;
-
-            // Check if player has met this NPC
-            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
-            if (!playerRelationship?.met) return null;
-
-            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-            if (!npcMatrix) return null;
-
-            // Find all NPC-to-NPC relationships by checking for relationship values
-            const relationshipTypes = ['love', 'friend', 'rival', 'married'];
-            const relationships = [];
-
-            Object.entries(npcMatrix).forEach(([key, value]) => {
-              if (relationshipTypes.includes(value)) {
-                // Find the target NPC's symbol from RelationshipMatrix
-                const targetNPC = RelationshipMatrix.find(r => r.type === key);
-                if (targetNPC) {
-                  relationships.push({
-                    targetName: key,
-                    targetSymbol: targetNPC.symbol,
-                    relationshipType: value
-                  });
-                }
-              }
-            });
-
-            if (relationships.length === 0) return null;
-
-            // Group relationships by type
-            const grouped = {
-              love: relationships.filter(r => r.relationshipType === 'love'),
-              friend: relationships.filter(r => r.relationshipType === 'friend'),
-              rival: relationships.filter(r => r.relationshipType === 'rival'),
-              married: relationships.filter(r => r.relationshipType === 'married')
-            };
-
-            // String mappings: 660 = love, 661 = friend, 662 = rival, 663 = married
-            const stringMap = { love: 660, friend: 661, rival: 662, married: 663 };
-
-            return (
-              <div style={{ marginBottom: '10px' }}>
-                {Object.entries(grouped).map(([type, rels]) => {
-                  if (rels.length === 0) return null;
-                  return (
-                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <h3 style={{ margin: 0 }}>{strings[stringMap[type]]}</h3>
-                      {rels.map((rel, index) => (
-                        <span key={index} title={rel.targetName} style={{ fontSize: '1.5em', cursor: 'help' }}>
-                          {rel.targetSymbol}
-                        </span>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
 
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {(() => {
@@ -1311,6 +1231,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           />
             );
           })()}
+
 
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
@@ -1500,101 +1421,6 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       {(npcData.action === 'trade' || (npcData.action === 'quest' && tradeRecipes.length > 0)) && (
         <div className="trade-options">
 
-          {/* NPC Interests Section - only show if player has met this NPC */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && (() => {
-            // Check if player has met this NPC
-            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
-            if (!playerRelationship?.met) return null;
-
-            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-            if (!npcMatrix) return null;
-
-            const interests = [npcMatrix.interest1, npcMatrix.interest2, npcMatrix.interest3].filter(Boolean);
-            const uniqueInterests = [...new Set(interests)];
-
-            if (uniqueInterests.length === 0) return null;
-
-            const interestSymbols = uniqueInterests.map(interest => {
-              const resource = masterResources.find(r => r.type === interest);
-              return resource ? { type: interest, symbol: resource.symbol } : null;
-            }).filter(Boolean);
-
-            if (interestSymbols.length === 0) return null;
-
-            return (
-              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0 }}>{strings[619]}</h3>
-                {interestSymbols.map((item, index) => (
-                  <span key={index} title={item.type} style={{ fontSize: '1.5em' }}>
-                    {item.symbol}
-                  </span>
-                ))}
-              </div>
-            );
-          })()}
-
-          {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
-          {/* Only show if player has met this NPC */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && (() => {
-            // Check if player has met this NPC
-            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
-            if (!playerRelationship?.met) return null;
-
-            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-            if (!npcMatrix) return null;
-
-            // Find all NPC-to-NPC relationships by checking for relationship values
-            const relationshipTypes = ['love', 'friend', 'rival', 'married'];
-            const relationships = [];
-
-            Object.entries(npcMatrix).forEach(([key, value]) => {
-              if (relationshipTypes.includes(value)) {
-                // Find the target NPC's symbol from RelationshipMatrix
-                const targetNPC = RelationshipMatrix.find(r => r.type === key);
-                if (targetNPC) {
-                  relationships.push({
-                    targetName: key,
-                    targetSymbol: targetNPC.symbol,
-                    relationshipType: value
-                  });
-                }
-              }
-            });
-
-            if (relationships.length === 0) return null;
-
-            // Group relationships by type
-            const grouped = {
-              love: relationships.filter(r => r.relationshipType === 'love'),
-              friend: relationships.filter(r => r.relationshipType === 'friend'),
-              rival: relationships.filter(r => r.relationshipType === 'rival'),
-              married: relationships.filter(r => r.relationshipType === 'married')
-            };
-
-            // String mappings: 660 = love, 661 = friend, 662 = rival, 663 = married
-            const stringMap = { love: 660, friend: 661, rival: 662, married: 663 };
-
-            return (
-              <div style={{ marginBottom: '10px' }}>
-                {Object.entries(grouped).map(([type, rels]) => {
-                  if (rels.length === 0) return null;
-                  return (
-                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <h3 style={{ margin: 0 }}>{strings[stringMap[type]]}</h3>
-                      {rels.map((rel, index) => (
-                        <span key={index} title={rel.targetName} style={{ fontSize: '1.5em', cursor: 'help' }}>
-                          {rel.targetSymbol}
-                        </span>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
           {!hideRelationshipUI && (() => {
@@ -1704,6 +1530,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           />
             );
           })()}
+
 
           {/* Show message if trade interaction is not available due to relationship */}
           {!canTrade && (
@@ -1865,33 +1692,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             </>
           )}
 
-          {/* Separator bar before story quote */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && (
-            <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--color-border, #444)' }} />
-          )}
-
-          {/* Trader story text - only shown if player has met this NPC */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && (() => {
-            // Check if player has met this NPC
-            const relationship = currentPlayer.relationships?.find(r => r.name === npcData.type);
-            if (!relationship?.met) return null;
-
-            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-            const dialogStringId = npcMatrix?.dialogOnMet;
-
-            if (dialogStringId && strings[dialogStringId]) {
-              // Replace {username} placeholder with actual player username
-              const storyText = strings[dialogStringId].replace(/\{username\}/gi, currentPlayer?.username || 'Adventurer');
-              return (
-                <div className="trader-story text-quote">
-                  <p>{storyText}</p>
-                </div>
-              );
-            }
-            return null;
-          })()}
+          {/* The "when you met" story is now the first entry in Clues (CluesModal.js) */}
         </div>
       )}
 
@@ -1913,6 +1714,15 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           </div>
         )}
       </div>
+
+      {cluesOpen && (
+        <CluesModal
+          npcType={npcData?.type}
+          relationship={currentPlayer.relationships?.find(r => r.name === npcData?.type)}
+          username={currentPlayer?.username}
+          onClose={() => setCluesOpen(false)}
+        />
+      )}
 
       {/* Story Modal for relationship milestone dialogs */}
       <StoryModal

@@ -704,6 +704,12 @@ router.post('/add-or-update-relationship-status', async (req, res) => {
 
     // Dynamically set the status field
     relationship[status] = value;
+    // A status gained for the first time is the moment its story dialog plays (NPCsPanel.js):
+    // keep it as a clue for good, even if the status is later lost
+    const STORY_STATUSES = ['met', 'friend', 'love', 'married', 'rival'];
+    if (value === true && STORY_STATUSES.includes(status) && !(relationship.clues || []).includes(status)) {
+      relationship.clues = [...(relationship.clues || []), status];
+    }
 
     // Mark the path as modified since we're dynamically setting fields
     player.markModified(`relationships`);
