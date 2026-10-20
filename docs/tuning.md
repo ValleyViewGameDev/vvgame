@@ -190,6 +190,14 @@ FarmHouse, shops, 2026-10-19): below it the recipe shows "Level N" in red and ca
 gems never skip it (they may still buy a missing skill or ingredients). So a station's menu opens
 level by level; skills are the Money gate on top of that time gate.
 
+**The Inn** (2026-10-19): built in the Valley only (`source: BuildValley`, valley grids), level 17,
+500 Wood + 300 Stone + 300 Clay, one per grid (`maxpergrid: 1`, enforced by the Build panel). A
+Rest costs `globalTuning.innRest.costMoney` (2,500) and restores full hp at once; then that Inn
+rests for `cooldownMinutes` (1,440), kept on the Inn resource as `craftEnd` (POST /api/inn/rest,
+which validates the Inn, the cooldown and the Money and sets hp to the server's derived maxhp).
+Priced against the healers (50 to 300 Money for 20 to 50 hp): a full Rest from near empty is
+cheaper than healing the same with a Surgeon, but once a day per Inn.
+
 ## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
 
 - Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)

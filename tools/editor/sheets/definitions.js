@@ -60,6 +60,7 @@ export const DEFINITIONS = [
       { ...num('gemOverride'), label: 'gemOverride (hand-set gemcost)' },
       { ...bool('rare'), label: 'rare (gems by effort)' },
       { ...num('parallel'), label: 'parallel (producers run at once)' },
+      { ...num('maxpergrid'), label: 'maxpergrid (most per grid; the Inn: 1)' },
       { ...num('effort'), label: 'effort (min/unit, derived)', derived: true },
       { ...ref('output', 'resource'), refAllow: ['noBank', 'hp', 'noRel', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), bool('repeatable'),
       ref('ingredient1', 'resource'), num('ingredient1qty'), ref('ingredient2', 'resource'), num('ingredient2qty'),

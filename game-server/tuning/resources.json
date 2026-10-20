@@ -8388,10 +8388,9 @@
     "size": 3,
     "category": "station",
     "action": "openUI",
-    "source": "Build",
+    "source": "BuildValley",
     "passable": false,
-    "requires": "devonly",
-    "level": 16,
+    "level": 17,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -8406,8 +8405,13 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1": "Wood",
+    "ingredient1qty": 500,
+    "ingredient2": "Stone",
+    "ingredient2qty": 300,
+    "ingredient3": "Clay",
+    "ingredient3qty": 300,
+    "maxpergrid": 1
   },
   {
     "type": "Farm House",

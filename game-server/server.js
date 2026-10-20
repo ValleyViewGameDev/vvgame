@@ -215,6 +215,7 @@ console.log('Setting up NPCsInGrid routes...');
 app.use('/api', gridRoutes);
 app.use('/api', enterGridRoutes);
 app.use('/api', require('./routes/snugTravelRoutes')); // Travel with Snug: GET destinations, POST pay + arrival tile
+app.use('/api', require('./routes/innRoutes')); // The Inn: POST rest (Money for full hp, then a cooldown on that Inn)
 app.use('/api', require('./routes/combatRoutes')); // POST /action/npc-kill: the one combat write (docs/audits/combat-and-npc-review-2026-10-07.md Track 2)
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);

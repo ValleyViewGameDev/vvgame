@@ -96,6 +96,7 @@ import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import LeaderboardPanel from './GameFeatures/Leaderboard/Leaderboard';
 import BankPanel from './GameFeatures/Trading/Bank';
+import InnPanel from './GameFeatures/Inn/InnPanel';
 import KentPanel from './GameFeatures/Trading/Kent';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
@@ -2832,6 +2833,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('CarnivalPanel'); break;
         case 'Bank':
           openPanel('BankPanel'); break;
+        case 'Inn':
+          openPanel('InnPanel'); break;
         case 'Worker Slot':
         case 'Farm Hand Slot':
         case 'Lumberjack Slot':
@@ -3886,6 +3889,24 @@ return (
           setInventory={setInventory}
           backpack={backpack}
           setBackpack={setBackpack}
+        />
+      )}
+      {activePanel === 'InnPanel' && (
+        <InnPanel
+          onClose={closePanel}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          setResources={setResources}
+          stationPosition={activeStation?.position}
+          gridId={activeStation?.gridId}
+          masterResources={masterResources}
+          globalTuning={globalTuning}
+          updateStatus={updateStatus}
+          TILE_SIZE={activeTileSize}
         />
       )}
       {activePanel === 'BankPanel' && (

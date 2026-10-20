@@ -11,6 +11,7 @@
   "tileHazards": {
     "l": { "damage": 5, "everyMs": 1000 }
   },
+  "innRest": { "_note": "The Inn's Rest (GameFeatures/Inn/InnPanel.js, POST /api/inn/rest): Money for full health at once, then this Inn rests for cooldownMinutes.", "costMoney": 2500, "cooldownMinutes": 1440 },
   "costToRevive": 50,
   "percentageToRevive": 0.25,
   "maxCrops": 1000,

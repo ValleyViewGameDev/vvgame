@@ -129,7 +129,8 @@ const BuildPanel = ({
           const isValidSource = resource.source === 'Build' || 
             (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (isPlayerMayor || isDeveloper) && 
              (settlementsMatch || isDeveloper)) ||
-            (resource.source === 'BuildValley' && currentPlayer.location.gtype != 'homestead');
+            // BuildValley: out in the Valley only (the Inn), never on a homestead, in town or a dungeon
+            (resource.source === 'BuildValley' && String(currentPlayer.location.gtype || '').startsWith('valley'));
           
           if (!isValidSource) return false;
           
@@ -300,7 +301,11 @@ const BuildPanel = ({
               const isCraftingStation = item.category === 'crafting';
               const craftingStationLimitReached = isCraftingStation && (craftingStationCounts[item.type] || 0) >= maxCraftingStationsPerType;
 
-              const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached || craftingStationLimitReached;
+              // A per-grid cap set on the resource itself (resources.json maxpergrid; the Inn: 1)
+              const perGridMax = Number(item.maxpergrid) || 0;
+              const perGridLimitReached = perGridMax > 0 && (resources || []).filter(r => r.type === item.type).length >= perGridMax;
+
+              const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached || craftingStationLimitReached || perGridLimitReached;
               const isSelectedForCursor = cursorMode?.type === 'build' && cursorMode?.item === item.type;
 
               // Build className based on state
@@ -320,8 +325,8 @@ const BuildPanel = ({
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-              const details = craftingStationLimitReached
-                ? `<span style="color: var(--color-text-negative);">${strings[407]} (${maxCraftingStationsPerType})</span>`
+              const details = (craftingStationLimitReached || perGridLimitReached)
+                ? `<span style="color: var(--color-text-negative);">${strings[407]} (${perGridLimitReached ? perGridMax : maxCraftingStationsPerType})</span>`
                 : (townBuildingLimitReached ? `<span style="color: var(--color-text-negative);">${strings[407]}</span>` : '') +
                   (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
                   (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
@@ -370,7 +375,7 @@ const BuildPanel = ({
                       });
                     }
                   }}
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached && !craftingStationLimitReached) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached && !craftingStationLimitReached && !perGridLimitReached) ? handleGemPurchase : null}
                   meetsLevelRequirement={meetsLevel}
                   resource={item}
                   inventory={inventory}
