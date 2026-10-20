@@ -374,6 +374,28 @@ to fill its tile. A character or animal drawn from a description alone drifts un
 strong style panel is attached; once one is approved it becomes the reference for the rest.
 These files are the bible seed for slice B. Open: the palette (below).
 
+## 7c. Slice B decisions so far (owner, 2026-10-20 morning)
+
+The overnight lanes are reviewed in `docs/art/slice-b-review.md`. Decided:
+
+- **Crafting-station architecture (open-air cut-away) APPROVED**; `flatter-dairy-b-1` is the
+  sub-bible panel for every 2 x 2 station. The Mill is right but its machine must not sit
+  dead centre and the windmill should be larger.
+- **Oak Tree `flatter-oak-tree-1` APPROVED** (the 1.5-tile one), with colour variations to be
+  drawn from it for random use, including two in autumn colours from the palette. Pine
+  `flatter-pine-tree-b-1` is close: 10% shorter at the same width. Dead Tree wanted, one brown
+  and one black.
+- **Tiles, per type:** grass tufts smaller and less pronounced, with the very subtle yellow
+  dots and the occasional white dot of today's tiles, accents that read as part of the grass
+  and never as flowers; dirt without the big round pebbles, subtler, and in a colour near
+  today's `#c98f59` (the light sample was sand, the dark one too dark); SLATE first, the
+  in-game grey stone (`#97968b`), a flat stone with some cracks; cobblestone kept but with
+  thinner seams so the scale reads smaller and more real, with subtle moss; a PAVEMENT of
+  large man-made tiles near today's `#f5bf89` in the palette.
+- **3 x 3 buildings need much more exploration:** more imaginative architecture and
+  rooflines, real distinction between buildings (not thatch everywhere), and signs that are
+  believably attached to the building. The hanging board idea stands; the attachment did not.
+
 ## 7b. Direction change 2026-10-19: full-bodied characters
 
 Once the art is this solid, a head-and-shoulders bust floating on a tile stops working for
