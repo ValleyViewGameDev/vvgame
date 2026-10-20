@@ -158,16 +158,14 @@ kind of thing has its own template and the generator must be shown the right one
   on the same lane rules, once the creature style exists.
 - **Farm animals**: their own lane, their own approved panels, because they will need simple
   animation and the animal style has to land before any of that. First trio done 2026-10-19
-  (Cow, Sheep from description; Pig), approved by the owner. **Facings, proposed:** humans
-  are drawn orthogonally (front, left side, back; the right side is the left mirrored),
-  because a person reads from the front. Quadrupeds read from the three-quarter diagonal
-  (a cow seen straight from behind is a rump), so animals are drawn at the DIAGONAL: two
-  views, toward the viewer (front-left, what the approved panels show) and away (back-left),
-  mirrored for the right-hand pair, giving four diagonal facings that map onto the four
-  movement directions (down-left / down-right / up-left / up-right as the nearest
-  diagonal). Fewer base poses to animate (two per animal instead of three). Mirroring is
-  fine here: animals carry nothing asymmetric; the avatar plan's "no flip" rule exists for
-  the weapon hand. Awaiting the owner's yes.
+  (Cow, Sheep from description; Pig), approved by the owner as the lane's STYLE reference.
+  **Facings (owner, 2026-10-19):** the same scheme as people, because movement on a square
+  grid is along the axes and a diagonal pose sliding due west reads as skating: a SIDE view
+  for east and west (drawn facing left, mirrored for right; also the idle pose on a tile),
+  a FRONT view for south, a BACK view for north. Animals carry nothing asymmetric, so
+  mirroring is fine (the avatar plan's "no flip" rule exists for the weapon hand). The
+  approved three-quarter panels are not board poses; the board set for each animal is
+  drawn from them the way Hotspur's views were drawn from his front.
 - **Buildings, base style**: the approved farmhouse, redrawn ALONE at its true 2 x 2 size as
   the bible panel; the approved exploration panel keeps its four props, which belong to the
   deco lane instead. All buildings share this style.
