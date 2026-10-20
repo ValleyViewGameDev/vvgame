@@ -898,6 +898,18 @@ function drawCornerRounding(ctx, size, signature, variant) {
     }
   };
 
+  const r = cornerRadius;
+  const arcPath = (corner) => {
+    ctx.beginPath();
+    switch (corner) {
+      case 'topLeft': ctx.moveTo(r, 0); ctx.quadraticCurveTo(0, 0, 0, r); break;
+      case 'topRight': ctx.moveTo(size, r); ctx.quadraticCurveTo(size, 0, size - r, 0); break;
+      case 'bottomLeft': ctx.moveTo(r, size); ctx.quadraticCurveTo(0, size, 0, size - r); break;
+      case 'bottomRight': ctx.moveTo(size - r, size); ctx.quadraticCurveTo(size, size, size, size - r); break;
+      default: break;
+    }
+  };
+
   const names = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
   for (let i = 0; i < 4; i++) {
     if (signature[i] === '-') continue;
@@ -915,10 +927,12 @@ function drawCornerRounding(ctx, size, signature, variant) {
       cornerPath(names[i]);
       ctx.fill();
     }
-    // a faint shadow along the arc: the higher ground casts onto the lower
+    // a faint shadow along the ARC only: the higher ground casts onto the lower. Stroking the
+    // whole corner path also stroked its two straight legs along the canvas edges, which drew
+    // a dark hairline down every edge that touched a rounded corner (water beside dirt showed it)
     ctx.strokeStyle = CORNER_SHADOW;
     ctx.lineWidth = Math.max(1, size * 0.02);
-    cornerPath(names[i]);
+    arcPath(names[i]);
     ctx.stroke();
   }
 }
