@@ -1,0 +1,15 @@
+{
+  "name": "elsinore",
+  "note": "The locked bible (docs/art-pipeline-plan.md §6b step 1): the refs are OUR approved panels from slice A (bible/, WebP copies; the lossless masters are tools/art/_candidates/slice-a/approved/, gitignored). Replaces graveyard-bright, whose refs were Graveyard Keeper screenshots. Edit the preamble here; it is versioned with the outputs through the sidecars. A job may add lane references (a building, an animal, a character) as per-subject refs; keep the style refs to these four so every lane shares the same look.",
+  "refs": [
+    "styles/elsinore/bible/flatter-farmhouse-solo-1.webp",
+    "styles/elsinore/bible/baseline-figure-front-1.webp",
+    "styles/elsinore/bible/flatter-animal-cow-1.webp",
+    "styles/elsinore/bible/flatter-deco-stump-full-1.webp"
+  ],
+  "preamble": "Art for a 2D farming RPG. The first {refCount} attached images are APPROVED PANELS from this game's own art bible (a farmhouse on the board, a character, a farm animal, a decoration); copy their look exactly: a dark outline around every object; each object has a lit top plane and a shaded front; a soft contact shadow to the lower right (the light comes from the upper left); flat, confident fills with one shadow tone and one highlight per colour; small surface detail such as planks, stones, thatch and leaf clusters drawn as crisp shapes; warm ochre earth, clean saturated greens, bright daylight. Full resolution with smooth, crisp edges: NOT pixel art, no visible pixel grid, no dithering, no blur, no painterly texture. Camera for anything on the board: top-down three-quarter view on a square tile grid, roof planes and front faces both visible, verticals drawn straight up, never isometric. No text, no letters, no UI, no watermark, no frame.",
+  "variants": {
+    "baseline": "",
+    "flatter": "Shading: use fewer steps, exactly one shadow tone and one highlight per colour, and less surface detail; keep the dark outline."
+  }
+}
