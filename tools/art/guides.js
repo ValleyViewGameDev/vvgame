@@ -49,10 +49,28 @@ async function tileGuide() {
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
+/**
+ * The figure guide: the same 3 x 3 patch, the centre tile pale (the footprint: one tile
+ * wide, feet on its bottom edge) and the lower half of the tile above it tinted (the
+ * headroom: a character may rise half a tile above its own tile, no more).
+ */
+async function figureGuide() {
+  const t = Math.floor(PX / 3);
+  const cells = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const centre = r === 1 && c === 1;
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${centre ? '#f3e7b0' : '#8fb86a'}" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  const headroom = `<rect x="${t}" y="${t / 2}" width="${t}" height="${t / 2}" fill="#f8f1cf" stroke="none"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${cells.join('')}${headroom}<rect x="${t}" y="${t / 2}" width="${t}" height="${t * 1.5}" fill="none" stroke="#5b7a46" stroke-width="2" stroke-dasharray="8 6"/></svg>`;
+  return sharp(Buffer.from(svg)).png().toBuffer();
+}
+
 async function main() {
   ensureDir(GUIDES);
   fs.writeFileSync(path.join(GUIDES, 'head.png'), await headGuide());
   fs.writeFileSync(path.join(GUIDES, 'tile.png'), await tileGuide());
+  fs.writeFileSync(path.join(GUIDES, 'figure.png'), await figureGuide());
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());
