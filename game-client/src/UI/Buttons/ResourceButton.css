@@ -21,6 +21,7 @@
   padding: 6px 8px;
   margin: 4px 0;
   font-size: var(--text-md);
+  font-family: var(--font-body); /* a <button> does not inherit the page font: the details need it said */
   text-align: left;
   white-space: normal;
   border: none;
@@ -146,7 +147,7 @@
 /* Details or subtitle styling */
 .resource-details {
   margin: 2px 0;
-  font-size: var(--text-sm);
+  font-size: var(--text-md); /* 14: one step up for Philosopher (was 13) */
   color: var(--color-text-secondary);
   white-space: pre-line;
 }
@@ -155,7 +156,7 @@
 .resource-details span {
   display: block;
   margin: 2px 0;
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
 }
 
 

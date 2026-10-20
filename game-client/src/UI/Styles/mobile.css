@@ -299,7 +299,7 @@
     max-height: calc(100vh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
     max-height: calc(100dvh - var(--m-top) - var(--m-gap) - var(--m-pill-reserve-bottom));
   }
-  .panel-content { font-size: var(--text-md); }
+  .panel-content { font-size: var(--text-panel); }
 
   /* chat (App.js wraps it in .chat-panel-slideout, which already has a .closing state) */
   .chat-panel-slideout { padding-left: 0; }

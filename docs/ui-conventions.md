@@ -218,7 +218,7 @@ value rather than trust this page.
   | Kind | Where | Look |
   |---|---|---|
   | Action button | `.shared-buttons .btn-basic` + role + size (`SharedButtons.css`) | Lora bold 14, leaf face, `--btn-radius` 12, `--btn-shadow`, presses down 3 px |
-  | Card button | `ResourceButton` / `QuestButton` (Kent offers, crafting recipes, shop items, quests) | Berkshire title, Arial details, radius 12, `--card-shadow`, state color = leaf (ready) / gray (short, inactive) / sell green (collect) |
+  | Card button | `ResourceButton` / `QuestButton` (Kent offers, crafting recipes, shop items, quests) | Berkshire title, Philosopher details, radius 12, `--card-shadow`, state color = leaf (ready) / gray (short, inactive) / sell green (collect) |
   | Chrome button | nav bar buttons, zoom / map / season pills, header links (`App.css`) | round or pill, `--d-pill-*` / `--d-nav-*` tokens |
   | Close | `<CloseButton />` (`UI/Buttons/CloseButton.js`, class `.close-btn`; `corner` pins it to a modal's top-right) for every panel, modal and chat window | one drawn ×, 32 px box, ink, red on hover |
   | Tab | `.tab-button` (`Panel.css`) | Lora, underline when active |
@@ -375,14 +375,14 @@ class. `node scripts/check-styles.js` (in `game-client/`) reports every line tha
 |---|---|---|---|
 | Berkshire Swash | `--font-display` | the logo, modal and panel titles, an NPC speaking (the Story modal), resource-card titles (ResourceButton/QuestButton `.resource-title`) | sentences, numbers, buttons |
 | Lora, bold | `--font-heading` | every action button (`btn-basic`), sub-headings, tabs, section labels | paragraphs |
-| Arial | `--font-body` | everything the player reads: sentences, numbers, costs, labels, inputs, tooltips | titles |
+| Philosopher | `--font-body` | everything the player reads: sentences, numbers, costs, labels, inputs, tooltips (chosen 2026-10-19 over Arial for a fantasy, literary voice that keeps numbers clear; the trial sheet is `docs/art/font-trial.html`) | titles |
 
 `--font-mono` is for developer tools only (debug panels, the GridState overlay). The page
 `body` defaults to Lora (`App.css`): Berkshire is opt-in (a title role or `--font-display`)
-and body text gets Arial through its role, so an element that sets nothing reads as a Lora
+and body text gets Philosopher through its role, so an element that sets nothing reads as a Lora
 label, never as a decorative title. Section headings inside a panel's content use
 `.panel-subheading` (Lora bold 18, title gold; `Panel.css`), not the panel-title face;
-control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; a modal that names an action under its title splits them: the place as the Berkshire `.modal-title` ("Trading Post"), the action as a Lora `.modal-subtitle` under it ("Add Items to Sell"), never one "Place: action" string; Google Fonts loads Berkshire Swash and Lora only (`public/index.html`).
+control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; a modal that names an action under its title splits them: the place as the Berkshire `.modal-title` ("Trading Post"), the action as a Lora `.modal-subtitle` under it ("Add Items to Sell"), never one "Place: action" string; Google Fonts loads Berkshire Swash, Lora and Philosopher (`public/index.html`); Arial is only the fallback while Philosopher loads. Form controls are the trap: a `<button>`, `<input>`, `<select>` or `<textarea>` ignores the page font and shows the system one (Arial), so `theme.css` sets text fields to the body font and makes buttons inherit, and a component built on a `<button>` (ResourceButton) names `--font-body` itself.
 
 **Six text roles** (family + size + color, `--font-<role>-*`): `title-1` modal title (display,
 28), `title-2` panel title (display, 22), `title-3` sub-heading (heading, 16, bold), `title-4`
@@ -391,6 +391,9 @@ role first; use the raw scale below only when no role fits.
 
 **The size scale** (`--text-*`, px, never `em`/`rem`): xs 12 · sm 13 · md 14 · lg 16 · xl 18 ·
 2xl 20 · 3xl 22 · 4xl 24 · 5xl 28 · 6xl 32.
+`--text-panel` (15) is the body size inside panels (`.panel-content`): Philosopher's small x-height
+reads a step smaller than Arial did, so panel text and resource-card details (`--text-md`, 14) sit
+one step up (2026-10-20).
 
 - **A sentence is 14 px or more** (`--text-md`), on desktop and on phones alike: an
   instruction, a description, a modal's body, a hint, a status line. This is the rule the Email

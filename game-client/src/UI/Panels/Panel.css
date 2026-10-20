@@ -64,7 +64,7 @@
 .panel-content {
   padding: 12px;
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-panel); /* 15: one step up for Philosopher (was 14) */
   flex: 1;
   overflow-y: auto; /* Allows scrolling */
   touch-action: pan-y; /* Enable smooth trackpad scrolling on Windows */

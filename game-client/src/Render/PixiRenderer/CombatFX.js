@@ -154,7 +154,9 @@ export function text(x, y, label, kind = 'damage') {
     kill:   { fill: '#ffffff', stroke: '#000000', strokeThickness: 4, fontSize: TILE * 0.44 },
   };
   const s = styles[kind] || styles.damage;
-  const t = new Text(String(label), { fontFamily: 'Lora, serif', fontWeight: 'bold', align: 'center', ...s });
+  // the body font (theme.css --font-body), bold; Pixi takes a real family name, not a CSS var.
+  // index.js loads Philosopher at boot so the first hit already draws in it.
+  const t = new Text(String(label), { fontFamily: 'Philosopher, Arial, sans-serif', fontWeight: 'bold', align: 'center', ...s });
   t.resolution = 2;
   t.anchor.set(0.5, 1);
   const x0 = (x + 0.5) * TILE + (Math.random() - 0.5) * TILE * 0.3;

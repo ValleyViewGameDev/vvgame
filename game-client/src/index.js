@@ -22,6 +22,9 @@ import { TransitionProvider } from './UI/TransitionContext';
 
 installTouchClass(); // html.touch-ui: no hover colours on resource/quest buttons on touch screens
 installBuildWatch(); // "The Game Has Updated" prompt when a deploy lands mid-session (UI/Modals/UpdatePrompt.js)
+// Board text (Pixi) is drawn once with whatever fonts are ready at that moment, so load the body
+// font now, not on first DOM use: combat numbers (CombatFX.js) then never fall back to Arial
+try { document.fonts?.load('700 16px Philosopher'); document.fonts?.load('400 16px Philosopher'); } catch (_) { /* no Font Loading API */ }
 applyTileColorVars(); // --tile-<key> on :root from the terrain palette (UI/Styles/tileColors.js)
 
 console.warn("🔥 index.js evaluated again — app may remount");

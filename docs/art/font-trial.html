@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Body Font Trial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Lora:wght@400;700&family=Alegreya+Sans:wght@400;700&family=Philosopher:wght@400;700&family=Overlock:wght@400;700&family=Quattrocento+Sans:wght@400;700&family=Marcellus&display=swap" rel="stylesheet">
+<style>
+  /* the game's tokens (game-client/src/UI/Styles/theme.css) */
+  :root {
+    --brand-gold: #9a6a16; --brand-parchment: #fffbb3; --brand-leaf: #baee66; --brand-leaf-ink: #358337;
+    --brand-berry: #c0392b; --ink: #333; --ink-2: #555; --muted: #6b6b6b; --tint: rgba(0,0,0,0.05);
+    --grass: #82bb4d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px 40px; background: var(--grass); font-family: 'Lora', serif; color: var(--ink); }
+  header { max-width: 1400px; margin: 0 auto 14px; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+  header h1 { font-family: 'Berkshire Swash', serif; font-weight: normal; margin: 0 0 4px; font-size: 30px; }
+  header p { margin: 0; font-size: 15px; }
+  .grid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .panel { background: var(--brand-parchment); border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.28); overflow: hidden; }
+  .panel-head { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px; border-bottom: 1px solid #ddd; }
+  .panel-head h2 { font-family: 'Berkshire Swash', serif; font-weight: normal; color: var(--brand-gold); font-size: 22px; margin: 0; }
+  .fontname { font-family: 'Lora', serif; font-weight: 700; font-size: 12px; color: #fff; background: var(--brand-gold); padding: 2px 8px; border-radius: 999px; }
+  .panel-body { padding: 10px 12px 14px; font-family: var(--body); font-size: 14px; line-height: 1.4; }
+  .status { margin: 0 0 8px; }
+  h3 { font-family: 'Lora', serif; font-weight: 700; font-size: 16px; color: #3a3a3a; margin: 10px 0 6px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { border-radius: 12px; padding: 6px 8px 8px; text-align: center; box-shadow: 0 5px 0 rgba(92,91,91,.5); }
+  .card.ready { background: var(--brand-leaf); }
+  .card.short { background: #d3d3d3; }
+  .card .icon { font-size: 26px; line-height: 1.1; }
+  .card .qty { font-weight: 700; font-size: 14px; }
+  .card .qty.ok { color: var(--brand-leaf-ink); } .card .qty.no { color: var(--brand-berry); }
+  .card .rew { font-size: 14px; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td { padding: 2px 0; } td.n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .quest { background: #7ff3f1; border-radius: 12px; padding: 8px 10px; box-shadow: 0 6px 0 rgba(92,91,91,.5); }
+  .quest .qt { font-family: 'Berkshire Swash', serif; font-size: 18px; margin: 2px 0 4px; }
+  .quest p { margin: 2px 0; }
+  .quote { font-style: italic; color: var(--ink); background: var(--tint); border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+  .fine { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+  .caption { font-size: 12px; color: var(--ink-2); }
+  .btn { display: block; width: 100%; margin-top: 10px; padding: 8px 12px; border: none; border-radius: 12px; background: var(--brand-leaf); color: var(--brand-leaf-ink); font-family: 'Lora', serif; font-weight: 700; font-size: 14px; box-shadow: 0 5px 0 rgba(92,91,91,.5); }
+  .digits { font-size: 14px; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Body Font Trial</h1>
+  <p>Titles stay Berkshire Swash, buttons and sub-headings stay Lora; only the body text changes. Arial (today) is first for reference.</p>
+</header>
+<div class="grid" id="grid"></div>
+<script>
+  const FONTS = [
+    ['Arial (today)', "Arial, 'Helvetica Neue', Helvetica, sans-serif"],
+    ['1 · Alegreya Sans', "'Alegreya Sans', Arial, sans-serif"],
+    ['2 · Philosopher', "'Philosopher', Arial, sans-serif"],
+    ['3 · Overlock', "'Overlock', Arial, sans-serif"],
+    ['4 · Quattrocento Sans', "'Quattrocento Sans', Arial, sans-serif"],
+    ['5 · Marcellus', "'Marcellus', Arial, sans-serif"],
+  ];
+  const panel = ([name, stack]) => `
+  <section class="panel" style="--body:${stack.replace(/"/g, '&quot;')}">
+    <div class="panel-head"><h2>Kent</h2><span class="fontname">${name}</span></div>
+    <div class="panel-body">
+      <p class="status">🤠 Kent is working. He'll buy what you grow, for coin and XP.</p>
+      <div class="cards">
+        <div class="card ready"><div class="icon">🌾</div><div class="qty ok">12 / 48</div><div class="rew">💰 1,250 · 🔷 36</div></div>
+        <div class="card short"><div class="icon">🍞 🧀</div><div class="qty no">10 / 3 · 4 / 12</div><div class="rew">💰 18,400 · 🔷 210</div></div>
+      </div>
+      <h3>Combat</h3>
+      <table>
+        <tr><td>Max HP</td><td class="n">145</td></tr>
+        <tr><td>Armor class</td><td class="n">18</td></tr>
+        <tr><td>Attack bonus</td><td class="n">+7</td></tr>
+        <tr><td>Damage</td><td class="n">12–18</td></tr>
+      </table>
+      <div class="quest" style="margin-top:12px">
+        <div class="caption">Level 16</div>
+        <div class="qt">Daisies for the Door</div>
+        <p>Collect 50 Daisy for Helena, then return to the Town.</p>
+        <p><b>Reward:</b> 1 Golden Key · 🔷 +120 XP</p>
+      </div>
+      <p class="quote">"What the Mirror shows is not what the Mirror hides. Bring me something sweet from the Queen's own table, Oberon."</p>
+      <div class="digits">0123456789 · 1,000,000 · 3:45:09 · 98%</div>
+      <p class="fine">We never share your email. You can unsubscribe at any time.</p>
+      <button class="btn">Accept Quest</button>
+    </div>
+  </section>`;
+  document.getElementById('grid').innerHTML = FONTS.map(panel).join('');
+</script>
+</body>
+</html>

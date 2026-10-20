@@ -135,7 +135,7 @@
      (mono is for developer tools only.) */
   --font-display: 'Berkshire Swash', serif;
   --font-heading: 'Lora', serif;
-  --font-body: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --font-body: 'Philosopher', Arial, 'Helvetica Neue', Helvetica, sans-serif;   /* chosen 2026-10-19 (docs/art/font-trial.html) */
   --font-mono: 'Fira Mono', Consolas, Menlo, Monaco, monospace;
 
   /* Size scale. px, never em/rem. 12 is the floor for anything read; a SENTENCE is 14 or more.
@@ -143,6 +143,7 @@
   --text-xs: 12px;     /* floor: counts, tags, timestamps, badges: never a sentence */
   --text-sm: 13px;     /* fine print: legal, privacy, footnotes, secondary table cells */
   --text-md: 14px;     /* body: every sentence, button labels */
+  --text-panel: 15px;  /* body text in panels: Philosopher's small x-height reads a step smaller than Arial did (2026-10-20) */
   --text-lg: 16px;     /* emphasised body, sub-headings, text inputs (16 stops iOS zooming in) */
   --text-xl: 18px;     /* card titles, big numbers */
   --text-2xl: 20px;
@@ -269,3 +270,10 @@ body {
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
+
+/* ========== FORM CONTROLS ==========
+   Browsers give <button>, <input>, <select> and <textarea> their own system font instead of the
+   page's, so a control without a font of its own showed Arial. Text fields use the body font; a
+   button without a class that sets one inherits from where it sits (component classes win). */
+input, select, textarea { font-family: var(--font-body); }
+button { font-family: inherit; }
