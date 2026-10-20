@@ -86,30 +86,57 @@ painterly edges.
 Rights: the OpenAI and Google terms allow commercial use of outputs; keep the generation
 sidecars (prompt, model, seed, date) with every accepted asset so provenance is on file.
 
-## 4. The style question first
+## 4. The style: decided direction (2026-10-19), tested before batching
 
-"Hand-drawn storybook, not sure" is the right amount of sure for a test, not for a batch.
-The first thing the generator does is a **style test**: the same three subjects (the female
-face on the rig, a wide-brim hat on that face, the Farm House) in five candidate styles,
-each as a 512 px panel AND as a 45 px board thumbnail, on one contact sheet:
+After a reference tour (mobile first; most Switch/PC cozy games turned out to be 3D or
+isometric), the owner settled the direction from two frames, kept in
+`docs/art/moodboard/`:
 
-1. Storybook ink and wash: dark ink line, soft watercolour fill, paper grain.
-2. Flat storybook: ink line, flat colour, one shadow tone (closest to today's best NPCs).
-3. Gouache: painterly, no outline, chunky shapes.
-4. Pencil and wash: soft graphite line, pale wash, hand-lettered feel.
-5. Cel: bold line, two-tone cel shading, saturated (the "cartoon" risk, included to anchor
-   the scale).
+- `lonesome-village-plaza.jpg` (Lonesome Village): THE target. Top-down three-quarter
+  view on a visible square tile grid; thick dark-brown outlines; flat fills with one darker
+  shadow tone and one lighter highlight patch; no texture, no gradients; rounded, chunky
+  shapes; a soft contact shadow under every object; warm, saturated palette; buildings show
+  a roof plane and a front wall.
+- `graveyard-keeper-village.webp` (Graveyard Keeper): the density and warmth pole. Same
+  camera. What to borrow: prop density, warm ochre paths against slightly desaturated
+  grass, upper-left light with lower-right contact shadows, roof plus front wall at a fixed
+  tilt. What to leave: the pixel grid, the brush texture, the dark overall grade.
 
-**The 45 px rule.** Board tiles render at 45 px (90 on a 2x phone). Watercolour texture and
-thin pencil lines turn to mush at that size; silhouettes and a bold line survive. Whatever
-wins must read in the 45 px strip, not only in the 512 px panel. Avatar busts render at
-256 px and can carry more texture, but they share the style, so the board sets the floor.
+Rejected on the way, so nobody re-proposes them: pixel art (Stardew, Eastward, Moonlighter),
+painterly (Bastion, Spiritfarer, Cozy Grove), isometric or diagonal cameras (Hay Day,
+Family Farm Adventure, Bandle Tale), 3D (Echoes of the Plum Grove, The Survivalists, Cult of
+the Lamb's angle), abstract (Hidden Through Time).
 
-Decision gate: the owner picks a style from the sheet. Then two more rounds narrow it
-(line weight, palette warmth, how much texture). The three or four winning panels become
-the **style bible**: `tools/art/styles/<name>/*.png` plus a `style.json` with the prompt
-preamble the panels were made with. Every later call sends those images. Changing the look
-later means a new bible and a regenerate, which is what "a pipeline that lets me rev" means.
+**Camera, in prompt words:** "top-down three-quarter view, square tiles, front faces
+visible, verticals straight up, not isometric". It is what the board already draws.
+
+**Slice A is no longer a tour of styles; it is a test of the recipe.** The same three
+subjects (the female face on the rig, a wide-brim hat on that face, the Farm House on one
+tile) are rendered in four controlled variants of the Lonesome Village recipe, through two
+models, each as a 512 px panel AND a 45 px board thumbnail, on one contact sheet:
+
+1. As the reference: thick brown line, flat fill, one shadow tone, one highlight.
+2. Thinner line, same fills (the "does the line survive 45 px" question answered both ways).
+3. Softer shading: the shadow tone blended, a slight rim light (one step towards Graveyard's
+   solidity, still no texture).
+4. Graveyard density: variant 1 with more small props and surface detail per tile.
+
+Plus one control: today's best NPC drawing (Gertrude) redrawn in variant 1, so the owner
+can see what "the existing art, in the new recipe" looks like.
+
+**The 45 px rule.** Board tiles render at 45 px (90 on a 2x phone). A line that looks right
+at 512 px is often too thin or too heavy at 45; the strip decides. Avatar busts render at
+256 px and share the recipe, so the board sets the line weight.
+
+**Warm board, dark grids.** Assets are drawn in neutral warm daylight. Dungeons and night
+come from the renderer (time-of-day colour grading and a light layer, a Phase 4 job), not
+from darker assets, so one set of art serves every grid.
+
+Decision gate: the owner picks a variant and says what to nudge. One narrowing round.
+The winning panels become the **style bible**: `tools/art/styles/<name>/*.png` plus a
+`style.json` with the prompt preamble the panels were made with. Every later call sends
+those images. Changing the look later means a new bible and a regenerate, which is what
+"a pipeline that lets me rev" means.
 
 ## 5. The pipeline
 
@@ -170,7 +197,7 @@ command, and the old files stay in git. Sidecars make any accepted asset reprodu
 
 | Slice | What | Owner does | Rough cost |
 |---|---|---|---|
-| A. Style test | guides from `_body.json`; `generate.js` with two models; 5 styles × 3 subjects × 2 models, 512 px + 45 px contact sheet | picks a style, two narrowing rounds | ~$5 |
+| A. Recipe test | guides from `_body.json`; `generate.js` with two models; 4 variants × 3 subjects × 2 models + the Gertrude control, 512 px + 45 px contact sheet (section 4) | picks a variant, one narrowing round | ~$5 |
 | B. Bible + first conformant parts | lock the bible; female and male face, two hairstyles, one hat, one top, 4 candidates each; `check.js`; Candidates pane in the Lab | picks from contact sheets | ~$10 |
 | C. The avatar starter set | ~2 faces, 6 hair, 4 facial hair, 5 hats, 6 tops, the bare bust, blink frames; catalogue rows written by `accept.js` | picks; says what to regenerate | $30-60 |
 | D. Two buildings | Farm House and Windmill through the same generator; PNG branch in `build-atlas.js`; on the board beside today's art at 45 and 90 px | judges them on the board | ~$5 |
@@ -205,11 +232,16 @@ atlas. The model paints.
 - **Keying and fringes**: if the winner has no alpha, budget a day for the matting step
   before judging edge quality.
 
-## 8. Open questions for the owner
+## 8. What slice A needs from the owner
 
-1. Which two models for the bake-off? Suggested: gpt-image and Gemini; add Flux if the
-   first two disagree on price vs quality.
-2. Is $60-100 total for A-D an acceptable spend, with a hard cap on each account?
-3. Does the Recraft subscription get cancelled at the end of slice A?
-4. For the board look (slice E): one style for everything, or a softer variant for
-   buildings and tiles than for characters? The test sheet can include both.
+1. API keys for the two bake-off models (suggested: OpenAI gpt-image and Google Gemini
+   image) in `game-server/.env` as `OPENAI_API_KEY` and `GEMINI_API_KEY`, with a spend cap
+   set on each account first. Flux joins only if the two disagree on price vs quality.
+2. A yes on roughly $60-100 total for slices A-D.
+3. Two or three more Lonesome Village frames for the mood board: a character close-up, an
+   interior or night scene, and a building other than the plaza ones. The generator copies
+   what it is shown; one frame is a thin bible.
+4. A call on characters: Lonesome Village's cast are animals with the same line treatment.
+   Our avatars are human busts. Assume the same outline and flat shading on human faces
+   unless told otherwise.
+5. Whether the Recraft subscription gets cancelled at the end of slice A.
