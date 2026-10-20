@@ -1,17 +1,32 @@
 /**
  * PixiRendererTileTextures - Tile texture generation for PixiJS renderer
  *
- * Ports the sophisticated tile rendering from RenderTilesCanvasV2.js:
- * - Procedural texture details (grass tufts, dirt specks, cracks, etc.)
- * - Seeded variations to prevent pattern repetition
- * - Priority-based corner rounding for natural terrain transitions
+ * Two sources for a cell's base look, composed into one canvas per LOOK (cached, shared by
+ * every cell that looks the same):
+ * - RASTER: the cut ground tiles in the atlas (`tiles/<type>-<i>.png`, sixteen cuts per type
+ *   from the approved 4 x 4 panels, tools/art/tiles.js; docs/art/slice-b/tiles.md). Used when
+ *   the atlas has frames for the type; the cell picks one of the sixteen by position.
+ * - PROCEDURAL: the canvas drawings below (grass tufts, dirt specks, cracks...) for types
+ *   that have no cut tiles yet, and for every type until the atlas has loaded.
+ *
+ * Transitions are the EDGING SYSTEM: priority-based corner rounding. A cell whose two
+ * orthogonal neighbours at a corner are the same ORGANIC type of higher priority gets that
+ * corner filled with the neighbour's look (its raster cut when it has one, its flat colour
+ * otherwise), as a quarter circle with a faint shadow along the arc. Grass has the highest
+ * priority, so grass grows over everything and its own corners are never cut; man-made
+ * types (pavement, cobblestone, dungeon) have priority 0 and straight edges against each
+ * other, but still receive organic neighbours. CORNER_PRIORITY is the one table to tune.
  */
 
 import { Texture } from 'pixi.js-legacy';
 import { getTileColor } from '../../UI/Styles/tileColors';
+import { peekAtlasTexture } from './AtlasTextures';
 
-// Base texture size - textures are rendered at this size and scaled via sprites
+// Procedural textures are drawn at this size; raster looks use the atlas tile's own size
 const BASE_TEXTURE_SIZE = 64;
+const RASTER_TEXTURE_SIZE = 128;  // = build-atlas.js TILE_CELL
+const RASTER_VARIANTS = 16;       // cuts per type (tools/art/tiles.js)
+const CORNER_SHADOW = 'rgba(20, 30, 10, 0.22)';
 
 // Texture cache - stores pre-rendered textures by key
 const tileTextureCache = new Map();
@@ -818,7 +833,7 @@ function getNeighbor(tileTypes, row, col, defaultType) {
  * make hundreds of keys that draw identically).
  */
 export function cornerSignature(tileType, row, col, tileTypes) {
-  if (!isOrganicTile(tileType) || !tileTypes) return '----';
+  if (!tileTypes) return '----';
   const myPriority = CORNER_PRIORITY[tileType] || 0;
   const top = getNeighbor(tileTypes, row - 1, col, tileType);
   const bottom = getNeighbor(tileTypes, row + 1, col, tileType);
@@ -826,7 +841,8 @@ export function cornerSignature(tileType, row, col, tileTypes) {
   const right = getNeighbor(tileTypes, row, col + 1, tileType);
   const corner = (a, b, diag) => {
     if (a === tileType || b === tileType || a !== b) return '-';
-    const surrounded = diag === a && isOrganicTile(a);
+    if (!isOrganicTile(a)) return '-'; // only organic ground grows over a neighbour
+    const surrounded = diag === a;
     return (surrounded || (CORNER_PRIORITY[a] || 0) > myPriority) ? a : '-';
   };
   return corner(top, left, getNeighbor(tileTypes, row - 1, col - 1, tileType))
@@ -838,12 +854,11 @@ export function cornerSignature(tileType, row, col, tileTypes) {
 /**
  * Draw corner rounding for a tile from its corner signature (see cornerSignature)
  */
-function drawCornerRounding(ctx, size, signature) {
+function drawCornerRounding(ctx, size, signature, variant) {
   if (!signature || signature === '----') return;
   const cornerRadius = Math.max(2, Math.floor(size * 0.2));
 
-  const drawOuterCorner = (corner, fillColor) => {
-    ctx.fillStyle = fillColor;
+  const cornerPath = (corner) => {
     ctx.beginPath();
 
     switch (corner) {
@@ -877,13 +892,54 @@ function drawCornerRounding(ctx, size, signature) {
       default:
         break;
     }
-    ctx.fill();
   };
 
   const names = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
   for (let i = 0; i < 4; i++) {
-    if (signature[i] !== '-') drawOuterCorner(names[i], getTileColor(signature[i]));
+    if (signature[i] === '-') continue;
+    const neighbour = signature[i];
+    const raster = rasterFrame(neighbour, variant);
+    if (raster) {
+      // the neighbour's own cut tile, clipped to the quarter circle
+      ctx.save();
+      cornerPath(names[i]);
+      ctx.clip();
+      drawRaster(ctx, raster, size);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = getTileColor(neighbour);
+      cornerPath(names[i]);
+      ctx.fill();
+    }
+    // a faint shadow along the arc: the higher ground casts onto the lower
+    ctx.strokeStyle = CORNER_SHADOW;
+    ctx.lineWidth = Math.max(1, size * 0.02);
+    cornerPath(names[i]);
+    ctx.stroke();
   }
+}
+
+// ============================================
+// RASTER BASE TILES (the atlas)
+// ============================================
+
+/** The atlas frame for one cut of a type, or null when the type has no cut tiles (or the atlas is not loaded). */
+function rasterFrame(tileType, variant) {
+  return peekAtlasTexture('tiles', `${tileType}-${variant % RASTER_VARIANTS}.png`);
+}
+
+/** Draw an atlas frame (the sheet image, cropped to the frame) over the whole canvas. */
+function drawRaster(ctx, texture, size) {
+  const source = texture.baseTexture?.resource?.source;
+  if (!source) return false;
+  const f = texture.frame;
+  ctx.drawImage(source, f.x, f.y, f.width, f.height, 0, 0, size, size);
+  return true;
+}
+
+/** Which of the sixteen cuts a cell shows: a position hash, so neighbours differ and the board does not stripe. */
+export function getRasterVariant(row, col) {
+  return (row * 7 + col * 11 + ((row * 3 + col * 5) % 7)) % RASTER_VARIANTS;
 }
 
 // ============================================
@@ -899,14 +955,16 @@ function drawCornerRounding(ctx, size, signature) {
  * @returns {Texture} PixiJS texture
  */
 export function generateTileTexture(tileType, row, col, tileTypes = null) {
-  const variant = getVariant(row, col);
-  const seed = VARIANT_SEEDS[variant];
+  const rasterVariant = getRasterVariant(row, col);
+  const raster = rasterFrame(tileType, rasterVariant);
+  const variant = raster ? rasterVariant : getVariant(row, col);
+  const seed = VARIANT_SEEDS[variant % VARIANT_SEEDS.length];
   const variation = variant % 4; // the detail drawers have four position sets each
 
-  // Cache key: type + variant + what corner rounding will draw. Nothing position-specific,
-  // so every cell that looks the same shares one texture.
+  // Cache key: source + type + variant + what corner rounding will draw. Nothing
+  // position-specific, so every cell that looks the same shares one texture.
   const signature = cornerSignature(tileType, row, col, tileTypes);
-  const cacheKey = `${tileType}-${variant}-${signature}`;
+  const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}`;
 
   // Return cached texture if available AND still valid
   if (tileTextureCache.has(cacheKey)) {
@@ -920,16 +978,20 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
   }
 
   // Create canvas and render texture
+  const size = raster ? RASTER_TEXTURE_SIZE : BASE_TEXTURE_SIZE;
   const canvas = document.createElement('canvas');
-  canvas.width = BASE_TEXTURE_SIZE;
-  canvas.height = BASE_TEXTURE_SIZE;
+  canvas.width = size;
+  canvas.height = size;
   const ctx = canvas.getContext('2d');
-  const size = BASE_TEXTURE_SIZE;
 
   const baseColor = getTileColor(tileType);
 
-  // Special handling for pavement and cobblestone
-  if (tileType === 'p') {
+  if (raster) {
+    // The cut tile is the whole look; only the edging is drawn over it
+    drawRaster(ctx, raster, size);
+    drawCornerRounding(ctx, size, signature, variant);
+  } else if (tileType === 'p') {
+    // Special handling for pavement and cobblestone (procedural)
     drawPavementDetails(ctx, size, seed, baseColor);
   } else if (tileType === 'x') {
     drawCobblestoneDetails(ctx, size, seed, baseColor);
@@ -962,7 +1024,7 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
     }
 
     // Draw corner rounding
-    drawCornerRounding(ctx, size, signature);
+    drawCornerRounding(ctx, size, signature, variant);
   }
 
   // Convert to PixiJS texture with error handling

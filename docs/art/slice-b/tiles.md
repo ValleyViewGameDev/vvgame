@@ -297,3 +297,55 @@ image: the slate's four edge-running cracks (cut around them), cobble-2 (cobble-
 it). Then the build steps in "Recommendation and build order" stand, with one addition: the
 coloured guide becomes the standard for every remaining type (water, lava, moss, clay,
 dungeon), each with its `tileColors.js` hex, since it is what fixed the colour drift.
+
+## Built (2026-10-20): the tiles are in the game
+
+Owner's picks: the approved grass, dirt and sand (slice-b-tiles), and the whimsical painterly
+slate, cobblestone and pavement (whimsical-tiles). The hybrid, step one, is live:
+
+- `tools/art/tiles.js` cuts each approved 4 x 4 panel into sixteen 128 px tiles at
+  `game-client/public/assets/tiles/<type>-<i>.png`, inset by the drawn grid line (pavement is
+  cut with no inset: its joints ARE the grid lines, by design). `tiles.json` records sources
+  and each type's mean colour; `tileColors.js` adopted those means for g, d, n, s, x, p so the
+  minimap, gridlines and the procedural fallback match the art.
+- `build-atlas.js` has a `tiles/` namespace (128 px slots) and a PNG pass-through.
+- `PixiRendererTileTextures.generateTileTexture` draws the atlas cut as the base when the type
+  has one (sixteen cuts picked by a position hash) and the procedural canvas otherwise, so
+  types without cut tiles (snow, water, moss, lava, clay, dungeon) are unchanged. The renderer
+  re-composes the ground once the sheets land (`atlasTick`), destroying the interim procedural
+  textures inside the tile effect, where every pooled sprite is reassigned before a frame
+  renders (destroying them earlier left sprites on dead textures for one frame: a Pixi
+  `uvsFloat32` crash, found and fixed on the first run).
+- Measured on Oberon's homestead (64 x 64, winter): 4,096 sprites, 225 textures, 16 ms.
+
+### The edging strategy (how one type meets another)
+
+The well-known options for a 2D tile game are (1) a full transition tile set per type pair
+(Wang or blob tiles, 16 to 47 pieces per pair; the most art, the most control), (2) a
+priority "overlay" system where the higher type draws its edge pieces over the lower one
+(Stardew, RPG Maker autotiles: a few pieces per TYPE, not per pair), and (3) procedural
+corner rounding, which is (2) with the pieces drawn at runtime. The game already has (3),
+and it is kept, with these rules:
+
+- **Priority decides who grows over whom.** `CORNER_PRIORITY` in
+  `PixiRendererTileTextures.js`: grass 100, snow 90, moss 80, sand 70, dirt 60, clay 50,
+  slate 40, lava 30, water 20; pavement, cobblestone and dungeon 0. The higher type always
+  wins the corner. **Grass is the top, so grass grows over everything** and its own corners
+  are never cut.
+- **Only organic types grow.** A corner is filled only when the filler is organic (grass,
+  sand, dirt, snow, moss, water and so on). Man-made types never bulge into a neighbour, so
+  pavement against cobblestone is a straight joint. New in this change: man-made types now
+  RECEIVE organic neighbours (grass rounds into the corners of a pavement square), which the
+  old code skipped; "grass grows on top of everything" means on top of the paving too.
+- **When a corner is cut.** A cell's corner is filled when both orthogonal neighbours at that
+  corner are the same higher-priority organic type, or when that type also holds the
+  diagonal (the cell is surrounded). Single-tile contacts along an edge stay straight, which
+  reads as the lower ground running under a rounded lobe of the higher one.
+- **Corners are rounded** (a quarter circle of radius one fifth of the tile) and filled with
+  the neighbour's OWN cut tile, not a flat colour, with a faint shadow along the arc so the
+  higher ground reads as sitting on top. Types without cut tiles fill with their flat colour,
+  as before.
+- **What this does not do yet:** a drawn lip (the grass-over-earth edge pair from round 1)
+  and straight-edge transitions along a whole side. Both are the next step if the rounded
+  corners alone read as too soft; they slot into the same composer, gated on the signature,
+  with no change to the cache key scheme.

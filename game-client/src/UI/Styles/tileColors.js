@@ -8,17 +8,19 @@
  *   import { tileColors, getLayoutKeyColor, defaultTileColor } from '../UI/Styles/tileColors';
  */
 
-// Single-letter tile type keys (used by game rendering and editor)
+// Single-letter tile type keys (used by game rendering and editor). Types with cut ground tiles
+// (public/assets/tiles/tiles.json) carry the MEAN colour of their art, so the minimap, gridlines
+// and the procedural fallback match the board; the renderer draws the art itself from the atlas.
 export const tileColors = {
-  g: '#82bb4dff',    // grass
-  s: '#97968bff',  // stone/slate
-  d: '#c98f59ff',    // dirt
+  g: '#78ac14ff',    // grass
+  s: '#8c8778ff',  // stone/slate
+  d: '#cb8b49ff',    // dirt
   w: '#58a0d8ff',    // water
-  p: '#f5bf89ff',    // pavement
+  p: '#f3b86aff',    // pavement
   l: '#c4583d',    // lava
-  n: '#e0ca24ff',    // sand
+  n: '#eecc16ff',    // sand
   o: '#ffffff',    // snow
-  x: '#acaa89ff',  // cobblestone
+  x: '#9d936fff',  // cobblestone
   y: '#000000ff',  // dungeon
   z: '#3f7449ff',  // moss
   c: '#6c3b3bff',  // clay

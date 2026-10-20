@@ -17,6 +17,8 @@
  *   playerIcons/ every `filename` in src/Authentication/PlayerIcons.json   slot = 256 px
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
  *   avatar/      every file named in game-server/tuning/avatarParts.json   slot = 256 px
+ *   tiles/       every .png in public/assets/tiles (tools/art/tiles.js cuts them from the
+ *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 128 px
  *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
  *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
  *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
@@ -58,6 +60,7 @@ const SHEET_SIZE = 2048;
 const PADDING = 2;                 // transparent gutter inside each slot (stops linear-filter bleed)
 const BASE_CELL = 256;             // one tile's worth of art, enough for DPR 2 at the "closer" zoom (75 px)
 const OVERLAY_CELL = 128;
+const TILE_CELL = 128;             // a ground tile: 2x a desktop tile (64), 1.4x a 2x-phone tile (90)
 const slotForSize = (size) => (size >= 4 ? 768 : size >= 2 ? 512 : BASE_CELL);
 const WEBP_QUALITY = 90;
 
@@ -153,6 +156,17 @@ function listAvatarSources() {
   return [...seen.values()];
 }
 
+/** The cut ground tiles (PNG, already raster): `tiles/<type>-<i>.png`. */
+function listTileSources() {
+  const dir = path.join(PUBLIC, 'tiles');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.png')).map((file) => ({
+    key: `tiles/${file}`,
+    src: path.join(dir, file),
+    cell: TILE_CELL,
+  }));
+}
+
 function listOverlaySources() {
   const dir = path.join(PUBLIC, 'overlays');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.svg')).map((file) => ({
@@ -172,8 +186,11 @@ function svgIntrinsicSize(svgText) {
   return { w: 100, h: 100 };
 }
 
-/** Rasterise one SVG into a transparent px x px PNG buffer (aspect preserved, centred). */
+/** Rasterise one SVG (or resample one PNG) into a transparent px x px PNG buffer (aspect preserved, centred). */
 async function rasterise(src, px) {
+  if (src.endsWith('.png')) {
+    return sharp(src).resize(px, px, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
+  }
   const svgText = fs.readFileSync(src, 'utf8');
   const { w, h } = svgIntrinsicSize(svgText);
   const longest = Math.max(w, h, 1);
@@ -226,15 +243,15 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v3:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}`);
+  h.update(`v4:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}`);
   return h.digest('hex');
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
-    console.error(`Referenced SVGs not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);
+    console.error(`Referenced art not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);
     process.exit(1);
   }
 
@@ -256,7 +273,7 @@ async function main() {
     return;
   }
 
-  console.log(`Rasterising ${items.length} SVGs...`);
+  console.log(`Rasterising ${items.length} sources...`);
   const t0 = Date.now();
   const sheets = pack(items);
   fs.mkdirSync(OUT_DIR, { recursive: true });

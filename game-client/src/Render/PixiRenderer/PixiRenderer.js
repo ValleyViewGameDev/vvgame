@@ -394,6 +394,10 @@ const PixiRenderer = ({
 
   // Hovered tile for cursor highlight (tracked from mouse move)
   const [hoveredTile, setHoveredTile] = useState(null);
+  // Bumped when the sprite sheets finish loading: the tile layer re-composes with the cut
+  // ground tiles in place of the procedural canvases it drew while the atlas was in flight
+  const [atlasTick, setAtlasTick] = useState(0);
+  const atlasTickSeen = useRef(0);
 
   // Throttle tracking for mouse move handler (performance optimization)
   const lastMouseMoveTimeRef = useRef(0);
@@ -640,8 +644,9 @@ const PixiRenderer = ({
         baseTileSize: TILE_SIZE,
       });
 
-      // Start the sprite-sheet download now so it overlaps the grid bundle fetch
-      loadAtlas();
+      // Start the sprite-sheet download now so it overlaps the grid bundle fetch; once it
+      // lands, the ground re-composes from the atlas tiles (PixiRendererTileTextures)
+      loadAtlas().then(() => setAtlasTick((t) => t + 1));
       if (process.env.NODE_ENV !== 'production') window.__pixiApp = app; // dev hook: inspect the stage from the console
 
       // Combat feedback layer (CombatFX.js): reads NPC display objects, and takes one over on a kill
@@ -798,6 +803,10 @@ const PixiRenderer = ({
     // container grouped by texture so Pixi's batcher draws the whole layer in a few calls
     // (tiles never overlap, so their order does not matter).
     const pool = tileSpritePool.current;
+    // The atlas just landed: drop the procedural looks drawn while it was in flight. Done HERE,
+    // where every pooled sprite is reassigned before the next frame renders; destroying the
+    // textures anywhere else leaves sprites pointing at dead textures for a frame.
+    if (atlasTickSeen.current !== atlasTick) { atlasTickSeen.current = atlasTick; clearTileTextureCache(); }
     const byTexture = new Map();
     let i = 0;
     for (let row = 0; row < rows; row++) {
@@ -827,7 +836,7 @@ const PixiRenderer = ({
     if (process.env.NODE_ENV !== 'production') {
       window.__tileStats = { sprites: i, textures: byTexture.size, ms: Math.round((performance.now() - t0) * 10) / 10 };
     }
-  }, [grid, tileTypes, TILE_SIZE]); // Re-render when grid, tileTypes, or TILE_SIZE changes
+  }, [grid, tileTypes, TILE_SIZE, atlasTick]); // Re-render when grid, tileTypes, TILE_SIZE change, or the atlas lands
 
   // Render resources (Phase 2 - SVG with emoji fallback)
   useEffect(() => {

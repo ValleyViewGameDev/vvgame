@@ -1,0 +1,53 @@
+{
+  "note": "Cut by tools/art/tiles.js from the approved ground panels; one entry per tile type letter (UI/Styles/tileColors.js). The renderer uses tiles/<type>-<i>.png from the atlas when present and the procedural canvas otherwise.",
+  "types": {
+    "g": {
+      "name": "grass",
+      "source": "slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+      "inset": 6,
+      "count": 16,
+      "px": 128,
+      "mean": "#78ac14"
+    },
+    "d": {
+      "name": "dirt",
+      "source": "slice-b-tiles/approved/openai--flatter-dirt-2-1.png",
+      "inset": 6,
+      "count": 16,
+      "px": 128,
+      "mean": "#cb8b49"
+    },
+    "n": {
+      "name": "sand",
+      "source": "slice-b-tiles/approved/openai--flatter-sand-1.png",
+      "inset": 6,
+      "count": 16,
+      "px": 128,
+      "mean": "#eecc16"
+    },
+    "s": {
+      "name": "slate",
+      "source": "whimsical-tiles/approved/openai--painterly-slate-1.png",
+      "inset": 6,
+      "count": 16,
+      "px": 128,
+      "mean": "#8c8778"
+    },
+    "x": {
+      "name": "cobblestone",
+      "source": "whimsical-tiles/approved/openai--painterly-cobble-1.png",
+      "inset": 6,
+      "count": 16,
+      "px": 128,
+      "mean": "#9d936f"
+    },
+    "p": {
+      "name": "pavement",
+      "source": "whimsical-tiles/approved/openai--painterly-pavement-1.png",
+      "inset": 0,
+      "count": 16,
+      "px": 128,
+      "mean": "#f3b86a"
+    }
+  }
+}

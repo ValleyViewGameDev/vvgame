@@ -423,6 +423,12 @@ The overnight lanes are reviewed in `docs/art/slice-b-review.md`. Decided:
 - **Mill:** use `flatter-mill-b-1` but swap what stands on the ground: the stone grinding
   machine on the LEFT, lined up under the windmill it is connected to, sacks of flour and
   sugar on the RIGHT.
+- **Tiles are IN THE GAME (2026-10-20):** grass, dirt, sand (approved elsinore) and slate,
+  cobblestone, pavement (whimsical painterly) cut by `tools/art/tiles.js` into
+  `public/assets/tiles/`, served through the atlas (`tiles/` namespace), drawn by the renderer
+  with the existing priority corner rounding now filled with the neighbour's raster. The
+  edging strategy is written in docs/art/slice-b/tiles.md ("Built"). Remaining types (snow,
+  water, moss, lava, clay, dungeon) stay procedural until panels exist.
 - **3 x 3 buildings round 2 did not land** (the families above are the correction): more imaginative architecture and
   rooflines, real distinction between buildings (not thatch everywhere), and signs that are
   believably attached to the building. The hanging board idea stands; the attachment did not.
