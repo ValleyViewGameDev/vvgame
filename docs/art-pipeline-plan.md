@@ -310,9 +310,17 @@ the sidecars). Token use: gpt-image-2 ~10k tokens per image (about 130k total), 
   from one recipe: the character construction is proven.
 
 **Owner's decisions after slice A (2026-10-19):** gpt-image-2 primary, Gemini backup
-only; the **flatter** variant for the board; the baseline on-tile figure proportion
-(about three heads, feet in the tile, head half a tile above) for characters. Open: the
-palette (below).
+only. **Two approved panels, and only two, seed the bible:** `flatter-farmhouse-1` for the
+board and `baseline-figure-front-1` for characters (both gpt-image-2;
+`_candidates/slice-a/approved/`, everything else filed under `exploration/`). Everything
+from here is matched to those two files, not to the combined scene panels. The character
+proportion is the approved Gertrude's: about four heads from the top of the hair to the
+feet (the crown adds more), roughly two and a quarter times as tall as wide across the
+sleeves, a large head on an ADULT build. The "two and a half heads" rule from the first
+round made figures stubby and childlike and is retired; the approved figure itself is now
+sent as the proportion reference, which is the general rule: **once a thing is approved,
+it replaces the prose that described it.** Hotspur and the on-tile Gertrude are
+regenerated against it. Open: the palette (below).
 
 ## 7b. Direction change 2026-10-19: full-bodied characters
 

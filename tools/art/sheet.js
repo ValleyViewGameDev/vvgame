@@ -19,8 +19,14 @@ async function main() {
   const jobName = args.job || 'slice-a';
   const job = readJSON(path.join(ART, 'jobs', `${jobName}.json`));
   const dir = path.join(CANDIDATES, jobName);
-  const models = Object.keys(job.models).filter((m) => fs.existsSync(path.join(dir, m)));
-  const files = models.flatMap((m) => fs.readdirSync(path.join(dir, m)).filter((f) => f.endsWith('.png')).map((f) => ({ model: m, file: f, key: f.replace(/-\d+\.png$/, '') })));
+  const expl = path.join(dir, 'exploration');
+  const approvedDir = path.join(dir, 'approved');
+  const models = Object.keys(job.models).filter((m) => fs.existsSync(path.join(expl, m)));
+  // exploration/<provider>/<name>.png, plus approved/<provider>--<name>.png listed in the provider's column and marked
+  const files = models.flatMap((m) => [
+    ...fs.readdirSync(path.join(expl, m)).filter((f) => f.endsWith('.png')).map((f) => ({ model: m, src: path.join(expl, m, f), key: f.replace(/-\d+\.png$/, ''), approved: false })),
+    ...(fs.existsSync(approvedDir) ? fs.readdirSync(approvedDir).filter((f) => f.startsWith(`${m}--`) && f.endsWith('.png')).map((f) => ({ model: m, src: path.join(approvedDir, f), key: f.slice(m.length + 2).replace(/-\d+\.png$/, ''), approved: true })) : []),
+  ]);
   const rows = [...new Set(files.map((f) => f.key))].sort();
   if (!rows.length) { console.log('no candidates yet'); return; }
   const W = 160 + models.length * CELL_W, H = LABEL + rows.length * CELL_H;
@@ -32,12 +38,13 @@ async function main() {
       const f = files.find((x) => x.model === models[c] && x.key === rows[r]);
       const left = 160 + c * CELL_W;
       if (!f) { layers.push({ input: label('(missing)', CELL_W, LABEL), left, top: top + 4 }); continue; }
-      const src = path.join(dir, f.model, f.file);
+      const src = f.src;
       const side = JSON.parse(fs.readFileSync(src.replace(/\.png$/, '.json'), 'utf8'));
       layers.push({ input: await sharp(src).resize(PANEL, PANEL, { fit: 'contain', background: '#eee' }).png().toBuffer(), left, top: top + LABEL });
       layers.push({ input: await sharp(src).resize(90, 90).png().toBuffer(), left, top: top + LABEL + PANEL + 10 });
       layers.push({ input: await sharp(src).resize(45, 45).png().toBuffer(), left: left + 100, top: top + LABEL + PANEL + 10 });
-      layers.push({ input: label(`${side.model}  ${(side.ms / 1000).toFixed(0)}s`, PANEL - 160, LABEL, 13), left: left + 160, top: top + LABEL + PANEL + 10 });
+      layers.push({ input: label(`${f.approved ? 'APPROVED   ' : ''}${side.model}  ${(side.ms / 1000).toFixed(0)}s`, PANEL - 160, LABEL, 13), left: left + 160, top: top + LABEL + PANEL + 10 });
+      if (f.approved) layers.push({ input: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PANEL}" height="${PANEL}"><rect x="3" y="3" width="${PANEL - 6}" height="${PANEL - 6}" fill="none" stroke="#2d8a2d" stroke-width="6"/></svg>`), left, top: top + LABEL });
     }
   }
   const out = path.join(dir, 'sheet.png');

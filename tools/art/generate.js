@@ -4,10 +4,12 @@
  * (model, variant, subject), sends the style refs + the subject's guide + the assembled prompt,
  * and writes the candidates with a sidecar that makes each one reproducible:
  *
- *   tools/art/_candidates/<job>/<model>/<variant>-<subject>-<n>.png
- *   tools/art/_candidates/<job>/<model>/<variant>-<subject>-<n>.json   (prompt, refs, model, usage)
+ *   tools/art/_candidates/<job>/exploration/<provider>/<variant>-<subject>-<n>.png
+ *   tools/art/_candidates/<job>/exploration/<provider>/<variant>-<subject>-<n>.json   (prompt, refs, model, usage)
  *
- * Idempotent: an output that exists is skipped, so a failed run is re-run as is. Options:
+ * approve.js moves the chosen ones to <job>/approved/<provider>--<name>.png. Idempotent: an
+ * output that exists (in exploration or approved) is skipped, so a failed run is re-run as is.
+ * Options:
  *   --job slice-a --style graveyard-bright [--models openai,gemini] [--variants a,b]
  *   [--subjects x,y] [--n 1] [--dry-run] [--force]
  */
@@ -37,7 +39,8 @@ async function main() {
     if (!cfg) throw new Error(`job has no model config for "${providerKey}"`);
     const apiKey = providerKey === 'openai' ? env.OPENAI_API_KEY : env.GEMINI_API_KEY;
     if (!apiKey) throw new Error(`no API key for ${providerKey} in game-server/.env`);
-    const outDir = path.join(CANDIDATES, jobName, providerKey);
+    const outDir = path.join(CANDIDATES, jobName, 'exploration', providerKey);
+    const approvedDir = path.join(CANDIDATES, jobName, 'approved');
     ensureDir(outDir);
     for (const variant of variants) {
       for (const subjectKey of subjects) {
@@ -48,7 +51,8 @@ async function main() {
         const prompt = [preamble, style.variants[variant], subject.prompt].filter(Boolean).join('\n\n');
         for (let i = 1; i <= n; i++) {
           const base = path.join(outDir, `${variant}-${subjectKey}-${i}`);
-          if (fs.existsSync(`${base}.png`) && !args.force) { skipped++; continue; }
+          const approvedPng = path.join(approvedDir, `${providerKey}--${variant}-${subjectKey}-${i}.png`);
+          if ((fs.existsSync(`${base}.png`) || fs.existsSync(approvedPng)) && !args.force) { skipped++; continue; }
           if (args['dry-run']) { console.log(`[dry] ${providerKey}/${variant}-${subjectKey}-${i}\n  refs: ${refs.map((r) => path.basename(r)).join(', ')}\n  prompt: ${prompt.slice(0, 160)}...`); continue; }
           process.stdout.write(`${providerKey} ${cfg.model} ${variant}/${subjectKey} #${i} ... `);
           const t0 = Date.now();
