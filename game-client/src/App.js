@@ -97,6 +97,7 @@ import GovPanel from './GameFeatures/Government/GovPanel';
 import LeaderboardPanel from './GameFeatures/Leaderboard/Leaderboard';
 import BankPanel from './GameFeatures/Trading/Bank';
 import InnPanel from './GameFeatures/Inn/InnPanel';
+import BackpackManageModal from './GameFeatures/Inventory/BackpackManageModal';
 import KentPanel from './GameFeatures/Trading/Kent';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
@@ -961,6 +962,7 @@ const { closeAllPanels } = usePanelContext();
 // the Boat or keys, which the modal will not move), the Inventory panel opens with the Backpack
 // Management modal on top. A load or refresh at home is not a return, so it never fires then.
 const [autoOpenBackpackModal, setAutoOpenBackpackModal] = useState(false);
+const [postHouseOpen, setPostHouseOpen] = useState(false); // a Post House in the Valley: Backpack Management that sends home, no panel
 
 // Quest HUD button badge: ✅ when a quest is ready to turn in, ? when quests are active but none
 // is done (GameFeatures/Quests/questBadge.js). Current quest titles come from the quest cache, so
@@ -2835,6 +2837,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('BankPanel'); break;
         case 'Inn':
           openPanel('InnPanel'); break;
+        case 'Post House':
+          closeAllPanels(); setPostHouseOpen(true); break;
         case 'Worker Slot':
         case 'Farm Hand Slot':
         case 'Lumberjack Slot':
@@ -3889,6 +3893,20 @@ return (
           setInventory={setInventory}
           backpack={backpack}
           setBackpack={setBackpack}
+        />
+      )}
+      {postHouseOpen && currentPlayer && (
+        <BackpackManageModal
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setInventory={setInventory}
+          setBackpack={setBackpack}
+          masterResources={masterResources}
+          globalTuning={globalTuning}
+          updateStatus={updateStatus}
+          canSendHome={true}
+          title={`📯 ${strings[2111] || 'Send Home by Post'}`}
+          onClose={() => setPostHouseOpen(false)}
         />
       )}
       {activePanel === 'InnPanel' && (

@@ -198,6 +198,12 @@ which validates the Inn, the cooldown and the Money and sets hp to the server's 
 Priced against the healers (50 to 300 Money for 20 to 50 hp): a full Rest from near empty is
 cheaper than healing the same with a Surgeon, but once a day per Inn.
 
+**The Post House** (2026-10-19, 📯): the other Valley building (BuildValley), level 18, 600 Wood +
+200 Stone, one per grid. Tapping it opens Backpack Management (no panel) in send-home mode: the
+backpack's items go to the warehouse by the post, as at home (warehouse capacity applies; special
+items stay in the backpack). `GameFeatures/Inventory/BackpackManageModal.js` is that modal, shared
+with the Inventory panel (`canSendHome` = at home or at a Post House).
+
 ## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
 
 - Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)

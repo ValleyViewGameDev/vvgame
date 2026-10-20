@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "b287f14b871d02b8995a5c2061beba5f0c9dbe33",
+  "sourceHash": "dda36021a37377e83af3452cb12c138b6f838088",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -31,13 +31,13 @@
       "json": "world-4.json",
       "png": "world-4.png",
       "webp": "world-4.webp",
-      "frames": 93
+      "frames": 92
     },
     {
       "json": "world-5.json",
       "png": "world-5.png",
       "webp": "world-5.webp",
-      "frames": 145
+      "frames": 147
     }
   ],
   "frames": {
@@ -105,6 +105,7 @@
     "emoji/1f3e8": 3,
     "emoji/1f3ef": 3,
     "emoji/1f3f0": 3,
+    "emoji/1f4ef": 3,
     "emoji/1f573": 3,
     "emoji/1f6bb": 3,
     "emoji/1f6d6": 3,
@@ -157,7 +158,7 @@
     "resources/haybale.svg": 3,
     "resources/mailbox.svg": 3,
     "resources/mulberry-tree.svg": 3,
-    "resources/npc-angelo.svg": 3,
+    "resources/npc-angelo.svg": 4,
     "resources/npc-apothecary.svg": 4,
     "resources/npc-caliban.svg": 4,
     "resources/npc-cassio.svg": 4,
@@ -249,8 +250,8 @@
     "emoji/1f3e0": 4,
     "emoji/1f3f9": 4,
     "emoji/1f3fa": 4,
-    "emoji/1f402": 4,
-    "emoji/1f404": 4,
+    "emoji/1f402": 5,
+    "emoji/1f404": 5,
     "emoji/1f408": 5,
     "emoji/1f40f": 5,
     "emoji/1f411": 5,

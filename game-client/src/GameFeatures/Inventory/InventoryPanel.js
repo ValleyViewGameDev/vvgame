@@ -10,6 +10,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
+import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import CloseButton from '../../UI/Buttons/CloseButton';
 
@@ -32,7 +33,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const [inventorySortDirection, setInventorySortDirection] = useState('asc');
     const [backpackSortField, setBackpackSortField] = useState('name');
     const [backpackSortDirection, setBackpackSortDirection] = useState('asc');
-    const [backpackAmounts, setBackpackAmounts] = useState({}); // Store amounts per resource for backpack
     const [warehouseAmounts, setWarehouseAmounts] = useState({}); // Store amounts per resource for warehouse
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
@@ -132,167 +132,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
         }));
     };
 
-
-    const handleMoveItem = async (item) => {
-        const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
-        const amount = backpackAmounts[item.type] || 0;
-        
-        if (amount <= 0) return;
-
-        try {
-            if (isAtHome) {
-                // Check warehouse capacity before moving
-                const currentWarehouseUsage = calculateTotalQuantity(inventory);
-                const spaceAvailable = finalCapacities.warehouse - currentWarehouseUsage;
-                
-                if (amount > spaceAvailable) {
-                    updateStatus(20); // Warehouse full message
-                    return;
-                }
-                
-                const updatedWarehouse = [...inventory];
-                const existingIndex = updatedWarehouse.findIndex(i => i.type === item.type);
-                if (existingIndex !== -1) {
-                    updatedWarehouse[existingIndex].quantity += amount;
-                } else {
-                    updatedWarehouse.push({ ...item, quantity: amount });
-                }
-
-                const updatedBackpack = backpack.map(i => {
-                    if (i.type === item.type) {
-                        const newQuantity = i.quantity - amount;
-                        return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
-                    }
-                    return i;
-                }).filter(Boolean);
-
-                await axios.post(`${API_BASE}/api/update-inventory`, {
-                    playerId: currentPlayer.playerId,
-                    inventory: updatedWarehouse,
-                    backpack: updatedBackpack,
-                });
-
-                setCurrentPlayer({
-                    ...currentPlayer,
-                    inventory: updatedWarehouse,
-                    backpack: updatedBackpack,
-                });
-                
-                // Also update parent component's state
-                setInventory(updatedWarehouse);
-                setBackpack(updatedBackpack);
-
-                updateStatus(`Moved ${amount}x ${getLocalizedString(item.type, strings)} to warehouse`);
-            } else {
-                const updatedBackpack = backpack.map(i => {
-                    if (i.type === item.type) {
-                        const newQuantity = i.quantity - amount;
-                        return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
-                    }
-                    return i;
-                }).filter(Boolean);
-
-                await axios.post(`${API_BASE}/api/update-inventory`, {
-                    playerId: currentPlayer.playerId,
-                    backpack: updatedBackpack,
-                });
-
-                setCurrentPlayer({
-                    ...currentPlayer,
-                    backpack: updatedBackpack,
-                });
-                
-                // Also update parent component's state
-                setBackpack(updatedBackpack);
-
-                updateStatus(`❌ Discarded ${amount}x ${getLocalizedString(item.type, strings)}`);
-            }
-        } catch (error) {
-            console.error('Error updating inventory:', error);
-        }
-    };
-
-    const handleMoveAll = async () => {
-        const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
-
-        try {
-            if (isAtHome) {
-                // Filter out items with special category
-                const itemsToMove = backpack.filter((item) => {
-                    const resource = masterResources.find(r => r.type === item.type);
-                    return resource?.category !== 'special';
-                });
-                
-                // Calculate total quantity to move
-                const totalToMove = itemsToMove.reduce((sum, item) => sum + item.quantity, 0);
-                const currentWarehouseUsage = calculateTotalQuantity(inventory);
-                const spaceAvailable = finalCapacities.warehouse - currentWarehouseUsage;
-                
-                if (totalToMove > spaceAvailable) {
-                    updateStatus(20); // Warehouse full message
-                    return;
-                }
-
-                const updatedWarehouseInventory = [...inventory];
-
-                itemsToMove.forEach((item) => {
-                    const existingIndex = updatedWarehouseInventory.findIndex((invItem) => invItem.type === item.type);
-                    if (existingIndex !== -1) {
-                        updatedWarehouseInventory[existingIndex].quantity += item.quantity;
-                    } else {
-                        updatedWarehouseInventory.push(item);
-                    }
-                });
-
-                // Keep items with special category in backpack
-                const updatedBackpack = backpack.filter((item) => {
-                    const resource = masterResources.find(r => r.type === item.type);
-                    return resource?.category === 'special';
-                });
-
-                await axios.post(`${API_BASE}/api/update-inventory`, {
-                    playerId: currentPlayer.playerId,
-                    inventory: updatedWarehouseInventory,
-                    backpack: updatedBackpack,
-                });
-
-                setCurrentPlayer({
-                    ...currentPlayer,
-                    inventory: updatedWarehouseInventory,
-                    backpack: updatedBackpack,
-                });
-                
-                // Also update parent component's state
-                setInventory(updatedWarehouseInventory);
-                setBackpack(updatedBackpack);
-
-                updateStatus(`Moved all items to warehouse`);
-            } else {
-                // When not at home, discard all items except those with special category
-                const itemsToKeep = backpack.filter((item) => {
-                    const resource = masterResources.find(r => r.type === item.type);
-                    return resource?.category === 'special';
-                });
-                
-                await axios.post(`${API_BASE}/api/update-inventory`, {
-                    playerId: currentPlayer.playerId,
-                    backpack: itemsToKeep,
-                });
-
-                setCurrentPlayer({
-                    ...currentPlayer,
-                    backpack: itemsToKeep,
-                });
-                
-                // Also update parent component's state
-                setBackpack(itemsToKeep);
-
-                updateStatus(`❌ Discarded all items except special items`);
-            }
-        } catch (error) {
-            console.error('Error updating inventory:', error);
-        }
-    };
 
     const handleDiscardWarehouseItem = async (item) => {
         try {
@@ -621,56 +460,19 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             </div>
 
 
-            {showBackpackModal && (() => {
-                const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
-                const nonSpecialItems = backpack.filter((item) => {
-                    const resource = masterResources.find(r => r.type === item.type);
-                    return resource?.category !== 'special';
-                });
-                const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonSpecialItems.length === 0) : 
-                                        (backpack.length === 0 || nonSpecialItems.length === 0);
-                return createPortal(
-                    <div className="modal-overlay">
-                        <div className="modal-container modal-large">
-                            <CloseButton corner onClick={() => setShowBackpackModal(false)} />
-                            <div className="modal-title">{strings[187]}</div>
-
-                        <ManageContentsModal
-                            inventory={backpack}
-                            masterResources={masterResources}
-                            emptyMessage={strings[77]}
-                            showActions={true}
-                            warehouseAmounts={backpackAmounts}
-                            setWarehouseAmounts={setBackpackAmounts}
-                            handleAmountChange={handleAmountChange}
-                            handleDiscardWarehouseItem={(item) => {
-                                const resource = masterResources.find(r => r.type === item.type);
-                                const isSpecialItem = resource?.category === 'special';
-                                
-                                if (isSpecialItem || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)) {
-                                    return;
-                                }
-                                handleMoveItem(item);
-                            }}
-                            actionButtonText={isAtHome ? strings[196] : strings[188]}
-                            actionButtonClass="btn-success"
-                            strings={strings}
-                        />
-
-                        <div className="modal-buttons shared-buttons">
-                            <TransactionButton
-                                className="btn-basic btn-modal btn-success"
-                                onAction={handleMoveAll}
-                                disabled={isAddAllDisabled}
-                                transactionKey={`move-all-${currentPlayer?.gridId}`}
-                            >
-                                {isAtHome ? strings[189] : strings[190]}
-                            </TransactionButton>
-                        </div>
-                    </div>
-                </div>
-                , document.body);
-            })()}
+            {showBackpackModal && (
+                <BackpackManageModal
+                    currentPlayer={currentPlayer}
+                    setCurrentPlayer={setCurrentPlayer}
+                    setInventory={setInventory}
+                    setBackpack={setBackpack}
+                    masterResources={masterResources}
+                    globalTuning={globalTuning}
+                    updateStatus={updateStatus}
+                    canSendHome={currentPlayer.location.g === currentPlayer.gridId}
+                    onClose={() => setShowBackpackModal(false)}
+                />
+            )}
 
             {showWarehouseModal && createPortal(
                 <div className="modal-overlay">
