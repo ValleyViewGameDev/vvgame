@@ -87,8 +87,15 @@ async function keyMagenta(buf) {
   // the rest are turned from it: the edge with the grass to the north (its lip hangs down into
   // the cell) rotated for the other three sides, the matching convex nub rotated likewise, and
   // each concave corner as the union of its two edges (both lips meet squarely in the corner).
-  const edgeN = await panelCell(`lip-island-${N}`, 3, 1);
-  const nubNW = await panelCell(`lip-island-${N}`, 3, 3);
+  // The master edge: the cell under the middle of the island's bottom side. Its LEFT end sits
+  // at the island's corner, where the drawn lip starts to round off, so the piece is made
+  // uniform by mirroring its untapered right half onto the left. A tapered end is what left a
+  // notch of the lower tile at every outer grass corner.
+  const edgeRaw = await panelCell(`lip-island-${N}`, 3, 1);
+  const rightHalf = await sharp(edgeRaw).extract({ left: CELL / 2, top: 0, width: CELL / 2, height: CELL }).png().toBuffer();
+  const leftHalf = await sharp(rightHalf).flop().png().toBuffer();
+  const edgeN = await sharp({ create: { width: CELL, height: CELL, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([{ input: leftHalf, left: 0, top: 0 }, { input: rightHalf, left: CELL / 2, top: 0 }]).png().toBuffer();
   const rot = (buf, deg) => sharp(buf).rotate(deg, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
   // the concave corner: where the two lips meet, their scallop valleys leave a sliver of the
   // lower tile showing at the very corner; a quarter-disc of grass (radius = the lip's depth)
@@ -107,6 +114,9 @@ async function keyMagenta(buf) {
     return sharp(disc).composite([{ input: await sharp(shadow).png().toBuffer() }]).png().toBuffer();
   };
   const union = async (a, b, cx, cy) => sharp(await cornerFill(cx, cy)).composite([{ input: a }, { input: b }]).png().toBuffer();
+  // the convex nub (grass only on the diagonal): the drawn island corners gave nothing usable,
+  // so it is the same quarter-disc at the cell's corner, rounding the grass region's outer corner
+  const nubNW = await cornerFill(0, 0);
   const edges = { n: edgeN, e: await rot(edgeN, 90), s: await rot(edgeN, 180), w: await rot(edgeN, 270) };
   const pieces = {
     'edge-n': edges.n, 'edge-e': edges.e, 'edge-s': edges.s, 'edge-w': edges.w,

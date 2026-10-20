@@ -6,51 +6,51 @@
   "pieces": {
     "edge-n": {
       "file": "g-edge-n.png",
-      "coverage": 0.064
+      "coverage": 0.067
     },
     "edge-e": {
       "file": "g-edge-e.png",
-      "coverage": 0.064
+      "coverage": 0.067
     },
     "edge-s": {
       "file": "g-edge-s.png",
-      "coverage": 0.064
+      "coverage": 0.067
     },
     "edge-w": {
       "file": "g-edge-w.png",
-      "coverage": 0.064
+      "coverage": 0.067
     },
     "convex-nw": {
       "file": "g-convex-nw.png",
-      "coverage": 0
+      "coverage": 0.005
     },
     "convex-ne": {
       "file": "g-convex-ne.png",
-      "coverage": 0
+      "coverage": 0.005
     },
     "convex-se": {
       "file": "g-convex-se.png",
-      "coverage": 0
+      "coverage": 0.005
     },
     "convex-sw": {
       "file": "g-convex-sw.png",
-      "coverage": 0
+      "coverage": 0.005
     },
     "concave-nw": {
       "file": "g-concave-nw.png",
-      "coverage": 0.125
+      "coverage": 0.13
     },
     "concave-ne": {
       "file": "g-concave-ne.png",
-      "coverage": 0.125
+      "coverage": 0.13
     },
     "concave-se": {
       "file": "g-concave-se.png",
-      "coverage": 0.125
+      "coverage": 0.13
     },
     "concave-sw": {
       "file": "g-concave-sw.png",
-      "coverage": 0.125
+      "coverage": 0.13
     }
   }
 }
