@@ -1,0 +1,37 @@
+{
+  "note": "Cut by tools/art/walls.js from a junction panel; the renderer composes a wall tile from the post plus one spoke per connected neighbour (PixiRendererWalls.js).",
+  "sets": {
+    "stone": {
+      "plus": "painterly-stone-wall-plus-1",
+      "cross": "painterly-stone-wall-cross-1",
+      "px": 128,
+      "pieces": [
+        "post",
+        "n",
+        "ne",
+        "e",
+        "se",
+        "s",
+        "sw",
+        "w",
+        "nw"
+      ]
+    },
+    "fence": {
+      "plus": "painterly-wood-fence-plus-1",
+      "cross": "painterly-wood-fence-cross-1",
+      "px": 128,
+      "pieces": [
+        "post",
+        "n",
+        "ne",
+        "e",
+        "se",
+        "s",
+        "sw",
+        "w",
+        "nw"
+      ]
+    }
+  }
+}

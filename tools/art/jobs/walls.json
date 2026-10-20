@@ -1,0 +1,74 @@
+{
+  "name": "walls",
+  "note": "Wall and fence junction panels (the autotile source): one centre post with eight spokes to the neighbouring cell centres, drawn on magenta over the wall guide; tools/art/walls.js keys and cuts post + 8 spokes, and the renderer composes any formation from them by the 8-neighbour mask. The all-eight junction was superseded by a PLUS panel (four straight spokes) and a CROSS panel (four diagonals) per set: spokes 90 degrees apart only overlap at the post, so each piece cuts clean.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "stone-wall": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a shaded front face, verticals straight up). SUBJECT: a WALL JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with eight lines to the eight neighbouring squares' centres. Draw a low fairy-tale STONE WALL exactly along the asterisk: a slightly taller, rounded stone post at the centre dot, and from it eight straight wall segments, one along each line, each reaching exactly the neighbouring square's centre and stopping there with a flat end. All eight segments have the SAME width (about a quarter of a square), the same height, the same rounded mossy fieldstone with a flat capstone top; the four diagonal segments are the same wall, drawn at a diagonal. Every segment shows its stone top from above and a shaded front face on its south-facing side; a soft contact shadow on the ground to the lower right. Apart from the wall, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "wood-fence": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a front face, verticals straight up). SUBJECT: a FENCE JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with eight lines to the eight neighbouring squares' centres. Draw a rustic fairy-tale WOODEN FENCE exactly along the asterisk: a sturdy round wooden post at the centre dot, and from it eight fence runs, one along each line, each of two horizontal split rails reaching exactly the neighbouring square's centre and stopping there with a flat end. All eight runs have the SAME rail thickness and height, the same weathered warm wood with a little moss; the four diagonal runs are the same fence drawn at a diagonal. Rails show their top edge lit from above and their front face on the south-facing side; a soft contact shadow on the ground to the lower right. Apart from the fence, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "stone-wall-plus": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall-plus.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a shaded front face, verticals straight up). SUBJECT: a WALL JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with FOUR straight lines, to the squares above, below, left and right' centres. Draw a low fairy-tale STONE WALL exactly along the asterisk: a slightly taller, rounded stone post at the centre dot, and from it four wall segments, one along each line, each reaching exactly the neighbouring square's centre and stopping there with a flat end. All four segments have the SAME width (about a quarter of a square), the same height, the same rounded mossy fieldstone with a flat capstone top. Every segment shows its stone top from above and a shaded front face on its south-facing side; a soft contact shadow on the ground to the lower right. Apart from the wall, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "stone-wall-cross": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall-cross.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a shaded front face, verticals straight up). SUBJECT: a WALL JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with FOUR diagonal lines, to the four diagonally neighbouring squares' centres. Draw a low fairy-tale STONE WALL exactly along the asterisk: a slightly taller, rounded stone post at the centre dot, and from it four wall segments, one along each line, each reaching exactly the neighbouring square's centre and stopping there with a flat end. All four segments have the SAME width (about a quarter of a square), the same height, the same rounded mossy fieldstone with a flat capstone top; the segments are the same wall as a straight one, drawn at a diagonal. Every segment shows its stone top from above and a shaded front face on its south-facing side; a soft contact shadow on the ground to the lower right. Apart from the wall, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "wood-fence-plus": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall-plus.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a front face, verticals straight up). SUBJECT: a FENCE JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with FOUR straight lines, to the squares above, below, left and right' centres. Draw a rustic fairy-tale WOODEN FENCE exactly along the asterisk: a sturdy round wooden post at the centre dot, and from it four fence runs, one along each line, each of two horizontal split rails reaching exactly the neighbouring square's centre and stopping there with a flat end. All four runs have the SAME rail thickness and height, the same weathered warm wood with a little moss. Rails show their top edge lit from above and their front face on the south-facing side; a soft contact shadow on the ground to the lower right. Apart from the fence, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "wood-fence-cross": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/wall-cross.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a front face, verticals straight up). SUBJECT: a FENCE JUNCTION for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk on one square: a centre dot with FOUR diagonal lines, to the four diagonally neighbouring squares' centres. Draw a rustic fairy-tale WOODEN FENCE exactly along the asterisk: a sturdy round wooden post at the centre dot, and from it four fence runs, one along each line, each of two horizontal split rails reaching exactly the neighbouring square's centre and stopping there with a flat end. All four runs have the SAME rail thickness and height, the same weathered warm wood with a little moss; the runs are the same fence as a straight one, drawn at a diagonal. Rails show their top edge lit from above and their front face on the south-facing side; a soft contact shadow on the ground to the lower right. Apart from the fence, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    }
+  }
+}

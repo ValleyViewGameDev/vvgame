@@ -16,6 +16,7 @@ import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
 import PixiRendererDoinker from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
+import { indexWalls, wallMask, wallTexture, clearWallTextureCache } from './PixiRendererWalls';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
 import CombatFX from './CombatFX';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -555,6 +556,7 @@ const PixiRenderer = ({
       // This is critical for recovering from WebGL context loss
       clearTextureCache();
       clearTileTextureCache();
+      clearWallTextureCache();
       tileSpritePool.current = [];
       clearGridSnapshotCache();
 
@@ -730,6 +732,7 @@ const PixiRenderer = ({
       // Clear texture caches to prevent stale texture references on remount
       clearTextureCache();
       clearTileTextureCache();
+      clearWallTextureCache();
       tileSpritePool.current = [];
       resetAtlas(); // the sheets' BaseTextures died with the Application; next lookup reloads them
     };
@@ -853,10 +856,19 @@ const PixiRenderer = ({
     // Clear existing resources immediately
     resourceContainer.removeChildren();
 
+    // Walls and fences that join up (PixiRendererWalls): a resource with a wallSet is drawn
+    // from its set's pieces by its neighbours, not from its own file
+    const wallIndex = indexWalls(resources, masterResources);
+
     // Parallel texture loading - load all SVG textures simultaneously
     const renderResources = async () => {
       // Phase 1: Kick off all texture loads in parallel
       const loadPromises = resources.map(async (resource) => {
+        const wallSet = wallIndex.get(`${resource.x},${resource.y}`);
+        if (wallSet && (resource.size || 1) === 1) {
+          const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
+          if (composed) return { resource, texture: composed, emojiTexture: null };
+        }
         const filename = getResourceFilename(resource.type, masterResources);
         const texture = filename ? await loadSVGTexture(filename) : null;
         if (texture) return { resource, texture, emojiTexture: null };
