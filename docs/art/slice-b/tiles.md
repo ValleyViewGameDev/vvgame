@@ -1,21 +1,25 @@
 # Slice B, the TILES lane: how the ground gets the new look
 
-Status: PROPOSAL for the owner, 2026-10-19. Nothing in the game changed. Companion to
+Status: PROPOSAL for the owner, 2026-10-19; round 2 samples added 2026-10-20. Nothing in the game changed. Companion to
 `../../art-pipeline-plan.md` (§4, §4b, §5, §6b) and the ground-tile bullet in `CLAUDE.md`.
 
 ## For the owner to approve
 
 **Look at** (all under `tools/art/_candidates/slice-b-tiles/`, gitignored, regenerable from the sidecars):
 
-- `composite.png`: one row per sample. Left to right: the full 4 x 4 panel, the same panel at
+- **Round 2 (2026-10-20, answers the owner's five notes): `composite-round2.png`**, same layout
+  as below, rows `grass-2`, `dirt-2`, `dirt-3`, `slate`, `cobble-2`, `cobble-3`, `pavement`,
+  `sand`, plus a last swatch with each sample's mean colour next to today's flat colour. The
+  panels themselves are `exploration/openai/flatter-<name>-1.png`. Details in "Round 2" at the
+  end. Spent 8 of 10; 2 in reserve.
+- Round 1: `composite.png`: one row per sample. Left to right: the full 4 x 4 panel, the same panel at
   90 px per tile (a 2x phone) and at 45 px (desktop), a 6 x 6 board built from the sixteen cut
   tiles shuffled (this is what the game would actually show), the same board at 90 px, one cut
   tile repeated 2 x 2 (the seam test), and today's flat tile colour for comparison. Rows:
   `grass`, `dirt` (came out sand-yellow; keep it as a SAND candidate), `dirt-brown` (the retry,
   real earth), `stone` (flagstone paving), `edge-grass-dirt` (a grass-to-earth boundary).
-- `sheet.png`: the standard contact sheet (panel + 90 px + 45 px per sample).
-- Spent: 5 of the 6-image budget on gpt-image-2 (medium, 1024 px), 36.7k tokens, 42 to 73 s each.
-  One image is still in reserve.
+- `sheet.png`: the standard contact sheet (panel + 90 px + 45 px per sample, both rounds).
+- Round 1 spent 5 of 6 images on gpt-image-2 (medium, 1024 px), 36.7k tokens, 42 to 73 s each.
 
 **The one decision: which approach for the ground.** Recommendation: **(c) the hybrid**:
 generated raster tiles for the base ground, served from the atlas, with today's procedural
@@ -220,3 +224,76 @@ props' painted grass.
    second layer in the same canvas composer, gated on the signature.
 7. Later, with Phase 4: cut the corner pieces as frames and go to pure atlas sprites (one draw
    call), or the one-RenderTexture-per-grid route the client review already lists.
+
+## Round 2 (2026-10-20)
+
+**What was asked** (`art-pipeline-plan.md` §7c): grass with smaller tufts and today's subtle
+yellow dots and rare white dots (accents, never flowers); dirt without the big pebbles,
+subtler, near today's `#c98f59`; SLATE first, the in-game flat grey `#97968b` with some cracks;
+cobblestone kept but with thinner seams (smaller scale impression) and subtle moss; a new
+PAVEMENT of large man-made tiles near `#f5bf89`. Budget 10 images.
+
+**What changed in the method.** The pale guide let round 1 pick its own colour (sand for dirt),
+so `tools/art/guides.js` now also writes `guides/patch4-<type>.png`: the same 4 x 4 grid
+pre-filled with today's `tileColors.js` colour (dirt, slate, cobble, pavement, sand, grass). The
+prompt names the hex and says "keep exactly that colour as the base". The model obeyed it every
+time: every mean colour below is within a few units of the target. Grass kept the pale guide
+because round 1's grass colour was already the bible's. Subjects are in `slice-b-tiles.json`
+(`grass-2`, `dirt-2`, `dirt-3`, `slate`, `cobble-2`, `cobble-3`, `pavement`, `sand`; `grass-3`,
+an even subtler grass, is written but NOT generated: grass-2 did not overshoot).
+
+**Spent:** 8 images on gpt-image-2 (medium, 1024 px), 59.1k tokens, 59 to 121 s each; one network
+failure (`dirt-3`, not billed) was re-run with the same command. 2 images in reserve.
+
+**Per type, against the owner's notes** (mean colour measured from the panel; palette score =
+share of the panel's pixels within delta E 10 of one of the 52 palette colours, `--no-key` so
+the whole panel counts; the seam score is the round 1 one, 1.0 = invisible, above ~2 a line):
+
+- **Grass (`grass-2`)**, mean `#77ab14`, palette 99.9%, seams 2.45. Tufts are now three or
+  four short blades, roughly a third of round 1's size, two or three per tile, and the tiny
+  pale yellow-green dots and the rare white dot are there, all small enough that nothing reads
+  as a flower. At 45 px the board is a near-flat green with faint flecks, which is today's
+  look. The seam score rose from 1.18 because the fill is flatter (less grain to hide the
+  thin grid line); the 2 x 2 wrap shows no visible seam. Closest of the eight to its note.
+- **Dirt (`dirt-2` and `dirt-3`)**, means `#ca8a49` and `#c98a4f` against `#c98f59`, palette
+  99.9% and 99.4%, seams 2.5 and 3.4. Both are the right colour (a hair darker and less pink
+  than today; the model keeps a little of the bible's ochre). `dirt-2` still draws its clods
+  as small outlined cloud-shaped blobs: subtle, specks at 45 px, but shapes. `dirt-3` asked
+  for no outlined shapes at all and got calm trodden earth: grain, soft darker smudges, tiny
+  specks, nothing that reads as a stone. `dirt-3` matches the note; `dirt-2` is the fallback.
+- **Slate (`slate`)**, mean `#989484` against `#97968b`, palette 99.9%, seams 6.57. A flat
+  grey slab per tile with a thin branching Y crack on nine of the sixteen and two or three
+  faint specks on the rest: the in-game slate, redrawn in the bible's hand. The seam score is
+  high for the same reason as round 1's sand (a flat fill has no grain, so the grid line is
+  the only "seam"); the 6 x 6 board shows no joint beyond that line. Four cracks run off a
+  tile edge and will stop dead against a neighbour; at 45 px a crack is a one-pixel line and
+  it does not show, but the atlas cut should prefer the twelve tiles whose cracks stay inside.
+- **Cobblestone (`cobble-2` and `cobble-3`)**, means `#a5a077` and `#a59a72` against
+  `#acaa89`, palette 83.1% and 94.8%, seams 1.33 and 1.12. Both have five or six cobbles
+  across a tile with hairline seams, so the scale reads smaller than round 1's stone at the
+  same cobble size. `cobble-2` has a glossy rim on every cobble and bright yellow-green moss in
+  most seams (it is what dragged its palette score down: the moss and the rim are not palette
+  colours). `cobble-3` is matte, with muted dusty-green moss in about one seam per tile; at
+  45 px it is a fine khaki cobble with the odd green fleck, at 90 px the moss reads as moss.
+  `cobble-3` matches "thinner seams, subtle moss"; `cobble-2` is the louder alternative.
+- **Pavement (`pavement`)**, mean `#f1b77c` against `#f5bf89`, palette 96.1%, seam score
+  46 (meaningless here: the fill is dead flat, so the joint IS the texture, by design). One
+  large slab per guide square, eleven of the sixteen; the other five are split once into two
+  rectangles, so the shuffled board makes a plausible worked-stone pavement with T-joints.
+  Each slab has a thin outline, a lit top edge, a shaded lower-right edge and a hairline chip on
+  about one in four: the new type the owner asked for.
+- **Sand (`sand`)**, mean `#eccb17` against `#e0ca24`, palette 46.6% (the only poor score: the
+  palette has no yellow this saturated because the bible panels have no sand; the two thatch
+  yellows are the nearest), seams 3.77. Clearly sand: fine grain, soft wind ripples, tiny light
+  specks, no pebbles. The ripples all run left to right, so a rotated variant would break the
+  pattern and should not be used. The colour is today's and it is very bright next to the
+  grass; if that is a problem the fix is the target hex, not the prompt.
+
+**What I would change next.** Spend the two reserve images only on an owner's nudge, in
+this order of likely value: (1) grass-3 if grass-2's tufts still read on the phone (prompt
+already written); (2) a sand retry at a less saturated target (`#e0ca24` is the loudest tile on
+the board; something like `#e4c75a` would sit with the palette's thatch yellows). Not worth an
+image: the slate's four edge-running cracks (cut around them), cobble-2 (cobble-3 supersedes
+it). Then the build steps in "Recommendation and build order" stand, with one addition: the
+coloured guide becomes the standard for every remaining type (water, lava, moss, clay,
+dungeon), each with its `tileColors.js` hex, since it is what fixed the colour drift.
