@@ -1,0 +1,18 @@
+{
+  "name": "whimsical",
+  "note": "The owner's second art direction (2026-10-20): a playful fairy-tale look unified from fourteen reference images in this folder (originals; refs/ holds WebP copies the API accepts). docs/art/slice-b/whimsical.md is the written brief. The elsinore style stays as the first direction. Variants here are the three candidate renderings of the same brief; the owner picks one after the single-building test, then six buildings are drawn in it.",
+  "refs": [
+    "styles/whimsical/refs/overview-whimsical.webp",
+    "styles/whimsical/refs/magic-shop-whimsical.webp",
+    "styles/whimsical/refs/whimiscal-2.webp",
+    "styles/whimsical/refs/whimsical-house.webp",
+    "styles/whimsical/refs/mossy.webp",
+    "styles/whimsical/refs/farm-house.webp"
+  ],
+  "preamble": "Building art for a 2D fairy-tale farming RPG. The first {refCount} attached images are STYLE REFERENCES; unify their look into one: storybook, playful, a little crooked, never generic. SHAPES: exaggerated organic silhouettes, rooflines that swoop and sag, eaves that droop and curl, walls that bow, chimneys and turrets that lean, upper floors that overhang on timber brackets, round or arched doors and windows; nothing perfectly straight, nothing symmetric. MATERIALS, hand-shaped and chunky: scalloped fish-scale shingles or slate, thick thatch that curls at the edges, cracked plaster with dark timber framing, rounded mossy fieldstone, ivy and moss creeping over edges, flower boxes, lanterns, barrels. LIGHT: warm amber light glowing from every window and lantern as if lit from inside, a warm key light from the upper left, cool soft shadows, a soft contact shadow on the ground. COLOUR: rich but earthy: terracotta and plum roofs, slate blue, mossy greens, cream plaster, warm wood, with the glowing amber as the accent. CAMERA, fixed: top-down three-quarter view on a square tile grid, the roof plane and the front wall both visible, verticals straight up, never isometric, never eye level. The building must read as one strong silhouette when shrunk to a thumbnail. No text, no letters, no UI, no watermark, no frame.",
+  "variants": {
+    "painterly": "RENDERING: soft painterly shading with real surface texture (brush-built thatch, grain in the wood, pits in the plaster), minimal or no outline, depth from light and shadow rather than line; like a storybook illustration.",
+    "inked": "RENDERING: a dark ink outline around every object and major shape, flat fills with one shadow tone and one highlight per colour plus the glowing windows, crisp smooth edges; like a hand-inked storybook plate; the whimsical shapes and materials carry the character, not the texture.",
+    "rendered": "RENDERING: a soft three-dimensional rendered look, as if a hand-built miniature model lit by warm sunlight: smooth global illumination, gentle ambient occlusion in the corners, subtle surface texture, no outline, glowing windows."
+  }
+}
