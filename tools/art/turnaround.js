@@ -22,7 +22,7 @@ async function box(file) {
   const bg = [med(0), med(1), med(2)];
   let top = H, bottom = 0;
   for (let y = 0; y < H; y++) { let n = 0; for (let x = 0; x < W; x++) { const i = (y * W + x) * C; if (Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]) > 220) n++; } if (n > 2) { if (y < top) top = y; if (y > bottom) bottom = y; } }
-  return { top, bottom, h: bottom - top + 1, W, H };
+  return { top, bottom, h: bottom - top + 1, W, H, bg: { r: bg[0], g: bg[1], b: bg[2] } };
 }
 
 (async () => {
@@ -37,7 +37,16 @@ async function box(file) {
   }
   const W = ref.W, H = ref.H;
   const layers = [];
-  for (let i = 0; i < views.length; i++) layers.push({ input: await sharp(args[views[i]]).resize(W, H).png().toBuffer(), left: i * W, top: 0 });
+  for (let i = 0; i < views.length; i++) {
+    const v = views[i];
+    // placement, not proportion: slide a view vertically so its feet sit on the front's feet line
+    const dy = boxes[v].bottom - ref.bottom;
+    let img = sharp(args[v]).resize(W, H);
+    if (dy > 0) img = img.extract({ left: 0, top: dy, width: W, height: H - dy }).extend({ bottom: dy, background: boxes[v].bg });
+    else if (dy < 0) img = img.extract({ left: 0, top: 0, width: W, height: H + dy }).extend({ top: -dy, background: boxes[v].bg });
+    if (dy) console.log(`${v}: slid ${dy > 0 ? 'up' : 'down'} ${Math.abs(dy)} px to the front's feet line`);
+    layers.push({ input: await img.png().toBuffer(), left: i * W, top: 0 });
+  }
   await sharp({ create: { width: W * 3, height: H, channels: 3, background: '#e9dcc0' } }).composite(layers).png().toFile(args.out);
   console.log('wrote', path.relative(process.cwd(), args.out));
 })().catch((e) => { console.error(e); process.exit(1); });
