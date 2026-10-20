@@ -1,0 +1,28 @@
+{
+  "name": "slice-a",
+  "note": "docs/art-pipeline-plan.md §4 and §6: the recipe test. Four variants of the style, three subjects, two models, plus the Gertrude control in the baseline only. Each subject names its guide image (sent LAST, after the style refs) and the guide sentence that tells the model what the guide is.",
+  "models": {
+    "openai": { "model": "gpt-image-2", "quality": "medium", "size": "1024x1024" },
+    "gemini": { "model": "gemini-3-pro-image", "imageSize": "1K" }
+  },
+  "n": 1,
+  "subjects": {
+    "face": {
+      "guide": "guides/head.png",
+      "prompt": "SUBJECT: a character portrait bust, head and shoulders, of a young woman villager facing the viewer with a calm neutral expression, simple braided brown hair, a plain linen tunic. The LAST attached image is a layout guide: draw the head so it fills the pale head outline exactly, with the eyes on the dotted eye line and the dots, the mouth on the lower dotted line, the neck and shoulders inside the pale neck and shoulder shapes. Keep the guide's plain parchment background and draw nothing outside the frame. Do not draw the guide lines themselves."
+    },
+    "hat": {
+      "guide": "guides/head.png",
+      "prompt": "SUBJECT: a character portrait bust, head and shoulders, of a young woman villager facing the viewer with a calm neutral expression, wearing a wide-brimmed straw hat that sits on her head with the brim casting a soft shadow on her brow, a plain linen tunic. The LAST attached image is a layout guide: draw the head so it fills the pale head outline exactly, eyes on the dotted eye line, mouth on the lower dotted line, neck and shoulders inside the pale shapes; the hat may rise above the head outline but not above the upper dotted line. Keep the guide's plain parchment background and draw nothing outside the frame. Do not draw the guide lines themselves."
+    },
+    "farmhouse": {
+      "guide": "guides/tile.png",
+      "prompt": "SUBJECT: a small thatched farmhouse with a stone chimney, a wooden door and one window, seen from the game camera (top-down three-quarter: roof plane and front wall both visible). The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw the farmhouse so it sits ENTIRELY inside that centre square, its ground contact on the square's bottom edge, with a soft contact shadow; fill the other eight squares with short grass in the style, with a few small props (a stump, a bucket, a flower tuft), and draw the faint grid lines over the grass as thin tile edges. Do not leave the centre tile pale."
+    },
+    "gertrude": {
+      "guide": "guides/control-gertrude.png",
+      "variants": ["baseline"],
+      "prompt": "SUBJECT: the LAST attached image is an existing character drawing from the game: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery. REDRAW her in the reference style: same person, same pose, same framing, same crown, hair, robe and colours, but rendered with the references' outline, shading and detail instead of the smooth vector look. Keep the plain parchment background. Do not draw a pixel grid."
+    }
+  }
+}

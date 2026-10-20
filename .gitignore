@@ -7,3 +7,6 @@ game-server/backups/
 
 # avatar art scratch (deconstruction candidates, render output): docs/avatar-plan.md §0
 game-client/public/assets/avatar/_lab/
+
+# art generation candidates (docs/art-pipeline-plan.md §5): regenerable from the sidecars
+tools/art/_candidates/

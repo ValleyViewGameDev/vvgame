@@ -1,0 +1,17 @@
+{
+  "name": "graveyard-bright",
+  "note": "The decided direction (docs/art-pipeline-plan.md §4): Graveyard Keeper's recipe at full resolution, no pixel grid, brighter. refs are sent with every request, in this order, before the guide. Edit the preamble here; it is versioned with the outputs through the sidecars.",
+  "refs": [
+    "moodboard/graveyard-keeper-village.webp",
+    "moodboard/GraveyardKeeper3.jpeg",
+    "moodboard/GraveyardKeeper2.jpeg",
+    "moodboard/GraveyardKeeper6.jpeg"
+  ],
+  "preamble": "Concept panel for a 2D farming RPG's art style. The first {refCount} attached images are STYLE REFERENCES from a village scene; copy their look exactly: dense hand-drawn detail; a dark outline around every object; each object has a lit top plane and a shaded front face; a soft contact shadow to the lower right (the light comes from the upper left); warm ochre earth and paths; slightly desaturated greens; small surface detail such as planks, stones and leaf clusters drawn as crisp shapes. Reproduce that look at FULL RESOLUTION with smooth, crisp edges: this is NOT pixel art, no visible pixel grid, no dithering, no blur. Make it brighter and cleaner than the references: lifted midtones, clean saturated greens, no brown murk, daylight. Camera for scenes and objects: top-down three-quarter view on a square tile grid, front faces visible, verticals drawn straight up, never isometric. No text, no letters, no UI, no watermark, no frame.",
+  "variants": {
+    "baseline": "",
+    "flatter": "Shading: use fewer steps, exactly one shadow tone and one highlight per colour, and less surface detail; keep the dark outline.",
+    "heavy-outline": "Line: draw a noticeably bolder, darker outline around every object and every major shape, as thick as a brush stroke, so it stays readable when the image is shrunk very small.",
+    "softer": "Shading: blend the shading softly, add a slight rim light along the lit edges, and drop the outline on the lit side of each shape while keeping the line on the shaded side."
+  }
+}
