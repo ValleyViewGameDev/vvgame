@@ -12,7 +12,7 @@
   "subjects": {
     "farmhouse": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
       ],
       "guide": "guides/building2.png",
       "variants": [
@@ -22,7 +22,7 @@
     },
     "magic-shop": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png",
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
         "styles/whimsical/refs/magic-shop-whimsical.webp"
       ],
       "guide": "guides/building3.png",
@@ -33,39 +33,33 @@
     },
     "laboratory": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png",
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
         "styles/whimsical/refs/laboratory.webp"
       ],
       "guide": "guides/building3.png",
-      "variants": [
-        "painterly"
-      ],
+      "variants": [],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: an alchemist's LABORATORY: a crooked stone-and-plaster building with a copper dome or a tall brick chimney leaking coloured smoke, glass retorts and tubes visible through a big glowing round window, a leaning tower with a weathervane, a flask painted on a wooden placard over the door as its sign. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     },
     "helenas-house": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png",
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
         "styles/whimsical/refs/helenas-house.webp"
       ],
       "guide": "guides/building3.png",
-      "variants": [
-        "painterly"
-      ],
+      "variants": [],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: HELENA'S HOUSE, a home dug into a grassy hill like the attached hillside-house reference: a round wooden door set into a stone arch in the face of a green mound, round windows with amber light, a stone chimney poking out of the turf on top, lanterns beside the door, drifts of wildflowers and a flagstone path to the door; the mound itself is the building and fills the square. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     },
     "bank": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
       ],
       "guide": "guides/building3.png",
-      "variants": [
-        "painterly"
-      ],
+      "variants": [],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: a BANK: a squat, solid fairy-tale strongroom of rounded mossy fieldstone with a heavy iron-banded arched door, barred round windows, a slate roof that sags between two short leaning turrets, a coin-sack painted on a stone plaque set flat into the wall over the door as its sign. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     },
     "warriors-den": {
       "refs": [
-        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png",
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
         "styles/whimsical/refs/whimsical-castle.webp"
       ],
       "guide": "guides/building3.png",
@@ -73,6 +67,27 @@
         "painterly"
       ],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: a WARRIOR'S DEN: a crooked stone keep with a leaning round tower, a scalloped slate roof, a great iron-studded arched door, a shield and crossed swords painted on a wooden placard fixed flat over the door as its sign, a rack of spears by the wall, ivy on the stone. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
+    },
+    "laboratory-b": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: the LABORATORY, which in this game is a grand fairy-tale COOKING SCHOOL where chemistry, baking, cooking, cream-making and winemaking are taught (a training hall, NOT a bakery, kitchen or oven): a tall crooked building of cream plaster and dark timber with a swooping scalloped slate roof, two great chimneys leaking sweet-smelling steam, a big arched window glowing amber through which copper pots, glass retorts and bubbling jars are seen on long benches, a wine barrel and milk churns by the door, a mortar-and-pestle crossed with a whisk painted on a wooden placard fixed flat over the door as its sign. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
+    },
+    "bank-b": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
+        "styles/whimsical/refs/whimsical-bank.webp"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its rendering. SUBJECT: the BANK, a fairy-tale STONE TOWER in castle style, drawn from the attached bank reference but MORE whimsical than it: the tower leans and bulges, its courses of rounded fieldstone bow outward, a crooked conical scalloped-slate cap with a bent weathervane, an iron-banded arched strongroom door at the foot, barred round windows glowing amber up the tower, a coin-sack carved on a stone plaque set flat into the wall over the door as its sign, ivy on the stone, a lantern by the door. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     }
   }
 }

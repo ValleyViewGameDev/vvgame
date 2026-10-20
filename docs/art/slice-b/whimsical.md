@@ -83,3 +83,17 @@ Laboratory, Inn, Bank, Guild, two candidates each.
   (either set could ship); slate and pavement lose the outline and gain soft mottling. The
   cut-and-atlas step is the same for both styles, so getting tiles into the game soon does
   not wait on this decision: build the cut step now, swap the panels later.
+
+## 4. Approvals and changes (2026-10-20, afternoon)
+
+- APPROVED: `painterly-farmhouse-1` (now the camera and rendering reference for every
+  subject in the job) and `painterly-magic-shop-1`.
+- Laboratory: the name stays, but the building is a grand COOKING SCHOOL (the skills taught
+  there are Chemistry, Baker, Cooking, Creamery, Winemaker), a training hall that must not be
+  mistaken for the Bakery, Kitchen or Oven crafting stations. Prompt rewritten as
+  `laboratory-b`.
+- Helena's House: PAUSED. The mound did not blend into the valley around it. Revisit with a
+  ground treatment (the mound's grass must be the board's grass).
+- Bank: a stone tower in castle style from the owner's new reference
+  (`refs/whimsical-bank.webp`), pushed more whimsical than the reference (leaning, bulging,
+  crooked cap). Prompt rewritten as `bank-b`.
