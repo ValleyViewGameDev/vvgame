@@ -89,18 +89,26 @@ sidecars (prompt, model, seed, date) with every accepted asset so provenance is 
 ## 4. The style: decided direction (2026-10-19), tested before batching
 
 After a reference tour (mobile first; most Switch/PC cozy games turned out to be 3D or
-isometric), the owner settled the direction from two frames, kept in
-`docs/art/moodboard/`:
+isometric), the owner settled the direction from the frames in `docs/art/moodboard/`:
 
-- `lonesome-village-plaza.jpg` (Lonesome Village): THE target. Top-down three-quarter
-  view on a visible square tile grid; thick dark-brown outlines; flat fills with one darker
-  shadow tone and one lighter highlight patch; no texture, no gradients; rounded, chunky
-  shapes; a soft contact shadow under every object; warm, saturated palette; buildings show
-  a roof plane and a front wall.
-- `graveyard-keeper-village.webp` (Graveyard Keeper): the density and warmth pole. Same
-  camera. What to borrow: prop density, warm ochre paths against slightly desaturated
-  grass, upper-left light with lower-right contact shadows, roof plus front wall at a fixed
-  tilt. What to leave: the pixel grid, the brush texture, the dark overall grade.
+- **Graveyard Keeper is THE target** (`graveyard-keeper-village.webp`, `GraveyardKeeper2/3/4/6.jpeg`),
+  made brighter. Top-down three-quarter view on a square grid; dense props; every object
+  has a dark outline, a lit top plane, a shaded front and a soft contact shadow to the
+  lower right (light from the upper left); warm ochre paths and soil against slightly
+  desaturated grass; buildings show a roof plane and a front wall; small surface detail
+  (planks, stones, leaf clusters) drawn as shapes, not texture. What changes for us: NO
+  pixel grid (the same colour and shading logic drawn at full resolution, crisp edges),
+  and a brighter grade (lift the midtones, more saturated greens, less brown murk; the
+  game is dark for its subject, ours is not). The build-mode frames (2, 6) are the closest
+  to our board: one object per tile, readable at tile size, on a visible grid.
+- **The character constructor frame (`GraveyardKeeperPeople.jpeg`)** is the avatar
+  reference: Lazy Bear built every villager from a base body plus swappable head, hair,
+  torso and prop parts, drawn to one rig. That is our avatar system; the frame is proof the
+  look survives being assembled from parts. Our busts are head-and-shoulders at 256 px, so
+  the parts are larger than theirs, same construction.
+- `LonesomeVillage.jpeg`, `LonesomeVillage2.jpeg`: the secondary pole, for cleanliness
+  only. Judged too cute and too simple as a target; what to borrow is the crisp outline and
+  the flat, confident fills. Nothing else.
 
 Rejected on the way, so nobody re-proposes them: pixel art (Stardew, Eastward, Moonlighter),
 painterly (Bastion, Spiritfarer, Cozy Grove), isometric or diagonal cameras (Hay Day,
@@ -112,14 +120,16 @@ visible, verticals straight up, not isometric". It is what the board already dra
 
 **Slice A is no longer a tour of styles; it is a test of the recipe.** The same three
 subjects (the female face on the rig, a wide-brim hat on that face, the Farm House on one
-tile) are rendered in four controlled variants of the Lonesome Village recipe, through two
+tile) are rendered in four controlled variants of the Graveyard Keeper recipe, through two
 models, each as a 512 px panel AND a 45 px board thumbnail, on one contact sheet:
 
-1. As the reference: thick brown line, flat fill, one shadow tone, one highlight.
-2. Thinner line, same fills (the "does the line survive 45 px" question answered both ways).
-3. Softer shading: the shadow tone blended, a slight rim light (one step towards Graveyard's
-   solidity, still no texture).
-4. Graveyard density: variant 1 with more small props and surface detail per tile.
+1. Graveyard, full resolution, brighter: the reference's shading and outline logic with
+   crisp edges and the lifted grade. The baseline.
+2. Same, flatter: fewer shading steps, less surface detail (one step toward Lonesome
+   Village's cleanliness), to see how much detail 45 px can actually hold.
+3. Same, heavier outline: a bolder dark line, for board readability on phones.
+4. Same, softer: shading blended, a slight rim light, no outline on the lit side (the
+   "painted" risk the owner said no to, included once to anchor the scale).
 
 Plus one control: today's best NPC drawing (Gertrude) redrawn in variant 1, so the owner
 can see what "the existing art, in the new recipe" looks like.
@@ -237,11 +247,29 @@ atlas. The model paints.
 1. API keys for the two bake-off models (suggested: OpenAI gpt-image and Google Gemini
    image) in `game-server/.env` as `OPENAI_API_KEY` and `GEMINI_API_KEY`, with a spend cap
    set on each account first. Flux joins only if the two disagree on price vs quality.
-2. A yes on roughly $60-100 total for slices A-D.
-3. Two or three more Lonesome Village frames for the mood board: a character close-up, an
-   interior or night scene, and a building other than the plaza ones. The generator copies
-   what it is shown; one frame is a thin bible.
-4. A call on characters: Lonesome Village's cast are animals with the same line treatment.
-   Our avatars are human busts. Assume the same outline and flat shading on human faces
-   unless told otherwise.
+2. ~~A yes on roughly $60-100 total for slices A-D.~~ Approved 2026-10-19.
+3. ~~More mood board frames.~~ Six Graveyard Keeper frames and two Lonesome Village frames
+   are in `docs/art/moodboard/` (2026-10-19). Still useful later: a Graveyard Keeper
+   interior or night frame, for the dark-grid grading reference.
+4. Characters: the Graveyard Keeper constructor frame answers it. Human busts, dark outline,
+   stepped shading, the same light as the board.
 5. Whether the Recraft subscription gets cancelled at the end of slice A.
+
+**Getting the two API keys** (the owner asked for this written down):
+
+- OpenAI: platform.openai.com, sign in, Settings, Billing: add a payment method and buy a
+  small prepaid credit ($10 is plenty for slices A-B), then Limits: set a monthly budget
+  ($30) so a runaway script cannot spend more. Then Dashboard, API keys, "Create new secret
+  key" (name it `vvgame-art`); the key starts with `sk-` and is shown ONCE, copy it then.
+- Google: aistudio.google.com, sign in, "Get API key", "Create API key" (it makes or
+  picks a Google Cloud project; the key starts with `AIza`). Image generation needs the
+  paid tier: in console.cloud.google.com, Billing, link a billing account to that project,
+  then Billing, Budgets and alerts: a $30 budget with email alerts (Google has no hard
+  cap; the alert is the guard).
+- Put both in `game-server/.env`, one per line, no quotes, and never paste them into chat
+  or a commit (`.env` is gitignored):
+
+```
+OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=AIza...
+```
