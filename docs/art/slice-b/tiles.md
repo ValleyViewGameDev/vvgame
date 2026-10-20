@@ -345,7 +345,22 @@ and it is kept, with these rules:
   the neighbour's OWN cut tile, not a flat colour, with a faint shadow along the arc so the
   higher ground reads as sitting on top. Types without cut tiles fill with their flat colour,
   as before.
-- **What this does not do yet:** a drawn lip (the grass-over-earth edge pair from round 1)
-  and straight-edge transitions along a whole side. Both are the next step if the rounded
-  corners alone read as too soft; they slot into the same composer, gated on the signature,
-  with no change to the cache key scheme.
+- **The drawn lip (built the same day, owner's request):** grass gets the edge from the
+  round 1 sample: a scalloped leafy lip with a thin shadow that overhangs the lower tile by
+  about a twelfth of a square. Twelve full-cell overlay pieces with alpha
+  (`public/assets/edges/g-<piece>.png`, atlas `edges/`): an edge per side, a concave piece
+  per corner (the lip wrapping a lower cell's corner, both lips in one piece) and a convex
+  nub per diagonal (a grass corner poking in). `tools/art/edges.js` cuts them from eight
+  mask panels (`jobs/tiles-edges.json`: a grass 2 x 2 over pure magenta and the inverse, in
+  four positions, so every piece is drawn in its own lighting) by keying the magenta to
+  alpha. The renderer composes a lower cell from its 8-neighbour grass mask: concave for a
+  corner with both sides grass, edge for a remaining side, convex for a lone diagonal; grass
+  then leaves the corner rounding. Lessons: the model ignores a bare quadrant guide (round 1
+  drew steps, round 2 drifted half a cell); drawing the guide's thin grid lines on the panel
+  makes it pixel-exact, and the cutter drops those lines by saturation. Other organic types
+  (snow, sand, dirt over slate) still use the rounded corners; a lip for them is the same
+  eight panels with that type's approved tile as the reference.
+- **Seams:** a scaled canvas copy of a 124 px atlas frame sampled the sheet's transparent
+  gutter and left a half-transparent rim on every tile, a faint grid on the board. Tile
+  slots are 132 with a 128 px frame copied 1:1 with smoothing off; the cutter also drops
+  the 1 px lanczos edge.
