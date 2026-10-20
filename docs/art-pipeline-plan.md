@@ -404,7 +404,26 @@ The overnight lanes are reviewed in `docs/art/slice-b-review.md`. Decided:
   pine `pine-tree-c`, and the dead trees `dead-tree-brown` and `dead-tree-black`
   (`tools/art/_candidates/slice-b-buildings/approved/`). Tree rule stands: one tile of
   headroom; the renderer needs a 1 x 2 sprite for trees (today it draws size x size).
-- **3 x 3 buildings need much more exploration:** more imaginative architecture and
+- **Building families (owner, 2026-10-20, the rule for every 3 x 3 and larger):** the look
+  is Shakespearean. Four families, never mixed within one building:
+  - **Tudor**: timber framing and stucco. Roof: straw thatch with NO chimney, or slate with a
+    brick chimney. Roof colours may vary to tell buildings apart, matched by a painted door.
+    For the Agriculture Center, Courthouse, Academy, Laboratory, Magic Shop, School.
+  - **Castle**: stone like `den-d` (dressed or field stone, slate or stone roofs, towers and
+    turrets allowed). For the Bank, Warrior's Den, Armory.
+  - **Cottage**: rustic wood, like `inn-b` or the approved Farm House: straw thatch or a wooden
+    roof, plank or log walls. For the Inn, General Store and the humbler shops.
+  - **Fantastical**: a fourth family for the Guild and the like, to be explored.
+  BANNED: clay or Spanish-style tile roofs (`inn-c`); mixing families (`den-a`: castle stone
+  under a cottage thatch; `store-a` round 2: Tudor framing with clay tiles and a castle
+  chimney); signs on brackets that stick out from the building (they cannot stay inside the
+  footprint). SIGNAGE: placards of various kinds on the building front (over the door, a
+  plaque on the wall, a board flat under the eave), or a sign stuck in the ground in a front
+  yard like `inn-b`, everything inside the 3 x 3. Imagery only, never letters.
+- **Mill:** use `flatter-mill-b-1` but swap what stands on the ground: the stone grinding
+  machine on the LEFT, lined up under the windmill it is connected to, sacks of flour and
+  sugar on the RIGHT.
+- **3 x 3 buildings round 2 did not land** (the families above are the correction): more imaginative architecture and
   rooflines, real distinction between buildings (not thatch everywhere), and signs that are
   believably attached to the building. The hanging board idea stands; the attachment did not.
 
