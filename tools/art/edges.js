@@ -32,8 +32,13 @@ const N = args.includes('--n') ? args[args.indexOf('--n') + 1] : '1';
 /** How far the lip reaches into the cell (grass to the north): the last row with any opaque pixel, in panel px. */
 async function lipDepth(keyed) {
   const { data, info } = await sharp(keyed).raw().toBuffer({ resolveWithObject: true });
+  // the last row where the lip still covers a tenth of the width (stray keyed speckles lower down do not count)
   let last = 0;
-  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 128) { last = y; break; }
+  for (let y = 0; y < info.height; y++) {
+    let n = 0;
+    for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 128) n++;
+    if (n > info.width * 0.1) last = y;
+  }
   return last;
 }
 
@@ -88,7 +93,11 @@ async function keyMagenta(buf) {
   // the concave corner: where the two lips meet, their scallop valleys leave a sliver of the
   // lower tile showing at the very corner; a quarter-disc of grass (radius = the lip's depth)
   // under the two lips fills it and reads as the rounded inner corner
-  const depth = await lipDepth(edgeN);
+  // measured on the downscaled piece (the 256 px key keeps faint speckle and the cell's bottom
+  // grid line at half alpha; the resample drops them), then scaled back to panel px
+  const edgeNSmall = await sharp(edgeN).resize(PX + 2, PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: PX, height: PX }).png().toBuffer();
+  const depth = Math.round((await lipDepth(edgeNSmall)) * (CELL / PX));
+  console.log('lip depth:', depth, 'panel px');
   const grassTile = path.join(ROOT, 'game-client', 'public', 'assets', 'tiles', 'g-0.png');
   const cornerFill = async (cx, cy) => {
     const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${CELL}"><circle cx="${cx}" cy="${cy}" r="${depth}" fill="#fff"/></svg>`);

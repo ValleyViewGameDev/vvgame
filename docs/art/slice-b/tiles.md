@@ -367,7 +367,18 @@ and it is kept, with these rules:
   grass neighbour draws nothing, which reads fine. Other organic types (snow, sand, dirt
   over slate) still use the rounded corners; a lip for them is the same island panel with
   that type's approved tile as the reference.
-- **Seams:** a scaled canvas copy of a 124 px atlas frame sampled the sheet's transparent
-  gutter and left a half-transparent rim on every tile, a faint grid on the board. Tile
-  slots are 132 with a 128 px frame copied 1:1 with smoothing off; the cutter also drops
-  the 1 px lanczos edge.
+- **Seams, three causes found in turn:** (1) a scaled canvas copy of a 124 px atlas frame
+  sampled the sheet's transparent gutter and left a half-transparent rim on every tile; the
+  frame is now exactly 128 px and copied 1:1 with smoothing off, and the cutter drops the 1
+  px lanczos edge. (2) At a fractional zoom the page showed through a hairline between tile
+  quads (invisible before only because the flat grass matched the page green); tile sprites
+  overlap by half a world pixel. (3) The LOSSY WEBP SHEET blends every frame edge with the
+  transparent gutter around it, about 10% brighter on each tile's edge row and column, a
+  faint grid across grass fields (the PNG sheet was clean, so it only showed in browsers
+  that take the WebP, which is all of them). Ground frames (`tiles/`, `edges/`) now sit in a
+  144 px slot and are extruded 8 px into their gutter, so the encoder has no boundary to
+  blend; measured on the decoded WebP, the edge columns went from 113-116 back to the
+  PNG's 104. Rule for any opaque, edge-to-edge art in the atlas: extrude it.
+- **Concave corners** get a quarter-disc of grass (radius = the lip's measured depth) under
+  the two lips, so their scallop valleys cannot leave a sliver of the lower tile at the
+  corner; its arc carries the same thin shadow line.

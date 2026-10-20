@@ -38,19 +38,19 @@
     },
     "concave-nw": {
       "file": "g-concave-nw.png",
-      "coverage": 0.793
+      "coverage": 0.125
     },
     "concave-ne": {
       "file": "g-concave-ne.png",
-      "coverage": 0.793
+      "coverage": 0.125
     },
     "concave-se": {
       "file": "g-concave-se.png",
-      "coverage": 0.793
+      "coverage": 0.125
     },
     "concave-sw": {
       "file": "g-concave-sw.png",
-      "coverage": 0.793
+      "coverage": 0.125
     }
   }
 }
