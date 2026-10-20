@@ -29,6 +29,14 @@ const from = args.includes('--from') ? args[args.indexOf('--from') + 1] : 'explo
 
 const N = args.includes('--n') ? args[args.indexOf('--n') + 1] : '1';
 
+/** How far the lip reaches into the cell (grass to the north): the last row with any opaque pixel, in panel px. */
+async function lipDepth(keyed) {
+  const { data, info } = await sharp(keyed).raw().toBuffer({ resolveWithObject: true });
+  let last = 0;
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) if (data[(y * info.width + x) * 4 + 3] > 128) { last = y; break; }
+  return last;
+}
+
 /** Key pure magenta to alpha. Distance in RGB from #ff00ff; soft ramp so the lip's edge keeps its anti-aliasing; despill the green channel of edge pixels. */
 async function keyMagenta(buf) {
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -77,13 +85,25 @@ async function keyMagenta(buf) {
   const edgeN = await panelCell(`lip-island-${N}`, 3, 1);
   const nubNW = await panelCell(`lip-island-${N}`, 3, 3);
   const rot = (buf, deg) => sharp(buf).rotate(deg, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
-  const union = async (a, b) => sharp(a).composite([{ input: b }]).png().toBuffer();
+  // the concave corner: where the two lips meet, their scallop valleys leave a sliver of the
+  // lower tile showing at the very corner; a quarter-disc of grass (radius = the lip's depth)
+  // under the two lips fills it and reads as the rounded inner corner
+  const depth = await lipDepth(edgeN);
+  const grassTile = path.join(ROOT, 'game-client', 'public', 'assets', 'tiles', 'g-0.png');
+  const cornerFill = async (cx, cy) => {
+    const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${CELL}"><circle cx="${cx}" cy="${cy}" r="${depth}" fill="#fff"/></svg>`);
+    const grass = await sharp(grassTile).resize(CELL, CELL).png().toBuffer();
+    const disc = await sharp(grass).composite([{ input: await sharp(mask).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
+    const shadow = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${CELL}"><circle cx="${cx}" cy="${cy}" r="${depth}" fill="none" stroke="rgba(30,45,10,0.6)" stroke-width="3"/></svg>`);
+    return sharp(disc).composite([{ input: await sharp(shadow).png().toBuffer() }]).png().toBuffer();
+  };
+  const union = async (a, b, cx, cy) => sharp(await cornerFill(cx, cy)).composite([{ input: a }, { input: b }]).png().toBuffer();
   const edges = { n: edgeN, e: await rot(edgeN, 90), s: await rot(edgeN, 180), w: await rot(edgeN, 270) };
   const pieces = {
     'edge-n': edges.n, 'edge-e': edges.e, 'edge-s': edges.s, 'edge-w': edges.w,
     'convex-nw': nubNW, 'convex-ne': await rot(nubNW, 90), 'convex-se': await rot(nubNW, 180), 'convex-sw': await rot(nubNW, 270),
-    'concave-nw': await union(edges.n, edges.w), 'concave-ne': await union(edges.n, edges.e),
-    'concave-se': await union(edges.s, edges.e), 'concave-sw': await union(edges.s, edges.w),
+    'concave-nw': await union(edges.n, edges.w, 0, 0), 'concave-ne': await union(edges.n, edges.e, CELL, 0),
+    'concave-se': await union(edges.s, edges.e, CELL, CELL), 'concave-sw': await union(edges.s, edges.w, 0, CELL),
   };
   const manifest = { note: 'Cut by tools/art/edges.js: one drawn edge (grass to the north) and one nub from the island panel, turned for the other sides, concave corners as unions; full-cell overlays with alpha, drawn over a lower tile by its grass-neighbour mask (PixiRendererTileTextures).', type: 'g', px: PX, source: `lip-island-${N}`, pieces: {} };
   const coverage = {};

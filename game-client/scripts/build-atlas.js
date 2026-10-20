@@ -18,8 +18,8 @@
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
  *   avatar/      every file named in game-server/tuning/avatarParts.json   slot = 256 px
  *   tiles/       every .png in public/assets/tiles (tools/art/tiles.js cuts them from the
- *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 132 px (frame 128)
- *   edges/       every .png in public/assets/edges (tools/art/edges.js, the grass edge lip)  slot = 132 px
+ *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 144 px (frame 128, extruded 8 px into the gutter)
+ *   edges/       every .png in public/assets/edges (tools/art/edges.js, the grass edge lip)  slot = 144 px
  *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
  *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
  *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
@@ -61,7 +61,9 @@ const SHEET_SIZE = 2048;
 const PADDING = 2;                 // transparent gutter inside each slot (stops linear-filter bleed)
 const BASE_CELL = 256;             // one tile's worth of art, enough for DPR 2 at the "closer" zoom (75 px)
 const OVERLAY_CELL = 128;
-const TILE_CELL = 132;             // a ground tile: 128 px of art (2x a desktop tile, 1.4x a 2x-phone tile) plus the gutter, so the frame is exactly 128 and the renderer copies it 1:1
+const TILE_PX = 128;               // a ground tile's art: 2x a desktop tile, 1.4x a 2x-phone tile; the renderer copies the frame 1:1
+const TILE_PAD = 8;                // ground frames are extruded this far into their gutter (lossy WebP blends a frame edge with transparency for several px)
+const TILE_CELL = TILE_PX + 2 * TILE_PAD;
 const slotForSize = (size) => (size >= 4 ? 768 : size >= 2 ? 512 : BASE_CELL);
 const WEBP_QUALITY = 90;
 
@@ -165,6 +167,7 @@ function listTileSources() {
     key: `tiles/${file}`,
     src: path.join(dir, file),
     cell: TILE_CELL,
+    pad: TILE_PAD,
   }));
 }
 
@@ -176,6 +179,7 @@ function listEdgeSources() {
     key: `edges/${file}`,
     src: path.join(dir, file),
     cell: TILE_CELL,
+    pad: TILE_PAD,
   }));
 }
 
@@ -237,11 +241,13 @@ function pack(items) {
     if (sheet.y + item.cell > SHEET_SIZE) {
       newSheet();
     }
+    const pad = item.pad ?? PADDING;
     sheet.frames.push({
       ...item,
-      x: sheet.x + PADDING,
-      y: sheet.y + PADDING,
-      px: item.cell - 2 * PADDING,
+      pad,
+      x: sheet.x + pad,
+      y: sheet.y + pad,
+      px: item.cell - 2 * pad,
     });
     sheet.x += item.cell;
     sheet.shelfH = Math.max(sheet.shelfH, item.cell);
@@ -255,7 +261,7 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v5:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}`);
+  h.update(`v7:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
   return h.digest('hex');
 }
 
@@ -297,7 +303,16 @@ async function main() {
     const composites = [];
     for (const frame of sheet.frames) {
       const buf = await rasterise(frame.src, frame.px);
-      composites.push({ input: buf, left: frame.x, top: frame.y });
+      if (frame.key.startsWith('tiles/') || frame.key.startsWith('edges/')) {
+        // Ground art fills its frame edge to edge, and the lossy WebP sheet blends every frame
+        // edge with the transparent gutter around it (a 10% brighter rim on each tile, a grid on
+        // the board). Extrude the edge pixels into the gutter so there is no boundary to blend.
+        const pad = frame.pad;
+        const extruded = await sharp(buf).extend({ top: pad, bottom: pad, left: pad, right: pad, extendWith: 'copy' }).png().toBuffer();
+        composites.push({ input: extruded, left: frame.x - pad, top: frame.y - pad });
+      } else {
+        composites.push({ input: buf, left: frame.x, top: frame.y });
+      }
       manifest.frames[frame.key] = sheet.index;
     }
     const base = sharp({
