@@ -1,0 +1,63 @@
+{
+  "name": "slice-b-npc-parts",
+  "note": "docs/art-pipeline-plan.md §6b step 6, the NPC PARTS lane prototype (docs/art/slice-b/npc-parts.md): the female base body from Gertrude's approved front, then one hair layer and one top layer drawn ONLY as that part, in the same 1024 px frame, with the base body as the reference. gpt-image-2 REJECTS background 'transparent' (400 'Transparent background is not supported for this model', 2026-10-19; gpt-image-1 supports it), so every subject asks for a flat pure green (#00FF00) background that _candidates/slice-b-npc-parts/_scripts/key.js removes (green-screen key + despill). Characters use the baseline variant only. Hard budget 8 images.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "base-female": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png"
+      ],
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: the BASE BODY of a character built from swappable parts (a paper-doll base). The LAST attached image is the APPROVED character from this game: a young queen in a red robe with a silver crown and long brown hair. Draw THE SAME PERSON as a bare base body, at EXACTLY the same size and position in the frame as the attached image: the top of the head, the eye line, the chin, the shoulders, the hands and the feet at the same heights, the same body width, facing the viewer, standing upright, arms relaxed at the sides with the hands open. Changes, and only these: she is completely BALD (no hair at all, no crown, no hat; a smooth bald scalp with both ears visible), the same face with the same eyes, brows, nose and mouth but a calm NEUTRAL expression (no smile), the LIGHTEST pale skin tone in neutral light with the game's one-step shading, bare arms, bare legs and BARE FEET (no shoes), wearing only a plain sleeveless undyed WHITE linen undershift from the shoulders to just above the knees with a thin dark outline and one soft grey shadow tone, no pattern, no belt. Draw her on a soft oval grey contact shadow under the feet. One figure only, nothing else in the picture. The background is a perfectly flat, uniform, solid pure bright green (#00FF00): no gradient, no texture, no grain, no vignette, no parchment; software will remove that green afterwards, so keep the dark outline closed all the way round the drawing and put nothing green inside it."
+    },
+    "hair-long": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+        "_candidates/slice-b-npc-parts/layers/base-female-1.parchment.png"
+      ],
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: ONE PART of a character built from swappable parts: the HAIR layer only. The second-to-last attached image is the APPROVED character from this game (a young queen with long brown hair under a silver crown). The LAST attached image is her BASE BODY: the same figure, bald, in the same frame at the same scale. Draw ONLY her hair, exactly where it sits on the base body's head: the same long hair as the approved character, parted at the middle, covering the top of the bald scalp, framing the face past the ears, falling over the shoulders and down past the chest on both sides, at EXACTLY the same position and scale as in the two attached images, as it would look worn by the base body. Draw NOTHING else: no face, no forehead, no ears, no skin, no body, no crown, no clothes, no shadow. Where the face and the body would be, leave the background colour showing through: the hair is a cut-out layer that software will place on top of the base body, so the inner edge of the hair around the face must be drawn as a clean outlined edge. Colour: draw the hair in NEUTRAL GREY, not brown: very light grey (near white) fills, one mid-grey shadow tone, one white highlight, a dark outline; software tints it later. The background is a perfectly flat, uniform, solid pure bright green (#00FF00): no gradient, no texture, no grain, no vignette, no parchment; software will remove that green afterwards, so keep the dark outline closed all the way round the drawing and put nothing green inside it."
+    },
+    "top-robe": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+        "_candidates/slice-b-npc-parts/layers/base-female-1.parchment.png"
+      ],
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: ONE PART of a character built from swappable parts: the CLOTHES layer only. The second-to-last attached image is the APPROVED character from this game (a young queen in a red robe with gold embroidery). The LAST attached image is her BASE BODY: the same figure, bald, in a plain undershift, in the same frame at the same scale. Draw ONLY her garment: the approved character's red robe with the gold embroidery, the high standing collar, the belt with the red jewel, the long sleeves to the wrists and the skirt to the ankles with the gold hem, exactly where it sits on the base body, at EXACTLY the same position and scale as in the two attached images, the sleeves following the base body's arms and the collar covering the base of her neck. Draw NOTHING else: no head, no face, no neck above the collar, no hair, no crown, no hands, no feet, no shoes, no shadow. Where the head, the hands and the feet would be, leave the background colour showing through: the robe is a cut-out layer that software will place on top of the base body, so its openings at the neck, the cuffs and the hem must be drawn as clean outlined edges. Full colour, the same red and gold as the approved character, the game's one-step shading and dark outline. The background is a perfectly flat, uniform, solid pure bright green (#00FF00): no gradient, no texture, no grain, no vignette, no parchment; software will remove that green afterwards, so keep the dark outline closed all the way round the drawing and put nothing green inside it."
+    },
+    "hair-long-worn": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+        "_candidates/slice-b-npc-parts/layers/base-female-1.parchment.png"
+      ],
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: a character built from swappable parts, shown WEARING one new part. The second-to-last attached image is the APPROVED character from this game (a young queen with long brown hair under a silver crown). The LAST attached image is her BASE BODY: the same figure, bald, in a plain white undershift. Redraw the base body EXACTLY as it is, pixel for pixel: the same figure, the same size and position in the frame, the same face, eyes, skin, undershift, arms, legs, bare feet and contact shadow, changing NOTHING about it, and add ONLY her hair on top of it: the same long hair as the approved character, parted at the middle, covering the scalp, framing the face past the ears, falling over the shoulders and down past the chest on both sides, worn naturally at head size. No crown, no hat, no other clothes. Colour of the hair only: NEUTRAL GREY, not brown: very light grey (near white) fills, one mid-grey shadow tone, one white highlight, a dark outline; software tints it later. Everything that is not hair stays identical to the base body image. The background is a perfectly flat, uniform, solid pure bright green (#00FF00): no gradient, no texture, no grain, no vignette, no parchment; software will remove that green afterwards, so keep the dark outline closed all the way round the drawing and put nothing green inside it."
+    },
+    "top-robe-worn": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+        "_candidates/slice-b-npc-parts/layers/base-female-1.parchment.png"
+      ],
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: a character built from swappable parts, shown WEARING one new part. The second-to-last attached image is the APPROVED character from this game (a young queen in a red robe with gold embroidery). The LAST attached image is her BASE BODY: the same figure, bald, in a plain white undershift. Redraw the base body EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same hands, bare feet and contact shadow, changing NOTHING about it, and dress it ONLY in the approved character's robe over the undershift: the red robe with the gold embroidery, the high standing collar covering the base of the neck, the belt with the red jewel, the long sleeves to the wrists following her arms, the skirt to the ankles with the gold hem, the same red and gold as the approved character, the game's one-step shading and dark outline. No hair, no crown, no shoes: the head stays bald and the feet stay bare. Everything that is not the robe stays identical to the base body image. The background is a perfectly flat, uniform, solid pure bright green (#00FF00): no gradient, no texture, no grain, no vignette, no parchment; software will remove that green afterwards, so keep the dark outline closed all the way round the drawing and put nothing green inside it."
+    }
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "name": "slice-b-buildings",
+  "note": "Slice B, the BUILDINGS lane (docs/art-pipeline-plan.md §4b; write-up in docs/art/slice-b/buildings.md). Everything is matched to the approved farmhouse, which is the FIRST style ref in styles/elsinore/style.json, so the prompts point at it as 'the first attached image' instead of attaching it twice. Each subject sends the game's OLD drawing (guides/control-*.png, rendered by guides.js) as the 'redraw this, keep its identity' reference, second to last, and its footprint guide LAST: building2.png (2 x 2 crafting stations, the open-air cut-away template), building3.png (3 x 3 closed shops with a hanging picture sign), tree.png (1 x 1 trees with one full tile of headroom). Two candidates of a subject are two subject keys (dairy-a / dairy-b) rather than --n 2, so both land on the contact sheet. Hard budget for the lane: 14 images.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "dairy-a": {
+      "refs": [
+        "guides/control-dairy.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the DAIRY, a crafting station where milk is churned into butter and pressed into cheese. CRAFTING-STATION TEMPLATE, shared by every 2 x 2 crafting station in this game: an open-air, cut-away workshop, NOT a closed house. A back wall of the farmhouse's stone-and-plaster runs along the back (top) edge of the footprint; two short side walls of the same stone come forward from its ends about a third of the way; there is NO front wall and NO roof over the front, so the camera looks straight into the workshop. A narrow strip of the farmhouse's golden thatch with its wooden ridge beam sits along the top of the back wall only, like an awning. The floor inside is packed ochre earth with a few flagstones. On that open floor stands the WORK, drawn big and obvious so a player recognises the station at a glance: for the Dairy, a wooden butter churn with its plunger handle, a big round yellow cheese wheel with a wedge cut out on a low wooden table, and a tin milk pail; four white milk bottles in a wooden crate stand against one side wall. Materials, outline, shading, the lower-right contact shadow and the colours are copied from the farmhouse in the FIRST attached image: this station stands in the same village. The second-to-last attached image is the game's OLD drawing of the Dairy: keep what makes it recognisable (the milk bottles in their crate, a touch of its pale blue on the churn's bands and the table) but do NOT copy its closed-house shape; the template above wins. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station fills that 2 x 2 square ENTIRELY and stays inside it, back wall along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the style, no props outside the square, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "dairy-b": {
+      "refs": [
+        "guides/control-dairy.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the DAIRY, a crafting station where milk is churned into butter and pressed into cheese. CRAFTING-STATION TEMPLATE, shared by every 2 x 2 crafting station in this game: an open-air, cut-away workshop, NOT a closed house. A back wall of the farmhouse's stone-and-plaster runs along the back (top) edge of the footprint; two short side walls of the same stone come forward from its ends about a third of the way; there is NO front wall and NO roof over the front, so the camera looks straight into the workshop. A narrow strip of the farmhouse's golden thatch with its wooden ridge beam sits along the top of the back wall only, like an awning. The floor inside is packed ochre earth with a few flagstones. On that open floor stands the WORK, drawn big and obvious so a player recognises the station at a glance: for the Dairy, a wooden butter churn with its plunger handle, a big round yellow cheese wheel with a wedge cut out on a low wooden table, and a tin milk pail; four white milk bottles in a wooden crate stand against one side wall. Materials, outline, shading, the lower-right contact shadow and the colours are copied from the farmhouse in the FIRST attached image: this station stands in the same village. The second-to-last attached image is the game's OLD drawing of the Dairy: keep what makes it recognisable (the milk bottles in their crate, a touch of its pale blue on the churn's bands and the table) but do NOT copy its closed-house shape; the template above wins. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station fills that 2 x 2 square ENTIRELY and stays inside it, back wall along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the style, no props outside the square, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "mill": {
+      "refs": [
+        "guides/control-mill.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the MILL, a crafting station where grain is ground into flour. CRAFTING-STATION TEMPLATE, shared by every 2 x 2 crafting station in this game: an open-air, cut-away workshop, NOT a closed house. A back wall of the farmhouse's stone-and-plaster runs along the back (top) edge of the footprint; two short side walls of the same stone come forward from its ends about a third of the way; there is NO front wall and NO roof over the front, so the camera looks straight into the workshop. A narrow strip of the farmhouse's golden thatch with its wooden ridge beam sits along the top of the back wall only, like an awning. The floor inside is packed ochre earth with a few flagstones. On that open floor stands the WORK, drawn big and obvious so a player recognises the station at a glance: for the Mill, a round grey millstone lying flat on a low wooden frame with a wooden hopper above it, a heap of golden grain beside it, and two full burlap sacks of flour, one tied, one open and white inside; and, as the Mill's identity, a small four-sail windmill wheel on a short wooden post standing up from the middle of the back wall, its sails kept inside the top edge of the footprint. Materials, outline, shading, the lower-right contact shadow and the colours are copied from the farmhouse in the FIRST attached image: this station stands in the same village. The second-to-last attached image is the game's OLD drawing of the Mill: keep what makes it recognisable (the orange-red windmill sails, the grain sacks) but do NOT copy its closed tower shape; the template above wins. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station fills that 2 x 2 square ENTIRELY and stays inside it, back wall along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the style, no props outside the square, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "den-a": {
+      "refs": [
+        "guides/control-warriors-den.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the WARRIOR'S DEN, a shop that sells weapons and fighting gear. CLOSED-BUILDING TEMPLATE, shared by every 3 x 3 shop in this game: the farmhouse in the FIRST attached image built bigger: the same golden thatch roof with its wooden ridge beam, the same stone chimney, the same stone-and-plaster front wall on a stone foundation course, the same dark wooden door with an iron ring placed in the middle of the front wall, and one shuttered window on each side of the door. Same outline, shading, lower-right contact shadow and colours: this building stands in the same village. SIGN: a square wooden signboard hangs on two short chains from a black iron bracket fixed to the front wall, just above and to the right of the door, facing the camera, with ONE simple flat painted picture on it and NO letters: for the Warrior's Den, two crossed swords. The second-to-last attached image is the game's OLD drawing of the Warrior's Den: keep what makes it recognisable (walls of grey stone with less plaster showing than the farmhouse, the sword sign) but rebuild it on the template above, which wins. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building fills that 3 x 3 square ENTIRELY and stays inside it, roof ridge along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the style, no props outside the square, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "den-b": {
+      "refs": [
+        "guides/control-warriors-den.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the WARRIOR'S DEN, a shop that sells weapons and fighting gear. CLOSED-BUILDING TEMPLATE, shared by every 3 x 3 shop in this game: the farmhouse in the FIRST attached image built bigger: the same stone chimney, the same stone-and-plaster front wall on a stone foundation course, the same dark wooden door with an iron ring placed in the middle of the front wall, and one shuttered window on each side of the door; the ONE change for this shop is the roof: instead of thatch, overlapping orange-red clay tiles drawn as crisp rows of shapes, with the same wooden ridge beam, the same lit top plane and shaded front. Same outline, shading, lower-right contact shadow and colours: this building stands in the same village. SIGN: a square wooden signboard hangs on two short chains from a black iron bracket fixed to the front wall, just above and to the right of the door, facing the camera, with ONE simple flat painted picture on it and NO letters: for the Warrior's Den, two crossed swords. The second-to-last attached image is the game's OLD drawing of the Warrior's Den: keep what makes it recognisable (walls of grey stone with less plaster showing than the farmhouse, the orange tile roof, the sword sign) but rebuild it on the template above, which wins. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building fills that 3 x 3 square ENTIRELY and stays inside it, roof ridge along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the style, no props outside the square, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "oak-tree": {
+      "refs": [
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/tree.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: an OAK TREE for the board, a resource the player chops for wood. The second-to-last attached image is the game's OLD drawing of the oak: keep its identity (a round, broad, leafy green crown on a short red-brown trunk) and redraw it in the approved style of the first attached images: a dark outline, the foliage drawn as a few big crisp leaf clusters with a lit upper-left side and a shaded lower-right side, flat fills, a soft contact shadow on the grass to the lower right of the trunk. TREE RULE: a tree stands on one tile and rises one full tile above it, so it is two tiles tall, taller than a person. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile and a lighter tile directly above it, boxed together by a dashed line: the trunk stands on the pale tile with its base on that tile's bottom edge, the crown rises up through the lighter tile to no higher than the dashed box's top, and the crown may spread a little wider than the box, up to a quarter of a tile on each side, no more. Fill the other squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave any guide square pale."
+    },
+    "pine-tree": {
+      "refs": [
+        "guides/control-pine-tree.png"
+      ],
+      "guide": "guides/tree.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a PINE TREE for the board, a resource the player chops for wood. The second-to-last attached image is the game's OLD drawing of the pine: keep its identity (a tall, narrow, pointed dark-green conifer in layered tiers on a short red-brown trunk) and redraw it in the approved style of the first attached images: a dark outline, the foliage drawn as a few big crisp stacked tiers with a lit upper-left side and a shaded lower-right side, flat fills, a soft contact shadow on the grass to the lower right of the trunk. TREE RULE: a tree stands on one tile and rises one full tile above it, so it is two tiles tall, taller than a person. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile and a lighter tile directly above it, boxed together by a dashed line: the trunk stands on the pale tile with its base on that tile's bottom edge, the tip rises up through the lighter tile to no higher than the dashed box's top, and the lowest tier may spread a little wider than the box, up to a quarter of a tile on each side, no more. Fill the other squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave any guide square pale."
+    },
+    "den-c": {
+      "refs": [
+        "guides/control-warriors-den.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "retry of den-b: it redrew the 5 x 5 guide as a 4 x 4 grid (so the building sat on 2 x 2) and hung the sign over the right window.",
+      "prompt": "SUBJECT: the WARRIOR'S DEN, a shop that sells weapons and fighting gear. CLOSED-BUILDING TEMPLATE, shared by every 3 x 3 shop in this game: the farmhouse in the FIRST attached image built bigger: the same stone chimney, the same stone-and-plaster front wall on a stone foundation course, the same dark wooden door with an iron ring placed in the middle of the front wall, and one shuttered window on each side of the door; the ONE change for this shop is the roof: instead of thatch, overlapping orange-red clay tiles drawn as crisp rows of shapes, with the same wooden ridge beam, the same lit top plane and shaded front. Same outline, shading, lower-right contact shadow and colours: this building stands in the same village. SIGN: a square wooden signboard hangs on two short chains from a black iron bracket fixed just under the roof's front edge, directly above the right-hand window, covering neither the window nor the door, facing the camera, with ONE simple flat painted picture on it and NO letters: for the Warrior's Den, two crossed swords. The second-to-last attached image is the game's OLD drawing of the Warrior's Den: keep what makes it recognisable (walls of grey field stone with only a little plaster showing, the orange tile roof, the sword sign) but rebuild it on the template above, which wins. The LAST attached image is a layout guide: a FIVE by FIVE grid of tiles (five columns, five rows) with a tan 3 x 3 square in the middle. Redraw all the tile edges exactly as the guide has them, five columns and five rows, and make the building fill that central 3 x 3 square ENTIRELY, staying inside it: roof ridge along the square's top edge, ground contact on the square's bottom edge, a soft contact shadow to the lower right. Fill the sixteen surrounding squares with plain short grass in the style, no props outside the square. Do not leave the tan square tan."
+    },
+    "oak-tree-b": {
+      "refs": [
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/tree.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "retry of oak-tree: the first was only one and a half tiles tall with fish-scale leaves.",
+      "prompt": "SUBJECT: an OAK TREE for the board, a resource the player chops for wood. The second-to-last attached image is the game's OLD drawing of the oak: keep its identity (a round, broad, leafy green crown on a short thick red-brown trunk) and redraw it in the approved style of the first attached images: a dark outline, the foliage drawn as FIVE OR SIX big crisp leaf clusters (not many small leaves, no scale pattern) with a lit upper-left side and a shaded lower-right side, flat fills, a soft contact shadow on the grass to the lower right of the trunk. TREE RULE: a tree stands on one tile and rises one full tile above it, so it is exactly TWO tiles tall, much taller than a person. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile and a lighter tile directly above it, boxed together by a dashed line two tiles tall: the trunk stands on the pale tile with its base on that tile's bottom edge, and the top of the tree TOUCHES the top edge of the lighter tile (the top of the dashed box), using the whole two-tile height; the crown is as wide as the tile and may spread up to a quarter of a tile past each side, no more. Fill the other squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave any guide square pale."
+    },
+    "pine-tree-b": {
+      "refs": [
+        "guides/control-pine-tree.png"
+      ],
+      "guide": "guides/tree.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "retry of pine-tree: the first was under one and a half tiles tall and only three quarters of a tile wide.",
+      "prompt": "SUBJECT: a PINE TREE for the board, a resource the player chops for wood. The second-to-last attached image is the game's OLD drawing of the pine: keep its identity (a tall, pointed dark-green conifer in layered tiers on a short red-brown trunk) and redraw it in the approved style of the first attached images: a dark outline, the foliage drawn as FOUR OR FIVE big crisp stacked tiers with a lit upper-left side and a shaded lower-right side, flat fills, a soft contact shadow on the grass to the lower right of the trunk. TREE RULE: a tree stands on one tile and rises one full tile above it, so it is exactly TWO tiles tall, much taller than a person. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile and a lighter tile directly above it, boxed together by a dashed line two tiles tall: the trunk stands on the pale tile with its base on that tile's bottom edge, and the top of the tree TOUCHES the top edge of the lighter tile (the top of the dashed box), using the whole two-tile height; the lowest tier is as wide as the tile and may spread up to a quarter of a tile past each side, no more. Fill the other squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave any guide square pale."
+    }
+  }
+}

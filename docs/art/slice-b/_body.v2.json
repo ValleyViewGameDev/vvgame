@@ -1,0 +1,678 @@
+{
+  "note": "DRAFT full-body rig v2 (docs/art/slice-b/npc-parts.md). Derived by measuring the two approved fronts; nothing here is used by the game yet. Panel values are 1024 px pixels of the approved panel; frame values are the proposed 256 x 384 avatar frame. Replaces tools/avatar/recipes/_body.json only when the owner approves.",
+  "frame": {
+    "w": 256,
+    "h": 384,
+    "tile": 256,
+    "note": "one tile wide (256) by one and a half tiles tall (384): feet on the tile bottom edge, head up to half a tile above (docs/art-pipeline-plan.md section 4b). The tile occupies y 128..384 of the frame."
+  },
+  "feetLine": 372,
+  "hairTop": 20,
+  "bodyHeight": 352,
+  "rule": "Each body is scaled so the top of its hair (or helmet) sits on hairTop and its feet on feetLine: both bodies are the same height on the board, one tile wide, feet on the tile bottom edge. Hats, crowns and horns may rise above hairTop up to y 0. The contact shadow sits between feetLine and the frame bottom.",
+  "panels": {
+    "female": {
+      "source": "tools/art/_candidates/slice-a/approved/openai--baseline-figure-front-1.png (Gertrude)",
+      "hatTop": 60,
+      "hairTop": 100,
+      "hairBand": [
+        190,
+        215
+      ],
+      "brow": 250,
+      "eyeLine": 290,
+      "eyesX": [
+        462,
+        562
+      ],
+      "nose": 325,
+      "mouth": 355,
+      "chin": 386,
+      "neck": {
+        "y": [
+          389,
+          425
+        ],
+        "x": [
+          480,
+          545
+        ]
+      },
+      "collarTop": 426,
+      "shoulderLine": 445,
+      "face": {
+        "x": [
+          410,
+          615
+        ]
+      },
+      "head": {
+        "x": [
+          375,
+          660
+        ]
+      },
+      "torso": {
+        "y": [
+          445,
+          575
+        ],
+        "x": [
+          355,
+          680
+        ]
+      },
+      "belt": [
+        555,
+        595
+      ],
+      "arms": {
+        "y": [
+          460,
+          640
+        ],
+        "left": [
+          318,
+          400
+        ],
+        "right": [
+          625,
+          710
+        ]
+      },
+      "hands": {
+        "y": [
+          628,
+          682
+        ],
+        "left": [
+          328,
+          398
+        ],
+        "right": [
+          648,
+          700
+        ]
+      },
+      "hem": 900,
+      "legs": {
+        "y": [
+          575,
+          905
+        ],
+        "x": [
+          330,
+          700
+        ]
+      },
+      "feet": {
+        "y": [
+          905,
+          963
+        ],
+        "left": [
+          400,
+          500
+        ],
+        "right": [
+          525,
+          625
+        ]
+      },
+      "feetLine": 963,
+      "shadow": {
+        "y": [
+          905,
+          985
+        ],
+        "x": [
+          320,
+          710
+        ]
+      },
+      "maxWidth": {
+        "w": 393,
+        "y": 610
+      },
+      "figureBox": {
+        "y": [
+          60,
+          963
+        ],
+        "w": 393
+      }
+    },
+    "male": {
+      "source": "tools/art/_candidates/slice-a/approved/openai--baseline-hotspur4-front-1.png (Hotspur)",
+      "hatTop": 145,
+      "hairTop": 162,
+      "hairBand": [
+        265,
+        290
+      ],
+      "brow": 300,
+      "eyeLine": 325,
+      "eyesX": [
+        470,
+        555
+      ],
+      "nose": 350,
+      "mouth": 380,
+      "chin": 400,
+      "neck": {
+        "y": [
+          402,
+          422
+        ],
+        "x": [
+          480,
+          545
+        ]
+      },
+      "collarTop": 423,
+      "shoulderLine": 445,
+      "face": {
+        "x": [
+          420,
+          610
+        ]
+      },
+      "head": {
+        "x": [
+          410,
+          620
+        ]
+      },
+      "torso": {
+        "y": [
+          445,
+          580
+        ],
+        "x": [
+          383,
+          647
+        ]
+      },
+      "belt": [
+        560,
+        600
+      ],
+      "arms": {
+        "y": [
+          470,
+          650
+        ],
+        "left": [
+          375,
+          440
+        ],
+        "right": [
+          600,
+          660
+        ]
+      },
+      "hands": {
+        "y": [
+          598,
+          652
+        ],
+        "left": [
+          385,
+          435
+        ],
+        "right": [
+          605,
+          652
+        ]
+      },
+      "hem": 690,
+      "legs": {
+        "y": [
+          580,
+          720
+        ],
+        "x": [
+          430,
+          600
+        ]
+      },
+      "feet": {
+        "y": [
+          715,
+          811
+        ],
+        "left": [
+          410,
+          500
+        ],
+        "right": [
+          525,
+          610
+        ]
+      },
+      "feetLine": 811,
+      "shadow": {
+        "y": [
+          760,
+          835
+        ],
+        "x": [
+          380,
+          660
+        ]
+      },
+      "maxWidth": {
+        "w": 327,
+        "y": 690
+      },
+      "figureBox": {
+        "y": [
+          143,
+          811
+        ],
+        "w": 327
+      }
+    }
+  },
+  "female": {
+    "scale": 0.4079,
+    "crop": {
+      "left": 198,
+      "top": 51,
+      "width": 628,
+      "height": 941,
+      "note": "the panel window that becomes the 256 x 384 frame: extract, then resize by scale"
+    },
+    "hatTop": 3.7,
+    "hairTop": 20,
+    "hairBand": [
+      56.7,
+      66.9
+    ],
+    "brow": 81.2,
+    "eyeLine": 97.5,
+    "eyesX": [
+      107.6,
+      148.4
+    ],
+    "nose": 111.8,
+    "mouth": 124,
+    "chin": 136.7,
+    "neck": {
+      "y": [
+        137.9,
+        152.6
+      ],
+      "x": [
+        114.9,
+        141.5
+      ]
+    },
+    "collarTop": 153,
+    "shoulderLine": 160.7,
+    "face": {
+      "x": [
+        86.4,
+        170
+      ]
+    },
+    "head": {
+      "x": [
+        72.1,
+        188.4
+      ]
+    },
+    "torso": {
+      "y": [
+        160.7,
+        213.7
+      ],
+      "x": [
+        64,
+        196.5
+      ]
+    },
+    "belt": [
+      205.6,
+      221.9
+    ],
+    "arms": {
+      "y": [
+        166.8,
+        240.3
+      ],
+      "left": [
+        48.9,
+        82.3
+      ],
+      "right": [
+        174.1,
+        208.8
+      ]
+    },
+    "hands": {
+      "y": [
+        235.4,
+        257.4
+      ],
+      "left": [
+        53,
+        81.5
+      ],
+      "right": [
+        183.5,
+        204.7
+      ]
+    },
+    "hem": 346.3,
+    "legs": {
+      "y": [
+        213.7,
+        348.3
+      ],
+      "x": [
+        53.8,
+        204.7
+      ]
+    },
+    "feet": {
+      "y": [
+        348.3,
+        372
+      ],
+      "left": [
+        82.3,
+        123.1
+      ],
+      "right": [
+        133.3,
+        174.1
+      ]
+    },
+    "feetLine": 372,
+    "shadow": {
+      "y": [
+        348.3,
+        381
+      ],
+      "x": [
+        49.7,
+        208.8
+      ]
+    },
+    "maxWidth": {
+      "w": 160.3,
+      "y": 228
+    },
+    "figureBox": {
+      "y": [
+        3.7,
+        372
+      ],
+      "w": 160.3
+    }
+  },
+  "male": {
+    "scale": 0.5424,
+    "crop": {
+      "left": 276,
+      "top": 125,
+      "width": 472,
+      "height": 708,
+      "note": "the panel window that becomes the 256 x 384 frame: extract, then resize by scale"
+    },
+    "hatTop": 10.8,
+    "hairTop": 20,
+    "hairBand": [
+      75.9,
+      89.4
+    ],
+    "brow": 94.8,
+    "eyeLine": 108.4,
+    "eyesX": [
+      105.2,
+      151.3
+    ],
+    "nose": 122,
+    "mouth": 138.2,
+    "chin": 149.1,
+    "neck": {
+      "y": [
+        150.2,
+        161
+      ],
+      "x": [
+        110.6,
+        145.9
+      ]
+    },
+    "collarTop": 161.6,
+    "shoulderLine": 173.5,
+    "face": {
+      "x": [
+        78.1,
+        181.2
+      ]
+    },
+    "head": {
+      "x": [
+        72.7,
+        186.6
+      ]
+    },
+    "torso": {
+      "y": [
+        173.5,
+        246.7
+      ],
+      "x": [
+        58,
+        201.2
+      ]
+    },
+    "belt": [
+      235.9,
+      257.6
+    ],
+    "arms": {
+      "y": [
+        187.1,
+        284.7
+      ],
+      "left": [
+        53.7,
+        88.9
+      ],
+      "right": [
+        175.7,
+        208.3
+      ]
+    },
+    "hands": {
+      "y": [
+        256.5,
+        285.8
+      ],
+      "left": [
+        59.1,
+        86.2
+      ],
+      "right": [
+        178.4,
+        203.9
+      ]
+    },
+    "hem": 306.4,
+    "legs": {
+      "y": [
+        246.7,
+        322.6
+      ],
+      "x": [
+        83.5,
+        175.7
+      ]
+    },
+    "feet": {
+      "y": [
+        319.9,
+        372
+      ],
+      "left": [
+        72.7,
+        121.5
+      ],
+      "right": [
+        135.1,
+        181.2
+      ]
+    },
+    "feetLine": 372,
+    "shadow": {
+      "y": [
+        344.3,
+        385
+      ],
+      "x": [
+        56.4,
+        208.3
+      ]
+    },
+    "maxWidth": {
+      "w": 177.4,
+      "y": 306.4
+    },
+    "figureBox": {
+      "y": [
+        9.7,
+        372
+      ],
+      "w": 177.4
+    }
+  },
+  "slots": [
+    {
+      "slot": "hairBack",
+      "z": 0,
+      "tint": "hairColor",
+      "region": "head and shoulders, behind the body: hair that hangs behind the arms or the back",
+      "base": "light grey"
+    },
+    {
+      "slot": "body",
+      "z": 1,
+      "tint": "skinTone",
+      "region": "the whole figure: bald head, face, neck, arms, hands, legs, feet, plus the contact shadow (replaces skin)",
+      "base": "lightest tone, white undershift"
+    },
+    {
+      "slot": "shoes",
+      "z": 2,
+      "tint": null,
+      "region": "feet (feet.y, feet.left / feet.right)",
+      "base": "full colour"
+    },
+    {
+      "slot": "bottom",
+      "z": 3,
+      "tint": null,
+      "region": "legs (legs.y, legs.x): trousers, skirts, hose; may overlap the shoe tops",
+      "base": "full colour"
+    },
+    {
+      "slot": "top",
+      "z": 4,
+      "tint": null,
+      "region": "torso and arms (collarTop .. hem, arms.left .. arms.right); a robe may run to feet.y and then coversLegs",
+      "base": "full colour"
+    },
+    {
+      "slot": "eyes",
+      "z": 5,
+      "tint": "eyeColor (iris, file2)",
+      "region": "eye line, eyesX",
+      "base": "whites and lashes as drawn, iris light grey"
+    },
+    {
+      "slot": "facialHair",
+      "z": 6,
+      "tint": "hairColor",
+      "region": "jaw: mouth .. chin + a little under",
+      "base": "light grey"
+    },
+    {
+      "slot": "hairFront",
+      "z": 7,
+      "tint": "hairColor",
+      "region": "hairTop .. shoulderLine (long hair may run over the top to arms.y)",
+      "base": "light grey"
+    },
+    {
+      "slot": "hat",
+      "z": 8,
+      "tint": null,
+      "region": "y 0 .. brow, may cross the hair band",
+      "base": "full colour"
+    },
+    {
+      "slot": "hand",
+      "z": 9,
+      "tint": null,
+      "region": "held item at hands.right (the weapon hand), may extend outside the body",
+      "base": "full colour"
+    }
+  ],
+  "zOrder": [
+    "hairBack",
+    "body",
+    "shoes",
+    "bottom",
+    "top",
+    "eyes",
+    "facialHair",
+    "hairFront",
+    "hat",
+    "hand"
+  ],
+  "prototype": {
+    "note": "Landmarks of the generated female base body (tools/art/_candidates/slice-b-npc-parts/layers/base-female-1.png), 1024 px panel, measured the same way. It sits about 35 px higher than the approved front and is 2% shorter; its layers were drawn in ITS frame, so these are the numbers the prototype checker should have used (it used the approved front, hence the face-overlap flag).",
+    "base_female_1": {
+      "scalpTop": 88,
+      "eyeLine": 255,
+      "mouth": 315,
+      "chin": 350,
+      "collarTop": 413,
+      "shoulderLine": 415,
+      "hands": {
+        "y": [
+          600,
+          645
+        ],
+        "left": [
+          350,
+          382
+        ],
+        "right": [
+          648,
+          672
+        ]
+      },
+      "shiftHem": 706,
+      "feetLine": 930,
+      "shadow": [
+        873,
+        943
+      ],
+      "figureBox": {
+        "x": [
+          343,
+          676
+        ],
+        "y": [
+          86,
+          945
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "slice-b-tiles",
+  "note": "Slice B, the TILES lane (docs/art/slice-b/tiles.md): ground samples in the approved style, each a 4 x 4 patch at 256 px per tile (one atlas slot per tile). Grass, dirt and stone are single-type patches drawn to repeat; the edge subject is a straight grass-to-dirt boundary. HARD BUDGET 6 images on gpt-image-2; four subjects here, two in reserve for a retry. Guides: guides/patch4.png (sixteen pale cells), guides/edge4.png (two green columns, two tan). The grass reference is the bible's own panels (the farmhouse and the stump), which the style refs already carry.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "grass": {
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND TEXTURE panel, grass only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares, edge to edge, with the same short meadow grass that surrounds the farmhouse and the stump in the approved panels (the same green, the same soft leafy fill, a few small darker tufts and a few lighter blades, drawn as crisp shapes). Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no flowers, no characters, no shadows, no path: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "dirt": {
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND TEXTURE panel, packed earth only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares, edge to edge, with warm ochre packed earth of the kind a farm path or a bare field is made of, in the approved panels' recipe: an even warm ochre fill, a few small darker clods and a few small pebbles drawn as crisp outlined shapes with a lit top and a shaded lower-right, nothing more. Draw the faint grid lines as thin tile edges exactly where the guide has them. No grass, no props, no objects, no characters, no footprints, no wheel ruts: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "stone": {
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND TEXTURE panel, stone pavement only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares, edge to edge, with grey flagstone paving in the approved panels' recipe: flat irregular stones, each with a dark outline, a lit top and a thin shaded lower-right edge, set in narrow darker mortar lines, the same grey as the farmhouse's stone chimney and wall base. Make the stones small, about four to six stones across each tile, so the paving still reads when a tile is tiny. Draw the faint grid lines as thin tile edges exactly where the guide has them. No grass, no moss, no props, no objects, no characters: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "edge-grass-dirt": {
+      "guide": "guides/edge4.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND TEXTURE panel showing where grass meets a dirt path. The LAST attached image is a layout guide, a 4 x 4 patch of tiles: the two GREEN columns on the left are grass tiles and the two TAN columns on the right are packed-earth tiles. Fill the green columns, edge to edge, with the same short meadow grass that surrounds the farmhouse and the stump in the approved panels, and fill the tan columns with warm ochre packed earth with a few small clods and pebbles drawn as crisp shapes. Where the two meet, down the middle of the panel, draw the boundary the way the approved panels draw a contact: the grass edge slightly irregular with a few blades overhanging the earth, a thin dark outline along the grass side, and a soft narrow shadow on the earth just right of it; the boundary must stay within a quarter of a tile of the guide's column line and run from the top edge to the bottom edge. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters: ground only. Keep each side even and repeatable top to bottom, no vignette, no lighting gradient. Do not leave any square green-flat or tan-flat."
+    },
+    "dirt-brown": {
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "Retry of dirt (image 5 of 6): the first came out sand-yellow with glossy droplet-like pebbles.",
+      "prompt": "SUBJECT: a GROUND TEXTURE panel, packed EARTH only, the bare brown soil of a ploughed farm path or a dug field. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares, edge to edge, with that earth in the approved panels' recipe. The colour is a medium warm BROWN, clearly browner and darker than sand and not yellow, a matte fill. On it, a few small clods drawn as flat slightly darker brown shapes with a thin dark outline, and a few small grey-brown pebbles with a thin outline, a lit top and a shaded lower-right; NO glossy highlights, nothing that looks like a water drop. Draw the faint grid lines as thin tile edges exactly where the guide has them. No grass, no props, no objects, no characters, no footprints, no wheel ruts: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    }
+  }
+}

@@ -1,0 +1,366 @@
+[
+  {
+    "id": "outline-1",
+    "name": "outline light",
+    "hex": "#421a07",
+    "group": "outline",
+    "share": 1.75
+  },
+  {
+    "id": "outline-2",
+    "name": "outline dark",
+    "hex": "#231a18",
+    "group": "outline",
+    "share": 2.85
+  },
+  {
+    "id": "grass-1",
+    "name": "grass light",
+    "hex": "#8db425",
+    "group": "grass",
+    "share": 17.35
+  },
+  {
+    "id": "grass-2",
+    "name": "grass mid",
+    "hex": "#79a826",
+    "group": "grass",
+    "share": 54.43
+  },
+  {
+    "id": "grass-3",
+    "name": "grass dark",
+    "hex": "#3e6619",
+    "group": "grass",
+    "share": 0.15
+  },
+  {
+    "id": "foliage-1",
+    "name": "foliage 1",
+    "hex": "#aac525",
+    "group": "foliage",
+    "share": 0.45
+  },
+  {
+    "id": "foliage-2",
+    "name": "foliage 2",
+    "hex": "#91b01d",
+    "group": "foliage",
+    "share": 0.21
+  },
+  {
+    "id": "foliage-3",
+    "name": "foliage 3",
+    "hex": "#70971a",
+    "group": "foliage",
+    "share": 0.15
+  },
+  {
+    "id": "foliage-4",
+    "name": "foliage 4",
+    "hex": "#599324",
+    "group": "foliage",
+    "share": 0.42
+  },
+  {
+    "id": "foliage-5",
+    "name": "foliage 5",
+    "hex": "#518622",
+    "group": "foliage",
+    "share": 0.57
+  },
+  {
+    "id": "foliage-6",
+    "name": "foliage 6",
+    "hex": "#43721e",
+    "group": "foliage",
+    "share": 0.38
+  },
+  {
+    "id": "foliage-7",
+    "name": "foliage 7",
+    "hex": "#3f4216",
+    "group": "foliage",
+    "share": 0.09
+  },
+  {
+    "id": "earth",
+    "name": "earth",
+    "hex": "#7a6648",
+    "group": "earth",
+    "share": 0.49
+  },
+  {
+    "id": "wood-1",
+    "name": "wood light",
+    "hex": "#ad7620",
+    "group": "wood",
+    "share": 0.51
+  },
+  {
+    "id": "wood-2",
+    "name": "wood mid",
+    "hex": "#945e1d",
+    "group": "wood",
+    "share": 0.66
+  },
+  {
+    "id": "wood-3",
+    "name": "wood dark",
+    "hex": "#6c481f",
+    "group": "wood",
+    "share": 0.66
+  },
+  {
+    "id": "wood-4",
+    "name": "wood deep",
+    "hex": "#4f381c",
+    "group": "wood",
+    "share": 0.57
+  },
+  {
+    "id": "thatch-1",
+    "name": "thatch light",
+    "hex": "#f8c935",
+    "group": "thatch",
+    "share": 0.23
+  },
+  {
+    "id": "thatch-2",
+    "name": "thatch mid",
+    "hex": "#e9b22a",
+    "group": "thatch",
+    "share": 0.4
+  },
+  {
+    "id": "thatch-3",
+    "name": "thatch dark",
+    "hex": "#daa025",
+    "group": "thatch",
+    "share": 0.28
+  },
+  {
+    "id": "stone-1",
+    "name": "stone light",
+    "hex": "#58534b",
+    "group": "stone",
+    "share": 0.51
+  },
+  {
+    "id": "stone-2",
+    "name": "stone dark",
+    "hex": "#3e3b35",
+    "group": "stone",
+    "share": 0.67
+  },
+  {
+    "id": "metal-1",
+    "name": "metal 1",
+    "hex": "#efd06c",
+    "group": "metal",
+    "share": 0.16
+  },
+  {
+    "id": "metal-2",
+    "name": "metal 2",
+    "hex": "#e6b64f",
+    "group": "metal",
+    "share": 0.49
+  },
+  {
+    "id": "metal-3",
+    "name": "metal 3",
+    "hex": "#dc9b54",
+    "group": "metal",
+    "share": 0.35
+  },
+  {
+    "id": "metal-4",
+    "name": "metal 4",
+    "hex": "#a1a09a",
+    "group": "metal",
+    "share": 0.4
+  },
+  {
+    "id": "metal-5",
+    "name": "metal 5",
+    "hex": "#cd9432",
+    "group": "metal",
+    "share": 0.5
+  },
+  {
+    "id": "metal-6",
+    "name": "metal 6",
+    "hex": "#ac8d4d",
+    "group": "metal",
+    "share": 0.17
+  },
+  {
+    "id": "metal-7",
+    "name": "metal 7",
+    "hex": "#787570",
+    "group": "metal",
+    "share": 0.36
+  },
+  {
+    "id": "skin-1",
+    "name": "skin light",
+    "hex": "#f9b093",
+    "group": "skin",
+    "share": 1.29
+  },
+  {
+    "id": "skin-2",
+    "name": "skin mid",
+    "hex": "#e99275",
+    "group": "skin",
+    "share": 0.26
+  },
+  {
+    "id": "skin-3",
+    "name": "skin dark",
+    "hex": "#c86c55",
+    "group": "skin",
+    "share": 0.2
+  },
+  {
+    "id": "hair-1",
+    "name": "hair light",
+    "hex": "#efbe7a",
+    "group": "hair",
+    "share": 1.05
+  },
+  {
+    "id": "hair-2",
+    "name": "hair mid",
+    "hex": "#8c4c16",
+    "group": "hair",
+    "share": 0.87
+  },
+  {
+    "id": "hair-3",
+    "name": "hair dark",
+    "hex": "#743d10",
+    "group": "hair",
+    "share": 0.9
+  },
+  {
+    "id": "cloth-red-1",
+    "name": "cloth red lightest",
+    "hex": "#b32216",
+    "group": "cloth-red",
+    "share": 0.09
+  },
+  {
+    "id": "cloth-red-2",
+    "name": "cloth red light",
+    "hex": "#98401b",
+    "group": "cloth-red",
+    "share": 0.14
+  },
+  {
+    "id": "cloth-red-3",
+    "name": "cloth red mid",
+    "hex": "#9d1b13",
+    "group": "cloth-red",
+    "share": 0.96
+  },
+  {
+    "id": "cloth-red-4",
+    "name": "cloth red dark",
+    "hex": "#8d170f",
+    "group": "cloth-red",
+    "share": 1.83
+  },
+  {
+    "id": "cloth-red-5",
+    "name": "cloth red deep",
+    "hex": "#72120a",
+    "group": "cloth-red",
+    "share": 1.42
+  },
+  {
+    "id": "cloth-green-1",
+    "name": "cloth green light",
+    "hex": "#6e6f27",
+    "group": "cloth-green",
+    "share": 0.07
+  },
+  {
+    "id": "cloth-green-2",
+    "name": "cloth green mid",
+    "hex": "#446d32",
+    "group": "cloth-green",
+    "share": 0.49
+  },
+  {
+    "id": "cloth-green-3",
+    "name": "cloth green dark",
+    "hex": "#32561f",
+    "group": "cloth-green",
+    "share": 0.33
+  },
+  {
+    "id": "cloth-green-4",
+    "name": "cloth green deep",
+    "hex": "#254116",
+    "group": "cloth-green",
+    "share": 0.33
+  },
+  {
+    "id": "cloth-purple",
+    "name": "cloth purple",
+    "hex": "#552b4d",
+    "group": "cloth-purple",
+    "share": 0.66
+  },
+  {
+    "id": "cloth-cream-1",
+    "name": "cloth cream light",
+    "hex": "#f7eaca",
+    "group": "cloth-cream",
+    "share": 0.2
+  },
+  {
+    "id": "cloth-cream-2",
+    "name": "cloth cream mid",
+    "hex": "#e1e0d7",
+    "group": "cloth-cream",
+    "share": 0.3
+  },
+  {
+    "id": "cloth-cream-3",
+    "name": "cloth cream dark",
+    "hex": "#eed9a6",
+    "group": "cloth-cream",
+    "share": 0.38
+  },
+  {
+    "id": "cloth-cream-4",
+    "name": "cloth cream deep",
+    "hex": "#c8b082",
+    "group": "cloth-cream",
+    "share": 0.41
+  },
+  {
+    "id": "cloth-brown-1",
+    "name": "cloth brown light",
+    "hex": "#a18963",
+    "group": "cloth-brown",
+    "share": 0.72
+  },
+  {
+    "id": "cloth-brown-2",
+    "name": "cloth brown mid",
+    "hex": "#bd7433",
+    "group": "cloth-brown",
+    "share": 0.3
+  },
+  {
+    "id": "cloth-brown-3",
+    "name": "cloth brown dark",
+    "hex": "#5c2f0c",
+    "group": "cloth-brown",
+    "share": 0.57
+  }
+]

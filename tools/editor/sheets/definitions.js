@@ -322,6 +322,25 @@ export const DEFINITIONS = [
     restartNeeded: false,
     columns: [{ ...str('value'), label: 'username', required: true }],
   },
+  {
+    id: 'artPalette',
+    freeze: 2,   // pin the id and the name while the sheet scrolls sideways (Sheet.js frozen columns)
+    label: 'Art palette',
+    group: 'sheets',
+    file: '../tools/art/styles/elsinore/palette.json',   // sheet files resolve against game-server/; this one lives in tools/art
+    description: 'The art palette (tools/art/styles/elsinore/palette.json, docs/art/slice-b/palette.md): the colours extracted from the style bible, one row per swatch. Rename or nudge a hex here, then run `node tools/art/palette.js card` to redraw the swatch card the generator sends. id is referenced by the card and the checker: never rename in place. share is the percentage of bible pixels the colour covers (informational, rewritten by `palette.js extract`). The game server never reads this file.',
+    shape: 'array',
+    identity: ['id'],
+    categoryKey: 'group',
+    restartNeeded: false,
+    columns: [
+      { ...str('id'), immutable: true, required: true },
+      str('name'),
+      { ...str('hex'), required: true },
+      { key: 'group', type: 'enum', enum: ['outline', 'grass', 'foliage', 'earth', 'wood', 'thatch', 'stone', 'metal', 'skin', 'hair', 'cloth-red', 'cloth-green', 'cloth-blue', 'cloth-purple', 'cloth-cream', 'cloth-brown', 'accent'], required: true },
+      { ...num('share'), label: 'share (% of bible pixels)' },
+    ],
+  },
 ];
 
 export const byId = (id) => DEFINITIONS.find((d) => d.id === id) || null;

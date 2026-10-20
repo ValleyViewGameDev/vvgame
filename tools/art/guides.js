@@ -96,10 +96,52 @@ async function buildingGuide(n) {
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${rects.join('')}${box}</svg>`)).png().toBuffer();
 }
 
+/**
+ * The tree guide (slice B, buildings lane): the 3 x 3 patch with the centre tile pale (the
+ * footprint: one tile wide, trunk base on its bottom edge) and the WHOLE tile above it tinted
+ * (the headroom: a tree may rise one full tile above its own tile, so it stands two tiles
+ * tall, taller than a character's one and a half). The dashed box is the 1 x 2 envelope.
+ */
+async function treeGuide() {
+  const t = Math.floor(PX / 3);
+  const cells = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+    const centre = r === 1 && c === 1;
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${centre ? '#f3e7b0' : '#8fb86a'}" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  const headroom = `<rect x="${t}" y="0" width="${t}" height="${t}" fill="#f8f1cf" stroke="#5b7a46" stroke-width="2"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${cells.join('')}${headroom}<rect x="${t}" y="2" width="${t}" height="${t * 2 - 2}" fill="none" stroke="#5b7a46" stroke-width="2" stroke-dasharray="8 6"/></svg>`;
+  return sharp(Buffer.from(svg)).png().toBuffer();
+}
+
 /** An existing NPC drawing on the parchment, for the redraw controls and the character sources. */
 async function control(file) {
   const png = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', file), 768);
   return sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: png, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer();
+}
+
+/**
+ * Ground-tile guides (slice B, the TILES lane; docs/art/slice-b/tiles.md). Each is a 4 x 4
+ * patch of tiles at 256 px per tile, so every cut tile lands on the atlas's 256 px slot.
+ *   patch4.png   all sixteen cells the same pale fill: "fill every square with ONE ground type"
+ *   edge4.png    the left two columns green, the right two tan: a straight grass-to-dirt edge
+ */
+async function patch4Guide() {
+  const t = PX / 4;
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="#f3e7b0" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#f3e7b0"/>${cells.join('')}</svg>`)).png().toBuffer();
+}
+
+async function edge4Guide() {
+  const t = PX / 4;
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${c < 2 ? '#8fb86a' : '#d9b276'}" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${cells.join('')}</svg>`)).png().toBuffer();
 }
 
 async function main() {
@@ -110,12 +152,19 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'scene.png'), await sceneGuide());
   fs.writeFileSync(path.join(GUIDES, 'building2.png'), await buildingGuide(2));
   fs.writeFileSync(path.join(GUIDES, 'building3.png'), await buildingGuide(3));
+  fs.writeFileSync(path.join(GUIDES, 'patch4.png'), await patch4Guide());
+  fs.writeFileSync(path.join(GUIDES, 'edge4.png'), await edge4Guide());
   fs.writeFileSync(path.join(GUIDES, 'control-hotspur.png'), await control('npc-hotspur.svg'));
   fs.writeFileSync(path.join(GUIDES, 'control-pig.png'), await control('npc-pig.svg'));
+  // slice B, buildings lane: the tree envelope and the "redraw this, keep its identity" controls
+  fs.writeFileSync(path.join(GUIDES, 'tree.png'), await treeGuide());
+  for (const [name, file] of [['dairy', 'dairy.svg'], ['mill', 'mill.svg'], ['warriors-den', 'warriors-den.svg'], ['oak-tree', 'oak-tree.svg'], ['pine-tree', 'pine-tree.svg']]) {
+    fs.writeFileSync(path.join(GUIDES, `control-${name}.png`), await control(file));
+  }
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());
-  console.log('wrote', path.relative(ROOT, GUIDES) + '/{head,tile,control-gertrude}.png');
+  console.log('wrote', path.relative(ROOT, GUIDES) + '/{head,tile,figure,scene,building2,building3,tree,control-*}.png');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
