@@ -43,7 +43,8 @@ async function main() {
       for (const subjectKey of subjects) {
         const subject = job.subjects[subjectKey];
         if (subject.variants && !subject.variants.includes(variant)) continue;
-        const refs = [...styleRefs, ...(subject.guide ? [resolveRef(subject.guide)] : [])];
+        // style refs first, then the subject's own extra references, then its guide LAST
+        const refs = [...styleRefs, ...(subject.refs || []).map(resolveRef), ...(subject.guide ? [resolveRef(subject.guide)] : [])];
         const prompt = [preamble, style.variants[variant], subject.prompt].filter(Boolean).join('\n\n');
         for (let i = 1; i <= n; i++) {
           const base = path.join(outDir, `${variant}-${subjectKey}-${i}`);

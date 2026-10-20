@@ -19,6 +19,18 @@
       "guide": "guides/tile.png",
       "prompt": "SUBJECT: a small thatched farmhouse with a stone chimney, a wooden door and one window, seen from the game camera (top-down three-quarter: roof plane and front wall both visible). The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw the farmhouse so it sits ENTIRELY inside that centre square, its ground contact on the square's bottom edge, with a soft contact shadow; fill the other eight squares with short grass in the style, with a few small props (a stump, a bucket, a flower tuft), and draw the faint grid lines over the grass as thin tile edges. Do not leave the centre tile pale."
     },
+    "body-front": {
+      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "guide": "guides/control-gertrude.png",
+      "variants": ["baseline", "heavy-outline"],
+      "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the CHARACTER REFERENCE: a character constructor showing how the game's people are built (a chunky base body, about three and a half heads tall, with swappable heads, hair and clothes); match those proportions and that front-facing standing construction, but draw with MORE detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours and give her a full-length robe and shoes. One figure only, centred, filling most of the frame height, on the plain parchment background. No pixel grid."
+    },
+    "body-sheet": {
+      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "guide": "guides/control-gertrude.png",
+      "variants": ["baseline"],
+      "prompt": "SUBJECT: a character TURNAROUND SHEET of one FULL-BODY standing character, head to feet, drawn three times side by side at the same scale on one row: facing the viewer (front), facing left (side profile), and facing away (back). The second-to-last attached image is the CHARACTER REFERENCE: a character constructor showing how the game's people are built (a chunky base body, about three and a half heads tall, with swappable heads, hair and clothes); match those proportions and construction, but draw with MORE detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours and give her a full-length robe and shoes. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
       "variants": ["baseline"],
