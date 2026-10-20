@@ -10,8 +10,13 @@ its approved panels stay as they are; nothing is replaced until the owner decide
 
 1. The brief in section 1 (what unifies the references, and what we impose on them).
 2. The rendering: three variants of the same brief on one building, the Farm House at 2 x 2,
-   in `tools/art/_candidates/whimsical-test/` (sheet.png, and a 45 / 90 px strip). Pick
-   painterly, inked or rendered, or say what to mix. Then six buildings get drawn in it.
+   in `tools/art/_candidates/whimsical-test/exploration/openai/` as `*-farmhouse-c-1.png`
+   (`strip-camera.png` shows each at 512 px and at 90 and 45 px per tile). Pick painterly,
+   inked or rendered, or say what to mix. Then six buildings get drawn in it. The first
+   three (`*-farmhouse-1.png`) rotated the building to the references' three-quarter side
+   view; the camera rule in the style and an elsinore panel sent as a CAMERA-ONLY reference
+   fixed it (the fix is now part of the style: the references are copied for look, never
+   for angle).
 3. The consequence to be aware of: a building style this different from the elsinore panels
    means the characters, animals, tiles and deco approved so far will eventually be redrawn
    to match, or the board will look like two games. That is a later decision; the six
