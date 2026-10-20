@@ -66,11 +66,37 @@ async function figureGuide() {
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
+/**
+ * The scene guide: a 4 x 4 patch with a 2 x 2 building footprint (the Farm House is
+ * `size: 2` in resources.json) and, beside it, one figure footprint with its headroom band.
+ */
+async function sceneGuide() {
+  const t = PX / 4;
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const house = c >= 1 && c <= 2 && r >= 1 && r <= 2;
+    const figure = c === 3 && r === 2;
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${house ? '#e8d6a8' : figure ? '#f3e7b0' : '#8fb86a'}" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  const headroom = `<rect x="${3 * t}" y="${1.5 * t}" width="${t}" height="${t / 2}" fill="#f8f1cf"/><rect x="${3 * t}" y="${1.5 * t}" width="${t}" height="${1.5 * t}" fill="none" stroke="#5b7a46" stroke-width="2" stroke-dasharray="8 6"/>`;
+  const houseBox = `<rect x="${t}" y="${t}" width="${2 * t}" height="${2 * t}" fill="none" stroke="#5b7a46" stroke-width="3"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${cells.join('')}${headroom}${houseBox}</svg>`;
+  return sharp(Buffer.from(svg)).png().toBuffer();
+}
+
+/** An existing NPC drawing on the parchment, for the redraw controls and the character sources. */
+async function control(file) {
+  const png = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', file), 768);
+  return sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: png, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer();
+}
+
 async function main() {
   ensureDir(GUIDES);
   fs.writeFileSync(path.join(GUIDES, 'head.png'), await headGuide());
   fs.writeFileSync(path.join(GUIDES, 'tile.png'), await tileGuide());
   fs.writeFileSync(path.join(GUIDES, 'figure.png'), await figureGuide());
+  fs.writeFileSync(path.join(GUIDES, 'scene.png'), await sceneGuide());
+  fs.writeFileSync(path.join(GUIDES, 'control-hotspur.png'), await control('npc-hotspur.svg'));
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());
