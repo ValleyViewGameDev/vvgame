@@ -57,7 +57,8 @@ async function main() {
           process.stdout.write(`${providerKey} ${cfg.model} ${variant}/${subjectKey} #${i} ... `);
           const t0 = Date.now();
           try {
-            const [out] = await providers[providerKey].generate({ apiKey, model: cfg.model, prompt, refs, n: 1, size: cfg.size, quality: cfg.quality, background: cfg.background, imageSize: cfg.imageSize });
+            // a subject may ask for a landscape frame (turnaround sheets) with its own `size`
+            const [out] = await providers[providerKey].generate({ apiKey, model: cfg.model, prompt, refs, n: 1, size: subject.size || cfg.size, quality: cfg.quality, background: cfg.background, imageSize: cfg.imageSize, aspectRatio: subject.aspectRatio });
             fs.writeFileSync(`${base}.png`, out.png);
             fs.writeFileSync(`${base}.json`, JSON.stringify({ job: jobName, style: style.name, provider: providerKey, model: cfg.model, config: cfg, variant, subject: subjectKey, refs: refs.map((r) => path.relative(ART, r)), prompt, usage: out.usage, mime: out.mime, ms: Date.now() - t0, at: new Date().toISOString() }, null, 2));
             sent++;
