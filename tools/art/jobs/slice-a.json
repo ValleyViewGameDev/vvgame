@@ -2,8 +2,15 @@
   "name": "slice-a",
   "note": "docs/art-pipeline-plan.md §4 and §6: the recipe test. Four variants of the style, three subjects, two models, plus the Gertrude control in the baseline only. Each subject names its guide image (sent LAST, after the style refs) and the guide sentence that tells the model what the guide is.",
   "models": {
-    "openai": { "model": "gpt-image-2", "quality": "medium", "size": "1024x1024" },
-    "gemini": { "model": "gemini-3-pro-image", "imageSize": "1K" }
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    },
+    "gemini": {
+      "model": "gemini-3-pro-image",
+      "imageSize": "1K"
+    }
   },
   "n": 1,
   "subjects": {
@@ -20,124 +27,205 @@
       "prompt": "SUBJECT: a small thatched farmhouse with a stone chimney, a wooden door and one window, seen from the game camera (top-down three-quarter: roof plane and front wall both visible). The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw the farmhouse so it sits ENTIRELY inside that centre square, its ground contact on the square's bottom edge, with a soft contact shadow; fill the other eight squares with short grass in the style, with a few small props (a stump, a bucket, a flower tuft), and draw the faint grid lines over the grass as thin tile edges. Do not leave the centre tile pale."
     },
     "body-front": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-gertrude.png",
-      "variants": ["baseline", "heavy-outline"],
+      "variants": [
+        "baseline",
+        "heavy-outline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the CHARACTER REFERENCE: a character constructor showing how the game's people are built (a chunky base body, about three and a half heads tall, with swappable heads, hair and clothes); match those proportions and that front-facing standing construction, but draw with MORE detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours and give her a full-length robe and shoes. One figure only, centred, filling most of the frame height, on the plain parchment background. No pixel grid."
     },
     "body-sheet": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-gertrude.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a character TURNAROUND SHEET of one FULL-BODY standing character, head to feet, drawn three times side by side at the same scale on one row: facing the viewer (front), facing left (side profile), and facing away (back). The second-to-last attached image is the CHARACTER REFERENCE: a character constructor showing how the game's people are built (a chunky base body, about three and a half heads tall, with swappable heads, hair and clothes); match those proportions and construction, but draw with MORE detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours and give her a full-length robe and shoes. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "figure-tile": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg", "guides/control-gertrude.png"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg",
+        "guides/control-gertrude.png"
+      ],
       "guide": "guides/figure.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite on the board, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The third-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs), with swappable heads, hair and clothes; match those proportions exactly, but draw with more detail than that reference: a fuller face, clothing folds, trim, hands. The second-to-last attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours, give her a robe to the ankles and shoes. The LAST attached image is a layout guide, a patch of the board grid: the pale centre tile is her footprint, her feet stand on its bottom edge and her body stays within its width; her head and crown may rise into the lighter band above the tile (half a tile of headroom) but NO higher than that band's dashed top. Fill the other squares with short grass in the style and draw the faint grid lines as thin tile edges; do not leave the centre tile or the band pale."
     },
     "figure-front": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-gertrude.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs, the whole figure barely taller than one and a half times its own width), with swappable heads, hair and clothes; match those proportions EXACTLY, do not draw a taller or slimmer figure, but draw with more detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours, give her a robe to the ankles and shoes. One figure only, centred, on the plain parchment background. No pixel grid."
     },
     "figure-sheet": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-gertrude.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a character TURNAROUND SHEET of one FULL-BODY standing character, head to feet, drawn three times side by side at the same scale on one row: facing the viewer (front), facing left (side profile), and facing away (back). The second-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs), with swappable heads, hair and clothes; match those proportions EXACTLY, do not draw taller or slimmer figures, but draw with more detail than that reference: a fuller face, clothing folds, trim and embroidery, hands. The LAST attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours, give her a robe to the ankles and shoes. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "scene": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg", "guides/control-gertrude.png"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg",
+        "guides/control-gertrude.png"
+      ],
       "guide": "guides/scene.png",
-      "variants": ["baseline", "flatter"],
+      "variants": [
+        "baseline",
+        "flatter"
+      ],
       "prompt": "SUBJECT: a board scene with a FARMHOUSE and a CHARACTER together, seen from the game camera (top-down three-quarter: roof plane and front wall both visible). The LAST attached image is a layout guide, a patch of the board grid: the tan 2 x 2 square is the farmhouse's footprint; draw a small thatched farmhouse with a stone chimney, a wooden door and one window so it fills that 2 x 2 square ENTIRELY and stays inside it, its ground contact on the square's bottom edge, with a soft contact shadow. The pale single tile to its right is a character's footprint: draw there a full-body standing figure facing the viewer, feet on the tile's bottom edge, body within the tile's width, her head and crown rising into the lighter band above the tile but no higher than the band's dashed top. The third-to-last attached image is the CHARACTER REFERENCE, a character constructor: the figure is a chunky body about two and a half heads tall (a big head, short body, short legs), drawn with more detail than that reference. The second-to-last attached image is the person to draw: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery; keep her likeness, crown, hair and colours, give her a robe to the ankles and shoes. Fill the remaining squares with short grass in the style with a few small props, draw the faint grid lines as thin tile edges, and do not leave any guide square pale or tan."
     },
     "hotspur": {
       "guide": "guides/control-hotspur.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: the LAST attached image is an existing character drawing from the game: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains. REDRAW him in the reference style: same person, same pose, same framing, same helmet, hair, cloak, tunic and colours, but rendered with the references' outline, shading and detail instead of the smooth vector look. Keep the plain parchment background. Do not draw a pixel grid."
     },
     "hotspur-front": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-hotspur.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs, the whole figure barely taller than one and a half times its own width), with swappable heads, hair and clothes; match those proportions EXACTLY, do not draw a taller or slimmer figure, but draw with more detail than that reference: a fuller face, clothing folds, trim, hands. The LAST attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. One figure only, centred, on the plain parchment background. No pixel grid."
     },
     "hotspur-tile": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg", "guides/control-hotspur.png"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg",
+        "guides/control-hotspur.png"
+      ],
       "guide": "guides/figure.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite on the board, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The third-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs), with swappable heads, hair and clothes; match those proportions exactly, but draw with more detail than that reference: a fuller face, clothing folds, trim, hands. The second-to-last attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. The LAST attached image is a layout guide, a patch of the board grid: the pale centre tile is his footprint, his feet stand on its bottom edge and his body stays within its width; his head and helmet horns may rise into the lighter band above the tile (half a tile of headroom) but NO higher than that band's dashed top. Fill the other squares with short grass in the style and draw the faint grid lines as thin tile edges; do not leave the centre tile or the band pale."
     },
     "hotspur-sheet": {
-      "refs": ["moodboard/GraveyardKeeperPeople.jpeg"],
+      "refs": [
+        "moodboard/GraveyardKeeperPeople.jpeg"
+      ],
       "guide": "guides/control-hotspur.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a character TURNAROUND SHEET of one FULL-BODY standing character, head to feet, drawn three times side by side at the same scale on one row: facing the viewer (front), facing left (side profile), and facing away (back). The second-to-last attached image is the CHARACTER REFERENCE, a character constructor showing how the game's people are built: a chunky base body about TWO AND A HALF heads tall (a big head, a short body, short legs), with swappable heads, hair and clothes; match those proportions EXACTLY, do not draw taller or slimmer figures, but draw with more detail than that reference: a fuller face, clothing folds, trim, hands. The LAST attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "gertrude2-tile": {
-      "refs": ["_candidates/slice-a/approved/openai--baseline-figure-front-1.png"],
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png"
+      ],
       "guide": "guides/figure.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite on the board, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the APPROVED CHARACTER: draw exactly this person again, same likeness, crown, hair, robe, colours, line and shading, and EXACTLY these proportions: about four heads tall from the top of the hair to the feet (the crown adds more), roughly two and a quarter times as tall as she is wide across the sleeves, a large head on an adult build, not a toddler, not stubby. The LAST attached image is a layout guide, a patch of the board grid: the pale centre tile is her footprint, her feet stand on its bottom edge and her body is narrower than the tile; her head and crown rise into the lighter band above the tile and may reach its dashed top but go NO higher. Fill the other squares with short grass in the style and draw the faint grid lines as thin tile edges; do not leave the centre tile or the band pale."
     },
     "hotspur2-front": {
-      "refs": ["_candidates/slice-a/approved/openai--baseline-figure-front-1.png"],
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png"
+      ],
       "guide": "guides/control-hotspur.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The second-to-last attached image is the APPROVED CHARACTER from this game, a queen: match her line, shading, level of detail and EXACTLY her proportions: about four heads tall from the top of the hair to the feet, roughly two and a quarter times as tall as wide across the sleeves, a large head on an adult build, not a toddler, not stubby; draw a man of the same height and build standing beside her would be the same size. The LAST attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. One figure only, centred, on the plain parchment background. No pixel grid."
     },
     "hotspur2-tile": {
-      "refs": ["_candidates/slice-a/approved/openai--baseline-figure-front-1.png", "guides/control-hotspur.png"],
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+        "guides/control-hotspur.png"
+      ],
       "guide": "guides/figure.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite on the board, for the game's top-down three-quarter camera: the figure faces the viewer, standing upright, arms relaxed, feet on the ground with a soft oval contact shadow. The third-to-last attached image is the APPROVED CHARACTER from this game, a queen: match her line, shading, level of detail and EXACTLY her proportions: about four heads tall from the top of the hair to the feet, roughly two and a quarter times as tall as wide across the sleeves, a large head on an adult build, not a toddler, not stubby. The second-to-last attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. The LAST attached image is a layout guide, a patch of the board grid: the pale centre tile is his footprint, his feet stand on its bottom edge and his body is narrower than the tile; his head and helmet rise into the lighter band above the tile and may reach its dashed top but go NO higher. Fill the other squares with short grass in the style and draw the faint grid lines as thin tile edges; do not leave the centre tile or the band pale."
     },
     "hotspur2-sheet": {
-      "refs": ["_candidates/slice-a/approved/openai--baseline-figure-front-1.png"],
+      "refs": [
+        "_candidates/slice-a/approved/openai--baseline-figure-front-1.png"
+      ],
       "guide": "guides/control-hotspur.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a character TURNAROUND SHEET of one FULL-BODY standing character, head to feet, drawn three times side by side at the same scale on one row: facing the viewer (front), facing left (side profile), and facing away (back). The second-to-last attached image is the APPROVED CHARACTER from this game, a queen: match her line, shading, level of detail and EXACTLY her proportions: about four heads tall from the top of the hair to the feet, roughly two and a quarter times as tall as wide across the sleeves, a large head on an adult build, not a toddler, not stubby. The LAST attached image is the person to draw: a young warrior with blond hair and green eyes, a horned iron helmet with a knotwork band and a nose guard, a black fur collar over a purple cloak, and a green tunic with gold trim fastened by an iron skull clasp on chains; keep his likeness, helmet, hair, cloak, tunic and colours, give him a belt, dark trousers and leather boots. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "gertrude3-sheet": {
       "guide": "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "size": "1536x1024",
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height and proportions as the attached figure, not smaller, not shorter, not slimmer: first facing the viewer (reproduce the attached front view faithfully), then facing left (side profile), then facing away (back view). Same likeness, crown, hair, robe, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "hotspur3-sheet": {
       "guide": "_candidates/slice-a/approved/openai--baseline-hotspur2-front-1.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "size": "1536x1024",
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height and proportions as the attached figure, not smaller, not shorter, not slimmer: first facing the viewer (reproduce the attached front view faithfully), then facing left (side profile), then facing away (back view). Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
     "hotspur4-front": {
       "guide": "_candidates/slice-a/approved/openai--baseline-hotspur2-tile-1.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: a FULL-BODY standing character sprite, head to feet, alone. The LAST attached image shows the APPROVED character standing on the centre tile of a grass board: redraw that exact figure, same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading, and EXACTLY the same proportions and build (not taller, not shorter, not slimmer), facing the viewer, standing upright, arms relaxed, on a soft oval contact shadow, centred on a plain parchment background with no grass and no grid. One figure only. No pixel grid."
     },
     "hotspur4-sheet": {
       "guide": "_candidates/slice-a/approved/openai--baseline-hotspur2-tile-1.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "size": "1536x1024",
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image shows the APPROVED character standing on the centre tile of a grass board. Draw that exact figure three times side by side on one row on a plain parchment background (no grass, no grid), all three at EXACTLY the same scale, height, proportions and build as the attached figure, not smaller, not shorter, not slimmer: first facing the viewer (reproduce the attached figure faithfully), then facing left (side profile), then facing away (back view). Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, evenly spaced, nothing else. No pixel grid."
     },
     "hotspur5-sheet": {
       "guide": "_candidates/slice-a/approved/openai--baseline-hotspur4-front-1.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "size": "1536x1024",
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height, width and proportions as the attached figure: the same head size, the same body length, the same leg length, not squashed, not shortened, not widened, not slimmer. First facing the viewer (reproduce the attached front view faithfully, pixel for pixel in proportion), then facing left (side profile, the same height as the front), then facing away (back view, the same height as the front). Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
+    "gertrude4-sheet": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+      "variants": [
+        "baseline"
+      ],
+      "size": "1536x1024",
+      "aspectRatio": "3:2",
+      "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height, width and proportions as the attached figure: the same head size, the same body length, the same leg length, not squashed, not shortened, not widened, not slimmer. First facing the viewer (reproduce the attached front view faithfully, pixel for pixel in proportion), then facing left (side profile, the same height as the front), then facing away (back view, the same height as the front). Same likeness, crown, hair, robe, shoes, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
-      "variants": ["baseline"],
+      "variants": [
+        "baseline"
+      ],
       "prompt": "SUBJECT: the LAST attached image is an existing character drawing from the game: a young queen with a silver jewelled crown, long brown hair, blue eyes and a red robe with gold embroidery. REDRAW her in the reference style: same person, same pose, same framing, same crown, hair, robe and colours, but rendered with the references' outline, shading and detail instead of the smooth vector look. Keep the plain parchment background. Do not draw a pixel grid."
     }
   }
