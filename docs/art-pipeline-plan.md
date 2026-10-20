@@ -242,6 +242,26 @@ atlas. The model paints.
 - **Keying and fringes**: if the winner has no alpha, budget a day for the matting step
   before judging edge quality.
 
+## 7b. Direction change 2026-10-19: full-bodied characters
+
+Once the art is this solid, a head-and-shoulders bust floating on a tile stops working for
+people; the owner wants **full-bodied people and creatures**, and accepts that this means
+basic sprite-frame animation later (walk cycles, a facing per direction). Decided during
+slice A, before any part was generated, so it costs nothing now. Consequences, to be
+designed once the style and the sprite pipeline are proven (slices A-B):
+
+- The body contract (`_body.json`) becomes a full-body rig: a base body (female, male, and
+  creature rigs later) with a head region that keeps today's face / hair / hat / facial
+  hair rules, plus torso, legs and feet regions for tops, bottoms and shoes. The slot list
+  in `avatar-plan.md` §2.2 grows accordingly; the compositor, catalogue and modal are
+  slot-agnostic and stay.
+- Equipment stays as planned (armour as the top, weapon in a hand slot), now on a body.
+- Animation is frames per part, generated the same way as parts (a pose guide per frame):
+  not in scope until the standing figure is right. No skeletal rig, no runtime bones.
+- Slice A grows two subjects to test it: Gertrude full-body front view, and a one-panel
+  turnaround (front, side, back), both against the Graveyard Keeper constructor frame
+  with "more detail than the reference".
+
 ## 8. What slice A needs from the owner
 
 1. API keys for the two bake-off models (suggested: OpenAI gpt-image and Google Gemini
