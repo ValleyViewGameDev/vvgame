@@ -240,7 +240,7 @@ const FarmingPanel = ({
 
               const details =
                 (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
-                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 (item.growtime ? `${strings[458]}${formatDuration(item.growtime)}<br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 

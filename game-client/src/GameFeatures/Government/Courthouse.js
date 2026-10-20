@@ -511,7 +511,7 @@ const CourthousePanel = ({
 
                                     const skillColor = meetsRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                                     const details =
-                                        (resource.requires ? `<span style="color: ${skillColor};">${strings[460] || "Requires:"} ${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
+                                        (resource.requires ? `<span style="color: ${skillColor};">${strings[460] || "Requires:"} ${getLocalizedString(resource.requires, strings)}</span>` : '') +
                                         `${strings[461] || "Cost:"}<div>${formattedCosts}</div>`;
 
                                     // Check if this skill modifies a player attribute

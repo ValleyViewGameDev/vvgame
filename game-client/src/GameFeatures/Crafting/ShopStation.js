@@ -426,18 +426,18 @@ const ShopStation = ({
                 
                 
                 if (effects.length > 0) {
-                  effectsHtml = `<span style="color: var(--color-text-link);">${effects.join(', ')}</span><br>`;
+                  effectsHtml = `<span style="color: var(--color-text-link);">${effects.join(', ')}</span>`;
                 }
                 // weapons show how many hands they take (a two-handed one leaves no hand for a shield)
                 const gearDef = masterResources.find(r => r.type === recipe.type) || recipe;
                 if (isWeaponGear(gearDef)) {
                   const handsLabel = handsOf(gearDef) === 2 ? (strings[10219] || 'Two-handed') : (strings[10218] || 'One-handed');
-                  effectsHtml = `<span>${handsIcon(gearDef)} ${handsLabel}</span><br>` + effectsHtml;
+                  effectsHtml = `<span>${handsIcon(gearDef)} ${handsLabel}</span>` + effectsHtml;
                 }
               }
 
               const regionalHtml = recipe.shopregion
-                ? `<span style="color: var(--color-text-positive);">${(strings[10202] || 'Only sold in {region}').replace('{region}', getLocalizedString(recipe.shopregion, strings))}</span><br>`
+                ? `<span style="color: var(--color-text-positive);">${(strings[10202] || 'Only sold in {region}').replace('{region}', getLocalizedString(recipe.shopregion, strings))}</span>`
                 : '';
 
               const details =

@@ -220,7 +220,7 @@ value rather than trust this page.
   | Action button | `.shared-buttons .btn-basic` + role + size (`SharedButtons.css`) | Lora bold 14, leaf face, `--btn-radius` 12, `--btn-shadow`, presses down 3 px |
   | Card button | `ResourceButton` / `QuestButton` (Kent offers, crafting recipes, shop items, quests) | Berkshire title, Philosopher details, radius 12, `--card-shadow`, state color = leaf (ready) / gray (short, inactive) / sell green (collect) |
   | Chrome button | nav bar buttons, zoom / map / season pills, header links (`App.css`) | round or pill, `--d-pill-*` / `--d-nav-*` tokens |
-  | Close | `<CloseButton />` (`UI/Buttons/CloseButton.js`, class `.close-btn`; `corner` pins it to a modal's top-right) for every panel, modal and chat window | one drawn ×, 32 px box, ink, red on hover |
+  | Close | `<CloseButton />` (`UI/Buttons/CloseButton.js`, class `.close-btn`; `corner` pins it to a modal's top-right) for every panel, modal and chat window | one drawn ×, 32 px hit area with no visible box, secondary ink; on desktop hover the × only darkens to primary ink and grows slightly (no red, no shape behind it; owner 2026-10-20) |
   | Tab | `.tab-button` (`Panel.css`) | Lora, underline when active |
   | Stepper | the `+` / `−` / `Max` beside an amount input | `--btn-radius-sm`, `--btn-shadow-sm` |
   | Dismiss badge | the small round × on a card (Kent offer, notification) | `--radius-round`, berry face |
@@ -403,8 +403,8 @@ one step up (2026-10-20).
 - **12 px is the floor** (`--text-xs`, class `.text-caption`) and only for things that are
   not sentences: counts, tags, timestamps, badges, a "Locked" label.
 - Nothing below 12 px except the two in-board overlays whose size follows the tile, not the
-  scale: the phone status bar (11 px) and timer text drawn over a board object or crafting
-  slot (11 px). Mark them `style-ok`. Decorative glyphs (the butterfly VFX) are not text.
+  scale: timer text drawn over a board object or crafting slot (11 px). The status bar is on
+  the scale: 13 px on desktop, 12 px on phones (2026-10-20). Mark them `style-ok`. Decorative glyphs (the butterfly VFX) are not text.
 - **Phones use the same scale.** `mobile.css` may move a role up or down one step for room
   (a 22 px panel title can be 20), but never takes a sentence under 14 or fine print under 13.
 - **Text inputs are 16 px** (`--text-lg`) on touch, or iOS zooms the page when one gets focus.

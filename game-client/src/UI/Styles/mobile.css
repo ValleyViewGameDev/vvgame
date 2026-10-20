@@ -155,7 +155,7 @@
     width: calc(100% - var(--m-safe-left));
     height: var(--m-status-height);
     line-height: var(--m-status-height);
-    font-size: 11px; /* style-ok: status bar (§9: follows the tile row, not the scale) */
+    font-size: var(--text-xs); /* 12 (was 11, 2026-10-20): now on the scale's floor */
     padding: 0 8px;
     box-sizing: border-box;
   }

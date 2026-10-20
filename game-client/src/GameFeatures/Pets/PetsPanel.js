@@ -176,7 +176,7 @@ const PetsPanel = ({
 
               const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const details =
-                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
               return (

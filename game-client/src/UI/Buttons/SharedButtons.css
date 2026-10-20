@@ -249,7 +249,8 @@
 }
 /* ---------------------------------------------------------------- Close (docs/ui-conventions.md §5)
    The one close control (UI/Buttons/CloseButton.js) for panels, modals and chat: a drawn × in a
-   32px box, primary ink, red on hover. .close-btn--corner pins it to a modal's top-right. */
+   32px hit area (no visible box), secondary ink; on hover the × itself just darkens a touch and
+   grows slightly: no red, no shape behind it. .close-btn--corner pins it to a modal's top-right. */
 .close-btn {
   display: inline-flex;
   align-items: center;
@@ -260,10 +261,9 @@
   flex: 0 0 auto;
   background: transparent;
   border: none;
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: var(--btn-transition);
+  transition: color 0.15s ease, transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .close-btn--corner {
@@ -274,8 +274,8 @@
 }
 @media (hover: hover) {
   .close-btn:hover {
-    color: var(--color-error);
-    background-color: var(--color-bg-negative-tint);
+    color: var(--color-text-primary);
+    transform: scale(1.08);
   }
 }
 .close-btn:active { transform: scale(0.92); }

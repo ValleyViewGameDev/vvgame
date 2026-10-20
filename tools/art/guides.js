@@ -182,6 +182,10 @@ async function main() {
   for (const [name, file] of [['general-store', 'general-store.svg'], ['school', 'school.svg'], ['bank', 'bank.svg'], ['dead-tree', 'dead-tree.svg']]) {
     fs.writeFileSync(path.join(GUIDES, `control-${name}.png`), await control(file));
   }
+  // buildings lane, round 3: the family test (Tudor: Academy, Laboratory, Courthouse; Castle: Armory; Cottage: Adventure Camp; Fantastical: Guild)
+  for (const [name, file] of [['academy', 'academy.svg'], ['laboratory', 'laboratory.svg'], ['courthouse', 'town-hall.svg'], ['armory', 'armory.svg'], ['adventure-camp', 'adventure-camp.svg'], ['guild', 'guild.svg']]) {
+    fs.writeFileSync(path.join(GUIDES, `control-${name}.png`), await control(file));
+  }
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());

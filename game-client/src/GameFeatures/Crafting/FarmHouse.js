@@ -725,7 +725,7 @@ const FarmHouse = ({
                     isCrafting ? craftTimeText :
                     (
                       (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
-                      (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
+                      (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
                       `${craftTimeText}<br>` +
                       (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
                     )
