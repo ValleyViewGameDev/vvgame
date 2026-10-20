@@ -1,6 +1,6 @@
 {
   "name": "tiles-edges",
-  "note": "The grass edge lip (docs/art/slice-b/tiles.md, edging): eight mask panels, grass quadrant over magenta and the inverse, in the four positions so every edge, convex corner and concave corner is drawn in its own lighting. tools/art/edges.js keys the magenta out and cuts the pieces.",
+  "note": "The grass edge lip (docs/art/slice-b/tiles.md, edging): eight mask panels, grass quadrant over magenta and the inverse, in the four positions so every edge, convex corner and concave corner is drawn in its own lighting. tools/art/edges.js keys the magenta out and cuts the pieces. Round 4: two ISLAND panels (grass 2 x 2 centred over magenta, and the inverse) so all four sides are drawn together at one depth; the quadrant panels gave uneven depth and shadow per side.",
   "models": {
     "openai": {
       "model": "gpt-image-2",
@@ -16,9 +16,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-tl.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the top-left 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-tl-inv": {
@@ -27,9 +25,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-tl-inv.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the top-left 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-tr": {
@@ -38,9 +34,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-tr.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the top-right 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-tr-inv": {
@@ -49,9 +43,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-tr-inv.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the top-right 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-bl": {
@@ -60,9 +52,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-bl.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the bottom-left 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-bl-inv": {
@@ -71,9 +61,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-bl-inv.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the bottom-left 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-br": {
@@ -82,9 +70,7 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-br.png",
-      "variants": [
-        "flatter"
-      ],
+      "variants": [],
       "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the bottom-right 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
     },
     "lip-br-inv": {
@@ -93,10 +79,30 @@
         "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
       ],
       "guide": "guides/lip-br-inv.png",
+      "variants": [],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the bottom-right 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-island": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-island.png",
       "variants": [
         "flatter"
       ],
-      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the ONE boundary between grass and magenta: the bottom-right 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Keep that boundary EXACTLY where the thick line is: the grass region is exactly the squares the guide shows as grass, a plain 2 x 2 block (or everything but that block), with one straight horizontal run, one straight vertical run and one corner, nothing stepped, no extra corners. Fill every grass square with exactly the approved grass, edge to edge, so the grass itself reaches the thick line, and then draw the grass LIP overhanging PAST the line into the magenta by about a fifth of a square, scalloped with blades and small tufts and a thin darker shadow just under its edge, following the line around its corner with a rounded outline. Draw the guide's thin grid lines as faint thin tile edges EXACTLY where the guide has them, across the grass and across the magenta alike (they are how the squares are cut apart later); do not draw the thick line. Apart from those thin lines and the overhanging lip, the magenta stays pure flat #ff00ff. The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts. The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the boundary: the centre 2 x 2 block is grass and the twelve squares around it are pure magenta. Keep the boundary EXACTLY on the thick line. Fill every grass square with exactly the approved grass, edge to edge, so the grass reaches the line, then draw the grass LIP overhanging PAST the line into the magenta. THE LIP IS THE SAME ON ALL FOUR SIDES: on the top side, the bottom side, the left side and the right side alike it reaches exactly one fifth of a square (about 50 pixels) past the line, scalloped with the same blades and tufts, with only a very thin darker shadow line (3 pixels at most) along its outer edge and NO broad shadow; the corners of the lip are rounded. Draw the guide's thin grid lines as faint thin tile edges exactly where the guide has them, across the grass and the magenta alike; do not draw the thick line. Apart from the thin lines and the lip, the magenta stays pure flat #ff00ff. No text."
+    },
+    "lip-island-inv": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-island-inv.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts. The LAST attached image is the layout guide, a 4 x 4 grid of equal squares with a thick dark line marking the boundary: the centre 2 x 2 block is pure magenta and the twelve squares around it are grass. Keep the boundary EXACTLY on the thick line. Fill every grass square with exactly the approved grass, edge to edge, so the grass reaches the line, then draw the grass LIP overhanging PAST the line into the magenta. THE LIP IS THE SAME ON ALL FOUR SIDES: on the top side, the bottom side, the left side and the right side alike it reaches exactly one fifth of a square (about 50 pixels) past the line, scalloped with the same blades and tufts, with only a very thin darker shadow line (3 pixels at most) along its outer edge and NO broad shadow; the corners of the lip are rounded. Draw the guide's thin grid lines as faint thin tile edges exactly where the guide has them, across the grass and the magenta alike; do not draw the thick line. Apart from the thin lines and the lip, the magenta stays pure flat #ff00ff. No text."
     }
   }
 }

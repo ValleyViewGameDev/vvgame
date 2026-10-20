@@ -821,8 +821,10 @@ const PixiRenderer = ({
         i++;
         sprite.x = col * TILE_SIZE;
         sprite.y = row * TILE_SIZE;
-        sprite.width = TILE_SIZE;
-        sprite.height = TILE_SIZE;
+        // half a world pixel of overlap: at a fractional zoom the quads' shared edges and the
+        // textures' edge texels otherwise leave a hairline where the page shows through
+        sprite.width = TILE_SIZE + 0.5;
+        sprite.height = TILE_SIZE + 0.5;
 
         const group = byTexture.get(texture);
         if (group) group.push(sprite); else byTexture.set(texture, [sprite]);

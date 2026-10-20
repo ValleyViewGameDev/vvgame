@@ -1,115 +1,56 @@
 {
-  "note": "Cut by tools/art/edges.js from the grass-lip mask panels; full-cell overlays with alpha, drawn over a lower tile by its grass-neighbour mask (PixiRendererTileTextures).",
+  "note": "Cut by tools/art/edges.js: one drawn edge (grass to the north) and one nub from the island panel, turned for the other sides, concave corners as unions; full-cell overlays with alpha, drawn over a lower tile by its grass-neighbour mask (PixiRendererTileTextures).",
   "type": "g",
   "px": 128,
+  "source": "lip-island-1",
   "pieces": {
-    "edge-w": {
-      "file": "g-edge-w.png",
-      "panel": "lip-tl",
-      "cell": [
-        0,
-        2
-      ],
-      "coverage": 0.045
-    },
     "edge-n": {
       "file": "g-edge-n.png",
-      "panel": "lip-tl",
-      "cell": [
-        2,
-        0
-      ],
-      "coverage": 0.044
-    },
-    "convex-nw": {
-      "file": "g-convex-nw.png",
-      "panel": "lip-tl",
-      "cell": [
-        2,
-        2
-      ],
-      "coverage": 0.001
+      "coverage": 0.064
     },
     "edge-e": {
       "file": "g-edge-e.png",
-      "panel": "lip-tr",
-      "cell": [
-        0,
-        1
-      ],
-      "coverage": 0.095
-    },
-    "convex-ne": {
-      "file": "g-convex-ne.png",
-      "panel": "lip-tr",
-      "cell": [
-        2,
-        1
-      ],
-      "coverage": 0.004
+      "coverage": 0.064
     },
     "edge-s": {
       "file": "g-edge-s.png",
-      "panel": "lip-bl",
-      "cell": [
-        1,
-        0
-      ],
-      "coverage": 0.164
+      "coverage": 0.064
     },
-    "convex-sw": {
-      "file": "g-convex-sw.png",
-      "panel": "lip-bl",
-      "cell": [
-        1,
-        2
-      ],
-      "coverage": 0.018
+    "edge-w": {
+      "file": "g-edge-w.png",
+      "coverage": 0.064
+    },
+    "convex-nw": {
+      "file": "g-convex-nw.png",
+      "coverage": 0
+    },
+    "convex-ne": {
+      "file": "g-convex-ne.png",
+      "coverage": 0
     },
     "convex-se": {
       "file": "g-convex-se.png",
-      "panel": "lip-br",
-      "cell": [
-        1,
-        1
-      ],
-      "coverage": 0.001
+      "coverage": 0
     },
-    "concave-se": {
-      "file": "g-concave-se.png",
-      "panel": "lip-tl-inv",
-      "cell": [
-        1,
-        1
-      ],
-      "coverage": 0.026
-    },
-    "concave-sw": {
-      "file": "g-concave-sw.png",
-      "panel": "lip-tr-inv",
-      "cell": [
-        1,
-        2
-      ],
-      "coverage": 0.09
-    },
-    "concave-ne": {
-      "file": "g-concave-ne.png",
-      "panel": "lip-bl-inv",
-      "cell": [
-        2,
-        1
-      ],
-      "coverage": 0.017
+    "convex-sw": {
+      "file": "g-convex-sw.png",
+      "coverage": 0
     },
     "concave-nw": {
       "file": "g-concave-nw.png",
-      "panel": "lip-br-inv",
-      "cell": [
-        2,
-        2
-      ],
-      "coverage": 0.046
+      "coverage": 0.125
+    },
+    "concave-ne": {
+      "file": "g-concave-ne.png",
+      "coverage": 0.125
+    },
+    "concave-se": {
+      "file": "g-concave-se.png",
+      "coverage": 0.125
+    },
+    "concave-sw": {
+      "file": "g-concave-sw.png",
+      "coverage": 0.125
     }
   }
 }

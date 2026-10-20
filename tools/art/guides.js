@@ -181,7 +181,22 @@ async function lipGuide(pos, inverse) {
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}${line}</svg>`)).png().toBuffer();
 }
 
+/** The island lip guides: a grass 2 x 2 in the centre of the 4 x 4 over magenta (every edge and convex corner in one panel), and the inverse (every concave corner). */
+async function lipIslandGuide(inverse) {
+  const t = PX / 4;
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const inIsland = r >= 1 && r <= 2 && c >= 1 && c <= 2;
+    const grass = inverse ? !inIsland : inIsland;
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${grass ? '#78ac14' : '#ff00ff'}" stroke="#5b4a6a" stroke-width="2"/>`);
+  }
+  const line = `<rect x="${t}" y="${t}" width="${2 * t}" height="${2 * t}" fill="none" stroke="#2a1f33" stroke-width="6"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}${line}</svg>`)).png().toBuffer();
+}
+
 async function main() {
+  fs.writeFileSync(path.join(GUIDES, 'lip-island.png'), await lipIslandGuide(false));
+  fs.writeFileSync(path.join(GUIDES, 'lip-island-inv.png'), await lipIslandGuide(true));
   for (const pos of ['tl', 'tr', 'bl', 'br']) {
     fs.writeFileSync(path.join(GUIDES, `lip-${pos}.png`), await lipGuide(pos, false));
     fs.writeFileSync(path.join(GUIDES, `lip-${pos}-inv.png`), await lipGuide(pos, true));

@@ -15,7 +15,7 @@
  * base tiles, plus edges.json. The renderer composes them over the base tile by the cell's
  * grass-neighbour mask (PixiRendererTileTextures).
  *
- *   node tools/art/edges.js [--job tiles-edges] [--from exploration|approved]
+ *   node tools/art/edges.js [--job tiles-edges] [--from exploration|approved] [--n 1]
  */
 const fs = require('fs');
 const path = require('path');
@@ -27,16 +27,7 @@ const args = process.argv.slice(2);
 const job = args.includes('--job') ? args[args.indexOf('--job') + 1] : 'tiles-edges';
 const from = args.includes('--from') ? args[args.indexOf('--from') + 1] : 'exploration';
 
-/** Where each piece lives: panel, cell (row, col). Quadrant layouts: grass in `pos` (or everywhere but `pos` for -inv). */
-const PIECES = {
-  // grass quadrant top-left: cells right of it see grass to the W, below it see grass to the N, the diagonal cell sees NW
-  'edge-w': ['lip-tl', 0, 2], 'edge-n': ['lip-tl', 2, 0], 'convex-nw': ['lip-tl', 2, 2],
-  'edge-e': ['lip-tr', 0, 1], 'convex-ne': ['lip-tr', 2, 1],
-  'edge-s': ['lip-bl', 1, 0], 'convex-sw': ['lip-bl', 1, 2],
-  'convex-se': ['lip-br', 1, 1],
-  // magenta quadrant: the cell at the quadrant's inner corner has grass on two sides
-  'concave-se': ['lip-tl-inv', 1, 1], 'concave-sw': ['lip-tr-inv', 1, 2], 'concave-ne': ['lip-bl-inv', 2, 1], 'concave-nw': ['lip-br-inv', 2, 2],
-};
+const N = args.includes('--n') ? args[args.indexOf('--n') + 1] : '1';
 
 /** Key pure magenta to alpha. Distance in RGB from #ff00ff; soft ramp so the lip's edge keeps its anti-aliasing; despill the green channel of edge pixels. */
 async function keyMagenta(buf) {
@@ -72,20 +63,38 @@ async function keyMagenta(buf) {
 (async () => {
   ensureDir(OUT);
   const dir = path.join(CANDIDATES, job, from === 'approved' ? 'approved' : path.join('exploration', 'openai'));
-  const manifest = { note: 'Cut by tools/art/edges.js from the grass-lip mask panels; full-cell overlays with alpha, drawn over a lower tile by its grass-neighbour mask (PixiRendererTileTextures).', type: 'g', px: PX, pieces: {} };
-  let coverage = {};
-  for (const [piece, [panel, r, c]] of Object.entries(PIECES)) {
-    const file = fs.readdirSync(dir).find((f) => f.includes(`-${panel}-1.png`) || f === `openai--flatter-${panel}-1.png`);
-    if (!file) { console.error(`missing panel ${panel} in ${dir}`); process.exit(1); }
+  const panelCell = async (panel, r, c) => {
+    const file = fs.readdirSync(dir).find((f) => f.endsWith(`-${panel}.png`));
+    if (!file) throw new Error(`missing panel ${panel} in ${dir}`);
     const cell = await sharp(path.join(dir, file)).extract({ left: c * CELL, top: r * CELL, width: CELL, height: CELL }).png().toBuffer();
-    const keyed = await keyMagenta(cell);
+    return keyMagenta(cell);
+  };
+  // SYNTHESIS (the default): the model never draws the four sides at one depth (light from the
+  // upper left makes the lip that hangs DOWN the fullest), so one drawn side is the master and
+  // the rest are turned from it: the edge with the grass to the north (its lip hangs down into
+  // the cell) rotated for the other three sides, the matching convex nub rotated likewise, and
+  // each concave corner as the union of its two edges (both lips meet squarely in the corner).
+  const edgeN = await panelCell(`lip-island-${N}`, 3, 1);
+  const nubNW = await panelCell(`lip-island-${N}`, 3, 3);
+  const rot = (buf, deg) => sharp(buf).rotate(deg, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
+  const union = async (a, b) => sharp(a).composite([{ input: b }]).png().toBuffer();
+  const edges = { n: edgeN, e: await rot(edgeN, 90), s: await rot(edgeN, 180), w: await rot(edgeN, 270) };
+  const pieces = {
+    'edge-n': edges.n, 'edge-e': edges.e, 'edge-s': edges.s, 'edge-w': edges.w,
+    'convex-nw': nubNW, 'convex-ne': await rot(nubNW, 90), 'convex-se': await rot(nubNW, 180), 'convex-sw': await rot(nubNW, 270),
+    'concave-nw': await union(edges.n, edges.w), 'concave-ne': await union(edges.n, edges.e),
+    'concave-se': await union(edges.s, edges.e), 'concave-sw': await union(edges.s, edges.w),
+  };
+  const manifest = { note: 'Cut by tools/art/edges.js: one drawn edge (grass to the north) and one nub from the island panel, turned for the other sides, concave corners as unions; full-cell overlays with alpha, drawn over a lower tile by its grass-neighbour mask (PixiRendererTileTextures).', type: 'g', px: PX, source: `lip-island-${N}`, pieces: {} };
+  const coverage = {};
+  for (const [piece, keyed] of Object.entries(pieces)) {
     const small = await sharp(keyed).resize(PX + 2, PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: PX, height: PX }).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(OUT, `g-${piece}.png`), small);
     const st = await sharp(small).stats();
     coverage[piece] = +(st.channels[3].mean / 255).toFixed(3);
-    manifest.pieces[piece] = { file: `g-${piece}.png`, panel, cell: [r, c], coverage: coverage[piece] };
+    manifest.pieces[piece] = { file: `g-${piece}.png`, coverage: coverage[piece] };
   }
   fs.writeFileSync(path.join(OUT, 'edges.json'), JSON.stringify(manifest, null, 2) + '\n');
   console.log('coverage (share of the cell the lip covers):', coverage);
-  console.log(`wrote ${path.relative(ROOT, OUT)}/ (${Object.keys(PIECES).length} pieces). Next: npm run build:atlas in game-client.`);
+  console.log(`wrote ${path.relative(ROOT, OUT)}/ (${Object.keys(pieces).length} pieces). Next: npm run build:atlas in game-client.`);
 })().catch((e) => { console.error(e.message); process.exit(1); });

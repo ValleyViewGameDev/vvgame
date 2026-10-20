@@ -357,9 +357,16 @@ and it is kept, with these rules:
   corner with both sides grass, edge for a remaining side, convex for a lone diagonal; grass
   then leaves the corner rounding. Lessons: the model ignores a bare quadrant guide (round 1
   drew steps, round 2 drifted half a cell); drawing the guide's thin grid lines on the panel
-  makes it pixel-exact, and the cutter drops those lines by saturation. Other organic types
-  (snow, sand, dirt over slate) still use the rounded corners; a lip for them is the same
-  eight panels with that type's approved tile as the reference.
+  makes it pixel-exact, and the cutter drops those lines by saturation. Round 4 (owner: the depth and
+  shadow differed per side, deepest where the lip hangs down): the model never draws four
+  sides at one depth under upper-left light, so the pieces are SYNTHESISED from one island
+  panel (`jobs/tiles-edges.json` `lip-island`, a grass 2 x 2 centred over magenta): the edge
+  whose grass is to the north is the master, rotated for the other three sides; the
+  matching nub likewise; each concave corner is the union of its two edges. The nub cells
+  came out empty (the lip's corner rounds off inside the edge pieces), so a lone diagonal
+  grass neighbour draws nothing, which reads fine. Other organic types (snow, sand, dirt
+  over slate) still use the rounded corners; a lip for them is the same island panel with
+  that type's approved tile as the reference.
 - **Seams:** a scaled canvas copy of a 124 px atlas frame sampled the sheet's transparent
   gutter and left a half-transparent rim on every tile, a faint grid on the board. Tile
   slots are 132 with a 128 px frame copied 1:1 with smoothing off; the cutter also drops
