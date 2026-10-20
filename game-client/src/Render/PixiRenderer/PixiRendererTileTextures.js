@@ -27,6 +27,7 @@ const BASE_TEXTURE_SIZE = 64;
 const RASTER_TEXTURE_SIZE = 128;  // = the atlas frame for a tile (build-atlas.js TILE_CELL minus its gutter)
 const RASTER_VARIANTS = 16;       // cuts per type (tools/art/tiles.js)
 const CORNER_SHADOW = 'rgba(20, 30, 10, 0.22)';
+const LIP_TYPE = 'g';             // the type whose edge is a drawn lip (public/assets/edges)
 
 // Texture cache - stores pre-rendered textures by key
 const tileTextureCache = new Map();
@@ -842,7 +843,10 @@ export function cornerSignature(tileType, row, col, tileTypes) {
   const corner = (a, b, diag) => {
     if (a === tileType || b === tileType || a !== b) return '-';
     if (!isOrganicTile(a)) return '-'; // only organic ground grows over a neighbour
-    const surrounded = diag === a;
+    // a lone tile hemmed in on a corner by one lower type is rounded by it ("surrounded"),
+    // except grass once the lip exists: the lip's nubs round grass from the OUTSIDE, and
+    // cutting its own corner too left a notch of the lower tile at every lone grass corner
+    const surrounded = diag === a && !(tileType === LIP_TYPE && lipFrame('edge-n'));
     return (surrounded || (CORNER_PRIORITY[a] || 0) > myPriority) ? a : '-';
   };
   return corner(top, left, getNeighbor(tileTypes, row - 1, col - 1, tileType))
@@ -948,7 +952,6 @@ function drawRaster(ctx, texture, size) {
 // THE EDGE LIP (grass overhanging a lower tile)
 // ============================================
 
-const LIP_TYPE = 'g';
 const SIDES = ['n', 'e', 's', 'w'];                       // bits 1, 2, 4, 8
 const DIAGS = ['ne', 'se', 'sw', 'nw'];                   // bits 16, 32, 64, 128
 const CORNER_SIDES = { ne: ['n', 'e'], se: ['s', 'e'], sw: ['s', 'w'], nw: ['n', 'w'] };
