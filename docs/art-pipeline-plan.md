@@ -208,10 +208,44 @@ command, and the old files stay in git. Sidecars make any accepted asset reprodu
 | Slice | What | Owner does | Rough cost |
 |---|---|---|---|
 | A. Recipe test | guides from `_body.json`; `generate.js` with two models; 4 variants × 3 subjects × 2 models + the Gertrude control, 512 px + 45 px contact sheet (section 4) | picks a variant, one narrowing round | ~$5 |
-| B. Bible + first conformant parts | lock the bible; female and male face, two hairstyles, one hat, one top, 4 candidates each; `check.js`; Candidates pane in the Lab | picks from contact sheets | ~$10 |
+| B. Bible, palette, full-body rig, first conformant parts | see §6b | approves the palette; picks from contact sheets | ~$15 |
 | C. The avatar starter set | ~2 faces, 6 hair, 4 facial hair, 5 hats, 6 tops, the bare bust, blink frames; catalogue rows written by `accept.js` | picks; says what to regenerate | $30-60 |
 | D. Two buildings | Farm House and Windmill through the same generator; PNG branch in `build-atlas.js`; on the board beside today's art at 45 and 90 px | judges them on the board | ~$5 |
 | E. Decide the resource overhaul | a costed manifest for the 121 drawn resources and the ~120 board-visible emoji doobers; batch only after D looks right | go / no-go | $100-300 one-off, if go |
+
+### 6b. Slice B in detail
+
+1. **Lock the bible.** The winning panels (flatter farmhouse, flatter scene, the on-tile
+   figures, the Gertrude and Hotspur redraws and turnarounds) become
+   `styles/graveyard-bright/bible/*.png`; the style refs switch from the Graveyard Keeper
+   screenshots to our own panels, so the look stops being "like that game" and becomes
+   "like our game". The preamble is rewritten for the flatter recipe.
+2. **The palette, extracted not invented.** Quantize the bible panels to 40-60 colours,
+   prune and name them by material (grass, earth, thatch, wood, stone, foliage, water,
+   skin base, hair base, metal, cloth accents, one shared outline colour) into
+   `styles/<name>/palette.json`; `palette.js` draws a labelled swatch card from it, sent
+   with every request ("use only these colours"). The palette gets an editor sheet like the
+   other tuning files, so swatches are renamed or nudged there and the card regenerates.
+   Three places it must agree with: the procedural ground tiles (`tileColors.js` adopts the
+   palette's grass and earth entries, since sprites will sit on the real tiles, not on the
+   grass the model painted), the avatar tint palettes (neutral bases live in the art
+   palette, the tints stay in `avatarPalettes.json`; review side by side), and the UI
+   theme (separate, only must not fight). Enforcement: the card during generation, a
+   compliance score in `check.js` (share of opaque pixels within a small colour distance
+   of a palette entry; flags, does not reject), and optional snapping on accept: HARD for
+   board props and buildings (quantize fills to the palette, leave anti-aliased edge pixels
+   alone), SOFT for characters (score only), matching flatter-for-board and
+   baseline-for-figures. Night and dungeons stay renderer grading.
+3. **The full-body rig** (§7b): `_body.json` grows torso, legs and feet regions and the
+   headroom rule (feet on the tile's bottom edge, head up to half a tile above);
+   `guides.js` draws the figure guide from it; the Avatar Lab's rig overlay follows.
+4. **`check.js`**: per-slot conformance against the rig masks (§5) plus the palette score;
+   a contact sheet per id with pass/flag marks.
+5. **The Candidates pane** in the Avatar Lab, and `accept.js` writing catalogue rows.
+6. **First conformant parts, as layers**: the female and male base bodies (lightest skin
+   tone, neutral light), two hairstyles, one hat, one top, each generated ON the base body
+   with "draw only the X" and the slot mask, four candidates each, then the first full
+   composite in the modal. This is where "parts on a rig" is proven for the new look.
 
 A to D is the proof. It needs an API key for each model in the bake-off (in
 `game-server/.env`, never in the client) and a spend cap set on each account before the
@@ -267,6 +301,18 @@ the sidecars). Token use: gpt-image-2 ~10k tokens per image (about 130k total), 
   footprint guide (`guides/figure.png`) is the one to keep.
 - **Turnaround sheets work** (front, side, back in one panel at one scale on gpt-image-2),
   which is the seed of the animation pipeline: pose guides per frame, one call per frame.
+- **Second round (same day): the scene and the male character.** The Farm House drawn into
+  a 2 x 2 footprint (`size: 2` in resources.json, `guides/scene.png`) beside Gertrude on
+  her own tile composed correctly in both baseline and flatter. Hotspur (from
+  `npc-hotspur.svg`: horned helmet, fur collar, purple cloak, green tunic, skull clasp)
+  redrew, stood on a tile at the right proportion, and turned around consistently, from
+  a description of the drawing plus the drawing itself. Two characters of opposite build
+  from one recipe: the character construction is proven.
+
+**Owner's decisions after slice A (2026-10-19):** gpt-image-2 primary, Gemini backup
+only; the **flatter** variant for the board; the baseline on-tile figure proportion
+(about three heads, feet in the tile, head half a tile above) for characters. Open: the
+palette (below).
 
 ## 7b. Direction change 2026-10-19: full-bodied characters
 
