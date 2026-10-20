@@ -242,6 +242,32 @@ atlas. The model paints.
 - **Keying and fringes**: if the winner has no alpha, budget a day for the matting step
   before judging edge quality.
 
+## 7a. Slice A results (run 2026-10-19)
+
+35 panels, `tools/art/_candidates/slice-a/` (sheet.jpg, strip-45px.png; regenerable from
+the sidecars). Token use: gpt-image-2 ~10k tokens per image (about 130k total), Gemini
+3 Pro Image ~3.5k per image (about 54k total). Findings:
+
+- **gpt-image-2 is the primary model.** It held the recipe across all four variants on
+  the board subjects (outline, lit roof plane, shaded front, lower-right shadow, props as
+  crisp shapes, bright) and re-rendered Gertrude in it while keeping her likeness. 50 to
+  165 s per image.
+- **gemini-3-pro-image follows the layout guide more literally but drifts in style**:
+  sketchier line, cartoonier shapes, one shadow on the wrong side, one figure turned
+  three-quarter unasked, one green braid, one 503. 40 to 150 s. Keep it as the backup for
+  layout-strict jobs and for cheap bulk once a bible exists.
+- **Characters must start from a drawing or a constructor-style reference.** The generic
+  "young woman" faces went realistic-storybook on gpt-image-2; the Gertrude redraws and
+  the full-body figures, which had a source drawing and the constructor frame, stayed in
+  the game's register.
+- **Proportion is a prompt rule, not a style property.** "About three and a half heads"
+  produced five-head figures; "two and a half heads, a big head, short legs, barely taller
+  than one and a half times its width" plus the footprint guide produced ~3-head figures
+  that stand in one tile with the crown half a tile above it (the owner's rule). The
+  footprint guide (`guides/figure.png`) is the one to keep.
+- **Turnaround sheets work** (front, side, back in one panel at one scale on gpt-image-2),
+  which is the seed of the animation pipeline: pose guides per frame, one call per frame.
+
 ## 7b. Direction change 2026-10-19: full-bodied characters
 
 Once the art is this solid, a head-and-shoulders bust floating on a tile stops working for
