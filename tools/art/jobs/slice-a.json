@@ -221,6 +221,34 @@
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height, width and proportions as the attached figure: the same head size, the same body length, the same leg length, not squashed, not shortened, not widened, not slimmer. First facing the viewer (reproduce the attached front view faithfully, pixel for pixel in proportion), then facing left (side profile, the same height as the front), then facing away (back view, the same height as the front). Same likeness, crown, hair, robe, shoes, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
     },
+    "gertrude-side": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: one FULL-BODY standing character, alone. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw THE SAME FIGURE seen from the figure's LEFT SIDE in strict profile (the viewer sees one eye, the nose, one ear), standing upright, arms relaxed, at EXACTLY the same scale and placement in the frame as the attached front view: the top of the head at the same height in the frame, the feet at the same height in the frame, the same head size, the same body length and leg length, not squashed, not shortened, not enlarged. Same likeness, crown, hair, robe, shoes, colours, line weight and shading. One figure only, centred, on its own soft oval contact shadow, on the same plain parchment background. No pixel grid."
+    },
+    "gertrude-back": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-figure-front-1.png",
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: one FULL-BODY standing character, alone. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw THE SAME FIGURE seen from BEHIND (the back of the head and the back of the clothes, no face), standing upright, arms relaxed, at EXACTLY the same scale and placement in the frame as the attached front view: the top of the head at the same height in the frame, the feet at the same height in the frame, the same head size, the same body length and leg length, not squashed, not shortened, not enlarged. Same likeness, crown, hair, robe, shoes, colours, line weight and shading. One figure only, centred, on its own soft oval contact shadow, on the same plain parchment background. No pixel grid."
+    },
+    "hotspur-side": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-hotspur4-front-1.png",
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: one FULL-BODY standing character, alone. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw THE SAME FIGURE seen from the figure's LEFT SIDE in strict profile (the viewer sees one eye, the nose, one ear), standing upright, arms relaxed, at EXACTLY the same scale and placement in the frame as the attached front view: the top of the head at the same height in the frame, the feet at the same height in the frame, the same head size, the same body length and leg length, not squashed, not shortened, not enlarged. Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading. One figure only, centred, on its own soft oval contact shadow, on the same plain parchment background. No pixel grid."
+    },
+    "hotspur-back": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-hotspur4-front-1.png",
+      "variants": [
+        "baseline"
+      ],
+      "prompt": "SUBJECT: one FULL-BODY standing character, alone. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw THE SAME FIGURE seen from BEHIND (the back of the head and the back of the clothes, no face), standing upright, arms relaxed, at EXACTLY the same scale and placement in the frame as the attached front view: the top of the head at the same height in the frame, the feet at the same height in the frame, the same head size, the same body length and leg length, not squashed, not shortened, not enlarged. Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading. One figure only, centred, on its own soft oval contact shadow, on the same plain parchment background. No pixel grid."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
       "variants": [
