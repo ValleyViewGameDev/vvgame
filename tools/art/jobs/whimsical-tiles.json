@@ -75,6 +75,17 @@
       "refs": [
         "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
       ]
+    },
+    "pavement-2": {
+      "guide": "guides/patch4-pavement.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2: a new type, large man-made paving slabs near today's #f5bf89.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, pavement only: cut, man-made stone paving slabs. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #f5bf89 (a pale warm peach-tan sandstone): keep exactly that colour as the surface of every slab. Each guide square is divided into SMALLER slabs: most squares into a 2 x 2 of four square slabs, some into two tall or two wide rectangular slabs, a few left as one slab, mixed across the sixteen squares so no pattern repeats; every joint between slabs, inside a square and on the guide's grid lines alike, is the SAME hairline width (about 2 pixels), so minor and major joints read identically and the paving is one continuous surface of small slabs. Each slab in the approved panels' recipe: a flat, smooth, evenly sanded surface, a thin dark outline, a lit top-left edge and a thin shaded lower-right edge, with a faint chip or hairline crack on one slab in four, nothing more. No cobbles, no small stones, no pebbles, no grass, no moss: clean worked stone. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
     }
   }
 }

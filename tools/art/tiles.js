@@ -29,7 +29,7 @@ const TYPES = {
   n: { src: 'slice-b-tiles/approved/openai--flatter-sand-1.png', inset: INSET, name: 'sand' },
   s: { src: 'whimsical-tiles/approved/openai--painterly-slate-1.png', inset: INSET, name: 'slate' },
   x: { src: 'whimsical-tiles/approved/openai--painterly-cobble-1.png', inset: INSET, name: 'cobblestone' },
-  p: { src: 'whimsical-tiles/approved/openai--painterly-pavement-1.png', inset: 0, name: 'pavement' },
+  p: { src: 'whimsical-tiles/approved/openai--painterly-pavement-2-1.png', inset: 0, name: 'pavement' },
 };
 
 const args = process.argv.slice(2);
