@@ -84,6 +84,18 @@ async function sceneGuide() {
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
+/** A building footprint of n x n tiles centred on a (n + 2) square patch of grass: the bible panel for a building alone. */
+async function buildingGuide(n) {
+  const cells = n + 2, t = PX / cells;
+  const rects = [];
+  for (let r = 0; r < cells; r++) for (let c = 0; c < cells; c++) {
+    const inside = r >= 1 && r <= n && c >= 1 && c <= n;
+    rects.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${inside ? '#e8d6a8' : '#8fb86a'}" stroke="#5b7a46" stroke-width="2"/>`);
+  }
+  const box = `<rect x="${t}" y="${t}" width="${n * t}" height="${n * t}" fill="none" stroke="#5b7a46" stroke-width="3"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${rects.join('')}${box}</svg>`)).png().toBuffer();
+}
+
 /** An existing NPC drawing on the parchment, for the redraw controls and the character sources. */
 async function control(file) {
   const png = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', file), 768);
@@ -96,7 +108,10 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'tile.png'), await tileGuide());
   fs.writeFileSync(path.join(GUIDES, 'figure.png'), await figureGuide());
   fs.writeFileSync(path.join(GUIDES, 'scene.png'), await sceneGuide());
+  fs.writeFileSync(path.join(GUIDES, 'building2.png'), await buildingGuide(2));
+  fs.writeFileSync(path.join(GUIDES, 'building3.png'), await buildingGuide(3));
   fs.writeFileSync(path.join(GUIDES, 'control-hotspur.png'), await control('npc-hotspur.svg'));
+  fs.writeFileSync(path.join(GUIDES, 'control-pig.png'), await control('npc-pig.svg'));
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());

@@ -249,6 +249,86 @@
       ],
       "prompt": "SUBJECT: one FULL-BODY standing character, alone. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw THE SAME FIGURE seen from BEHIND (the back of the head and the back of the clothes, no face), standing upright, arms relaxed, at EXACTLY the same scale and placement in the frame as the attached front view: the top of the head at the same height in the frame, the feet at the same height in the frame, the same head size, the same body length and leg length, not squashed, not shortened, not enlarged. Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading. One figure only, centred, on its own soft oval contact shadow, on the same plain parchment background. No pixel grid."
     },
+    "farmhouse-solo": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: the farmhouse alone. The second-to-last attached image is an APPROVED board panel from this game showing a thatched farmhouse on one tile with props around it; redraw THAT EXACT FARMHOUSE, same design, colours, line and shading, but larger: the LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square; the farmhouse fills that 2 x 2 square ENTIRELY and stays inside it, its ground contact on the square's bottom edge, with a soft contact shadow. Fill the surrounding squares with plain short grass in the style, NO props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "deco-stump": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the cut tree stump with a few roots and grass at its base. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, at the same scale relative to a tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-bucket": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the wooden bucket with an iron handle. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, at the same scale relative to a tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-flowers-white": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the tuft of white flowers with green leaves. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, at the same scale relative to a tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-flowers-yellow": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the tuft of yellow flowers with green leaves. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, at the same scale relative to a tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "animal-pig": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/control-pig.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a FARM ANIMAL for the board, a pig, standing, seen from the game's top-down three-quarter camera (its back and side visible, head turned a little toward the viewer), alone on a plain parchment background with a soft oval contact shadow. The second-to-last attached image is an APPROVED board panel from this game: match its line, shading, colours and level of detail exactly. The LAST attached image is the game's existing drawing of this pig: keep its likeness and colours, redraw it in the approved style, a chunky, friendly farm animal about as long as a character is wide. One animal only, centred. No pixel grid."
+    },
+    "animal-cow": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a FARM ANIMAL for the board, a black-and-white dairy cow, standing, seen from the game's top-down three-quarter camera (its back and side visible, head turned a little toward the viewer), a chunky, friendly farm animal with a bell on a collar. The second-to-last attached image is an APPROVED board panel from this game: match its line, shading, colours and level of detail exactly. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "animal-sheep": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a FARM ANIMAL for the board, a woolly white sheep with a dark face and legs, standing, seen from the game's top-down three-quarter camera (its back and side visible, head turned a little toward the viewer), a chunky, friendly farm animal. The second-to-last attached image is an APPROVED board panel from this game: match its line, shading, colours and level of detail exactly. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
       "variants": [

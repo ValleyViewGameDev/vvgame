@@ -148,6 +148,30 @@ The winning panels become the **style bible**: `tools/art/styles/<name>/*.png` p
 those images. Changing the look later means a new bible and a regenerate, which is what
 "a pipeline that lets me rev" means.
 
+## 4b. The bible has lanes (owner, 2026-10-19)
+
+One style guide, several lanes, each with its own approved reference panels, because each
+kind of thing has its own template and the generator must be shown the right one:
+
+- **Characters**: the approved Gertrude and Hotspur fronts, tiles and turnarounds. One tile
+  wide, feet on the tile's bottom edge, head up to half a tile above. Enemies come later,
+  on the same lane rules, once the creature style exists.
+- **Farm animals**: their own lane, their own approved panels, because they will need simple
+  animation and the animal style has to land before any of that. First pair now (Cow, Sheep,
+  from description since they have no drawing; Pig from `npc-pig.svg`).
+- **Buildings, base style**: the approved farmhouse, redrawn ALONE at its true 2 x 2 size as
+  the bible panel; the approved exploration panel keeps its four props, which belong to the
+  deco lane instead. All buildings share this style.
+  - **Crafting stations (2 x 2)**: a sub-bible. Recognisably functional, mostly OPEN-AIR
+    workstations that show the thing being crafted: a back wall, partial side walls, an open
+    front, a cut-away workshop. All of them follow that one template.
+  - **Shops, training buildings and stations (3 x 3)**: closed buildings with doors and
+    windows and SIGNAGE. Signage follows one style across all of them so a player can
+    recognise a building from its sign; signs are imagery only, never text, on any building.
+    The owner decides the design details and the sign per building.
+- **Deco (1 x 1)**: tree stump, bucket, two flower tufts to start (the props from the
+  approved farmhouse panel, each redrawn alone on one tile), then the rest.
+
 ## 5. The pipeline
 
 ```
@@ -319,8 +343,19 @@ feet (the crown adds more), roughly two and a quarter times as tall as wide acro
 sleeves, a large head on an ADULT build. The "two and a half heads" rule from the first
 round made figures stubby and childlike and is retired; the approved figure itself is now
 sent as the proportion reference, which is the general rule: **once a thing is approved,
-it replaces the prose that described it.** Hotspur and the on-tile Gertrude are
-regenerated against it. Open: the palette (below).
+it replaces the prose that described it.** Hotspur and the on-tile Gertrude were
+regenerated against it.
+
+**The approved set, slice A closed (2026-10-19), all gpt-image-2, in
+`_candidates/slice-a/approved/`:** `flatter-farmhouse-1` (board); `baseline-figure-front-1`
+(Gertrude front, THE proportion reference); `baseline-gertrude3-sheet-1` (her turnaround,
+drawn from her approved front in a 1536 x 1024 frame so nothing is shrunk to fit);
+`baseline-hotspur2-tile-1` (Hotspur on a tile, approved before his front: his front and
+turnaround, `baseline-hotspur4-front-1` and `baseline-hotspur4-sheet-1`, were drawn FROM
+the tile figure). Lesson: a turnaround must be drawn from the approved front of the same
+character, in a landscape frame, with "exactly the same scale" stated; the first
+turnarounds shrank the figures to fit a square and drifted in proportion. These six files
+are the bible seed for slice B. Open: the palette (below).
 
 ## 7b. Direction change 2026-10-19: full-bodied characters
 
