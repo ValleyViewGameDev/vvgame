@@ -392,6 +392,13 @@ The overnight lanes are reviewed in `docs/art/slice-b-review.md`. Decided:
   in-game grey stone (`#97968b`), a flat stone with some cracks; cobblestone kept but with
   thinner seams so the scale reads smaller and more real, with subtle moss; a PAVEMENT of
   large man-made tiles near today's `#f5bf89` in the palette.
+- **Tiles APPROVED (round 2):** `grass-2`, `dirt-2`, `slate`, `cobble-3`, `pavement`, `sand`
+  (`tools/art/_candidates/slice-b-tiles/approved/`). The thin grid line the panels carry
+  is NOT to be seen on the board: it exists because the guide shows cell edges; the cut step
+  (`tools/art/tiles.js`, to build) crops each 256 px cell inset by the line's width and
+  resamples to the atlas size, so grass, dirt, slate, cobble and sand tile edge to edge
+  with no seam. Pavement keeps its drawn seams, they are the slab design. Later base tiles
+  are generated from a guide without lines.
 - **3 x 3 buildings need much more exploration:** more imaginative architecture and
   rooflines, real distinction between buildings (not thatch everywhere), and signs that are
   believably attached to the building. The hanging board idea stands; the attachment did not.
