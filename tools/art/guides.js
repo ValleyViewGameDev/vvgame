@@ -173,9 +173,12 @@ async function lipGuide(pos, inverse) {
   const cells = [];
   for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
     const grass = inverse ? !inQuad(r, c) : inQuad(r, c);
-    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${grass ? '#78ac14' : '#ff00ff'}"/>`);
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${grass ? '#78ac14' : '#ff00ff'}" stroke="#5b4a6a" stroke-width="2"/>`);
   }
-  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}</svg>`)).png().toBuffer();
+  // the boundary itself, thick, so the model keeps it exactly on the grid
+  const q = { tl: [[2, 0], [2, 2], [0, 2]], tr: [[2, 0], [2, 2], [4, 2]], bl: [[0, 2], [2, 2], [2, 4]], br: [[4, 2], [2, 2], [2, 4]] }[pos];
+  const line = `<polyline points="${q.map(([x, y]) => `${x * t},${y * t}`).join(' ')}" fill="none" stroke="#2a1f33" stroke-width="6"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}${line}</svg>`)).png().toBuffer();
 }
 
 async function main() {
