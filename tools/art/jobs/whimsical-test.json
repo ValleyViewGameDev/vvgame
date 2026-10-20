@@ -2,13 +2,24 @@
   "name": "whimsical-test",
   "note": "The single-building test of the whimsical brief (docs/art/slice-b/whimsical.md): the Farm House at 2 x 2 in each of the three rendering variants, so the owner picks a rendering before six buildings are drawn. The existing farm-house.svg is NOT sent: the point is a fresh fairy-tale design, not a redraw.",
   "models": {
-    "openai": { "model": "gpt-image-2", "quality": "medium", "size": "1024x1024" }
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
   },
   "n": 1,
   "subjects": {
     "farmhouse": {
       "guide": "guides/building2.png",
       "prompt": "SUBJECT: a small fairy-tale farmhouse: a crooked thatched cottage with a leaning stone chimney, a round-topped door, a flower box under a glowing window, a curl of ivy. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the farmhouse's walls and ground contact fill that 2 x 2 square almost to its edges (the roof and chimney may rise a little above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    },
+    "farmhouse-c": {
+      "guide": "guides/building2.png",
+      "prompt": "CAMERA REFERENCE: the second-to-last attached image is a building from this game drawn in the game's camera; copy ONLY its camera (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), NOT its plain style. SUBJECT: a small fairy-tale farmhouse: a crooked thatched cottage with a leaning stone chimney, a round-topped door, a flower box under a glowing window, a curl of ivy. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the farmhouse's walls and ground contact fill that 2 x 2 square almost to its edges (the roof and chimney may rise a little above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan.",
+      "refs": [
+        "styles/elsinore/bible/flatter-farmhouse-solo-1.webp"
+      ]
     }
   }
 }
