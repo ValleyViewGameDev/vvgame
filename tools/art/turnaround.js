@@ -42,8 +42,9 @@ async function box(file) {
     // placement, not proportion: slide a view vertically so its feet sit on the front's feet line
     const dy = boxes[v].bottom - ref.bottom;
     let img = sharp(args[v]).resize(W, H);
-    if (dy > 0) img = img.extract({ left: 0, top: dy, width: W, height: H - dy }).extend({ bottom: dy, background: boxes[v].bg });
-    else if (dy < 0) img = img.extract({ left: 0, top: 0, width: W, height: H + dy }).extend({ top: -dy, background: boxes[v].bg });
+    // the uncovered strip is filled by mirroring the panel's own parchment, so the grain matches
+    if (dy > 0) img = img.extract({ left: 0, top: dy, width: W, height: H - dy }).extend({ bottom: dy, extendWith: 'mirror' });
+    else if (dy < 0) img = img.extract({ left: 0, top: 0, width: W, height: H + dy }).extend({ top: -dy, extendWith: 'mirror' });
     if (dy) console.log(`${v}: slid ${dy > 0 ? 'up' : 'down'} ${Math.abs(dy)} px to the front's feet line`);
     layers.push({ input: await img.png().toBuffer(), left: i * W, top: 0 });
   }
