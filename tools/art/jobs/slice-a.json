@@ -128,6 +128,13 @@
       "aspectRatio": "3:2",
       "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image shows the APPROVED character standing on the centre tile of a grass board. Draw that exact figure three times side by side on one row on a plain parchment background (no grass, no grid), all three at EXACTLY the same scale, height, proportions and build as the attached figure, not smaller, not shorter, not slimmer: first facing the viewer (reproduce the attached figure faithfully), then facing left (side profile), then facing away (back view). Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, evenly spaced, nothing else. No pixel grid."
     },
+    "hotspur5-sheet": {
+      "guide": "_candidates/slice-a/approved/openai--baseline-hotspur4-front-1.png",
+      "variants": ["baseline"],
+      "size": "1536x1024",
+      "aspectRatio": "3:2",
+      "prompt": "SUBJECT: a character TURNAROUND SHEET. The LAST attached image is the APPROVED FRONT VIEW of a character from this game. Draw that exact figure three times side by side on one row, all three at EXACTLY the same scale, height, width and proportions as the attached figure: the same head size, the same body length, the same leg length, not squashed, not shortened, not widened, not slimmer. First facing the viewer (reproduce the attached front view faithfully, pixel for pixel in proportion), then facing left (side profile, the same height as the front), then facing away (back view, the same height as the front). Same likeness, helmet, hair, cloak, tunic, boots, colours, line weight and shading in all three. Each figure stands on its own soft oval contact shadow, on the plain parchment background, evenly spaced, nothing else. No pixel grid."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
       "variants": ["baseline"],
