@@ -329,6 +329,46 @@
       ],
       "prompt": "SUBJECT: a FARM ANIMAL for the board, a woolly white sheep with a dark face and legs, standing, seen from the game's top-down three-quarter camera (its back and side visible, head turned a little toward the viewer), a chunky, friendly farm animal. The second-to-last attached image is an APPROVED board panel from this game: match its line, shading, colours and level of detail exactly. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it so it sits ENTIRELY inside that centre square, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
     },
+    "deco-stump-full": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the cut tree stump with a few roots and grass at its base. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, but bigger: a decoration fills its tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it LARGE so it fills that centre square almost completely, about nine tenths of the square's width and height, touching neither edge, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-bucket-full": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the wooden bucket with an iron handle. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, but bigger: a decoration fills its tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it LARGE so it fills that centre square almost completely, about nine tenths of the square's width and height, touching neither edge, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-flowers-white-full": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the tuft of white flowers with green leaves. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, but bigger: a decoration fills its tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it LARGE so it fills that centre square almost completely, about nine tenths of the square's width and height, touching neither edge, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
+    "deco-flowers-yellow-full": {
+      "refs": [
+        "_candidates/slice-a/approved/openai--flatter-farmhouse-1.png"
+      ],
+      "guide": "guides/tile.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: one small decoration for the board, alone: the tuft of yellow flowers with green leaves. The second-to-last attached image is an APPROVED board panel from this game; redraw that exact item from it, same design, colours, line and shading, but bigger: a decoration fills its tile. The LAST attached image is a layout guide, a patch of the board grid with one pale centre tile: draw it LARGE so it fills that centre square almost completely, about nine tenths of the square's width and height, touching neither edge, its ground contact near the square's bottom edge, with a soft contact shadow; fill the other eight squares with plain short grass in the style (no props) and draw the faint grid lines as thin tile edges. Do not leave the centre tile pale."
+    },
     "gertrude": {
       "guide": "guides/control-gertrude.png",
       "variants": [
