@@ -354,15 +354,26 @@ it replaces the prose that described it.** Hotspur and the on-tile Gertrude were
 regenerated against it.
 
 **The approved set, slice A closed (2026-10-19), all gpt-image-2, in
-`_candidates/slice-a/approved/`:** `flatter-farmhouse-1` (board); `baseline-figure-front-1`
-(Gertrude front, THE proportion reference); `baseline-gertrude3-sheet-1` (her turnaround,
-drawn from her approved front in a 1536 x 1024 frame so nothing is shrunk to fit);
-`baseline-hotspur2-tile-1` (Hotspur on a tile, approved before his front: his front and
-turnaround, `baseline-hotspur4-front-1` and `baseline-hotspur4-sheet-1`, were drawn FROM
-the tile figure). Lesson: a turnaround must be drawn from the approved front of the same
-character, in a landscape frame, with "exactly the same scale" stated; the first
-turnarounds shrank the figures to fit a square and drifted in proportion. These six files
-are the bible seed for slice B. Open: the palette (below).
+`_candidates/slice-a/approved/`** (`node tools/art/approve.js --job slice-a --list`):
+- Buildings: `flatter-farmhouse-solo-1`, the Farm House alone at its true 2 x 2 on plain
+  grass (it replaced the first approved panel, whose four props now live in the deco lane).
+- Characters: `baseline-figure-front-1` (Gertrude front, THE proportion reference),
+  `baseline-hotspur4-front-1` (Hotspur front, drawn from his approved on-tile figure;
+  that tile panel's image file later went missing from disk, only its sidecar remains),
+  `composed-gertrude-turnaround`, `composed-hotspur-turnaround` (front = the approved file
+  itself; side and back drawn singly in the front's frame and slid to its feet line by
+  `tools/art/turnaround.js`, heights checked by `tools/art/measure.js`).
+- Farm animals (style reference, three-quarter view): `flatter-animal-cow-1`,
+  `flatter-animal-sheep-1`, `flatter-animal-pig-1`.
+- Deco (fill ~nine tenths of the tile): `flatter-deco-stump-full-1`,
+  `flatter-deco-bucket-full-1`, `flatter-deco-flowers-white-full-1`,
+  `flatter-deco-flowers-yellow-full-1`.
+
+Lessons: a turnaround drawn as one three-figure image shrinks and squashes the figures;
+draw side and back singly in the front's own frame and compose. A deco item must be told
+to fill its tile. A character or animal drawn from a description alone drifts unless a
+strong style panel is attached; once one is approved it becomes the reference for the rest.
+These files are the bible seed for slice B. Open: the palette (below).
 
 ## 7b. Direction change 2026-10-19: full-bodied characters
 
