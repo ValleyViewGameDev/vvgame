@@ -24,7 +24,7 @@ import { peekAtlasTexture } from './AtlasTextures';
 
 // Procedural textures are drawn at this size; raster looks use the atlas tile's own size
 const BASE_TEXTURE_SIZE = 64;
-const RASTER_TEXTURE_SIZE = 128;  // = build-atlas.js TILE_CELL
+const RASTER_TEXTURE_SIZE = 128;  // = the atlas frame for a tile (build-atlas.js TILE_CELL minus its gutter)
 const RASTER_VARIANTS = 16;       // cuts per type (tools/art/tiles.js)
 const CORNER_SHADOW = 'rgba(20, 30, 10, 0.22)';
 
@@ -933,8 +933,66 @@ function drawRaster(ctx, texture, size) {
   const source = texture.baseTexture?.resource?.source;
   if (!source) return false;
   const f = texture.frame;
+  // The frame is exactly RASTER_TEXTURE_SIZE (build-atlas.js TILE_CELL = 128 + the gutter), so
+  // this is a 1:1 copy. Smoothing stays off for it: a scaled drawImage samples the pixels
+  // just outside the source rectangle, which are the sheet's transparent gutter, and the
+  // half-transparent edge it leaves on every tile shows the page through as a faint seam.
+  const smoothing = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = f.width !== size; // scaled copies (a lip over a 64 px procedural base) still smooth
   ctx.drawImage(source, f.x, f.y, f.width, f.height, 0, 0, size, size);
+  ctx.imageSmoothingEnabled = smoothing;
   return true;
+}
+
+// ============================================
+// THE EDGE LIP (grass overhanging a lower tile)
+// ============================================
+
+const LIP_TYPE = 'g';
+const SIDES = ['n', 'e', 's', 'w'];                       // bits 1, 2, 4, 8
+const DIAGS = ['ne', 'se', 'sw', 'nw'];                   // bits 16, 32, 64, 128
+const CORNER_SIDES = { ne: ['n', 'e'], se: ['s', 'e'], sw: ['s', 'w'], nw: ['n', 'w'] };
+
+/** The atlas frame for one lip piece, or null when the pieces are not in the atlas (then corners round as before). */
+function lipFrame(piece) {
+  return peekAtlasTexture('edges', `${LIP_TYPE}-${piece}.png`);
+}
+
+/**
+ * Which of a cell's eight neighbours are the lip type (grass), as a bit mask, for a cell that is
+ * not grass itself. Out-of-grid neighbours count as the cell's own type (no lip at the board edge).
+ */
+export function lipMask(tileType, row, col, tileTypes) {
+  if (tileType === LIP_TYPE || !tileTypes || !lipFrame('edge-n')) return 0;
+  const is = (r, c) => getNeighbor(tileTypes, r, c, tileType) === LIP_TYPE;
+  return (is(row - 1, col) ? 1 : 0) | (is(row, col + 1) ? 2 : 0) | (is(row + 1, col) ? 4 : 0) | (is(row, col - 1) ? 8 : 0)
+    | (is(row - 1, col + 1) ? 16 : 0) | (is(row + 1, col + 1) ? 32 : 0) | (is(row + 1, col - 1) ? 64 : 0) | (is(row - 1, col - 1) ? 128 : 0);
+}
+
+/**
+ * Draw the lip pieces for a mask: a concave piece wraps each corner whose two sides are both
+ * grass (it carries both lips), an edge piece covers each remaining grass side, and a convex
+ * nub marks a grass diagonal whose sides are not grass.
+ */
+function drawLip(ctx, size, mask) {
+  if (!mask) return;
+  const side = (s) => (mask >> SIDES.indexOf(s)) & 1;
+  const diag = (d) => (mask >> (4 + DIAGS.indexOf(d))) & 1;
+  const covered = new Set();
+  for (const d of DIAGS) {
+    const [a, b] = CORNER_SIDES[d];
+    if (side(a) && side(b)) {
+      const f = lipFrame(`concave-${d}`);
+      if (f) { drawRaster(ctx, f, size); covered.add(a); covered.add(b); }
+    }
+  }
+  for (const s of SIDES) {
+    if (side(s) && !covered.has(s)) { const f = lipFrame(`edge-${s}`); if (f) drawRaster(ctx, f, size); }
+  }
+  for (const d of DIAGS) {
+    const [a, b] = CORNER_SIDES[d];
+    if (diag(d) && !side(a) && !side(b)) { const f = lipFrame(`convex-${d}`); if (f) drawRaster(ctx, f, size); }
+  }
 }
 
 /** Which of the sixteen cuts a cell shows: a position hash, so neighbours differ and the board does not stripe. */
@@ -963,8 +1021,10 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
 
   // Cache key: source + type + variant + what corner rounding will draw. Nothing
   // position-specific, so every cell that looks the same shares one texture.
-  const signature = cornerSignature(tileType, row, col, tileTypes);
-  const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}`;
+  const mask = lipMask(tileType, row, col, tileTypes);
+  // when the lip handles grass, grass leaves the corner rounding (the lip IS its edge)
+  const signature = cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
+  const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}-${mask}`;
 
   // Return cached texture if available AND still valid
   if (tileTextureCache.has(cacheKey)) {
@@ -990,6 +1050,7 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
     // The cut tile is the whole look; only the edging is drawn over it
     drawRaster(ctx, raster, size);
     drawCornerRounding(ctx, size, signature, variant);
+    drawLip(ctx, size, mask);
   } else if (tileType === 'p') {
     // Special handling for pavement and cobblestone (procedural)
     drawPavementDetails(ctx, size, seed, baseColor);
@@ -1023,8 +1084,9 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
       // Water (w), lava (l), clay (c), dungeon (y) - just base color for now
     }
 
-    // Draw corner rounding
+    // Draw corner rounding, then the grass lip over it
     drawCornerRounding(ctx, size, signature, variant);
+    drawLip(ctx, size, mask);
   }
 
   // Convert to PixiJS texture with error handling

@@ -49,7 +49,10 @@ async function cutType(type, spec) {
     const i = r * 4 + c;
     const left = c * CELL + spec.inset, top = r * CELL + spec.inset, w = CELL - 2 * spec.inset;
     const file = `${type}-${i}.png`;
-    const buf = await sharp(src).extract({ left, top, width: w, height: w }).resize(TILE_PX, TILE_PX, { kernel: 'lanczos3' }).png({ compressionLevel: 9 }).toBuffer();
+    // resample to TILE_PX + 2 and drop the 1 px border: lanczos darkens the outermost row and
+    // column by a couple of units, which read as a faint grid on the board
+    const buf = await sharp(src).extract({ left, top, width: w, height: w }).resize(TILE_PX + 2, TILE_PX + 2, { kernel: 'lanczos3' })
+      .extract({ left: 1, top: 1, width: TILE_PX, height: TILE_PX }).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(OUT, file), buf);
     const { channels } = await sharp(buf).stats().then((s) => ({ channels: s.channels }));
     sum = sum.map((v, k) => v + channels[k].mean);

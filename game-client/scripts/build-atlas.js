@@ -18,7 +18,8 @@
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
  *   avatar/      every file named in game-server/tuning/avatarParts.json   slot = 256 px
  *   tiles/       every .png in public/assets/tiles (tools/art/tiles.js cuts them from the
- *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 128 px
+ *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 132 px (frame 128)
+ *   edges/       every .png in public/assets/edges (tools/art/edges.js, the grass edge lip)  slot = 132 px
  *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
  *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
  *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
@@ -60,7 +61,7 @@ const SHEET_SIZE = 2048;
 const PADDING = 2;                 // transparent gutter inside each slot (stops linear-filter bleed)
 const BASE_CELL = 256;             // one tile's worth of art, enough for DPR 2 at the "closer" zoom (75 px)
 const OVERLAY_CELL = 128;
-const TILE_CELL = 128;             // a ground tile: 2x a desktop tile (64), 1.4x a 2x-phone tile (90)
+const TILE_CELL = 132;             // a ground tile: 128 px of art (2x a desktop tile, 1.4x a 2x-phone tile) plus the gutter, so the frame is exactly 128 and the renderer copies it 1:1
 const slotForSize = (size) => (size >= 4 ? 768 : size >= 2 ? 512 : BASE_CELL);
 const WEBP_QUALITY = 90;
 
@@ -167,6 +168,17 @@ function listTileSources() {
   }));
 }
 
+/** The grass edge-lip pieces (PNG with alpha): `edges/<type>-<piece>.png` (tools/art/edges.js). */
+function listEdgeSources() {
+  const dir = path.join(PUBLIC, 'edges');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.png')).map((file) => ({
+    key: `edges/${file}`,
+    src: path.join(dir, file),
+    cell: TILE_CELL,
+  }));
+}
+
 function listOverlaySources() {
   const dir = path.join(PUBLIC, 'overlays');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.svg')).map((file) => ({
@@ -243,12 +255,12 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v4:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}`);
+  h.update(`v5:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}`);
   return h.digest('hex');
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEdgeSources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced art not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);

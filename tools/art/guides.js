@@ -160,7 +160,29 @@ async function edge4Guide() {
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#8fb86a"/>${cells.join('')}</svg>`)).png().toBuffer();
 }
 
+/**
+ * Edge-lip guides (docs/art/slice-b/tiles.md, the drawn lip): a 4 x 4 patch where one 2 x 2
+ * quadrant is grass and the rest is pure magenta (#ff00ff, a mask colour the generator must
+ * leave untouched), or the inverse. The grass is asked to overhang the boundary; keying the
+ * magenta out leaves the lip with alpha. `pos` names the grass quadrant (tl, tr, bl, br);
+ * `inverse` puts the magenta in that quadrant and grass everywhere else.
+ */
+async function lipGuide(pos, inverse) {
+  const t = PX / 4;
+  const inQuad = (r, c) => ({ tl: r < 2 && c < 2, tr: r < 2 && c >= 2, bl: r >= 2 && c < 2, br: r >= 2 && c >= 2 })[pos];
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const grass = inverse ? !inQuad(r, c) : inQuad(r, c);
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${grass ? '#78ac14' : '#ff00ff'}"/>`);
+  }
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}</svg>`)).png().toBuffer();
+}
+
 async function main() {
+  for (const pos of ['tl', 'tr', 'bl', 'br']) {
+    fs.writeFileSync(path.join(GUIDES, `lip-${pos}.png`), await lipGuide(pos, false));
+    fs.writeFileSync(path.join(GUIDES, `lip-${pos}-inv.png`), await lipGuide(pos, true));
+  }
   ensureDir(GUIDES);
   fs.writeFileSync(path.join(GUIDES, 'head.png'), await headGuide());
   fs.writeFileSync(path.join(GUIDES, 'tile.png'), await tileGuide());

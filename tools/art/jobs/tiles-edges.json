@@ -1,0 +1,102 @@
+{
+  "name": "tiles-edges",
+  "note": "The grass edge lip (docs/art/slice-b/tiles.md, edging): eight mask panels, grass quadrant over magenta and the inverse, in the four positions so every edge, convex corner and concave corner is drawn in its own lighting. tools/art/edges.js keys the magenta out and cuts the pieces.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "lip-tl": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-tl.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the top-left 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-tl-inv": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-tl-inv.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the top-left 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-tr": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-tr.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the top-right 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-tr-inv": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-tr-inv.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the top-right 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-bl": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-bl.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the bottom-left 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-bl-inv": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-bl-inv.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the bottom-left 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-br": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-br.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the bottom-right 2 x 2 quadrant is grass and the other twelve squares are pure magenta. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    },
+    "lip-br-inv": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+        "_candidates/slice-b-tiles/exploration/openai/flatter-edge-grass-dirt-1.png"
+      ],
+      "guide": "guides/lip-br-inv.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "SUBJECT: a GROUND EDGE panel for a tile mask. The second-to-last-but-one attached image is the game's approved grass; the second-to-last attached image shows the EDGE LOOK wanted: where grass meets other ground it OVERHANGS the boundary with a soft rounded lip of blades and small tufts that encroach about a fifth of a square past the boundary, with a little dimension (the lip is slightly raised, a thin darker shadow line just under its edge). The LAST attached image is the layout guide: the bottom-right 2 x 2 quadrant is pure magenta and the other twelve squares are grass. Fill every grass square with exactly the approved grass, edge to edge, and draw the grass LIP overhanging into the magenta along every grass-to-magenta boundary, following the boundary around its corners with a rounded outline (convex corners round outward, concave corners round inward). The MAGENTA MUST STAY PURE FLAT #ff00ff everywhere the lip does not cover it: it is a mask, not ground; draw no dirt, no texture, no shadow and no grid lines on it. No text."
+    }
+  }
+}
