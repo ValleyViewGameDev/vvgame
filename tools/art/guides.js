@@ -135,6 +135,22 @@ async function patch4Guide() {
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#f3e7b0"/>${cells.join('')}</svg>`)).png().toBuffer();
 }
 
+/**
+ * Round 2 (tiles.md "Round 2"): the same 4 x 4 patch pre-filled with the TARGET colour of a
+ * tile type (today's tileColors.js value), so the model paints its texture over the colour
+ * the game already uses instead of inventing one (round 1's pale guide gave sand for dirt).
+ *   patch4-<type>.png   dirt #c98f59, slate #97968b, cobble #acaa89, pavement #f5bf89, sand #e0ca24
+ */
+const PATCH4_COLOURS = { dirt: '#c98f59', slate: '#97968b', cobble: '#acaa89', pavement: '#f5bf89', sand: '#e0ca24', grass: '#82bb4d' };
+async function patch4ColourGuide(fill) {
+  const t = PX / 4;
+  const cells = [];
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="${fill}" stroke="#4a4036" stroke-width="2"/>`);
+  }
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="${fill}"/>${cells.join('')}</svg>`)).png().toBuffer();
+}
+
 async function edge4Guide() {
   const t = PX / 4;
   const cells = [];
@@ -154,6 +170,7 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'building3.png'), await buildingGuide(3));
   fs.writeFileSync(path.join(GUIDES, 'patch4.png'), await patch4Guide());
   fs.writeFileSync(path.join(GUIDES, 'edge4.png'), await edge4Guide());
+  for (const [type, hex] of Object.entries(PATCH4_COLOURS)) fs.writeFileSync(path.join(GUIDES, `patch4-${type}.png`), await patch4ColourGuide(hex));
   fs.writeFileSync(path.join(GUIDES, 'control-hotspur.png'), await control('npc-hotspur.svg'));
   fs.writeFileSync(path.join(GUIDES, 'control-pig.png'), await control('npc-pig.svg'));
   // slice B, buildings lane: the tree envelope and the "redraw this, keep its identity" controls
@@ -161,10 +178,14 @@ async function main() {
   for (const [name, file] of [['dairy', 'dairy.svg'], ['mill', 'mill.svg'], ['warriors-den', 'warriors-den.svg'], ['oak-tree', 'oak-tree.svg'], ['pine-tree', 'pine-tree.svg']]) {
     fs.writeFileSync(path.join(GUIDES, `control-${name}.png`), await control(file));
   }
+  // buildings lane, round 2: the 3 x 3 explorations (General Store, School, Bank; the Inn has no old drawing) and the Dead Tree
+  for (const [name, file] of [['general-store', 'general-store.svg'], ['school', 'school.svg'], ['bank', 'bank.svg'], ['dead-tree', 'dead-tree.svg']]) {
+    fs.writeFileSync(path.join(GUIDES, `control-${name}.png`), await control(file));
+  }
   const gertrude = await svgToPng(path.join(ROOT, 'game-client', 'public', 'assets', 'resources', 'npc-gertrude.svg'), 768);
   // on the same parchment as the head guide so the model reads it as a drawing, not a sticker
   fs.writeFileSync(path.join(GUIDES, 'control-gertrude.png'), await sharp({ create: { width: PX, height: PX, channels: 4, background: '#f6f1e6' } }).composite([{ input: gertrude, left: (PX - 768) / 2, top: (PX - 768) / 2 }]).png().toBuffer());
-  console.log('wrote', path.relative(ROOT, GUIDES) + '/{head,tile,figure,scene,building2,building3,tree,control-*}.png');
+  console.log('wrote', path.relative(ROOT, GUIDES) + '/{head,tile,figure,scene,building2,building3,tree,patch4,edge4,control-*}.png');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
