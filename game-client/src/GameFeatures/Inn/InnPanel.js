@@ -77,7 +77,8 @@ export default function InnPanel({
   };
 
   const details = resting
-    ? `<span style="color: var(--color-text-negative);">${(strings[2107] || 'This Inn is resting. Ready again in {time}.').replace('{time}', formatCountdown(restEnd, now))}</span>`
+    // spans are block-level in the card's details: the message, then the countdown on its own line
+    ? `<span style="color: var(--color-text-negative);">${strings[2107] || 'The Inn is being prepared.'}</span><span>⏳ ${formatCountdown(restEnd, now)}</span>`
     : `${strings[2106] || 'Restores full health'}<br>` +
       (fullHealth ? `<span style="color: var(--color-text-negative);">${strings[2108] || 'You are already at full health.'}</span>` : '') +
       `<span style="color: ${affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)'}; display: block;">💰 ${costMoney.toLocaleString()}</span>`;
