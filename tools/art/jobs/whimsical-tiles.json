@@ -1,0 +1,80 @@
+{
+  "name": "whimsical-tiles",
+  "note": "The six approved tile types (slice-b-tiles) redrawn with the whimsical painterly ground rendering, same target colours, same guides (docs/art/slice-b/whimsical.md).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "grass": {
+      "guide": "guides/patch4.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2: smaller tufts, today's subtle yellow dots and rare white dots as grass accents (not flowers).",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, grass only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares, edge to edge, with exactly the same short meadow grass that surrounds the farmhouse and the stump in the approved panels (the same green, around #79a826 with lighter blades around #8db425, the same soft leafy fill). The fill should read as an almost flat green carpet: the tufts must be SMALL and faint, each no taller than one twentieth of a square, only one or two per square and some squares with none, drawn as a few short darker blades, never as a bush or a clump. Add very subtle accents that are part of the grass: a few tiny pale yellow-green dots the size of a single seed head, only slightly lighter than the grass, and rarely a single tiny white dot. These accents are NOT flowers: no petals, no stems, no circles wider than a blade, no bright yellow blobs. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    },
+    "dirt": {
+      "guide": "guides/patch4-dirt.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2: today's colour #c98f59, no pebbles, subtler.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, packed earth only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #c98f59 (a warm light tan-brown): keep exactly that colour as the base of every square, not darker, not yellower. Paint bare packed farm earth over it, edge to edge: a matte, even fill with a faint fine grain, a few small flat clods drawn as slightly darker tan-brown shapes with a thin outline, and a few tiny specks a shade lighter. NO pebbles, NO round stones, NO glossy highlights, nothing that reads as a rock; keep every mark small and low contrast so the earth looks calm and subtle. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    },
+    "slate": {
+      "guide": "guides/patch4-slate.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2: the in-game SLATE, flat grey stone #97968b with a few thin cracks.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, slate only: flat natural grey stone ground. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #97968b (a flat mid grey with a hint of warmth): keep exactly that grey as the base of every square. Each square is one flat, smooth slab of slate, even in tone with a faint fine grain. About half the squares carry one or two thin dark CRACKS, hairline lines that branch once like a Y, with a faint lighter line along one side; the other squares have only two or three faint small specks. No cobbles, no bricks, no mortar, no pebbles, no separate stones: a flat slab of stone with a few cracks, nothing more. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    },
+    "cobble": {
+      "guide": "guides/patch4-cobble.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2 retry of cobble-2 (image 8 of 10): cobble-2's moss was bright yellow-green and in most seams; this one asks for muted, rare moss and matte stones.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, cobblestone only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #acaa89 (a warm khaki grey): keep that as the colour of the cobbles. Fill ALL sixteen squares, edge to edge, with rounded cobbles packed tightly, about five or six cobbles across each square, in the approved panels' recipe: each cobble a flat MATTE lit top with a thin dark outline and a thin shaded lower-right edge, no glossy rim, no wet shine. The seams between cobbles must be VERY THIN, a hairline of dark outline with the cobbles almost touching, no wide mortar, so the paving reads as small and real. Moss: very subtle, a muted dusty green (not bright, not yellow), only in a few seams, about one small patch per square and some squares with none, never on top of a cobble. Keep the cobbles inside each guide square. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    },
+    "pavement": {
+      "guide": "guides/patch4-pavement.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2: a new type, large man-made paving slabs near today's #f5bf89.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, pavement only: cut, man-made stone paving slabs. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #f5bf89 (a pale warm peach-tan sandstone): keep exactly that colour as the surface of every slab. Each guide square is ONE large square paving slab, its joints lying exactly on the guide's grid lines (a few squares may instead be split once into two rectangular slabs). Each slab in the approved panels' recipe: a flat, smooth, evenly sanded surface, a thin dark outline, a lit top-left edge and a thin shaded lower-right edge, with a faint chip or hairline crack on one slab in four, nothing more. No cobbles, no small stones, no pebbles, no grass, no moss: clean worked stone. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    },
+    "sand": {
+      "guide": "guides/patch4-sand.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2, if budget allows: sand that is clearly sand, today's colour #e0ca24.",
+      "prompt": "STYLE REFERENCE: the attached farmhouse panel is from this game; the GRASS around it shows the ground rendering wanted here: painterly, softly textured, a deeper and richer tone with subtle lighter and darker patches, no outline, nothing flat. Render the ground below in THAT rendering while keeping its own colour and content. SUBJECT: a GROUND TEXTURE panel, sand only: dry beach or dune sand. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #e0ca24 (a bright warm yellow sand): keep exactly that colour as the base of every square. Fill ALL sixteen squares, edge to edge, with fine dry sand in the approved panels' recipe: an even fill with a faint fine grain, a few soft shallow wind ripples drawn as thin slightly darker curved lines, and a few tiny lighter specks. NO pebbles, NO stones, NO shells, NO glossy highlights, nothing that reads as earth or clay. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
+      ]
+    }
+  }
+}

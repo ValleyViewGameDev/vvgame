@@ -62,3 +62,24 @@ What we impose that the references do not have:
 inked, rendered), one image each, no old drawing sent (a fresh design is the point). Then
 the owner picks a rendering and six buildings are drawn in it: Farm House, Magic Shop,
 Laboratory, Inn, Bank, Guild, two candidates each.
+
+## 3. Decisions 2026-10-20 and the tile question
+
+- **Rendering: PAINTERLY** (owner). The six buildings: Farm House (2 x 2), Magic Shop,
+  Laboratory, Helena's House, Bank, Warrior's Den (3 x 3), two candidates each
+  (`tools/art/jobs/whimsical-buildings.json`). Helena's House is a NEW building, an Inn
+  functionally, with its own art and name, placed near Helena; its reference is the
+  hillside house (`refs/helenas-house.webp`): a round door in a grassy mound.
+- **Tiles.** The owner asked why the approved tiles cannot serve this style. Answer: most
+  of them can. Tiles are the quietest layer on the board, and the approved grass, dirt and
+  sand are already near-flat at 45 px, so what changes between the two styles is TONE and
+  RENDERING, not design: the whimsical farmhouse panels sit on a deeper, richer, softly
+  mottled grass with no outline, where the elsinore grass is a brighter, flatter green with
+  crisp blades. Slate and pavement carry the elsinore recipe's thin outline and lit edge,
+  which would read as crisper than a painterly building beside them. So:
+  `tools/art/jobs/whimsical-tiles.json` redraws the six approved types with the same
+  guides, colours and content rules, with the painterly farmhouse panel attached as the
+  ground-rendering reference. Expected outcome: grass, dirt and sand change tone only
+  (either set could ship); slate and pavement lose the outline and gain soft mottling. The
+  cut-and-atlas step is the same for both styles, so getting tiles into the game soon does
+  not wait on this decision: build the cut step now, swap the panels later.
