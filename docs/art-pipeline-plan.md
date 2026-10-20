@@ -399,6 +399,11 @@ The overnight lanes are reviewed in `docs/art/slice-b-review.md`. Decided:
   resamples to the atlas size, so grass, dirt, slate, cobble and sand tile edge to edge
   with no seam. Pavement keeps its drawn seams, they are the slab design. Later base tiles
   are generated from a guide without lines.
+- **Trees APPROVED (round 2):** the four oak recolours (`oak-summer-a`, `oak-summer-b`,
+  `oak-autumn-gold`, `oak-autumn-red`) for random use beside the approved oak, the shorter
+  pine `pine-tree-c`, and the dead trees `dead-tree-brown` and `dead-tree-black`
+  (`tools/art/_candidates/slice-b-buildings/approved/`). Tree rule stands: one tile of
+  headroom; the renderer needs a 1 x 2 sprite for trees (today it draws size x size).
 - **3 x 3 buildings need much more exploration:** more imaginative architecture and
   rooflines, real distinction between buildings (not thatch everywhere), and signs that are
   believably attached to the building. The hanging board idea stands; the attachment did not.
