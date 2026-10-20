@@ -1,75 +1,66 @@
-# Slice B, buildings lane (2026-10-19, round 2 2026-10-20)
+# Slice B, buildings lane (2026-10-19; round 2 and round 3 2026-10-20)
 
-Status: round 1 reviewed (two approvals, below); round 2 CANDIDATES, nothing new approved. Round 1
-spent 10 images, round 2 spent 22 of its 24 (about 190k tokens, gpt-image-2 medium, 55 to 122 s
-each; three requests failed on the network with no image and were re-sent by the same command).
-Job: `tools/art/jobs/slice-b-buildings.json`; run with
-`node tools/art/generate.js --job slice-b-buildings --style elsinore --models openai`, sheet with
-`node tools/art/sheet.js --job slice-b-buildings`. Candidates and sidecars live under
-`tools/art/_candidates/slice-b-buildings/` (gitignored, regenerable from the sidecars).
-Guides: `tools/art/guides/tree.png`; controls `control-{dairy,mill,warriors-den,oak-tree,pine-tree}.png`
-(round 1) and `control-{general-store,school,bank,dead-tree}.png` (round 2), all drawn by `guides.js`.
+Status: round 3 CANDIDATES (the owner's family rules applied), nothing new approved. Spend so far:
+round 1 10 images, round 2 22, round 3 18 of its 22 (gpt-image-2 medium, 35 to 43 s each, about
+170k tokens; five requests failed on the network with no image and were re-sent by the same
+command). Job: `tools/art/jobs/slice-b-buildings.json`; run with
+`node tools/art/generate.js --job slice-b-buildings --style elsinore --models openai [--subjects a,b]`,
+sheet with `node tools/art/sheet.js --job slice-b-buildings`. Candidates and sidecars live under
+`tools/art/_candidates/slice-b-buildings/` (gitignored, regenerable from the sidecars). Guides:
+`tools/art/guides/tree.png`; controls `control-{dairy,mill,warriors-den,oak-tree,pine-tree}.png`
+(round 1), `control-{general-store,school,bank,dead-tree}.png` (round 2),
+`control-{academy,laboratory,courthouse,armory,adventure-camp,guild}.png` (round 3), all from `guides.js`.
 
-Approved so far (`approved/`): `openai--flatter-dairy-b-1.png` (the 2 x 2 crafting-station
-sub-bible panel) and `openai--flatter-oak-tree-1.png` (the Oak Tree).
+Approved (`approved/`): the Dairy `flatter-dairy-b-1` (the 2 x 2 crafting-station panel), the Oak
+`flatter-oak-tree-1` and its four recolours, the Pine `flatter-pine-tree-c-1`, the Dead Trees
+`flatter-dead-tree-brown-1` / `-black-1`.
 
 ## For the owner to approve
 
 Everything is in `tools/art/_candidates/slice-b-buildings/exploration/openai/` (`flatter-<key>-1.png`).
-Two sheets: `sheet.png` (every candidate, 512 px plus the 90 and 45 px board thumbnails) and
-`buildings-round2.png` (the thirteen new 3 x 3 buildings side by side at 512 px, with the panel at
-90 px and the building cut to its footprint at 135 px, which is 3 tiles at 45 px, plus round 1's
-den-a as the baseline). Details for every file are in "Round 2" at the end of this doc.
+Sheets: `sheet.png` (every candidate at 512 px plus 90 and 45 px thumbnails) and
+`buildings-round3.png` (round 3 grouped by family, one labelled row per family, each panel at 512 px
+with the building cut to its 3 x 3 footprint at 135 px, the two Mills and the two store-a redos in
+their own row). Details for every file are in "Round 3" at the end of this doc.
 
-**Round 2, 3 x 3 buildings (thirteen explorations; pick two or three to build the sub-bible from)**
-- Warrior's Den: `flatter-den-d-1` (stone, slate, hipped roof, corner turret; wall-bracket sign),
-  `flatter-den-e-1` (planks, wooden shingles, gable facing the viewer; flat plaque),
-  `flatter-den-f-1` (stone, clay tile, two storeys, dormer; sign under the eave)
-- General Store: `flatter-store-a-1` (timber framing, clay tile, overhanging upper floor on
-  brackets; wall bracket), `flatter-store-b-1` (planks, thatch, gable, propped shop shutter; post sign)
-- School: `flatter-school-a-1` (pale plaster, slate, hipped roof, bell cupola; flat plaque),
-  `flatter-school-b-1` (stone, clay tile, gable with a dormer and a bell niche; under the eave)
-- Inn: `flatter-inn-a-1` (stone below, timber framing above, overhang on brackets, thatch; wall
-  bracket), `flatter-inn-b-1` (planks, shingles, gable with a dormer; post sign), `flatter-inn-c-1`
-  (timber framing, clay tile, hipped, two chimneys; under the eave)
-- Bank: `flatter-bank-a-1` (dressed stone, slate, hipped, corner tower, pediment; flat plaque),
-  `flatter-bank-b-1` (plaster with stone corners, clay tile, two storeys; under the eave),
-  `flatter-bank-c-1` (dressed stone, shingles, gable, lock-plated doors; wall bracket)
-- My picks for the sub-bible: **store-a, bank-a, store-b** (reasons in Round 2 §4).
+**Round 3 (2026-10-20 afternoon): the family test, 18 images**
+- Mill (2 x 2, the owner's swap): `flatter-mill-d-1` (swap, wheel as in mill-b), `flatter-mill-e-1`
+  (swap, wheel lowered so the sails stay inside the footprint)
+- General Store redo as pure Tudor: `flatter-store-c-1` (store-a edited: thatch, no chimney, post
+  sign in a yard), `flatter-store-d-1` (fresh draw: gable end, jetty, thatch, post sign)
+- TUDOR: `flatter-school-c-1` (thatch, ochre door, open book), `flatter-academy-a-1` (green slate,
+  palette board), `flatter-laboratory-a-1` (plum slate, flask), `flatter-courthouse-a-1` (grey slate,
+  jetty, scales; drawn 3 x 3 for the test)
+- CASTLE: `flatter-bank-d-1` (dressed stone, square tower, red doors, coin bag), `flatter-den-g-1`
+  (den-d with a flat placard), `flatter-armory-a-1` (battlements, right-hand turret, shield)
+- COTTAGE: `flatter-inn-d-1` (inn-b with the post inside the square), `flatter-store-e-1` (store-b
+  filled to the edges), `flatter-camp-a-1` (log cabin, canvas awning, campfire, tent signpost)
+- FANTASTICAL, the Guild: `flatter-guild-a-1` (crooked tower), `flatter-guild-b-1` (grown from an
+  oak), `flatter-guild-c-1` (stage hall with mask beam-ends and a rose window), `flatter-guild-d-1`
+  (the crooked tower again with the camera named)
+- My seed picks per family (reasons in Round 3 §7.6): **Tudor academy-a, Castle bank-d, Cottage
+  camp-a, Fantastical guild-c**; Mill **mill-e**; Tudor General Store **store-c**.
 
-**Round 2, trees**
-- Oak colour variations (recolours of the approved oak, same shape): `flatter-oak-summer-a-1`
-  (light yellow-green), `flatter-oak-summer-b-1` (deep green), `flatter-oak-autumn-gold-1`,
-  `flatter-oak-autumn-red-1`
-- Pine, shorter: `flatter-pine-tree-c-1` (came out about 5% shorter, not 10%; same width)
-- Dead Tree: `flatter-dead-tree-brown-1`, `flatter-dead-tree-black-1`
+**Round 2 files still open** (superseded in part by the family rules): Warrior's Den `den-d/e/f`,
+General Store `store-a/b`, School `school-a/b`, Inn `inn-a/b/c`, Bank `bank-a/b/c`; Mill `mill-b/c`.
+Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
 
-**Round 2, Mill (2 x 2)**: `flatter-mill-b-1` (the previous draft edited: machine moved right,
-windmill doubled, at the left end), `flatter-mill-c-1` (fresh draw from the approved Dairy:
-machine left, windmill doubled, at the centre). Both now poke the sails above the footprint.
+### Decisions so far (owner, 2026-10-20)
 
-**Round 1 files still open**: `flatter-dairy-a-1` (the other Dairy draw), `flatter-den-a/b/c-1`
-(the thatch-template Dens, superseded by round 2), `flatter-oak-tree-b-1` (the 1.7-tile oak),
-`flatter-pine-tree-1` and `flatter-pine-tree-b-1` (the pines; b is the one round 2 shortened).
-
-### Round 1 decisions (owner, 2026-10-20 morning)
-
-1. Crafting-station template APPROVED; `flatter-dairy-b-1` is the sub-bible panel for every 2 x 2
-   station (`approved/openai--flatter-dairy-b-1.png`). Side walls all the way forward is fine.
-2. Mill: right, but the machine must not sit dead centre and the windmill should be larger (round 2).
-3. 3 x 3 buildings: much more exploration needed: imaginative architecture and rooflines, real
-   distinction per building (not thatch everywhere), and signs believably attached. The hanging
-   board stands; the attachment did not (round 2).
-4. Oak `flatter-oak-tree-1` APPROVED (the 1.5-tile one, `approved/openai--flatter-oak-tree-1.png`),
-   colour variations wanted, two in autumn colours. Pine `flatter-pine-tree-b-1` close: 10% shorter
-   at the same width. Dead Tree wanted, brown and black (round 2).
+1. Crafting-station template APPROVED; `flatter-dairy-b-1` is the panel for every 2 x 2 station.
+2. Mill: right, but swap the floor: the millstone LEFT, lined up under the windmill it is connected
+   to (one machine), sacks of flour and sugar RIGHT (round 3).
+3. 3 x 3 buildings: round 1 too uniform; round 2 had the variety but mixed styles (store-a: Tudor
+   framing under clay tile with a castle chimney; den-a: castle stone under cottage thatch) and
+   signs on brackets. Replaced by the FOUR FAMILIES and the signage rule
+   (`docs/art-pipeline-plan.md` §7c; prompt-ready paragraphs in Round 3 §7.2).
+4. Trees: the oak, its recolours, the shorter pine and the dead trees APPROVED (round 2).
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 
 Source of truth: `tools/art/styles/elsinore/bible/flatter-farmhouse-solo-1.webp` (the Farm House
 alone on its 2 x 2). It is the first style ref every request already carries, so the prompts say
-"the FIRST attached image" instead of attaching it a second time. These rules describe it; the file
-outranks them (once a thing is approved it replaces the prose).
+"the FIRST attached image" instead of attaching it a second time. The file outranks the prose.
 
 1. **Camera.** Top-down three-quarter: the roof plane and the front wall both visible, verticals
    straight up, nothing isometric. The roof takes roughly the top half of the footprint, the front
@@ -78,12 +69,11 @@ outranks them (once a thing is approved it replaces the prose).
    The roof ridge runs along the square's top edge; the foundation sits on the bottom edge. No
    headroom for buildings: nothing rises above the top tile.
 3. **Roof plane.** Golden thatch drawn as a few big crisp tufted rows (not hair texture), lit on
-   the upper left with one shadow tone on the right, a pegged wooden ridge beam along the top, a
-   grey stone chimney at the upper right.
+   the upper left with one shadow tone on the right, a pegged wooden ridge beam along the top.
 4. **Front wall.** Cream plaster framed by grey field stones at the corners and along the base, on
    a one-stone-high foundation course. Every stone is one outlined shape with one highlight.
 5. **Door and window.** Dark brown vertical planks with an iron ring; one shuttered window with a
-   blue pane. The farmhouse has the door left of centre; the templates below move it to the centre.
+   blue pane.
 6. **Line, shading, shadow.** One dark outline around every object and every part; one shadow tone
    and one highlight per colour ("flatter"); a soft contact shadow on the grass to the lower right,
    light from the upper left.
@@ -106,22 +96,16 @@ the identity cues change):
 > the lower-right contact shadow and the colours are copied from the farmhouse in the FIRST attached
 > image: this station stands in the same village.
 
-Then: "The second-to-last attached image is the game's OLD drawing of the [station]: keep what makes
-it recognisable ([cues]) but do NOT copy its closed shape; the template above wins." and the
-building2.png guide sentence (fill the tan 2 x 2 entirely, back wall on its top edge, ground
-contact on its bottom edge, plain grass around, no props outside the square).
-
-Once a Dairy is approved, its panel is attached as a per-subject ref ("the second-to-last image is
-the APPROVED Dairy; build this station the same way") and the paragraph shrinks to the WORK clause.
-
-**What varies per station**: only the WORK on the floor and one or two identity cues carried over
-from the old drawing. Walls, awning, floor and materials never vary. Proposals for every 2 x 2
-`crafting` row in `game-server/tuning/resources.json` (products = rows whose `source` is the station):
+Now that the Dairy is approved, its panel is attached as a per-subject ref ("the APPROVED Dairy, the
+template every 2 x 2 station is built on") and the paragraph shrinks to the WORK clause, plus the
+building2.png guide sentence (fill the tan 2 x 2 entirely, back wall on its top edge, ground contact
+on its bottom edge, side walls to the left and right edges, plain grass around). Side walls all the
+way forward are fine (approved as drawn).
 
 | Station | Old file | Shows being crafted (proposal) |
 |---|---|---|
-| Mill | mill.svg | a flat millstone on a wooden frame with a hopper, a grain heap, two flour sacks; a small four-sail windmill wheel on a post at the back wall as its identity (drawn; see §5 for the spill) |
-| Dairy | dairy.svg | a butter churn, a cheese wheel with a wedge out on a low table, a milk pail; the old drawing's milk bottles in a crate (drawn) |
+| Mill | mill.svg | millstone on a wooden frame under the windmill wheel at the LEFT end of the back wall (one machine), sacks of flour and sugar and a grain heap RIGHT (drawn, round 3) |
+| Dairy | dairy.svg | a butter churn, a cheese wheel with a wedge out on a low table, a milk pail, milk bottles in a crate (approved) |
 | Loom | loom.svg | a wooden hand loom with a half-woven cloth on it, a basket of thread spools, a folded bolt of cloth |
 | Oven | oven.svg | a domed brick bread oven with a glowing mouth against the back wall, a wooden peel, loaves and a pie cooling on a board |
 | Kitchen | kitchen.svg | a hearth with a steaming cook-pot, a chopping table with vegetables, a stack of bowls |
@@ -135,185 +119,236 @@ from the old drawing. Walls, awning, floor and materials never vary. Proposals f
 Chicken Coop and Beehive are `crafting` rows with no size: 1 x 1 props, not this template. Hospital,
 Library and Ancient Temple are `crafting` rows at size 3: closed buildings, §3.
 
-## 3. Closed buildings (3 x 3): the template and the sign
+## 3. Closed buildings (3 x 3): families and the sign
 
-Round 1's template ("the farmhouse built bigger", thatch, one window left, a board on chains from
-a bracket under the roof edge right of the door) made den-a/b/c and was retired by the owner: not
-enough variety, sign not believably attached. Round 2 (§6) replaces it with a RULES paragraph
-(copy the farmhouse's drawing style, not its shape) plus a per-building ARCHITECTURE and a named
-SIGN fastening; the wording is in the job file under the round-2 keys. Two things that must stay
-in every 3 x 3 prompt: the guide sentence says "a FIVE by FIVE grid, five columns and five rows,
-the building fills the central 3 x 3" (den-b drew 4 x 4 without it), and the sign carries ONE flat
-picture and NO letters. What may vary per building: wall and roof material, roofline, one prop
-against the wall that says what is sold, and the fastening by family (§6.4). Sign pictures for
-every 3 x 3 row in resources.json:
+Round 1's single template and round 2's free exploration are both retired; a 3 x 3 building now
+belongs to ONE of the four families in Round 3 §7.2 and carries a sign under the signage rule there.
+Two things that must stay in every 3 x 3 prompt: the guide sentence says "a FIVE by FIVE grid, five
+columns and five rows, the building fills the central 3 x 3" (den-b drew 4 x 4 without it), and the
+sign carries ONE flat picture and NO letters. Family assignment (owner, §7c of the plan): Tudor for
+the Agriculture Center, Courthouse, Academy, Laboratory, Magic Shop, School; Castle for the Bank,
+Warrior's Den, Armory; Cottage for the Inn, General Store and the humbler shops; Fantastical for the
+Guild and the like. Sign pictures for every 3 x 3 row in resources.json:
 
 | Row (category) | Sign picture (proposal) |
 |---|---|
 | Warrior's Den (shop) | two crossed swords (drawn) |
-| Armory (shop) | a shield with a sword behind it |
+| Armory (shop) | a round shield with a sword behind it (drawn) |
 | Magic Shop (shop) | a pointed hat with a star |
 | Shrine (shop) | a single lit candle |
 | Castle (shop) | a crown |
 | Shiro (shop) | a folded paper fan |
 | Restaurant (shop) | a steaming bowl with a spoon |
-| General Store (training) | a tied sack with a coin on it |
-| School (training) | an open book |
-| Academy (training) | a paint palette and brush |
-| Laboratory (training) | a round flask with bubbles |
-| Guild (training) | a hammer and chisel crossed |
+| General Store (training) | a tied sack with a coin on it (drawn) |
+| School (training) | an open book (drawn) |
+| Academy (training) | a paint palette and brush (drawn) |
+| Laboratory (training) | a round flask with bubbles (drawn) |
+| Guild (training) | a hammer and chisel crossed (drawn) |
 | Agriculture Center (training) | a wheat sheaf |
 | Factory (training) | a cog wheel |
-| Adventure Camp (trainingAndShop) | a tent with a small flag |
+| Adventure Camp (trainingAndShop) | a tent with a small flag (drawn) |
 | Hospital (crafting) | a red cross |
 | Library (crafting) | a stack of three books |
 | Ancient Temple (crafting) | a sun disc; the building itself is a ruin and may break the template (owner's call) |
-| Bank (station) | a coin bag |
-| Inn (station) | a bed |
+| Bank (station) | a coin bag (drawn) |
+| Inn (station) | a bed (drawn) |
 | Post House (station) | a sealed envelope |
+| Courthouse (station, size 5) | a pair of balance scales (drawn at 3 x 3 for the family test) |
 
-Restroom (shop, size 2) is a closed 2 x 2: this template shrunk, one window, a two-figure sign, not
-the open-air station template.
+Restroom (shop, size 2) is a closed 2 x 2: a Cottage shrunk, one window, a two-figure sign, not the
+open-air station template.
 
 ## 4. Trees (1 x 1 sources)
 
-**Rule (proposed)**: a tree stands on one tile and rises one full tile above it, so it is two tiles
-tall (a person is one and a half); the crown may spread up to a quarter of a tile past each side of
-its tile, no more, so neighbouring tiles stay readable. Guide: `tools/art/guides/tree.png` (centre
-tile pale, the whole tile above it lighter, a dashed 1 x 2 box around both; `treeGuide()` in
-`guides.js`). The old drawing rides along as `control-oak-tree.png` / `control-pine-tree.png` so
-the tree keeps its identity (round broad oak, tiered pointed pine, short red-brown trunk).
+**Rule**: a tree stands on one tile and rises one full tile above it, so it is two tiles tall (a
+person is one and a half); the crown may spread up to a quarter of a tile past each side of its tile.
+Guide: `tools/art/guides/tree.png` (`treeGuide()` in `guides.js`). Wording that worked: "exactly TWO
+tiles tall", "the top of the tree TOUCHES the top edge of the lighter tile". Approved: the oak
+(1.5 tiles tall, 1.15 wide) and its recolours (summer-a `#aac525 #91b01d #70971a #599324`, summer-b
+`#599324 #518622 #43721e #3f4216`, autumn-gold `#f8c935 #e9b22a #daa025 #ad7620`, autumn-red
+`#bd7433 #b32216 #9d1b13 #72120a`), the pine `pine-tree-c` (5% shorter than pine-b), the dead trees
+(brown `#6c481f / #4f381c / #945e1d`, black `#231a18 / #3e3b35 / #58534b`). Renderer note:
+`PixiRenderer.js` draws every resource as a `size x size` square, so a two-tile-tall tree needs its
+sprite drawn 1 wide by 2 tall, anchored on the tile's bottom edge and sorted in front of the tile above.
 
-Wording that worked (oak-b, pine-b): "exactly TWO tiles tall", "the top of the tree TOUCHES the top
-edge of the lighter tile"; "no higher than the box's top" gave 1.4 to 1.5 tiles.
+## 5. What drifted in rounds 1 and 2 (short)
 
-Renderer note for whoever wires it: `PixiRenderer.js` draws every resource as a `size x size`
-square (a 1 x 1 resource is a 45 px square), so a two-tile-tall tree needs its sprite drawn 1 wide
-by 2 tall, anchored on the tile's bottom edge and sorted in front of the tile above. Until that lands
-the tree would be squashed into its square.
+- Stations: side walls came all the way forward (approved as is); plaster vanished (harmless); the
+  Mill's bigger wheel rose above the 2 x 2 by a quarter to half a tile in round 2 (fixed in round 3
+  by mill-e's "hub level with the awning").
+- 3 x 3: "FIVE by FIVE, five columns and five rows" fixed the 4 x 4 redraw and has held since. Signs
+  at corners spilled 0.1 to 0.3 tile outside the square (store-a, inn-b, inn-c); wooden shingles read
+  as brown tiles unless asked for "flat rectangular shingles in staggered rows"; the eave-beam sign
+  (D) never drew a beam. No letters on any sign in any round.
+- Trees undershot the headroom until the prompt said "exactly two tiles" and "touches the top".
 
-## 5. What drifted in round 1 (kept short; the fixes are in the round-2 prompts)
+## 6. Round 2 (2026-10-20): thirteen 3 x 3 explorations
 
-- Side walls came all the way forward on every station (prompt said a third); approved as is.
-- Plaster vanished on both Dairies; harmless. Sails, chimney and awning poked above the footprint
-  by up to a fifth of a tile (buildings get no headroom; see §6.3 for the Mill).
-- den-b redrew the 5 x 5 guide as 4 x 4; "FIVE by FIVE, five columns and five rows" fixed it and
-  held for all thirteen round-2 buildings. The sign covered the right window twice; round 2 names
-  the fastening and "clear of the door and the window" instead of a position.
-- Trees undershot the headroom until the prompt said "exactly two tiles" and "touches the top";
-  retries planted the trunk a little below the tile edge (a crop, not a redraw). Oak-1 went
-  fish-scale (the owner approved that one anyway). No letters on any sign in either round.
+Asked: real architectural variety and signs that are visibly fastened; four roof materials, six
+rooflines, three wall materials and four sign attachments (A wall bracket, B post by the path,
+C plaque nailed flat, D board under the eave) were spread over thirteen buildings. "Fill" is the
+building's measured width x height in tiles of its 3 x 3 square (ideal 3.0 x 3.0).
 
-## 6. Round 2 (2026-10-20): oak colours, dead trees, the shorter pine, the Mill, thirteen 3 x 3 buildings
-
-**Asked**: colour variations of the approved oak (two summer, two autumn from the palette); the
-pine 10% shorter at the same width; a Dead Tree in brown and in black; the Mill with the machine
-off-centre and a bigger windmill, drawn against the approved Dairy; and an EXPLORATION of 3 x 3
-closed buildings with real architectural variety (roof material, roofline, wall material) and
-signs that are visibly fastened in a way that would hold up. Cap 24 images; 22 spent.
-
-**Generated** (job keys, all `flatter`, all gpt-image-2): `oak-summer-a`, `oak-summer-b`,
-`oak-autumn-gold`, `oak-autumn-red`, `pine-tree-c`, `dead-tree-brown`, `dead-tree-black`,
-`mill-b`, `mill-c`, and the buildings `den-d/e/f`, `store-a/b`, `school-a/b`, `inn-a/b/c`,
-`bank-a/b/c`. Five buildings from resources.json at size 3, chosen for different purposes:
-Warrior's Den (shop), General Store (training), School (training), Inn (station), Bank (station).
-The Inn has no old drawing, so it was drawn from the description alone; the other four carried
-their old SVG as the identity control.
-
-### 6.1 The buildings, one by one
-
-The matrix: four roof materials (thatch, clay tile, slate, wooden shingle), six rooflines (gable
-facing the viewer, hipped, tower or turret, dormer, two storeys, overhanging upper floor on timber
-brackets), three wall materials (field stone or dressed stone, plaster with timber framing,
-planks) and four sign attachments (A: board on chains from a bracket bolted to the wall beside the
-door; B: board on a post planted by the path; C: shutter-sized plaque nailed flat to the wall;
-D: board on chains from a projecting roof beam under the eave). Every building got a distinct
-combination; the columns below say what came out. "Fill" is the building's measured width x height
-in tiles of its 3 x 3 square (from the non-grass pixels; the ideal is 3.0 x 3.0).
-
-| Key | Walls / roof / roofline (as drawn) | Sign (as drawn) | Fill | Notes |
+| Key | Walls / roof / roofline (as drawn) | Sign | Fill | Verdict under the families |
 |---|---|---|---|---|
-| den-d | field stone / slate / hipped with a gable and a round corner turret with a conical cap | A, crossed swords: back-plate with two bolts, arm, two chains, clear of door and window | 2.6 x 2.5 | the pilot; everything asked for arrived; arrow slit in the turret |
-| den-e | planks on a stone footing / wooden shingles / gable end facing the viewer, crossed timbers at the peak, a round shield in the gable | C, plaque right of the door with nail heads | 2.6 x 3.0 | the shingles read as rounded tiles in wood brown; the shield doubles as a second sign |
-| den-f | field stone / clay tile / two storeys with a dormer | D, board above the door on two chains straight into the eave, no beam end drawn | 2.4 x 2.6 | tidy but plain; the sign over the door blocks nothing |
-| store-a | plaster with timber framing / clay tile / two storeys, upper floor overhanging on four brackets | A, bracket bolted at the wall's right corner, board hangs just past the wall (0.1 tile outside the square) | 2.9 x 2.8 | green door, tools, potted shrub and a shop window all carried over from the old drawing |
-| store-b | planks / thatch / gable end facing the viewer, a serving window with its shutter propped open as an awning | B, post with a cross-arm on a packed-earth strip at the front right, chains, board | 2.4 x 2.9 | the most distinctive building of the set (apples and a sack on the sill, flowers, dirt strip) |
-| school-a | pale plaster with stone corners / slate / hipped, bell cupola on the ridge | C, plaque right of the door | 2.6 x 2.7 | apple medallion over the door, two arched windows, three steps; the cupola top touches the square's top edge as asked |
-| school-b | field stone / clay tile / gable facing the viewer with a dormer on the right and a bell in a gable niche | D, board at the left end on chains into the eave corner, no beam end | 2.4 x 2.5 | the smallest building of the set; arched windows kept |
-| inn-a | field stone below, timber framing above / thatch / two storeys, overhang on brackets, chimney | A, bracket with back-plate right of the door | 2.4 x 2.9 | lantern and window box as asked; the only thatch building that does not look like the farmhouse |
-| inn-b | planks / wooden shingles / gable facing the viewer with a round window and a dormer | B, post at the front LEFT, 0.3 tile outside the square | 3.3 x 2.9 | bench, two window boxes, earth strip; reads as a tavern at 45 px |
-| inn-c | plaster with timber framing / clay tile / hipped, two chimneys | D, board on chains from a beam that sticks out past the LEFT END of the eave, 0.2 tile outside the square | 3.2 x 2.4 | long and low; lantern and barrel; the one D sign that actually drew a beam, but at the gable end, not under the front eave |
-| bank-a | dressed stone / slate / hipped with a square corner tower and a pointed cap, stone pediment on columns over red double doors | C, plaque right of the doors | 2.6 x 2.7 | the civic look; barred arched window; three steps |
-| bank-b | pale plaster with dressed-stone corners / clay tile, low pitch / two storeys, pediment, barred windows | D, board above the door on long chains into the eave, no beam end | 2.7 x 2.9 | reads as a town hall as much as a bank |
-| bank-c | dressed stone / wooden shingles / gable facing the viewer with a round window, red doors with a big lock plate | A, bracket with back-plate right of the doors | 2.5 x 2.6 | compact strongroom; the shingles again read as brown tiles |
+| den-d | field stone / slate / hipped with a gable and a round corner turret | A, crossed swords | 2.6 x 2.5 | the CASTLE family reference; sign bracket now banned (den-g fixes it) |
+| den-e | planks / wooden shingles / gable facing the viewer, shield in the gable | C | 2.6 x 3.0 | cottage look; shingles read as tiles |
+| den-f | field stone / clay tile / two storeys, dormer | D | 2.4 x 2.6 | clay tile banned |
+| store-a | timber framing / clay tile / jettied upper floor on brackets | A | 2.9 x 2.8 | "close but mixed": redone as store-c/d |
+| store-b | planks / thatch / gable, propped shutter | B, post in a yard | 2.4 x 2.9 | the COTTAGE yard-sign reference; refilled as store-e |
+| school-a | pale plaster, stone corners / slate / hipped, bell cupola | C | 2.6 x 2.7 | no family (plaster without framing) |
+| school-b | field stone / clay tile / gable, dormer, bell niche | D | 2.4 x 2.5 | clay tile banned |
+| inn-a | stone below, framing above / thatch / jetty, chimney | A | 2.4 x 2.9 | mixed (stone + Tudor), thatch with a chimney |
+| inn-b | planks / wooden shingles / gable, round window, dormer | B, post 0.3 outside | 3.3 x 2.9 | the COTTAGE family reference; refilled as inn-d |
+| inn-c | timber framing / clay tile / hipped, two chimneys | D, beam at the gable end | 3.2 x 2.4 | clay tile banned (the owner's example) |
+| bank-a | dressed stone / slate / hipped, square tower, pediment | C | 2.6 x 2.7 | castle already; redrawn as bank-d with the sign in the pediment |
+| bank-b | plaster, stone corners / clay tile / two storeys | D | 2.7 x 2.9 | clay tile banned |
+| bank-c | dressed stone / wooden shingles / gable, lock-plated doors | A | 2.5 x 2.6 | castle walls under a cottage roof: mixed |
 
-Round 1's den-a measured 2.8 x 3.1 on the same test, so round 2 is a little smaller on average
-(2.4 to 2.9 of 3 tiles): the model leaves a margin inside the tan square. Not a style problem; the
-asset is cut at its own bounds and scaled to the footprint when accepted, or the prompt says
-"touch all four edges of the tan square".
+What held: every material and roofline asked for was drawn in the farmhouse's line and shading, and
+the village read as one village. What failed (the owner's verdict): styles mixed inside one building,
+thatch and clay tile everywhere, signs on brackets. The families fix it.
 
-### 6.2 What worked and what drifted
+## 7. Round 3 (2026-10-20 afternoon): the families, the Mill fix, the store-a redo
 
-- **Architecture variety worked.** Every roof material, every roofline and every wall material
-  asked for was drawn, and all thirteen keep the farmhouse's line, lit-top-shaded-front shading,
-  stone and timber colours, contact shadow and camera. The village still reads as one village.
-- **Sign attachment A (wall bracket) is the most reliable**: four of four drew the back-plate, the
-  bolts, the arm and the chains, and the board hangs where a real one would (den-d, inn-a, bank-c,
-  store-a). C (plaque) always reads as fastened, nail heads small. B (post) drew the post, the
-  cross-arm and the chains, but puts the post at the plot's edge, outside the square in inn-b.
-  D (eave beam) is the weakest: three of four hung the board from the tile edge with no beam end,
-  and inn-c moved it to the gable end. If D is wanted, say "a horizontal beam sticks out of the
-  wall under the eave, as long as the board is wide".
-- **Signs at corners spill**: store-a (right), inn-b and inn-c (left) hang 0.1 to 0.3 tile past
-  the square. Fixed by "the sign hangs INSIDE the building's own width" or by the renderer giving
-  signs the same tolerance as tree crowns.
-- **Wooden shingles read as tiles**: den-e, inn-b and bank-c drew rounded rows in wood brown that
-  differ from clay tile by colour only. Either accept that (it still reads as "not thatch, not
-  slate") or ask for "flat rectangular shingles with staggered joints".
-- **No letters anywhere**, on any of the thirteen signs, the medallions or the plaques.
-- **Nothing rose above the top edge** except school-a's cupola, which touches it as asked.
+### 7.1 What was asked
 
-### 6.3 Trees and the Mill
+The owner's rules in `docs/art-pipeline-plan.md` §7c: four families, never mixed within a building;
+clay tile, mixed families and bracket signs banned; every sign a placard on the front or a post sign
+in a front yard, inside the 3 x 3, imagery only; buildings fill their square to the edges. Draw: the
+Mill with the floor swapped (2), store-a redone as pure Tudor (2), Tudor School / Academy /
+Laboratory / Courthouse (4), Castle Bank / Warrior's Den / Armory (3), Cottage Inn / General Store /
+Adventure Camp (3), the Guild in the new Fantastical family (3), one retry (guild-d). 18 of the 22
+spent; 4 left for the owner's retries. New controls: academy, laboratory, courthouse (town-hall.svg),
+armory, adventure-camp, guild (drawn by `guides.js`; the Guild's was not attached, the old pointed
+house would have anchored the model). Family references attached per subject: den-d for Castle,
+inn-b and store-b for Cottage, the approved Dairy plus mill-b for the Mill, store-a plus store-b for
+the Tudor store redo, the approved oak for guild-b.
 
-- **Oak recolours**: all four kept the approved oak's exact silhouette, size (1.5 tiles tall, 1.15
-  wide, trunk on the tile's bottom edge), leaf pattern and shadow; only the leaf colours changed.
-  Palette sets used: summer-a `#aac525 #91b01d #70971a #599324`, summer-b
-  `#599324 #518622 #43721e #3f4216`, autumn-gold `#f8c935 #e9b22a #daa025 #ad7620` (the thatch
-  yellows plus wood light), autumn-red `#bd7433 #b32216 #9d1b13 #72120a` (cloth brown mid plus the
-  cloth reds). The red came out a bright red rather than a russet; if a browner autumn is wanted,
-  swap `#b32216` for `#98401b`.
-- **Pine `pine-tree-c`**: same width and tiers as pine-b, about 5% shorter (tip half a tile below
-  the box top instead of a third), trunk base 0.4 tile below the tile edge (a crop). To hit 10%,
-  say "the tip ends two thirds of a tile below the top edge".
-- **Dead trees**: both keep the old drawing's forked, twisted bare trunk, with crisp cracks and a
-  knot hole. Brown is `#6c481f / #4f381c / #945e1d`, black `#231a18 / #3e3b35 / #58534b`. Brown is
-  2.05 tiles tall and 1.1 wide (inside the quarter-tile spread rule); black is 2.3 tall because its
-  trunk base sits half a tile below the tile edge (a crop; the drawn tree is about the same size).
-  The brown panel's grid rows came out uneven; harmless for the cut.
-- **Mill**: both retries moved the millstone off-centre (mill-b: right, with the grain and sacks
-  left; mill-c: left, sacks right) and doubled the windmill. mill-b put the wheel at the left end
-  of the back wall as asked; mill-c put it in the centre instead of the right end. Both now rise
-  above the 2 x 2 footprint (mill-b by half a tile, mill-c by a quarter; round 1 was a fifth): a
-  bigger wheel on the back wall cannot fit under the top edge. Either accept the spill (the
-  renderer gives the Mill the tree treatment: sprite taller than its footprint, anchored at the
-  bottom) or ask for the wheel on a post in the yard's back corner, lower than the awning.
+### 7.2 The family rules, prompt-ready (these become the sub-bible prompts; copied verbatim per key)
 
-### 6.4 Recommendation: build the 3 x 3 sub-bible from these
+> **TUDOR FAMILY** (this building belongs to it and uses nothing from the other families): walls of
+> cream stucco (#f7eaca) divided by dark timber framing (#4f381c): upright posts, a horizontal rail at
+> each floor, diagonal braces at the corners, every stucco panel flat with one shadow tone, standing
+> on the farmhouse's grey stone foundation course. Small windows with leaded panes in the farmhouse's
+> blue glass, framed in dark timber, with wooden shutters. The roof is ONE of two kinds, named below:
+> STRAW THATCH (the farmhouse's golden thatch, #f8c935 lit, #e9b22a, #daa025 in shade, a few big
+> crisp tufted rows, a pegged wooden ridge beam) with NO chimney at all; or SLATE (crisp overlapping
+> rows of flat rectangles) with ONE BRICK chimney (bricks #98401b with #bd7433 lit edges and a grey
+> stone cap) and no thatch anywhere. Every Tudor building has its own roof colour, named below, so
+> the buildings tell apart at a glance, and its DOOR IS PAINTED to match that roof colour, with black
+> iron hinges and a ring. No towers, no turrets, no battlements, no plank or log walls, no bare stone
+> walls above the foundation.
 
-1. **store-a** (timber framing, clay tile, overhanging upper floor, wall-bracket sign). The town
-   look: the bracket is the most believable fastening and the overhang on brackets gives every
-   two-storey shop a silhouette that is not the farmhouse. Reads cleanly at 45 px.
-2. **bank-a** (dressed stone, slate, hipped roof, corner tower, pediment, flat plaque). The civic
-   look for Bank, Library, Hospital, School, Castle: stone and slate separate it from the shops at
-   a glance, the tower is a landmark on the board, and the plaque suits a formal building.
-3. **store-b** (planks, thatch, gable, propped shutter, post sign). The rustic look for the
-   General Store, Adventure Camp, Agriculture Center, Guild: the open shutter shows goods the way
-   the open-air stations show their work, and the post sign stands on its own earth strip.
+> **CASTLE FAMILY** (this building belongs to it and uses nothing from the other families): walls
+> entirely of grey stone, either FIELD STONE (irregular rounded stones like the farmhouse's corners,
+> each stone one outlined shape with one highlight, #787570 lit, #58534b in shade, #3e3b35 in the
+> joints) or DRESSED STONE (squared blocks laid in straight courses, the same greys), on a heavier
+> foundation course. Small deep-set windows, arched or arrow slits, with black iron bars or wooden
+> shutters. Roofs of grey SLATE (crisp overlapping rows of flat rectangles, #787570 lit, #58534b in
+> shade, a #3e3b35 ridge) or of flat grey stone slabs; round towers, square towers, turrets with
+> conical slate caps and battlements are all allowed as long as nothing rises above the square's top
+> edge. Doors are heavy dark oak (#4f381c) with black iron bands and studs, set in a stone arch. No
+> thatch, no timber framing, no stucco, no planks, no logs, no clay tile.
 
-Together they give three material families (timber frame, stone, planks), three roof materials
-(clay, slate, thatch) and three fastenings (bracket, plaque, post), so every other 3 x 3 building
-can be assigned to a family and drawn against its panel. den-d is the alternate for the stone
-family if the owner prefers field stone and a round turret to dressed stone and a square tower.
-Sign pictures: keep one board size and one picture style across all three families; the four
-attachment types can stay as the family's own (bracket for timber-frame, plaque for stone, post
-for planks) so a player still learns where to look per building type.
+> **COTTAGE FAMILY** (this building belongs to it and uses nothing from the other families): rustic
+> wood. Walls of horizontal wooden PLANKS (#ad7620 lit, #945e1d in shade, #6c481f in the gaps, a row
+> of nail heads at the plank ends) or of round stacked LOGS with notched, crossed ends at the corners,
+> on the farmhouse's low stone foundation course; simple square windows with wooden shutters and
+> leaded panes. Roof of golden STRAW THATCH (the farmhouse's: #f8c935 lit, #e9b22a, #daa025 in shade,
+> big crisp tufted rows, a pegged wooden ridge beam) or of WOODEN SHINGLES (flat rectangular shingles
+> in staggered rows, #945e1d lit, #6c481f in shade, a wooden ridge board). Plank doors with an iron
+> ring, sometimes painted. A cottage has a small FRONT YARD of packed ochre earth along the front of
+> its plot, inside its square, where its signpost stands; benches, barrels, window boxes and tools
+> lean against its walls. No stone walls above the foundation, no timber framing with stucco, no
+> slate, no clay tile, no towers.
+
+> **FANTASTICAL FAMILY** (this building belongs to it; it is the village's one family of impossible
+> buildings): imaginative Shakespearean fantasy, a building from a stage play rather than a real
+> street. It may lean, twist, stack or grow; it may be built into a living tree; it may have
+> STAINED-GLASS windows in jewel colours (#9d1b13 red, #446d32 green, #552b4d purple, #e6b64f gold,
+> black leading), a GREAT CARVED DOOR with scrollwork and figures, hanging lanterns, crooked chimneys
+> and crooked roof caps. But it is built of this village's own materials (grey stone, dark oak
+> timber, cream stucco, golden thatch, grey slate, black iron, living oak) and drawn in the bible's
+> exact style: the same dark outline, flat fills with one shadow and one highlight per colour, the
+> same camera, the same lower-right contact shadow. Not generic fantasy: no glowing runes, no floating
+> parts, no crystals, no magic mist, no clay tile. Everything stays inside its square.
+
+Three shared sentences follow every family paragraph (verbatim in the job file): **BANS** ("clay,
+terracotta or Spanish tile roofs of any kind; mixing in the materials of another family; signs on
+brackets, arms or poles that stick out from a wall; letters, numbers or writing anywhere"), the
+**SIGNAGE RULE** ("a PLACARD fixed FLAT against the building's front: a board over the door, a plaque
+nailed to the wall beside the door, or a board lying flat under the eave; or a signboard hanging from
+a short cross-arm on a wooden post planted in a small front yard of packed earth that belongs to the
+building's own plot; never sticks out from the wall, never crosses outside the square; ONE flat
+painted picture and NO letters") and the **GUIDE** sentence ("FIVE by FIVE grid ... the building
+TOUCHES ALL FOUR EDGES of the tan square: the roof's highest point touches the top edge and NOTHING
+rises above it, the ground contact sits on the bottom edge, the left and right ends reach the left
+and right edges"). Then a per-building ARCHITECTURE paragraph names the roofline, the roof colour,
+the door colour, the props and the sign.
+
+### 7.3 The buildings, one by one
+
+"Fill" is the measured non-grass extent in tiles (contact shadow included, so right and bottom read
+a little large); "spill" is how far past the square's edge it goes. Measured by a scratch script,
+same method as round 2 (guild-b by eye: its foliage reads as grass to the script).
+
+| Key | Family | Walls / roof (as drawn) | Door | Sign (as drawn) | Fill (w x h) | Drift |
+|---|---|---|---|---|---|---|
+| school-c | Tudor | framing + stucco / thatch, no chimney; single storey, thatched porch with a bell | ochre #cd9432 | open book, placard over the door inside the porch | 3.35 x 2.6; sides spill 0.17, bottom gap 0.35 | wide and low: a one-storey building cannot fill 3 tiles of height; otherwise exact |
+| academy-a | Tudor | framing + stucco / green slate, hipped, dormer, brick chimney | green #446d32 | palette and brush, board under the eave over the door | 2.75 x 3.11; chimney cap 0.28 above the top edge | easel and pots as asked; nothing else drifted |
+| laboratory-a | Tudor | framing + stucco / plum slate, steep gable end, round window, brick chimney | plum #552b4d | round flask, placard over the door | 2.78 x 3.18; chimney 0.22 above | copper still, crate and bottle row all there |
+| courthouse-a | Tudor | framing + stucco, herringbone braces / grey-blue slate, hipped, jetty on six brackets, brick chimney | grey-blue #787570 | balance scales, placard over the double door | 2.75 x 3.17; chimney 0.24 above | the grey door reads unpainted at 45 px; a red door would help if the owner allows one exception |
+| store-c | Tudor | store-a's framing / thatch, no chimney; the jetty flattened to a ledge | green | sack and coin, post sign in the yard at the front right | 2.69 x 3.41; ridge 0.30 above, yard 0.11 below | the jetty mostly gone (two storeys stay); sides 0.15 in |
+| store-d | Tudor | framing + stucco / thatch, gable end facing, jetty on brackets, no chimney | green | sack and coin, post sign at the front right | 2.59 x 3.72; peak 0.56 above, yard 0.16 below | the tallest miss: a gable end plus a yard does not fit 3 tiles of height |
+| bank-d | Castle | dressed stone / slate, hipped, square corner tower right, pediment on columns | red #9d1b13 double doors, lock plate | coin bag, placard inside the pediment | 2.94 x 3.09; tower cap 0.10 above | the best 3 x 3 fill of the round; barred window, three steps |
+| den-g | Castle | den-d's field stone / slate, hipped with gable, round turret left | dark oak, banded | crossed swords, big placard over the door | 3.05 x 2.92; within 0.03 | shield and spear added as asked; the placard is large and reads at 45 px |
+| armory-a | Castle | dressed stone / low slate behind battlements, round turret right | dark oak, arched, studs | round shield with a sword, placard over the arch | 2.91 x 2.9; cap 0.09 above, bottom gap 0.2 | spear rack and barred window as asked; nothing drifted |
+| inn-d | Cottage | planks with log ends at the corners / wooden shingles, gable end, dormer | plank, iron ring | bed, post sign at the front left INSIDE the square | 3.16 x 3.21; spills 0.08 to 0.13 all round | a SECOND bed placard appeared in the gable; the shingles still read as rounded rows |
+| store-e | Cottage | store-b's planks / thatch, gable end, propped shutter | green | sack and coin, post sign at the front right | 2.69 x 3.27; peak 0.17 above, yard 0.10 below | identical to store-b otherwise; sides 0.15 in |
+| camp-a | Cottage | logs with notched ends / wooden shingles, ridge along the top, canvas awning | plank, iron ring | tent with a flag, post sign at the front right | 2.98 x 3.01; within 0.04 | exact: firewood, rope, lantern, campfire ring in the yard, all inside the square |
+| guild-a | Fantastical | field-stone ground storey, two timber-framed storeys leaning left then right, slate cap, tiny chimney | great carved oak double door, wreath | hammer and chisel, placard over the door | 2.99 x 3.83; cap 0.55 above, yard 0.28 below | CAMERA drifted to a front elevation (no roof plane seen from above); stained glass and lantern good |
+| guild-b | Fantastical | a great oak trunk with two timber-framed rooms under little thatch roofs in the boughs, a curling stair | great carved oak door in the trunk | hammer and chisel, placard on the trunk | about 3.0 x 3.1 (by eye); crown 0.25 below the top edge, yard 0.3 below the bottom | the one take that could only be this family; the crown is the roof, the camera holds |
+| guild-c | Fantastical | framing + stucco on a stone base / swooping slate roof with curled eaves, mask beam-ends, brick chimney | great carved oak double door | hammer and chisel, placard over the door under the rose window | 3.09 x 3.23; chimney 0.22 above | the masks, rose window, side windows and lanterns all arrived; the camera holds |
+| guild-d | Fantastical | guild-a retried with the camera named: field-stone base, two leaning timber storeys, slate cap, crooked chimney | great carved oak double door | hammer and chisel, placard over the door | 3.01 x 3.62; cap 0.41 above, yard 0.21 below | CAMERA FIXED (every roof plane seen from above); still too tall for the square, a scale fix at the cut |
+
+### 7.4 The Mill (2 x 2)
+
+Both candidates do the owner's swap: the millstone LEFT, directly under the wheel, with the post
+running down into the stone's frame (one machine), the sacks RIGHT (two flour, one open sugar sack
+with a scoop, the grain heap beside them). `mill-d` keeps mill-b's wheel height and still pokes
+0.13 tile above the footprint (the ridge pegs and the top sail); `mill-e` ("the hub level with the
+thatch awning") brings everything inside: 2.0 x 1.95 tiles, top spill 0.02. The hopper above the
+stone did not survive in either (the post passes through the stone instead); if the owner wants it
+back, say "a wooden hopper sits on top of the millstone beside the post".
+
+### 7.5 What held and what drifted
+
+- **Families held in every panel**: no clay tile anywhere, no building mixes two families, every
+  Tudor door is painted to its roof colour, every Castle wall is stone, every Cottage is wood.
+- **Signs held**: 15 placards or post signs, all flat or planted, all inside the square, no letters.
+  Post signs in yards landed inside the square every time once the prompt said "inside the square"
+  (inn-d, store-c/d/e, camp-a).
+- **Fill**: round 3 averages 2.9 wide x 3.2 tall against round 2's 2.6 x 2.7. "Touch all four edges"
+  works, but two-storey buildings with a yard overshoot the TOP by 0.2 to 0.6 tile (store-d worst)
+  and the Tudor chimney caps cross it by about 0.25 even when told to touch it. The asset is cut at
+  its own bounds and scaled to the footprint, so this is a scale question, not a redraw: say "the
+  building is a little shorter than the square" or let the renderer give 3 x 3 buildings the tree
+  treatment (a sprite taller than its footprint, anchored at the bottom).
+- **Camera** drifted once (guild-a, a front elevation); naming it in guild-d fixed it. A second sign appeared once
+  (inn-d's gable); say "ONE sign only".
+
+### 7.6 Recommendation: the panel that seeds each family's sub-bible
+
+- **Tudor: academy-a.** It shows every Tudor rule at once (framing, stucco, slate in a named colour,
+  the one brick chimney, the matching painted door, a flat board under the eave) and nothing drifted.
+  school-c is the thatch variant to attach beside it when a thatched Tudor is drawn.
+- **Castle: bank-d.** Dressed stone, slate, a tower, a pediment, the sign inside the building's own
+  front, and the best fill of the round. den-g stays the field-stone variant (owner's den-d, fixed).
+- **Cottage: camp-a.** Exact fill, logs and shingles, the yard with its post sign and props all inside
+  the square. inn-d is the plank-and-dormer variant; store-e the thatch variant.
+- **Fantastical: guild-c.** Shakespearean (masks, rose window, curled eaves, a great carved door) with
+  the bible's camera intact; guild-b is the stronger idea but is a one-off (a tree-building cannot
+  seed other buildings); guild-d (the crooked tower with the camera fixed) is the runner-up if the owner wants the tower look to seed the family.
+- **Mill: mill-e** (the swap plus the sails inside the footprint). **Tudor General Store: store-c**
+  (the owner's "close" store-a with the three fixes; store-d if the gable end is preferred).
