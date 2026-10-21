@@ -146,8 +146,10 @@ function maskSvg(piece) {
     // The near end: the south spoke's raised end reaches S_RAISE px above the line. The east and
     // west spokes start at the tower's edge instead of its centre: the plus panel's south spoke
     // is painted over the tower's lower face, inside their face band, and a band from the centre
-    // carried a stub of it out from under the post's base.
-    const near = piece === 's' ? -S_RAISE : (TOWER && (piece === 'e' || piece === 'w')) ? TOWER.rx : 0;
+    // carried a stub of it out from under the post's base. They start 12 px INSIDE the tower's
+    // edge: a cut exactly at the half-width left a one-pixel gap against the post's soft edge
+    // (owner), and 12 px in is still clear of the spoke, which is `side` wide (56) about the centre.
+    const near = piece === 's' ? -S_RAISE : (TOWER && (piece === 'e' || piece === 'w')) ? TOWER.rx - 12 : 0;
     shape = `<g transform="translate(${c} ${cy}) rotate(${ang})"><rect x="${near}" y="${yMin}" width="${R - near}" height="${yMax - yMin}"/></g>`;
   }
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${WIN_H}"><g fill="#fff">${shape}</g></svg>`);
