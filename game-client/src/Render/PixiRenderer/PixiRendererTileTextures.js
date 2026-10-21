@@ -16,11 +16,16 @@
  * priority, so grass grows over everything and its own corners are never cut; man-made
  * types (pavement, cobblestone, dungeon) have priority 0 and straight edges against each
  * other, but still receive organic neighbours. CORNER_PRIORITY is the one table to tune.
+ *
+ * Exception, the KERB (PixiRendererTileKerb.js): a type listed there (cobblestone) draws a
+ * border of kerb stones on its own cell against ANY different neighbour, and takes no lip and
+ * no corner rounding; the kerb is its edge.
  */
 
 import { Texture } from 'pixi.js-legacy';
 import { getTileColor } from '../../UI/Styles/tileColors';
 import { peekAtlasTexture } from './AtlasTextures';
+import { hasKerb, kerbSignature, drawKerb } from './PixiRendererTileKerb';
 
 // Procedural textures are drawn at this size; raster looks use the atlas tile's own size
 const BASE_TEXTURE_SIZE = 64;
@@ -1057,10 +1062,13 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
 
   // Cache key: source + type + variant + what corner rounding will draw. Nothing
   // position-specific, so every cell that looks the same shares one texture.
-  const mask = lipMask(tileType, row, col, tileTypes);
+  // a kerbed type (cobblestone) takes neither: the kerb is its whole edge
+  const kerbed = hasKerb(tileType);
+  const kerb = kerbed ? kerbSignature(tileType, row, col, tileTypes) : '';
+  const mask = kerbed ? 0 : lipMask(tileType, row, col, tileTypes);
   // when the lip handles grass, grass leaves the corner rounding (the lip IS its edge)
-  const signature = cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
-  const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}-${mask}`;
+  const signature = kerbed ? '----' : cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
+  const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}-${mask}-${kerb}`;
 
   // Return cached texture if available AND still valid
   if (tileTextureCache.has(cacheKey)) {
@@ -1123,6 +1131,16 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
     // Draw corner rounding, then the grass lip over it
     drawCornerRounding(ctx, size, signature, variant);
     drawLip(ctx, size, mask);
+  }
+
+  // the kerb goes over everything; outside a curved corner it shows the neighbour's ground
+  if (kerb) {
+    drawKerb(ctx, size, tileType, kerb, variant, (c, type) => {
+      const f = rasterFrame(type, variant);
+      if (f && drawRaster(c, f, size)) return;
+      c.fillStyle = getTileColor(type);
+      c.fillRect(0, 0, size, size);
+    });
   }
 
   // Convert to PixiJS texture with error handling

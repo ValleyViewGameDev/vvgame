@@ -382,3 +382,20 @@ and it is kept, with these rules:
 - **Concave corners** get a quarter-disc of grass (radius = the lip's measured depth) under
   the two lips, so their scallop valleys cannot leave a sliver of the lower tile at the
   corner; its arc carries the same thin shadow line.
+- **The kerb (2026-10-21, owner: cobblestone gets an edge "wherever this tile edges with a
+  tile of a different type, no matter what type"; reference: an Animal Crossing custom-design
+  path border, taken as the idea, not literally).** `PixiRendererTileKerb.js`, table
+  `KERB_STYLE` (only `x` today). A kerbed type opts out of the rules above: no lip, no corner
+  rounding on its cell, and nothing grows onto it (it has priority 0, and only organic types
+  grow, so neighbours already draw nothing toward it). Instead it draws, on its OWN cell, a run
+  of dressed stones along every side whose neighbour differs (14 % of the tile deep, about
+  five stones per side, lit from the upper left, grout, a few specks, moss in the odd joint, a
+  faint shadow onto the cobbles). Outer corners CURVE (two arc stones, radius ~1.9 kerb widths)
+  when both neighbours are the same type, which then shows outside the curve as its own cut
+  tile (flat colour if it has none); mixed neighbours give a square corner. Inner corners (both
+  sides kerbed, the diagonal not) get one small corner stone, so the neighbouring runs join in
+  an L. Joints always fall on the cell edges, so runs continue across cells; the board edge
+  counts as the cell's own type. Procedural on purpose (no generated pieces): the geometry
+  (curves, Ls, any neighbour) is the point, and the colours are taken from the cobble cuts.
+  The cache key gains the kerb signature (4 sides + 4 inner + 4 outer), a few dozen looks.
+  Iteration: first cut 17 % deep, four stones a side; owner: "a touch smaller".
