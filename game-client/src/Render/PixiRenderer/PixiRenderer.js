@@ -961,13 +961,9 @@ const PixiRenderer = ({
         // Calculate font size based on resource size (matching RenderResourcesCanvas logic)
         let fontSize;
         if (tileSpan > 1) {
-          if (resource.action === 'wall') {
-            fontSize = TILE_SIZE * 1.2 * tileSpan;  // Multi-tile walls
-          } else {
-            // Scale emoji font size more aggressively for larger multi-tile resources
-            const baseScale = tileSpan <= 2 ? 0.8 : (tileSpan === 3 ? 1.0 : 1.2);
-            fontSize = TILE_SIZE * baseScale * tileSpan;
-          }
+          // Scale emoji font size more aggressively for larger multi-tile resources
+          const baseScale = tileSpan <= 2 ? 0.8 : (tileSpan === 3 ? 1.0 : 1.2);
+          fontSize = TILE_SIZE * baseScale * tileSpan;
         } else {
           fontSize = resource.action === 'wall'
             ? TILE_SIZE * 1.1  // Single-tile walls

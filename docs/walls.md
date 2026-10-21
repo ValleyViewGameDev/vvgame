@@ -9,8 +9,9 @@ resource with `action: 'wall'`, `passable: false`.
 ## The data
 
 - A resource row joins a **set** with `wallSet` (ECONOMY sheet column): `Stone Wall` is
-  `stone`, `Wooden Fence` is `fence`. Rows without `wallSet` (the coloured walls, the 2 x 2
-  `Stone Wall Large`) draw as before. Two different sets never connect to each other.
+  `stone`, `Wooden Fence` is `fence`. Rows without `wallSet` (the coloured walls) draw as
+  before. Two different sets never connect to each other. (`Stone Wall Large`, the old 2 x 2
+  wall, was removed 2026-10-21: every layout now has four `Stone Wall`s on its footprint.)
 - `filename` stays the Deco panel's cursor and button image: `wall-stone.svg`,
   `fence-wood.png` (a composed straight run, made by the cutter).
 

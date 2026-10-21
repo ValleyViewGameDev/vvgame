@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "a21a2c477b8828595f60e10ccbdbabe8440d721c",
+  "sourceHash": "bf53cd529ea5599888424d22881ab7cb770129f4",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -19,7 +19,7 @@
       "json": "world-2.json",
       "png": "world-2.png",
       "webp": "world-2.webp",
-      "frames": 28
+      "frames": 29
     },
     {
       "json": "world-3.json",
@@ -31,19 +31,19 @@
       "json": "world-4.json",
       "png": "world-4.png",
       "webp": "world-4.webp",
-      "frames": 65
+      "frames": 66
     },
     {
       "json": "world-5.json",
       "png": "world-5.png",
       "webp": "world-5.webp",
-      "frames": 205
+      "frames": 207
     },
     {
       "json": "world-6.json",
       "png": "world-6.png",
       "webp": "world-6.webp",
-      "frames": 104
+      "frames": 100
     }
   ],
   "frames": {
@@ -81,7 +81,6 @@
     "resources/shrine.svg": 2,
     "resources/studio.svg": 2,
     "resources/wagon.svg": 2,
-    "resources/wall-stone.svg": 2,
     "resources/warriors-den.svg": 2,
     "resources/winery.svg": 2,
     "avatar/eyes/eyes-03-blink.svg": 2,
@@ -100,8 +99,8 @@
     "avatar/hand/bow-01.svg": 2,
     "avatar/hand/fist-01.svg": 2,
     "avatar/hand/sword-01.svg": 2,
-    "avatar/hat/hat-02.svg": 3,
-    "avatar/hat/hat-03.svg": 3,
+    "avatar/hat/hat-02.svg": 2,
+    "avatar/hat/hat-03.svg": 2,
     "avatar/skin/skin-03.svg": 3,
     "avatar/skin/skin-04-detail.svg": 3,
     "avatar/skin/skin-04.svg": 3,
@@ -164,8 +163,8 @@
     "resources/fruit-tree.svg": 3,
     "resources/haybale.svg": 3,
     "resources/mailbox.svg": 3,
-    "resources/mulberry-tree.svg": 4,
-    "resources/npc-angelo.svg": 4,
+    "resources/mulberry-tree.svg": 3,
+    "resources/npc-angelo.svg": 3,
     "resources/npc-apothecary.svg": 4,
     "resources/npc-caliban.svg": 4,
     "resources/npc-cassio.svg": 4,
@@ -216,6 +215,7 @@
     "resources/tree-orange.svg": 4,
     "resources/tree-peach.svg": 4,
     "resources/tree-pear.svg": 4,
+    "resources/wall-stone.svg": 4,
     "resources/wood.svg": 4,
     "walls/stone-e.png": 4,
     "walls/stone-n.png": 4,
@@ -229,8 +229,8 @@
     "walls/stone-s.png": 4,
     "walls/stone-se.png": 4,
     "walls/stone-sw.png": 4,
-    "walls/stone-w.png": 5,
-    "edges/g-concave-ne.png": 5,
+    "walls/stone-w.png": 4,
+    "edges/g-concave-ne.png": 4,
     "edges/g-concave-nw.png": 5,
     "edges/g-concave-se.png": 5,
     "edges/g-concave-sw.png": 5,
@@ -434,10 +434,10 @@
     "emoji/1f525": 5,
     "emoji/1f52a": 5,
     "emoji/1f52c": 5,
-    "emoji/1f52d": 6,
-    "emoji/1f52e": 6,
-    "emoji/1f531": 6,
-    "emoji/1f537": 6,
+    "emoji/1f52d": 5,
+    "emoji/1f52e": 5,
+    "emoji/1f531": 5,
+    "emoji/1f537": 5,
     "emoji/1f56f": 6,
     "emoji/1f577": 6,
     "emoji/1f5bc": 6,
