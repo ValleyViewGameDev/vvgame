@@ -4,8 +4,9 @@
  * A wall resource is placed one tile at a time (the existing Deco flow), and its look is
  * decided here from its neighbours: a resource whose master row has `wallSet` ("stone",
  * "fence") is drawn as the set's centre post plus one spoke per connected neighbour,
- * composed on a canvas from the atlas pieces `walls/<set>-post.png`, `-n/e/s/w` (straight
- * runs to the tile's edges) and `-ne/se/sw/nw` (diagonal runs to its corners), which
+ * composed on a canvas from the atlas pieces `walls/<set>-post.png`, `-n/e/s/w` (spokes to
+ * the tile's edges), `-ne/se/sw/nw` (spokes to its corners) and `-run-h/v/d1/d2` (a
+ * tile-long run with no post, used when the tile is a straight pass-through), which
  * tools/art/walls.js cuts from one generated junction panel. The neighbour's matching
  * spoke meets it at the shared edge or corner, so any formation reads as one wall.
  *
@@ -23,6 +24,9 @@ const SIDES = ['n', 'e', 's', 'w'];     // bits 1, 2, 4, 8
 const DIAGS = ['ne', 'se', 'sw', 'nw']; // bits 16, 32, 64, 128
 const OFFSET = { n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0], ne: [1, -1], se: [1, 1], sw: [-1, 1], nw: [-1, -1] };
 const COMPANIONS = { ne: ['n', 'e'], se: ['s', 'e'], sw: ['s', 'w'], nw: ['n', 'w'] };
+
+// masks that are a straight pass-through: n+s, e+w, ne+sw, nw+se
+const RUNS = { [1 | 4]: 'run-v', [2 | 8]: 'run-h', [16 | 64]: 'run-d1', [32 | 128]: 'run-d2' };
 
 const cache = new Map(); // `${set}:${mask}` -> Texture
 
@@ -75,10 +79,16 @@ export function wallTexture(set, mask) {
   const canvas = document.createElement('canvas');
   canvas.width = SIZE; canvas.height = SIZE;
   const ctx = canvas.getContext('2d');
-  // spokes first (their near ends sit under the post), diagonals before straights, then the post
-  DIAGS.forEach((d, i) => { if (mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
-  SIDES.forEach((d, i) => { if (mask & (1 << i)) drawPiece(ctx, set, d); });
-  drawPiece(ctx, set, 'post');
+  // A straight pass-through (only two opposite neighbours) is one continuous RUN piece with
+  // no post, so a wall reads as one wall between its towers; everything else is post + spokes
+  // (spokes first, their near ends sit under the post; diagonals before straights).
+  const run = RUNS[mask];
+  if (run) drawPiece(ctx, set, run);
+  else {
+    DIAGS.forEach((d, i) => { if (mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
+    SIDES.forEach((d, i) => { if (mask & (1 << i)) drawPiece(ctx, set, d); });
+    drawPiece(ctx, set, 'post');
+  }
   const texture = Texture.from(canvas);
   cache.set(key, texture);
   return texture;

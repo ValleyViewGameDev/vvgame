@@ -43,11 +43,11 @@
     },
     "p": {
       "name": "pavement",
-      "source": "whimsical-tiles/approved/openai--painterly-pavement-2-1.png",
+      "source": "whimsical-tiles/approved/openai--painterly-pavement-2-2.png",
       "inset": 0,
       "count": 16,
       "px": 128,
-      "mean": "#f3b169"
+      "mean": "#f6bb74"
     }
   }
 }

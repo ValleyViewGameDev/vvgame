@@ -14,19 +14,27 @@ resource with `action: 'wall'`, `passable: false`.
 - `filename` stays the Deco panel's cursor and button image: `wall-stone.svg`,
   `fence-wood.png` (a composed straight run, made by the cutter).
 
-## The art: one post plus eight spokes
+## The art: a post, eight spokes, four runs
 
-Each set is nine pieces in `game-client/public/assets/walls/<set>-<piece>.png` (128 px,
-atlas namespace `walls/`): `post`, straight runs `n e s w` from the tile's centre to its
-edges, and diagonal runs `ne se sw nw` from the centre to its corners. A tile is drawn as
-the post plus one spoke per connected neighbour; the neighbour's matching spoke meets it at
-the shared edge or corner.
+Each set is thirteen pieces in `game-client/public/assets/walls/<set>-<piece>.png` (128 px,
+atlas namespace `walls/`): `post`, spokes `n e s w` from the tile's centre to its edges,
+spokes `ne se sw nw` from the centre to its corners, and RUNS `run-h run-v run-d1 run-d2`,
+a tile-long straight piece with no post. A tile whose only neighbours are two opposite
+ones (a straight pass-through, orthogonal or diagonal) draws its run; every other tile (an
+end, a corner, a T, a cross) draws the post plus one spoke per connected neighbour. So a
+wall is continuous, top and bottom, between its towers, and a tower stands only where the
+wall ends, turns or meets another (owner, 2026-10-21). The neighbour's matching piece
+meets it at the shared edge or corner.
 
 `tools/art/walls.js` cuts them from two generated panels per set (`tools/art/jobs/walls.json`,
 style `whimsical`, on the magenta mask guides `guides/wall-plus.png` and `wall-cross.png`):
-a PLUS (post + four straight spokes) and a CROSS (post + four diagonals). Spokes 90 degrees
-apart overlap only at the post, so each cuts clean as a quarter wedge around its direction;
-the post is a disc from the plus panel, sized per set to cover the drawn post and its face.
+a PLUS (post + four straight spokes) and a CROSS (post + four diagonals), the spokes one and
+three quarter tiles long. Spokes 90 degrees apart overlap only at the post, so each cuts
+clean as a quarter wedge around its direction; a run is the window one tile out along a
+spoke (no post, no end cap in it); the post is an ellipse from the plus panel, sized per set
+(`--post dy,rx,ry`) to cover the drawn tower, its top above the wall's line and its face.
+The stone wall is drawn TALL (its face about twice the width of its top) and the fence's two
+rails run the full length with a wide gap (owner's notes on the first pass).
 (An eight-spoke panel was tried first: within ~85 px of the post every spoke overlaps its
 neighbours and no partition can hand each spoke only its own pixels.) The keyer (`lib/key.js`,
 `hue: true`) treats the shadow the model paints onto the magenta as background.

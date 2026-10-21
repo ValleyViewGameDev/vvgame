@@ -6,6 +6,7 @@
  *   <set>-post.png            the centre post
  *   <set>-n/e/s/w.png         a straight run from the centre to that edge of the tile
  *   <set>-ne/se/sw/nw.png     a diagonal run from the centre to that corner of the tile
+ *   <set>-run-h/v/d1/d2.png   a tile-long straight run with no post (E-W, N-S, NE-SW, NW-SE)
  *
  * Two panels per set: a PLUS (post + the four straight spokes) and a CROSS (post + the four
  * diagonals). Spokes 90 degrees apart only overlap at the post, so each spoke cuts clean as a
@@ -32,7 +33,7 @@ const DIRS = { n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-
 // wall's line, the post being taller) and its face below, but not the spokes' bases beyond the
 // post's rim. Otherwise each spoke's quarter wedge carries a quarter of the post's rim and a
 // lone straight run shows notches where the missing wedges were. --post "dy,rx,ry".
-const POST = (opt('post', set === 'fence' ? '-20,32,72' : '-15,56,78')).split(',').map(Number);
+const POST = (opt('post', set === 'fence' ? '-15,30,55' : '-10,60,110')).split(',').map(Number);
 
 /**
  * Where the post is: the centroid of the art gives a first guess (pulled down by the front
@@ -92,22 +93,36 @@ function maskSvg(piece) {
 (async () => {
   ensureDir(OUT);
   const dir = path.join(CANDIDATES, 'walls', from === 'approved' ? 'approved' : path.join('exploration', 'openai'));
-  const windowOf = async (panel, diagonal) => {
-    const file = fs.readdirSync(dir).find((f) => f.endsWith(`${panel}.png`) || f === `${panel}.png`);
-    if (!file) throw new Error(`no panel ${panel} in ${dir}`);
-    const keyed = await keyMagenta(await sharp(path.join(dir, file)).png().toBuffer(), { hue: true });
-    const ctr = diagonal ? await crossCentre(keyed) : await postCentre(keyed);
-    console.log(`${panel}: post at (${ctr.x}, ${ctr.y})`);
-    return sharp(keyed).extract({ left: ctr.x - CELL / 2, top: ctr.y - CELL / 2, width: CELL, height: CELL }).png().toBuffer();
+  const keyedCache = {};
+  const windowOf = async (panel, diagonal, ox = 0, oy = 0) => {
+    if (!keyedCache[panel]) {
+      const file = fs.readdirSync(dir).find((f) => f.endsWith(`${panel}.png`) || f === `${panel}.png`);
+      if (!file) throw new Error(`no panel ${panel} in ${dir}`);
+      const keyed = await keyMagenta(await sharp(path.join(dir, file)).png().toBuffer(), { hue: true });
+      const ctr = diagonal ? await crossCentre(keyed) : await postCentre(keyed);
+      console.log(`${panel}: post at (${ctr.x}, ${ctr.y})`);
+      keyedCache[panel] = { keyed, ctr };
+    }
+    const { keyed, ctr } = keyedCache[panel];
+    // a diagonal run's window sits one cell out along the spoke: (dx, dy) cells away
+    const left = Math.max(0, Math.min(1024 - CELL, ctr.x + ox - CELL / 2)), top = Math.max(0, Math.min(1024 - CELL, ctr.y + oy - CELL / 2));
+    return sharp(keyed).extract({ left, top, width: CELL, height: CELL }).png().toBuffer();
   };
   const plus = await windowOf(plusPanel, false);
   const cross = await windowOf(crossPanel, true);
   const cellFor = (piece) => (piece === 'post' || piece.length === 1 ? plus : cross);
+  // RUNS: a tile-long straight piece with no post, cut one cell out along a spoke (the spokes
+  // are 1.75 cells long, so the window holds neither the post nor the end cap). A tile whose
+  // only neighbours are opposite each other draws a run instead of post + two spokes, which
+  // is what makes a wall read as continuous between its towers.
+  const runs = {};
+  for (const [name, panel, diagonal, dx, dy] of [['run-h', plusPanel, false, 1, 0], ['run-v', plusPanel, false, 0, 1], ['run-d1', crossPanel, true, 1, -1], ['run-d2', crossPanel, true, 1, 1]]) {
+    runs[name] = await windowOf(panel, diagonal, dx * CELL, dy * CELL);
+  }
   const manifest = { note: 'Cut by tools/art/walls.js from a junction panel; the renderer composes a wall tile from the post plus one spoke per connected neighbour (PixiRendererWalls.js).', sets: JSON.parse(fs.existsSync(path.join(OUT, 'walls.json')) ? fs.readFileSync(path.join(OUT, 'walls.json'), 'utf8') : '{"sets":{}}').sets };
   manifest.sets[set] = { plus: plusPanel, cross: crossPanel, px: PX, pieces: [] };
-  for (const piece of ['post', ...Object.keys(DIRS)]) {
-    const mask = await sharp(maskSvg(piece)).png().toBuffer();
-    const cut = await sharp(cellFor(piece)).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer();
+  for (const piece of ['post', ...Object.keys(DIRS), ...Object.keys(runs)]) {
+    const cut = runs[piece] ? runs[piece] : await sharp(cellFor(piece)).composite([{ input: await sharp(maskSvg(piece)).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
     const small = await sharp(cut).resize(PX + 2, PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: PX, height: PX }).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(OUT, `${set}-${piece}.png`), small);
     manifest.sets[set].pieces.push(piece);
@@ -116,7 +131,7 @@ function maskSvg(piece) {
   // a proof sheet: a few formations composed from the pieces
   const piece = (p) => sharp(path.join(OUT, `${set}-${p}.png`)).resize(CELL, CELL).png().toBuffer();
   const compose = async (list) => { const layers = []; for (const p of list) layers.push({ input: await piece(p) }); return sharp({ create: { width: CELL, height: CELL, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(layers).png().toBuffer(); };
-  const forms = [['post'], ['post', 'e', 'w'], ['post', 'n', 's'], ['post', 'n', 'e'], ['post', 'e', 's', 'w'], ['post', 'n', 'e', 's', 'w'], ['post', 'ne', 'sw'], ['post', 'w', 'se'], ['post', 's', 'ne']];
+  const forms = [['post'], ['run-h'], ['run-v'], ['post', 'n', 'e'], ['post', 'e', 's', 'w'], ['post', 'n', 'e', 's', 'w'], ['run-d1'], ['run-d2'], ['post', 'w', 'se'], ['post', 'e']];
   const layers = []; let x = 8;
   for (const f of forms) { layers.push({ input: await compose(f), left: x, top: 8 }); x += CELL + 8; }
   await sharp({ create: { width: x + 8, height: CELL + 16, channels: 4, background: '#78ac14' } }).composite(layers).png().toFile(path.join(CANDIDATES, 'walls', `${set}-formations.png`));

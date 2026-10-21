@@ -14,7 +14,11 @@
         "s",
         "sw",
         "w",
-        "nw"
+        "nw",
+        "run-h",
+        "run-v",
+        "run-d1",
+        "run-d2"
       ]
     },
     "fence": {
@@ -30,7 +34,11 @@
         "s",
         "sw",
         "w",
-        "nw"
+        "nw",
+        "run-h",
+        "run-v",
+        "run-d1",
+        "run-d2"
       ]
     }
   }

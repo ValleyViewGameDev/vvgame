@@ -201,14 +201,16 @@ async function lipIslandGuide(inverse) {
  * and cuts the post and the eight spokes from the centre cell.
  */
 async function wallGuide(kind = 'all') {
-  const t = PX / 4, cx = 1.5 * t, cy = 1.5 * t;
+  // the post at the panel's centre, spokes 1.75 cells long: a tile-long RUN can then be cut one
+  // cell out along a spoke with no post and no end cap in it (tools/art/walls.js)
+  const t = PX / 4, cx = 2 * t, cy = 2 * t, len = 1.75 * t;
   const cells = [];
   for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) cells.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="#ff00ff" stroke="#5b4a6a" stroke-width="2"/>`);
   // 'plus' = the four straight spokes, 'cross' = the four diagonals: spokes that do not overlap
   // each other near the post, so the cutter can separate them cleanly
   const all = [[0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1]];
   const dirs = kind === 'plus' ? all.filter(([x, y]) => x === 0 || y === 0) : kind === 'cross' ? all.filter(([x, y]) => x !== 0 && y !== 0) : all;
-  const spokes = dirs.map(([dx, dy]) => `<line x1="${cx}" y1="${cy}" x2="${cx + dx * t}" y2="${cy + dy * t}" stroke="#2a1f33" stroke-width="10" stroke-linecap="round"/>`).join('');
+  const spokes = dirs.map(([dx, dy]) => `<line x1="${cx}" y1="${cy}" x2="${cx + dx * len}" y2="${cy + dy * len}" stroke="#2a1f33" stroke-width="10" stroke-linecap="round"/>`).join('');
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}${spokes}<circle cx="${cx}" cy="${cy}" r="18" fill="#2a1f33"/></svg>`)).png().toBuffer();
 }
 

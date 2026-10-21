@@ -29,7 +29,7 @@ const TYPES = {
   n: { src: 'slice-b-tiles/approved/openai--flatter-sand-1.png', inset: INSET, name: 'sand' },
   s: { src: 'whimsical-tiles/approved/openai--painterly-slate-1.png', inset: INSET, name: 'slate' },
   x: { src: 'whimsical-tiles/approved/openai--painterly-cobble-1.png', inset: INSET, name: 'cobblestone' },
-  p: { src: 'whimsical-tiles/approved/openai--painterly-pavement-2-1.png', inset: 0, name: 'pavement' },
+  p: { src: 'whimsical-tiles/approved/openai--painterly-pavement-2-2.png', inset: 0, trim: 0, name: 'pavement' },
 };
 
 const args = process.argv.slice(2);
@@ -51,8 +51,11 @@ async function cutType(type, spec) {
     const file = `${type}-${i}.png`;
     // resample to TILE_PX + 2 and drop the 1 px border: lanczos darkens the outermost row and
     // column by a couple of units, which read as a faint grid on the board
-    const buf = await sharp(src).extract({ left, top, width: w, height: w }).resize(TILE_PX + 2, TILE_PX + 2, { kernel: 'lanczos3' })
-      .extract({ left: 1, top: 1, width: TILE_PX, height: TILE_PX }).png({ compressionLevel: 9 }).toBuffer();
+    // (pavement keeps its edge row: the joints on the cell boundary ARE its edge pixels, and
+    // trimming them left every slab's outline stopping short of the tile edge on the board)
+    const trim = spec.trim ?? 1;
+    const buf = await sharp(src).extract({ left, top, width: w, height: w }).resize(TILE_PX + 2 * trim, TILE_PX + 2 * trim, { kernel: 'lanczos3' })
+      .extract({ left: trim, top: trim, width: TILE_PX, height: TILE_PX }).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(OUT, file), buf);
     const { channels } = await sharp(buf).stats().then((s) => ({ channels: s.channels }));
     sum = sum.map((v, k) => v + channels[k].mean);
