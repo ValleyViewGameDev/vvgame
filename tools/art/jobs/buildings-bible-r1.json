@@ -1,0 +1,74 @@
+{
+  "name": "buildings-bible-r1",
+  "note": "The buildings bible's first commission (owner, 2026-10-21): Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple at 3 x 3 in the painterly whimsical rendering, one subject per building prompted from the bible's four columns (family, look, accent, sign) plus the standing rules (full daylight, no smoke, no letters). Camera reference: the approved farmhouse panel.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "bank": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the town BANK. FAMILY: castle: a squat strongroom tower of rounded fieldstone with a stout round turret at one corner, battlements, narrow barred windows, an iron-banded arched door up two stone steps. LOOK: town: clean stone, no moss, no vines, no creeper. ACCENT: GOLD: the roof is gold, gilded scalloped tiles catching the sun, and the sign is gold. SIGN: a gold placard flat on the wall over the door showing a tied money bag, picture only. It must read as a bank at a glance: solid, rich, locked. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "warriors-den": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the WARRIOR'S DEN, the fighters' hall. FAMILY: castle: a low stone hall with a crenellated parapet and one square tower, arrow-slit windows, a heavy timber door with iron studs, a wooden weapon rack or shield by the door. LOOK: town: clean stone, no moss, no vines. ACCENT: IRON GREY: the roof is dark iron-grey slate, with one long RED banner hanging from the tower. SIGN: a placard over the door showing two crossed swords, picture only. It must read as a place to train and fight: hard, martial, a little grim but well lit. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "factory": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the FACTORY. FAMILY: industrial: a brick works with two tall brick chimneys (cold, no smoke, no steam), big iron-framed windows in rows, a sawtooth or gabled roof, an iron loading door and a crate or barrel by it; clearly not a castle, no towers, no battlements. LOOK: town: clean brick, no moss, no vines. ACCENT: BRICK RED: red brick walls and a brick-red roof; the sign is brick red. SIGN: a placard over the door showing a single large cog gear, picture only. It must read as industry at a glance: brick, chimneys, iron. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "inn": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the INN, a wayside house for travellers. FAMILY: tudor: timber framing on cream stucco, an upper floor overhanging on timber brackets, a slate roof with a brick chimney (cold, no smoke), leaded windows with a warm glow, a round-topped door. LOOK: valley: grown into nature, moss on the roof edges and a creeper of ivy climbing one wall, a bench by the door. ACCENT: RED: the roof is a warm red, and the sign is red. SIGN: a red placard hanging flat over the door showing a bed, picture only. It must read as rest and welcome at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "hospital": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the HOSPITAL, the town's house of healing. FAMILY: tudor: timber framing on white-cream stucco, a slate roof with a brick chimney (cold, no smoke), tall windows with a warm glow, a wide round-topped door with a small porch. LOOK: town: clean, tidy, no moss, no vines, no creeper; a tended herb bed in a box by the door. ACCENT: RED: the roof is red (health, like the inn) and the sign is red. SIGN: a placard flat over the door showing a mortar and pestle with a small cross above it, picture only. It must read as care and healing at a glance, calm and clean. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "ancient-temple": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached farmhouse panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering. SUBJECT: the ANCIENT TEMPLE, a ruin. FAMILY: ruin: the remains of an old temple, weathered stone columns, some broken, a cracked pediment and lintel still standing over a dark doorway, fallen blocks and steps, carvings worn smooth. LOOK: valley: moss on the stone, ivy and small ferns growing from the cracks, grass between the blocks, as if the forest is taking it back. ACCENT: weathered pale stone and moss green. SIGN: none, the ruin itself is the sign. It must read as old, sacred and abandoned at a glance, not a castle and not a building in use. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    }
+  }
+}
