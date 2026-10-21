@@ -20,6 +20,7 @@
  *   tiles/       every .png in public/assets/tiles (tools/art/tiles.js cuts them from the
  *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 144 px (frame 128, extruded 8 px into the gutter)
  *   edges/       every .png in public/assets/edges (tools/art/edges.js, the grass edge lip)  slot = 144 px
+ *   walls/       every .png in public/assets/walls (tools/art/walls.js, wall and fence pieces)  slot = 144 px
  *   emoji/       every `symbol` in resources.json that has no `filename`, plus the PC state
  *                icons, rendered from Twemoji's SVGs (node_modules/@twemoji/svg, graphics
  *                CC-BY 4.0, see public/assets/atlas/README.txt) so every platform shows the
@@ -183,6 +184,19 @@ function listEdgeSources() {
   }));
 }
 
+/** The wall and fence autotile pieces (PNG with alpha): `walls/<set>-<piece>.png` (tools/art/walls.js). */
+function listWallSources() {
+  const dir = path.join(PUBLIC, 'walls');
+  if (!fs.existsSync(dir)) return [];
+  // a set's pieces may be 192 px (a 1.5-tile wall); the cell follows the file's own size
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.png')).map((file) => {
+    const src = path.join(dir, file);
+    const buf = fs.readFileSync(src);
+    const px = buf.length > 24 && buf.toString('ascii', 12, 16) === 'IHDR' ? buf.readUInt32BE(16) : TILE_PX;
+    return { key: `walls/${file}`, src, cell: px + 2 * TILE_PAD, pad: TILE_PAD };
+  });
+}
+
 function listOverlaySources() {
   const dir = path.join(PUBLIC, 'overlays');
   return fs.readdirSync(dir).filter((f) => f.endsWith('.svg')).map((file) => ({
@@ -261,12 +275,12 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v7:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
+  h.update(`v8:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
   return h.digest('hex');
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEdgeSources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEdgeSources(), ...listWallSources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced art not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);
@@ -303,7 +317,7 @@ async function main() {
     const composites = [];
     for (const frame of sheet.frames) {
       const buf = await rasterise(frame.src, frame.px);
-      if (frame.key.startsWith('tiles/') || frame.key.startsWith('edges/')) {
+      if (frame.key.startsWith('tiles/') || frame.key.startsWith('edges/') || frame.key.startsWith('walls/')) {
         // Ground art fills its frame edge to edge, and the lossy WebP sheet blends every frame
         // edge with the transparent gutter around it (a 10% brighter rim on each tile, a grid on
         // the board). Extrude the edge pixels into the gutter so there is no boundary to blend.

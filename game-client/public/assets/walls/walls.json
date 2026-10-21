@@ -3,8 +3,9 @@
   "sets": {
     "stone": {
       "plus": "painterly-stone-wall-plus-1",
-      "cross": "painterly-stone-wall-cross-1",
-      "px": 128,
+      "cross": "painterly-stone-wall-cross-2",
+      "px": 192,
+      "span": 1.5,
       "pieces": [
         "post",
         "n",
@@ -16,15 +17,16 @@
         "w",
         "nw",
         "run-h",
-        "run-v",
         "run-d1",
-        "run-d2"
+        "run-d2",
+        "run-v"
       ]
     },
     "fence": {
       "plus": "painterly-wood-fence-plus-1",
       "cross": "painterly-wood-fence-cross-1",
       "px": 128,
+      "span": 1,
       "pieces": [
         "post",
         "n",
@@ -36,9 +38,9 @@
         "w",
         "nw",
         "run-h",
-        "run-v",
         "run-d1",
-        "run-d2"
+        "run-d2",
+        "run-v"
       ]
     }
   }

@@ -16,7 +16,7 @@ import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
 import PixiRendererDoinker from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
-import { indexWalls, wallMask, wallTexture, clearWallTextureCache } from './PixiRendererWalls';
+import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
 import CombatFX from './CombatFX';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -867,7 +867,7 @@ const PixiRenderer = ({
         const wallSet = wallIndex.get(`${resource.x},${resource.y}`);
         if (wallSet && (resource.size || 1) === 1) {
           const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
-          if (composed) return { resource, texture: composed, emojiTexture: null };
+          if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet) };
         }
         const filename = getResourceFilename(resource.type, masterResources);
         const texture = filename ? await loadSVGTexture(filename) : null;
@@ -907,7 +907,7 @@ const PixiRenderer = ({
       let emojiCount = 0;
       let skippedAnimating = 0;
 
-      for (const { resource, texture, emojiTexture } of loadedResources) {
+      for (const { resource, texture, emojiTexture, wallSpan: span } of loadedResources) {
         // Skip resources that are currently animating (VFX grow effect handles their visual)
         const isAnimating = isResourceAnimating(resource.x, resource.y);
         if (isAnimating) {
@@ -921,6 +921,19 @@ const PixiRenderer = ({
         // Position calculation (multi-tile resources grow UPWARD from anchor)
         const x = resource.x * TILE_SIZE;
         const visualY = (tileSpan > 1) ? (resource.y - tileSpan + 1) * TILE_SIZE : resource.y * TILE_SIZE;
+
+        // A composed wall taller than its tile (PixiRendererWalls): a span x span square whose
+        // bottom row and middle column of tiles is the wall's tile
+        if (span && span !== 1 && texture && texture.valid !== false) {
+          const sprite = new Sprite(texture);
+          sprite.width = TILE_SIZE * span;
+          sprite.height = TILE_SIZE * span;
+          sprite.x = (resource.x - (span - 1) / 2) * TILE_SIZE;
+          sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
+          resourceContainer.addChild(sprite);
+          svgCount++;
+          continue;
+        }
 
         // Use SVG texture if available
         if (texture && texture.valid !== false) {

@@ -33,8 +33,17 @@ three quarter tiles long. Spokes 90 degrees apart overlap only at the post, so e
 clean as a quarter wedge around its direction; a run is the window one tile out along a
 spoke (no post, no end cap in it); the post is an ellipse from the plus panel, sized per set
 (`--post dy,rx,ry`) to cover the drawn tower, its top above the wall's line and its face.
-The stone wall is drawn TALL (its face about twice the width of its top) and the fence's two
-rails run the full length with a wide gap (owner's notes on the first pass).
+The stone wall is drawn TALL and the fence's two rails run the full length with a wide gap
+(owner's notes on the first pass). Round 3 (owner: 50% taller, better lit): the model will
+not draw a wall much taller than ~140 px in the 1024 panel from a description, so the
+current panel is sent back as a reference with "the same, one and a half times taller, well
+lit"; two such rounds compound to about +30-40%. A wall that tall no longer fits a one-tile
+window, so the stone set's pieces are cut from a 256 x 384 window (`TALL` in walls.js: the
+wall's line 200 px below the window's top), padded to a 384 square and stored at 192 px;
+the renderer reads the span from the atlas frame and draws the sprite as a 1.5-tile square
+whose bottom row and middle column of tiles is the wall's tile. The north-south run is one
+cell cut from the far end of the north spoke and set into the bottom of the window: it is a
+flat band with no face, and the tile above covers the headroom with its own piece.
 (An eight-spoke panel was tried first: within ~85 px of the post every spoke overlaps its
 neighbours and no partition can hand each spoke only its own pixels.) The keyer (`lib/key.js`,
 `hue: true`) treats the shadow the model paints onto the magenta as background.

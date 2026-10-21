@@ -19,7 +19,11 @@
 import { Texture } from 'pixi.js-legacy';
 import { peekAtlasTexture } from './AtlasTextures';
 
-const SIZE = 128;                       // = the atlas piece size
+// a set's piece size comes from its atlas frame: 128 (one tile) or 192 (a 1.5-tile square whose
+// bottom and middle tile is the wall's tile; the stone wall stands taller than a tile)
+const pieceSize = (set) => peekAtlasTexture('walls', `${set}-post.png`)?.frame?.width || 128;
+/** How many tiles wide and tall a set's composed sprite is (1 or 1.5). */
+export function wallSpan(set) { return pieceSize(set) / 128; }
 const SIDES = ['n', 'e', 's', 'w'];     // bits 1, 2, 4, 8
 const DIAGS = ['ne', 'se', 'sw', 'nw']; // bits 16, 32, 64, 128
 const OFFSET = { n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0], ne: [1, -1], se: [1, 1], sw: [-1, 1], nw: [-1, -1] };
@@ -66,7 +70,7 @@ function drawPiece(ctx, set, piece) {
   const source = t?.baseTexture?.resource?.source;
   if (!source) return;
   const f = t.frame;
-  ctx.drawImage(source, f.x, f.y, f.width, f.height, 0, 0, SIZE, SIZE);
+  ctx.drawImage(source, f.x, f.y, f.width, f.height, 0, 0, f.width, f.height);
 }
 
 /** The composed texture for a set and mask (cached). Null when the set's pieces are not in the atlas. */
@@ -77,7 +81,8 @@ export function wallTexture(set, mask) {
   if (hit && hit.valid !== false && hit.baseTexture?.valid !== false) return hit;
   cache.delete(key);
   const canvas = document.createElement('canvas');
-  canvas.width = SIZE; canvas.height = SIZE;
+  const size = pieceSize(set);
+  canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
   // A straight pass-through (only two opposite neighbours) is one continuous RUN piece with
   // no post, so a wall reads as one wall between its towers; everything else is post + spokes

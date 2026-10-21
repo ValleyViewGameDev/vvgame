@@ -21,12 +21,14 @@ async function generate({ apiKey, model, prompt, refs = [], size = '1024x1024', 
     form.append('output_format', 'png');
     form.append('n', String(n));
     for (const p of refs) form.append('image[]', new Blob([fs.readFileSync(p)], { type: mimeOf(p) }), path.basename(p));
-    res = await fetch('https://api.openai.com/v1/images/edits', { method: 'POST', headers, body: form });
+    // a stalled upload hung the generator for over ten minutes once; the generator is idempotent, so fail and let the re-run retry
+    res = await fetch('https://api.openai.com/v1/images/edits', { method: 'POST', headers, body: form, signal: AbortSignal.timeout(240000) });
   } else {
     res = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ model, prompt, size, quality, background, output_format: 'png', n }),
+      signal: AbortSignal.timeout(240000),
     });
   }
   const body = await res.json();

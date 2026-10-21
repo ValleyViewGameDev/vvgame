@@ -24,16 +24,24 @@ const { keyMagenta } = require('./lib/key');
 
 const OUT = path.join(ROOT, 'game-client', 'public', 'assets', 'walls');
 const PX = 128, CELL = 256;
+// The piece window: CELL wide, WIN_H tall, the wall's line LINE_Y px below the window's top.
+// A one-tile window holds a low wall; the stone wall is 1.5 tiles tall (the owner's 50%),
+// so its window is 384 high and its pieces land in the atlas at 192 px, drawn by the renderer
+// as a 1.5-tile square whose bottom 256 rows and middle 256 columns are the tile.
+const TALL = { stone: { winH: 384, lineY: 200 }, fence: { winH: 256, lineY: 128 } };
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
-const set = opt('set', 'stone'), plusPanel = opt('plus', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-plus-1`), crossPanel = opt('cross', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-cross-1`), from = opt('from', 'exploration');
+const set = opt('set', 'stone');
+const { winH: WIN_H, lineY: LINE_Y } = TALL[set] || TALL.fence;
+const OUT_PX = Math.round(PX * WIN_H / CELL);
+const plusPanel = opt('plus', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-plus-1`), crossPanel = opt('cross', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-cross-1`), from = opt('from', 'exploration');
 
 const DIRS = { n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-1, 1], w: [-1, 0], nw: [-1, -1] };
 // The post mask, per set: an ellipse that covers the drawn post, its top (which sits ABOVE the
 // wall's line, the post being taller) and its face below, but not the spokes' bases beyond the
 // post's rim. Otherwise each spoke's quarter wedge carries a quarter of the post's rim and a
 // lone straight run shows notches where the missing wedges were. --post "dy,rx,ry".
-const POST = (opt('post', set === 'fence' ? '10,24,70' : '15,66,125')).split(',').map(Number);
+const POST = (opt('post', set === 'fence' ? '10,24,70' : '15,78,162')).split(',').map(Number);
 
 /**
  * Where the post is: the centroid of the art gives a first guess (pulled down by the front
@@ -86,11 +94,11 @@ async function crossCentre(keyed) {
  * (orthogonal spokes; a north-south spoke is a symmetric band `side` wide, it shows no face);
  * diagonal bands hang `face` x 0.75 below. --band "top,face,side" per set.
  */
-const BAND = (opt('band', set === 'fence' ? '30,56,16' : '56,112,46')).split(',').map(Number);
+const BAND = (opt('band', set === 'fence' ? '30,56,16' : '72,142,56')).split(',').map(Number);
 function maskSvg(piece) {
-  const c = CELL / 2, R = CELL;
+  const c = CELL / 2, cy = LINE_Y, R = WIN_H; // (c, cy) is the wall's line in the window
   let shape;
-  if (piece === 'post') shape = `<ellipse cx="${c}" cy="${c + POST[0]}" rx="${POST[1]}" ry="${POST[2]}"/>`;
+  if (piece === 'post') shape = `<ellipse cx="${c}" cy="${cy + POST[0]}" rx="${POST[1]}" ry="${POST[2]}"/>`;
   else {
     const [dx, dy] = DIRS[piece];
     const ang = Math.atan2(dy, dx) * 180 / Math.PI;
@@ -102,9 +110,9 @@ function maskSvg(piece) {
     // rotate(ang) maps local +y to (-sin, cos): it points DOWN on the canvas only when cos(ang) > 0
     const localYIsDown = Math.cos(ang * Math.PI / 180) > 0;
     const [yMin, yMax] = localYIsDown ? [-above, below] : [-below, above];
-    shape = `<g transform="translate(${c} ${c}) rotate(${ang})"><rect x="0" y="${yMin}" width="${R}" height="${yMax - yMin}"/></g>`;
+    shape = `<g transform="translate(${c} ${cy}) rotate(${ang})"><rect x="0" y="${yMin}" width="${R}" height="${yMax - yMin}"/></g>`;
   }
-  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${CELL}"><g fill="#fff">${shape}</g></svg>`);
+  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${WIN_H}"><g fill="#fff">${shape}</g></svg>`);
 }
 
 (async () => {
@@ -122,8 +130,8 @@ function maskSvg(piece) {
     }
     const { keyed, ctr } = keyedCache[panel];
     // a diagonal run's window sits one cell out along the spoke: (dx, dy) cells away
-    const left = Math.max(0, Math.min(1024 - CELL, ctr.x + ox - CELL / 2)), top = Math.max(0, Math.min(1024 - CELL, ctr.y + oy - CELL / 2));
-    return sharp(keyed).extract({ left, top, width: CELL, height: CELL }).png().toBuffer();
+    const left = Math.max(0, Math.min(1024 - CELL, ctr.x + ox - CELL / 2)), top = Math.max(0, Math.min(1024 - WIN_H, ctr.y + oy - LINE_Y));
+    return sharp(keyed).extract({ left, top, width: CELL, height: WIN_H }).png().toBuffer();
   };
   const plus = await windowOf(plusPanel, false);
   const cross = await windowOf(crossPanel, true);
@@ -133,24 +141,37 @@ function maskSvg(piece) {
   // only neighbours are opposite each other draws a run instead of post + two spokes, which
   // is what makes a wall read as continuous between its towers.
   const runs = {};
-  for (const [name, panel, diagonal, dx, dy] of [['run-h', plusPanel, false, 1, 0], ['run-v', plusPanel, false, 0, 1], ['run-d1', crossPanel, true, 1, -1], ['run-d2', crossPanel, true, 1, 1]]) {
+  for (const [name, panel, diagonal, dx, dy] of [['run-h', plusPanel, false, 1, 0], ['run-d1', crossPanel, true, 1, -1], ['run-d2', crossPanel, true, 1, 1]]) {
     runs[name] = await windowOf(panel, diagonal, dx * CELL, dy * CELL);
   }
+  // run-v: a north-south wall is a flat band seen from above with no face, so it needs only
+  // its own tile's rows (the tile above covers the headroom with its own piece). One cell is
+  // cut from the far end of the NORTH spoke, clear of the tower, and set into the bottom of
+  // the window. (A tall window one cell south of the post held the tower's base.)
+  {
+    const { keyed, ctr } = keyedCache[plusPanel];
+    const top = Math.max(0, ctr.y - Math.round(1.72 * CELL)), left = ctr.x - CELL / 2;
+    const cell = await sharp(keyed).extract({ left, top, width: CELL, height: CELL }).png().toBuffer();
+    runs['run-v'] = WIN_H === CELL ? cell : await sharp({ create: { width: CELL, height: WIN_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: cell, left: 0, top: WIN_H - CELL }]).png().toBuffer();
+  }
   const manifest = { note: 'Cut by tools/art/walls.js from a junction panel; the renderer composes a wall tile from the post plus one spoke per connected neighbour (PixiRendererWalls.js).', sets: JSON.parse(fs.existsSync(path.join(OUT, 'walls.json')) ? fs.readFileSync(path.join(OUT, 'walls.json'), 'utf8') : '{"sets":{}}').sets };
-  manifest.sets[set] = { plus: plusPanel, cross: crossPanel, px: PX, pieces: [] };
+  manifest.sets[set] = { plus: plusPanel, cross: crossPanel, px: OUT_PX, span: WIN_H / CELL, pieces: [] };
   for (const piece of ['post', ...Object.keys(DIRS), ...Object.keys(runs)]) {
     const cut = runs[piece] ? runs[piece] : await sharp(cellFor(piece)).composite([{ input: await sharp(maskSvg(piece)).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
-    const small = await sharp(cut).resize(PX + 2, PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: PX, height: PX }).png({ compressionLevel: 9 }).toBuffer();
+    const pad = (WIN_H - CELL) / 2; // a tall window becomes a square with the tile's columns in the middle
+    const square = pad ? await sharp(cut).extend({ left: pad, right: pad, background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer() : cut;
+    const small = await sharp(square).resize(OUT_PX + 2, OUT_PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: OUT_PX, height: OUT_PX }).png({ compressionLevel: 9 }).toBuffer();
     fs.writeFileSync(path.join(OUT, `${set}-${piece}.png`), small);
     manifest.sets[set].pieces.push(piece);
   }
   fs.writeFileSync(path.join(OUT, 'walls.json'), JSON.stringify(manifest, null, 2) + '\n');
   // a proof sheet: a few formations composed from the pieces
-  const piece = (p) => sharp(path.join(OUT, `${set}-${p}.png`)).resize(CELL, CELL).png().toBuffer();
-  const compose = async (list) => { const layers = []; for (const p of list) layers.push({ input: await piece(p) }); return sharp({ create: { width: CELL, height: CELL, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(layers).png().toBuffer(); };
+  const S = WIN_H;
+  const piece = (p) => sharp(path.join(OUT, `${set}-${p}.png`)).resize(S, S).png().toBuffer();
+  const compose = async (list) => { const layers = []; for (const p of list) layers.push({ input: await piece(p) }); return sharp({ create: { width: S, height: S, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(layers).png().toBuffer(); };
   const forms = [['post'], ['run-h'], ['run-v'], ['post', 'n', 'e'], ['post', 'e', 's', 'w'], ['post', 'n', 'e', 's', 'w'], ['run-d1'], ['run-d2'], ['post', 'w', 'se'], ['post', 'e']];
   const layers = []; let x = 8;
-  for (const f of forms) { layers.push({ input: await compose(f), left: x, top: 8 }); x += CELL + 8; }
-  await sharp({ create: { width: x + 8, height: CELL + 16, channels: 4, background: '#78ac14' } }).composite(layers).png().toFile(path.join(CANDIDATES, 'walls', `${set}-formations.png`));
+  for (const f of forms) { layers.push({ input: await compose(f), left: x, top: 8 }); x += S + 8; }
+  await sharp({ create: { width: x + 8, height: S + 16, channels: 4, background: '#78ac14' } }).composite(layers).png().toFile(path.join(CANDIDATES, 'walls', `${set}-formations.png`));
   console.log(`wrote ${path.relative(ROOT, OUT)}/${set}-*.png and _candidates/walls/${set}-formations.png. Next: npm run build:atlas in game-client.`);
 })().catch((e) => { console.error(e); process.exit(1); });
