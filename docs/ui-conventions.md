@@ -302,8 +302,14 @@ value rather than trust this page.
   runs out and, when it wins, plays 2 s of effect built from random parts, so a big field
   reads as organic, unpredictable bubbling, never a wave. Stylised, not realistic. Only the
   tiles in view roll, nothing plays below 16 px per tile, and at most 120 effects run at
-  once. Lava bubbles are the first; water and sand follow as entries in `TILE_FX` with
-  their own `build` (owner, 2026-10-21).
+  once. Lava bubbles are the first; sand follows as an entry in `TILE_FX` with its own
+  `build` (owner, 2026-10-21). Water is NOT a tile effect: no bubbles on water, they would
+  read as something under the surface (fishing may come later). Water is a FIELD effect
+  (`FIELD_FX`): one GPU filter over a per-grid mask of the water tiles whose shader paints
+  slow-drifting light reflections (the edges of a voronoi field whose points wander, blown
+  one way) and sparse twinkling sparkles, in world space, faded out within half a tile of
+  the rim and below 10 px per tile; one pass over the water's screen area whatever the
+  lake's size, never a sprite per tile (owner's references: the pixel-art RPG water shaders).
 - Combat feedback (`Render/PixiRenderer/CombatFX.js`, all on the board, no panels): swing
   lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
   around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the

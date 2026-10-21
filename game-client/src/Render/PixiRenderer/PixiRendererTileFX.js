@@ -1,9 +1,11 @@
 /**
  * PixiRendererTileFX: ambient effects on ground tiles (owner, 2026-10-21).
  *
- * A tile deep inside a field of its own kind (every tile within `ring` of it is the same
- * type) may now and then play a short, stylised effect: lava bubbles today, water and sand
- * later. The look of a field comes from chance, not choreography: each eligible tile rolls
+ * Two kinds of effect live here.
+ *
+ * TILE effects (TILE_FX): a tile deep inside a field of its own kind (every tile within
+ * `ring` of it is the same type) may now and then play a short, stylised effect: lava
+ * bubbles today, sand later. The look of a field comes from chance, not choreography: each eligible tile rolls
  * `chance` when its cooldown runs out, plays `durationMs` of effect when it wins, and every
  * effect is built from random parts (count, size, place, timing), so no two are the same
  * and a big field bubbles organically rather than in waves.
@@ -15,10 +17,19 @@
  * tile size, and returns { update(elapsedMs) } for the effect's lifetime; the container is
  * destroyed with its children when the effect ends.
  *
+ * FIELD effects (FIELD_FX): one GPU filter over the whole field of a type, the water today.
+ * The field is a mask sprite (one texel per tile, scaled up hard-edged) and the filter's
+ * fragment shader paints, where the mask is set, slow-drifting light reflections (thin
+ * caustic-like lines from a few sine fields, blown one way) and sparse twinkling sparkles,
+ * all computed in world space from a time uniform, so it costs one pass over the water's
+ * screen area whatever the lake's size and never a sprite per tile (owner's references:
+ * the pixel-art RPG water shaders, 2026-10-21). No bubbles on water: they would read as
+ * something under the surface, and fishing may come later (owner).
+ *
  * Layer: `tile-fx`, right above the ground tiles and under everything that stands on them.
  */
 import { useEffect, useRef } from 'react';
-import { Container, Sprite, Texture } from 'pixi.js-legacy';
+import { Container, Sprite, Texture, Filter, SCALE_MODES } from 'pixi.js-legacy';
 import PixiCamera from './PixiCamera';
 
 const SCHEDULE_EVERY_MS = 200; // how often eligible tiles in view are rolled
@@ -29,6 +40,84 @@ export const TILE_FX = {
   // lava: bubbles that swell and burst
   l: { ring: 2, chance: 0.25, durationMs: 2400, cooldownMs: [4000, 10000], maxActive: 120, minTilePx: 16, build: buildLavaBubbles },
 };
+
+/** Per tile type: a field-wide shader. `fragment` paints the effect where the mask is set. */
+export const FIELD_FX = {
+  w: { minTilePx: 10, fragment: () => WATER_FRAG },
+};
+
+// Water: light reflections and sparkles. Coordinates are in tiles of world space, so the
+// pattern stays pinned to the lake while the camera pans and zooms. `edge` fades the effect
+// out within half a tile of the water's rim (the ground tiles round their corners there).
+const WATER_FRAG = `
+precision mediump float;
+varying vec2 vTextureCoord;
+uniform sampler2D uSampler;
+uniform highp vec4 inputSize;   // Pixi declares these highp in its vertex shader; the precisions must match
+uniform highp vec4 outputFrame;
+uniform float uTime;
+uniform vec2 uOrigin;
+uniform float uZoom;
+uniform float uTile;
+uniform float uFade;
+
+float hash(vec2 c) { return fract(sin(dot(c, vec2(127.1, 311.7))) * 43758.5453); }
+
+// the reflections: the edges of a voronoi cell field whose seed points wander slowly, so the
+// bright network keeps folding and reconnecting, and the whole field drifts with the wind
+float voro(vec2 p, float t) {
+  vec2 g = floor(p), f = fract(p);
+  float d1 = 8.0, d2 = 8.0;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 o = vec2(float(i), float(j));
+      vec2 h = vec2(hash(g + o), hash(g + o + 5.3));
+      vec2 pt = o + 0.5 + 0.38 * sin(t * 0.45 + 6.2832 * h);
+      float d = length(pt - f);
+      if (d < d1) { d2 = d1; d1 = d; } else if (d < d2) { d2 = d; }
+    }
+  }
+  return d2 - d1;                                   // 0 on a cell edge
+}
+float ridges(vec2 p, float t) {
+  p += vec2(0.86, 0.5) * t * 0.06;                 // drift with the wind
+  return smoothstep(0.30, 0.0, voro(p * 0.6, t));  // large cells, soft edges
+}
+// a slow, large patchiness so the network comes and goes in places instead of covering the lake
+float patches(vec2 p, float t) {
+  float n = sin(p.x * 0.55 + t * 0.17) * sin(p.y * 0.47 - t * 0.13) + 0.5 * sin((p.x - p.y) * 0.33 + t * 0.09);
+  return smoothstep(-0.35, 0.65, n);
+}
+
+// sparse sparkles: a few cells per tile, each twinkling briefly on its own clock
+float sparkle(vec2 p, float t) {
+  vec2 g = p * 2.0;
+  vec2 cell = floor(g);
+  float h = hash(cell);
+  if (h < 0.6) return 0.0;                          // most cells never sparkle
+  vec2 f = fract(g) - 0.5 - (vec2(hash(cell + 7.1), hash(cell + 13.7)) - 0.5) * 0.6;
+  float phase = fract(t * 0.12 + h * 7.0);          // one twinkle every ~8 s per cell
+  float on = smoothstep(0.0, 0.10, phase) * smoothstep(0.26, 0.14, phase);
+  float star = max(0.0, 1.0 - (abs(f.x) + abs(f.y)) * 8.0);
+  return star * star * on;
+}
+
+void main() {
+  vec4 m = texture2D(uSampler, vTextureCoord);
+  if (m.a < 0.01 || uFade <= 0.0) { gl_FragColor = vec4(0.0); return; }
+  vec2 dt = vec2(uTile * uZoom * 0.5) * inputSize.zw;
+  float edge = min(min(texture2D(uSampler, vTextureCoord + vec2(dt.x, 0.0)).a, texture2D(uSampler, vTextureCoord - vec2(dt.x, 0.0)).a),
+                   min(texture2D(uSampler, vTextureCoord + vec2(0.0, dt.y)).a, texture2D(uSampler, vTextureCoord - vec2(0.0, dt.y)).a));
+  vec2 screen = vTextureCoord * inputSize.xy + outputFrame.xy;
+  vec2 p = (screen - uOrigin) / (uZoom * uTile);   // world position in tiles
+  float t = uTime;
+  float r = (ridges(p, t) * 0.8 + ridges(p * 1.9 + 3.1, t * 1.2) * 0.3) * patches(p, t);
+  float s = sparkle(p, t);
+  float a = clamp(r * 0.20 + s * 0.8, 0.0, 1.0) * edge * uFade;
+  vec3 col = mix(vec3(0.78, 0.93, 1.0), vec3(1.0), s);
+  gl_FragColor = vec4(col * a, a);
+}
+`;
 
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 const easeOut = (p) => 1 - (1 - p) * (1 - p);
@@ -129,6 +218,8 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
   const texRef = useRef(null);
   const eligibleRef = useRef([]);
   const activeRef = useRef([]);
+  const fieldsRef = useRef([]); // { type, sprite, filter, cfg }
+  const tileTypesRef = useRef(null);
 
   // The layer and the shared textures, once per app
   useEffect(() => {
@@ -153,9 +244,46 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
     ctx.fillStyle = g; ctx.fillRect(0, 0, TEX_R * 2, TEX_R * 2);
     texRef.current = { soft: Texture.from(canvas) };
 
+    // the field shaders, rebuilt from the tile map (a new grid, or a converted tile)
+    const buildFields = () => {
+      for (const f of fieldsRef.current) { try { f.sprite.destroy({ texture: true, baseTexture: true }); } catch (_) { /* gone */ } }
+      fieldsRef.current = [];
+      const tileTypes = tileTypesRef.current;
+      if (!tileTypes?.length) return;
+      const rows = tileTypes.length, cols = tileTypes[0]?.length || 0;
+      for (const [type, cfg] of Object.entries(FIELD_FX)) {
+        const canvas = document.createElement('canvas');
+        canvas.width = cols; canvas.height = rows;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        let any = false;
+        for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) if (tileTypes[row][col] === type) { ctx.fillRect(col, row, 1, 1); any = true; }
+        if (!any) continue;
+        const sprite = new Sprite(Texture.from(canvas, { scaleMode: SCALE_MODES.NEAREST }));
+        sprite.width = cols * TILE_SIZE; sprite.height = rows * TILE_SIZE;
+        const filter = new Filter(undefined, cfg.fragment(), { uTime: 0, uOrigin: [0, 0], uZoom: 1, uTile: TILE_SIZE, uFade: 1 });
+        filter.padding = 0;
+        sprite.filters = [filter];
+        layer.addChild(sprite);
+        fieldsRef.current.push({ type, sprite, filter, cfg });
+      }
+    };
+    buildFields();
+    layerRef.current.__buildFields = buildFields;
+
     let lastSchedule = 0;
     const tick = () => {
       const now = performance.now();
+      // 0. the field shaders follow the camera and the clock
+      if (fieldsRef.current.length) {
+        const zoom = world.scale.x, tilePx = TILE_SIZE * zoom;
+        for (const f of fieldsRef.current) {
+          const u = f.filter.uniforms;
+          u.uTime = now / 1000; u.uOrigin[0] = world.x; u.uOrigin[1] = world.y; u.uZoom = zoom;
+          u.uFade = Math.max(0, Math.min(1, (tilePx - f.cfg.minTilePx) / 8));
+          f.sprite.visible = u.uFade > 0;
+        }
+      }
       // 1. advance the effects in flight
       const active = activeRef.current;
       for (let i = active.length - 1; i >= 0; i--) {
@@ -185,12 +313,14 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
       }
     };
     app.ticker.add(tick);
-    if (process.env.NODE_ENV !== 'production') window.__tileFx = () => ({ eligible: eligibleRef.current.length, active: activeRef.current.length, fps: Math.round(app.ticker.FPS) }); // dev hook
+    if (process.env.NODE_ENV !== 'production') window.__tileFx = () => ({ eligible: eligibleRef.current.length, active: activeRef.current.length, fields: fieldsRef.current.map((f) => f.type), fps: Math.round(app.ticker.FPS) }); // dev hook
 
     return () => {
       try { app.ticker.remove(tick); } catch (_) { /* app gone */ }
       for (const fx of activeRef.current) { try { fx.container.destroy({ children: true }); } catch (_) { /* gone */ } }
       activeRef.current = [];
+      for (const f of fieldsRef.current) { try { f.sprite.destroy({ texture: true, baseTexture: true }); } catch (_) { /* gone */ } }
+      fieldsRef.current = [];
       const tex = texRef.current; texRef.current = null;
       if (tex) { try { tex.soft.destroy(true); } catch (_) { /* gone */ } }
       layerRef.current = null;
@@ -202,6 +332,8 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
     for (const fx of activeRef.current) { try { fx.container.destroy({ children: true }); } catch (_) { /* gone */ } }
     activeRef.current = [];
     eligibleRef.current = findEligible(tileTypes);
+    tileTypesRef.current = tileTypes;
+    layerRef.current?.__buildFields?.();
   }, [tileTypes]);
 
   return null;
