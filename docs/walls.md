@@ -22,7 +22,11 @@ atlas namespace `walls/`): `post`, spokes `n e s w` from the tile's centre to it
 spokes `ne se sw nw` from the centre to its corners, and RUNS `run-h run-v run-d1 run-d2`,
 a tile-long straight piece with no post. A tile whose only neighbours are two opposite
 ones (a straight pass-through, orthogonal or diagonal) draws its run; every other tile (an
-end, a corner, a T, a cross) draws the post plus one spoke per connected neighbour. So a
+end, a corner, a T, a cross) draws the post plus one spoke per connected neighbour: the
+spokes that leave to the north, east or west under the post, the spokes that leave to the
+south (s, se, sw) OVER it, so a wall coming up from the south is seen running into the
+post's lower body and ending there, with the cap and upper body above it (owner,
+2026-10-21). So a
 wall is continuous, top and bottom, between its towers, and a tower stands only where the
 wall ends, turns or meets another (owner, 2026-10-21). The neighbour's matching piece
 meets it at the shared edge or corner.

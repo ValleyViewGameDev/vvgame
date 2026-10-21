@@ -85,14 +85,20 @@ export function wallTexture(set, mask) {
   canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
   // A straight pass-through (only two opposite neighbours) is one continuous RUN piece with
-  // no post, so a wall reads as one wall between its towers; everything else is post + spokes
-  // (spokes first, their near ends sit under the post; diagonals before straights).
+  // no post, so a wall reads as one wall between its towers; everything else is post + spokes.
+  // Spokes that leave to the north, east or west go under the post (the post's body hides
+  // their near ends); spokes that leave to the south go OVER it, so the wall is seen running
+  // up into the post's lower body and ending there, the post's cap and upper body above it
+  // (owner, 2026-10-21). Diagonals before straights on each side of the post.
   const run = RUNS[mask];
   if (run) drawPiece(ctx, set, run);
   else {
-    DIAGS.forEach((d, i) => { if (mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
-    SIDES.forEach((d, i) => { if (mask & (1 << i)) drawPiece(ctx, set, d); });
+    const behind = (d) => !d.startsWith('s');
+    DIAGS.forEach((d, i) => { if (behind(d) && mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
+    SIDES.forEach((d, i) => { if (behind(d) && mask & (1 << i)) drawPiece(ctx, set, d); });
     drawPiece(ctx, set, 'post');
+    DIAGS.forEach((d, i) => { if (!behind(d) && mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
+    SIDES.forEach((d, i) => { if (!behind(d) && mask & (1 << i)) drawPiece(ctx, set, d); });
   }
   const texture = Texture.from(canvas);
   cache.set(key, texture);
