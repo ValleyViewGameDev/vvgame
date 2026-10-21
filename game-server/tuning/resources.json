@@ -7260,7 +7260,7 @@
     "parallel": 1,
     "artFamily": "tudor",
     "artLook": "town",
-    "artAccent": "white and pale blue",
+    "artAccent": "red (shared with the Inn: health)",
     "artSign": "mortar and pestle with a cross"
   },
   {
@@ -7506,7 +7506,7 @@
     "parallel": 5,
     "artFamily": "workshop",
     "artLook": "homestead",
-    "artAccent": "warm orange",
+    "artAccent": "toasted brown",
     "artSign": "loaf of bread"
   },
   {
@@ -7969,7 +7969,7 @@
     "filename": "laboratory.svg",
     "artFamily": "tudor",
     "artLook": "town",
-    "artAccent": "copper orange",
+    "artAccent": "warm orange (cooking)",
     "artSign": "flask crossed with a whisk"
   },
   {
@@ -8001,7 +8001,7 @@
     "filename": "academy.svg",
     "artFamily": "tudor",
     "artLook": "town",
-    "artAccent": "plum",
+    "artAccent": "pink (creativity)",
     "artSign": "needle and thread over a palette"
   },
   {
@@ -8031,7 +8031,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "guild.svg",
-    "artFamily": "fantastical",
+    "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "teal",
     "artSign": "crest with crossed tools"
@@ -8095,7 +8095,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "factory.svg",
-    "artFamily": "castle",
+    "artFamily": "industrial",
     "artLook": "town",
     "artAccent": "brick red",
     "artSign": "gear"
@@ -8156,7 +8156,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "trade.svg"
+    "filename": "trade.svg",
+    "artFamily": "cottage",
+    "artLook": "homestead",
+    "artAccent": "warm wood",
+    "artSign": "none"
   },
   {
     "type": "Bank",
@@ -8221,8 +8225,8 @@
     "filename": "town-hall.svg",
     "artFamily": "tudor",
     "artLook": "town",
-    "artAccent": "royal purple",
-    "artSign": "scales of justice"
+    "artAccent": "multi (a big civic building; its clock tower is the landmark)",
+    "artSign": "none (clock tower)"
   },
   {
     "type": "Train",
@@ -8285,10 +8289,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "carnival.svg",
-    "artFamily": "fantastical",
+    "artFamily": "tent",
     "artLook": "town",
-    "artAccent": "red and white stripes",
-    "artSign": "none (the tents are the sign)"
+    "artAccent": "harlequin (many colours)",
+    "artSign": "none (a big tent)"
   },
   {
     "type": "Mailbox",
@@ -8483,7 +8487,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "crate.svg"
+    "filename": "crate.svg",
+    "artFamily": "cottage",
+    "artLook": "homestead",
+    "artAccent": "warm wood",
+    "artSign": "none"
   },
   {
     "type": "Inn",
@@ -8585,7 +8593,7 @@
     "filename": "farm-house.svg",
     "artFamily": "cottage",
     "artLook": "homestead",
-    "artAccent": "straw and warm wood",
+    "artAccent": "straw and warm wood, some greenery",
     "artSign": "none"
   },
   {
@@ -8615,10 +8623,10 @@
     "validonv": false,
     "validonu": false,
     "filename": "shrine.svg",
-    "artFamily": "fantastical",
+    "artFamily": "japanese",
     "artLook": "valley",
-    "artAccent": "jade and white",
-    "artSign": "trident"
+    "artAccent": "classic dark orange (vermilion)",
+    "artSign": "none"
   },
   {
     "type": "Castle",
@@ -8677,8 +8685,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "artFamily": "castle",
-    "artLook": "town",
+    "artFamily": "japanese",
+    "artLook": "valley",
     "artAccent": "black and white",
     "artSign": "none"
   },
@@ -8710,7 +8718,7 @@
     "ingredient1qty": 1,
     "artFamily": "cottage",
     "artLook": "town",
-    "artAccent": "warm orange",
+    "artAccent": "cherry and cream stripes",
     "artSign": "bowl and spoon"
   },
   {
@@ -8837,7 +8845,7 @@
     "filename": "magic-shop.svg",
     "artFamily": "fantastical",
     "artLook": "town",
-    "artAccent": "deep violet",
+    "artAccent": "purple",
     "artSign": "crescent moon and star"
   },
   {

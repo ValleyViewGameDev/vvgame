@@ -23,7 +23,11 @@ signage and props. Whimsical is the style laid over all of it.
   wooden roof), `fantastical` (a crooked tower, stained glass, a great carved door; for
   the Guild and the magical), `workshop` (the 2 x 2 crafting stations: the open-air
   cut-away template, back wall, partial sides, open front, the product in the middle),
-  plus `camp` (Adventure Camp), `ruin` (Ancient Temple) and `vehicle` (the Train).
+  plus `industrial` (the Factory: brick and chimneys, distinct from the castles),
+  `japanese` (Shiro and Shrine: a keep and a shrine in Japanese architecture), `tent`
+  (the Carnival: a big tent-like structure, as in the game today), `camp` (Adventure Camp),
+  `ruin` (Ancient Temple) and `vehicle` (the Train). Tudor, castle and cottage are the three
+  primary styles, not the only ones (owner).
   Banned everywhere: clay or Spanish tile roofs; bracket signs that stick out of the
   footprint.
 - **Colour is a function cue.** Each building owns an ACCENT colour carried by its roof
@@ -33,8 +37,10 @@ signage and props. Whimsical is the style laid over all of it.
 - **Town look and valley look.** Only `valley` buildings wear moss and vines, as if grown
   into nature: Inn, Post House, Adventure Camp, Ancient Temple, Shrine. `town` buildings
   (Hospital, Library, Bank, Courthouse, Carnival, the shops and training halls) are
-  explicitly clean: no moss, no creeper. `homestead` (the Farm House and the crafting
-  stations) is the owner's call, proposed clean with weathered materials.
+  explicitly clean: no moss, no creeper. `homestead` is a third look for things that exist
+  only on the homestead (Farm House, Trading Post, Warehouse, the crafting stations):
+  "home-y", farm-like, country; some greenery is fine (the approved Farm House keeps its
+  ivy). To be defined further when those are drawn.
 - **Signage** is a placard flat on the front or a post sign in a front yard, inside the
   footprint, imagery only, never letters; the image names the function (bed, money bag,
   scales). `artSign: none` for buildings whose form is the sign (Carnival, Ancient Temple).
@@ -51,24 +57,24 @@ Town (clean), closed buildings:
 | Building | Family | Accent (roof and sign) | Sign | Note |
 |---|---|---|---|---|
 | Bank | castle | gold | money bag | the owner's example: a strongroom tower |
-| Courthouse | tudor | royal purple | scales of justice | 5 x 5 in data |
-| Hospital | tudor | white and pale blue | mortar and pestle with a cross | red is the Inn's, so the Hospital is white; QUESTION 1 |
+| Courthouse | tudor | several colours, a clock tower | none (the clock tower) | 5 x 5 in data |
+| Hospital | tudor | red (health, shared with the Inn) | mortar and pestle with a cross | town look: clean |
 | Library | tudor | navy blue | open book | |
 | School | tudor | sunflower yellow | school bell | |
-| Academy | tudor | plum | needle and thread over a palette | textiles, artistry, tailoring |
-| Laboratory | tudor | copper orange | flask crossed with a whisk | the cooking school |
+| Academy | tudor | pink (creativity) | needle and thread over a palette | textiles, artistry, tailoring |
+| Laboratory | tudor | warm orange (cooking) | flask crossed with a whisk | the cooking school |
 | Agriculture Center | tudor | leaf green | wheat sheaf | |
-| Factory | castle | brick red | gear | brick and chimneys: an industrial castle; QUESTION 2 |
+| Factory | industrial | brick red | gear | brick and chimneys, distinct from the castles |
 | General Store | cottage | ochre brown | crossed axe and pickaxe | |
-| Magic Shop | fantastical | deep violet | crescent moon and star | |
-| Guild | fantastical | teal | crest with crossed tools | QUESTION 3 (town or valley) |
+| Magic Shop | fantastical | purple | crescent moon and star | |
+| Guild | tudor | teal | crest with crossed tools | a very unusual roof shape sets it apart |
 | Warrior's Den | castle | iron grey, red banner | crossed swords | |
 | Armory | castle | steel silver | shield and helmet | |
 | Castle | castle | royal blue and gold | crown | |
-| Restaurant | cottage | warm orange | bowl and spoon | |
-| Restroom | cottage | slate blue | none | 2 x 2; QUESTION 4 |
-| Shiro | castle | black and white | none | a Japanese keep; QUESTION 5 |
-| Carnival | fantastical | red and white stripes | none, the tents are the sign | 4 x 4 |
+| Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
+| Restroom | cottage | slate blue | none | 2 x 2 |
+
+| Carnival | tent | harlequin, many colours | none, it is a big tent | 4 x 4; keep today's tent idea, in the whimsical style |
 | Train | vehicle | black and brass | none | not a building |
 
 Valley (moss and vines):
@@ -79,15 +85,18 @@ Valley (moss and vines):
 | Post House | cottage | sky blue | sealed letter | |
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire | |
 | Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | |
-| Shrine | fantastical | jade and white | trident | QUESTION 6 (valley?) |
+| Shrine | japanese | classic dark orange (vermilion) | none | Japanese architecture |
+| Shiro | japanese | black and white | none | a Japanese keep, valley look, unique architecture |
 
 Homestead:
 
 | Building | Family | Accent | Sign | Note |
 |---|---|---|---|---|
-| Farm House | cottage | straw and warm wood | none | approved panel `painterly-farmhouse-1`; it HAS ivy; QUESTION 7 |
+| Farm House | cottage | straw and warm wood, some greenery | none | approved panel `painterly-farmhouse-1` |
+| Trading Post | cottage | warm wood | none | 1 x 1 |
+| Warehouse | cottage | warm wood | none | 1 x 1 |
 | Dairy | workshop | cream white | milk churn | the approved station template `dairy-b-1` |
-| Oven | workshop | warm orange | loaf of bread | |
+| Oven | workshop | toasted brown | loaf of bread | |
 | Kitchen | workshop | tomato red | steaming pot | |
 | Mill | workshop | wheat tan | flour sack | machine left, sacks right (owner) |
 | Loom | workshop | indigo blue | spool of thread | |
@@ -101,19 +110,24 @@ Homestead:
 Not tagged: the 1 x 1 slots and props (Beehive, Chicken Coop, Mailbox, Warehouse, Trade
 Stall, Trading Post, the worker slots), the Dungeon Entrance and the editor-only landmarks.
 
-## 3. Questions for the owner
+## 3. Decisions taken (owner, 2026-10-21) and what is still open
 
-1. Hospital: white and pale blue with a cross in the sign, since red is the Inn's? Or give
-   the Hospital red and move the Inn to another warm colour?
-2. Factory as a brick "industrial castle" with chimneys, or tudor like the other training halls?
-3. Guild: town (proposed) or valley?
-4. Restroom and Shiro: keep as buildings at all? Both are dev-only shops with nothing to sell.
-5. Shiro: a Japanese keep in the castle family, black and white; or drop it from the set.
-6. Shrine: valley (proposed, it holds the Trident) or town?
-7. Farm House: the approved panel has ivy; keep it as the one homestead building that wears
-   greenery, or regenerate it clean to match the homestead rule?
-8. Any accent that clashes with your colour sense for the character (the Courthouse purple,
-   the School yellow, the Academy plum are the least certain).
+Taken: Hospital and Inn share red (health), the Hospital town-look; Factory is `industrial`
+brick; Guild is tudor and town with an unusual roof; the Courthouse has a clock tower, no
+sign and several colours; `homestead` is a third look (Farm House with greenery, Trading
+Post, Warehouse); Shiro and Shrine are `japanese` and valley, black and white and dark
+orange; Laboratory warm orange, Academy pink, Magic Shop purple; the Carnival is a
+harlequin big tent in the whimsical style.
+
+Open:
+
+1. **Footprints: most 2 x 2 buildings go 3 x 3**, with some exceptions, and the owner
+   reworks the town layouts by hand. Which stay 2 x 2? Proposed to stay: the Farm House
+   (homestead space), the Mill, the Restroom, the Train (a vehicle). The rest of the
+   crafting stations (Dairy, Oven, Kitchen, Loom, Lumber Yard, Studio, Beverage Station,
+   Winery, Coffee Factory, Silkery) would go 3 x 3, which also means the approved Dairy
+   template is regenerated at 3 x 3. Sizes in data are not changed until the owner says.
+2. Restroom: keep it in the set at all? It is a dev-only shop with nothing to sell.
 
 ## 4. What a generation gets from this
 
