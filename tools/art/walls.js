@@ -33,7 +33,7 @@ const DIRS = { n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-
 // wall's line, the post being taller) and its face below, but not the spokes' bases beyond the
 // post's rim. Otherwise each spoke's quarter wedge carries a quarter of the post's rim and a
 // lone straight run shows notches where the missing wedges were. --post "dy,rx,ry".
-const POST = (opt('post', set === 'fence' ? '-15,30,55' : '-10,60,110')).split(',').map(Number);
+const POST = (opt('post', set === 'fence' ? '10,24,70' : '15,66,125')).split(',').map(Number);
 
 /**
  * Where the post is: the centroid of the art gives a first guess (pulled down by the front
@@ -86,7 +86,7 @@ async function crossCentre(keyed) {
  * (orthogonal spokes; a north-south spoke is a symmetric band `side` wide, it shows no face);
  * diagonal bands hang `face` x 0.75 below. --band "top,face,side" per set.
  */
-const BAND = (opt('band', set === 'fence' ? '14,46,12' : '32,80,34')).split(',').map(Number);
+const BAND = (opt('band', set === 'fence' ? '30,56,16' : '56,112,46')).split(',').map(Number);
 function maskSvg(piece) {
   const c = CELL / 2, R = CELL;
   let shape;
