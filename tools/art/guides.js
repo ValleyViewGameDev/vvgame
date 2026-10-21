@@ -97,6 +97,19 @@ async function buildingGuide(n) {
 }
 
 /**
+ * The cut-out guide for a building: the same (n + 2) patch, but pure magenta (#ff00ff) with the
+ * thin grid and the n x n box outlined, no tan fill. The model redraws an approved building on
+ * it and tools/art/cutout.js keys the magenta out for the game's sprite.
+ */
+async function buildingCutGuide(n) {
+  const cells = n + 2, t = PX / cells;
+  const rects = [];
+  for (let r = 0; r < cells; r++) for (let c = 0; c < cells; c++) rects.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="#ff00ff" stroke="#c000c0" stroke-width="2"/>`);
+  const box = `<rect x="${t}" y="${t}" width="${n * t}" height="${n * t}" fill="none" stroke="#5b4a6a" stroke-width="3"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#ff00ff"/>${rects.join('')}${box}</svg>`)).png().toBuffer();
+}
+
+/**
  * The tree guide (slice B, buildings lane): the 3 x 3 patch with the centre tile pale (the
  * footprint: one tile wide, trunk base on its bottom edge) and the WHOLE tile above it tinted
  * (the headroom: a tree may rise one full tile above its own tile, so it stands two tiles
@@ -230,6 +243,8 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'scene.png'), await sceneGuide());
   fs.writeFileSync(path.join(GUIDES, 'building2.png'), await buildingGuide(2));
   fs.writeFileSync(path.join(GUIDES, 'building3.png'), await buildingGuide(3));
+  fs.writeFileSync(path.join(GUIDES, 'building3-cut.png'), await buildingCutGuide(3));
+  fs.writeFileSync(path.join(GUIDES, 'building1-cut.png'), await buildingCutGuide(1));
   fs.writeFileSync(path.join(GUIDES, 'patch4.png'), await patch4Guide());
   fs.writeFileSync(path.join(GUIDES, 'edge4.png'), await edge4Guide());
   for (const [type, hex] of Object.entries(PATCH4_COLOURS)) fs.writeFileSync(path.join(GUIDES, `patch4-${type}.png`), await patch4ColourGuide(hex));

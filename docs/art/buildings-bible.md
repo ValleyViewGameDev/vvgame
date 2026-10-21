@@ -44,9 +44,15 @@ signage and props. Whimsical is the style laid over all of it.
 - **Signage** is a placard flat on the front or a post sign in a front yard, inside the
   footprint, imagery only, never letters; the image names the function (bed, money bag,
   scales). `artSign: none` for buildings whose form is the sign (Carnival, Ancient Temple).
-- **Lighting.** The round-2 composite was too dark. Buildings are lit in full daylight from
-  the upper left so details pop: bright roof planes, clearly lit front faces, soft shadows
-  only in the recesses, the amber window glow as an accent, not the only light.
+- **Lighting: THE LIGHTING MODEL (approved 2026-10-21).** Full, bright, warm daylight from
+  high up and a little to the left. The whole front face clearly and evenly lit: plaster
+  pale and sunny, stone and brick light and clean, no deep shadow anywhere on the facing
+  wall; shadows soft and only under the eaves, inside the doorway and in the recesses; roof
+  planes bright with the sun on them; the window glow a small warm accent, never a light
+  source. Vibrant, sunny, cheerful. Two batches were rejected for being too dark (the
+  round-2 composite of 2026-10-20, and the first bible round of 2026-10-21: "more daylight
+  on the facing, a more vibrant feel"); this wording is what fixed it, and it is in the
+  whimsical style preamble so every prompt carries it.
 - **Crafting stations** show the product being made, big, in the open front; their accent
   is the product's colour.
 - **A relight round keeps the design by sending the building's own panel back as the
@@ -64,19 +70,19 @@ Town (clean), closed buildings:
 
 | Building | Family | Accent (roof and sign) | Sign | Note |
 |---|---|---|---|---|
-| Bank | castle | gold | money bag | the owner's example: a strongroom tower |
+| Bank | castle | gold | money bag | APPROVED 2026-10-21 (r2 bank-1); the owner's example: a strongroom tower |
 | Courthouse | tudor | several colours, a clock tower | none (the clock tower) | 5 x 5 in data |
-| Hospital | tudor | red (health, shared with the Inn) | mortar and pestle with a cross | town look: clean |
+| Hospital | tudor | red (health, shared with the Inn) | mortar and pestle with a cross | APPROVED 2026-10-21 (r2 hospital-1); town look: clean |
 | Library | tudor | navy blue | open book | |
 | School | tudor | sunflower yellow | school bell | |
 | Academy | tudor | pink (creativity) | needle and thread over a palette | textiles, artistry, tailoring |
 | Laboratory | tudor | warm orange (cooking) | flask crossed with a whisk | the cooking school |
 | Agriculture Center | tudor | leaf green | wheat sheaf | |
-| Factory | industrial | brick red | gear | brick and chimneys, distinct from the castles |
+| Factory | industrial | brick red | gear | APPROVED 2026-10-21 (r2 factory-1); brick and chimneys, distinct from the castles |
 | General Store | cottage | ochre brown | crossed axe and pickaxe | |
 | Magic Shop | fantastical | purple | crescent moon and star | |
 | Guild | tudor | teal | crest with crossed tools | a very unusual roof shape sets it apart |
-| Warrior's Den | castle | iron grey, red banner | crossed swords | |
+| Warrior's Den | castle | iron grey, red banner | crossed swords | APPROVED 2026-10-21 (r2 warriors-den-1) |
 | Armory | castle | steel silver | shield and helmet | |
 | Castle | castle | royal blue and gold | crown | |
 | Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
@@ -89,10 +95,10 @@ Valley (moss and vines):
 
 | Building | Family | Accent | Sign | Note |
 |---|---|---|---|---|
-| Inn | tudor | red | bed | the owner's example: red means health |
+| Inn | tudor | red | bed | design approved (r1 inn-1 relit); the bed sign must show; a final Inn ordered 2026-10-21 (`inn-c`); the owner's example: red means health |
 | Post House | cottage | sky blue | sealed letter | |
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire | |
-| Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | |
+| Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1) |
 | Shrine | japanese | classic dark orange (vermilion) | none | Japanese architecture |
 | Shiro | japanese | black and white | none | a Japanese keep, valley look, unique architecture |
 
@@ -142,9 +148,27 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
-| 2 | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | the relight works: the design holds and the facing lifts. Two lessons: a relight from the building's own panel can still drift (the temple's second candidate became a thatched cottage) and can drop a sign's picture (both inn candidates lost the bed; `inn-b` re-ran with the sign pinned in the prompt). Pending the owner's picks |
+| 2 (APPROVED) | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | the relight works: the design holds and the facing lifts. Two lessons: a relight from the building's own panel can still drift (the temple's second candidate became a thatched cottage) and can drop a sign's picture (both inn candidates lost the bed; `inn-b` re-ran with the sign pinned in the prompt). The owner approved all six picks: bank-1, warriors-den-1, factory-1, hospital-1, ancient-temple-1 of round 2 (`_candidates/buildings-bible-r2/approved/`), and ordered one more Inn with the bed sign (`inn-c`) |
 
-## 5. What a generation gets from this
+## 5. From an approved panel to the game (2026-10-21)
+
+1. **Cut-out pass**: the approved panel is redrawn identically on a pure magenta field
+   (`jobs/buildings-bible-cut.json`, guide `guides/building3-cut.png`: magenta, the thin
+   grid, the 3 x 3 box outlined). One candidate; re-roll a subject if it drifts from the
+   approved design.
+2. **`tools/art/cutout.js`** keys the magenta out, crops the art's square (`--span` tiles,
+   4 for a 3 x 3 building: the footprint sits at the square's bottom-centre and the top
+   row is headroom for the roof) and writes `game-client/public/assets/resources/<file>.png`
+   and `<file>.svg` (the PNG wrapped in an SVG, so the panels' `<img>` and the atlas both
+   get it). It reports if the art touches the top edge (raise `--span`).
+3. The resource row: `filename` = that file, `size` = the footprint, **`artSpan`** = the
+   square's tiles (ECONOMY sheet column). The renderer draws a resource whose `artSpan`
+   exceeds its `size` as an `artSpan` square anchored at the footprint's bottom-centre, the
+   same way it draws the tall wall pieces; without `artSpan` the art is squeezed into the
+   footprint square.
+4. `npm run build:atlas` in `game-client/`.
+
+## 6. What a generation gets from this
 
 The generator reads the four columns and writes them into the prompt: "FAMILY: tudor
 (timber framing and stucco, slate roof with a brick chimney). LOOK: town: clean walls, no

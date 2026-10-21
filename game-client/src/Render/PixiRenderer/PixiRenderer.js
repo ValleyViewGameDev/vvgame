@@ -879,7 +879,10 @@ const PixiRenderer = ({
         }
         const filename = getResourceFilename(resource.type, masterResources);
         const texture = filename ? await loadSVGTexture(filename) : null;
-        if (texture) return { resource, texture, emojiTexture: null };
+        // artSpan (resource row): the square art covers artSpan x artSpan tiles with the footprint
+        // at its bottom-centre, so a roof can rise above a building's footprint (the walls work the same way)
+        const artSpan = masterResources?.find((m) => m.type === resource.type)?.artSpan;
+        if (texture) return { resource, texture, emojiTexture: null, wallSpan: artSpan > (resource.size || 1) ? artSpan : undefined };
         const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
         return { resource, texture: null, emojiTexture };
       });
@@ -930,13 +933,14 @@ const PixiRenderer = ({
         const x = resource.x * TILE_SIZE;
         const visualY = (tileSpan > 1) ? (resource.y - tileSpan + 1) * TILE_SIZE : resource.y * TILE_SIZE;
 
-        // A composed wall taller than its tile (PixiRendererWalls): a span x span square whose
-        // bottom row and middle column of tiles is the wall's tile
-        if (span && span !== 1 && texture && texture.valid !== false) {
+        // Art taller than its footprint (a composed wall from PixiRendererWalls, a building or a
+        // statue with artSpan): a span x span square of tiles whose bottom rows and middle columns
+        // are the footprint; the rest is headroom
+        if (span && span !== tileSpan && texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
           sprite.width = TILE_SIZE * span;
           sprite.height = TILE_SIZE * span;
-          sprite.x = (resource.x - (span - 1) / 2) * TILE_SIZE;
+          sprite.x = (resource.x - (span - tileSpan) / 2) * TILE_SIZE;
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
           addResource(sprite, resource.y);
           svgCount++;

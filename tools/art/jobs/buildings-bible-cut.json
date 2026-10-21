@@ -1,0 +1,74 @@
+{
+  "name": "buildings-bible-cut",
+  "note": "The cut-out pass for the approved bible buildings (2026-10-21): each approved panel redrawn identically on a pure magenta field (guides/building3-cut.png), keyed by tools/art/cutout.js into game-client/public/assets/resources/<file>.png + .svg (a 4 x 4 tile square, footprint bottom-centre, artSpan 4).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "bank": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-bank-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "warriors-den": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-warriors-den-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "factory": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-factory-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "inn": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-inn-c-2.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "hospital": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "ancient-temple": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-ancient-temple-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign picture, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls and ground contact fill that box almost to its edges, exactly as in the reference (roofs, chimneys and turrets may rise above it). Draw the building there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    }
+  }
+}

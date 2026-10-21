@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "425111d503b63198bc2c23e6c13eaedc811a2e44",
+  "sourceHash": "0856a5d9f2aa6326b4c88f0691dce0008bb4d8ad",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -19,7 +19,7 @@
       "json": "world-2.json",
       "png": "world-2.png",
       "webp": "world-2.webp",
-      "frames": 29
+      "frames": 28
     },
     {
       "json": "world-3.json",
@@ -37,13 +37,13 @@
       "json": "world-5.json",
       "png": "world-5.png",
       "webp": "world-5.webp",
-      "frames": 225
+      "frames": 224
     },
     {
       "json": "world-6.json",
       "png": "world-6.png",
       "webp": "world-6.webp",
-      "frames": 68
+      "frames": 70
     }
   ],
   "frames": {
@@ -68,10 +68,11 @@
     "resources/general-store.svg": 1,
     "resources/guild.svg": 1,
     "resources/hospital.svg": 1,
+    "resources/inn.svg": 1,
     "resources/kitchen.svg": 1,
     "resources/laboratory.svg": 1,
     "resources/library.svg": 1,
-    "resources/loom.svg": 1,
+    "resources/loom.svg": 2,
     "resources/lumber-yard.svg": 2,
     "resources/magic-shop.svg": 2,
     "resources/mill.svg": 2,
@@ -99,15 +100,14 @@
     "avatar/hand/bow-01.svg": 2,
     "avatar/hand/fist-01.svg": 2,
     "avatar/hand/sword-01.svg": 2,
-    "avatar/hat/hat-02.svg": 2,
-    "avatar/hat/hat-03.svg": 2,
+    "avatar/hat/hat-02.svg": 3,
+    "avatar/hat/hat-03.svg": 3,
     "avatar/skin/skin-03.svg": 3,
     "avatar/skin/skin-04-detail.svg": 3,
     "avatar/skin/skin-04.svg": 3,
     "avatar/top/top-02.svg": 3,
     "emoji/1f37d": 3,
     "emoji/1f384": 3,
-    "emoji/1f3e8": 3,
     "emoji/1f3ef": 3,
     "emoji/1f3f0": 3,
     "emoji/1f4ef": 3,
@@ -164,7 +164,7 @@
     "resources/haybale.svg": 3,
     "resources/mailbox.svg": 3,
     "resources/mulberry-tree.svg": 3,
-    "resources/npc-angelo.svg": 3,
+    "resources/npc-angelo.svg": 4,
     "resources/npc-apothecary.svg": 4,
     "resources/npc-caliban.svg": 4,
     "resources/npc-cassio.svg": 4,
@@ -232,7 +232,7 @@
     "edges/g-convex-nw.png": 4,
     "edges/g-convex-se.png": 4,
     "edges/g-convex-sw.png": 4,
-    "edges/g-edge-e.png": 4,
+    "edges/g-edge-e.png": 5,
     "edges/g-edge-n.png": 5,
     "edges/g-edge-s.png": 5,
     "edges/g-edge-w.png": 5,
@@ -456,8 +456,8 @@
     "emoji/1f958": 5,
     "emoji/1f95a": 5,
     "emoji/1f95b": 5,
-    "emoji/1f963": 5,
-    "emoji/1f964": 5,
+    "emoji/1f963": 6,
+    "emoji/1f964": 6,
     "emoji/1f967": 6,
     "emoji/1f969": 6,
     "emoji/1f96a": 6,

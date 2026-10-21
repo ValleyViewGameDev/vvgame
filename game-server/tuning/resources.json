@@ -7261,7 +7261,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "red (shared with the Inn: health)",
-    "artSign": "mortar and pestle with a cross"
+    "artSign": "mortar and pestle with a cross",
+    "artSpan": 3.91
   },
   {
     "type": "Library",
@@ -7874,7 +7875,8 @@
     "artFamily": "ruin",
     "artLook": "valley",
     "artAccent": "weathered stone and moss",
-    "artSign": "none (the ruin is the sign)"
+    "artSign": "none (the ruin is the sign)",
+    "artSpan": 3.06
   },
   {
     "type": "Adventure Camp",
@@ -8098,7 +8100,8 @@
     "artFamily": "industrial",
     "artLook": "town",
     "artAccent": "brick red",
-    "artSign": "gear"
+    "artSign": "gear",
+    "artSpan": 3.61
   },
   {
     "type": "Trade Stall",
@@ -8193,7 +8196,8 @@
     "artFamily": "castle",
     "artLook": "town",
     "artAccent": "gold",
-    "artSign": "money bag"
+    "artSign": "money bag",
+    "artSpan": 3.9
   },
   {
     "type": "Courthouse",
@@ -8527,7 +8531,9 @@
     "artFamily": "tudor",
     "artLook": "valley",
     "artAccent": "red",
-    "artSign": "bed"
+    "artSign": "bed",
+    "filename": "inn.svg",
+    "artSpan": 3.56
   },
   {
     "type": "Post House",
@@ -8782,7 +8788,8 @@
     "artFamily": "castle",
     "artLook": "town",
     "artAccent": "iron grey with a red banner",
-    "artSign": "crossed swords"
+    "artSign": "crossed swords",
+    "artSpan": 3.06
   },
   {
     "type": "Armory",
