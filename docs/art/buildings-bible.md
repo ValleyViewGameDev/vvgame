@@ -126,12 +126,12 @@ harlequin big tent in the whimsical style.
 
 Open:
 
-1. **Footprints: most 2 x 2 buildings go 3 x 3**, with some exceptions, and the owner
-   reworks the town layouts by hand. Which stay 2 x 2? Proposed to stay: the Farm House
-   (homestead space), the Mill, the Restroom, the Train (a vehicle). The rest of the
-   crafting stations (Dairy, Oven, Kitchen, Loom, Lumber Yard, Studio, Beverage Station,
-   Winery, Coffee Factory, Silkery) would go 3 x 3, which also means the approved Dairy
-   template is regenerated at 3 x 3. Sizes in data are not changed until the owner says.
+1. **Footprints are decided case by case as each building's art is made** (owner,
+   2026-10-21). Most 2 x 2 buildings will go 3 x 3, and some 3 x 3 buildings will need
+   4 x 4 to carry the detail the new art has. Nothing changes in the game data yet: a
+   building's row keeps its current `size` until the owner approves its art and picks the
+   footprint, and the owner reworks the town layouts by hand when the sizes change. Each
+   building's generation entry notes the footprint it was drawn at.
 2. Restroom: keep it in the set at all? It is a dev-only shop with nothing to sell.
 
 ## 4. What a generation gets from this
