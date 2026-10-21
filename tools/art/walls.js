@@ -5,17 +5,16 @@
  *
  *   <set>-post.png            the centre post
  *   <set>-n/e/s/w.png         a straight run from the centre to that edge of the tile
- *   <set>-ne/se/sw/nw.png     a diagonal run from the centre to that corner of the tile
- *   <set>-run-h/v/d1/d2.png   a tile-long straight run with no post (E-W, N-S, NE-SW, NW-SE)
+ *   <set>-run-h/v.png         a tile-long straight run with no post (E-W, N-S)
  *
- * Two panels per set: a PLUS (post + the four straight spokes) and a CROSS (post + the four
- * diagonals). Spokes 90 degrees apart only overlap at the post, so each spoke cuts clean as a
- * quarter wedge (+-45 degrees) of its panel's one-tile window around the post; the post is a
- * disc from the plus panel. (An eight-spoke panel cannot be cut: within ~85 px of the post
- * every spoke overlaps its neighbours, and any partition hands slivers of one spoke to the
- * next.) Output: game-client/public/assets/walls/, 128 px, plus walls.json.
+ * One PLUS panel per set (post + the four straight spokes); the spokes only overlap at the
+ * post, so each cuts clean as a band along its direction. The stone post comes from a second,
+ * lone-tower panel (--post-panel). Walls connect N, E, S, W only (owner, 2026-10-21: the
+ * diagonal pieces, cut from a CROSS panel, were removed as not needed).
+ * Output: game-client/public/assets/walls/, 128 px (192 for the tall stone set), plus walls.json.
  *
- *   node tools/art/walls.js --set stone --plus painterly-stone-wall-plus-1 --cross painterly-stone-wall-cross-1 [--from exploration|approved]
+ *   node tools/art/walls.js --set stone --plus painterly-stone-wall-plus-1 --post-panel painterly-stone-wall-post-1 [--from exploration|approved]
+ *   node tools/art/walls.js --set fence --from approved
  */
 const fs = require('fs');
 const path = require('path');
@@ -34,9 +33,16 @@ const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1
 const set = opt('set', 'stone');
 const { winH: WIN_H, lineY: LINE_Y } = TALL[set] || TALL.fence;
 const OUT_PX = Math.round(PX * WIN_H / CELL);
-const plusPanel = opt('plus', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-plus-1`), crossPanel = opt('cross', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-cross-1`), from = opt('from', 'exploration');
+const plusPanel = opt('plus', `painterly-${set === 'stone' ? 'stone-wall' : 'wood-fence'}-plus-1`), from = opt('from', 'exploration');
 
-const DIRS = { n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-1, 1], w: [-1, 0], nw: [-1, -1] };
+const DIRS = { n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0] };
+// --s-raise N: the south spoke's near end is raised N px. In the plus panel the artist ends the
+// south spoke low on the tower's face, two brick courses under where the east and west walkways
+// meet it; since the renderer draws the south spoke OVER the post, the spoke must end at the
+// same imagined height as the others (owner, 2026-10-21). The piece is cut from a window N px
+// further down the spoke (so its content sits N px higher) and its band mask reaches N px above
+// the wall's line to keep the raised end.
+const S_RAISE = Number(opt('s-raise', set === 'stone' ? 72 : 0));
 // The post mask, per set: an ellipse that covers the drawn post, its top (which sits ABOVE the
 // wall's line, the post being taller) and its face below, but not the spokes' bases beyond the
 // post's rim. Otherwise each spoke's quarter wedge carries a quarter of the post's rim and a
@@ -104,20 +110,6 @@ async function towerProfile(keyed, ctr, lineDy) {
   return { capTop: capTop - line - 6, base: base - line, rx: Math.round(rx) };
 }
 
-/** The cross panel has no straight spokes to measure; its post is the centroid of the dense middle (iterated inside a small radius). */
-async function crossCentre(keyed) {
-  const { data, info } = await sharp(keyed).raw().toBuffer({ resolveWithObject: true });
-  const W = info.width, H = info.height, A = (x, y) => data[(y * W + x) * 4 + 3];
-  let cx = 0, cy = 0, n = 0;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (A(x, y) > 200) { cx += x; cy += y; n++; }
-  cx /= n; cy /= n;
-  for (let k = 0; k < 4; k++) {
-    let sx = 0, sy = 0, m = 0;
-    for (let y = Math.max(0, cy - 70) | 0; y < Math.min(H, cy + 70); y++) for (let x = Math.max(0, cx - 70) | 0; x < Math.min(W, cx + 70); x++) if (A(x, y) > 200 && (x - cx) ** 2 + (y - cy) ** 2 < 4900) { sx += x; sy += y; m++; }
-    cx = sx / m; cy = sy / m;
-  }
-  return { x: Math.round(cx), y: Math.round(cy) };
-}
 
 /**
  * An SVG mask (white = keep, transparent elsewhere) for one piece in the 256 px cell: the post
@@ -126,7 +118,7 @@ async function crossCentre(keyed) {
  * post and handed that triangle to the spoke below (the owner's notches and stray triangles).
  * The band runs from the centre outward, `top` px above the centreline and `face` px below it
  * (orthogonal spokes; a north-south spoke is a symmetric band `side` wide, it shows no face);
- * diagonal bands hang `face` x 0.75 below. --band "top,face,side" per set.
+ * --band "top,face,side" per set.
  */
 const BAND = (opt('band', set === 'fence' ? '30,56,16' : '72,142,56')).split(',').map(Number);
 function maskSvg(piece) {
@@ -147,12 +139,16 @@ function maskSvg(piece) {
     const [top, face, side] = BAND;
     let above, below; // extents on the local -y and +y sides, in the rotated frame
     if (dy === 0) { above = top; below = face; }                       // e, w: a face hangs below
-    else if (dx === 0) { above = side; below = side; }                 // n, s: symmetric
-    else { above = top; below = Math.round(face * 0.75); }             // diagonals
+    else { above = side; below = side; }                               // n, s: symmetric (widths)
     // rotate(ang) maps local +y to (-sin, cos): it points DOWN on the canvas only when cos(ang) > 0
     const localYIsDown = Math.cos(ang * Math.PI / 180) > 0;
     const [yMin, yMax] = localYIsDown ? [-above, below] : [-below, above];
-    shape = `<g transform="translate(${c} ${cy}) rotate(${ang})"><rect x="0" y="${yMin}" width="${R}" height="${yMax - yMin}"/></g>`;
+    // The near end: the south spoke's raised end reaches S_RAISE px above the line. The east and
+    // west spokes start at the tower's edge instead of its centre: the plus panel's south spoke
+    // is painted over the tower's lower face, inside their face band, and a band from the centre
+    // carried a stub of it out from under the post's base.
+    const near = piece === 's' ? -S_RAISE : (TOWER && (piece === 'e' || piece === 'w')) ? TOWER.rx : 0;
+    shape = `<g transform="translate(${c} ${cy}) rotate(${ang})"><rect x="${near}" y="${yMin}" width="${R - near}" height="${yMax - yMin}"/></g>`;
   }
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${WIN_H}"><g fill="#fff">${shape}</g></svg>`);
 }
@@ -162,17 +158,17 @@ function maskSvg(piece) {
   // --from approved | exploration (= exploration/openai) | <round folder under exploration/>
   const dir = path.join(CANDIDATES, 'walls', from === 'approved' ? 'approved' : path.join('exploration', from === 'exploration' ? 'openai' : from));
   const keyedCache = {};
-  const windowOf = async (panel, diagonal, ox = 0, oy = 0) => {
+  const windowOf = async (panel, ox = 0, oy = 0) => {
     if (!keyedCache[panel]) {
       const file = fs.readdirSync(dir).find((f) => f.endsWith(`${panel}.png`) || f === `${panel}.png`);
       if (!file) throw new Error(`no panel ${panel} in ${dir}`);
       const keyed = await keyMagenta(await sharp(path.join(dir, file)).png().toBuffer(), { hue: true });
-      const ctr = diagonal ? await crossCentre(keyed) : await postCentre(keyed);
+      const ctr = await postCentre(keyed);
       console.log(`${panel}: post at (${ctr.x}, ${ctr.y})`);
       keyedCache[panel] = { keyed, ctr };
     }
     const { keyed, ctr } = keyedCache[panel];
-    // a diagonal run's window sits one cell out along the spoke: (dx, dy) cells away
+    // a run's window sits one cell out along a spoke: (ox, oy) px from the post
     const left = Math.max(0, Math.min(1024 - CELL, ctr.x + ox - CELL / 2)), top = Math.max(0, Math.min(1024 - WIN_H, ctr.y + oy - LINE_Y));
     return sharp(keyed).extract({ left, top, width: CELL, height: WIN_H }).png().toBuffer();
   };
@@ -182,14 +178,14 @@ function maskSvg(piece) {
   // of wall top under posts with no wall south). A lone tower has nothing to cut away; it is
   // aligned to the plus panel's tower by the cap's top row.
   const postPanel = opt('post-panel', null);
-  const plus = await windowOf(plusPanel, false);
+  const plus = await windowOf(plusPanel);
   {
     const { keyed, ctr } = keyedCache[plusPanel];
     TOWER = await towerProfile(keyed, ctr, 0);
     console.log(TOWER ? `${set} tower: cap top ${TOWER.capTop}, base ${TOWER.base}, half-width ${TOWER.rx} (px from the line)` : `${set}: no tower wider than its spokes, post = ellipse`);
   }
-  const cross = await windowOf(crossPanel, true);
-  const cellFor = (piece) => (piece === 'post' || piece.length === 1 ? plus : cross);
+  const plusS = S_RAISE ? await windowOf(plusPanel, 0, S_RAISE) : plus; // the south spoke's window, shifted down the spoke
+  const cellFor = (piece) => (piece === 's' ? plusS : plus);
   let lonePost = null;
   if (postPanel && TOWER) {
     const file = fs.readdirSync(dir).find((f) => f.endsWith(`${postPanel}.png`) || f === `${postPanel}.png`);
@@ -209,9 +205,7 @@ function maskSvg(piece) {
   // only neighbours are opposite each other draws a run instead of post + two spokes, which
   // is what makes a wall read as continuous between its towers.
   const runs = {};
-  for (const [name, panel, diagonal, dx, dy] of [['run-h', plusPanel, false, 1, 0], ['run-d1', crossPanel, true, 1, -1], ['run-d2', crossPanel, true, 1, 1]]) {
-    runs[name] = await windowOf(panel, diagonal, dx * CELL, dy * CELL);
-  }
+  runs['run-h'] = await windowOf(plusPanel, CELL, 0);
   // run-v: a north-south wall is a flat band seen from above with no face, so it needs only
   // its own tile's rows (the tile above covers the headroom with its own piece). One cell is
   // cut from the far end of the NORTH spoke, clear of the tower, and set into the bottom of
@@ -223,7 +217,7 @@ function maskSvg(piece) {
     runs['run-v'] = WIN_H === CELL ? cell : await sharp({ create: { width: CELL, height: WIN_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: cell, left: 0, top: WIN_H - CELL }]).png().toBuffer();
   }
   const manifest = { note: 'Cut by tools/art/walls.js from a junction panel; the renderer composes a wall tile from the post plus one spoke per connected neighbour (PixiRendererWalls.js).', sets: JSON.parse(fs.existsSync(path.join(OUT, 'walls.json')) ? fs.readFileSync(path.join(OUT, 'walls.json'), 'utf8') : '{"sets":{}}').sets };
-  manifest.sets[set] = { plus: plusPanel, cross: crossPanel, post: postPanel, px: OUT_PX, span: WIN_H / CELL, pieces: [] };
+  manifest.sets[set] = { plus: plusPanel, post: postPanel, px: OUT_PX, span: WIN_H / CELL, pieces: [] };
   for (const piece of ['post', ...Object.keys(DIRS), ...Object.keys(runs)]) {
     const cut = runs[piece] ? runs[piece] : (piece === 'post' && lonePost) ? lonePost : await sharp(cellFor(piece)).composite([{ input: await sharp(maskSvg(piece)).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
     const pad = (WIN_H - CELL) / 2; // a tall window becomes a square with the tile's columns in the middle
@@ -237,7 +231,7 @@ function maskSvg(piece) {
   const S = WIN_H;
   const piece = (p) => sharp(path.join(OUT, `${set}-${p}.png`)).resize(S, S).png().toBuffer();
   const compose = async (list) => { const layers = []; for (const p of list) layers.push({ input: await piece(p) }); return sharp({ create: { width: S, height: S, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(layers).png().toBuffer(); };
-  const forms = [['post'], ['run-h'], ['run-v'], ['post', 'n', 'e'], ['post', 'e', 's', 'w'], ['post', 'n', 'e', 's', 'w'], ['run-d1'], ['run-d2'], ['post', 'w', 'se'], ['post', 'e']];
+  const forms = [['post'], ['run-h'], ['run-v'], ['post', 'n', 'e'], ['post', 'e', 'w', 's'], ['post', 'n', 'e', 'w', 's'], ['post', 'e'], ['post', 's']];
   const layers = []; let x = 8;
   for (const f of forms) { layers.push({ input: await compose(f), left: x, top: 8 }); x += S + 8; }
   await sharp({ create: { width: x + 8, height: S + 16, channels: 4, background: '#78ac14' } }).composite(layers).png().toFile(path.join(CANDIDATES, 'walls', `${set}-formations.png`));

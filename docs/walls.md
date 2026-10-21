@@ -2,7 +2,8 @@
 
 Walls and fences are placed one tile at a time through the Deco panel, as before, and
 decide their look from their neighbours at render time, so a row reads as one wall, a
-corner turns, a junction forks, and a diagonal line joins corner to corner. Nothing changed
+corner turns and a junction forks. Walls connect N, E, S, W only; two walls placed
+diagonally do not know about each other (owner, 2026-10-21). Nothing changed
 in how they are stored, bought, path-blocked or sight-blocked: a wall is still a one-tile
 resource with `action: 'wall'`, `passable: false`.
 
@@ -15,29 +16,36 @@ resource with `action: 'wall'`, `passable: false`.
 - `filename` stays the Deco panel's cursor and button image: `wall-stone.svg`,
   `fence-wood.png` (a composed straight run, made by the cutter).
 
-## The art: a post, eight spokes, four runs
+## The art: a post, four spokes, two runs
 
-Each set is thirteen pieces in `game-client/public/assets/walls/<set>-<piece>.png` (128 px,
-atlas namespace `walls/`): `post`, spokes `n e s w` from the tile's centre to its edges,
-spokes `ne se sw nw` from the centre to its corners, and RUNS `run-h run-v run-d1 run-d2`,
-a tile-long straight piece with no post. A tile whose only neighbours are two opposite
-ones (a straight pass-through, orthogonal or diagonal) draws its run; every other tile (an
-end, a corner, a T, a cross) draws the post plus one spoke per connected neighbour: the
-spokes that leave to the north, east or west under the post, the spokes that leave to the
-south (s, se, sw) OVER it, so a wall coming up from the south is seen running into the
-post's lower body and ending there, with the cap and upper body above it (owner,
-2026-10-21). So a
-wall is continuous, top and bottom, between its towers, and a tower stands only where the
-wall ends, turns or meets another (owner, 2026-10-21). The neighbour's matching piece
-meets it at the shared edge or corner.
+Each set is seven pieces in `game-client/public/assets/walls/<set>-<piece>.png` (128 px,
+192 for the tall stone set; atlas namespace `walls/`): `post`, spokes `n e s w` from the
+tile's centre to its edges, and RUNS `run-h run-v`, a tile-long straight piece with no
+post. A tile whose only neighbours are two opposite ones (a straight pass-through) draws
+its run; every other tile (an end, a corner, a T, a cross) draws the post plus one spoke
+per connected neighbour: the spokes that leave to the north, east or west under the post,
+the spoke that leaves to the south OVER it, so a wall coming up from the south is seen
+running into the post's lower body and ending there, with the cap and upper body above it
+(owner, 2026-10-21). So a wall is continuous, top and bottom, between its towers, and a
+tower stands only where the wall ends, turns or meets another (owner, 2026-10-21). The
+neighbour's matching piece meets it at the shared edge. (Diagonal spokes and runs, cut
+from a second CROSS panel, were built on the first pass and removed 2026-10-21: walls
+connect N, E, S, W only.)
 
-`tools/art/walls.js` cuts them from two generated panels per set (`tools/art/jobs/walls.json`,
-style `whimsical`, on the magenta mask guides `guides/wall-plus.png` and `wall-cross.png`):
-a PLUS (post + four straight spokes) and a CROSS (post + four diagonals), the spokes one and
-three quarter tiles long. Spokes 90 degrees apart overlap only at the post, so each cuts
-clean as a quarter wedge around its direction; a run is the window one tile out along a
-spoke (no post, no end cap in it); the post is an ellipse from the plus panel, sized per set
-(`--post dy,rx,ry`) to cover the drawn tower, its top above the wall's line and its face.
+`tools/art/walls.js` cuts them from one generated PLUS panel per set (post + four straight
+spokes, one and three quarter tiles long; `tools/art/jobs/walls.json`, style `whimsical`,
+on the magenta mask guide `guides/wall-plus.png`). The spokes overlap only at the post, so
+each cuts clean as a BAND along its direction; a run is the window one tile out along a
+spoke (no post, no end cap in it); the fence's post is an ellipse from the plus panel,
+sized per set (`--post dy,rx,ry`) to cover the drawn post, its top above the wall's line
+and its face. The south spoke's near end is RAISED (`--s-raise`, 72 px for stone): the
+artist ends the south spoke low on the tower's face, two brick courses under where the
+east and west walkways meet it, and since it is drawn over the post it must end at the
+same imagined height as the others (owner, 2026-10-21); the piece is cut from a window
+that far down the spoke, its band reaching that far above the line. The east and west
+spokes start at the tower's edge, not its centre: the plus panel's south spoke is painted
+over the tower's lower face, inside their face band, and a band from the centre carried a
+stub of it out from under the post's base.
 The stone wall is drawn TALL and the fence's two rails run the full length with a wide gap
 (owner's notes on the first pass). Round 3 (owner: 50% taller, better lit): the model will
 not draw a wall much taller than ~140 px in the 1024 panel from a description, so the
@@ -65,18 +73,18 @@ stripes); only a tuft of moss where a wall meets its tower.
 neighbours and no partition can hand each spoke only its own pixels.) The keyer (`lib/key.js`,
 `hue: true`) treats the shadow the model paints onto the magenta as background.
 
-To make a new set: add two subjects to `jobs/walls.json` with the set's description,
-generate, `node tools/art/walls.js --set <name> --plus <panel> --cross <panel>`, add the row
-with `wallSet`, `npm run build:atlas`.
+To make a new set: add a plus subject (and, for a set with a tower, a lone-post subject) to
+`jobs/walls.json` with the set's description, generate, `node tools/art/walls.js --set
+<name> --plus <panel> [--post-panel <panel>]`, add the row with `wallSet`,
+`npm run build:atlas`.
 
 ## The rules (`Render/PixiRenderer/PixiRendererWalls.js`)
 
-- Two tiles of the same set connect when they are orthogonal or diagonal neighbours.
-- A diagonal connection is dropped when either of its two orthogonal companions is also a
-  wall: the L corner already joins them, and a third line would clutter the corner.
-- The composed look is cached per (set, 8-bit mask): at most 256 per set, a dozen in use.
+- Two tiles of the same set connect when they are orthogonal neighbours (N, E, S, W).
+  Diagonal neighbours do not connect and do not change each other's look.
+- The composed look is cached per (set, 4-bit mask): at most 16 per set.
 - The whole resource layer re-renders when a resource changes, so placing or removing one
   wall updates its neighbours' looks by itself.
 
-Tested on the rehearsal homestead with a rectangle with a gap, a T, an L, a diagonal line,
-a lone wall, a fence ring and a fence zigzag.
+Tested on the rehearsal homestead with a rectangle with a gap, a T, an L, a lone wall, a
+fence ring and a fence zigzag.

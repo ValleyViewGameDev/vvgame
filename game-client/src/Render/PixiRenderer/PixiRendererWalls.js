@@ -5,16 +5,15 @@
  * decided here from its neighbours: a resource whose master row has `wallSet` ("stone",
  * "fence") is drawn as the set's centre post plus one spoke per connected neighbour,
  * composed on a canvas from the atlas pieces `walls/<set>-post.png`, `-n/e/s/w` (spokes to
- * the tile's edges), `-ne/se/sw/nw` (spokes to its corners) and `-run-h/v/d1/d2` (a
- * tile-long run with no post, used when the tile is a straight pass-through), which
- * tools/art/walls.js cuts from one generated junction panel. The neighbour's matching
- * spoke meets it at the shared edge or corner, so any formation reads as one wall.
+ * the tile's edges) and `-run-h/v` (a tile-long run with no post, used when the tile is a
+ * straight pass-through), which tools/art/walls.js cuts from one generated junction panel.
+ * The neighbour's matching spoke meets it at the shared edge, so any formation reads as
+ * one wall.
  *
- * Connection rules (the usual ones for 2D autotiles, plus diagonals):
- * - two walls of the same set connect when they are orthogonal or diagonal neighbours;
- * - a diagonal connection is dropped when either of its two orthogonal companions is
- *   also a wall (the L corner already joins them; a third line would clutter the corner).
- * Textures are cached per (set, mask): at most 256 looks per set, in practice a dozen.
+ * Connection rule: two walls of the same set connect when they are orthogonal neighbours
+ * (N, E, S, W). Diagonal neighbours do not know about each other (owner, 2026-10-21: the
+ * diagonal pieces were cut on the first pass and removed as not needed).
+ * Textures are cached per (set, mask): at most 16 looks per set.
  */
 import { Texture } from 'pixi.js-legacy';
 import { peekAtlasTexture } from './AtlasTextures';
@@ -24,13 +23,11 @@ import { peekAtlasTexture } from './AtlasTextures';
 const pieceSize = (set) => peekAtlasTexture('walls', `${set}-post.png`)?.frame?.width || 128;
 /** How many tiles wide and tall a set's composed sprite is (1 or 1.5). */
 export function wallSpan(set) { return pieceSize(set) / 128; }
-const SIDES = ['n', 'e', 's', 'w'];     // bits 1, 2, 4, 8
-const DIAGS = ['ne', 'se', 'sw', 'nw']; // bits 16, 32, 64, 128
-const OFFSET = { n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0], ne: [1, -1], se: [1, 1], sw: [-1, 1], nw: [-1, -1] };
-const COMPANIONS = { ne: ['n', 'e'], se: ['s', 'e'], sw: ['s', 'w'], nw: ['n', 'w'] };
+const SIDES = ['n', 'e', 's', 'w']; // bits 1, 2, 4, 8
+const OFFSET = { n: [0, -1], e: [1, 0], s: [0, 1], w: [-1, 0] };
 
-// masks that are a straight pass-through: n+s, e+w, ne+sw, nw+se
-const RUNS = { [1 | 4]: 'run-v', [2 | 8]: 'run-h', [16 | 64]: 'run-d1', [32 | 128]: 'run-d2' };
+// masks that are a straight pass-through: n+s, e+w
+const RUNS = { [1 | 4]: 'run-v', [2 | 8]: 'run-h' };
 
 const cache = new Map(); // `${set}:${mask}` -> Texture
 
@@ -51,17 +48,11 @@ export function indexWalls(resources, masterResources) {
   return index;
 }
 
-/** The 8-neighbour connection mask for the wall at (x, y), with the diagonal rule applied. */
+/** The 4-neighbour (N, E, S, W) connection mask for the wall at (x, y). */
 export function wallMask(index, set, x, y) {
   const is = (d) => index.get(`${x + OFFSET[d][0]},${y + OFFSET[d][1]}`) === set;
   let mask = 0;
   SIDES.forEach((d, i) => { if (is(d)) mask |= 1 << i; });
-  DIAGS.forEach((d, i) => {
-    if (!is(d)) return;
-    const [a, b] = COMPANIONS[d];
-    if (is(a) || is(b)) return;
-    mask |= 1 << (4 + i);
-  });
   return mask;
 }
 
@@ -87,18 +78,15 @@ export function wallTexture(set, mask) {
   // A straight pass-through (only two opposite neighbours) is one continuous RUN piece with
   // no post, so a wall reads as one wall between its towers; everything else is post + spokes.
   // Spokes that leave to the north, east or west go under the post (the post's body hides
-  // their near ends); spokes that leave to the south go OVER it, so the wall is seen running
-  // up into the post's lower body and ending there, the post's cap and upper body above it
-  // (owner, 2026-10-21). Diagonals before straights on each side of the post.
+  // their near ends); the spoke that leaves to the south goes OVER it, so the wall is seen
+  // running up into the post's lower body and ending there, the post's cap and upper body
+  // above it (owner, 2026-10-21).
   const run = RUNS[mask];
   if (run) drawPiece(ctx, set, run);
   else {
-    const behind = (d) => !d.startsWith('s');
-    DIAGS.forEach((d, i) => { if (behind(d) && mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
-    SIDES.forEach((d, i) => { if (behind(d) && mask & (1 << i)) drawPiece(ctx, set, d); });
+    SIDES.forEach((d, i) => { if (d !== 's' && mask & (1 << i)) drawPiece(ctx, set, d); });
     drawPiece(ctx, set, 'post');
-    DIAGS.forEach((d, i) => { if (!behind(d) && mask & (1 << (4 + i))) drawPiece(ctx, set, d); });
-    SIDES.forEach((d, i) => { if (!behind(d) && mask & (1 << i)) drawPiece(ctx, set, d); });
+    if (mask & 4) drawPiece(ctx, set, 's');
   }
   const texture = Texture.from(canvas);
   cache.set(key, texture);

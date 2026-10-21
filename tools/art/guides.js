@@ -217,7 +217,6 @@ async function wallGuide(kind = 'all') {
 async function main() {
   fs.writeFileSync(path.join(GUIDES, 'wall.png'), await wallGuide());
   fs.writeFileSync(path.join(GUIDES, 'wall-plus.png'), await wallGuide('plus'));
-  fs.writeFileSync(path.join(GUIDES, 'wall-cross.png'), await wallGuide('cross'));
   fs.writeFileSync(path.join(GUIDES, 'lip-island.png'), await lipIslandGuide(false));
   fs.writeFileSync(path.join(GUIDES, 'lip-island-inv.png'), await lipIslandGuide(true));
   for (const pos of ['tl', 'tr', 'bl', 'br']) {
