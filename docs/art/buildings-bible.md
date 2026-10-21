@@ -49,6 +49,9 @@ signage and props. Whimsical is the style laid over all of it.
   only in the recesses, the amber window glow as an accent, not the only light.
 - **Crafting stations** show the product being made, big, in the open front; their accent
   is the product's colour.
+- **A relight round keeps the design by sending the building's own panel back as the
+  reference** with "the same building, changed in one way only: the lighting" (round 2,
+  2026-10-21). Pin the sign's picture in that prompt too, or the model may blank it.
 - **No pre-rendered smoke, steam or vapour** (owner, 2026-10-21): nothing comes out of a
   chimney, a vent, a pot, a forge or any other opening in the still art. The buildings will
   later be tagged with the coordinates of their chimneys and openings and the game draws
@@ -139,7 +142,7 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
-| 2 | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | pending |
+| 2 | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | the relight works: the design holds and the facing lifts. Two lessons: a relight from the building's own panel can still drift (the temple's second candidate became a thatched cottage) and can drop a sign's picture (both inn candidates lost the bed; `inn-b` re-ran with the sign pinned in the prompt). Pending the owner's picks |
 
 ## 5. What a generation gets from this
 

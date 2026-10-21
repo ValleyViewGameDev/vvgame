@@ -69,6 +69,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel on grass is this exact building, drawn last round for this game. Redraw the SAME building: the same design, silhouette, materials, colours, roof, sign, props and footprint, the same camera (front wall square to the viewer, roof seen from above, grid straight), changed in ONE way only: the LIGHTING. It was too dark. Light it with full, bright, warm daylight from high up and a little to the left: the whole front face clearly and evenly lit, plaster pale and sunny, stone and brick light and clean, no deep shadow anywhere on the facing wall, shadows soft and only under the eaves, inside the doorway and in the recesses; roof planes bright with the sun on them; the window glow stays as a small warm accent, not a light source. Vibrant, sunny, cheerful. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
+    },
+    "inn-b": {
+      "refs": [
+        "_candidates/buildings-bible-r1/exploration/openai/painterly-inn-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel on grass is this exact building, drawn last round for this game. Redraw the SAME building: the same design, silhouette, materials, colours, roof, sign, props and footprint, the same camera (front wall square to the viewer, roof seen from above, grid straight), changed in ONE way only: the LIGHTING. It was too dark. Light it with full, bright, warm daylight from high up and a little to the left: the whole front face clearly and evenly lit, plaster pale and sunny, stone and brick light and clean, no deep shadow anywhere on the facing wall, shadows soft and only under the eaves, inside the doorway and in the recesses; roof planes bright with the sun on them; the window glow stays as a small warm accent, not a light source. Vibrant, sunny, cheerful. Nothing else changes. The red placard over the door shows a BED, a clear simple bed picture exactly as on the reference, no letters: it is the inn's sign and must stay. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges (roofs, chimneys and turrets may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the sign."
     }
   }
 }
