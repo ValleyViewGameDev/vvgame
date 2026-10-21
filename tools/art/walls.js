@@ -41,7 +41,11 @@ const DIRS = { n: [0, -1], ne: [1, -1], e: [1, 0], se: [1, 1], s: [0, 1], sw: [-
 // wall's line, the post being taller) and its face below, but not the spokes' bases beyond the
 // post's rim. Otherwise each spoke's quarter wedge carries a quarter of the post's rim and a
 // lone straight run shows notches where the missing wedges were. --post "dy,rx,ry".
-const POST = (opt('post', set === 'fence' ? '10,24,70' : '15,78,162')).split(',').map(Number);
+// The post mask is MEASURED from the plus panel (towerProfile): the cap's top, the tower's
+// width and its base, where the south spoke takes over. Cutting at the base is what keeps a
+// stub of the south spoke's capstones off a post that has no wall to the south; drawing the
+// full cap ellipse is what gives every post the same complete top whatever joins it.
+let TOWER = null; // { capTop, base, rx } in window px relative to the line, set in main
 
 /**
  * Where the post is: the centroid of the art gives a first guess (pulled down by the front
@@ -68,6 +72,31 @@ async function postCentre(keyed) {
   const med = (a) => a.sort((p, q) => p - q)[a.length >> 1];
   const cy = tops.length ? Math.round(med(tops) + (med(bottoms) - med(tops)) * 0.33) : gy;
   return { x: cx, y: cy };
+}
+
+/**
+ * The tower in a keyed plus panel, relative to the wall's line: capTop (the cap's top row),
+ * base (the row where the tower's width falls to the south spoke's) and rx (half the
+ * tower's width). Widths are measured within +-140 px of the centre column so the east and
+ * west walls do not count; "tower rows" are those wider than the spoke by a margin.
+ */
+async function towerProfile(keyed, ctr, lineDy) {
+  const { data, info } = await sharp(keyed).raw().toBuffer({ resolveWithObject: true });
+  const W = info.width, H = info.height, A = (x, y) => data[(y * W + x) * 4 + 3];
+  const width = (y) => { if (y < 0 || y >= H) return 0; let l = -1, r = -1; for (let x = ctr.x - 140; x <= ctr.x + 140; x++) if (A(x, y) > 200) { if (l < 0) l = x; r = x; } return l < 0 ? 0 : r - l + 1; };
+  const med = (a) => a.sort((p, q) => p - q)[a.length >> 1];
+  const spokeS = med([300, 330, 360, 390, 420].map((d) => width(ctr.y + d)));
+  const spokeN = med([300, 330, 360, 390, 420].map((d) => width(ctr.y - d)));
+  const line = ctr.y + lineDy;
+  let base = line; for (let y = line; y < H; y++) { if (width(y) > spokeS + 16) base = y; else if (y > line + 40) break; }
+  let capTop = line; for (let y = line; y >= 0; y--) { if (width(y) > spokeN + 16) capTop = y; else if (y < line - 40) break; }
+  // the half-width from the cap alone (rows below it hold the east and west walls)
+  // a tower is a cap that rises well above the wall's top band (a fence post does not); its
+  // half-width is read from the cap rows alone, which hold no wall
+  if (capTop > line - 80) return null;
+  let rx = 0; for (let y = capTop; y < Math.min(capTop + 50, line - 80); y++) rx = Math.max(rx, width(y) / 2);
+  if (rx * 2 < spokeN + 16) return null;
+  return { capTop: capTop - line, base: base - line, rx: Math.round(rx) };
 }
 
 /** The cross panel has no straight spokes to measure; its post is the centroid of the dense middle (iterated inside a small radius). */
@@ -98,7 +127,15 @@ const BAND = (opt('band', set === 'fence' ? '30,56,16' : '72,142,56')).split(','
 function maskSvg(piece) {
   const c = CELL / 2, cy = LINE_Y, R = WIN_H; // (c, cy) is the wall's line in the window
   let shape;
-  if (piece === 'post') shape = `<ellipse cx="${c}" cy="${cy + POST[0]}" rx="${POST[1]}" ry="${POST[2]}"/>`;
+  if (piece === 'post' && !TOWER) {
+    const [dy, rx, ry] = (opt('post', '10,24,70')).split(',').map(Number); // a plain post (the fence): an ellipse
+    shape = `<ellipse cx="${c}" cy="${cy + dy}" rx="${rx}" ry="${ry}"/>`;
+  } else if (piece === 'post') {
+    const { capTop, base, rx } = TOWER;
+    const ry = Math.round(rx * 0.6); // the cap seen from above is an ellipse about this flat
+    const capCy = cy + capTop + ry;
+    shape = `<ellipse cx="${c}" cy="${capCy}" rx="${rx}" ry="${ry}"/><rect x="${c - rx}" y="${capCy}" width="${2 * rx}" height="${cy + base - capCy}"/>`;
+  }
   else {
     const [dx, dy] = DIRS[piece];
     const ang = Math.atan2(dy, dx) * 180 / Math.PI;
@@ -117,7 +154,8 @@ function maskSvg(piece) {
 
 (async () => {
   ensureDir(OUT);
-  const dir = path.join(CANDIDATES, 'walls', from === 'approved' ? 'approved' : path.join('exploration', 'openai'));
+  // --from approved | exploration (= exploration/openai) | <round folder under exploration/>
+  const dir = path.join(CANDIDATES, 'walls', from === 'approved' ? 'approved' : path.join('exploration', from === 'exploration' ? 'openai' : from));
   const keyedCache = {};
   const windowOf = async (panel, diagonal, ox = 0, oy = 0) => {
     if (!keyedCache[panel]) {
@@ -134,6 +172,11 @@ function maskSvg(piece) {
     return sharp(keyed).extract({ left, top, width: CELL, height: WIN_H }).png().toBuffer();
   };
   const plus = await windowOf(plusPanel, false);
+  {
+    const { keyed, ctr } = keyedCache[plusPanel];
+    TOWER = await towerProfile(keyed, ctr, 0);
+    console.log(TOWER ? `${set} tower: cap top ${TOWER.capTop}, base ${TOWER.base}, half-width ${TOWER.rx} (px from the line)` : `${set}: no tower wider than its spokes, post = ellipse`);
+  }
   const cross = await windowOf(crossPanel, true);
   const cellFor = (piece) => (piece === 'post' || piece.length === 1 ? plus : cross);
   // RUNS: a tile-long straight piece with no post, cut one cell out along a spoke (the spokes

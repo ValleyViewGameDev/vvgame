@@ -3,7 +3,7 @@
   "sets": {
     "stone": {
       "plus": "painterly-stone-wall-plus-1",
-      "cross": "painterly-stone-wall-cross-2",
+      "cross": "painterly-stone-wall-cross-1",
       "px": 192,
       "span": 1.5,
       "pieces": [

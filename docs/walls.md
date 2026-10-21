@@ -44,6 +44,15 @@ the renderer reads the span from the atlas frame and draws the sprite as a 1.5-t
 whose bottom row and middle column of tiles is the wall's tile. The north-south run is one
 cell cut from the far end of the north spoke and set into the bottom of the window: it is a
 flat band with no face, and the tile above covers the headroom with its own piece.
+The post mask is MEASURED from the plus panel (`towerProfile`): the cap's top, the tower's
+half-width from the cap rows, and its base, the row where the tower narrows to the south
+spoke; the mask is the full cap ellipse plus the body down to that base. Two owner's notes
+came from this: a post must show the same complete cap whatever joins it (the earlier
+ellipse clipped the cap's sides, so a post with no north wall lost part of its ring), and
+nothing of the south spoke may ride along under a post with no wall to the south (the
+ellipse reached below the base and carried a stub of capstones). The fence's post has no
+cap above its rails and keeps a plain ellipse. The wall faces carry no ivy (it read as
+stripes); only a tuft of moss where a wall meets its tower.
 (An eight-spoke panel was tried first: within ~85 px of the post every spoke overlaps its
 neighbours and no partition can hand each spoke only its own pixels.) The keyer (`lib/key.js`,
 `hue: true`) treats the shadow the model paints onto the magenta as background.
