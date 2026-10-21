@@ -77,7 +77,16 @@ async function crossCentre(keyed) {
   return { x: Math.round(cx), y: Math.round(cy) };
 }
 
-/** An SVG mask (white = keep, transparent elsewhere) for one piece in the 256 px cell: the post disc, or a quarter wedge around a spoke's direction. */
+/**
+ * An SVG mask (white = keep, transparent elsewhere) for one piece in the 256 px cell: the post
+ * ellipse, or a BAND along a spoke's direction. A band, not a wedge: a tall wall's face hangs
+ * below its centreline, so a +-45 degree wedge cut a triangle out of the face where it met the
+ * post and handed that triangle to the spoke below (the owner's notches and stray triangles).
+ * The band runs from the centre outward, `top` px above the centreline and `face` px below it
+ * (orthogonal spokes; a north-south spoke is a symmetric band `side` wide, it shows no face);
+ * diagonal bands hang `face` x 0.75 below. --band "top,face,side" per set.
+ */
+const BAND = (opt('band', set === 'fence' ? '14,46,12' : '32,80,34')).split(',').map(Number);
 function maskSvg(piece) {
   const c = CELL / 2, R = CELL;
   let shape;
@@ -85,7 +94,15 @@ function maskSvg(piece) {
   else {
     const [dx, dy] = DIRS[piece];
     const ang = Math.atan2(dy, dx) * 180 / Math.PI;
-    shape = `<g transform="translate(${c} ${c}) rotate(${ang})"><polygon points="0,0 ${R},${-R} ${R},${R}"/></g>`;
+    const [top, face, side] = BAND;
+    let above, below; // extents on the local -y and +y sides, in the rotated frame
+    if (dy === 0) { above = top; below = face; }                       // e, w: a face hangs below
+    else if (dx === 0) { above = side; below = side; }                 // n, s: symmetric
+    else { above = top; below = Math.round(face * 0.75); }             // diagonals
+    // rotate(ang) maps local +y to (-sin, cos): it points DOWN on the canvas only when cos(ang) > 0
+    const localYIsDown = Math.cos(ang * Math.PI / 180) > 0;
+    const [yMin, yMax] = localYIsDown ? [-above, below] : [-below, above];
+    shape = `<g transform="translate(${c} ${c}) rotate(${ang})"><rect x="0" y="${yMin}" width="${R}" height="${yMax - yMin}"/></g>`;
   }
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${CELL}" height="${CELL}"><g fill="#fff">${shape}</g></svg>`);
 }
