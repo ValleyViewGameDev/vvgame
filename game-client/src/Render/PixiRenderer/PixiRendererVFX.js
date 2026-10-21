@@ -114,8 +114,8 @@ const PixiRendererVFX = ({
       vfxContainer = new Container();
       vfxContainer.name = 'vfx-range';
 
-      // Insert before NPCs layer
-      const npcContainerIndex = worldContainer.children.findIndex(c => c.name === 'npcs');
+      // Insert below the objects layer (resources, NPCs and the PC share one y-sorted layer)
+      const npcContainerIndex = worldContainer.children.findIndex(c => c.name === 'objects');
       if (npcContainerIndex >= 0) {
         worldContainer.addChildAt(vfxContainer, npcContainerIndex);
       } else {

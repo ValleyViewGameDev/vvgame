@@ -38,9 +38,8 @@ const PixiRendererCursor = ({
       cursorContainer = new Container();
       cursorContainer.name = 'cursor-highlight';
 
-      // Insert after tiles but before resources (z-index ~5)
-      // Find the resources container and insert before it
-      const resourceContainerIndex = worldContainer.children.findIndex(c => c.name === 'resources');
+      // Insert after tiles but before the objects layer (resources, NPCs, PC)
+      const resourceContainerIndex = worldContainer.children.findIndex(c => c.name === 'objects');
       if (resourceContainerIndex >= 0) {
         worldContainer.addChildAt(cursorContainer, resourceContainerIndex);
       } else {

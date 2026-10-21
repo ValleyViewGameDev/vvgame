@@ -49,6 +49,11 @@ signage and props. Whimsical is the style laid over all of it.
   only in the recesses, the amber window glow as an accent, not the only light.
 - **Crafting stations** show the product being made, big, in the open front; their accent
   is the product's colour.
+- **No pre-rendered smoke, steam or vapour** (owner, 2026-10-21): nothing comes out of a
+  chimney, a vent, a pot, a forge or any other opening in the still art. The buildings will
+  later be tagged with the coordinates of their chimneys and openings and the game draws
+  animated smoke and steam VFX there at run time; baked-in smoke would sit under or beside
+  it and never move. Chimneys and vents themselves are welcome, cold.
 
 ## 2. The proposals, building by building
 
@@ -134,5 +139,6 @@ Open:
 The generator reads the four columns and writes them into the prompt: "FAMILY: tudor
 (timber framing and stucco, slate roof with a brick chimney). LOOK: town: clean walls, no
 moss, no vines. ACCENT: the roof and the sign are navy blue. SIGN: a placard over the door
-showing an open book, no letters." plus the lighting sentence from the style. One building
+showing an open book, no letters." plus the lighting sentence from the style and the
+standing negative: no smoke, steam or vapour from any chimney or opening. One building
 per job subject, two candidates each, judged first at 45 px for the quick read.

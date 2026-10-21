@@ -247,8 +247,10 @@ const PixiRendererPCs = ({
     const worldContainer = app.stage.children.find(c => c.name === 'world');
     if (!worldContainer) return;
 
-    // Check if container already exists
-    let pcContainer = worldContainer.children.find(c => c.name === 'pcs');
+    // The player shares the y-sorted objects layer with the resources and the NPCs
+    // (PixiRenderer.js): a wall post or a building south of the player draws over them
+    let pcContainer = worldContainer.children.find(c => c.name === 'objects')
+      || worldContainer.children.find(c => c.name === 'pcs');
 
     if (!pcContainer) {
       pcContainer = new Container();
@@ -380,6 +382,7 @@ const PixiRendererPCs = ({
       sprite.height = TILE_SIZE * 0.9;
       sprite.x = xPos;
       sprite.y = yPos;
+      sprite.zIndex = posY + 0.51; // y-sorted; wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();
     } else {
@@ -389,6 +392,7 @@ const PixiRendererPCs = ({
       text.style.fontSize = TILE_SIZE * 0.8;
       text.x = xPos;
       text.y = yPos;
+      text.zIndex = posY + 0.51;
       text.alpha = 1.0;
       hideSprite();
 

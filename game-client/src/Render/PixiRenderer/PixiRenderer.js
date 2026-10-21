@@ -375,6 +375,7 @@ const PixiRenderer = ({
   const tileSpritePool = useRef([]);       // one Sprite per tile cell, reused across grids
   const resourceContainerRef = useRef(null);
   const npcContainerRef = useRef(null);
+  const resourceSpritesRef = useRef([]); // the resource sprites in the shared objects layer
   // pcContainerRef removed - now managed by PixiRendererPCs component
   const overlayContainerRef = useRef(null);
 
@@ -617,20 +618,20 @@ const PixiRenderer = ({
       worldContainer.addChild(tileContainer);
       tileContainerRef.current = tileContainer;
 
-      const resourceContainer = new Container();
-      resourceContainer.name = 'resources';
-      worldContainer.addChild(resourceContainer);
-      resourceContainerRef.current = resourceContainer;
+      // One y-sorted layer for everything that stands on the ground: resources, NPCs and the
+      // player (PixiRendererPCs adds the player's sprite here). zIndex is the object's row
+      // (resources: the anchor tile's row; actors: their render row + 0.5), so whatever stands
+      // further south draws in front, even when a taller sprite (a wall post, a building)
+      // reaches up into the tile north of it. Pixi sorts siblings only, so they share a layer.
+      const objectContainer = new Container();
+      objectContainer.name = 'objects';
+      objectContainer.sortableChildren = true;
+      worldContainer.addChild(objectContainer);
+      resourceContainerRef.current = objectContainer;
+      npcContainerRef.current = objectContainer;
 
-      // Note: VFX container (for range indicators, etc.) is created by PixiRendererVFX component
-
-      const npcContainer = new Container();
-      npcContainer.name = 'npcs';
-      npcContainer.sortableChildren = true; // y-sort: an NPC lower on the board draws in front
-      worldContainer.addChild(npcContainer);
-      npcContainerRef.current = npcContainer;
-
-      // Note: PC container is created by PixiRendererPCs component
+      // Note: VFX container (range indicators, grow effects) is inserted below this layer by
+      // PixiRendererVFX; the cursor highlight too (PixiRendererCursor)
 
       const overlayContainer = new Container();
       overlayContainer.name = 'overlays';
@@ -853,8 +854,14 @@ const PixiRenderer = ({
     resourceRenderVersionRef.current += 1;
     const thisRenderVersion = resourceRenderVersionRef.current;
 
-    // Clear existing resources immediately
-    resourceContainer.removeChildren();
+    // Clear existing resources immediately (only ours: the layer also holds the NPCs and the PC)
+    for (const child of resourceSpritesRef.current) child.parent?.removeChild(child);
+    resourceSpritesRef.current = [];
+    const addResource = (obj, row) => {
+      obj.zIndex = row;
+      resourceContainer.addChild(obj);
+      resourceSpritesRef.current.push(obj);
+    };
 
     // Walls and fences that join up (PixiRendererWalls): a resource with a wallSet is drawn
     // from its set's pieces by its neighbours, not from its own file
@@ -930,7 +937,7 @@ const PixiRenderer = ({
           sprite.height = TILE_SIZE * span;
           sprite.x = (resource.x - (span - 1) / 2) * TILE_SIZE;
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
-          resourceContainer.addChild(sprite);
+          addResource(sprite, resource.y);
           svgCount++;
           continue;
         }
@@ -943,7 +950,7 @@ const PixiRenderer = ({
           sprite.height = size;
           sprite.x = x;
           sprite.y = visualY;
-          resourceContainer.addChild(sprite);
+          addResource(sprite, resource.y);
           svgCount++;
           continue;
         }
@@ -975,7 +982,7 @@ const PixiRenderer = ({
           sprite.height = fontSize * EMOJI_SPRITE_SCALE;
           sprite.x = x + size / 2;
           sprite.y = visualY + size / 2;
-          resourceContainer.addChild(sprite);
+          addResource(sprite, resource.y);
           svgCount++;
           continue;
         }
@@ -990,7 +997,7 @@ const PixiRenderer = ({
         text.x = x + size / 2;
         text.y = visualY + size / 2;
 
-        resourceContainer.addChild(text);
+        addResource(text, resource.y);
         emojiCount++;
       }
 
@@ -1044,7 +1051,7 @@ const PixiRenderer = ({
         if (displayObj) {
           displayObj.x = animation.currentPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
-          displayObj.zIndex = animation.currentPos.y; // y-sorted among NPCs
+          displayObj.zIndex = animation.currentPos.y + 0.5; // y-sorted with the resources and the PC
         }
       }
 
@@ -1205,7 +1212,7 @@ const PixiRenderer = ({
           const renderPos = getNPCRenderPosition(npc);
           displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.zIndex = renderPos.y;
+          displayObj.zIndex = renderPos.y + 0.5; // over the resources of its own row, under the row south
         }
         // Resting scale for CombatFX (sizing above may have just reset it under an effect)
         displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
