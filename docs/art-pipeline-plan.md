@@ -165,6 +165,8 @@ kind of thing has its own template and the generator must be shown the right one
   reads as skating on the board, fall back to the human scheme (side mirrored, front, back).
   Mirroring is fine: animals carry nothing asymmetric (the avatar plan's "no flip" rule
   exists for the weapon hand).
+- **Buildings: see `docs/art/buildings-bible.md`** (2026-10-21): the art director's brief,
+  families, accent colours, town/valley look, signage, lighting, and the per-building data.
 - **Buildings, base style**: the approved farmhouse, redrawn ALONE at its true 2 x 2 size as
   the bible panel; the approved exploration panel keeps its four props, which belong to the
   deco lane instead. All buildings share this style.

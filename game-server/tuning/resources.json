@@ -7214,7 +7214,11 @@
     "gemcost": 506,
     "filename": "school.svg",
     "crafttime": 0,
-    "totalnestedtime": 432000
+    "totalnestedtime": 432000,
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "sunflower yellow",
+    "artSign": "school bell"
   },
   {
     "type": "Hospital",
@@ -7253,7 +7257,11 @@
     "filename": "hospital.svg",
     "crafttime": 0,
     "totalnestedtime": 72250,
-    "parallel": 1
+    "parallel": 1,
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "white and pale blue",
+    "artSign": "mortar and pestle with a cross"
   },
   {
     "type": "Library",
@@ -7293,7 +7301,11 @@
     "totalnestedtime": 432250,
     "parallel": 1,
     "ingredient4": "Thread",
-    "ingredient4qty": 10
+    "ingredient4qty": 10,
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "navy blue",
+    "artSign": "open book"
   },
   {
     "type": "Mill",
@@ -7329,7 +7341,11 @@
     "filename": "mill.svg",
     "crafttime": 0,
     "totalnestedtime": 375,
-    "parallel": 6
+    "parallel": 6,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "wheat tan",
+    "artSign": "flour sack"
   },
   {
     "type": "Dairy",
@@ -7367,7 +7383,11 @@
     "filename": "dairy.svg",
     "crafttime": 0,
     "totalnestedtime": 850,
-    "parallel": 5
+    "parallel": 5,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "cream white",
+    "artSign": "milk churn"
   },
   {
     "type": "Loom",
@@ -7405,7 +7425,11 @@
     "filename": "loom.svg",
     "crafttime": 0,
     "totalnestedtime": 1050,
-    "parallel": 3
+    "parallel": 3,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "indigo blue",
+    "artSign": "spool of thread"
   },
   {
     "type": "Chicken Coop",
@@ -7479,7 +7503,11 @@
     "filename": "oven.svg",
     "crafttime": 0,
     "totalnestedtime": 3241800,
-    "parallel": 5
+    "parallel": 5,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "warm orange",
+    "artSign": "loaf of bread"
   },
   {
     "type": "Beehive",
@@ -7551,7 +7579,11 @@
     "filename": "kitchen.svg",
     "crafttime": 0,
     "totalnestedtime": 6481500,
-    "parallel": 5
+    "parallel": 5,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "tomato red",
+    "artSign": "steaming pot"
   },
   {
     "type": "Lumber Yard",
@@ -7589,7 +7621,11 @@
     "filename": "lumber-yard.svg",
     "crafttime": 0,
     "totalnestedtime": 7000,
-    "parallel": 8
+    "parallel": 8,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "timber brown",
+    "artSign": "stacked logs"
   },
   {
     "type": "Studio",
@@ -7627,7 +7663,11 @@
     "filename": "studio.svg",
     "crafttime": 0,
     "totalnestedtime": 8712000,
-    "parallel": 4
+    "parallel": 4,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "terracotta",
+    "artSign": "clay pot"
   },
   {
     "type": "Beverage Station",
@@ -7667,7 +7707,11 @@
     "filename": "beverage-station.svg",
     "crafttime": 0,
     "totalnestedtime": 1116400,
-    "parallel": 3
+    "parallel": 3,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "tea green",
+    "artSign": "steaming cup"
   },
   {
     "type": "Winery",
@@ -7707,7 +7751,11 @@
     "filename": "winery.svg",
     "crafttime": 0,
     "totalnestedtime": 17388600,
-    "parallel": 1
+    "parallel": 1,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "burgundy",
+    "artSign": "wine barrel"
   },
   {
     "type": "Coffee Factory",
@@ -7747,7 +7795,11 @@
     "filename": "coffee-factory.svg",
     "crafttime": 0,
     "totalnestedtime": 13051500,
-    "parallel": 1
+    "parallel": 1,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "dark roast brown",
+    "artSign": "coffee bean"
   },
   {
     "type": "Silkery",
@@ -7786,7 +7838,11 @@
     "gemcost": 4538,
     "crafttime": 0,
     "totalnestedtime": 482100,
-    "parallel": 1
+    "parallel": 1,
+    "artFamily": "workshop",
+    "artLook": "homestead",
+    "artAccent": "silver white",
+    "artSign": "silk cocoon"
   },
   {
     "type": "Ancient Temple",
@@ -7814,7 +7870,11 @@
     "validonv": false,
     "validonu": false,
     "filename": "ancient-temple.svg",
-    "parallel": 1
+    "parallel": 1,
+    "artFamily": "ruin",
+    "artLook": "valley",
+    "artAccent": "weathered stone and moss",
+    "artSign": "none (the ruin is the sign)"
   },
   {
     "type": "Adventure Camp",
@@ -7842,7 +7902,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "adventure-camp.svg"
+    "filename": "adventure-camp.svg",
+    "artFamily": "camp",
+    "artLook": "valley",
+    "artAccent": "canvas tan and forest green",
+    "artSign": "tent over a campfire"
   },
   {
     "type": "General Store",
@@ -7870,7 +7934,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "general-store.svg"
+    "filename": "general-store.svg",
+    "artFamily": "cottage",
+    "artLook": "town",
+    "artAccent": "ochre brown",
+    "artSign": "crossed axe and pickaxe"
   },
   {
     "type": "Laboratory",
@@ -7898,7 +7966,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "laboratory.svg"
+    "filename": "laboratory.svg",
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "copper orange",
+    "artSign": "flask crossed with a whisk"
   },
   {
     "type": "Academy",
@@ -7926,7 +7998,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "academy.svg"
+    "filename": "academy.svg",
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "plum",
+    "artSign": "needle and thread over a palette"
   },
   {
     "type": "Guild",
@@ -7954,7 +8030,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "guild.svg"
+    "filename": "guild.svg",
+    "artFamily": "fantastical",
+    "artLook": "town",
+    "artAccent": "teal",
+    "artSign": "crest with crossed tools"
   },
   {
     "type": "Agriculture Center",
@@ -7982,7 +8062,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "agriculture.svg"
+    "filename": "agriculture.svg",
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "leaf green",
+    "artSign": "wheat sheaf"
   },
   {
     "type": "Factory",
@@ -8010,7 +8094,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "factory.svg"
+    "filename": "factory.svg",
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "brick red",
+    "artSign": "gear"
   },
   {
     "type": "Trade Stall",
@@ -8097,7 +8185,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "bank.svg"
+    "filename": "bank.svg",
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "gold",
+    "artSign": "money bag"
   },
   {
     "type": "Courthouse",
@@ -8126,7 +8218,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "town-hall.svg"
+    "filename": "town-hall.svg",
+    "artFamily": "tudor",
+    "artLook": "town",
+    "artAccent": "royal purple",
+    "artSign": "scales of justice"
   },
   {
     "type": "Train",
@@ -8155,7 +8251,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "wagon.svg"
+    "filename": "wagon.svg",
+    "artFamily": "vehicle",
+    "artLook": "town",
+    "artAccent": "black and brass",
+    "artSign": "none"
   },
   {
     "type": "Carnival",
@@ -8184,7 +8284,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "carnival.svg"
+    "filename": "carnival.svg",
+    "artFamily": "fantastical",
+    "artLook": "town",
+    "artAccent": "red and white stripes",
+    "artSign": "none (the tents are the sign)"
   },
   {
     "type": "Mailbox",
@@ -8411,7 +8515,11 @@
     "ingredient2qty": 300,
     "ingredient3": "Clay",
     "ingredient3qty": 300,
-    "maxpergrid": 1
+    "maxpergrid": 1,
+    "artFamily": "tudor",
+    "artLook": "valley",
+    "artAccent": "red",
+    "artSign": "bed"
   },
   {
     "type": "Post House",
@@ -8441,7 +8549,11 @@
     "ingredient1qty": 600,
     "ingredient2": "Stone",
     "ingredient2qty": 200,
-    "maxpergrid": 1
+    "maxpergrid": 1,
+    "artFamily": "cottage",
+    "artLook": "valley",
+    "artAccent": "sky blue",
+    "artSign": "sealed letter"
   },
   {
     "type": "Farm House",
@@ -8470,7 +8582,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "farm-house.svg"
+    "filename": "farm-house.svg",
+    "artFamily": "cottage",
+    "artLook": "homestead",
+    "artAccent": "straw and warm wood",
+    "artSign": "none"
   },
   {
     "type": "Shrine",
@@ -8498,7 +8614,11 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "shrine.svg"
+    "filename": "shrine.svg",
+    "artFamily": "fantastical",
+    "artLook": "valley",
+    "artAccent": "jade and white",
+    "artSign": "trident"
   },
   {
     "type": "Castle",
@@ -8525,7 +8645,11 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "royal blue and gold",
+    "artSign": "crown"
   },
   {
     "type": "Shiro",
@@ -8552,7 +8676,11 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "black and white",
+    "artSign": "none"
   },
   {
     "type": "Restaurant",
@@ -8579,7 +8707,11 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "artFamily": "cottage",
+    "artLook": "town",
+    "artAccent": "warm orange",
+    "artSign": "bowl and spoon"
   },
   {
     "type": "Restroom",
@@ -8606,7 +8738,11 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "artFamily": "cottage",
+    "artLook": "town",
+    "artAccent": "slate blue",
+    "artSign": "none"
   },
   {
     "type": "Warrior's Den",
@@ -8634,7 +8770,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "warriors-den.svg"
+    "filename": "warriors-den.svg",
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "iron grey with a red banner",
+    "artSign": "crossed swords"
   },
   {
     "type": "Armory",
@@ -8662,7 +8802,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "armory.svg"
+    "filename": "armory.svg",
+    "artFamily": "castle",
+    "artLook": "town",
+    "artAccent": "steel silver",
+    "artSign": "shield and helmet"
   },
   {
     "type": "Magic Shop",
@@ -8690,7 +8834,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "magic-shop.svg"
+    "filename": "magic-shop.svg",
+    "artFamily": "fantastical",
+    "artLook": "town",
+    "artAccent": "deep violet",
+    "artSign": "crescent moon and star"
   },
   {
     "type": "Cow",

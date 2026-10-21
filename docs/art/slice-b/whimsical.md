@@ -97,3 +97,16 @@ Laboratory, Inn, Bank, Guild, two candidates each.
 - Bank: a stone tower in castle style from the owner's new reference
   (`refs/whimsical-bank.webp`), pushed more whimsical than the reference (leaning, bulging,
   crooked cap). Prompt rewritten as `bank-b`.
+
+## 5. Round 2 review (2026-10-21): nothing approved; the buildings bible
+
+The owner reviewed `composite-r2` (Laboratory, Bank, Warrior's Den) and approved none of
+it: every building had the same dark blue roof although they differ in architecture and
+function, and the lighting was too dark. The direction that came out of it is the
+**buildings bible**, `docs/art/buildings-bible.md`: the art director's brief (assets must
+communicate their function at a quick read), one architecture family per building, an
+accent colour per building carried by roof and sign, the town-look / valley-look rule for
+moss and vines, image-only signage, full daylight. The four values live on each resource
+row (`artFamily`, `artLook`, `artAccent`, `artSign`) and the generator prompts from them.
+The style preamble's light sentence was rewritten for full daylight. Next: the owner
+answers the bible's questions, then one subject per building is generated from the data.
