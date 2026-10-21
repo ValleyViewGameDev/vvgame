@@ -14,7 +14,7 @@ citizen brains and a tuning pass. Parent document with file:line findings:
 (`attack`), Spawners (`spawn`), Citizens (`quest`/`trade`/`heal`/`worker`) and Farm Animals
 (`graze`). Tracks: 1 action loop (built), 2 kill route (built), 3a movement feel (built),
 3b Enemies with a movable home + leash (built 2026-10-09), 4 Citizens (shared idle/roam, then motives/habits),
-5 tuning.
+5 tuning (done 2026-10-21).
 
 **Owner's framing.** Casual, timing-game combat with strong board feedback and little UI to
 process; the fight simulated on the client with one outcome request after a kill; NPCs that
@@ -22,7 +22,7 @@ read as alive (per-NPC cadence, pauses, home anchors, A\*); town "brains" (motiv
 little stories, lighter than SimGame) as the even-more-future track; enemies get a simpler
 brain.
 
-**Next.** The rest of Track 4 (Citizens: motives, schedules, stories), then Track 5 (tuning).
+**Next.** The rest of Track 4 (Citizens: motives, schedules, stories). Track 5 (tuning) is done (owner, 2026-10-21).
 
 ### EPIC: Build the World ("World", opened 2026-10-09)
 
@@ -34,9 +34,7 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 
 - **W-1. Write `docs/world-design.md`.** The design doc this epic needs: regions, template
   inventory, storylines, exploration motivations. Not written yet.
-- **W-2. Finish all the grid templates.** Every grid that still lacks a template gets one.
 - **W-3. Iterate on existing templates** to create more interesting scenarios.
-- **W-4. Finalize all the Regions.**
 - **W-6. Make Regions matter more to gameplay.**
 - **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
   epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
@@ -50,10 +48,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   button), and tapping an uncollected one opens a small "Hint:" modal with a riddle (strings
   200803-200817; EN, DE, ES, FR; the partly translated languages fall back to English). The
   "more motivations to explore" half is still open. Not yet checked in the live game.
-- **W-9. Valley shops stock different goods** (added 2026-10-09). Buildings in the Valley
-  (Armory, Magic Shop, ...) currently all sell the same items. Give each its own stock, so that
-  finding a new mini-Town in the Valley, D&D style, makes you want to check its shops for new
-  and interesting things to buy.
 - **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). An ongoing
   process: a template for every valley0-3 grid, built in passes (geography everywhere first,
   then tiles / resources / enemies, then sets, mini-towns and regions), following
@@ -90,16 +84,12 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   re-do the current Town template; then make three variations of it for the E, S and W towns,
   each with its entrance facing the valley (`game-server/layouts/gridLayouts/town/`, today
   townN / townE / townS / townW).
-- **W-16. Acheron: the descent to the Pit** (added 2026-10-19). The Brief Candle thread
-  (`docs/story.md` §6) is built in data and at its end: the Pit of Acheron on 1014571 (Black Fog
-  door, rock walkway, six Demons, Cerberus, the Candle), Hecate's Torch (12 Scorpions + 10
-  Bones), Demons dropping Scorpions, Acheron's gear priced in Scorpions. Still to do: lay out
-  the rest of Acheron (54 grids) as the descent toward it. The shop town at 1014554 as the
-  staging post (add a healer); outer lava grids with single Demons; middle grids with Demon
-  Spawners; the approach through 1014561, whose slate bridge (x 39-40 at its bottom edge) is
-  the Pit's only way in. Players can walk on lava (2 hp a second), so any lava that must stop
-  them needs a fence (the Pit uses an Invisible Wall on every lava tile touching rock). Art:
-  Cerberus, the Candle, the Torch and the fog are emoji for now (🐕 🕯️ 🔥 🌫️).
+- **W-17. Re-do the dungeon templates for the new stone walls** (added 2026-10-21). The stone
+  wall rendering has changed: walls and fences now join up (`wallSet` on the resource row,
+  post + spokes + runs composed from the N/E/S/W mask by `PixiRendererWalls.js`, no diagonals;
+  `docs/walls.md`). The dungeon templates were laid out before that and need re-doing so their
+  walls read well with the joined rendering. Start at `game-server/layouts/gridLayouts/dungeon/`
+  (editor Dungeons tab) and `docs/walls.md`.
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
