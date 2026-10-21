@@ -86,6 +86,18 @@
       "refs": [
         "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png"
       ]
+    },
+    "cobble-4": {
+      "guide": "guides/patch4-cobble.png",
+      "variants": [
+        "painterly"
+      ],
+      "note": "Round 2 retry of cobble-2 (image 8 of 10): cobble-2's moss was bright yellow-green and in most seams; this one asks for muted, rare moss and matte stones.",
+      "prompt": "THE TILE TO REDRAW: the second-to-last attached image is this game's approved cobblestone panel; redraw it with the SAME cobbles, colour, moss, lighting and rendering, with ONE change for tiling: a mortar joint runs exactly along EVERY thin grid line of the guide, so that NO cobble crosses a grid line; each square is paved with its own whole cobbles; the joints on the grid lines are the same hairline width and the same mortar colour as all the other joints, and the cobbles touching a grid line are ordinary irregular cobbles, not a straight row of half stones, so that when the squares are cut apart and shuffled they tile without a visible seam. SUBJECT: a GROUND TEXTURE panel, cobblestone only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #acaa89 (a warm khaki grey): keep that as the colour of the cobbles. Fill ALL sixteen squares, edge to edge, with rounded cobbles packed tightly, about five or six cobbles across each square, in the approved panels' recipe: each cobble a flat MATTE lit top with a thin dark outline and a thin shaded lower-right edge, no glossy rim, no wet shine. The seams between cobbles must be VERY THIN, a hairline of dark outline with the cobbles almost touching, no wide mortar, so the paving reads as small and real. Moss: very subtle, a muted dusty green (not bright, not yellow), only in a few seams, about one small patch per square and some squares with none, never on top of a cobble. Keep the cobbles inside each guide square. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat.",
+      "refs": [
+        "_candidates/whimsical-test/exploration/openai/painterly-farmhouse-c-1.png",
+        "_candidates/whimsical-tiles/approved/openai--painterly-cobble-1.png"
+      ]
     }
   }
 }

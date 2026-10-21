@@ -67,6 +67,17 @@
         "painterly"
       ],
       "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last attached image is a building from this game; match its painterly rendering, its colours and its camera exactly (top-down three-quarter: tops seen from above, south-facing sides seen as a shaded front face, verticals straight up). SUBJECT: a junction for a tile-based game, drawn over the LAST attached image, a layout guide: a 4 x 4 grid of equal magenta squares with a dark asterisk at the panel's centre: a centre dot with FOUR diagonal lines, each one and three quarter squares long. Draw a rustic fairy-tale WOODEN FENCE along the lines: a sturdy round wooden post at the centre dot only, and along each line TWO horizontal split rails, the top rail near the top of the post and the bottom rail low near the ground, with a wide gap between them, BOTH rails running the full length of the line without interruption, weathered warm wood with a little moss. Every segment runs exactly along its line and stops exactly at the line's end with a flat cut end; all segments have the same width, height and detail along their whole length, with NO posts, pillars, caps or breaks anywhere along a segment: a post stands ONLY at the centre dot. Every segment shows its top from above and a shaded front face on its south-facing side; a soft contact shadow on the ground to the lower right. Apart from the structure, the magenta stays pure flat #ff00ff everywhere: it is a mask, draw no ground, no grass, no texture on it. Draw the guide's thin grid lines as faint thin lines exactly where the guide has them; do not draw the asterisk itself. No text."
+    },
+    "stone-wall-post": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.png",
+        "_candidates/walls/exploration/round6/ref-plus.webp"
+      ],
+      "guide": "guides/wall-plus.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCE: the second-to-last-but-one attached image is a building from this game; match its painterly rendering and camera (top-down three-quarter, verticals straight up). THE TOWER TO REDRAW: the second-to-last attached image is this game's stone wall junction; redraw ONLY ITS ROUND STONE TOWER, exactly the same tower (same size, stone, cap, lighting, a tuft of moss at its foot), standing ALONE on the LAST attached image, a layout guide: a 4 x 4 grid of magenta squares with a dark asterisk; put the tower at the asterisk's centre dot and draw NO walls at all, none of the asterisk's lines: just the one tower with its soft contact shadow. The magenta stays pure flat #ff00ff everywhere else; draw the guide's thin grid lines as faint thin lines; do not draw the asterisk. No text."
     }
   }
 }

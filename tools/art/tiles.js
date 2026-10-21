@@ -28,7 +28,7 @@ const TYPES = {
   d: { src: 'slice-b-tiles/approved/openai--flatter-dirt-2-1.png', inset: INSET, name: 'dirt' },
   n: { src: 'slice-b-tiles/approved/openai--flatter-sand-1.png', inset: INSET, name: 'sand' },
   s: { src: 'whimsical-tiles/approved/openai--painterly-slate-1.png', inset: INSET, name: 'slate' },
-  x: { src: 'whimsical-tiles/approved/openai--painterly-cobble-1.png', inset: INSET, name: 'cobblestone' },
+  x: { src: 'whimsical-tiles/approved/openai--painterly-cobble-4-2.png', inset: 4, name: 'cobblestone' }, // joints on the grid lines; a 4 px inset thins the boundary joint to the inner joints' width
   p: { src: 'whimsical-tiles/approved/openai--painterly-pavement-2-2.png', inset: 0, trim: 0, name: 'pavement' },
 };
 

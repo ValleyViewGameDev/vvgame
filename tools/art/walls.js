@@ -88,15 +88,20 @@ async function towerProfile(keyed, ctr, lineDy) {
   const spokeS = med([300, 330, 360, 390, 420].map((d) => width(ctr.y + d)));
   const spokeN = med([300, 330, 360, 390, 420].map((d) => width(ctr.y - d)));
   const line = ctr.y + lineDy;
-  let base = line; for (let y = line; y < H; y++) { if (width(y) > spokeS + 16) base = y; else if (y > line + 40) break; }
-  let capTop = line; for (let y = line; y >= 0; y--) { if (width(y) > spokeN + 16) capTop = y; else if (y < line - 40) break; }
+  // the cap's top: the first row that is wider than the north spoke at all (an ellipse's top
+  // rows are narrow, so a fat margin read the cap as starting lower than it does and clipped it)
+  let capTop = line; for (let y = line; y >= 0; y--) { if (width(y) > spokeN + 4) capTop = y; else if (y < line - 40) break; }
   // the half-width from the cap alone (rows below it hold the east and west walls)
   // a tower is a cap that rises well above the wall's top band (a fence post does not); its
   // half-width is read from the cap rows alone, which hold no wall
   if (capTop > line - 80) return null;
   let rx = 0; for (let y = capTop; y < Math.min(capTop + 50, line - 80); y++) rx = Math.max(rx, width(y) / 2);
   if (rx * 2 < spokeN + 16) return null;
-  return { capTop: capTop - line, base: base - line, rx: Math.round(rx) };
+  // the base: the last row that is still nearly the tower's full width. The south spoke
+  // flares where it meets the tower, so "wider than the spoke" read the base too low and
+  // carried a stub of the spoke's capstones under every post with no wall to the south.
+  let base = line; for (let y = line; y < H; y++) { if (width(y) >= rx * 2 - 12) base = y; else if (y > line + 40) break; }
+  return { capTop: capTop - line - 6, base: base - line, rx: Math.round(rx) };
 }
 
 /** The cross panel has no straight spokes to measure; its post is the centroid of the dense middle (iterated inside a small radius). */
@@ -132,7 +137,7 @@ function maskSvg(piece) {
     shape = `<ellipse cx="${c}" cy="${cy + dy}" rx="${rx}" ry="${ry}"/>`;
   } else if (piece === 'post') {
     const { capTop, base, rx } = TOWER;
-    const ry = Math.round(rx * 0.6); // the cap seen from above is an ellipse about this flat
+    const ry = Math.round(rx * 0.7); // the cap seen from above is an ellipse about this flat (generous: a clipped cap is worse than a sliver of wall)
     const capCy = cy + capTop + ry;
     shape = `<ellipse cx="${c}" cy="${capCy}" rx="${rx}" ry="${ry}"/><rect x="${c - rx}" y="${capCy}" width="${2 * rx}" height="${cy + base - capCy}"/>`;
   }
@@ -171,6 +176,12 @@ function maskSvg(piece) {
     const left = Math.max(0, Math.min(1024 - CELL, ctr.x + ox - CELL / 2)), top = Math.max(0, Math.min(1024 - WIN_H, ctr.y + oy - LINE_Y));
     return sharp(keyed).extract({ left, top, width: CELL, height: WIN_H }).png().toBuffer();
   };
+  // --post-panel <name>: a lone tower drawn on its own panel. The plus panel's tower cannot be
+  // cut clean: its south spoke is painted OVER the tower's lower face, so any mask that keeps
+  // the tower's base keeps a stub of the spoke's capstones with it (the owner's dangling piece
+  // of wall top under posts with no wall south). A lone tower has nothing to cut away; it is
+  // aligned to the plus panel's tower by the cap's top row.
+  const postPanel = opt('post-panel', null);
   const plus = await windowOf(plusPanel, false);
   {
     const { keyed, ctr } = keyedCache[plusPanel];
@@ -179,6 +190,20 @@ function maskSvg(piece) {
   }
   const cross = await windowOf(crossPanel, true);
   const cellFor = (piece) => (piece === 'post' || piece.length === 1 ? plus : cross);
+  let lonePost = null;
+  if (postPanel && TOWER) {
+    const file = fs.readdirSync(dir).find((f) => f.endsWith(`${postPanel}.png`) || f === `${postPanel}.png`);
+    if (!file) throw new Error(`no panel ${postPanel} in ${dir}`);
+    const keyed = await keyMagenta(await sharp(path.join(dir, file)).png().toBuffer(), { hue: true });
+    const { data, info } = await sharp(keyed).raw().toBuffer({ resolveWithObject: true });
+    const W = info.width, H = info.height, A = (x, y) => data[(y * W + x) * 4 + 3];
+    let top = -1, l = W, r = 0;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (A(x, y) > 200) { if (top < 0) top = y; if (x < l) l = x; if (x > r) r = x; }
+    const cx = Math.round((l + r) / 2);
+    const left = Math.max(0, Math.min(W - CELL, cx - CELL / 2)), wtop = Math.max(0, Math.min(H - WIN_H, top - (LINE_Y + TOWER.capTop)));
+    lonePost = await sharp(keyed).extract({ left, top: wtop, width: CELL, height: WIN_H }).png().toBuffer();
+    console.log(`${postPanel}: lone tower top ${top}, centre ${cx}; post cut from it`);
+  }
   // RUNS: a tile-long straight piece with no post, cut one cell out along a spoke (the spokes
   // are 1.75 cells long, so the window holds neither the post nor the end cap). A tile whose
   // only neighbours are opposite each other draws a run instead of post + two spokes, which
@@ -198,9 +223,9 @@ function maskSvg(piece) {
     runs['run-v'] = WIN_H === CELL ? cell : await sharp({ create: { width: CELL, height: WIN_H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: cell, left: 0, top: WIN_H - CELL }]).png().toBuffer();
   }
   const manifest = { note: 'Cut by tools/art/walls.js from a junction panel; the renderer composes a wall tile from the post plus one spoke per connected neighbour (PixiRendererWalls.js).', sets: JSON.parse(fs.existsSync(path.join(OUT, 'walls.json')) ? fs.readFileSync(path.join(OUT, 'walls.json'), 'utf8') : '{"sets":{}}').sets };
-  manifest.sets[set] = { plus: plusPanel, cross: crossPanel, px: OUT_PX, span: WIN_H / CELL, pieces: [] };
+  manifest.sets[set] = { plus: plusPanel, cross: crossPanel, post: postPanel, px: OUT_PX, span: WIN_H / CELL, pieces: [] };
   for (const piece of ['post', ...Object.keys(DIRS), ...Object.keys(runs)]) {
-    const cut = runs[piece] ? runs[piece] : await sharp(cellFor(piece)).composite([{ input: await sharp(maskSvg(piece)).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
+    const cut = runs[piece] ? runs[piece] : (piece === 'post' && lonePost) ? lonePost : await sharp(cellFor(piece)).composite([{ input: await sharp(maskSvg(piece)).png().toBuffer(), blend: 'dest-in' }]).png().toBuffer();
     const pad = (WIN_H - CELL) / 2; // a tall window becomes a square with the tile's columns in the middle
     const square = pad ? await sharp(cut).extend({ left: pad, right: pad, background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer() : cut;
     const small = await sharp(square).resize(OUT_PX + 2, OUT_PX + 2, { kernel: 'lanczos3' }).extract({ left: 1, top: 1, width: OUT_PX, height: OUT_PX }).png({ compressionLevel: 9 }).toBuffer();

@@ -44,9 +44,12 @@ the renderer reads the span from the atlas frame and draws the sprite as a 1.5-t
 whose bottom row and middle column of tiles is the wall's tile. The north-south run is one
 cell cut from the far end of the north spoke and set into the bottom of the window: it is a
 flat band with no face, and the tile above covers the headroom with its own piece.
-The post mask is MEASURED from the plus panel (`towerProfile`): the cap's top, the tower's
-half-width from the cap rows, and its base, the row where the tower narrows to the south
-spoke; the mask is the full cap ellipse plus the body down to that base. Two owner's notes
+The post comes from its OWN panel (`--post-panel`, a lone tower drawn with the plus panel as
+the reference), aligned to the plus panel's tower by the cap's top row. The plus panel's
+tower cannot be cut clean: its south spoke is painted over the tower's lower face, so any
+mask that keeps the base keeps a stub of the spoke's capstones with it. `towerProfile` still
+measures the plus panel's tower (cap top, half-width, base) for the alignment and as the
+fallback mask when no post panel is given. Two owner's notes
 came from this: a post must show the same complete cap whatever joins it (the earlier
 ellipse clipped the cap's sides, so a post with no north wall lost part of its ring), and
 nothing of the south spoke may ride along under a post with no wall to the south (the

@@ -35,11 +35,11 @@
     },
     "x": {
       "name": "cobblestone",
-      "source": "whimsical-tiles/approved/openai--painterly-cobble-1.png",
-      "inset": 6,
+      "source": "whimsical-tiles/approved/openai--painterly-cobble-4-2.png",
+      "inset": 4,
       "count": 16,
       "px": 128,
-      "mean": "#9d936f"
+      "mean": "#9b8e68"
     },
     "p": {
       "name": "pavement",

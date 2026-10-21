@@ -4,6 +4,7 @@
     "stone": {
       "plus": "painterly-stone-wall-plus-1",
       "cross": "painterly-stone-wall-cross-1",
+      "post": "painterly-stone-wall-post-1",
       "px": 192,
       "span": 1.5,
       "pieces": [
