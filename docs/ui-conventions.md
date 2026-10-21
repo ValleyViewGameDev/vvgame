@@ -296,6 +296,14 @@ value rather than trust this page.
 
 - Panel slide: 260 ms in, 220 ms out. Camera: zoom ease 220 ms, pan return 350 ms. Movement
   animation equals the step cadence (90 ms). Match these before inventing a new duration.
+- Ambient tile effects (`Render/PixiRenderer/PixiRendererTileFX.js`, layer `tile-fx` right
+  above the ground): a tile deep inside a field of its own kind (every tile within `ring`,
+  2, is the same type) rolls `chance` (25 %) when its cooldown (4-10 s, random per tile)
+  runs out and, when it wins, plays 2 s of effect built from random parts, so a big field
+  reads as organic, unpredictable bubbling, never a wave. Stylised, not realistic. Only the
+  tiles in view roll, nothing plays below 16 px per tile, and at most 120 effects run at
+  once. Lava bubbles are the first; water and sand follow as entries in `TILE_FX` with
+  their own `build` (owner, 2026-10-21).
 - Combat feedback (`Render/PixiRenderer/CombatFX.js`, all on the board, no panels): swing
   lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
   around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the

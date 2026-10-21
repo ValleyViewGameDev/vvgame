@@ -7,6 +7,7 @@ import { canHover } from '../../Utils/inputMode';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
+import PixiRendererTileFX from './PixiRendererTileFX';
 import PixiRendererPCs from './PixiRendererPCs';
 import PixiRendererCursor from './PixiRendererCursor';
 import PixiRendererSpeech from './PixiRendererSpeech';
@@ -1996,6 +1997,8 @@ const PixiRenderer = ({
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         getNPCRenderPosition={getNPCRenderPosition}
       />
+      {/* Ambient tile effects (lava bubbles; water and sand later): PixiRendererTileFX */}
+      <PixiRendererTileFX app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} />
       {/* PC layer with state-based icons */}
       <PixiRendererPCs
         app={appRef.current}
