@@ -307,9 +307,12 @@ value rather than trust this page.
   read as something under the surface (fishing may come later). Water is a FIELD effect
   (`FIELD_FX`): one GPU filter over a per-grid mask of the water tiles whose shader paints
   slow-drifting light reflections (the edges of a voronoi field whose points wander, blown
-  one way) and sparse twinkling sparkles, in world space, faded out within half a tile of
-  the rim and below 10 px per tile; one pass over the water's screen area whatever the
-  lake's size, never a sprite per tile (owner's references: the pixel-art RPG water shaders).
+  one way) and sparse twinkling sparkles, in world space, ALWAYS on, on every water tile
+  (the mask is cut by the tiles' own corner rounding and grass lip, so grass stays on top),
+  faded out below 10 px per tile; one pass over the water's screen area whatever the lake's
+  size, never a sprite per tile (owner's references: the pixel-art RPG water shaders).
+  APPROVED by the owner 2026-10-21. The full write-up, decisions and how to test:
+  `docs/tile-effects.md`.
 - Combat feedback (`Render/PixiRenderer/CombatFX.js`, all on the board, no panels): swing
   lunge 90 ms out / 120 back; enemy hit = 140 ms flash + 0.22-tile knockback + an 18 % pop
   around the sprite's CENTRE (the knockback pivot is computed from the resting scale so the

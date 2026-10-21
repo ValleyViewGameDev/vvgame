@@ -1012,6 +1012,25 @@ function drawLip(ctx, size, mask) {
   }
 }
 
+/**
+ * Paint, into a size x size area at the context's origin, where this cell's OWN ground shows:
+ * white everywhere except the neighbours' corner rounding and the grass lip, which erase it
+ * (the same drawing the tile texture gets, in destination-out). PixiRendererTileFX builds the
+ * water field's mask from it, so the grass edge stays on top of the water effect.
+ */
+export function drawTileCoverage(ctx, size, tileType, row, col, tileTypes) {
+  const mask = lipMask(tileType, row, col, tileTypes);
+  const signature = cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, size, size);
+  if (signature === '----' && !mask) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  drawCornerRounding(ctx, size, signature, getRasterVariant(row, col));
+  drawLip(ctx, size, mask);
+  ctx.restore();
+}
+
 /** Which of the sixteen cuts a cell shows: a position hash, so neighbours differ and the board does not stripe. */
 export function getRasterVariant(row, col) {
   return (row * 7 + col * 11 + ((row * 3 + col * 5) % 7)) % RASTER_VARIANTS;

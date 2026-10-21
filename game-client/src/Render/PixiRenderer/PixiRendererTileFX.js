@@ -18,8 +18,10 @@
  * destroyed with its children when the effect ends.
  *
  * FIELD effects (FIELD_FX): one GPU filter over the whole field of a type, the water today.
- * The field is a mask sprite (one texel per tile, scaled up hard-edged) and the filter's
- * fragment shader paints, where the mask is set, slow-drifting light reflections (thin
+ * The field is a mask sprite (MASK_PX texels per tile: every tile of the type, minus the
+ * neighbours' corner rounding and the grass lip drawn over it, so the effect never bleeds
+ * onto grass; owner, 2026-10-21) and the filter's fragment shader paints, where the mask
+ * is set, slow-drifting light reflections (thin
  * caustic-like lines from a few sine fields, blown one way) and sparse twinkling sparkles,
  * all computed in world space from a time uniform, so it costs one pass over the water's
  * screen area whatever the lake's size and never a sprite per tile (owner's references:
@@ -31,6 +33,9 @@
 import { useEffect, useRef } from 'react';
 import { Container, Sprite, Texture, Filter, SCALE_MODES } from 'pixi.js-legacy';
 import PixiCamera from './PixiCamera';
+import { drawTileCoverage } from './PixiRendererTileTextures';
+
+const MASK_PX = 24; // mask texels per tile for the field masks: enough to carry the grass lip's soft edge
 
 const SCHEDULE_EVERY_MS = 200; // how often eligible tiles in view are rolled
 const TEX_R = 32;              // radius of the shared soft-disc texture, in px
@@ -47,8 +52,8 @@ export const FIELD_FX = {
 };
 
 // Water: light reflections and sparkles. Coordinates are in tiles of world space, so the
-// pattern stays pinned to the lake while the camera pans and zooms. `edge` fades the effect
-// out within half a tile of the water's rim (the ground tiles round their corners there).
+// pattern stays pinned to the lake while the camera pans and zooms. The mask's alpha is the
+// coverage: every water tile, with the grass lip and the rounded corners already cut out.
 const WATER_FRAG = `
 precision mediump float;
 varying vec2 vTextureCoord;
@@ -83,10 +88,11 @@ float ridges(vec2 p, float t) {
   p += vec2(0.86, 0.5) * t * 0.06;                 // drift with the wind
   return smoothstep(0.30, 0.0, voro(p * 0.6, t));  // large cells, soft edges
 }
-// a slow, large patchiness so the network comes and goes in places instead of covering the lake
+// a slow, large swell of brightness so the network breathes a little; it never goes out
+// (owner: always on, 2026-10-21)
 float patches(vec2 p, float t) {
   float n = sin(p.x * 0.55 + t * 0.17) * sin(p.y * 0.47 - t * 0.13) + 0.5 * sin((p.x - p.y) * 0.33 + t * 0.09);
-  return smoothstep(-0.35, 0.65, n);
+  return mix(0.75, 1.0, smoothstep(-0.6, 0.8, n));
 }
 
 // sparse sparkles: a few cells per tile, each twinkling briefly on its own clock
@@ -105,9 +111,7 @@ float sparkle(vec2 p, float t) {
 void main() {
   vec4 m = texture2D(uSampler, vTextureCoord);
   if (m.a < 0.01 || uFade <= 0.0) { gl_FragColor = vec4(0.0); return; }
-  vec2 dt = vec2(uTile * uZoom * 0.5) * inputSize.zw;
-  float edge = min(min(texture2D(uSampler, vTextureCoord + vec2(dt.x, 0.0)).a, texture2D(uSampler, vTextureCoord - vec2(dt.x, 0.0)).a),
-                   min(texture2D(uSampler, vTextureCoord + vec2(0.0, dt.y)).a, texture2D(uSampler, vTextureCoord - vec2(0.0, dt.y)).a));
+  float edge = m.a;
   vec2 screen = vTextureCoord * inputSize.xy + outputFrame.xy;
   vec2 p = (screen - uOrigin) / (uZoom * uTile);   // world position in tiles
   float t = uTime;
@@ -213,7 +217,7 @@ function findEligible(tileTypes) {
   return out;
 }
 
-const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
+const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE, atlasTick = 0 }) => {
   const layerRef = useRef(null);
   const texRef = useRef(null);
   const eligibleRef = useRef([]);
@@ -253,13 +257,21 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
       const rows = tileTypes.length, cols = tileTypes[0]?.length || 0;
       for (const [type, cfg] of Object.entries(FIELD_FX)) {
         const canvas = document.createElement('canvas');
-        canvas.width = cols; canvas.height = rows;
+        canvas.width = cols * MASK_PX; canvas.height = rows * MASK_PX;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff';
         let any = false;
-        for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) if (tileTypes[row][col] === type) { ctx.fillRect(col, row, 1, 1); any = true; }
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            if (tileTypes[row][col] !== type) continue;
+            any = true;
+            ctx.save();
+            ctx.translate(col * MASK_PX, row * MASK_PX);
+            drawTileCoverage(ctx, MASK_PX, type, row, col, tileTypes); // the tile, minus what grows over it
+            ctx.restore();
+          }
+        }
         if (!any) continue;
-        const sprite = new Sprite(Texture.from(canvas, { scaleMode: SCALE_MODES.NEAREST }));
+        const sprite = new Sprite(Texture.from(canvas, { scaleMode: SCALE_MODES.LINEAR }));
         sprite.width = cols * TILE_SIZE; sprite.height = rows * TILE_SIZE;
         const filter = new Filter(undefined, cfg.fragment(), { uTime: 0, uOrigin: [0, 0], uZoom: 1, uTile: TILE_SIZE, uFade: 1 });
         filter.padding = 0;
@@ -335,6 +347,9 @@ const PixiRendererTileFX = ({ app, tileTypes, TILE_SIZE }) => {
     tileTypesRef.current = tileTypes;
     layerRef.current?.__buildFields?.();
   }, [tileTypes]);
+
+  // The atlas landing brings the grass lip pieces: the field masks are cut again with them
+  useEffect(() => { if (atlasTick) layerRef.current?.__buildFields?.(); }, [atlasTick]);
 
   return null;
 };

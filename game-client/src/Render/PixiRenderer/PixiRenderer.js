@@ -1998,7 +1998,7 @@ const PixiRenderer = ({
         getNPCRenderPosition={getNPCRenderPosition}
       />
       {/* Ambient tile effects (lava bubbles; water and sand later): PixiRendererTileFX */}
-      <PixiRendererTileFX app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} />
+      <PixiRendererTileFX app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} atlasTick={atlasTick} />
       {/* PC layer with state-based icons */}
       <PixiRendererPCs
         app={appRef.current}
