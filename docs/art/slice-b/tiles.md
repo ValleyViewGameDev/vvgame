@@ -410,3 +410,9 @@ blades wide, a few more). Candidate 2 (the more restrained of the two) is the gr
 candidate 1 is the punchier option with denser specks. A sharpen-and-boost treatment of the
 old tiles was tried first and rejected: it grained the whole surface instead of defining the
 tufts. The lip pieces were not recut: the green matched.
+Two more passes the same day, each one change from the previous pick: `grass-5` (tufts
+wider, less frequent and lighter, closer to the grass colour, with the owner's example image
+attached for the tuft SHAPE only) and `grass-6` (the flowers a little bigger, as tiny
+four-petal daisies, and about half as frequent). `grass-6-2` is the grass now. The method:
+send the current panel back as the reference and name one change; it held the green and the
+seams every time.

@@ -128,6 +128,29 @@
       ],
       "note": "2026-10-22, owner: the approved grass went too realistic; bring back a little more definition in the tufts and punch up the white and yellow specks. Redrawn from the approved panel with those two changes only.",
       "prompt": "REFERENCE: the attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change TWO things only. One: the TUFTS get more definition: each tuft is a small, crisp, clearly drawn cluster of three to five short darker-green blades with a readable shape and a hint of a dark base, still small (no taller than a fifteenth of a square), one to three per square with some squares empty, never a bush. Two: the tiny WHITE and pale YELLOW specks are punched up: a little brighter and a little larger (a dot about two blades wide, with a clean crisp edge), and a few more of them, scattered unevenly, clearly visible against the green but still specks, not drawn flowers (no petals, no stems, no bright blobs). Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "grass-5": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-4-2.png",
+        "_candidates/slice-b-tiles/refs/tuft-example.png"
+      ],
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "2026-10-22, owner on grass-4-2: tufts wider, less frequent, not as dark (closer to the grass colour); the owner's example image shows the tuft SHAPE only (its colours and flowers are to be ignored); the specks stay as in grass-4-2.",
+      "prompt": "REFERENCE ONE: the first attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same small white and pale yellow specks exactly as they are, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change ONE thing only: the TUFTS. REFERENCE TWO: the second attached image shows the SHAPE of tuft wanted and nothing else (ignore its colours entirely, ignore its flowers): a tuft is a low, WIDE fan of five to seven short blades spreading sideways from one point, clearly wider than it is tall, drawn as a crisp simple shape. The tufts must be LESS FREQUENT than in the approved panel: about one tuft per two or three squares, scattered unevenly, many squares with none. The tufts must be LIGHTER than in the approved panel: only a little darker than the grass around them, a close mid-green, never dark green, never black-green, so they read as grass, not as marks on it. Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "grass-6": {
+      "refs": [
+        "_candidates/slice-b-tiles/exploration/openai/flatter-grass-5-1.png"
+      ],
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "2026-10-22, owner on grass-5: good; now the flowers a little bigger and less frequent. Redrawn from grass-5-1 with that one change.",
+      "prompt": "REFERENCE: the attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same wide, sparse, light tufts exactly as they are, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change ONE thing only: the small WHITE and pale YELLOW flower specks. Make them a LITTLE BIGGER (a round dot about three blades wide, crisp-edged, a tiny four-petal daisy shape is fine) and LESS FREQUENT: roughly half as many as in the reference, about one per square on average, scattered unevenly with some squares empty and never two touching. Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
     }
   }
 }
