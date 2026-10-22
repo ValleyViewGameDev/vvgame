@@ -135,8 +135,16 @@ harlequin big tent in the whimsical style.
 
 Open:
 
-1. **Footprints are decided case by case as each building's art is made** (owner,
-   2026-10-21). Most 2 x 2 buildings will go 3 x 3, and some 3 x 3 buildings will need
+1. **Footprints: the owner set most buildings to size 4 on 2026-10-22** (Magic Shop 3,
+   Farm House 3, Castle and Carnival 5, Warehouse and Trading Post 2). The layouts followed:
+   `tools/expand-town.py` grew the two valleyTown mini templates and every valley town that
+   is one of them stamped (nineteen) by inserting duplicate rows and columns at fixed cut
+   lines through each tier and block, each absorbed by deleting the nearest plain row or
+   column beyond the compound so roads leaving the grid keep their place; seven hand-built
+   towns were re-slotted one at a time; the rotated towns were re-derived from townN; the
+   starting homestead and the tutorial cave got one-tile moves. `--check` lists every
+   building whose footprint runs into a wall, another building or a prop. Originally
+   decided case by case (owner, 2026-10-21). Most 2 x 2 buildings will go 3 x 3, and some 3 x 3 buildings will need
    4 x 4 to carry the detail the new art has. Nothing changes in the game data yet: a
    building's row keeps its current `size` until the owner approves its art and picks the
    footprint, and the owner reworks the town layouts by hand when the sizes change. Each
