@@ -23,7 +23,9 @@ const candidate = opt('candidate', `painterly-${subject}-1`);
 if (!subject) { console.error('need --subject'); process.exit(1); }
 
 (async () => {
-  const src = path.join(CANDIDATES, job, 'exploration', 'openai', `${candidate}.png`);
+  // an approved candidate has moved to <job>/approved/openai--<name>.png; look there first
+  const approved = path.join(CANDIDATES, job, 'approved', `openai--${candidate}.png`);
+  const src = fs.existsSync(approved) ? approved : path.join(CANDIDATES, job, 'exploration', 'openai', `${candidate}.png`);
   const panel = await sharp(src).png().toBuffer();
   const meta = await sharp(panel).metadata();
   const keyed = await keyMagenta(panel, { hue: true });

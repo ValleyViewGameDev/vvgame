@@ -7262,7 +7262,7 @@
     "artLook": "town",
     "artAccent": "red (shared with the Inn: health)",
     "artSign": "mortar and pestle with a cross",
-    "artSpan": 3.91
+    "artSpan": 5.86
   },
   {
     "type": "Library",
@@ -7876,7 +7876,7 @@
     "artLook": "valley",
     "artAccent": "weathered stone and moss",
     "artSign": "none (the ruin is the sign)",
-    "artSpan": 3.06
+    "artSpan": 5.51
   },
   {
     "type": "Adventure Camp",

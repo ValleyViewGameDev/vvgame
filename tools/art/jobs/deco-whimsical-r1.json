@@ -139,6 +139,26 @@
         "painterly"
       ],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a full-length statue of WILLIAM SHAKESPEARE in weathered pale stone on a square plinth: Elizabethan doublet, ruff collar, high forehead and short beard, one hand resting on a book, the other on his hip, a quill in the book; dignified but with a storybook warmth. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, its base standing inside that box and filling the box's width, rising to about TWICE the box's height above it (a tall, slender piece, one tile wide and two tiles tall), seen in the game's camera, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "venus-de-milo-b": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a classical GARDEN STATUE in the manner of the Venus de Milo: a serene marble goddess figure whose arms are missing (broken off at the shoulders, as on the ancient original), wearing a long flowing marble robe that covers her fully from the chest down, standing on a round plinth; white marble lightly weathered, a tasteful museum-piece garden ornament rendered in the game's storybook style. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, its base standing inside that box and filling the box's width, rising to about TWICE the box's height above it (a tall, slender piece, one tile wide and two tiles tall), seen in the game's camera, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "venus-de-milo-c": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: an ancient Greek MARBLE STATUE from a museum garden: a calm, dignified woman in a long flowing marble gown that covers her from the shoulders to the feet, her arms lost to time (broken off cleanly at the shoulders, the way ancient statues are found), standing on a round plinth; white marble lightly weathered with a little lichen, rendered in the game's storybook style. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, its base standing inside that box and filling the box's width, rising to about TWICE the box's height above it (a tall, slender piece, one tile wide and two tiles tall), seen in the game's camera, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
     }
   }
 }

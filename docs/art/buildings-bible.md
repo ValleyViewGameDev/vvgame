@@ -72,7 +72,7 @@ Town (clean), closed buildings:
 |---|---|---|---|---|
 | Bank | castle | gold | money bag | APPROVED 2026-10-21 (r2 bank-1); the owner's example: a strongroom tower |
 | Courthouse | tudor | several colours, a clock tower | none (the clock tower) | 5 x 5 in data |
-| Hospital | tudor | red (health, shared with the Inn) | a red cross on a white placard (owner, 2026-10-22; the mortar and pestle read as a soup bowl) | APPROVED 2026-10-21 (r2 hospital-1); town look: clean |
+| Hospital | tudor | red (health, shared with the Inn) | a red cross on a white placard (owner, 2026-10-22; the mortar and pestle read as a soup bowl) | APPROVED 2026-10-21 (r2 hospital-1), the cut redrawn 2026-10-22 with the red-cross sign (`hospital-b-1`); town look: clean |
 | Library | tudor | navy blue | open book | |
 | School | tudor | sunflower yellow | school bell | |
 | Academy | tudor | pink (creativity) | needle and thread over a palette | textiles, artistry, tailoring |
@@ -98,7 +98,7 @@ Valley (moss and vines):
 | Inn | tudor | red | bed | design approved (r1 inn-1 relit); the bed sign must show; a final Inn ordered 2026-10-21 (`inn-c`); the owner's example: red means health |
 | Post House | cottage | sky blue | sealed letter | |
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire | |
-| Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1) |
+| Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1); its first cut-out drifted into a cottage, the cut redrawn 2026-10-22 with the ruin spelled out (`ancient-temple-b-1`) |
 | Shrine | japanese | classic dark orange (vermilion) | none | Japanese architecture |
 | Shiro | japanese | black and white | none | a Japanese keep, valley look, unique architecture |
 
@@ -162,7 +162,10 @@ Open:
    and `<file>.svg` (the PNG wrapped in an SVG, so the panels' `<img>` and the atlas both
    get it). It reports if the art touches the top edge (raise `--span`).
 3. The resource row: `filename` = that file, `size` = the footprint, **`artSpan`** = the
-   square's tiles (ECONOMY sheet column). The renderer draws a resource whose `artSpan`
+   square's tiles (ECONOMY sheet column; the cutter prints it). The footprint is the art's
+   BASE width (the widest run among its bottom rows), not its silhouette: a turret or eaves
+   wider than the walls must not shrink the building, the walls fill the footprint end to
+   end (owner, 2026-10-22). The owner set the six buildings to size 4 (the Inn 3). The renderer draws a resource whose `artSpan`
    exceeds its `size` as an `artSpan` square anchored at the footprint's bottom-centre, the
    same way it draws the tall wall pieces; without `artSpan` the art is squeezed into the
    footprint square.
