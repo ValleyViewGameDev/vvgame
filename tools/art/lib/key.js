@@ -12,17 +12,42 @@ const { sharp } = require('./common');
  * normalised colour's distance from (1, 0, 1). Use it for walls and props that cast shadows;
  * the lip pieces keep the distance key (their shadow is pulled to green afterwards).
  */
-async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, hue = false } = {}) {
+async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, hue = false, flood = false } = {}) {
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const out = Buffer.alloc(data.length);
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i], g = data[i + 1], b = data[i + 2];
-    let d;
+  const W = info.width, H = info.height, N = W * H;
+  const dist = new Float32Array(N);
+  for (let p = 0; p < N; p++) {
+    const i = p * 4, r = data[i], g = data[i + 1], b = data[i + 2];
     if (hue) {
       const mx = Math.max(r, g, b, 1);
-      d = Math.sqrt((1 - r / mx) ** 2 + (g / mx) ** 2 + (1 - b / mx) ** 2) * 255;
-    } else d = Math.sqrt((255 - r) ** 2 + g ** 2 + (255 - b) ** 2);
+      dist[p] = Math.sqrt((1 - r / mx) ** 2 + (g / mx) ** 2 + (1 - b / mx) ** 2) * 255;
+    } else dist[p] = Math.sqrt((255 - r) ** 2 + g ** 2 + (255 - b) ** 2);
+  }
+  // `flood: true`: the background is only the magenta that touches the image border (a flood
+  // fill over near-magenta pixels from the edges). Art colours that happen to sit near magenta
+  // in hue or distance, a purple roof, a pink wall, stay opaque when they are enclosed by the
+  // art; without this the ramp made them half-transparent and the un-mixing turned them teal.
+  let bg = null;
+  if (flood) {
+    bg = new Uint8Array(N);
+    const stack = [];
+    const push = (p) => { if (!bg[p] && dist[p] < farthest) { bg[p] = 1; stack.push(p); } };
+    for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); }
+    for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
+    while (stack.length) {
+      const p = stack.pop(), x = p % W, y = (p - x) / W;
+      if (x > 0) push(p - 1);
+      if (x < W - 1) push(p + 1);
+      if (y > 0) push(p - W);
+      if (y < H - 1) push(p + W);
+    }
+  }
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i], g = data[i + 1], b = data[i + 2];
+    const d = dist[i / 4];
     let a = d <= nearest ? 0 : d >= farthest ? 255 : Math.round(((d - nearest) / (farthest - nearest)) * 255);
+    if (bg && !bg[i / 4]) a = 255; // enclosed by art: not background whatever its colour
     if (dropGrey && a > 0) {
       const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
       if (mx > 0 && (mx - mn) / mx < 0.35 && a < 255) a = 0; // a faint grey line over magenta, not art

@@ -29,7 +29,7 @@ if (!subject) { console.error('need --subject'); process.exit(1); }
   const src = fs.existsSync(approved) ? approved : path.join(CANDIDATES, job, 'exploration', 'openai', `${candidate}.png`);
   const panel = await sharp(src).png().toBuffer();
   const meta = await sharp(panel).metadata();
-  const keyed = await keyMagenta(panel, { hue: true });
+  const keyed = await keyMagenta(panel, { hue: true, flood: true }); // flood: purple and pink art stays opaque (the Magic Shop's roofs went teal without it)
   // The model does not keep to the guide's box vertically (it sets the building's base near the
   // panel's bottom), so the sprite is fitted to the ART's own bounding box: the art's width is
   // the footprint (n tiles), the square's side is the longer of width and height, the art sits

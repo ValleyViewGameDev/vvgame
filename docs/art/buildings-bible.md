@@ -176,6 +176,12 @@ Open:
    footprint square.
 4. `npm run build:atlas` in `game-client/`.
 
+The keyer (`lib/key.js`) floods from the image border (`flood: true`, what cutout.js uses):
+only the magenta that touches the border is background, so art colours near magenta, the
+Magic Shop's purple roofs, the Academy's pink, stay opaque when enclosed by the art. Before
+the flood, the hue key made the purples half-transparent and the un-mixing turned them TEAL
+in the game (owner, 2026-10-22).
+
 ## 6. What a generation gets from this
 
 The generator reads the four columns and writes them into the prompt: "FAMILY: tudor
