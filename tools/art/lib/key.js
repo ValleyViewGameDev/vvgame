@@ -28,11 +28,16 @@ async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, 
   // fill over near-magenta pixels from the edges). Art colours that happen to sit near magenta
   // in hue or distance, a purple roof, a pink wall, stay opaque when they are enclosed by the
   // art; without this the ramp made them half-transparent and the un-mixing turned them teal.
-  let bg = null;
+  // The flood crosses only background-like pixels (within `floodMax` of magenta: the flat
+  // field and the shadows painted onto it), never the art: a purple roof is further from
+  // magenta than that, so the flood stops at its edge. The soft ramp then applies only to
+  // pixels that TOUCH the flood (the anti-aliased silhouette edge); every other pixel is art.
+  let bg = null, edge = null;
   if (flood) {
+    const floodMax = nearest + 30;
     bg = new Uint8Array(N);
     const stack = [];
-    const push = (p) => { if (!bg[p] && dist[p] < farthest) { bg[p] = 1; stack.push(p); } };
+    const push = (p) => { if (!bg[p] && dist[p] <= floodMax) { bg[p] = 1; stack.push(p); } };
     for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); }
     for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
     while (stack.length) {
@@ -42,12 +47,21 @@ async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, 
       if (y > 0) push(p - W);
       if (y < H - 1) push(p + W);
     }
+    edge = new Uint8Array(N);
+    for (let p = 0; p < N; p++) {
+      if (bg[p]) continue;
+      const x = p % W, y = (p - x) / W;
+      for (let dy = -1; dy <= 1 && !edge[p]; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const xx = x + dx, yy = y + dy;
+        if (xx >= 0 && xx < W && yy >= 0 && yy < H && bg[yy * W + xx]) { edge[p] = 1; break; }
+      }
+    }
   }
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i], g = data[i + 1], b = data[i + 2];
     const d = dist[i / 4];
     let a = d <= nearest ? 0 : d >= farthest ? 255 : Math.round(((d - nearest) / (farthest - nearest)) * 255);
-    if (bg && !bg[i / 4]) a = 255; // enclosed by art: not background whatever its colour
+    if (bg) a = bg[i / 4] ? 0 : edge[i / 4] ? Math.max(a, 1) : 255; // flood: background, its soft edge, or art
     if (dropGrey && a > 0) {
       const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
       if (mx > 0 && (mx - mn) / mx < 0.35 && a < 255) a = 0; // a faint grey line over magenta, not art
