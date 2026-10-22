@@ -12,7 +12,7 @@
 // (public/assets/tiles/tiles.json) carry the MEAN colour of their art, so the minimap, gridlines
 // and the procedural fallback match the board; the renderer draws the art itself from the atlas.
 export const tileColors = {
-  g: '#78ac14ff',    // grass
+  g: '#71ad04ff',    // grass (the mean of the cut tiles, grass-6-2, 2026-10-22)
   s: '#8c8778ff',  // stone/slate
   d: '#cb8b49ff',    // dirt
   w: '#58a0d8ff',    // water
