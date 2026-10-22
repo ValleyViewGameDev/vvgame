@@ -111,6 +111,26 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the AGRICULTURE CENTER, a leaf-green-roofed timber barn with a rooster weather vane on the ridge and hay bales with a pitchfork in its front yard. Redraw the SAME barn and its hay bales, identical in every way: the same design, silhouette, materials, colours, roof, weather vane, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no dirt apron, no grid, no shadow on the ground: the barn and its bales stand on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around them, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the barn's walls fill that box end to end and the bales stand along its front edge, exactly as in the reference (the roof and the weather vane may rise above it). Draw them there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "magic-shop": {
+      "refs": [
+        "_candidates/buildings-bible-r4/approved/openai--painterly-magic-shop-b-2.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the MAGIC SHOP, a tall slim purple-spired tower-house with a round stained-glass moon window over the door, a cauldron and bottles by the door, no placard. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (it is three tiles wide and rises about four tiles tall; the roof and spire may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "general-store": {
+      "refs": [
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the GENERAL STORE, an ochre-shingled cottage shop with a big window of goods, a centred dormer, a large crossed axe-and-pickaxe placard over the door, a crate and a barrel by the door. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the roof and spire may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

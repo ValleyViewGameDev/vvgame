@@ -7942,7 +7942,8 @@
     "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "ochre brown",
-    "artSign": "crossed axe and pickaxe"
+    "artSign": "crossed axe and pickaxe",
+    "artSpan": 4.98
   },
   {
     "type": "Laboratory",
@@ -8831,7 +8832,7 @@
     "type": "Magic Shop",
     "symbol": "🎪",
     "layoutkey": "mS",
-    "size": 4,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8857,7 +8858,8 @@
     "artFamily": "fantastical",
     "artLook": "town",
     "artAccent": "purple",
-    "artSign": "crescent moon and star"
+    "artSign": "none: the round stained-glass moon window over the door is the sign",
+    "artSpan": 6.47
   },
   {
     "type": "Cow",
@@ -10925,7 +10927,7 @@
     "source": "General Store",
     "requires": "Pickaxe",
     "qtycollected": 1,
-    "level": 10,
+    "level": 9,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
     "gemcost": 60
@@ -11257,7 +11259,7 @@
     "source": "Agriculture Center",
     "requires": "Husbandry",
     "qtycollected": 1,
-    "level": 13,
+    "level": 14,
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "ingredient2": "Potion A",
@@ -11352,13 +11354,13 @@
     "requires": "Chemistry",
     "qtycollected": 1,
     "level": 11,
+    "gemcost": 597,
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 6,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
-    "gemcost": 683
+    "ingredient3qty": 1
   },
   {
     "type": "Cooking",
@@ -11434,12 +11436,12 @@
     "source": "Academy",
     "requires": "Textiles",
     "qtycollected": 1,
-    "level": 10,
+    "level": 14,
+    "gemcost": 844,
     "ingredient1": "Money",
     "ingredient1qty": 40000,
-    "ingredient3": "Potion B",
-    "ingredient3qty": 10,
-    "gemcost": 966
+    "ingredient2": "Potion B",
+    "ingredient2qty": 5
   },
   {
     "type": "Tailor",
@@ -11450,11 +11452,11 @@
     "requires": "Textiles",
     "qtycollected": 1,
     "level": 12,
+    "gemcost": 500,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "ingredient4": "Potion C",
-    "ingredient4qty": 100,
-    "gemcost": 1473
+    "ingredient2": "Potion A",
+    "ingredient2qty": 10
   },
   {
     "type": "Zookeeper",
