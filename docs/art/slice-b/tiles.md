@@ -399,3 +399,14 @@ and it is kept, with these rules:
   (curves, Ls, any neighbour) is the point, and the colours are taken from the cobble cuts.
   The cache key gains the kerb signature (4 sides + 4 inner + 4 outer), a few dozen looks.
   Iteration: first cut 17 % deep, four stones a side; owner: "a touch smaller".
+
+## Grass, second pass (2026-10-22)
+
+The owner: the approved grass (`grass-2-1`) "went too realistic"; the edges are liked and
+stay. `grass-4` redrew the approved panel with the panel itself as the reference and two
+changes named: the tufts get definition (small crisp clusters of three to five darker blades
+with a readable shape) and the white and pale yellow specks are punched up (brighter, two
+blades wide, a few more). Candidate 2 (the more restrained of the two) is the grass now;
+candidate 1 is the punchier option with denser specks. A sharpen-and-boost treatment of the
+old tiles was tried first and rejected: it grained the whole surface instead of defining the
+tufts. The lip pieces were not recut: the green matched.

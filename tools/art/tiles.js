@@ -24,7 +24,7 @@ const INSET = 6;              // the drawn grid line is 2 to 4 px wide; drop it 
 
 // type letter (tileColors.js) -> approved panel, inset rule
 const TYPES = {
-  g: { src: 'slice-b-tiles/approved/openai--flatter-grass-2-1.png', inset: INSET, name: 'grass' },
+  g: { src: 'slice-b-tiles/approved/openai--flatter-grass-4-2.png', inset: INSET, name: 'grass' }, // grass-2-1 redrawn with defined tufts and brighter specks (owner, 2026-10-22)
   d: { src: 'slice-b-tiles/approved/openai--flatter-dirt-2-1.png', inset: INSET, name: 'dirt' },
   n: { src: 'slice-b-tiles/approved/openai--flatter-sand-1.png', inset: INSET, name: 'sand' },
   s: { src: 'whimsical-tiles/approved/openai--painterly-slate-1.png', inset: INSET, name: 'slate' },

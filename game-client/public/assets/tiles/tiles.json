@@ -3,11 +3,11 @@
   "types": {
     "g": {
       "name": "grass",
-      "source": "slice-b-tiles/approved/openai--flatter-grass-2-1.png",
+      "source": "slice-b-tiles/approved/openai--flatter-grass-4-2.png",
       "inset": 6,
       "count": 16,
       "px": 128,
-      "mean": "#78ac14"
+      "mean": "#78ad0e"
     },
     "d": {
       "name": "dirt",

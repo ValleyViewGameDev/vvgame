@@ -117,6 +117,17 @@
       ],
       "note": "Round 2 retry of cobble-2 (image 8 of 10): cobble-2's moss was bright yellow-green and in most seams; this one asks for muted, rare moss and matte stones.",
       "prompt": "SUBJECT: a GROUND TEXTURE panel, cobblestone only. The LAST attached image is a layout guide, a 4 x 4 patch of sixteen tiles already painted the TARGET COLOUR #acaa89 (a warm khaki grey): keep that as the colour of the cobbles. Fill ALL sixteen squares, edge to edge, with rounded cobbles packed tightly, about five or six cobbles across each square, in the approved panels' recipe: each cobble a flat MATTE lit top with a thin dark outline and a thin shaded lower-right edge, no glossy rim, no wet shine. The seams between cobbles must be VERY THIN, a hairline of dark outline with the cobbles almost touching, no wide mortar, so the paving reads as small and real. Moss: very subtle, a muted dusty green (not bright, not yellow), only in a few seams, about one small patch per square and some squares with none, never on top of a cobble. Keep the cobbles inside each guide square. Draw the faint grid lines as thin tile edges exactly where the guide has them. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill even and REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square flat."
+    },
+    "grass-4": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-2-1.png"
+      ],
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "2026-10-22, owner: the approved grass went too realistic; bring back a little more definition in the tufts and punch up the white and yellow specks. Redrawn from the approved panel with those two changes only.",
+      "prompt": "REFERENCE: the attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change TWO things only. One: the TUFTS get more definition: each tuft is a small, crisp, clearly drawn cluster of three to five short darker-green blades with a readable shape and a hint of a dark base, still small (no taller than a fifteenth of a square), one to three per square with some squares empty, never a bush. Two: the tiny WHITE and pale YELLOW specks are punched up: a little brighter and a little larger (a dot about two blades wide, with a clean crisp edge), and a few more of them, scattered unevenly, clearly visible against the green but still specks, not drawn flowers (no petals, no stems, no bright blobs). Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
     }
   }
 }
