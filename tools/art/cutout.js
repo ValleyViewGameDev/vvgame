@@ -18,7 +18,8 @@ const { keyMagenta } = require('./lib/key');
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
 const job = opt('job', 'buildings-bible-cut'), subject = opt('subject'), file = opt('file', subject);
-const n = Number(opt('n', 3)), px = Number(opt('px', 512));
+const n = Number(opt('n', 3)), px = Number(opt('px', 512)), fill = Number(opt('fill', 1)); // --fill 0.9: the base fills 90 % of the footprint (small props breathe)
+const fit = opt('fit', 'base'); // base: the art's BASE width is the footprint (buildings, walls fill it end to end); silhouette: the art's full width is (props: a bulging barrel, a leafy plant)
 const candidate = opt('candidate', `painterly-${subject}-1`);
 if (!subject) { console.error('need --subject'); process.exit(1); }
 
@@ -48,11 +49,11 @@ if (!subject) { console.error('need --subject'); process.exit(1); }
   // base width is the widest opaque run among the bottom 12 % of the art's rows.
   let bx0 = info.width, bx1 = -1;
   for (let y = Math.round(y1 - bh * 0.12); y <= y1; y++) for (let x = x0; x <= x1; x++) if (A(x, y) > 60) { if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; }
-  const baseW = bx1 - bx0 + 1, baseCx = (bx0 + bx1) / 2;
+  const baseW = fit === 'silhouette' ? bw : bx1 - bx0 + 1, baseCx = fit === 'silhouette' ? (x0 + x1) / 2 : (bx0 + bx1) / 2;
   // the square holds the whole silhouette and is centred on the base; its side in tiles is artSpan
   const side = Math.round(Math.max(bh, 2 * Math.max(baseCx - x0, x1 - baseCx)) * 1.02);
   const left = Math.round(baseCx - side / 2), top = Math.round(y1 + 1 - side);
-  const artSpan = Math.round((n * side / baseW) * 100) / 100;
+  const artSpan = Math.round((n * side / (baseW / fill)) * 100) / 100;
   const L = Math.max(0, left), T = Math.max(0, top);
   const W = Math.min(side, info.width - L), H = Math.min(side, info.height - T);
   let cut = sharp(keyed).extract({ left: L, top: T, width: W, height: H });
