@@ -72,7 +72,7 @@ import LANGUAGE_OPTIONS from './UI/Languages.json';
 import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
 import { getDerivedLevel, getXpForNextLevel } from './Utils/playerManagement';
-import { isCurrency, deriveWarehouseAndBackpackCapacity } from './Utils/InventoryManagement';
+import { isCurrency, deriveWarehouseAndBackpackCapacity, getPlayerQuantity } from './Utils/InventoryManagement';
 import soundManager from './Sound/SoundManager';
 
 import ProfilePanel from './Authentication/ProfilePanel';
@@ -262,6 +262,11 @@ useEffect(() => {
   const [isRevivalModalOpen, setIsRevivalModalOpen] = useState(false);
   const [revivalPending, setRevivalPending] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
+  // The death check runs on an interval whose closure would see a stale revivalPending, and a
+  // death being resolved (Revive or Accept Death in flight) must not reopen the modal: refs.
+  const revivalPendingRef = useRef(false);
+  const deathResolvingRef = useRef(false);
+  useEffect(() => { revivalPendingRef.current = revivalPending; }, [revivalPending]);
   
   // Level-up detection state
   const [currentLevel, setCurrentLevel] = useState(null);
@@ -1536,10 +1541,15 @@ useEffect(() => {
 const handleAcceptDeath = async () => {
   console.log("☠️ Player accepted death");
   setIsRevivalModalOpen(false);
+  if (deathResolvingRef.current) return; // a second tap, or a Revive already in flight
+  deathResolvingRef.current = true;
   setRevivalPending(false);
   localStorage.removeItem('revivalState');
   
-  // Execute normal death flow
+  revivalPendingRef.current = false;
+  // Execute normal death flow (the death check stays quiet until it is done; if the respawn
+  // fails the player is still at 0 hp and the check offers the modal again)
+  try {
   await handlePlayerDeath(
     currentPlayer,
     setCurrentPlayer,
@@ -1557,6 +1567,9 @@ const handleAcceptDeath = async () => {
   );
   
   // Show normal death modal
+  } finally {
+    deathResolvingRef.current = false;
+  }
   setModalContent({
     title: strings["5001"],
     message: strings["5002"],
@@ -1569,71 +1582,59 @@ const handleAcceptDeath = async () => {
 const handleRevive = async () => {
   console.log("💎 Player attempting to revive");
   const reviveCost = globalTuning?.costToRevive || 50;
-  
-  // Get player's gem count from inventory
-  const playerGems = inventory.find(item => item.type === 'Gem')?.quantity || 0;
-  console.log(`Player has ${playerGems} gems, needs ${reviveCost}`);
-  
-  // Check if player has enough gems
-  if (playerGems >= reviveCost) {
-    if (!(await confirmGemSpend({ gems: reviveCost, oneShot: false }))) return;
-    console.log("✅ Player has enough gems, reviving...");
-    
-    // Calculate HP to restore
-    const percentageToRevive = globalTuning?.percentageToRevive || 0.25;
-    // Max hp as the stats derive it (base + maxhp powers), never a stale persisted copy
-    const properMaxHp = derivedMaxhp(currentPlayer, masterResources);
-    const restoredHp = Math.floor(properMaxHp * percentageToRevive);
-    
-    try {
-      // Update inventory to deduct gems
-      const updatedInventory = inventory.map(item => {
-        if (item.type === 'Gem') {
-          return { ...item, quantity: item.quantity - reviveCost };
-        }
-        return item;
-      });
-      
-      // Update player stats in database (only inventory, not HP which belongs in grid state)
-      const response = await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer._id,
-        updates: {
-          inventory: updatedInventory
-        }
-      });
-      
-      // Update local player state (HP doesn't belong here, it's in grid state)
-      const updatedPlayer = {
-        ...currentPlayer,
-        inventory: updatedInventory
-      };
-      setCurrentPlayer(updatedPlayer);
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
-      setInventory(updatedInventory);
-      
-      // Update grid state - this is the critical part for HP to show correctly
-      const playerId = String(currentPlayer._id);
-      console.log(`🏥 Updating player ${playerId} HP to ${restoredHp} in grid ${gridId}`);
-      playersInGridManager.updatePC(gridId, playerId, { hp: restoredHp });
-      
-      // Force update the players in grid state to trigger re-render
-      const updatedPCs = playersInGridManager.getPlayersInGrid(gridId);
-      console.log(`✅ Player HP in grid state:`, updatedPCs[playerId]?.hp);
-      
-      // Clear revival state
-      setIsRevivalModalOpen(false);
-      setRevivalPending(false);
-      localStorage.removeItem('revivalState');
-      
-      console.log(`✅ Player revived with ${restoredHp} HP`);
-      updateStatus(`Revived with ${restoredHp} HP! 💎 -${reviveCost} Gems`);
-      
-    } catch (error) {
-      console.error("❌ Error during revival:", error);
+  if (deathResolvingRef.current) return; // a second tap, or Accept Death already in flight
+  if (getPlayerQuantity('Gem', inventory, backpack) < reviveCost) return; // RevivalModal offers gem packs instead
+  deathResolvingRef.current = true;
+  if (!(await confirmGemSpend({ gems: reviveCost, oneShot: false }))) { deathResolvingRef.current = false; return; }
+
+  // Optimistic (house rule): revive on the tap, tell the server alongside, undo only on a refusal.
+  // A slow network used to leave the modal up with no feedback while the request ran.
+  const percentageToRevive = globalTuning?.percentageToRevive || 0.25;
+  const properMaxHp = derivedMaxhp(currentPlayer, masterResources); // base + powers, never a stale copy
+  const restoredHp = Math.max(1, Math.floor(properMaxHp * percentageToRevive));
+  const playerKey = String(currentPlayer._id);
+  const prevInventory = inventory, prevBackpack = backpack;
+  const spent = { inventory: (inventory || []).map(i => ({ ...i })), backpack: (backpack || []).map(i => ({ ...i })) };
+  // backpack first, then the warehouse (the one spending rule)
+  let left = reviveCost;
+  for (const list of [spent.backpack, spent.inventory]) {
+    const item = list.find(i => i.type === 'Gem');
+    if (!item || left <= 0) continue;
+    const take = Math.min(item.quantity, left);
+    item.quantity -= take; left -= take;
+  }
+  const clean = (list) => list.filter(i => i.quantity > 0);
+  setInventory(clean(spent.inventory));
+  setBackpack(clean(spent.backpack));
+  setCurrentPlayer(prev => ({ ...prev, inventory: clean(spent.inventory), backpack: clean(spent.backpack) }));
+  playersInGridManager.updatePC(gridId, playerKey, { hp: restoredHp });
+  setIsRevivalModalOpen(false);
+  setRevivalPending(false);
+  revivalPendingRef.current = false;
+  localStorage.removeItem('revivalState');
+  updateStatus(`Revived with ${restoredHp} HP! 💎 -${reviveCost} Gems`);
+  deathResolvingRef.current = false; // hp is above 0 now, so the death check has nothing to see
+
+  try {
+    const { data } = await axios.post(`${API_BASE}/api/player/revive`, { playerId: currentPlayer.playerId });
+    setInventory(data.inventory);
+    setBackpack(data.backpack);
+    setCurrentPlayer(prev => ({ ...prev, inventory: data.inventory, backpack: data.backpack, hp: data.hp, maxhp: data.maxhp }));
+    playersInGridManager.updatePC(gridId, playerKey, { hp: data.hp });
+    playersInGridManager.flushAfterTransaction();
+    console.log(`✅ Player revived with ${data.hp} HP`);
+  } catch (error) {
+    console.error("❌ Error during revival:", error);
+    if (error.response) {
+      // a real refusal (not enough Gems on the server): back to the fallen state and the modal
+      setInventory(prevInventory);
+      setBackpack(prevBackpack);
+      setCurrentPlayer(prev => ({ ...prev, inventory: prevInventory, backpack: prevBackpack }));
+      playersInGridManager.updatePC(gridId, playerKey, { hp: 0 });
       updateStatus("Revival failed - please try again");
     }
   }
-  // Note: Insufficient gems case is now handled directly in RevivalModal with embedded purchase buttons
+    // no response (network): keep the revive; the next load brings the server's real holdings
 };
 
 // Auto-exit from dungeon when phase changes to resetting
@@ -1935,12 +1936,13 @@ useEffect(() => {
       const playerId = String(currentPlayer._id);
       const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
 
-      if (playerPC?.hp <= 0 && currentPlayer && !revivalPending) {
+      if (playerPC?.hp <= 0 && currentPlayer && !revivalPendingRef.current && !deathResolvingRef.current) {
         console.log("💀 Player is dead. Showing revival option...");
         
         // Set revival pending state and show revival modal
         setRevivalPending(true);
         setIsRevivalModalOpen(true);
+        revivalPendingRef.current = true;
         
         // Store revival state in localStorage for refresh handling
         const revivalState = {
