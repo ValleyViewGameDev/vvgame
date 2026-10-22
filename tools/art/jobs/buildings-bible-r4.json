@@ -1,0 +1,45 @@
+{
+  "name": "buildings-bible-r4",
+  "note": "Bible round 4 (owner, 2026-10-22): Agriculture Center (cottage, barn-like, leaf green, hay bales from the approved deco out front, a rooster weather vane, no sign), General Store (cottage, ochre, axe + pickaxe), Magic Shop (fantastical, purple, moon + star). Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "agriculture-center": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-haybale-b-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. PROP REFERENCE: the second attached image is this game's approved HAY BALE on magenta; the hay bales in the yard must be this exact bale, same colours, same cords, same square-on camera. SUBJECT: the AGRICULTURE CENTER, the town's farming hall. FAMILY: cottage, but barn-like: a big rustic timber barn of warm weathered planks with a wide double barn door open-ish at the front, a hay loft door above it, a lean-to on one side, a stone footing. LOOK: town: clean, no moss, no vines. ACCENT: LEAF GREEN: the big roof is a leaf-green wooden roof (not red, not thatch); the barn doors are leaf green too. ON THE ROOF RIDGE: a ROOSTER WEATHER VANE, an iron rooster on a spindle with the four direction arms, clearly visible against the sky. SIGN: NONE, no placard: the props say what it is. THE PROPS, in the yard in front of the barn: two or three of the reference hay bales, one leaning on another, plus a wooden pitchfork stuck in one. It must read as a farm building at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys, turrets and the weather vane may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "general-store": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the GENERAL STORE, the town's shop for tools and goods. FAMILY: cottage: rustic timber and fieldstone, a wide shop front with a big many-paned display window full of goods, a porch with a step and a wooden awning over the door, a small chimney (cold, no smoke), a crate and a barrel by the door. LOOK: town: clean, no moss, no vines. ACCENT: OCHRE BROWN: the roof is ochre-brown wooden shingles, the awning and door trim ochre brown too; the sign is ochre brown. SIGN: a placard flat on the wall over the door showing a crossed AXE and PICKAXE, picture only. It must read as a shop at a glance: goods in the window, a welcoming door. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys, turrets and the weather vane may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "magic-shop": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the MAGIC SHOP. FAMILY: fantastical: a crooked, leaning tower-house of dark stone and plaster, a tall twisted witch-hat spire, a round stained-glass window that glows, a great carved arched door, a crescent-moon finial, odd bottles and a cauldron on a shelf by the door, a crooked chimney (cold, no smoke). LOOK: town: clean, no moss, no vines, but strange: a faint purple glow at the windows. ACCENT: PURPLE: the roofs and spire are deep violet-purple scalloped tiles, the door purple too; the sign is purple. SIGN: a placard flat over the door showing a crescent MOON and a STAR, picture only. It must read as magic at a glance: crooked, spired, purple, glowing. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys, turrets and the weather vane may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    }
+  }
+}

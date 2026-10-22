@@ -8068,10 +8068,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "agriculture.svg",
-    "artFamily": "tudor",
+    "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "leaf green",
-    "artSign": "wheat sheaf"
+    "artSign": "none: hay bales out front are the sign (the approved hay bale deco); a rooster weather vane on the roof"
   },
   {
     "type": "Factory",
