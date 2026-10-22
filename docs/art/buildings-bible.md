@@ -77,7 +77,7 @@ Town (clean), closed buildings:
 | School | tudor | sunflower yellow | school bell | |
 | Academy | tudor | pink (creativity) | none: the PROPS out front are the sign | APPROVED 2026-10-22 (r3 academy-1); owner (2026-10-22): keep the old drawing's concept, an easel and a dressmaker's dummy in the front yard; the painting on the easel is a figure holding a skull and staring into its eyes, the skull facing him (Hamlet); textiles, artistry, tailoring; size 4 |
 | Laboratory | tudor | warm orange (cooking) | flask crossed with a whisk | the cooking school |
-| Agriculture Center | cottage, barn-like | leaf green | none: hay bales out front (the approved hay bale deco) and a rooster weather vane on the ridge | owner, 2026-10-22 |
+| Agriculture Center | cottage, barn-like | leaf green | none: hay bales out front (the approved hay bale deco) and a rooster weather vane on the ridge | APPROVED 2026-10-22 (r4 agriculture-center-1): the barn with the open double doors and the loft door |
 | Factory | industrial | brick red | gear | APPROVED 2026-10-21 (r2 factory-1); brick and chimneys, distinct from the castles |
 | General Store | cottage | ochre brown | crossed axe and pickaxe | |
 | Magic Shop | fantastical | purple | crescent moon and star | |

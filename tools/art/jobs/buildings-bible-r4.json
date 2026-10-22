@@ -40,6 +40,26 @@
         "painterly"
       ],
       "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the MAGIC SHOP. FAMILY: fantastical: a crooked, leaning tower-house of dark stone and plaster, a tall twisted witch-hat spire, a round stained-glass window that glows, a great carved arched door, a crescent-moon finial, odd bottles and a cauldron on a shelf by the door, a crooked chimney (cold, no smoke). LOOK: town: clean, no moss, no vines, but strange: a faint purple glow at the windows. ACCENT: PURPLE: the roofs and spire are deep violet-purple scalloped tiles, the door purple too; the sign is purple. SIGN: a placard flat over the door showing a crescent MOON and a STAR, picture only. It must read as magic at a glance: crooked, spired, purple, glowing. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys, turrets and the weather vane may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "magic-shop-b": {
+      "refs": [
+        "_candidates/buildings-bible-r4/exploration/openai/painterly-magic-shop-1.png"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's Magic Shop as drawn last round; the owner likes it. Redraw the SAME building, same design, materials, colours, purple spire, round stained-glass moon window, carved door, cauldron and bottles, same camera and painterly rendering and bright daylight, with THREE changes only. One: REMOVE the moon-and-star placard over the door entirely; there is NO sign, the round stained-glass moon window above the door is the sign. Two: the RIGHT side: the short stray piece of roof sticking out to the right is gone; the building's right side is finished cleanly, the wall and the main roof simply end at the right edge, so the whole building is one tall, slim tower-house. Three: the FOOTPRINT is narrower: the building is THREE tiles wide and stands about four tiles tall. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square end to end, and the building rises well above it, its spire reaching about four tiles high, with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
+    },
+    "general-store-b": {
+      "refs": [
+        "_candidates/buildings-bible-r4/exploration/openai/painterly-general-store-2.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's General Store as drawn last round; the owner likes it as a starting place. Redraw the SAME building, same ochre-brown shingled roof, same stone-and-timber front, same shop window of goods, same awning, door, chimney, crate and barrel, same camera and painterly rendering and bright daylight, with THREE changes only. One: REMOVE the conical turret on the left entirely; the roof is one simple ochre gable from end to end with the chimney. Two: the small DORMER window moves HIGHER up the roof and sits in the CENTRE of the roof, one dormer, centred. Three: the SIGN with the tools is bigger and more readable: a larger ochre-brown placard flat on the wall over the door, with a crossed AXE and PICKAXE drawn large, simple and bold in a light colour so they read from far away, picture only, no letters. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (the roof and chimney may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond the crate and barrel, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     }
   }
 }

@@ -8071,7 +8071,8 @@
     "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "leaf green",
-    "artSign": "none: hay bales out front are the sign (the approved hay bale deco); a rooster weather vane on the roof"
+    "artSign": "none: hay bales out front are the sign (the approved hay bale deco); a rooster weather vane on the roof",
+    "artSpan": 4.66
   },
   {
     "type": "Factory",
