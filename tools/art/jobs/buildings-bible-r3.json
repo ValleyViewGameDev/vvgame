@@ -1,0 +1,25 @@
+{
+  "name": "buildings-bible-r3",
+  "note": "Bible round 3 (owner, 2026-10-22): the Academy at 4 x 4, keeping the old drawing's concept (easel + dressmaker's dummy out front, no sign); the easel's painting is Hamlet with the skull.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "academy": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/buildings-bible-r3/refs/academy-old.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight) and its painterly rendering and its bright daylight. CONCEPT REFERENCE: the second attached image is the game's OLD drawing of this building, in an old style; take from it ONLY the idea of the two props standing in the front yard, an artist's easel and a dressmaker's dummy, and nothing of its style. SUBJECT: the ACADEMY, the town's school of artistry, textiles and tailoring. FAMILY: tudor: timber framing on cream stucco, an upper floor overhanging on timber brackets, a slate roof with a brick chimney (cold, no smoke), tall leaded windows with a warm glow, a round-topped door. LOOK: town: clean, no moss, no vines. ACCENT: PINK: the roof is a warm rose pink, the shutters and door trim pink too. SIGN: NONE, no placard, no hanging sign: the props in the front yard say what it is. THE PROPS, in the yard in front of the building, both clearly visible and large enough to read: on the left, a wooden ARTIST'S EASEL holding a painting; the painting shows a young man in dark clothes holding a human SKULL up in one hand and staring into its eyes, the skull turned to face him as if the two are looking at each other (the Hamlet scene), painted simply and legibly; on the right, a DRESSMAKER'S DUMMY, a headless tailor's form on a wooden stand, wearing a half-made gown with pins, a measuring tape draped over it. No letters anywhere, no words on the painting. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and turrets may rise above it), the two props stand on the square's front edge in front of the building, with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan."
+    }
+  }
+}
