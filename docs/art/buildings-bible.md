@@ -75,7 +75,7 @@ Town (clean), closed buildings:
 | Hospital | tudor | red (health, shared with the Inn) | a red cross on a white placard (owner, 2026-10-22; the mortar and pestle read as a soup bowl) | APPROVED 2026-10-21 (r2 hospital-1), the cut redrawn 2026-10-22 with the red-cross sign (`hospital-b-1`); town look: clean |
 | Library | tudor | navy blue | open book | |
 | School | tudor | sunflower yellow | school bell | |
-| Academy | tudor | pink (creativity) | none: the PROPS out front are the sign | owner (2026-10-22): keep the old drawing's concept, an easel and a dressmaker's dummy in the front yard; the painting on the easel is a figure holding a skull and staring into its eyes, the skull facing him (Hamlet); textiles, artistry, tailoring; size 4 |
+| Academy | tudor | pink (creativity) | none: the PROPS out front are the sign | APPROVED 2026-10-22 (r3 academy-1); owner (2026-10-22): keep the old drawing's concept, an easel and a dressmaker's dummy in the front yard; the painting on the easel is a figure holding a skull and staring into its eyes, the skull facing him (Hamlet); textiles, artistry, tailoring; size 4 |
 | Laboratory | tudor | warm orange (cooking) | flask crossed with a whisk | the cooking school |
 | Agriculture Center | tudor | leaf green | wheat sheaf | |
 | Factory | industrial | brick red | gear | APPROVED 2026-10-21 (r2 factory-1); brick and chimneys, distinct from the castles |
@@ -148,7 +148,7 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
-| 3 | 2026-10-22 | Academy (4 x 4) | `tools/art/jobs/buildings-bible-r3.json`: the old drawing attached as a CONCEPT reference (easel + dressmaker's dummy out front, nothing of its style), no sign, the easel's painting is Hamlet with the skull; the Hospital panel for camera and rendering; guides/building4.png | pending the owner's review |
+| 3 | 2026-10-22 | Academy (4 x 4) | `tools/art/jobs/buildings-bible-r3.json`: the old drawing attached as a CONCEPT reference (easel + dressmaker's dummy out front, nothing of its style), no sign, the easel's painting is Hamlet with the skull; the Hospital panel for camera and rendering; guides/building4.png | APPROVED: candidate 1 (the crooked corner turret, the pinned pink bodice on the dummy, the darker canvas) |
 | 2 (APPROVED) | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | the relight works: the design holds and the facing lifts. Two lessons: a relight from the building's own panel can still drift (the temple's second candidate became a thatched cottage) and can drop a sign's picture (both inn candidates lost the bed; `inn-b` re-ran with the sign pinned in the prompt). The owner approved all six picks: bank-1, warriors-den-1, factory-1, hospital-1, ancient-temple-1 of round 2 (`_candidates/buildings-bible-r2/approved/`), and ordered one more Inn with the bed sign (`inn-c`) |
 
 ## 5. From an approved panel to the game (2026-10-21)
@@ -166,7 +166,10 @@ Open:
    square's tiles (ECONOMY sheet column; the cutter prints it). The footprint is the art's
    BASE width (the widest run among its bottom rows), not its silhouette: a turret or eaves
    wider than the walls must not shrink the building, the walls fill the footprint end to
-   end (owner, 2026-10-22). The owner set the six buildings to size 4 (the Inn 3). The renderer draws a resource whose `artSpan`
+   end (owner, 2026-10-22). The owner set the six buildings to size 4 (the Inn 3). A
+   building with PROPS standing in front of its walls (the Academy's easel and dummy) is
+   cut with `--fit silhouette` instead: the props' thin legs are the bottom rows and would
+   fool the base measure (the Academy came out at artSpan 6.8 that way, 5.1 by silhouette). The renderer draws a resource whose `artSpan`
    exceeds its `size` as an `artSpan` square anchored at the footprint's bottom-centre, the
    same way it draws the tall wall pieces; without `artSpan` the art is squeezed into the
    footprint square.
