@@ -11,6 +11,10 @@ commissioned and approved 2026-10-22.
   diagonal (owner, 2026-10-22: the first hay bale was drawn on the diagonal and re-ordered).
   The sentence is in every deco prompt of `tools/art/jobs/deco-whimsical-r1.json`; keep it in
   every new one.
+- **A low camera: see the face, not the top.** A prop with a top (a crate, a chest, a box)
+  is seen mostly from the front and only a little from above, like the barrel: its front
+  face large and square to the viewer, its lid a narrow strip (owner, 2026-10-22: the first
+  crate was too top-down). When in doubt, send the approved barrel as the camera reference.
 - **Drawn straight on magenta.** Props do not need the grass panel: the guide is
   `guides/building1-cut.png` (magenta, the thin grid, a 1 x 1 box), the camera and rendering
   reference is an approved building panel (the Hospital), and the prompt says the prop stands
@@ -36,7 +40,7 @@ commissioned and approved 2026-10-22.
 | Prop | Row | Art | Note |
 |---|---|---|---|
 | Barrel | existing | `barrel` | replaced |
-| Crate | existing | `crate` | replaced |
+| Crate | existing | `crate` | replaced; re-ordered from a lower camera (`crate-b-1`): the first was too top-down, the owner wants the FRONT FACE seen, like the barrel |
 | Sack | existing | `sack` | replaced |
 | Potted Plant | existing | `potted-plant` | replaced |
 | Haybale | existing | `haybale` | replaced; re-ordered square-on (`haybale-b-1`) |

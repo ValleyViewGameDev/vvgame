@@ -169,6 +169,17 @@
         "painterly"
       ],
       "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a round HAY BALE lying on its side, golden straw bound with two cords, chunky and storybook. CAMERA: the bale is seen SQUARE-ON from the front and a little above, its long cylinder side facing the viewer straight across the tile, parallel to the bottom edge of the image, NOT turned at a diagonal, NOT seen end-on; one round end may show slightly at the right. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "crate-b": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA REFERENCE: the FIRST attached image is a barrel from this game on magenta; draw the crate from the SAME low camera as that barrel: seen mostly from the FRONT, a little from above, so the crate's front face is large and square to the viewer and its lid shows only as a narrow top, never a top-down view of the lid. STYLE REFERENCE: the second attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a wooden CRATE, rough planks nailed in a frame, its big front face toward the viewer with the planks and corner battens showing, the lid a narrow strip along the top, a little crooked and chunky; a fairy-tale farm prop. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
     }
   }
 }
