@@ -151,6 +151,17 @@
       ],
       "note": "2026-10-22, owner on grass-5: good; now the flowers a little bigger and less frequent. Redrawn from grass-5-1 with that one change.",
       "prompt": "REFERENCE: the attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same wide, sparse, light tufts exactly as they are, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change ONE thing only: the small WHITE and pale YELLOW flower specks. Make them a LITTLE BIGGER (a round dot about three blades wide, crisp-edged, a tiny four-petal daisy shape is fine) and LESS FREQUENT: roughly half as many as in the reference, about one per square on average, scattered unevenly with some squares empty and never two touching. Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
+    },
+    "grass-7": {
+      "refs": [
+        "_candidates/slice-b-tiles/approved/openai--flatter-grass-6-2.png"
+      ],
+      "guide": "guides/patch4.png",
+      "variants": [
+        "flatter"
+      ],
+      "note": "2026-10-22, owner on grass-6-2: tufts too faint, they should be slightly DARKER than the grass (not lighter); flowers toned down to a yellowish close to the grass, lighter than it. Redrawn from grass-6-2 with those two changes.",
+      "prompt": "REFERENCE: the attached panel (before the layout guide) is this game's APPROVED grass ground texture. Redraw the SAME panel: the same green (around #79a826, lighter blades around #8db425), the same even, soft, repeatable meadow fill, the same wide, sparse tufts in the same places and the same shape (a low wide fan of five to seven short blades), the same flower positions and sizes, the same faint grid lines as thin tile edges exactly where the guide has them, the same scale. Change TWO things only. One: the TUFTS' colour: every tuft is SLIGHTLY DARKER than the grass around it, a green two shades deeper (around #5f8f1c), clearly visible as a darker shape on the grass but never dark green, never black-green, and never lighter than the grass. Two: the FLOWERS' colour: tone them down: no white, no bright yellow; each is a soft pale yellow-green (around #c9d85a), fairly close to the grass colour and only a little lighter than it, so they read as pale blossoms in the grass rather than bright dots on it; their size, shape and number stay as in the reference. Nothing else changes. The LAST attached image is the layout guide, a 4 x 4 patch of sixteen pale tiles: fill ALL sixteen squares edge to edge. No props, no objects, no characters, no shadows of objects: ground only. Keep the fill REPEATABLE: the left edge must continue into the right edge and the top into the bottom with no visible seam, no vignette, no lighting gradient across the panel, no feature that only appears once. Do not leave any square pale."
     }
   }
 }

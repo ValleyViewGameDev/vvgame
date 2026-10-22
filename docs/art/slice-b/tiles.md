@@ -416,3 +416,7 @@ attached for the tuft SHAPE only) and `grass-6` (the flowers a little bigger, as
 four-petal daisies, and about half as frequent). `grass-6-2` is the grass now. The method:
 send the current panel back as the reference and name one change; it held the green and the
 seams every time.
+A fourth pass, `grass-7`, from grass-6-2: the tufts a shade DARKER than the grass (they
+had gone lighter and too faint) and the flowers toned down to a pale yellow-green close to
+the grass and a little lighter than it (no white, no bright yellow). `grass-7-2` is the
+grass now (2026-10-22).
