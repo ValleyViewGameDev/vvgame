@@ -72,7 +72,7 @@ Town (clean), closed buildings:
 |---|---|---|---|---|
 | Bank | castle | gold | money bag | APPROVED 2026-10-21 (r2 bank-1); the owner's example: a strongroom tower |
 | Courthouse | tudor | several colours, a clock tower | none (the clock tower) | 5 x 5 in data |
-| Hospital | tudor | red (health, shared with the Inn) | mortar and pestle with a cross | APPROVED 2026-10-21 (r2 hospital-1); town look: clean |
+| Hospital | tudor | red (health, shared with the Inn) | a red cross on a white placard (owner, 2026-10-22; the mortar and pestle read as a soup bowl) | APPROVED 2026-10-21 (r2 hospital-1); town look: clean |
 | Library | tudor | navy blue | open book | |
 | School | tudor | sunflower yellow | school bell | |
 | Academy | tudor | pink (creativity) | needle and thread over a palette | textiles, artistry, tailoring |

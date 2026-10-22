@@ -7224,7 +7224,7 @@
     "type": "Hospital",
     "symbol": "🏥",
     "layoutkey": "h+",
-    "size": 3,
+    "size": 4,
     "category": "crafting",
     "action": "openUI",
     "output": "Doctor",
@@ -7849,7 +7849,7 @@
     "type": "Ancient Temple",
     "symbol": "🛕",
     "layoutkey": "At",
-    "size": 3,
+    "size": 4,
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
@@ -8074,7 +8074,7 @@
     "type": "Factory",
     "symbol": "🏭",
     "layoutkey": "Fy",
-    "size": 3,
+    "size": 4,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -8101,7 +8101,7 @@
     "artLook": "town",
     "artAccent": "brick red",
     "artSign": "gear",
-    "artSpan": 3.61
+    "artSpan": 4.94
   },
   {
     "type": "Trade Stall",
@@ -8169,7 +8169,7 @@
     "type": "Bank",
     "symbol": "🏦",
     "layoutkey": "BK",
-    "size": 3,
+    "size": 4,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -8197,7 +8197,7 @@
     "artLook": "town",
     "artAccent": "gold",
     "artSign": "money bag",
-    "artSpan": 3.9
+    "artSpan": 5.56
   },
   {
     "type": "Courthouse",
@@ -8533,7 +8533,7 @@
     "artAccent": "red",
     "artSign": "bed",
     "filename": "inn.svg",
-    "artSpan": 3.56
+    "artSpan": 3.75
   },
   {
     "type": "Post House",
@@ -8762,7 +8762,7 @@
     "type": "Warrior's Den",
     "symbol": "⚔️",
     "layoutkey": "wD",
-    "size": 3,
+    "size": 4,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8789,7 +8789,7 @@
     "artLook": "town",
     "artAccent": "iron grey with a red banner",
     "artSign": "crossed swords",
-    "artSpan": 3.06
+    "artSpan": 4.24
   },
   {
     "type": "Armory",
