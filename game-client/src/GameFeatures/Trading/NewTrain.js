@@ -291,8 +291,8 @@ function NewTrainPanel({
       console.error('❌ Error updating train reward markers:', error);
     }
     if (delivered.length > 0) {
-      updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
-      setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+      updateStatus(`📦 Caravan rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
+      setRewardsDeliveredMessage(strings[2016] || "Caravan rewards have been delivered to your mailbox!");
     } else {
       const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
       console.log(`🚂 Train departing with ${completedCount}/${existingCurrentOffers.length} offers completed`);
@@ -310,8 +310,8 @@ function NewTrainPanel({
     const { delivered } = await deliverEarnedTrainRewards(
       existingCurrentOffers, existingCurrentRewards, previousTrainNumber, currentPlayer?.train);
     if (delivered.length > 0) {
-      updateStatus(`🚂 Train rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
-      setRewardsDeliveredMessage(strings[2016] || "Train rewards have been delivered to your mailbox!");
+      updateStatus(`📦 Caravan rewards delivered to your mailbox: ${rewardSummaryText(delivered)}`);
+      setRewardsDeliveredMessage(strings[2016] || "Caravan rewards have been delivered to your mailbox!");
     } else if ((currentPlayer?.train?.lastRewardDeliveryTrainNumber || 0) < previousTrainNumber) {
       const completedCount = existingCurrentOffers.filter(offer => offer.completed === true).length;
       updateStatus(`🚂 Previous train left with ${completedCount}/${existingCurrentOffers.length} orders completed`);
@@ -810,7 +810,7 @@ function NewTrainPanel({
           <p>{strings[98]}</p>
         ) : (
           <>
-            <h3>Train is {trainPhase} (#{playerTrainNumber})</h3>
+            <h3>Caravan is {trainPhase} (#{playerTrainNumber})</h3>
             <h2 className="countdown-timer">⏳ {trainTimer}</h2>
 
             {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (

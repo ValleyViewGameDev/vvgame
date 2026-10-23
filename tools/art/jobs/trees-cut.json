@@ -69,6 +69,26 @@
         "flatter"
       ],
       "prompt": "REFERENCE: the attached panel on grass is this game's approved autumn OAK TREE with a deep red layered canopy on a short brown trunk, drawn in the game's style. Redraw the SAME tree, identical in every way: the same shape, size, colours, outline and shading, the same light from the upper left, the same soft contact shadow directly under the trunk. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid: the tree stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its canopy spreading a little past the box on each side, exactly as in the reference. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "pine-b": {
+      "refs": [
+        "_candidates/trees-cut/exploration/openai/flatter-pine-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's PINE TREE already drawn on a pure magenta field: a tall tiered dark-green conifer on a short trunk, the light from the upper left, a soft contact shadow under the trunk. Redraw the SAME tree on the SAME flat, pure, solid magenta (#FF00FF) field (no grass, no ground, no grid, nothing else drawn, no vignette), the same place and the same camera, with ONE change only: the SHADING between the tiers is much softer. Today each tier casts a hard, dark, almost black band onto the tier below, which makes the tree read as striped; instead the underside of each tier is only a little darker than the foliage, a soft gentle gradient, so the tiers melt into one another and the tree reads as one soft green cone with light texture, the way the game's oak has soft layered shading. Same height, same width, same colours otherwise, same trunk. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it exactly as in the reference. No letters anywhere."
+    },
+    "pine-light": {
+      "refs": [
+        "_candidates/trees-cut/exploration/openai/flatter-pine-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's PINE TREE already drawn on a pure magenta field: a tall tiered dark-green conifer on a short trunk, the light from the upper left, a soft contact shadow under the trunk. Redraw the SAME tree on the SAME flat, pure, solid magenta (#FF00FF) field (no grass, no ground, no grid, nothing else drawn, no vignette), the same place and the same camera, with THREE changes: (1) the SHADING between the tiers is much softer: today each tier casts a hard, dark band onto the tier below, which reads as striped; instead the underside of each tier is only a little darker than the foliage, a soft gradient, so the tree reads as one soft green cone with light texture; (2) the whole tree is a LITTLE LIGHTER and fresher in colour, a brighter spring green rather than the dark green, still clearly a pine; (3) the tree is a LITTLE SHORTER, about 15 percent, with one tier fewer, the same width. Same trunk. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises a little under two tiles tall above it. No letters anywhere."
     }
   }
 }

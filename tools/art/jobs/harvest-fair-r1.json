@@ -1,0 +1,34 @@
+{
+  "name": "harvest-fair-r1",
+  "note": "The Harvest Fair (owner, 2026-10-23): the Carnival becomes the settlement's harvest fair, size 5, shared effort. Two concepts, two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "fair-maypole": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building5.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the HARVEST FAIR, the settlement's own festival that every homestead stocks together (the game's shared, team-effort feature, replacing the old carnival). It is BIG, five tiles square, and must read as ONE joyful fairground at a glance, not a scatter of small things: one dominant centrepiece plus a ring of supporting pieces. Harvest colours: golden straw, pumpkin orange, apple red, leaf green, cream canvas, with ribbons and bunting in many colours. No people, no animals. LOOK: town: clean. CONCEPT A, THE FAIRGROUND GREEN: the centrepiece is a tall MAYPOLE wound with coloured ribbons streaming out to the ground, on a round of trodden earth; around it, at the four sides of the square, small open-fronted canvas-roofed STALLS (a pie stall with pies on the counter, a produce stall with pumpkins and apples, a cider barrel stand with mugs, a prize-vegetable table with a giant pumpkin and a ribbon rosette); strings of bunting on poles joining the corners; hay bales and pumpkins in the corners; a wooden arch at the front with a harvest wreath of wheat and apples over the entrance. Bright, airy, open. The LAST attached image is a layout guide, a patch of the board grid with a tan 5 x 5 square: the whole fair fills that 5 x 5 square almost to its edges, end to end (the maypole, tent peaks, flags and bunting poles may rise above it), with soft contact shadows. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign, no people."
+    },
+    "fair-marquee": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building5.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the HARVEST FAIR, the settlement's own festival that every homestead stocks together (the game's shared, team-effort feature, replacing the old carnival). It is BIG, five tiles square, and must read as ONE joyful fairground at a glance, not a scatter of small things: one dominant centrepiece plus a ring of supporting pieces. Harvest colours: golden straw, pumpkin orange, apple red, leaf green, cream canvas, with ribbons and bunting in many colours. No people, no animals. LOOK: town: clean. CONCEPT B, THE FAIR PAVILION: the centrepiece is one big cream-and-apple-red striped MARQUEE tent with scalloped edges, open at the front to show a long trestle table laden with the harvest (bread, cheese, pies, baskets of apples, a roast), pennants on its peaks; in front of it a wooden bandstand platform with a harvest wreath; at the sides a maypole with ribbons on the left and a pumpkin-and-hay-bale display with a cider barrel on the right; bunting strung from the tent to corner poles; a few lanterns on posts. Festive, generous, the settlement's big table. The LAST attached image is a layout guide, a patch of the board grid with a tan 5 x 5 square: the whole fair fills that 5 x 5 square almost to its edges, end to end (the maypole, tent peaks, flags and bunting poles may rise above it), with soft contact shadows. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign, no people."
+    }
+  }
+}

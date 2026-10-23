@@ -62,6 +62,11 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    changes its look; `game-client/src/Utils/artVariants.js`). The autumn panels are the
    `trees-cut` job's `oak-autumn-gold` / `oak-autumn-red` (recolours of the approved oak, cut
    with the silhouette fit, fill 1.25, 384 px).
+   The PINE was redone 2026-10-23 (owner: next to the oaks it read "stripey", the shadow band
+   under each tier too dark): `trees-cut` subject `pine-b` redraws the magenta pine with soft
+   gradients between the tiers (now `pine-tree.svg`, artSpan 2.94), and `pine-light` is a
+   variant a little lighter and about 15 % shorter (`pine-tree-light.svg`); the row's
+   `artVariants` mixes it in at 25 % (`pine-tree.svg=3;pine-tree-light.svg=1`).
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 

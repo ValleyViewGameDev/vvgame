@@ -1,0 +1,45 @@
+{
+  "name": "caravan-r1",
+  "note": "The Caravan (owner, 2026-10-23): the Train becomes a travelling merchant caravan, size 2, one state (arrived). Two concepts, two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "caravan-covered": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the MERCHANT CARAVAN, a travelling trader's wagon that rolls into town, parks for two days and buys the settlement's goods, replacing the game's old train. It must read as 'a shop that travels' at a glance: a wagon AND a market stall at once. FAMILY: vehicle. LOOK: town: clean. No people, no merchant figure: only the wagon, the animals and the goods. CONCEPT A, THE COVERED WAGON: a big covered wagon parked square-on, its barrel-vault canvas hood painted in bold TEAL and BURGUNDY stripes with brass fittings and a brass lantern at each corner, big iron-rimmed wooden wheels. Its near side is folded DOWN into a trading counter under a striped awning: on the counter a brass balance scale, a strongbox, sacks of grain, a crate of apples, a wheel of cheese, bolts of cloth; a tall pole with a burgundy pennant. Two shaggy brown OXEN stand unhitched beside the wagon, one eating from a hay bag, the yoke leaning on the wheel. A dusty patch of ground with wheel ruts under it. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the wagon, its animals and its goods fill that 2 x 2 square almost to its edges, end to end (the wagon's roof, awning and pennant may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "caravan-vardo": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the MERCHANT CARAVAN, a travelling trader's wagon that rolls into town, parks for two days and buys the settlement's goods, replacing the game's old train. It must read as 'a shop that travels' at a glance: a wagon AND a market stall at once. FAMILY: vehicle. LOOK: town: clean. No people, no merchant figure: only the wagon, the animals and the goods. CONCEPT B, THE PAINTED WAGON: an ornate wooden travelling wagon in the style of a carved showman's caravan: a tall wooden body with a bowed roof, panelled walls painted deep BURGUNDY with TEAL and gold scrollwork and carved brackets, a small stove chimney (cold, no smoke), little curtained windows, a half-door at the back with steps down, lanterns. Its side is a fold-out SHOP: a hinged shutter propped up as an awning over a counter crammed with goods: a brass balance scale, jars, a cheese wheel, bottles, bolts of cloth, a strongbox, with sacks and a crate stacked on the ground beside the steps. One sturdy dappled DRAFT HORSE stands unhitched at the front, nosebag on, the harness hung on the shafts. A dusty patch of ground with wheel ruts under it. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the wagon, its animals and its goods fill that 2 x 2 square almost to its edges, end to end (the wagon's roof, awning and pennant may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "caravan-b": {
+      "refs": [
+        "_candidates/caravan-r1/exploration/openai/painterly-caravan-covered-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's MERCHANT CARAVAN as drawn last round; the owner likes it: the covered wagon with the teal and burgundy striped canvas hood, the little roof lantern, the brass corner lanterns, the striped awning over the fold-down trading counter with the brass scale, strongbox, sacks, apples, cheese and bolts of cloth, the burgundy pennant on its pole, the dusty patch with wheel ruts. The second attached panel is a building from this game for the camera and the daylight. Redraw the SAME wagon with THREE changes. (1) NO ANIMALS: remove the oxen entirely; the wagon stands alone, its wooden shafts (or draught pole and yoke) resting on the ground at the front, no creature anywhere. (2) THE WHEELS ARE BIG AND PRONOUNCED: four large iron-rimmed spoked wooden wheels with bright hubs, clearly visible under the body, the front pair turned a little, so it is obvious at a glance that this thing MOVES even with no animals. (3) MORE DAYLIGHT, HAPPIER: the whole wagon in full bright noon sun, the canvas and awning lighter and more saturated, the shadows soft and short, the wood warm honey rather than dark; a cheerful travelling shop, not a gloomy one. Nothing else changes. No people. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the wagon and its goods fill that 2 x 2 square almost to its edges, end to end (the hood, awning and pennant may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
+    }
+  }
+}

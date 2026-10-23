@@ -58,6 +58,9 @@ signage and props. Whimsical is the style laid over all of it.
 - **A relight round keeps the design by sending the building's own panel back as the
   reference** with "the same building, changed in one way only: the lighting" (round 2,
   2026-10-21). Pin the sign's picture in that prompt too, or the model may blank it.
+- **No animals in building or vehicle art** (owner, 2026-10-23): a wagon has no oxen, a barn
+  has no cow in the yard. Animals are a separate art style question (the NPC rig) and a
+  painted animal in a still sprite would never move. A vehicle shows it moves by its wheels.
 - **The sign is never repeated above itself** (owner, 2026-10-23): when a building has a
   placard or crest over the door, no window, rose window, carving or banner directly above
   it may carry the same picture. The model likes to echo the sign in a round window over the
@@ -94,8 +97,8 @@ Town (clean), closed buildings:
 | Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
 | Restroom | cottage | slate blue | none | 2 x 2 |
 
-| Carnival | tent | harlequin, many colours | none, it is a big tent | 4 x 4; keep today's tent idea, in the whimsical style |
-| Train | vehicle | black and brass | none | not a building |
+| Carnival → **the HARVEST FAIR** | fair (open fairground) | harvest colours: straw, pumpkin, apple red, leaf green, cream canvas, many-coloured bunting | none | REPLACED (owner 2026-10-23): the Carnival sat too close to the new Caravan (both visiting, striped, order-taking); the Carnival is the settlement's SHARED effort, so it becomes the settlement's own Harvest Fair that every homestead stocks together; size 5; player-facing rename to follow; APPROVED 2026-10-23: fair-marquee-1 (`tools/art/jobs/harvest-fair-r1.json`, concept B the fair pavilion: one red-and-cream marquee open on the laden table, a bandstand, a maypole, pumpkins, cider, bunting), cut at 5 x 5 with the silhouette fit (artSpan 5.09) into `carnival.png/.svg` (the file keeps its name); player-facing rename done: Harvest Fair / Erntefest / Feria de la Cosecha / Fête des Moissons, symbol 🌾 |
+| Train → **the CARAVAN** | vehicle | teal and burgundy stripes, brass | none | REPLACED (owner 2026-10-23): a travelling merchant caravan, a covered wagon with a fold-down trading counter under a striped awning, size 2, ONE state (the game's waiting gap is about a minute, not worth a second sprite); NO ANIMALS (owner: no animal style here, and they would not move) so the WHEELS must be big and obvious; full daylight, cheerful; player-facing rename Train → Caravan in all ten string files, `Train` stays in code; round 1 pick A covered-1, revision `caravan-b`: APPROVED 2026-10-23 caravan-b-2 (no animals, four big wheels, shafts on the ground, full daylight), cut at 2 x 2 with the silhouette fit (artSpan 2.04) into `wagon.png/.svg` (the file keeps its name); player-facing rename done: Caravan / Karawane / Caravana / Caravane, symbol 📦 (the train emoji is gone) |
 
 Valley (moss and vines):
 

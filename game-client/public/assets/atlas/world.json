@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "23299fba546a3933dc498766a0ce94117a049f6b",
+  "sourceHash": "4210e3882cd47b46144ebf691c92762f1675fcb4",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -61,7 +61,7 @@
       "json": "world-9.json",
       "png": "world-9.png",
       "webp": "world-9.webp",
-      "frames": 195
+      "frames": 196
     }
   ],
   "frames": {
@@ -221,10 +221,11 @@
     "resources/oak-tree-autumn-gold.svg": 7,
     "resources/oak-tree-autumn-red.svg": 7,
     "resources/oak-tree.svg": 7,
+    "resources/pine-tree-light.svg": 7,
     "resources/pine-tree.svg": 7,
     "resources/plant-red.svg": 7,
     "resources/plant.svg": 7,
-    "resources/poppies.svg": 7,
+    "resources/poppies.svg": 8,
     "resources/potted-plant.svg": 8,
     "resources/rock.svg": 8,
     "resources/sack.svg": 8,
@@ -358,7 +359,7 @@
     "tiles/x-5.png": 8,
     "tiles/x-6.png": 8,
     "tiles/x-7.png": 8,
-    "tiles/x-8.png": 8,
+    "tiles/x-8.png": 9,
     "tiles/x-9.png": 9,
     "walls/fence-e.png": 9,
     "walls/fence-n.png": 9,

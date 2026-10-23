@@ -248,6 +248,7 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'building4-cut.png'), await buildingCutGuide(4));
   fs.writeFileSync(path.join(GUIDES, 'building1-cut.png'), await buildingCutGuide(1));
   fs.writeFileSync(path.join(GUIDES, 'building5.png'), await buildingGuide(5));
+  fs.writeFileSync(path.join(GUIDES, 'building2-cut.png'), await buildingCutGuide(2));
   fs.writeFileSync(path.join(GUIDES, 'building5-cut.png'), await buildingCutGuide(5));
   fs.writeFileSync(path.join(GUIDES, 'patch4.png'), await patch4Guide());
   fs.writeFileSync(path.join(GUIDES, 'edge4.png'), await edge4Guide());

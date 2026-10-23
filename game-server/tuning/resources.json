@@ -716,7 +716,8 @@
     "validonv": false,
     "validonu": false,
     "filename": "pine-tree.svg",
-    "artSpan": 2.93
+    "artSpan": 2.94,
+    "artVariants": "pine-tree.svg=3;pine-tree-light.svg=1"
   },
   {
     "type": "Cloven Pine",
@@ -8251,7 +8252,7 @@
   },
   {
     "type": "Train",
-    "symbol": "🚂",
+    "symbol": "📦",
     "layoutkey": "TR",
     "size": 2,
     "category": "station",
@@ -8279,12 +8280,13 @@
     "filename": "wagon.svg",
     "artFamily": "vehicle",
     "artLook": "town",
-    "artAccent": "black and brass",
-    "artSign": "none"
+    "artAccent": "teal and burgundy stripes, brass",
+    "artSign": "none (the striped awning and counter)",
+    "artSpan": 2.04
   },
   {
     "type": "Carnival",
-    "symbol": "🎡",
+    "symbol": "🌾",
     "layoutkey": "Cv",
     "size": 5,
     "category": "station",
@@ -8310,10 +8312,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "carnival.svg",
-    "artFamily": "tent",
+    "artFamily": "fair",
     "artLook": "town",
-    "artAccent": "harlequin (many colours)",
-    "artSign": "none (a big tent)"
+    "artAccent": "harvest colours, red-and-cream marquee, many-coloured bunting",
+    "artSign": "none (the marquee and maypole)",
+    "artSpan": 5.09
   },
   {
     "type": "Mailbox",

@@ -211,6 +211,26 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the GUILD, a crooked stacked hall of three storeys on a stone ground floor, each storey an open-fronted master's workshop (barrels, a loom, cheese wheels, a beehive on a balcony), teal shingle roofs, a teal dome with a cog weathervane on top, strings of coloured trade pennants, a big heraldic crest with crossed hammer and chisel over a carved oak double door, flower boxes. Redraw the SAME building, identical in every way: the same design, silhouette, every storey and its workshop, materials, colours, roofs, dome, pennants, crest, lighting and size, the same camera (front wall square to the viewer, roofs seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's ground-floor walls fill that box end to end exactly as in the reference (the upper storeys, roofs and dome may rise above and overhang it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "caravan": {
+      "refs": [
+        "_candidates/caravan-r1/approved/openai--painterly-caravan-b-2.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved piece from this game: the MERCHANT CARAVAN, a covered wagon with a teal and burgundy striped canvas hood, a little roof lantern, brass corner lanterns, a striped awning over a fold-down trading counter with a brass scale, strongbox, sacks, apples, cheese and bolts of cloth, four big iron-rimmed spoked wheels, wooden shafts resting on the ground at the front, a burgundy pennant on a pole, no animals. Redraw the SAME wagon, identical in every way: the same design, silhouette, materials, colours, wheels, shafts, goods, lighting and size, the same camera. Keep the dusty patch of ground with its wheel ruts under the wagon as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the wagon, its wheels, shafts and dust patch fill that box end to end exactly as in the reference (the hood, awning and pennant may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "harvest-fair": {
+      "refs": [
+        "_candidates/harvest-fair-r1/approved/openai--painterly-fair-marquee-1.png"
+      ],
+      "guide": "guides/building5-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved piece from this game: the HARVEST FAIR, a big red-and-cream striped marquee tent with scalloped edges and pennants, open at the front on a long table laden with the harvest, a wooden bandstand with a harvest wreath and sunflowers in front of it, a maypole with coloured ribbons on the left, crates of apples, a cider barrel on a stand and a pile of pumpkins and hay bales on the right, bunting strung from the tent to corner poles, lanterns on posts. Redraw the SAME fair, identical in every way: every piece in its place, the same design, colours, lighting and size, the same camera. Keep the trodden ground under the stalls as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 5 x 5 box outlined in the middle; the tent, bandstand, maypole, stalls and bunting poles fill that box end to end exactly as in the reference (the tent peaks, the maypole, the flags and bunting may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

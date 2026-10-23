@@ -22,15 +22,15 @@
         "reward": 1
     },
     {
-        "name": "Trains Completed",
-        "tooltip": "Tracks the number of times you participated in Train with all orders filled.",
+        "name": "Caravans Completed",
+        "tooltip": "Tracks the number of times you participated in the Caravan with all orders filled.",
         "type": "Count",
         "visible": true,
         "reward": 1
     },
     {
-        "name": "Carnivals Completed",
-        "tooltip": "Tracks the number of times you participated in the Carnival with all orders filled.",
+        "name": "Harvest Fairs Completed",
+        "tooltip": "Tracks the number of times you participated in the Harvest Fair with all orders filled.",
         "type": "Count",
         "visible": true,
         "reward": 1

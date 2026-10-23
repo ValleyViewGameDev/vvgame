@@ -177,7 +177,7 @@ function CarnivalPanel({
         <table className="carnival-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ padding: "6px 12px" }}>Carnival #</th>
+              <th style={{ padding: "6px 12px" }}>Harvest Fair #</th>
               <th style={{ padding: "6px 12px" }}>Date</th>
               <th style={{ padding: "6px 12px" }}>Status</th>
               <th style={{ padding: "6px 12px" }}>Offers Filled</th>
@@ -231,7 +231,7 @@ function CarnivalPanel({
       );
 
       setModalContent({
-        title: "Carnival Log",
+        title: "Harvest Fair Log",
         size: "large",
         message: carnivallog.length === 0 ? "No recent carnival activity." : undefined,
         custom: carnivalLogTable,
