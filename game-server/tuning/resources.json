@@ -8715,7 +8715,9 @@
     "artFamily": "sanctuary",
     "artLook": "valley",
     "artAccent": "pale limestone, bronze, laurel green",
-    "artSign": "none (the tripod, the cleft and the scroll urns)"
+    "artSign": "none (the tripod, the cleft and the scroll urns)",
+    "filename": "oracle-sanctuary.svg",
+    "artSpan": 4.39
   },
   {
     "type": "Restaurant",

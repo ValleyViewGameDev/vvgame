@@ -231,6 +231,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved piece from this game: the HARVEST FAIR, a big red-and-cream striped marquee tent with scalloped edges and pennants, open at the front on a long table laden with the harvest, a wooden bandstand with a harvest wreath and sunflowers in front of it, a maypole with coloured ribbons on the left, crates of apples, a cider barrel on a stand and a pile of pumpkins and hay bales on the right, bunting strung from the tent to corner poles, lanterns on posts. Redraw the SAME fair, identical in every way: every piece in its place, the same design, colours, lighting and size, the same camera. Keep the trodden ground under the stalls as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 5 x 5 box outlined in the middle; the tent, bandstand, maypole, stalls and bunting poles fill that box end to end exactly as in the reference (the tent peaks, the maypole, the flags and bunting may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "sanctuary": {
+      "refs": [
+        "_candidates/sanctuary-r1/approved/openai--painterly-sanctuary-cleft-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved piece from this game: the ORACLE'S SANCTUARY, a raised shelf of pale mossy limestone with a dark glowing cleft split through its middle, a tall bronze tripod with a bowl standing over the cleft, five tall rough-hewn standing stones carved with glyphs around it, a flat altar stone at the front with three sealed scrolls, a laurel wreath and a bronze bowl, worn stone steps up to the altar, two laurel trees at the front corners, wildflowers and moss. Redraw the SAME sanctuary, identical in every way: every stone, the tripod, the cleft and its glow, the altar and scrolls, the trees, the moss, the colours, lighting and size, the same camera. Keep the stone shelf and its grassy foot as part of it. Change ONE thing only: the surroundings. There is NO grass beyond the shelf's own foot, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the shelf, steps and trees fill that box end to end exactly as in the reference (the tallest stones and the trees may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }
