@@ -8,6 +8,7 @@ import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
 import PixiRendererTileFX from './PixiRendererTileFX';
+import { pickArtFile } from '../../Utils/artVariants';
 import PixiRendererPCs from './PixiRendererPCs';
 import PixiRendererCursor from './PixiRendererCursor';
 import PixiRendererSpeech from './PixiRendererSpeech';
@@ -879,11 +880,13 @@ const PixiRenderer = ({
           const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
           if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet) };
         }
-        const filename = getResourceFilename(resource.type, masterResources);
+        const master = masterResources?.find((m) => m.type === resource.type);
+        // artVariants (resource row): a weighted, per-cell pick among cosmetic alternatives (Utils/artVariants.js)
+        const filename = master ? pickArtFile(master, resource.x, resource.y) : getResourceFilename(resource.type, masterResources);
         const texture = filename ? await loadSVGTexture(filename) : null;
         // artSpan (resource row): the square art covers artSpan x artSpan tiles with the footprint
         // at its bottom-centre, so a roof can rise above a building's footprint (the walls work the same way)
-        const artSpan = masterResources?.find((m) => m.type === resource.type)?.artSpan;
+        const artSpan = master?.artSpan;
         if (texture) return { resource, texture, emojiTexture: null, wallSpan: artSpan > (resource.size || 1) ? artSpan : undefined };
         const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
         return { resource, texture: null, emojiTexture };

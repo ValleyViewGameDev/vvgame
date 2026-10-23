@@ -689,7 +689,8 @@
     "validonv": false,
     "validonu": false,
     "filename": "oak-tree.svg",
-    "artSpan": 1.75
+    "artSpan": 1.75,
+    "artVariants": "oak-tree.svg=2;oak-tree-autumn-gold.svg=1;oak-tree-autumn-red.svg=1"
   },
   {
     "type": "Pine Tree",

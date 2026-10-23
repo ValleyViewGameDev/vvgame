@@ -71,10 +71,10 @@ Town (clean), closed buildings:
 | Building | Family | Accent (roof and sign) | Sign | Note |
 |---|---|---|---|---|
 | Bank | castle | gold | money bag | APPROVED 2026-10-21 (r2 bank-1); the owner's example: a strongroom tower |
-| Courthouse | tudor | several colours, a clock tower | none (the clock tower) | 5 x 5 in data |
+| Courthouse | tudor, CIVIC scheme | white roof; its own accent on door, shutters and the clock face | none (the clock tower) | 5 x 5 in data; when commissioned it follows the civic scheme set by the Library and School |
 | Hospital | tudor | red (health, shared with the Inn) | a red cross on a white placard (owner, 2026-10-22; the mortar and pestle read as a soup bowl) | APPROVED 2026-10-21 (r2 hospital-1), the cut redrawn 2026-10-22 with the red-cross sign (`hospital-b-1`); town look: clean |
-| Library | tudor | navy blue | open book | |
-| School | tudor | sunflower yellow | school bell | |
+| Library | tudor, CIVIC scheme | white roof; navy blue on door, shutters and sign | open book | civic group with Courthouse and School (owner 2026-10-23): white slate roofs, cream plaster, walnut timber; the accent only on door, shutters, sign |
+| School | tudor, CIVIC scheme | white roof; sunflower yellow on door, shutters and sign | school bell | civic group; bell cupola, its roof white too |
 | Academy | tudor | pink (creativity) | none: the PROPS out front are the sign | APPROVED 2026-10-22 (r3 academy-1); owner (2026-10-22): keep the old drawing's concept, an easel and a dressmaker's dummy in the front yard; the painting on the easel is a figure holding a skull and staring into its eyes, the skull facing him (Hamlet); textiles, artistry, tailoring; size 4 |
 | Laboratory | tudor | warm orange (cooking) | flask crossed with a whisk | the cooking school |
 | Agriculture Center | cottage, barn-like | leaf green | none: hay bales out front (the approved hay bale deco) and a rooster weather vane on the ridge | APPROVED 2026-10-22 (r4 agriculture-center-1): the barn with the open double doors and the loft door |
@@ -156,7 +156,7 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
-| 6 | 2026-10-23 | Library, School | `tools/art/jobs/buildings-bible-r6.json` | pending |
+| 6 | 2026-10-23 | Library, School | `tools/art/jobs/buildings-bible-r6.json`: first pass in their own accents (navy, sunflower yellow); the owner liked the design and geometry but wanted a scheme UNIQUE to civic buildings (Courthouse, Library, School), "maybe white roofs"; revision subjects `library-b` / `school-b`: chalk-white slate roof, cream plaster, walnut timber, limestone footings, the building's accent only on door, shutters and sign | revision candidates ready for the owner's pick (art director: library-b-2, school-b-1) |
 | 5 | 2026-10-23 | Warrior's Den redo, Armory | `tools/art/jobs/buildings-bible-r5.json`: the Den taller (less stubby), its red banner wider and carrying the crossed swords, no placard; the Armory as the Den's sibling with a grey banner and a shield (owner: the banner with the icon is the strong visual signal) | APPROVED: warriors-den-b-2 and, after a revision round (standing armour displays, mirrored so the tower stands left, a lighter grey roof), armory-b-2 |
 | 4 | 2026-10-22 | Agriculture Center, General Store, Magic Shop | `tools/art/jobs/buildings-bible-r4.json`; the hay bale deco attached as the prop reference for the barn; revision subjects `magic-shop-b` (3 wide, no placard, right side finished) and `general-store-b` (no turret, dormer centred, sign enlarged) | all three APPROVED: agriculture-center-1, magic-shop-b-2, general-store-b-2 |
 | 3 | 2026-10-22 | Academy (4 x 4) | `tools/art/jobs/buildings-bible-r3.json`: the old drawing attached as a CONCEPT reference (easel + dressmaker's dummy out front, nothing of its style), no sign, the easel's painting is Hamlet with the skull; the Hospital panel for camera and rendering; guides/building4.png | APPROVED: candidate 1 (the crooked corner turret, the pinned pink bodice on the dummy, the darker canvas) |

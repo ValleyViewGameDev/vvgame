@@ -29,6 +29,26 @@
         "painterly"
       ],
       "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the SCHOOL, the town's schoolhouse. FAMILY: tudor: timber framing on cream stucco, a wide friendly front with big many-paned windows with a warm glow, a slate roof with a brick chimney (cold, no smoke), a small open BELL CUPOLA on the roof ridge with a bell hanging in it, a double door with a short porch, a bench and a small flower bed by the door. LOOK: town: clean, no moss, no vines. ACCENT: SUNFLOWER YELLOW: the roof is sunflower-yellow tiles, the shutters and door yellow; the sign is yellow. SIGN: a yellow placard flat on the wall over the door showing a SCHOOL BELL, drawn large and bold, picture only. It must read as a school at a glance: cheerful, open, welcoming. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and towers may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign or book."
+    },
+    "library-b": {
+      "refs": [
+        "_candidates/buildings-bible-r6/exploration/openai/painterly-library-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's LIBRARY as drawn last round; the owner likes its design and geometry. Redraw the SAME building, identical in shape, size, windows, door, sign, props, camera, painterly rendering and bright daylight, with ONE change only: the COLOUR SCHEME, which becomes the game's CIVIC scheme shared by the Courthouse, the Library and the School. The ROOF is CHALK WHITE: pale white slate tiles with soft cool-grey shading, bright in the sun. The walls are pale cream plaster with warm walnut-brown timber framing and pale limestone footings. The building's own accent colour, navy blue, is kept ONLY on the door, the shutters and the sign (the navy placard with the open book), so the white roof says civic and the accent says which civic building. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and the cupola may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those in the reference, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
+    },
+    "school-b": {
+      "refs": [
+        "_candidates/buildings-bible-r6/exploration/openai/painterly-school-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's SCHOOL as drawn last round; the owner likes its design and geometry. Redraw the SAME building, identical in shape, size, windows, door, sign, props, camera, painterly rendering and bright daylight, with ONE change only: the COLOUR SCHEME, which becomes the game's CIVIC scheme shared by the Courthouse, the Library and the School. The ROOF is CHALK WHITE: pale white slate tiles with soft cool-grey shading, bright in the sun. The walls are pale cream plaster with warm walnut-brown timber framing and pale limestone footings. The building's own accent colour, sunflower yellow, is kept ONLY on the door, the shutters and the sign (the yellow placard with the school bell; the cupola's roof is white too), so the white roof says civic and the accent says which civic building. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and the cupola may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those in the reference, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere."
     }
   }
 }

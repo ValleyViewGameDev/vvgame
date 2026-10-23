@@ -49,6 +49,26 @@
         "flatter"
       ],
       "prompt": "REFERENCE: the attached panel on grass is this game's approved BLACK DEAD TREE, a bare charred-black trunk splitting into twisted leafless branches, drawn in the game's style. Redraw the SAME tree, identical in every way: the same shape, size, colours, outline and shading, the same light from the upper left, the same soft contact shadow directly under the trunk. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid: the tree stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its branches spreading a quarter of a tile past the box on each side, exactly as in the reference. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "oak-autumn-gold": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-autumn-gold-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "REFERENCE: the attached panel on grass is this game's approved autumn OAK TREE with a golden-yellow layered canopy on a short brown trunk, drawn in the game's style. Redraw the SAME tree, identical in every way: the same shape, size, colours, outline and shading, the same light from the upper left, the same soft contact shadow directly under the trunk. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid: the tree stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its canopy spreading a little past the box on each side, exactly as in the reference. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "oak-autumn-red": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-autumn-red-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "flatter"
+      ],
+      "prompt": "REFERENCE: the attached panel on grass is this game's approved autumn OAK TREE with a deep red layered canopy on a short brown trunk, drawn in the game's style. Redraw the SAME tree, identical in every way: the same shape, size, colours, outline and shading, the same light from the upper left, the same soft contact shadow directly under the trunk. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid: the tree stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its canopy spreading a little past the box on each side, exactly as in the reference. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

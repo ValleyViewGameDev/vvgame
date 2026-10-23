@@ -81,12 +81,15 @@ function listResourceSources() {
   const list = Array.isArray(raw) ? raw : (raw.resources || Object.values(raw));
   const seen = new Map();
   for (const r of list) {
-    if (!r.filename) continue;
     const size = Math.max(1, Math.min(5, Number(r.size) || 1));
     const cell = slotForSize(size);
-    const prev = seen.get(r.filename);
-    // The same file can back several resource types; keep the largest cell it needs
-    if (!prev || prev.cell < cell) seen.set(r.filename, { cell });
+    // the row's file plus its cosmetic variants (`artVariants`: "file=weight;file=weight", Utils/artVariants.js)
+    const files = [r.filename, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean);
+    for (const file of files) {
+      const prev = seen.get(file);
+      // The same file can back several resource types; keep the largest cell it needs
+      if (!prev || prev.cell < cell) seen.set(file, { cell });
+    }
   }
   return [...seen.entries()].map(([file, { cell }]) => ({
     key: `resources/${file}`,

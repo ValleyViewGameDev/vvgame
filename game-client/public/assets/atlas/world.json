@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "9a73a7f872b6ea0f8307c88b30ea1acd91f3d92a",
+  "sourceHash": "67f57659b9b44b5b08e5252ea72091ba77b09c47",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -55,13 +55,13 @@
       "json": "world-8.json",
       "png": "world-8.png",
       "webp": "world-8.webp",
-      "frames": 137
+      "frames": 134
     },
     {
       "json": "world-9.json",
       "png": "world-9.png",
       "webp": "world-9.webp",
-      "frames": 190
+      "frames": 195
     }
   ],
   "frames": {
@@ -218,13 +218,15 @@
     "resources/npc-surgeon.svg": 7,
     "resources/npc-titania.svg": 7,
     "resources/npc-vampire.svg": 7,
+    "resources/oak-tree-autumn-gold.svg": 7,
+    "resources/oak-tree-autumn-red.svg": 7,
     "resources/oak-tree.svg": 7,
     "resources/pine-tree.svg": 7,
     "resources/plant-red.svg": 7,
     "resources/plant.svg": 7,
     "resources/poppies.svg": 7,
-    "resources/potted-plant.svg": 7,
-    "resources/rock.svg": 7,
+    "resources/potted-plant.svg": 8,
+    "resources/rock.svg": 8,
     "resources/sack.svg": 8,
     "resources/shakespeare-statue.svg": 8,
     "resources/signpost-home.svg": 8,
@@ -357,11 +359,11 @@
     "tiles/x-6.png": 8,
     "tiles/x-7.png": 8,
     "tiles/x-8.png": 8,
-    "tiles/x-9.png": 8,
-    "walls/fence-e.png": 8,
-    "walls/fence-n.png": 8,
-    "walls/fence-post.png": 8,
-    "walls/fence-run-h.png": 8,
+    "tiles/x-9.png": 9,
+    "walls/fence-e.png": 9,
+    "walls/fence-n.png": 9,
+    "walls/fence-post.png": 9,
+    "walls/fence-run-h.png": 9,
     "walls/fence-run-v.png": 9,
     "walls/fence-s.png": 9,
     "walls/fence-w.png": 9,

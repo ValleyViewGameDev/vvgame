@@ -55,6 +55,13 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    signs on brackets. Replaced by the FOUR FAMILIES and the signage rule
    (`docs/art-pipeline-plan.md` §7c; prompt-ready paragraphs in Round 3 §7.2).
 4. Trees: the oak, its recolours, the shorter pine and the dead trees APPROVED (round 2).
+   In the game since 2026-10-23: Oak Tree, Pine Tree, Dead Tree, Big/Huge Dead Tree (`artSpan`
+   rows). The oak is ONE resource with three canopies picked per cell (owner: cosmetic only):
+   `artVariants` on the row, `oak-tree.svg=2;oak-tree-autumn-gold.svg=1;oak-tree-autumn-red.svg=1`
+   (summer 50 %, autumn gold 25 %, autumn red 25 %, a stable hash of the cell so a tree never
+   changes its look; `game-client/src/Utils/artVariants.js`). The autumn panels are the
+   `trees-cut` job's `oak-autumn-gold` / `oak-autumn-red` (recolours of the approved oak, cut
+   with the silhouette fit, fill 1.25, 384 px).
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 
