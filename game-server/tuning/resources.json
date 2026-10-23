@@ -688,7 +688,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "oak-tree.svg"
+    "filename": "oak-tree.svg",
+    "artSpan": 1.75
   },
   {
     "type": "Pine Tree",
@@ -713,7 +714,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "pine-tree.svg"
+    "filename": "pine-tree.svg",
+    "artSpan": 2.93
   },
   {
     "type": "Cloven Pine",
@@ -1201,7 +1203,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree-large.svg"
+    "filename": "dead-tree-large.svg",
+    "artSpan": 5.9
   },
   {
     "type": "Huge Dead Tree",
@@ -1224,7 +1227,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree-large.svg"
+    "filename": "dead-tree-large.svg",
+    "artSpan": 11.8
   },
   {
     "type": "Big Statue",
@@ -1293,7 +1297,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree.svg"
+    "filename": "dead-tree.svg",
+    "artSpan": 2.73
   },
   {
     "type": "Snowman",

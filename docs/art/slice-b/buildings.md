@@ -352,3 +352,16 @@ back, say "a wooden hopper sits on top of the millstone beside the post".
   seed other buildings); guild-d (the crooked tower with the camera fixed) is the runner-up if the owner wants the tower look to seed the family.
 - **Mill: mill-e** (the swap plus the sails inside the footprint). **Tudor General Store: store-c**
   (the owner's "close" store-a with the three fixes; store-d if the gable end is preferred).
+
+## Trees in the game (2026-10-23)
+
+The owner put the approved trees in: the summer oak (`oak-summer-a-1`) as the Oak Tree, the
+pine (`pine-tree-c-1`), the brown dead tree (`dead-tree-brown-1`) as the Dead Tree and the
+black dead tree (`dead-tree-black-1`) as `dead-tree-large.svg`, the file the Big (2 x 2) and
+Huge (4 x 4) Dead Trees share. Each was redrawn on magenta from its own panel
+(`tools/art/jobs/trees-cut.json`, guide `building1-cut.png`) and cut by `tools/art/cutout.js`
+with the silhouette fit and `--fill` above 1 (1.25 oak, 1.5 the others) so the canopy
+overhangs its tile as the panels intended; `artSpan` carries the two-tile height (the Big
+and Huge Dead Trees scale it by their size). The autumn oaks (`oak-autumn-gold/red`) and
+the second summer oak are approved but not placed: no resource row and no seasons
+mechanism for tree art yet.
