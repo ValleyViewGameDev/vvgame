@@ -109,7 +109,7 @@ Valley (moss and vines):
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire, a pictogram on a wooden signpost | APPROVED 2026-10-23 (r7 adventure-camp-b-1); NOT a building (owner 2026-10-23): ONE rustic tent set up in the field, a cold campfire with log seats and a cook pot, a stand of leather backpacks (what it sells, with adventuring skills); NO WEAPONS props (owner); valley look |
 | Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1); its first cut-out drifted into a cottage, the cut redrawn 2026-10-22 with the ruin spelled out (`ancient-temple-b-1`) |
 | Shrine | japanese | classic dark orange (vermilion) | none | APPROVED 2026-10-23 (r8 shrine-1): the old drawing's design kept element for element (two-tier vermilion roofs, guardian lions, blossom trees, lanterns), repainted; valley look |
-| Shiro | japanese | black and white | none | a Japanese keep, valley look, unique architecture |
+| Shiro → **the ORACLE'S SANCTUARY** | sanctuary (open stone, Greek) | pale limestone, bronze, laurel green | none: the tripod, the cleft and the scroll urns | REPLACED (owner 2026-10-23): the Shiro was only ever a placeholder name from a spare emoji; it is the scroll shop, and the Oracle is now grounded as Apollo's oracle at Delphos (The Winter's Tale), so this is her sanctuary: monolithic standing stones over a glowing cleft, a bronze tripod, laurel, urns of sealed scrolls; the Ancient Temple's sister site (same stone, moss and glyphs) but open and in use, not a ruin; valley look; concepts `tools/art/jobs/sanctuary-r1.json` (A the cleft, B the tholos) |
 
 Homestead:
 

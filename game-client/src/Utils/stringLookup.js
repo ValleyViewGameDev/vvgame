@@ -13,6 +13,17 @@ const createReverseLookupMap = () => {
 let reverseLookupMap = null;
 
 /**
+ * Player-facing names that differ from a resource's code name (the type stays in data, routes,
+ * panels and schedulers; only what the player reads changes). The alias is the English name,
+ * so the reverse map finds its id and every language gets its own translation of that id.
+ */
+export const DISPLAY_ALIASES = {
+  Train: 'Caravan',
+  Carnival: 'Harvest Fair',
+  Shiro: "Oracle's Sanctuary",
+};
+
+/**
  * Looks up a string value in stringsEN.json and returns its key (ID)
  * This allows server-side strings to be mapped to localized client strings
  * @param {string} value - The string value to look up
@@ -23,7 +34,7 @@ export const getStringIdByValue = (value) => {
     reverseLookupMap = createReverseLookupMap();
   }
   
-  return reverseLookupMap[value] || null;
+  return reverseLookupMap[DISPLAY_ALIASES[value] || value] || null;
 };
 
 /**

@@ -1,0 +1,36 @@
+{
+  "name": "sanctuary-r1",
+  "note": "The Oracle's Sanctuary (owner, 2026-10-23, option 1: the Oracle grounded in The Winter's Tale's oracle of Delphos): the Shiro row becomes her sanctuary, the scroll shop, a monolithic stone sister site to the Ancient Temple. Two concepts, two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "sanctuary-cleft": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-ancient-temple-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SIBLING REFERENCE: the second attached panel is this game's ANCIENT TEMPLE, a mossy ruin of the same lost civilisation; the sanctuary shares its pale weathered stone, its moss, and the carved glyphs on its stones, but is a DIFFERENT kind of place: not a ruin, not a building, an open sanctuary in use. SUBJECT: the ORACLE'S SANCTUARY at Delphos, where Apollo's sealed scrolls are bought (the Ancient Temple opens them). It must read at a glance as a sacred, oracular stone place: monolithic, ancient, alive. Palette: pale sun-warmed limestone, bronze, laurel green, moss, a little gold. LOOK: valley: grown into nature, moss on the stone, wildflowers, no vines over the glyphs. No people. CONCEPT A, THE CLEFT: a shelf of pale living rock with a dark narrow CLEFT split through its middle, a faint warm golden glow deep inside the cleft (light only, no vapour); over the cleft stands a tall bronze TRIPOD with a shallow bowl; around it four or five tall MONOLITHIC standing stones of pale limestone, rough-hewn, carved with the same glyphs as the Temple, leaning a little, the tallest rising high; a flat altar stone at the front with three sealed scrolls, a laurel wreath and a small bronze bowl on it; two laurel trees, one each side; stone steps up onto the shelf; moss in the cracks. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the sanctuary's stones, terrace and props fill that 4 x 4 square almost to its edges, end to end (the tallest pillars and the laurel may rise above it), with soft contact shadows. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no smoke, no steam, no vapour."
+    },
+    "sanctuary-tholos": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-ancient-temple-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front square to the viewer, no side view, the top seen from above, the grid straight), its painterly rendering and its bright daylight. SIBLING REFERENCE: the second attached panel is this game's ANCIENT TEMPLE, a mossy ruin of the same lost civilisation; the sanctuary shares its pale weathered stone, its moss, and the carved glyphs on its stones, but is a DIFFERENT kind of place: not a ruin, not a building, an open sanctuary in use. SUBJECT: the ORACLE'S SANCTUARY at Delphos, where Apollo's sealed scrolls are bought (the Ancient Temple opens them). It must read at a glance as a sacred, oracular stone place: monolithic, ancient, alive. Palette: pale sun-warmed limestone, bronze, laurel green, moss, a little gold. LOOK: valley: grown into nature, moss on the stone, wildflowers, no vines over the glyphs. No people. CONCEPT B, THE THOLOS: a small round open-air shrine on a mossy stone terrace: a ring of eight squat pale-stone columns carrying a low conical stone roof with a bronze finial, the ring open at the front so the inside shows: a bronze TRIPOD with a shallow bowl at the centre over a dark hole in the floor with a faint golden glow (light only, no vapour), and two tall stone urns full of sealed scrolls either side of the entrance; a single tall carved MONOLITH stands beside the shrine, taller than it, cut with the Temple's glyphs; a laurel tree on the other side; three worn steps up to the terrace; wildflowers in the grass. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the sanctuary's stones, terrace and props fill that 4 x 4 square almost to its edges, end to end (the tallest pillars and the laurel may rise above it), with soft contact shadows. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no smoke, no steam, no vapour."
+    }
+  }
+}

@@ -1023,7 +1023,7 @@
 "16015": "Diese Brücke ist mein, bei Sycorax, meiner Mutter. Prospero versuchte sie mit Zauber und Lächeln zu stehlen. Sie nannten mich Bestie, aber ich bin aus Erde und Sturm, geboren zur wilden Wahrheit. Ich tausche Knochen gegen Silber, Zeichen der Toten gegen Münzen der Lebenden. Berühre nichts leichtfertig in diesen Wäldern. Bring mir, was andere fürchten, und ich mache dich reich... oder verflucht.",
 "16016": "Meine Großzügigkeit ist so grenzenlos wie das Meer, meine Liebe so tief... aber er ist fort, und alles was bleibt ist ein Porträt und Schmerz. Angelo nahm beides. Bring mir Romeos Abbild, aus meiner Kammer gerissen, und ich gebe dir Tulpen, rot wie das Blut, das auf Veronas Steinen vergossen wurde. Lass dies unser neuer Balkon sein: du unten, Gerechtigkeit tragend.",
 "16017": "Hallo, Freund. Suchst du den Dreizack der alten Götter? Er ist eines der sieben Artefakte, die nötig sind, um das Orakel zufriedenzustellen. Ich brauche viel Gold, um mich davon zu trennen.",
-"16018": "Willkommen {username}. Herzlichen Glückwunsch, denn du hast eine weite Strecke zurückgelegt. Ich spüre den Heldenmut in dir. Bring mir die sieben Artefakte, die diese Völker verbinden, und ich werde dir die Hoffnung geben, das Goldene Zeitalter wiederherzustellen!",
+"16018": "Willkommen, {username}. Du bist weit gekommen, um in Delphos zu stehen. Ich bin die Stimme Apollons, die einst einem eifersüchtigen König verkündete, er werde ohne Erben leben, wenn das Verlorene nicht gefunden wird. Das Verlorene ist noch immer verloren, und Elsinore siecht daran. Bringe mir die sieben Artefakte, die diese Völker binden, und ich schenke dir die Hoffnung, das Goldene Zeitalter wiederherzustellen.",
 "16019": "Grüße! Jahrhundertelang lebten die freundlichen Menschen von Elsinore in Harmonie, regiert vom wohlwollenden König Leontes.\n\nDoch seit kurzem wächst eine böse Plage im Tal und bedroht unsere friedlichen Wege.\n\nEs heißt, eine einzige Quest kann die Hoffnung in diese Lande zurückbringen und die Dunkelheit zurückdrängen. Suche das Orakel im Tal, Abenteurer, und bring uns Hoffnung!",
 "16020": "Sei gegrüßt, Jäger! Hast du Felle zum Handeln? Ich zahle dir faire Münzen für alle Pelze, die die Wildnis des Tals deinem Geschick überlassen hat. Die kälteren Monate nahen, und die Leute suchen Wärme. Deine Jagd füllt meine Truhen; meine Münzen füllen deinen Beutel. Das ist ein Handel so gemütlich wie der Name, den ich trage!",
 "16021": "Herzlichen Glückwunsch zu deiner Anbauer-Fähigkeit, {username}. Du wirst feststellen, dass viele Fähigkeiten in der Stadt erworben werden können. Wähle weise, wenn du beginnst, dich auf Landwirtschaft, Kochen, Tiere, Abenteuer und mehr zu spezialisieren.",
@@ -1045,7 +1045,7 @@
 "16115": "Du willst zum alten Zauberer hinauf? Seine Kiefern sind gespalten und verflucht, und keine gewöhnliche Axt beißt in sie. Nur die Hexe im Birnam-Wald schmiedet eine Klinge für solches Holz, und sie liebt Schädel über alles.",
 "16116": "",
 "16117": "",
-"16118": "",
+"16118": "Apollon kennt nun deinen Namen, Freund. Meine versiegelten Schriftrollen werden in diesem Heiligtum verkauft; nur der Alte Tempel kann sie öffnen. Lies, was der Gott geschrieben hat, und das Tal wird weniger Geheimnisse vor dir bewahren.",
 "16119": "",
 "16120": "",
 
@@ -1577,5 +1577,6 @@
     "2114": "{item} wird verschoben. Klicke auf einen freien Platz, um es abzusetzen.",
     "2114_touch": "{item} wird verschoben. Tippe auf einen freien Platz, um es abzusetzen.",
     "2115": "Dieser Platz ist belegt.",
-    "2116": "Konnte nicht dorthin verschoben werden."
+    "2116": "Konnte nicht dorthin verschoben werden.",
+    "200823": "Heiligtum des Orakels"
 }

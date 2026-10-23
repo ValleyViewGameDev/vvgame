@@ -357,7 +357,7 @@ const ShopStation = ({
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${stationType}`} panelName="ShopStation">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="ShopStation">
       <div className="station-panel-container">
         <div className="station-panel-content">
           {/* ✅ Conditional TENT text for the Store */}

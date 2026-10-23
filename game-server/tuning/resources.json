@@ -8688,7 +8688,7 @@
   },
   {
     "type": "Shiro",
-    "symbol": "🏯",
+    "symbol": "🏛️",
     "layoutkey": "Jca",
     "size": 4,
     "category": "shop",
@@ -8712,10 +8712,10 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "artFamily": "japanese",
+    "artFamily": "sanctuary",
     "artLook": "valley",
-    "artAccent": "black and white",
-    "artSign": "none"
+    "artAccent": "pale limestone, bronze, laurel green",
+    "artSign": "none (the tripod, the cleft and the scroll urns)"
   },
   {
     "type": "Restaurant",

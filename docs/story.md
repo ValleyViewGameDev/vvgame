@@ -56,7 +56,7 @@ characters and storylines sit alongside them. The fun is the mix and match.
 
 ## 4. The spine: the Quest for Hope
 
-The Oracle (fittingly, from The Winter's Tale) trades Hope for seven artifacts: Prospero's Orb,
+The Oracle (fittingly, from The Winter's Tale: Apollo's oracle at Delphos, whose sealed scroll at Hermione's trial says the king will live without an heir "if that which is lost be not found"; the owner grounded her in it on 2026-10-23, option 1 of the rearrangement question, so she stays on top of the spine and speaks as Apollo's voice, strings 16018/16118) trades Hope for seven artifacts: Prospero's Orb,
 King's Crown, Trident, Brass Bell, Phoenix Feather, Vampire's Blood, Brief Candle (the Brief
 Candle replaced the Scroll, a common drop, on 2026-10-19; see §6). Prospero's Orb is
 meant as the penultimate step of the whole game; the last is bringing all seven to the Oracle.
@@ -90,7 +90,7 @@ stub riddle, the real puzzle is still to be designed.
 | Leontes | The Winter's Tale | The Mirror Key, for six secrets |
 | Juliet | Romeo and Juliet | Trader; Juliet's Secret |
 | Viola (was the Mermaid) | Twelfth Night | Trader who lives in the water (shipwrecked, she took to the sea); Viola's Secret |
-| The Oracle | The Winter's Tale | Trades Hope for the seven artifacts |
+| The Oracle | The Winter's Tale (Apollo's oracle at Delphos) | Trades Hope for the seven artifacts; her home is the **Oracle's Sanctuary** (the `Shiro` row, a dev-placed shop in the valley; players read "Oracle's Sanctuary" through `DISPLAY_ALIASES` in `Utils/stringLookup.js`), where sealed scrolls are bought with gems; the Ancient Temple opens them, as in the play |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |
 | Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |

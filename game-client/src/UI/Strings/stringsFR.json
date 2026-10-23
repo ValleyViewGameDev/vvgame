@@ -1023,7 +1023,7 @@
 "16015": "Ce pont est mien, par Sycorax ma mère. Prospero a essayé de le voler avec des sorts et des sourires. Ils m'ont appelé bête, mais je suis de terre et de tempête, né pour la vérité sauvage. J'échange des os contre de l'Argent, des reliques des morts contre des pièces des vivants. Ne touche rien à la légère dans ces bois. Apporte-moi ce que les autres craignent, et je te rendrai riche... ou hanté.",
 "16016": "Ma générosité est aussi sans bornes que la mer, mon amour aussi profond... mais il est parti, et tout ce qui reste est un portrait et de la douleur. Angelo a pris les deux. Apporte-moi le portrait de Roméo, arraché de ma chambre, et je te donnerai des Tulipes rouges comme le sang versé sur les pierres de Vérone. Que ceci soit notre nouveau balcon : toi en bas, portant la justice.",
 "16017": "Bonjour, ami. Cherches-tu le Trident des anciens dieux ? C'est l'un des sept artefacts nécessaires pour satisfaire l'Oracle. J'ai besoin de beaucoup d'or pour m'en séparer.",
-"16018": "Bienvenue {username}. Félicitations, car tu as parcouru une grande distance. Je sens l'héroïsme en toi. Apporte-moi les sept artefacts qui lient ces peuples, et je te donnerai l'Espoir pour restaurer l'Âge d'Or !",
+"16018": "Bienvenue, {username}. Tu as fait un long chemin pour te tenir à Delphes. Je suis la voix d'Apollon, qui dit un jour à un roi jaloux qu'il vivrait sans héritier si ce qui fut perdu n'était retrouvé. Ce qui fut perdu l'est encore, et Elsinore en dépérit. Apporte-moi les sept artefacts qui lient ces peuples, et je te donnerai l'Espoir de restaurer l'Âge d'Or.",
 "16019": "Salutations ! Pendant des siècles, les gentils habitants d'Elsinore vivaient en harmonie, gouvernés par le bienveillant Roi Leontes.\n\nMais depuis peu, un fléau maléfique grandit dans la Vallée et menace nos voies paisibles.\n\nOn dit qu'une seule Quête peut restaurer l'Espoir dans ces terres et repousser les ténèbres. Cherche l'Oracle dans la Vallée, aventurier, et apporte-nous l'Espoir !",
 "16020": "Bien rencontré, chasseur ! As-tu des peaux à échanger ? Je te paierai un juste prix pour toutes les fourrures que les terres sauvages de la vallée ont cédées à ton talent. Les mois froids approchent, et les gens cherchent la chaleur. Ta chasse remplit mes coffres ; mes pièces remplissent ta bourse. C'est un marché aussi douillet que le nom que je porte !",
 "16021": "Félicitations pour ta compétence de Cultivateur, {username}. Tu découvriras que de nombreuses Compétences peuvent être gagnées en Ville. Choisis judicieusement alors que tu commences à te spécialiser dans l'Agriculture, la Cuisine, les Animaux, l'Aventure et plus encore.",
@@ -1045,7 +1045,7 @@
 "16115": "Tu veux monter jusqu'au vieux magicien ? Ses pins sont fendus et maudits, et aucune hache ordinaire ne les entame. Seule la sorcière de la forêt de Birnam forge une lame pour un tel bois, et elle adore les crânes.",
 "16116": "",
 "16117": "",
-"16118": "",
+"16118": "Apollon connaît ton nom désormais, ami. Mes parchemins scellés se vendent en ce sanctuaire ; seul le Temple Ancien peut les ouvrir. Lis ce que le dieu a écrit, et la Vallée te gardera moins de secrets.",
 "16119": "",
 "16120": "",
 
@@ -1577,5 +1577,6 @@
     "2114": "Déplacement : {item}. Cliquez sur un emplacement libre pour le poser.",
     "2114_touch": "Déplacement : {item}. Touchez un emplacement libre pour le poser.",
     "2115": "Cet emplacement est occupé.",
-    "2116": "Impossible de le déplacer ici."
+    "2116": "Impossible de le déplacer ici.",
+    "200823": "Sanctuaire de l'Oracle"
 }
