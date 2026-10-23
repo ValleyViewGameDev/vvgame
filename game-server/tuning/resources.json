@@ -8254,7 +8254,7 @@
     "type": "Train",
     "symbol": "📦",
     "layoutkey": "TR",
-    "size": 2,
+    "size": 3,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -8282,7 +8282,7 @@
     "artLook": "town",
     "artAccent": "teal and burgundy stripes, brass",
     "artSign": "none (the striped awning and counter)",
-    "artSpan": 2.04
+    "artSpan": 3.05
   },
   {
     "type": "Carnival",
