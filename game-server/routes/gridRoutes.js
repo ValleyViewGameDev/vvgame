@@ -239,11 +239,19 @@ router.post('/batch-update-npc-positions', async (req, res) => {
       return res.status(400).json({ error: 'No updates provided.' });
     }
 
-    // ✅ OPTIMIZED: Build update operations for multiple NPC positions without loading grid
+    // Only NPCs the grid still has: a position for an id it no longer holds (a page that
+    // outlived a grid reset, a killed NPC) used to $set a ghost entry with just position +
+    // lastUpdated, and the old NPC came back beside the reset one. Reads the NPC map only.
+    const current = await Grid.findById(gridId, { NPCsInGrid: 1 }).lean();
+    if (!current) return res.status(404).json({ error: 'Grid not found.' });
+    const known = new Set(Object.keys(current.NPCsInGrid || {}));
+
     const updateOps = {};
     const lastUpdated = new Date(timestamp || Date.now());
+    let skipped = 0;
 
     for (const [npcId, position] of updateEntries) {
+      if (!known.has(npcId)) { skipped++; continue; }
       // Validate position has x and y
       if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
         continue; // Skip invalid positions
@@ -267,8 +275,8 @@ router.post('/batch-update-npc-positions', async (req, res) => {
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    const updatedCount = updateEntries.length;
-    console.log(`💾 Batch updated ${updatedCount} NPC positions for grid ${gridId}`);
+    const updatedCount = updateEntries.length - skipped;
+    console.log(`💾 Batch updated ${updatedCount} NPC positions for grid ${gridId}${skipped ? ` (${skipped} unknown ids skipped)` : ''}`);
 
     res.status(200).json({
       success: true,

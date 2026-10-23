@@ -268,14 +268,23 @@ const DebugPanel = ({
 
       console.log('Extracted gridData: gridType=', gridType, '; gridCoord=', gridCoord);
   
-      // Send request to reset the grid
-      const resetResponse = await axios.post(`${API_BASE}/api/reset-grid`, {
-        gridCoord,
-        gridId: currentGridId, // Use the Mongo `_id` of the grid
-        gridType,
-        settlementId,
-        frontierId,
-      });
+      // The reset rebuilds the NPCs with new ids: from here this page must not write its old
+      // ones back (queued positions, the pagehide beacon, a citizen's state save), or the grid
+      // ends up with two of each (GridStateNPCs.suspendSaves). The page reloads right after.
+      NPCsInGridManager.suspendSaves();
+      let resetResponse;
+      try {
+        resetResponse = await axios.post(`${API_BASE}/api/reset-grid`, {
+          gridCoord,
+          gridId: currentGridId, // Use the Mongo `_id` of the grid
+          gridType,
+          settlementId,
+          frontierId,
+        });
+      } catch (err) {
+        NPCsInGridManager.resumeSaves();
+        throw err;
+      }
   
       console.log(`Grid ${currentGridId} of type ${gridType} reset successfully:`, resetResponse.data);
       updateStatus(903);

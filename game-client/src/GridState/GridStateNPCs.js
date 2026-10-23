@@ -11,6 +11,7 @@ class GridStateManager {
     this.pendingPositionUpdates = new Map(); // Map<gridId, Map<npcId, {position, timestamp}>>
     this.batchSaveInterval = null;
     this.BATCH_SAVE_DELAY = 10000; // 10 seconds
+    this.savesSuspended = false; // set by suspendSaves(): this page's NPC state is about to be stale
     console.log('GridStateManager instance created.');
     
     // Start batch save timer
@@ -20,9 +21,27 @@ class GridStateManager {
     if (typeof window !== 'undefined') window.addEventListener('pagehide', () => this.sendBeaconPositions());
   }
 
+  /**
+   * Stop every NPC write from this page (positions, beacon, single saves, removals) for good.
+   * For a grid reset (Utils/debug.js): the server rebuilds the NPCs with NEW ids, and the old
+   * page's queued positions and saves, landing after it, wrote the old NPCs back beside them
+   * (two Iagos). The page reloads right after, so nothing needs to resume.
+   */
+  suspendSaves() {
+    this.savesSuspended = true;
+    this.stopBatchSaveTimer();
+    this.pendingPositionUpdates.clear();
+  }
+
+  /** Undo suspendSaves() (a reset that failed, so the page's NPCs are still the real ones). */
+  resumeSaves() {
+    this.savesSuspended = false;
+    this.startBatchSaveTimer();
+  }
+
   /** Queued positions by sendBeacon (pagehide): the same payload as the batch flush. */
   sendBeaconPositions() {
-    if (typeof navigator === 'undefined' || !navigator.sendBeacon) return;
+    if (this.savesSuspended || typeof navigator === 'undefined' || !navigator.sendBeacon) return;
     for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
       if (!npcUpdates.size) continue;
       const updates = {};
@@ -79,7 +98,7 @@ class GridStateManager {
    * Flush all pending position updates to the database
    */
   async flushPendingPositionUpdates() {
-    if (this.pendingPositionUpdates.size === 0) return;
+    if (this.savesSuspended || this.pendingPositionUpdates.size === 0) return;
     
     // console.log(`💾 Flushing batch position updates for ${this.pendingPositionUpdates.size} grids`);
     
@@ -155,7 +174,7 @@ class GridStateManager {
    */
   async flushGridPositionUpdates(gridId) {
     const npcUpdates = this.pendingPositionUpdates.get(gridId);
-    if (!npcUpdates || npcUpdates.size === 0) return;
+    if (this.savesSuspended || !npcUpdates || npcUpdates.size === 0) return;
     
     try {
       // Convert Map to object for API
@@ -387,6 +406,7 @@ class GridStateManager {
     NPCsInGrid.npcs[npc.id] = npc;
 
     try {
+      if (this.savesSuspended) return;
       await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
         npcId: npc.id,
@@ -469,6 +489,7 @@ class GridStateManager {
 
       //console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
       
+      if (this.savesSuspended) return;
       await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
         npcId,
@@ -518,6 +539,7 @@ class GridStateManager {
     this.setAllNPCs(gridId, NPCsInGrid.npcs); // 🧠 Update React state after deletion
 
     try {
+      if (this.savesSuspended) return;
       await axios.post(`${API_BASE}/api/remove-single-npc`, {
         gridId,
         npcId,
@@ -569,6 +591,7 @@ class GridStateManager {
       //console.log('💾 Payload for saving NPCs:', payload);
 
       // Save to server (no callers yet; Phase 3 switches persistence to this per-grid snapshot)
+      if (this.savesSuspended) return;
       await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
     } catch (error) {
       console.error(`❌ Error saving NPCs for grid ${gridId}:`, error);
