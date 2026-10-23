@@ -12,7 +12,7 @@ const { sharp } = require('./common');
  * normalised colour's distance from (1, 0, 1). Use it for walls and props that cast shadows;
  * the lip pieces keep the distance key (their shadow is pulled to green afterwards).
  */
-async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, hue = false, flood = false } = {}) {
+async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, hue = false, flood = false, islands = false } = {}) {
   const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const out = Buffer.alloc(data.length);
   const W = info.width, H = info.height, N = W * H;
@@ -62,6 +62,7 @@ async function keyMagenta(buf, { dropGrey = true, nearest = 60, farthest = 170, 
     const d = dist[i / 4];
     let a = d <= nearest ? 0 : d >= farthest ? 255 : Math.round(((d - nearest) / (farthest - nearest)) * 255);
     if (bg) a = bg[i / 4] ? 0 : edge[i / 4] ? Math.max(a, 1) : 255; // flood: background, its soft edge, or art
+    if (bg && islands && d <= nearest) a = 0; // islands: a pocket of flat magenta the flood could not reach (under an eave, inside a cupola) goes too; pinks and purples are never that close to magenta
     if (dropGrey && a > 0) {
       const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
       if (mx > 0 && (mx - mn) / mx < 0.35 && a < 255) a = 0; // a faint grey line over magenta, not art

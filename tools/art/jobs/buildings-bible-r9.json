@@ -1,0 +1,44 @@
+{
+  "name": "buildings-bible-r9",
+  "note": "Bible round 9 (owner, 2026-10-23): the Guild, late-stage master trades, 'a little more special than other basic town buildings, on the more whimsical side': three concepts, two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "guild-stack": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the GUILD, the hall of the master trades, where the game's late, rarest skills are taught (the vintner, the cheesemaker, the beekeeper, the weaver, the master cook, the miller, the shepherd, the zookeeper, the artisan). It must feel SPECIAL and a notch more magical than the ordinary town buildings, a landmark players aspire to, in the game's whimsical painterly style. FAMILY: fantastical. ACCENT: TEAL: the roofs are teal (verdigris copper or teal-glazed slate) and the door is a great carved oak double door. SIGN: a large heraldic CREST over the door, a shield with CROSSED TOOLS (a hammer and a chisel), bold and readable from far away, no words. LOOK: town: clean, no moss, no vines. CONCEPT A, THE STACKED HALL: a tall, gloriously crooked guildhall of three storeys stacked on a stone ground floor, each storey a little wider than the one below and leaning the other way, each one a different master's workshop showing through its big window: a loom with coloured cloth, wheels of cheese on shelves, wine barrels; a skep beehive on a little balcony with bees painted around it; the topmost storey a small teal-domed turret with a brass telescope-like weathervane shaped like a cog. Teal copper roofs with verdigris streaks, warm honey timber, cream plaster, little flags of the trades on strings between the storeys. Playful, top-heavy, obviously impossible, obviously beloved. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, towers, domes and spires may rise above it, and may rise HIGH: this building is tall), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "guild-oak": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the GUILD, the hall of the master trades, where the game's late, rarest skills are taught (the vintner, the cheesemaker, the beekeeper, the weaver, the master cook, the miller, the shepherd, the zookeeper, the artisan). It must feel SPECIAL and a notch more magical than the ordinary town buildings, a landmark players aspire to, in the game's whimsical painterly style. FAMILY: fantastical. ACCENT: TEAL: the roofs are teal (verdigris copper or teal-glazed slate) and the door is a great carved oak double door. SIGN: a large heraldic CREST over the door, a shield with CROSSED TOOLS (a hammer and a chisel), bold and readable from far away, no words. LOOK: town: clean, no moss, no vines. CONCEPT B, THE LIVING OAK: a guildhall GROWN INTO a huge living oak tree: the great carved oak door is set into the trunk itself with the crest above it, and two or three timber-framed rooms with teal shingle roofs sit in the boughs, joined by a curling wooden stair and rope bridge, with round windows glowing warm; beehives hang from the branches, a wine barrel and a cheese wheel sit by the door, a lantern on a hook, the summer canopy spreading wide and green above the rooms (the canopy is the tallest thing in the picture and may rise high above the square). Magical, cosy, ancient. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, towers, domes and spires may rise above it, and may rise HIGH: this building is tall), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    },
+    "guild-lantern": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the GUILD, the hall of the master trades, where the game's late, rarest skills are taught (the vintner, the cheesemaker, the beekeeper, the weaver, the master cook, the miller, the shepherd, the zookeeper, the artisan). It must feel SPECIAL and a notch more magical than the ordinary town buildings, a landmark players aspire to, in the game's whimsical painterly style. FAMILY: fantastical. ACCENT: TEAL: the roofs are teal (verdigris copper or teal-glazed slate) and the door is a great carved oak double door. SIGN: a large heraldic CREST over the door, a shield with CROSSED TOOLS (a hammer and a chisel), bold and readable from far away, no words. LOOK: town: clean, no moss, no vines. CONCEPT C, THE LANTERN HALL: a tall, narrow, stately guildhall of pale stone and dark timber with a great teal-glazed roof, crowned by a tall GLASS LANTERN CUPOLA of many panes, lit from within like a lighthouse, its teal copper dome topped with a gold cog finial; a big round STAINED-GLASS ROSE WINDOW over the door shows the crossed hammer and chisel in coloured glass; a row of small pennants of many colours, one per trade, hangs from the eaves; two tall iron lanterns flank the door. Ceremonial, grand, a little mysterious, the place masters are made. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, towers, domes and spires may rise above it, and may rise HIGH: this building is tall), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign."
+    }
+  }
+}
