@@ -1,0 +1,45 @@
+{
+  "name": "buildings-bible-r7",
+  "note": "Bible round 7 (owner, 2026-10-23): Courthouse (5 x 5, the biggest building yet, a clock tower, the civic scheme shared with the Library and School: white roof), Adventure Camp (camp family, valley look, rustic and tent-like, set up in the field), Laboratory (really the culinary school: warm orange cottage, thatched roof, cooking props, a big pie as the sign). Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "courthouse": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/buildings-bible-r6/approved/openai--painterly-library-b-2.png"
+      ],
+      "guide": "guides/building5.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. COLOUR SCHEME REFERENCE: the second attached panel is this game's LIBRARY in the CIVIC colour scheme; the Courthouse wears the same scheme: a CHALK-WHITE slate roof (pale white tiles with soft cool-grey shading, bright in the sun), pale cream plaster walls with warm walnut-brown timber framing and pale limestone footings. SUBJECT: the COURTHOUSE, the town's seat of law and its biggest building, a grand civic Tudor hall FIVE tiles wide. Its landmark is a tall square CLOCK TOWER rising from the centre of the roof, with a big round clock face (a plain white dial with black hands, no numerals) under a small white-roofed cap and a spire. A wide front of two storeys with rows of leaded windows, a grand double door at the top of a short flight of broad stone steps, two stone pillars or a small porch roof framing the door, a balcony or a row of flags is welcome. ACCENT: deep burgundy wine-red on the double door and the shutters only, and a gold rim on the clock face; the roof stays white, the walls cream. SIGN: NONE, no placard: the clock tower is the sign. PROPS: a stone lantern or two flanking the steps, nothing else. LOOK: town: clean, no moss, no vines. It must read as the courthouse / town hall at a glance, stately and symmetric. The LAST attached image is a layout guide, a patch of the board grid with a tan 5 x 5 square: the building's walls and ground contact fill that 5 x 5 square almost to its edges, end to end (the roof, the clock tower and its spire may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign, no numerals on the clock."
+    },
+    "adventure-camp": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the ADVENTURE CAMP, where adventurers train and gear up, set up in a field. FAMILY: camp: NOT a building, no walls, no roof: a rustic camp of canvas tents. The main piece is a big pitched canvas tent of weathered CANVAS TAN with FOREST GREEN trim and tie-downs, its front flap open to show a dark interior with a bedroll and a lantern; beside it a smaller tent; between them a stone-ringed CAMPFIRE of stacked logs, unlit, with two log seats; a wooden weapons rack with a bow, a quiver of arrows and a spear; a coil of rope and a travel pack on the ground; a small wooden signpost on a stake beside the path carrying a painted pictogram of a TENT OVER A CAMPFIRE (a picture only, no letters). LOOK: valley: lived-in and grown into nature: a little moss on the logs, tufts of long grass and a few wildflowers around the tents, a flattened trodden patch of ground in front of the fire. Rustic, warm, inviting; it must read as an adventurers' camp at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (the tent peaks and the signpost may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign, no numerals on the clock."
+    },
+    "laboratory": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the CULINARY SCHOOL, where cooking is taught (it is called the Laboratory in the game's data, but it is a kitchen school, nothing scientific: no flasks, no glassware). FAMILY: cottage: a warm, friendly cottage of cream plaster and rustic timber with a thick golden STRAW THATCHED roof, rounded eaves, a small thatched dormer, a stone chimney (cold, no smoke). ACCENT: WARM ORANGE: the door, the shutters, the window boxes and the sign's frame are a warm pumpkin orange; the plaster is warm cream, the thatch golden straw. SIGN: over the door a BIG round wooden placard carrying a large golden-brown PIE, a lattice-topped pie in a dish, painted big and bold so it reads from far away; the pie is the only sign. PROPS, cooking-related, in front: a stone bread oven with a domed top beside the door, a stack of copper pots and pans, a basket of bread loaves, a crate of vegetables (pumpkins, carrots, cabbages), a string of onions hanging by the door, a barrel. LOOK: town: clean, no moss, no vines. It must read as a bakery / cooking school at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (the thatch, the dormer and the chimney may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign, no numerals on the clock."
+    }
+  }
+}

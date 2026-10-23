@@ -21,6 +21,7 @@ const job = opt('job', 'buildings-bible-cut'), subject = opt('subject'), file = 
 const n = Number(opt('n', 3)), px = Number(opt('px', 512)), fill = Number(opt('fill', 1)); // --fill 0.9: the base fills 90 % of the footprint (small props breathe)
 const fit = opt('fit', 'base'); // base: the art's BASE width is the footprint (buildings, walls fill it end to end); silhouette: the art's full width is (props: a bulging barrel, a leafy plant)
 const candidate = opt('candidate', `painterly-${subject}-1`);
+const flood = opt('flood', '1') !== '0'; // --flood 0: key EVERY magenta pixel, not only the border-connected field (a see-through cupola or arch holds an island of magenta the flood cannot reach; safe only when the art has no purples or pinks)
 if (!subject) { console.error('need --subject'); process.exit(1); }
 
 (async () => {
@@ -29,7 +30,7 @@ if (!subject) { console.error('need --subject'); process.exit(1); }
   const src = fs.existsSync(approved) ? approved : path.join(CANDIDATES, job, 'exploration', 'openai', `${candidate}.png`);
   const panel = await sharp(src).png().toBuffer();
   const meta = await sharp(panel).metadata();
-  const keyed = await keyMagenta(panel, { hue: true, flood: true }); // flood: purple and pink art stays opaque (the Magic Shop's roofs went teal without it)
+  const keyed = await keyMagenta(panel, { hue: true, flood }); // flood: purple and pink art stays opaque (the Magic Shop's roofs went teal without it)
   // The model does not keep to the guide's box vertically (it sets the building's base near the
   // panel's bottom), so the sprite is fitted to the ART's own bounding box: the art's width is
   // the footprint (n tiles), the square's side is the longer of width and height, the art sits

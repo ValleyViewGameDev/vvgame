@@ -7224,7 +7224,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "sunflower yellow",
-    "artSign": "school bell"
+    "artSign": "school bell",
+    "artSpan": 4.75
   },
   {
     "type": "Hospital",
@@ -7312,7 +7313,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "navy blue",
-    "artSign": "open book"
+    "artSign": "open book",
+    "artSpan": 5.34
   },
   {
     "type": "Mill",
