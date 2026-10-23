@@ -82,8 +82,8 @@ Town (clean), closed buildings:
 | General Store | cottage | ochre brown | crossed axe and pickaxe, large and bold | APPROVED 2026-10-22 (r4 general-store-b-2): no turret, one centred dormer |
 | Magic Shop | fantastical | purple | none: the round stained-glass moon window over the door is the sign | APPROVED 2026-10-22 (r4 magic-shop-b-2): three tiles wide, about four tall (size 3, tall artSpan), no door placard |
 | Guild | tudor | teal | crest with crossed tools | a very unusual roof shape sets it apart |
-| Warrior's Den | castle | iron grey, red banner | crossed swords | APPROVED 2026-10-21 (r2 warriors-den-1) |
-| Armory | castle | steel silver | shield and helmet | |
+| Warrior's Den | castle | iron grey, red banner | crossed swords ON the wide red banner, no placard | APPROVED 2026-10-21 (r2 warriors-den-1); redo ordered 2026-10-23: taller, the banner carries the icon |
+| Armory | castle | steel grey, grey banner | a shield ON the wide grey banner, no placard | the Den's sibling: same banner size and placement, grey with a shield (owner, 2026-10-23) |
 | Castle | castle | royal blue and gold | crown | |
 | Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
 | Restroom | cottage | slate blue | none | 2 x 2 |
@@ -156,6 +156,7 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
+| 5 | 2026-10-23 | Warrior's Den redo, Armory | `tools/art/jobs/buildings-bible-r5.json`: the Den taller (less stubby), its red banner wider and carrying the crossed swords, no placard; the Armory as the Den's sibling with a grey banner and a shield (owner: the banner with the icon is the strong visual signal) | pending |
 | 4 | 2026-10-22 | Agriculture Center, General Store, Magic Shop | `tools/art/jobs/buildings-bible-r4.json`; the hay bale deco attached as the prop reference for the barn; revision subjects `magic-shop-b` (3 wide, no placard, right side finished) and `general-store-b` (no turret, dormer centred, sign enlarged) | all three APPROVED: agriculture-center-1, magic-shop-b-2, general-store-b-2 |
 | 3 | 2026-10-22 | Academy (4 x 4) | `tools/art/jobs/buildings-bible-r3.json`: the old drawing attached as a CONCEPT reference (easel + dressmaker's dummy out front, nothing of its style), no sign, the easel's painting is Hamlet with the skull; the Hospital panel for camera and rendering; guides/building4.png | APPROVED: candidate 1 (the crooked corner turret, the pinned pink bodice on the dummy, the darker canvas) |
 | 2 (APPROVED) | 2026-10-21 | the same six | `tools/art/jobs/buildings-bible-r2.json`: each round-1 pick sent back as its own reference, one change only, full daylight on the facing wall | the relight works: the design holds and the facing lifts. Two lessons: a relight from the building's own panel can still drift (the temple's second candidate became a thatched cottage) and can drop a sign's picture (both inn candidates lost the bed; `inn-b` re-ran with the sign pinned in the prompt). The owner approved all six picks: bank-1, warriors-den-1, factory-1, hospital-1, ancient-temple-1 of round 2 (`_candidates/buildings-bible-r2/approved/`), and ordered one more Inn with the bed sign (`inn-c`) |

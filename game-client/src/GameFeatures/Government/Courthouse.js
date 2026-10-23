@@ -16,12 +16,13 @@ import { getMayorUsername } from './GovUtils';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const CourthousePanel = ({
   onClose,
@@ -461,8 +462,20 @@ const CourthousePanel = ({
 
 
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper,
+    resourceType: 'Courthouse',
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-Courthouse-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`,
+    onMove: () => requestMove({ type: 'Courthouse', x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
     return (
-        <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
+        <Panel footer={sellFooter} onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
             <LevelLock
                 currentPlayer={currentPlayer}
                 masterXPLevels={masterXPLevels}
@@ -774,19 +787,7 @@ const CourthousePanel = ({
                 </>
             )}
 
-            {isDeveloper && (
-                <div className="station-panel-footer">
-                    <div className="shared-buttons">
-                        <TransactionButton 
-                            className="btn-basic btn-danger" 
-                            onAction={handleSellStation}
-                            transactionKey={`sell-refund-Courthouse-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
-                        >
-                            {strings[425] || "Sell for Refund"}
-                        </TransactionButton>
-                    </div>
-                </div>
-            )}
+
             </div>
             {isModalOpen && (
                 <Modal

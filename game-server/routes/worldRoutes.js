@@ -1744,6 +1744,78 @@ router.post('/farm-animal/collect', async (req, res) => {
   }
 });
 
+// POST /api/move-resource { playerId, gridId, fromX, fromY, toX, toY, type }
+// Move one placed resource (a building, station, deco, plot, pet: anything placed on the grid)
+// to another spot on the same grid, keeping every field it carries (crafting slots, growEnd,
+// stationLevel ...): only x and y change. The Move button in a panel's Sell section picks it up
+// (game-client/src/GameFeatures/Move/). Checks: the player owns the grid (or is a developer, or is
+// the town's Mayor moving a town-built station, as for selling: CraftingStation.js),
+// the resource is at the from tile, and its whole footprint at the target (size x size, anchored
+// at the lower-left like placement) is inside the grid and free of every other resource's
+// footprint. gridId in the body puts it behind the per-grid write lock (utils/gridWriteLock.js).
+router.post('/move-resource', async (req, res) => {
+  const { playerId, gridId, type } = req.body || {};
+  const fromX = Number(req.body?.fromX), fromY = Number(req.body?.fromY);
+  const toX = Number(req.body?.toX), toY = Number(req.body?.toY);
+  if (!playerId || !gridId || ![fromX, fromY, toX, toY].every(Number.isInteger)) {
+    return res.status(400).json({ error: 'Missing or invalid fields', code: 'MISSING' });
+  }
+  try {
+    const player = await Player.findOne({ playerId });
+    if (!player) return res.status(404).json({ error: 'Player not found', code: 'NO_PLAYER' });
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) return res.status(404).json({ error: 'Grid not found', code: 'NO_GRID' });
+
+    const devNames = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/developerUsernames.json'), 'utf8'));
+    const isDev = devNames.includes(player.username);
+    let isMayor = false;
+    if (grid.gridType === 'town' && grid.settlementId && String(grid.ownerId || '') !== String(player._id) && !isDev) {
+      const settlement = await Settlement.findById(grid.settlementId).lean();
+      const mayor = settlement?.roles?.find((r) => r.roleName === 'Mayor');
+      isMayor = !!mayor && String(mayor.playerId) === String(player._id);
+    }
+    if (String(grid.ownerId || '') !== String(player._id) && !isDev && !isMayor) {
+      return res.status(403).json({ error: 'Not your grid', code: 'NOT_OWNER' });
+    }
+
+    const resources = gridResourceManager.getResources(grid);
+    const idx = resources.findIndex((r) => r.x === fromX && r.y === fromY && (!type || r.type === type));
+    if (idx < 0) return res.status(404).json({ error: 'Nothing to move there', code: 'NOT_FOUND' });
+    const moving = resources[idx];
+    const sizeOf = (r) => Number(r.size || masterResources.find((m) => m.type === r.type)?.size || 1);
+    const size = sizeOf(moving);
+
+    // the footprint, anchored at the lower-left: x .. x+size-1, y-size+1 .. y
+    const footprint = (x, y, n) => {
+      const cells = [];
+      for (let dx = 0; dx < n; dx++) for (let dy = 0; dy < n; dy++) cells.push(`${x + dx},${y - dy}`);
+      return cells;
+    };
+    const SIZE = 64;
+    const target = footprint(toX, toY, size);
+    if (target.some((c) => { const [x, y] = c.split(',').map(Number); return x < 0 || y < 0 || x >= SIZE || y >= SIZE; })) {
+      return res.status(400).json({ error: 'Off the grid', code: 'OUT_OF_BOUNDS' });
+    }
+    const taken = new Set();
+    resources.forEach((r, i) => { if (i !== idx && r.type) footprint(r.x, r.y, sizeOf(r)).forEach((c) => taken.add(c)); });
+    if (target.some((c) => taken.has(c))) {
+      return res.status(409).json({ error: 'That spot is taken', code: 'OCCUPIED' });
+    }
+
+    // move: remove at the old anchor, add the same record at the new one
+    const moved = { ...moving, x: toX, y: toY };
+    delete moved.anchorKey;
+    gridResourceManager.updateResource(grid, { type: null, x: fromX, y: fromY });
+    gridResourceManager.updateResource(grid, moved);
+    grid.markModified('resources');
+    await grid.save();
+    res.json({ success: true, resource: moved });
+  } catch (error) {
+    console.error('Error moving resource:', error);
+    res.status(500).json({ error: 'Failed to move', code: 'SERVER' });
+  }
+});
+
 // Protected sell for refund endpoint
 router.post('/sell-for-refund', async (req, res) => {
   const { playerId, gridId, stationX, stationY, stationType, transactionId, transactionKey } = req.body;

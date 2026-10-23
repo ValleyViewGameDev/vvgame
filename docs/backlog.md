@@ -141,6 +141,9 @@ T-n (append-only).
   it. Re-cost Tailor (fewer Potion C, or Potion B instead) and bring that quest back toward L12.
   Start at `Tailor`, `Potion C` in `game-server/tuning/resources.json`; re-run the quest level
   check afterwards.
+  **Built 2026-10-22:** Tailor (L12) costs 500 Money + 10 Potion A; Potion C cannot exist before
+  Ink (L17), so no skill before then asks for it (docs/tuning.md §4i).
+
 - **T-5. Split combat quests into early and late givers** (added 2026-10-16). Cassio's
   quests (kill Coyotes, Bears, Spiders, sell Pelts, then Duke Angelo for the Skeleton Key) are
   early-combat aspiration and motivation, but Cassio sits behind the Golden Key door in Town, so
@@ -150,6 +153,8 @@ T-n (append-only).
   8-12 on 2026-10-16. Start at the Cassio and Hotspur rows of
   `game-server/tuning/quests/questsEN.json` (quest `title` is a persisted id: move a quest by
   changing its `giver`, never by renaming).
+  **Built 2026-10-22:** Hotspur now gives the Coyotes (L8), Pelts (L8) and Bears (L9); Cassio keeps
+  the Spiders (moved to L13) and Duke Angelo (L12).
 
 - **T-6. Give Blueberries a real source** (added 2026-10-16). Blueberries appear in no valley
   template (`node tools/wild-crops.js Blueberry`), their plot (`Blueberry Plot`) is

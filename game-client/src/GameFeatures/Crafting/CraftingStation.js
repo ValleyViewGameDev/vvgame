@@ -22,11 +22,12 @@ import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters'
 import soundManager from '../../Sound/SoundManager';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatDuration, formatCompactCountdown, formatNumber } from '../../UI/Timers';
 import { getMayorUsername } from '../Government/GovUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import './CraftingStation.css'; // Import for crafting station panel and slot styles
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const CraftingStation = ({
   onClose,
@@ -775,8 +776,21 @@ const CraftingStation = ({
   const currentHealers = countHealers();
   const maxHealersAllowed = getMaxHealersAllowed();
 
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move.
+  // A Mayor may sell (not move) a town building of their own settlement.
+  // the Mayor may sell (and move) a town-built station in their own town
+  const sellFooter = sellSection({
+    canSell: isHomestead || (stationDetails?.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && isMayor),
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
+    <Panel footer={sellFooter} onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="station-panel-container">
         {/* Check if Library or Hospital requires home settlement (valley grids are open to all) */}
         {(stationType === 'Library' || stationType === 'Hospital') &&
@@ -1009,21 +1023,6 @@ const CraftingStation = ({
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         
-            {(currentPlayer.location.gtype === 'homestead' || 
-              isDeveloper || 
-              (stationDetails?.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && isMayor)) && (
-              <div className="station-panel-footer">
-                <div className="shared-buttons">
-                  <TransactionButton 
-                    className="btn-basic btn-success" 
-                    onAction={handleSellStation}
-                    transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                  >
-                    {strings[425]}
-                  </TransactionButton>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>

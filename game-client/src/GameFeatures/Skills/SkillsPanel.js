@@ -14,12 +14,13 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { updateGridResource } from '../../Utils/GridManagement';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { createCollectEffect } from '../../VFX/VFX';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
 import FloatingTextManager from '../../UI/FloatingText';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const SkillsPanel = ({
     onClose,
@@ -328,8 +329,21 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   const stationResource = allResources.find(r => r.type === stationType);
   const isTrainingBuilding = stationResource?.category === 'training';
 
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): a training building is only
+  // removed (no refund: "Sell (💰0)"), any other building sells for its recipe; both can Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper: !!showSellButton,
+    resourceType: stationType,
+    masterResources,
+    refund: isTrainingBuilding ? [] : undefined,
+    onSell: isTrainingBuilding ? handleRemoveTrainingBuilding : handleSellStation,
+    transactionKey: `${isTrainingBuilding ? 'remove' : 'sell-refund'}-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
       <div className="standard-panel">
             
       {isContentLoading ? (
@@ -500,17 +514,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             )}
 
-      {showSellButton && (
-        <div className="shared-buttons">
-          <TransactionButton
-            className="btn-basic btn-danger"
-            onAction={isTrainingBuilding ? handleRemoveTrainingBuilding : handleSellStation}
-            transactionKey={`${isTrainingBuilding ? 'remove' : 'sell-refund'}-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-          >
-            {isTrainingBuilding ? strings[438] : strings[490]}
-          </TransactionButton>
-        </div>
-      )}
 
           </>
         )}

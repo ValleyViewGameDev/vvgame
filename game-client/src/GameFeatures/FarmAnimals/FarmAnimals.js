@@ -7,9 +7,9 @@ import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import soundManager from '../../Sound/SoundManager';
 import './AnimalPanel.css';
+import { sellSection } from '../../UI/Panels/SellSection';
 
 const AnimalPanel = ({
   onClose,
@@ -225,8 +225,20 @@ const AnimalPanel = ({
   };
   
 
+  // Sell section (UI/Panels/SellSection.js): an animal walks about, so Sell only (no Move); its
+  // refund is the panel's own figure (the price scales with the herd: getRefundAmount)
+  const sellFooter = sellSection({
+    canSell: currentPlayer?.location?.gtype === 'homestead',
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    refund: [{ type: 'Money', quantity: getRefundAmount() }],
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+  });
+
   return (
-    <Panel onClose={onClose} titleKey="1129" panelName="AnimalPanel" >
+    <Panel footer={sellFooter} onClose={onClose} titleKey="1129" panelName="AnimalPanel" >
       <div className="animal-panel-container">
         <div className="animal-panel-content">
           <h2>
@@ -241,20 +253,6 @@ const AnimalPanel = ({
           )}
         </div>
         
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <div className="animal-panel-footer">
-            <hr />
-            <div className="shared-buttons">
-              <TransactionButton
-                className="btn-basic btn-success"
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-              >
-                {strings[425]} (💰 {getRefundAmount()})
-              </TransactionButton>
-            </div>
-          </div>
-        )}
       </div>
     </Panel>
   );

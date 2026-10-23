@@ -5,6 +5,8 @@ import Panel from '../../UI/Panels/Panel';
 import { updateGridResource } from '../../Utils/GridManagement';
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const CropPanel = ({
   onClose,
@@ -118,8 +120,22 @@ const CropPanel = ({
   };
   
 
+  // Sell section (UI/Panels/SellSection.js): a plot gives nothing back, so "Sell (💰0)" removes it;
+  // Move picks it up, growth timer and all, on the player's own homestead
+  const sellFooter = sellSection({
+    canSell: true,
+    canMove: currentPlayer?.location?.gtype === 'homestead',
+    resourceType: stationType,
+    masterResources,
+    refund: [],
+    onSell: removeCrop,
+    transactionKey: `remove-crop-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    disabled: isActionCoolingDown,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
       <div className="standard-panel">
         <h2>
             {cropDetails?.symbol || '🌱'} {stationType}
@@ -130,12 +146,6 @@ const CropPanel = ({
           {getCropStatusText()}
         </p>
 
-        <hr />
-        <div className="shared-buttons">
-          <button className="btn-basic btn-danger" onClick={removeCrop} disabled={isActionCoolingDown}>
-            {strings[438]}
-          </button>
-        </div>
       </div>
     </Panel>
   );

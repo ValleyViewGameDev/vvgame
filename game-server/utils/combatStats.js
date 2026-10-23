@@ -8,7 +8,7 @@
 const masterResources = require('../tuning/resources.json');
 const globalTuning = require('../tuning/globalTuning.json');
 
-const COMBAT_ATTRIBUTES = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+const COMBAT_ATTRIBUTES = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
 const DEFAULTS = { maxhp: 25, armorclass: 10, attackbonus: 0, damage: 1, attackrange: 1, speed: 5 };
 
 // Mirrors game-client/src/GameFeatures/Combat/combatGear.js (weapon / shield / armour / magic,

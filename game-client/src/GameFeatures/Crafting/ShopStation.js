@@ -10,7 +10,6 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import '../../UI/Buttons/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
@@ -19,7 +18,9 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
-import { settingsWearingNewMagic, isWeapon as isWeaponGear, handsIcon, handsOf } from '../Combat/combatGear';
+import { settingsWearingNewMagic, isWeapon as isWeaponGear, handsIcon, handsOf, gearStatLines } from '../Combat/combatGear';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const ShopStation = ({
   onClose,
@@ -343,8 +344,20 @@ const ShopStation = ({
     }
   };
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${stationType}`} panelName="ShopStation">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${stationType}`} panelName="ShopStation">
       <div className="station-panel-container">
         <div className="station-panel-content">
           {/* ✅ Conditional TENT text for the Store */}
@@ -381,17 +394,7 @@ const ShopStation = ({
               // Handle multiple combat attributes for powers
               let outputSummary = null;
               if (recipe.category === 'power') {
-                const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                const effects = [];
-                
-                combatAttributes.forEach(attr => {
-                  if (typeof recipe[attr] === 'number') {
-                    const label = strings[attr] || attr;
-                    effects.push(`${recipe[attr] > 0 ? '+' : ''}${recipe[attr]} ${label}`);
-                  }
-                });
-                
-                
+                const effects = gearStatLines(recipe, strings);
                 if (effects.length > 0) {
                   outputSummary = <span style={{ color: 'var(--color-text-link)' }}>{effects.join(', ')}</span>;
                 }
@@ -414,17 +417,7 @@ const ShopStation = ({
               // Build details string with multiple combat attributes for powers
               let effectsHtml = '';
               if (recipe.category === 'power') {
-                const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
-                const effects = [];
-                
-                combatAttributes.forEach(attr => {
-                  if (typeof recipe[attr] === 'number') {
-                    const label = strings[attr] || attr;
-                    effects.push(`${recipe[attr] > 0 ? '+' : ''}${recipe[attr]} ${label}`);
-                  }
-                });
-                
-                
+                const effects = gearStatLines(recipe, strings);
                 if (effects.length > 0) {
                   effectsHtml = `<span style="color: var(--color-text-link);">${effects.join(', ')}</span>`;
                 }
@@ -502,19 +495,7 @@ const ShopStation = ({
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         
-        {isDeveloper && (
-          <div className="station-panel-footer">
-            <div className="shared-buttons">
-              <TransactionButton
-                className="btn-basic btn-danger"
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-              >
-                {strings[490]}
-              </TransactionButton>
-            </div>
-          </div>
-        )}
+
       </div>
     </Panel>
   );

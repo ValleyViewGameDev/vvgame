@@ -494,6 +494,7 @@
   /* ---------- notifications: same drop-down toast from behind the header, nearly full width ---------- */
   #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
   .quick-notice { top: calc(var(--m-top) + 10px); } /* where the toasts land on a phone */
+  .move-banner { top: calc(var(--m-top) + 10px); }
   /* region name: same top as the pills, kept clear of the zoom pill (left) and season button (right) */
   .region-name {
     top: calc(var(--m-top) + var(--m-gap));

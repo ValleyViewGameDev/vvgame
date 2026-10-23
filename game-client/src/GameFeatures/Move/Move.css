@@ -1,0 +1,22 @@
+/* MoveBanner (useMoveMode.js): what is being moved, with Cancel; where the toasts land, above the board */
+.move-banner {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--d-top, 84px) + 10px);
+  transform: translateX(-50%);
+  z-index: 985; /* the toasts' layer: over the board, under panels and modals */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 32px);
+  padding: 6px 8px 6px 14px;
+  border-radius: var(--radius-pill);
+  background-color: rgba(30, 30, 30, 0.88); /* style-ok: art (dark glass pill, = .quick-notice) */
+  color: var(--color-text-white);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+.move-banner-text { white-space: normal; }
+.move-banner .move-banner-cancel { margin: 0; flex: none; }
+.move-banner .move-banner-cancel .btn-basic.btn-mini { margin-left: 0; }

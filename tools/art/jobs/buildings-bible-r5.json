@@ -1,0 +1,34 @@
+{
+  "name": "buildings-bible-r5",
+  "note": "Bible round 5 (owner, 2026-10-23): the Warrior's Den redone taller with the crossed swords on a wider red banner and no placard; the Armory as its sibling with a grey shield banner. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "warriors-den-b": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-warriors-den-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's approved WARRIOR'S DEN; the owner likes it. Redraw the SAME building, same castle family, same stone, same iron-grey slate roof, same parapet, heavy studded door, arrow-slit windows, the weapon rack and shield by the door, same camera (front wall square to the viewer, roof seen from above), same painterly rendering and bright daylight, with THREE changes. One: more VERTICALITY: the building is taller and less stubby; the hall's walls rise higher, the square tower on the right rises a full storey more, with a taller parapet, so the whole reads tall and strong rather than squat. Two: the RED BANNER hanging from the tower is WIDER and LONGER, a big heraldic banner, and it carries the building's icon: two CROSSED SWORDS drawn large and bold on the red cloth in a light colour, picture only. Three: REMOVE the placard over the door entirely; the banner is the sign. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (the roof, the tower and the banner's pole may rise well above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the banner."
+    },
+    "armory": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-warriors-den-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE REFERENCE: the attached panel is this game's approved WARRIOR'S DEN, a castle-family stone hall with a square tower and a big heraldic banner hanging from the tower. SUBJECT: the ARMORY, the town's arms store, a SIBLING of that building in the same castle family and the same painterly rendering and bright daylight: fieldstone walls, a crenellated parapet, a square tower on the right with a tall parapet, arrow-slit windows, a heavy iron-bound door, tall and strong rather than squat; by the door an anvil and a rack of spears or a stack of shields. ACCENT: STEEL GREY: the roof is steel-grey slate and the door iron-grey. THE BANNER: from the tower hangs a big heraldic banner exactly like the Warrior's Den's in size and placement, but GREY cloth, and it carries the building's icon: a SHIELD drawn large and bold in a light colour on the grey cloth, picture only. SIGN: NONE, no placard over the door: the banner is the sign. It must read at a glance as the Warrior's Den's sibling and as a place for armour. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (the roof, the tower and the banner's pole may rise well above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on the banner."
+    }
+  }
+}

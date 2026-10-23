@@ -21,10 +21,11 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const FarmHouse = ({
   onClose,
@@ -618,8 +619,20 @@ const FarmHouse = ({
     }
   };
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1032" titleKey="1132" panelName="FarmHouse">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1032" titleKey="1132" panelName="FarmHouse">
       <div className="standard-panel">
         
           {recipes?.length > 0 ? (
@@ -771,21 +784,7 @@ const FarmHouse = ({
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {(isDeveloper) && (
-          <>
-            <hr />
-              <div className="shared-buttons">
-                <TransactionButton 
-                  className="btn-basic btn-danger" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[490]}
-                </TransactionButton>
-              </div>
 
-          </>
-        )}
       </div>
     </Panel>
   );

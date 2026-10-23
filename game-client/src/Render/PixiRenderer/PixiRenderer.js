@@ -858,8 +858,10 @@ const PixiRenderer = ({
     // Clear existing resources immediately (only ours: the layer also holds the NPCs and the PC)
     for (const child of resourceSpritesRef.current) child.parent?.removeChild(child);
     resourceSpritesRef.current = [];
-    const addResource = (obj, row) => {
+    const addResource = (obj, row, res) => {
       obj.zIndex = row;
+      // picked up by Move (GameFeatures/Move): the original stays as a ghost until it is put down
+      if (res?.__moving) obj.alpha = 0.35;
       resourceContainer.addChild(obj);
       resourceSpritesRef.current.push(obj);
     };
@@ -942,7 +944,7 @@ const PixiRenderer = ({
           sprite.height = TILE_SIZE * span;
           sprite.x = (resource.x - (span - tileSpan) / 2) * TILE_SIZE;
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
-          addResource(sprite, resource.y);
+          addResource(sprite, resource.y, resource);
           svgCount++;
           continue;
         }
@@ -955,7 +957,7 @@ const PixiRenderer = ({
           sprite.height = size;
           sprite.x = x;
           sprite.y = visualY;
-          addResource(sprite, resource.y);
+          addResource(sprite, resource.y, resource);
           svgCount++;
           continue;
         }
@@ -983,7 +985,7 @@ const PixiRenderer = ({
           sprite.height = fontSize * EMOJI_SPRITE_SCALE;
           sprite.x = x + size / 2;
           sprite.y = visualY + size / 2;
-          addResource(sprite, resource.y);
+          addResource(sprite, resource.y, resource);
           svgCount++;
           continue;
         }
@@ -998,7 +1000,7 @@ const PixiRenderer = ({
         text.x = x + size / 2;
         text.y = visualY + size / 2;
 
-        addResource(text, resource.y);
+        addResource(text, resource.y, resource);
         emojiCount++;
       }
 

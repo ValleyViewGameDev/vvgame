@@ -1,0 +1,9 @@
+/* SellSection.js: Sell (60%) and Move (the rest) in one row, in the panel's pinned footer */
+.sell-section { display: flex; gap: 8px; margin: 0; align-items: stretch; }
+.shared-buttons .btn-basic.sell-section-sell { flex: 0 0 60%; width: auto; min-width: 0; white-space: normal; }
+.shared-buttons .btn-basic.sell-section-move {
+  flex: 1 1 auto; width: auto; min-width: 0;
+  display: inline-flex; align-items: center; justify-content: center; padding: 6px 8px;
+}
+.sell-section--sell-only .btn-basic.sell-section-sell { flex: 1 1 auto; }
+.sell-section--move-only .btn-basic.sell-section-move { flex: 1 1 auto; }

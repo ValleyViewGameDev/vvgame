@@ -6,8 +6,9 @@ import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import './DecoPanel.css';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const DecoPanel = ({
   onClose,
@@ -77,8 +78,20 @@ const DecoPanel = ({
   };
   
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: currentPlayer?.location?.gtype === 'homestead',
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} titleKey="1128" panelName="DecoPanel" >
+    <Panel footer={sellFooter} onClose={onClose} titleKey="1128" panelName="DecoPanel" >
       <div className="deco-panel-container">
         <div className="deco-panel-content">
           <h2>
@@ -86,20 +99,7 @@ const DecoPanel = ({
           </h2>
         </div>
 
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <div className="deco-panel-footer">
-            <hr />
-            <div className="shared-buttons">
-              <TransactionButton 
-                className="btn-basic btn-success" 
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-              >
-                {strings[425]}
-              </TransactionButton>
-            </div>
-          </div>
-        )}
+
       </div>
     </Panel>
   );

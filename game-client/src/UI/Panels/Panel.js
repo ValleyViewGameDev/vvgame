@@ -8,7 +8,7 @@ import { useStrings } from '../StringsContext';
 // panel on the left: mobile.css overrides the class.
 const RIGHT_PANELS = new Set(['HowToPanel', 'SeasonPanel', 'LeaderboardPanel', 'TownNewsPanel']);
 
-const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }) => {
+const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title, footer }) => {
   const strings = useStrings();
   const { activePanel, openPanel, closePanel } = usePanelContext();
 
@@ -32,6 +32,9 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
 
       {/* Scrollable Content Area */}
       <div className="panel-content">{children}</div>
+
+      {/* Pinned footer (below the scroll): the Sell section of a placed thing's panel (SellSection.js) */}
+      {footer && <div className="panel-footer">{footer}</div>}
 
       {/* Panel Description */}
       {/* only when the string has text: an empty or missing one draws no footer (and no divider) */}

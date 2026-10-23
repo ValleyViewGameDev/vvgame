@@ -12,7 +12,21 @@
  * (player.magicSlots; costs in globalTuning.combat.magicSlotGemCosts). A player who has never
  * chosen (settings.equippedMagic unset) wears their highest-level magic items up to the cap.
  */
-export const COMBAT_ATTRIBUTES = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+export const COMBAT_ATTRIBUTES = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+
+/**
+ * A power's stats as the player reads them, one line each: "+7 Damage", "+2 Attack Bonus".
+ * Every place that lists gear stats (Combat panel, shop cards) uses this, so a stat has one name
+ * everywhere (strings[<attr>], matching the Combat panel's stat rows 550-555). `qty` multiplies.
+ */
+export function gearStatLines(resource, strings, qty = 1) {
+  return COMBAT_ATTRIBUTES
+    .filter((attr) => typeof resource?.[attr] === 'number')
+    .map((attr) => {
+      const value = qty * resource[attr];
+      return `${value > 0 ? '+' : ''}${value} ${strings?.[attr] || attr}`;
+    });
+}
 export const DEFAULT_MAGIC_SLOTS = 5;
 
 export const isWeapon = (r) => !!r && r.passable === true && typeof r.damage === 'number' && r.damage > 0;

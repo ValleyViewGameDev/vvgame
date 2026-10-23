@@ -149,6 +149,7 @@ import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
 import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
+import { useMoveMode, MoveBanner } from './GameFeatures/Move/useMoveMode';
 import { playCutscene } from './Utils/cutscene';
 import { isInputLocked } from './Utils/inputLock';
 import { createSilentAccount } from './Authentication/silentAccount';
@@ -261,12 +262,12 @@ useEffect(() => {
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const [isRevivalModalOpen, setIsRevivalModalOpen] = useState(false);
   const [revivalPending, setRevivalPending] = useState(false);
-  const { updateStatus } = useContext(StatusBarContext);
   // The death check runs on an interval whose closure would see a stale revivalPending, and a
   // death being resolved (Revive or Accept Death in flight) must not reopen the modal: refs.
   const revivalPendingRef = useRef(false);
   const deathResolvingRef = useRef(false);
   useEffect(() => { revivalPendingRef.current = revivalPending; }, [revivalPending]);
+  const { updateStatus } = useContext(StatusBarContext);
   
   // Level-up detection state
   const [currentLevel, setCurrentLevel] = useState(null);
@@ -1008,6 +1009,7 @@ const [scrimTarget, setScrimTarget] = useState(null); // FTUE Scrim Moment: the 
 const lastCutsceneStep = useRef(null);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
+useMoveMode({ cursorMode, setCursorMode, setResources, closePanel, gridId }); // Move: pick up / cancel (GameFeatures/Move)
 
 // Clear cursor mode when panel changes (except when staying on panels that support cursor placement).
 // An FTUE step with keepCursor: true closes the panel but keeps the plot armed for the planting beat.
@@ -1015,7 +1017,7 @@ const keepCursorRef = useRef(false);
 useEffect(() => {
   const cursorModePanels = ['FarmingPanel', 'ToolsPanel', 'BuildPanel', 'BuyPanel', 'BuyDecoPanel', 'PetsPanel'];
   if (!cursorModePanels.includes(activePanel) && !keepCursorRef.current) {
-    setCursorMode(null);
+    setCursorMode((prev) => (prev?.type === 'move' ? prev : null)); // a Move (GameFeatures/Move) outlives the panel it came from
   }
 }, [activePanel]);
 // FTUE: opening the Farming panel is a tutorial beat (tuning/FTUEsteps.json, OpenedFarmingPanel)
@@ -1539,14 +1541,14 @@ useEffect(() => {
 
 // Revival state handlers
 const handleAcceptDeath = async () => {
-  console.log("☠️ Player accepted death");
-  setIsRevivalModalOpen(false);
   if (deathResolvingRef.current) return; // a second tap, or a Revive already in flight
   deathResolvingRef.current = true;
+  console.log("☠️ Player accepted death");
+  setIsRevivalModalOpen(false);
   setRevivalPending(false);
+  revivalPendingRef.current = false;
   localStorage.removeItem('revivalState');
   
-  revivalPendingRef.current = false;
   // Execute normal death flow (the death check stays quiet until it is done; if the respawn
   // fails the player is still at 0 hp and the check offers the modal again)
   try {
@@ -1565,11 +1567,11 @@ const handleAcceptDeath = async () => {
     masterResources,
     globalTuning
   );
-  
-  // Show normal death modal
   } finally {
     deathResolvingRef.current = false;
   }
+  
+  // Show normal death modal
   setModalContent({
     title: strings["5001"],
     message: strings["5002"],
@@ -1580,9 +1582,9 @@ const handleAcceptDeath = async () => {
 };
 
 const handleRevive = async () => {
+  if (deathResolvingRef.current) return; // a second tap, or Accept Death already in flight
   console.log("💎 Player attempting to revive");
   const reviveCost = globalTuning?.costToRevive || 50;
-  if (deathResolvingRef.current) return; // a second tap, or Accept Death already in flight
   if (getPlayerQuantity('Gem', inventory, backpack) < reviveCost) return; // RevivalModal offers gem packs instead
   deathResolvingRef.current = true;
   if (!(await confirmGemSpend({ gems: reviveCost, oneShot: false }))) { deathResolvingRef.current = false; return; }
@@ -1633,8 +1635,8 @@ const handleRevive = async () => {
       playersInGridManager.updatePC(gridId, playerKey, { hp: 0 });
       updateStatus("Revival failed - please try again");
     }
-  }
     // no response (network): keep the revive; the next load brings the server's real holdings
+  }
 };
 
 // Auto-exit from dungeon when phase changes to resetting
@@ -1940,9 +1942,9 @@ useEffect(() => {
         console.log("💀 Player is dead. Showing revival option...");
         
         // Set revival pending state and show revival modal
+        revivalPendingRef.current = true;
         setRevivalPending(true);
         setIsRevivalModalOpen(true);
-        revivalPendingRef.current = true;
         
         // Store revival state in localStorage for refresh handling
         const revivalState = {
@@ -2481,6 +2483,25 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     const playerRange = getDerivedRange(currentPlayer, masterResources);
     return distance <= playerRange;
   };
+
+  // Move (GameFeatures/Move): put the picked-up thing down here
+  if (cursorMode?.type === 'move') {
+    if (!isInRange()) {
+      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
+    }
+    const { placeMovedResource } = await import('./GameFeatures/Move/moveMode');
+    const outcome = await placeMovedResource({ cursorMode, x: colIndex, y: rowIndex, gridId, currentPlayer, masterResources, setResources, TILE_SIZE: activeTileSize, strings });
+    if (outcome !== 'blocked') {
+      if (outcome === 'cancel') {
+        const { cancelMove } = await import('./GameFeatures/Move/useMoveMode');
+        cancelMove({ cursorMode, setCursorMode, setResources });
+      } else setCursorMode(null);
+    }
+    isProcessing = false;
+    return;
+  }
 
   // Handle cursor mode (e.g., planting with cursor)
   if (cursorMode?.type === 'plant' && cursorMode.item) {
@@ -3291,6 +3312,8 @@ return (
     {currentPlayer?.location?.region && currentPlayer.location.gtype !== 'dungeon' && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && (
       <div key={currentPlayer.location.region} className="region-name">{currentPlayer.location.region}</div>
     )}
+
+    <MoveBanner cursorMode={cursorMode} setCursorMode={setCursorMode} setResources={setResources} />
 
     {/* Quest: the To Do list, a round button in the left column under the Map button (in phone
         landscape, under the Map button on the right); toggles the Quest panel. Badge at its lower

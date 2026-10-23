@@ -17,7 +17,6 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
@@ -25,6 +24,8 @@ import { settingsWearingNewMagic } from '../Combat/combatGear';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import './ScrollStation.css';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const ScrollStation = ({
   onClose,
@@ -550,8 +551,20 @@ const ScrollStation = ({
     }
   };
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: currentPlayer?.location?.gtype === 'homestead',
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1036" title={strings[1136] || 'Ancient Temple'} panelName="ScrollStation">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1036" title={strings[1136] || 'Ancient Temple'} panelName="ScrollStation">
       <div className="station-panel-container">
         <div className="station-panel-content">
 
@@ -637,19 +650,7 @@ const ScrollStation = ({
 
         </div>
         
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <div className="station-panel-footer">
-            <div className="shared-buttons">
-              <TransactionButton 
-                className="btn-basic btn-danger" 
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-              >
-                {strings[425]}
-              </TransactionButton>
-            </div>
-          </div>
-        )}
+
       </div>
     </Panel>
   );

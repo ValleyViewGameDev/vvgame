@@ -10,11 +10,12 @@ import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import soundManager from '../../Sound/SoundManager';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import '../../UI/Buttons/SharedButtons.css';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 function BankPanel({
     onClose,
@@ -197,8 +198,20 @@ function BankPanel({
         });
     };
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper,
+    resourceType: 'Bank',
+    masterResources,
+    onSell: handleSellStation,
+    transactionKey: `sell-refund-Bank-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`,
+    onMove: () => requestMove({ type: 'Bank', x: currentStationPosition.x, y: currentStationPosition.y }),
+  });
+
     return (
-      <Panel onClose={onClose} titleKey="1117" panelName="BankPanel">
+      <Panel footer={sellFooter} onClose={onClose} titleKey="1117" panelName="BankPanel">
         <LevelLock
           currentPlayer={currentPlayer}
           masterXPLevels={masterXPLevels}
@@ -272,19 +285,7 @@ function BankPanel({
             </>
           )}
 
-          {isDeveloper && (
-            <div className="station-panel-footer">
-              <div className="shared-buttons">
-                <TransactionButton
-                  className="btn-basic btn-danger"
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-Bank-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
-                >
-                  {strings[425] || "Sell for Refund"}
-                </TransactionButton>
-              </div>
-            </div>
-          )}
+
         </LevelLock>
       </Panel>
     );

@@ -184,11 +184,11 @@
 
     "400": "BUYING, CRAFTING, SKILLS, HEALING, ETC.",
 
-    "401": "❤️‍🩹 Already at maximum hit points.",
+    "401": "❤️‍🩹 Already at full health.",
     "402": "⚠️  resources.",
     "403": "⚠️ Youre inventory is full.",
     "404": "Working...",
-    "405": "❤️‍🩹 Hit Points healed by +",
+    "405": "❤️‍🩹 Health +",
     "409": "⚠️ All crafting slots are full.",
     "410": "🏕️ To use a purchased tent, click on your own player icon.",
     "410_touch": "🏕️ To use a purchased tent, tap your own player icon.",
@@ -806,8 +806,8 @@
     "10001": "The server is currently down. We apologize for the inconvencient, please check back soon.",
     "10002": "(This message will disappear when the server is back up.)",
 
-    "hp": "Hit Points",
-    "maxhp": "Max Hit Points",
+    "hp": "Health",
+    "maxhp": "Max Health",
     "range": "Range",
     "attackrange": "Attack Range",
     "attackbonus": "Attack Bonus",

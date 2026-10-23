@@ -175,6 +175,17 @@ value rather than trust this page.
   text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, at the bottom of the Settings panel;
   its two buttons (`EmailUsButton`, `DiscordButton`) also open How to Play.
+- **Sell section.** A panel opened from something placed on the grid (building, station, deco,
+  crop plot or tree, pet) or a placed NPC ends in one pinned footer row, `UI/Panels/SellSection.js`,
+  passed as `<Panel footer={sellSection({...})}>` (`Panel`'s `footer` renders below the scroll,
+  `.panel-footer`). Left 60%: "Sell (💰x +n🪵)", the refund the server gives back (the recipe at
+  full quantity); a removal that returns nothing reads "Sell (💰0)". Right: Move, a four-arrow
+  icon (there is no four-way arrow emoji). Colour says who it is for, not what it pays:
+  **green** = this player may do it; **red** = only because they are a developer; not allowed
+  and not a developer = the button is hidden, and with both hidden there is no footer at
+  all (`sellSection` returns null). Move follows Sell: where the rules stop a sale (a building in
+  town) they stop a move. Each panel passes its own legit rule as `canSell` (homestead; the Mayor
+  for a town-built station; always for a crop plot) plus `isDeveloper`; NPCs get no Move.
 
 ## 4. Header, status bar, notifications
 
@@ -276,6 +287,12 @@ value rather than trust this page.
   whole footprint (shadow tiles resolve to their anchor).
 - Hit-testing uses `PixiCamera.screenToTile`; never read `.pixi-container` offsets. DOM that
   must line up with the world goes inside `.pixi-world-container`.
+- Move (the Sell section's Move button, `GameFeatures/Move/`) is a placement mode,
+  `cursorMode { type: 'move' }`: the panel closes, the original stays on the board as a ghost
+  (low alpha), the cursor carries the item on desktop, and a banner at the top says what is being
+  moved with Cancel (phones have no cursor; Esc also cancels). The next tap on a free spot in range
+  puts it down at once (optimistic) and `POST /api/move-resource` confirms; a taken spot says so
+  and stays in move mode; a server refusal puts it back.
 - Movement cadence is `MOVEMENT_STEP_MS` (90 ms) with `HOLD_REPEAT_DELAY_MS` before a held
   key's second step, so a key tap moves exactly one tile.
 
@@ -291,6 +308,11 @@ value rather than trust this page.
   `strings[key]`.
 - Keep choice and button labels short; icons/emoji carry meaning in the header and nav, with
   the text label available on desktop.
+- Combat stats have one name each, everywhere: Health / Max Health (never "Hit Points" or
+  "HP" in copy), Armor Class, Attack Bonus, Damage, Attack Speed, Attack Range. The labels are
+  the string keys named after the stat (`strings.maxhp`, `strings.attackbonus` ...) and match the
+  Combat panel's stat rows (550-555). Any list of a power's stats (Combat panel, shop cards) is
+  built by `gearStatLines` in `GameFeatures/Combat/combatGear.js`; don't hand-roll another.
 
 ## 8. Motion and feel
 

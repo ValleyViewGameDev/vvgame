@@ -13,7 +13,6 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown } from '../../UI/Timers';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { earnTrophy } from '../Trophies/TrophyUtils';
@@ -23,6 +22,8 @@ import { getPersonalizedPetRewards } from '../../Utils/WarehouseMaterials';
 import '../../UI/Buttons/SharedButtons.css';
 import '../../UI/Buttons/ResourceButton.css'; 
 import './PetPanel.css';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 // Helper function to get a random reward from pets source with rarity weighting
 const getRandomPetReward = (masterResources, petRewardRarity = 1, playerId) => {
@@ -449,8 +450,20 @@ const PetPanel = ({
     });
   };
 
+
+  // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
+  const sellFooter = sellSection({
+    canSell: isHomestead,
+    isDeveloper,
+    resourceType: petResource?.type,
+    masterResources,
+    onSell: handleSellPet,
+    transactionKey: `sell-refund-${petName}-${currentPetPosition.x}-${currentPetPosition.y}-${gridId}`,
+    onMove: () => requestMove({ type: petResource?.type, x: currentPetPosition.x, y: currentPetPosition.y }),
+  });
+
   return (
-    <Panel onClose={onClose} title={getLocalizedString(petName, strings)} panelName="PetPanel">
+    <Panel footer={sellFooter} onClose={onClose} title={getLocalizedString(petName, strings)} panelName="PetPanel">
       <div className="pet-panel-container">
         <div className="pet-panel-content">
 
@@ -531,20 +544,7 @@ const PetPanel = ({
         </div>
         
         {/* Sell/refund button - homesteads or developers */}
-        {(isHomestead || isDeveloper) && (
-          <div className="pet-panel-footer">
-            <hr />
-            <div className="shared-buttons">
-              <TransactionButton 
-                className="btn-basic btn-success" 
-                onAction={handleSellPet}
-                transactionKey={`sell-refund-${petName}-${currentPetPosition.x}-${currentPetPosition.y}-${gridId}`}
-              >
-                {strings[425] || 'Sell for refund'}
-              </TransactionButton>
-            </div>
-          </div>
-        )}
+
       </div>
     </Panel>
   );

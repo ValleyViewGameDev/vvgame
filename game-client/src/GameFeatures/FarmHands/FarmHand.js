@@ -27,6 +27,7 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
 import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
+import { sellSection } from '../../UI/Panels/SellSection';
 
 const FarmHandPanel = ({
   onClose,
@@ -825,8 +826,41 @@ const FarmHandPanel = ({
     }
   };
 
+  // Sell section (UI/Panels/SellSection.js), developers only: removing a worker refunds nothing
+  // ("Sell (💰0)"); a worker walks about, so no Move
+  const handleRemoveFarmHand = async () => {
+                const ok = await gameConfirm({ message: (strings[2035] || 'Remove this {type} from the grid?').replace('{type}', npc.type), confirmLabel: strings[2036] || 'Remove', danger: true });
+                if (!ok) return;
+                try {
+                  // Remove from NPCsInGridManager
+                  const npcId = npc.id || npc._id;
+                  NPCsInGridManager.removeNPC(gridId, npcId);
+
+                  // Remove from server
+                  await axios.post(`${API_BASE}/api/remove-single-npc`, {
+                    gridId,
+                    npcId,
+                  });
+
+                  updateStatus(`${npc.type} removed from grid.`);
+                  onClose();
+                } catch (error) {
+                  console.error('Failed to remove NPC:', error);
+                  setErrorMessage('Failed to remove NPC.');
+                }
+              };
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper: isDeveloper && !!npc,
+    resourceType: npc?.type,
+    masterResources,
+    refund: [],
+    onSell: handleRemoveFarmHand,
+    transactionKey: `remove-npc-${npc?.id || npc?._id}`,
+  });
+
   return (
-    <Panel onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${npcType}` : npcType} panelName="FarmHandPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${npcType}` : npcType} panelName="FarmHandPanel">
       <div className="standard-panel">
         <WorkerAutoWorkToggle npc={npc} gridId={currentPlayer?.location?.g} />
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />
@@ -941,39 +975,6 @@ const FarmHandPanel = ({
 
       </div>
 
-      {/* Pinned footer with remove NPC button (dev only) */}
-      {isDeveloper && npc && (
-        <div className="station-panel-footer">
-          <div className="shared-buttons">
-            <button
-              className="btn-basic btn-danger"
-              onClick={async () => {
-                const ok = await gameConfirm({ message: (strings[2035] || 'Remove this {type} from the grid?').replace('{type}', npc.type), confirmLabel: strings[2036] || 'Remove', danger: true });
-                if (!ok) return;
-                try {
-                  // Remove from NPCsInGridManager
-                  const npcId = npc.id || npc._id;
-                  NPCsInGridManager.removeNPC(gridId, npcId);
-
-                  // Remove from server
-                  await axios.post(`${API_BASE}/api/remove-single-npc`, {
-                    gridId,
-                    npcId,
-                  });
-
-                  updateStatus(`${npc.type} removed from grid.`);
-                  onClose();
-                } catch (error) {
-                  console.error('Failed to remove NPC:', error);
-                  setErrorMessage('Failed to remove NPC.');
-                }
-              }}
-            >
-              {strings[490]}
-            </button>
-          </div>
-        </div>
-      )}
       
       {/* Selective Harvest Modal */}
 

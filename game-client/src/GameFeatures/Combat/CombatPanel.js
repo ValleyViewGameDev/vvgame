@@ -12,11 +12,10 @@ import soundManager from '../../Sound/SoundManager';
 import { gameConfirm, gameAlert } from '../../UI/Modals/GameDialog';
 import { loadGlobalTuning } from '../../Utils/TuningManager';
 import {
-  isWeapon, isShield, isArmor, isMagic, handsOf, handsIcon, shieldUsable,
+  isWeapon, isShield, isArmor, isMagic, handsOf, handsIcon, shieldUsable, gearStatLines,
   magicSlotCount, nextMagicSlotCost, equippedMagicTypes,
 } from './combatGear';
 
-const STAT_ATTRIBUTES = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
 const COLLAPSE_KEY = 'combatPanelCollapsed';
 
 const readCollapsed = () => {
@@ -193,12 +192,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, m
     .sort((a, b) => (levelOf(a.type) - levelOf(b.type)) || a.type.localeCompare(b.type));
   const ownedOf = (kindTest) => powersByLevel.filter((p) => kindTest(defOf(p.type)));
 
-  const statLines = (power, resource) => STAT_ATTRIBUTES
-    .filter((attr) => typeof resource[attr] === 'number')
-    .map((attr) => {
-      const value = (power.quantity || 0) * resource[attr];
-      return `${value > 0 ? '+' : ''}${value} ${strings[attr] || attr}`;
-    });
+  const statLines = (power, resource) => gearStatLines(resource, strings, power.quantity || 0);
 
   const gearRow = ({ power, checked, disabled, onToggle }) => {
     const resource = defOf(power.type);

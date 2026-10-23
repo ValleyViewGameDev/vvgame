@@ -214,7 +214,7 @@
     "368": "Send Goods Home",
     "369": "Send items from your backpack directly to your warehouse at home.",
     "400": "BUYING, CRAFTING, SKILLS, HEALING, ETC.",
-    "401": "❤️‍🩹 Already at maximum hit points.",
+    "401": "❤️‍🩹 Already at full health.",
     "402": "⚠️  resources.",
     "403": "⚠️ Youre inventory is full.",
     "404": "Working...",
@@ -1522,9 +1522,9 @@
     "attackrange": "Attack Range",
     "backpackCapacity": "Backpack Capacity",
     "damage": "Damage",
-    "hp": "Hit Points",
+    "hp": "Health",
     "iscamping": "Is Camping",
-    "maxhp": "Max Hit Points",
+    "maxhp": "Max Health",
     "range": "Range",
     "speed": "Attack Speed",
     "warehouseCapacity": "Warehouse Capacity",
@@ -1633,5 +1633,11 @@
     "2102": "As friends",
     "2103": "In love",
     "2104": "Married",
-    "2105": "As rivals"
+    "2105": "As rivals",
+    "2112": "Sell",
+    "2113": "Move",
+    "2114": "Moving {item}. Click a free spot to put it down.",
+    "2114_touch": "Moving {item}. Tap a free spot to put it down.",
+    "2115": "That spot is taken.",
+    "2116": "Couldn't move it there."
 }

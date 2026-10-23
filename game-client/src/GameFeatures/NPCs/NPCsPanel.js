@@ -43,6 +43,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { gameAlert } from '../../UI/Modals/GameDialog';
+import { sellSection } from '../../UI/Panels/SellSection';
 
 const NPCPanel = ({
   onClose,
@@ -1082,9 +1083,21 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     `${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`
   );
 
+  // Sell section (UI/Panels/SellSection.js), developers only: removing a citizen refunds nothing
+  // ("Sell (💰0)"); a citizen walks about, so no Move
+  const sellFooter = sellSection({
+    canSell: false,
+    isDeveloper,
+    resourceType: npcData.type,
+    masterResources,
+    refund: [],
+    onSell: handleSellNPC,
+    transactionKey: `sell-npc-${npcData.id}`,
+  });
+
   return (
     <>
-    <Panel onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
           {/* Travel with Snug: first thing on Snug's panel, once the player has greeted him */}
@@ -1698,21 +1711,6 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
         </div>
         
-        {/* Pinned footer: sell/refund (developers) */}
-        {isDeveloper && (
-          <div className="station-panel-footer">
-            {isDeveloper && (
-              <div className="shared-buttons">
-                <button 
-                  className="btn-basic btn-danger" 
-                  onClick={handleSellNPC}
-                >
-                  {strings[490]}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {cluesOpen && (

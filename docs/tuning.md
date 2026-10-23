@@ -325,7 +325,7 @@ numbers: docs/economy-plan.md.
 Tulip, Mushroom, Sunflower, Daisy, Rosemary, Feverfew (and Garlic) are not only plot crops or
 scroll finds: they are laid out in the hand-made valley templates
 (`layouts/gridLayouts/valleyFixedCoord/*.json`, fixed cells + `resourceDistribution`), which
-re-seed every season. Their rarity, and so their price, their quest asks and the level at which
+re-seed every season, and every one that is picked replants itself on the spot and grows back (it is `repeatable`: picking it plants its plot there, `ResourceClicking.handleReplant`; Rosemary and Daisy 48 h, Tulip and Feverfew 72 h, Mushroom 18 h, Sunflower 24 h). A valley grid is a renewable patch, so its supply is a rate. Their rarity, and so their price, their quest asks and the level at which
 asking for them is fair, depends on WHICH valleys hold them. A crop's `level` or plot level alone
 says nothing about that. Re-measure with `node tools/wild-crops.js` after editing templates.
 
@@ -354,6 +354,35 @@ since 2026-10-16: the Golden Key for 50 Daisy at L8 (it was 50 Feverfew, which a
 player could hardly find), then repeatable Tulip L9, Rosemary L10, Mushroom L12, Feverfew L14 and
 Sunflower L23 (25). Prices should follow the same order (a valley1-common crop is cheap;
 Feverfew, Garlic and Sunflower are not).
+
+## 4i. The level 4-16 pinch: tools/progression.js (2026-10-22)
+
+`node tools/progression.js [--to 16] [--player Mobile] [--anchor <homestead coord>] [--grids 10,20,40]`
+prints three views: DEMAND (every skill and station up to a level in raw goods, potions broken
+down through the Apothecary's trades), SUPPLY (the wild-crop, Rocks and Clay Pit spots on the N
+nearest valley grids to a homestead, or on the grids a player has visited: the first sweep, and
+what they give back per day once picked, since each regrows on the spot, §4h) and QUESTS by level.
+Re-run it after changing a skill cost, a potion recipe, a valley template or a quest level.
+
+**The potion ladder follows the valley rings (owner, 2026-10-22).** Potion A (Rosemary, Daisy,
+Milk) is a near-valley good and may be asked for from L6. Potion B (Tulip, Mushroom) is a
+mid-valley good: an average mid-valley grid holds about 6 Tulips and 16 Mushrooms, a near one
+about half of one of each, and the mid valleys start 15 grids from home (the near ones 7). So
+before about L14 Potion B appears only as a single-potion taste; asks for it in quantity, and
+Tulip or Mushroom quests in quantity, start at L13-14. Potion C needs Ink (L17), so no skill
+before then asks for it. Measured from Mobile (L10, 22 near grids explored): about 2.7 Tulips and
+11 Mushrooms a day at best, if it re-walks every grid as they regrow.
+
+Applied 2026-10-22: Potion A takes 16 Milk (was 24). Baker (L11) 6 Potion A + 1 Potion B (was 5 +
+5). Artistry L14 with 5 Potion B (was L10 with 10). Keeper L14 (was L13). Tailor (L12) 10 Potion A
+(was 100 Potion C). Better Pickaxe L9 (was L10, a level before the Oven). Helena's Tulips L14 x30
+(was L9 x50), Mushrooms L13 x30 (was L12 x50) and Feverfew L18 (was L14; a far-valley crop). Titania's Ghosts L17 (was L5) and Ogres L22 (was
+L9); Cassio's Spiders L13 (was L10); Hotspur takes the Coyotes, Pelts and Bears (backlog T-5).
+New guide quests: Portia's "A Draught of Rosemary" (L7, a first Potion A) and "Physic for the
+Town" (L11, 5 Potion A); Mistress Quickly's "Clay Beneath the Hill" (L9, 30 Clay, before her Oven
+quest); Helena's "Where the Mushrooms Grow Thick" (L12, 12 Mushrooms, pays 4 Tulips: the Potion B
+for Baker). "Baker's Bible" moved to L11 with Baker, the Lemon Cookies to L12, Feste's Artistry
+quest to L14.
 
 ## 4d. Trophies
 
