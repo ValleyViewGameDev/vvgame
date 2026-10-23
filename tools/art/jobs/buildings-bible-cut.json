@@ -161,6 +161,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the SCHOOL, a civic Tudor hall with a chalk-white slate roof, cream plaster and walnut timber, a white-roofed bell cupola with a brass bell on the ridge, a pale stone chimney on the right, sunflower-yellow double doors and shutters, a yellow placard with the school bell over the door, a bed of sunflowers left of the steps, a bench and a potted plant on the right. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, cupola, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the roof, chimney and cupola may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "laboratory": {
+      "refs": [
+        "_candidates/buildings-bible-r7/approved/openai--painterly-laboratory-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the CULINARY SCHOOL, a cream-plastered cottage with a thick golden thatched roof, a thatched dormer, a stone chimney on the right, an orange door and orange shutters, a big round placard with a lattice pie over the door, a domed stone bread oven on the left with a basket of bread, copper pots and a barrel on the right, a crate of vegetables, a string of onions by the door. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, thatch, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the thatch, the dormer and the chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

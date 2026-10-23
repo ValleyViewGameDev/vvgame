@@ -7918,7 +7918,7 @@
     "artFamily": "camp",
     "artLook": "valley",
     "artAccent": "canvas tan and forest green",
-    "artSign": "tent over a campfire"
+    "artSign": "tent over a campfire (a pictogram on a signpost)"
   },
   {
     "type": "General Store",
@@ -7980,10 +7980,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "laboratory.svg",
-    "artFamily": "tudor",
+    "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "warm orange (cooking)",
-    "artSign": "flask crossed with a whisk"
+    "artSign": "a big pie on a round placard",
+    "artSpan": 4.44
   },
   {
     "type": "Academy",
