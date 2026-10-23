@@ -14200,7 +14200,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "haybale.svg",
-    "artSpan": 0.97
+    "artSpan": 0.77
   },
   {
     "type": "Crate",
@@ -14224,7 +14224,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "crate.svg",
-    "artSpan": 0.92
+    "artSpan": 0.77
   },
   {
     "type": "Barrel",
@@ -14248,7 +14248,7 @@
     "ingredient1qty": 20,
     "gemcost": 1,
     "filename": "barrel.svg",
-    "artSpan": 1.3
+    "artSpan": 0.78
   },
   {
     "type": "Holiday Tree",
@@ -14582,7 +14582,7 @@
     "ingredient1qty": 25,
     "gemcost": 1,
     "filename": "poppies.svg",
-    "artSpan": 1.33
+    "artSpan": 1.13
   },
   {
     "category": "deco",
@@ -14773,7 +14773,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 1,
-    "filename": "cactus.svg"
+    "filename": "cactus.svg",
+    "artSpan": 1.01
   },
   {
     "type": "Harp",
@@ -14842,7 +14843,7 @@
     "ingredient1qty": 30,
     "gemcost": 1,
     "filename": "sack.svg",
-    "artSpan": 0.99
+    "artSpan": 0.74
   },
   {
     "type": "Stack of Books",
@@ -14998,7 +14999,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 8000,
     "gemcost": 80,
-    "filename": "bird-bath.svg"
+    "filename": "bird-bath.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Fountain",
@@ -15021,7 +15023,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 100,
-    "filename": "fountain.svg"
+    "filename": "fountain.svg",
+    "artSpan": 0.98
   },
   {
     "type": "Fountain Large",
@@ -15045,7 +15048,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "gemcost": 200,
-    "filename": "fountain-large.svg"
+    "filename": "fountain-large.svg",
+    "artSpan": 2.15
   },
   {
     "type": "Large Decorative Palm Tree",

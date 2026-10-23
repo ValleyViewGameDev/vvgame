@@ -1,0 +1,65 @@
+{
+  "name": "deco-whimsical-r2",
+  "note": "Deco round 2 (owner, 2026-10-23, from the in-game set review): a stack of crates (the single crate was over-corrected to a front view and too big), a cactus in the whimsical palette, and the fountain, the large fountain (2 x 2) and the birdbath redone in the style with scale in mind. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "crate-stack": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA REFERENCE: the FIRST attached image is a barrel from this game on magenta; draw the crates from the SAME camera as that barrel, seen from the front AND clearly from above, so each crate's lid shows as a real top face (about a third as tall as the front face), not a narrow strip and not a flat top-down view. STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a STACK OF THREE wooden CRATES, two side by side on the ground and one on top of them a little off-centre, rough planks nailed in frames with corner battens, a little crooked and chunky, fairy-tale farm props; the group reads as one prop. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "cactus": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a desert CACTUS, a plump green saguaro-style cactus with two short arms, soft painted ribs and tiny pale spines, a couple of small pink flowers on top, standing in a small patch of sandy ground with two pebbles; in this game's bright, saturated painterly palette (the greens of the game's grass and plants, not a muted or realistic desert palette). The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it rises to about one and a half tiles, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "fountain": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a small garden FOUNTAIN, a round pale-stone basin on a short pedestal with a single upper bowl and a little carved finial, clear blue water in the basin and a gentle spout of water from the finial falling into the bowl (water only, no mist), a little moss at the base; a fairy-tale garden prop at a modest scale, about one tile tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it rises to about one tile, never past the box's sides, with a little air around it), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "fountain-large": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a grand two-tier town FOUNTAIN two tiles wide: a wide low octagonal pale-stone pool with a carved rim, a central column with two stacked bowls and a small stone statue of a leaping fish on top, clear blue water in the pool and bowls and gentle spouts of water falling from bowl to bowl (water only, no mist), a little moss; the town's centrepiece. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 2 x 2 box outlined in the middle, 2 x 2 board tiles. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (its pool fills the box end to end and the column rises to about two tiles, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "birdbath": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a stone BIRDBATH, a shallow fluted pale-stone bowl on a slender carved pedestal with a round foot, clear blue water in the bowl, a small bright-blue songbird perched on the rim, a little moss on the foot; a modest garden prop, about one tile tall with air around it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it rises to about one tile, never past the box's sides, with a little air around it), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    }
+  }
+}
