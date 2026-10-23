@@ -82,8 +82,8 @@ Town (clean), closed buildings:
 | General Store | cottage | ochre brown | crossed axe and pickaxe, large and bold | APPROVED 2026-10-22 (r4 general-store-b-2): no turret, one centred dormer |
 | Magic Shop | fantastical | purple | none: the round stained-glass moon window over the door is the sign | APPROVED 2026-10-22 (r4 magic-shop-b-2): three tiles wide, about four tall (size 3, tall artSpan), no door placard |
 | Guild | tudor | teal | crest with crossed tools | a very unusual roof shape sets it apart |
-| Warrior's Den | castle | iron grey, red banner | crossed swords ON the wide red banner, no placard | APPROVED 2026-10-21 (r2 warriors-den-1); redo ordered 2026-10-23: taller, the banner carries the icon |
-| Armory | castle | steel grey, grey banner | a shield ON the wide grey banner, no placard | the Den's sibling: same banner size and placement, grey with a shield (owner, 2026-10-23) |
+| Warrior's Den | castle | iron grey, red banner | crossed swords ON the wide red banner, no placard | APPROVED 2026-10-23 (r5 warriors-den-b-2): taller, the banner carries the icon; replaces r2 warriors-den-1 |
+| Armory | castle | steel grey, grey banner | a shield ON the wide grey banner, no placard | the Den's sibling: same banner size and placement, grey with a shield (owner, 2026-10-23); round 5b from option 2: two standing suits of armour instead of the weapon props, the whole building mirrored (tower left), a lighter grey roof |
 | Castle | castle | royal blue and gold | crown | |
 | Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
 | Restroom | cottage | slate blue | none | 2 x 2 |
