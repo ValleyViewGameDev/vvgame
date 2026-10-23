@@ -55,6 +55,6 @@ export const getLocalizedString = (value, strings) => {
   if (stringId && strings[stringId]) {
     return strings[stringId];
   }
-  // Fallback to original value if not found
-  return value;
+  // Fallback to the alias or the original value if not found
+  return DISPLAY_ALIASES[value] || value;
 };
