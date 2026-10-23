@@ -67,6 +67,11 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    gradients between the tiers (now `pine-tree.svg`, artSpan 2.94), and `pine-light` is a
    variant a little lighter and about 15 % shorter (`pine-tree-light.svg`); the row's
    `artVariants` mixes it in at 25 % (`pine-tree.svg=3;pine-tree-light.svg=1`).
+   The generated light pine came out lime (brighter AND more saturated at the pine's hue, 58 % on
+   the palette); owner 2026-10-23 approved a local recolour "halfway to the oak": hue -8 degrees
+   toward yellow, value x0.86, saturation x0.95 on the green pixels (95 % on the palette; the
+   comparison and the rejected full-oak recolour are in `tools/art/_candidates/trees-recolour/`).
+   Rule: a lighter variant of a tree shifts toward the oak's yellow-green, never toward lime.
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 

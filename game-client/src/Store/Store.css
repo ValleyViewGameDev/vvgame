@@ -128,6 +128,7 @@
   }
   
   .store-price {
+    font-family: var(--font-heading);   /* Lora: the price reads cleaner than Philosopher */
     font-weight: bold;
     font-size: var(--text-md);
     margin-bottom: 8px;

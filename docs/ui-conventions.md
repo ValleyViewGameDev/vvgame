@@ -413,7 +413,7 @@ class. `node scripts/check-styles.js` (in `game-client/`) reports every line tha
 | Family | Token | Used for | Never for |
 |---|---|---|---|
 | Berkshire Swash | `--font-display` | the logo, modal and panel titles, an NPC speaking (the Story modal), resource-card titles (ResourceButton/QuestButton `.resource-title`) | sentences, numbers, buttons |
-| Lora, bold | `--font-heading` | every action button (`btn-basic`), sub-headings, tabs, section labels | paragraphs |
+| Lora, bold | `--font-heading` | every action button (`btn-basic`), sub-headings, tabs, section labels, real-money prices (`.store-price`) | paragraphs |
 | Philosopher | `--font-body` | everything the player reads: sentences, numbers, costs, labels, inputs, tooltips (chosen 2026-10-19 over Arial for a fantasy, literary voice that keeps numbers clear; the trial sheet is `docs/art/font-trial.html`) | titles |
 
 `--font-mono` is for developer tools only (debug panels, the GridState overlay). The page
