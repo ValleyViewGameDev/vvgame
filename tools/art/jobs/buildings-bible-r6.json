@@ -1,0 +1,34 @@
+{
+  "name": "buildings-bible-r6",
+  "note": "Bible round 6 (owner, 2026-10-23): Library (tudor, navy, open book) and School (tudor, sunflower yellow, school bell, a bell cupola) at 4 x 4. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "library": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the LIBRARY, the town's house of books. FAMILY: tudor: timber framing on cream stucco, a tall two-storey front with an overhanging upper floor on timber brackets, rows of tall leaded windows with a warm glow, a slate roof with a brick chimney (cold, no smoke), a round-topped door up a stone step, a small reading bench by the door. LOOK: town: clean, no moss, no vines. ACCENT: NAVY BLUE: the roof is deep navy-blue slate, the shutters and door navy; the sign is navy. SIGN: a navy placard flat on the wall over the door showing an OPEN BOOK, drawn large and bold in a light colour, picture only. It must read as a library at a glance: tall, bookish, calm. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and towers may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign or book."
+    },
+    "school": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. SUBJECT: the SCHOOL, the town's schoolhouse. FAMILY: tudor: timber framing on cream stucco, a wide friendly front with big many-paned windows with a warm glow, a slate roof with a brick chimney (cold, no smoke), a small open BELL CUPOLA on the roof ridge with a bell hanging in it, a double door with a short porch, a bench and a small flower bed by the door. LOOK: town: clean, no moss, no vines. ACCENT: SUNFLOWER YELLOW: the roof is sunflower-yellow tiles, the shutters and door yellow; the sign is yellow. SIGN: a yellow placard flat on the wall over the door showing a SCHOOL BELL, drawn large and bold, picture only. It must read as a school at a glance: cheerful, open, welcoming. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the building's walls and ground contact fill that 4 x 4 square almost to its edges, end to end (roofs, chimneys and towers may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no words on any sign or book."
+    }
+  }
+}

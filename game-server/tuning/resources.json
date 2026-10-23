@@ -8826,7 +8826,8 @@
     "artFamily": "castle",
     "artLook": "town",
     "artAccent": "steel grey, grey banner",
-    "artSign": "a shield on the wide grey banner hanging from the tower (the Warrior's Den's banner, in grey); no placard"
+    "artSign": "a shield on the wide grey banner hanging from the tower (the Warrior's Den's banner, in grey); no placard",
+    "artSpan": 4.38
   },
   {
     "type": "Magic Shop",

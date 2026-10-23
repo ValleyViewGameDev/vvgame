@@ -131,6 +131,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the GENERAL STORE, an ochre-shingled cottage shop with a big window of goods, a centred dormer, a large crossed axe-and-pickaxe placard over the door, a crate and a barrel by the door. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roof, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the roof and spire may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "armory": {
+      "refs": [
+        "_candidates/buildings-bible-r5/approved/openai--painterly-armory-b-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the ARMORY, a stone hall with a square tower on the LEFT carrying a big grey heraldic banner with a shield, a lighter grey slate roof, two suits of armour on display stands right of the door, no placard. Redraw the SAME building, identical in every way: the same design, silhouette, height, materials, colours, roof, banner and its shield, the armour displays, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the roof, tower and banner pole may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }
