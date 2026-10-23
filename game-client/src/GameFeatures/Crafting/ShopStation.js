@@ -468,9 +468,10 @@ const ShopStation = ({
               
               return (
                 <ResourceButton
-                  key={recipe.type}
+                  key={recipe.index != null ? `${recipe.type}-${recipe.index}` : recipe.type}
                   symbol={recipe.symbol}
-                  name={recipe.type}
+                  // a trader offer (traders.json) names its quantity, like the NPC trader cards: "10 Scroll"
+                  name={recipe.index != null ? `${recipe.qtycollected || 1} ${getLocalizedString(recipe.type, strings)}` : recipe.type}
                   className="resource-button"
                   details={details}
                   info={info}

@@ -104,6 +104,28 @@ export function selectRandomRarity(level = 1) {
 }
 
 /**
+ * Tier first, then item: roll a rarity tier at fixed odds (percent per tier, e.g.
+ * globalTuning.scrollRevealOdds), then pick evenly among the items of that tier. Unlike
+ * selectWeightedRandomItem, the tier odds do not drift as items are added to a tier.
+ * Tiers with no items are skipped and the rest renormalised.
+ * @param {Array} items - Array of items with a string scrollchance (rarity)
+ * @param {Object} tierOdds - { common, uncommon, rare, epic, legendary } in percent
+ * @returns {Object|null} Selected item or null if no items
+ */
+export function selectTierFirstItem(items, tierOdds) {
+  if (!items || items.length === 0) return null;
+  const byTier = {};
+  items.forEach((item) => { (byTier[item.scrollchance] = byTier[item.scrollchance] || []).push(item); });
+  const tiers = Object.keys(tierOdds || {}).filter((t) => byTier[t]?.length && tierOdds[t] > 0);
+  if (tiers.length === 0) return selectWeightedRandomItem(items, 1);
+  const total = tiers.reduce((sum, t) => sum + tierOdds[t], 0);
+  let roll = Math.random() * total;
+  const tier = tiers.find((t) => (roll -= tierOdds[t]) < 0) || tiers[tiers.length - 1];
+  const pool = byTier[tier];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/**
  * Select a random item from a weighted array based on rarity
  * @param {Array} items - Array of items with scrollchance property
  * @param {number} level - Optional level multiplier for drop rates (default: 1)

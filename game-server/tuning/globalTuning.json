@@ -23,6 +23,7 @@
   "warehouseCapacityGold": 100000,
   "backpackCapacityGold": 4000,
   "harvestDropRate": 0.1,
+  "scrollRevealOdds": { "common": 38, "uncommon": 28, "rare": 22, "epic": 8, "legendary": 4 },
   "maxCraftingStationSlots": 12,
   "craftingStationSlotCosts": {
     "slot0": {

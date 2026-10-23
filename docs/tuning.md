@@ -384,6 +384,26 @@ quest); Helena's "Where the Mushrooms Grow Thick" (L12, 12 Mushrooms, pays 4 Tul
 for Baker). "Baker's Bible" moved to L11 with Baker, the Lemon Cookies to L12, Feste's Artistry
 quest to L14.
 
+## 4j. Scroll reveals: tier first (owner, 2026-10-23)
+
+The Ancient Temple's Reveal Scroll (`GameFeatures/Crafting/ScrollReveal.js`) rolls a TIER at fixed
+odds, then picks evenly among the items whose `scrollchance` is that tier
+(`selectTierFirstItem`, `Economy/DropRates.js`). The odds are `globalTuning.scrollRevealOdds`,
+in percent:
+
+| Common | Uncommon | Rare | Epic | Legendary |
+|---|---|---|---|---|
+| 38 | 28 | 22 | 8 | 4 |
+
+Before this the reveal was one weighted draw over every item (Common 100, Uncommon 50, Rare 20,
+Epic 5, Legendary 1 per ITEM), so a tier's share came from how many items it held: with 27
+Legendary items the whole tier got 1.9 % and Epic 2.1 %, one particular Legendary about 1 in
+1,400 reveals. Now adding an item to a tier never moves the tier odds; it only splits that
+tier's share more ways (one Legendary of 27 is about 1 in 675, one Epic of 6 about 1 in 75).
+A tier with no items is skipped and the rest renormalised. Scroll (Epic) and Gem (Legendary)
+are scroll-reveal items too, so raising those tiers also pays out more of them. Pets and the
+warehouse materials still use the per-item weighting (`selectWeightedRandomItem`).
+
 ## 4d. Trophies
 
 - **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50, 75, 100]` (2026-10-12; 75 and

@@ -3,7 +3,11 @@
  * Helper functions for determining random scroll reveal outcomes
  */
 
-import { selectWeightedRandomItem } from '../../Economy/DropRates';
+import { selectTierFirstItem } from '../../Economy/DropRates';
+import { getGlobalTuning } from '../../Utils/TuningManager';
+
+// the fallback when globalTuning has no scrollRevealOdds (docs/tuning.md, scroll reveals)
+const DEFAULT_SCROLL_REVEAL_ODDS = { common: 38, uncommon: 28, rare: 22, epic: 8, legendary: 4 };
 
 /**
  * Determines the random doober reward from revealing a scroll
@@ -21,9 +25,9 @@ export function getRandomScrollReveal(masterResources, playerStats = null, rollC
     return { type: 'Wood', quantity: 10 };
   }
 
-  // Use the shared utility to select a weighted random item
-  // Scrolls are always level 1 for now (no level multiplier)
-  const selectedItem = selectWeightedRandomItem(scrollableItems, 1);
+  // Tier first at fixed odds (globalTuning.scrollRevealOdds), then an even pick inside the tier
+  const odds = getGlobalTuning()?.scrollRevealOdds || DEFAULT_SCROLL_REVEAL_ODDS;
+  const selectedItem = selectTierFirstItem(scrollableItems, odds);
   
   if (selectedItem) {
     const quantity = selectedItem.scrollqty || 1;

@@ -340,6 +340,26 @@
     "requires1qty": 10
   },
   {
+    "trader": "Shiro",
+    "index": 2,
+    "gives": "Scroll",
+    "givesqty": 10,
+    "xp": 5,
+    "repeat": true,
+    "requires1": "Gem",
+    "requires1qty": 50
+  },
+  {
+    "trader": "Shiro",
+    "index": 3,
+    "gives": "Scroll",
+    "givesqty": 30,
+    "xp": 10,
+    "repeat": true,
+    "requires1": "Gem",
+    "requires1qty": 100
+  },
+  {
     "trader": "Oracle",
     "index": 1,
     "gives": "Hope",
