@@ -201,6 +201,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the SHRINE, an East Asian temple with two tiers of vermilion glazed-tile roofs with upturned eaves and small stone creatures on the corners, a red railing balcony with green lattice windows, a gold-trimmed gable, red pillars, a vermilion double door with gold ring handles, green arched windows, red paper lanterns, stone steps up to the door flanked by two grey stone guardian lions on plinths, two pink blossom trees at the front corners with low shrubs, red railings, a mossy stone terrace. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, roofs, lanterns, lions, trees, moss and vines, lighting and size, the same camera (front wall square to the viewer, roofs seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the shrine's terrace, steps, lions and trees fill that box end to end exactly as in the reference (the roofs and their eaves may rise above and overhang it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters or characters anywhere."
+    },
+    "guild": {
+      "refs": [
+        "_candidates/buildings-bible-r9/approved/openai--painterly-guild-stack-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the GUILD, a crooked stacked hall of three storeys on a stone ground floor, each storey an open-fronted master's workshop (barrels, a loom, cheese wheels, a beehive on a balcony), teal shingle roofs, a teal dome with a cog weathervane on top, strings of coloured trade pennants, a big heraldic crest with crossed hammer and chisel over a carved oak double door, flower boxes. Redraw the SAME building, identical in every way: the same design, silhouette, every storey and its workshop, materials, colours, roofs, dome, pennants, crest, lighting and size, the same camera (front wall square to the viewer, roofs seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's ground-floor walls fill that box end to end exactly as in the reference (the upper storeys, roofs and dome may rise above and overhang it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

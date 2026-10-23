@@ -8047,10 +8047,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "guild.svg",
-    "artFamily": "tudor",
+    "artFamily": "fantastical",
     "artLook": "town",
     "artAccent": "teal",
-    "artSign": "crest with crossed tools"
+    "artSign": "crest with crossed tools",
+    "artSpan": 6.34
   },
   {
     "type": "Agriculture Center",

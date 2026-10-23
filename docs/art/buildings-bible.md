@@ -58,6 +58,12 @@ signage and props. Whimsical is the style laid over all of it.
 - **A relight round keeps the design by sending the building's own panel back as the
   reference** with "the same building, changed in one way only: the lighting" (round 2,
   2026-10-21). Pin the sign's picture in that prompt too, or the model may blank it.
+- **The sign is never repeated above itself** (owner, 2026-10-23): when a building has a
+  placard or crest over the door, no window, rose window, carving or banner directly above
+  it may carry the same picture. The model likes to echo the sign in a round window over the
+  door (the Guild's Lantern Hall concept did it; an earlier building did too). Say so in the
+  prompt whenever a round or stained-glass window sits over a signed door: "the window
+  above the sign shows plain glass / a different motif, NOT the sign's picture".
 - **No pre-rendered smoke, steam or vapour** (owner, 2026-10-21): nothing comes out of a
   chimney, a vent, a pot, a forge or any other opening in the still art. The buildings will
   later be tagged with the coordinates of their chimneys and openings and the game draws
@@ -81,7 +87,7 @@ Town (clean), closed buildings:
 | Factory | industrial | brick red | gear | APPROVED 2026-10-21 (r2 factory-1); brick and chimneys, distinct from the castles |
 | General Store | cottage | ochre brown | crossed axe and pickaxe, large and bold | APPROVED 2026-10-22 (r4 general-store-b-2): no turret, one centred dormer |
 | Magic Shop | fantastical | purple | none: the round stained-glass moon window over the door is the sign | APPROVED 2026-10-22 (r4 magic-shop-b-2): three tiles wide, about four tall (size 3, tall artSpan), no door placard |
-| Guild | tudor | teal | crest with crossed tools | a very unusual roof shape sets it apart |
+| Guild | fantastical | teal | crest with crossed tools | APPROVED 2026-10-23 (r9 guild-stack-1, concept A the Stacked Hall): three crooked storeys of open-fronted masters' workshops on a stone ground floor, a teal dome with a cog weathervane, trade pennants; the hall of the late-game master trades |
 | Warrior's Den | castle | iron grey, red banner | crossed swords ON the wide red banner, no placard | APPROVED 2026-10-23 (r5 warriors-den-b-2): taller, the banner carries the icon; replaces r2 warriors-den-1 |
 | Armory | castle | steel grey, grey banner | a shield ON the wide grey banner, no placard | APPROVED 2026-10-23 (r5 armory-b-2): the Den's sibling mirrored (tower left), grey shield banner, two standing suits of armour by the door, lighter grey roof |
 | Castle | castle | royal blue and gold | crown | |
@@ -124,6 +130,14 @@ Homestead:
 Not tagged: the 1 x 1 slots and props (Beehive, Chicken Coop, Mailbox, Warehouse, Trade
 Stall, Trading Post, the worker slots), the Dungeon Entrance and the editor-only landmarks.
 
+## 2b. Reserved concepts
+
+- **The Living Oak / tree house** (from the Guild round, 2026-10-23): a hall grown into a huge
+  living oak, the door in the trunk, rooms with teal shingle roofs in the boughs, a curling
+  stair and a rope bridge, hives in the branches. The owner liked it and set it aside for
+  something more SECRET in the valley: possibly the Shrine reimagined (Shinto), possibly the
+  home of a new character. Candidates: `_candidates/buildings-bible-r9/exploration/openai/painterly-guild-oak-1.png` and `-2.png`.
+
 ## 3. Decisions taken (owner, 2026-10-21) and what is still open
 
 Taken: Hospital and Inn share red (health), the Hospital town-look; Factory is `industrial`
@@ -156,7 +170,7 @@ Open:
 | Round | Date | Buildings | Job | Result |
 |---|---|---|---|---|
 | 1 | 2026-10-21 | Bank, Warrior's Den, Factory, Inn, Hospital, Ancient Temple (all 3 x 3) | `tools/art/jobs/buildings-bible-r1.json`, painterly, two candidates each, camera reference = the approved farmhouse panel | reviewed: every building read its function at a glance; the owner liked the picked candidate of every pair (bank-1, warriors-den-1, factory-2, inn-1, hospital-2, ancient-temple-2) but all six were TOO DARK: "more daylight on the facing, a more vibrant feel" |
-| 9 | 2026-10-23 | Guild | `tools/art/jobs/buildings-bible-r9.json`: the owner asked for creative concepts ("late-stage skills, a little more special than other basic town buildings, on the more whimsical side"): A the Stacked Hall (three crooked storeys, each a master's workshop, a cog weathervane), B the Living Oak (rooms in the boughs of a great oak, the door in the trunk), C the Lantern Hall (a glass lantern cupola, a rose window of the crossed tools, trade pennants); teal, the crest of crossed tools, two candidates each | pending |
+| 9 | 2026-10-23 | Guild | `tools/art/jobs/buildings-bible-r9.json`: the owner asked for creative concepts ("late-stage skills, a little more special than other basic town buildings, on the more whimsical side"): A the Stacked Hall (three crooked storeys, each a master's workshop, a cog weathervane), B the Living Oak (rooms in the boughs of a great oak, the door in the trunk), C the Lantern Hall (a glass lantern cupola, a rose window of the crossed tools, trade pennants); teal, the crest of crossed tools, two candidates each | APPROVED: A, guild-stack-1 (owner). C was rejected for repeating the crest in the rose window above the door (see §1, the sign is never repeated above itself). **B, the Living Oak, is RESERVED** (owner): keep the tree-house concept for something more secret in the valley: possibly the Shinto shrine reimagined, possibly the home of a new character (§2b) |
 | 8 | 2026-10-23 | Shrine | `tools/art/jobs/buildings-bible-r8.json`: the owner likes the drawing in the game today ("it just needs to be done in the new art style"); its SVG rasterised as `guides/control-shrine.png` and sent as the CONCEPT reference, every element listed in the prompt, repainted in the whimsical style with the valley look | APPROVED: shrine-1 (taller on its mossy terrace, the fuller eaves) |
 | 7 | 2026-10-23 | Courthouse (5 x 5), Adventure Camp, Laboratory | `tools/art/jobs/buildings-bible-r7.json`, `guides/building5.png` added for the 5 x 5: the Courthouse in the civic scheme (white roof, cream plaster, walnut timber) with a tall central clock tower, burgundy door and shutters, a gold-rimmed numeral-free clock, no placard; the Adventure Camp as a camp, not a building (owner: "rustic and tent-like, set up in the field"): a big tan canvas tent with forest-green trim, a smaller tent, a cold campfire with log seats, a weapons rack, a tent-over-campfire pictogram on a signpost, valley look; the Laboratory as the CULINARY SCHOOL (owner: "don't be fooled by the name"): a warm orange cottage with a golden thatched roof, cooking props (bread oven, copper pots, bread basket, vegetable crate, onions), a big pie as the sign | Laboratory APPROVED (laboratory-2, the owner's pick: the pie framed by the thatch). Courthouse: the owner likes courthouse-1 and its scale but wants THREE storeys plus the roof, a door sized like other buildings' doors against the grid (about one tile), and one stone statue each side of the steps, medieval dignitaries, so it reads as government (revision `courthouse-b`, courthouse-1 + the Library as refs). Adventure Camp: both too complicated; ONE tent only, and NO weapons: the camp sells backpacks and adventuring skills, so the gear is medieval camping gear (backpack stand, bedroll, cook pot on a tripod, rope, waterskins, supplies chest) (revision `adventure-camp-b`). Both revisions APPROVED 2026-10-23: courthouse-b-2 (the facade fills the 5 tiles, three storeys, the one-tile door, the magistrate and the alderman in the yard) and adventure-camp-b-1 (one tent, the backpack stand, cook pot over the cold fire) |
 | 6 | 2026-10-23 | Library, School | `tools/art/jobs/buildings-bible-r6.json`: first pass in their own accents (navy, sunflower yellow); the owner liked the design and geometry but wanted a scheme UNIQUE to civic buildings (Courthouse, Library, School), "maybe white roofs"; revision subjects `library-b` / `school-b`: chalk-white slate roof, cream plaster, walnut timber, limestone footings, the building's accent only on door, shutters and sign | APPROVED 2026-10-23: library-b-2 and school-b-2 (the owner's picks) |
