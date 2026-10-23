@@ -1,0 +1,25 @@
+{
+  "name": "buildings-bible-r8",
+  "note": "Bible round 8 (owner, 2026-10-23): the Shrine. The owner likes the drawing in the game today; redraw that exact design in the painterly style (japanese family, valley look, vermilion). Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "shrine": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-shrine.png"
+      ],
+      "guide": "guides/building4.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel on grass is a building from this game drawn in the game's camera and in this style; match its camera exactly (the front wall square to the viewer, no side wall, the roof seen from above, the grid straight), its painterly rendering and its bright daylight. CONCEPT REFERENCE: the second attached image is this game's SHRINE as it is drawn today, a flat vector drawing; the owner likes this design and wants it KEPT, only repainted: keep every element and its placement: the two-tier roof of VERMILION red-orange glazed tiles with deeply upturned eaves and small stone creatures on the eave corners, the gold-trimmed gable over the door, the upper storey with its red railing balcony and green lattice windows, the red pillars, the vermilion double door with gold studs and gold ring handles, the two tall arched windows of green glass either side of the door, the red paper lanterns hanging from the eaves, the stone steps up to the door, the two grey stone guardian lions on plinths flanking the steps, the two pink blossom trees at the front corners with low green shrubs, the red railings along the front. Match NOTHING of the vector drawing's rendering: repaint it entirely in the painterly style of the first reference, with real texture on the tiles, wood and stone, bright daylight, soft contact shadows. FAMILY: japanese (a shrine of East Asian temple architecture). ACCENT: vermilion. SIGN: none. LOOK: valley: grown into nature: a little moss on the stone steps, plinths and lower walls, a few vines at the base, wildflowers in the grass. The LAST attached image is a layout guide, a patch of the board grid with a tan 4 x 4 square: the shrine's walls, steps, lions and trees fill that 4 x 4 square almost to its edges, end to end (the roofs and their upturned eaves may rise above and overhang it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters or characters anywhere."
+    }
+  }
+}

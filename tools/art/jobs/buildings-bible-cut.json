@@ -171,6 +171,26 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the CULINARY SCHOOL, a cream-plastered cottage with a thick golden thatched roof, a thatched dormer, a stone chimney on the right, an orange door and orange shutters, a big round placard with a lattice pie over the door, a domed stone bread oven on the left with a basket of bread, copper pots and a barrel on the right, a crate of vegetables, a string of onions by the door. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, thatch, sign, props, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the thatch, the dormer and the chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "courthouse": {
+      "refs": [
+        "_candidates/buildings-bible-r7/approved/openai--painterly-courthouse-b-2.png"
+      ],
+      "guide": "guides/building5-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the COURTHOUSE, a grand three-storey civic Tudor hall with a chalk-white slate roof, cream plaster and walnut timber, a central clock tower with a gold-rimmed white clock face and a spire, three rows of leaded windows with burgundy shutters and flower boxes, a small burgundy double door under a little porch at the top of a short flight of steps, two lanterns, and two grey stone statues of robed dignitaries on plinths in the yard, one each side of the steps. Redraw the SAME building, identical in every way: the same design, silhouette, three storeys, materials, colours, roof, clock tower, windows, door, lanterns, the two statues, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 5 x 5 box outlined in the middle; the building's walls, steps and statues fill that box end to end exactly as in the reference (the roof, the clock tower and its spire may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "adventure-camp": {
+      "refs": [
+        "_candidates/buildings-bible-r7/approved/openai--painterly-adventure-camp-b-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved camp from this game: the ADVENTURE CAMP, one big pitched canvas tent in tan with forest-green trim, its flap open on a bedroll and a lantern, guy ropes to pegs, a stone-ringed cold campfire with an iron tripod and cooking pot and two log seats in front, a wooden stand of leather backpacks on the left, a chest, a coil of rope and waterskins, a wooden signpost with a tent-over-campfire pictogram on the right, tufts of long grass and wildflowers around it on a trodden patch of ground. Redraw the SAME camp, identical in every way: the same tent, gear, fire, signpost, the grass tufts and flowers and the trodden ground patch that belong to it, colours, lighting and size, the same camera. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the tent, the fire and the gear fill that box end to end exactly as in the reference (the tent peak and the signpost may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

@@ -7918,7 +7918,8 @@
     "artFamily": "camp",
     "artLook": "valley",
     "artAccent": "canvas tan and forest green",
-    "artSign": "tent over a campfire (a pictogram on a signpost)"
+    "artSign": "tent over a campfire (a pictogram on a signpost)",
+    "artSpan": 4.07
   },
   {
     "type": "General Store",
@@ -8244,7 +8245,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "multi (a big civic building; its clock tower is the landmark)",
-    "artSign": "none (clock tower)"
+    "artSign": "none (clock tower)",
+    "artSpan": 7.35
   },
   {
     "type": "Train",
