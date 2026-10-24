@@ -26,6 +26,7 @@ export const tileColors = {
   c: '#6c3b3bff',  // clay
   v: '#44551dff',  // tbdTile1
   u: '#1b712cff',  // tbdTile2
+  k: '#86a634ff',  // step stones: grass with cobble-coloured stones set in it
 };
 
 // Display names for the single-letter tile types (the editor's tooltips and labels).
@@ -45,6 +46,7 @@ export const tileNames = {
   c: 'Clay',
   v: 'TBD tile 1',
   u: 'TBD tile 2',
+  k: 'Step Stones',
 };
 
 // Mapping from two-letter layout keys to single-letter tile types
@@ -65,6 +67,7 @@ export const LAYOUT_KEY_TO_TILE_TYPE = {
   'CL': 'c',   // clay
   'V1': 'v',   // tbdTile1
   'U2': 'u',   // tbdTile2
+  'SP': 'k',   // step stones
 };
 
 // Helper to get color from two-letter layout key
@@ -90,6 +93,7 @@ export const tileRoundingConfig = {
   c: false,  // clay - no rounding
   v: false,  // tbdTile1 - no rounding
   u: false,  // tbdTile2 - no rounding
+  k: true,   // step stones - edges like grass
 };
 
 // Bit mappings for encoded tile data (used by RenderVisitedGrid)
@@ -109,7 +113,8 @@ export const BITS_TO_TILE_TYPE = {
   0b1011: 'c', // clay
   0b1100: 'v', // tbdTile1
   0b1101: 'u', // tbdTile2
-  // 0b1110, 0b1111 reserved for future tiles
+  0b1110: 'k', // step stones
+  // 0b1111 reserved for a future tile
 };
 
 // Reverse mapping: tile type to bits (for encoding)
@@ -118,7 +123,7 @@ export const TILE_TYPE_TO_BITS = Object.fromEntries(
 );
 
 // Priority order for corner color calculations
-export const tilePriorityOrder = ['w', 'l', 's', 'd', 'g', 'p', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
+export const tilePriorityOrder = ['w', 'l', 's', 'd', 'g', 'p', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u', 'k'];
 
 // Default color for unknown tile types
 export const defaultTileColor = '#ff0000'; // debug red

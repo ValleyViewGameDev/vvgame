@@ -16,7 +16,8 @@ const TILE_TYPE_TO_BITS = {
   'z': 0b1010, // moss
   'c': 0b1011, // clay
   'v': 0b1100, // tbdTile1
-  'u': 0b1101  // tbdTile2
+  'u': 0b1101, // tbdTile2
+  'k': 0b1110  // step stones (2026-10-24)
 };
 
 const BITS_TO_TILE_TYPE = {
@@ -33,7 +34,8 @@ const BITS_TO_TILE_TYPE = {
   0b1010: 'z', // moss
   0b1011: 'c', // clay
   0b1100: 'v', // tbdTile1
-  0b1101: 'u'  // tbdTile2
+  0b1101: 'u', // tbdTile2
+  0b1110: 'k'  // step stones (2026-10-24)
 };
 
 const BITS_PER_TILE = 4;

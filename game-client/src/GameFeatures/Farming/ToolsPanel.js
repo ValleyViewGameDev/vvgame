@@ -17,6 +17,7 @@ const DEFAULT_TILE_SYMBOLS = {
   'p': '🟨',  // pavement
   's': '⬜️',  // slate/stone
   'x': '🪨',  // cobblestone
+  'k': '🪨',  // step stones
   'w': '💧',  // water
   'l': '🔥',  // lava
   'n': '🟨',  // sand
@@ -33,6 +34,7 @@ const TILE_INFO_KEYS = {
   'p': 312,  // Lay Pavement
   's': 312,  // Lay Stone
   'x': 313,  // Lay Cobblestone
+  'k': 314,  // Lay Step Stones
 };
 
 const ToolsPanel = ({

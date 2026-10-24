@@ -1524,7 +1524,7 @@
     "4095": "Vous pourrez le changer plus tard dans le Profil.",
     "7063": "Bienvenue chez vous ! Un cadeau de bienvenue vous attend dans votre 📬 Boîte aux lettres.",
     "7064": "Vous pouvez changer d'avatar dans votre Profil à tout moment.",
-    "7065": "Te voilà livré à toi-même ! Tes cultures continuent de pousser pendant ton absence, alors reviens les récolter. La prochaine tâche du connétable Elbow est dans tes Quêtes, et sept trésors perdus t'attendent dans ta Quête d'Espoir.",
+    "7065": "Te voilà livré à toi-même ! Tes cultures continuent de pousser pendant ton absence, alors reviens les récolter, et reviens demain : un cadeau t'attend. La prochaine tâche du connétable Elbow est dans tes Quêtes, et sept trésors perdus t'attendent dans ta Quête d'Espoir.",
     "7066": "Après un peu de culture, visitez la Ferme d'Arden en Ville. Vous pouvez y acheter de nouvelles Compétences.",
     "7067": "Bienvenue sur votre domaine ! Cette terre est à vous pour construire. Commencez par récolter 3 Blé.",
     "7068": "Maintenant, vendez vos marchandises à Kent pour faire grandir votre domaine.",
@@ -1693,5 +1693,7 @@
     "16225": "Je suis sorti de la mer sans rien, et j'ai trouvé une sœur et toi. Un naufrage heureux, finalement.",
     "16425": "Mariés ! Viola chantera à nos noces, et tout le lac l'entendra.",
     "16325": "J'ai perdu une sœur un jour et je l'ai retrouvée. Toi, je peux te perdre sans me retourner.",
-    "16513": "Tu as un bateau et des yeux bienveillants, {username}. Quelque part dans ces eaux se trouve mon frère jumeau Sébastien, si la tempête l'a épargné. Trouve-le pour moi. Je le saurai à l'instant où tu le trouveras."
+    "16513": "Tu as un bateau et des yeux bienveillants, {username}. Quelque part dans ces eaux se trouve mon frère jumeau Sébastien, si la tempête l'a épargné. Trouve-le pour moi. Je le saurai à l'instant où tu le trouveras.",
+    "200851": "Pas japonais",
+    "314": "Des pas japonais posés dans l'herbe forment un chemin qui garde l'air d'une pelouse."
 }

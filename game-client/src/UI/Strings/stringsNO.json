@@ -1289,7 +1289,7 @@
     "4095": "You can change it later in Profile.",
     "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
-    "7065": "You're on your own now! Your crops keep growing while you're away, so come back to harvest them. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
+    "7065": "You're on your own now! Your crops keep growing while you're away, so come back to harvest them, and a gift waits for you tomorrow. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
     "7066": "After a bit of farming, visit Arden's Grange in Town. You can purchase new Skills there.",
     "4096": "Begin the Adventure",
     "4097": "Let us welcome you",
@@ -1475,5 +1475,7 @@
     "16225": "I came out of the sea with nothing, and found a sister and thee. A lucky shipwreck, after all.",
     "16425": "Married! Viola will sing at our wedding, and the whole lake will hear it.",
     "16325": "I lost a sister once, and found her again. Thee I can lose without looking back.",
-    "16513": "Thou hast a boat and kind eyes, {username}. Somewhere in these waters is my twin brother Sebastian, if the storm spared him. Find him for me. I'll know the moment thou dost."
+    "16513": "Thou hast a boat and kind eyes, {username}. Somewhere in these waters is my twin brother Sebastian, if the storm spared him. Find him for me. I'll know the moment thou dost.",
+    "200851": "Step Stones",
+    "314": "Step stones set in the grass make a path that still looks like a lawn."
 }

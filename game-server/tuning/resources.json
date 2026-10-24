@@ -77,6 +77,15 @@
     "level": 7
   },
   {
+    "type": "k",
+    "layoutkey": "SP",
+    "category": "tile",
+    "action": "stepstones",
+    "passable": true,
+    "requires": "devonly",
+    "level": 7
+  },
+  {
     "type": "y",
     "layoutkey": "DU",
     "category": "tile",

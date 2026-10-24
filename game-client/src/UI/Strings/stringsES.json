@@ -1522,7 +1522,7 @@
     "4095": "Puedes cambiarlo más tarde en el Perfil.",
     "7063": "¡Bienvenido a casa! Un regalo de bienvenida te espera en tu 📬 Buzón.",
     "7064": "Puedes cambiar tu avatar en tu Perfil cuando quieras.",
-    "7065": "¡Ahora estás por tu cuenta! Tus cultivos siguen creciendo mientras no estás, así que vuelve a cosecharlos. La próxima tarea del alguacil Elbow está en tus Misiones, y siete tesoros perdidos te esperan en tu Misión de Esperanza.",
+    "7065": "¡Ahora estás por tu cuenta! Tus cultivos siguen creciendo mientras no estás, así que vuelve a cosecharlos, y vuelve mañana: te espera un regalo. La próxima tarea del alguacil Elbow está en tus Misiones, y siete tesoros perdidos te esperan en tu Misión de Esperanza.",
     "7066": "Después de cultivar un poco, visita la Granja de Arden en el Pueblo. Allí puedes comprar nuevas Habilidades.",
     "7067": "¡Bienvenido a tu hacienda! Esta tierra es tuya para construir. Empieza recogiendo 3 de Trigo.",
     "7068": "Ahora vende tus productos a Kent para hacer crecer tu granja.",
@@ -1691,5 +1691,7 @@
     "16225": "Salí del mar sin nada y encontré una hermana y a ti. Un naufragio con suerte, al fin y al cabo.",
     "16425": "¡Casados! Viola cantará en nuestra boda, y todo el lago lo oirá.",
     "16325": "Perdí una hermana una vez y la encontré de nuevo. A ti puedo perderte sin mirar atrás.",
-    "16513": "Tienes un barco y ojos amables, {username}. En algún lugar de estas aguas está mi hermano gemelo Sebastián, si la tormenta lo perdonó. Encuéntralo por mí. Lo sabré en el momento en que lo hagas."
+    "16513": "Tienes un barco y ojos amables, {username}. En algún lugar de estas aguas está mi hermano gemelo Sebastián, si la tormenta lo perdonó. Encuéntralo por mí. Lo sabré en el momento en que lo hagas.",
+    "200851": "Piedras de paso",
+    "314": "Las piedras de paso en la hierba forman un camino que sigue pareciendo un césped."
 }

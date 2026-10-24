@@ -310,6 +310,9 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
       case "cobblestone":
         newType = "x";
         break;
+      case "stepstones":
+        newType = "k";
+        break;
       case "water":
         newType = "w";
         break;

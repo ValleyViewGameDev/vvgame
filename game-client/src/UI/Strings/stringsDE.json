@@ -1524,7 +1524,7 @@
     "4095": "Du kannst ihn später im Profil ändern.",
     "7063": "Willkommen zu Hause! Ein Willkommensgeschenk wartet in deinem 📬 Briefkasten.",
     "7064": "Du kannst deinen Avatar jederzeit in deinem Profil ändern.",
-    "7065": "Jetzt bist du auf dich gestellt! Deine Pflanzen wachsen weiter, während du fort bist, also komm zurück und ernte sie. Konstabler Elbows nächste Aufgabe steht in deinen Quests, und sieben verlorene Schätze warten in deiner Hoffnungsquest.",
+    "7065": "Jetzt bist du auf dich gestellt! Deine Pflanzen wachsen weiter, während du fort bist, also komm zurück und ernte sie, und komm morgen wieder: Ein Geschenk wartet. Konstabler Elbows nächste Aufgabe steht in deinen Quests, und sieben verlorene Schätze warten in deiner Hoffnungsquest.",
     "7066": "Nach etwas Landwirtschaft besuche Ardens Gutshof in der Stadt. Dort kannst du neue Fähigkeiten kaufen.",
     "7067": "Willkommen auf deinem Gehöft! Dieses Land gehört dir zum Aufbauen. Sammle zuerst 3 Weizen.",
     "7068": "Verkaufe jetzt deine Waren an Kent, damit dein Heimathof wachsen kann.",
@@ -1693,5 +1693,7 @@
     "16225": "Ich kam mit nichts aus dem Meer und fand eine Schwester und dich. Ein glücklicher Schiffbruch, am Ende.",
     "16425": "Verheiratet! Viola wird auf unserer Hochzeit singen, und der ganze See wird es hören.",
     "16325": "Ich verlor einmal eine Schwester und fand sie wieder. Dich kann ich verlieren, ohne zurückzublicken.",
-    "16513": "Du hast ein Boot und gütige Augen, {username}. Irgendwo in diesen Gewässern ist mein Zwillingsbruder Sebastian, wenn der Sturm ihn verschont hat. Finde ihn für mich. Ich werde es spüren, sobald du es tust."
+    "16513": "Du hast ein Boot und gütige Augen, {username}. Irgendwo in diesen Gewässern ist mein Zwillingsbruder Sebastian, wenn der Sturm ihn verschont hat. Finde ihn für mich. Ich werde es spüren, sobald du es tust.",
+    "200851": "Trittsteine",
+    "314": "Trittsteine im Gras ergeben einen Weg, der noch wie ein Rasen aussieht."
 }

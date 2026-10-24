@@ -26,6 +26,7 @@ import { Texture } from 'pixi.js-legacy';
 import { getTileColor } from '../../UI/Styles/tileColors';
 import { peekAtlasTexture } from './AtlasTextures';
 import { hasKerb, kerbSignature, drawKerb } from './PixiRendererTileKerb';
+import { drawStepStones } from './PixiRendererStepStones';
 
 // Procedural textures are drawn at this size; raster looks use the atlas tile's own size
 const BASE_TEXTURE_SIZE = 64;
@@ -50,6 +51,7 @@ const CORNER_PRIORITY = {
   'w': 20,   // water - lowest organic priority
   'v': 15,   // tbdTile1
   'u': 15,   // tbdTile2
+  'k': 100,  // step stones: grass with stones set in it, so grass for every edge
   'p': 0,    // pavement - inorganic, never rounded
   'x': 0,    // cobblestone - inorganic, never rounded
   'y': 0,    // dungeon - inorganic, never rounded
@@ -59,7 +61,7 @@ const CORNER_PRIORITY = {
 const TILE_EDGE_STYLE = {
   'g': 'organic', 'z': 'organic', 'o': 'organic', 'n': 'organic',
   'd': 'organic', 'c': 'organic', 's': 'organic', 'w': 'organic',
-  'l': 'organic', 'v': 'organic', 'u': 'organic',
+  'l': 'organic', 'v': 'organic', 'u': 'organic', 'k': 'organic',
   'p': 'straight', 'x': 'straight', 'y': 'straight',
 };
 
@@ -828,8 +830,12 @@ function drawCobblestoneDetails(ctx, size, seed, baseColor) {
  * Get neighbor tile type safely
  */
 function getNeighbor(tileTypes, row, col, defaultType) {
-  return tileTypes[row]?.[col] ?? defaultType;
+  return edgeType(tileTypes[row]?.[col] ?? defaultType);
 }
+
+// The type a cell counts as for the edging rules: step stones (`k`) are grass with stones set in
+// it (PixiRendererStepStones.js), so they round, lip and receive edges exactly as grass does
+const edgeType = (t) => (t === 'k' ? 'g' : t);
 
 /**
  * Corner signature: what corner rounding will DRAW on this cell, as four slots
@@ -1024,6 +1030,7 @@ function drawLip(ctx, size, mask) {
  * water field's mask from it, so the grass edge stays on top of the water effect.
  */
 export function drawTileCoverage(ctx, size, tileType, row, col, tileTypes) {
+  tileType = edgeType(tileType);
   const mask = lipMask(tileType, row, col, tileTypes);
   const signature = cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
   ctx.fillStyle = '#fff';
@@ -1055,7 +1062,10 @@ export function getRasterVariant(row, col) {
  */
 export function generateTileTexture(tileType, row, col, tileTypes = null) {
   const rasterVariant = getRasterVariant(row, col);
-  const raster = rasterFrame(tileType, rasterVariant);
+  // step stones are drawn over the grass, and edge as grass (edgeType)
+  const stepStones = tileType === 'k';
+  const baseType = edgeType(tileType);
+  const raster = rasterFrame(baseType, rasterVariant);
   const variant = raster ? rasterVariant : getVariant(row, col);
   const seed = VARIANT_SEEDS[variant % VARIANT_SEEDS.length];
   const variation = variant % 4; // the detail drawers have four position sets each
@@ -1065,9 +1075,9 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
   // a kerbed type (cobblestone) takes neither: the kerb is its whole edge
   const kerbed = hasKerb(tileType);
   const kerb = kerbed ? kerbSignature(tileType, row, col, tileTypes) : '';
-  const mask = kerbed ? 0 : lipMask(tileType, row, col, tileTypes);
+  const mask = kerbed ? 0 : lipMask(baseType, row, col, tileTypes);
   // when the lip handles grass, grass leaves the corner rounding (the lip IS its edge)
-  const signature = kerbed ? '----' : cornerSignature(tileType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
+  const signature = kerbed ? '----' : cornerSignature(baseType, row, col, tileTypes).replace(mask ? new RegExp(LIP_TYPE, 'g') : /$^/, '-');
   const cacheKey = `${raster ? 'r' : 'p'}-${tileType}-${variant}-${signature}-${mask}-${kerb}`;
 
   // Return cached texture if available AND still valid
@@ -1093,6 +1103,7 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
   if (raster) {
     // The cut tile is the whole look; only the edging is drawn over it
     drawRaster(ctx, raster, size);
+    if (stepStones) drawStepStones(ctx, size, variant);
     drawCornerRounding(ctx, size, signature, variant);
     drawLip(ctx, size, mask);
   } else if (tileType === 'p') {
@@ -1101,12 +1112,12 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
   } else if (tileType === 'x') {
     drawCobblestoneDetails(ctx, size, seed, baseColor);
   } else {
-    // Fill base color
-    ctx.fillStyle = baseColor;
+    // Fill base color (step stones: the grass under them)
+    ctx.fillStyle = stepStones ? getTileColor('g') : baseColor;
     ctx.fillRect(0, 0, size, size);
 
     // Add texture details
-    switch (tileType) {
+    switch (baseType) {
       case 'g':
         drawGrassDetails(ctx, size, seed, variation);
         break;
@@ -1127,6 +1138,7 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
         break;
       // Water (w), lava (l), clay (c), dungeon (y) - just base color for now
     }
+    if (stepStones) drawStepStones(ctx, size, variant);
 
     // Draw corner rounding, then the grass lip over it
     drawCornerRounding(ctx, size, signature, variant);
