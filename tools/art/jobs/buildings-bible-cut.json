@@ -311,6 +311,36 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the FARM HOUSE, a cosy thatched cottage of cream plaster and warm timber framing on a stone footing, a thick golden straw roof with a dormer and a stone chimney (cold, no smoke), a wooden door, small windows with flower boxes, a little greenery of climbing plants and shrubs at its base. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, thatch, chimney, door, windows, flower boxes, greenery, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the thatch, dormer and chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "winery": {
+      "refs": [
+        "_candidates/stations-r3/approved/openai--painterly-winery-c-2.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the WINERY, a sunlit open-air corner with a pale timber pergola heavy with grapevines and purple bunches over its LEFT half, two oak barrels on a burgundy rack with brass taps under it, a tall lattice wine rack full of dark bottles against the pale stone back wall on the RIGHT, an upright barrel with bottles and glasses and a crate of bottles in the front right, two wicker baskets heaped with purple grapes in front, a pale flagstone floor with fallen leaves. Redraw the SAME station, identical in every way: the pergola and vines, every barrel, the rack, every bottle and basket, colours, lighting, camera and size. Keep the floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the station's posts, walls and floor fill that box end to end exactly as in the reference (its tallest pieces may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "studio": {
+      "refs": [
+        "_candidates/stations-r4/approved/openai--painterly-studio-b-1.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the STUDIO, an open-air timber-post stall with a sagging lean-to roof of rose-pink shingles over the back right, a tall wooden shelf of pots, jugs and painted urns rising above the roof at the left, a potter's wheel with a half-thrown pot and a stool, a workbench with a chisel and a half-made wooden chair, an ink well and quill, a crate and a barrel in front, a lantern, a smooth pale marble-tiled floor. Redraw the SAME station, identical in every way: every post, the pink roof and its curve, the shelf, the wheel, every prop, the marble floor, colours, lighting, camera and size. Keep the floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the station's posts, walls and floor fill that box end to end exactly as in the reference (its tallest pieces may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "coffee-factory": {
+      "refs": [
+        "_candidates/stations-r4/approved/openai--painterly-coffee-factory-b-2.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the COFFEE FACTORY, an open-air stall with cream-banded timber posts and a plank back wall, a big black iron drum roaster on a brick base with a crank and a tall flue filling the left and rising above the wall, a warm glow in its firebox, two big burlap sacks of green beans, a brass hand grinder on a crate, three tin canisters, a wide shallow wooden tray of beans in three roasts in front, a lantern, an earth floor with flagstones. Redraw the SAME station, identical in every way: every post, the roaster and its flue, the glow, every sack, the grinder, the canisters, the tray, colours, lighting, camera and size. Keep the floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the station's posts, walls and floor fill that box end to end exactly as in the reference (its tallest pieces may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

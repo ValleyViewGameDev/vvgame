@@ -1,0 +1,50 @@
+{
+  "name": "stations-r5",
+  "note": "Stations round 5 (owner, 2026-10-24): the Silkery (2 x 2, the last station of the plan), then the two 1 x 1 producers, the Chicken Coop and the Beehive (no animals drawn: the no-animals rule, the coop and hive themselves are the sign). Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "silkery": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright full daylight, its camera (the front square to the viewer, seen a little from above, the grid straight) and its stall bones where they fit: an open-air cut-away workshop with a back wall along the top edge, low side walls, NO front wall, a lantern. A roof is NOT required. SCALE: the second attached panel is this game's GENERAL STORE, a four-tile-wide building; the crate and barrel by its door are the ABSOLUTE size of a prop in this game: this station is two tiles wide, so it holds FEW, BIG props at that size, nothing dollhouse-small. PROP CAMERA: the third attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above. SUBJECT: the SILKERY, where silk is made; a late, refined station. A light lean-to of SILVER-WHITE shingles over the back half, sagging gently like the Mill's, its post caps painted a pale pink. At the left a tall wooden REELING WHEEL on a stand, a big spoked wheel winding a gleaming white skein of silk thread, rising above the roofline as the station's shape; against the back wall a wooden frame hung with pale silk COCOONS on leafy mulberry branches (no silkworms, no insects); at the right bolts of pale shimmering SILK (white, blush pink, pale gold) stacked on a low table, a basket of loose cocoons, and a potted mulberry sprig. ACCENT: silver white with a pale pink thread. It must read as a silk workshop at a glance, delicate and bright. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no insects, no smoke, no steam."
+    },
+    "chicken-coop": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's Mill crafting station and the second its General Store: match their painterly storybook rendering, bright daylight and camera (front square to the viewer, seen a little from above); the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera. SUBJECT: a CHICKEN COOP, one tile: a small raised wooden hen house on four short legs with a little ramp with cross-slats running down to the ground, a pitched roof of warm red-brown wooden shingles, a small round pop-hole door with a heart cut-out above it, a nesting-box bump on one side with a hinged lid, a couple of straw wisps and three brown eggs in a straw nest at the foot of the ramp, a small feed trough. NO chickens, no birds anywhere: the coop itself says what it is. Whimsical, a little crooked, chunky. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "beehive": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's Mill crafting station and the second its General Store: match their painterly storybook rendering, bright daylight and camera (front square to the viewer, seen a little from above); the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera. SUBJECT: a BEEHIVE, one tile: a classic domed straw SKEP hive of coiled golden straw rope, fat and rounded, sitting on a small wooden stand with a little arched entrance at its foot, a small wooden shingled rain cap on top, a honey-gold drip at the entrance and a small clay honey pot with a wooden dipper beside the stand, a few wildflowers at its base. NO bees, no insects anywhere: the hive itself says what it is. Whimsical, chunky, warm golden straw. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    }
+  }
+}
