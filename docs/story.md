@@ -37,9 +37,14 @@ rule of King Leontes") is out of date until the narrative pass rewrites it (`nar
   playing the part their play gave them; the player is a stranger the storm washed up with no
   script at all ("All the world's a stage... and one man in his time plays many parts", which is
   also the aspiration choice). So the player is the only one who can change how the story ends.
-  They wake in the sea cave (the FTUE cave) and are found by **the Shepherd**, who once found a
-  lost child on this same shore and knows the Oracle's words: "Thou met'st with things dying, I
-  with things new-born." The Shepherd is the guide, and gives the core story quests (§3).
+  They wake in the sea cave (the FTUE cave) and are found by **Constable Elbow** (Measure for
+  Measure), "the poor duke's constable" who "do lean upon justice": once Angelo's officer, still
+  loyal to the King while Angelo rules the Town's law by force. He sees the stranger settled (the
+  Home Deed) and gives the **core story quests** (owner, 2026-10-24), the chain that walks the
+  player through the acts toward each treasure. **The Shepherd** is the kindly neighbour on the
+  homestead, who once found a lost child on this same shore ("Thou met'st with things dying, I
+  with things new-born") and teaches everything done at home: farming, animals, building,
+  hiring the workers.
 - **The Queen wakes** at the end of the early game (built; below): the first sign the storm can
   be undone. Helena, who still loves her, asks for a song; Feste sings it; "Music, awake her;
   strike!"
@@ -155,7 +160,7 @@ stub riddle, the real puzzle is still to be designed.
 |---|---|---|
 | Kent | King Lear | Kent's orders (the board's buyer); Lear's loyal earl, 🧔 (not the old 🤠) |
 | Portia | The Merchant of Venice | Quests on law, schools, health; Portia's Secret |
-| The Shepherd | The Winter's Tale | The player's guide, who found them on the shore (§0); the core story quests |
+| The Shepherd | The Winter's Tale | The neighbour on the homestead; all the homestead quests (farming, animals, building, the workers) |
 | Hotspur | Henry IV Part 1 | Early combat and weapons quests |
 | Cassio | Othello | Combat quests; the Skeleton Key (kill Duke Angelo) |
 | Mistress Quickly | Henry IV / The Merry Wives of Windsor | Quests |
@@ -164,7 +169,7 @@ stub riddle, the real puzzle is still to be designed.
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
-| Constable Elbow | Measure for Measure | Town and Dungeon Keys |
+| Constable Elbow | Measure for Measure | Finds the stranger in the sea cave; the Home Deed, Town and Dungeon Keys; gives the core story quests (§0, `narrative-pass.md` P3.4) |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
 | Snug | A Midsummer Night's Dream | Travel companion; the joiner of the Mechanicals, with Quince and Bottom |
 | Falstaff | Henry IV / The Merry Wives of Windsor | Trader (Feverfew for Port, Brandy) |

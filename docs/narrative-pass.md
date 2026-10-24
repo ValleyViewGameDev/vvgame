@@ -174,49 +174,71 @@ cast, then the late-game cast.
 2. **Write them:** each quest gets a display title (a quote fragment or a play on one:
    "Plant Wheat" could show as "Sow, and Thou Shalt Reap"; "Hire Lumberjack" as "Peter Quince
    Wants Work") and an ask in the giver's voice with the goal said plainly.
-3. **Givers** (decided 2026-10-24): **the Shepherd gives the core story quests**, secondary
-   characters the specialised ones. PROPOSAL for the Shepherd's 23 quests (moving a quest is
-   changing its `giver`; title, level and reward stay):
+3. **Givers** (decided 2026-10-24, revised the same day): **Constable Elbow gives the core story
+   quests** and **the Shepherd is the homestead specialist**. The Shepherd lives on the
+   homestead, and all 23 of his quests are things done there (farming, animals, building, the
+   workers), so he keeps every one. Elbow is the first face in the sea cave and stands in every
+   Town, the hub the player keeps passing through, and he already sells the keys that move the
+   story on. He becomes a quest giver (`action: quest`), keeping his three trades. (A first idea,
+   a new Town character Launce for the animal quests, was dropped: Town quests about the
+   homestead mean walking back and forth.) To check when it is built: the FTUE steps that point
+   at Elbow's panel, and his quests start at L3 so none shows in the cave.
+4. **The story chain (DRAFT for the owner, below in P3.4).**
 
-   | Level | Quest | Goal | Proposed giver | Why |
-   |---|---|---|---|---|
-   | 1 | Plant Wheat | Plant 1 Wheat | **The Shepherd** | Act I: he takes the stranger in and teaches them to live here (FTUE adds it) |
-   | 2 | Grower | Acquire Grower | **The Shepherd** | Act I (FTUE adds it) |
-   | 2 | Earth's Bounty | Collect Wheat, Carrot, Corn | **The Shepherd** | Act I |
-   | 3 | Wood Master | Acquire Axe | **The Shepherd** | Act I |
-   | 3 | Saw You Not That? | Collect 24 Wood | **The Shepherd** | Act I |
-   | 4 | Backpack | Acquire Backpack | **The Shepherd** | Act I: ready for the road |
-   | 6 | Hire Farm Hand | Craft Farm Hand | **The Shepherd** | he introduces his neighbours: Audrey |
-   | 7 | Hire Rancher | Craft Rancher | **The Shepherd** | ... Corin |
-   | 9 | Hire Lumberjack | Craft Lumberjack | **The Shepherd** | ... Peter Quince |
-   | 3 | The Gentle Art | Acquire Husbandry | **Launce** (new) | animals |
-   | 3 | Bovine Bliss | Buy 1 Cow | **Launce** (new) | animals |
-   | 3 | Cream of the Crop | Collect 30 Milk | **Launce** (new) | animals |
-   | 4 | Fleecy Fellowship | Buy 1 Sheep | **Launce** (new) | animals |
-   | 8 | Coop Dreams | Build Chicken Coop | **Launce** (new) | animals |
-   | 4 | Foundations of Stone | Acquire Builder | **Snug** | building: the joiner |
-   | 5 | Mill by Moonlight | Build Mill | **Snug** | building |
-   | 6 | Master Mason | Acquire Masonry | **Snug** | building |
-   | 7 | Mechanics | Acquire Mechanics | **Snug** | building |
-   | 15 | Lumber Yard | Build Lumber Yard | **Snug** | building |
-   | 6 | Sweet Harvest | Plant 30 Sugarcane | **Mistress Quickly** | the kitchen's sugar |
-   | 7 | Cook's Harvest | Collect Sugarcane, Onion, Carrot | **Mistress Quickly** | the kitchen's larder |
-   | 9 | The Spark Within | Acquire Chemistry | **Mistress Quickly** | the Laboratory's first skill (her Kitchen, if the name is chosen) |
-   | 20 | Nectar of the Valley | Acquire Winemaker | **Falstaff** | wine and sack are his life |
+### P3.4 The story chain: Constable Elbow (DRAFT, 2026-10-24)
 
-   So the Shepherd keeps 9 (all Act I), and gains the new story quests (about one per act
-   step, roughly 10 to 15: point the player at each treasure and at the Queen). What this
-   needs:
-   - **One new Town character: Launce** (The Two Gentlemen of Verona), the servant who loves
-     his dog Crab more than anyone ("I think Crab my dog be the sourest-natured dog that
-     lives"): the Town's animal keeper, a comic, kind voice. Needs art (a copy of an existing
-     NPC's SVG to start, like Hecate), a RelationshipMatrix row, greeting lines, and a tile in
-     the four town layouts. Alternative: Silvius, the lovesick shepherd from As You Like It.
-   - **Snug and Falstaff become quest givers** (`action: quest`); a quest giver with trader
-     offers already shows both, so their trades stay. Snug's travel-companion feature is keyed
-     on his type, not his `action` (checked 2026-10-24), so it keeps working.
-   - Quest levels below L20 belong to the early-game work (`early-game.md`, epic OB): these
-     moves change who asks, not when.
+Fourteen quests, one per step of the acts (`story.md` §0), each pointing at a person, the Queen,
+or a treasure. They sit ON TOP of the early-game chains, never instead of them: the Crown's road
+(Helena's Golden Key, Hotspur's kit and the Great Bear, `early-game.md` §3), the found moment and
+the Oracle's letters already exist. Elbow's quest says why it matters for the story; the other
+givers' quests are the how. Each has the previous one as its `prereq`, so the To Do list holds
+exactly one story step at a time (the control gradient: one clear next thing early, the late
+ones open as a set).
+
+| # | Lvl | Title | Goal | Elbow asks (draft) | Points to |
+|---|---|---|---|---|---|
+| 1 | 3 | I Do Lean Upon Justice | Meet Portia, Meet Mistress Quickly, Meet Hotspur | "I am the poor King's constable, and I do lean upon justice. A newcomer must know the Town's good people. Go and greet Portia, Mistress Quickly and young Hotspur." | the Town cast |
+| 2 | 5 | More Things in Heaven and Earth | Meet Helena | "There are more things in the Valley than are dreamt of in your philosophy, friend. Beyond the Town gate lives Helena, who sighs among the flowers. Go and greet her." | the Valley (OB-4) |
+| 3 | 8 | Once More unto the Breach | Meet Cassio | "The Valley grows wild since the storm. Cassio, a soldier of good reputation, or so he says, can tell you who rules by fear. Greet him." | the combat cast, Duke Angelo |
+| 4 | 10 | A Crown for the King | Find the King's Crown | "The storm took our King's crown, and with it his heart. Helena keeps a key, Hotspur keeps a sword. Bring the crown to light, and the Oracle will know your name." | the first treasure (OB-5 chain) |
+| 5 | 11 | If That Which Is Lost | Meet the Oracle | "The Oracle of Apollo said the land shall not mend if that which is lost be not found. Lost is Hope. Go and hear her yourself." | the spine |
+| 6 | 13 | All Great Neptune's Ocean | Find the Trident | "Neptune's Trident sleeps in a sealed shrine, and a key of bone wakes it. Cassio carries one; ask what he wants for it." | the Trident (Cassio, Angelo) |
+| 7 | 15 | Be Stone No More | Meet Gertrude | "Our Queen stands in stone in her own castle. Some say only a song will wake her, and that Helena knows which. Most suspicious, I mean, most hopeful." | the waking (Helena, Feste) |
+| 8 | 16 | When Churchyards Yawn | Find the Vampire's Blood | "'Tis the very witching time of night, when churchyards yawn. A pale lord in the Valley wants quiet among his dead. Give it him." | the Vampire's Blood |
+| 9 | 18 | The Bell Invites Me | Find the Brass Bell | "Iago keeps a brass bell, and sells nothing for honest coin. He trades in secrets. Portia keeps one, if you win her trust." | the Brass Bell (Portia, Iago) |
+| 10 | 30 | By the Pricking of My Thumbs | Meet Hecate, Acquire Toil and Trouble | "Prospero walls himself in with cloven pines no axe can bite. There is a witch in Birnam Wood who hates him more than I do. Caliban knows the way." | Hecate, Caliban, the axe |
+| 11 | 34 | Out, Out, Brief Candle | Find the Brief Candle | "At the bottom of Acheron one light never went out. Hecate's torch passes the black fog; the hound with three heads does not let anyone pass." | the Brief Candle |
+| 12 | 40 | Our Revels Now Are Ended | Find Prospero's Orb | "It is time. Prospero's dragons guard the slate stair to his hall. Beat them, answer his riddle, and the storm's heart is yours." | the Orb |
+| 13 | 55 | The Bird of Wonder | Find the Phoenix Feather | "The bird of wonder dies and rises from its ash. Pluck one feather from the fire, and only six treasures will be behind you." | the Phoenix Feather |
+| 14 | 55 | Such Stuff as Dreams Are Made On | Find Hope | "Seven treasures. Bring them to the Oracle on Hope Mountain, and let us see the King crowned and Elbow, I mean Elsinore, merry again." | the end |
+
+Notes for the review:
+- **Titles** are new persisted ids, quotes or near-quotes: Elbow (Measure for Measure 2.1),
+  Hamlet 1.5, Henry V 3.1, the Oracle (The Winter's Tale 3.2), Macbeth 1.5 for "great Neptune's
+  ocean" (Macbeth 2.2), The Winter's Tale 5.3, Hamlet 3.2, Macbeth 2.1, Macbeth 4.1, Macbeth
+  5.5, The Tempest 4.1, Henry VIII 5.5 ("the bird of wonder dies, the maiden phoenix"), The
+  Tempest 4.1. To verify against the text before shipping (`narrative-style.md` §4).
+- **Elbow's voice:** a word slightly wrong now and then ("most suspicious, I mean, most
+  hopeful"), never in the instruction itself.
+- **The order of the late steps** follows the levels today: the Candle (about L34), the Orb (the
+  Dragons' home level 40), the Phoenix (L55). `story.md` §4 calls the Orb the penultimate step;
+  either the Orb quest moves after the Phoenix, or the late steps open together as a set (the
+  sandbox of the late game). Owner's call.
+- **Rewards** to be set with `tuning.md` (money and xp scaled to the level, a Gem or two at the
+  treasure steps), never an artifact.
+
+What it needs that the game does not have:
+- **Two goal types.** `Meet <NPC>` (done when the player has greeted that character: the
+  relationship's `met`), and `Find <item>` (done when the player holds it, or has it in
+  `player.hopeFound` for the seven treasures, so giving one to the Oracle does not undo it). The
+  quest list, the badge and the accept-time check learn both. Meeting Gertrude is only possible
+  once she is awake, which makes step 7 the waking itself.
+- **A place for Elbow's ask.** Without the quest text feature (P3.1, not greenlit) a story quest
+  is a title and a goal, and the story lives nowhere. Smallest option: a story quest carries
+  one string, shown as a StoryModal from Elbow when it is accepted (the same modal his milestone
+  dialogs use), and the To Do card shows only the title and goal as today. Owner's call.
+- **Where the Oracle can first be met** (step 5, L11): her Sanctuary is a dev-placed shop in the
+  Valley; check it is reachable at L11 or move the step.
 
 ### P4. The first hour and the moments (~80 strings)
 
@@ -269,7 +291,8 @@ Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town cha
 proposed first). Still open:
 
 1. The Nurse / Peaseblossom copies check (P1.2).
-2. The Shepherd's quests (P3.3): approve the table, and Launce as a new Town character.
+2. The story chain (P3.4): the 14 steps, the late order, the two goal types, and the one-string
+   StoryModal for Elbow's asks.
 3. Where the Globe goes (future).
 4. Quest text (P3.1): not greenlit yet.
 5. The live migration for Gertrude (`scripts/wake-gertrude-for-friends.js --except Oberon`):
@@ -301,3 +324,6 @@ proposed first). Still open:
   more ideas for the other buildings, tied to their stock. The title is "Secrets of Elsinore"
   in every language file. Focus: finalise the story docs and make the changes in the local
   build.
+- 2026-10-24 (fifth round): Hector Protector for the Armory. Launce dropped (Town quests about the
+  homestead are laborious); instead Constable Elbow gives the core story quests and the Shepherd
+  is the homestead specialist, keeping all 23. Draft the story chain.
