@@ -243,16 +243,6 @@
   },
   {
     "trader": "Leontes",
-    "index": 1,
-    "gives": "Gold",
-    "givesqty": 20,
-    "xp": 8,
-    "repeat": false,
-    "requires1": "King's Crown",
-    "requires1qty": 1
-  },
-  {
-    "trader": "Leontes",
     "index": 2,
     "gives": "Mirror Key",
     "givesqty": 1,
@@ -304,16 +294,6 @@
     "repeat": true,
     "rel": "friend",
     "requires1": "Silk Dress",
-    "requires1qty": 1
-  },
-  {
-    "trader": "Viola",
-    "index": 1,
-    "gives": "Gold",
-    "givesqty": 25,
-    "xp": 8,
-    "repeat": true,
-    "requires1": "Trident",
     "requires1qty": 1
   },
   {

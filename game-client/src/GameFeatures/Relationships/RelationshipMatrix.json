@@ -134,7 +134,7 @@
   {
     "type": "Vampire",
     "symbol": "🧛🏻‍♂️",
-    "dialogOnMet": 16008,
+    "dialogOnMet": 16024,
     "dialogOnFriend": 16108,
     "dialogOnLove": 16208,
     "dialogOnRival": 16308,

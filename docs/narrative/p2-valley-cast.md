@@ -1,14 +1,14 @@
-# P2, batch 2: the Valley cast (DRAFT for review, 2026-10-24)
+# P2, batch 2: the Valley cast (APPLIED 2026-10-24)
 
-Before / after for every milestone line of the Valley's characters: Helena, Titania, Caliban, Leontes, Viola and the Vampire (`RelationshipMatrix.json` dialog keys, strings 16xxx; each plays once as a StoryModal and is kept under Clues). Rules: `docs/narrative-style.md`; story: `docs/story.md` §0. Quotes from memory, to be checked against the text before shipping. Once approved: English applied, then German, Spanish and French; the six English-only files take the English.
+Approved and applied in all ten languages, with two owner changes: both treasure trades removed (traders.json), and Viola's greeting asks the player to look for her twin Sebastian instead of offering to buy the Trident (her new purpose is a proposal, `narrative-pass.md` P2). Before / after for every milestone line of the Valley's characters: Helena, Titania, Caliban, Leontes, Viola and the Vampire (`RelationshipMatrix.json` dialog keys, strings 16xxx; each plays once as a StoryModal and is kept under Clues). Rules: `docs/narrative-style.md`; story: `docs/story.md` §0. Quotes from memory, to be checked against the text before shipping. Once approved: English applied, then German, Spanish and French; the six English-only files take the English.
 
-Kent and the Shepherd are not in this batch: Kent has no relationship (`output: noRel`) and the Shepherd's relationship card is hidden, so neither has milestone lines. Their words are in the tutorial (P4).
+Kent and the Shepherd are not in this batch (owner, 2026-10-24: Kent never needs to speak; the Shepherd may get story text later): Kent has no relationship (`output: noRel`) and the Shepherd's relationship card is hidden, so neither has milestone lines. Their words are in the tutorial (P4).
 
-## Found while drafting (decisions for the owner)
+## Found while drafting (decided 2026-10-24)
 
 1. **The Vampire's greeting is Prospero's speech.** His `dialogOnMet` points at 16008, Prospero's "you have defeated my dragons, my Orb is yours", so meeting the Vampire plays it. The page gives him his own line on a new string (16024); 16008 stays for Prospero (whose own greeting, 16009, is still the placeholder "[Prospero]": the late batch).
-2. **Viola buys the Trident, repeatably, for 25 Gold**, the same problem Leontes' crown trade had: a player can sell a treasure. Recommend: one-time only, like Leontes (or remove it). Her greeting today says she sells it; the new one says she buys it and that the Oracle needs it more.
-3. **Leontes still buys the King's Crown once.** In the new story the crown goes back to him at the end; selling it to him early leaves the player needing another from the Castle. Recommend removing that trade and letting his lines be about the Mirror Key (the new met line already is). Owner's call.
+2. **Viola buys the Trident, repeatably, for 25 Gold**, the same problem Leontes' crown trade had: a player can sell a treasure. DECIDED: removed. Her greeting today says she sells it; the new one says she buys it and that the Oracle needs it more.
+3. **Leontes still buys the King's Crown once.** In the new story the crown goes back to him at the end; selling it to him early leaves the player needing another from the Castle. DECIDED: removed; his lines are about the Mirror Key.
 
 ## Helena
 

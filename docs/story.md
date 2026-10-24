@@ -159,7 +159,7 @@ stub riddle, the real puzzle is still to be designed.
 
 | Character | Play / origin | In the game |
 |---|---|---|
-| Kent | King Lear | Kent's orders (the board's buyer); Lear's loyal earl, 🧔 (not the old 🤠) |
+| Kent | King Lear | Kent's orders (the board's buyer); Lear's loyal earl, 🧔 (not the old 🤠); never speaks (owner, 2026-10-24) |
 | Portia | The Merchant of Venice | Quests on law, schools, health; Portia's Secret |
 | The Shepherd | The Winter's Tale | The neighbour on the homestead; all the homestead quests (farming, animals, building, the workers) |
 | Hotspur | Henry IV Part 1 | Early combat and weapons quests |
@@ -179,7 +179,7 @@ stub riddle, the real puzzle is still to be designed.
 | Gertrude | Hamlet | Leontes' queen, turned to stone by the storm (Gertrude's Statue in her Town castle) until the player wakes her (§0); then a trader again, Gertrude's Secret |
 | Leontes | The Winter's Tale | The King, lost without his queen and crown; the Mirror Key, for six secrets; Prospero is his enemy |
 | Juliet | Romeo and Juliet | Trader; Juliet's Secret |
-| Viola (was the Mermaid) | Twelfth Night | Trader who lives in the water (shipwrecked, she took to the sea); Viola's Secret |
+| Viola (was the Mermaid) | Twelfth Night | Lives in the water since the storm wrecked her ship and took her twin brother Sebastian; Viola's Secret (her Trident trade removed 2026-10-24; her purpose is being designed, `narrative-pass.md` P2) |
 | The Oracle | The Winter's Tale (Apollo's oracle at Delphos) | Trades Hope for the seven artifacts; her home is the **Oracle's Sanctuary** (the `Shiro` row, a dev-placed shop in the valley; players read "Oracle's Sanctuary" through `DISPLAY_ALIASES` in `Utils/stringLookup.js`), where sealed scrolls are bought with gems; the Ancient Temple opens them, as in the play |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |

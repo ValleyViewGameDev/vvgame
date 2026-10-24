@@ -163,8 +163,11 @@ For every speaking character not yet in `narrative-style.md` §6, once the names
 Feste, Juliet, the Apothecary, Falstaff, Snug, Iago, Gertrude): APPLIED in ten languages, as in
 `docs/narrative/p2-town-cast.md` (every met / friend / love / married / rival line, before and
 after, with its quote). Already applied: Elbow's greeting, which is the game's opening intro
-(16019), in ten languages. Next batches: the Valley cast, then the late cast (Hecate, Prospero,
-the Oracle).
+(16019), in ten languages. Batch 2, the Valley cast (Helena, Titania, Caliban, Leontes, Viola,
+the Vampire): APPLIED the same day (`docs/narrative/p2-valley-cast.md`); the Vampire had been
+playing Prospero's Orb speech as his greeting and now has his own (16024); Leontes' crown trade
+and Viola's Trident trade are removed (no one buys a treasure). Next: the late cast (Hecate,
+Prospero, the Oracle). Kent never speaks (owner); the Shepherd may get story text later.
 
 Every greeting, milestone dialog (met / friend / love / married / rival), trader line and Clue
 for every character, in voice, with a quote or fragment in most lines, and gossip that crosses
