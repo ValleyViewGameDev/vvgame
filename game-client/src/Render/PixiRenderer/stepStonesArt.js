@@ -20,9 +20,9 @@ export const SHAPES = 24;          // distinct outlines, pre-drawn once and reus
 export const STONE_PAD = 1.35;     // canvas half-size = R * STONE_PAD (room for the shadow and grass)
 
 const FILLERS_PER_CELL = 12;
-const SLAB_R = [0.33, 0.44];       // the big slabs, in tiles (a 1-wide path fits up to ~0.47)
-const FILL_R = [0.11, 0.3];        // the stones between them
-const GAP = 0.035;                 // grass between stones, in tiles
+const SLAB_R = [0.29, 0.36];       // the main stones, in tiles (owner 2026-10-24: sizes in one zone)
+const FILL_R = [0.23, 0.3];        // the stones between them: a little smaller, never pebbles
+const GAP = 0.05;                  // grass between stones, in tiles
 const EDGE = 0.025;                // grass kept between a stone and a non-path cell, in tiles
 
 const STONE = { light: '#d8d1b6', base: '#c2b998', dark: '#aaa080', side: '#837a5d', rim: 'rgba(70, 62, 40, 0.42)' };
@@ -52,9 +52,10 @@ export function layoutStepStones(tileTypes) {
       // (only the right and lower edges, so a shared edge is offered once), all jittered
       // (a slab nearly the path's width must sit almost on its centre line: little jitter across
       // the path, more along it)
-      add(col + 0.5 + (rand() - 0.5) * 0.12, row + 0.5 + (rand() - 0.5) * 0.12, SLAB_R);
-      if (tileTypes[row]?.[col + 1] === 'k') add(col + 1 + (rand() - 0.5) * 0.4, row + 0.5 + (rand() - 0.5) * 0.06, SLAB_R);
-      if (tileTypes[row + 1]?.[col] === 'k') add(col + 0.5 + (rand() - 0.5) * 0.06, row + 1 + (rand() - 0.5) * 0.4, SLAB_R);
+      // (stones about the same size can wander across the path a little: the walk zigzags)
+      add(col + 0.5 + (rand() - 0.5) * 0.24, row + 0.5 + (rand() - 0.5) * 0.24, SLAB_R);
+      if (tileTypes[row]?.[col + 1] === 'k') add(col + 1 + (rand() - 0.5) * 0.4, row + 0.5 + (rand() - 0.5) * 0.2, SLAB_R);
+      if (tileTypes[row + 1]?.[col] === 'k') add(col + 0.5 + (rand() - 0.5) * 0.2, row + 1 + (rand() - 0.5) * 0.4, SLAB_R);
       // fillers anywhere in the cell, for the gaps the slabs leave
       for (let i = 0; i < FILLERS_PER_CELL; i++) add(col + rand(), row + rand(), FILL_R);
     }

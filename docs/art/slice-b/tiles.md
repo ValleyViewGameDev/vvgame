@@ -432,3 +432,7 @@ grass now (2026-10-22).
   spill onto the grass beside the path. 24 pre-drawn shapes reused at any size; one sprite per
   stone; same tiles, same stones. Look: a soft sunken shadow, a thin dark side, a flat pale face
   lit from the upper left, grain, a rim and grass leaning over it.
+  Third pass, same day (owner: too big a difference between small and big stones): every stone
+  in one size zone (main stones 0.29 to 0.36 tile radius, the ones between 0.23 to 0.30, no
+  pebbles), allowed to wander across the path a little, so the walk zigzags; 0.05 of grass between
+  stones.
