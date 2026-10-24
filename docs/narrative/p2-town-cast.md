@@ -1,12 +1,12 @@
-# P2, batch 1: the Town cast (DRAFT for review, 2026-10-24)
+# P2, batch 1: the Town cast (APPLIED 2026-10-24)
 
-Before / after for every line the Town's characters say on a relationship milestone (`RelationshipMatrix.json` dialog keys, strings 16xxx; each plays once as a StoryModal and is kept under Clues). Voice and quoting rules: `docs/narrative-style.md`; the story: `docs/story.md` §0. Quotes are from memory, to be checked against the Folger text before shipping. Once approved: English applied, then German, Spanish and French; the six English-only files take the English.
+Approved by the owner 2026-10-24 ("looks fine"; tweaks may follow once it can be played) and applied in all ten languages (German, Spanish and French translated). Before / after for every line the Town's characters say on a relationship milestone (`RelationshipMatrix.json` dialog keys, strings 16xxx; each plays once as a StoryModal and is kept under Clues). Voice and quoting rules: `docs/narrative-style.md`; the story: `docs/story.md` §0. Quotes are from memory, to be checked against the Folger text before shipping. Once approved: English applied, then German, Spanish and French; the six English-only files take the English.
 
 Already APPLIED (owner's request, 2026-10-24): Elbow's greeting, which is the game's opening intro (16019), rewritten around the tale:
 
 > Who goes there? Stand, in the King's name! Ah, a stranger, washed into our sea cave like all the rest of us. Hear me. A great storm, raised by the old magician Prospero, tore every soul out of their own story and cast us upon this shore. It turned our Queen to stone and took our King's crown. The Oracle says the land shall not mend "if that which is lost be not found." What was lost is Hope. I am the poor King's constable, {username}, and I do lean upon justice. First things first: a home for thee. Buy a Home Deed from me.
 
-Also applied the same day: Leontes' King's Crown trade is one-time only (it was repeatable), and the worker slots are Audrey's, Corin's, Peter Quince's and Nick Bottom's Slot.
+Also applied the same day: Leontes' King's Crown trade is one-time only (it was repeatable), and the worker slots are Audrey's, Corin's, Peter Quince's and Nick Bottom's Spot.
 
 Fixed the same day: Falstaff's row listed his love as `Mistress_Quickley` (a typo, so the pair never matched); it is `Mistress Quickly` now.
 

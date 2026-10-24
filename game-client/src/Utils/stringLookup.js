@@ -43,11 +43,11 @@ export const DISPLAY_ALIASES = {
   Rancher: 'Corin',
   Lumberjack: 'Peter Quince',
   Crafter: 'Nick Bottom',
-  // and their slots (the haybale each one rests on)
-  'Farm Hand Slot': "Audrey's Slot",
-  'Rancher Slot': "Corin's Slot",
-  'Lumberjack Slot': "Peter Quince's Slot",
-  'Crafter Slot': "Nick Bottom's Slot",
+  // and their slots (the haybale each one rests on: "spot", owner 2026-10-24)
+  'Farm Hand Slot': "Audrey's Spot",
+  'Rancher Slot': "Corin's Spot",
+  'Lumberjack Slot': "Peter Quince's Spot",
+  'Crafter Slot': "Nick Bottom's Spot",
 };
 
 /**

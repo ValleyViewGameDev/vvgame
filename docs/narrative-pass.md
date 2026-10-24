@@ -160,7 +160,7 @@ For every speaking character not yet in `narrative-style.md` §6, once the names
 ### P2. Character speech and the spine (the heart; ~150 lines)
 
 **Status 2026-10-24.** Batch 1, the Town cast (Elbow, Portia, Mistress Quickly, Hotspur, Cassio,
-Feste, Juliet, the Apothecary, Falstaff, Snug, Iago, Gertrude): DRAFTED for review in
+Feste, Juliet, the Apothecary, Falstaff, Snug, Iago, Gertrude): APPLIED in ten languages, as in
 `docs/narrative/p2-town-cast.md` (every met / friend / love / married / rival line, before and
 after, with its quote). Already applied: Elbow's greeting, which is the game's opening intro
 (16019), in ten languages. Next batches: the Valley cast, then the late cast (Hecate, Prospero,
