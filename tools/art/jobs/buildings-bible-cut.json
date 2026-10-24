@@ -314,7 +314,7 @@
     },
     "winery": {
       "refs": [
-        "_candidates/stations-r3/approved/openai--painterly-winery-c-2.jpg"
+        "_candidates/stations-r3/approved/openai--painterly-winery-c-2.small.jpg"
       ],
       "guide": "guides/building2-cut.png",
       "variants": [
@@ -324,7 +324,7 @@
     },
     "studio": {
       "refs": [
-        "_candidates/stations-r4/approved/openai--painterly-studio-b-1.jpg"
+        "_candidates/stations-r4/approved/openai--painterly-studio-b-1.small.jpg"
       ],
       "guide": "guides/building2-cut.png",
       "variants": [

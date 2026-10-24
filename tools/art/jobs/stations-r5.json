@@ -12,9 +12,9 @@
   "subjects": {
     "silkery": {
       "refs": [
-        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
-        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
-        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
       ],
       "guide": "guides/building2.png",
       "variants": [
@@ -24,9 +24,9 @@
     },
     "chicken-coop": {
       "refs": [
-        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
-        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
-        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
       ],
       "guide": "guides/building1-cut.png",
       "variants": [
@@ -36,9 +36,9 @@
     },
     "beehive": {
       "refs": [
-        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
-        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
-        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
       ],
       "guide": "guides/building1-cut.png",
       "variants": [
