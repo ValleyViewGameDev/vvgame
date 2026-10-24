@@ -31,6 +31,12 @@ export const DISPLAY_ALIASES = {
   School: 'Wittenberg',
   'Agriculture Center': 'Grange at Arden',
   Courthouse: "Portia's Court",
+  Shrine: "Neptune's Shrine",
+  Castle: "Leontes' Castle",
+  Laboratory: "Quickly's Lab",
+  Factory: 'The Wall',
+  "Warrior's Den": "Tybalt's",
+  'General Store': "Woodman's Yard",
   // the four farm workers, one of each per player, so each is a character
   'Farm Hand': 'Audrey',
   Rancher: 'Corin',

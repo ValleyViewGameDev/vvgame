@@ -126,12 +126,17 @@ are all tradesmen at work: Quince (Lumberjack), Bottom (Crafter), Snout (tools),
 with Starveling the tailor at the Academy. A tagline could show under each name in the
 building's panel.
 
+**Decided 2026-10-24 (round 2):** Neptune's Shrine, Leontes' Castle, Quickly's Lab (Laboratory),
+The Wall (Factory), Tybalt's (Warrior's Den), Woodman's Yard (General Store); the Academy keeps its
+name. The Armory: keep brainstorming around Hector (Troilus and Cressida).
+
 **Built in the local build 2026-10-24** (aliases in `Utils/stringLookup.js` `DISPLAY_ALIASES` +
 the name strings in all ten languages; types unchanged): Boar's Head (Restaurant), Garter Inn
 (Inn), Counting House (Bank), Temple of Apollo (Ancient Temple), Prospero's Library (Library),
 Oberon's Bower (Magic Shop), Wittenberg (School), Grange at Arden (Agriculture Center), Portia's
 Court (Courthouse); the workers Audrey (Farm Hand), Corin (Rancher), Peter Quince (Lumberjack),
-Nick Bottom (Crafter); Kent's symbol 🧔.
+Nick Bottom (Crafter); Kent's symbol 🧔. Round 2, same day: Neptune's Shrine, Leontes' Castle,
+Quickly's Lab, The Wall, Tybalt's, Woodman's Yard.
 
 **Where the Globe could go** (OPEN, for the future, owner 2026-10-24):
 
@@ -262,8 +267,7 @@ game (BUILT 2026-10-24, see `story.md` §0); the farm workers Quince, Bottom, Co
 Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town characters to be
 proposed first). Still open:
 
-1. Building names, round 2 (P1.2): General Store, Warrior's Den, Armory, Academy, Laboratory,
-   Factory, Shrine, Castle. The Nurse / Peaseblossom copies check.
+1. The Armory's name (a Hector idea, P1.2). The Nurse / Peaseblossom copies check.
 2. The Shepherd's quests (P3.3): approve the table, and Launce as a new Town character.
 3. Where the Globe goes (future).
 4. Quest text (P3.1): not greenlit yet.
