@@ -67,6 +67,37 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the first attached image is this game's BEEHIVE as drawn on magenta; the owner likes it: keep its fat coiled-straw skep on the wooden stand with the shingled rain cap, the arched entrance with the honey drip, the honey pot with the dipper, the wildflowers, its camera and rendering. Redraw it with TWO changes only. (1) MORE GOLDEN, VIBRANT AND WELL LIT: the straw is a rich saturated honey-gold, lit by full bright noon sun from high up and a little left, the coils' sunlit tops glowing warm yellow-gold, only soft short shadows between the coils, nothing dull or brown; the second attached panel is this game's General Store, the daylight to match. (2) THE PROPS ARE MUCH BIGGER: the honey pot with its dipper scales up to about half the hive's height, big and readable, and the stand's legs thicken to match (the crate and barrel by that store's door are the absolute size of a prop; the pot matches them). Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds, no insects."
+    },
+    "chicken-coop-c": {
+      "refs": [
+        "_candidates/stations-r5/approved/openai--painterly-chicken-coop-b-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached image is this game's CHICKEN COOP as drawn on magenta; the owner likes it: keep the raised hen house on its legs, the red shingled roof, the plain gable, the tall egg-shaped door with straw inside, the cream plank walls, its camera, rendering and bright daylight. Redraw it with THREE changes only, all about SCALE: the coop's pieces are still too small and too many. (1) REMOVE the feed trough on the left entirely. (2) THE RAMP BECOMES TWO BIG STEPS: instead of the slatted ramp, just two large chunky wooden steps up to the door, each step tall and deep, people-sized. (3) THE NEST OF EGGS IS MUCH BIGGER: the straw nest with its three brown eggs scales up to about two thirds of the coop's width, sitting at the front right beside the steps, the eggs big and readable (the second attached panel is this game's General Store: the crate and barrel by its door are the absolute size of a prop; the nest matches them). The coop itself fills the tile. Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds."
+    },
+    "chicken-coop-d": {
+      "refs": [
+        "_candidates/stations-r5/approved/openai--painterly-chicken-coop-c-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's CHICKEN COOP as drawn on magenta; the owner likes it: keep the raised hen house on its legs, the plain gable, the tall egg-shaped door with straw inside, the cream plank walls, the two big chunky wooden steps, the big straw nest at the front right, its camera, rendering and bright daylight. Redraw it with TWO changes only, both about reading BIGGER. (1) THE NEST HOLDS TWO EGGS, not three: two big brown eggs, each scaled up so the pair fills the nest, the nest itself the same large size. (2) THE ROOF HAS FEWER, BIGGER SHINGLES: the red roof is covered in far fewer tiles, each shingle much larger and chunkier (about four or five rows of big tiles instead of many small ones), with a thick ridge beam, so the coop reads as a big sturdy object rather than a miniature. Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds."
+    },
+    "chicken-coop-e": {
+      "refs": [
+        "_candidates/stations-r5/approved/openai--painterly-chicken-coop-d-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's CHICKEN COOP as drawn on magenta; the owner likes it: keep everything, the raised hen house, the big-shingled red roof with its ridge beam, the egg-shaped door, the two chunky steps, the big straw nest at the front right, its camera, rendering and bright daylight. Redraw it with ONE change only: THE TWO EGGS ARE MUCH BIGGER. Today the two eggs sit small in the middle of the nest with straw all around them; instead each egg is huge, the two of them together filling the nest edge to edge and standing well up above its rim, each egg about as tall as one of the steps, big smooth brown eggs that read from across the board. The nest stays the same size. Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds."
     }
   }
 }

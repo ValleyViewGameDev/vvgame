@@ -219,7 +219,12 @@ the owner names, and recut them; do not pick or cut the Beverage Station until t
 
 Chicken Coop and Beehive are size 1 producers, commissioned in round 5 (owner, 2026-10-24) as
 props on the 1 x 1 magenta guide like the deco, at the buildings' absolute prop scale, with NO
-animals drawn (no hens, no bees: the coop and the skep hive are the sign).
+animals drawn (no hens, no bees: the coop and the skep hive are the sign). APPROVED: beehive-b-1
+(golden, sunlit, a big honey pot) and chicken-coop-e-1 after four scale rounds (b: egg door, no
+side box, bigger trough and nest; c: no trough, two big steps, a bigger nest; d: two eggs, fewer
+and bigger shingles; e: the two eggs huge, filling the nest). Lesson for 1 x 1 pieces: say
+"fewer, bigger" for EVERY element (shingles, steps, eggs), not just the props; the model keeps
+miniature detail unless each part is named.
 
 ## 2b. Reserved concepts
 
