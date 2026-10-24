@@ -1109,6 +1109,7 @@
     "200820": "Toil and Trouble",
     "200819": "Cloven Pine",
     "200818": "Hecate",
+    "200860": "The Oracle, deep in the Valley, says the land shall not mend \"if that which is lost be not found.\" Bring her these seven lost treasures, and she will give back Hope.",
     "16115": "Thou wouldst climb to the old magician? His pines are cloven and cursed, and no common axe will bite them. Only the witch in Birnam Wood forges a blade for such wood, and she dearly loves a skull. Fifty-two bones buys one from me.",
     "16422": "Thrice the cauldron bubbles, and every time for thee.",
     "16322": "Fair is foul, and foul is fair. Hover through the fog and filthy air, far from my wood.",
@@ -1289,7 +1290,7 @@
     "4095": "You can change it later in Profile.",
     "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
-    "7065": "You're on your own now! Your crops keep growing while you're away, so come back to harvest them, and a gift waits for you tomorrow. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
+    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops: a gift waits for you tomorrow. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
     "7066": "After a bit of farming, visit Arden's Grange in Town. You can purchase new Skills there.",
     "4096": "Begin the Adventure",
     "4097": "Let us welcome you",
@@ -1476,6 +1477,15 @@
     "16425": "Married! Viola will sing at our wedding, and the whole lake will hear it.",
     "16325": "I lost a sister once, and found her again. Thee I can lose without looking back.",
     "16513": "Thou hast a boat and kind eyes, {username}. Somewhere in these waters is my twin brother Sebastian, if the storm spared him. Find him for me. I'll know the moment thou dost.",
+    "16514": "Our King Leontes keeps to his hall in the Valley and will not be comforted. \"A sad tale's best for winter,\" he says. Go and greet him, {username}, and tell him the Oracle has not forgotten us.",
+    "16515": "Prospero kept a servant once, Caliban, and called him a thing of darkness. Caliban knows every path in the Valley, even the one to the witch who hates his old master. Greet him, and the Oracle's last treasures come nearer.",
     "200851": "Step Stones",
-    "314": "Step stones set in the grass make a path that still looks like a lawn."
+    "314": "Step stones set in the grass make a path that still looks like a lawn.",
+    "200811": "The storm's own heart is the old magician's Orb. Cloven pines wall Prospero in on his Peak, and only a witch's axe will fell them; Caliban knows where she brews. Beat his dragons, then answer what he asks.",
+    "200812": "Uneasy lies the head that wears a crown, and the King's lies lost in Leontes' Castle in Belmont, behind a golden lock. Helena keeps the key, for fifty daisies. A great bear keeps the road: arm thyself before thou goest.",
+    "200813": "Neptune's Trident sleeps in a sealed shrine, and only a key of bone will wake it. Cassio carries one, and swore vengeance on the false Duke Angelo, who hides across the water. Settle his score.",
+    "200814": "The bell invites thee, but it is not sold for coin. Iago trades it only for Portia's Secret, and Portia tells her secret only to one she trusts with all her heart.",
+    "200815": "The bird of wonder dies and rises from its own ash, behind a mirror by the King's castle. Leontes gives the Mirror Key for six secrets; then only the boldest blade will pluck a feather from the fire.",
+    "200816": "'Tis the very witching time of night, when churchyards yawn. A pale lord craves not blood but quiet among his dead: put his restless neighbours back to sleep, and he will bleed for thee.",
+    "200822": "Out, out, brief candle? Not this one: it still burns at the bottom of Acheron, past the black fog and the hound with three heads. Hecate's torch can light the way, if thou bring her what stings."
 }
