@@ -281,6 +281,26 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the DAIRY, an open-air yard with low whitewashed stone back and side walls and no roof, a tall timber cheese press with a screw and crossbar at the back-left rising above the wall, a sky-blue wooden rack of cheese wheels along the back wall, a plain butter churn, a crate of glass milk bottles, a tin milk churn, hanging pails, a pat of butter on a stone slab, a flagstone floor. Redraw the SAME station, identical in every way: every wall, the press, the rack, every prop, colours, lighting, camera and size. Keep the flagstone floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the yard's walls and floor fill that box end to end exactly as in the reference (the press may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "kitchen": {
+      "refs": [
+        "_candidates/stations-r3/approved/openai--painterly-kitchen-b-1.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the KITCHEN, an open-air timber-post stall with no roof, a plank back wall and low side half-walls, red-capped posts, a stone hearth with a dark grey brick chimney at the RIGHT rising above the wall with a black soup pot on a swinging crane over a warm fire glow, a rail of hanging copper pans with onions and garlic at the left, a butcher's block with a knife, a pumpkin, a cabbage and carrots, a red table with a bowl of tomato soup and bowls, a barrel with a checked cloth and a jug, a lantern, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: every post, the hearth and chimney, the glow, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "lumber-yard": {
+      "refs": [
+        "_candidates/stations-r4/approved/openai--painterly-lumber-yard-2.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the LUMBER YARD, an open-air timber-post yard with no roof, green-capped posts, a stone-footed back wall, a tall stepped stack of bark-on logs with their cut ends facing the viewer at the left rising above the wall, a sawhorse with a half-sawn log and a two-man saw, a chopping stump with an axe, a stack of fresh pale planks roped under a forest-green tarp at the right, loose planks leaning on the post, a coil of rope, a lantern, sawdust and flagstones on the floor. Redraw the SAME station, identical in every way: every post, the log stack, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the yard's posts, walls and floor fill that box end to end exactly as in the reference (the log stack may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

@@ -1,0 +1,94 @@
+{
+  "name": "stations-r4",
+  "note": "Stations round 4 (owner, 2026-10-24): Lumber Yard, Studio, Coffee Factory, Beverage Station; options, two candidates each, on the station bones (roof optional).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "lumber-yard": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright full daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. The station's machine or tallest piece stands at the LEFT, its products at the RIGHT, and it must read as what it is at a glance. SUBJECT: the LUMBER YARD, where logs become planks. No roof. At the left a tall stepped STACK OF LOGS, bark on, cut ends facing the viewer, rising above the back wall as the station's shape; in front of it a sawhorse with a half-sawn log and a big two-man saw stuck in the cut; a chopping stump with an axe in it; at the right a neat stack of fresh pale PLANKS and a bundle of planks leaning on the post, sawdust on the floor, a coil of rope. ACCENT: raw pale timber with a FOREST-GREEN canvas tarp thrown over part of the plank stack and green-painted post caps. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "studio": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright full daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. The station's machine or tallest piece stands at the LEFT, its products at the RIGHT, and it must read as what it is at a glance. SUBJECT: the STUDIO, where pottery, furniture, ink and urns are made. A light lean-to of TERRACOTTA shingles over the back half, sagging gently like the Mill's. At the left a wooden POTTER'S WHEEL with a half-thrown clay pot on it and a stool; against the back wall a tall wooden SHELF unit rising above the roofline, loaded with finished pots, jugs and two tall painted URNS; at the right a small workbench with a chisel, a mallet and a half-made wooden chair, and an INK WELL with a quill and a stack of paper on a stool; a lump of wet clay in a bucket. ACCENT: terracotta (the roof, the pots, the urns' bands). The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "coffee-factory": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright full daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. The station's machine or tallest piece stands at the LEFT, its products at the RIGHT, and it must read as what it is at a glance. SUBJECT: the COFFEE FACTORY, where green coffee beans are roasted. No roof. At the left a big iron DRUM ROASTER on a brick base, a rotating drum with a hand crank and a tall dark-brick flue (cold, no smoke) rising above the back wall as the station's shape, a warm glow in its firebox; in front of it a wooden tray of roasted beans in THREE shades (light, medium, dark) side by side; at the right burlap sacks of pale green beans, one open and spilling, a brass hand grinder on a crate, and a row of three tin canisters. ACCENT: NEAR-BLACK roast brown iron and brick with a CREAM painted band on the posts and crate. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "beverage-station": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright full daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. The station's machine or tallest piece stands at the LEFT, its products at the RIGHT, and it must read as what it is at a glance. SUBJECT: the BEVERAGE STATION, where teas, lemonade and coffees are brewed; a late station, allowed to be the most WHIMSICAL of the set. No roof. At the left a tall, slightly crooked copper SAMOVAR on a stand, its chimney and finial rising above the back wall as the station's shape, a tap on its belly, a small teapot sitting on top; a wooden counter at the right with a row of mismatched cups and mugs on hooks, a bowl of yellow lemons, a glass jug of lemonade with slices, a tea tin, a coffee pot and a coffee cup, a jar of sugar; a shelf on the back wall with jars of tea leaves and beans. ACCENT: TEA GREEN painted woodwork (the counter, the shelf, the post caps) against the copper. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "studio-b": {
+      "refs": [
+        "_candidates/stations-r4/exploration/openai/painterly-studio-2.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's STUDIO crafting station as drawn; the owner likes its design (the sagging lean-to, the tall shelf of pots and urns rising above it, the potter's wheel, the bench with the half-made chair, the ink well and quill, the lantern, the camera, the daylight). Redraw it with THREE changes only. (1) THE ROOF IS PINK: the lean-to's shingles are a warm rose PINK (the same pink as this game's Academy, the creativity colour), not terracotta. (2) THE FLOOR IS PALE MARBLE: instead of packed earth and flagstones, the floor is smooth pale cream-and-grey MARBLE tiles with soft veining, clean and bright. (3) THE PROPS ARE BIGGER: SCALE REFERENCE: the second attached panel is this game's GENERAL STORE, a four-tile-wide building; look at the crate and barrel by its door: that is the ABSOLUTE size of a prop in this game. This station is only two tiles wide, so its props must be FEWER and BIGGER: each sack, jar, jug or pot the same absolute size as that store's crate and barrel, the machine filling most of its half, nothing dollhouse-small. Drop minor props if they do not fit at that size. PROP CAMERA: the third attached image is this game's barrel; every prop stays in that camera, front on and a little from above. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "coffee-factory-b": {
+      "refs": [
+        "_candidates/stations-r4/exploration/openai/painterly-coffee-factory-2.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's COFFEE FACTORY crafting station as drawn; the owner likes its design (the open stall, the iron drum roaster on its brick base with the crank and flue and the glowing firebox, the tray of beans in three roasts, the sacks of green beans, the grinder, the tin canisters, the cream-banded posts, the lantern, the camera, the daylight). Redraw it with ONE change only: THE PROPS ARE BIGGER. SCALE REFERENCE: the second attached panel is this game's GENERAL STORE, a four-tile-wide building; look at the crate and barrel by its door: that is the ABSOLUTE size of a prop in this game. This station is only two tiles wide, so its props must be FEWER and BIGGER: each sack, jar, jug or pot the same absolute size as that store's crate and barrel, the machine filling most of its half, nothing dollhouse-small. Drop minor props if they do not fit at that size. PROP CAMERA: the third attached image is this game's barrel; every prop stays in that camera, front on and a little from above. The roaster grows to fill the left half and rises higher above the wall; two big sacks instead of three small, one big grinder, two or three big canisters, the bean tray wide and shallow in front. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "beverage-station-b": {
+      "refs": [
+        "_candidates/stations-r4/exploration/openai/painterly-beverage-station-1.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's BEVERAGE STATION crafting station as drawn; the owner likes its design (the open stall, the tall crooked copper samovar with the teapot on top, the tea-green counter and shelf, the mugs on hooks, the lemons, the jug of lemonade, the coffee pot and cup, the jars, the lantern, the camera, the daylight, its whimsy). Redraw it with ONE change only: THE PROPS ARE BIGGER. SCALE REFERENCE: the second attached panel is this game's GENERAL STORE, a four-tile-wide building; look at the crate and barrel by its door: that is the ABSOLUTE size of a prop in this game. This station is only two tiles wide, so its props must be FEWER and BIGGER: each sack, jar, jug or pot the same absolute size as that store's crate and barrel, the machine filling most of its half, nothing dollhouse-small. Drop minor props if they do not fit at that size. PROP CAMERA: the third attached image is this game's barrel; every prop stays in that camera, front on and a little from above. The samovar grows to fill the left half and rises higher above the wall; on the counter only a few big things: the bowl of lemons, the jug, the coffee pot and one big cup; four big mugs on the hooks instead of many small; three big jars on the shelf. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    }
+  }
+}

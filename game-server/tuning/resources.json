@@ -7599,7 +7599,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "tomato red",
-    "artSign": "steaming pot"
+    "artSign": "none (the hearth and chimney)",
+    "artSpan": 2.04
   },
   {
     "type": "Lumber Yard",
