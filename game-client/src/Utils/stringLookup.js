@@ -29,7 +29,7 @@ export const DISPLAY_ALIASES = {
   Library: "Prospero's Library",
   'Magic Shop': "Oberon's Bower",
   School: 'Wittenberg',
-  'Agriculture Center': 'Grange at Arden',
+  'Agriculture Center': "Arden's Grange",
   Courthouse: "Portia's Court",
   Shrine: "Neptune's Shrine",
   Castle: "Leontes' Castle",

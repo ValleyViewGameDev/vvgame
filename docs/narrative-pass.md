@@ -104,7 +104,7 @@ of Arden (As You Like It), so the four read as two pairs.
 | Rancher | **Corin** | Arden's old shepherd: "the greatest of my pride is to see my ewes graze and my lambs suck" | Launce and his dog Crab (Two Gentlemen of Verona), Silvius |
 | Farm Hand | **Audrey** | Arden's country girl, plain and cheerful | William (Arden's country lad), Costard (Love's Labour's Lost) |
 
-**Building names, round 2** (owner 2026-10-24: Wittenberg, the Grange at Arden and Portia's Court
+**Building names, round 2** (owner 2026-10-24: Wittenberg, the Arden's Grange and Portia's Court
 approved; the Guild keeps its name; more ideas wanted for the rest, tied to what each one sells).
 Diagon Alley's lesson (a person and their wares, a good pair of names, a tagline that says what is
 sold) applied to the actual stock:
@@ -134,7 +134,7 @@ Protector was dressed all in green": whimsical and it says protection at once).
 **Built in the local build 2026-10-24** (aliases in `Utils/stringLookup.js` `DISPLAY_ALIASES` +
 the name strings in all ten languages; types unchanged): Boar's Head (Restaurant), Garter Inn
 (Inn), Counting House (Bank), Temple of Apollo (Ancient Temple), Prospero's Library (Library),
-Oberon's Bower (Magic Shop), Wittenberg (School), Grange at Arden (Agriculture Center), Portia's
+Oberon's Bower (Magic Shop), Wittenberg (School), Arden's Grange (Agriculture Center), Portia's
 Court (Courthouse); the workers Audrey (Farm Hand), Corin (Rancher), Peter Quince (Lumberjack),
 Nick Bottom (Crafter); Kent's symbol 🧔. Round 2, same day: Neptune's Shrine, Leontes' Castle,
 Quickly's Lab, The Wall, Tybalt's, Woodman's Yard, Hector Protector (Armory).
@@ -361,7 +361,7 @@ proposed first). Still open:
   art as a special resource outside the deco catalog; quest text not greenlit; the Shepherd's
   specialised quests to whoever fits.
 - 2026-10-24 (fourth round): no migration while the owner is travelling; Oberon is excluded
-  from it. Wittenberg, the Grange at Arden, Portia's Court approved; the Guild keeps its name;
+  from it. Wittenberg, the Arden's Grange, Portia's Court approved; the Guild keeps its name;
   more ideas for the other buildings, tied to their stock. The title is "Secrets of Elsinore"
   in every language file. Focus: finalise the story docs and make the changes in the local
   build.
