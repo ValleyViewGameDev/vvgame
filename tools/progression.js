@@ -17,6 +17,9 @@
  *
  *   node tools/progression.js [--to 16] [--anchor 1010134] [--player Mobile] [--grids 10,20,40,80,160]
  *   node tools/progression.js --pacing [--to 20] [--since 2026-10-25]
+ *   node tools/progression.js --regions        the wild-crop supply per valley REGION (an outpost
+ *            reached with Snug, its Trading Post shipping home): spots and per-day regrowth,
+ *            the richest grid for each crop; regions read from the grids (read-only)
  *
  * --player reads that player's homestead and gridsVisited from the database (read-only); --pacing
  * reads the analytics collections (read-only), developer accounts left out.
@@ -53,7 +56,7 @@ const unlocks = R.filter((r) => (r.category === 'skill' || (r.category === 'craf
 const WILD = ['Rosemary', 'Daisy', 'Tulip', 'Mushroom', 'Garlic', 'Feverfew', 'Sunflower'];
 const WATCH = [...WILD, 'Milk', 'Stone', 'Clay', 'Wood', 'Money'];
 
-const PACING_ONLY = args.includes('--pacing');
+const PACING_ONLY = args.includes('--pacing') || args.includes('--regions'); // a view of its own: skip the demand table
 if (!PACING_ONLY) console.log(`\n=== DEMAND: skills and stations up to L${TO}, raw goods (potions broken down) ===`);
 const cum = {};
 let lastLevel = 0;
@@ -86,7 +89,7 @@ function yieldOf(coord) {
   return out;
 }
 const goods = (y) => ({ ...y, Stone: (y.Rocks || 0) * (byType.get('Stone')?.qtycollected || 1), Clay: (y['Clay Pit'] || 0) * (byType.get('Clay')?.qtycollected || 1) });
-const SHOW = ['Rosemary', 'Daisy', 'Tulip', 'Mushroom', 'Garlic', 'Feverfew', 'Stone', 'Clay'];
+const SHOW = ['Rosemary', 'Daisy', 'Tulip', 'Mushroom', 'Garlic', 'Feverfew', 'Sunflower', 'Stone', 'Clay'];
 // days for a picked spot to grow back (its plot's growtime); not repeatable = once only
 const regrowDays = (t) => {
   const r = byType.get(t); if (!r?.repeatable) return null;
@@ -138,7 +141,44 @@ async function pacing() {
   } finally { await c.close(); }
 }
 
+// ---------------------------------------------------------------- supply by region (outposts)
+async function regions() {
+  require(path.join(G, 'node_modules/dotenv')).config({ path: path.join(G, '.env') });
+  const { MongoClient } = require(path.join(G, 'node_modules/mongodb'));
+  const c = new MongoClient(process.env.MONGODB_URI); await c.connect();
+  let rows;
+  try {
+    rows = await c.db().collection('grids').find({ region: { $ne: null }, ownerId: null, gridType: /^valley/ },
+      { projection: { gridCoord: 1, region: 1 } }).toArray();
+  } finally { await c.close(); }
+  const WILD_SHOW = SHOW.filter((t) => !['Stone', 'Clay'].includes(t));
+  const by = new Map();
+  for (const { gridCoord, region } of rows) {
+    if (!gridCoord) continue;
+    const r = by.get(region) || { grids: 0, sum: {}, best: {} };
+    r.grids++;
+    for (const [t, q] of Object.entries(goods(yieldOf(gridCoord)))) {
+      r.sum[t] = (r.sum[t] || 0) + q;
+      if (!r.best[t] || q > r.best[t][1]) r.best[t] = [gridCoord, q];
+    }
+    by.set(region, r);
+  }
+  console.log(`\n=== SUPPLY BY REGION: wild-crop spots in each valley region, and per day if swept as they regrow ===`);
+  console.log('region | grids | ' + WILD_SHOW.join(' | '));
+  const list = [...by.entries()].sort((a, b) => WILD_SHOW.reduce((n, t) => n + (b[1].sum[t] || 0), 0) - WILD_SHOW.reduce((n, t) => n + (a[1].sum[t] || 0), 0));
+  for (const [region, r] of list) {
+    console.log(`${region} | ${r.grids} | ${WILD_SHOW.map((t) => { const n = Math.round(r.sum[t] || 0); const d = regrowDays(t); return n ? `${n}${d ? ` (${Math.round(n / d)}/d)` : ''}` : '-'; }).join(' | ')}`);
+  }
+  console.log('\nRichest grid per crop:');
+  for (const t of WILD_SHOW) {
+    let top = null;
+    for (const [region, r] of by) if (r.best[t] && (!top || r.best[t][1] > top[2])) top = [region, r.best[t][0], r.best[t][1]];
+    if (top) console.log(`  ${t}: ${top[1]} (${top[0]}), ${top[2]} spots`);
+  }
+}
+
 async function main() {
+  if (args.includes('--regions')) return regions();
   if (PACING_ONLY) return pacing();
   let anchor = Number(opt('anchor', 0)) || null;
   let visited = null;

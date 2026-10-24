@@ -349,7 +349,12 @@ Measured 2026-10-16, average laid out per valley grid per season (share of templ
 **How to use it.** An ask of N of a wild crop is fair at the level when the player can reach the
 valleys that hold enough of it. Near-valley crops (Rosemary, Daisy) suit early asks; Tulip and
 Mushroom asks belong with mid-valley access; Feverfew in quantity is a far-valley crop; wild
-Sunflowers barely exist, so Sunflower asks wait for the Florist plot (L23). Helena follows this
+Sunflowers are rare overall but concentrated: Sunflower Lake holds 916 spots, 853 of them on four
+grids (1012507 alone 392), so a player who has found it gets them at scale (2026-10-24, owner).
+**Read supply by region, not by distance from home:** a found valley town is an outpost (Snug
+travels back to it, its Trading Post ships goods home, the crops regrow in one to three days);
+`node tools/progression.js --regions` gives spots and per-day regrowth per region. The ring
+averages above say what a random grid holds; the regions say what a player can farm. Helena follows this
 since 2026-10-16: the Golden Key for 50 Daisy at L8 (it was 50 Feverfew, which a near-valley
 player could hardly find), then repeatable Tulip L9, Rosemary L10, Mushroom L12, Feverfew L14 and
 Sunflower L23 (25). Prices should follow the same order (a valley1-common crop is cheap;

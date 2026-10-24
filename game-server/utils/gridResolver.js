@@ -7,6 +7,7 @@
  * dungeon resets). This module turns "player + where" into "the Grid document to load".
  */
 const Grid = require('../models/grid');
+const { noteRegion } = require('./regionsVisited');
 const Player = require('../models/player');
 const Frontier = require('../models/frontier');
 const Settlement = require('../models/settlement');
@@ -264,6 +265,7 @@ function setPlayerLocation(player, grid, settlementId, gridCoord, xy) {
     player.gridsVisited = markGridVisited(player.gridsVisited, Number(gridCoord));
     player.markModified('gridsVisited');
   }
+  noteRegion(player, grid.region); // the Discover quest goal (utils/regionsVisited.js)
 }
 
 /**

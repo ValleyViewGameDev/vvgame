@@ -16,6 +16,7 @@ const {
 } = require('../utils/gridResolver');
 
 const { recordActivity, recordGridEntered } = require('../utils/analytics');
+const { seedRegionsVisited } = require('../utils/regionsVisited');
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ error: reason, reason, ...extra });
 
@@ -237,6 +238,8 @@ router.post('/enter-grid', async (req, res) => {
     // on his island and Viola with him once reunited (utils/storyState.js)
     await applyStoryState(grid, player).catch((e) => console.error('applyStoryState failed:', e));
 
+    // an account from before regionsVisited gets its list once, from the grids it has visited
+    await seedRegionsVisited(player).catch((e) => console.error('seedRegionsVisited failed:', e));
     player.lastActive = new Date();
     await leaveNpcs; // the leave is part of this round trip (§4.2)
     await player.save();

@@ -288,8 +288,17 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Quest for Hope modal now opens with where the seven go ("The Oracle, in her Sanctuary deep in
   the Valley, will trade Hope for these seven lost treasures. Find them, then find her.", 200860),
   and other characters should mention her in their own lines (for the narrative pass, P2/P3:
-  quests other than Elbow's carry no text yet). Open: the other givers' mid-game quests (L19-29),
-  a separate content batch.
+  quests other than Elbow's carry no text yet). Open: the other givers' mid-game quests (L19-29):
+  17 drafted in `docs/midgame-quests-draft.md` (not built; revised after the owner's review:
+  Hotspur's regional quests become a new `Discover <region>` goal; Helena adds Discover Sunflower
+  Lake (L16) and Forest of Arden (L18), the Potion C outposts). Florist checked: measured by
+  outposts (Snug + Trading Post; `node tools/progression.js --regions`), 100 Potion C is about a
+  week with Ink the long pole, a fair long goal; it stays.
+  **Built 2026-10-24:** the `Discover <region>` goal (a state goal: `player.regionsVisited`, added
+  in `setPlayerLocation`, seeded once from `gridsVisited` for older accounts in enter-grid,
+  `utils/regionsVisited.js`; the client mirrors it on arrival and also counts the region the
+  player stands in; editor enum) and the 20 quests (L16-29). Not yet played. Open: Elbow's L27 and
+  L30 xp per the draft's reward rule (175 and about 500), if wanted.
 
 - **OB-7. Measure pacing: level timestamps and a pacing view** (added 2026-10-24). Record when a
   player reaches each level (analytics), then add a pacing model to `tools/progression.js`
@@ -319,6 +328,13 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   `routes/storyRoutes.js`); its note says the rest of the story opens and Elbow has more to ask.
   The migration (`wake-gertrude-for-friends.js`) sets the flag directly, so players it wakes get
   no gift. Open: "about day 10" needs OB-7's level timestamps (L15 is 2,960 xp).
+- **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops
+  come from outposts: a valley region found once is reached again with Snug, its Trading Post
+  ships goods home, and the crops regrow in one to three days (`tuning.md` §4h, `node
+  tools/progression.js --regions`; Sunflower Lake is the Potion C outpost). Nothing teaches that.
+  The first time a player stands in a valley town they found, show how Snug brings them back,
+  and that the Trading Post sends goods home. Start at `GameFeatures/NPCs/SnugTravelModal.js` and
+  the region-entry notice in `Utils/GridManagement.js`.
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 

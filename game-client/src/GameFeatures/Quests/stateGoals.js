@@ -7,11 +7,14 @@ import axios from 'axios';
  *   Meet <NPC type>            the player has greeted that character (relationship `met`)
  *   Find <item>                the player holds it, or (one of the seven treasures) has ever found
  *                              it (`player.hopeFound`), so giving it to the Oracle does not undo it
- * Meet and Find were added for Constable Elbow's story chain (docs/narrative-pass.md P3.4).
+ *   Discover <region>          the player has entered that valley region (`player.regionsVisited`,
+ *                              or standing in it now: an older account's list is seeded on the server)
+ * Meet and Find were added for Constable Elbow's story chain (docs/narrative-pass.md P3.4); Discover
+ * for the mid-game quests (docs/midgame-quests-draft.md).
  * Every place that decides "is this goal done" asks here: the To Do panel, the HUD badge, the
  * accept-time check and the giver's panel.
  */
-export const STATE_GOALS = ['Acquire', 'Meet', 'Find'];
+export const STATE_GOALS = ['Acquire', 'Meet', 'Find', 'Discover'];
 
 const holds = (list, item) => (list || []).some((i) => i?.type === item && (i.quantity || 0) > 0);
 
@@ -22,6 +25,7 @@ export function stateGoalMet(action, item, player) {
     case 'Meet': return !!player.relationships?.some((r) => r?.name === item && r.met);
     case 'Find': return holds(player.inventory, item) || holds(player.backpack, item)
       || (Array.isArray(player.hopeFound) && player.hopeFound.includes(item));
+    case 'Discover': return !!(player.regionsVisited?.includes(item) || player.location?.region === item);
     default: return false;
   }
 }

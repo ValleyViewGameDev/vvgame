@@ -225,6 +225,9 @@ const playerSchema = new mongoose.Schema({
   // Unset = an account from before 2026-10-24: its first /hope/found call records what it holds
   // silently, so old finds are not replayed; new accounts start with [] (routes/auth.js).
   hopeFound: { type: [String], default: undefined },
+  // valley regions entered, for the Discover quest goal (utils/regionsVisited.js); unset on accounts
+  // from before it, which are seeded from gridsVisited on their next enter-grid
+  regionsVisited: { type: [String], default: undefined },
   // the day-2 gift (utils/returnGift.js): false on new accounts until it is mailed; unset on accounts
   // from before it existed, which never get it
   returnGift: { type: Boolean, default: undefined },

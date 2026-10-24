@@ -422,6 +422,10 @@ export const changePlayerLocation = async (
     if (isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
       updatedPlayer.gridsVisited = toServerFormat(markGridVisited(currentPlayer.gridsVisited, toGridCoord));
     }
+    // Local regionsVisited mirror (the server adds it in enter-grid): the Discover quest goal
+    if (toRegion && !(currentPlayer.regionsVisited || []).includes(toRegion)) {
+      updatedPlayer.regionsVisited = [...(currentPlayer.regionsVisited || []), toRegion];
+    }
 
     // Commit React + localStorage state
     setGridId(toGridId);
