@@ -19,8 +19,8 @@ const HINT_STRING = {
 };
 
 /**
- * QuestForHopeModal (backlog W-8): the seven artifacts the Oracle asks for, listed with their
- * icons and names; collected ones in full colour, the rest faint. Tapping an uncollected one
+ * QuestForHopeModal (backlog W-8): who to bring them to (the Oracle, string 200860), then the seven
+ * artifacts she asks for, listed with their icons and names; collected ones in full colour, the rest faint. Tapping an uncollected one
  * opens a small "Hint:" modal with a riddle about where to look.
  *
  * @param {Array} items - [{ name, symbol, collected }] in the Oracle's order (from HopeQuest)
@@ -36,7 +36,8 @@ export default function QuestForHopeModal({ items = [], onClose }) {
   return (
     <>
       <Modal onClose={onClose} title={title} className="modal-narrow quest-for-hope-modal">
-        <p className="qfh-note">{t(200804)}</p>
+        {/* where the seven go: the Oracle is the quest's end, so it is said here, not as a quest */}
+        <p className="qfh-oracle">{t(200860)}</p>
         <div className="qfh-list">
           {items.map((item) => (
             <button

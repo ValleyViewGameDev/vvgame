@@ -6,13 +6,13 @@
 .hope-quest-slot-icon { line-height: 1; }
 .hope-quest-slot-icon.uncollected { opacity: 0.18; }   /* a very faint picture of what to find */
 
-/* the modal list: one row per artifact, icon then name */
-.qfh-note {
-  margin: 0 0 10px;
+/* the modal: who the seven are for (the Oracle), then the tap note, then the list */
+.qfh-oracle {
+  margin: 0 0 8px;
   font-family: var(--font-text-2-family);
   font-size: var(--text-md);
-  opacity: 0.8;
 }
+/* the modal list: one row per artifact, icon then name */
 .qfh-list {
   display: flex;
   flex-direction: column;
