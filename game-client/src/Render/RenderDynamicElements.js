@@ -207,6 +207,7 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
         if (activeQuest) {
           return activeQuest.completed && !activeQuest.rewardCollected;
         }
+        if (quest.retired === true || quest.retired === 'true') return false; // merged away, never offered
         return (quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests?.some(q => q.questId === quest.title);
       });
 

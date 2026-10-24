@@ -54,6 +54,7 @@ export const DEFINITIONS = [
       { ...str('category'), type: 'enum', enum: ['tile', 'special', 'doober', 'source', 'farmplot', 'travel', 'editor', 'deco', 'stall', 'training', 'crafting', 'trainingAndShop', 'station', 'farmhouse', 'shop', 'npc', 'skill', 'power', 'pet', 'region'], required: true },
       str('symbol'), str('filename'), str('action'), bool('passable'), num('level'), str('source'),
       { ...ref('shopregion', 'resource', 'error'), label: 'shopregion (only this region\'s shops sell it)' }, str('requires'),
+      bool('retired', 'retired (no longer sold or offered; players who own it keep it)'),
       num('size'), num('qtycollected'), num('xp'), num('crafttime'), num('totalnestedtime'),
       { ...num('gemcost'), label: 'gemcost (derived)', derived: true },
       { ...bool('nogems'), label: 'nogems (never bought with gems)' },
@@ -146,6 +147,7 @@ export const DEFINITIONS = [
       str('rel'), num('relscore'),
       { ...str('prereq'), label: 'prereq (title of a quest that must be complete first)' },
       { ...str('storyKey'), label: 'storyKey (string id the giver says, as a StoryModal, on accept)' },
+      bool('retired', 'retired (no longer offered; a player who holds it can still finish and claim it)'),
     ],
   },
   {

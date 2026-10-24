@@ -12,8 +12,11 @@ game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens'
 The world's story, decided with the owner on 2026-10-24 (a storm of stories; Prospero as the
 antagonist, defeated, not killed; Gertrude as the statue). Every intro, hint, quest ask and
 milestone line serves it. The old intro (string 16019: "an evil scourge grows... bring back the
-rule of King Leontes") was rewritten on 2026-10-24 around this tale: it is Constable Elbow's
-greeting in the sea cave ("Who goes there? Stand, in the King's name!...").
+rule of King Leontes") was rewritten on 2026-10-24 around this tale, and on 2026-10-25 (owner)
+given to **Gertrude's spirit**: the Queen, turned to stone in her castle, speaks to the stranger
+in the sea cave ("Who comes? A stranger... It turned me to stone and took my King's crown...")
+and sends them to Constable Elbow for the Home Deed. Her waking at the end of the early game pays
+off the voice the player heard first.
 
 - **Before.** Elsinore was a merry kingdom by the sea under King Leontes (The Winter's Tale) and
   Queen Gertrude (Hamlet), a place of fairs and farms. The cracks were already there: Leontes
@@ -38,7 +41,8 @@ greeting in the sea cave ("Who goes there? Stand, in the King's name!...").
   playing the part their play gave them; the player is a stranger the storm washed up with no
   script at all ("All the world's a stage... and one man in his time plays many parts", which is
   also the aspiration choice). So the player is the only one who can change how the story ends.
-  They wake in the sea cave (the FTUE cave) and are found by **Constable Elbow** (Measure for
+  They wake in the sea cave (the FTUE cave), where **Gertrude's spirit** speaks to them first
+  (the opening intro, 16019; owner 2026-10-25) and sends them to **Constable Elbow** (Measure for
   Measure), "the poor duke's constable" who "do lean upon justice": once Angelo's officer, still
   loyal to the King while Angelo rules the Town's law by force. He sees the stranger settled (the
   Home Deed) and gives the **core story quests** (owner, 2026-10-24), the chain that walks the
@@ -182,7 +186,7 @@ stub riddle, the real puzzle is still to be designed.
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
-| Constable Elbow | Measure for Measure | Finds the stranger in the sea cave; the Home Deed, Town and Dungeon Keys; gives the 13 core story quests (§0; built 2026-10-24, `narrative-pass.md` P3.4) |
+| Constable Elbow | Measure for Measure | Meets the stranger in the sea cave after Gertrude's spirit sends them to him; the Home Deed, Town and Dungeon Keys; gives the 13 core story quests (§0; built 2026-10-24, `narrative-pass.md` P3.4) |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
 | Snug | A Midsummer Night's Dream | Travel companion; the joiner of the Mechanicals, with Quince and Bottom |
 | Falstaff | Henry IV / The Merry Wives of Windsor | Trader (Feverfew for Port, Brandy) |

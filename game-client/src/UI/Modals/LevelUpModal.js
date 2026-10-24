@@ -58,7 +58,7 @@ const LevelUpModal = ({
       try {
         const allQuests = await questCache.getQuests();
         // Find quests that unlock at this level
-        const questsAtLevel = allQuests.filter(quest => quest.level === currentLevel);
+        const questsAtLevel = allQuests.filter(quest => quest.level === currentLevel && quest.retired !== true && quest.retired !== 'true');
         // Get unique quest givers with their symbols
         const giverMap = new Map();
         questsAtLevel.forEach(quest => {

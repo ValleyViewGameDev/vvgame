@@ -225,7 +225,7 @@ async function main() {
   // ---------------------------------------------------------------- quests
   console.log(`\n=== QUESTS by level (L1-${TO}) ===`);
   for (let L = 1; L <= TO; L++) {
-    const qs = Q.filter((q) => (q.level || 1) === L);
+    const qs = Q.filter((q) => (q.level || 1) === L && !q.retired);
     console.log(`L${String(L).padStart(2)} (${qs.length}) ${qs.map((q) => `${q.giver}: ${q.goal1action} ${q.goal1qty || ''} ${q.goal1item}${q.goal2item ? ' + ' + q.goal2item : ''} -> ${q.reward || ''}${q.rewardqty ? ' x' + q.rewardqty : ''}`).join(' | ')}`);
   }
 }

@@ -91,7 +91,10 @@ const ShopStation = ({
 
   useEffect(() => {
     if (!masterResources || !stationType) return;
-    const soldHere = (resource) => !resource?.shopregion || resource.shopregion === shopRegion;
+    // a retired item (resources.json `retired`, e.g. Short Sword, folded into Long Sword at L10) is
+    // no longer sold; a player who owns one keeps it
+    const soldHere = (resource) => resource?.retired !== true
+      && (!resource?.shopregion || resource.shopregion === shopRegion);
     // Shop order: level-lock order (lowest unlock level first), except the "Only Found in Scrolls"
     // items (shown for aspiration, never buyable: their recipe lists that placeholder), which all
     // follow everything buyable, by level among themselves. Same level keeps the data order.

@@ -518,6 +518,15 @@ one slot each, so a new one only raises the curve if it beats the slot; magic it
 slot and all stack, so every shared magic item lifts the baseline for good. Keep new magic items
 small (+1 to +3) and priced as Money/Book sinks.
 
+**Combat starts at L10 (owner, 2026-10-25).** No weapon, armour or combat magic unlocks before
+L10 except the starting Knife and Padding. The items below it moved up: Long Sword, Light Armor,
+Buckler, Focus and Setebos Hide (the regional notch above Light Armor) to L10; Jab (Flurry needs
+it), Fortitude, Short Bow, Warding Charm and Lead Casket to L11. Short Sword and Darts are
+`retired` (resources.json: no longer sold; owners keep them): Long Sword and Short Bow cover them.
+The baseline at L12 and above is unchanged, so the enemies from the Spider up keep their fit;
+the near-ring Coyote and Bear (fitted for L3 and L6 gear) now meet players who have only the
+Knife, and their placement is to be tuned later (owner).
+
 **Rules for new items**
 - A shared item stays a notch below the scroll-only item near its level (Knight's Plate AC 16
   at L33 vs Mystic Armor AC 16 at L29).

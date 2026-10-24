@@ -51,7 +51,7 @@ carry the player through them:
 | Act | Phase | What happens | Ends with |
 |---|---|---|---|
 | I, washed ashore | FTUE + early-early (L1-6) | the sea cave, Constable Elbow, the Home Deed, the Shepherd, Kent, the Town | the Town cast met (Elbow's first step, L3) |
-| II, the stranded cast | mid-early + late-early (L6-15) | the Valley (Helena, L5), combat (Cassio, L8), the first treasure (the King's Crown, L10), the Trident as a stretch | **the Queen wakes** (Gertrude, L14-15): the end of the early game |
+| II, the stranded cast | mid-early + late-early (L6-15) | the Valley (Helena, L7), combat (Cassio, L10), the first treasure (the King's Crown, L11), the Trident as a stretch | **the Queen wakes** (Gertrude, L14-15): the end of the early game |
 | III, the Valley and its dangers | mid game (L15-30) | more treasures (Vampire's Blood L16, Brass Bell L18), regions, Potion B | |
 | IV, the witch and the underworld | late game (L30-36) | Hecate, Toil and Trouble, Acheron, the Brief Candle | |
 | V, Prospero's Peak, then the Oracle | late into elder (L40-55) | the dragons, the Orb, the Phoenix, Hope | |
@@ -93,31 +93,37 @@ Two separate goals:
   a gift tomorrow (the day-2 gift, message 6, `utils/returnGift.js`; bigger than the daily drip),
   Elbow's next task, the seven treasures of the Quest for Hope.
 
-### Early-early (L3 to L6): skills multiply
+### One new concept per level, to L7 (owner, 2026-10-25)
 
-The lesson: a skill makes more things and more money, right now. Every skill bought should
-show its "more" in the same session: Grower opens new plot types, the Axe opens Wood,
-Husbandry animals and Milk, Builder the Mill, then Bulk Harvest and the Farm Hand. Kent's
-newest-station slot (`tuning.md` §4) already turns each new product into an order; the quests
-here are a short chain where each reward funds the next skill.
+Until about L7 each level introduces ONE new system while the player masters the core loop
+(plant, harvest, sell to Kent, level up). Practice with a system already met (another crop, a
+second animal, Kent orders) may sit beside it. A concept is one quest where it can be: the
+Husbandry quest is the model (Acquire Husbandry, Buy 1 Cow, Collect 30 Milk; the two quests
+merged into it are `retired`, still claimable by anyone who holds one). From L8 a level may carry
+more than one. **Combat starts at L10** (owner): combat quests and the first weapons, armour and
+combat magic all unlock there; a player may still fight before with the Knife and Padding.
 
-### Mid-early (L6 to L10): out into the world
+| Lvl | New concept | Quests |
+|---|---|---|
+| 1 | farming and Kent (FTUE) | Plant Wheat |
+| 2 | skills | Grower; Earth's Bounty; Elbow's first story step (from the FTUE) |
+| 3 | animals | The Gentle Art (Husbandry + Cow + 30 Milk) |
+| 4 | wood | Wood Master (Axe), Saw You Not That? (24 Wood); I Earn That I Eat (Kent, practice) |
+| 5 | building | Foundations of Stone (Builder), Mill by Moonlight; Fleecy Fellowship (Sheep, practice) |
+| 6 | new crops | Our Bodies Are Our Gardens (Green Thumb + 10 Potato); Sweet Harvest (practice) |
+| 7 | the Valley | Backpack; Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Cook's Harvest (practice) |
+| 8 | stone builds | Master Mason, Dairy to Dream, Cheddar Ambitions; Mechanics; Coop Dreams |
+| 9 | potions, cloth | Helena's Rosemary, Portia's Potion A, Chemistry; Loom and Cloth; Dairy Delights; Lumberjack; Serve Kent 12; the Clay |
+| 10 | combat begins | Hotspur's Focus, Long Blade, kit and Coyotes / Pelts; Elbow's Cassio step |
+| 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Farm Hand, Rancher, Fortitude |
+| 12 | | Duke Angelo; Politics and Vote (elections run on their own clock); Textiles |
 
-- **The Valley, at L5**: Elbow's "More Things in Heaven and Earth" (Meet Helena) sends the player
-  to Helena, one grid south of town: a short, easy first step out. (Copies of her will stand on
-  every grid south of a town, for when settlements fill with players; for tuning, treat her as one
-  grid south of town.) On arrival her "I Know a Bank Where the Wild Thyme Blows" (L5, 6 Rosemary
-  for 2 Daisy) teaches that wild herbs grow back, and hands over the Daisies for Portia's L7
-  potion (OB-4).
-- **Town stations**: Masonry, Dairy, Loom, with Stone from the Pickaxe (L6).
-- **Potion A** at L7, through the Apothecary (Portia's "A Draught of Rosemary").
-- **The first fights**: Hotspur's Coyotes (L8), then Bears (L9).
-- **Daily habits**: Kent's orders, the Bank (L8), the Train (L9; the Caravan to players).
-- **The story begins** at L8: Helena's Golden Key ("Daisies for the Door").
+The XP the moved quests carried was put back on the concept quests (`tuning.md` §2: XP is the
+clock), so quest XP per level stays near what it was (L4 25, L5 65, L6 60, L7 80).
 
 ### Late-early (L10 to L15): the first artifact, then the Queen
 
-- **The King's Crown** (§3), at about L10 to L11, day 5 to 7.
+- **The King's Crown** (§3), at about L11, day 5 to 7.
 - **The Oven and Baker loop**: the Clay quest (L9), the Oven (L10), Baker (L11, now 6 Potion A
   and 1 Potion B).
 - **The Trident** as the first stretch goal: Cassio, Duke Angelo and the Skeleton Key (L12+).
@@ -141,8 +147,8 @@ one, so the rest of the game is a promise, not a mystery.
 
 - **Glimpse at the end of the FTUE**: the Shepherd's last line names the Quest for Hope and the
   seven dark boxes are shown (OB-3).
-- **The designed first artifact is the King's Crown, at about L10 to L11** (built 2026-10-24,
-  OB-5; Elbow's "A Crown for the King" (L10, Find) is the story step that asks for it). Leontes' castle stands in **Belmont** (1011165, a near-valley town about 13 grids from
+- **The designed first artifact is the King's Crown, at about L11** (built 2026-10-24,
+  OB-5, moved a level 2026-10-25 when combat moved to L10; Elbow's "A Crown for the King" (L11, Find) is the story step that asks for it). Leontes' castle stands in **Belmont** (1011165, a near-valley town about 13 grids from
   home, with its own regional shop items); the only land route to it is a strip from the west,
   watched by two Bears and, on the cobbled road in front of the gates, the **Great Bear** (a
   mini-boss fitted for L10, `tuning.md` §5d; it replaced four Ogres, which are L22 enemies). The
@@ -150,11 +156,11 @@ one, so the rest of the game is a promise, not a mystery.
 
   | Level | Giver | Quest | Goal | Why |
   |---|---|---|---|---|
-  | 8 | Helena | Daisies for the Door | 50 Daisy, pays the Golden Key | the key to the castle |
-  | 9 | Hotspur | The Long Blade | own a Long Sword | the weapon |
-  | 9 | Hotspur | We Pluck This Flower, Safety | own Light Armor and a Buckler | the armour |
-  | 10 | Hotspur | Exit, Pursued by a Bear | kill the Great Bear | clear the road |
-  | 10 | Constable Elbow | A Crown for the King | find the King's Crown at the Castle (the Golden Key) | the first artifact |
+  | 7 | Helena | Daisies for the Door | 50 Daisy, pays the Golden Key | the key to the castle |
+  | 10 | Hotspur | The Long Blade | own a Long Sword | the weapon |
+  | 10 | Hotspur | We Pluck This Flower, Safety | own Light Armor and a Buckler | the armour |
+  | 11 | Hotspur | Exit, Pursued by a Bear | kill the Great Bear | clear the road |
+  | 11 | Constable Elbow | A Crown for the King | find the King's Crown at the Castle (the Golden Key) | the first artifact |
 
   With that kit (Long Sword, Light Armor, Buckler) a level 10 player kills the Great Bear in
   about 20 s for a quarter of their hp; with a Knife and no armour it kills them. Helena's first
@@ -189,9 +195,9 @@ Re-measured 2026-10-24 after the story chain:
 |---|---|---|
 | Farming, Skills, Animals | L1 to L3 | the Shepherd |
 | **Story** | **L3** | Elbow's chain (was L8) |
-| Crafting stations | L5 | fine |
-| **The Valley** | **L5** | Elbow sends the player to Helena (was L8); her L5 starter (OB-4) |
-| Combat | L8 | Hotspur's Coyotes; first gear quest L5 (Focus) |
+| Crafting stations | L5 | the Mill; stone stations L8 |
+| **The Valley** | **L7** | Elbow sends the player to Helena, with the Pickaxe for Stone; her Golden Key |
+| Combat | L10 | Hotspur's kit and Coyotes; the first weapons and armour unlock at L10 |
 | Kent / selling | L8 | taught in the FTUE, then once (Hotspur's Pelts) |
 | Potions | L7 | Portia |
 | The Queen | L14-15 | Helena, Feste, Elbow |

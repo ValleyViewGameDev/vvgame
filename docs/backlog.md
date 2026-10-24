@@ -204,8 +204,9 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   and home connections. Start at `docs/audits/client-review-2026-10-03.md` §1.4 and the crafting
   collect path.
 - **OB-3. End the FTUE on Elbow's first story step, open loops and a glimpse of the Quest for
-  Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Elbow finds the
-  stranger in the sea cave and the last beat should hand the player to his chain. Today the FTUE
+  Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Gertrude's spirit
+  speaks to the stranger in the sea cave (16019, owner 2026-10-25) and sends them to Elbow, and
+  the last beat should hand the player to his chain. Today the FTUE
   ends around L2 (it gives about 20 xp; L3 needs 25), so his first step ("I Do Lean Upon
   Justice", L3) is not on screen when the FTUE ends. Either the last beats carry the player to
   L3 or the step opens at L2; then the last toast names something ready later (crops, Kent's
@@ -237,7 +238,9 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   L5-6 that teaches foraging (Rosemary and Daisy, the Potion A herbs, leading into Portia's L7
   potion), and check the wild crops and enemies on her grid suit an L5 player. Start at
   `questsEN.json` (Helena, quest 116) and her grid's layout.
-  **Built 2026-10-24**: Helena's "I Know a Bank Where the Wild Thyme Blows" (quest 128, L5):
+  **Built 2026-10-24** (re-levelled 2026-10-25 by OB-10: the Valley is now L7, where Helena gives
+  the Golden Key on arrival, and this quest moved to L9 with the potions): Helena's "I Know a Bank
+  Where the Wild Thyme Blows" (quest 128, was L5):
   collect 6 Rosemary (17 on her grid), reward 2 Daisy, so with 16 Milk the player can make the
   Potion A Portia asks for at L7; her ask (string 16520) teaches that wild herbs grow back where
   picked. Checked: her grid's Coyotes are L3-fitted, fine at L5; Rosemary has no level gate.
@@ -328,6 +331,18 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   `routes/storyRoutes.js`); its note says the rest of the story opens and Elbow has more to ask.
   The migration (`wake-gertrude-for-friends.js`) sets the flag directly, so players it wakes get
   no gift. Open: "about day 10" needs OB-7's level timestamps (L15 is 2,960 xp).
+- **OB-10. One new concept per level to L7; combat from L10** (added 2026-10-25, owner: the
+  tuning pass had crowded L3 and L4). **Built 2026-10-25:** the schedule in `early-game.md` §2
+  (L3 animals, L4 wood, L5 building, L6 new crops via Green Thumb, L7 the Valley with the Pickaxe
+  for Stone and Helena's Golden Key, L8 stone builds, L9 potions, L10 combat, L11 the Crown);
+  the Husbandry quest merged (Husbandry + Cow + 30 Milk; "Bovine Bliss" and "Cream of the Crop"
+  `retired`: never offered, still claimable when held, hidden from the NPC marker and the
+  level-up list); two new Shepherd quests ("Our Bodies Are Our Gardens", L6; "Sermons in
+  Stones", L7); the combat gear moved to L10-11, Short Sword and Darts retired (shops skip
+  `retired`; editor columns on both sheets); the Crown and Queen keep their order (Crown L11).
+  The Sheep quest no longer sits below its unlock. Not yet played. Open: merge more concepts the
+  Husbandry way once the owner has tried it; near-ring enemy placement (owner: later); Farm Hand
+  (10,000 Money) now L11.
 - **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops
   come from outposts: a valley region found once is reached again with Snug, its Trading Post
   ships goods home, and the crops regrow in one to three days (`tuning.md` §4h, `node
