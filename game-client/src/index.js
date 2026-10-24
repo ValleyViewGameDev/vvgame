@@ -12,6 +12,7 @@ import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { GemSpendConfirmHost } from './UI/Modals/GemSpendConfirm';
+import { StatueHost } from './GameFeatures/Story/gertrudeWaking';
 import { GameDialogHost } from './UI/Modals/GameDialog';
 import { UpdatePromptHost } from './UI/Modals/UpdatePrompt';
 import { installBuildWatch } from './Utils/buildWatch';
@@ -77,6 +78,7 @@ if (!window.__app_rendered__) {
                       <ModalProvider>
                         <App />
                         <GemSpendConfirmHost />
+                        <StatueHost />
                         <GameDialogHost />
                         <UpdatePromptHost />
                       </ModalProvider>

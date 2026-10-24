@@ -7,15 +7,81 @@ language, each character's voice card) is `narrative-style.md`; the plan to re-v
 game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens' behaviour in
 `citizens.md`, and the world's geography in `making-original-grids.md`.
 
-## 0. The tale (being rewritten)
+## 0. The tale
 
-Owner, 2026-10-24: the world's premise is **a storm of stories** (Prospero's tempest tore every
-play's people out of their tales and cast them up on Elsinore's shore), and **Prospero is the
-antagonist**, the reason the land is broken and the Quest for Hope exists; he is defeated, not
-killed. Gertrude is Leontes' queen, turned to a statue by the storm and woken as a mid-game
-milestone. The full draft (the wrong, the storm, the statue, the Oracle's prophecy, the
-player as the one with no part written, the ending) is in `narrative-pass.md` P1.1 and moves
-here once approved. Until then the old intro (string 16019) is out of date.
+The world's story, decided with the owner on 2026-10-24 (a storm of stories; Prospero as the
+antagonist, defeated, not killed; Gertrude as the statue). Every intro, hint, quest ask and
+milestone line serves it. The old intro (string 16019: "an evil scourge grows... bring back the
+rule of King Leontes") is out of date until the narrative pass rewrites it (`narrative-pass.md`).
+
+- **Before.** Elsinore was a merry kingdom by the sea under King Leontes (The Winter's Tale) and
+  Queen Gertrude (Hamlet), a place of fairs and farms. The cracks were already there: Leontes
+  was jealous of Helena's love for his queen, and Gertrude turned from him to her garden.
+  (Hermione, Leontes' queen in his own play, is not used: the name reads as Harry Potter.)
+- **The wrong.** Prospero (The Tempest), once a duke, was robbed of his dukedom by his own
+  brother and grew bitter among his books in the mountains. He swore the world would answer for
+  it. "The rarer action is in virtue than in vengeance" is the lesson he has not learned yet.
+- **The storm of stories.** Prospero raised a tempest so great it tore the pages out of every
+  story. Their people were cast up on Elsinore's shore, far from their own tales: lovers without
+  their loves, fools without their kings, schemers without their plots. That is why Iago,
+  Juliet, Falstaff and Titania share one valley. The storm brought monsters too: "Hell is empty,
+  and all the devils are here." It turned Queen Gertrude to stone in her castle in the Town, and
+  the King's heart and crown went with her (the King's Crown is his, lost in the storm).
+- **The magician's hold.** Prospero bound the storm's power in his Orb and shut himself on
+  Prospero's Peak behind the Cloven Pines (the Tempest's prison tree) and his dragons. While the
+  Orb is his, the stories stay broken.
+- **The prophecy.** Apollo's Oracle (The Winter's Tale) speaks the line from the play: the
+  kingdom shall not mend "if that which is lost be not found". What was lost is Hope, and seven
+  treasures scattered by the storm can call it back (the Quest for Hope, §4).
+- **The player: the one with no part written.** Not a chosen one. Everyone in Elsinore is stuck
+  playing the part their play gave them; the player is a stranger the storm washed up with no
+  script at all ("All the world's a stage... and one man in his time plays many parts", which is
+  also the aspiration choice). So the player is the only one who can change how the story ends.
+  They wake in the sea cave (the FTUE cave) and are found by **the Shepherd**, who once found a
+  lost child on this same shore and knows the Oracle's words: "Thou met'st with things dying, I
+  with things new-born." The Shepherd is the guide, and gives the core story quests (§3).
+- **The Queen wakes** at the end of the early game (built; below): the first sign the storm can
+  be undone. Helena, who still loves her, asks for a song; Feste sings it; "Music, awake her;
+  strike!"
+- **The ending.** At the top of the Peak, past the dragons, Prospero sets his riddle (the built
+  minigame). Beaten, he chooses virtue over vengeance at last: he gives up the Orb and his magic
+  ("I'll drown my book"). With all seven treasures the Oracle calls Hope home: the storm's
+  damage mends, the King's Crown is back on Leontes' head, and Elsinore is merry again.
+  Prospero's own epilogue asks to be set free ("As you from crimes would pardoned be, let your
+  indulgence set me free"): the player may forgive him.
+
+**Who stands where.** Caliban, Prospero's old servant, knows the mountain and hates him, so he
+helps. Hecate is the witches' queen whose kin Prospero drove out (Sycorax, Caliban's mother, was
+a witch), so she forges the axe that fells his pines. The dragons are Prospero's. Duke Angelo
+(Measure for Measure) is the storm's other villain, a false judge who seized the town's law in
+the confusion (Cassio's and Juliet's thread). The rest of the cast want their own stories back,
+which is what their quests and secrets are about.
+
+**The acts on the level phases** (`early-game.md` §1). Act I, washed ashore: the FTUE, the
+homestead, the Shepherd, Kent, the Town. Act II, the stranded cast: the early game, the first
+treasure (the King's Crown, about L10-11: "Uneasy lies the head that wears a crown"), ending with
+the Queen woken (L14-15). Act III, the Valley and its dangers: the mid game, more treasures. Act
+IV, the witch and the underworld: Hecate, Toil and Trouble, Acheron and the Brief Candle
+(L30-36). Act V, Prospero's Peak, then the Oracle: the end of the spine.
+
+The spine leans on The Winter's Tale (Leontes, the statue, the Oracle, the Shepherd) crossed
+with The Tempest (Prospero) and Hamlet (Gertrude, Elsinore). That is a cross-play mash-up, as
+§1 asks; the threads off the spine should come from the other plays.
+
+**The Queen wakes (BUILT 2026-10-24).** Gertrude stands as "Gertrude's Statue" (marble-statue art,
+`action: statue`, not in the deco catalog) on her old tile in all four town layouts, in her
+castle hall with the ghosts beside the dungeon entrance. The chain: Helena's "Rosemary, for
+Remembrance" (L14, 12 Rosemary; Ophelia's line, from Gertrude's own play), then Feste's "If
+Music Be the Food of Love" (L15, 5 Thread for his lute strings; `prereq` = Helena's quest, a new
+quest column). Once Feste's is done and she still sleeps, Feste leaves his loop and walks to the
+statue (teleported beside her if his route is blocked or takes over 45 s) and waits with a 🎶.
+Tapping the statue opens "The Queen of Stone" (a riddle: "Music, awake her; strike!"); it can
+wake her only with Feste within 3 tiles: he sings ("O mistress mine, where are you roaming?",
+"Journeys end in lovers meeting"), the statue becomes Gertrude, and her waking speech plays
+(string 2159). Server: `utils/storyState.js` (`player.storyFlags.gertrudeAwake`, and every
+enter-grid puts the player's own town copy in line: statue or Queen), `POST
+/api/story/wake-gertrude`. Client: `GameFeatures/Story/gertrudeWaking.js`. Her three trades are
+hers again once she is awake.
 
 ## 1. The rule: a mash-up, not an adaptation
 
@@ -87,31 +153,35 @@ stub riddle, the real puzzle is still to be designed.
 
 | Character | Play / origin | In the game |
 |---|---|---|
-| Kent | King Lear | Kent's orders (the board's buyer) |
+| Kent | King Lear | Kent's orders (the board's buyer); Lear's loyal earl, 🧔 (not the old 🤠) |
 | Portia | The Merchant of Venice | Quests on law, schools, health; Portia's Secret |
-| The Shepherd | The Winter's Tale | First quests, farming |
+| The Shepherd | The Winter's Tale | The player's guide, who found them on the shore (§0); the core story quests |
 | Hotspur | Henry IV Part 1 | Early combat and weapons quests |
 | Cassio | Othello | Combat quests; the Skeleton Key (kill Duke Angelo) |
 | Mistress Quickly | Henry IV / The Merry Wives of Windsor | Quests |
-| Feste | Twelfth Night | Crafting quests |
-| Helena | A Midsummer Night's Dream | The Golden Key (Feverfew) |
+| Feste | Twelfth Night | Crafting quests; sings the song that wakes Gertrude (§0) |
+| Helena | A Midsummer Night's Dream | The Golden Key (Feverfew); still loves Gertrude and asks for her waking ("Rosemary, for Remembrance") |
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
 | Constable Elbow | Measure for Measure | Town and Dungeon Keys |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
-| Snug | A Midsummer Night's Dream | Travel companion |
+| Snug | A Midsummer Night's Dream | Travel companion; the joiner of the Mechanicals, with Quince and Bottom |
 | Falstaff | Henry IV / The Merry Wives of Windsor | Trader (Feverfew for Port, Brandy) |
 | Apothecary | Romeo and Juliet | Potions |
 | Iago | Othello | Trader; the Brass Bell |
-| Gertrude | Hamlet | Trader; Gertrude's Secret |
-| Leontes | The Winter's Tale | The Mirror Key, for six secrets |
+| Gertrude | Hamlet | Leontes' queen, turned to stone by the storm (Gertrude's Statue in her Town castle) until the player wakes her (§0); then a trader again, Gertrude's Secret |
+| Leontes | The Winter's Tale | The King, lost without his queen and crown; the Mirror Key, for six secrets; Prospero is his enemy |
 | Juliet | Romeo and Juliet | Trader; Juliet's Secret |
 | Viola (was the Mermaid) | Twelfth Night | Trader who lives in the water (shipwrecked, she took to the sea); Viola's Secret |
 | The Oracle | The Winter's Tale (Apollo's oracle at Delphos) | Trades Hope for the seven artifacts; her home is the **Oracle's Sanctuary** (the `Shiro` row, a dev-placed shop in the valley; players read "Oracle's Sanctuary" through `DISPLAY_ALIASES` in `Utils/stringLookup.js`), where sealed scrolls are bought with gems; the Ancient Temple opens them, as in the play |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |
 | Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |
+| Audrey | As You Like It | The Farm Hand (the worker type `Farm Hand`, shown by name): Arden's cheerful country girl |
+| Corin | As You Like It | The Rancher: Arden's old shepherd, "the greatest of my pride is to see my ewes graze" |
+| Peter Quince | A Midsummer Night's Dream | The Lumberjack: the Mechanicals' carpenter |
+| Nick Bottom | A Midsummer Night's Dream | The Crafter: the weaver who wants to play every part |
 | Cerberus | myth, named in Love's Labour's Lost | The three-headed hound at the bottom of Acheron; guards the Brief Candle |
 | The Great Bear | The Winter's Tale ("Exit, pursued by a bear") | Guards the road to Leontes' castle in Belmont, where the King's Crown waits (the first artifact, about L10) |
 

@@ -297,6 +297,8 @@ const NPCPanel = ({
             const shouldShow = activeQuest.completed && !activeQuest.rewardCollected;
             return shouldShow;
           }          
+          // a quest with a prereq is offered only once that quest is done (quest chains)
+          if (quest.prereq && !currentPlayer.completedQuests.some(q => q.questId === quest.prereq)) return false;
           const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
           return shouldShow;
         });

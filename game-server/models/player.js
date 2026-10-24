@@ -266,6 +266,9 @@ const playerSchema = new mongoose.Schema({
     }
   ],
 
+  // Story moments that change this player's world (utils/storyState.js): { gertrudeAwake: Date }
+  storyFlags: { type: mongoose.Schema.Types.Mixed, default: {} },
+
   // Citizen-to-citizen relationships as THIS player's world has them (docs/citizens.md §2.2,
   // decision 7): one row per unordered pair of NPC types (`a` < `b`), seeded from the static
   // RelationshipMatrix the first time the pair talks and moved by their conversations

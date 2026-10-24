@@ -1,7 +1,7 @@
 [
   {
     "type": "Kent",
-    "symbol": "🤠",
+    "symbol": "🧔",
     "buff4friend": 1,
     "buff4love": 1,
     "buff4marriage": 1,
@@ -239,7 +239,7 @@
     "interest1": "King's Crown",
     "interest2": "Gold",
     "interest3": "Prospero",
-    "Prospero": "friend",
+    "Prospero": "rival",
     "Iago": "rival",
     "Gertrude": "love"
   },

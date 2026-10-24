@@ -2816,6 +2816,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, resource: resource });
       openPanel('CropPanel');
     } 
+    else if (resource.action === 'statue') {
+      // Gertrude's Statue: the riddle modal; with Feste beside her, his song wakes the Queen
+      const { openStatue } = await import('./GameFeatures/Story/gertrudeWaking');
+      openStatue({ resource, currentPlayer, setCurrentPlayer, gridId, setResources, updateStatus, TILE_SIZE: activeTileSize, masterResources });
+    }
     else if (resource.category === 'deco') {
       // If it's a door, also show access feedback
       if (resource.action === 'door') {

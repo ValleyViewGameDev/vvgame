@@ -52,83 +52,16 @@ Inventory taken 2026-10-24:
 3. **Quote bank:** `docs/narrative/quote-bank.md`, the starter set in `narrative-style.md` §7
    grown to ~150 lines grouped by moment and by character, each with play, act and scene,
    checked against the Folger text.
-4. Fix the typos and the 4 em-dashes now (no decision needed).
+4. Fix the typos and the 4 em-dashes now (no decision needed). DONE 2026-10-24: acquaintance, Prospero, "to satisfy", Titania's broken `[username]`, "the Orb of Merlin" (now "my Orb"), and every em-dash in the ten string files; the title is "Secrets of Elsinore" in all ten (the six English-only files had kept "Valley View").
 
 ### P1. The tale and the cast
 
-#### P1.1 The tale (DRAFT for the owner; moves to `story.md` once approved)
+#### P1.1 The tale: DONE, now canon in `story.md` §0 (2026-10-24)
 
-Decided by the owner 2026-10-24: **a storm of stories**, and **Prospero is the antagonist**,
-the reason everything is broken and the reason for the Quest for Hope. He is defeated, not
-killed: the player beats his dragons to reach him and wins the Orb, as built today. The draft
-below replaces the old intro ("an evil scourge grows... bring back the rule of King Leontes"),
-keeping its good bones (a happy land, a fall, a quest, a king restored) and giving each one a
-Shakespearean source.
-
-- **Before.** Elsinore was a merry kingdom under King Leontes (The Winter's Tale) and Queen
-  Gertrude (Hamlet), a place of fairs and farms by the sea. (Hermione, Leontes' queen in his own
-  play, was dropped 2026-10-24: the name reads as Harry Potter.) The cracks were already there:
-  Leontes was jealous of Helena's love for his queen, and Gertrude turned from him to her garden
-  (lines that exist today, 16013 / 16014 / 16106).
-- **The wrong.** Prospero (The Tempest), once a duke, was robbed of his dukedom by his own
-  brother and turned bitter in his mountain books. He swore the world would answer for it.
-  ("The rarer action is in virtue than in vengeance" is the lesson he has not learned yet.)
-- **The storm of stories.** Prospero raised a tempest so great it tore the pages out of every
-  story. Their people were cast up on Elsinore's shores, far from their own tales: lovers without
-  their loves, fools without their kings, schemers without their plots. That is why Iago,
-  Juliet, Falstaff and Titania all live in one valley. The storm brought monsters too: "Hell is
-  empty, and all the devils are here." It took the Queen: **Gertrude stands as a statue in her
-  castle in the Town**, among the ghosts, beside the dungeon entrance, and the King's heart and
-  crown went with her (the King's Crown is his, lost in the storm).
-- **The magician's hold.** Prospero bound the storm's power in his Orb and shut himself on
-  Prospero's Peak behind Cloven Pines (the Tempest's prison tree) and his dragons. While the Orb
-  is his, the stories stay broken.
-- **The prophecy.** Apollo's Oracle (The Winter's Tale) speaks the line from the play: the
-  kingdom shall not mend "if that which is lost be not found". What was lost is Hope, and seven
-  treasures scattered by the storm can call it back.
-- **The player: the one with no part written.** Not a "chosen one". Everyone in Elsinore is
-  stuck playing the part their play gave them; the player is a stranger the storm washed up
-  with no script at all ("All the world's a stage... and one man in his time plays many
-  parts", which is also the aspiration choice: farmer, adventurer, politician). So the player is
-  the only one who can change how the story ends. They wake in the sea cave (the FTUE cave) and
-  are found by **the Shepherd**, who once found a lost child on this same shore and knows the
-  Oracle's words: "Thou met'st with things dying, I with things new-born."
-- **The Queen wakes (a milestone, not the end).** Around the start of the mid game (about L15,
-  Act III), the player wakes Gertrude, as Hermione's statue wakes in The Winter's Tale: "Music,
-  awake her; strike!" and "'Tis time; descend; be stone no more." The music comes from the
-  cast (a song from Feste, the fool who sings), and Helena, who still loves her, is the one who
-  asks for it. Waking her is the first sign that the storm can be undone, and it brings her back
-  as a trader (her three trades open then; the first, Queen's Cake for a Diamond Ring, is L13
-  today, so it moves only a little). What the waking needs (an item from a quest, used on the
-  statue) is a small feature: a statue that turns into the NPC for that player.
-- **The ending.** At the top of the Peak, past the dragons, Prospero sets his riddle (the built
-  minigame). Beaten, he chooses virtue over vengeance at last: he gives up the Orb and his magic
-  ("I'll drown my book"). With all seven treasures the Oracle calls Hope home: the storm's
-  damage mends, the King's Crown is back on Leontes' head, and Elsinore is merry again. Prospero's own epilogue asks to
-  be set free, "As you from crimes would pardoned be, let your indulgence set me free": the
-  player may forgive him.
-
-Who stands where: **Caliban** (Prospero's old servant) knows the mountain and hates him, so he
-helps. **Hecate** is the witches' queen whose kin Prospero drove out (Sycorax, Caliban's mother,
-was a witch), so she forges the axe that fells his pines. **The dragons** are Prospero's.
-**Duke Angelo** (Measure for Measure) is the storm's other villain, a false judge who seized the
-town's law in the confusion (Cassio's and Juliet's thread). The rest of the cast want their own
-stories back, which is what their quests and secrets are about.
-
-How the acts sit on the level phases (`early-game.md` §1): Act I, washed ashore (FTUE,
-homestead, the Shepherd, Kent, the Town). Act II, the stranded cast (the early game; the first
-treasure, the King's Crown, around L10-11: "Uneasy lies the head that wears a crown"). Act III,
-the Valley and its dangers (mid game, more treasures). Act IV, the witch and the underworld
-(Hecate, Toil and Trouble, Acheron and the Brief Candle, L30-36). Act V, Prospero's Peak, then
-the Oracle (the end of the spine).
-
-Data to change with the tale: Leontes' RelationshipMatrix row has Prospero as a **friend**
-(now his enemy); Gertrude's and Leontes' lines are rewritten around the statue and the waking;
-Helena and Gertrude keep their mutual love (it becomes the reason Helena wants her woken).
-
-Watch-out: the spine leans on The Winter's Tale (Leontes, the statue, the Oracle, the Shepherd)
-crossed with The Tempest (Prospero) and Hamlet's Elsinore. That is a cross-play mash-up as
-`story.md` §1 asks; the threads off the spine should stay drawn from the other plays.
+A storm of stories; Prospero the antagonist (defeated, not killed); Gertrude, Leontes' queen, as
+the statue woken at the end of the early game (built); the player as the one with no part
+written, found by the Shepherd; the five acts on the level phases. Data changed with it: Leontes'
+RelationshipMatrix row now has Prospero as a rival (was friend).
 
 #### P1.2 Names: everything is up for grabs
 
@@ -155,12 +88,12 @@ each per player, so they get personalities.
 | Ancient Temple | the Temple of Apollo | approved |
 | Library | Prospero's Library | approved |
 | Trading Post | keep | decided |
-| Magic Shop | options below | open |
-| Studio | keep plain ("the Globe" is not clear enough for an art station) | decided; the Globe goes elsewhere (below) |
+| Magic Shop | **Oberon's Bower** | decided 2026-10-24 |
+| Studio | keep plain ("the Globe" is not clear enough for an art station) | decided; where the Globe goes is an open item for the future |
 | Castle, Courthouse, Warrior's Den, Armory, School, Guild, Shrine, Hospital | keep plain unless a good name appears in the sweep | |
 | Locations | mostly plays' places already; the sweep checks the rest | |
 
-**The farm workers** (one each, so each is a character with a voice card). Proposal: the town's
+**The farm workers** (one each, so each is a character with a voice card). **Decided 2026-10-24: Quince, Bottom, Corin, Audrey as proposed.** the town's
 craftsmen are Snug's fellow Mechanicals from the Dream, the country hands come from the Forest
 of Arden (As You Like It), so the four read as two pairs.
 
@@ -171,16 +104,36 @@ of Arden (As You Like It), so the four read as two pairs.
 | Rancher | **Corin** | Arden's old shepherd: "the greatest of my pride is to see my ewes graze and my lambs suck" | Launce and his dog Crab (Two Gentlemen of Verona), Silvius |
 | Farm Hand | **Audrey** | Arden's country girl, plain and cheerful | William (Arden's country lad), Costard (Love's Labour's Lost) |
 
-**Magic Shop** options (it sells spells, the Spells epic; the name should say "magic" by itself):
+**Building names, round 2** (owner 2026-10-24: Wittenberg, the Grange at Arden and Portia's Court
+approved; the Guild keeps its name; more ideas wanted for the rest, tied to what each one sells).
+Diagon Alley's lesson (a person and their wares, a good pair of names, a tagline that says what is
+sold) applied to the actual stock:
 
-| Option | From | For |
+| Building: what it sells | Ideas (recommended first) | Why it fits the stock |
 |---|---|---|
-| **Glendower's** (Recommended) | Henry IV: Owen Glendower, who boasts "I can call spirits from the vast deep" (and Hotspur, who is in the game, answers "Why, so can I, or so can any man; but will they come when you do call for them?") | a showman wizard selling spells, with built-in gossip between two NPCs |
-| Oberon's Bower | A Midsummer Night's Dream ("I know a bank where the wild thyme blows") | fairy magic, the king of the fairies' own shop |
-| Puck's Spells | A Midsummer Night's Dream | mischievous, playful, instantly readable |
-| The Fairy Ring | A Midsummer Night's Dream | a place name, a little less clear as a shop |
+| General Store: Axe, Better Axe, Pickaxe, Better Pickaxe, Horse | **Snout the Tinker** ("tools mended and sold"); "A Horse! A Horse!"; the Woodman's Yard | A tinker mends and sells tools; Tom Snout is one of the Mechanicals (with Quince, Bottom, Snug). Richard III's cry fits the Horse, the rest less |
+| Warrior's Den: knives, swords, bows, spears, halberds, crossbows, magic weapons | **Mercutio's Blades**; Tybalt's Fencing School; "Is This a Dagger?" | Mercutio and Tybalt are Romeo and Juliet's swordsmen (Tybalt, "Prince of Cats", the fencing master); Macbeth's dagger line as a sign |
+| Armory: padding, mail, plate, mystic armour, Caliban's Breastplate | **The Armourers of Harfleur**; Hector's Armour; Mars, Armourer | Henry V's chorus: "the armourers, accomplishing the knights, with busy hammers closing rivets up"; Harfleur is already a place in the game |
+| Academy: Textiles, Artistry, Tailor | **Starveling's, Tailor**; the Weaver's Loft; the Academe of Navarre | Robin Starveling is the Mechanicals' tailor; Textiles and Tailor are his trade |
+| Laboratory: Chemistry, Baker, Cooking, Creamery, Winemaker | **Mistress Quickly's Kitchen**; Friar Laurence's Cell; the Still-Room | Mistress Quickly already gives the cooking quests; Friar Laurence brews from herbs (Chemistry, wine) |
+| Factory: Builder, Masonry, Mechanics, Roaster | **Snug the Joiner**; the Wall; the Mechanicals' Workshop | Snug is the Mechanicals' joiner (a carpenter) and already in the game; the Wall is the part Snout plays in their play (Masonry) |
+| Shrine: the Trident | **Neptune's Shrine**; Full Fathom Five | The Trident is Neptune's; "Full fathom five" is the Tempest's sea song |
+| Castle: the King's Crown | **Leontes' Castle**; the King's Hall; Belmont Castle | The crown is the King's (§0 of `story.md`) |
+| Hospital: hires Doctors and Surgeons | keep | plain is clearer here |
 
-**Where the Globe could go** (a name players should understand from where it is):
+If Snout takes the General Store and Snug the Factory, the four Mechanicals the player meets
+are all tradesmen at work: Quince (Lumberjack), Bottom (Crafter), Snout (tools), Snug (building),
+with Starveling the tailor at the Academy. A tagline could show under each name in the
+building's panel.
+
+**Built in the local build 2026-10-24** (aliases in `Utils/stringLookup.js` `DISPLAY_ALIASES` +
+the name strings in all ten languages; types unchanged): Boar's Head (Restaurant), Garter Inn
+(Inn), Counting House (Bank), Temple of Apollo (Ancient Temple), Prospero's Library (Library),
+Oberon's Bower (Magic Shop), Wittenberg (School), Grange at Arden (Agriculture Center), Portia's
+Court (Courthouse); the workers Audrey (Farm Hand), Corin (Rancher), Peter Quince (Lumberjack),
+Nick Bottom (Crafter); Kent's symbol 🧔.
+
+**Where the Globe could go** (OPEN, for the future, owner 2026-10-24):
 
 | Option | Why |
 |---|---|
@@ -215,16 +168,49 @@ cast, then the late-game cast.
 2. **Write them:** each quest gets a display title (a quote fragment or a play on one:
    "Plant Wheat" could show as "Sow, and Thou Shalt Reap"; "Hire Lumberjack" as "Peter Quince
    Wants Work") and an ask in the giver's voice with the goal said plainly.
-3. **Givers** (decided 2026-10-24): **the Shepherd gives the core story quests**, the main
-   chain through the five acts that points the player at each treasure and at the characters
-   who hold the way to it. **Secondary characters give the specialised quests** in their own
-   field (Mistress Quickly cooking, Feste crafting, Hotspur and Cassio combat, Helena wild herbs,
-   Portia the Town's institutions). So most of the Shepherd's 23 farming and building quests move
-   to a farming specialist (candidates: Audrey the goatherd or Corin the old shepherd from As You
-   Like It) and a building one (Peter Quince the carpenter), and the Shepherd gains new story
-   quests (about one per act step, roughly 10 to 15). Moving a quest is changing its `giver`;
-   the title, level and reward stay. The new story quests are the one place the pass adds
-   content, and they are planned with the OB epic so the first hour and Act I agree.
+3. **Givers** (decided 2026-10-24): **the Shepherd gives the core story quests**, secondary
+   characters the specialised ones. PROPOSAL for the Shepherd's 23 quests (moving a quest is
+   changing its `giver`; title, level and reward stay):
+
+   | Level | Quest | Goal | Proposed giver | Why |
+   |---|---|---|---|---|
+   | 1 | Plant Wheat | Plant 1 Wheat | **The Shepherd** | Act I: he takes the stranger in and teaches them to live here (FTUE adds it) |
+   | 2 | Grower | Acquire Grower | **The Shepherd** | Act I (FTUE adds it) |
+   | 2 | Earth's Bounty | Collect Wheat, Carrot, Corn | **The Shepherd** | Act I |
+   | 3 | Wood Master | Acquire Axe | **The Shepherd** | Act I |
+   | 3 | Saw You Not That? | Collect 24 Wood | **The Shepherd** | Act I |
+   | 4 | Backpack | Acquire Backpack | **The Shepherd** | Act I: ready for the road |
+   | 6 | Hire Farm Hand | Craft Farm Hand | **The Shepherd** | he introduces his neighbours: Audrey |
+   | 7 | Hire Rancher | Craft Rancher | **The Shepherd** | ... Corin |
+   | 9 | Hire Lumberjack | Craft Lumberjack | **The Shepherd** | ... Peter Quince |
+   | 3 | The Gentle Art | Acquire Husbandry | **Launce** (new) | animals |
+   | 3 | Bovine Bliss | Buy 1 Cow | **Launce** (new) | animals |
+   | 3 | Cream of the Crop | Collect 30 Milk | **Launce** (new) | animals |
+   | 4 | Fleecy Fellowship | Buy 1 Sheep | **Launce** (new) | animals |
+   | 8 | Coop Dreams | Build Chicken Coop | **Launce** (new) | animals |
+   | 4 | Foundations of Stone | Acquire Builder | **Snug** | building: the joiner |
+   | 5 | Mill by Moonlight | Build Mill | **Snug** | building |
+   | 6 | Master Mason | Acquire Masonry | **Snug** | building |
+   | 7 | Mechanics | Acquire Mechanics | **Snug** | building |
+   | 15 | Lumber Yard | Build Lumber Yard | **Snug** | building |
+   | 6 | Sweet Harvest | Plant 30 Sugarcane | **Mistress Quickly** | the kitchen's sugar |
+   | 7 | Cook's Harvest | Collect Sugarcane, Onion, Carrot | **Mistress Quickly** | the kitchen's larder |
+   | 9 | The Spark Within | Acquire Chemistry | **Mistress Quickly** | the Laboratory's first skill (her Kitchen, if the name is chosen) |
+   | 20 | Nectar of the Valley | Acquire Winemaker | **Falstaff** | wine and sack are his life |
+
+   So the Shepherd keeps 9 (all Act I), and gains the new story quests (about one per act
+   step, roughly 10 to 15: point the player at each treasure and at the Queen). What this
+   needs:
+   - **One new Town character: Launce** (The Two Gentlemen of Verona), the servant who loves
+     his dog Crab more than anyone ("I think Crab my dog be the sourest-natured dog that
+     lives"): the Town's animal keeper, a comic, kind voice. Needs art (a copy of an existing
+     NPC's SVG to start, like Hecate), a RelationshipMatrix row, greeting lines, and a tile in
+     the four town layouts. Alternative: Silvius, the lovesick shepherd from As You Like It.
+   - **Snug and Falstaff become quest givers** (`action: quest`); a quest giver with trader
+     offers already shows both, so their trades stay. Snug's travel-companion feature is keyed
+     on his type, not his `action` (checked 2026-10-24), so it keeps working.
+   - Quest levels below L20 belong to the early-game work (`early-game.md`, epic OB): these
+     moves change who asks, not when.
 
 ### P4. The first hour and the moments (~80 strings)
 
@@ -271,15 +257,18 @@ Roughly 600 English lines, about 2,400 with translations, in six or seven review
 
 Decided 2026-10-24: the premise (a storm of stories), Prospero as the antagonist (defeated, not
 killed), the Shepherd as the story-quest giver with specialists for the rest, every name up for
-grabs. Decided later the same day: Gertrude (not Hermione) is the statue, woken as a mid-game
-milestone; building and helper names as in P1.2. Still open:
+grabs. Decided later the same day: Gertrude (not Hermione) is the statue, woken at the end of the early
+game (BUILT 2026-10-24, see `story.md` §0); the farm workers Quince, Bottom, Corin, Audrey;
+Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town characters to be
+proposed first). Still open:
 
-1. The tale (P1.1): approve the draft, with tweaks.
-2. The farm workers (Quince, Bottom, Corin, Audrey, or alternatives), the Magic Shop, where the
-   Globe goes, and the Nurse / Peaseblossom copies check.
-3. Waking Gertrude: when (about L15?) and what it needs (Feste's song, asked for by Helena?).
-4. Quest text (P3.1): build the display title + ask feature?
-5. Who takes the Shepherd's specialised quests (P3.3).
+1. Building names, round 2 (P1.2): General Store, Warrior's Den, Armory, Academy, Laboratory,
+   Factory, Shrine, Castle. The Nurse / Peaseblossom copies check.
+2. The Shepherd's quests (P3.3): approve the table, and Launce as a new Town character.
+3. Where the Globe goes (future).
+4. Quest text (P3.1): not greenlit yet.
+5. The live migration for Gertrude (`scripts/wake-gertrude-for-friends.js --except Oberon`):
+   waits for a good connection to the database (owner, 2026-10-24).
 6. Order: proposal P0, P1, then P2, with P4 after the OB epic settles the FTUE.
 
 ## 7. Owner's tweaks (filled in on approval)
@@ -296,3 +285,14 @@ milestone; building and helper names as in P1.2. Still open:
   Doctor and the Surgeon keep their names; the Studio stays plain and the Globe goes somewhere
   clearer. The farm workers get personalities (one each); use Peter Quince somewhere. More
   Magic Shop options wanted ("cauldron" is too literal).
+- 2026-10-24 (third round): worker picks approved; Oberon's Bower; the Globe stays open; explore
+  building names with Diagon Alley as inspiration (Shakespeare only); wake Gertrude at the end of
+  the early game, built as Feste walking to her after his quest (teleport if his route fails),
+  the statue's riddle modal working only with him nearby, his song waking her; the marble-statue
+  art as a special resource outside the deco catalog; quest text not greenlit; the Shepherd's
+  specialised quests to whoever fits.
+- 2026-10-24 (fourth round): no migration while the owner is travelling; Oberon is excluded
+  from it. Wittenberg, the Grange at Arden, Portia's Court approved; the Guild keeps its name;
+  more ideas for the other buildings, tied to their stock. The title is "Secrets of Elsinore"
+  in every language file. Focus: finalise the story docs and make the changes in the local
+  build.

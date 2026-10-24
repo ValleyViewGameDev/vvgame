@@ -309,6 +309,21 @@ class GridStateManager {
   }
 
   /**
+   * Put an NPC record into this page's grid state WITHOUT saving it: for an NPC a server route
+   * has already written (or is writing alongside, optimistically), such as the Queen woken from
+   * her statue (GameFeatures/Story/gertrudeWaking.js). The record is the server's NPC shape.
+   */
+  async addLocalNPC(gridId, record) {
+    const grid = this.NPCsInGrid[gridId];
+    if (!grid || !record?.id || !record.type || !record.position) return null;
+    const masterResources = await loadMasterResources();
+    const template = masterResources.find((res) => res.type === record.type && res.category === 'npc') || {};
+    grid.npcs[record.id] = new NPC(record.id, record.type, record.position, { ...template, ...record }, gridId);
+    this.syncReact(gridId);
+    return grid.npcs[record.id];
+  }
+
+  /**
    * Spawn a new NPC and immediately save the updated NPCsInGrid to the DB.
    */
   async spawnNPC(gridId, npcType, position, extra = {}) {

@@ -144,6 +144,7 @@ export const DEFINITIONS = [
       { key: 'goal3action', type: 'enum', enum: ['Collect', 'Build', 'Plant', 'Acquire', 'Buy', 'Craft', 'Kill', 'Sell', 'Vote'] },
       ref('goal3item', 'resource'), num('goal3qty'),
       str('rel'), num('relscore'),
+      { ...str('prereq'), label: 'prereq (title of a quest that must be complete first)' },
     ],
   },
   {

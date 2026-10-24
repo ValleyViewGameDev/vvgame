@@ -4,6 +4,7 @@
  * and returns the full grid bundle so the client makes exactly one call per grid change.
  */
 const express = require('express');
+const { applyGertrudeState } = require('../utils/storyState');
 const router = express.Router();
 const Grid = require('../models/grid');
 const Player = require('../models/player');
@@ -231,6 +232,9 @@ router.post('/enter-grid', async (req, res) => {
       default:
         return fail(res, 400, 'bad-target');
     }
+
+    // The player's own town shows the Queen as a statue or awake, by their story (utils/storyState.js)
+    if (grid?.gridType === 'town') await applyGertrudeState(grid, player).catch((e) => console.error('applyGertrudeState failed:', e));
 
     player.lastActive = new Date();
     await leaveNpcs; // the leave is part of this round trip (§4.2)

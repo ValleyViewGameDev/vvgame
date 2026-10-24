@@ -180,3 +180,14 @@ working."). Waiting reads "is waiting for you." on the board and in the panel. A
 switched off with its panel's "Automatically work?" box (`npc.autoWork`, saved on the NPC record;
 default on, except the Crafter, owner 2026-10-09) stands by near home through its working state:
 "is standing by." A citizen with no state loop shows nothing new.
+
+## Story errands (2026-10-24)
+
+A story beat can take a citizen out of its loop. Every brain tick asks
+`GameFeatures/Story/gertrudeWaking.js` `runStoryErrand()` first; when it answers true the
+loop (and the waiting-for-the-player check) is skipped for that tick. The errand is derived
+from the player's state each tick, never saved, so a reload or a grid reset just restarts it.
+An NPC on an errand is not picked as a socializing partner (`npc.storyErrand`). The first
+errand: Feste walks to Gertrude's Statue once his quest "If Music Be the Food of Love" is done
+and she still sleeps; a blocked route or one longer than 45 s ends in a teleport beside her
+(docs/story.md §0).

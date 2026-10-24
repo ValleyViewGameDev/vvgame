@@ -21,6 +21,21 @@ export const DISPLAY_ALIASES = {
   Train: 'Caravan',
   Carnival: 'Harvest Fair',
   Shiro: "Oracle's Sanctuary",
+  // the Shakespearean pass (docs/narrative-pass.md P1.2, owner 2026-10-24)
+  Restaurant: "Boar's Head",
+  Inn: 'Garter Inn',
+  Bank: 'Counting House',
+  'Ancient Temple': 'Temple of Apollo',
+  Library: "Prospero's Library",
+  'Magic Shop': "Oberon's Bower",
+  School: 'Wittenberg',
+  'Agriculture Center': 'Grange at Arden',
+  Courthouse: "Portia's Court",
+  // the four farm workers, one of each per player, so each is a character
+  'Farm Hand': 'Audrey',
+  Rancher: 'Corin',
+  Lumberjack: 'Peter Quince',
+  Crafter: 'Nick Bottom',
 };
 
 /**
