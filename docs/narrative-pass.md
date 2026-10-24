@@ -331,7 +331,7 @@ game (BUILT 2026-10-24, see `story.md` §0); the farm workers Quince, Bottom, Co
 Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town characters to be
 proposed first). Still open:
 
-1. The healers' names (P1.2): the copies check is done (2026-10-24): the Fairy stands 20 times on 9 layouts and the Field Nurse 52 times on 26, like the Doctor (26) and unlike the Surgeon (1), so by the owner's rule (many copies keep generic names) both should keep their names; owner to confirm.
+1. (Decided 2026-10-24: the Fairy healer is **Peaseblossom**, a title-like name that works for many copies; the Doctor, the Surgeon and the Field Nurse keep their names.)
 2. The story chain (P3.4): the 14 steps, the late order, the two goal types, and the one-string
    StoryModal for Elbow's asks.
 3. Where the Globe goes (future).

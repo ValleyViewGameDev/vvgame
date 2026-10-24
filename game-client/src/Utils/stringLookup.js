@@ -37,6 +37,7 @@ export const DISPLAY_ALIASES = {
   Factory: 'The Wall',
   "Warrior's Den": "Tybalt's",
   'General Store': "Woodman's Yard",
+  Fairy: 'Peaseblossom',          // the healer fairy (Titania's attendant); Doctor, Surgeon, Field Nurse stay plain
   Armory: 'Hector Protector',
   // the four farm workers, one of each per player, so each is a character
   'Farm Hand': 'Audrey',
