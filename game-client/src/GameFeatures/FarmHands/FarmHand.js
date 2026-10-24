@@ -55,7 +55,6 @@ const FarmHandPanel = ({
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
   const [workerSkills, setFarmhandSkills] = useState([]);
   const [workerUpgrades, setFarmhandUpgrades] = useState([]);
@@ -178,7 +177,6 @@ const FarmHandPanel = ({
       setRecipes(filteredRecipes);
 
       const stationResource = masterResources.find((res) => res.type === stationType);
-      setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
     } catch (error) {
       console.error('Error loading worker offers:', error);
@@ -860,7 +858,7 @@ const FarmHandPanel = ({
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${getLocalizedString(npcType, strings)}` : getLocalizedString(npcType, strings)} panelName="FarmHandPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1023" title={getLocalizedString(npcType, strings)} panelName="FarmHandPanel">
       <div className="standard-panel">
         <WorkerAutoWorkToggle npc={npc} gridId={currentPlayer?.location?.g} />
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />

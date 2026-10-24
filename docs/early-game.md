@@ -78,9 +78,9 @@ To Do list, the Town Key and the Agriculture Center.
 Two separate goals:
 - **Fun to play with (the toy).** Every core action answers the input at once with board
   feedback: tap, walk, collect, plant, chop, Kent's sale burst, the level-up. Doobers already
-  feel good. **Movement is the known weak spot**: the client audit
-  (`audits/client-review-2026-10-03.md` §2.2) names player movement as the counter-example to
-  the optimistic-UI rule, and players walk every second of play, so it ranks first (OB-2).
+  feel good, and movement was fixed on 2026-10-03 (held-key loop, Pixi camera). **The weak spot
+  now is actions where a late server reply undoes what the client showed**, e.g. collecting
+  several finished crafts in a row makes the earlier ones flash back (OB-2).
 - **Fun to play (the loop).** The first sale pays visibly, the first skill changes what you
   can plant, and the session ends on open loops: crops growing, Kent's next orders, something
   promised for tomorrow, and a first glimpse of the Quest for Hope (OB-3).

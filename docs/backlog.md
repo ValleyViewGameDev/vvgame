@@ -180,11 +180,29 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
 
 - **OB-1. Agree the phases and write `docs/early-game.md`** (added 2026-10-24). **Built
   2026-10-24.**
-- **OB-2. Make player movement feel instant** (added 2026-10-24). The FTUE's toy: movement is the
-  one core action that waits on its round trip, the counter-example to the optimistic-UI rule
-  (`docs/audits/client-review-2026-10-03.md` §2.2; Phase 4 movement loop in
-  `docs/refactor-plan.md`). Players walk every second of play, so it ranks first for "fun to play
-  with". Start at `game-client/src/PlayerMovement.js` and the audit's §2.2.
+- **OB-2. Make the game feel instant: trust the client, validate behind it** (added 2026-10-24,
+  re-scoped the same day). Movement itself is done: the held-key loop (90 ms a tile, first step
+  at once, 220 ms hold delay), the Pixi camera, coalesced React syncs and tap-to-walk were built
+  2026-10-03 (`refactor-plan.md` Phase 4 B+D); what is left there is the owner's feel check on a
+  phone. The rest of the "laggy" feel is actions that still let a server answer overwrite what
+  the client already showed (the optimistic-UI house rule: react on the tap, validate in
+  parallel, revert only on a real refusal, then sweep up). Known cases:
+  - **Crafting queue collect (owner, 2026-10-24, good connection).** Collect several finished
+    crafts in a row and the earlier ones reappear for a beat, then vanish again. Likely shape (to
+    confirm in `CraftingStation.js` / `FarmHouse.js`): each collect's response carries the whole
+    slot list as the server saw it, and an older response lands after a newer local collect and
+    puts the collected slots back until the last response arrives. Fix shape: the client keeps
+    its own collected set and ignores (or merges) responses older than its latest action, rather
+    than replacing state with each reply.
+  - **Still server-first** (audit §1.4, to re-check one by one in the code): craft start, gem
+    purchases, Trading Post list / sell / collect, Skills / Buy / Build purchases, pet feed,
+    scroll craft, Farm House hire. Quest rewards already react on the tap.
+  Where the wait comes from: the owner's hypothesis is the database (Atlas, one US West region)
+  rather than the API server; confirm by timing a request's server-side handling against its
+  round trip (where Render runs the API vs the Atlas region, and the Mongo time inside a route).
+  Out of scope: very poor networks such as airplane Wi-Fi (owner): solve for ordinary mobile
+  and home connections. Start at `docs/audits/client-review-2026-10-03.md` §1.4 and the crafting
+  collect path.
 - **OB-3. End the FTUE on Elbow's first story step, open loops and a glimpse of the Quest for
   Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Elbow finds the
   stranger in the sea cave and the last beat should hand the player to his chain. Today the FTUE
@@ -256,8 +274,22 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   **Quick fixes built 2026-10-24:** Helena's "Uneasy Lies the Head" retired (it was new and
   unshipped), so Elbow's "A Crown for the King" is the Crown's only quest; L11 gains the
   Shepherd's "What, You Egg!" (quest 129: craft 10 Egg in the Chicken Coop, pays 8 Olive, one
-  Olive Bread's worth once Baker opens at L11; the Shepherd had nothing from L9 to L15). Still
-  open: Kent selling after the FTUE, and the L18-30 story gap.
+  Olive Bread's worth once Baker opens at L11; the Shepherd had nothing from L9 to L15).
+  **Kent built 2026-10-24:** a new goal, `Serve Kent` (one per Kent order filled, whatever it
+  was, so it is always completable; `Kent.js` tracks it, the editor's goal enum has it), and three
+  Shepherd quests on it: "I Earn That I Eat" (L4, 5 orders, Money 400), "Neither a Borrower Nor a
+  Lender Be" (L9, 12, Money 2000), "Put Money in Thy Purse" (L21, 30, Money 5000; L21 had none).
+  The FTUE's last toast (7065) says "keep selling to Kent" again (the OB-3 rewrite had lost it).
+  **Story gap built 2026-10-24** (the L18-30 gap sits in a wider one: L19-29 hold 0-2 quests a
+  level): two Elbow `Meet` steps in the post-Queen set (prereq "Be Stone No More", Gem 3 each),
+  L21 "A Sad Tale's Best for Winter" (Meet Leontes, 1012276; string 16514) and L27 "This Thing of
+  Darkness" (Meet Caliban, 1012265, who knows the way to Hecate at L30; 16515), both naming the
+  Oracle. **No quest to meet the Oracle** (owner, 2026-10-24: she IS the Quest for Hope): the
+  Quest for Hope modal now opens with where the seven go ("The Oracle, in her Sanctuary deep in
+  the Valley, will trade Hope for these seven lost treasures. Find them, then find her.", 200860),
+  and other characters should mention her in their own lines (for the narrative pass, P2/P3:
+  quests other than Elbow's carry no text yet). Open: the other givers' mid-game quests (L19-29),
+  a separate content batch.
 
 - **OB-7. Measure pacing: level timestamps and a pacing view** (added 2026-10-24). Record when a
   player reaches each level (analytics), then add a pacing model to `tools/progression.js`

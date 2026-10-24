@@ -46,7 +46,6 @@ const ShopStation = ({
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
 
@@ -155,7 +154,6 @@ const ShopStation = ({
     }
 
     const stationResource = masterResources.find((resource) => resource.type === stationType);
-    setStationEmoji(stationResource?.symbol || '🛖');
     setStationDetails(stationResource);
   }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers, shopRegion]);
 
@@ -357,7 +355,7 @@ const ShopStation = ({
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="ShopStation">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1025" title={getLocalizedString(stationType, strings)} panelName="ShopStation">
       <div className="station-panel-container">
         <div className="station-panel-content">
           {/* ✅ Conditional TENT text for the Store */}

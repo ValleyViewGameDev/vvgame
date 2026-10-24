@@ -49,7 +49,6 @@ const ScrollStation = ({
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const [allResources, setAllResources] = useState([]);
-  const [stationEmoji, setStationEmoji] = useState('🛖');
   const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
   const [activeTimer, setActiveTimer] = useState(false);
@@ -175,7 +174,6 @@ const ScrollStation = ({
   useEffect(() => {
     try {
       const stationResource = masterResources.find((resource) => resource.type === stationType);
-      setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
       setAllResources(masterResources || []);
     } catch (error) {

@@ -175,6 +175,15 @@ value rather than trust this page.
   text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, at the bottom of the Settings panel;
   its two buttons (`EmailUsButton`, `DiscordButton`) also open How to Play.
+- **Panel titles are text only** (owner 2026-10-24): no emoji or symbol before the name.
+  `Panel.js` drops a leading emoji from any title it is given (so a string shared with a button,
+  "📊 Leaders", keeps its emoji there); never prefix a title with a resource's `symbol`. An
+  NPC panel's title keeps the NPC's sprite image, which is a portrait, not an emoji.
+- **NPC panels** (`GameFeatures/NPCs/NPCsPanel.js`): a quest giver lists only the quests the
+  player can take now and those one level away (locked, `level` = player level + 1); anything two
+  or more levels off is hidden, so a giver never shows a wall of future quests. A finished quest
+  waiting for its reward always shows. A giver who also trades (Constable Elbow) lists the relationship card,
+  then the TRADES, then the quests.
 - **Sell section.** A panel opened from something placed on the grid (building, station, deco,
   crop plot or tree, pet) or a placed NPC ends in one pinned footer row, `UI/Panels/SellSection.js`,
   passed as `<Panel footer={sellSection({...})}>` (`Panel`'s `footer` renders below the scroll,

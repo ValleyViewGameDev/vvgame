@@ -302,6 +302,8 @@ const NPCPanel = ({
             const shouldShow = activeQuest.completed && !activeQuest.rewardCollected;
             return shouldShow;
           }          
+          // only quests open now or one level away; further ones are hidden (owner 2026-10-24)
+          if (Number(quest.level) > playerLevel + 1) return false;
           // a quest with a prereq is offered only once that quest is done (quest chains)
           if (quest.prereq && !currentPlayer.completedQuests.some(q => q.questId === quest.prereq)) return false;
           const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
@@ -1092,7 +1094,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       {getLocalizedString(npcData.type, strings)}
     </>
   ) : (
-    `${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`
+    getLocalizedString(npcData.type, strings)
   );
 
   // Sell section (UI/Panels/SellSection.js), developers only: removing a citizen refunds nothing
@@ -1106,6 +1108,286 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     onSell: handleSellNPC,
     transactionKey: `sell-npc-${npcData.id}`,
   });
+
+  // the trade list: its own section for traders, inside the quest section for a giver who also trades
+  const tradeSection = (npcData.action === 'trade' || (npcData.action === 'quest' && tradeRecipes.length > 0)) && (
+      <div className="trade-options">
+
+        {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
+        {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI; a quest giver
+            already shows it in its quest section */}
+        {!hideRelationshipUI && npcData.action !== 'quest' && (() => {
+          const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
+          const shouldHideRelationship = npcResource?.output === 'noRel';
+
+          if (shouldHideRelationship) {
+            return null;
+          }
+
+          return (
+            <RelationshipCard
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          targetName={npcData.type}
+          targetType="npc"
+          targetEmoji={npcData.symbol}
+          showActions={true}
+          compact={false}
+          masterInteractions={masterInteractions}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          playerPosition={(() => {
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+            return playerInGridState?.position || null;
+          })()}
+          targetPosition={(() => {
+            const gridId = currentPlayer?.location?.g;
+            const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+            return npcInGrid?.position || null;
+          })()}
+          TILE_SIZE={TILE_SIZE}
+          checkDistance={() => {
+            // No range restriction on own homestead
+            const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+            if (isOnOwnHomestead) return true;
+
+            // Get player position
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+            if (!playerInGridState?.position) return false;
+
+            // Get NPC position
+            const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+            if (!npcInGrid?.position) return false;
+
+            // Calculate distance
+            const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
+            const playerRange = getDerivedRange(currentPlayer, masterResources);
+
+            return distance <= playerRange;
+          }}
+          onInteractionClick={() => {
+            return new Promise((resolve) => {
+              // Capture relationship state before interaction for StoryModal check
+              const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
+              preInteractionRelationshipRef.current = rel ? { ...rel } : null;
+
+              // Just center camera on player using current zoom level
+              // Pass grid and settlement positions for unified world model
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              if (playerInGridState?.position) {
+                centerCameraOnPlayer(
+                  playerInGridState.position,
+                  TILE_SIZE,
+                  1, // zoomScale
+                  0, // retryCount
+                  currentGridPosition,
+                  currentSettlementPosition
+                );
+              }
+              resolve();
+            });
+          }}
+          onRelationshipChange={(interaction, success) => {
+            // Check if a new relationship status was added
+            if (success && interaction.relbitadd) {
+              const statusKey = interaction.relbitadd.toLowerCase();
+              const preRel = preInteractionRelationshipRef.current;
+
+              // If status wasn't present before, show StoryModal
+              if (!preRel || !preRel[statusKey]) {
+                // Check if this NPC has dialog for this relationship type
+                const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+                const dialogKeyMap = {
+                  met: 'dialogOnMet',
+                  friend: 'dialogOnFriend',
+                  married: 'dialogOnMarried',
+                  love: 'dialogOnLove',
+                  rival: 'dialogOnRival',
+                };
+                const dialogKey = dialogKeyMap[statusKey];
+
+                if (npcMatrix && dialogKey && npcMatrix[dialogKey]) {
+                  setStoryRelationshipType(statusKey);
+                  setStoryModalOpen(true);
+                }
+              }
+            }
+          }}
+          isDeveloper={isDeveloper}
+        />
+          );
+        })()}
+
+
+        {/* Show message if trade interaction is not available due to relationship */}
+        {!canTrade && (
+          <div className="text-hint" style={{
+            padding: '10px',
+            backgroundColor: 'var(--color-bg-light)',
+            borderRadius: 'var(--radius-sm)',
+            marginTop: '10px',
+            textAlign: 'center'
+          }}>
+            {strings[626]}{npcData.type}.
+          </div>
+        )}
+
+        {/* Show message if some trades are hidden due to relationship requirements */}
+        {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
+        {!hideRelationshipUI && canTrade && hasHiddenTrades && (
+          <div className="text-hint" style={{
+            padding: '10px',
+            backgroundColor: 'var(--color-bg-light)',
+            borderRadius: 'var(--radius-sm)',
+            marginTop: '10px',
+            textAlign: 'center'
+          }}>
+            {strings[628]?.replace('{npc}', npcData?.type || '')}
+          </div>
+        )}
+
+        {canTrade && (
+          <>
+            <h3>{strings[420]}</h3>
+            {tradeRecipes.length > 0 ? (
+              (() => {
+                const filteredRecipes = tradeRecipes.filter((recipe) => {
+                  // Check the trader offer's repeat flag (from traders.json)
+                  // If repeat is false and player already has it, filter it out
+                  if (recipe.repeat === false) {
+                    // Check if player has this item in inventory or backpack
+                    const hasInInventory = inventory?.some(item => item.type === recipe.type);
+                    const hasInBackpack = backpack?.some(item => item.type === recipe.type);
+                    const hasAsSkill = currentPlayer?.skills?.some(item => item.type === recipe.type);
+
+                    if (hasInInventory || hasInBackpack || hasAsSkill) {
+                      return false; // Don't show this offer
+                    }
+                  }
+
+                  return true; // Show all other offers
+                });
+                
+                // If all trades were filtered out, show a message
+                if (filteredRecipes.length === 0) {
+                  return <p>{strings[423]}</p>;
+                }
+                
+                return filteredRecipes.map((recipe) => {
+                const affordable = canAfford(recipe, inventory, backpack, 1);
+                // For traders, treat 'devonly' as no skill requirement (devonly is used to hide from FarmHand, not traders)
+                const meetsSkillRequirement = recipe.requires === 'devonly' ? true : hasRequiredSkill(recipe.requires);
+                const meetsLevel = meetsLevelRequirement(recipe.level);
+                const requirementsMet = meetsSkillRequirement && meetsLevel;
+                const quantityToGive = recipe.tradeqty || 1;
+
+                // Format costs with color per ingredient (matching CraftingStation.js style)
+                // Support dynamic number of ingredients based on whether data comes from masterTraders or legacy format
+                let formattedCosts = '';
+
+                // Check if this recipe has a 'requiresArray' array (from masterTraders)
+                if (recipe.requiresArray && Array.isArray(recipe.requiresArray)) {
+                  // New format from masterTraders - dynamic number of ingredients
+                  formattedCosts = recipe.requiresArray.map((req) => {
+                    const type = req.type;
+                    const qty = req.quantity;
+                    if (!type || !qty) return '';
+
+                    const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
+                    const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                    return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                  }).join('');
+                } else {
+                  // Legacy format - check ingredient1 through ingredientN
+                  const ingredientsList = [];
+                  for (let i = 1; i <= 10; i++) { // Check up to 10 ingredients for safety
+                    const type = recipe[`ingredient${i}`];
+                    const qty = recipe[`ingredient${i}qty`];
+                    if (!type || !qty) continue;
+
+                    const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
+                    const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                    ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                  }
+                  formattedCosts = ingredientsList.join('');
+                }
+
+                // Get XP for this trade (use trade-specific XP if available, else fall back to NPC's XP)
+                const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+                const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
+
+                const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+                const details =
+                  (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
+                  `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: var(--color-text-positive);">🔷 +${xpToAward} XP</div>`;
+
+                const isDisabled = !affordable || !requirementsMet;
+
+                return (
+                  <div
+                    key={`${recipe.source}-${recipe.index}`}
+                    className="trader-offer-wrap"
+                    onClick={(e) => {
+                      // A tap anywhere on an offer the player cannot afford opens ResourceModalSmall
+                      // for the first requirement they are short of (NPCsPanel.css lets the tap through).
+                      if (affordable || !isDisabled) return;
+                      const line = e.currentTarget.querySelector('[data-resource][data-short="1"]') || e.currentTarget.querySelector('[data-resource]');
+                      if (line) setInfoResource(line.dataset.resource);
+                    }}
+                  >
+                  <div className={tradeFx?.slot === `${recipe.source}-${recipe.index}` ? `card-fx-${tradeFx.phase}` : ''}>
+                  {recipe.minigame && MINIGAMES[recipe.minigame] ? (
+                  <MinigameButton
+                    recipe={recipe}
+                    quantity={quantityToGive}
+                    disabled={!requirementsMet}
+                    onStart={(r) => setActiveMinigame({ recipe: r })}
+                    meetsLevelRequirement={meetsLevel}
+                  />
+                  ) : (
+                  <ResourceButton
+                    resourceType={recipe.type}
+                    symbol={recipe.symbol}
+                    name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
+                    details={details}
+                    disabled={isDisabled}
+                    onClick={undefined}
+                    isTransactionMode={true}
+                    transactionKey={`npc-trade-${npcData.type}-${recipe.type}-${recipe.index}`}
+                    onTransactionAction={(transactionId, transactionKey) => handleTrade(transactionId, transactionKey, recipe)}
+                    meetsLevelRequirement={meetsLevel}
+                    resource={recipe}
+                    inventory={inventory}
+                    backpack={backpack}
+                    masterResources={masterResources}
+                    currentPlayer={currentPlayer}
+                    devOnly={false}
+                  />
+                  )}
+                  </div>
+                  {tradeFx?.slot === `${recipe.source}-${recipe.index}` && <SaleBurst key={tradeFx.id} />}
+                  </div>
+                );
+                });
+              })()
+            ) : (
+              <p>{strings[423]}</p>
+            )}
+            
+          </>
+        )}
+
+        {/* The "when you met" story is now the first entry in Clues (CluesModal.js) */}
+      </div>
+  );
 
   return (
     <>
@@ -1258,6 +1540,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           })()}
 
 
+          {/* a giver who also trades (Constable Elbow): trades first, then quests (owner 2026-10-24) */}
+          {tradeSection}
+
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
             <div className="text-hint" style={{
@@ -1289,7 +1574,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               backgroundColor: 'var(--color-bg-light)',
               borderRadius: 'var(--radius-sm)',
               marginTop: '10px',
-              textAlign: 'center'
+              textAlign: 'center',
+              whiteSpace: 'pre-line' // the string's two sentences sit on two lines
             }}>
               {strings[205]}
             </div>
@@ -1445,284 +1731,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
 {/* //////////////////// TRADING //////////////////////// */}
 
-      {(npcData.action === 'trade' || (npcData.action === 'quest' && tradeRecipes.length > 0)) && (
-        <div className="trade-options">
-
-          {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI; a quest giver
-              already shows it in its quest section */}
-          {!hideRelationshipUI && npcData.action !== 'quest' && (() => {
-            const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
-            const shouldHideRelationship = npcResource?.output === 'noRel';
-
-            if (shouldHideRelationship) {
-              return null;
-            }
-
-            return (
-              <RelationshipCard
-            currentPlayer={currentPlayer}
-            setCurrentPlayer={setCurrentPlayer}
-            targetName={npcData.type}
-            targetType="npc"
-            targetEmoji={npcData.symbol}
-            showActions={true}
-            compact={false}
-            masterInteractions={masterInteractions}
-            updateStatus={updateStatus}
-            masterResources={masterResources}
-            playerPosition={(() => {
-              const gridId = currentPlayer?.location?.g;
-              const playerId = currentPlayer._id?.toString();
-              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-              return playerInGridState?.position || null;
-            })()}
-            targetPosition={(() => {
-              const gridId = currentPlayer?.location?.g;
-              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
-              return npcInGrid?.position || null;
-            })()}
-            TILE_SIZE={TILE_SIZE}
-            checkDistance={() => {
-              // No range restriction on own homestead
-              const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
-              if (isOnOwnHomestead) return true;
-
-              // Get player position
-              const gridId = currentPlayer?.location?.g;
-              const playerId = currentPlayer._id?.toString();
-              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-              if (!playerInGridState?.position) return false;
-
-              // Get NPC position
-              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
-              if (!npcInGrid?.position) return false;
-
-              // Calculate distance
-              const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
-              const playerRange = getDerivedRange(currentPlayer, masterResources);
-
-              return distance <= playerRange;
-            }}
-            onInteractionClick={() => {
-              return new Promise((resolve) => {
-                // Capture relationship state before interaction for StoryModal check
-                const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
-                preInteractionRelationshipRef.current = rel ? { ...rel } : null;
-
-                // Just center camera on player using current zoom level
-                // Pass grid and settlement positions for unified world model
-                const gridId = currentPlayer?.location?.g;
-                const playerId = currentPlayer._id?.toString();
-                const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-                if (playerInGridState?.position) {
-                  centerCameraOnPlayer(
-                    playerInGridState.position,
-                    TILE_SIZE,
-                    1, // zoomScale
-                    0, // retryCount
-                    currentGridPosition,
-                    currentSettlementPosition
-                  );
-                }
-                resolve();
-              });
-            }}
-            onRelationshipChange={(interaction, success) => {
-              // Check if a new relationship status was added
-              if (success && interaction.relbitadd) {
-                const statusKey = interaction.relbitadd.toLowerCase();
-                const preRel = preInteractionRelationshipRef.current;
-
-                // If status wasn't present before, show StoryModal
-                if (!preRel || !preRel[statusKey]) {
-                  // Check if this NPC has dialog for this relationship type
-                  const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
-                  const dialogKeyMap = {
-                    met: 'dialogOnMet',
-                    friend: 'dialogOnFriend',
-                    married: 'dialogOnMarried',
-                    love: 'dialogOnLove',
-                    rival: 'dialogOnRival',
-                  };
-                  const dialogKey = dialogKeyMap[statusKey];
-
-                  if (npcMatrix && dialogKey && npcMatrix[dialogKey]) {
-                    setStoryRelationshipType(statusKey);
-                    setStoryModalOpen(true);
-                  }
-                }
-              }
-            }}
-            isDeveloper={isDeveloper}
-          />
-            );
-          })()}
-
-
-          {/* Show message if trade interaction is not available due to relationship */}
-          {!canTrade && (
-            <div className="text-hint" style={{
-              padding: '10px',
-              backgroundColor: 'var(--color-bg-light)',
-              borderRadius: 'var(--radius-sm)',
-              marginTop: '10px',
-              textAlign: 'center'
-            }}>
-              {strings[626]}{npcData.type}.
-            </div>
-          )}
-
-          {/* Show message if some trades are hidden due to relationship requirements */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && canTrade && hasHiddenTrades && (
-            <div className="text-hint" style={{
-              padding: '10px',
-              backgroundColor: 'var(--color-bg-light)',
-              borderRadius: 'var(--radius-sm)',
-              marginTop: '10px',
-              textAlign: 'center'
-            }}>
-              {strings[628]?.replace('{npc}', npcData?.type || '')}
-            </div>
-          )}
-
-          {canTrade && (
-            <>
-              <h3>{strings[420]}</h3>
-              {tradeRecipes.length > 0 ? (
-                (() => {
-                  const filteredRecipes = tradeRecipes.filter((recipe) => {
-                    // Check the trader offer's repeat flag (from traders.json)
-                    // If repeat is false and player already has it, filter it out
-                    if (recipe.repeat === false) {
-                      // Check if player has this item in inventory or backpack
-                      const hasInInventory = inventory?.some(item => item.type === recipe.type);
-                      const hasInBackpack = backpack?.some(item => item.type === recipe.type);
-                      const hasAsSkill = currentPlayer?.skills?.some(item => item.type === recipe.type);
-
-                      if (hasInInventory || hasInBackpack || hasAsSkill) {
-                        return false; // Don't show this offer
-                      }
-                    }
-
-                    return true; // Show all other offers
-                  });
-                  
-                  // If all trades were filtered out, show a message
-                  if (filteredRecipes.length === 0) {
-                    return <p>{strings[423]}</p>;
-                  }
-                  
-                  return filteredRecipes.map((recipe) => {
-                  const affordable = canAfford(recipe, inventory, backpack, 1);
-                  // For traders, treat 'devonly' as no skill requirement (devonly is used to hide from FarmHand, not traders)
-                  const meetsSkillRequirement = recipe.requires === 'devonly' ? true : hasRequiredSkill(recipe.requires);
-                  const meetsLevel = meetsLevelRequirement(recipe.level);
-                  const requirementsMet = meetsSkillRequirement && meetsLevel;
-                  const quantityToGive = recipe.tradeqty || 1;
-
-                  // Format costs with color per ingredient (matching CraftingStation.js style)
-                  // Support dynamic number of ingredients based on whether data comes from masterTraders or legacy format
-                  let formattedCosts = '';
-
-                  // Check if this recipe has a 'requiresArray' array (from masterTraders)
-                  if (recipe.requiresArray && Array.isArray(recipe.requiresArray)) {
-                    // New format from masterTraders - dynamic number of ingredients
-                    formattedCosts = recipe.requiresArray.map((req) => {
-                      const type = req.type;
-                      const qty = req.quantity;
-                      if (!type || !qty) return '';
-
-                      const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                      const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                      const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
-                    }).join('');
-                  } else {
-                    // Legacy format - check ingredient1 through ingredientN
-                    const ingredientsList = [];
-                    for (let i = 1; i <= 10; i++) { // Check up to 10 ingredients for safety
-                      const type = recipe[`ingredient${i}`];
-                      const qty = recipe[`ingredient${i}qty`];
-                      if (!type || !qty) continue;
-
-                      const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
-                      const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                      const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                      ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
-                    }
-                    formattedCosts = ingredientsList.join('');
-                  }
-
-                  // Get XP for this trade (use trade-specific XP if available, else fall back to NPC's XP)
-                  const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-                  const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
-
-                  const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                  const details =
-                    (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
-                    `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: var(--color-text-positive);">🔷 +${xpToAward} XP</div>`;
-
-                  const isDisabled = !affordable || !requirementsMet;
-
-                  return (
-                    <div
-                      key={`${recipe.source}-${recipe.index}`}
-                      className="trader-offer-wrap"
-                      onClick={(e) => {
-                        // A tap anywhere on an offer the player cannot afford opens ResourceModalSmall
-                        // for the first requirement they are short of (NPCsPanel.css lets the tap through).
-                        if (affordable || !isDisabled) return;
-                        const line = e.currentTarget.querySelector('[data-resource][data-short="1"]') || e.currentTarget.querySelector('[data-resource]');
-                        if (line) setInfoResource(line.dataset.resource);
-                      }}
-                    >
-                    <div className={tradeFx?.slot === `${recipe.source}-${recipe.index}` ? `card-fx-${tradeFx.phase}` : ''}>
-                    {recipe.minigame && MINIGAMES[recipe.minigame] ? (
-                    <MinigameButton
-                      recipe={recipe}
-                      quantity={quantityToGive}
-                      disabled={!requirementsMet}
-                      onStart={(r) => setActiveMinigame({ recipe: r })}
-                      meetsLevelRequirement={meetsLevel}
-                    />
-                    ) : (
-                    <ResourceButton
-                      resourceType={recipe.type}
-                      symbol={recipe.symbol}
-                      name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
-                      details={details}
-                      disabled={isDisabled}
-                      onClick={undefined}
-                      isTransactionMode={true}
-                      transactionKey={`npc-trade-${npcData.type}-${recipe.type}-${recipe.index}`}
-                      onTransactionAction={(transactionId, transactionKey) => handleTrade(transactionId, transactionKey, recipe)}
-                      meetsLevelRequirement={meetsLevel}
-                      resource={recipe}
-                      inventory={inventory}
-                      backpack={backpack}
-                      masterResources={masterResources}
-                      currentPlayer={currentPlayer}
-                      devOnly={false}
-                    />
-                    )}
-                    </div>
-                    {tradeFx?.slot === `${recipe.source}-${recipe.index}` && <SaleBurst key={tradeFx.id} />}
-                    </div>
-                  );
-                  });
-                })()
-              ) : (
-                <p>{strings[423]}</p>
-              )}
-              
-            </>
-          )}
-
-          {/* The "when you met" story is now the first entry in Clues (CluesModal.js) */}
-        </div>
-      )}
+      {npcData.action !== 'quest' && tradeSection}
 
         </div>
         
@@ -1743,6 +1752,12 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         onClose={() => {
           setStoryModalOpen(false);
           setStoryDialogKey(null);
+          // Greeting Sebastian for the first time: Viola rises from the lake and the twins meet
+          if (npcData?.type === 'Sebastian' && storyRelationshipType === 'met') {
+            import('../Story/violaReunion').then(({ startViolaReunion }) => startViolaReunion({
+              currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, TILE_SIZE, masterResources, strings,
+            }));
+          }
           // Advance FTUE when first meeting Constable Elbow
           if (npcData?.type === 'Constable Elbow' && storyRelationshipType === 'met') {
             tryAdvanceFTUEByTrigger('MetConstableElbow', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -1754,12 +1769,6 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         username={currentPlayer?.username}
         npcFilename={npcData?.filename}
       />
-          // Greeting Sebastian for the first time: Viola rises from the lake and the twins meet
-          if (npcData?.type === 'Sebastian' && storyRelationshipType === 'met') {
-            import('../Story/violaReunion').then(({ startViolaReunion }) => startViolaReunion({
-              currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, TILE_SIZE, masterResources, strings,
-            }));
-          }
     </Panel>
     {snugTravelOpen && (
       <SnugTravelModal

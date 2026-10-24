@@ -30,7 +30,7 @@ body {
   --d-panel-width: 280px;
   --d-panel-radius: 14px;
   --d-panel-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  --d-pill-bg: rgba(130, 187, 77, 0.96);    /* zoom / season / map pills */
+  --d-pill-bg: rgba(119, 172, 13, 0.96);    /* zoom / season / map pills */
   --d-nav-bg: rgba(255, 251, 179, 0.96);     /* the nav bar: --color-bg-panel yellow, so it stands off the grass */
   --d-pill-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   --d-anim-in: 260ms;
@@ -519,7 +519,7 @@ body {
   position: absolute;
   top: var(--d-top); /* directly below the status bar */
   z-index: 100;
-  background-color: var(--settlement-gridline-color, #82bb4dff); /* Match settlement grid background */
+  background-color: var(--settlement-gridline-color, #77ac0dff); /* Match settlement grid background */
   overscroll-behavior: contain;
   touch-action: none; /* gestures belong to the game, not the page */
 }

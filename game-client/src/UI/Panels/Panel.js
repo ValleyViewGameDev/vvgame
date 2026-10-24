@@ -8,6 +8,11 @@ import { useStrings } from '../StringsContext';
 // panel on the left: mobile.css overrides the class.
 const RIGHT_PANELS = new Set(['HowToPanel', 'SeasonPanel', 'LeaderboardPanel', 'TownNewsPanel']);
 
+// Panel titles are text only (owner 2026-10-24): a leading emoji in a title string ("📊 Leaders")
+// is dropped here, so strings shared with buttons keep theirs
+const LEADING_EMOJI = /^(?:[\p{Extended_Pictographic}\p{Emoji_Presentation}\u{1F1E6}-\u{1F1FF}][\u{FE0F}\u{200D}\p{Extended_Pictographic}\u{1F3FB}-\u{1F3FF}]*\s*)+/u;
+const stripLeadingEmoji = (t) => (typeof t === 'string' ? t.replace(LEADING_EMOJI, '') : t);
+
 const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title, footer }) => {
   const strings = useStrings();
   const { activePanel, openPanel, closePanel } = usePanelContext();
@@ -26,7 +31,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title, 
     <div className={`panel-container${RIGHT_PANELS.has(panelName) ? ' panel-container--right' : ''}`} data-panel-name={panelName}>
       {/* Fixed Header with Title and Close Button */}
       <div className="panel-header">
-        <h2 className="panel-title">{title || strings[titleKey] || "Panel"}</h2>
+        <h2 className="panel-title">{stripLeadingEmoji(title || strings[titleKey] || "Panel")}</h2>
         <CloseButton onClick={() => { closePanel(); onClose(); }} />
       </div>
 

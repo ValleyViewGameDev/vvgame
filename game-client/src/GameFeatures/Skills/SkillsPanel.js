@@ -49,7 +49,6 @@ const SkillsPanel = ({
   const [ownedSkills, setOwnedSkills] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const [stationEmoji, setStationEmoji] = useState('📘'); // Default emoji for Skills Panel
 
   // ✅ Update `entryPoint` when `stationType` changes
   useEffect(() => {
@@ -82,9 +81,6 @@ const SkillsPanel = ({
         setInventory(serverInventory);
         setBackpack(serverBackpack);
         setAllResources(allResourcesData);
-
-        const stationResource = allResourcesData.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '💪');
 
         // ✅ Filter owned skills
         const ownedSkills = serverSkills.filter(skill =>
@@ -343,7 +339,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${getLocalizedString(entryPoint, strings)}`} panelName="SkillsPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1005" title={getLocalizedString(entryPoint, strings)} panelName="SkillsPanel">
       <div className="standard-panel">
             
       {isContentLoading ? (

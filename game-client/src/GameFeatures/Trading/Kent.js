@@ -379,6 +379,8 @@ function KentPanel({
             } else {
                 await trackQuestProgress(currentPlayer, 'Sell', offer.itemBought, offer.qtyBought, setCurrentPlayer);
             }
+            // and one "Serve Kent" per order filled, whatever it was (backlog OB-6: always completable)
+            await trackQuestProgress(currentPlayer, 'Serve', 'Kent', 1, setCurrentPlayer);
 
             // Try to advance FTUE if this is the player's first sale to Kent
             await tryAdvanceFTUEByTrigger('SoldToKent', currentPlayer.playerId, currentPlayer, setCurrentPlayer);

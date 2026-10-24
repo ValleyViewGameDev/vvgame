@@ -55,7 +55,6 @@ const CraftingStation = ({
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [stationEmoji, setStationEmoji] = useState('🛖');
   const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
@@ -183,7 +182,6 @@ const CraftingStation = ({
       filteredRecipes = [...filteredRecipes].sort((a, b) => (Number(a.level) || 1) - (Number(b.level) || 1));
       setRecipes(filteredRecipes);
       const stationResource = masterResources.find((resource) => resource.type === stationType);
-      setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
       setAllResources(masterResources || []);
     } catch (error) {
@@ -790,7 +788,7 @@ const CraftingStation = ({
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
+    <Panel footer={sellFooter} onClose={onClose} title={getLocalizedString(stationType, strings)} panelName="CraftingStation">
       <div className="station-panel-container">
         {/* Check if Library or Hospital requires home settlement (valley grids are open to all) */}
         {(stationType === 'Library' || stationType === 'Hospital') &&

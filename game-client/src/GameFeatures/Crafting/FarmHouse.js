@@ -51,7 +51,6 @@ const FarmHouse = ({
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
-  const [stationEmoji, setStationEmoji] = useState('🛖');
   const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
   const [activeTimer, setActiveTimer] = useState(false);
@@ -159,7 +158,6 @@ const FarmHouse = ({
       filteredRecipes = [...filteredRecipes].sort((a, b) => (Number(a.level) || 1) - (Number(b.level) || 1));
       setRecipes(filteredRecipes);
       const stationResource = masterResources.find((resource) => resource.type === stationType);
-      setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
       setAllResources(masterResources || []);
     } catch (error) {

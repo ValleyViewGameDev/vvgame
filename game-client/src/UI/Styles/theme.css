@@ -14,7 +14,7 @@
 :root {
   /* ========== BRAND PALETTE ==========
      The handful of colors the game is made of. Everything below derives from these. */
-  --brand-grass: #82bb4d;          /* the valley; = tileColors g (header, pills, base) */
+  --brand-grass: #77ac0d;          /* the valley; = tileColors g, the mean of the painted grass tiles (header, pills, base) */
   --brand-forest: #0e6a0c;         /* deep green: gridlines, strong accents */
   --brand-leaf: #baee66;           /* light green: the standard button face */
   --brand-leaf-ink: #358337;       /* dark green: text on leaf, "you have enough" */
