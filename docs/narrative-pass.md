@@ -213,11 +213,12 @@ ones open as a set).
 | 14 | 55 | Such Stuff as Dreams Are Made On | Find Hope | "Seven treasures. Bring them to the Oracle on Hope Mountain, and let us see the King crowned and Elbow, I mean Elsinore, merry again." | the end |
 
 Notes for the review:
-- **Titles** are new persisted ids, quotes or near-quotes: Elbow (Measure for Measure 2.1),
-  Hamlet 1.5, Henry V 3.1, the Oracle (The Winter's Tale 3.2), Macbeth 1.5 for "great Neptune's
-  ocean" (Macbeth 2.2), The Winter's Tale 5.3, Hamlet 3.2, Macbeth 2.1, Macbeth 4.1, Macbeth
-  5.5, The Tempest 4.1, Henry VIII 5.5 ("the bird of wonder dies, the maiden phoenix"), The
-  Tempest 4.1. To verify against the text before shipping (`narrative-style.md` §4).
+- **Titles** are new persisted ids, quotes or near-quotes, by step: 1 Measure for Measure 2.1;
+  2 Hamlet 1.5; 3 Henry V 3.1; 4 none (Helena's quest already has "Uneasy Lies the Head");
+  5 The Winter's Tale 3.2; 6 Macbeth 2.2; 7 The Winter's Tale 5.3; 8 Hamlet 3.2; 9 Macbeth 2.1;
+  10 Macbeth 4.1; 11 Macbeth 5.5; 12 The Tempest 4.1; 13 Henry VIII 5.5 ("the bird of wonder
+  dies, the maiden phoenix"); 14 The Tempest 4.1. To verify against the text before shipping
+  (`narrative-style.md` §4).
 - **Elbow's voice:** a word slightly wrong now and then ("most suspicious, I mean, most
   hopeful"), never in the instruction itself.
 - **The order of the late steps** follows the levels today: the Candle (about L34), the Orb (the
