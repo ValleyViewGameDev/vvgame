@@ -45,6 +45,28 @@
         "painterly"
       ],
       "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's Mill crafting station and the second its General Store: match their painterly storybook rendering, bright daylight and camera (front square to the viewer, seen a little from above); the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera. SUBJECT: a BEEHIVE, one tile: a classic domed straw SKEP hive of coiled golden straw rope, fat and rounded, sitting on a small wooden stand with a little arched entrance at its foot, a small wooden shingled rain cap on top, a honey-gold drip at the entrance and a small clay honey pot with a wooden dipper beside the stand, a few wildflowers at its base. NO bees, no insects anywhere: the hive itself says what it is. Whimsical, chunky, warm golden straw. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere."
+    },
+    "chicken-coop-b": {
+      "refs": [
+        "_candidates/stations-r5/exploration/openai/painterly-chicken-coop-2.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached image is this game's CHICKEN COOP as drawn on magenta; the owner likes it: keep its raised hen house on legs, its red shingled pitched roof, its cream plank walls, the ramp with cross-slats, the feed trough and the straw nest of three brown eggs at its foot, its camera, rendering and bright daylight. Redraw it with FOUR changes only. (1) REMOVE the small heart cut-out above the door entirely: the gable is plain. (2) THE DOOR IS A TALL EGG: the pop-hole door becomes a tall upright OVAL shaped like an egg, noticeably taller than it is wide, reaching higher up the wall, dark inside with a hint of straw. (3) REMOVE the small structure sticking out on the right side (the nesting box) entirely; the body is one simple box. (4) THE PROPS IN FRONT ARE BIGGER: the feed trough and the nest of eggs scale up to about half the coop's width each, big and readable (the second attached panel is this game's General Store: the crate and barrel by its door are the absolute size of a prop; the trough and nest match them). Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds, no insects."
+    },
+    "beehive-b": {
+      "refs": [
+        "_candidates/stations-r5/exploration/openai/painterly-beehive-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached image is this game's BEEHIVE as drawn on magenta; the owner likes it: keep its fat coiled-straw skep on the wooden stand with the shingled rain cap, the arched entrance with the honey drip, the honey pot with the dipper, the wildflowers, its camera and rendering. Redraw it with TWO changes only. (1) MORE GOLDEN, VIBRANT AND WELL LIT: the straw is a rich saturated honey-gold, lit by full bright noon sun from high up and a little left, the coils' sunlit tops glowing warm yellow-gold, only soft short shadows between the coils, nothing dull or brown; the second attached panel is this game's General Store, the daylight to match. (2) THE PROPS ARE MUCH BIGGER: the honey pot with its dipper scales up to about half the hive's height, big and readable, and the stand's legs thicken to match (the crate and barrel by that store's door are the absolute size of a prop; the pot matches them). Nothing else changes. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no birds, no insects."
     }
   }
 }
