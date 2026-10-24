@@ -21,7 +21,15 @@ const path = require('path');
 
 const HINT_STRING = {
   "Prospero's Orb": 200811, "King's Crown": 200812, 'Trident': 200813, 'Brass Bell': 200814,
-  'Phoenix Feather': 200815, "Vampire's Blood": 200816, 'Scroll': 200817, 'Brief Candle': 200822,
+  'Phoenix Feather': 200815, "Vampire's Blood": 200816, 'Brief Candle': 200822,
+};
+// Characters who stand on the layouts as something else until the story wakes them (docs/story.md
+// §0): where to look for them, and the gate the player must pass first
+const STAND_INS = {
+  Gertrude: {
+    stand: "Gertrude's Statue",
+    gate: "Gertrude awake (her statue in the Town castle: Helena's \"Rosemary, for Remembrance\", then Feste's \"If Music Be the Food of Love\", then Feste sings at the statue)",
+  },
 };
 const SIZE = 64;
 const MAX_DEPTH = 4;
@@ -206,11 +214,21 @@ function compute(gameServerDir, clientDir) {
     return parts.length ? parts.join(', ') : null;
   };
 
-  // A person / shop / enemy and where to find them
+  // A person / shop / enemy and where to find them (a stand-in's places count as theirs)
   function find(type) {
     const r = byType.get(type);
-    return { type, symbol: r?.symbol || '', level: r?.level ?? null, places: where(type) };
+    const standIn = STAND_INS[type];
+    const places = [...where(type), ...(standIn ? where(standIn.stand) : [])];
+    return { type, symbol: r?.symbol || '', level: r?.level ?? null, places };
   }
+  const standInGate = (who) => STAND_INS[who]?.gate || null;
+  // "after <quest>" for a quest's prereq chain, nearest first
+  const byTitle = new Map(quests.map((q) => [q.title, q]));
+  const prereqGate = (q) => {
+    const chain = [];
+    for (let p = q.prereq, guard = 0; p && guard < 20; p = byTitle.get(p)?.prereq, guard++) chain.push(`"${p}" (${byTitle.get(p)?.giver || '?'})`);
+    return chain.length ? `after ${chain.join(', after ')}` : null;
+  };
 
   function explain(item, depth, seen, shallow = false) {
     if (depth > MAX_DEPTH || seen.has(item)) return [];
@@ -228,7 +246,7 @@ function compute(gameServerDir, clientDir) {
       ways.push({
         kind: 'quest',
         title: q.title, giver: find(q.giver), rewardQty: q.rewardqty || 1,
-        gates: [q.level && `level ${q.level}+`, relGate(q, q.giver), questThreshold && !q.rel && !q.relscore ? null : null].filter(Boolean),
+        gates: [q.level && `level ${q.level}+`, relGate(q, q.giver), prereqGate(q), standInGate(q.giver)].filter(Boolean),
         goals: goals.map((g) => ({ ...g, self: g.item === item })),
         enemies: kills.map((g) => find(g.item)),
         prereqs: goals.filter((g) => g.item !== item).map((g) => sub(g.item)).filter(Boolean),
@@ -239,7 +257,7 @@ function compute(gameServerDir, clientDir) {
       ways.push({
         kind: 'trade', trader: find(t.trader), qty: t.givesqty || 1,
         // the game gates a trade on the level of what it gives (NPCsPanel recipe.level)
-        gates: [byType.get(t.gives)?.level > 1 && `level ${byType.get(t.gives).level}+`, relGate(t, t.trader)].filter(Boolean),
+        gates: [byType.get(t.gives)?.level > 1 && `level ${byType.get(t.gives).level}+`, relGate(t, t.trader), standInGate(t.trader)].filter(Boolean),
         needs, minigame: t.minigame || null, prereqs: needs.map((n) => sub(n.item)).filter(Boolean),
       });
     }

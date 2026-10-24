@@ -30,7 +30,7 @@ async function dungeonEntrances() {
 // The routes rarely change, and working them out reads every layout plus every frontier from the
 // game server, so the result is kept in this browser (localStorage) and only rebuilt on the
 // side panel's "Refresh data" (or when nothing is cached yet).
-const CACHE_KEY = 'vvEditor.questForHope.v2';   // v2: places carry `area`; craft ways; notable goods
+const CACHE_KEY = 'vvEditor.questForHope.v3';   // v3: stand-ins (Gertrude's statue) and quest prereq gates
 function readCache() {
   try {
     const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
