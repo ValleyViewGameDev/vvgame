@@ -7451,7 +7451,7 @@
     "artLook": "homestead",
     "artAccent": "indigo blue",
     "artSign": "none (the loom frame above the roof)",
-    "artSpan": 2.26
+    "artSpan": 2.27
   },
   {
     "type": "Chicken Coop",
@@ -7486,7 +7486,9 @@
     "crafttime": 0,
     "totalnestedtime": 375,
     "parallel": 10,
-    "size": 1
+    "size": 1,
+    "filename": "chicken-coop.svg",
+    "artSpan": 1.13
   },
   {
     "type": "Oven",
@@ -7566,7 +7568,9 @@
     "crafttime": 0,
     "totalnestedtime": 450,
     "parallel": 10,
-    "size": 1
+    "size": 1,
+    "filename": "beehive.svg",
+    "artSpan": 0.97
   },
   {
     "type": "Kitchen",
@@ -7652,7 +7656,7 @@
     "artLook": "homestead",
     "artAccent": "timber brown",
     "artSign": "none (the log stack)",
-    "artSpan": 2.04
+    "artSpan": 2.24
   },
   {
     "type": "Studio",
@@ -7694,7 +7698,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "terracotta",
-    "artSign": "clay pot"
+    "artSign": "clay pot",
+    "artSpan": 2.29
   },
   {
     "type": "Beverage Station",
@@ -7738,7 +7743,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "tea green",
-    "artSign": "steaming cup"
+    "artSign": "steaming cup",
+    "artSpan": 2.1
   },
   {
     "type": "Winery",
@@ -7827,7 +7833,7 @@
     "artLook": "homestead",
     "artAccent": "dark roast brown",
     "artSign": "none (the roaster and its flue)",
-    "artSpan": 2.04
+    "artSpan": 2.21
   },
   {
     "type": "Silkery",
@@ -7870,7 +7876,9 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "silver white",
-    "artSign": "silk cocoon"
+    "artSign": "silk cocoon",
+    "filename": "silkery.svg",
+    "artSpan": 2.05
   },
   {
     "type": "Ancient Temple",
