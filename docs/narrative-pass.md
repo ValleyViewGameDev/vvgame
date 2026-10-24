@@ -128,7 +128,8 @@ building's panel.
 
 **Decided 2026-10-24 (round 2):** Neptune's Shrine, Leontes' Castle, Quickly's Lab (Laboratory),
 The Wall (Factory), Tybalt's (Warrior's Den), Woodman's Yard (General Store); the Academy keeps its
-name. The Armory: keep brainstorming around Hector (Troilus and Cressida).
+name. The Armory is **Hector Protector** (Hector of Troy, by way of the nursery rhyme "Hector
+Protector was dressed all in green": whimsical and it says protection at once).
 
 **Built in the local build 2026-10-24** (aliases in `Utils/stringLookup.js` `DISPLAY_ALIASES` +
 the name strings in all ten languages; types unchanged): Boar's Head (Restaurant), Garter Inn
@@ -136,7 +137,7 @@ the name strings in all ten languages; types unchanged): Boar's Head (Restaurant
 Oberon's Bower (Magic Shop), Wittenberg (School), Grange at Arden (Agriculture Center), Portia's
 Court (Courthouse); the workers Audrey (Farm Hand), Corin (Rancher), Peter Quince (Lumberjack),
 Nick Bottom (Crafter); Kent's symbol 🧔. Round 2, same day: Neptune's Shrine, Leontes' Castle,
-Quickly's Lab, The Wall, Tybalt's, Woodman's Yard.
+Quickly's Lab, The Wall, Tybalt's, Woodman's Yard, Hector Protector (Armory).
 
 **Where the Globe could go** (OPEN, for the future, owner 2026-10-24):
 
@@ -267,7 +268,7 @@ game (BUILT 2026-10-24, see `story.md` §0); the farm workers Quince, Bottom, Co
 Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town characters to be
 proposed first). Still open:
 
-1. The Armory's name (a Hector idea, P1.2). The Nurse / Peaseblossom copies check.
+1. The Nurse / Peaseblossom copies check (P1.2).
 2. The Shepherd's quests (P3.3): approve the table, and Launce as a new Town character.
 3. Where the Globe goes (future).
 4. Quest text (P3.1): not greenlit yet.
