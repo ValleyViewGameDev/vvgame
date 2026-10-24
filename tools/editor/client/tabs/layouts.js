@@ -20,7 +20,7 @@ import { GridCanvas } from '../layouts/GridCanvas.js';
 
 const DIRS = ['valleyFixedCoord', 'town', 'dungeon', 'homestead', 'miniTemplates'];
 const GRID_TYPES = ['valley0', 'valley1', 'valley2', 'valley3', 'town', 'homestead', 'dungeon'];
-const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g grass, d dirt, s slate, w water, p pavement, l lava, n sand, o snow, x cobblestone, y dungeon, z moss, c clay, v/u tbd). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
+const SHORTCUT_HELP = 'Click: select. Letter keys paint the tile with the brush (g grass, d dirt, s slate, w water, p pavement, l lava, n sand, o snow, x cobblestone, k step stones, y dungeon, z moss, c clay, v/u tbd). Delete: remove resource, else clear tile. Arrows move. ⌘C/⌘V copy/paste resource. ⌘Z / ⇧⌘Z undo/redo. ⌘S save.';
 
 const T = {
   idx: null, canvas: null, history: new History(50),

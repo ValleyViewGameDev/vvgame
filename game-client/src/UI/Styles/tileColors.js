@@ -26,7 +26,7 @@ export const tileColors = {
   c: '#6c3b3bff',  // clay
   v: '#44551dff',  // tbdTile1
   u: '#1b712cff',  // tbdTile2
-  k: '#86a634ff',  // step stones: grass with cobble-coloured stones set in it
+  k: '#b4b688ff',  // step stones: grass with pale stones set in it (pale enough to tell from grass in the editor and on the minimap)
 };
 
 // Display names for the single-letter tile types (the editor's tooltips and labels).

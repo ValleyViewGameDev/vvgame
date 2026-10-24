@@ -12,7 +12,7 @@
  * from game-editor/src/GridEditor.jsx so the output distribution is unchanged.
  */
 export const GRID_SIZE = 64;
-export const TILE_KEYS = ['g', 's', 'd', 'w', 'p', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
+export const TILE_KEYS = ['g', 's', 'd', 'w', 'p', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u', 'k'];
 export const DEFAULT_TILE_DISTRIBUTION = Object.fromEntries(TILE_KEYS.map((k) => [k, k === 'g' ? 100 : 0]));
 export const DEFAULT_CLUMP = { clumpSize: 20, clumpVariation: 5, minClumpSize: 5, clumpTightness: 2.5 };
 export const EDITOR_RESOURCE_CATEGORIES = ['source', 'editor', 'doober', 'reward', 'special', 'crafting', 'trainingAndShop', 'farmplot', 'training', 'shop', 'trading', 'station', 'deco', 'travel', 'stall', 'farmhouse'];
