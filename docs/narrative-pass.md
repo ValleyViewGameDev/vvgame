@@ -175,6 +175,13 @@ cast, then the late-game cast.
 
 ### P3. Quests (89 quests; one small feature)
 
+**Quest display titles (BUILT 2026-10-24, owner: "fix the quest titles that are still Valley View
+stuff").** `GameFeatures/Quests/questTitles.js` maps 52 old titles (Plant Wheat, Hire Lumberjack,
+Kitchen Confidential, Zombies, die...) to Shakespearean ones, each with its source, and the quest
+card (`UI/Buttons/QuestButton.js`, used by the To Do list and the giver's panel) shows the display
+title. The persisted `title` is unchanged, so no player record moves. English only, like the
+titles. The ask text (P3.1) is still not greenlit.
+
 1. **Feature: quest text.** Add two optional string keys per quest (`titleKey`: the shown title;
    `textKey`: the giver's ask, one or two lines) to the QUESTS sheet definition and the quest
    panel / quest card, falling back to `title` when unset. The persisted `title` never changes.
@@ -324,7 +331,7 @@ game (BUILT 2026-10-24, see `story.md` §0); the farm workers Quince, Bottom, Co
 Oberon's Bower; the Shepherd's specialised quests go wherever fits (new Town characters to be
 proposed first). Still open:
 
-1. The Nurse / Peaseblossom copies check (P1.2).
+1. The healers' names (P1.2): the copies check is done (2026-10-24): the Fairy stands 20 times on 9 layouts and the Field Nurse 52 times on 26, like the Doctor (26) and unlike the Surgeon (1), so by the owner's rule (many copies keep generic names) both should keep their names; owner to confirm.
 2. The story chain (P3.4): the 14 steps, the late order, the two goal types, and the one-string
    StoryModal for Elbow's asks.
 3. Where the Globe goes (future).

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { questDisplayTitle } from '../../GameFeatures/Quests/questTitles';
 import './QuestButton.css';
 import { useStrings } from '../StringsContext';
 
@@ -51,7 +52,7 @@ const QuestButton = ({ quest, state, onClick, masterResources }) => {
           ? <span className="quest-checkmark">✅</span>
           : <span className="quest-status">{strings[207]}</span>}
       </div>
-      <h2 className="quest-title">{title}</h2>
+      <h2 className="quest-title">{questDisplayTitle(title)}</h2>
       {completed && <p className="quest-return-hint text-hint">{strings[206]}</p>}
       <div className="quest-tasks">
         {goals.map((goal, index) =>
@@ -139,7 +140,7 @@ const QuestGiverButton = ({
           {state === 'reward' && <span className="quest-checkmark">✅</span>}
         </span>
       </div>
-      <h2 className="quest-title">{title}</h2>
+      <h2 className="quest-title">{questDisplayTitle(title)}</h2>
       <div className="quest-goals">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (
