@@ -54,36 +54,104 @@ Inventory taken 2026-10-24:
    checked against the Folger text.
 4. Fix the typos and the 4 em-dashes now (no decision needed).
 
-### P1. The world and the cast (decisions, then a little data)
+### P1. The tale and the cast
 
-The owner decides; the pass then applies the answers.
+#### P1.1 The tale (DRAFT for the owner; moves to `story.md` once approved)
 
-1. **The premise.** Why are characters from many plays in one valley? Proposal: a storm of
-   stories. Prospero's tempest, long ago, wrecked every play on the same shore, and the
-   characters made Elsinore their home (it explains Viola's shipwreck, Prospero's guilt, and
-   the mash-up in one line, and it is a fairy tale). The intro (16019) and How to Play's "What's
-   it about?" are rewritten around it. Alternatives: "All the world's a stage" (the valley is a
-   playhouse world), or no explanation at all.
-2. **The generic helpers get Shakespearean identities** (display names through aliases; the
-   types stay):
+Decided by the owner 2026-10-24: **a storm of stories**, and **Prospero is the antagonist**,
+the reason everything is broken and the reason for the Quest for Hope. He is defeated, not
+killed: the player beats his dragons to reach him and wins the Orb, as built today. The draft
+below replaces the old intro ("an evil scourge grows... bring back the rule of King Leontes"),
+keeping its good bones (a happy land, a fall, a quest, a king restored) and giving each one a
+Shakespearean source.
 
-   | Today | Proposal | Why |
-   |---|---|---|
-   | Farm Hand, Rancher, Lumberjack, Crafter (workers) | The Mechanicals of the Dream: Peter Quince (carpenter, the Lumberjack), Nick Bottom (weaver, the Crafter), Francis Flute (the Farm Hand), Tom Snout (tinker, the Rancher) | Workmen in the play; Snug is already one of them, so the hired hands are his troupe |
-   | Doctor | Doctor Caius (The Merry Wives of Windsor) | The play's own physician, comic and French |
-   | Field Nurse | The Nurse (Romeo and Juliet) | Juliet's chatty Nurse, a healer with a heart |
-   | Surgeon | Cerimon (Pericles), or keep "Surgeon" | Cerimon raises Thaisa from the dead; obscure, so keeping the plain name is fine |
-   | Fairy | Puck, or Titania's fairies (Peaseblossom, Cobweb, Moth, Mustardseed) | Fairies are the Dream's |
-   | Kent's 🤠 symbol | a plain 🧔 or Kent's own art | Kent is Lear's loyal earl, not a cowboy |
-   | Vampire | keep (original), give him a voice card | `story.md` §1 welcomes originals |
-   | Santa Claus | keep for the season, or Father Christmas | seasonal original |
+- **Before.** Elsinore was a merry kingdom under King Leontes and Queen Hermione (The Winter's
+  Tale), a place of fairs and farms by the sea.
+- **The wrong.** Prospero (The Tempest), once a duke, was robbed of his dukedom by his own
+  brother and turned bitter in his mountain books. He swore the world would answer for it.
+  ("The rarer action is in virtue than in vengeance" is the lesson he has not learned yet.)
+- **The storm of stories.** Prospero raised a tempest so great it tore the pages out of every
+  story. Their people were cast up on Elsinore's shores, far from their own tales: lovers without
+  their loves, fools without their kings, schemers without their plots. That is why Iago,
+  Juliet, Falstaff and Titania all live in one valley. The storm brought monsters too: "Hell is
+  empty, and all the devils are here." It took the Queen: Hermione stands in the castle as a
+  statue, and the King's heart and crown went with her (the King's Crown is his, lost in the
+  storm).
+- **The magician's hold.** Prospero bound the storm's power in his Orb and shut himself on
+  Prospero's Peak behind Cloven Pines (the Tempest's prison tree) and his dragons. While the Orb
+  is his, the stories stay broken.
+- **The prophecy.** Apollo's Oracle (The Winter's Tale) speaks the line from the play: the
+  kingdom shall not mend "if that which is lost be not found". What was lost is Hope, and seven
+  treasures scattered by the storm can call it back.
+- **The player: the one with no part written.** Not a "chosen one". Everyone in Elsinore is
+  stuck playing the part their play gave them; the player is a stranger the storm washed up
+  with no script at all ("All the world's a stage... and one man in his time plays many
+  parts", which is also the aspiration choice: farmer, adventurer, politician). So the player is
+  the only one who can change how the story ends. They wake in the sea cave (the FTUE cave) and
+  are found by **the Shepherd**, who once found a lost child on this same shore and knows the
+  Oracle's words: "Thou met'st with things dying, I with things new-born."
+- **The ending.** At the top of the Peak, past the dragons, Prospero sets his riddle (the built
+  minigame). Beaten, he chooses virtue over vengeance at last: he gives up the Orb and his magic
+  ("I'll drown my book"). With all seven treasures the Oracle calls Hope home, the statue of
+  Hermione wakes ("Be stone no more"), and Leontes is king again. Prospero's own epilogue asks to
+  be set free, "As you from crimes would pardoned be, let your indulgence set me free": the
+  player may forgive him.
 
-3. **Systems vocabulary** (names on screen only; all optional): the aspirations Farmer /
-   Adventurer / Politician (keep, or "the Husbandman / the Knight-errant / the Statesman" if the
-   owner wants flavour there); Town News as **the Town Crier**; the Store as **the Merchant's
-   Stall**? Proposal: keep system names plain (they are menus, `narrative-style.md` §2) and
-   only flavour the people.
-4. **Voice cards** for every speaking character not yet in `narrative-style.md` §6.
+Who stands where: **Caliban** (Prospero's old servant) knows the mountain and hates him, so he
+helps. **Hecate** is the witches' queen whose kin Prospero drove out (Sycorax, Caliban's mother,
+was a witch), so she forges the axe that fells his pines. **The dragons** are Prospero's.
+**Duke Angelo** (Measure for Measure) is the storm's other villain, a false judge who seized the
+town's law in the confusion (Cassio's and Juliet's thread). The rest of the cast want their own
+stories back, which is what their quests and secrets are about.
+
+How the acts sit on the level phases (`early-game.md` §1): Act I, washed ashore (FTUE,
+homestead, the Shepherd, Kent, the Town). Act II, the stranded cast (the early game; the first
+treasure, the King's Crown, around L10-11: "Uneasy lies the head that wears a crown"). Act III,
+the Valley and its dangers (mid game, more treasures). Act IV, the witch and the underworld
+(Hecate, Toil and Trouble, Acheron and the Brief Candle, L30-36). Act V, Prospero's Peak, then
+the Oracle (the end of the spine).
+
+Watch-out: the spine leans on The Winter's Tale (Leontes, Hermione, the Oracle, the Shepherd)
+crossed with The Tempest (Prospero) and Hamlet's Elsinore. That is a cross-play mash-up as
+`story.md` §1 asks; the threads off the spine should stay drawn from the other plays.
+
+#### P1.2 Names: everything is up for grabs
+
+Decided 2026-10-24: any name on screen may take Shakespearean flavour (helpers, buildings,
+places, items, doors), provided it stays clear what the thing is; a plain name ("Doctor") is fine
+when no good Shakespeare name fits. Names change on screen only (aliases); the types stay.
+Candidates, for the owner to pick from in the P1 review:
+
+| Today | Candidates | Note |
+|---|---|---|
+| Doctor | Doctor Caius (Merry Wives) | the play's comic physician |
+| Field Nurse | the Nurse (Romeo and Juliet) | Juliet's chatty Nurse |
+| Surgeon | Cerimon (Pericles), or keep | Cerimon is obscure |
+| Fairy (healer) | Peaseblossom, Cobweb, Moth, Mustardseed (the Dream) | Titania's fairies |
+| Farm Hand, Rancher, Lumberjack, Crafter | Snug's fellow Mechanicals (Quince the carpenter, Bottom the weaver, Flute, Snout), or role names with flavour ("Woodman", "Rustic") | open question: a player can hire several of one kind, and five Bottoms is odd; names fit only if each kind is one person |
+| Kent's 🤠 | 🧔 or his own art | Lear's loyal earl |
+| Inn | the Garter Inn (Merry Wives) | |
+| Restaurant | the Boar's Head (Mistress Quickly's tavern, Henry IV) | |
+| Trading Post | the Rialto (The Merchant of Venice) | "What news on the Rialto?" |
+| Bank | the Counting House | |
+| Ancient Temple | the Temple of Apollo (The Winter's Tale) | where the Oracle's sealed scrolls are opened |
+| Castle | Elsinore Castle, home of the statue | |
+| Magic Shop | the Witches' Cauldron | Hecate's sisters sell spells (fits the Spells epic) |
+| Library | Prospero's Library ("my library was dukedom large enough") | the books he left behind |
+| Studio | the Globe | |
+| Courthouse | the Duke's Court | |
+| Warrior's Den, Armory, School, Guild, Shrine, Hospital | keep plain unless a good name appears | |
+| Locations | already mostly plays' places (Dunsinane, Illyria, Belmont, Arden...); the sweep checks the rest | |
+
+#### P1.3 Systems
+
+System names stay plain (they are menus), now that the Caravan and the Harvest Fair have
+names. The aspirations keep Farmer / Adventurer / Politician, introduced by "one man in his time
+plays many parts".
+
+#### P1.4 Voice cards
+
+For every speaking character not yet in `narrative-style.md` §6, once the names are chosen.
 
 ### P2. Character speech and the spine (the heart; ~150 lines)
 
@@ -102,9 +170,16 @@ cast, then the late-game cast.
 2. **Write them:** each quest gets a display title (a quote fragment or a play on one:
    "Plant Wheat" could show as "Sow, and Thou Shalt Reap"; "Hire Lumberjack" as "Peter Quince
    Wants Work") and an ask in the giver's voice with the goal said plainly.
-3. **Givers:** the Shepherd's 23 quests are a lot for one voice; where it fits, hand some to
-   characters the player has just met, matching T-5 in the backlog (quest `giver` is data, the
-   title is not). Owner decides per quest; no level or reward change.
+3. **Givers** (decided 2026-10-24): **the Shepherd gives the core story quests**, the main
+   chain through the five acts that points the player at each treasure and at the characters
+   who hold the way to it. **Secondary characters give the specialised quests** in their own
+   field (Mistress Quickly cooking, Feste crafting, Hotspur and Cassio combat, Helena wild herbs,
+   Portia the Town's institutions). So most of the Shepherd's 23 farming and building quests move
+   to a farming specialist (candidates: Audrey the goatherd or Corin the old shepherd from As You
+   Like It) and a building one (Peter Quince the carpenter), and the Shepherd gains new story
+   quests (about one per act step, roughly 10 to 15). Moving a quest is changing its `giver`;
+   the title, level and reward stay. The new story quests are the one place the pass adds
+   content, and they are planned with the OB epic so the first hour and Act I agree.
 
 ### P4. The first hour and the moments (~80 strings)
 
@@ -149,15 +224,20 @@ Roughly 600 English lines, about 2,400 with translations, in six or seven review
 
 ## 6. Decisions for the owner
 
-1. The premise (P1.1): a storm of stories, a stage, or none?
-2. The helpers (P1.2): the Mechanicals as workers, Doctor Caius, the Nurse, Puck; Surgeon and
-   Santa kept or renamed?
-3. System names (P1.3): keep plain, or flavour some?
-4. Quest text (P3.1): build the display title + ask feature?
-5. Quest givers (P3.3): spread the Shepherd's quests to other characters?
-6. Order: is P2 (character speech) or P4 (the first hour) first? Proposal: P0, P1, then P2,
-   with P4 after the OB epic settles the FTUE.
+Decided 2026-10-24: the premise (a storm of stories), Prospero as the antagonist (defeated, not
+killed), the Shepherd as the story-quest giver with specialists for the rest, every name up for
+grabs. Still open:
+
+1. The tale (P1.1): approve the draft, with tweaks.
+2. The names (P1.2): pick from the candidates; the workers question.
+3. Quest text (P3.1): build the display title + ask feature?
+4. The farming and building specialists who take over the Shepherd's quests (P3.3).
+5. Order: proposal P0, P1, then P2, with P4 after the OB epic settles the FTUE.
 
 ## 7. Owner's tweaks (filled in on approval)
 
-(none yet)
+- 2026-10-24: "a storm of stories" chosen. Prospero becomes the antagonist, central to why
+  everything is broken; the player defeats his dragons to reach him but need not kill him. The
+  Shepherd keeps the core story quests; secondary characters give specialised ones. Helpers,
+  buildings, locations, "really anything" may be renamed with Shakespearean flavour; a plain
+  name such as "Doctor" is fine when nothing better fits.

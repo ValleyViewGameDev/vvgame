@@ -7,6 +7,15 @@ language, each character's voice card) is `narrative-style.md`; the plan to re-v
 game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens' behaviour in
 `citizens.md`, and the world's geography in `making-original-grids.md`.
 
+## 0. The tale (being rewritten)
+
+Owner, 2026-10-24: the world's premise is **a storm of stories** (Prospero's tempest tore every
+play's people out of their tales and cast them up on Elsinore's shore), and **Prospero is the
+antagonist**, the reason the land is broken and the Quest for Hope exists; he is defeated, not
+killed. The full draft (the wrong, the storm, the statue of Hermione, the Oracle's prophecy, the
+player as the one with no part written, the ending) is in `narrative-pass.md` P1.1 and moves
+here once approved. Until then the old intro (string 16019) is out of date.
+
 ## 1. The rule: a mash-up, not an adaptation
 
 Secrets of Elsinore is one big story where characters from many Shakespeare plays live in the
@@ -83,7 +92,7 @@ stub riddle, the real puzzle is still to be designed.
 | Feste | Twelfth Night | Crafting quests |
 | Helena | A Midsummer Night's Dream | The Golden Key (Feverfew) |
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
-| Prospero | The Tempest | The Orb, in his mountain home |
+| Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
 | Constable Elbow | Measure for Measure | Town and Dungeon Keys |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
@@ -100,6 +109,7 @@ stub riddle, the real puzzle is still to be designed.
 | Santa Claus | original (seasonal) | Seasonal quests |
 | Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |
 | Cerberus | myth, named in Love's Labour's Lost | The three-headed hound at the bottom of Acheron; guards the Brief Candle |
+| The Great Bear | The Winter's Tale ("Exit, pursued by a bear") | Guards the road to Leontes' castle in Belmont, where the King's Crown waits (the first artifact, about L10) |
 
 Regions are named the same way (Dunsinane, Birnam Wood, Inverness, Illyria, Messina, Belmont,
 Mantua, Navarre, Harfleur, the Forest of Arden, Yorick's Hollow, Sycorax Fen, Setebos Rise,
