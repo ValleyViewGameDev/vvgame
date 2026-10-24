@@ -61,6 +61,7 @@ import ConversationManager from '../Relationships/ConversationManager';
 import { getNPCRelationship, updateNPCRelationship } from '../Relationships/RelationshipUtils';
 import soundManager from '../../Sound/SoundManager';
 import { runStoryErrand } from '../Story/gertrudeWaking';
+import { runStoryGoal } from '../Story/storyGoal';
 
 export const CITIZEN_ACTIONS = ['quest', 'trade', 'heal', 'worker'];
 export const CITIZEN_STATES = ['working', 'resting', 'roaming', 'eating', 'socializing'];
@@ -369,7 +370,7 @@ const liveConversations = new Set(); // { npc, partnerId, control }
 function canBePartner(me, n, now) {
   if (!n || n.id === me.id || !isCitizen(n) || stateSeconds(n, 'socializing') <= 0) return false;
   if (n.citizenState === 'waiting') return false; // (citizens carry no hp)
-  if (n.storyErrand) return false; // busy with the story (gertrudeWaking.js)
+  if (n.storyErrand || n.storyGoal) return false; // busy with the story (gertrudeWaking.js, storyGoal.js)
   if (n.citizenTask?.partnerId) return false; // already in (or walking to) a conversation
   if (n.citizenStateAt && now - n.citizenStateAt < SOCIAL_RECENT_MS) return false;
   return true;
@@ -534,6 +535,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
 
   // ---- a story errand comes before everything (Feste walking to the Queen's statue to sing:
   // GameFeatures/Story/gertrudeWaking.js); the loop resumes when it is over
+  if (runStoryGoal(this, gridId, tiles, resources, npcs, TILE_SIZE)) return undefined; // a one-off story walk (storyGoal.js)
   if (runStoryErrand(this, gridId, tiles, resources, npcs, ctx?.currentPlayer, TILE_SIZE)) return undefined;
 
   // ---- waiting: the player is near a quest/trade/heal citizen

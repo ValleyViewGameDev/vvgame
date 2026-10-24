@@ -13,6 +13,7 @@ import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { GemSpendConfirmHost } from './UI/Modals/GemSpendConfirm';
 import { StatueHost } from './GameFeatures/Story/gertrudeWaking';
+import { ReunionHost } from './GameFeatures/Story/violaReunion';
 import { GameDialogHost } from './UI/Modals/GameDialog';
 import { UpdatePromptHost } from './UI/Modals/UpdatePrompt';
 import { installBuildWatch } from './Utils/buildWatch';
@@ -79,6 +80,7 @@ if (!window.__app_rendered__) {
                         <App />
                         <GemSpendConfirmHost />
                         <StatueHost />
+                        <ReunionHost />
                         <GameDialogHost />
                         <UpdatePromptHost />
                       </ModalProvider>

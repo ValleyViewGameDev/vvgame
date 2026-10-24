@@ -1330,20 +1330,6 @@
     "goal1qty": 1
   },
   {
-    "index": 112,
-    "title": "Uneasy Lies the Head",
-    "symbol": "🧑‍🎤",
-    "level": 10,
-    "repeatable": false,
-    "giver": "Helena",
-    "reward": "Money",
-    "rewardqty": 5000,
-    "xp": 30,
-    "goal1action": "Buy",
-    "goal1item": "King's Crown",
-    "goal1qty": 1
-  },
-  {
     "index": 113,
     "title": "Rosemary, for Remembrance",
     "symbol": "🧑‍🎤",
@@ -1587,5 +1573,49 @@
     "goal1item": "Hope",
     "goal1qty": 1,
     "storyKey": "16512"
+  },
+  {
+    "index": 128,
+    "title": "I Know a Bank Where the Wild Thyme Blows",
+    "symbol": "🧑‍🎤",
+    "level": 5,
+    "repeatable": false,
+    "giver": "Helena",
+    "reward": "Daisy",
+    "rewardqty": 2,
+    "xp": 10,
+    "goal1action": "Collect",
+    "goal1item": "Rosemary",
+    "goal1qty": 6,
+    "storyKey": "16520"
+  },
+  {
+    "index": 129,
+    "title": "What, You Egg!",
+    "symbol": "👵🏻",
+    "level": 11,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Olive",
+    "rewardqty": 8,
+    "xp": 15,
+    "goal1action": "Craft",
+    "goal1item": "Egg",
+    "goal1qty": 10
+  },
+  {
+    "index": 130,
+    "title": "What Country, Friends, Is This?",
+    "symbol": "🧜‍♀️",
+    "level": 12,
+    "repeatable": false,
+    "giver": "Viola",
+    "reward": "Money",
+    "rewardqty": 3000,
+    "xp": 40,
+    "goal1action": "Meet",
+    "goal1item": "Sebastian",
+    "goal1qty": 1,
+    "storyKey": "16513"
   }
 ]

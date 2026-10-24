@@ -191,3 +191,8 @@ An NPC on an errand is not picked as a socializing partner (`npc.storyErrand`). 
 errand: Feste walks to Gertrude's Statue once his quest "If Music Be the Food of Love" is done
 and she still sleeps; a blocked route or one longer than 45 s ends in a teleport beside her
 (docs/story.md §0).
+
+A second kind, the one-off story walk (`GameFeatures/Story/storyGoal.js`): set `npc.storyGoal =
+{ x, y, onArrive }` and the brain walks the NPC there before anything else (teleport after 20 s
+or a blocked route), calls `onArrive` once and clears it. Viola swimming to her brother uses it.
+Memory only, so it is for walks that happen while the player watches.

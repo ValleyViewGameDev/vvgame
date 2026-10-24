@@ -39,6 +39,7 @@ const TEST_GRIDS = new Set(['valleyFixedCoord/1016101']);
 const KNOWN_SOURCES = {
   'Yellow Heart': 'Train rewards: the seasonal hearts paid when every order on a Train is filled (docs/tuning.md §4b).',
   'Green Heart': 'Train rewards: the seasonal hearts paid when every order on a Train is filled (docs/tuning.md §4b).',
+  "Viola's Secret": "The twins' reunion: greet Sebastian on the sandy island in Sunflower Lake (valley 1011670, by Boat); Viola rises from the lake, the twins meet, and she gives her Secret (game-client Story/violaReunion.js).",
 };
 
 function readJSON(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }

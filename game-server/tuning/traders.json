@@ -297,18 +297,6 @@
     "requires1qty": 1
   },
   {
-    "trader": "Viola",
-    "index": 2,
-    "gives": "Viola's Secret",
-    "givesqty": 1,
-    "xp": 30,
-    "repeat": false,
-    "rel": "love",
-    "relscore": 90,
-    "requires1": "Ancient Coin",
-    "requires1qty": 1
-  },
-  {
     "trader": "Shiro",
     "index": 1,
     "gives": "Scroll",

@@ -308,7 +308,24 @@
     "buff4marriage": 5,
     "interest1": "Trident",
     "interest2": "Gold",
-    "interest3": "Boat"
+    "interest3": "Boat",
+    "Sebastian": "love"
+  },
+  {
+    "type": "Sebastian",
+    "symbol": "🧑",
+    "dialogOnMet": 16025,
+    "dialogOnFriend": 16125,
+    "dialogOnLove": 16225,
+    "dialogOnRival": 16325,
+    "dialogOnMarried": 16425,
+    "buff4friend": 1,
+    "buff4love": 1,
+    "buff4marriage": 1,
+    "interest1": "Boat",
+    "interest2": "Lemon",
+    "interest3": "Viola",
+    "Viola": "love"
   },
   {
     "type": "Oracle",

@@ -167,7 +167,8 @@ after, with its quote). Already applied: Elbow's greeting, which is the game's o
 the Vampire): APPLIED the same day (`docs/narrative/p2-valley-cast.md`); the Vampire had been
 playing Prospero's Orb speech as his greeting and now has his own (16024); Leontes' crown trade
 and Viola's Trident trade are removed (no one buys a treasure). Next: the late cast (Hecate,
-Prospero, the Oracle). Kent never speaks (owner); the Shepherd may get story text later.
+Prospero, the Oracle). Kent never speaks (owner); the Shepherd may get story text later. Viola's purpose (owner, 2026-10-24): the lost twin. One quest, then the twins' reunion as you
+greet Sebastian (built; `story.md` §0).
 
 Every greeting, milestone dialog (met / friend / love / married / rival), trader line and Clue
 for every character, in voice, with a quote or fragment in most lines, and gossip that crosses

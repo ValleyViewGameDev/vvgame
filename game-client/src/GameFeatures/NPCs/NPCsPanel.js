@@ -1752,6 +1752,12 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         username={currentPlayer?.username}
         npcFilename={npcData?.filename}
       />
+          // Greeting Sebastian for the first time: Viola rises from the lake and the twins meet
+          if (npcData?.type === 'Sebastian' && storyRelationshipType === 'met') {
+            import('../Story/violaReunion').then(({ startViolaReunion }) => startViolaReunion({
+              currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, TILE_SIZE, masterResources, strings,
+            }));
+          }
     </Panel>
     {snugTravelOpen && (
       <SnugTravelModal

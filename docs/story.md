@@ -89,6 +89,18 @@ enter-grid puts the player's own town copy in line: statue or Queen), `POST
 /api/story/wake-gertrude`. Client: `GameFeatures/Story/gertrudeWaking.js`. Her three trades are
 hers again once she is awake.
 
+**The twins (BUILT 2026-10-24).** Sebastian stands on the sandy island in Sunflower Lake (valley
+1011670), on the tile where the Brass Bell lay (the Bell now comes only from Iago, for Portia's
+Secret). Viola's quest asks the player to find him. Greeting him plays his grief ("drowned my
+sister Viola"); as it closes, Viola, who has been watching from the water, rises out of the lake
+a few tiles off, swims to the shore beside him, and the recognition scene from Twelfth Night 5.1
+plays at once as a two-voice modal ("My father had a mole upon his brow." "And so had mine!" ...
+"Thrice welcome, drownèd Viola!"); hearts over both. She stays beside him for good, is gone from
+her old lake (1012435), counts as met, and gives the player her Secret. Server:
+`utils/storyState.js` (`player.storyFlags.violaReunited`, both grid copies put right on every
+enter-grid), `POST /api/story/reunite-viola`; client: `GameFeatures/Story/violaReunion.js` and
+the one-off walk `storyGoal.js`.
+
 ## 1. The rule: a mash-up, not an adaptation
 
 Secrets of Elsinore is one big story where characters from many Shakespeare plays live in the
@@ -179,7 +191,8 @@ stub riddle, the real puzzle is still to be designed.
 | Gertrude | Hamlet | Leontes' queen, turned to stone by the storm (Gertrude's Statue in her Town castle) until the player wakes her (§0); then a trader again, Gertrude's Secret |
 | Leontes | The Winter's Tale | The King, lost without his queen and crown; the Mirror Key, for six secrets; Prospero is his enemy |
 | Juliet | Romeo and Juliet | Trader; Juliet's Secret |
-| Viola (was the Mermaid) | Twelfth Night | Lives in the water since the storm wrecked her ship and took her twin brother Sebastian; Viola's Secret (her Trident trade removed 2026-10-24; her purpose is being designed, `narrative-pass.md` P2) |
+| Viola (was the Mermaid) | Twelfth Night | Lives in the water since the storm wrecked her ship and took her twin Sebastian. Her one quest, "What Country, Friends, Is This?" (L12, Meet Sebastian), ends in the twins' reunion (§0); she then lives beside him and gives her Secret (the trade for it is gone) |
+| Sebastian | Twelfth Night | Viola's twin, alone on the sandy island in Sunflower Lake (1011670, where the Brass Bell used to lie); Cassio's art for now |
 | The Oracle | The Winter's Tale (Apollo's oracle at Delphos) | Trades Hope for the seven artifacts; her home is the **Oracle's Sanctuary** (the `Shiro` row, a dev-placed shop in the valley; players read "Oracle's Sanctuary" through `DISPLAY_ALIASES` in `Utils/stringLookup.js`), where sealed scrolls are bought with gems; the Ancient Temple opens them, as in the play |
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |

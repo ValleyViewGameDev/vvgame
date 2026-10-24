@@ -77,4 +77,66 @@ async function applyGertrudeState(grid, player) {
   return true;
 }
 
-module.exports = { STATUE, QUEEN, FESTE_QUEST, isGertrudeAwake, hasCompleted, wakeOnGrid, applyGertrudeState };
+// ---------------------------------------------------------------- Viola and Sebastian
+// The twins (Twelfth Night). Sebastian stands on the sandy island in Sunflower Lake (valley
+// 1011670, where the Brass Bell used to lie); Viola lives in her own lake (1012435) until the
+// player greets Sebastian: then she rises out of the water beside the island and the reunion plays
+// (game-client GameFeatures/Story/violaReunion.js, POST /api/story/reunite-viola). From then on
+// she lives in the water beside him: player.storyFlags.violaReunited = { x, y } (her tile there).
+const ISLAND_COORD = 1011670;
+const VIOLA_HOME_COORD = 1012435;
+const SEBASTIAN = 'Sebastian';
+const VIOLA = 'Viola';
+const SEBASTIAN_TILE = { x: 23, y: 20 };
+
+function npcRecord(type, x, y, id = new ObjectId().toString()) {
+  const def = masterResources.find((r) => r.type === type && r.category === 'npc') || {};
+  return { id, type, position: { x, y }, state: def.defaultState || 'idle', hp: def.maxhp || 10, maxhp: def.maxhp || 10, homeX: x, homeY: y, lastUpdated: new Date() };
+}
+const typeIn = (npcs, type) => [...npcs.entries()].filter(([, n]) => n?.type === type);
+
+/** The island copy: Sebastian on his tile (the old Brass Bell goes), and Viola beside him once reunited. */
+function applyIslandState(grid, player) {
+  const npcs = npcMap(grid);
+  let changed = false;
+  if (!typeIn(npcs, SEBASTIAN).length) {
+    const bell = gridResourceManager.getResources(grid).find((r) => r.type === 'Brass Bell' && r.x === SEBASTIAN_TILE.x && r.y === SEBASTIAN_TILE.y);
+    if (bell) gridResourceManager.updateResource(grid, { x: bell.x, y: bell.y, type: null });
+    const s = npcRecord(SEBASTIAN, SEBASTIAN_TILE.x, SEBASTIAN_TILE.y);
+    npcs.set(s.id, s); changed = true;
+  }
+  const at = player?.storyFlags?.violaReunited;
+  if (at && !typeIn(npcs, VIOLA).length && Number.isInteger(at.x) && Number.isInteger(at.y)) {
+    const v = npcRecord(VIOLA, at.x, at.y, typeof at.id === 'string' ? at.id : undefined);
+    npcs.set(v.id, v); changed = true;
+  }
+  if (changed) { grid.NPCsInGrid = npcs; grid.markModified?.('NPCsInGrid'); grid.NPCsInGridLastUpdated = new Date(); }
+  return changed;
+}
+
+/** Viola's old lake: once she has gone to her brother, she is not there any more. */
+function applyViolaHomeState(grid, player) {
+  if (!player?.storyFlags?.violaReunited) return false;
+  const npcs = npcMap(grid);
+  const violas = typeIn(npcs, VIOLA);
+  if (!violas.length) return false;
+  violas.forEach(([id]) => npcs.delete(id));
+  grid.NPCsInGrid = npcs; grid.markModified?.('NPCsInGrid'); grid.NPCsInGridLastUpdated = new Date();
+  return true;
+}
+
+/** Every story fix for the player's own copy of this grid; saves when anything changed. */
+async function applyStoryState(grid, player) {
+  if (!grid || !grid.ownerId || String(grid.ownerId) !== String(player._id)) return false;
+  if (grid.gridType === 'town') return applyGertrudeState(grid, player);
+  const coord = Number(grid.gridCoord);
+  const changed = coord === ISLAND_COORD ? applyIslandState(grid, player)
+    : coord === VIOLA_HOME_COORD ? applyViolaHomeState(grid, player) : false;
+  if (changed) await grid.save();
+  return changed;
+}
+
+module.exports = {
+  STATUE, QUEEN, FESTE_QUEST, isGertrudeAwake, hasCompleted, wakeOnGrid, applyGertrudeState,
+  ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState, applyStoryState,
+};
