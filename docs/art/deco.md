@@ -11,6 +11,13 @@ commissioned and approved 2026-10-22.
   diagonal (owner, 2026-10-22: the first hay bale was drawn on the diagonal and re-ordered).
   The sentence is in every deco prompt of `tools/art/jobs/deco-whimsical-r1.json`; keep it in
   every new one.
+- **The BARREL is the camera reference for every prop** (owner, 2026-10-24): the game's camera
+  drifts between prompts, some props coming out very front-facing and others very top-down.
+  The approved barrel (and most of the buildings) is the right angle: mostly from the front, a
+  little from above, the top showing as a narrow ellipse. Attach `painterly-barrel-1` as the
+  FIRST ref of every prop prompt, and of any building prompt whose props matter (the Mill's
+  sacks drifted top-down twice), and say "from the same camera as that barrel". The first
+  Sack came out too top-down and was redone (`sack-b`, round 2).
 - **A low camera: see the face, not the top.** A prop with a top (a crate, a chest, a box)
   is seen mostly from the front and only a little from above, like the barrel: its front
   face large and square to the viewer, its lid a narrow strip (owner, 2026-10-22: the first
@@ -75,6 +82,7 @@ commissioned and approved 2026-10-22.
 | Fountain | existing | `fountain` | redone in the style at a modest one-tile scale (`fountain-1`) |
 | Fountain Large | existing (2 x 2) | `fountain-large` | redone: octagonal pool, two bowls, a fish finial, four spouts (`fountain-large-2`) |
 | Birdbath | existing | `bird-bath` | redone (`birdbath-1`), the songbird on the rim |
+| Sack | existing | `sack` | redone from the barrel's camera (`sack-b-2`, approved 2026-10-24): the first was too top-down; cut at the 75 % size (artSpan 0.73) |
 
 Recuts the same day for scale: barrel 60 %, hay bale 80 %, sack 75 %, poppies 85 %.
 

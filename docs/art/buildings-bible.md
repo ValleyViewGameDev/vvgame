@@ -58,6 +58,14 @@ signage and props. Whimsical is the style laid over all of it.
 - **A relight round keeps the design by sending the building's own panel back as the
   reference** with "the same building, changed in one way only: the lighting" (round 2,
   2026-10-21). Pin the sign's picture in that prompt too, or the model may blank it.
+- **Camera consistency: the barrel is the reference for props** (owner, 2026-10-24): props in a
+  building or station (sacks, pots, crates) must sit in the same camera as the deco, mostly from
+  the front and a little from above, the tops as narrow ellipses; the model drifts top-down on
+  small round things. Attach the approved barrel and say "from the same camera as that barrel"
+  whenever props matter (docs/art/deco.md).
+- **Whimsy is a deliverable, not a default** (owner, 2026-10-24, the Mill): a revision round
+  can drift straight and tidy; when it does, ask for it back by name: sagging, curved rooflines
+  that dip in the middle, flared or bowed shapes (sails like petals), nothing ruler-straight.
 - **No animals in building or vehicle art** (owner, 2026-10-23): a wagon has no oxen, a barn
   has no cow in the yard. Animals are a separate art style question (the NPC rig) and a
   painted animal in a still sprite would never move. A vehicle shows it moves by its wheels.
@@ -121,7 +129,7 @@ Homestead:
 | Dairy | workshop | cream white | milk churn | the approved station template `dairy-b-1` |
 | Oven | workshop | toasted brown | loaf of bread | |
 | Kitchen | workshop | tomato red | steaming pot | |
-| Mill | workshop | wheat tan | flour sack | machine left, sacks right (owner) |
+| Mill | workshop (the station framework, §2a) | wheat tan | none: the sails and the sacks are the sign | APPROVED 2026-10-24 (stations-r1 mill-e-1); machine left, sacks right (owner) |
 | Loom | workshop | indigo blue | spool of thread | |
 | Lumber Yard | workshop | timber brown | stacked logs | |
 | Studio | workshop | terracotta | clay pot | |
@@ -132,6 +140,51 @@ Homestead:
 
 Not tagged: the 1 x 1 slots and props (Beehive, Chicken Coop, Mailbox, Warehouse, Trade
 Stall, Trading Post, the worker slots), the Dungeon Entrance and the editor-only landmarks.
+
+## 2a. Crafting stations (2 x 2): the whimsical framework (owner, 2026-10-24)
+
+The Mill set the template (`tools/art/jobs/stations-r1.json`: three framework options A thatch
+and stone, B timber posts and shingles, C stone and canvas; the owner chose B, then two
+revision rounds: `mill-d` a shallower roof and pale lattice sails, `mill-e` the whimsy back:
+a sagging curved roofline, flared petal-like sails, the sacks from the barrel's camera;
+**mill-e-1 APPROVED**). Every 2 x 2 station is built on it:
+
+- an open-air cut-away STALL, never a closed house: four stout honey-timber posts, a plank
+  back wall along the top edge, low plank half-walls at the sides, NO front wall, NO roof
+  over the front, so the camera looks straight into the workshop;
+- a shallow lean-to roof of painted wooden shingles over the BACK part only, in the station's
+  ACCENT colour, its ridge and eaves SAGGING in a gentle curve that dips in the middle
+  (nothing ruler-straight); a lantern on the right front post;
+- a small timber tower or post at the back-left corner carrying the station's SILHOUETTE
+  piece (the Mill's sails; a churn handle, a loom frame, a press screw);
+- the floor packed earth with a few flagstones; THE WORK big in the open front: the machine
+  at the left, the products at the right, every prop drawn from the barrel's camera (front
+  on, a little from above, tops as narrow ellipses);
+- people-sized against the 4-wide buildings: posts about as tall as the General Store's
+  door (send the store as the scale reference); no people, no animals, no smoke or steam.
+
+The approved Mill panel is sent as the FIRST reference of every later station ("the
+APPROVED Mill, the framework every station is built on; keep its stall, change the props,
+the silhouette piece and the roof colour"), with the barrel second for the props' camera.
+
+The plan (proposed to the owner 2026-10-24, awaiting tweaks; the Mill is done):
+
+| Station | Concept | Props (the work in front) | Accent | Silhouette / must-have |
+|---|---|---|---|---|
+| Mill | grain to flour | millstone on a frame left; sacks of flour, a sugar sack, a grain heap with a scoop right | wheat tan | the windmill sails; APPROVED mill-e-1 |
+| Dairy | milk to butter and cheese | a tall butter churn, a big cheese wheel with a wedge cut, milk bottles in a crate, a milk churn | cream white with a sky-blue band | the churn handle above the wall; a hanging cheese basket |
+| Oven | baking | a domed stone bread oven with a cold flue, a peel, loaves and a lattice pie on a rack, a flour-dusted board | toasted orange-brown | the dome and its short flue, the oven mouth warm-lit |
+| Kitchen | cooking | a big iron pot on a tripod (cold), a chopping block with vegetables, hanging copper pans, a string of onions, a bowl of soup | tomato red | the hanging pan rack; red checked cloth |
+| Loom | thread and cloth | an upright loom with half-woven indigo cloth, a spinning wheel, bobbins, a basket of fleece, bolts of cloth | indigo blue | the loom frame above the wall; vertical warp threads |
+| Lumber Yard | logs to lumber | a sawhorse with a half-sawn log and a two-man saw, a stack of planks, a log pile, an axe in a stump | raw pale timber with a green tarp | the stepped log stack |
+| Studio | pottery, furniture, ink, urns | a potter's wheel with a half-thrown pot, shelves of pots and urns, a bench with a chisel, an ink well and quill | terracotta | the shelving unit at the back; the urns' shapes |
+| Beverage Station | teas, lemonade, coffees | a copper samovar on a stand, a shelf of cups, lemons in a bowl, a tea tin, a coffee pot | tea green | the samovar; the first station allowed to lean more whimsical |
+| Winery | cider, wine, port, brandy, olive oil | a grape press with a screw, two barrels on a rack, a row of bottles, a basket of grapes, an olive jar | burgundy | the press screw and crossbar |
+| Coffee Factory | roasting beans | a drum roaster with a crank, sacks of green beans, a tray of beans in three roasts, a hand grinder | near-black roast brown with a cream band | the roaster drum and crank; the three bean shades |
+| Silkery | silk | a frame of cocoons on mulberry branches, a reeling wheel with a skein, bolts of pale silk, a mulberry sprig in a pot | silver white with a pale pink thread | the reeling wheel; the sheen on the silk (no silkworms: no animals) |
+
+Chicken Coop and Beehive are size 1 and animal-adjacent; they follow the deco rules, not this
+framework.
 
 ## 2b. Reserved concepts
 

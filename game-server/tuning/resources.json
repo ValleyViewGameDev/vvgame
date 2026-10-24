@@ -7355,7 +7355,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "wheat tan",
-    "artSign": "flour sack"
+    "artSign": "none (the sails and the sacks)",
+    "artSpan": 2.24
   },
   {
     "type": "Dairy",
@@ -10264,6 +10265,42 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 1.6
+  },
+  {
+    "type": "Great Bear",
+    "symbol": "🐻",
+    "layoutkey": "nGB",
+    "category": "npc",
+    "artFacing": "left",
+    "movespeed": 1.6,
+    "action": "attack",
+    "output": "Bear Skin",
+    "passable": false,
+    "xp": 40,
+    "level": 3,
+    "range": 12,
+    "maxhp": 730,
+    "armorclass": 18,
+    "speed": 3,
+    "damage": 52,
+    "attackbonus": 10,
+    "attackrange": 1,
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": false,
+    "validony": false,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
+    "attackinterval": 1.8,
+    "artScale": 1.5
   },
   {
     "type": "Polar Bear",
@@ -14843,7 +14880,7 @@
     "ingredient1qty": 30,
     "gemcost": 1,
     "filename": "sack.svg",
-    "artSpan": 0.74
+    "artSpan": 0.73
   },
   {
     "type": "Stack of Books",
