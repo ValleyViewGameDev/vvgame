@@ -185,7 +185,33 @@ cast, then the late-game cast.
    at Elbow's panel, and his quests start at L3 so none shows in the cave.
 4. **The story chain (DRAFT for the owner, below in P3.4).**
 
-### P3.4 The story chain: Constable Elbow (DRAFT, 2026-10-24)
+### P3.4 The story chain: Constable Elbow (BUILT in the local build, 2026-10-24)
+
+**As built** (owner's answers, 2026-10-24): the late steps open as a set; Elbow's words play as a
+StoryModal on accept (quest `storyKey`, strings 16500-16512, ten languages); the two goal types
+`Meet` and `Find` exist (`GameFeatures/Quests/stateGoals.js`, used by the To Do panel, the badge,
+the accept check and the giver's panel, which also refreshes them when it opens). The fifth draft
+quest (Meet the Oracle, L11) is dropped: she is deep in the centre of the Valley, far too soon;
+the Oracle's own letter already arrives when the King's Crown is found. So 13 quests
+(questsEN.json indices 115-127, giver Constable Elbow, now `action: quest` with his three trades
+kept), chained by `prereq`:
+
+- one at a time early: I Do Lean Upon Justice (L3) -> More Things in Heaven and Earth (L5) ->
+  Once More unto the Breach (L8) -> A Crown for the King (L10);
+- then two side by side: All Great Neptune's Ocean (L13, the Trident, a stretch goal) and Be
+  Stone No More (L15, Meet Gertrude, which is only possible once she is awake);
+- after the Queen wakes, everything else opens as a set, each gated only by its level: When
+  Churchyards Yawn (L16), The Bell Invites Me (L18), By the Pricking of My Thumbs (L30, Meet
+  Hecate + Acquire Toil and Trouble), Out, Out, Brief Candle (L34), Our Revels Now Are Ended
+  (L40), The Bird of Wonder (L55), Such Stuff as Dreams Are Made On (L55, Find Hope).
+
+Rewards: Money 300 / 500 / 800 for the first three, then Gems (3 at the treasures, 5 at the Queen,
+Hecate and the Candle, 8 at the Orb and the Phoenix, 20 for Hope) and xp 15 to 500; to be checked
+against `tuning.md`. The giver's panel shows the relationship card once for a quest giver that
+also trades (it showed twice). Not yet seen in the game (no database connection while the owner
+travels).
+
+The draft as written for the review:
 
 Fourteen quests, one per step of the acts (`story.md` §0), each pointing at a person, the Queen,
 or a treasure. They sit ON TOP of the early-game chains, never instead of them: the Crown's road

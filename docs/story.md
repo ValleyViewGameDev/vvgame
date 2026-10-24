@@ -169,7 +169,7 @@ stub riddle, the real puzzle is still to be designed.
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
-| Constable Elbow | Measure for Measure | Finds the stranger in the sea cave; the Home Deed, Town and Dungeon Keys; gives the core story quests (§0, `narrative-pass.md` P3.4) |
+| Constable Elbow | Measure for Measure | Finds the stranger in the sea cave; the Home Deed, Town and Dungeon Keys; gives the 13 core story quests (§0; built 2026-10-24, `narrative-pass.md` P3.4) |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
 | Snug | A Midsummer Night's Dream | Travel companion; the joiner of the Mechanicals, with Quince and Bottom |
 | Falstaff | Henry IV / The Merry Wives of Windsor | Trader (Feverfew for Port, Brandy) |

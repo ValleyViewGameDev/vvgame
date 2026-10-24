@@ -31,6 +31,7 @@ import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
+import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
 import CluesModal, { cluesFor } from './CluesModal';
 import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
@@ -106,6 +107,7 @@ const NPCPanel = ({
   // StoryModal state for relationship milestone dialogs
   const [storyModalOpen, setStoryModalOpen] = useState(false);
   const [storyRelationshipType, setStoryRelationshipType] = useState(null);
+  const [storyDialogKey, setStoryDialogKey] = useState(null); // a story quest's ask (quest storyKey), shown on accept
   const [cluesOpen, setCluesOpen] = useState(false); // CluesModal: the story dialogs shown so far, to read again
 
   // Ref to track relationship status before an interaction
@@ -284,6 +286,9 @@ const NPCPanel = ({
   ////////////////////// Fetch QUESTS for QUEST NPCs
   const fetchQuests = async () => {
     try {
+      // Meet / Find / Acquire goals done since the quest was accepted count now, so the giver's
+      // panel offers the reward without the To Do panel being opened first
+      await refreshStateGoals(currentPlayer, setCurrentPlayer);
       // Use cached quests instead of direct API call
       const allQuests = await questCache.getQuests();
 
@@ -416,11 +421,9 @@ const NPCPanel = ({
       if (!goalAction || !goalItem || !goalQty) continue; // Skip undefined goals
       totalGoals++; // Count valid goals
 
-      if (goalAction === "Acquire") {
-          // Check if player already has the required skill or power
-          const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
-          const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
-          if (playerHasSkill || playerHasPower) {
+      if (STATE_GOALS.includes(goalAction)) {
+          // Already true of the player (owns the skill, has met them, holds or found the item)
+          if (stateGoalMet(goalAction, goalItem, { ...currentPlayer, inventory: inventory || currentPlayer.inventory, backpack: backpack || currentPlayer.backpack })) {
               initialProgress[`goal${i}`] = 1; // Pre-mark as completed
               goalsCompleted++;
           } else {
@@ -450,6 +453,13 @@ const NPCPanel = ({
       FloatingTextManager.addFloatingTextAt('📜', acceptCardRect.left + acceptCardRect.width / 2, acceptCardRect.top + acceptCardRect.height / 2, { flyTo: 'quests' });
     }
     const revertAccept = sendQuestCardAway(acceptedQuest, 'leave', false);
+    // A story quest (Constable Elbow's chain, docs/narrative-pass.md P3.4) says why it matters,
+    // in the giver's own StoryModal, on the tap
+    if (acceptedQuest.storyKey) {
+      setStoryDialogKey(acceptedQuest.storyKey);
+      setStoryRelationshipType('story');
+      setStoryModalOpen(true);
+    }
 
     try {
       const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
@@ -1437,8 +1447,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         <div className="trade-options">
 
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
-          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI */}
-          {!hideRelationshipUI && (() => {
+          {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI; a quest giver
+              already shows it in its quest section */}
+          {!hideRelationshipUI && npcData.action !== 'quest' && (() => {
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
             const shouldHideRelationship = npcResource?.output === 'noRel';
 
@@ -1729,6 +1740,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         isOpen={storyModalOpen}
         onClose={() => {
           setStoryModalOpen(false);
+          setStoryDialogKey(null);
           // Advance FTUE when first meeting Constable Elbow
           if (npcData?.type === 'Constable Elbow' && storyRelationshipType === 'met') {
             tryAdvanceFTUEByTrigger('MetConstableElbow', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -1736,6 +1748,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         }}
         npcName={npcData?.type}
         relationshipType={storyRelationshipType}
+        dialogKey={storyDialogKey || undefined}
         username={currentPlayer?.username}
         npcFilename={npcData?.filename}
       />

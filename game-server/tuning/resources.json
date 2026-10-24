@@ -9652,7 +9652,7 @@
     "stateSocializing": 300,
     "artFacing": "front",
     "movespeed": 0.8,
-    "action": "trade",
+    "action": "quest",
     "source": "Buy",
     "passable": true,
     "requires": "devonly",

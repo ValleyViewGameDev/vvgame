@@ -7,6 +7,7 @@ import '../../UI/Buttons/ResourceButton.css';
 import '../../UI/Buttons/QuestButton.css';
 import { useStrings } from '../../UI/StringsContext';
 import HopeQuest from '../Social/HopeQuest';
+import { STATE_GOALS, stateGoalMet } from './stateGoals';
 
 function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpack, masterTraders }) {
   const strings = useStrings();
@@ -35,12 +36,9 @@ function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpa
         if (!goalAction || !goalItem || !goalQty) continue;
         totalGoals++;
         
-        // Special handling for "Acquire" goals
-        if (goalAction === "Acquire") {
-          const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
-          const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
-          
-          if (playerHasSkill || playerHasPower) {
+        // Goals that are a fact about the player (Acquire, Meet, Find: stateGoals.js)
+        if (STATE_GOALS.includes(goalAction)) {
+          if (stateGoalMet(goalAction, goalItem, { ...currentPlayer, inventory: inventory || currentPlayer.inventory, backpack: backpack || currentPlayer.backpack })) {
             // Mark this goal as completed if not already
             if (progress[`goal${i}`] < goalQty) {
               progress[`goal${i}`] = goalQty;
