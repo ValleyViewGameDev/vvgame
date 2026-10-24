@@ -221,6 +221,10 @@ const playerSchema = new mongoose.Schema({
     plantWithCursor: { type: Boolean, default: true },
   },
 
+  // Quest for Hope artifacts whose "found" moment has played (story modal + the Oracle's letter).
+  // Unset = an account from before 2026-10-24: its first /hope/found call records what it holds
+  // silently, so old finds are not replayed; new accounts start with [] (routes/auth.js).
+  hopeFound: { type: [String], default: undefined },
   magicSlots: { type: Number, default: null }, // magic enhancement slots; null = globalTuning.combat.magicSlotsBase. Raised only by /player/buy-magic-slot
   relocations: { type: Number },
   iscamping: { type: Boolean, default: false },

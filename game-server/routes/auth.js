@@ -176,6 +176,7 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, i
     backpack: [...backpack],
     skills: [...skills],
     powers: [...powers],
+    hopeFound: [], // Quest for Hope artifacts already celebrated (routes/playerRoutes.js /hope/found)
     warehouseCapacity,
     backpackCapacity,
     accountStatus,

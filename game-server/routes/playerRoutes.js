@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
 const Player = require('../models/player'); // Import the Player model
 const { applyDelta: applyNpcDelta } = require('../utils/npcRelationships');
 const avatarCatalogue = require('../utils/avatarCatalogue');
-const { spendCosts } = require('../utils/playerHoldings');
+const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
+const { hopeArtifacts } = require('../utils/hopeArtifacts');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
@@ -827,6 +828,41 @@ router.post('/player/buy-magic-slot', async (req, res) => {
   } catch (error) {
     console.error('Error buying magic slot:', error);
     res.status(500).json({ error: 'Failed to buy a magic slot.' });
+  }
+});
+
+// POST /api/hope/found { playerId } → { newly: [artifact], hopeFound: [artifact] }
+// The Quest for Hope "found" moment (docs/early-game.md §3): the client calls this when a Quest for
+// Hope artifact turns up in its holdings. The server decides from what the player really holds
+// (backpack + warehouse): each artifact held for the first time is recorded in `hopeFound` and the
+// Oracle's letter for it is mailed (messages.json rows with `hopeArtifact`). Safe to repeat. An
+// account from before this existed (no `hopeFound`) is seeded silently with what it already holds.
+router.post('/hope/found', async (req, res) => {
+  const { playerId } = req.body || {};
+  if (!playerId) return res.status(400).json({ error: 'playerId is required.' });
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    const held = [...hopeArtifacts()].filter((t) => heldQuantity(player.inventory || [], player.backpack || [], t) > 0);
+    if (!Array.isArray(player.hopeFound)) {
+      player.hopeFound = held;
+      await player.save();
+      return res.json({ newly: [], hopeFound: player.hopeFound, seeded: true });
+    }
+    const newly = held.filter((t) => !player.hopeFound.includes(t));
+    if (newly.length === 0) return res.json({ newly: [], hopeFound: player.hopeFound });
+    player.hopeFound = [...player.hopeFound, ...newly];
+    await player.save();
+    const templates = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/messages.json'), 'utf8'));
+    const io = req.app.get('socketio');
+    for (const artifact of newly) {
+      const letter = templates.find((m) => m.hopeArtifact === artifact);
+      if (letter) await sendMailboxMessage(String(player._id), letter.id, [], io);
+    }
+    res.json({ newly, hopeFound: player.hopeFound });
+  } catch (error) {
+    console.error('Error recording a Quest for Hope find:', error);
+    res.status(500).json({ error: 'Failed to record the find.' });
   }
 });
 

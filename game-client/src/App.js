@@ -123,6 +123,7 @@ import { questBadgeState } from './GameFeatures/Quests/questBadge';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
+import HopeFound from './GameFeatures/Social/HopeFound';
 import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
 import PlayerIcons from './Authentication/PlayerIcons.json';
@@ -3744,6 +3745,15 @@ return (
         {modalContent.custom}
       </Modal>
  
+      <HopeFound
+        currentPlayer={currentPlayer}
+        setCurrentPlayer={setCurrentPlayer}
+        inventory={inventory}
+        backpack={backpack}
+        masterTraders={masterTraders}
+        masterResources={masterResources}
+      />
+
       <RevivalModal
         isOpen={isRevivalModalOpen}
         onAcceptDeath={handleAcceptDeath}

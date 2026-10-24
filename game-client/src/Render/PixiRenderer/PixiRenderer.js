@@ -1127,8 +1127,10 @@ const PixiRenderer = ({
 
       // Phase 2: Update or create display objects for each NPC
       for (const { npc, texture, filename, emojiSized } of loadedNPCs) {
-        // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile)
-        const spriteSize = emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE;
+        // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile); a row's
+        // `artScale` (resources.json, e.g. the Great Bear's 1.5) draws a bigger beast on the same tile
+        const artScale = Number(npc.artScale) > 0 ? Number(npc.artScale) : 1;
+        const spriteSize = (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
         if (!npc.symbol && !texture) continue;
 
         const targetPos = npc.position || { x: npc.x, y: npc.y };
@@ -1160,7 +1162,7 @@ const PixiRenderer = ({
             displayObj.anchor.set(0.5, 0.5);
           } else {
             displayObj = new Text(npc.symbol, {
-              fontSize: fontSize,
+              fontSize: fontSize * artScale,
               fontFamily: 'sans-serif',
             });
             displayObj.resolution = 2;

@@ -658,6 +658,7 @@ and scroll finds are NOT in the baseline (5b). Two builds: sword and shield, two
 | Demon | L28 | elite, reach 7, valley2 and dungeons | 15 s | 15% |
 | Dragon | L40 | boss, reach 9, valley3 and dungeons | 40 s | 50% |
 | Phoenix | L55 | boss, dungeon | 75 s | 70% |
+| Great Bear | L10 | mini-boss, guards Leontes' castle in Belmont (1011165) | 20 s | 25% |
 | Cerberus | L34 | boss, three quick bites, the Pit of Acheron | 30 s | 40% |
 
 **3. The formulas** (hit when d20 + attack >= AC, so hit chance = (21 - (AC - attack)) / 20,
@@ -695,6 +696,7 @@ does catch you should hurt. Its Spawner allows 10 Zombies on a grid, was 5):
 | Demon | 22 | 31 | 45 | 490 | 1.8 s |
 | Dragon | 25 | 32 | 115 | 1250 | 2.5 s |
 | Phoenix | 27 | 24 | 96 | 2830 | 2.0 s |
+| Great Bear (2026-10-24; `artScale` 1.5) | 10 | 18 | 52 | 730 | 1.8 s |
 | Cerberus (2026-10-19; boss, home L34, melee) | 23 | 31 | 29 | 1010 | 0.9 s |
 
 **5. Check the window.** An enemy should matter for about 12 levels: costly 6 levels below its

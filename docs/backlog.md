@@ -40,6 +40,8 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
   side; this is the story side.
 - **W-8. Better surface the Quest for Hope** and create more motivations for players to explore.
+  (2026-10-24: the "more motivations" half moved to the Onboarding & Early Game epic, OB-3 and
+  OB-5.)
   The Quest for Hope UI must let players tap an uncollected item to see what it is (added
   2026-10-09).
   **Built 2026-10-11:** the seven Quest for Hope slots (Player Character and Leaderboard panels,
@@ -163,6 +165,69 @@ T-n (append-only).
   them into some valley templates, open the plot at a level, or both), then set price, quest
   asks and level to match their rarity (docs/tuning.md §4h). Start at `Blueberry`,
   `Blueberry Plot`, `Queen's Cake` in `game-server/tuning/resources.json`.
+### EPIC: Onboarding & Early Game ("OB", opened 2026-10-24)
+
+Added 2026-10-24.
+
+**What.** Pull a new player from the first session through the early game (L1 to L15) and into
+an open mid game, for strong D1 and D7 retention. The canonical design is `docs/early-game.md`:
+the phases by level (FTUE L1-3; early game L3-15 split early-early 3-6, mid-early 6-10,
+late-early 10-15; mid game 15-30 with early-mid 15-20; late 30-50; elder 50+), what each phase
+teaches, and where the first Quest for Hope artifact lands (the King's Crown, about L10-11, day
+5-7). It takes over the "more motivations to explore" half of W-8 (the Quest for Hope slots and
+hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
+`docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
+
+- **OB-1. Agree the phases and write `docs/early-game.md`** (added 2026-10-24). **Built
+  2026-10-24.**
+- **OB-2. Make player movement feel instant** (added 2026-10-24). The FTUE's toy: movement is the
+  one core action that waits on its round trip, the counter-example to the optimistic-UI rule
+  (`docs/audits/client-review-2026-10-03.md` §2.2; Phase 4 movement loop in
+  `docs/refactor-plan.md`). Players walk every second of play, so it ranks first for "fun to play
+  with". Start at `game-client/src/PlayerMovement.js` and the audit's §2.2.
+- **OB-3. End the FTUE on open loops and a first glimpse of the Quest for Hope** (added
+  2026-10-24). The last steps name something that will be ready later (crops, Kent's next
+  orders), give a reason to return tomorrow (a day-2 gift), and have the Shepherd name the Quest
+  for Hope with the seven dark boxes shown. Start at the last steps of
+  `game-server/tuning/FTUEsteps.json` (the final toast is string 7065) and
+  `GameFeatures/Social/HopeQuest.js`; the day-0 gift learning is in `docs/onboarding-plan.md`
+  §4.4.
+- **OB-4. A quest that pulls the player into the Valley at L4-5** (added 2026-10-24). Today the
+  first valley quest is L8 and the FTUE ends in Town; Misty (L6, 11 quests) never left home and
+  Town. Send the player to Helena's grid (1011102, the first valley grid) to forage, past the
+  Coyote den, and meet Helena. Start at `game-server/tuning/quests/questsEN.json` (L4-6) and
+  `tools/progression.js` (quests by level).
+- **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
+  Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
+  L10-11. Claiming it plays a story modal at the Castle, then the Oracle mails a message that
+  lights box 1 and gives the next artifact's hint. First check that a level 8 player can
+  reasonably be Helena's friend; if not, the D7 artifact slips. Start at the Castle and Helena
+  in `game-server/tuning/resources.json` / `traders.json` / `questsEN.json`, `story.md` §4,
+  `GameFeatures/Social/QuestForHopeModal.js`.
+  **Partly built 2026-10-24:** the friendship gate checked (no cooldowns; friend in one visit:
+  Greet, a few Talks, Make Friends at 35+). The four Ogres on 1011165 gave way to two Bears and
+  the Great Bear (fitted for L10, `artScale` 1.5, a new NPC column); quests: Hotspur's "We Pluck
+  This Flower, Safety" (L9, Light Armor + Buckler) and "Exit, Pursued by a Bear" (L10), Helena's
+  "Uneasy Lies the Head" (L10, buy the King's Crown); Helena's friend dialog fixed (it asked for
+  Feverfew, the quest wants Daisies) and her interest "Rosesmary" spelled right; the Crown hint
+  names Belmont and the bear (`docs/early-game.md` §3).
+  **Built 2026-10-24:** the found moment for all seven artifacts (`GameFeatures/Social/HopeFound.js`
+  + `POST /api/hope/found`, `player.hopeFound`): a story modal on the find (strings 200830-200836)
+  and the Oracle's letter with the next artifact's hint (messages.json 401-407). And no
+  friendships before L16: a quest list opens at relationship score 10 (one Greet), every quest at
+  L15 and under is ungated (18 quests), Titania's Secret moved to L16, Constable Elbow's Dungeon
+  Key needs no friend, and Helena's Greet dialog (16006) now carries the Daisy ask.
+
+- **OB-6. Close the quest gaps** (added 2026-10-24). Quests that teach selling to Kent after the
+  FTUE (none after L8); at least one quest at every level through L15 so the To Do list never
+  empties; then story quests for L21-35, where there are 5 quests in L21-30 and 2 above (the
+  Hecate and Acheron spine). Start at `node tools/progression.js --to 35` (quests by level).
+- **OB-7. Measure pacing: level timestamps and a pacing view** (added 2026-10-24). Record when a
+  player reaches each level (analytics), then add a pacing model to `tools/progression.js`
+  (estimated XP per session from Kent, quests and kills) calibrated against those timestamps, so
+  the play-time targets in `docs/early-game.md` §1 become measurements. Start at
+  `game-server/utils/analytics.js` (`recordActivity`) and the level-up path.
+
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 
 **DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.

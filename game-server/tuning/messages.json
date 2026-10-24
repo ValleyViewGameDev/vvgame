@@ -189,5 +189,68 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true
+  },
+  {
+    "id": 401,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "\"If that which is lost be found\": so the prophecy runs, and the crown that was lost is found. Hope stirs. Seek next the old gods' trident, asleep in a sealed shrine. Only a key of bone will wake it, and a brother sworn to vengeance keeps that key.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "King's Crown"
+  },
+  {
+    "id": 402,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "The trident wakes, and the sea remembers its gods. Seek next a pale lord of the night who craves quiet among the dead. Put his restless neighbours to rest, and he may bleed for thee.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Trident"
+  },
+  {
+    "id": 403,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "The blood is given, and the dead lie quiet. Seek next a bell that rings truest when bought with a secret. Win the deepest trust of the lady of laws, then carry what she whispers to the one she despises.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Vampire's Blood"
+  },
+  {
+    "id": 404,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "The bell has rung, and its echo reached me on my mountain. Seek next the fire that dies and rises again. Only the boldest blade will pluck a feather from its ash.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Brass Bell"
+  },
+  {
+    "id": 405,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "The feather is plucked, and still the bird will rise. Seek next a light that burns at the bottom of the burning lake, past a mirror, the black fog and the hound with three heads. The queen of witches can light thy way.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Phoenix Feather"
+  },
+  {
+    "id": 406,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "The brief candle burns in thy hand, and no wind shall put it out. One treasure remains. Where the mountains close like a fist, an old master of storms keeps his counsel. Do as he bids.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Brief Candle"
+  },
+  {
+    "id": 407,
+    "title": "🧞‍♀️ A Letter from the Oracle",
+    "body": "All that was lost is found. Bring the seven treasures to me on Hope Mountain, and Hope shall be thine.",
+    "rewards": [],
+    "everyoneRewards": false,
+    "neverPurge": true,
+    "hopeArtifact": "Prospero's Orb"
   }
 ]
