@@ -79,8 +79,12 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    doober rows' files) are NOT generated: `tools/art/fruit-trees.js` composites painted fruit
    (shaded spheres, pears, cherry pairs, lemons, olives, each with a highlight and a leaf shadow)
    onto the base's canopy on a fixed seed. Re-run it after any change to the base or to a fruit's
-   size, count or colour (the FRUITS table at the top of the script). Coconut (a palm) and
-   Mulberry (the Silkery's leaf) are not in this set; each wants its own base first.
+   size, count or colour (the FRUITS table at the top of the script). The owner's correction (2026-10-25): the
+   blossom is the EMPTY state only; the fruit sits on a PLAIN canopy (`fruit-tree-plain.png`, the
+   blossom base redrawn with the flowers removed, `fruit-tree-plain-1`), never over the flowers.
+   Coconut and Mulberry have their own bases: the palm at the PINE's height (`palm-tall-1`, cut
+   fill 1.5, artSpan 2.11; the coconuts cluster under the crown's centre) and the mulberry SHORT
+   and wide (`mulberry-short-1`, fill 1.4, artSpan 1.43; small dark berries over the canopy).
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 

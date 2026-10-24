@@ -2014,7 +2014,8 @@
     "filename": "palm-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 4
+    "parallel": 4,
+    "artSpan": 2.11
   },
   {
     "type": "Blueberry Plot",
@@ -2279,7 +2280,8 @@
     "filename": "mulberry-tree.svg",
     "crafttime": 345600,
     "totalnestedtime": 345600,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.43
   },
   {
     "type": "Coffee Plant",
@@ -3085,7 +3087,8 @@
     "filename": "tree-coconut.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 120
+    "effort": 120,
+    "artSpan": 2.11
   },
   {
     "type": "Grapes",
@@ -3159,7 +3162,8 @@
     "filename": "tree-mulberry.svg",
     "crafttime": 345600,
     "totalnestedtime": 345600,
-    "effort": 384
+    "effort": 384,
+    "artSpan": 1.43
   },
   {
     "type": "Coffee Cherry",

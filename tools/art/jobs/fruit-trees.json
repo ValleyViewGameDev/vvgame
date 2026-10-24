@@ -19,6 +19,38 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel on grass is this game's approved OAK TREE: a round layered canopy of painted leaf clusters on a short brown trunk, drawn in the game's bright painterly style with the light from the upper left. SUBJECT: the game's FRUIT TREE in its empty, unfruited state: the SAME kind of tree as that oak, the same size, the same layered leafy canopy, the same short trunk, the same rendering and daylight, so the two clearly belong to one orchard, with ONE difference: the canopy carries a scatter of small, subtle WHITE BLOSSOMS, little five-petal flowers dotted sparsely across the leaves (not a solid mass of bloom, the green still dominates), so a player can tell it from the oak at a glance. The canopy is a slightly fresher, lighter green than the oak. NO fruit of any kind. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its canopy spreading a little past the box on each side, exactly as the oak does. Draw the tree alone on the flat, pure, solid magenta field, nothing else, no grass, no ground, no grid lines over the tree, no vignette; leave every other pixel pure magenta. No letters anywhere, no animals, no birds."
+    },
+    "fruit-tree-plain": {
+      "refs": [
+        "_candidates/fruit-trees/approved/openai--painterly-fruit-tree-base-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's FRUIT TREE in blossom, drawn on magenta: a round layered canopy of painted leaf clusters on a short brown trunk, dotted with small white flowers. Redraw the SAME tree, identical in every way (the same canopy shape, the same leaf clusters, the same green, the same trunk, the same size and position, the same rendering and light from the upper left) with ONE change only: NO FLOWERS: every white blossom is gone, replaced by leaves, the canopy plain green. No fruit either. The flat, pure, solid magenta (#FF00FF) field stays exactly as it is, the tree alone on it, nothing else, no grass, no ground, no grid lines over the tree; leave every other pixel pure magenta. No letters anywhere."
+    },
+    "palm-tall": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/trees-cut/exploration/openai/flatter-pine-b-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND HEIGHT REFERENCES: the first attached panel is this game's approved OAK TREE, in the game's bright painterly style with the light from the upper left: match its rendering and its chunky painted leaf language. The second attached image is this game's PINE TREE on magenta: match its HEIGHT and footprint, a tall tree on one tile. SUBJECT: the game's COCONUT PALM in its empty state: a TALL palm, as tall as that pine, with a long slender curved trunk of stacked ringed segments rising high, and a crown of eight or nine big fronds radiating from the top, each frond a single chunky painted shape with a few deep notches (the same simplified leaf language as the oak's clusters, not fine feathery leaflets), bright fresh green on top and a little darker underneath, a couple of dry pale fronds drooping at the bottom; NO coconuts at all. The same whimsical, storybook feel as the oak: sturdy, cheerful. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises TALL, about THREE tiles above it, as tall as the pine, its crown spreading a little past the box on each side. Draw the tree alone on the flat, pure, solid magenta field, nothing else, no grass, no ground, no grid lines over the tree, no vignette; leave every other pixel pure magenta. No letters anywhere, no animals, no birds."
+    },
+    "mulberry-short": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/fruit-trees/approved/openai--painterly-fruit-tree-base-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE REFERENCES: the first attached panel is this game's approved OAK TREE and the second its FRUIT TREE, both in the game's bright painterly style with the light from the upper left: match their rendering, their painted leaf clusters and their short sturdy trunks. SUBJECT: the game's MULBERRY TREE in its empty state: a SHORT, WIDE, spreading storybook tree, lower than the oak, with a thick gnarled trunk and a broad flattened crown wider than it is tall, its canopy made of big BROAD heart-shaped mulberry leaves with toothed edges, painted as chunky clusters, a deep rich green a shade darker and bluer than the oak's yellow-green so the two read apart at a glance; a few leaves show their paler undersides. NO berries, no fruit, no flowers. The same whimsical, sturdy, cheerful feel as the oak. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises only about one and a half tiles above it, SHORTER than the oak, its wide crown spreading a little past the box on each side. Draw the tree alone on the flat, pure, solid magenta field, nothing else, no grass, no ground, no grid lines over the tree, no vignette; leave every other pixel pure magenta. No letters anywhere, no animals, no birds."
     }
   }
 }
