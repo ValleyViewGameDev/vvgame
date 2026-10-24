@@ -251,6 +251,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the MILL, an open-air timber-post stall with a plank back wall and low side half-walls, a sagging curved lean-to roof of wheat-tan shingles over the back, a small timber tower at the back-left corner carrying a windmill with four flared pale canvas sails, a lantern on the right post, a millstone on its frame at the left, three plump sacks and a heap of golden grain with a scoop at the right, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: the same design, every post, the roof and its curve, the sails, the lantern, the millstone, the sacks and grain, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the roof and the windmill sails may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "loom": {
+      "refs": [
+        "_candidates/stations-r2/approved/openai--painterly-loom-2.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the LOOM, an open-air timber-post stall with a plank back wall and low side half-walls, a sagging curved lean-to roof of indigo-blue shingles over the back, a tall upright wooden loom with a half-woven indigo cloth rising above the roof at the back-left, a bench, a spinning wheel, a rail of coloured bobbins, a basket of white fleece and stacked bolts of cloth at the right, a lantern on the right post, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: the same design, every post, the roof and its curve, the loom, the wheel, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the roof and the loom may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

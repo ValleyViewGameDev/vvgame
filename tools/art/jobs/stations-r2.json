@@ -1,0 +1,71 @@
+{
+  "name": "stations-r2",
+  "note": "Crafting stations on the Mill framework (owner, 2026-10-24): Dairy, Loom, Oven (the Oven keeps the dome silhouette of the drawing in the game today). Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "dairy": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "FRAMEWORK REFERENCE: the first attached panel is this game's APPROVED MILL, the framework every 2 x 2 crafting station is built on. Build this station on EXACTLY that stall: the same four stout honey-timber posts, plank back wall and low plank half-walls at the sides, no front wall and no roof over the front, the same shallow lean-to roof of painted wooden shingles over the back part only with its SAGGING curved ridge and wavy eaves, the same lantern on the right front post, the same packed-earth floor with flagstones, the same camera, scale, bright daylight and painterly storybook rendering. Change only three things: the ROOF COLOUR (this station's accent), the SILHOUETTE PIECE at the back-left corner where the Mill has its windmill, and THE WORK on the floor (this station's machine at the LEFT, its products at the RIGHT). PROP CAMERA: the second attached image is this game's barrel on magenta; every prop is drawn from that same camera, mostly from the front and a little from above, tops as narrow ellipses, never looked down into. SUBJECT: the DAIRY, where milk becomes butter and cheese. ROOF COLOUR: CREAM WHITE shingles with a SKY-BLUE painted band along the eaves. SILHOUETTE PIECE: at the back-left corner a tall wooden BUTTER CHURN on a stand, its long plunger handle rising above the roofline, with a wicker cheese basket hanging from the corner post. THE WORK: at the left the butter churn with a wooden pat of yellow butter on a plate beside it; at the right a big WHEEL OF CHEESE with a wedge cut out on a low table, a crate of glass milk bottles, and a tin milk churn with its lid off. It must read as a dairy at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's posts, walls and floor fill that 2 x 2 square entirely, back wall on its top edge, ground contact on its bottom edge, side walls to its left and right edges (the roof and the silhouette piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "loom": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "FRAMEWORK REFERENCE: the first attached panel is this game's APPROVED MILL, the framework every 2 x 2 crafting station is built on. Build this station on EXACTLY that stall: the same four stout honey-timber posts, plank back wall and low plank half-walls at the sides, no front wall and no roof over the front, the same shallow lean-to roof of painted wooden shingles over the back part only with its SAGGING curved ridge and wavy eaves, the same lantern on the right front post, the same packed-earth floor with flagstones, the same camera, scale, bright daylight and painterly storybook rendering. Change only three things: the ROOF COLOUR (this station's accent), the SILHOUETTE PIECE at the back-left corner where the Mill has its windmill, and THE WORK on the floor (this station's machine at the LEFT, its products at the RIGHT). PROP CAMERA: the second attached image is this game's barrel on magenta; every prop is drawn from that same camera, mostly from the front and a little from above, tops as narrow ellipses, never looked down into. SUBJECT: the LOOM, where thread and cloth are made. ROOF COLOUR: INDIGO BLUE shingles. SILHOUETTE PIECE: at the back-left corner a tall upright wooden LOOM, its frame and top beam rising above the roofline with the vertical warp threads visible and a half-woven length of indigo cloth on it. THE WORK: at the left that loom with a bench; at the right a wooden SPINNING WHEEL, a basket of white fleece, a row of bobbins of coloured thread on a rail, and bolts of folded cloth (indigo, red, cream) stacked on a low table. It must read as a weaver's at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's posts, walls and floor fill that 2 x 2 square entirely, back wall on its top edge, ground contact on its bottom edge, side walls to its left and right edges (the roof and the silhouette piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "oven": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-oven.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "FRAMEWORK REFERENCE: the first attached panel is this game's APPROVED MILL, the framework every 2 x 2 crafting station is built on. Build this station on EXACTLY that stall: the same four stout honey-timber posts, plank back wall and low plank half-walls at the sides, no front wall and no roof over the front, the same shallow lean-to roof of painted wooden shingles over the back part only with its SAGGING curved ridge and wavy eaves, the same lantern on the right front post, the same packed-earth floor with flagstones, the same camera, scale, bright daylight and painterly storybook rendering. Change only three things: the ROOF COLOUR (this station's accent), the SILHOUETTE PIECE at the back-left corner where the Mill has its windmill, and THE WORK on the floor (this station's machine at the LEFT, its products at the RIGHT). PROP CAMERA: the second attached image is this game's barrel on magenta; every prop is drawn from that same camera, mostly from the front and a little from above, tops as narrow ellipses, never looked down into. CONCEPT REFERENCE: the third attached image is this game's current OVEN drawing in an older style; the owner likes its DOME-LIKE SILHOUETTE: keep that shape (a big round domed stone oven) and nothing of its rendering. SUBJECT: the OVEN, where bread and pies are baked. ROOF COLOUR: TOASTED ORANGE-BROWN shingles. SILHOUETTE PIECE: at the back-left corner the big DOMED STONE BREAD OVEN itself, its dome and short stone flue (cold, no smoke) rising above the roofline, its dark arched mouth glowing warm orange inside. THE WORK: at the left that oven with a long wooden peel leaning on it and a flour-dusted board; at the right a cooling rack of golden loaves and a lattice-topped pie, a basket of bread, a sack of flour. It must read as a bakery at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's posts, walls and floor fill that 2 x 2 square entirely, back wall on its top edge, ground contact on its bottom edge, side walls to its left and right edges (the roof and the silhouette piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "dairy-b": {
+      "refs": [
+        "_candidates/stations-r2/exploration/openai/painterly-dairy-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's DAIRY crafting station as drawn; the owner likes it: keep its stall (posts, plank back wall, side half-walls, the sagging lean-to of cream-white shingles with the sky-blue band, the lantern), the cheese wheel with its wedge on the table, the pat of butter, the crate of milk bottles, the tin milk churn, the hanging basket, the floor, camera, scale, daylight and rendering. Redraw the SAME station with TWO changes only. (1) THE BUTTER CHURN IS JUST A PROP: a normal wooden butter churn standing on the floor at the left, its plunger handle no taller than the posts, nothing rising above the roof; make it a believable churn, a tall narrow wooden barrel with iron hoops and a plunger stick with a round knob. (2) THE SILHOUETTE IS A COW SIGN: standing on the roof ridge, a flat painted wooden SIGN cut in the simple abstract shape of a COW (a chunky side-on cow silhouette, black and white patches, no detail, like a shop sign or a weathervane without the arms), on a short post, rising clearly above the roofline so the station reads as the dairy from across the board. PROP CAMERA: the second attached image is this game's barrel; every prop stays in that camera, front on and a little from above. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's posts, walls and floor fill that 2 x 2 square entirely, back wall on its top edge, ground contact on its bottom edge, side walls to its left and right edges (the roof, the dome and the sign may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no real animals, no smoke, no steam."
+    },
+    "oven-b": {
+      "refs": [
+        "_candidates/stations-r2/exploration/openai/painterly-oven-1.png",
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's OVEN crafting station as drawn; the owner likes the domed stone oven, the glowing mouth, the peel, the flour board, the loaves, the lattice pie, the bread basket and the flour sack, and the stall's posts and plank walls, floor, lantern, camera, scale, daylight and rendering (the second attached panel is the game's Mill, the framework the stall comes from). Redraw the SAME station with TWO changes only. (1) NO ROOF: remove the shingled lean-to entirely; the stall is open to the sky, just the posts, the plank back wall, the low side half-walls and the lantern. (2) THE DOME IS THE SILHOUETTE: the domed stone bread oven is much BIGGER, a fat round dome of warm fieldstone and brick filling the left and centre of the stall and rising high above the back wall, its short stone flue (cold, no smoke) on top, its arched mouth glowing warm orange; the products (loaves, pie, basket, flour sack, the peel) sit at the right and in front at a smaller scale. The oven must read as the station's shape from across the board. PROP CAMERA: the third attached image is this game's barrel; every prop stays in that camera, front on and a little from above. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's posts, walls and floor fill that 2 x 2 square entirely, back wall on its top edge, ground contact on its bottom edge, side walls to its left and right edges (the roof, the dome and the sign may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no real animals, no smoke, no steam."
+    }
+  }
+}

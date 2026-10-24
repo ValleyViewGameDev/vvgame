@@ -7440,7 +7440,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "indigo blue",
-    "artSign": "spool of thread"
+    "artSign": "none (the loom frame above the roof)",
+    "artSpan": 2.26
   },
   {
     "type": "Chicken Coop",
@@ -14764,6 +14765,27 @@
     "gemcost": 50,
     "filename": "marble-statue.svg",
     "artSpan": 2.51
+  },
+  {
+    "type": "Gertrude's Statue",
+    "symbol": "🏛️",
+    "layoutkey": "GSt",
+    "category": "deco",
+    "action": "statue",
+    "passable": false,
+    "qtycollected": 1,
+    "filename": "marble-statue.svg",
+    "artSpan": 2.51,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true
   },
   {
     "category": "deco",

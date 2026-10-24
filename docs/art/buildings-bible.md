@@ -155,8 +155,13 @@ a sagging curved roofline, flared petal-like sails, the sacks from the barrel's 
 - a shallow lean-to roof of painted wooden shingles over the BACK part only, in the station's
   ACCENT colour, its ridge and eaves SAGGING in a gentle curve that dips in the middle
   (nothing ruler-straight); a lantern on the right front post;
-- a small timber tower or post at the back-left corner carrying the station's SILHOUETTE
-  piece (the Mill's sails; a churn handle, a loom frame, a press screw);
+- a SILHOUETTE piece rising above the roofline: either the station's own machine when it is
+  naturally tall (the Mill's sails on a corner tower, the Loom's frame, the Oven's dome) or,
+  when the machine is small, an abstract painted wooden SIGN standing on the roof ridge (the
+  Dairy's cut-out cow). Owner (2026-10-24): never stretch a prop to make a silhouette ("that
+  butter churn makes no sense"); a churn is a churn, the sign does the silhouette work;
+- the roof is optional when the machine IS the station: the Oven has no lean-to, its big
+  stone dome fills the stall and is the shape (owner, 2026-10-24);
 - the floor packed earth with a few flagstones; THE WORK big in the open front: the machine
   at the left, the products at the right, every prop drawn from the barrel's camera (front
   on, a little from above, tops as narrow ellipses);
@@ -172,10 +177,10 @@ The plan (proposed to the owner 2026-10-24, awaiting tweaks; the Mill is done):
 | Station | Concept | Props (the work in front) | Accent | Silhouette / must-have |
 |---|---|---|---|---|
 | Mill | grain to flour | millstone on a frame left; sacks of flour, a sugar sack, a grain heap with a scoop right | wheat tan | the windmill sails; APPROVED mill-e-1 |
-| Dairy | milk to butter and cheese | a tall butter churn, a big cheese wheel with a wedge cut, milk bottles in a crate, a milk churn | cream white with a sky-blue band | the churn handle above the wall; a hanging cheese basket |
-| Oven | baking | a domed stone bread oven with a cold flue, a peel, loaves and a lattice pie on a rack, a flour-dusted board | toasted orange-brown | the dome and its short flue, the oven mouth warm-lit |
+| Dairy | milk to butter and cheese | a plain butter churn, a big cheese wheel with a wedge cut, a pat of butter, milk bottles in a crate, a tin milk churn, a hanging basket | cream white with a sky-blue band | an abstract cut-out COW SIGN standing on the roof ridge (owner); revision `dairy-b` from dairy-2 |
+| Oven | baking | a BIG domed stone bread oven with a cold flue filling the left and centre, a peel, loaves and a lattice pie, a bread basket, a flour sack, a flour-dusted board | toasted orange-brown (the dome's warm stone; NO roof) | the dome itself, no lean-to (owner: let the dome be bigger and be the silhouette); revision `oven-b` from oven-1 |
 | Kitchen | cooking | a big iron pot on a tripod (cold), a chopping block with vegetables, hanging copper pans, a string of onions, a bowl of soup | tomato red | the hanging pan rack; red checked cloth |
-| Loom | thread and cloth | an upright loom with half-woven indigo cloth, a spinning wheel, bobbins, a basket of fleece, bolts of cloth | indigo blue | the loom frame above the wall; vertical warp threads |
+| Loom | thread and cloth | an upright loom with half-woven indigo cloth, a spinning wheel, bobbins, a basket of fleece, bolts of cloth | indigo blue | the loom frame above the wall; APPROVED 2026-10-24 (stations-r2 loom-2) |
 | Lumber Yard | logs to lumber | a sawhorse with a half-sawn log and a two-man saw, a stack of planks, a log pile, an axe in a stump | raw pale timber with a green tarp | the stepped log stack |
 | Studio | pottery, furniture, ink, urns | a potter's wheel with a half-thrown pot, shelves of pots and urns, a bench with a chisel, an ink well and quill | terracotta | the shelving unit at the back; the urns' shapes |
 | Beverage Station | teas, lemonade, coffees | a copper samovar on a stand, a shelf of cups, lemons in a bowl, a tea tin, a coffee pot | tea green | the samovar; the first station allowed to lean more whimsical |
