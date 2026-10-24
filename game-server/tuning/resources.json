@@ -8553,11 +8553,12 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "crate.svg",
+    "filename": "warehouse.svg",
     "artFamily": "cottage",
     "artLook": "homestead",
     "artAccent": "warm wood",
-    "artSign": "none"
+    "artSign": "none (the silo is the sign)",
+    "artSpan": 3.11
   },
   {
     "type": "Inn",

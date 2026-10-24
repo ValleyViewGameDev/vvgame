@@ -1,0 +1,66 @@
+{
+  "name": "homestead-r1",
+  "note": "Homestead stations (owner, 2026-10-25): the Warehouse (2 x 2, today it draws the crate deco; a wooden medieval store, maybe a silo) and the Trading Post (2 x 2, the current drawing kept as the concept, restyled with the farmhouse's thatch). Both match the Farm House. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "warehouse-silo": {
+      "refs": [
+        "_candidates/farmhouse-lit/approved/openai--painterly-farmhouse-lit-1.small.jpg"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND LIGHT REFERENCE: the first attached panel is this game's FARM HOUSE, a thatched cottage of cream plaster and warm timber in the game's bright painterly style with full noon daylight; match its rendering, its camera (the front square to the viewer, the roof seen from above, the grid straight), its daylight and its materials: this building stands beside that farmhouse on the same homestead and must look like the same carpenter built both. SUBJECT: the WAREHOUSE, where the homestead stores its goods. CONCEPT A, THE SILO: a round CYLINDRICAL store built of vertical weathered wooden staves bound by three dark iron hoops like a giant barrel, two tiles wide and about two and a half tall, under a conical roof of the farmhouse's golden straw THATCH with a small wooden finial; a small arched wooden door with iron hinges at the front, a tiny square hatch high up under the eaves, a short wooden ladder leaning beside the door, two sacks and a crate stacked by the door; the same cream plaster and timber footing as the farmhouse at its base, a little climbing greenery. It must read as a grain store at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the building's walls and ground contact fill that 2 x 2 square almost to its edges, end to end (the roof may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    },
+    "warehouse-barn": {
+      "refs": [
+        "_candidates/farmhouse-lit/approved/openai--painterly-farmhouse-lit-1.small.jpg"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND LIGHT REFERENCE: the first attached panel is this game's FARM HOUSE, a thatched cottage of cream plaster and warm timber in the game's bright painterly style with full noon daylight; match its rendering, its camera (the front square to the viewer, the roof seen from above, the grid straight), its daylight and its materials: this building stands beside that farmhouse on the same homestead and must look like the same carpenter built both. SUBJECT: the WAREHOUSE, where the homestead stores its goods. CONCEPT B, THE STORE BARN: a squat timber barn of warm weathered planks on a stone footing, two tiles wide, with a wide pair of plank doors on the front standing a little open to show stacked crates and sacks in the dark inside, a loft hatch above the doors with a wooden hoist beam and a hanging rope, a steep roof of the farmhouse's golden straw THATCH with rounded eaves, a barrel and a crate outside by the doors, a little climbing greenery at the corners. It must read as a goods store at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the building's walls and ground contact fill that 2 x 2 square almost to its edges, end to end (the roof may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    },
+    "trading-post": {
+      "refs": [
+        "_candidates/farmhouse-lit/approved/openai--painterly-farmhouse-lit-1.small.jpg",
+        "guides/control-trading-post.small.jpg"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND LIGHT REFERENCE: the first attached panel is this game's FARM HOUSE, a thatched cottage of cream plaster and warm timber in the game's bright painterly style with full noon daylight; match its rendering, its camera (the front square to the viewer, the roof seen from above, the grid straight), its daylight and its materials: this building stands beside that farmhouse on the same homestead and must look like the same carpenter built both. CONCEPT REFERENCE: the second attached image is this game's TRADING POST as drawn today in an older flat style; the owner likes it: keep its concept and layout (an open-fronted wooden trade hut with a counter across the front, goods and crates on and around the counter, a signboard, a sloping roof) and NOTHING of its rendering. SUBJECT: the TRADING POST restyled: a sturdy timber trade hut two tiles wide, its open front a counter of warm planks with sacks, a crate, a barrel and a set of brass scales on it, a shelf of jars and bundles on the back wall, the roof the farmhouse's golden straw THATCH with rounded eaves and a small thatched hood over the counter, timber posts at the corners, a lantern, a small blank wooden signboard on a post beside it (no letters), a little climbing greenery at the base. It must read as a place to trade at a glance, and as the farmhouse's neighbour. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the building's walls and ground contact fill that 2 x 2 square almost to its edges, end to end (the roof may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    },
+    "trading-post-b": {
+      "refs": [
+        "_candidates/farmhouse-lit/approved/openai--painterly-farmhouse-lit-1.small.jpg",
+        "guides/control-trading-post.small.jpg"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND LIGHT REFERENCE: the first attached panel is this game's FARM HOUSE, a thatched cottage of cream plaster and warm timber in the game's bright painterly style with full noon daylight; match its rendering, its camera (the front square to the viewer, the roof seen from above, the grid straight), its daylight and its materials: this building stands beside that farmhouse on the same homestead and must look like the same carpenter built both. CONCEPT REFERENCE: the second attached image is this game's TRADING POST as drawn today in an older flat style; the owner likes it: keep it FAITHFULLY, the same simple open stall: four stout timber posts, a wide plank COUNTER across the front at waist height with a low shelf beneath it, open on every side with nothing inside, a sloping plank roof. Keep that exact structure and layout and change only the rendering and the roof: paint it in the farmhouse's style, warm weathered timber posts and counter with the farmhouse's painted wood grain and the same noon daylight, and replace the blue plank roof with the farmhouse's golden straw THATCH, rounded at the eaves with a wooden ridge beam. On the counter only two things: a small set of brass scales and one sack; nothing else, no shelves of goods, no signboard. A little grass and a few flowers at the posts' feet as in the reference. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the stall's posts and ground contact fill that 2 x 2 square almost to its edges, end to end (the roof may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    },
+    "trading-post-c": {
+      "refs": [
+        "_candidates/homestead-r1/exploration/openai/painterly-trading-post-b-2.small.jpg"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's TRADING POST as drawn: an open four-post timber stall with a plank counter and a low shelf under it, a golden thatched roof, in the game's bright painterly style; the owner likes it. Redraw the SAME stall, the same posts, counter, shelf, timber, colours, camera and daylight, with TWO changes only. (1) THE ROOF IS HALF AS TALL: the thatched roof is a low, shallow cap, about half its present height, a thin layer of thatch on a flat-pitched frame, so the eaves sit high and the whole counter and the shelf beneath it are clearly visible under it. (2) THE COUNTER AND SHELF ARE EMPTY: remove the scales and the sack and anything else; bare planks, nothing on the counter or the shelf (goods will be layered on later by the game). Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the stall's posts and ground contact fill that 2 x 2 square almost to its edges, end to end (the roof may rise a little above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    }
+  }
+}

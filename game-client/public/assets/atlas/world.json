@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "e4edbe7f0ffd8d194bfadfe5d2de4d8d43f0e449",
+  "sourceHash": "1cc2e9d75e1b2b059e46040d16d4f76fe957eb6a",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -61,13 +61,13 @@
       "json": "world-9.json",
       "png": "world-9.png",
       "webp": "world-9.webp",
-      "frames": 205
+      "frames": 204
     },
     {
       "json": "world-10.json",
       "png": "world-10.png",
       "webp": "world-10.webp",
-      "frames": 100
+      "frames": 102
     }
   ],
   "frames": {
@@ -98,11 +98,10 @@
     "emoji/1f5ff": 5,
     "resources/beverage-station.svg": 5,
     "resources/coffee-factory.svg": 5,
-    "resources/crate.svg": 5,
     "resources/dairy.svg": 5,
     "resources/farm-house.svg": 5,
     "resources/fountain-large.svg": 5,
-    "resources/kitchen.svg": 6,
+    "resources/kitchen.svg": 5,
     "resources/loom.svg": 6,
     "resources/lumber-yard.svg": 6,
     "resources/magic-shop.svg": 6,
@@ -113,6 +112,7 @@
     "resources/studio.svg": 6,
     "resources/trade.svg": 6,
     "resources/wagon.svg": 6,
+    "resources/warehouse.svg": 6,
     "resources/winery.svg": 6,
     "avatar/eyes/eyes-03-blink.svg": 6,
     "avatar/eyes/eyes-03-iris.svg": 6,
@@ -179,6 +179,7 @@
     "resources/clay-source.svg": 7,
     "resources/clay.svg": 7,
     "resources/cloven-pine.svg": 7,
+    "resources/crate.svg": 7,
     "resources/dead-tree.svg": 7,
     "resources/door-dungeon.svg": 7,
     "resources/door-gold.svg": 7,
@@ -193,7 +194,7 @@
     "resources/fruit-tree.svg": 7,
     "resources/haybale.svg": 7,
     "resources/mailbox.svg": 7,
-    "resources/marble-statue.svg": 7,
+    "resources/marble-statue.svg": 8,
     "resources/mulberry-tree.svg": 8,
     "resources/npc-angelo.svg": 8,
     "resources/npc-apothecary.svg": 8,
@@ -257,7 +258,7 @@
     "walls/stone-e.png": 8,
     "walls/stone-n.png": 8,
     "walls/stone-post.png": 8,
-    "walls/stone-run-h.png": 8,
+    "walls/stone-run-h.png": 9,
     "walls/stone-run-v.png": 9,
     "walls/stone-s.png": 9,
     "walls/stone-w.png": 9,
@@ -461,8 +462,8 @@
     "emoji/1f52d": 9,
     "emoji/1f52e": 9,
     "emoji/1f531": 9,
-    "emoji/1f537": 9,
-    "emoji/1f56f": 9,
+    "emoji/1f537": 10,
+    "emoji/1f56f": 10,
     "emoji/1f577": 10,
     "emoji/1f5bc": 10,
     "emoji/1f5dd": 10,
