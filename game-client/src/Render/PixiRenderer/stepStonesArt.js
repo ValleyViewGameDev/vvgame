@@ -19,10 +19,9 @@
 export const SHAPES = 24;          // distinct outlines, pre-drawn once and reused at any size
 export const STONE_PAD = 1.35;     // canvas half-size = R * STONE_PAD (room for the shadow and grass)
 
-const FILLERS_PER_CELL = 12;
-const SLAB_R = [0.29, 0.36];       // the main stones, in tiles (owner 2026-10-24: sizes in one zone)
-const FILL_R = [0.23, 0.3];        // the stones between them: a little smaller, never pebbles
-const GAP = 0.05;                  // grass between stones, in tiles
+const CANDIDATES_PER_CELL = 40;
+const STONE_R = [0.15, 0.2];      // medium stones, a narrow range (owner 2026-10-25: about three a cell)
+const GAP = 0.035;                 // grass between stones, in tiles
 const EDGE = 0.025;                // grass kept between a stone and a non-path cell, in tiles
 
 const STONE = { light: '#d8d1b6', base: '#c2b998', dark: '#aaa080', side: '#837a5d', rim: 'rgba(70, 62, 40, 0.42)' };
@@ -48,16 +47,9 @@ export function layoutStepStones(tileTypes) {
       if (line[col] !== 'k') continue;
       const rand = rng(hash32(row, col, 7));
       const add = (x, y, [lo, hi]) => candidates.push({ x, y, r: lo + (hi - lo) * rand(), shape: Math.floor(rand() * SHAPES), order: rand() });
-      // slabs: near the cell's middle, and across each edge it shares with another path cell
-      // (only the right and lower edges, so a shared edge is offered once), all jittered
-      // (a slab nearly the path's width must sit almost on its centre line: little jitter across
-      // the path, more along it)
-      // (stones about the same size can wander across the path a little: the walk zigzags)
-      add(col + 0.5 + (rand() - 0.5) * 0.24, row + 0.5 + (rand() - 0.5) * 0.24, SLAB_R);
-      if (tileTypes[row]?.[col + 1] === 'k') add(col + 1 + (rand() - 0.5) * 0.4, row + 0.5 + (rand() - 0.5) * 0.2, SLAB_R);
-      if (tileTypes[row + 1]?.[col] === 'k') add(col + 0.5 + (rand() - 0.5) * 0.2, row + 1 + (rand() - 0.5) * 0.4, SLAB_R);
-      // fillers anywhere in the cell, for the gaps the slabs leave
-      for (let i = 0; i < FILLERS_PER_CELL; i++) add(col + rand(), row + rand(), FILL_R);
+      // many candidate spots anywhere in the cell, all medium sized: placed biggest first, the
+      // ones that fit settle in single file, side by side or staggered, about three to a cell
+      for (let i = 0; i < CANDIDATES_PER_CELL; i++) add(col + rand(), row + rand(), STONE_R);
     }
   }
   candidates.sort((a, b) => b.r - a.r || a.order - b.order);

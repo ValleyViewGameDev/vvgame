@@ -420,8 +420,8 @@ A fourth pass, `grass-7`, from grass-6-2: the tufts a shade DARKER than the gras
 had gone lighter and too faint) and the flowers toned down to a pale yellow-green close to
 the grass and a little lighter than it (no white, no bright yellow). `grass-7-2` is the
 grass now (2026-10-22).
-- **Step Stones (2026-10-24, tile `k`, layout key `SP`, devonly until the owner approves it in
-  game).** Flat, pale stones set into a lawn. First pass drew four or five stones into each cell's
+- **Step Stones (2026-10-24, tile `k`, layout key `SP`; approved 2026-10-25, open to every player
+  from level 5).** Flat, pale stones set into a lawn. First pass drew four or five stones into each cell's
   texture; the owner found it too regular (always four, the grid showing) and sent a garden-path
   photo. Second pass: the cell is plain grass (it counts as grass for every edging rule,
   `edgeType`), and the stones are their own layer above the ground
@@ -436,3 +436,7 @@ grass now (2026-10-22).
   in one size zone (main stones 0.29 to 0.36 tile radius, the ones between 0.23 to 0.30, no
   pebbles), allowed to wander across the path a little, so the walk zigzags; 0.05 of grass between
   stones.
+  Fourth pass, 2026-10-25 (owner: about one big stone per tile; wanted about three, medium, little
+  size variation): no fixed slab spots any more, 40 candidate spots anywhere in each path cell, all
+  medium (radius 0.15 to 0.20 tile), 0.035 of grass between them; the ones that fit settle single
+  file, side by side or staggered, about 2.9 stones per cell on the test path. Approved.

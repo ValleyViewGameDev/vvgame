@@ -82,8 +82,7 @@
     "category": "tile",
     "action": "stepstones",
     "passable": true,
-    "requires": "devonly",
-    "level": 7
+    "level": 5
   },
   {
     "type": "y",
