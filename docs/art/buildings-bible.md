@@ -197,7 +197,16 @@ The plan (proposed to the owner 2026-10-24, awaiting tweaks; the Mill is done):
 | Coffee Factory | roasting beans | a drum roaster on a brick base with a crank and a tall dark-brick flue, sacks of green beans, a tray of beans in three roasts, a hand grinder, tin canisters | near-black roast brown with a cream band | the roaster and its flue, no roof; coffee-factory-2 liked, revision `coffee-factory-b` (bigger props); **APPROVED 2026-10-24: coffee-factory-b-2** |
 | Silkery | silk | a frame of cocoons on mulberry branches, a reeling wheel with a skein, bolts of pale silk, a mulberry sprig in a pot | silver-white lean-to with pink post caps | the reeling wheel rising above the roof; the sheen on the silk (no silkworms: no animals); round 5 options |
 
-**OPEN (owner, 2026-10-24): a station SCALE pass is owed.** The owner held the Beverage pick
+**Round 6, the relight-and-rescale pass (owner, 2026-10-24, from the in-game comparison of
+deco, stations and a building side by side):** every cut station came out DARK (the Kitchen
+worst), not inheriting the buildings' daylight, and their props are too small against the
+buildings. `tools/art/jobs/stations-r6.json` redraws all ten approved panels with two changes:
+the General Store's bright noon daylight, and props at the store's absolute prop size (fewer,
+bigger; walls and posts unchanged). Owner: it need not be perfect: 1 x 1 deco may run a little
+big and props on the big buildings a little small, but the stations must scale UP to fit the
+same game. The relit candidates replace the cut sprites once picked.
+
+**OPEN (owner, 2026-10-24): a station SCALE pass is owed** (now round 6 above). The owner held the Beverage pick
 because its props are still too small, and says the same of a number of the cut stations: on
 the board a 2 x 2 station's sacks, pots and jars must match the absolute size of the props by
 the buildings' doors, and several do not. When the connection allows, commission scale
