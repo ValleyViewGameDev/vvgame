@@ -1024,7 +1024,7 @@
 "16016": "Mi generosidad es tan ilimitada como el mar, mi amor tan profundo... pero él se fue, y todo lo que queda es un retrato y dolor. Angelo se llevó ambos. Tráeme el retrato de Romeo, arrancado de mi cámara, y te daré Tulipanes rojos como la sangre derramada sobre las piedras de Verona. Que este sea nuestro nuevo balcón: tú abajo, portando justicia.",
 "16017": "Hola, amigo. ¿Buscas el Tridente de los dioses antiguos? Es uno de los siete artefactos necesarios para satisfacer al Oráculo. Necesito mucho oro para separarme de él.",
 "16018": "Bienvenido, {username}. Has venido de lejos para estar en Delfos. Soy la voz de Apolo, que una vez dijo a un rey celoso que viviría sin heredero si lo perdido no era hallado. Lo perdido sigue perdido, y Elsinore enferma por ello. Tráeme los siete artefactos que unen a estos pueblos y te daré la Esperanza para restaurar la Edad de Oro.",
-"16019": "¡Saludos! Durante siglos, la gentil gente de Elsinore vivió en armonía, gobernada por el benevolente Rey Leontes.\n\nPero últimamente un flagelo maligno crece en el Valle y amenaza nuestros caminos pacíficos.\n\nSe dice que una sola Misión puede restaurar la Esperanza en estas tierras y hacer retroceder la oscuridad. ¡Busca al Oráculo en el Valle, aventurero, y tráenos Esperanza!",
+"16019": "¿Quién va? ¡Alto, en nombre del Rey! Ah, un forastero, arrastrado a nuestra cueva marina como todos nosotros. Escucha. Una gran tormenta, desatada por el viejo mago Próspero, arrancó a cada alma de su propia historia y nos arrojó a esta orilla. Convirtió a nuestra Reina en piedra y se llevó la corona de nuestro Rey. El Oráculo dice que la tierra no sanará \"si lo perdido no se encuentra.\" Lo perdido es la Esperanza. Soy el pobre alguacil del Rey, {username}, y me apoyo en la justicia. Lo primero es lo primero: un hogar para ti. Cómprame una Escritura de Hogar.",
 "16020": "¡Bien hallado, cazador! ¿Tienes pieles para comerciar? Te pagaré monedas justas por cualquier piel que las tierras salvajes del valle hayan cedido a tu habilidad. Los meses fríos se acercan, y la gente busca calor. Tu caza llena mis arcas; mis monedas llenan tu bolsa. ¡Es un trato tan acogedor como el nombre que llevo!",
 "16021": "Felicitaciones por tu habilidad de Cultivador, {username}. Descubrirás que muchas Habilidades se pueden ganar en el Pueblo. Elige sabiamente mientras comienzas a especializarte en Agricultura, Cocina, Animales, Aventura y más.",
 "16101": "",
@@ -1612,5 +1612,9 @@
     "16509": "En el fondo del Aqueronte una luz nunca se apagó: la Vela Breve. La antorcha de Hécate cruza la niebla negra. El perro de tres cabezas no deja pasar a nadie.",
     "16510": "Es la hora. Los dragones de Próspero guardan la escalera de pizarra de su salón. Véncelos, responde a su acertijo y trae el Orbe, el corazón de la tormenta.",
     "16511": "El ave maravilla muere y renace de su ceniza. Arranca una pluma del fuego, y será un tesoro más para el Oráculo.",
-    "16512": "Siete tesoros, {username}. Llévalos al Oráculo y trae la Esperanza a casa, y veamos al Rey coronado y a Elbow, digo, a Elsinore, alegre otra vez."
+    "16512": "Siete tesoros, {username}. Llévalos al Oráculo y trae la Esperanza a casa, y veamos al Rey coronado y a Elbow, digo, a Elsinore, alegre otra vez.",
+    "200845": "El sitio de Audrey",
+    "200846": "El sitio de Corin",
+    "200847": "El sitio de Peter Quince",
+    "200848": "El sitio de Nick Bottom"
 }

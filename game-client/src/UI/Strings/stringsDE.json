@@ -1024,7 +1024,7 @@
 "16016": "Meine Großzügigkeit ist so grenzenlos wie das Meer, meine Liebe so tief... aber er ist fort, und alles was bleibt ist ein Porträt und Schmerz. Angelo nahm beides. Bring mir Romeos Abbild, aus meiner Kammer gerissen, und ich gebe dir Tulpen, rot wie das Blut, das auf Veronas Steinen vergossen wurde. Lass dies unser neuer Balkon sein: du unten, Gerechtigkeit tragend.",
 "16017": "Hallo, Freund. Suchst du den Dreizack der alten Götter? Er ist eines der sieben Artefakte, die nötig sind, um das Orakel zufriedenzustellen. Ich brauche viel Gold, um mich davon zu trennen.",
 "16018": "Willkommen, {username}. Du bist weit gekommen, um in Delphos zu stehen. Ich bin die Stimme Apollons, die einst einem eifersüchtigen König verkündete, er werde ohne Erben leben, wenn das Verlorene nicht gefunden wird. Das Verlorene ist noch immer verloren, und Elsinore siecht daran. Bringe mir die sieben Artefakte, die diese Völker binden, und ich schenke dir die Hoffnung, das Goldene Zeitalter wiederherzustellen.",
-"16019": "Grüße! Jahrhundertelang lebten die freundlichen Menschen von Elsinore in Harmonie, regiert vom wohlwollenden König Leontes.\n\nDoch seit kurzem wächst eine böse Plage im Tal und bedroht unsere friedlichen Wege.\n\nEs heißt, eine einzige Quest kann die Hoffnung in diese Lande zurückbringen und die Dunkelheit zurückdrängen. Suche das Orakel im Tal, Abenteurer, und bring uns Hoffnung!",
+"16019": "Wer da? Halt, im Namen des Königs! Ah, ein Fremder, in unsere Meereshöhle gespült wie wir alle. Hör zu. Ein großer Sturm, entfesselt vom alten Zauberer Prospero, riss jede Seele aus ihrer eigenen Geschichte und warf uns an dieses Ufer. Er verwandelte unsere Königin in Stein und raubte unserem König die Krone. Das Orakel sagt, das Land wird nicht heilen, \"wenn das Verlorene nicht gefunden wird.\" Verloren ist die Hoffnung. Ich bin des armen Königs Konstabler, {username}, und ich lehne mich an die Gerechtigkeit. Zuerst das Wichtigste: ein Zuhause für dich. Kauf mir eine Heimaturkunde ab.",
 "16020": "Sei gegrüßt, Jäger! Hast du Felle zum Handeln? Ich zahle dir faire Münzen für alle Pelze, die die Wildnis des Tals deinem Geschick überlassen hat. Die kälteren Monate nahen, und die Leute suchen Wärme. Deine Jagd füllt meine Truhen; meine Münzen füllen deinen Beutel. Das ist ein Handel so gemütlich wie der Name, den ich trage!",
 "16021": "Herzlichen Glückwunsch zu deiner Anbauer-Fähigkeit, {username}. Du wirst feststellen, dass viele Fähigkeiten in der Stadt erworben werden können. Wähle weise, wenn du beginnst, dich auf Landwirtschaft, Kochen, Tiere, Abenteuer und mehr zu spezialisieren.",
 
@@ -1614,5 +1614,9 @@
     "16509": "Am Grund des Acheron ging ein Licht nie aus: die kurze Kerze. Hekates Fackel durchdringt den schwarzen Nebel. Der Hund mit den drei Köpfen lässt niemanden vorbei.",
     "16510": "Es ist Zeit. Prosperos Drachen bewachen die Schiefertreppe zu seiner Halle. Besiege sie, löse sein Rätsel und bring die Kugel zurück, das Herz des Sturms.",
     "16511": "Der Wundervogel stirbt und steigt aus seiner Asche. Pflück eine Feder aus dem Feuer, und das ist ein Schatz mehr für das Orakel.",
-    "16512": "Sieben Schätze, {username}. Bring sie zum Orakel und hol die Hoffnung heim, und lass uns den König gekrönt sehen und Elbow, ich meine Elsinore, wieder fröhlich."
+    "16512": "Sieben Schätze, {username}. Bring sie zum Orakel und hol die Hoffnung heim, und lass uns den König gekrönt sehen und Elbow, ich meine Elsinore, wieder fröhlich.",
+    "200845": "Audreys Platz",
+    "200846": "Corins Platz",
+    "200847": "Peter Squenz' Platz",
+    "200848": "Klaus Zettels Platz"
 }

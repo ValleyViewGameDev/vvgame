@@ -12,7 +12,8 @@ game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens'
 The world's story, decided with the owner on 2026-10-24 (a storm of stories; Prospero as the
 antagonist, defeated, not killed; Gertrude as the statue). Every intro, hint, quest ask and
 milestone line serves it. The old intro (string 16019: "an evil scourge grows... bring back the
-rule of King Leontes") is out of date until the narrative pass rewrites it (`narrative-pass.md`).
+rule of King Leontes") was rewritten on 2026-10-24 around this tale: it is Constable Elbow's
+greeting in the sea cave ("Who goes there? Stand, in the King's name!...").
 
 - **Before.** Elsinore was a merry kingdom by the sea under King Leontes (The Winter's Tale) and
   Queen Gertrude (Hamlet), a place of fairs and farms. The cracks were already there: Leontes

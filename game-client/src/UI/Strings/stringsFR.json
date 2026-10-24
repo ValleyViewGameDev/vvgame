@@ -1024,7 +1024,7 @@
 "16016": "Ma générosité est aussi sans bornes que la mer, mon amour aussi profond... mais il est parti, et tout ce qui reste est un portrait et de la douleur. Angelo a pris les deux. Apporte-moi le portrait de Roméo, arraché de ma chambre, et je te donnerai des Tulipes rouges comme le sang versé sur les pierres de Vérone. Que ceci soit notre nouveau balcon : toi en bas, portant la justice.",
 "16017": "Bonjour, ami. Cherches-tu le Trident des anciens dieux ? C'est l'un des sept artefacts nécessaires pour satisfaire l'Oracle. J'ai besoin de beaucoup d'or pour m'en séparer.",
 "16018": "Bienvenue, {username}. Tu as fait un long chemin pour te tenir à Delphes. Je suis la voix d'Apollon, qui dit un jour à un roi jaloux qu'il vivrait sans héritier si ce qui fut perdu n'était retrouvé. Ce qui fut perdu l'est encore, et Elsinore en dépérit. Apporte-moi les sept artefacts qui lient ces peuples, et je te donnerai l'Espoir de restaurer l'Âge d'Or.",
-"16019": "Salutations ! Pendant des siècles, les gentils habitants d'Elsinore vivaient en harmonie, gouvernés par le bienveillant Roi Leontes.\n\nMais depuis peu, un fléau maléfique grandit dans la Vallée et menace nos voies paisibles.\n\nOn dit qu'une seule Quête peut restaurer l'Espoir dans ces terres et repousser les ténèbres. Cherche l'Oracle dans la Vallée, aventurier, et apporte-nous l'Espoir !",
+"16019": "Qui va là ? Halte, au nom du Roi ! Ah, un étranger, rejeté dans notre grotte marine comme nous tous. Écoute. Une grande tempête, levée par le vieux magicien Prospero, a arraché chaque âme à sa propre histoire et nous a jetés sur ce rivage. Elle a changé notre Reine en pierre et pris la couronne de notre Roi. L'Oracle dit que le pays ne guérira pas « si ce qui est perdu n'est pas retrouvé ». Ce qui est perdu, c'est l'Espoir. Je suis le pauvre connétable du Roi, {username}, et je m'appuie sur la justice. Commençons par le commencement : un foyer pour toi. Achète-moi un Titre de Propriété.",
 "16020": "Bien rencontré, chasseur ! As-tu des peaux à échanger ? Je te paierai un juste prix pour toutes les fourrures que les terres sauvages de la vallée ont cédées à ton talent. Les mois froids approchent, et les gens cherchent la chaleur. Ta chasse remplit mes coffres ; mes pièces remplissent ta bourse. C'est un marché aussi douillet que le nom que je porte !",
 "16021": "Félicitations pour ta compétence de Cultivateur, {username}. Tu découvriras que de nombreuses Compétences peuvent être gagnées en Ville. Choisis judicieusement alors que tu commences à te spécialiser dans l'Agriculture, la Cuisine, les Animaux, l'Aventure et plus encore.",
 
@@ -1614,5 +1614,9 @@
     "16509": "Au fond de l'Achéron, une lumière ne s'est jamais éteinte : la Brève Chandelle. La torche d'Hécate traverse le brouillard noir. Le chien à trois têtes ne laisse passer personne.",
     "16510": "Il est temps. Les dragons de Prospero gardent l'escalier d'ardoise de sa salle. Vaincs-les, réponds à son énigme et rapporte l'Orbe, le cœur même de la tempête.",
     "16511": "L'oiseau merveille meurt et renaît de ses cendres. Cueille une plume dans le feu, et c'est un trésor de plus pour l'Oracle.",
-    "16512": "Sept trésors, {username}. Porte-les à l'Oracle et ramène l'Espoir, et voyons le Roi couronné et Elbow, je veux dire Elsinore, joyeux de nouveau."
+    "16512": "Sept trésors, {username}. Porte-les à l'Oracle et ramène l'Espoir, et voyons le Roi couronné et Elbow, je veux dire Elsinore, joyeux de nouveau.",
+    "200845": "La place d'Audrey",
+    "200846": "La place de Corin",
+    "200847": "La place de Peter Quince",
+    "200848": "La place de Nick Bottom"
 }

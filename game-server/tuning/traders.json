@@ -247,7 +247,7 @@
     "gives": "Gold",
     "givesqty": 20,
     "xp": 8,
-    "repeat": true,
+    "repeat": false,
     "requires1": "King's Crown",
     "requires1qty": 1
   },
