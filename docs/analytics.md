@@ -9,7 +9,7 @@ differs.
 
 ## What the system is
 
-- **Three durable analytics collections, written fire-and-forget from the
+- **Four durable analytics collections, written fire-and-forget from the
   request path** (`game-server/utils/analytics.js`):
   - `analytics_activity`: one doc per `(player, UTC day)`, `_id = "<playerId>:<day>"`.
     Powers DAU and retention. Carries per-day flags: `played` (a harvest or
@@ -21,6 +21,13 @@ differs.
   - `analytics_pageview`: one doc per `(visitor, UTC day)`,
     `_id = "<visitorId>:<day>"`, `views` counter. The PageView to
     AccountCreation funnel's denominator (Site Traffic tab).
+  - `analytics_level`: one doc per `(player, level)`, `_id = "<playerId>:<level>"`,
+    write-once: when the player first reached that level (`ts`, `day`, `xp`). Written by
+    `recordLevelUps(playerId, oldXp, newXp)` from the three server XP writes (`/api/addXP`,
+    the mailbox collect, a combat kill; the level is `levelForXp`, the client's
+    `getDerivedLevel` rule). Forward-only from the 2026-10-24 build. Read by
+    `node tools/progression.js --pacing` (backlog OB-7); not on the dashboard yet. The purge
+    tool deletes it with the rest.
 - **A purchases ledger** (`purchases`, `game-server/models/purchase.js`): one
   row per fulfilled store offer with `playerId`, `username`, `kind`
   (`stripe` when the offer carries a price, `store_offer` otherwise), `offerId`,

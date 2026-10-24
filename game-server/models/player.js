@@ -225,6 +225,9 @@ const playerSchema = new mongoose.Schema({
   // Unset = an account from before 2026-10-24: its first /hope/found call records what it holds
   // silently, so old finds are not replayed; new accounts start with [] (routes/auth.js).
   hopeFound: { type: [String], default: undefined },
+  // the day-2 gift (utils/returnGift.js): false on new accounts until it is mailed; unset on accounts
+  // from before it existed, which never get it
+  returnGift: { type: Boolean, default: undefined },
   magicSlots: { type: Number, default: null }, // magic enhancement slots; null = globalTuning.combat.magicSlotsBase. Raised only by /player/buy-magic-slot
   relocations: { type: Number },
   iscamping: { type: Boolean, default: false },

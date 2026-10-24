@@ -1301,9 +1301,12 @@ useEffect(() => {
       // 2.2 Update lastActive timestamp for app initialization
       console.log('🏁✅ 2.2 InitAppWrapper; updating lastActive timestamp...');
       try {
-        await axios.post(`${API_BASE}/api/update-last-active`, {
-          playerId: parsedPlayer.playerId
+        const { data: active } = await axios.post(`${API_BASE}/api/update-last-active`, {
+          playerId: parsedPlayer.playerId,
+          tzOffset: new Date().getTimezoneOffset(),   // the day-2 gift counts the player's own days
         });
+        // the day-2 gift was just mailed: add it so the Mailbox badge (step 13) sees it
+        if (active?.returnGift) DBPlayerData.messages = [...(DBPlayerData.messages || []), active.returnGift];
       } catch (error) {
         console.warn('Failed to update lastActive:', error);
         // Don't block app initialization if this fails

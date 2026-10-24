@@ -1308,7 +1308,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
             // a repeatable quest that has just been collected slides back in as a fresh offer
             const state = fx?.type === 'slidein' ? 'accept' : isRewardable ? 'reward' : 'accept';
-            const questMeetsLevel = meetsLevelRequirement(quest.level);
+            // a quest already held and done is always claimable: the FTUE hands over Elbow's L3
+            // story step at L2 (FTUEsteps addQuests), and its reward is what lifts the player to L3
+            const questMeetsLevel = state === 'reward' || meetsLevelRequirement(quest.level);
 
             // Get XP for this quest (use quest-specific XP if available, else fall back to NPC's XP)
             const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');

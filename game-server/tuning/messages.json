@@ -50,6 +50,44 @@
     "neverPurge": false
   },
   {
+    "id": 6,
+    "title": "🎁 Welcome back to Elsinore!",
+    "body": "You came back, and Elsinore is glad of it. Here is a gift for your second day. Constable Elbow, the Shepherd and Kent all have more for you.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 3000
+      },
+      {
+        "item": "Gem",
+        "qty": 25
+      },
+      {
+        "item": "Wood",
+        "qty": 50
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": false
+  },
+  {
+    "id": 7,
+    "title": "👑 A Gift from the Queen",
+    "body": "Queen Gertrude is awake, and the first of Prospero's spells is broken. She sends her thanks, and this. The rest of Elsinore's story opens now: Constable Elbow has more to ask of you.",
+    "rewards": [
+      {
+        "item": "Money",
+        "qty": 10000
+      },
+      {
+        "item": "Gem",
+        "qty": 25
+      }
+    ],
+    "everyoneRewards": true,
+    "neverPurge": true
+  },
+  {
     "id": 101,
     "title": "📦 Caravan Trade Complete!",
     "body": "Your settlement filled all Caravan orders. Great teamwork! Here's your reward.",

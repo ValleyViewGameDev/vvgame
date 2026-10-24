@@ -8,6 +8,7 @@ const { applyDelta: applyNpcDelta } = require('../utils/npcRelationships');
 const avatarCatalogue = require('../utils/avatarCatalogue');
 const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
 const { hopeArtifacts } = require('../utils/hopeArtifacts');
+const { maybeSendReturnGift } = require('../utils/returnGift');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
@@ -29,7 +30,7 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
-const { recordActivity, recordQuestCompleted } = require('../utils/analytics');
+const { recordActivity, recordQuestCompleted, recordLevelUps } = require('../utils/analytics');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils');
  
@@ -1070,6 +1071,7 @@ router.post('/addXP', async (req, res) => {
     }
     
     console.log(`✅ Added ${xpAmount} XP to ${player.username}. New total: ${player.xp}`);
+    recordLevelUps(playerId, player.xp - xpAmount, player.xp).catch(() => {}); // pacing (OB-7), fire-and-forget
     res.json({ 
       success: true, 
       newXP: player.xp, 
@@ -1467,6 +1469,7 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
 
     // Award XP if any XP rewards were collected
     if (totalXP > 0) {
+      recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + totalXP).catch(() => {}); // pacing (OB-7)
       player.xp = (player.xp || 0) + totalXP;
       console.log(`✅ Added ${totalXP} XP from mailbox to ${player.username}. New total: ${player.xp}`);
     }
@@ -1537,7 +1540,7 @@ router.get('/check-developer-status/:username', async (req, res) => {
 
 // POST /api/update-last-active - Update player's lastActive timestamp
 router.post('/update-last-active', async (req, res) => {
-  const { playerId } = req.body;
+  const { playerId, tzOffset } = req.body;
   
   if (!playerId) {
     return res.status(400).json({ error: 'Player ID is required.' });
@@ -1550,8 +1553,13 @@ router.post('/update-last-active', async (req, res) => {
     // Analytics heartbeat (fire-and-forget). Id only: this route cannot verify
     // the id belongs to a real player, so it must never mint a cohort row.
     recordActivity(playerId).catch(() => {});
-    
-    res.json({ success: true });
+    // the day-2 gift, on the first app load of a later day (utils/returnGift.js); never fails the call
+    const returnGift = await maybeSendReturnGift(playerId, Number(tzOffset), req.app.get('socketio')).catch((err) => {
+      console.error('Day-2 gift failed:', err);
+      return null;
+    });
+
+    res.json({ success: true, ...(returnGift && { returnGift }) });
   } catch (error) {
     console.error('Error updating lastActive:', error);
     res.status(500).json({ error: 'Failed to update lastActive.' });

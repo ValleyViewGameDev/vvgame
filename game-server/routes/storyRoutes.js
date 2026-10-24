@@ -15,6 +15,9 @@ const express = require('express');
 const router = express.Router();
 const Player = require('../models/player');
 const Grid = require('../models/grid');
+const sendMailboxMessage = require('../utils/messageUtils');
+
+const QUEEN_GIFT_MESSAGE_ID = 7; // messages.json: "A Gift from the Queen"
 const { FESTE_QUEST, QUEEN, hasCompleted, wakeOnGrid, ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState } = require('../utils/storyState');
 
 router.post('/story/wake-gertrude', async (req, res) => {
@@ -33,9 +36,15 @@ router.post('/story/wake-gertrude', async (req, res) => {
     if (!queen && !already) return res.status(404).json({ error: 'no-statue' });
     if (queen) await grid.save();
 
+    const firstWaking = !player.storyFlags?.gertrudeAwake;
     player.storyFlags = { ...(player.storyFlags || {}), gertrudeAwake: player.storyFlags?.gertrudeAwake || new Date() };
     player.markModified('storyFlags');
     await player.save();
+    // the early game's finale (backlog OB-8): the Queen's gift, mailed once, on the first waking
+    if (firstWaking) {
+      await sendMailboxMessage(String(player._id), QUEEN_GIFT_MESSAGE_ID, [], req.app.get('socketio'))
+        .catch((err) => console.error("The Queen's gift failed:", err));
+    }
     res.json({ success: true, npc: queen || already, storyFlags: player.storyFlags });
   } catch (err) {
     console.error('story/wake-gertrude failed:', err);

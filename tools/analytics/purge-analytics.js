@@ -39,6 +39,7 @@ function connectMongo() {
 }
 const Player = require(path.join(GAME_SERVER, 'models', 'player'));
 const AnalyticsActivity = require(path.join(GAME_SERVER, 'models', 'analyticsActivity'));
+const AnalyticsLevel = require(path.join(GAME_SERVER, 'models', 'analyticsLevel'));
 const AnalyticsPlayer = require(path.join(GAME_SERVER, 'models', 'analyticsPlayer'));
 
 function parseArgs(argv) {
@@ -92,13 +93,15 @@ async function purge(ids, dry) {
   for (const id of ids) {
     const actCount = await AnalyticsActivity.countDocuments({ playerId: id });
     const plCount = await AnalyticsPlayer.countDocuments({ _id: id });
+    const lvCount = await AnalyticsLevel.countDocuments({ playerId: id });
     if (dry) {
-      console.log(`[dry] ${id}: would delete ${actCount} activity row(s) + ${plCount} player row(s)`);
+      console.log(`[dry] ${id}: would delete ${actCount} activity row(s) + ${plCount} player row(s) + ${lvCount} level row(s)`);
       continue;
     }
     const a = await AnalyticsActivity.deleteMany({ playerId: id });
     const p = await AnalyticsPlayer.deleteOne({ _id: id });
-    console.log(`${id}: deleted ${a.deletedCount} activity row(s) + ${p.deletedCount} player row(s)`);
+    const l = await AnalyticsLevel.deleteMany({ playerId: id });
+    console.log(`${id}: deleted ${a.deletedCount} activity row(s) + ${p.deletedCount} player row(s) + ${l.deletedCount} level row(s)`);
   }
 }
 

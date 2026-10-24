@@ -12,6 +12,8 @@
 const AnalyticsActivity = require('../models/analyticsActivity');
 const AnalyticsPlayer = require('../models/analyticsPlayer');
 const AnalyticsPageview = require('../models/analyticsPageview');
+const AnalyticsLevel = require('../models/analyticsLevel');
+const XP_THRESHOLDS = require('../tuning/xpLevels.json').map((l) => l.xp); // reach level i+2 at [i]
 
 // Player ids are 24-hex ObjectIds. Several call sites record for ANY request
 // carrying `playerId` in the body, so a malformed/junk value (a stray "dev" id
@@ -102,6 +104,35 @@ async function recordPurchase(playerId, when = new Date()) {
 // times a day, so this is $inc, not a boolean.
 async function recordGridEntered(playerId, when = new Date()) {
   await setDayFlag(playerId, { $inc: { grids_entered: 1 } }, when);
+}
+
+// The level a total xp gives (as the client's getDerivedLevel: level i+2 at XP_THRESHOLDS[i]).
+function levelForXp(xp) {
+  let level = 1;
+  for (let i = 0; i < XP_THRESHOLDS.length && (xp || 0) >= XP_THRESHOLDS[i]; i++) level = i + 2;
+  return level;
+}
+
+// Records each level crossed by an xp change, oldXp -> newXp (backlog OB-7: pacing). Write-once
+// per (player, level), so a repeat or a race is a no-op. Called fire-and-forget from the xp
+// writes: /api/addXP, the mailbox collect, a combat kill.
+async function recordLevelUps(playerId, oldXp, newXp, when = new Date()) {
+  if (!playerId) return;
+  const pid = String(playerId);
+  if (!HEX24.test(pid)) return; // ignore non-ObjectId ids (junk/malformed requests)
+  const from = levelForXp(oldXp);
+  const to = levelForXp(newXp);
+  if (to <= from) return;
+  const day = dayKeyUTC(when);
+  const writes = [];
+  for (let level = from + 1; level <= to; level++) {
+    writes.push(AnalyticsLevel.updateOne(
+      { _id: `${pid}:${level}` },
+      { $setOnInsert: { playerId: pid, level, ts: when, day, xp: newXp } },
+      { upsert: true },
+    ));
+  }
+  await Promise.all(writes);
 }
 
 // Anonymous visitor ids are client-minted UUIDs (crypto.randomUUID shape).
@@ -196,6 +227,6 @@ function sanitizeClientInfo(body) {
 }
 
 module.exports = {
-  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered,
+  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered, recordLevelUps, levelForXp,
   recordPageview, ensurePageview, sanitizeClientInfo, dayKeyUTC, HEX24,
 };

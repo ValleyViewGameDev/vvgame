@@ -11,10 +11,15 @@
  *            wild crop replants itself on the spot when picked and regrows in its plot's growtime
  *            (ResourceClicking.handleReplant; a player only gets it by walking back there)
  *   quests   the quests by level and giver, to see where the player is guided and where not
+ *   pacing   (--pacing, alone) MEASURED: when real players reached each level (analytics_level,
+ *            backlog OB-7) against the phase targets in docs/early-game.md §1: players reaching
+ *            it, then median (p25-p75) hours since first seen, and median active days by then
  *
  *   node tools/progression.js [--to 16] [--anchor 1010134] [--player Mobile] [--grids 10,20,40,80,160]
+ *   node tools/progression.js --pacing [--to 20] [--since 2026-10-25]
  *
- * --player reads that player's homestead and gridsVisited from the database (read-only).
+ * --player reads that player's homestead and gridsVisited from the database (read-only); --pacing
+ * reads the analytics collections (read-only), developer accounts left out.
  */
 const fs = require('fs');
 const path = require('path');
@@ -48,10 +53,11 @@ const unlocks = R.filter((r) => (r.category === 'skill' || (r.category === 'craf
 const WILD = ['Rosemary', 'Daisy', 'Tulip', 'Mushroom', 'Garlic', 'Feverfew', 'Sunflower'];
 const WATCH = [...WILD, 'Milk', 'Stone', 'Clay', 'Wood', 'Money'];
 
-console.log(`\n=== DEMAND: skills and stations up to L${TO}, raw goods (potions broken down) ===`);
+const PACING_ONLY = args.includes('--pacing');
+if (!PACING_ONLY) console.log(`\n=== DEMAND: skills and stations up to L${TO}, raw goods (potions broken down) ===`);
 const cum = {};
 let lastLevel = 0;
-for (const u of unlocks) {
+for (const u of PACING_ONLY ? [] : unlocks) {
   const raw = {};
   const potions = {};
   for (const [t, q] of ing(u)) { if (POTION_RECIPE[t]) potions[t] = (potions[t] || 0) + q; expand(t, q, raw); }
@@ -60,7 +66,7 @@ for (const u of unlocks) {
   const wildNeeds = WILD.filter((w) => raw[w]).map((w) => `${w} ${raw[w]}`).join(', ');
   console.log(`L${String(u.level).padStart(2)} ${u.type.padEnd(16)} ${u.category === 'skill' ? 'skill  ' : 'station'} @${(u.source || '').padEnd(18)} ${Object.keys(potions).length ? '[' + fmt(potions) + '] ' : ''}${wildNeeds ? '-> ' + wildNeeds : ''}${raw.Clay ? ' Clay ' + raw.Clay : ''}${raw.Stone ? ' Stone ' + raw.Stone : ''}`);
 }
-console.log(`\nCumulative if a player takes EVERY unlock up to L${TO}: ${WATCH.filter((w) => cum[w]).map((w) => `${w} ${Math.round(cum[w])}`).join(', ')}`);
+if (!PACING_ONLY) console.log(`\nCumulative if a player takes EVERY unlock up to L${TO}: ${WATCH.filter((w) => cum[w]).map((w) => `${w} ${Math.round(cum[w])}`).join(', ')}`);
 
 // ---------------------------------------------------------------- supply
 const cells = JSON.parse(fs.readFileSync(path.join(__dirname, 'gridgen/data/live-cells-2026-10-09.json'), 'utf8')).cells;
@@ -89,7 +95,51 @@ const regrowDays = (t) => {
 };
 const perDay = (sum) => SHOW.map((t) => { const d = regrowDays(t); return d ? (sum[t] || 0) / d : 0; });
 
+// ---------------------------------------------------------------- pacing (measured)
+// The phase targets (docs/early-game.md §1), shown beside the level that ends each phase
+const TARGET = { 3: 'session 1, 10-15 min', 6: 'D1 (sessions 2-3)', 10: 'D2-D5', 15: 'about D10', 20: 'weeks 2-3', 30: 'weeks 2-8' };
+const quant = (xs, q) => { if (!xs.length) return null; const a = [...xs].sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(q * a.length))]; };
+const hrs = (h) => (h == null ? '-' : h < 1 ? `${Math.round(h * 60)}m` : h < 48 ? `${h.toFixed(1)}h` : `${(h / 24).toFixed(1)}d`);
+
+async function pacing() {
+  require(path.join(G, 'node_modules/dotenv')).config({ path: path.join(G, '.env') });
+  const { MongoClient } = require(path.join(G, 'node_modules/mongodb'));
+  const c = new MongoClient(process.env.MONGODB_URI); await c.connect();
+  try {
+    const db = c.db();
+    const devs = new Set(require(path.join(G, 'tuning/developerUsernames.json')).map((u) => String(u).toLowerCase()));
+    const since = opt('since', null);
+    const levels = await db.collection('analytics_level').find(since ? { day: { $gte: since } } : {}).toArray();
+    const ids = [...new Set(levels.map((l) => l.playerId))];
+    const aplayers = await db.collection('analytics_player').find({ _id: { $in: ids } }).toArray();
+    const { ObjectId } = require(path.join(G, 'node_modules/mongodb'));
+    const players = await db.collection('players').find({ _id: { $in: ids.filter((i) => /^[0-9a-f]{24}$/i.test(i)).map((i) => new ObjectId(i)) } },
+      { projection: { username: 1, created: 1 } }).toArray();
+    const start = new Map(); const name = new Map();
+    for (const p of players) { name.set(String(p._id), p.username); if (p.created) start.set(String(p._id), new Date(p.created)); }
+    for (const a of aplayers) { if (a.username) name.set(String(a._id), a.username); if (a.firstSeenAt) start.set(String(a._id), new Date(a.firstSeenAt)); }
+    const keep = (pid) => start.has(pid) && !devs.has(String(name.get(pid) || '').toLowerCase());
+    const days = new Map();
+    for (const row of await db.collection('analytics_activity').find({ playerId: { $in: ids } }, { projection: { playerId: 1, day: 1 } }).toArray()) {
+      if (!days.has(row.playerId)) days.set(row.playerId, []);
+      days.get(row.playerId).push(row.day);
+    }
+    const cohort = new Set(levels.map((l) => l.playerId).filter(keep));
+    console.log(`\n=== PACING (measured): ${cohort.size} players with level records${since ? ` since ${since}` : ''}, developers left out ===`);
+    console.log('Lvl | reached | hours since first seen: median (p25-p75) | active days by then: median | target');
+    for (let L = 2; L <= TO; L++) {
+      const rows = levels.filter((l) => l.level === L && cohort.has(l.playerId));
+      const h = rows.map((l) => (new Date(l.ts) - start.get(l.playerId)) / 3600e3).filter((x) => x >= 0);
+      const d = rows.map((l) => (days.get(l.playerId) || []).filter((day) => day <= l.day).length);
+      console.log(`L${String(L).padStart(2)} | ${String(rows.length).padStart(7)} | ${hrs(quant(h, 0.5)).padStart(6)} (${hrs(quant(h, 0.25))}-${hrs(quant(h, 0.75))}) | ${String(quant(d, 0.5) ?? '-').padStart(3)} | ${TARGET[L] || ''}`);
+    }
+    console.log('Forward-only: levels reached before analytics_level existed (2026-10-24 build) have no row, so');
+    console.log('read a level\'s numbers only from players who joined after it (use --since).');
+  } finally { await c.close(); }
+}
+
 async function main() {
+  if (PACING_ONLY) return pacing();
   let anchor = Number(opt('anchor', 0)) || null;
   let visited = null;
   const who = opt('player', null);

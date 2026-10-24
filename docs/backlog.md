@@ -174,7 +174,7 @@ an open mid game, for strong D1 and D7 retention. The canonical design is `docs/
 the phases by level (FTUE L1-3; early game L3-15 split early-early 3-6, mid-early 6-10,
 late-early 10-15; mid game 15-30 with early-mid 15-20; late 30-50; elder 50+), what each phase
 teaches, and where the first Quest for Hope artifact lands (the King's Crown, about L10-11, day
-5-7). It takes over the "more motivations to explore" half of W-8 (the Quest for Hope slots and
+5-7). Revised 2026-10-24 for the approved story (`story.md` §0, `narrative-pass.md`): the acts sit on the phases (`early-game.md` §1b); Constable Elbow's story chain (L3-55) carries the WHY, one step at a time in the early game; the Shepherd teaches the homestead; the early game ends when the Queen wakes (L14-15); and no friendship is required before L16. It takes over the "more motivations to explore" half of W-8 (the Quest for Hope slots and
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
 
@@ -185,18 +185,46 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   (`docs/audits/client-review-2026-10-03.md` §2.2; Phase 4 movement loop in
   `docs/refactor-plan.md`). Players walk every second of play, so it ranks first for "fun to play
   with". Start at `game-client/src/PlayerMovement.js` and the audit's §2.2.
-- **OB-3. End the FTUE on open loops and a first glimpse of the Quest for Hope** (added
-  2026-10-24). The last steps name something that will be ready later (crops, Kent's next
-  orders), give a reason to return tomorrow (a day-2 gift), and have the Shepherd name the Quest
-  for Hope with the seven dark boxes shown. Start at the last steps of
-  `game-server/tuning/FTUEsteps.json` (the final toast is string 7065) and
-  `GameFeatures/Social/HopeQuest.js`; the day-0 gift learning is in `docs/onboarding-plan.md`
-  §4.4.
-- **OB-4. A quest that pulls the player into the Valley at L4-5** (added 2026-10-24). Today the
-  first valley quest is L8 and the FTUE ends in Town; Misty (L6, 11 quests) never left home and
-  Town. Send the player to Helena's grid (1011102, the first valley grid) to forage, past the
-  Coyote den, and meet Helena. Start at `game-server/tuning/quests/questsEN.json` (L4-6) and
-  `tools/progression.js` (quests by level).
+- **OB-3. End the FTUE on Elbow's first story step, open loops and a glimpse of the Quest for
+  Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Elbow finds the
+  stranger in the sea cave and the last beat should hand the player to his chain. Today the FTUE
+  ends around L2 (it gives about 20 xp; L3 needs 25), so his first step ("I Do Lean Upon
+  Justice", L3) is not on screen when the FTUE ends. Either the last beats carry the player to
+  L3 or the step opens at L2; then the last toast names something ready later (crops, Kent's
+  orders), a reason to return tomorrow (a day-2 gift) and the seven dark boxes. Build the
+  structure here; the narrative pass (P4) writes the words, including the intro (string 16019,
+  still the old "evil scourge" tale). Start at the last steps of `FTUEsteps.json` (final toast
+  7065), Elbow's quest 115, `HopeQuest.js`.
+  **Built 2026-10-24 (structure, with first-draft words):** step 18 (Grower) shows Elbow's new
+  line 16521 and adds quest 115 (`addQuests`); toasts 7059 (greet the three, then home) and 7065
+  (crops, Elbow's next task, the Quest for Hope) rewritten in EN / DE / ES / FR (the six
+  English-only files take the English 7065); `NPCsPanel.js` lets a held, completed quest be
+  claimed below its level, since the FTUE ends near L2 (about 20 xp; L3 needs 25) and quest 115's
+  15 xp is what brings L3. Not yet played through. Open: P4's re-voice of the toasts (these are
+  plain first drafts).
+  **Day-2 gift built 2026-10-24** (on top of the daily drip, message 5): a new player who finished
+  the FTUE and opens the game on a later calendar day (their own timezone) gets one Mailbox gift,
+  message 6 "Welcome back to Elsinore!" (Money 3000, Gem 25, Wood 50; the welcome gift is 500 /
+  25 / 5). `utils/returnGift.js`, called from `/api/update-last-active` (the client now sends
+  `tzOffset`); `player.returnGift` is false on new accounts, unset (never sent) on older ones;
+  the claim is atomic. The last toast (7065) promises it.
+
+- **OB-4. Make the walk to Helena a real first trip into the Valley** (added 2026-10-24,
+  revised for the story). Elbow's "More Things in Heaven and Earth" (L5, Meet Helena) now carries
+  the pull (the first valley quest was L8). Reaching her is easy: she stands one grid south of
+  town (copies of her will stand on every grid south of a town, for when settlements fill with
+  players; for tuning, treat her as one grid south of town), so no wayfinding work is needed. What
+  it lacks is something for her to give on arrival: her first quest is the Golden Key at L8, so a
+  player who meets her at L5 finds nothing to do for three levels. Add a short Helena starter at
+  L5-6 that teaches foraging (Rosemary and Daisy, the Potion A herbs, leading into Portia's L7
+  potion), and check the wild crops and enemies on her grid suit an L5 player. Start at
+  `questsEN.json` (Helena, quest 116) and her grid's layout.
+  **Built 2026-10-24**: Helena's "I Know a Bank Where the Wild Thyme Blows" (quest 128, L5):
+  collect 6 Rosemary (17 on her grid), reward 2 Daisy, so with 16 Milk the player can make the
+  Potion A Portia asks for at L7; her ask (string 16520) teaches that wild herbs grow back where
+  picked. Checked: her grid's Coyotes are L3-fitted, fine at L5; Rosemary has no level gate.
+  Open: her grid has 1 Daisy, so her L8 Daisy quest (50) leans on the wider Valley.
+
 - **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
   Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
   L10-11. Claiming it plays a story modal at the Castle, then the Oracle mails a message that
@@ -208,7 +236,8 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Greet, a few Talks, Make Friends at 35+). The four Ogres on 1011165 gave way to two Bears and
   the Great Bear (fitted for L10, `artScale` 1.5, a new NPC column); quests: Hotspur's "We Pluck
   This Flower, Safety" (L9, Light Armor + Buckler) and "Exit, Pursued by a Bear" (L10), Helena's
-  "Uneasy Lies the Head" (L10, buy the King's Crown); Helena's friend dialog fixed (it asked for
+  "Uneasy Lies the Head" (L10, buy the King's Crown; retired in OB-6, Elbow's Find step carries
+  it); Helena's friend dialog fixed (it asked for
   Feverfew, the quest wants Daisies) and her interest "Rosesmary" spelled right; the Crown hint
   names Belmont and the bear (`docs/early-game.md` §3).
   **Built 2026-10-24:** the found moment for all seven artifacts (`GameFeatures/Social/HopeFound.js`
@@ -218,15 +247,46 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   L15 and under is ungated (18 quests), Titania's Secret moved to L16, Constable Elbow's Dungeon
   Key needs no friend, and Helena's Greet dialog (16006) now carries the Daisy ask.
 
-- **OB-6. Close the quest gaps** (added 2026-10-24). Quests that teach selling to Kent after the
-  FTUE (none after L8); at least one quest at every level through L15 so the To Do list never
-  empties; then story quests for L21-35, where there are 5 quests in L21-30 and 2 above (the
-  Hecate and Acheron spine). Start at `node tools/progression.js --to 35` (quests by level).
+- **OB-6. Close the quest gaps** (added 2026-10-24, revised for the story). L11 has two quests;
+  selling to Kent is taught in the FTUE and then only once (Hotspur's Pelts, L8); and between
+  Elbow's L18 and L30 steps the mid game has no story step (L16-30 is where the open goals must
+  carry the player). Helena's "Uneasy Lies the Head" (L10, buy the King's Crown) now duplicates
+  Elbow's "A Crown for the King" (L10, Find the King's Crown): retire one (the story step is
+  Elbow's). Start at `node tools/progression.js --to 35` (quests by level).
+  **Quick fixes built 2026-10-24:** Helena's "Uneasy Lies the Head" retired (it was new and
+  unshipped), so Elbow's "A Crown for the King" is the Crown's only quest; L11 gains the
+  Shepherd's "What, You Egg!" (quest 129: craft 10 Egg in the Chicken Coop, pays 8 Olive, one
+  Olive Bread's worth once Baker opens at L11; the Shepherd had nothing from L9 to L15). Still
+  open: Kent selling after the FTUE, and the L18-30 story gap.
+
 - **OB-7. Measure pacing: level timestamps and a pacing view** (added 2026-10-24). Record when a
   player reaches each level (analytics), then add a pacing model to `tools/progression.js`
   (estimated XP per session from Kent, quests and kills) calibrated against those timestamps, so
   the play-time targets in `docs/early-game.md` §1 become measurements. Start at
   `game-server/utils/analytics.js` (`recordActivity`) and the level-up path.
+  **Built 2026-10-24:** `analytics_level` (`models/analyticsLevel.js`), one write-once row per
+  (player, level), from `recordLevelUps` in `utils/analytics.js`, called by the three XP writes
+  (`/api/addXP`, the mailbox collect, a combat kill); the purge tool deletes it too. The pacing
+  view: `node tools/progression.js --pacing [--to 20] [--since <day>]`, per level the players
+  reaching it, median (p25-p75) hours since first seen, median active days, and the §1 target.
+  Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
+  `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
+  session, only if the measured view leaves questions; a dashboard tab, if wanted.
+- **OB-8. The Queen's waking as the early game's finale** (added 2026-10-24). Gertrude wakes at
+  L14-15 (Helena's "Rosemary, for Remembrance", Feste's "If Music Be the Food of Love", Elbow's
+  "Be Stone No More"; `story.md` §0): Act II's end and the exit from the early game. Check it
+  lands as a finale: reachable about day 10, rewarded like a milestone, and followed by the mid
+  game opening up (Elbow's later steps open as a set). Also the live migration for players who
+  already passed it (`scripts/wake-gertrude-for-friends.js`, `narrative-pass.md` §6). Start at
+  `GameFeatures/Story/gertrudeWaking.js` and `utils/storyState.js`.
+  **Partly built 2026-10-24.** Checked: reachable at L15, not earlier (Feste's quest is L15;
+  Helena's L14 step is 12 Rosemary, Feste's is 5 Thread from the L7 Loom, both easy), and Elbow's
+  later steps open on "Be Stone No More" (L15, which also needs the Crown, so the Crown and the
+  Queen together unlock the mid game). Built: the Queen's gift, mailed once on the first waking
+  (messages.json 7 "A Gift from the Queen", Money 10000 + Gem 25, neverPurge;
+  `routes/storyRoutes.js`); its note says the rest of the story opens and Elbow has more to ask.
+  The migration (`wake-gertrude-for-friends.js`) sets the flag directly, so players it wakes get
+  no gift. Open: "about day 10" needs OB-7's level timestamps (L15 is 2,960 xp).
 
 ### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
 

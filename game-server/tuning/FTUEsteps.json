@@ -212,13 +212,13 @@
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalSprite": "npc-elbow.svg",
-    "bodyKey": 16021,
+    "bodyKey": 16521,
     "continue": false,
     "doinker": true,
     "doinkerType": "resource",
     "doinkerTarget": "Signpost Home",
     "notificationKey": 7059,
-    "addQuests": [],
+    "addQuests": [115],
     "notificationSprite": "signpost-home.svg"
   },
   {

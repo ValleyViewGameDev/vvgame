@@ -19,7 +19,7 @@ const gridTileManager = require('../utils/GridTileManager');
 const masterResources = require('../tuning/resources.json');
 const { derivedStats, attackCooldownMs } = require('../utils/combatStats');
 const { publicPlayer } = require('../utils/publicPlayer');
-const { recordQuestCompleted } = require('../utils/analytics');
+const { recordQuestCompleted, recordLevelUps } = require('../utils/analytics');
 
 const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
 let questDefs = null;
@@ -141,6 +141,7 @@ router.post('/action/npc-kill', async (req, res) => {
 
     // 3. XP and quests on the player
     const xpGained = Number(def.xp) || 0;
+    recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xpGained).catch(() => {}); // pacing (OB-7)
     player.xp = (player.xp || 0) + xpGained;
     advanceKillQuests(player, npc.type);
     player.lastActive = new Date();
