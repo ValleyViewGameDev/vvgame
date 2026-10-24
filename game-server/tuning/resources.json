@@ -1708,7 +1708,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 16
+    "parallel": 16,
+    "artSpan": 1.73
   },
   {
     "type": "Lemon Tree",
@@ -1741,7 +1742,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "artSpan": 1.73
   },
   {
     "type": "Apple Tree",
@@ -1775,7 +1777,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "parallel": 33
+    "parallel": 33,
+    "artSpan": 1.73
   },
   {
     "type": "Tomato Vine",
@@ -1841,7 +1844,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Peach Tree",
@@ -1875,7 +1879,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Orange Tree",
@@ -1909,7 +1914,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Cherry Tree",
@@ -1943,7 +1949,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Ginger Plot",
@@ -2740,7 +2747,8 @@
     "filename": "tree-olive.svg",
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "effort": 270
+    "effort": 270,
+    "artSpan": 1.73
   },
   {
     "type": "Strawberry",
@@ -2815,7 +2823,8 @@
     "filename": "tree-apple.svg",
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "effort": 33
+    "effort": 33,
+    "artSpan": 1.73
   },
   {
     "type": "Lemon",
@@ -2853,7 +2862,8 @@
     "filename": "tree-lemon.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 80
+    "effort": 80,
+    "artSpan": 1.73
   },
   {
     "type": "Orange",
@@ -2890,7 +2900,8 @@
     "filename": "tree-orange.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 96
+    "effort": 96,
+    "artSpan": 1.73
   },
   {
     "type": "Peach",
@@ -2927,7 +2938,8 @@
     "filename": "tree-peach.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Pear",
@@ -2964,7 +2976,8 @@
     "filename": "tree-pear.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Tomato",
@@ -3036,7 +3049,8 @@
     "filename": "tree-cherry.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Coconut",

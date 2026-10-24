@@ -72,6 +72,15 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    toward yellow, value x0.86, saturation x0.95 on the green pixels (95 % on the palette; the
    comparison and the rejected full-oak recolour are in `tools/art/_candidates/trees-recolour/`).
    Rule: a lighter variant of a tree shifts toward the oak's yellow-green, never toward lime.
+5. The FRUIT TREES (2026-10-25): the seven orchard farmplots (Apple, Pear, Peach, Cherry, Lemon,
+   Orange, Olive) share ONE empty base, `fruit-tree.svg`: the approved oak restyled with a sparse
+   scatter of small white blossoms (`tools/art/jobs/fruit-trees.json`, base-1, cut with the oak's
+   silhouette fit and fill 1.25, artSpan 1.73). The seven fruited states (`tree-<fruit>.svg`, the
+   doober rows' files) are NOT generated: `tools/art/fruit-trees.js` composites painted fruit
+   (shaded spheres, pears, cherry pairs, lemons, olives, each with a highlight and a leaf shadow)
+   onto the base's canopy on a fixed seed. Re-run it after any change to the base or to a fruit's
+   size, count or colour (the FRUITS table at the top of the script). Coconut (a palm) and
+   Mulberry (the Silkery's leaf) are not in this set; each wants its own base first.
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 
