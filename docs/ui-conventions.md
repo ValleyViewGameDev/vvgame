@@ -195,6 +195,10 @@ value rather than trust this page.
   all (`sellSection` returns null). Move follows Sell: where the rules stop a sale (a building in
   town) they stop a move. Each panel passes its own legit rule as `canSell` (homestead; the Mayor
   for a town-built station; always for a crop plot) plus `isDeveloper`; NPCs get no Move.
+  A building that is never sold by anyone (the Trading Post, the Warehouse) passes `sellLocked`:
+  Sell stays as a gray, untappable button so the row keeps its shape, and Move follows `canMove`
+  (own homestead green, a developer elsewhere red). These panels drop their description to make
+  room (owner 2026-10-25).
 
 ## 4. Header, status bar, notifications
 
@@ -294,6 +298,16 @@ value rather than trust this page.
   Resource clicks do not, so a tree behind a tree can still be chopped; an enemy still sees and
   chases you past a tree, it just cannot hit you through one. Multi-tile blockers block their
   whole footprint (shadow tiles resolve to their anchor).
+- **Tall art answers for its own pixels** (owner 2026-10-24, `Render/PixiRenderer/artHitTest.js`).
+  Art drawn taller than its footprint (trees, `artSpan` buildings and statues) covers the tiles
+  north of it, so a tap there resolves to the ART first: the frontmost tagged sprite with an
+  opaque pixel within 6 screen px of the tap wins (alpha masks read once per texture), and only
+  a miss falls back to the tile. Order: avatar, enemies, NPC on the tile, tall art, then the
+  tile. Hover tooltips and the long-press tooltip use the same lookup. Not tagged: walls and
+  fences (their posts would swallow taps meant for walking), art that fits its tile (the tile
+  already finds it). Placement cursors (plant, build, move) stay on tiles. Watch for: a tap on
+  open ground just above a tree now hits the tree; a doober or crop hidden behind a canopy is
+  reached by walking, not tapping. Dev hook `window.__artHitAt(sx, sy)`.
 - Hit-testing uses `PixiCamera.screenToTile`; never read `.pixi-container` offsets. DOM that
   must line up with the world goes inside `.pixi-world-container`.
 - Move (the Sell section's Move button, `GameFeatures/Move/`) is a placement mode,

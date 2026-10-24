@@ -22,9 +22,12 @@ import './SellSection.css';
  *   not allowed, player is a developer  RED button (red = developer-only)
  *   not allowed, not a developer        hidden; both hidden = no Sell section at all
  * Move follows Sell: where the rules stop a sale (a town building) they stop a move too.
+ * sellLocked: a building that can never be sold, by anyone (the Trading Post, the Warehouse):
+ * Sell stays in place as a grayed, untappable button so Move keeps its spot (owner 2026-10-25).
  *
  * Props:
  *   canSell, canMove (default canSell), isDeveloper   the rules above
+ *   sellLocked                      never sellable: a gray, disabled Sell (pass canMove for Move)
  *   resourceType, masterResources   what is being sold (its recipe is the refund)
  *   refund                          optional [{ type, quantity }] when the refund is not the recipe
  *   onSell(transactionId, key)      the panel's own sell handler (unchanged per panel)
@@ -44,11 +47,11 @@ export function refundFor(resourceType, masterResources, refund) {
 }
 
 // what to show; *Dev = shown only because the player is a developer
-function visibility({ canSell = false, canMove, isDeveloper = false, onMove }) {
+function visibility({ canSell = false, canMove, isDeveloper = false, onMove, sellLocked = false }) {
   const moveAllowed = canMove === undefined ? canSell : canMove;
   return {
-    sell: canSell || isDeveloper,
-    sellDev: !canSell && isDeveloper,
+    sell: sellLocked || canSell || isDeveloper,
+    sellDev: !sellLocked && !canSell && isDeveloper,
     move: !!onMove && (moveAllowed || isDeveloper),
     moveDev: !!onMove && !moveAllowed && isDeveloper,
   };
@@ -73,15 +76,20 @@ const MoveIcon = () => (
   </svg>
 );
 
-export default function SellSection({ resourceType, masterResources, refund, onSell, transactionKey, onMove, canSell, canMove, isDeveloper, disabled = false }) {
+export default function SellSection({ resourceType, masterResources, refund, onSell, transactionKey, onMove, canSell, canMove, isDeveloper, sellLocked = false, disabled = false }) {
   const strings = useStrings();
-  const v = visibility({ canSell, canMove, isDeveloper, onMove });
+  const v = visibility({ canSell, canMove, isDeveloper, onMove, sellLocked });
   if (!v.sell && !v.move) return null;
   const { money, others } = refundFor(resourceType, masterResources, refund);
   const label = `${strings[2112] || 'Sell'} (💰${money.toLocaleString()}${others.map((o) => ` +${o.quantity.toLocaleString()}${o.symbol}`).join('')})`;
   return (
     <div className={`sell-section shared-buttons ${v.move ? '' : 'sell-section--sell-only'} ${v.sell ? '' : 'sell-section--move-only'}`}>
-      {v.sell && (
+      {v.sell && sellLocked && (
+        <button type="button" className="btn-basic btn-neutral sell-section-sell" disabled>
+          {strings[2112] || 'Sell'}
+        </button>
+      )}
+      {v.sell && !sellLocked && (
         <TransactionButton
           className={`btn-basic ${v.sellDev ? 'btn-danger' : 'btn-success'} sell-section-sell`}
           onAction={onSell}

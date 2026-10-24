@@ -110,6 +110,33 @@ const NPCPanel = ({
   const [storyDialogKey, setStoryDialogKey] = useState(null); // a story quest's ask (quest storyKey), shown on accept
   const [cluesOpen, setCluesOpen] = useState(false); // CluesModal: the story dialogs shown so far, to read again
 
+  // Tapping another NPC while this panel is open re-renders it with new npcData instead of
+  // remounting it, so everything held for the previous NPC must go: otherwise a quest giver who
+  // does not trade (Cassio) showed the trader's offers left from the last panel (Juliet). Reset
+  // during render (React's reset-on-prop-change pattern), so not one frame shows stale lists;
+  // the load effects below then fill them for the new NPC.
+  const npcKey = `${npcData?.id ?? ''}:${npcData?.type ?? ''}`;
+  const [shownNpcKey, setShownNpcKey] = useState(npcKey);
+  if (shownNpcKey !== npcKey) {
+    setShownNpcKey(npcKey);
+    setQuestList([]);
+    setQuestFx({});
+    setGoneQuests(new Set());
+    setTradeFx(null);
+    setHealRecipes([]);
+    setTradeRecipes([]);
+    setInfoResource(null);
+    setActiveMinigame(null);
+    setStatusMessage('');
+    setErrorMessage('');
+    setCanQuest(false);
+    setHasHiddenQuests(false);
+    setCanTrade(false);
+    setHasHiddenTrades(false);
+    setCluesOpen(false);
+    setSnugTravelOpen(false);
+  }
+
   // Ref to track relationship status before an interaction
   const preInteractionRelationshipRef = useRef(null);
 

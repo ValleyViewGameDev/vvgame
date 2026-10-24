@@ -13,6 +13,8 @@ import soundManager from '../../Sound/SoundManager';
 // import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 // import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT - Gold Pass
 import './WarehousePanel.css';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
 const WarehousePanel = ({
   onClose,
@@ -23,6 +25,9 @@ const WarehousePanel = ({
   globalTuning,
   masterWarehouse,
   updateStatus,
+  stationType,
+  currentStationPosition,
+  isDeveloper,
 }) => {
   const { openPanel } = usePanelContext();
   const strings = useStrings();
@@ -183,8 +188,21 @@ const WarehousePanel = ({
   
   const currentUsage = calculateTotalQuantity(inventory);
 
+  // Sell section (UI/Panels/SellSection.js): the Warehouse building can be moved on the player's
+  // own homestead but never sold, by anyone (owner 2026-10-25); only when opened from the building
+  // (the Inventory panel opens this panel too, with no building behind it)
+  const sellFooter = (stationType === 'Warehouse' && currentStationPosition) ? sellSection({
+    sellLocked: true,
+    canMove: currentPlayer?.location?.gtype === 'homestead',
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  }) : null;
+
   return (
     <Panel 
+      footer={sellFooter}
       onClose={onClose} 
       titleKey="181" // "Warehouse"
       panelName="WarehousePanel"

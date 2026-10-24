@@ -22,8 +22,10 @@ import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
 import { loadMasterTraders } from '../../Utils/TuningManager';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
+import { sellSection } from '../../UI/Panels/SellSection';
+import { requestMove } from '../Move/moveMode';
 
-function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources, masterXPLevels }) {
+function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources, masterXPLevels, stationType, currentStationPosition, isDeveloper }) {
   // Level gate (like the Bank, Train and Carnival): the station's `level` in resources.json; the
   // Trading Post and the Trade Stall both open this panel and carry the same level
   const tradeStallRequiredLevel = (masterResources?.find(r => r.type === 'Trading Post') || masterResources?.find(r => r.type === 'Trade Stall'))?.level || 1;
@@ -893,8 +895,19 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     }
   };
 
+  // Sell section (UI/Panels/SellSection.js): the Trading Post can be moved on the player's own
+  // homestead but never sold, by anyone (owner 2026-10-25); none when opened without a building
+  const sellFooter = (stationType && currentStationPosition) ? sellSection({
+    sellLocked: true,
+    canMove: currentPlayer?.location?.gtype === 'homestead',
+    isDeveloper,
+    resourceType: stationType,
+    masterResources,
+    onMove: () => requestMove({ type: stationType, x: currentStationPosition.x, y: currentStationPosition.y }),
+  }) : null;
+
   return (
-    <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
+    <Panel footer={sellFooter} onClose={onClose} titleKey="1108" panelName="TradeStall">
       <LevelLock
         currentPlayer={currentPlayer}
         masterXPLevels={masterXPLevels}

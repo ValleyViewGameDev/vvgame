@@ -20,6 +20,7 @@ import PixiRendererDoinker from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
+import { findArtAt } from './artHitTest';
 import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
 import CombatFX from './CombatFX';
 import { emojiKey } from '../../Utils/emojiKey';
@@ -654,6 +655,8 @@ const PixiRenderer = ({
       // lands, the ground re-composes from the atlas tiles (PixiRendererTileTextures)
       loadAtlas().then(() => setAtlasTick((t) => t + 1));
       if (process.env.NODE_ENV !== 'production') window.__pixiApp = app; // dev hook: inspect the stage from the console
+      // dev hook: the resource whose tall art is under a board-relative screen point (artHitTest.js)
+      if (process.env.NODE_ENV !== 'production') window.__artHitAt = (sx, sy) => findArtAt(resourceSpritesRef.current, app.renderer, sx, sy);
 
       // Combat feedback layer (CombatFX.js): reads NPC display objects, and takes one over on a kill
       CombatFX.attach({
@@ -879,7 +882,7 @@ const PixiRenderer = ({
         const wallSet = wallIndex.get(`${resource.x},${resource.y}`);
         if (wallSet && (resource.size || 1) === 1) {
           const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
-          if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet) };
+          if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet), isWall: true };
         }
         const master = masterResources?.find((m) => m.type === resource.type);
         // artVariants (resource row): a weighted, per-cell pick among cosmetic alternatives (Utils/artVariants.js)
@@ -924,7 +927,7 @@ const PixiRenderer = ({
       let emojiCount = 0;
       let skippedAnimating = 0;
 
-      for (const { resource, texture, emojiTexture, wallSpan: span } of loadedResources) {
+      for (const { resource, texture, emojiTexture, wallSpan: span, isWall } of loadedResources) {
         // Skip resources that are currently animating (VFX grow effect handles their visual)
         const isAnimating = isResourceAnimating(resource.x, resource.y);
         if (isAnimating) {
@@ -948,6 +951,8 @@ const PixiRenderer = ({
           sprite.height = TILE_SIZE * span;
           sprite.x = (resource.x - (span - tileSpan) / 2) * TILE_SIZE;
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
+          // taps on the part above the footprint hit this art, not the tile behind it (artHitTest.js)
+          if (!isWall && resource.action !== 'wall') sprite.__artHit = resource;
           addResource(sprite, resource.y, resource);
           svgCount++;
           continue;
@@ -1607,6 +1612,15 @@ const PixiRenderer = ({
       return;
     }
 
+    // Tall art (a tree's canopy, a building's roof) answers for the pixels it covers, even over
+    // the tile north of it; cursor placement stays on tiles (artHitTest.js)
+    const artHit = !cursorMode && findArtAt(resourceSpritesRef.current, appRef.current?.renderer, event.clientX - rect.left, event.clientY - rect.top);
+    if (artHit) {
+      if (outOfRange(artHit.x, artHit.y)) { if (onWalkTo) onWalkTo(artHit.y, artHit.x); return; }
+      if (handleTileClick) handleTileClick(artHit.y, artHit.x);
+      return;
+    }
+
     // Cursor placement modes own the click entirely (they have their own range feedback)
     if (!cursorMode) {
       // Anything placed on the tile is clickable (trees and rocks are 'source' and get chopped
@@ -1660,8 +1674,10 @@ const PixiRenderer = ({
       return;
     }
 
-    // Update hovered tile for cursor highlight
-    setHoveredTile({ row, col });
+    // Update hovered tile for cursor highlight; over tall art (no placement cursor) the highlight
+    // shows the tile a click would act on, the art's anchor
+    const hoverArt = !cursorMode && findArtAt(resourceSpritesRef.current, appRef.current?.renderer, event.clientX - rect.left, event.clientY - rect.top);
+    setHoveredTile(hoverArt ? { row: hoverArt.y, col: hoverArt.x } : { row, col });
 
     // Skip tooltip handling if no setHoverTooltip provided. Touch screens fake a mousemove on
     // every tap, so they never get the hover tooltip here (the long-press tooltip is theirs).
@@ -1691,7 +1707,7 @@ const PixiRenderer = ({
     }
 
     // Check for tooltip-eligible resource (excluding doobers and sources)
-    const resource = resources?.find(r => {
+    const resource = hoverArt ? (['doober', 'source', 'deco'].includes(hoverArt.category) ? null : hoverArt) : resources?.find(r => {
       if (r.type === 'shadow' || r.category === 'doober' || r.category === 'source' || r.category === 'deco') return false;
       const tileSpan = r.size || 1;
       // Multi-tile resources grow upward from anchor
@@ -1711,7 +1727,7 @@ const PixiRenderer = ({
 
     // Nothing to show tooltip for
     setHoverTooltip(null);
-  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip, findHostileAtScreen]);
+  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip, findHostileAtScreen, cursorMode]);
 
   // Tooltip for whatever is under a screen point (long-press on touch uses this too)
   const showTooltipAt = useCallback((clientX, clientY) => {
@@ -1725,7 +1741,8 @@ const PixiRenderer = ({
       setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateNPCTooltip(npc, strings) });
       return true;
     }
-    const resource = resources?.find(r => {
+    const art = findArtAt(resourceSpritesRef.current, appRef.current?.renderer, clientX - rect.left, clientY - rect.top);
+    const resource = art ? (['doober', 'source', 'deco'].includes(art.category) ? null : art) : resources?.find(r => {
       if (r.type === 'shadow' || r.category === 'doober' || r.category === 'source' || r.category === 'deco') return false;
       const tileSpan = r.size || 1;
       return col >= r.x && col < r.x + tileSpan && row <= r.y && row > r.y - tileSpan;

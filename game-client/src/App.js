@@ -3898,6 +3898,9 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
           stationType={activeStation?.type} 
+          // the Inventory panel opens this too: only a Warehouse clicked on this grid gets Move
+          currentStationPosition={activeStation?.gridId === gridId ? activeStation?.position : null}
+          isDeveloper={isDeveloper}
           globalTuning={globalTuning}
           masterWarehouse={masterWarehouse}
           updateStatus={updateStatus}
@@ -4577,6 +4580,9 @@ return (
           setIsModalOpen={setIsModalOpen}
           masterResources={masterResources}
           masterXPLevels={masterXPLevels}
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'MapPanel' && (
