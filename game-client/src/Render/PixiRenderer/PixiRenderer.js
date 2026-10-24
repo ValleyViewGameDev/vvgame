@@ -8,6 +8,7 @@ import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
 import { getDerivedRange } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
 import PixiRendererTileFX from './PixiRendererTileFX';
+import PixiRendererStepStones from './PixiRendererStepStones';
 import { pickArtFile } from '../../Utils/artVariants';
 import PixiRendererPCs from './PixiRendererPCs';
 import PixiRendererCursor from './PixiRendererCursor';
@@ -2010,6 +2011,8 @@ const PixiRenderer = ({
       />
       {/* Ambient tile effects (lava bubbles; water and sand later): PixiRendererTileFX */}
       <PixiRendererTileFX app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} atlasTick={atlasTick} />
+      {/* Step-stone paths: their stones as one layer over the ground (PixiRendererStepStones) */}
+      <PixiRendererStepStones app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} />
       {/* PC layer with state-based icons */}
       <PixiRendererPCs
         app={appRef.current}

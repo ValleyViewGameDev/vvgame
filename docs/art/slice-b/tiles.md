@@ -420,3 +420,15 @@ A fourth pass, `grass-7`, from grass-6-2: the tufts a shade DARKER than the gras
 had gone lighter and too faint) and the flowers toned down to a pale yellow-green close to
 the grass and a little lighter than it (no white, no bright yellow). `grass-7-2` is the
 grass now (2026-10-22).
+- **Step Stones (2026-10-24, tile `k`, layout key `SP`, devonly until the owner approves it in
+  game).** Flat, pale stones set into a lawn. First pass drew four or five stones into each cell's
+  texture; the owner found it too regular (always four, the grid showing) and sent a garden-path
+  photo. Second pass: the cell is plain grass (it counts as grass for every edging rule,
+  `edgeType`), and the stones are their own layer above the ground
+  (`PixiRendererStepStones.js`, layout and drawing in `stepStonesArt.js`). The whole path is laid
+  out at once: each path cell offers a slab near its middle and across each edge it shares with
+  another path cell, plus fillers; all candidates are placed biggest first, kept only when they
+  touch no other stone and their outline lies on path cells, so slabs straddle cells and never
+  spill onto the grass beside the path. 24 pre-drawn shapes reused at any size; one sprite per
+  stone; same tiles, same stones. Look: a soft sunken shadow, a thin dark side, a flat pale face
+  lit from the upper left, grain, a rim and grass leaning over it.

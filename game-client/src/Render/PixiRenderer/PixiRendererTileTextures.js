@@ -26,7 +26,6 @@ import { Texture } from 'pixi.js-legacy';
 import { getTileColor } from '../../UI/Styles/tileColors';
 import { peekAtlasTexture } from './AtlasTextures';
 import { hasKerb, kerbSignature, drawKerb } from './PixiRendererTileKerb';
-import { drawStepStones } from './PixiRendererStepStones';
 
 // Procedural textures are drawn at this size; raster looks use the atlas tile's own size
 const BASE_TEXTURE_SIZE = 64;
@@ -1062,7 +1061,8 @@ export function getRasterVariant(row, col) {
  */
 export function generateTileTexture(tileType, row, col, tileTypes = null) {
   const rasterVariant = getRasterVariant(row, col);
-  // step stones are drawn over the grass, and edge as grass (edgeType)
+  // step stones: the cell is plain grass here, edging as grass (edgeType); the stones themselves
+  // are their own layer, laid over the whole path (PixiRendererStepStones.js)
   const stepStones = tileType === 'k';
   const baseType = edgeType(tileType);
   const raster = rasterFrame(baseType, rasterVariant);
@@ -1103,7 +1103,6 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
   if (raster) {
     // The cut tile is the whole look; only the edging is drawn over it
     drawRaster(ctx, raster, size);
-    if (stepStones) drawStepStones(ctx, size, variant);
     drawCornerRounding(ctx, size, signature, variant);
     drawLip(ctx, size, mask);
   } else if (tileType === 'p') {
@@ -1138,7 +1137,6 @@ export function generateTileTexture(tileType, row, col, tileTypes = null) {
         break;
       // Water (w), lava (l), clay (c), dungeon (y) - just base color for now
     }
-    if (stepStones) drawStepStones(ctx, size, variant);
 
     // Draw corner rounding, then the grass lip over it
     drawCornerRounding(ctx, size, signature, variant);
