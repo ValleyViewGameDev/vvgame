@@ -129,7 +129,7 @@ Homestead:
 | Dairy | workshop | cream white | milk churn | the approved station template `dairy-b-1` |
 | Oven | workshop | toasted brown | loaf of bread | |
 | Kitchen | workshop | tomato red | steaming pot | |
-| Mill | workshop (the station framework, §2a) | wheat tan | none: the sails and the sacks are the sign | APPROVED 2026-10-24 (stations-r1 mill-e-1); machine left, sacks right (owner) |
+| Mill | workshop (the station framework, §2a) | wheat tan | none: the sails and the sacks are the sign | APPROVED 2026-10-24 (stations-r1 mill-e-1, relit as round 6 mill-lit-2); machine left, sacks right (owner) |
 | Loom | workshop | indigo blue | spool of thread | |
 | Lumber Yard | workshop | timber brown | stacked logs | |
 | Studio | workshop | terracotta | clay pot | |
@@ -207,8 +207,8 @@ big and props on the big buildings a little small, but the stations must scale U
 same game. The relit candidates replace the cut sprites once picked. **Picks APPROVED 2026-10-24 (the owner took
 the art director's picks):** loom-lit-2, oven-lit-2, dairy-lit-1, kitchen-lit-1, lumber-yard-lit-2,
 studio-lit-1, coffee-factory-lit-2, beverage-station-lit-2, and the new silkery-1 (round 5). Their
-magenta cuts replace the seven sprites in the game and add Studio, Beverage and Silkery; the Mill and
-Winery relights were still retrying on the slow link.
+magenta cuts replace the seven sprites in the game and add Studio, Beverage and Silkery; then mill-lit-2 and winery-lit-2 once the link recovered. **All eleven stations are in the game
+from the relit panels (2026-10-24 evening); round 6 is complete.**
 
 **OPEN (owner, 2026-10-24): a station SCALE pass is owed** (now round 6 above). The owner held the Beverage pick
 because its props are still too small, and says the same of a number of the cut stations: on

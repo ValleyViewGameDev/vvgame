@@ -7365,7 +7365,7 @@
     "artLook": "homestead",
     "artAccent": "wheat tan",
     "artSign": "none (the sails and the sacks)",
-    "artSpan": 2.24
+    "artSpan": 2.25
   },
   {
     "type": "Dairy",
@@ -7408,7 +7408,7 @@
     "artLook": "homestead",
     "artAccent": "cream white",
     "artSign": "none (the cheese press and the rack of wheels)",
-    "artSpan": 2.04
+    "artSpan": 2.05
   },
   {
     "type": "Loom",
@@ -7788,7 +7788,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "burgundy",
-    "artSign": "wine barrel"
+    "artSign": "wine barrel",
+    "artSpan": 2.04
   },
   {
     "type": "Coffee Factory",
