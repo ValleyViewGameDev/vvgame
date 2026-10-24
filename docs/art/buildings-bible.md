@@ -160,8 +160,11 @@ a sagging curved roofline, flared petal-like sails, the sacks from the barrel's 
   when the machine is small, an abstract painted wooden SIGN standing on the roof ridge (the
   Dairy's cut-out cow). Owner (2026-10-24): never stretch a prop to make a silhouette ("that
   butter churn makes no sense"); a churn is a churn, the sign does the silhouette work;
-- the roof is optional when the machine IS the station: the Oven has no lean-to, its big
-  stone dome fills the stall and is the shape (owner, 2026-10-24);
+- the roof is optional, not essential (owner, 2026-10-24): the Oven has no lean-to, its big
+  stone dome fills the stall and is the shape; the Winery is open air under a vine pergola;
+  the Kitchen's hearth and chimney are its shape. Use the lean-to only where the concept
+  wants it; the stall bones (posts, back wall, low sides, open front, earth floor, lantern)
+  and the camera are what make the set read together;
 - the floor packed earth with a few flagstones; THE WORK big in the open front: the machine
   at the left, the products at the right, every prop drawn from the barrel's camera (front
   on, a little from above, tops as narrow ellipses);
@@ -177,14 +180,14 @@ The plan (proposed to the owner 2026-10-24, awaiting tweaks; the Mill is done):
 | Station | Concept | Props (the work in front) | Accent | Silhouette / must-have |
 |---|---|---|---|---|
 | Mill | grain to flour | millstone on a frame left; sacks of flour, a sugar sack, a grain heap with a scoop right | wheat tan | the windmill sails; APPROVED mill-e-1 |
-| Dairy | milk to butter and cheese | a plain butter churn, a big cheese wheel with a wedge cut, a pat of butter, milk bottles in a crate, a tin milk churn, a hanging basket | cream white with a sky-blue band | an abstract cut-out COW SIGN standing on the roof ridge (owner); revision `dairy-b` from dairy-2 |
-| Oven | baking | a BIG domed stone bread oven with a cold flue filling the left and centre, a peel, loaves and a lattice pie, a bread basket, a flour sack, a flour-dusted board | toasted orange-brown (the dome's warm stone; NO roof) | the dome itself, no lean-to (owner: let the dome be bigger and be the silhouette); revision `oven-b` from oven-1 |
-| Kitchen | cooking | a big iron pot on a tripod (cold), a chopping block with vegetables, hanging copper pans, a string of onions, a bowl of soup | tomato red | the hanging pan rack; red checked cloth |
+| Dairy | milk to butter and cheese | a plain butter churn, a big cheese wheel with a wedge cut, a pat of butter, milk bottles in a crate, a tin milk churn, a hanging basket | cream white with a sky-blue band | REJECTED twice (dairy-2: the churn stretched into a silhouette; dairy-b: the cow sign "tacked on, not part of the concept", and "the big roof is not a good template" for it); round 3 tries two concepts without the roof: C the cheese press yard (a tall timber press as the natural tall piece, a rack of wheels, blue woodwork), D the spring house (a water channel with churns cooling in it, a lattice shade, a cream separator) |
+| Oven | baking | a BIG domed stone bread oven with a cold flue filling the left and centre, a peel, loaves and a lattice pie, a bread basket, a flour sack, a flour-dusted board | toasted orange-brown (the dome's warm stone; NO roof) | the dome itself, no lean-to (owner: let the dome be bigger and be the silhouette); APPROVED 2026-10-24 (stations-r2 oven-b-2) |
+| Kitchen | cooking | a stone hearth with a cold chimney, a soup pot on a swinging crane over the glow, a rail of copper pans, onions and garlic, a butcher's block with vegetables, a bowl of tomato soup | tomato red woodwork and a checked cloth | the hearth and chimney, no roof; round 3 |
 | Loom | thread and cloth | an upright loom with half-woven indigo cloth, a spinning wheel, bobbins, a basket of fleece, bolts of cloth | indigo blue | the loom frame above the wall; APPROVED 2026-10-24 (stations-r2 loom-2) |
 | Lumber Yard | logs to lumber | a sawhorse with a half-sawn log and a two-man saw, a stack of planks, a log pile, an axe in a stump | raw pale timber with a green tarp | the stepped log stack |
 | Studio | pottery, furniture, ink, urns | a potter's wheel with a half-thrown pot, shelves of pots and urns, a bench with a chisel, an ink well and quill | terracotta | the shelving unit at the back; the urns' shapes |
 | Beverage Station | teas, lemonade, coffees | a copper samovar on a stand, a shelf of cups, lemons in a bowl, a tea tin, a coffee pot | tea green | the samovar; the first station allowed to lean more whimsical |
-| Winery | cider, wine, port, brandy, olive oil | a grape press with a screw, two barrels on a rack, a row of bottles, a basket of grapes, an olive jar | burgundy | the press screw and crossbar |
+| Winery | cider, wine, port, brandy, olive oil | a big grape press with a tall screw over a vat, two barrels on a rack, a row of bottles, a basket of grapes, a tall olive-oil jar | burgundy woodwork | OPEN AIR and ASPIRATIONAL (owner): a vine-covered pergola instead of a roof, the press rising above the wall; round 3 |
 | Coffee Factory | roasting beans | a drum roaster with a crank, sacks of green beans, a tray of beans in three roasts, a hand grinder | near-black roast brown with a cream band | the roaster drum and crank; the three bean shades |
 | Silkery | silk | a frame of cocoons on mulberry branches, a reeling wheel with a skein, bolts of pale silk, a mulberry sprig in a pot | silver white with a pale pink thread | the reeling wheel; the sheen on the silk (no silkworms: no animals) |
 

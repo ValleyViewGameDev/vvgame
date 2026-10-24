@@ -1,0 +1,58 @@
+{
+  "name": "stations-r3",
+  "note": "Stations round 3 (owner, 2026-10-24): the Dairy from two new concepts (the big roof is not a good template for it, the cow sign felt tacked on), the Kitchen, and the Winery (open air, aspirational). The roof is not essential. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "dairy-c": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. SUBJECT: the DAIRY, where milk becomes butter and cheese. CONCEPT C, THE CHEESE PRESS: no roof. A cool stone-flagged dairy yard with a low whitewashed stone back wall and side walls; the natural tall piece is a big wooden CHEESE PRESS at the back-left: a heavy timber frame with a tall screw and a crossbar, pressing a cheese in a round mould, rising above the wall; along the back wall a wooden rack of three big CHEESE WHEELS (one with a wedge cut); at the right a plain butter churn, a crate of glass milk bottles and a tin milk churn; wooden pails hanging on the side wall; a pat of butter on a stone slab. ACCENT: cream white stone with SKY-BLUE painted woodwork (the press frame, the rack, the pails). It must read as a dairy at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "dairy-d": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. SUBJECT: the DAIRY, where milk becomes butter and cheese. CONCEPT D, THE SPRING HOUSE: dairies keep milk cold with running water. A low stone dairy built over a little SPRING: a stone water channel runs across the front of the floor with clear water in it and milk churns standing in the water to keep cool; low cream-washed stone walls at the back and sides; instead of a roof, a light wooden LATTICE shade frame on four posts over the back half with a few vine leaves on it, open above; the tall piece is a tall tin CREAM SEPARATOR on a stand with a wide funnel bowl rising above the wall at the back-left; a stone shelf on the back wall with cheese wheels and a pat of butter; at the right a plain butter churn and a crate of milk bottles. ACCENT: cream white walls with SKY-BLUE painted woodwork (the lattice, the churn hoops, the crate). It must read as a dairy at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "kitchen": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. SUBJECT: the KITCHEN, where soups, salads, pizza and sandwiches are cooked. No roof: the tall piece is a big stone HEARTH with a chimney at the back-left, rising above the wall (cold, no smoke), a black iron soup pot hanging on a swinging crane over a warm orange fire glow inside the hearth; a rail between the posts with hanging COPPER PANS and a ladle; a string of onions and a braid of garlic hanging from it; a butcher's block with a knife, a cabbage, carrots and a pumpkin at the right; a bowl of red tomato soup with a spoon on a small table; a stack of bowls. ACCENT: TOMATO RED on the woodwork (the posts' caps, the pan rail, the table) and a red checked cloth. It must read as a kitchen at a glance. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    },
+    "winery": {
+      "refs": [
+        "_candidates/stations-r1/approved/openai--painterly-mill-e-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building2.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE, CAMERA AND SCALE REFERENCES: the first attached panel is this game's APPROVED MILL crafting station: match its painterly storybook rendering, its bright daylight, its camera (the front square to the viewer, seen a little from above, the grid straight), its scale (people-sized posts, two tiles wide) and its stall bones where they fit: an open-air cut-away workshop with a plank or stone back wall along the top edge, low side walls, NO front wall, the floor packed earth with flagstones, a lantern. A roof is NOT required: use one only if the concept wants it. PROP CAMERA: the second attached image is this game's barrel; every prop is drawn from that camera, mostly from the front and a little from above, tops as narrow ellipses. SUBJECT: the WINERY, where cider, wine, port, brandy and olive oil are made: a late, ASPIRATIONAL station, open air and handsome. No roof: a wooden PERGOLA of four posts and beams over the stall, covered in GRAPEVINES with hanging bunches of purple grapes and green leaves, open to the sky between them; low stone walls at the back and sides; the tall piece is a big wooden GRAPE PRESS at the back-left, a heavy timber frame with a tall screw and crossbar over a round vat, purple juice running into a bucket, rising above the wall; two oak BARRELS on their sides on a rack along the back; a row of dark bottles on a shelf; a basket of grapes, a tall clay olive-oil jar and a wooden tub at the right. ACCENT: BURGUNDY on the woodwork (the press, the barrel rack, the pergola's beam ends). It must read as a winery at a glance, and a little grander than the farm stations. The LAST attached image is a layout guide, a patch of the board grid with a tan 2 x 2 square: the station's walls, floor and pieces fill that 2 x 2 square entirely, back on its top edge, ground contact on its bottom edge, sides to its left and right edges (its tallest piece may rise above it), with a soft contact shadow to the lower right. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke, no steam."
+    }
+  }
+}

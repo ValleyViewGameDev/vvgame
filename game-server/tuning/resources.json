@@ -7520,7 +7520,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "toasted brown",
-    "artSign": "loaf of bread"
+    "artSign": "none (the dome is the station)",
+    "artSpan": 2.04
   },
   {
     "type": "Beehive",

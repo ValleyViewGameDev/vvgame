@@ -261,6 +261,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the LOOM, an open-air timber-post stall with a plank back wall and low side half-walls, a sagging curved lean-to roof of indigo-blue shingles over the back, a tall upright wooden loom with a half-woven indigo cloth rising above the roof at the back-left, a bench, a spinning wheel, a rail of coloured bobbins, a basket of white fleece and stacked bolts of cloth at the right, a lantern on the right post, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: the same design, every post, the roof and its curve, the loom, the wheel, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the roof and the loom may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "oven": {
+      "refs": [
+        "_candidates/stations-r2/approved/openai--painterly-oven-b-2.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the OVEN, an open-air timber-post stall with no roof, a plank back wall and low side half-walls, a big domed stone bread oven with a brick flue filling the left and centre and rising above the wall, its arched mouth glowing warm orange, a long wooden peel, a flour-dusted board with a cloth, shelves of golden loaves and a lattice pie at the right, a bread basket, a flour sack, a small barrel, a lantern on the right post, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: every post, the dome and its flue, the glow, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the dome and flue may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }
