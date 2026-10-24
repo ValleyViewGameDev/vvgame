@@ -1,8 +1,11 @@
 # Story rules: Secrets of Elsinore
 
 Read this before writing any character, quest, trade, hint, region or storyline. It holds the
-owner's rules for the game's story (2026-10-16). Gameplay tuning lives in `tuning.md`, the
-Citizens' behaviour in `citizens.md`, and the world's geography in `making-original-grids.md`.
+owner's rules for the game's story (2026-10-16): WHAT the story is. HOW the text sounds (the
+deliberately Shakespearean direction of 2026-10-24, the voice by surface, quoting, plain
+language, each character's voice card) is `narrative-style.md`; the plan to re-voice the whole
+game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens' behaviour in
+`citizens.md`, and the world's geography in `making-original-grids.md`.
 
 ## 1. The rule: a mash-up, not an adaptation
 
@@ -29,9 +32,11 @@ characters and storylines sit alongside them. The fun is the mix and match.
 
 ## 2. Voice
 
-- Hints and NPC lines carry a light Shakespearean flavour (thee, inversion, a turned phrase),
-  short enough for a phone. Riddles point to a place and a person, never to a menu.
-- No em-dashes in player copy (repo rule). Every string goes into all 10 languages.
+The voice rules live in `narrative-style.md` (2026-10-24): deliberately Shakespearean, quotes
+and fragments of real lines woven in, whimsical and plain enough for anyone, leaning on the
+comedies and tragedies. In short: the more a text is a character speaking, the more flavour it
+carries; instructions stay plain. Riddles point to a place and a person, never to a menu. No
+em-dashes in player copy (repo rule). Every string goes into all 10 languages.
 
 ## 3. How story becomes gameplay
 

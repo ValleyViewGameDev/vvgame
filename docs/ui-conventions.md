@@ -298,6 +298,8 @@ value rather than trust this page.
 
 ## 7. Copy and strings
 
+- What the words SAY (voice, how much Shakespeare per surface, quoting, words to avoid, each
+  character's voice) is `docs/narrative-style.md`; this section is the mechanics.
 - All player-facing text comes from `UI/Strings/strings<LANG>.json` (ten languages); never a
   literal in JSX. Add a new key to every language file; the six files that are still English
   for a key carry the English text rather than nothing.
