@@ -860,7 +860,7 @@ const FarmHandPanel = ({
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${npcType}` : npcType} panelName="FarmHandPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${getLocalizedString(npcType, strings)}` : getLocalizedString(npcType, strings)} panelName="FarmHandPanel">
       <div className="standard-panel">
         <WorkerAutoWorkToggle npc={npc} gridId={currentPlayer?.location?.g} />
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />

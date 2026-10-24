@@ -343,7 +343,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   });
 
   return (
-    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
+    <Panel footer={sellFooter} onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${getLocalizedString(entryPoint, strings)}`} panelName="SkillsPanel">
       <div className="standard-panel">
             
       {isContentLoading ? (
