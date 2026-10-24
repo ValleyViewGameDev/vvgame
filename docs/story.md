@@ -12,7 +12,8 @@ game is `narrative-pass.md`. Gameplay tuning lives in `tuning.md`, the Citizens'
 Owner, 2026-10-24: the world's premise is **a storm of stories** (Prospero's tempest tore every
 play's people out of their tales and cast them up on Elsinore's shore), and **Prospero is the
 antagonist**, the reason the land is broken and the Quest for Hope exists; he is defeated, not
-killed. The full draft (the wrong, the storm, the statue of Hermione, the Oracle's prophecy, the
+killed. Gertrude is Leontes' queen, turned to a statue by the storm and woken as a mid-game
+milestone. The full draft (the wrong, the storm, the statue, the Oracle's prophecy, the
 player as the one with no part written, the ending) is in `narrative-pass.md` P1.1 and moves
 here once approved. Until then the old intro (string 16019) is out of date.
 
@@ -53,9 +54,12 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   resource with `action: door`). The game has enough keys (Town, Golden, Dungeon, Mirror,
   Skeleton). New gates should be things with a story (a bough, a song, a seal), earned from a
   character.
-- **Relationships are the currency of trust.** Big gifts sit behind a quest or trade `rel` /
-  `relscore` (friend, love, married, 90+). Secrets in particular are only told to people a
-  character trusts.
+- **Relationships are the currency of trust, from the mid game.** Big gifts sit behind a quest or
+  trade `rel` / `relscore` (friend, love, married, 90+). Secrets in particular are only told to
+  people a character trusts. **Not in the FTUE or the early game (L1-15; owner, 2026-10-24):**
+  building a friendship is grindy, so nothing a player needs before L16 asks for more than a
+  Greet (a quest list opens at relationship score 10, which one Greet gives). Secrets therefore
+  sit at L16 and up (Titania's moved from L15).
 - **Secrets travel.** A character's Secret is an item: who it is sold to, and why, is a story
   (Portia's Secret buys the Brass Bell from Iago, whom she despises; Leontes collects six).
 - **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /

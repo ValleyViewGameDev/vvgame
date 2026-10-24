@@ -65,8 +65,11 @@ below replaces the old intro ("an evil scourge grows... bring back the rule of K
 keeping its good bones (a happy land, a fall, a quest, a king restored) and giving each one a
 Shakespearean source.
 
-- **Before.** Elsinore was a merry kingdom under King Leontes and Queen Hermione (The Winter's
-  Tale), a place of fairs and farms by the sea.
+- **Before.** Elsinore was a merry kingdom under King Leontes (The Winter's Tale) and Queen
+  Gertrude (Hamlet), a place of fairs and farms by the sea. (Hermione, Leontes' queen in his own
+  play, was dropped 2026-10-24: the name reads as Harry Potter.) The cracks were already there:
+  Leontes was jealous of Helena's love for his queen, and Gertrude turned from him to her garden
+  (lines that exist today, 16013 / 16014 / 16106).
 - **The wrong.** Prospero (The Tempest), once a duke, was robbed of his dukedom by his own
   brother and turned bitter in his mountain books. He swore the world would answer for it.
   ("The rarer action is in virtue than in vengeance" is the lesson he has not learned yet.)
@@ -74,9 +77,9 @@ Shakespearean source.
   story. Their people were cast up on Elsinore's shores, far from their own tales: lovers without
   their loves, fools without their kings, schemers without their plots. That is why Iago,
   Juliet, Falstaff and Titania all live in one valley. The storm brought monsters too: "Hell is
-  empty, and all the devils are here." It took the Queen: Hermione stands in the castle as a
-  statue, and the King's heart and crown went with her (the King's Crown is his, lost in the
-  storm).
+  empty, and all the devils are here." It took the Queen: **Gertrude stands as a statue in her
+  castle in the Town**, among the ghosts, beside the dungeon entrance, and the King's heart and
+  crown went with her (the King's Crown is his, lost in the storm).
 - **The magician's hold.** Prospero bound the storm's power in his Orb and shut himself on
   Prospero's Peak behind Cloven Pines (the Tempest's prison tree) and his dragons. While the Orb
   is his, the stories stay broken.
@@ -90,10 +93,18 @@ Shakespearean source.
   the only one who can change how the story ends. They wake in the sea cave (the FTUE cave) and
   are found by **the Shepherd**, who once found a lost child on this same shore and knows the
   Oracle's words: "Thou met'st with things dying, I with things new-born."
+- **The Queen wakes (a milestone, not the end).** Around the start of the mid game (about L15,
+  Act III), the player wakes Gertrude, as Hermione's statue wakes in The Winter's Tale: "Music,
+  awake her; strike!" and "'Tis time; descend; be stone no more." The music comes from the
+  cast (a song from Feste, the fool who sings), and Helena, who still loves her, is the one who
+  asks for it. Waking her is the first sign that the storm can be undone, and it brings her back
+  as a trader (her three trades open then; the first, Queen's Cake for a Diamond Ring, is L13
+  today, so it moves only a little). What the waking needs (an item from a quest, used on the
+  statue) is a small feature: a statue that turns into the NPC for that player.
 - **The ending.** At the top of the Peak, past the dragons, Prospero sets his riddle (the built
   minigame). Beaten, he chooses virtue over vengeance at last: he gives up the Orb and his magic
-  ("I'll drown my book"). With all seven treasures the Oracle calls Hope home, the statue of
-  Hermione wakes ("Be stone no more"), and Leontes is king again. Prospero's own epilogue asks to
+  ("I'll drown my book"). With all seven treasures the Oracle calls Hope home: the storm's
+  damage mends, the King's Crown is back on Leontes' head, and Elsinore is merry again. Prospero's own epilogue asks to
   be set free, "As you from crimes would pardoned be, let your indulgence set me free": the
   player may forgive him.
 
@@ -111,7 +122,11 @@ the Valley and its dangers (mid game, more treasures). Act IV, the witch and the
 (Hecate, Toil and Trouble, Acheron and the Brief Candle, L30-36). Act V, Prospero's Peak, then
 the Oracle (the end of the spine).
 
-Watch-out: the spine leans on The Winter's Tale (Leontes, Hermione, the Oracle, the Shepherd)
+Data to change with the tale: Leontes' RelationshipMatrix row has Prospero as a **friend**
+(now his enemy); Gertrude's and Leontes' lines are rewritten around the statue and the waking;
+Helena and Gertrude keep their mutual love (it becomes the reason Helena wants her woken).
+
+Watch-out: the spine leans on The Winter's Tale (Leontes, the statue, the Oracle, the Shepherd)
 crossed with The Tempest (Prospero) and Hamlet's Elsinore. That is a cross-play mash-up as
 `story.md` §1 asks; the threads off the spine should stay drawn from the other plays.
 
@@ -122,26 +137,56 @@ places, items, doors), provided it stays clear what the thing is; a plain name (
 when no good Shakespeare name fits. Names change on screen only (aliases); the types stay.
 Candidates, for the owner to pick from in the P1 review:
 
-| Today | Candidates | Note |
+Decided 2026-10-24 (owner): **approved** the Boar's Head (Restaurant), the Garter Inn (Inn), the
+Counting House (Bank), the Temple of Apollo (Ancient Temple), Prospero's Library (Library), and
+the picks for the healers and Kent below. **Keep** the Trading Post. Healers have many copies on
+the board, so the Doctor and the Surgeon keep generic names. The four farm workers are one of
+each per player, so they get personalities.
+
+| Today | Name | Status |
 |---|---|---|
-| Doctor | Doctor Caius (Merry Wives) | the play's comic physician |
-| Field Nurse | the Nurse (Romeo and Juliet) | Juliet's chatty Nurse |
-| Surgeon | Cerimon (Pericles), or keep | Cerimon is obscure |
-| Fairy (healer) | Peaseblossom, Cobweb, Moth, Mustardseed (the Dream) | Titania's fairies |
-| Farm Hand, Rancher, Lumberjack, Crafter | Snug's fellow Mechanicals (Quince the carpenter, Bottom the weaver, Flute, Snout), or role names with flavour ("Woodman", "Rustic") | open question: a player can hire several of one kind, and five Bottoms is odd; names fit only if each kind is one person |
-| Kent's 🤠 | 🧔 or his own art | Lear's loyal earl |
-| Inn | the Garter Inn (Merry Wives) | |
-| Restaurant | the Boar's Head (Mistress Quickly's tavern, Henry IV) | |
-| Trading Post | the Rialto (The Merchant of Venice) | "What news on the Rialto?" |
-| Bank | the Counting House | |
-| Ancient Temple | the Temple of Apollo (The Winter's Tale) | where the Oracle's sealed scrolls are opened |
-| Castle | Elsinore Castle, home of the statue | |
-| Magic Shop | the Witches' Cauldron | Hecate's sisters sell spells (fits the Spells epic) |
-| Library | Prospero's Library ("my library was dukedom large enough") | the books he left behind |
-| Studio | the Globe | |
-| Courthouse | the Duke's Court | |
-| Warrior's Den, Armory, School, Guild, Shrine, Hospital | keep plain unless a good name appears | |
-| Locations | already mostly plays' places (Dunsinane, Illyria, Belmont, Arden...); the sweep checks the rest | |
+| Doctor, Surgeon | keep | decided: many copies |
+| Field Nurse | the Nurse (Romeo and Juliet) | approved pick; check copies on the board like the Doctor |
+| Fairy (healer) | Peaseblossom (one of Titania's fairies; Cobweb, Moth, Mustardseed as others) | approved pick; same copies check |
+| Kent's 🤠 | 🧔 or his own art | approved |
+| Inn | the Garter Inn | approved |
+| Restaurant | the Boar's Head | approved |
+| Bank | the Counting House | approved |
+| Ancient Temple | the Temple of Apollo | approved |
+| Library | Prospero's Library | approved |
+| Trading Post | keep | decided |
+| Magic Shop | options below | open |
+| Studio | keep plain ("the Globe" is not clear enough for an art station) | decided; the Globe goes elsewhere (below) |
+| Castle, Courthouse, Warrior's Den, Armory, School, Guild, Shrine, Hospital | keep plain unless a good name appears in the sweep | |
+| Locations | mostly plays' places already; the sweep checks the rest | |
+
+**The farm workers** (one each, so each is a character with a voice card). Proposal: the town's
+craftsmen are Snug's fellow Mechanicals from the Dream, the country hands come from the Forest
+of Arden (As You Like It), so the four read as two pairs.
+
+| Worker | Proposal | Why | Alternatives |
+|---|---|---|---|
+| Lumberjack | **Peter Quince** | the Mechanicals' carpenter: he knows timber | Ferdinand (The Tempest), the prince who hauls logs for love |
+| Crafter | **Nick Bottom** | the weaver, boastful and willing to play every part | Robin Starveling (tailor), Tom Snout (tinker, mends pots) |
+| Rancher | **Corin** | Arden's old shepherd: "the greatest of my pride is to see my ewes graze and my lambs suck" | Launce and his dog Crab (Two Gentlemen of Verona), Silvius |
+| Farm Hand | **Audrey** | Arden's country girl, plain and cheerful | William (Arden's country lad), Costard (Love's Labour's Lost) |
+
+**Magic Shop** options (it sells spells, the Spells epic; the name should say "magic" by itself):
+
+| Option | From | For |
+|---|---|---|
+| **Glendower's** (Recommended) | Henry IV: Owen Glendower, who boasts "I can call spirits from the vast deep" (and Hotspur, who is in the game, answers "Why, so can I, or so can any man; but will they come when you do call for them?") | a showman wizard selling spells, with built-in gossip between two NPCs |
+| Oberon's Bower | A Midsummer Night's Dream ("I know a bank where the wild thyme blows") | fairy magic, the king of the fairies' own shop |
+| Puck's Spells | A Midsummer Night's Dream | mischievous, playful, instantly readable |
+| The Fairy Ring | A Midsummer Night's Dream | a place name, a little less clear as a shop |
+
+**Where the Globe could go** (a name players should understand from where it is):
+
+| Option | Why |
+|---|---|
+| The leaderboard (the Leaders panel and the season standings) | "All the world's a stage": the Globe is where everyone's part is ranked |
+| The Arena (the Arena Door) | fights as a show for a crowd, the way the Globe staged them |
+| A Town landmark: a small theatre where the Town News and season events are posted, as playbills | the Globe as a place, not a function |
 
 #### P1.3 Systems
 
@@ -226,13 +271,16 @@ Roughly 600 English lines, about 2,400 with translations, in six or seven review
 
 Decided 2026-10-24: the premise (a storm of stories), Prospero as the antagonist (defeated, not
 killed), the Shepherd as the story-quest giver with specialists for the rest, every name up for
-grabs. Still open:
+grabs. Decided later the same day: Gertrude (not Hermione) is the statue, woken as a mid-game
+milestone; building and helper names as in P1.2. Still open:
 
 1. The tale (P1.1): approve the draft, with tweaks.
-2. The names (P1.2): pick from the candidates; the workers question.
-3. Quest text (P3.1): build the display title + ask feature?
-4. The farming and building specialists who take over the Shepherd's quests (P3.3).
-5. Order: proposal P0, P1, then P2, with P4 after the OB epic settles the FTUE.
+2. The farm workers (Quince, Bottom, Corin, Audrey, or alternatives), the Magic Shop, where the
+   Globe goes, and the Nurse / Peaseblossom copies check.
+3. Waking Gertrude: when (about L15?) and what it needs (Feste's song, asked for by Helena?).
+4. Quest text (P3.1): build the display title + ask feature?
+5. Who takes the Shepherd's specialised quests (P3.3).
+6. Order: proposal P0, P1, then P2, with P4 after the OB epic settles the FTUE.
 
 ## 7. Owner's tweaks (filled in on approval)
 
@@ -241,3 +289,10 @@ grabs. Still open:
   Shepherd keeps the core story quests; secondary characters give specialised ones. Helpers,
   buildings, locations, "really anything" may be renamed with Shakespearean flavour; a plain
   name such as "Doctor" is fine when nothing better fits.
+- 2026-10-24 (second round): no Hermione (reads as Harry Potter); Gertrude is Leontes' queen and
+  the statue, in her castle in the Town with the ghosts and the dungeon entrance, woken as a
+  milestone before the end. Approved names: the Boar's Head, the Garter Inn, the Counting House,
+  the Temple of Apollo, Prospero's Library, the healer and Kent picks. The Trading Post, the
+  Doctor and the Surgeon keep their names; the Studio stays plain and the Globe goes somewhere
+  clearer. The farm workers get personalities (one each); use Peter Quince somewhere. More
+  Magic Shop options wanted ("cauldron" is too literal).
