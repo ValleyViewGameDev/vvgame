@@ -271,6 +271,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the OVEN, an open-air timber-post stall with no roof, a plank back wall and low side half-walls, a big domed stone bread oven with a brick flue filling the left and centre and rising above the wall, its arched mouth glowing warm orange, a long wooden peel, a flour-dusted board with a cloth, shelves of golden loaves and a lattice pie at the right, a bread basket, a flour sack, a small barrel, a lantern on the right post, a packed-earth floor with flagstones. Redraw the SAME station, identical in every way: every post, the dome and its flue, the glow, every prop, colours, lighting, camera and size. Keep the earth floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts, walls and floor fill that box end to end exactly as in the reference (the dome and flue may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "dairy": {
+      "refs": [
+        "_candidates/stations-r3/approved/openai--painterly-dairy-c-2.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved crafting station from this game: the DAIRY, an open-air yard with low whitewashed stone back and side walls and no roof, a tall timber cheese press with a screw and crossbar at the back-left rising above the wall, a sky-blue wooden rack of cheese wheels along the back wall, a plain butter churn, a crate of glass milk bottles, a tin milk churn, hanging pails, a pat of butter on a stone slab, a flagstone floor. Redraw the SAME station, identical in every way: every wall, the press, the rack, every prop, colours, lighting, camera and size. Keep the flagstone floor as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the floor, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the yard's walls and floor fill that box end to end exactly as in the reference (the press may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

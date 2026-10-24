@@ -7398,7 +7398,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "cream white",
-    "artSign": "milk churn"
+    "artSign": "none (the cheese press and the rack of wheels)",
+    "artSpan": 2.04
   },
   {
     "type": "Loom",
