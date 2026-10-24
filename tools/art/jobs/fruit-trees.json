@@ -1,0 +1,24 @@
+{
+  "name": "fruit-trees",
+  "note": "The fruit trees (owner, 2026-10-25): one new EMPTY fruit tree base in the oak's style with subtle white blossom, drawn on magenta so the fruited states can be built from it; the fruits are composited by tools/art/fruit-trees.js, not generated. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "fruit-tree-base": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel on grass is this game's approved OAK TREE: a round layered canopy of painted leaf clusters on a short brown trunk, drawn in the game's bright painterly style with the light from the upper left. SUBJECT: the game's FRUIT TREE in its empty, unfruited state: the SAME kind of tree as that oak, the same size, the same layered leafy canopy, the same short trunk, the same rendering and daylight, so the two clearly belong to one orchard, with ONE difference: the canopy carries a scatter of small, subtle WHITE BLOSSOMS, little five-petal flowers dotted sparsely across the leaves (not a solid mass of bloom, the green still dominates), so a player can tell it from the oak at a glance. The canopy is a slightly fresher, lighter green than the oak. NO fruit of any kind. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises about two tiles tall above it, its canopy spreading a little past the box on each side, exactly as the oak does. Draw the tree alone on the flat, pure, solid magenta field, nothing else, no grass, no ground, no grid lines over the tree, no vignette; leave every other pixel pure magenta. No letters anywhere, no animals, no birds."
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "farmhouse-lit",
+  "note": "The Farm House relit (owner, 2026-10-25): the approved painterly-farmhouse-1 is too dark in the game; redraw with the buildings' daylight, nothing else changed. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "farmhouse-lit": {
+      "refs": [
+        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached panel is this game's approved FARM HOUSE, a thatched cottage of cream plaster and warm timber with a stone chimney, a thatched dormer, a round-topped door, flower boxes, climbing greenery, a barrel and a pot by the door; the owner likes everything about it: keep its design, every element, its camera, its painterly rendering. LIGHT REFERENCE: the second attached panel is this game's GENERAL STORE in the village's daylight. Redraw the Farm House with ONE change only: THE SAME BRIGHT DAYLIGHT AS THAT STORE. The cottage today is too DARK; relight it in full, warm, high-noon sun from high up and a little left: the thatch a bright sunlit gold, the plaster bright cream, the facing wall evenly lit, the shadows short and soft and only in the recesses under the eaves and the dormer, the greenery fresh and lit, the colours vibrant and cheerful; no gloom, no heavy shading, no dark corners. Nothing else changes. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the cottage's walls and ground contact fill that 3 x 3 square almost to its edges, end to end (the thatch, dormer and chimney may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    }
+  }
+}

@@ -304,13 +304,13 @@
     },
     "farm-house": {
       "refs": [
-        "_candidates/whimsical-buildings/approved/openai--painterly-farmhouse-1.jpg"
+        "_candidates/farmhouse-lit/approved/openai--painterly-farmhouse-lit-1.small.jpg"
       ],
       "guide": "guides/building3-cut.png",
       "variants": [
         "painterly"
       ],
-      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the FARM HOUSE, a cosy thatched cottage of cream plaster and warm timber framing on a stone footing, a thick golden straw roof with a dormer and a stone chimney (cold, no smoke), a wooden door, small windows with flower boxes, a little greenery of climbing plants and shrubs at its base. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, thatch, chimney, door, windows, flower boxes, greenery, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the thatch, dormer and chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the FARM HOUSE, a cosy thatched cottage of cream plaster and warm timber framing on a stone footing, a thick golden straw roof with a dormer and a stone chimney (cold, no smoke), a wooden door, small windows with flower boxes, a little greenery of climbing plants and shrubs at its base, in bright noon daylight. Redraw the SAME building, identical in every way: the same design, silhouette, materials, colours, thatch, chimney, door, windows, flower boxes, greenery, lighting and size, the same camera (front wall square to the viewer, roof seen from above). Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the building's walls fill that box end to end exactly as in the reference (the thatch, dormer and chimney may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     },
     "winery": {
       "refs": [

@@ -123,7 +123,7 @@ Homestead:
 
 | Building | Family | Accent | Sign | Note |
 |---|---|---|---|---|
-| Farm House | cottage | straw and warm wood, some greenery | none | approved panel `painterly-farmhouse-1` (`_candidates/whimsical-buildings/approved/`); the owner noticed 2026-10-24 it was never cut into the game; cut pass queued at 3 x 3 (`buildings-bible-cut` subject `farm-house`) |
+| Farm House | cottage | straw and warm wood, some greenery | none | approved panel `painterly-farmhouse-1` (`_candidates/whimsical-buildings/approved/`); the owner noticed 2026-10-24 it was never cut into the game; cut 2026-10-24; the owner found it too dark in the game, so it was relit (`tools/art/jobs/farmhouse-lit.json`, the store as the daylight reference, nothing else changed; **farmhouse-lit-1 APPROVED 2026-10-25**) and recut (artSpan 3.77) |
 | Trading Post | cottage | warm wood | none | 1 x 1 |
 | Warehouse | cottage | warm wood | none | 1 x 1 |
 | Dairy | workshop | cream white | milk churn | the approved station template `dairy-b-1` |
