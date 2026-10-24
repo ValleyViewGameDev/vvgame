@@ -14,8 +14,11 @@ import { TILES_PER_GRID } from '../../Render/PixiRenderer/UnifiedCamera';
  * the original stays on the board as a ghost (resource.__moving, drawn at low alpha by
  * PixiRenderer), the cursor carries the item on desktop, and a banner (MoveBanner) says what is
  * being moved and offers Cancel (phones have no cursor; Esc also cancels on desktop). The next
- * tile tap calls placeMovedResource: it checks the footprint locally, moves it at once
- * (optimistic) and tells the server (POST /api/move-resource), putting it back if that fails.
+ * tile tap calls placeMovedResource: it checks the footprint locally, moves it at once and
+ * answers 'placed' on the spot, so App leaves move mode with the tap (the standard cursor back, no
+ * item in hand) while the server is told in the background (POST /api/move-resource); only a
+ * refusal puts it back, with a note where it was dropped. Never wait on the round trip here: on a
+ * slow connection the player stood in move mode with the item on the cursor for seconds.
  */
 export const MOVE_START_EVENT = 'vv:move-start';
 
@@ -47,10 +50,10 @@ export function setGhost(from, on, setResources) {
 }
 
 /**
- * Put the picked-up resource down at (x, y). Returns 'placed', 'blocked' (stay in move mode)
- * or 'cancel' (nothing to move, or the same spot).
+ * Put the picked-up resource down at (x, y). Returns at once (no network wait): 'placed',
+ * 'blocked' (stay in move mode) or 'cancel' (nothing to move, or the same spot).
  */
-export async function placeMovedResource({ cursorMode, x, y, gridId, currentPlayer, masterResources, setResources, TILE_SIZE, strings }) {
+export function placeMovedResource({ cursorMode, x, y, gridId, currentPlayer, masterResources, setResources, TILE_SIZE, strings }) {
   const { from } = cursorMode;
   const anchor = findAnchor(from);
   if (!anchor) return 'cancel';
@@ -78,16 +81,20 @@ export async function placeMovedResource({ cursorMode, x, y, gridId, currentPlay
   createCollectEffect(x, y, TILE_SIZE);
   soundManager.playSFX('place');
 
-  try {
-    const { data } = await axios.post(`${API_BASE}/api/move-resource`, {
-      playerId: currentPlayer.playerId, gridId, type: from.type, fromX: from.x, fromY: from.y, toX: x, toY: y,
-    });
+  // the server, in the background: a refusal (or a failed request) puts it back where it was
+  axios.post(`${API_BASE}/api/move-resource`, {
+    playerId: currentPlayer.playerId, gridId, type: from.type, fromX: from.x, fromY: from.y, toX: x, toY: y,
+  }).then(({ data }) => {
     if (!data?.success) throw new Error(data?.error || 'move failed');
-  } catch (err) {
+  }).catch((err) => {
     console.error('Move failed, putting it back:', err?.response?.data || err.message);
-    GlobalGridStateTilesAndResources.setResources(before);
-    setResources(before);
+    // only undo our own move: if the player has moved on to another grid, leave that list alone
+    if (!GlobalGridStateTilesAndResources.getResources().some((r) => r.x === x && r.y === y && r.type === from.type)) return;
+    const now = GlobalGridStateTilesAndResources.getResources();
+    const restored = [...now.filter((r) => !target.includes(`${r.x},${r.y}`)), ...before.filter((r) => own.has(`${r.x},${r.y}`))];
+    GlobalGridStateTilesAndResources.setResources(restored);
+    setResources(restored);
     FloatingTextManager.addFloatingText(strings?.[2116] || "Couldn't move it there.", x, y, TILE_SIZE);
-  }
+  });
   return 'placed';
 }

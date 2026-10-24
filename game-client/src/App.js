@@ -2496,7 +2496,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       return;
     }
     const { placeMovedResource } = await import('./GameFeatures/Move/moveMode');
-    const outcome = await placeMovedResource({ cursorMode, x: colIndex, y: rowIndex, gridId, currentPlayer, masterResources, setResources, TILE_SIZE: activeTileSize, strings });
+    // answers at once (the server check runs in the background), so move mode ends with the tap
+    const outcome = placeMovedResource({ cursorMode, x: colIndex, y: rowIndex, gridId, currentPlayer, masterResources, setResources, TILE_SIZE: activeTileSize, strings });
     if (outcome !== 'blocked') {
       if (outcome === 'cancel') {
         const { cancelMove } = await import('./GameFeatures/Move/useMoveMode');
