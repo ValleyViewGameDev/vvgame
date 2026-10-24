@@ -8626,7 +8626,8 @@
     "artFamily": "cottage",
     "artLook": "homestead",
     "artAccent": "straw and warm wood, some greenery",
-    "artSign": "none"
+    "artSign": "none",
+    "artSpan": 3.5
   },
   {
     "type": "Shrine",
