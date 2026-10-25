@@ -184,8 +184,11 @@ one, so the rest of the game is a promise, not a mystery.
 **No friendships in the early game** (owner, 2026-10-24): building a friendship is grindy, so
 nothing in the FTUE or the early game (L1-15) asks for more than a Greet. A quest list opens at
 relationship score 10 (one Greet; it was 14); every quest at L15 and under has no `rel` /
-`relscore`, and Constable Elbow's Dungeon Key no friend gate. Trust gates (friend, love, married,
-Secrets) start at L16 (`story.md` §3); Titania's Secret moved from L15 to L16.
+`relscore`. Trust gates (friend, love, married, Secrets) start at L16 (`story.md` §3); Titania's
+Secret moved from L15 to L16. **One exception** (owner, 2026-10-25): Constable Elbow's Dungeon Key
+(L12) needs his friendship. A friend-gated trade is hidden until then, so the key does not crowd
+Elbow's panel while his story quests are what the player needs to see, and Elbow is the one
+friendship the early game asks for.
 
 ## 4. Where the game stands
 

@@ -26,6 +26,7 @@
     "givesqty": 1,
     "xp": 8,
     "repeat": false,
+    "rel": "friend",
     "requires1": "Yellow Heart",
     "requires1qty": 10,
     "requires2": "Green Heart",
