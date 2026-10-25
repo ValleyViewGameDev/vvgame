@@ -17,10 +17,15 @@ import './ResourceModalSmall.css';
  * `resourceType` may be an array of types: each gets its own column, smaller, under one title.
  * `needs` (optional, [{ type, need, have }]) adds a "need / have" count under each name (Kent's
  * card order), green when held, red when short.
+ * `title` / `line` (optional, single resource) replace the modal title and the "where it comes
+ * from" line, and `showName` prints the name under the icon (the Quest panel's quest giver:
+ * title "Quest Giver", the giver's name, "Lives in Town").
  */
-function ResourceColumn({ type, masterResources, strings, need, compact }) {
+function ResourceColumn({ type, masterResources, strings, need, compact, showName, lineOverride }) {
   const resource = (masterResources || []).find((r) => r.type === type);
-  const { line, ingredients } = describeResourceSource(type, masterResources, strings);
+  const described = describeResourceSource(type, masterResources, strings);
+  const line = lineOverride ?? described.line;
+  const ingredients = lineOverride != null ? null : described.ingredients;
   return (
     <div className="rms-col">
       <div className="rms-icon" aria-hidden="true">
@@ -28,7 +33,7 @@ function ResourceColumn({ type, masterResources, strings, need, compact }) {
           ? <img src={`/assets/resources/${resource.filename}`} alt="" />
           : <span>{resource?.symbol || '❓'}</span>}
       </div>
-      {compact && <div className="rms-name">{getLocalizedString(type, strings)}</div>}
+      {(compact || showName) && <div className="rms-name">{getLocalizedString(type, strings)}</div>}
       {need && (
         <div className={`rms-count ${need.have >= need.need ? 'ok' : 'short'}`}>
           {/* need / have, the order Kent's cards print it */}
@@ -41,18 +46,18 @@ function ResourceColumn({ type, masterResources, strings, need, compact }) {
   );
 }
 
-export default function ResourceModalSmall({ resourceType, masterResources, onClose, needs }) {
+export default function ResourceModalSmall({ resourceType, masterResources, onClose, needs, title: titleOverride, line, showName }) {
   const strings = useStrings();
   const types = Array.isArray(resourceType) ? resourceType : [resourceType];
   const multi = types.length > 1;
   const needFor = (type) => (needs || []).find((n) => n.type === type);
-  const title = multi ? (strings[2059] || 'What this order needs') : getLocalizedString(types[0], strings);
+  const title = titleOverride || (multi ? (strings[2059] || 'What this order needs') : getLocalizedString(types[0], strings));
 
   return (
-    <Modal size={multi ? 'narrow' : 'small'} className={`resource-modal-small ${multi ? 'rms-multi' : ''}`} onClose={onClose} title={title}>
+    <Modal size={multi ? 'narrow' : 'small'} className={`resource-modal-small ${multi ? 'rms-multi' : ''} ${showName && !multi ? 'rms-named' : ''}`} onClose={onClose} title={title}>
       <div className="rms-cols" style={multi ? { gridTemplateColumns: `repeat(${Math.min(types.length, 3)}, minmax(0, 1fr))` } : undefined}>
         {types.map((type) => (
-          <ResourceColumn key={type} type={type} masterResources={masterResources} strings={strings} need={needFor(type)} compact={multi} />
+          <ResourceColumn key={type} type={type} masterResources={masterResources} strings={strings} need={needFor(type)} compact={multi} showName={showName} lineOverride={multi ? undefined : line} />
         ))}
       </div>
     </Modal>

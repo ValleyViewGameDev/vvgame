@@ -44,3 +44,7 @@
 .resource-modal-small.rms-multi .rms-name { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--text-lg); color: var(--color-text-heading); margin-bottom: 2px; overflow-wrap: anywhere; }
 .resource-modal-small.rms-multi .rms-source { font-size: var(--text-md); }
 .resource-modal-small.rms-multi .rms-ingredients { font-size: var(--text-sm); margin-top: 4px; }
+
+/* One resource with its name under the icon (`showName`; the Quest panel's quest giver) */
+.resource-modal-small.rms-named .rms-name { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--text-xl); color: var(--color-text-heading); margin-bottom: 4px; }
+.resource-modal-small.rms-named .rms-source { font-size: var(--text-lg); color: var(--color-text-secondary); }

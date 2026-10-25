@@ -8,11 +8,14 @@ import '../../UI/Buttons/QuestButton.css';
 import { useStrings } from '../../UI/StringsContext';
 import HopeQuest from '../Social/HopeQuest';
 import { STATE_GOALS, stateGoalMet } from './stateGoals';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
+import { questGiverHomeLine } from './questGiverHomes';
 
 function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpack, masterTraders }) {
   const strings = useStrings();
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
+  const [giverInfo, setGiverInfo] = useState(null); // tap a quest card: who gave it and where they live
 
   // Re-evaluate quest progress for "Acquire" quests
   const reevaluateQuestProgress = async (quests) => {
@@ -158,12 +161,22 @@ function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpa
                   rewardqty: template?.rewardqty || 1,
                 }}
                 state={quest.completed ? 'reward' : 'in-progress'}
-                onClick={null}
+                onClick={template?.giver ? () => setGiverInfo(template.giver) : null}
                 masterResources={masterResources}
               />
             );
           })}
         </div>
+      )}
+      {giverInfo && (
+        <ResourceModalSmall
+          resourceType={giverInfo}
+          masterResources={masterResources}
+          title={strings[17014] || 'Quest Giver'}
+          showName
+          line={questGiverHomeLine(giverInfo, strings)}
+          onClose={() => setGiverInfo(null)}
+        />
       )}
     </Panel>
   );
