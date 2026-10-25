@@ -180,8 +180,9 @@ value rather than trust this page.
   "📊 Leaders", keeps its emoji there); never prefix a title with a resource's `symbol`. An
   NPC panel's title keeps the NPC's sprite image, which is a portrait, not an emoji.
 - **NPC panels** (`GameFeatures/NPCs/NPCsPanel.js`): a quest giver lists only the quests the
-  player can take now and those one level away (locked, `level` = player level + 1); anything two
-  or more levels off is hidden, so a giver never shows a wall of future quests. A finished quest
+  player can take now (`level` at or below the player's); anything above is hidden, not shown
+  locked (owner 2026-10-25), so a giver never shows a wall of future quests. The NPC's quest
+  marker over its head follows the same rule. A finished quest
   waiting for its reward always shows. A giver who also trades (Constable Elbow) lists the relationship card,
   then the TRADES, then the quests.
 - **Sell section.** A panel opened from something placed on the grid (building, station, deco,

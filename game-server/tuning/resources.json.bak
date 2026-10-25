@@ -77,6 +77,14 @@
     "level": 7
   },
   {
+    "type": "k",
+    "layoutkey": "SP",
+    "category": "tile",
+    "action": "stepstones",
+    "passable": true,
+    "level": 5
+  },
+  {
     "type": "y",
     "layoutkey": "DU",
     "category": "tile",
@@ -688,7 +696,9 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "oak-tree.svg"
+    "filename": "oak-tree.svg",
+    "artSpan": 1.75,
+    "artVariants": "oak-tree.svg=2;oak-tree-autumn-gold.svg=1;oak-tree-autumn-red.svg=1"
   },
   {
     "type": "Pine Tree",
@@ -713,7 +723,9 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "pine-tree.svg"
+    "filename": "pine-tree.svg",
+    "artSpan": 2.94,
+    "artVariants": "pine-tree.svg=3;pine-tree-light.svg=1"
   },
   {
     "type": "Cloven Pine",
@@ -1041,7 +1053,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "signpost-town.svg"
+    "filename": "signpost-town.svg",
+    "artSpan": 1.25
   },
   {
     "type": "Signpost Home",
@@ -1065,7 +1078,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "signpost-home.svg"
+    "filename": "signpost-home.svg",
+    "artSpan": 1.38
   },
   {
     "type": "Dungeon Entrance",
@@ -1201,7 +1215,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree-large.svg"
+    "filename": "dead-tree-large.svg",
+    "artSpan": 3.94
   },
   {
     "type": "Huge Dead Tree",
@@ -1224,7 +1239,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree-large.svg"
+    "filename": "dead-tree-large.svg",
+    "artSpan": 7.88
   },
   {
     "type": "Big Statue",
@@ -1293,7 +1309,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "dead-tree.svg"
+    "filename": "dead-tree.svg",
+    "artSpan": 2.73
   },
   {
     "type": "Snowman",
@@ -1693,7 +1710,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 16
+    "parallel": 16,
+    "artSpan": 1.73
   },
   {
     "type": "Lemon Tree",
@@ -1726,7 +1744,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "artSpan": 1.73
   },
   {
     "type": "Apple Tree",
@@ -1760,7 +1779,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "parallel": 33
+    "parallel": 33,
+    "artSpan": 1.73
   },
   {
     "type": "Tomato Vine",
@@ -1826,7 +1846,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Peach Tree",
@@ -1860,7 +1881,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Orange Tree",
@@ -1894,7 +1916,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Cherry Tree",
@@ -1928,7 +1951,8 @@
     "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.73
   },
   {
     "type": "Ginger Plot",
@@ -1992,7 +2016,8 @@
     "filename": "palm-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 4
+    "parallel": 4,
+    "artSpan": 2.11
   },
   {
     "type": "Blueberry Plot",
@@ -2257,7 +2282,8 @@
     "filename": "mulberry-tree.svg",
     "crafttime": 345600,
     "totalnestedtime": 345600,
-    "parallel": 15
+    "parallel": 15,
+    "artSpan": 1.43
   },
   {
     "type": "Coffee Plant",
@@ -2725,7 +2751,8 @@
     "filename": "tree-olive.svg",
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "effort": 270
+    "effort": 270,
+    "artSpan": 1.73
   },
   {
     "type": "Strawberry",
@@ -2800,7 +2827,8 @@
     "filename": "tree-apple.svg",
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "effort": 33
+    "effort": 33,
+    "artSpan": 1.73
   },
   {
     "type": "Lemon",
@@ -2838,7 +2866,8 @@
     "filename": "tree-lemon.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 80
+    "effort": 80,
+    "artSpan": 1.73
   },
   {
     "type": "Orange",
@@ -2875,7 +2904,8 @@
     "filename": "tree-orange.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 96
+    "effort": 96,
+    "artSpan": 1.73
   },
   {
     "type": "Peach",
@@ -2912,7 +2942,8 @@
     "filename": "tree-peach.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Pear",
@@ -2949,7 +2980,8 @@
     "filename": "tree-pear.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Tomato",
@@ -3021,7 +3053,8 @@
     "filename": "tree-cherry.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 32
+    "effort": 32,
+    "artSpan": 1.73
   },
   {
     "type": "Coconut",
@@ -3056,7 +3089,8 @@
     "filename": "tree-coconut.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 120
+    "effort": 120,
+    "artSpan": 2.11
   },
   {
     "type": "Grapes",
@@ -3130,7 +3164,8 @@
     "filename": "tree-mulberry.svg",
     "crafttime": 345600,
     "totalnestedtime": 345600,
-    "effort": 384
+    "effort": 384,
+    "artSpan": 1.43
   },
   {
     "type": "Coffee Cherry",
@@ -7218,7 +7253,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "sunflower yellow",
-    "artSign": "school bell"
+    "artSign": "school bell",
+    "artSpan": 4.75
   },
   {
     "type": "Hospital",
@@ -7306,7 +7342,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "navy blue",
-    "artSign": "open book"
+    "artSign": "open book",
+    "artSpan": 5.34
   },
   {
     "type": "Mill",
@@ -7346,7 +7383,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "wheat tan",
-    "artSign": "flour sack"
+    "artSign": "none (the sails and the sacks)",
+    "artSpan": 2.25
   },
   {
     "type": "Dairy",
@@ -7388,7 +7426,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "cream white",
-    "artSign": "milk churn"
+    "artSign": "none (the cheese press and the rack of wheels)",
+    "artSpan": 2.05
   },
   {
     "type": "Loom",
@@ -7430,7 +7469,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "indigo blue",
-    "artSign": "spool of thread"
+    "artSign": "none (the loom frame above the roof)",
+    "artSpan": 2.27
   },
   {
     "type": "Chicken Coop",
@@ -7465,7 +7505,9 @@
     "crafttime": 0,
     "totalnestedtime": 375,
     "parallel": 10,
-    "size": 1
+    "size": 1,
+    "filename": "chicken-coop.svg",
+    "artSpan": 1.13
   },
   {
     "type": "Oven",
@@ -7509,7 +7551,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "toasted brown",
-    "artSign": "loaf of bread"
+    "artSign": "none (the dome is the station)",
+    "artSpan": 2.04
   },
   {
     "type": "Beehive",
@@ -7544,7 +7587,9 @@
     "crafttime": 0,
     "totalnestedtime": 450,
     "parallel": 10,
-    "size": 1
+    "size": 1,
+    "filename": "beehive.svg",
+    "artSpan": 0.97
   },
   {
     "type": "Kitchen",
@@ -7586,7 +7631,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "tomato red",
-    "artSign": "steaming pot"
+    "artSign": "none (the hearth and chimney)",
+    "artSpan": 2.04
   },
   {
     "type": "Lumber Yard",
@@ -7628,7 +7674,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "timber brown",
-    "artSign": "stacked logs"
+    "artSign": "none (the log stack)",
+    "artSpan": 2.24
   },
   {
     "type": "Studio",
@@ -7670,7 +7717,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "terracotta",
-    "artSign": "clay pot"
+    "artSign": "clay pot",
+    "artSpan": 2.29
   },
   {
     "type": "Beverage Station",
@@ -7714,7 +7762,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "tea green",
-    "artSign": "steaming cup"
+    "artSign": "steaming cup",
+    "artSpan": 2.1
   },
   {
     "type": "Winery",
@@ -7758,7 +7807,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "burgundy",
-    "artSign": "wine barrel"
+    "artSign": "wine barrel",
+    "artSpan": 2.04
   },
   {
     "type": "Coffee Factory",
@@ -7802,7 +7852,8 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "dark roast brown",
-    "artSign": "coffee bean"
+    "artSign": "none (the roaster and its flue)",
+    "artSpan": 2.21
   },
   {
     "type": "Silkery",
@@ -7845,7 +7896,9 @@
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "silver white",
-    "artSign": "silk cocoon"
+    "artSign": "silk cocoon",
+    "filename": "silkery.svg",
+    "artSpan": 2.05
   },
   {
     "type": "Ancient Temple",
@@ -7910,7 +7963,8 @@
     "artFamily": "camp",
     "artLook": "valley",
     "artAccent": "canvas tan and forest green",
-    "artSign": "tent over a campfire"
+    "artSign": "tent over a campfire (a pictogram on a signpost)",
+    "artSpan": 4.07
   },
   {
     "type": "General Store",
@@ -7942,7 +7996,8 @@
     "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "ochre brown",
-    "artSign": "crossed axe and pickaxe"
+    "artSign": "crossed axe and pickaxe",
+    "artSpan": 4.98
   },
   {
     "type": "Laboratory",
@@ -7971,10 +8026,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "laboratory.svg",
-    "artFamily": "tudor",
+    "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "warm orange (cooking)",
-    "artSign": "flask crossed with a whisk"
+    "artSign": "a big pie on a round placard",
+    "artSpan": 4.44
   },
   {
     "type": "Academy",
@@ -8006,7 +8062,8 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "pink (creativity)",
-    "artSign": "needle and thread over a palette"
+    "artSign": "none: the props out front are the sign (an easel with a Hamlet-and-skull painting, a dressmaker's dummy)",
+    "artSpan": 5.11
   },
   {
     "type": "Guild",
@@ -8035,10 +8092,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "guild.svg",
-    "artFamily": "tudor",
+    "artFamily": "fantastical",
     "artLook": "town",
     "artAccent": "teal",
-    "artSign": "crest with crossed tools"
+    "artSign": "crest with crossed tools",
+    "artSpan": 6.34
   },
   {
     "type": "Agriculture Center",
@@ -8067,10 +8125,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "agriculture.svg",
-    "artFamily": "tudor",
+    "artFamily": "cottage",
     "artLook": "town",
     "artAccent": "leaf green",
-    "artSign": "wheat sheaf"
+    "artSign": "none: hay bales out front are the sign (the approved hay bale deco); a rooster weather vane on the roof",
+    "artSpan": 4.66
   },
   {
     "type": "Factory",
@@ -8113,7 +8172,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "validong": true,
     "validond": true,
@@ -8142,7 +8201,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "qtycollected": 1,
     "validong": true,
@@ -8161,11 +8220,12 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "trade.svg",
+    "filename": "trading-post.svg",
     "artFamily": "cottage",
     "artLook": "homestead",
     "artAccent": "warm wood",
-    "artSign": "none"
+    "artSign": "none (an open stall; crates will be layered for state)",
+    "artSpan": 2.41
   },
   {
     "type": "Bank",
@@ -8232,13 +8292,14 @@
     "artFamily": "tudor",
     "artLook": "town",
     "artAccent": "multi (a big civic building; its clock tower is the landmark)",
-    "artSign": "none (clock tower)"
+    "artSign": "none (clock tower)",
+    "artSpan": 7.35
   },
   {
     "type": "Train",
-    "symbol": "🚂",
+    "symbol": "📦",
     "layoutkey": "TR",
-    "size": 2,
+    "size": 3,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -8264,12 +8325,13 @@
     "filename": "wagon.svg",
     "artFamily": "vehicle",
     "artLook": "town",
-    "artAccent": "black and brass",
-    "artSign": "none"
+    "artAccent": "teal and burgundy stripes, brass",
+    "artSign": "none (the striped awning and counter)",
+    "artSpan": 3.05
   },
   {
     "type": "Carnival",
-    "symbol": "🎡",
+    "symbol": "🌾",
     "layoutkey": "Cv",
     "size": 5,
     "category": "station",
@@ -8295,10 +8357,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "filename": "carnival.svg",
-    "artFamily": "tent",
+    "artFamily": "fair",
     "artLook": "town",
-    "artAccent": "harlequin (many colours)",
-    "artSign": "none (a big tent)"
+    "artAccent": "harvest colours, red-and-cream marquee, many-coloured bunting",
+    "artSign": "none (the marquee and maypole)",
+    "artSpan": 5.09
   },
   {
     "type": "Mailbox",
@@ -8307,7 +8370,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "validong": true,
     "validond": true,
@@ -8325,7 +8388,8 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "mailbox.svg"
+    "filename": "mailbox.svg",
+    "artSpan": 1.41
   },
   {
     "type": "Worker Slot",
@@ -8474,7 +8538,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "qtycollected": 1,
     "validong": true,
@@ -8493,11 +8557,12 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "crate.svg",
+    "filename": "warehouse.svg",
     "artFamily": "cottage",
     "artLook": "homestead",
     "artAccent": "warm wood",
-    "artSign": "none"
+    "artSign": "none (the silo is the sign)",
+    "artSpan": 3.11
   },
   {
     "type": "Inn",
@@ -8535,7 +8600,7 @@
     "artAccent": "red",
     "artSign": "bed",
     "filename": "inn.svg",
-    "artSpan": 3.75
+    "artSpan": 5.01
   },
   {
     "type": "Post House",
@@ -8602,13 +8667,14 @@
     "artFamily": "cottage",
     "artLook": "homestead",
     "artAccent": "straw and warm wood, some greenery",
-    "artSign": "none"
+    "artSign": "none",
+    "artSpan": 3.77
   },
   {
     "type": "Shrine",
     "symbol": "⛩️",
     "layoutkey": "sR",
-    "size": 3,
+    "size": 4,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8634,13 +8700,14 @@
     "artFamily": "japanese",
     "artLook": "valley",
     "artAccent": "classic dark orange (vermilion)",
-    "artSign": "none"
+    "artSign": "none",
+    "artSpan": 4.33
   },
   {
     "type": "Castle",
     "symbol": "🏰",
     "layoutkey": "Ca",
-    "size": 3,
+    "size": 5,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8669,9 +8736,9 @@
   },
   {
     "type": "Shiro",
-    "symbol": "🏯",
+    "symbol": "🏛️",
     "layoutkey": "Jca",
-    "size": 3,
+    "size": 4,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8693,16 +8760,18 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "artFamily": "japanese",
+    "artFamily": "sanctuary",
     "artLook": "valley",
-    "artAccent": "black and white",
-    "artSign": "none"
+    "artAccent": "pale limestone, bronze, laurel green",
+    "artSign": "none (the tripod, the cleft and the scroll urns)",
+    "filename": "oracle-sanctuary.svg",
+    "artSpan": 4.44
   },
   {
     "type": "Restaurant",
     "symbol": "🍽️",
     "layoutkey": "Re",
-    "size": 3,
+    "size": 4,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8790,14 +8859,14 @@
     "artFamily": "castle",
     "artLook": "town",
     "artAccent": "iron grey with a red banner",
-    "artSign": "crossed swords",
-    "artSpan": 4.24
+    "artSign": "crossed swords on the wide red banner hanging from the tower; no placard over the door",
+    "artSpan": 4.91
   },
   {
     "type": "Armory",
     "symbol": "🛡️",
     "layoutkey": "aR",
-    "size": 3,
+    "size": 4,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8822,8 +8891,9 @@
     "filename": "armory.svg",
     "artFamily": "castle",
     "artLook": "town",
-    "artAccent": "steel silver",
-    "artSign": "shield and helmet"
+    "artAccent": "steel grey, grey banner",
+    "artSign": "a shield on the wide grey banner hanging from the tower (the Warrior's Den's banner, in grey); no placard",
+    "artSpan": 4.38
   },
   {
     "type": "Magic Shop",
@@ -8855,7 +8925,8 @@
     "artFamily": "fantastical",
     "artLook": "town",
     "artAccent": "purple",
-    "artSign": "crescent moon and star"
+    "artSign": "none: the round stained-glass moon window over the door is the sign",
+    "artSpan": 6.47
   },
   {
     "type": "Cow",
@@ -9214,7 +9285,7 @@
   },
   {
     "type": "Kent",
-    "symbol": "🤠",
+    "symbol": "🧔",
     "layoutkey": "n1",
     "category": "npc",
     "stateWorking": 900,
@@ -9356,6 +9427,39 @@
     "type": "Cassio",
     "symbol": "🧝",
     "layoutkey": "n0",
+    "category": "npc",
+    "stateWorking": 900,
+    "stateResting": 0,
+    "stateRoaming": 0,
+    "stateEating": 0,
+    "stateSocializing": 300,
+    "artFacing": "front",
+    "movespeed": 0.8,
+    "action": "quest",
+    "passable": true,
+    "xp": 5,
+    "range": 3,
+    "speed": 1000,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
+    "filename": "npc-cassio.svg"
+  },
+  {
+    "type": "Sebastian",
+    "symbol": "🧑",
+    "layoutkey": "Seb",
     "category": "npc",
     "stateWorking": 900,
     "stateResting": 0,
@@ -9625,7 +9729,7 @@
     "stateSocializing": 300,
     "artFacing": "front",
     "movespeed": 0.8,
-    "action": "trade",
+    "action": "quest",
     "source": "Buy",
     "passable": true,
     "requires": "devonly",
@@ -9955,7 +10059,7 @@
     "stateSocializing": 300,
     "artFacing": "front",
     "movespeed": 0.8,
-    "action": "trade",
+    "action": "quest",
     "source": "Buy",
     "passable": true,
     "requires": "devonly",
@@ -10241,6 +10345,42 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 1.6
+  },
+  {
+    "type": "Great Bear",
+    "symbol": "🐻",
+    "layoutkey": "nGB",
+    "category": "npc",
+    "artFacing": "left",
+    "movespeed": 1.6,
+    "action": "attack",
+    "output": "Bear Skin",
+    "passable": false,
+    "xp": 40,
+    "level": 3,
+    "range": 12,
+    "maxhp": 730,
+    "armorclass": 18,
+    "speed": 3,
+    "damage": 52,
+    "attackbonus": 10,
+    "attackrange": 1,
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": false,
+    "validony": false,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
+    "attackinterval": 1.8,
+    "artScale": 1.5
   },
   {
     "type": "Polar Bear",
@@ -10923,7 +11063,7 @@
     "source": "General Store",
     "requires": "Pickaxe",
     "qtycollected": 1,
-    "level": 10,
+    "level": 9,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
     "gemcost": 60
@@ -11255,7 +11395,7 @@
     "source": "Agriculture Center",
     "requires": "Husbandry",
     "qtycollected": 1,
-    "level": 13,
+    "level": 14,
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "ingredient2": "Potion A",
@@ -11350,13 +11490,13 @@
     "requires": "Chemistry",
     "qtycollected": 1,
     "level": 11,
+    "gemcost": 597,
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 6,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
-    "gemcost": 683
+    "ingredient3qty": 1
   },
   {
     "type": "Cooking",
@@ -11432,12 +11572,12 @@
     "source": "Academy",
     "requires": "Textiles",
     "qtycollected": 1,
-    "level": 10,
+    "level": 14,
+    "gemcost": 844,
     "ingredient1": "Money",
     "ingredient1qty": 40000,
-    "ingredient3": "Potion B",
-    "ingredient3qty": 10,
-    "gemcost": 966
+    "ingredient2": "Potion B",
+    "ingredient2qty": 5
   },
   {
     "type": "Tailor",
@@ -11448,11 +11588,11 @@
     "requires": "Textiles",
     "qtycollected": 1,
     "level": 12,
+    "gemcost": 500,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "ingredient4": "Potion C",
-    "ingredient4qty": 100,
-    "gemcost": 1473
+    "ingredient2": "Potion A",
+    "ingredient2qty": 10
   },
   {
     "type": "Zookeeper",
@@ -11746,7 +11886,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 1,
     "damage": 1,
     "ranged": false,
@@ -11763,8 +11902,8 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 3,
+    "retired": true,
     "damage": 7,
     "attackrange": 0,
     "ranged": false,
@@ -11781,8 +11920,8 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 4,
+    "retired": true,
     "damage": 4,
     "attackrange": 2,
     "ranged": true,
@@ -11798,7 +11937,7 @@
     "category": "power",
     "action": "speed",
     "source": "Magic Shop",
-    "level": 4,
+    "level": 11,
     "speed": -2,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
@@ -11811,7 +11950,7 @@
     "category": "power",
     "action": "attackrange",
     "source": "Magic Shop",
-    "level": 5,
+    "level": 10,
     "attackrange": 1,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
@@ -11826,7 +11965,7 @@
     "source": "Armory",
     "passable": true,
     "requires": "Padding",
-    "level": 6,
+    "level": 10,
     "armorclass": 8,
     "ingredient1": "Money",
     "ingredient1qty": 500,
@@ -11842,8 +11981,7 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
-    "level": 7,
+    "level": 11,
     "damage": 5,
     "attackbonus": 2,
     "attackrange": 3,
@@ -11860,7 +11998,7 @@
     "category": "power",
     "action": "maxhp",
     "source": "Magic Shop",
-    "level": 7,
+    "level": 11,
     "maxhp": 100,
     "ingredient1": "Money",
     "ingredient1qty": 9000,
@@ -11874,8 +12012,7 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
-    "level": 9,
+    "level": 10,
     "damage": 15,
     "ranged": false,
     "hands": 1,
@@ -11959,7 +12096,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 14,
     "damage": 6,
     "attackbonus": 1,
@@ -11997,7 +12133,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 17,
     "damage": 18,
     "attackbonus": 1,
@@ -12136,7 +12271,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 23,
     "damage": 6,
     "attackbonus": 1,
@@ -12217,7 +12351,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 27,
     "damage": 15,
     "attackbonus": 2,
@@ -12253,7 +12386,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 31,
     "damage": 10,
     "attackbonus": 3,
@@ -12355,7 +12487,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 44,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12395,7 +12526,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 50,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12415,7 +12545,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 55,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12435,7 +12564,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 60,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12471,7 +12599,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 70,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12490,7 +12617,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 75,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12510,7 +12636,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 85,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12531,7 +12656,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 90,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12551,7 +12675,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 95,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12571,7 +12694,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 100,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -12590,7 +12712,7 @@
     "category": "power",
     "action": "armorclass",
     "source": "Magic Shop",
-    "level": 8,
+    "level": 11,
     "gemcost": 60,
     "armorclass": 2,
     "ingredient1": "Money",
@@ -12604,7 +12726,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 1,
     "level": 13,
     "gemcost": 629,
     "damage": 16,
@@ -12672,7 +12793,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 21,
     "gemcost": 1054,
     "damage": 20,
@@ -12693,7 +12813,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 22,
     "gemcost": 1054,
     "damage": 8,
@@ -12751,7 +12870,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 34,
     "gemcost": 1777,
     "damage": 21,
@@ -12788,7 +12906,6 @@
     "action": "attackrange",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 42,
     "gemcost": 2423,
     "damage": 11,
@@ -12827,7 +12944,6 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "hp": 2,
     "level": 45,
     "gemcost": 2955,
     "damage": 22,
@@ -12887,7 +13003,7 @@
     "shopregion": "Setebos Rise",
     "passable": true,
     "requires": "Padding",
-    "level": 8,
+    "level": 10,
     "gemcost": 244,
     "armorclass": 9,
     "ingredient1": "Money",
@@ -12904,7 +13020,6 @@
     "source": "Warrior's Den",
     "shopregion": "Setebos Rise",
     "passable": true,
-    "hp": 2,
     "level": 14,
     "gemcost": 705,
     "damage": 17,
@@ -12961,7 +13076,6 @@
     "source": "Warrior's Den",
     "shopregion": "Belmont",
     "passable": true,
-    "hp": 1,
     "level": 10,
     "gemcost": 538,
     "damage": 13,
@@ -12983,7 +13097,7 @@
     "action": "armorclass",
     "source": "Magic Shop",
     "shopregion": "Belmont",
-    "level": 9,
+    "level": 11,
     "gemcost": 250,
     "maxhp": 50,
     "armorclass": 1,
@@ -13001,7 +13115,6 @@
     "source": "Warrior's Den",
     "shopregion": "Strathmoore",
     "passable": true,
-    "hp": 2,
     "level": 16,
     "gemcost": 758,
     "damage": 7,
@@ -13062,7 +13175,6 @@
     "source": "Warrior's Den",
     "shopregion": "Sunflower Lake",
     "passable": true,
-    "hp": 1,
     "level": 18,
     "gemcost": 841,
     "damage": 8,
@@ -13103,7 +13215,6 @@
     "source": "Warrior's Den",
     "shopregion": "Mantua",
     "passable": true,
-    "hp": 1,
     "level": 16,
     "gemcost": 815,
     "damage": 12,
@@ -13144,7 +13255,6 @@
     "source": "Warrior's Den",
     "shopregion": "Dunsinane",
     "passable": true,
-    "hp": 2,
     "level": 20,
     "gemcost": 1008,
     "damage": 19,
@@ -13206,7 +13316,6 @@
     "source": "Warrior's Den",
     "shopregion": "Sycorax Fen",
     "passable": true,
-    "hp": 2,
     "level": 22,
     "gemcost": 1070,
     "damage": 18,
@@ -13267,7 +13376,6 @@
     "source": "Warrior's Den",
     "shopregion": "Avondale",
     "passable": true,
-    "hp": 2,
     "level": 21,
     "gemcost": 1063,
     "damage": 19,
@@ -13328,7 +13436,6 @@
     "source": "Warrior's Den",
     "shopregion": "Messina",
     "passable": true,
-    "hp": 2,
     "level": 24,
     "gemcost": 1233,
     "damage": 20,
@@ -13372,7 +13479,6 @@
     "source": "Warrior's Den",
     "shopregion": "Bohemia",
     "passable": true,
-    "hp": 1,
     "level": 27,
     "gemcost": 1378,
     "damage": 13,
@@ -13436,7 +13542,6 @@
     "source": "Warrior's Den",
     "shopregion": "Windsor",
     "passable": true,
-    "hp": 2,
     "level": 26,
     "gemcost": 1330,
     "damage": 9,
@@ -13477,7 +13582,6 @@
     "source": "Warrior's Den",
     "shopregion": "Navarre",
     "passable": true,
-    "hp": 2,
     "level": 28,
     "gemcost": 1505,
     "damage": 17,
@@ -13540,7 +13644,6 @@
     "source": "Warrior's Den",
     "shopregion": "Dunmorrow",
     "passable": true,
-    "hp": 1,
     "level": 32,
     "gemcost": 1634,
     "damage": 14,
@@ -13603,7 +13706,6 @@
     "source": "Warrior's Den",
     "shopregion": "Harfleur",
     "passable": true,
-    "hp": 2,
     "level": 35,
     "gemcost": 1874,
     "damage": 11,
@@ -13703,7 +13805,6 @@
     "source": "Warrior's Den",
     "shopregion": "Lethe Wharf",
     "passable": true,
-    "hp": 2,
     "level": 42,
     "gemcost": 2557,
     "damage": 23,
@@ -13766,7 +13867,6 @@
     "source": "Warrior's Den",
     "shopregion": "Acheron",
     "passable": true,
-    "hp": 2,
     "level": 50,
     "gemcost": 3524,
     "damage": 25,
@@ -13810,7 +13910,7 @@
     "action": "armorclass",
     "source": "Armory",
     "passable": true,
-    "level": 5,
+    "level": 10,
     "gemcost": 98,
     "armorclass": 2,
     "shield": true,
@@ -13905,7 +14005,6 @@
     "passable": true,
     "level": 24,
     "gemcost": 1064,
-    "hp": 1,
     "damage": 18,
     "attackbonus": 1,
     "ranged": false,
@@ -13925,7 +14024,6 @@
     "passable": true,
     "level": 38,
     "gemcost": 2068,
-    "hp": 1,
     "damage": 20,
     "attackbonus": 2,
     "ranged": false,
@@ -14221,7 +14319,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "haybale.svg",
-    "artSpan": 0.97
+    "artSpan": 0.77
   },
   {
     "type": "Crate",
@@ -14245,7 +14343,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "crate.svg",
-    "artSpan": 0.92
+    "artSpan": 0.77
   },
   {
     "type": "Barrel",
@@ -14269,7 +14367,7 @@
     "ingredient1qty": 20,
     "gemcost": 1,
     "filename": "barrel.svg",
-    "artSpan": 1.3
+    "artSpan": 0.78
   },
   {
     "type": "Holiday Tree",
@@ -14494,7 +14592,7 @@
     "layoutkey": "pt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14517,7 +14615,7 @@
     "layoutkey": "rpt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14540,7 +14638,7 @@
     "layoutkey": "fpt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14584,7 +14682,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14603,12 +14701,12 @@
     "ingredient1qty": 25,
     "gemcost": 1,
     "filename": "poppies.svg",
-    "artSpan": 1.33
+    "artSpan": 1.13
   },
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14632,7 +14730,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14656,7 +14754,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14750,6 +14848,27 @@
     "artSpan": 2.51
   },
   {
+    "type": "Gertrude's Statue",
+    "symbol": "🏛️",
+    "layoutkey": "GSt",
+    "category": "deco",
+    "action": "statue",
+    "passable": false,
+    "qtycollected": 1,
+    "filename": "marble-statue.svg",
+    "artSpan": 2.51,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true
+  },
+  {
     "category": "deco",
     "source": "Deco",
     "passable": false,
@@ -14794,7 +14913,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 1,
-    "filename": "cactus.svg"
+    "filename": "cactus.svg",
+    "artSpan": 1.01
   },
   {
     "type": "Harp",
@@ -14863,7 +14983,7 @@
     "ingredient1qty": 30,
     "gemcost": 1,
     "filename": "sack.svg",
-    "artSpan": 0.99
+    "artSpan": 0.73
   },
   {
     "type": "Stack of Books",
@@ -15019,7 +15139,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 8000,
     "gemcost": 80,
-    "filename": "bird-bath.svg"
+    "filename": "bird-bath.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Fountain",
@@ -15042,7 +15163,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 100,
-    "filename": "fountain.svg"
+    "filename": "fountain.svg",
+    "artSpan": 0.98
   },
   {
     "type": "Fountain Large",
@@ -15066,7 +15188,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "gemcost": 200,
-    "filename": "fountain-large.svg"
+    "filename": "fountain-large.svg",
+    "artSpan": 2.15
   },
   {
     "type": "Large Decorative Palm Tree",

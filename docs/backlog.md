@@ -340,7 +340,11 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   level-up list); two new Shepherd quests ("Our Bodies Are Our Gardens", L6; "Sermons in
   Stones", L7); the combat gear moved to L10-11, Short Sword and Darts retired (shops skip
   `retired`; editor columns on both sheets); the Crown and Queen keep their order (Crown L11).
-  The Sheep quest no longer sits below its unlock. Not yet played. Open: merge more concepts the
+  The Sheep quest no longer sits below its unlock. **Same day, owner's play at L4:** L3 wood
+  (Axe + 24 Wood, one quest) and L4 animals (Husbandry + Cow + 12 Milk); Builder + Mill one L5
+  quest; and every skill, station or animal a quest teaches (L1-12) now unlocks at that quest's
+  level (17 unlocks raised, `early-game.md` §2), so Kent's early orders narrow with them. Not yet
+  played. Open: merge more concepts the
   Husbandry way once the owner has tried it; near-ring enemy placement (owner: later); Farm Hand
   (10,000 Money) now L11.
 - **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops

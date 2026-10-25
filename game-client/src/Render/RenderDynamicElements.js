@@ -1,5 +1,7 @@
 import { getLocalizedString } from '../Utils/stringLookup';
 import questCache from '../Utils/QuestCache';
+import { loadMasterXPLevels } from '../Utils/TuningManager';
+import { getDerivedLevel } from '../Utils/playerManagement';
 import { getPlayerQuantity } from '../Utils/InventoryManagement';
 import { citizenStatusText, citizenCountdown } from '../GameFeatures/NPCs/citizenStatus';
 
@@ -198,7 +200,8 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
   try {
     // Use cached quests instead of direct API call
     const allQuests = await questCache.getQuests();
-    
+    const level = getDerivedLevel(currentPlayer, await loadMasterXPLevels());
+
     // Use same filtering logic as NPCPanel
     let npcQuests = allQuests
       .filter((quest) => quest.giver === npc.type)
@@ -208,6 +211,7 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
           return activeQuest.completed && !activeQuest.rewardCollected;
         }
         if (quest.retired === true || quest.retired === 'true') return false; // merged away, never offered
+        if (Number(quest.level) > level) return false; // not open yet: the panel hides it too
         if (quest.prereq && !currentPlayer.completedQuests?.some(q => q.questId === quest.prereq)) return false; // chain: not yet
         return (quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests?.some(q => q.questId === quest.title);
       });

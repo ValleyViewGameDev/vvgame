@@ -98,8 +98,12 @@ Two separate goals:
 Until about L7 each level introduces ONE new system while the player masters the core loop
 (plant, harvest, sell to Kent, level up). Practice with a system already met (another crop, a
 second animal, Kent orders) may sit beside it. A concept is one quest where it can be: the
-Husbandry quest is the model (Acquire Husbandry, Buy 1 Cow, Collect 30 Milk; the two quests
-merged into it are `retired`, still claimable by anyone who holds one). From L8 a level may carry
+Husbandry quest is the model (Acquire Husbandry, Buy 1 Cow, Collect 12 Milk; the quests merged
+into one are `retired`, still claimable by anyone who holds one). **Unlocks match the teaching
+quest** (owner, 2026-10-25): from L1 to L12, a skill, station or animal that a quest teaches
+unlocks at that quest's level, never before, so nothing sits in a shop ahead of its lesson
+(Builder and the Mill L5, Husbandry and the Cow L4, Backpack and its upgrades and the Pickaxe L7,
+Masonry, Mechanics, Dairy and Hospital L8, Loom L9, Politics, Law, Library and Textiles L12). From L8 a level may carry
 more than one. **Combat starts at L10** (owner): combat quests and the first weapons, armour and
 combat magic all unlock there; a player may still fight before with the Knife and Padding.
 
@@ -107,9 +111,9 @@ combat magic all unlock there; a player may still fight before with the Knife an
 |---|---|---|
 | 1 | farming and Kent (FTUE) | Plant Wheat |
 | 2 | skills | Grower; Earth's Bounty; Elbow's first story step (from the FTUE) |
-| 3 | animals | The Gentle Art (Husbandry + Cow + 30 Milk) |
-| 4 | wood | Wood Master (Axe), Saw You Not That? (24 Wood); I Earn That I Eat (Kent, practice) |
-| 5 | building | Foundations of Stone (Builder), Mill by Moonlight; Fleecy Fellowship (Sheep, practice) |
+| 3 | wood | Wood Master (Axe + 24 Wood; Saw You Not That? retired) |
+| 4 | animals | The Gentle Art (Husbandry + Cow + 12 Milk); I Earn That I Eat (Kent, practice) |
+| 5 | building | Foundations of Stone (Builder + Build Mill; Mill by Moonlight retired); Fleecy Fellowship (Sheep, practice) |
 | 6 | new crops | Our Bodies Are Our Gardens (Green Thumb + 10 Potato); Sweet Harvest (practice) |
 | 7 | the Valley | Backpack; Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Cook's Harvest (practice) |
 | 8 | stone builds | Master Mason, Dairy to Dream, Cheddar Ambitions; Mechanics; Coop Dreams |

@@ -65,15 +65,18 @@
     "index": 10,
     "title": "Wood Master",
     "symbol": "👵🏻",
-    "level": 4,
+    "level": 3,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Wood",
     "rewardqty": 10,
-    "xp": 15,
+    "xp": 25,
     "goal1action": "Acquire",
     "goal1item": "Axe",
-    "goal1qty": 1
+    "goal1qty": 1,
+    "goal2action": "Collect",
+    "goal2item": "Wood",
+    "goal2qty": 24
   },
   {
     "index": 11,
@@ -87,18 +90,19 @@
     "xp": 10,
     "goal1action": "Collect",
     "goal1item": "Wood",
-    "goal1qty": 24
+    "goal1qty": 24,
+    "retired": true
   },
   {
     "index": 18,
     "title": "The Gentle Art",
     "symbol": "👵🏻",
-    "level": 3,
+    "level": 4,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 400,
-    "xp": 12,
+    "xp": 15,
     "goal1action": "Acquire",
     "goal1item": "Husbandry",
     "goal1qty": 1,
@@ -107,7 +111,7 @@
     "goal2qty": 1,
     "goal3action": "Collect",
     "goal3item": "Milk",
-    "goal3qty": 30
+    "goal3qty": 12
   },
   {
     "index": 19,
@@ -160,12 +164,15 @@
     "level": 5,
     "repeatable": false,
     "giver": "The Shepherd",
-    "reward": "Honey",
-    "rewardqty": 6,
-    "xp": 25,
+    "reward": "Sugarcane",
+    "rewardqty": 12,
+    "xp": 50,
     "goal1action": "Acquire",
     "goal1item": "Builder",
-    "goal1qty": 1
+    "goal1qty": 1,
+    "goal2action": "Build",
+    "goal2item": "Mill",
+    "goal2qty": 1
   },
   {
     "index": 20,
@@ -214,7 +221,8 @@
     "xp": 25,
     "goal1action": "Build",
     "goal1item": "Mill",
-    "goal1qty": 1
+    "goal1qty": 1,
+    "retired": true
   },
   {
     "index": 27,

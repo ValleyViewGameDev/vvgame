@@ -332,8 +332,9 @@ const NPCPanel = ({
           // a retired quest (merged into another) is never offered again; one already held still
           // shows above when done, so its reward can be claimed
           if (quest.retired === true || quest.retired === 'true') return false;
-          // only quests open now or one level away; further ones are hidden (owner 2026-10-24)
-          if (Number(quest.level) > playerLevel + 1) return false;
+          // only quests open now: a quest above the player's level is hidden, not shown locked
+          // (owner 2026-10-25; was one level ahead, too much at once)
+          if (Number(quest.level) > playerLevel) return false;
           // a quest with a prereq is offered only once that quest is done (quest chains)
           if (quest.prereq && !currentPlayer.completedQuests.some(q => q.questId === quest.prereq)) return false;
           const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
