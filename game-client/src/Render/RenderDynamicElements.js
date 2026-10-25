@@ -208,6 +208,7 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
           return activeQuest.completed && !activeQuest.rewardCollected;
         }
         if (quest.retired === true || quest.retired === 'true') return false; // merged away, never offered
+        if (quest.prereq && !currentPlayer.completedQuests?.some(q => q.questId === quest.prereq)) return false; // chain: not yet
         return (quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests?.some(q => q.questId === quest.title);
       });
 
@@ -221,7 +222,7 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
     if (hasCompletedQuests) {
       status = 'completed'; // Show checkmark
     } else if (npcQuests.length > 0) {
-      status = 'available'; // Show question mark/hand
+      status = 'question'; // a quest to offer: the yellow ? (same as the Quest button's badge)
     }
     
     return status;

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "ff27c07d68ae5dd73a05358dbe8865bcdf7e923b",
+  "sourceHash": "8059fa70f463910878bf7c1ac85c8469c6d90469",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -67,7 +67,7 @@
       "json": "world-10.json",
       "png": "world-10.png",
       "webp": "world-10.webp",
-      "frames": 103
+      "frames": 104
     }
   ],
   "frames": {
@@ -564,6 +564,7 @@
     "emoji/2b50": 10,
     "overlays/checkmark.svg": 10,
     "overlays/clock.svg": 10,
-    "overlays/hand.svg": 10
+    "overlays/hand.svg": 10,
+    "overlays/question.svg": 10
   }
 }

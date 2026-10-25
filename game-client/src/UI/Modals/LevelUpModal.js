@@ -99,7 +99,7 @@ const LevelUpModal = ({
 
         <div className="modal-content">
           <div className="level-up-message">
-            🎉 {(strings[812] || "Congratulations! You've reached level {level}!").replace('{level}', currentLevel)} 🎉
+            {(strings[812] || "Congratulations! You've reached level {level}!").replace('{level}', currentLevel)}
           </div>
 
           {unlockedResources.length > 0 && (

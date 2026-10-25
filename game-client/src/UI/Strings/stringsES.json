@@ -1471,7 +1471,7 @@
     "7051": "Puedes comprar una Escritura de Casa del Alguacil Elbow, cuando estés listo para establecer tu Hacienda. O puedes explorar y prepararte para la aventura.",
     "7052": "Con tu Escritura de Casa, puedes usar el 🏠 Señalador Casa para viajar a tu Hacienda en cualquier momento.",
     "7053": "¡Bienvenido a tu Hacienda! Esta tierra es tuya para construir. Gana 💰 Dinero vendiendo tus bienes a 🧔 Kent.",
-    "7054": "Genial, ¡ahora empieza a cultivar! Puedes plantar cultivos usando el panel {icon:icon-farming.svg} Agricultura. Los cultivos deben plantarse en tierra.",
+    "7054": "¡Genial, sigue cultivando! Puedes plantar cultivos usando el panel {icon:icon-farming.svg} Agricultura. Los cultivos deben plantarse en tierra.",
     "7055": "¡Vas por buen camino! Sigue cultivando y vendiendo. Cuando estés listo, viaja de vuelta al Pueblo usando el 🏛️ Señalador, y obtén una Llave del Pueblo del Alguacil Elbow.",
     "7056": "¡Ahora eres bienvenido al Pueblo! Explora todo lo que el Pueblo tiene para ofrecer, incluyendo desarrollar más Habilidades, conocer a los Habitantes, y más formas de ganar Dinero.",
     "7057": "Ve al 🏪 Patio del Leñador en el pueblo para adquirir un Hacha.",
@@ -1523,10 +1523,10 @@
     "4095": "Puedes cambiarlo más tarde en el Perfil.",
     "7063": "¡Bienvenido a casa! Un regalo de bienvenida te espera en tu 📬 Buzón.",
     "7064": "Puedes cambiar tu avatar en tu Perfil cuando quieras.",
-    "7065": "¡Ahora estás por tu cuenta! Sigue vendiendo a Kent y vuelve por tus cultivos: mañana te espera un regalo. La próxima tarea del alguacil Elbow está en tus Misiones, y siete tesoros perdidos te esperan en tu Misión de Esperanza.",
-    "7066": "Después de cultivar un poco, visita la Granja de Arden en el Pueblo. Allí puedes comprar nuevas Habilidades.",
-    "7067": "¡Bienvenido a tu hacienda! Esta tierra es tuya para construir. Empieza recogiendo 3 de Trigo.",
-    "7068": "Ahora vende tus productos a Kent para hacer crecer tu granja.",
+    "7065": "¡Ahora estás por tu cuenta! Sigue vendiendo a Kent y vuelve por tus cultivos. Mañana te espera un regalo especial. Y siete tesoros perdidos te aguardan en tu Búsqueda de la Esperanza.",
+    "7066": "Después de cultivar un poco más, visita la Granja de Arden en el Pueblo. Allí puedes comprar nuevas Habilidades.",
+    "7067": "Para hacer crecer tu hacienda, tendrás que trabajar la granja. Empieza recogiendo 3 de Trigo.",
+    "7068": "Ahora vende tus productos al comerciante llamado Kent.",
     "4096": "Empezar la aventura",
     "4097": "Permítenos darte la bienvenida",
     "4098": "Secrets of Elsinore es un juego web y, según tu navegador, puede ser difícil encontrar el camino de vuelta. Añade tu correo para que podamos enviarte una nota de bienvenida y alguna novedad de vez en cuando.",
@@ -1696,5 +1696,6 @@
     "16515": "Próspero tuvo una vez un sirviente, Calibán, y lo llamó criatura de las tinieblas. Calibán conoce cada sendero del Valle, incluso el que lleva a la bruja que odia a su antiguo amo. Salúdalo, y los últimos tesoros del Oráculo estarán más cerca.",
     "16514": "Nuestro rey Leontes no sale de su salón en el Valle y no hay quien lo consuele. «Un cuento triste es el mejor para el invierno», dice. Ve a saludarlo, {username}, y dile que el Oráculo no nos ha olvidado.",
     "200851": "Piedras de paso",
-    "314": "Las piedras de paso en la hierba forman un camino que sigue pareciendo un césped."
+    "314": "Las piedras de paso en la hierba forman un camino que sigue pareciendo un césped.",
+    "7069": "El alguacil Elbow tiene una tarea para ti. Abre tus 📜 Misiones para leerla."
 }

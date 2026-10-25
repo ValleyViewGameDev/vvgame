@@ -1021,10 +1021,13 @@ useEffect(() => {
     setCursorMode((prev) => (prev?.type === 'move' ? prev : null)); // a Move (GameFeatures/Move) outlives the panel it came from
   }
 }, [activePanel]);
-// FTUE: opening the Farming panel is a tutorial beat (tuning/FTUEsteps.json, OpenedFarmingPanel)
+// FTUE: opening the Farming / Quest panel is a tutorial beat (tuning/FTUEsteps.json, OpenedFarmingPanel / OpenedQuestPanel)
 useEffect(() => {
   if (activePanel === 'FarmingPanel' && currentPlayer?.firsttimeuser) {
     tryAdvanceFTUEByTrigger('OpenedFarmingPanel', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+  }
+  if (activePanel === 'QuestPanel' && currentPlayer?.firsttimeuser) {
+    tryAdvanceFTUEByTrigger('OpenedQuestPanel', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
   }
 }, [activePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -3331,7 +3334,7 @@ return (
         fly into it (data-fly-target="quests", UI/FlyToTarget.js) */}
     {currentPlayer && (
       <div className="map-controls quest-controls" data-fly-target="quests">
-        <button className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
+        <button data-nav="QuestPanel" className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
         {questBadge === 'completed' && <img className="hud-badge" src="/assets/overlays/checkmark.svg" alt="" />}
         {questBadge === 'active' && <span className="hud-badge hud-badge--question">?</span>}
       </div>

@@ -12,6 +12,7 @@ export function enrichGridResources(rawResources, masterResources) {
   const loadedResources = rawResources || [];
 
   for (const rawResource of loadedResources) {
+    if (rawResource?.type === 'Stub') continue; // layout footprint placeholder; grids saved before the server dropped them still hold some
     let resource = rawResource;
     if (masterResources && masterResources.length > 0) {
       const template = masterResources.find((r) => r.type === rawResource.type);

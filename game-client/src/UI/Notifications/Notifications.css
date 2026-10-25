@@ -126,7 +126,7 @@
 }
 
 .notification-name {
-    font-size: var(--font-text-1-size);
+    font-size: var(--text-panel);
     font-weight: normal;
     color: var(--color-text-primary);
     margin-bottom: 4px;

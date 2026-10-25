@@ -62,6 +62,7 @@ export const OVERLAY_SVG_MAPPING = {
   'inprogress': 'clock.svg',
   'campaign': 'clock.svg',
   'available': 'hand.svg',
+  'question': 'question.svg',
 };
 
 // Mapping from overlay types to emoji (for DOM fallback)
@@ -72,6 +73,7 @@ export const OVERLAY_EMOJI_MAPPING = {
   'inprogress': { emoji: '🕑', color: 'orange' },
   'campaign': { emoji: '🕐', color: '#FFD700' },
   'available': { emoji: '👋', color: '#FFD700' },
+  'question': { emoji: '❓', color: '#f2b705' },
   'exclamation': { emoji: '❗', color: '#FF6B35' },
   'attack': { emoji: '⚔️', color: '#DC143C' },
 };

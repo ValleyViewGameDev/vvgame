@@ -28,7 +28,9 @@ function buildDungeonFields(templateFilename) {
   if (!dungeonTemplateExists(templateFilename)) throw new Error(`Dungeon template not found: ${templateFilename}`);
   const template = JSON.parse(fs.readFileSync(templatePath(templateFilename), 'utf-8'));
   const tiles = generateFixedGrid(template);
-  const resources = generateFixedResources(template);
+  // "Stub" cells only reserve a multi-tile building's footprint in the layout; drop them, as
+  // createGridLogic / resetGridLogic do (they showed as red X's in the FTUE cave)
+  const resources = generateFixedResources(template).filter((r) => r.type !== 'Stub');
 
   const npcs = new Map();
   (template.resources || []).forEach((row, y) => {

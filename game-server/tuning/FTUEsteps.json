@@ -215,14 +215,25 @@
     "bodyKey": 16521,
     "continue": false,
     "doinker": true,
-    "doinkerType": "resource",
-    "doinkerTarget": "Signpost Home",
-    "notificationKey": 7059,
-    "addQuests": [115],
-    "notificationSprite": "signpost-home.svg"
+    "doinkerType": "element",
+    "doinkerTarget": "[data-nav=\"QuestPanel\"]",
+    "notificationKey": 7069,
+    "notificationIcon": "📜",
+    "addQuests": [115]
   },
   {
     "step": 19,
+    "trigger": "OpenedQuestPanel",
+    "showModal": false,
+    "doinker": true,
+    "doinkerType": "resource",
+    "doinkerTarget": "Signpost Home",
+    "notificationKey": 7059,
+    "notificationSprite": "signpost-home.svg",
+    "addQuests": []
+  },
+  {
+    "step": 20,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,

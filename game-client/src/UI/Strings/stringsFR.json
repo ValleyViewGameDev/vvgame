@@ -1473,7 +1473,7 @@
     "7051": "Vous pouvez acheter un Acte de Propriété auprès du Constable Elbow, quand vous êtes prêt à vous installer sur votre Domaine. Ou vous pouvez explorer et vous équiper pour l'aventure.",
     "7052": "Avec votre Acte de Propriété, vous pouvez utiliser le 🏠 Panneau Maison pour voyager vers votre Domaine à tout moment.",
     "7053": "Bienvenue sur votre Domaine ! Cette terre est à vous pour construire. Gagnez de l'💰 Argent en vendant vos marchandises à 🧔 Kent.",
-    "7054": "Super, maintenant commencez à cultiver ! Vous pouvez planter des cultures en utilisant le panneau {icon:icon-farming.svg} Agriculture. Les cultures doivent être plantées sur de la terre.",
+    "7054": "Super, continuez à cultiver ! Vous pouvez planter des cultures en utilisant le panneau {icon:icon-farming.svg} Agriculture. Les cultures doivent être plantées sur de la terre.",
     "7055": "Vous êtes en bonne voie ! Continuez à cultiver et à vendre. Quand vous êtes prêt, retournez en Ville en utilisant le 🏛️ Panneau, et obtenez une Clé de la Ville auprès du Constable Elbow.",
     "7056": "Vous êtes maintenant bienvenu en Ville ! Explorez tout ce que la Ville a à offrir, y compris développer plus de Compétences, rencontrer les Habitants, et plus de moyens de gagner de l'Argent.",
     "7057": "Rendez-vous à la 🏪 Cour du Bûcheron en ville pour acquérir une Hache.",
@@ -1525,10 +1525,10 @@
     "4095": "Vous pourrez le changer plus tard dans le Profil.",
     "7063": "Bienvenue chez vous ! Un cadeau de bienvenue vous attend dans votre 📬 Boîte aux lettres.",
     "7064": "Vous pouvez changer d'avatar dans votre Profil à tout moment.",
-    "7065": "Te voilà livré à toi-même ! Continue de vendre à Kent et reviens pour tes cultures : un cadeau t'attend demain. La prochaine tâche du connétable Elbow est dans tes Quêtes, et sept trésors perdus t'attendent dans ta Quête d'Espoir.",
-    "7066": "Après un peu de culture, visitez la Ferme d'Arden en Ville. Vous pouvez y acheter de nouvelles Compétences.",
-    "7067": "Bienvenue sur votre domaine ! Cette terre est à vous pour construire. Commencez par récolter 3 Blé.",
-    "7068": "Maintenant, vendez vos marchandises à Kent pour faire grandir votre domaine.",
+    "7065": "Te voilà livré à toi-même ! Continue de vendre à Kent, et reviens pour tes cultures. Un cadeau spécial t'attend demain. Et sept trésors perdus t'attendent dans ta Quête de l'Espoir.",
+    "7066": "Après encore un peu de culture, visitez la Ferme d'Arden en Ville. Vous pouvez y acheter de nouvelles Compétences.",
+    "7067": "Pour faire grandir votre domaine, il faudra travailler la ferme. Commencez par récolter 3 Blés.",
+    "7068": "Vendez maintenant vos produits au marchand nommé Kent.",
     "4096": "Commencer l'aventure",
     "4097": "Laissez-nous vous souhaiter la bienvenue",
     "4098": "Secrets of Elsinore est un jeu web et, selon votre navigateur, il peut être difficile de retrouver le chemin. Ajoutez votre e-mail pour recevoir un mot de bienvenue et, de temps en temps, des nouvelles.",
@@ -1698,5 +1698,6 @@
     "16515": "Prospero eut jadis un serviteur, Caliban, qu'il appelait une chose de ténèbres. Caliban connaît chaque sentier de la Vallée, même celui qui mène à la sorcière qui hait son ancien maître. Salue-le, et les derniers trésors de l'Oracle se rapprocheront.",
     "16514": "Notre roi Leontes reste dans sa salle, dans la Vallée, et refuse d'être consolé. « Un conte triste est le meilleur pour l'hiver », dit-il. Va le saluer, {username}, et dis-lui que l'Oracle ne nous a pas oubliés.",
     "200851": "Pas japonais",
-    "314": "Des pas japonais posés dans l'herbe forment un chemin qui garde l'air d'une pelouse."
+    "314": "Des pas japonais posés dans l'herbe forment un chemin qui garde l'air d'une pelouse.",
+    "7069": "Le connétable Elbow a une tâche pour vous. Ouvrez vos 📜 Quêtes pour la lire."
 }

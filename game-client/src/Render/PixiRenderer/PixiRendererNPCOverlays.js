@@ -291,7 +291,7 @@ const PixiRendererNPCOverlays = ({
         // Check quest NPCs (including Kent)
         if (npc.action === 'quest') {
           // Use cached status if available (async call optimization)
-          const cacheKey = `${npc.type}-${currentPlayer?._id}-${currentPlayer?.activeQuests?.length || 0}`;
+          const cacheKey = `${npc.type}-${currentPlayer?._id}-${currentPlayer?.activeQuests?.length || 0}-${currentPlayer?.completedQuests?.length || 0}`;
 
           if (statusCacheRef.current.has(cacheKey)) {
             overlayType = statusCacheRef.current.get(cacheKey);

@@ -180,6 +180,9 @@
 .quest-card .quest-tasks { margin: 0; }
 .quest-card .quest-tasks p { margin: 0; line-height: 1.45; }
 .quest-card .quest-task--done { color: var(--color-text-positive); }
+/* each task: a fixed-width status icon, then the text, so icons and texts each line up in a column */
+.quest-card .quest-tasks p.quest-task { display: flex; align-items: flex-start; gap: 6px; text-align: left; }
+.quest-card .quest-task-icon { flex: 0 0 16px; width: 16px; height: 16px; margin-top: 0.2em; }
 /* Quest giver card: the level sits top-right (beside ✅ once the reward is ready), goals straight under the title */
 .quest-card .quest-header-right { display: inline-flex; align-items: center; gap: 6px; }
 .quest-card .quest-level.ok { color: var(--color-text-positive); }

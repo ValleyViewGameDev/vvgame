@@ -1290,8 +1290,8 @@
     "4095": "You can change it later in Profile.",
     "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
-    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops: a gift waits for you tomorrow. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
-    "7066": "After a bit of farming, visit Arden's Grange in Town. You can purchase new Skills there.",
+    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops. A special gift waits for you tomorrow. And seven lost treasures await you in your Quest for Hope.",
+    "7066": "After some more farming, visit Arden's Grange in Town. You can purchase new Skills there.",
     "4096": "Begin the Adventure",
     "4097": "Let us welcome you",
     "4098": "Secrets of Elsinore is a web game, and depending on your browser it can be tricky to find your way back. Add your email so we can send you a welcome note and the occasional update.",
@@ -1487,5 +1487,9 @@
     "200814": "The bell invites thee, but it is not sold for coin. Iago trades it only for Portia's Secret, and Portia tells her secret only to one she trusts with all her heart.",
     "200815": "The bird of wonder dies and rises from its own ash, behind a mirror by the King's castle. Leontes gives the Mirror Key for six secrets; then only the boldest blade will pluck a feather from the fire.",
     "200816": "'Tis the very witching time of night, when churchyards yawn. A pale lord craves not blood but quiet among his dead: put his restless neighbours back to sleep, and he will bleed for thee.",
-    "200822": "Out, out, brief candle? Not this one: it still burns at the bottom of Acheron, past the black fog and the hound with three heads. Hecate's torch can light the way, if thou bring her what stings."
+    "200822": "Out, out, brief candle? Not this one: it still burns at the bottom of Acheron, past the black fog and the hound with three heads. Hecate's torch can light the way, if thou bring her what stings.",
+    "7067": "To grow your homestead, you'll need to work the farm. Start by collecting 3 Wheat.",
+    "7068": "Now sell your goods to the trader named Kent.",
+    "7054": "Great, now keep farming! You can plant crops using the {icon:icon-farming.svg} Farming panel. Crops must be planted on dirt.",
+    "7069": "Constable Elbow has a task for you. Open your 📜 Quests to read it."
 }

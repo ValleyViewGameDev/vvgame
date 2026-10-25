@@ -57,8 +57,10 @@ const QuestButton = ({ quest, state, onClick, masterResources }) => {
       <div className="quest-tasks">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (
-            <p key={index} className={goal.progress >= goal.qty ? 'quest-task--done' : ''}>
-              {goal.action} {goal.item}: {goal.progress}/{goal.qty}
+            <p key={index} className={`quest-task${goal.progress >= goal.qty ? ' quest-task--done' : ''}`}>
+              {/* the task's state at its left, the same art as the Quest button's badge: done, or still to do */}
+              <img className="quest-task-icon" alt="" src={`/assets/overlays/${goal.progress >= goal.qty ? 'checkmark' : 'question'}.svg`} />
+              <span>{goal.action} {goal.item}: {goal.progress}/{goal.qty}</span>
             </p>
           ) : null
         )}

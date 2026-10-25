@@ -822,7 +822,7 @@
     "7051": "You can buy a Home Deed from Constable Elbow, when you're ready to start settling your Homestead. Or you can explore, and gear up for adventure.",
     "7052": "With your Home Deed, you can use the 🏠 Signpost Home to travel to your Homestead at any time.",
     "7053": "Welcome to your Homestead! This land is yours to build. Make Money by selling your goods to Kent.",
-    "7054": "Great, now start farming! You can plant crops using the {icon:icon-farming.svg} Farming panel. Crops must be planted on dirt.",
+    "7054": "Great, now keep farming! You can plant crops using the {icon:icon-farming.svg} Farming panel. Crops must be planted on dirt.",
     "7055": "You're on your way! Keep farming and selling. When you're ready, travel back to Town using the 🏛️ Signpost, and get a Key to the Town from Constable Elbow.",
     "7057": "Go to the 🏪 Woodman's Yard in town to acquire an Axe.",
     "7058": "Go to the 🏪 Woodman's Yard in town to acquire a Pickaxe.",
@@ -1588,10 +1588,10 @@
     "4095": "You can change it later in Profile.",
     "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
-    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops: a gift waits for you tomorrow. Constable Elbow's next task is in your Quests, and seven lost treasures wait in your Quest for Hope.",
-    "7066": "After a bit of farming, visit Arden's Grange in Town. You can purchase new Skills there.",
-    "7067": "Welcome to your homestead! This land is yours to build. Start by collecting 3 Wheat.",
-    "7068": "Now sell your goods to Kent, to help grow your homestead.",
+    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops. A special gift waits for you tomorrow. And seven lost treasures await you in your Quest for Hope.",
+    "7066": "After some more farming, visit Arden's Grange in Town. You can purchase new Skills there.",
+    "7067": "To grow your homestead, you'll need to work the farm. Start by collecting 3 Wheat.",
+    "7068": "Now sell your goods to the trader named Kent.",
     "4096": "Begin the Adventure",
     "4097": "Let us welcome you",
     "4098": "Secrets of Elsinore is a web game, and depending on your browser it can be tricky to find your way back. Add your email so we can send you a welcome note and the occasional update.",
@@ -1742,5 +1742,6 @@
     "16515": "Prospero kept a servant once, Caliban, and called him a thing of darkness. Caliban knows every path in the Valley, even the one to the witch who hates his old master. Greet him, and the Oracle's last treasures come nearer.",
     "16514": "Our King Leontes keeps to his hall in the Valley and will not be comforted. \"A sad tale's best for winter,\" he says. Go and greet him, {username}, and tell him the Oracle has not forgotten us.",
     "200851": "Step Stones",
-    "314": "Step stones set in the grass make a path that still looks like a lawn."
+    "314": "Step stones set in the grass make a path that still looks like a lawn.",
+    "7069": "Constable Elbow has a task for you. Open your 📜 Quests to read it."
 }
