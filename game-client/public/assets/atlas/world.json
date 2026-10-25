@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "1cc2e9d75e1b2b059e46040d16d4f76fe957eb6a",
+  "sourceHash": "2c44013f2c33328f0d1a1d7f5acb6c0e61ae2597",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -67,7 +67,7 @@
       "json": "world-10.json",
       "png": "world-10.png",
       "webp": "world-10.webp",
-      "frames": 102
+      "frames": 103
     }
   ],
   "frames": {
@@ -110,7 +110,7 @@
     "resources/palm-tree.svg": 6,
     "resources/silkery.svg": 6,
     "resources/studio.svg": 6,
-    "resources/trade.svg": 6,
+    "resources/trading-post.svg": 6,
     "resources/wagon.svg": 6,
     "resources/warehouse.svg": 6,
     "resources/winery.svg": 6,
@@ -244,6 +244,7 @@
     "resources/stone-bust.svg": 8,
     "resources/stone-lion.svg": 8,
     "resources/stone.svg": 8,
+    "resources/trade.svg": 8,
     "resources/tree-apple.svg": 8,
     "resources/tree-cherry.svg": 8,
     "resources/tree-coconut.svg": 8,
@@ -257,7 +258,7 @@
     "resources/wood.svg": 8,
     "walls/stone-e.png": 8,
     "walls/stone-n.png": 8,
-    "walls/stone-post.png": 8,
+    "walls/stone-post.png": 9,
     "walls/stone-run-h.png": 9,
     "walls/stone-run-v.png": 9,
     "walls/stone-s.png": 9,
@@ -461,7 +462,7 @@
     "emoji/1f52c": 9,
     "emoji/1f52d": 9,
     "emoji/1f52e": 9,
-    "emoji/1f531": 9,
+    "emoji/1f531": 10,
     "emoji/1f537": 10,
     "emoji/1f56f": 10,
     "emoji/1f577": 10,

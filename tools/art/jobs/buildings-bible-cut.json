@@ -371,6 +371,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the WAREHOUSE, a round wooden silo of vertical weathered staves bound by three dark iron hoops on a stone-and-plaster footing, a conical golden thatched roof with a wooden finial, a small square hatch under the eaves, an arched wooden door with iron hinges, two sacks and a crate by the door, a short ladder, a little climbing greenery, in bright noon daylight. Redraw the SAME building, identical in every way: the same design, staves, hoops, roof, door, hatch, sacks, crate, ladder, greenery, colours, lighting, camera and size. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the silo's footing fills that box end to end exactly as in the reference (the roof and finial may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "trading-post": {
+      "refs": [
+        "_candidates/homestead-r1/approved/openai--painterly-trading-post-c-2.small.jpg"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved station from this game: the TRADING POST, an open four-post timber stall with a bare plank counter and a bare low shelf under it, corner braces, a low thin golden thatched roof cap with a wooden ridge beam, in bright noon daylight; the counter and shelf are EMPTY. Redraw the SAME stall, identical in every way: the posts, braces, counter, shelf, roof, colours, lighting, camera and size, the counter and shelf still empty. Change ONE thing only: the surroundings. There is NO grass, no flowers, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient; the magenta shows through under the counter and between the posts. The LAST attached image is a layout guide: a magenta field with a thin grid and a 2 x 2 box outlined in the middle; the stall's posts fill that box end to end exactly as in the reference (the roof may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }
