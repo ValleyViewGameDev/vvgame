@@ -1,0 +1,47 @@
+{
+  "name": "homestead-r2",
+  "note": "Signposts and Mailbox (owner, 2026-10-25): the current drawings restyled in the Trading Post's wood, 1 x 1. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "signpost-town": {
+      "refs": [
+        "_candidates/homestead-r1/approved/trading-post-cut.small.png",
+        "guides/control-signpost-town.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "WOOD AND STYLE REFERENCE: the first attached image is this game's TRADING POST on green, a timber stall in the game's bright painterly style: match its WOOD exactly, the same warm honey-gold planks with painted grain, the same darker end-grain and dowel pegs, the same noon daylight from high up and a little left with short soft shadows, the same brush texture. This piece is built of that same wood. CAMERA: front on and a little from above, square to the viewer. CONCEPT REFERENCE: the second attached image is this game's SIGNPOST as drawn today in an older flat style: a single plank board nailed to a post, with a big dark ARROW painted on it pointing right, a tuft of grass at the foot; keep that concept exactly (one board, one post, the arrow pointing RIGHT, the grass tuft) and nothing of its rendering. SUBJECT: the signpost rebuilt in the reference wood: a stout square post, a chunky plank board with rounded weathered corners pegged to it with two wooden dowels, and the big bold dark-brown ARROW painted on the board pointing right, big and readable from across the board, a small grass tuft with two tiny flowers at the foot. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box to about one and a half tiles, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no words."
+    },
+    "signpost-home": {
+      "refs": [
+        "_candidates/homestead-r1/approved/trading-post-cut.small.png",
+        "guides/control-signpost-home.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "WOOD AND STYLE REFERENCE: the first attached image is this game's TRADING POST on green, a timber stall in the game's bright painterly style: match its WOOD exactly, the same warm honey-gold planks with painted grain, the same darker end-grain and dowel pegs, the same noon daylight from high up and a little left with short soft shadows, the same brush texture. This piece is built of that same wood. CAMERA: front on and a little from above, square to the viewer. CONCEPT REFERENCE: the second attached image is this game's HOME SIGNPOST as drawn today in an older flat style: a single plank board nailed to a post with a simple dark HOUSE pictogram painted on it (a square with a triangle roof), a tuft of grass at the foot; keep that concept exactly and nothing of its rendering. SUBJECT: the signpost rebuilt in the reference wood: a stout square post, a chunky plank board with rounded weathered corners pegged to it with two wooden dowels, and the big bold dark-brown HOUSE pictogram painted on the board, a simple flat silhouette of a little house, big and readable, a small grass tuft with two tiny flowers at the foot. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box to about one and a half tiles, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no words."
+    },
+    "mailbox": {
+      "refs": [
+        "_candidates/homestead-r1/approved/trading-post-cut.small.png",
+        "guides/control-mailbox.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "WOOD AND STYLE REFERENCE: the first attached image is this game's TRADING POST on green, a timber stall in the game's bright painterly style: match its WOOD exactly, the same warm honey-gold planks with painted grain, the same darker end-grain and dowel pegs, the same noon daylight from high up and a little left with short soft shadows, the same brush texture. This piece is built of that same wood. CAMERA: front on and a little from above, square to the viewer. CONCEPT REFERENCE: the second attached image is this game's MAILBOX as drawn today in an older flat style: a wooden box with a little pitched lid on a post with a diagonal brace, a small red flag up on the side; keep that concept (the box, the pitched lid, the post with its brace, the red flag raised) and nothing of its rendering. SUBJECT: the mailbox rebuilt in the reference wood: a chunky plank box with a lid of two planks pitched like a tiny roof, a round wooden knob on the front, an iron hinge, mounted on a stout square post with a diagonal brace, a bright red wooden flag standing up on the side, seen from the front and a little above so the front of the box is large, a small grass tuft at the foot. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box to about one and a half tiles, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no words."
+    }
+  }
+}

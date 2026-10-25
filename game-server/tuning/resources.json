@@ -1053,7 +1053,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "signpost-town.svg"
+    "filename": "signpost-town.svg",
+    "artSpan": 1.25
   },
   {
     "type": "Signpost Home",
@@ -1077,7 +1078,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "signpost-home.svg"
+    "filename": "signpost-home.svg",
+    "artSpan": 1.38
   },
   {
     "type": "Dungeon Entrance",
@@ -8170,7 +8172,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "validong": true,
     "validond": true,
@@ -8199,7 +8201,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "qtycollected": 1,
     "validong": true,
@@ -8368,7 +8370,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "validong": true,
     "validond": true,
@@ -8386,7 +8388,8 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "mailbox.svg"
+    "filename": "mailbox.svg",
+    "artSpan": 1.41
   },
   {
     "type": "Worker Slot",
@@ -8535,7 +8538,7 @@
     "category": "station",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "devonly",
     "qtycollected": 1,
     "validong": true,
@@ -14589,7 +14592,7 @@
     "layoutkey": "pt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14612,7 +14615,7 @@
     "layoutkey": "rpt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14635,7 +14638,7 @@
     "layoutkey": "fpt",
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14679,7 +14682,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14703,7 +14706,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14727,7 +14730,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -14751,7 +14754,7 @@
   {
     "category": "deco",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,

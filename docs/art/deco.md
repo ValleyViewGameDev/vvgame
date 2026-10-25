@@ -86,5 +86,16 @@ commissioned and approved 2026-10-22.
 
 Recuts the same day for scale: barrel 60 %, hay bale 80 %, sack 75 %, poppies 85 %.
 
+## Homestead props (2026-10-25, `tools/art/jobs/homestead-r2.json`)
+
+| Prop | Row | Art | Note |
+|---|---|---|---|
+| Signpost Town | existing | `signpost-town` | today's board-on-a-post restyled in the Trading Post's wood (the cut Trading Post attached as the wood reference); `signpost-town-1`, mirrored after the cut so the arrow points LEFT (owner) |
+| Signpost Home | existing | `signpost-home` | the same post with the house pictogram (`signpost-home-2`) |
+| Mailbox | existing | `mailbox` | plank box with a pitched lid on a braced post, red flag up (`mailbox-1`) |
+
+The eight directional Signposts (N/E/S/W and diagonals) still draw arrow emoji; if wanted, rotate
+the town board's arrow per heading from the one approved panel rather than generating eight.
+
 Candidates and picks: `tools/art/_candidates/deco-whimsical-r1/` (ignored by git), the
 owner took the art director's picks for all but the hay bale.
