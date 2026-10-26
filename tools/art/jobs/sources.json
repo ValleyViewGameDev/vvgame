@@ -1,0 +1,74 @@
+{
+  "name": "sources",
+  "note": "The sources (owner, 2026-10-26): Rocks (also the Rock Pit), Clay Pit (also the Mud Pit), Cloven Pine, Snowman; 1 x 1 on magenta like the deco, in the whimsical style. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "rocks": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: ROCKS, a source of stone: a chunky cluster of three or four big grey boulders, rounded and painterly with warm sunlit tops and cool shadowed sides, a little moss in the cracks and a tuft of grass at the foot, the biggest boulder about a tile tall; it must read as 'mine stone here' at a glance. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "clay-pit": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: a CLAY PIT, a source of clay: a shallow dug pit of wet reddish-brown CLAY with a glossy puddle in the middle, a low rim of dug earth around it, a wooden spade stuck upright in the clay at one side and a small heap of clay lumps beside it; low and flat, reading as 'dig clay here' at a glance. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "cloven-pine": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: the CLOVEN PINE, a source of wood: a tall pine like this game's pine tree (tiered dark-green conifer, the same painted leaf language as the oak) whose trunk has been SPLIT down the middle by a great cleft, the two halves leaning apart with pale raw wood showing in the split and a few fallen branches at the foot; whimsical and a little dramatic, rising about two tiles tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "snowman": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: a SNOWMAN, a seasonal source of carrots: three stacked snowballs, a big orange CARROT nose, coal eyes and a coal-button smile, stick arms, a red knitted scarf and a floppy hat, a little snow on the ground at its foot, in bright winter sun; cheerful and round, about a tile and a half tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "cloven-pine-gold": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: the CLOVEN PINE, a source of wood and a tree of legend (the pine a spirit was once shut inside): a tall pine in the same painted leaf language as the oak but with GOLDEN-YELLOW foliage, as the game draws it today, a warm autumn gold against the valley's greens, whose trunk has been SPLIT down the middle by a great cleft, the two halves leaning apart with pale raw wood showing in the split and a few fallen branches at the foot; whimsical and a little dramatic, rising about two tiles tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    }
+  }
+}

@@ -22,7 +22,6 @@ export const DISPLAY_ALIASES = {
   Carnival: 'Harvest Fair',
   Shiro: "Oracle's Sanctuary",
   // the Shakespearean pass (docs/narrative-pass.md P1.2, owner 2026-10-24)
-  Restaurant: "Boar's Head",
   Inn: 'Garter Inn',
   Bank: 'Counting House',
   'Ancient Temple': 'Temple of Apollo',

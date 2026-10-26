@@ -1,0 +1,24 @@
+{
+  "name": "post-house",
+  "note": "The Post House (owner, 2026-10-26): like the Warehouse silo, no props in front, a green roof for the valley. 3 x 3. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "post-house": {
+      "refs": [
+        "_candidates/homestead-r1/approved/openai--painterly-warehouse-silo-1.small.jpg"
+      ],
+      "guide": "guides/building3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's WAREHOUSE, a round wooden silo of vertical staves bound by iron hoops under a conical thatched roof, in the game's bright painterly style with noon daylight. SUBJECT: the POST HOUSE, the valley's letter station, built in the SAME way as that silo: the same round staved wooden body with iron hoops on a stone-and-plaster footing, the same arched door and small hatch, the same camera, rendering and daylight, THREE tiles wide, with THREE differences. (1) NO PROPS in front: no sacks, no crate, no ladder; the ground before the door is bare grass. (2) THE ROOF IS GREEN: the conical roof is a mossy LEAF-GREEN thatch (or green wooden shingles) instead of golden straw, the valley buildings' colour. (3) A horn: a small brass POST HORN hangs on a hook beside the door as the only sign, and a little moss and a climbing vine on the lower staves for the valley look. The LAST attached image is a layout guide, a patch of the board grid with a tan 3 x 3 square: the building's walls and ground contact fill that 3 x 3 square almost to its edges, end to end (the roof may rise above it), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    }
+  }
+}

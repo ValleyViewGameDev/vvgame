@@ -102,8 +102,6 @@ Town (clean), closed buildings:
 | Warrior's Den | castle | iron grey, red banner | crossed swords ON the wide red banner, no placard | APPROVED 2026-10-23 (r5 warriors-den-b-2): taller, the banner carries the icon; replaces r2 warriors-den-1 |
 | Armory | castle | steel grey, grey banner | a shield ON the wide grey banner, no placard | APPROVED 2026-10-23 (r5 armory-b-2): the Den's sibling mirrored (tower left), grey shield banner, two standing suits of armour by the door, lighter grey roof |
 | Castle | castle | royal blue and gold | a gold crown over the gate, blue crown banners | 5 x 5, the grandest building. Round 1 (`tools/art/jobs/castle-r1.json`): two concepts, the keep and the twin gate towers; the owner liked twin-2 but wanted it MORE WHIMSICAL and with a BIGGER sense of scale (details smaller against the mass: a one-tile gate, a small crown, many small windows); revision `castle-b` with the Guild as the whimsy reference; **APPROVED 2026-10-26: castle-b-1** (leaning tapered towers, curling roof tips, a sagging hall roof, crooked turrets behind). Lesson for big buildings: say "details smaller" as well as "building bigger", or the model scales the door up with the walls |
-| Restaurant | cottage | cherry and cream stripes | bowl and spoon | |
-| Restroom | cottage | slate blue | none | 2 x 2 |
 | Warehouse (homestead) | cottage, the Farm House's materials | golden thatch, weathered staves, iron hoops | none | APPROVED 2026-10-25 (homestead-r1 warehouse-silo-1): a round wooden SILO like a giant barrel under a conical thatch, an arched door, sacks, a crate, a ladder; it drew the crate deco before; the store-barn concept was the runner-up |
 | Trading Post (homestead) | cottage, the Farm House's materials | golden thatch over warm timber | none | the owner likes today's bare post-and-beam stall; restyled faithfully (homestead-r1 trading-post-b-2 liked), revision `trading-post-c`: the roof HALF as tall so the counter and the shelf under it show, and the counter and shelf EMPTY: the game will LAYER CRATES over this sprite later to show the Trading Post's state (owner 2026-10-25), so the base must stay bare; **APPROVED 2026-10-25: trading-post-c-2** (c-1 came out undersized) |
 
@@ -115,7 +113,7 @@ Valley (moss and vines):
 | Building | Family | Accent | Sign | Note |
 |---|---|---|---|---|
 | Inn | tudor | red | bed | design approved (r1 inn-1 relit); the bed sign must show; a final Inn ordered 2026-10-21 (`inn-c`); the owner's example: red means health |
-| Post House | cottage | sky blue | sealed letter | |
+| Post House | cottage, the Warehouse silo's build | leaf-green roof (the valley colour) | a brass post horn on a hook | commissioned 2026-10-26 (`tools/art/jobs/post-house.json`): the Warehouse silo redrawn at 3 x 3 with no props in front and a green roof (owner) |
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire, a pictogram on a wooden signpost | APPROVED 2026-10-23 (r7 adventure-camp-b-1); NOT a building (owner 2026-10-23): ONE rustic tent set up in the field, a cold campfire with log seats and a cook pot, a stand of leather backpacks (what it sells, with adventuring skills); NO WEAPONS props (owner); valley look |
 | Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1); its first cut-out drifted into a cottage, the cut redrawn 2026-10-22 with the ruin spelled out (`ancient-temple-b-1`) |
 | Shrine | japanese | classic dark orange (vermilion) | none | APPROVED 2026-10-23 (r8 shrine-1): the old drawing's design kept element for element (two-tier vermilion roofs, guardian lions, blossom trees, lanterns), repainted; valley look |
@@ -261,7 +259,7 @@ Open:
    building's row keeps its current `size` until the owner approves its art and picks the
    footprint, and the owner reworks the town layouts by hand when the sizes change. Each
    building's generation entry notes the footprint it was drawn at.
-2. Restroom: keep it in the set at all? It is a dev-only shop with nothing to sell.
+2. Restroom and Restaurant: REMOVED from the game 2026-10-26 (owner: no purpose); their rows are gone from resources.json, no live grid held one.
 
 ## 4. Commissions
 
