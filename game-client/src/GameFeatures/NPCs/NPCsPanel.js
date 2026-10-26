@@ -96,6 +96,7 @@ const NPCPanel = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
   const [hasHiddenQuests, setHasHiddenQuests] = useState(false);
+  const [hasLevelLockedQuests, setHasLevelLockedQuests] = useState(false); // quests that open at a higher level
   const [questThreshold, setQuestThreshold] = useState(0);
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
@@ -131,6 +132,7 @@ const NPCPanel = ({
     setErrorMessage('');
     setCanQuest(false);
     setHasHiddenQuests(false);
+    setHasLevelLockedQuests(false);
     setCanTrade(false);
     setHasHiddenTrades(false);
     setCluesOpen(false);
@@ -319,6 +321,16 @@ const NPCPanel = ({
       // Use cached quests instead of direct API call
       const allQuests = await questCache.getQuests();
 
+      // Quests this giver will offer once the player is higher level: not held, not retired, not
+      // already done (unless repeatable), and their prereq done, so the level is all that is missing.
+      // With nothing to offer now, the panel says so before any relationship or "nothing new" note.
+      const levelLocked = allQuests.some((quest) => quest.giver === npcData.type
+        && Number(quest.level) > playerLevel
+        && !(quest.retired === true || quest.retired === 'true')
+        && !currentPlayer.activeQuests.some(q => q.questId === quest.title)
+        && ((quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests.some(q => q.questId === quest.title))
+        && (!quest.prereq || currentPlayer.completedQuests.some(q => q.questId === quest.prereq)));
+
       // Use new quest filtering logic
       let npcQuests = allQuests
         .filter((quest) => quest.giver === npcData.type)
@@ -372,6 +384,7 @@ const NPCPanel = ({
 
       setQuestList(npcQuests);
       setHasHiddenQuests(questsHiddenByRelationship);
+      setHasLevelLockedQuests(levelLocked);
     } catch (error) {
       console.error('Error fetching quests:', error);
     }
@@ -1587,7 +1600,21 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             </div>
           )}
 
-          {canQuest && hasHiddenQuests && (
+          {/* Nothing to offer now: a higher level comes first, then a better relationship, and
+              only when neither would open anything, "Nothing new" (owner 2026-10-26) */}
+          {canQuest && displayQuests.length === 0 && hasLevelLockedQuests && (
+            <div className="text-hint" style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: 'var(--radius-sm)',
+              marginTop: '10px',
+              textAlign: 'center'
+            }}>
+              {strings[629] || 'Reach a higher level to unlock quests.'}
+            </div>
+          )}
+
+          {canQuest && hasHiddenQuests && !(displayQuests.length === 0 && hasLevelLockedQuests) && (
             <div className="text-hint" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
@@ -1599,7 +1626,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             </div>
           )}
 
-          {canQuest && displayQuests.length === 0 && !hasHiddenQuests && (
+          {canQuest && displayQuests.length === 0 && !hasHiddenQuests && !hasLevelLockedQuests && (
             <div className="text-empty" style={{
               padding: '10px',
               backgroundColor: 'var(--color-bg-light)',
