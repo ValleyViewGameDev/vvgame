@@ -8638,7 +8638,9 @@
     "artFamily": "cottage",
     "artLook": "valley",
     "artAccent": "sky blue",
-    "artSign": "sealed letter"
+    "artSign": "a brass post horn on a hook",
+    "filename": "post-house.svg",
+    "artSpan": 4.72
   },
   {
     "type": "Farm House",

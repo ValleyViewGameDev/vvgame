@@ -113,7 +113,7 @@ Valley (moss and vines):
 | Building | Family | Accent | Sign | Note |
 |---|---|---|---|---|
 | Inn | tudor | red | bed | design approved (r1 inn-1 relit); the bed sign must show; a final Inn ordered 2026-10-21 (`inn-c`); the owner's example: red means health |
-| Post House | cottage, the Warehouse silo's build | leaf-green roof (the valley colour) | a brass post horn on a hook | commissioned 2026-10-26 (`tools/art/jobs/post-house.json`): the Warehouse silo redrawn at 3 x 3 with no props in front and a green roof (owner) |
+| Post House | cottage, the Warehouse silo's build | leaf-green roof (the valley colour) | a brass post horn on a hook | commissioned 2026-10-26 (`tools/art/jobs/post-house.json`): the Warehouse silo redrawn at 3 x 3 with no props in front and a green roof (owner); **APPROVED 2026-10-26: post-house-2**, cut at 3 x 3 (artSpan 4.72) |
 | Adventure Camp | camp | canvas tan and forest green | tent over a campfire, a pictogram on a wooden signpost | APPROVED 2026-10-23 (r7 adventure-camp-b-1); NOT a building (owner 2026-10-23): ONE rustic tent set up in the field, a cold campfire with log seats and a cook pot, a stand of leather backpacks (what it sells, with adventuring skills); NO WEAPONS props (owner); valley look |
 | Ancient Temple | ruin | weathered stone and moss | none, the ruin is the sign | APPROVED 2026-10-21 (r2 ancient-temple-1); its first cut-out drifted into a cottage, the cut redrawn 2026-10-22 with the ruin spelled out (`ancient-temple-b-1`) |
 | Shrine | japanese | classic dark orange (vermilion) | none | APPROVED 2026-10-23 (r8 shrine-1): the old drawing's design kept element for element (two-tier vermilion roofs, guardian lions, blossom trees, lanterns), repainted; valley look |
