@@ -391,6 +391,16 @@
         "painterly"
       ],
       "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the CASTLE, a whimsical storybook royal castle of pale grey stone: two great leaning round gate towers with curling royal-blue conical roofs and gold finials framing a small arched gate with a portcullis, a gold crown emblem over the gate, blue crown banners, a hall with a sagging blue roof and many small windows behind, tall crooked turrets stepping up behind that, a moat strip with a plank drawbridge and flowers at the front, in bright noon daylight. Redraw the SAME building, identical in every way: every tower and turret, the roofs and their curl, the gate, crown, banners, windows, moat, drawbridge and flowers, colours, lighting, camera and size. Keep the moat strip and drawbridge as part of it. Change ONE thing only: the surroundings. There is NO grass, no ground beyond the moat, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 5 x 5 box outlined in the middle; the castle's walls, moat and drawbridge fill that box end to end exactly as in the reference (the towers, turrets and roofs rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
+    },
+    "post-house": {
+      "refs": [
+        "_candidates/post-house/approved/openai--painterly-post-house-2.small.jpg"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the POST HOUSE, a round wooden silo of vertical staves bound by iron hoops on a stone-and-plaster footing, a conical mossy leaf-green thatched roof with a wooden finial, a small square hatch under the eaves, an arched wooden door with iron hinges, a brass post horn on a hook beside the door, moss and a climbing vine on the lower staves, no props, in bright noon daylight. Redraw the SAME building, identical in every way: the same design, staves, hoops, roof, door, hatch, horn, moss and vine, colours, lighting, camera and size. Change ONE thing only: the surroundings. There is NO grass, no ground, no grid, no shadow on the ground: it stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 3 x 3 box outlined in the middle; the silo's footing fills that box end to end exactly as in the reference (the roof and finial may rise above it). Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere."
     }
   }
 }

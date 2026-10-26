@@ -515,7 +515,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "rock.svg"
+    "filename": "rocks.svg",
+    "artSpan": 0.97
   },
   {
     "type": "Rock Pit",
@@ -541,10 +542,11 @@
     "validonv": false,
     "validonu": false,
     "growtime": 172800,
-    "filename": "rock.svg",
+    "filename": "rocks.svg",
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "artSpan": 0.97
   },
   {
     "type": "Stone",
@@ -604,7 +606,9 @@
     "validonz": false,
     "validonc": true,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "clay-pit.svg",
+    "artSpan": 1.02
   },
   {
     "type": "Mud Pit",
@@ -630,10 +634,11 @@
     "validonv": false,
     "validonu": false,
     "growtime": 86400,
-    "filename": "clay-source.svg",
+    "filename": "clay-pit.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "artSpan": 1.02
   },
   {
     "type": "Clay",
@@ -750,7 +755,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "cloven-pine.svg"
+    "filename": "cloven-pine.svg",
+    "artSpan": 2.05
   },
   {
     "type": "Palm Tree",
@@ -1331,7 +1337,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "snowman.svg",
+    "artSpan": 1.11
   },
   {
     "type": "Wheat Plot",

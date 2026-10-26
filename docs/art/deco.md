@@ -94,6 +94,15 @@ Recuts the same day for scale: barrel 60 %, hay bale 80 %, sack 75 %, poppies 85
 | Signpost Home | existing | `signpost-home` | the same post with the house pictogram (`signpost-home-2`) |
 | Mailbox | existing | `mailbox` | plank box with a pitched lid on a braced post, red flag up (`mailbox-1`) |
 
+## Sources (2026-10-26, `tools/art/jobs/sources.json`)
+
+| Source | Rows | Art | Note |
+|---|---|---|---|
+| Rocks | Rocks, Rock Pit | `rocks` | three boulders with a sunlit top (`rocks-1`) |
+| Clay Pit | Clay Pit, Mud Pit | `clay-pit` | a dug pit of wet clay with a spade (`clay-pit-2`); the Clay Pit drew a brick emoji before |
+| Cloven Pine | Cloven Pine | `cloven-pine` | the split pine kept GOLD as the game draws it (owner's pick over a green variant): the only gold tree in the valley, so the wood source is easy to spot (`cloven-pine-gold-1`) |
+| Snowman | Snowman | `snowman` | the seasonal carrot source, floppy hat (`snowman-2`) |
+
 The eight directional Signposts (N/E/S/W and diagonals) still draw arrow emoji; if wanted, rotate
 the town board's arrow per heading from the one approved panel rather than generating eight.
 
