@@ -8729,7 +8729,9 @@
     "artFamily": "castle",
     "artLook": "town",
     "artAccent": "royal blue and gold",
-    "artSign": "crown"
+    "artSign": "a gold crown over the gate, blue crown banners",
+    "filename": "castle.svg",
+    "artSpan": 6.66
   },
   {
     "type": "Shiro",
@@ -8937,7 +8939,7 @@
     "source": "Buy",
     "passable": true,
     "requires": "Husbandry",
-    "qtycollected": 1,
+    "qtycollected": 2,
     "xp": 1,
     "level": 4,
     "range": 8,
@@ -11867,7 +11869,7 @@
     "action": "armorclass",
     "source": "Armory",
     "passable": true,
-    "level": 1,
+    "level": 7,
     "armorclass": 5,
     "ingredient1": "Money",
     "ingredient1qty": 7000,
@@ -11899,14 +11901,13 @@
     "action": "damage",
     "source": "Warrior's Den",
     "passable": true,
-    "level": 3,
-    "retired": true,
+    "level": 4,
     "damage": 7,
     "attackrange": 0,
     "ranged": false,
     "hands": 1,
     "ingredient1": "Money",
-    "ingredient1qty": 8000,
+    "ingredient1qty": 2000,
     "gemcost": 80
   },
   {
