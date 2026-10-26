@@ -1,34 +1,148 @@
 {
   "free": [
-    { "label": "Grinning Face", "value": "😀", "filename": "pc-basic.svg" },
-    { "label": "Heart Eyes", "value": "😍", "filename": "pc-hearts.svg" },
-    { "label": "Innocent Face", "value": "😇", "filename": "pc-halo.svg" },
-    { "label": "Screaming Face", "value": "😱", "filename": "pc-scream.svg" },
-    { "label": "Nerd Face", "value": "🤓", "filename": "pc-nerd.svg" },
-    { "label": "Face with Hand Over Mouth", "value": "🤭", "filename": "pc-giggle.svg" },
-    { "label": "Crying Face", "value": "😭", "filename": "pc-crying.svg" },
-    { "label": "Sunglasses Face", "value": "😎", "filename": "pc-sunglasses.svg" },
-    { "label": "Unamused Face", "value": "😒", "filename": "pc-unamused.svg" },
-    { "label": "Party Face", "value": "🥳", "filename": "pc-party.svg" }
+    {
+      "label": "Cassio",
+      "value": "🧝",
+      "filename": "pc-cassio.svg"
+    },
+    {
+      "label": "Juliet",
+      "value": "🌹",
+      "filename": "pc-juliet.svg"
+    },
+    {
+      "label": "Grinning Face",
+      "value": "😀",
+      "filename": "pc-basic.svg"
+    },
+    {
+      "label": "Heart Eyes",
+      "value": "😍",
+      "filename": "pc-hearts.svg"
+    },
+    {
+      "label": "Innocent Face",
+      "value": "😇",
+      "filename": "pc-halo.svg"
+    },
+    {
+      "label": "Screaming Face",
+      "value": "😱",
+      "filename": "pc-scream.svg"
+    },
+    {
+      "label": "Nerd Face",
+      "value": "🤓",
+      "filename": "pc-nerd.svg"
+    },
+    {
+      "label": "Face with Hand Over Mouth",
+      "value": "🤭",
+      "filename": "pc-giggle.svg"
+    },
+    {
+      "label": "Crying Face",
+      "value": "😭",
+      "filename": "pc-crying.svg"
+    },
+    {
+      "label": "Sunglasses Face",
+      "value": "😎",
+      "filename": "pc-sunglasses.svg"
+    },
+    {
+      "label": "Unamused Face",
+      "value": "😒",
+      "filename": "pc-unamused.svg"
+    },
+    {
+      "label": "Party Face",
+      "value": "🥳",
+      "filename": "pc-party.svg"
+    }
   ],
   "paid": [
-    { "label": "Clown Face", "value": "🤡", "filename": "pc-clown.svg" },
-    { "label": "Robot", "value": "🤖", "filename": "pc-robot.svg" },
-    { "label": "Alien", "value": "👽", "filename": "pc-alien.svg" },
-    { "label": "Poop", "value": "💩", "filename": "pc-poop.svg" },
-    { "label": "Space Invader", "value": "👾", "filename": "pc-retro-alien.svg" },
-    { "label": "Octopus", "value": "🐙", "filename": "pc-octopus.svg" },
-    { "label": "Monkey", "value": "🐵", "filename": "pc-monkey.svg" },
-    { "label": "Panda", "value": "🐼", "filename": "pc-panda.svg" },
-    { "label": "Cat", "value": "🐱", "filename": "pc-kitty.svg" },
-    { "label": "Mask", "value": "👺", "filename": "pc-mask.svg" },
-    { "label": "Puppy Dog", "value": "🐶", "filename": "pc-puppy.svg" },
-    { "label": "Fox", "value": "🦊", "filename": "pc-fox.svg" },
-    { "label": "Mouse", "value": "🐭", "filename": "pc-mouse.svg" },
-    { "label": "Frog", "value": "🐸", "filename": "pc-frog.svg" },
-    { "label": "Bunny", "value": "🐰", "filename": "pc-octopus.svg" }
+    {
+      "label": "Clown Face",
+      "value": "🤡",
+      "filename": "pc-clown.svg"
+    },
+    {
+      "label": "Robot",
+      "value": "🤖",
+      "filename": "pc-robot.svg"
+    },
+    {
+      "label": "Alien",
+      "value": "👽",
+      "filename": "pc-alien.svg"
+    },
+    {
+      "label": "Poop",
+      "value": "💩",
+      "filename": "pc-poop.svg"
+    },
+    {
+      "label": "Space Invader",
+      "value": "👾",
+      "filename": "pc-retro-alien.svg"
+    },
+    {
+      "label": "Octopus",
+      "value": "🐙",
+      "filename": "pc-octopus.svg"
+    },
+    {
+      "label": "Monkey",
+      "value": "🐵",
+      "filename": "pc-monkey.svg"
+    },
+    {
+      "label": "Panda",
+      "value": "🐼",
+      "filename": "pc-panda.svg"
+    },
+    {
+      "label": "Cat",
+      "value": "🐱",
+      "filename": "pc-kitty.svg"
+    },
+    {
+      "label": "Mask",
+      "value": "👺",
+      "filename": "pc-mask.svg"
+    },
+    {
+      "label": "Puppy Dog",
+      "value": "🐶",
+      "filename": "pc-puppy.svg"
+    },
+    {
+      "label": "Fox",
+      "value": "🦊",
+      "filename": "pc-fox.svg"
+    },
+    {
+      "label": "Mouse",
+      "value": "🐭",
+      "filename": "pc-mouse.svg"
+    },
+    {
+      "label": "Frog",
+      "value": "🐸",
+      "filename": "pc-frog.svg"
+    },
+    {
+      "label": "Bunny",
+      "value": "🐰",
+      "filename": "pc-octopus.svg"
+    }
   ],
   "platinum": [
-    { "label": "Unicorn", "value": "🦄", "filename": "pc-unicorn.svg" }
+    {
+      "label": "Unicorn",
+      "value": "🦄",
+      "filename": "pc-unicorn.svg"
+    }
   ]
 }

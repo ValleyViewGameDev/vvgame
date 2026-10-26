@@ -1,0 +1,36 @@
+{
+  "name": "castle-r1",
+  "note": "The Castle (owner, 2026-10-26): 5 x 5, the grandest building; royal blue and gold, the crown as the sign. Two concepts, two candidates each; the Courthouse for scale and the Bank for the castle family.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "castle-keep": {
+      "refs": [
+        "_candidates/buildings-bible-r7/approved/openai--painterly-courthouse-b-2.small.jpg",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-bank-1.small.jpg"
+      ],
+      "guide": "guides/building5.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA, STYLE AND SCALE REFERENCES: the first attached panel is this game's COURTHOUSE, a five-tile-wide civic building, and the second its BANK, a castle-family strongroom tower: match their painterly storybook rendering, their bright noon daylight (every sunlit face bright, shadows short and soft), their camera (the front square to the viewer, the roof seen from above, the grid straight) and the Courthouse's SCALE: this building is also five tiles wide, the same size as the Courthouse, with a human-sized door about one tile wide like every other building's door. SUBJECT: the CASTLE, the royal seat and the game's grandest building, five tiles wide. FAMILY: castle: pale grey stone walls with crenellated battlements, round towers with conical roofs, arrow slits, a great arched gate with a portcullis half-raised, a drawbridge-style threshold of planks over a shallow moat strip at the front. ACCENT: ROYAL BLUE roofs on the towers and GOLD trim (gold finials, a gold band on the gate's arch). SIGN: a big gold CROWN set over the gate's arch as a carved emblem, and royal-blue banners with a gold crown hanging from the towers. LOOK: town: clean, no moss, no vines; flowers in the moat's banks are fine. It must read as the king's castle at a glance, stately and symmetric, and a step grander than the Courthouse. CONCEPT A, THE KEEP: a tall central square KEEP with a crenellated top and a royal-blue pyramid roof rising high above the walls, flanked by two round corner towers with blue conical roofs and gold finials, a curtain wall with battlements between them, the gate in the centre of the wall with the gold crown above it. The LAST attached image is a layout guide, a patch of the board grid with a tan 5 x 5 square: the castle's walls and ground contact fill that 5 x 5 square almost to its edges, end to end (the towers, turrets, roofs and banners may rise above it, and may rise HIGH), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    },
+    "castle-twin": {
+      "refs": [
+        "_candidates/buildings-bible-r7/approved/openai--painterly-courthouse-b-2.small.jpg",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-bank-1.small.jpg"
+      ],
+      "guide": "guides/building5.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA, STYLE AND SCALE REFERENCES: the first attached panel is this game's COURTHOUSE, a five-tile-wide civic building, and the second its BANK, a castle-family strongroom tower: match their painterly storybook rendering, their bright noon daylight (every sunlit face bright, shadows short and soft), their camera (the front square to the viewer, the roof seen from above, the grid straight) and the Courthouse's SCALE: this building is also five tiles wide, the same size as the Courthouse, with a human-sized door about one tile wide like every other building's door. SUBJECT: the CASTLE, the royal seat and the game's grandest building, five tiles wide. FAMILY: castle: pale grey stone walls with crenellated battlements, round towers with conical roofs, arrow slits, a great arched gate with a portcullis half-raised, a drawbridge-style threshold of planks over a shallow moat strip at the front. ACCENT: ROYAL BLUE roofs on the towers and GOLD trim (gold finials, a gold band on the gate's arch). SIGN: a big gold CROWN set over the gate's arch as a carved emblem, and royal-blue banners with a gold crown hanging from the towers. LOOK: town: clean, no moss, no vines; flowers in the moat's banks are fine. It must read as the king's castle at a glance, stately and symmetric, and a step grander than the Courthouse. CONCEPT B, THE TWIN TOWERS: two tall round GATE TOWERS with royal-blue conical roofs and gold finials framing the great gate in the centre, joined above the gate by a crenellated wall with the gold crown emblem, and behind them a lower hall with a blue roof and a row of tall arched windows, small turrets at the back corners. The LAST attached image is a layout guide, a patch of the board grid with a tan 5 x 5 square: the castle's walls and ground contact fill that 5 x 5 square almost to its edges, end to end (the towers, turrets, roofs and banners may rise above it, and may rise HIGH), with a soft contact shadow. Fill the surrounding squares with plain short grass in the same style, no props beyond those named, and draw the faint grid lines as thin tile edges. Do not leave the tan square tan. No letters anywhere, no people, no animals, no smoke."
+    }
+  }
+}
