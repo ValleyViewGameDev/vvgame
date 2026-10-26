@@ -57,6 +57,11 @@ can check the current value rather than trust this page.
    and XP per player; Engagement: FTUE funnel) is the check. Forward-only data: note the
    deploy date with the change.
 
+9. **Quest XP for multi-item quests** (2026-10-25): about a quarter of the sum of the items' own
+   `xp` times their quantities. The items stay with the player and can still be sold to Kent
+   (who pays twice their xp), so a quest is a steady bonus on top of the core loop, never the
+   clock. One-time story and lesson quests are set by hand (`early-game.md` §2).
+
 ## 3. The level curve (xpLevels.json)
 
 XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches
@@ -523,6 +528,9 @@ L10 except the starting Knife and Padding. The items below it moved up: Long Swo
 Buckler, Focus and Setebos Hide (the regional notch above Light Armor) to L10; Jab (Flurry needs
 it), Fortitude, Short Bow, Warding Charm and Lead Casket to L11. Short Sword and Darts are
 `retired` (resources.json: no longer sold; owners keep them): Long Sword and Short Bow cover them.
+Then (owner, same day): the Short Sword is back, at L4 and 2,000 Money (was 8,000), as Hotspur's
+first quest, the one weapon before L10; Padding unlocks at L7 with his second ("Give Me My
+Armour"), before the first Valley trip. Darts stays retired.
 The baseline at L12 and above is unchanged, so the enemies from the Spider up keep their fit;
 the near-ring Coyote and Bear (fitted for L3 and L6 gear) now meet players who have only the
 Knife, and their placement is to be tuned later (owner).

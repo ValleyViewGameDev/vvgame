@@ -14,6 +14,7 @@ import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
 import SaleBurst from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 function NewTrainPanel({
   onClose,
@@ -483,7 +484,7 @@ function NewTrainPanel({
     
     // Check if loading phase has expired (client-side authority)
     if (isLoadingPhaseExpired()) {
-      updateStatus('❌ Train has already departed! Cannot fulfill orders.');
+      updateStatus(strings[2119] || '❌ The Caravan has already departed! Cannot fulfill orders.');
       return;
     }
     
@@ -666,7 +667,7 @@ function NewTrainPanel({
 
     return (
       <div className="offer-section">
-        <h4>Your Train Orders</h4>
+        <h4>{strings[2117] || 'Your Caravan Orders'}</h4>
         {currentTrainOffers.map((offer, index) => {
           const isCompleted = offer.completed || false;
           const playerQty = inventory?.find(item => item.type === offer.item)?.quantity || 0;
@@ -687,7 +688,7 @@ function NewTrainPanel({
             buttonText = '';
           } else if (loadingExpired) {
             costDisplay = `<span style="color: var(--color-text-muted);">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
-            details = `<div>${costDisplay}</div>Train Departed`;
+            details = `<div>${costDisplay}</div>${strings[2118] || 'Caravan Departed'}`;
             buttonText = '';
           } else {
             const costColor = affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -797,7 +798,7 @@ function NewTrainPanel({
         currentPlayer={currentPlayer}
         masterXPLevels={masterXPLevels}
         requiredLevel={trainRequiredLevel}
-        featureName="Train"
+        featureName={getLocalizedString('Train', strings)}
       >
         {(() => {
           const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);

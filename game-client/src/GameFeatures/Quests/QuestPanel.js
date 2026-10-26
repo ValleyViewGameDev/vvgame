@@ -152,7 +152,9 @@ function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpa
                 key={index}
                 className={`resource-button ${quest.completed ? 'reward' : 'in-progress'}`}
                 quest={{
-                  symbol: quest.symbol,
+                  // the giver's icon as the quest data has it now (a quest can move to another
+                  // giver after it was accepted); the copy stored on accept is the fallback
+                  symbol: template?.symbol || quest.symbol,
                   title: quest.questId,
                   completed: quest.completed,
                   goals,

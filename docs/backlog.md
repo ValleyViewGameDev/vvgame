@@ -344,7 +344,34 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   (Axe + 24 Wood, one quest) and L4 animals (Husbandry + Cow + 12 Milk); Builder + Mill one L5
   quest; and every skill, station or animal a quest teaches (L1-12) now unlocks at that quest's
   level (17 unlocks raised, `early-game.md` §2), so Kent's early orders narrow with them. Not yet
-  played. Open: merge more concepts the
+  played. Elbow's chain gains an L6 Town step, "Better a Witty Fool Than a Foolish Wit" (Meet
+  Feste: the Queen of stone and the fool who still sings to her, seeding her waking; between the
+  L3 step and Helena at L7, whose prereq it now is). And (owner): Elbow never sends the player to someone with no quest
+  ready: his first step moved to L4 and greets only Mistress Quickly and Hotspur (Portia waits
+  until she has something to give), each with a first quest that opens on the Greet (Hotspur's
+  20 Wood, Quickly's 6 Milk, then her repeatable Sugar at L5, moved from the Shepherd); the FTUE
+  no longer adds his step (OB-3's hand-off undone; 16521 and 7059 trimmed). Hotspur's first quest is Acquire a Short Sword (back from
+  retired, L4, 2,000 Money), his second Acquire Padding (L7, Padding's unlock moved there); the
+  Shepherd keeps the wood as two quests (Acquire Axe, then the repeatable 24 Wood). **Federation (owner):** every `Build` quest
+  moved to the Shepherd (Dairy, Loom, Oven, Beehive, Kitchen, Hospital, Studio, School, Library,
+  Beverage Station, and the Clay; Prospero's Secret stays his), and 16 specialist quests became
+  2-3 item quests across stations (Quickly, Feste, Helena; "What, You Egg!" moved to Quickly),
+  XP by the quarter-of-item-XP rule (`tuning.md` §2.9). A live player holding one of the moved
+  quests claims it from the Shepherd now. Skills federated too (owner, 2026-10-25/26): each skill quest goes to
+  the giver whose quests use what it unlocks. Quickly: Baker, Cooking, Fromager, plus Winemaker
+  (from the Shepherd) and new Creamery (L17), Cuisinier (L20), Barista (L30); Feste: Textiles,
+  Artistry, Tailor, Weaver; Portia: Medicine, Surgery, Politics, Law; Helena: Florist; Elbow: the
+  adventuring kit (Backpack L7, Scout L13); the Shepherd keeps the homestead skills and Chemistry
+  (owner). Feste gains an L6 quest (6 Wool) so Elbow's L6 "meet Feste" leads somewhere. The
+  Quests list now takes each quest's icon from the current data, not the copy saved on accept. Then
+  (owner, 2026-10-26): L7 is the Dairy (Masonry, Dairy, Butter, Cheese, Cream, Pepper Cheese at
+  L7; Master Mason pays 20 Stone so the Dairy can be built before the Valley) and L8 the Valley
+  with its kit (Backpack and upgrades, Pickaxe, Padding, Medicine at L8, the Valley quests with
+  them); and no product unlocks below its station (Thread and Cloth L9 with the Loom, Sweater L12
+  with Textiles, Lumber L15, the Winery's goods L22; Book left at L1, it is a reward currency). The
+  Golden Key is no longer spent at the Castle (the Crown `requires` it; found artifacts leave the
+  shops); the doors it opens are traced in `early-game.md` §3. Open: Cassio and Juliet stand only
+  behind the key, so Elbow's L10 Cassio step needs Helena's L8 quest done (move them, or say so). Open: merge more concepts the
   Husbandry way once the owner has tried it; near-ring enemy placement (owner: later); Farm Hand
   (10,000 Money) now L11.
 - **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops

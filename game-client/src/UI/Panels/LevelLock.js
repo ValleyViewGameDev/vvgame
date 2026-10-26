@@ -45,13 +45,13 @@ const LevelLock = ({
   }
 
   // Render locked state
-  // String 814: "The {feature} unlocks at level {level}."
+  // String 814: "{feature} unlocks at level {level}." (no article: names like Portia's Court carry their own)
   // String 815: "Your current level: {level}"
   return (
     <div className="level-lock-container">
       <div className="level-lock-icon">🔒</div>
       <div className="level-lock-message">
-        {(strings[814] || 'The {feature} unlocks at level {level}.')
+        {(strings[814] || '{feature} unlocks at level {level}.')
           .replace('{feature}', featureName || 'feature')
           .replace('{level}', requiredLevel)}
       </div>

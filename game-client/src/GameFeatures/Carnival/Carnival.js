@@ -13,6 +13,7 @@ import SaleBurst from '../../UI/SaleBurst';
 import soundManager from '../../Sound/SoundManager';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 function CarnivalPanel({
   onClose,
@@ -191,7 +192,7 @@ function CarnivalPanel({
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{entry.carnivalnumber || '-'}</td>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.status || ''}</td>
+                <td style={{ padding: "6px 12px" }}>{(entry.status || '').replace('Carnival', getLocalizedString('Carnival', strings))}</td>
                 <td style={{ padding: "6px 12px" }}>
                   {entry.status === 'Next Carnival' || entry.status === 'Current Carnival' ? 'n/a' : entry.alloffersfilled ? '✅' : '❌'}
                 </td>
@@ -531,7 +532,7 @@ function CarnivalPanel({
         currentPlayer={currentPlayer}
         masterXPLevels={masterXPLevels}
         requiredLevel={carnivalRequiredLevel}
-        featureName="Carnival"
+        featureName={getLocalizedString('Carnival', strings)}
       >
         {/* Check if player is in their home settlement */}
         {(() => {

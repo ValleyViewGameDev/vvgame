@@ -912,7 +912,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         currentPlayer={currentPlayer}
         masterXPLevels={masterXPLevels}
         requiredLevel={tradeStallRequiredLevel}
-        featureName="Trading Post"
+        featureName={getLocalizedString('Trading Post', strings)}
       >
 
       {/* GLOBAL MARKET BUTTON */}

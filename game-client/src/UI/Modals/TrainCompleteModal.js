@@ -50,7 +50,7 @@ const TrainCompleteModal = ({ onClose }) => {
           </div>
           {departsIn && (
             <div className="unlocked-resources">
-              {strings[2023] || 'Train departs in'} {departsIn}
+              {strings[2023] || 'Caravan departs in'} {departsIn}
             </div>
           )}
           <div className="shared-buttons">

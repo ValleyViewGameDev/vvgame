@@ -18,6 +18,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import { settingsWearingNewMagic, isWeapon as isWeaponGear, handsIcon, handsOf, gearStatLines } from '../Combat/combatGear';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
@@ -49,11 +50,15 @@ const ShopStation = ({
   const [stationDetails, setStationDetails] = useState(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
 
+  // A requirement is a skill or power the player owns, or an item they hold (backpack + warehouse)
+  // and keep: the Castle's King's Crown requires the Golden Key, which opens it without being spent,
+  // the way a Locked Door opens for whoever carries the key (Doors.js)
   const hasRequirement = (requirement) => {
     return (
       !requirement ||
       currentPlayer.skills?.some(skill => skill.type === requirement) ||
-      currentPlayer.powers?.some(power => power.type === requirement)
+      currentPlayer.powers?.some(power => power.type === requirement) ||
+      getPlayerQuantity(requirement, inventory, backpack) > 0
     );
   };
 
@@ -93,6 +98,11 @@ const ShopStation = ({
     if (!masterResources || !stationType) return;
     // a retired item (resources.json `retired`, e.g. Short Sword, folded into Long Sword at L10) is
     // no longer sold; a player who owns one keeps it
+    // a Quest for Hope artifact is taken once: gone from the shop once found (player.hopeFound) or held
+    const artifacts = hopeArtifacts(masterTraders);
+    const alreadyFound = (type) => artifacts.has(type) && (
+      (Array.isArray(currentPlayer.hopeFound) && currentPlayer.hopeFound.includes(type))
+      || getPlayerQuantity(type, inventory, backpack) > 0);
     const soldHere = (resource) => resource?.retired !== true
       && (!resource?.shopregion || resource.shopregion === shopRegion);
     // Shop order: level-lock order (lowest unlock level first), except the "Only Found in Scrolls"
@@ -138,9 +148,9 @@ const ShopStation = ({
         return recipe;
       });
 
-      // Filter out powers the player already has
+      // Filter out powers the player already has, and Quest for Hope artifacts already found
       const finalRecipes = filteredRecipes.filter(recipe =>
-        soldHere(masterResources.find(r => r.type === recipe.type)) && (
+        soldHere(masterResources.find(r => r.type === recipe.type)) && !alreadyFound(recipe.type) && (
         recipe.category !== 'power' ||
         !currentPlayer.powers?.some(p => p.type === recipe.type))
       );
@@ -149,7 +159,7 @@ const ShopStation = ({
     } else {
       // Fallback to old method using masterResources.source
       const filteredRecipes = masterResources.filter((resource) =>
-        resource.source === stationType && soldHere(resource) &&
+        resource.source === stationType && soldHere(resource) && !alreadyFound(resource.type) &&
         (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
       );
       filteredRecipes.sort(shopOrder);
@@ -158,7 +168,7 @@ const ShopStation = ({
 
     const stationResource = masterResources.find((resource) => resource.type === stationType);
     setStationDetails(stationResource);
-  }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers, shopRegion]);
+  }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers, currentPlayer.hopeFound, inventory, backpack, shopRegion]);
 
 
   const handleGemPurchase = async (modifiedRecipe) => {

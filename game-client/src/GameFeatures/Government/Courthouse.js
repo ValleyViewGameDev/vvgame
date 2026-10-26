@@ -480,7 +480,7 @@ const CourthousePanel = ({
                 currentPlayer={currentPlayer}
                 masterXPLevels={masterXPLevels}
                 requiredLevel={courthouseRequiredLevel}
-                featureName="Courthouse"
+                featureName={getLocalizedString('Courthouse', strings)}
             >
             <div className="panel-content courthouse-panel">
             {/* Check if player is in their home settlement */}

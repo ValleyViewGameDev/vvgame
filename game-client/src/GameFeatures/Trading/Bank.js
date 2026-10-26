@@ -16,6 +16,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import '../../UI/Buttons/SharedButtons.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 function BankPanel({
     onClose,
@@ -216,7 +217,7 @@ function BankPanel({
           currentPlayer={currentPlayer}
           masterXPLevels={masterXPLevels}
           requiredLevel={bankRequiredLevel}
-          featureName="Bank"
+          featureName={getLocalizedString('Bank', strings)}
         >
           {/* Check if player is in their home settlement */}
           {(() => {

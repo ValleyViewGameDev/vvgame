@@ -219,7 +219,7 @@
     "doinkerTarget": "[data-nav=\"QuestPanel\"]",
     "notificationKey": 7069,
     "notificationIcon": "📜",
-    "addQuests": [115]
+    "addQuests": []
   },
   {
     "step": 19,

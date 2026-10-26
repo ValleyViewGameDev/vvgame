@@ -60,7 +60,19 @@ carry the player through them:
   StoryModal on accept). Early, one story step at a time (the control gradient's "one clear next
   thing"); after the Queen wakes, the rest open as a set (the open mid and late game). His steps
   are the WHY and point at a person or a treasure; the other givers' quests are the HOW.
-- **The Shepherd** is the homestead specialist: farming, animals, building, the workers.
+- **How quests are federated** (owner, 2026-10-25). **The Shepherd** builds up the homestead:
+  he asks the player to buy and build (stations, animals, crops, workers, the materials for
+  them: Stone, Clay) and to farm. Every `Build` quest is his (Prospero's Secret aside, a
+  character's own Secret). **The specialists ask the player to make things**: Mistress Quickly
+  cooking, Feste crafting (cloth, studio goods), Helena foraging, Portia potions and the healers,
+  Hotspur and Cassio fighting. Constable Elbow, besides his story chain, gives the adventuring
+  kit (the Backpack at L8, Scout at L13) and introduces the traders as each becomes useful (the
+  Apothecary at L9, "I Do Remember an Apothecary", string 16517: the level Potion A first
+  blocks, Chemistry and Portia's first potion); these are side quests, outside his chain. A specialist's quest asks for two or three products, from
+  different stations where it can ("20 Cheese, 12 Butter and 4 Flour"), so it reads unlike a
+  Kent order, pulls the player to own several stations, and is a steady grind (most are
+  repeatable) while Kent's orders keep changing with the level. XP for these: about a quarter of
+  the items' own XP (`tuning.md` §2).
 - Story goals: `Meet <NPC>` (greeted) and `Find <item>` (held, or ever found:
   `player.hopeFound`, shared with the found moment in §3).
 - **Friendship is never an early-game gate** (owner, 2026-10-24): nothing before L16 asks for
@@ -84,7 +96,10 @@ Two separate goals:
 - **Fun to play (the loop).** The first sale pays visibly, the first skill changes what you
   can plant, and the session ends on open loops: crops growing, Kent's next orders, something
   promised for tomorrow, and a first glimpse of the Quest for Hope (OB-3).
-- **The hand-off (built 2026-10-24, OB-3).** At the Grower step (18) Elbow's modal (16521)
+- **The hand-off (built 2026-10-24, OB-3; changed 2026-10-25):** the FTUE no longer hands over
+  Elbow's first step: the owner's rule is that Elbow only sends the player to people who have a
+  quest ready for them, and his first step (meet Quickly and Hotspur) is now L4. His Grower line
+  (16521) says to come back once settled. Earlier text: At the Grower step (18) Elbow's modal (16521)
   congratulates the first skill and asks the player to greet Portia, Mistress Quickly and
   Hotspur, and the FTUE adds his first story step ("I Do Lean Upon Justice", quest 115) to the
   Quests panel; its toast (7059) says greet them, then go home. The player is about L2 here (the
@@ -110,20 +125,21 @@ combat magic all unlock there; a player may still fight before with the Knife an
 | Lvl | New concept | Quests |
 |---|---|---|
 | 1 | farming and Kent (FTUE) | Plant Wheat |
-| 2 | skills | Grower; Earth's Bounty; Elbow's first story step (from the FTUE) |
-| 3 | wood | Wood Master (Axe + 24 Wood; Saw You Not That? retired) |
-| 4 | animals | The Gentle Art (Husbandry + Cow + 12 Milk); I Earn That I Eat (Kent, practice) |
-| 5 | building | Foundations of Stone (Builder + Build Mill; Mill by Moonlight retired); Fleecy Fellowship (Sheep, practice) |
-| 6 | new crops | Our Bodies Are Our Gardens (Green Thumb + 10 Potato); Sweet Harvest (practice) |
-| 7 | the Valley | Backpack; Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Cook's Harvest (practice) |
-| 8 | stone builds | Master Mason, Dairy to Dream, Cheddar Ambitions; Mechanics; Coop Dreams |
+| 2 | skills | Grower; Earth's Bounty (repeatable, the Shepherd's grind) |
+| 3 | wood | Wood Master (Acquire Axe), then Saw You Not That? (24 Wood, repeatable) |
+| 4 | animals, and the Town's people | The Gentle Art (Husbandry + Cow + 12 Milk); Elbow's I Do Lean Upon Justice (Meet Mistress Quickly and Hotspur, moved from L3, Portia dropped until she has something to give); their first quests open on the Greet: Hotspur's To Pluck Bright Honour (Acquire a Short Sword: the one weapon before L10, 2,000 Money), Quickly's The Sweet Milk of Concord (6 Milk); I Earn That I Eat (Kent, practice) |
+| 5 | building | Foundations of Stone (Builder + Build Mill; Mill by Moonlight retired); Quickly's Sweet Harvest (Craft 3 Sugar at the Mill, repeatable; moved from the Shepherd); Fleecy Fellowship (Sheep, practice) |
+| 6 | new crops (Green Thumb, no quest) | Feste's I Wear Not Motley in My Brain (6 Wool: he has a quest the moment Elbow sends you to him); Elbow's "Better a Witty Fool Than a Foolish Wit" (Meet Feste, who sings to the Queen of stone; string 16516; added 2026-10-25 so L4-6 is not without a story step); practice: Barns and Garners Never Empty (Earth's Bounty, repeatable) and Quickly's Sugar (Our Bodies Are Our Gardens retired 2026-10-25: Potatoes are seasonal) |
+| 7 | the Dairy | Master Mason (Acquire Masonry, pays the 20 Stone a Dairy costs), Dairy to Dream (Build Dairy), Quickly's Cheddar Ambitions; Cook's Harvest (practice). Masonry, the Dairy and its products all unlock at L7 (owner 2026-10-26: Butter and Cheese showed at L6, the Dairy at L8) |
+| 8 | the Valley | the kit: Elbow's Backpack (its upgrades, the Pickaxe, Padding and Medicine all unlock at L8); Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Hotspur's Give Me My Armour (Padding); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Mechanics, Coop Dreams |
 | 9 | potions, cloth | Helena's Rosemary, Portia's Potion A, Chemistry; Loom and Cloth; Dairy Delights; Lumberjack; Serve Kent 12; the Clay |
 | 10 | combat begins | Hotspur's Focus, Long Blade, kit and Coyotes / Pelts; Elbow's Cassio step |
 | 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Farm Hand, Rancher, Fortitude |
 | 12 | | Duke Angelo; Politics and Vote (elections run on their own clock); Textiles |
 
 The XP the moved quests carried was put back on the concept quests (`tuning.md` §2: XP is the
-clock), so quest XP per level stays near what it was (L4 25, L5 65, L6 60, L7 80).
+clock), so quest XP per level stays near what it was (L4 25, L5 65, L7 80); L6 has only the
+repeatable practice quests, so Kent carries it.
 
 ### Late-early (L10 to L15): the first artifact, then the Queen
 
@@ -170,6 +186,17 @@ one, so the rest of the game is a promise, not a mystery.
   about 20 s for a quarter of their hp; with a Knife and no armour it kills them. Helena's first
   dialog (16006, played on the Greet) asks for the Daisies, names the castle in Belmont and warns
   of the bear; the Crown's hint (200812) names Belmont and the bear.
+
+- **The Golden Key is kept** (owner, 2026-10-26). It opens the Castle without being spent: the King's
+  Crown `requires` the key (held, backpack or warehouse) instead of costing it, the way a Locked
+  Door opens for whoever carries it, and a Quest for Hope artifact already found never shows in a
+  shop again, so the Crown is taken once. Before, buying the Crown ate the only key (Helena's quest
+  is one-time) and shut every Locked Door for good. What the key opens (traced 2026-10-26): in
+  every Town (four doors each, townN/S/E/W), a walled garden (a vineyard with a Winery and a marble
+  statue) and through it Cassio and Juliet's courtyard and a small pantry (Lemon Cookie, Honey,
+  Cheese); on 1012276 (Windsor) a 16-tile vault of Money; on 1015434 two rooms (6 Scrolls, Aged
+  Wine and 3 Zombies; Mushrooms and a Tulip). **So Cassio and Juliet are reached only with the
+  key**: Elbow's L10 "meet Cassio" step and Cassio's quests depend on Helena's L8 Daisy quest.
 
 - **The found moment** (built 2026-10-24, for all seven artifacts). When an artifact turns up in
   the player's holdings (`GameFeatures/Social/HopeFound.js`, mounted in App), its story modal
