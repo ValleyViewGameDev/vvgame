@@ -69,6 +69,18 @@
         "painterly"
       ],
       "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: the CLOVEN PINE, a source of wood and a tree of legend (the pine a spirit was once shut inside): a tall pine in the same painted leaf language as the oak but with GOLDEN-YELLOW foliage, as the game draws it today, a warm autumn gold against the valley's greens, whose trunk has been SPLIT down the middle by a great cleft, the two halves leaning apart with pale raw wood showing in the split and a few fallen branches at the foot; whimsical and a little dramatic, rising about two tiles tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "clay-pit-b": {
+      "refs": [
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg",
+        "_candidates/buildings-bible-r4/approved/openai--painterly-general-store-b-2.small.jpg",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: a CLAY PIT, a natural deposit of raw clay found wild in the valley (nobody has dug it; no tools of any kind, no spade, no bucket): a low natural outcrop of wet reddish-brown CLAY, a soft rounded mound with a glossy wet puddle in a hollow on top and a few cracked dry patches at the edges, a scatter of clay lumps and small stones around its foot, a tuft of grass at one side; it must read as raw clay in the ground at a glance, earthy and untouched, about two thirds of a tile tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
     }
   }
 }
