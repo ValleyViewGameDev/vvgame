@@ -156,7 +156,10 @@ value rather than trust this page.
   2026-10-11). It is the fly target `quests`: an accepted quest's 📜 flies into it. Its badge at the lower
   left (`.hud-badge`) is the quest-ready ✅ (`assets/overlays/checkmark.svg`) when a quest can be
   turned in, a yellow "?" when quests are active but none is done
-  (`GameFeatures/Quests/questBadge.js`). The season button (📅, opens the Season panel,
+  (`GameFeatures/Quests/questBadge.js`). A nav-bar button's badge sits INSIDE its lower-right
+  corner (`.nav-button--badged` + `.nav-badge`, 16 px; the nav pill clips anything outside
+  the button): the Trophies button shows the same ✅ while an earned trophy's gems wait to be
+  collected (App.js `trophyReady`, cleared optimistically on Collect). The season button (📅, opens the Season panel,
   `.season-controls.season-main`) is the top of the right-hand stack. The map button (`.map-controls`, 🗺️) is its other twin: under the
   zoom pill on desktop and in portrait, under the season button in landscape (zoom lives in
   the header there). It toggles the Map panel (a second tap closes it); on phones it sits

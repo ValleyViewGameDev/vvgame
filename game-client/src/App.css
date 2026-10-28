@@ -143,6 +143,19 @@ body {
   background-color: var(--color-primary-green);
 }
 
+/* A status badge in a nav button's lower-right corner (Trophies: gems to collect). Inside the
+   button's box, since the nav pill clips anything that pokes out. */
+.nav-button--badged { position: relative; }
+.nav-badge {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+
 /* HEADER /////////////////////////////// */
 
 /* ZOOM: two round buttons in a pill at the board's top-left //////////////////////////// */

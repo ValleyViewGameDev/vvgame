@@ -61,6 +61,11 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         setTrophies(prevTrophies =>
             prevTrophies.map(t => t.name === trophyName ? { ...t, collected: true } : t)
         );
+        // the player's copy too, so the Trophies nav badge (App.js trophyReady) clears at once
+        const markCollected = (collected) => setCurrentPlayer(prev => ({
+            ...prev, trophies: (prev?.trophies || []).map(t => t.name === trophyName ? { ...t, collected } : t),
+        }));
+        markCollected(true);
         if (gemReward > 0) {
             // the flight first, so the header holds the gems until it lands
             const card = document.querySelector(`[data-trophy-card="${CSS.escape(trophyName)}"]`);
@@ -94,6 +99,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
             setTrophies(prevTrophies =>
                 prevTrophies.map(t => t.name === trophyName ? { ...t, collected: false } : t)
             );
+            markCollected(false);
             if (gemReward > 0) {
                 setInventory(prevInventory);
                 setCurrentPlayer(prev => ({ ...prev, inventory: prevInventory }));

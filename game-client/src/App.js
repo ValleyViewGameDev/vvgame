@@ -982,6 +982,11 @@ useEffect(() => {
 }, []);
 const questBadge = useMemo(() => questBadgeState(currentPlayer, questTitles),
   [currentPlayer?.activeQuests, currentPlayer?.skills, currentPlayer?.powers, questTitles]); // eslint-disable-line react-hooks/exhaustive-deps
+// Trophies nav button: a ✅ while an earned trophy's gems wait to be collected (a trophy the
+// Trophy panel shows, i.e. visible in trophies.json)
+const trophyReady = useMemo(() => (currentPlayer?.trophies || []).some((t) => t.collected === false
+  && masterTrophies?.some((d) => d.name === t.name && d.visible !== false)),
+  [currentPlayer?.trophies, masterTrophies]); // eslint-disable-line react-hooks/exhaustive-deps
 // Keyed on currentPlayer.location.g, the field the modal itself reads to decide "at home": its
 // buttons become Discard / Discard All away from home, so it must never open before location agrees.
 const lastLocationGridRef = useRef(null);
@@ -3464,7 +3469,10 @@ return (
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>{renderNavIcon('TrophyPanel', '🏆')}</button>
+        <button className={`nav-button nav-button--badged ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>
+          {renderNavIcon('TrophyPanel', '🏆')}
+          {trophyReady && <img className="nav-badge" src="/assets/overlays/checkmark.svg" alt="" />}
+        </button>
       )}
 
       {isDeveloper && (
