@@ -101,6 +101,12 @@ const noop = () => {};
 
 export const isCitizen = (npc) => !!npc && CITIZEN_ACTIONS.includes(npc.action);
 /**
+ * Citizens who keep their post: no state loop, no wandering, never a conversation partner;
+ * only the waiting cue when the player is near (owner 2026-10-28: Kent, The Shepherd).
+ */
+const STATIONARY_CITIZENS = new Set(['Kent', 'The Shepherd']);
+export const isStationaryCitizen = (npc) => !!npc && STATIONARY_CITIZENS.has(npc.type);
+/**
  * Does this worker do its job on its own in the working state? The worker panel's
  * "Automatically work?" switch (npc.autoWork, saved on the NPC record). Unset = on, except the
  * Crafter: auto-collecting the stations would undo a player who restarts crafts with Bulk
@@ -368,7 +374,7 @@ const liveConversations = new Set(); // { npc, partnerId, control }
 
 /** Another citizen this one could go and talk to right now. */
 function canBePartner(me, n, now) {
-  if (!n || n.id === me.id || !isCitizen(n) || stateSeconds(n, 'socializing') <= 0) return false;
+  if (!n || n.id === me.id || !isCitizen(n) || isStationaryCitizen(n) || stateSeconds(n, 'socializing') <= 0) return false;
   if (n.citizenState === 'waiting') return false; // (citizens carry no hp)
   if (n.storyErrand || n.storyGoal) return false; // busy with the story (gertrudeWaking.js, storyGoal.js)
   if (n.citizenTask?.partnerId) return false; // already in (or walking to) a conversation
@@ -555,7 +561,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
     }
     if (this.citizenState === 'waiting') {
       const r = this.citizenResume || {};
-      if (r.state && hasStateLoop(this)) {
+      if (r.state && hasStateLoop(this) && !isStationaryCitizen(this)) {
         this.citizenState = r.state;
         this.citizenStateUntil = now + (r.remainingMs || 0);
         setHeadline(this, r.state);
@@ -570,7 +576,8 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
   // ---- the FTUE cave: citizens (Constable Elbow) hold their tile, no state loop, no wander,
   // so the doinker and the scrim stay on him (owner 2026-10-13). The waiting headline above
   // still shows when the player is near.
-  if (GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave) {
+  // Kent and The Shepherd keep their post everywhere the same way (isStationaryCitizen)
+  if (GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave || isStationaryCitizen(this)) {
     this.path = null;
     if (this.citizenState && this.citizenState !== 'waiting') {
       this.citizenState = null;

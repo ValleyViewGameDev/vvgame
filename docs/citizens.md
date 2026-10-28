@@ -128,6 +128,10 @@ they do other things on the homestead.
     walked off by the time you arrive).
   - Fallback: if the chosen citizen cannot be reached, fail and pick another; on the 3rd
     failure abandon socializing and move to the next state (working).
+- **Stationary citizens (owner 2026-10-28): Kent and The Shepherd** keep their post. No state
+  loop, no wandering, never picked as a conversation partner; only the waiting cue shows when
+  the player is near (the same rule as every citizen in the FTUE cave). The list is
+  `STATIONARY_CITIZENS` in `NPCCitizenBehavior.js`; their `state*` columns are ignored.
 
 ### 2.3 Healers
 
