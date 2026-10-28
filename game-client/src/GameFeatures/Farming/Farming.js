@@ -113,8 +113,12 @@ export const handleFarmPlotPlacement = async ({
     }
 
     // ===== OPTIMISTIC UI: Show feedback immediately =====
+    // A tree from the catalog comes fully grown: it lands like deco (BuildAndBuy.js), with no
+    // grow-in from a seedling the way a crop plot has
+    const landsGrown = selectedItem.source === 'tree';
+
     // 1. Play sound immediately
-    soundManager.playSFX('plant');
+    soundManager.playSFX(landsGrown ? 'place' : 'plant');
 
     // 2. Timer setup
     const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;
@@ -133,13 +137,13 @@ export const handleFarmPlotPlacement = async ({
     console.log("🌾 Enriched resource for optimistic placement:", enrichedNewResource);
 
     // 4. Start grow animation BEFORE updating state so PixiRenderer skips rendering
-    if (enrichedNewResource.symbol) {
+    if (enrichedNewResource.symbol && !landsGrown) {
       createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
     }
 
     // 5. Show VFX and floating text immediately
     createCollectEffect(tileX, tileY, TILE_SIZE);
-    FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
+    FloatingTextManager.addFloatingText(landsGrown ? 300 : 302, tileX, tileY, TILE_SIZE); // "Added" / "Planted!"
 
     // 6. Save original inventory state for potential rollback
     const originalInventory = inventory ? [...inventory] : [];
