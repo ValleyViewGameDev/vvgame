@@ -29,6 +29,13 @@ import './CraftingStation.css'; // Import for crafting station panel and slot st
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 
+// Slots with a collect on its way to the server, per station ("gridId:x,y" -> Set of slot
+// indexes). The server answers collects one at a time (the per-grid write lock), and each answer
+// carries the station's slots as they stood after THAT collect, so with several taps in flight
+// the first answer still shows the later slots full. Those slots stay empty on the client until
+// their own answer lands; a failed collect puts back only its own slot.
+const pendingSlotCollects = new Map();
+
 const CraftingStation = ({
   onClose,
   inventory,
@@ -445,6 +452,22 @@ const CraftingStation = ({
     const craftedItemResource = masterResources.find(r => r.type === craftedItemType);
     const craftedSymbol = craftedItemResource?.symbol || '🎁';
 
+    const stationKey = `${gridId}:${currentStationPosition.x},${currentStationPosition.y}`;
+    if (!pendingSlotCollects.has(stationKey)) pendingSlotCollects.set(stationKey, new Set());
+    const pending = pendingSlotCollects.get(stationKey);
+    pending.add(slotIndex);
+    const writeStation = (update) => {
+      const updated = GlobalGridStateTilesAndResources.getResources().map(res =>
+        res.x === currentStationPosition.x && res.y === currentStationPosition.y ? update(res) : res
+      );
+      GlobalGridStateTilesAndResources.setResources(updated);
+      setResources(updated);
+      setStationRefreshKey(prev => prev + 1);
+    };
+    const keepPendingEmpty = (slots) => slots.map((s, i) =>
+      pending.has(i) ? { craftEnd: null, craftedItem: null, qty: null } : s
+    );
+
     // Save original slot state for potential rollback. A station from before multi-slot crafting
     // keeps its craft on the station itself (craftEnd / craftedItem, which effectiveSlots shows
     // as slot 0): the optimistic clear works from the slots the panel shows and clears those
@@ -452,6 +475,17 @@ const CraftingStation = ({
     const originalSlots = [...(station?.slots || [])];
     const legacyFields = { craftEnd: station?.craftEnd ?? null, craftedItem: station?.craftedItem ?? null, qty: station?.qty ?? null };
     const shownSlots = [...(effectiveSlots || [])];
+    // Put back only this slot (unless something has filled it since); the legacy single-craft
+    // station has just the one slot, so it gets its old fields back whole
+    const rollbackSlot = () => {
+      pending.delete(slotIndex);
+      writeStation((res) => {
+        if (originalSlots.length === 0) return { ...res, slots: originalSlots, ...legacyFields };
+        const slots = [...(res.slots || [])];
+        if (!slots[slotIndex]?.craftedItem) slots[slotIndex] = slot;
+        return { ...res, slots: keepPendingEmpty(slots) };
+      });
+    };
 
     // ===== OPTIMISTIC UI: Show feedback immediately =====
     // 1. Play sound immediately
@@ -468,17 +502,11 @@ const CraftingStation = ({
     }
 
     // 3. Optimistically clear the slot visually
-    const optimisticSlots = shownSlots.map((s, i) =>
-      i === slotIndex ? { craftEnd: null, craftedItem: null, qty: null } : s
-    );
-    const optimisticGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-      res.x === currentStationPosition.x && res.y === currentStationPosition.y
-        ? { ...res, slots: optimisticSlots, ...(originalSlots.length === 0 ? { craftEnd: null, craftedItem: null, qty: null } : {}) }
-        : res
-    );
-    GlobalGridStateTilesAndResources.setResources(optimisticGlobalResources);
-    setResources(optimisticGlobalResources);
-    setStationRefreshKey(prev => prev + 1);
+    writeStation((res) => ({
+      ...res,
+      slots: keepPendingEmpty(originalSlots.length === 0 ? shownSlots : (res.slots || shownSlots)),
+      ...(originalSlots.length === 0 ? { craftEnd: null, craftedItem: null, qty: null } : {}),
+    }));
 
     // ===== SERVER VALIDATION =====
     try {
@@ -523,14 +551,7 @@ const CraftingStation = ({
           if (gained !== true && (!gained || gained.success === false)) {
             console.error('❌ Failed to add crafted item to inventory - rolling back');
             // Rollback the optimistic slot update
-            const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-              res.x === currentStationPosition.x && res.y === currentStationPosition.y
-                ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
-                : res
-            );
-            GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
-            setResources(rollbackGlobalResources);
-            setStationRefreshKey(prev => prev + 1);
+            rollbackSlot();
             if (window._processingSlotCollects) {
               window._processingSlotCollects.delete(collectId);
             }
@@ -541,18 +562,10 @@ const CraftingStation = ({
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
-        // Update station with authoritative server slots array
+        // Take the server's slots, keeping any slot whose own collect is still in flight empty
         console.log(`🔄 [COLLECT] Cleared slot ${slotIndex}`);
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: newSlots }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Force a refresh of the station state
-        setStationRefreshKey(prev => prev + 1);
+        pending.delete(slotIndex);
+        writeStation((res) => ({ ...res, slots: keepPendingEmpty(Array.isArray(newSlots) ? newSlots : (res.slots || [])) }));
 
         // Refresh player data
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -566,27 +579,13 @@ const CraftingStation = ({
       } else {
         // Server returned success: false - rollback
         console.error('❌ Server rejected collection - rolling back');
-        const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
-        setResources(rollbackGlobalResources);
-        setStationRefreshKey(prev => prev + 1);
+        rollbackSlot();
         updateStatus('❌ Failed to collect item');
       }
     } catch (error) {
       console.error('Error collecting from slot:', error);
       // Rollback the optimistic slot update
-      const rollbackGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-        res.x === currentStationPosition.x && res.y === currentStationPosition.y
-          ? { ...res, slots: originalSlots, ...(originalSlots.length === 0 ? legacyFields : {}) }
-          : res
-      );
-      GlobalGridStateTilesAndResources.setResources(rollbackGlobalResources);
-      setResources(rollbackGlobalResources);
-      setStationRefreshKey(prev => prev + 1);
+      rollbackSlot();
 
       if (error.response?.status === 429) {
         updateStatus(471);
@@ -595,6 +594,7 @@ const CraftingStation = ({
       }
     } finally {
       // Clear the processing flag
+      pending.delete(slotIndex);
       if (window._processingSlotCollects) {
         window._processingSlotCollects.delete(collectId);
       }
