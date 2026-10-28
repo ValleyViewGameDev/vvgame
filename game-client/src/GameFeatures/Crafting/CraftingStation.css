@@ -23,14 +23,24 @@
 }
 
 /* Output multiplier text - uses theme font-title-3 to match other stations */
-.output-multiplier-badge {
-  display: inline-block;
+.output-multiplier-row {
+  display: flex; /* the ℹ️ badge (InfoButton) sits right-justified on this row */
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
+}
+
+.output-multiplier-badge {
   font-family: var(--font-title-3-family);
   font-size: var(--font-title-3-size);
   font-weight: var(--font-title-3-weight);
   color: var(--font-title-3-color);
-  cursor: help;
+}
+
+/* in the row's flow, not pinned to a card corner: its touch hit-area padding and negative
+   margins (ResourceButton.css) then cancel out and the glyph stays on the text line */
+.output-multiplier-row > .output-multiplier-info {
+  position: static;
 }
 
 /* Crafting Station Slots */

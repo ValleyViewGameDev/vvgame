@@ -28,6 +28,7 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 import './CraftingStation.css'; // Import for crafting station panel and slot styles
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import InfoButton from '../../UI/Buttons/InfoButton';
 
 // Slots with a collect on its way to the server, per station ("gridId:x,y" -> Set of slot
 // indexes). The server answers collects one at a time (the per-grid write lock), and each answer
@@ -69,7 +70,6 @@ const CraftingStation = ({
   const [isMayor, setIsMayor] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [slotTooltip, setSlotTooltip] = useState({ show: false, slotIndex: null, top: 0, left: 0 });
-  const [outputTooltip, setOutputTooltip] = useState({ show: false, top: 0, left: 0 });
   // Per-slot countdown timers (keyed by slot index)
   const [slotCountdowns, setSlotCountdowns] = useState({});
   // Slot index showing "Added" floating text animation (null when none)
@@ -736,15 +736,6 @@ const CraftingStation = ({
 
   const skillBonusInfo = getSkillBonusInfo();
 
-  // Output tooltip position handler
-  const updateOutputTooltipPosition = (event) => {
-    setOutputTooltip({
-      show: true,
-      top: event.clientY + window.scrollY + 10,
-      left: event.clientX + window.scrollX + 15,
-    });
-  };
-
   // Count hospitals on the current grid
   const countHospitals = () => {
     if (!resources || !allResources) return 0;
@@ -800,13 +791,21 @@ const CraftingStation = ({
         ) : (
           <>
             {skillBonusInfo.hasSkills && (
-              <div
-                className="output-multiplier-badge"
-                onMouseEnter={(e) => canHover() && updateOutputTooltipPosition(e)}
-                onMouseMove={(e) => canHover() && updateOutputTooltipPosition(e)}
-                onMouseLeave={() => setOutputTooltip({ show: false, top: 0, left: 0 })}
-              >
-                {strings[807] || 'Output'}: {skillBonusInfo.multiplier}x
+              <div className="output-multiplier-row">
+                <span className="output-multiplier-badge">
+                  {strings[807] || 'Output'}: {skillBonusInfo.multiplier}x
+                </span>
+                {/* why the output is multiplied: the ℹ️ badge, hover on desktop, a tap on touch */}
+                <InfoButton
+                  className="output-multiplier-info"
+                  info={skillBonusInfo.tooltipLines.length > 0 ? (
+                    <>
+                      {skillBonusInfo.tooltipLines.map((line, idx) => (
+                        <p key={idx} style={{ marginBottom: idx < skillBonusInfo.tooltipLines.length - 1 ? '6px' : 0 }}>{line}</p>
+                      ))}
+                    </>
+                  ) : null}
+                />
               </div>
             )}
             {/* Crafting Station Slots — only for crafting category */}
@@ -1024,25 +1023,6 @@ const CraftingStation = ({
           </>
         )}
       </div>
-
-      {/* Output multiplier tooltip portal */}
-      {outputTooltip.show && skillBonusInfo.tooltipLines.length > 0 && ReactDOM.createPortal(
-        <div
-          className="info-toaster"
-          style={{
-            top: outputTooltip.top,
-            left: outputTooltip.left,
-            position: 'absolute',
-          }}
-        >
-          {skillBonusInfo.tooltipLines.map((line, idx) => (
-            <div key={idx} style={{ marginBottom: idx < skillBonusInfo.tooltipLines.length - 1 ? '6px' : 0 }}>
-              {line}
-            </div>
-          ))}
-        </div>,
-        document.body
-      )}
 
       {/* Slot tooltip portal - renders near cursor like ResourceButton info tooltip */}
       {slotTooltip.show && slotTooltip.slotIndex !== null && (() => {

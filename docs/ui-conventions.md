@@ -279,7 +279,7 @@ value rather than trust this page.
   goes on the control itself: the gem button prints its cost (`💎12`, blue on the pale-blue
   chip, every layout), the crafting station prints the next slot's unlock cost under the slots
   and a gem slot's price on its lock. Secondary details go behind the ℹ️ badge,
-  `UI/Buttons/InfoButton.js` (resource buttons, trophy cards): hover on desktop, a TAP on touch
+  `UI/Buttons/InfoButton.js` (resource buttons, trophy cards, a crafting station's Output row): hover on desktop, a TAP on touch
   opens it under the badge and the next tap anywhere closes it; the tap never reaches the
   control underneath. Render it outside a `<button>` (a disabled button swallows taps). The
   board's long-press tooltip is a touch gesture, not a hovertip, and stays.
