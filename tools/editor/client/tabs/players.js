@@ -679,7 +679,7 @@ function renderInspector(root, p) {
 // ----------------------------------------------------------------------------- tab
 export function playersTab() {
   return {
-    id: 'players', label: 'Players', icon: '👥', group: 'admin',
+    id: 'players', label: 'Players', icon: '😊', group: 'admin',
     async mount(selectionEl, editorEl, ctx, route) {
       P.ctx = ctx; P.els.selection = selectionEl; P.els.editor = editorEl;
       const [, rawId] = route.split('/');
