@@ -461,7 +461,24 @@ const PixiRenderer = ({
 
   // Calculate crafting and trading status for dynamic overlays (same as RenderDynamicElements)
   // NOTE: Date.now() is calculated INSIDE useMemo to avoid dependency on every render.
-  // Status recalculates only when resources change, not continuously.
+  // Status recalculates when resources change, and once more the moment the soonest running
+  // craft (station slot, legacy single slot, pet search) ends: without that wake-up a finished
+  // craft kept its 🕑 until something else on the grid changed or the page was reloaded.
+  const [craftTick, setCraftTick] = useState(0);
+  useEffect(() => {
+    if (!resources) return undefined;
+    const now = Date.now();
+    let next = Infinity;
+    const consider = (end) => { const t = Number(end); if (t > now && t < next) next = t; };
+    for (const res of resources) {
+      if (res.category !== 'crafting' && res.category !== 'farmhouse' && res.category !== 'pet') continue;
+      if (res.slots?.length) res.slots.forEach((slot) => consider(slot?.craftEnd));
+      consider(res.craftEnd);
+    }
+    if (next === Infinity) return undefined;
+    const id = setTimeout(() => setCraftTick((t) => t + 1), Math.min(next - now + 50, 2147483647));
+    return () => clearTimeout(id);
+  }, [resources, craftTick]);
   const computedCraftingStatus = useMemo(() => {
     if (!resources) return { ready: [], searching: [], hungry: [], inProgress: [] };
 
@@ -508,7 +525,7 @@ const PixiRenderer = ({
       }
       return acc;
     }, { ready: [], searching: [], hungry: [], inProgress: [] });
-  }, [resources]); // Removed currentTime - now calculated inside
+  }, [resources, craftTick]); // craftTick: the wake-up at the soonest craft's end (above)
 
   // The ✅ on the player's own Trade Stall: a sale someone bought (payment to collect) or a
   // listing whose timer has run out (ready to sell to the game). Only on the player's own
