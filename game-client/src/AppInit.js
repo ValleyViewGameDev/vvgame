@@ -2,6 +2,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import farmState from './FarmState';
 import ambientVFXManager from './VFX/AmbientVFXManager';
 import soundManager from './Sound/SoundManager';
+import { isViewOnly } from './Utils/viewOnly';
 
 /**
  * Enrich raw grid resources with master data and add shadow tiles for
@@ -95,7 +96,8 @@ export const initializeGridFromData = async (
     // FarmState sees the enriched resources (master props like 'output'). Not awaited: on a
     // homestead with finished crops it PATCHes one farmplot per crop, and arrival must not
     // wait on those; it swaps the sprites in through setResources when they land.
-    if (masterResources && masterResources.length > 0 && processedResources.length > 0) {
+    // (not on a read-only snapshot: its crops stay as they were saved, Utils/viewOnly.js)
+    if (masterResources && masterResources.length > 0 && processedResources.length > 0 && !isViewOnly(gridId)) {
       farmState.initializeAndProcessCompleted({
         resources: processedResources,
         gridId,

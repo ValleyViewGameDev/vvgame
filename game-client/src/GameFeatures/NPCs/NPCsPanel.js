@@ -45,6 +45,7 @@ import soundManager from '../../Sound/SoundManager';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { gameAlert } from '../../UI/Modals/GameDialog';
 import { sellSection } from '../../UI/Panels/SellSection';
+import { prereqsMet } from '../Quests/questPrereqs';
 
 const NPCPanel = ({
   onClose,
@@ -329,7 +330,7 @@ const NPCPanel = ({
         && !(quest.retired === true || quest.retired === 'true')
         && !currentPlayer.activeQuests.some(q => q.questId === quest.title)
         && ((quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests.some(q => q.questId === quest.title))
-        && (!quest.prereq || currentPlayer.completedQuests.some(q => q.questId === quest.prereq)));
+        && prereqsMet(quest, currentPlayer));
 
       // Use new quest filtering logic
       let npcQuests = allQuests
@@ -348,7 +349,7 @@ const NPCPanel = ({
           // (owner 2026-10-25; was one level ahead, too much at once)
           if (Number(quest.level) > playerLevel) return false;
           // a quest with a prereq is offered only once that quest is done (quest chains)
-          if (quest.prereq && !currentPlayer.completedQuests.some(q => q.questId === quest.prereq)) return false;
+          if (!prereqsMet(quest, currentPlayer)) return false;
           const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
           return shouldShow;
         });

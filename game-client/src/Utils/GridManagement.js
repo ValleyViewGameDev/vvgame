@@ -16,6 +16,8 @@ import farmState from '../FarmState';
 import ambientVFXManager from '../VFX/AmbientVFXManager';
 import soundManager from '../Sound/SoundManager';
 import { loadMasterResources, loadMasterTrophies, loadGlobalTuning } from './TuningManager';
+import { worldMapCell } from './WorldMap';
+import { canViewHomesteadSnapshots, isViewOnly, enterViewOnly, leaveViewOnly } from './viewOnly';
 
 export const updateGridResource = async (
   gridId,
@@ -166,6 +168,18 @@ export async function enterGrid(playerId, target, leave = undefined, frontierId 
   if (leave) body.leave = leave;
   if (frontierId) body.frontierId = String(frontierId); // lets the server read Player and Frontier in one round trip
   const response = await axios.post(`${API_BASE}/api/enter-grid`, body);
+  return response.data;
+}
+
+/**
+ * Another player's homestead as last saved, for the read-only view (Utils/viewOnly.js;
+ * developers only). Same `{ grid, location, ownerUsername }` shape as enter-grid; the server
+ * writes nothing and the player's saved location does not move.
+ */
+export async function fetchHomesteadSnapshot(playerId, gridCoord, frontierId = undefined) {
+  const params = { playerId };
+  if (frontierId) params.frontierId = String(frontierId);
+  const response = await axios.get(`${API_BASE}/api/homestead-snapshot/${gridCoord}`, { params });
   return response.data;
 }
 
@@ -326,6 +340,10 @@ export const changePlayerLocation = async (
   }
 
   const playerId = String(currentPlayer._id || currentPlayer.playerId);
+  // Someone else's homestead opens as a read-only snapshot for a developer (Utils/viewOnly.js);
+  // for anyone else enter-grid refuses it (10020)
+  const toSnapshot = target.type === 'coord' && canViewHomesteadSnapshots() && worldMapCell(target.gridCoord) === 'H';
+  const fromView = isViewOnly();
   const fromLocation = currentPlayer.location || {};
   const fromGridId = fromLocation.g ? String(fromLocation.g) : null;
   const fromGridCoord = fromLocation.gridCoord ?? GlobalGridStateTilesAndResources.getGridMeta()?.gridCoord ?? null;
@@ -350,7 +368,11 @@ export const changePlayerLocation = async (
   // ---------------------------------------------------------------- leave
   // §4.2: drain the from-grid's NPC position queue and the local PC's
   // x/y/hp/maxhp into `leave`; no leave-side requests of their own.
-  const leave = fromGridId
+  // Nothing of a snapshot is saved (its NPCs never ticked, the player never stood there on the
+  // server), and a trip INTO one sends no enter-grid: the from-grid's NPC positions stay queued for
+  // the batch timer and the player's own state is flushed before the view starts (below)
+  if (fromView && fromGridId) NPCsInGridManager.drainPendingPositions(fromGridId);
+  const leave = fromGridId && !fromView && !toSnapshot
     ? {
         fromGridId,
         npcPositions: NPCsInGridManager.drainPendingPositions(fromGridId),
@@ -376,8 +398,10 @@ export const changePlayerLocation = async (
    * commit React/localStorage, and run the trophy / region / camera / status
    * steps. Shared by both paths. Returns { x, y, toGridId, gtype, updatedPlayer }.
    */
-  const arrive = async ({ grid, location, spawn, ownerUsername }) => {
+  const arrive = async ({ grid, location, spawn, ownerUsername, viewOnly = false }) => {
     const toGridId = String(grid._id);
+    // Before seeding, so FarmState and the write guard already know this grid is a snapshot
+    if (viewOnly) enterViewOnly(toGridId, ownerUsername); else leaveViewOnly();
 
     // Player location: contract `location` merged over the old one
     const mergedLocation = { ...fromLocation, ...location, g: toGridId };
@@ -417,9 +441,9 @@ export const changePlayerLocation = async (
     // Place the PC on the arrival tile (no slide animation from the old grid's tile)
     playersInGridManager.updatePC(toGridId, playerId, { position: { x: finalX, y: finalY } }, { animate: false });
 
-    // Local gridsVisited mirror (the server marks the bit in enter-grid)
+    // Local gridsVisited mirror (the server marks the bit in enter-grid; a snapshot marks nothing)
     const toGridCoord = location.gridCoord ?? grid.gridCoord ?? null;
-    if (isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
+    if (!viewOnly && isNum(toGridCoord) && toGridCoord >= 0 && !isGridVisited(currentPlayer.gridsVisited, toGridCoord)) {
       updatedPlayer.gridsVisited = toServerFormat(markGridVisited(currentPlayer.gridsVisited, toGridCoord));
     }
     // Local regionsVisited mirror (the server adds it in enter-grid): the Discover quest goal
@@ -427,11 +451,14 @@ export const changePlayerLocation = async (
       updatedPlayer.regionsVisited = [...(currentPlayer.regionsVisited || []), toRegion];
     }
 
-    // Commit React + localStorage state
+    // Commit React + localStorage state (a snapshot stays out of localStorage: a reload goes back
+    // to the grid the server has the player on)
     setGridId(toGridId);
     setCurrentPlayer(updatedPlayer);
-    localStorage.setItem('player', JSON.stringify(updatedPlayer));
-    localStorage.setItem('gridId', toGridId);
+    if (!viewOnly) {
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      localStorage.setItem('gridId', toGridId);
+    }
 
     // ---------------------------------------------------------------- side effects
     // First time visiting a valley: trophy + notification
@@ -454,7 +481,7 @@ export const changePlayerLocation = async (
     }
 
     // Region transition notification
-    if (strings && fromRegion !== toRegion) {
+    if (!viewOnly && strings && fromRegion !== toRegion) {
       if (toRegion) {
         showNotification('Travel', {
           title: strings[10185] || 'Elsinore',
@@ -489,7 +516,9 @@ export const changePlayerLocation = async (
       true  // instant for grid transitions
     );
 
-    if (updateStatus && gtype) {
+    if (updateStatus && viewOnly) {
+      updateStatus((strings?.[10022] || "👁️ {name}'s homestead, as last saved. Look around: nothing here can be changed.").replace('{name}', ownerUsername || '?'));
+    } else if (updateStatus && gtype) {
       updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);
     }
 
@@ -587,7 +616,13 @@ export const changePlayerLocation = async (
     // move (403 not-your-homestead, 404) leaves the player exactly where they were.
     let bundle;
     try {
-      bundle = await enterGrid(playerId, target, leave, currentPlayer.frontierId || fromLocation.f);
+      if (toSnapshot) {
+        // the player's own x/y/hp are saved now; once the view is up the write guard blocks them
+        if (!fromView) await playersInGridManager.flushState();
+        bundle = await fetchHomesteadSnapshot(playerId, target.gridCoord, currentPlayer.frontierId || fromLocation.f);
+      } else {
+        bundle = await enterGrid(playerId, target, leave, currentPlayer.frontierId || fromLocation.f);
+      }
     } catch (error) {
       restoreLeave();
       return fail(enterGridErrorStatus(error, strings), error);
@@ -600,10 +635,10 @@ export const changePlayerLocation = async (
 
     if (updateStatus) updateStatus('Entering ...');
 
-    const arrived = await arrive({ grid, location, spawn, ownerUsername });
+    const arrived = await arrive({ grid, location, spawn, ownerUsername, viewOnly: toSnapshot });
 
     // Persist the arrival x/y; not awaited (the 30 s tick and unload also cover it)
-    playersInGridManager.flushState();
+    if (!toSnapshot) playersInGridManager.flushState();
 
     // Let PixiJS render a few frames at the new camera position before fading up
     await waitForFrames(3);

@@ -11,6 +11,7 @@ import { getLocalizedString } from '../../Utils/stringLookup.js';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters.js';
 import { createCollectEffect } from '../../VFX/VFX.js';
 import soundManager from '../../Sound/SoundManager';
+import { isViewOnly } from '../../Utils/viewOnly';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -277,6 +278,7 @@ export async function handleNPCClick(
     console.warn("handleNPCClick was called with an undefined NPC.");
     return;
   }
+  if (isViewOnly()) return; // a read-only snapshot (Utils/viewOnly.js)
   console.log(`[🐮↖️ handleNPCClick] NPC ${npc.id} clicked with state=${npc.state}`);
 
   switch (npc.action) {

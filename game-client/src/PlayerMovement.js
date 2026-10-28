@@ -500,7 +500,7 @@ function maybePrefetchAcrossEdge(currentPlayer, playerId, position) {
 
   for (const direction of directions) {
     const travel = canTravel(gridCoord, direction);
-    if (travel.ok) prefetchNeighbour(playerId, travel.gridCoord);
+    if (travel.ok && !travel.snapshot) prefetchNeighbour(playerId, travel.gridCoord); // a snapshot is fetched on the crossing
   }
 }
 

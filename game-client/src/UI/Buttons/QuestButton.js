@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import { questDisplayTitle } from '../../GameFeatures/Quests/questTitles';
 import './QuestButton.css';
 import { useStrings } from '../StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
+
+// A goal's words on a card: the item's display name (the Farm Hand is Audrey), and "Hire" for a farm
+// worker, whose goal is a Craft at the Farm House underneath
+const isHire = (goal, masterResources) => {
+  const def = masterResources?.find((r) => r.type === goal.item);
+  return goal.action === 'Craft' && def?.category === 'npc' && def?.source === 'Farm House';
+};
+const goalText = (goal, strings, masterResources) =>
+  `${isHire(goal, masterResources) ? (strings[17018] || 'Hire') : goal.action} ${getLocalizedString(goal.item, strings)}`;
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -60,7 +70,7 @@ const QuestButton = ({ quest, state, onClick, masterResources }) => {
             <p key={index} className={`quest-task${goal.progress >= goal.qty ? ' quest-task--done' : ''}`}>
               {/* the task's state at its left, the same art as the Quest button's badge: done, or still to do */}
               <img className="quest-task-icon" alt="" src={`/assets/overlays/${goal.progress >= goal.qty ? 'checkmark' : 'question'}.svg`} />
-              <span>{goal.action} {goal.item}: {goal.progress}/{goal.qty}</span>
+              <span>{goalText(goal, strings, masterResources)}: {goal.progress}/{goal.qty}</span>
             </p>
           ) : null
         )}
@@ -146,7 +156,7 @@ const QuestGiverButton = ({
       <div className="quest-goals">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (
-            <p key={index}>{goal.action} {goal.item} x{goal.qty}</p>
+            <p key={index}>{goalText(goal, strings, masterResources)}{isHire(goal, masterResources) && goal.qty === 1 ? '' : ` x${goal.qty}`}</p>
           ) : null
         )}
       </div>

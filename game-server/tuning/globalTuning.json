@@ -83,54 +83,17 @@
     "exponent": 0.4,
     "spread": 0.25,
     "kent": [
-      {
-        "maxLevel": 2,
-        "qtyAt1Min": 3,
-        "min": 1,
-        "max": 3
-      },
-      {
-        "maxLevel": 5,
-        "qtyAt1Min": 5,
-        "min": 1,
-        "max": 8
-      },
-      {
-        "maxLevel": 6,
-        "qtyAt1Min": 7,
-        "min": 2,
-        "max": 10
-      },
-      {
-        "maxLevel": 7,
-        "qtyAt1Min": 8,
-        "min": 2,
-        "max": 12
-      },
-      {
-        "maxLevel": 8,
-        "qtyAt1Min": 10,
-        "min": 3,
-        "max": 15
-      },
-      {
-        "maxLevel": 10,
-        "qtyAt1Min": 16,
-        "min": 3,
-        "max": 30
-      },
-      {
-        "maxLevel": 20,
-        "qtyAt1Min": 30,
-        "min": 2,
-        "max": 40
-      },
-      {
-        "maxLevel": 999,
-        "qtyAt1Min": 45,
-        "min": 1,
-        "max": 50
-      }
+      {"maxLevel": 2, "qtyAt1Min": 3, "min": 1, "max": 3},
+      {"maxLevel": 5, "qtyAt1Min": 5, "min": 1, "max": 8},
+      {"maxLevel": 6, "qtyAt1Min": 7, "min": 2, "max": 10},
+      {"maxLevel": 7, "qtyAt1Min": 8, "min": 2, "max": 12},
+      {"maxLevel": 8, "qtyAt1Min": 10, "min": 3, "max": 15},
+      {"maxLevel": 9, "qtyAt1Min": 13, "min": 3, "max": 24},
+      {"maxLevel": 10, "qtyAt1Min": 16, "min": 3, "max": 30},
+      {"maxLevel": 12, "qtyAt1Min": 20, "min": 3, "max": 32},
+      {"maxLevel": 15, "qtyAt1Min": 24, "min": 2, "max": 36},
+      {"maxLevel": 20, "qtyAt1Min": 30, "min": 2, "max": 40},
+      {"maxLevel": 999, "qtyAt1Min": 45, "min": 1, "max": 50}
     ],
     "train": [
       {

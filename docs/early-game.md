@@ -134,7 +134,7 @@ combat magic all unlock there; a player may still fight before with the Knife an
 | 8 | the Valley | the kit: Elbow's Backpack (its upgrades, the Pickaxe, Padding and Medicine all unlock at L8); Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Hotspur's Give Me My Armour (Padding); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Mechanics, Coop Dreams |
 | 9 | potions, cloth | Helena's Rosemary, Portia's Potion A, Chemistry; Loom and Cloth; Dairy Delights; Lumberjack; Serve Kent 12; the Clay |
 | 10 | combat begins | Hotspur's Focus, Long Blade, kit and Coyotes / Pelts; Elbow's Cassio step |
-| 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Farm Hand, Rancher, Fortitude |
+| 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Fortitude. The workers come one every two levels: Audrey (Farm Hand) L9, Peter Quince (Lumberjack) L11, Corin (Rancher) L13, Nick Bottom (Crafter) L15 |
 | 12 | | Duke Angelo; Politics and Vote (elections run on their own clock); Textiles |
 
 The XP the moved quests carried was put back on the concept quests (`tuning.md` §2: XP is the
@@ -196,7 +196,10 @@ one, so the rest of the game is a promise, not a mystery.
   statue) and through it Cassio and Juliet's courtyard and a small pantry (Lemon Cookie, Honey,
   Cheese); on 1012276 (Windsor) a 16-tile vault of Money; on 1015434 two rooms (6 Scrolls, Aged
   Wine and 3 Zombies; Mushrooms and a Tulip). **So Cassio and Juliet are reached only with the
-  key**: Elbow's L10 "meet Cassio" step and Cassio's quests depend on Helena's L8 Daisy quest.
+  key**, and the game says so (owner, option 2): Elbow's L10 "meet Cassio" step requires his Helena
+  step AND Helena's "Daisies for the Door" (`prereq` takes several titles, "A; B",
+  `GameFeatures/Quests/questPrereqs.js`); his Helena line (16501) says she keeps a golden key the
+  player will need, his Cassio line (16502) that Cassio waits beyond the Town's golden gate.
 
 - **The found moment** (built 2026-10-24, for all seven artifacts). When an artifact turns up in
   the player's holdings (`GameFeatures/Social/HopeFound.js`, mounted in App), its story modal

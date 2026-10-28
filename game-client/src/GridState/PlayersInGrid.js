@@ -3,6 +3,7 @@ import axios from 'axios';
 import { animateRemotePC } from '../Render/RenderAnimatePosition';
 import { loadMasterResources, loadGlobalTuning, getGlobalTuning } from '../Utils/TuningManager';
 import { powerModifiers as gearModifiers } from '../GameFeatures/Combat/combatGear';
+import { isViewOnly } from '../Utils/viewOnly';
 
 /**
  * Single-PC store (docs/phase-3-contract.md §1).
@@ -203,7 +204,7 @@ class GridStatePCManager {
    * record stays dirty so the next tick / flush retries.
    */
   async flushState() {
-    if (!this.dirty) return;
+    if (!this.dirty || isViewOnly()) return; // a read-only snapshot saves nothing (Utils/viewOnly.js)
     if (this.inflightFlush) return this.inflightFlush;
 
     const payload = this.buildStatePayload();
@@ -278,7 +279,7 @@ class GridStatePCManager {
    * the maintenance gate accepts in place of the x-player-id header a beacon cannot set.
    */
   sendBeaconState() {
-    if (!this.dirty) return;
+    if (!this.dirty || isViewOnly()) return;
     const payload = this.buildStatePayload();
     if (!payload) return;
     const url = `${API_BASE}/api/player/state`;

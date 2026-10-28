@@ -19,6 +19,7 @@ import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { registerFlight } from '../../UI/FlyToTarget';
 import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
+import { isViewOnly } from '../../Utils/viewOnly';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -141,6 +142,7 @@ function rollDamage(player) {
  * happened (hit or miss), false if nothing was in reach or the swing is cooling down.
  */
 export function attackNearestEnemy(ctx) {
+    if (isViewOnly()) return; // a read-only snapshot (Utils/viewOnly.js)
     const { currentPlayer } = ctx;
     const gridId = currentPlayer?.location?.g;
     const playerId = String(currentPlayer?._id || '');

@@ -370,8 +370,14 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   them); and no product unlocks below its station (Thread and Cloth L9 with the Loom, Sweater L12
   with Textiles, Lumber L15, the Winery's goods L22; Book left at L1, it is a reward currency). The
   Golden Key is no longer spent at the Castle (the Crown `requires` it; found artifacts leave the
-  shops); the doors it opens are traced in `early-game.md` §3. Open: Cassio and Juliet stand only
-  behind the key, so Elbow's L10 Cassio step needs Helena's L8 quest done (move them, or say so). Open: merge more concepts the
+  shops); the doors it opens are traced in `early-game.md` §3. Cassio and Juliet stand only behind
+  the key, so Elbow's L10 Cassio step now requires Helena's L8 key quest too (a quest `prereq` may
+  list several titles, "A; B") and his lines say why. The farm workers (owner, 2026-10-27) come one every two levels,
+  each unlocking at its quest: Audrey (Farm Hand) L9, Peter Quince (Lumberjack) L11, Corin
+  (Rancher) L13, Nick Bottom (Crafter) L15 (new Shepherd quest "Let Me Play the Lion Too"); the
+  skills learned from them follow (Bulk Harvest, Bulk Replant, Bulk Animal Collect, Logging,
+  Better Logging L9; Bulk Restart Craft, Bulk Crafting L15). Quest cards show the display name
+  (Audrey, not Farm Hand) and "Hire" for a worker (string 17018) though the goal is a Craft. Open: merge more concepts the
   Husbandry way once the owner has tried it; near-ring enemy placement (owner: later); Farm Hand
   (10,000 Money) now L11.
 - **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops

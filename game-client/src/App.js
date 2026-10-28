@@ -164,6 +164,7 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
 import { fetchWorldMap } from './Utils/WorldMap';
+import { isViewOnly, setSnapshotViewer } from './Utils/viewOnly';
 import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
@@ -1329,6 +1330,7 @@ useEffect(() => {
         const isDev = await checkDeveloperStatus(updatedPlayerData.username);
         console.log(`🔍 [APP] isDev result: ${isDev}, calling setIsDeveloper(${isDev})`);
         setIsDeveloper(isDev);
+        setSnapshotViewer(isDev); // developers open other homesteads as read-only snapshots (Utils/viewOnly.js)
       } else {
         console.log(`🔍 [APP] No username found in updatedPlayerData:`, updatedPlayerData);
       }
@@ -1926,7 +1928,7 @@ activeTileSizeRef.current = activeTileSize;
 useEffect(() => {
   if (!isAppInitialized || !gridId) return undefined;
   const interval = setInterval(() => {
-    if (document.hidden) return;
+    if (document.hidden || isViewOnly(gridId)) return; // a read-only snapshot's NPCs stand still
     const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
     if (!npcs) return;
     const now = Date.now();
@@ -2478,6 +2480,18 @@ let isProcessing = false; // Guard against duplicate clicks
 
 const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
+
+  // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): only signposts work
+  if (isViewOnly(gridId)) {
+    const here = resources.find((res) => {
+      const span = res.size || 1;
+      return colIndex >= res.x && colIndex < res.x + span && rowIndex <= res.y && rowIndex > res.y - span;
+    });
+    if (here?.category !== 'travel') {
+      if (here || cursorMode) updateStatus(strings[10023] || '👁️ Just looking: nothing here can be changed.');
+      return;
+    }
+  }
   isProcessing = true;
 
   // Check if player is on their own homestead (no range restrictions there)
@@ -3000,8 +3014,9 @@ enterTileCtxRef.current = {
 };
 const onEnterTileRef = useRef(null);
 if (!onEnterTileRef.current) {
-  onEnterTileRef.current = (row, col) => {
+  onEnterTileRef.current = (row, col, entered = null) => {
     if (cursorModeRef.current) return;
+    if (isViewOnly() && entered?.category !== 'travel') return; // walking a snapshot collects nothing
     // A farm animal that is ready ("processing") is harvested by walking onto it, like a doober
     const c = enterTileCtxRef.current;
     const g = c?.currentPlayer?.location?.g;

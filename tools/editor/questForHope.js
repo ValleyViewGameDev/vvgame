@@ -227,7 +227,11 @@ function compute(gameServerDir, clientDir) {
   const byTitle = new Map(quests.map((q) => [q.title, q]));
   const prereqGate = (q) => {
     const chain = [];
-    for (let p = q.prereq, guard = 0; p && guard < 20; p = byTitle.get(p)?.prereq, guard++) chain.push(`"${p}" (${byTitle.get(p)?.giver || '?'})`);
+    // a prereq may list several titles ("A; B"): show them all, follow the first back
+    const titles = (pr) => String(pr || '').split(';').map((t) => t.trim()).filter(Boolean);
+    for (let ps = titles(q.prereq), guard = 0; ps.length && guard < 20; ps = titles(byTitle.get(ps[0])?.prereq), guard++) {
+      chain.push(ps.map((p) => `"${p}" (${byTitle.get(p)?.giver || '?'})`).join(' and '));
+    }
     return chain.length ? `after ${chain.join(', after ')}` : null;
   };
 

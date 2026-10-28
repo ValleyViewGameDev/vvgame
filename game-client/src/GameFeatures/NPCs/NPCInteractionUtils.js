@@ -6,6 +6,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { isWallBlocking } from '../../Utils/GridManagement';
 import { getAttackCooldownStatus } from '../Combat/Combat';
+import { isViewOnly } from '../../Utils/viewOnly';
 
 // Shared global attack cooldown for consistency between DOM and Canvas modes
 
@@ -117,6 +118,12 @@ export function handleNPCClickShared(npc, {
     if (overlayData && !overlayData.clickable) {
       return false; // Prevent clicking on non-clickable overlay NPCs
     }
+  }
+
+  // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): look, don't touch
+  if (isViewOnly()) {
+    if (updateStatus) updateStatus(strings?.[10023] || '👁️ Just looking: nothing here can be changed.');
+    return false;
   }
 
   // 🛡️ Prevent interaction with NPCs on another player's homestead (unless developer)

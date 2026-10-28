@@ -258,6 +258,11 @@ Train halved anything over $2,000. Now every ask is sized by how much production
   multiplies a Train band. `exponent` 0.4 is Hay Day's boat-crate curve (below): ten times the
   effort asks for about 2.5 times fewer units, so slow goods come in a handful and quick ones in
   dozens, but a slow-good ask is still the bigger job.
+- **Kent's level table** (2026-10-28, owner: L9 asks felt heavy, e.g. 16 Milk + 4 Cornmeal): the base
+  `qtyAt1Min` now ramps instead of jumping 10 to 16 at L9 and 16 to 30 at L11. Bands (qtyAt1Min,
+  min, max): L1-2 3/1/3, L3-5 5/1/8, L6 7/2/10, L7 8/2/12, L8 10/3/15, **L9 13/3/24, L10 16/3/30,
+  L11-12 20/3/32, L13-15 24/2/36, L16-20 30/2/40**, L21+ 45/1/50. Milk's centre, for scale:
+  L8 9.7, L9 12.6, L10 15.5, L11-12 19.4, L13-15 23, L16-20 29.
 - **Hay Day (research, 2026-10-12).** Supercell sizes boat crates by the item's production time,
   not by player level: Wheat (2 min) 50 to 101 a crate, Soybean (20 min) 24 to 47, Pumpkin (3 h)
   9 to 15, Cherry (27 h) 5 to 7; that is quantity ~ 100 x minutes ^ -0.4. Its prices are

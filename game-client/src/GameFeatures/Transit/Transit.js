@@ -9,6 +9,7 @@ import { worldMapCell } from "../../Utils/WorldMap";
 import FloatingTextManager from "../../UI/FloatingText";
 import { earnTrophy } from "../Trophies/TrophyUtils";
 import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
+import { canViewHomesteadSnapshots } from '../../Utils/viewOnly';
 
 // Direction -> [rowOffset, colOffset] within the settlement's 8x8 grid
 const DIRECTION_OFFSETS = {
@@ -81,7 +82,8 @@ export function canTravel(fromGridCoord, direction) {
   if (gridCoord == null) return { ok: false, reason: 106 };
   const cell = worldMapCell(gridCoord);
   if (cell === null) return { ok: true, gridCoord };
-  if (cell === 'H') return { ok: false, reason: 10020 };
+  // a developer crosses into someone else's homestead as a read-only snapshot (Utils/viewOnly.js)
+  if (cell === 'H') return canViewHomesteadSnapshots() ? { ok: true, gridCoord, snapshot: true } : { ok: false, reason: 10020 };
   if (cell === 'M' || cell === 'T' || cell === 'V') return { ok: true, gridCoord };
   return { ok: false, reason: 10021 }; // reserved / closed cell: "You can't go that way."
 }

@@ -145,7 +145,7 @@ export const DEFINITIONS = [
       ref('goal3item', 'resource'), num('goal3qty'),
       ref('reward', 'resource'), num('rewardqty'), num('xp'),
       str('rel'), num('relscore'),
-      { ...str('prereq'), label: 'prereq (title of a quest that must be complete first)' },
+      { ...str('prereq'), label: 'prereq (title of a quest that must be complete first; several: "A; B")' },
       { ...str('storyKey'), label: 'storyKey (string id the giver says, as a StoryModal, on accept)' },
       bool('retired', 'retired (no longer offered; a player who holds it can still finish and claim it)'),
     ],

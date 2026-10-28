@@ -4,6 +4,7 @@ import NPC from '../GameFeatures/NPCs/AllNPCsShared';
 import { stopAllHeadlineEffects } from '../VFX/NPCVFX';
 import { abortAllConversations } from '../GameFeatures/NPCs/NPCCitizenBehavior';
 import { loadMasterResources } from '../Utils/TuningManager';
+import { isViewOnly } from '../Utils/viewOnly';
 
 class GridStateManager {
   constructor() {
@@ -43,7 +44,7 @@ class GridStateManager {
   sendBeaconPositions() {
     if (this.savesSuspended || typeof navigator === 'undefined' || !navigator.sendBeacon) return;
     for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
-      if (!npcUpdates.size) continue;
+      if (!npcUpdates.size || isViewOnly(gridId)) continue; // never a read-only snapshot's NPCs
       const updates = {};
       for (const [npcId, u] of npcUpdates) updates[npcId] = u.position;
       try {

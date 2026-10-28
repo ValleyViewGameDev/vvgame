@@ -17,6 +17,7 @@ const {
 
 const { recordActivity, recordGridEntered } = require('../utils/analytics');
 const { seedRegionsVisited } = require('../utils/regionsVisited');
+const { isDeveloper } = require('../utils/developerHelpers');
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ error: reason, reason, ...extra });
 
@@ -257,6 +258,42 @@ router.post('/enter-grid', async (req, res) => {
     if (err.status) return fail(res, err.status, err.reason || err.message);
     console.error('❌ enter-grid failed:', err);
     return res.status(500).json({ error: 'enter-grid failed', detail: err.message });
+  }
+});
+
+/**
+ * GET /api/homestead-snapshot/:gridCoord?playerId=  (refactor-plan D6, developers only for now)
+ * Another player's homestead as last saved, for a read-only view. Writes nothing: the viewer's
+ * location stays where it was, no catch-up runs, and the client blocks every write naming this
+ * grid while the view is up (Utils/viewOnly.js).
+ */
+router.get('/homestead-snapshot/:gridCoord', async (req, res) => {
+  const gridCoord = Number(req.params.gridCoord);
+  const playerId = req.query.playerId ? String(req.query.playerId) : null;
+  if (!playerId || !Number.isFinite(gridCoord)) return fail(res, 400, 'bad-target');
+  try {
+    const { player, frontier } = await loadPlayerAndFrontier(playerId, req.query.frontierId);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!isDeveloper(player.username)) return fail(res, 403, 'not-your-homestead');
+    if (!frontier) return fail(res, 404, 'no-frontier');
+    const found = await findCell(frontier, gridCoord);
+    if (!found || found.cell.gridType !== 'homestead' || !found.cell.gridId) return fail(res, 404, 'no-cell');
+    const grid = await Grid.findById(found.cell.gridId);
+    if (!grid) return fail(res, 404, 'no-homestead');
+    const owner = grid.ownerId ? await Player.findById(grid.ownerId, 'username').lean() : null;
+    const ownerUsername = owner?.username ?? null;
+    return res.json({
+      grid: buildGridPayload(grid, playerId, { ownerUsername }),
+      location: {
+        g: String(grid._id), s: String(found.settlement._id), f: String(frontier._id),
+        gridCoord, gtype: 'homestead', region: grid.region ?? null,
+      },
+      ownerUsername,
+    });
+  } catch (err) {
+    if (err.status) return fail(res, err.status, err.reason || err.message);
+    console.error('❌ homestead-snapshot failed:', err);
+    return res.status(500).json({ error: 'homestead-snapshot failed' });
   }
 });
 
