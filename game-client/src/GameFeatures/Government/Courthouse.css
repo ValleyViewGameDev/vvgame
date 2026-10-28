@@ -56,17 +56,6 @@
     gap: 8px;
 }
 
-.candidate-tooltip {
-    position: fixed;
-    background: rgba(0, 0, 0, 0.8); /* style-ok: art (dark tooltip face, no token) */
-    color: var(--color-text-white);
-    padding: 10px;
-    border-radius: var(--radius-xs);
-    max-width: 300px;
-    font-size: var(--text-md);
-    pointer-events: none;
-    z-index: 1000;
-}
 
 .voting-section {
     margin: 15px 0;

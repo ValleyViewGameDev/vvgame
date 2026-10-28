@@ -1,5 +1,4 @@
 import API_BASE from '../../config';
-import { canHover } from '../../Utils/inputMode';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
@@ -62,8 +61,6 @@ const CourthousePanel = ({
     const [votedFor, setVotedFor] = useState('');
     const [candidateList, setCandidateList] = useState([]);
     const [tempTaxRate, setTempTaxRate] = useState(0); // Temporary UI state for the slider
-    const [hoveredCandidate, setHoveredCandidate] = useState(null);
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [tempSettlementName, setTempSettlementName] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState(null);
@@ -720,15 +717,6 @@ const CourthousePanel = ({
                                         <div 
                                             key={candidate.playerId || index}
                                             className="candidate-row"
-                                            onMouseEnter={(e) => {
-                                                if (!canHover()) return;
-                                                setHoveredCandidate(candidate.playerId);
-                                                setTooltipPosition({
-                                                    x: e.clientX + 10,
-                                                    y: e.clientY - 40
-                                                });
-                                            }}
-                                            onMouseLeave={() => setHoveredCandidate(null)}
                                         >
                                             <input 
                                                 type="radio" 
@@ -755,20 +743,6 @@ const CourthousePanel = ({
                                             {strings[2074]}
                                         </button>
                                     </div>
-
-                                    {/* Tooltip */}
-                                    {hoveredCandidate && (
-                                        <div 
-                                            className="candidate-tooltip"
-                                            style={{
-                                                left: tooltipPosition.x,
-                                                top: tooltipPosition.y,
-                                            }}
-                                        >
-                                            <strong>{strings[2076]}</strong><br />
-                                            "{getCandidatePromise(hoveredCandidate)}"
-                                        </div>
-                                    )}
                                 </>
                             ) : (
                                 <p>{strings[2078]}</p>
