@@ -1,0 +1,25 @@
+{
+  "name": "palm-wood",
+  "note": "The wood-source PALM TREE (owner, 2026-10-30): the Coconut Tree's empty-state palm is the size and silhouette reference; the wood palm is told apart by a much THICKER trunk, like the Oak is told from the fruit tree. The Coconut Tree and its fruited state keep palm-tree.svg untouched. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "palm-wood": {
+      "refs": [
+        "_candidates/fruit-trees/approved/openai--painterly-palm-tall-1.small.jpg",
+        "_candidates/slice-b-buildings/approved/openai--flatter-oak-tree-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the first attached image is this game's approved COCONUT PALM on magenta: a tall palm with a slender curved ringed trunk and a crown of big chunky painted fronds, in the game's bright painterly style with the light from the upper left. The second attached panel is the game's OAK TREE, a WOOD source: note its short, stout, solid brown trunk. SUBJECT: the game's TIMBER PALM, a palm that is cut for WOOD, not for coconuts. It is the SAME kind of tree as the coconut palm, the same height, the same footprint, the same crown of eight or nine chunky notched fronds in the same greens, the same rendering and daylight, with ONE clear difference a player sees at a glance: the TRUNK is MUCH THICKER, a stout, heavy, sturdy timber trunk at least two and a half times as wide as the coconut palm's, straighter and less curved, built of broad stacked ringed segments in a rich warm brown with a few darker bark notches, flaring a little where it meets the ground, so the tree reads as a log on legs, a proper source of timber. NO coconuts, no fruit, no nuts of any kind in the crown. The same whimsical, sturdy, cheerful storybook feel as the oak. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile; the trunk's base stands on that box's bottom edge, centred, and the tree rises TALL, about THREE tiles above it, as tall as the coconut palm, its crown spreading a little past the box on each side. Draw the tree alone on the flat, pure, solid magenta field, nothing else, no grass, no ground, no grid lines over the tree, no vignette; leave every other pixel pure magenta. No letters anywhere, no animals, no birds."
+    }
+  }
+}

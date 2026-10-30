@@ -85,6 +85,10 @@ Round 1: `dairy-a`, `den-a/b/c`, `oak-tree-b`, `pine-tree`, `pine-tree-b`.
    Coconut and Mulberry have their own bases: the palm at the PINE's height (`palm-tall-1`, cut
    fill 1.5, artSpan 2.11; the coconuts cluster under the crown's centre) and the mulberry SHORT
    and wide (`mulberry-short-1`, fill 1.4, artSpan 1.43; small dark berries over the canopy).
+   The wood-source PALM TREE (owner 2026-10-30) is the coconut palm's twin with a much THICKER
+   timber trunk, the way the Oak is told from the fruit tree (`palm-wood-1`, job `palm-wood`, cut
+   fill 1.5, `palm-tree-wood.svg`, artSpan 2.11 = the coconut palm's); the Coconut Tree, its fruited
+   state and the Large Decorative Palm Tree stay on `palm-tree.svg`.
 
 ## 1. The building style guide (rules read off the approved farmhouse)
 

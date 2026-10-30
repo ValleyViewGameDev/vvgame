@@ -546,7 +546,7 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "parallel": 18,
-    "artSpan": 1.0
+    "artSpan": 1
   },
   {
     "type": "Stone",
@@ -638,7 +638,7 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "parallel": 18,
-    "artSpan": 1.0
+    "artSpan": 1
   },
   {
     "type": "Clay",
@@ -781,7 +781,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "palm-tree.svg"
+    "filename": "palm-tree-wood.svg",
+    "artSpan": 2.11
   },
   {
     "type": "Gold Account",
