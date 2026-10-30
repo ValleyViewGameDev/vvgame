@@ -1,6 +1,14 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+// An async route that throws without its own try/catch is an unhandled rejection, and Node exits
+// on those: one bad request (an expired Stripe key, 2026-10-30) took the whole server down and
+// every request in flight failed with no CORS header. Log it and stay up; the route still owes
+// its own try/catch (the request hangs until the client times out).
+process.on('unhandledRejection', (reason) => {
+  console.error('❌ Unhandled rejection (server kept running):', reason?.stack || reason);
+});
+
 console.log('Server.js loaded and running...');
 // Debug: Log email configuration at startup
 console.log('📧 Email environment variables at startup:');

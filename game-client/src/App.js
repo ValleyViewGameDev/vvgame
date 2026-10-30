@@ -326,7 +326,7 @@ useEffect(() => {
       console.log("🧾 Processing store purchase via App.js effect:", { playerId, offerId });
 
       axios.post(`${API_BASE}/api/purchase-store-offer`, {
-        playerId, offerId
+        playerId, offerId, sessionId: params.get("session_id") // the server verifies this Stripe session
       }).then(() => {
         console.log("📬 Purchase reward sent successfully.");
 

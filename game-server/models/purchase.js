@@ -1,12 +1,12 @@
 // Purchase ledger: one row per fulfilled store purchase. Written by
-// POST /api/purchase-store-offer (routes/paymentRoutes.js), which is the single
-// server-side fulfilment point today: Stripe Checkout redirects the client back
-// with ?purchase=success and the client then calls purchase-store-offer, so a
-// Stripe-paid offer and a free/dev-granted offer land in the same route. `kind`
-// records which it was: 'stripe' when the offer carries a price (priceInCents),
-// 'store_offer' otherwise. There is no Stripe webhook yet, so a paid row here
-// means "the client reported success and the server fulfilled it", not "Stripe
-// confirmed payment". See docs/analytics.md (Monetization).
+// POST /api/purchase-store-offer (routes/paymentRoutes.js), the single
+// server-side fulfilment point: Stripe Checkout redirects the client back with
+// ?purchase=success&session_id=..., the client calls purchase-store-offer, and
+// the server retrieves that session from Stripe (paid, metadata matching) before
+// granting. `kind` 'stripe' = a verified paid session (stripeSessionId, unique:
+// one grant per session); 'store_offer' = a developer grant with no payment
+// (amountCents 0). Rows before 2026-10-30 were fulfilled on the client's word.
+// There is no Stripe webhook yet. See docs/analytics.md (Monetization).
 //
 // Durable + never deleted: Monetization reads revenue from this ledger, not
 // from the live players doc, so a deleted account's purchases still count.
@@ -21,8 +21,10 @@ const PurchaseSchema = new mongoose.Schema({
   title: { type: String, default: null },            // offer title at purchase time
   gems: { type: Number, default: 0 },                // Gem quantity in the offer's rewards (0 when none)
   amountCents: { type: Number, default: 0 },         // offer.priceInCents at purchase time (0 for free grants)
+  stripeSessionId: { type: String, default: null },  // the verified Checkout session; one grant per session
   ts: { type: Date, default: Date.now, index: true },
   schema_version: { type: Number, default: 1 },
 }, { collection: 'purchases', versionKey: false });
+PurchaseSchema.index({ stripeSessionId: 1 }, { unique: true, partialFilterExpression: { stripeSessionId: { $type: 'string' } } });
 
 module.exports = mongoose.model('Purchase', PurchaseSchema);

@@ -56,7 +56,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
       // ✅ Finalize fulfillment by notifying backend
       axios.post(`${API_BASE}/api/purchase-store-offer`, {
         playerId,
-        offerId
+        offerId,
+        sessionId: params.get("session_id") // the server verifies this Stripe session
       }).then(() => {
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");

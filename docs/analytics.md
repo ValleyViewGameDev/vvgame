@@ -30,8 +30,9 @@ differs.
     tool deletes it with the rest.
 - **A purchases ledger** (`purchases`, `game-server/models/purchase.js`): one
   row per fulfilled store offer with `playerId`, `username`, `kind`
-  (`stripe` when the offer carries a price, `store_offer` otherwise), `offerId`,
-  `title`, `gems`, `amountCents`, `ts`. Durable and never deleted; Monetization
+  (`stripe` = a Stripe session the server verified as paid, `store_offer` = a
+  developer grant with no payment, amountCents 0), `offerId`, `title`, `gems`,
+  `amountCents`, `stripeSessionId` (unique: one grant per session), `ts`. Durable and never deleted; Monetization
   reads revenue from here, not from the players doc.
 - **Acquisition on the player**: `players.client_info` (`visitor_id`, `surface`,
   `acquisition.{utm_source, utm_medium, utm_campaign, referrer_host,
@@ -191,15 +192,15 @@ rows when deciding which cohorts have real data.
 ## Monetization caveats
 
 - Every offer in `tuning/store.json` is Stripe-paid. Stripe Checkout redirects
-  the client back with `?purchase=success&playerId&offerId`, and the CLIENT then
-  calls `POST /api/purchase-store-offer`, which fulfils the offer and writes the
-  ledger row. **There is no Stripe webhook**, so a ledger row means "the server
-  fulfilled an offer the client reported as paid", not "Stripe confirmed
-  payment". Also note the route is callable without proof of payment (a
-  pre-existing gap, not introduced here).
-- TODO: add a Stripe `checkout.session.completed` webhook that writes the
-  `stripe` ledger row (with the session id) and let `purchase-store-offer`
-  verify against it; until then treat revenue here as fulfilment, not receipts.
+  the client back with `?purchase=success&playerId&offerId&session_id`, the
+  client calls `POST /api/purchase-store-offer`, and the server retrieves that
+  session from Stripe (paid, metadata naming this player and offer) before it
+  writes the ledger row and grants (from 2026-10-30; rows before that were
+  fulfilled on the client's word, so treat older revenue as fulfilment, not
+  receipts). Without a session only a developer can grant.
+- TODO: a Stripe `checkout.session.completed` webhook, so a buyer who closes
+  the tab before the redirect lands is still fulfilled (today that is done by
+  hand from the Stripe dashboard).
 - Gold (`accountStatus`) has no start or end date; a Gold account is Gold
   forever, so "% of Gold active" uses today's Gold set on every day.
 
