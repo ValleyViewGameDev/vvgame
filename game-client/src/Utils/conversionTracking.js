@@ -81,7 +81,8 @@ export const trackTutorialComplete = (userId) => {
   }
 };
 
-export const trackFirstPurchase = (userId, value) => {
+// Every verified Stripe purchase (App.js purchase-store-offer effect), value in dollars.
+export const trackPurchase = (userId, value) => {
   if (typeof window.gtag !== 'undefined') {
     window.gtag('event', 'purchase', {
       value: value,

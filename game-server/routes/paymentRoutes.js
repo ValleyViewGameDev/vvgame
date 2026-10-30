@@ -146,7 +146,7 @@ router.post('/purchase-store-offer', async (req, res) => {
       player.accountStatus = "Gold";
       await player.save();
       require('../utils/emailNotifications').sendSubscriptionThanksEmail(player).catch(() => {}); // once, needs an email on file
-      return res.status(200).json({ success: true, message: "Gold account upgraded." });
+      return res.status(200).json({ success: true, amountCents: paidSessionId ? offer.priceInCents : 0, message: "Gold account upgraded." });
     }
 
     // ✅ Send via Mailbox
@@ -154,7 +154,7 @@ router.post('/purchase-store-offer', async (req, res) => {
     console.log("📨 Sending mailbox message with rewards:", rewards);
     if (!(await logPurchase(player, offer, paidSessionId))) return res.status(200).json({ success: true, alreadyFulfilled: true });
     await sendMailboxMessage(playerId, 201, rewards); // 201 = store message template
-    return res.status(200).json({ success: true, message: "Purchase successful. Reward sent via Mailbox." });
+    return res.status(200).json({ success: true, amountCents: paidSessionId ? offer.priceInCents : 0, message: "Purchase successful. Reward sent via Mailbox." });
 
   } catch (error) {
     console.error("❌ Error processing store purchase:", error);

@@ -67,6 +67,18 @@
     rdt('track', 'PageVisit');
   </script>
 
+<!-- Meta Pixel: PageView on load; CompleteRegistration at the Home Deed and Purchase on a
+     verified Stripe purchase come from src/Utils/conversionTracking.js. Loads nothing while
+     META_PIXEL_ID is empty (Events Manager > Data sources > the pixel's "Dataset ID"). -->
+  <script>
+    var META_PIXEL_ID = '';
+    if (META_PIXEL_ID) {
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', META_PIXEL_ID);
+      fbq('track', 'PageView');
+    }
+  </script>
+
 <!-- Ko-fi overlay -->
   <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
   <script>

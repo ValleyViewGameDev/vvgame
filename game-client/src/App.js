@@ -116,6 +116,7 @@ import DoorPanel from './GameFeatures/Doors/DoorPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
+import { trackPurchase } from './Utils/conversionTracking';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNewsPanel from './UI/Panels/TownNewsPanel.js';
 import HudCountdown from './UI/HudCountdown';
@@ -327,8 +328,9 @@ useEffect(() => {
 
       axios.post(`${API_BASE}/api/purchase-store-offer`, {
         playerId, offerId, sessionId: params.get("session_id") // the server verifies this Stripe session
-      }).then(() => {
+      }).then((res) => {
         console.log("📬 Purchase reward sent successfully.");
+        if (!res.data?.alreadyFulfilled && res.data?.amountCents > 0) trackPurchase(playerId, res.data.amountCents / 100);
 
         /// If Gold Pass was purchased, show modal and panel
         if (String(offerId) === "1") {
