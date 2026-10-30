@@ -426,3 +426,16 @@ per device), and `App.js` to capture `beforeinstallprompt` into a ref at boot. C
 right instructions for the platform; inside the installed app it never appears; "later" is
 remembered; the installed app launches straight into the game full-screen in both
 orientations.
+
+### BL-2: Real session auth in place of the bare `x-player-id` header
+
+Added 2026-10-30.
+
+**What.** Every privileged check on the server (`requireDeveloper` in
+`game-server/utils/developerHelpers.js`, `requireDeveloperOrSelf` in `routes/playerRoutes.js`,
+the maintenance gate in `utils/serviceMode.js`) trusts the `x-player-id` header, which is only
+a player's Mongo id, not a secret. Player ids appear in other API responses, so anyone who
+finds a developer's id can call the admin routes. Replace it with a signed session token
+(issued at login / silent signup, verified server-side), and derive the caller from it rather
+than from the header or a `playerId` in the body. Found while closing the open admin routes
+(commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
