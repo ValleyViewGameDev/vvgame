@@ -101,6 +101,8 @@ Recuts the same day for scale: barrel 60 %, hay bale 80 %, sack 75 %, poppies 85
 | Rocks | Rocks, Rock Pit | `rocks` | three boulders with a sunlit top (`rocks-1`) |
 | Clay Pit | Clay Pit, Mud Pit | `clay-pit` | a RAW deposit, no tools (owner 2026-10-26: it is found wild in the valley and clicking turns it to brick, so no spade): a low mound of wet clay with a puddle in the hollow (`clay-pit-b-1`); the Clay Pit drew a brick emoji before |
 | Cloven Pine | Cloven Pine | `cloven-pine` | the split pine kept GOLD as the game draws it (owner's pick over a green variant): the only gold tree in the valley, so the wood source is easy to spot (`cloven-pine-gold-1`) |
+| Rock Pit (cooldown) | Rock Pit | `rock-pit` | the tile's state while stone grows back after a collection (the farmplot the replant places, docs: ResourceClicking handleReplant): a flat blotch of gravel in the Rocks' footprint, the BASE the boulders stood on (`rock-pit-1`, owner 2026-10-30) |
+| Mud Pit (cooldown) | Mud Pit | `mud-pit` | the same for clay: a flattened splotch of wet clay in the Clay Pit's footprint (`mud-pit-1`) |
 | Snowman | Snowman | `snowman` | the seasonal carrot source, floppy hat (`snowman-2`) |
 
 The eight directional Signposts (N/E/S/W and diagonals) still draw arrow emoji; if wanted, rotate

@@ -542,11 +542,11 @@
     "validonv": false,
     "validonu": false,
     "growtime": 172800,
-    "filename": "rocks.svg",
+    "filename": "rock-pit.svg",
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "parallel": 18,
-    "artSpan": 0.97
+    "artSpan": 1.0
   },
   {
     "type": "Stone",
@@ -634,11 +634,11 @@
     "validonv": false,
     "validonu": false,
     "growtime": 86400,
-    "filename": "clay-pit.svg",
+    "filename": "mud-pit.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "parallel": 18,
-    "artSpan": 1.02
+    "artSpan": 1.0
   },
   {
     "type": "Clay",
@@ -3239,7 +3239,7 @@
     "gemcost": 4,
     "crafttime": 720,
     "totalnestedtime": 720,
-    "effort": 1.09
+    "effort": 3
   },
   {
     "type": "Wool",
@@ -3487,7 +3487,7 @@
     "gemcost": 11,
     "crafttime": 600,
     "totalnestedtime": 2040,
-    "effort": 4.18
+    "effort": 11
   },
   {
     "type": "Cheese",
@@ -3526,7 +3526,7 @@
     "gemcost": 20,
     "crafttime": 720,
     "totalnestedtime": 3600,
-    "effort": 6.76
+    "effort": 18
   },
   {
     "type": "Cream",
@@ -3564,7 +3564,7 @@
     "gemcost": 44,
     "crafttime": 900,
     "totalnestedtime": 4140,
-    "effort": 15
+    "effort": 23
   },
   {
     "type": "Pepper Cheese",
@@ -3607,7 +3607,7 @@
     "gemcost": 133,
     "crafttime": 28800,
     "totalnestedtime": 436320,
-    "effort": 476
+    "effort": 631
   },
   {
     "type": "Thread",
@@ -3991,7 +3991,7 @@
     "gemcost": 38,
     "crafttime": 7200,
     "totalnestedtime": 8400,
-    "effort": 31
+    "effort": 37
   },
   {
     "type": "Cornbread",
@@ -4033,7 +4033,7 @@
     "gemcost": 192,
     "crafttime": 14400,
     "totalnestedtime": 87300,
-    "effort": 257
+    "effort": 264
   },
   {
     "type": "Pumpkin Pie",
@@ -4076,7 +4076,7 @@
     "gemcost": 68,
     "crafttime": 1200,
     "totalnestedtime": 32400,
-    "effort": 45
+    "effort": 59
   },
   {
     "type": "Lemon Cookie",
@@ -4246,7 +4246,7 @@
     "gemcost": 75,
     "crafttime": 3600,
     "totalnestedtime": 529200,
-    "effort": 523
+    "effort": 529
   },
   {
     "type": "Apple Pie",
@@ -4289,7 +4289,7 @@
     "gemcost": 99,
     "crafttime": 1200,
     "totalnestedtime": 133200,
-    "effort": 84
+    "effort": 97
   },
   {
     "type": "Strawberry Pie",
@@ -4332,7 +4332,7 @@
     "gemcost": 179,
     "crafttime": 1800,
     "totalnestedtime": 70500,
-    "effort": 106
+    "effort": 123
   },
   {
     "type": "Peach Pie",
@@ -4375,7 +4375,7 @@
     "gemcost": 200,
     "crafttime": 2700,
     "totalnestedtime": 236100,
-    "effort": 283
+    "effort": 304
   },
   {
     "type": "Cherry Pie",
@@ -4418,7 +4418,7 @@
     "gemcost": 314,
     "crafttime": 3600,
     "totalnestedtime": 698100,
-    "effort": 799
+    "effort": 813
   },
   {
     "type": "Queen's Cake",
@@ -4540,7 +4540,7 @@
     "gemcost": 47,
     "crafttime": 1200,
     "totalnestedtime": 7080,
-    "effort": 14
+    "effort": 25
   },
   {
     "type": "Carrot Soup",
@@ -4582,7 +4582,7 @@
     "gemcost": 133,
     "crafttime": 2700,
     "totalnestedtime": 437040,
-    "effort": 425
+    "effort": 433
   },
   {
     "type": "Pumpkin Soup",
@@ -4624,7 +4624,7 @@
     "gemcost": 298,
     "crafttime": 3600,
     "totalnestedtime": 72060,
-    "effort": 1580
+    "effort": 1605
   },
   {
     "type": "Omelette",
@@ -4667,7 +4667,7 @@
     "gemcost": 315,
     "crafttime": 600,
     "totalnestedtime": 1069980,
-    "effort": 1200
+    "effort": 1253
   },
   {
     "type": "Potato Bake",
@@ -4710,7 +4710,7 @@
     "gemcost": 210,
     "crafttime": 14400,
     "totalnestedtime": 370800,
-    "effort": 427
+    "effort": 485
   },
   {
     "type": "Mixed Salad",
@@ -4794,7 +4794,7 @@
     "gemcost": 218,
     "crafttime": 2700,
     "totalnestedtime": 276300,
-    "effort": 683
+    "effort": 697
   },
   {
     "type": "Pizza",
@@ -4837,7 +4837,7 @@
     "gemcost": 296,
     "crafttime": 900,
     "totalnestedtime": 241620,
-    "effort": 1714
+    "effort": 1759
   },
   {
     "type": "Tomato Soup",
@@ -4880,7 +4880,7 @@
     "gemcost": 349,
     "crafttime": 1800,
     "totalnestedtime": 364500,
-    "effort": 2885
+    "effort": 2924
   },
   {
     "type": "Poached Pear",
@@ -5713,7 +5713,7 @@
     "gemcost": 710,
     "crafttime": 1800,
     "totalnestedtime": 352440,
-    "effort": 144992
+    "effort": 144996
   },
   {
     "type": "Queen's Coffee",
@@ -6171,7 +6171,7 @@
     "maxprice": 4160,
     "gemcost": 176,
     "totalnestedtime": 1946880,
-    "effort": 1306,
+    "effort": 1352,
     "ingredient1": "Rosemary",
     "ingredient1qty": 6,
     "ingredient2": "Daisy",
@@ -6211,7 +6211,7 @@
     "maxprice": 36336,
     "gemcost": 258,
     "totalnestedtime": 2102400,
-    "effort": 2826,
+    "effort": 2872,
     "ingredient1": "Potion A",
     "ingredient1qty": 1,
     "ingredient2": "Mushroom",
@@ -6253,7 +6253,7 @@
     "maxprice": 157264,
     "gemcost": 393,
     "totalnestedtime": 4017600,
-    "effort": 5643,
+    "effort": 5689,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -7427,7 +7427,7 @@
     "filename": "dairy.svg",
     "crafttime": 0,
     "totalnestedtime": 850,
-    "parallel": 5,
+    "parallel": 2,
     "artFamily": "workshop",
     "artLook": "homestead",
     "artAccent": "cream white",
@@ -8910,7 +8910,7 @@
     "gemcost": 67,
     "crafttime": 720,
     "totalnestedtime": 720,
-    "parallel": 11,
+    "parallel": 2,
     "gemOverride": 67
   },
   {
@@ -11855,7 +11855,7 @@
     "hands": 1,
     "ingredient1": "Money",
     "ingredient1qty": 2000,
-    "gemcost": 80
+    "gemcost": 20
   },
   {
     "type": "Darts",

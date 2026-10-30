@@ -81,6 +81,26 @@
         "painterly"
       ],
       "prompt": "STYLE AND CAMERA REFERENCES: the first attached panel is this game's approved OAK TREE and the second its General Store, both in the game's bright painterly style with noon daylight from the upper left: match their rendering and daylight; the crate and barrel by the store's door are the absolute size of a prop in this game. The third attached image is this game's barrel on magenta, the prop camera: front on and a little from above. SUBJECT: a CLAY PIT, a natural deposit of raw clay found wild in the valley (nobody has dug it; no tools of any kind, no spade, no bucket): a low natural outcrop of wet reddish-brown CLAY, a soft rounded mound with a glossy wet puddle in a hollow on top and a few cracked dry patches at the edges, a scatter of clay lumps and small stones around its foot, a tuft of grass at one side; it must read as raw clay in the ground at a glance, earthy and untouched, about two thirds of a tile tall. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals."
+    },
+    "rock-pit": {
+      "refs": [
+        "_candidates/sources/approved/openai--painterly-rocks-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's ROCKS on magenta, a cluster of grey boulders, in the game's bright painterly style. SUBJECT: the same spot after the stone has been taken: a FLAT, LOW blotch of grey rubble and rock dust in exactly the reference's footprint and colours, the BASE the boulders stood on: a flattened patch of broken grey stone chips and gravel, a couple of small flat stones, the same moss flecks and the grass tuft, no tall rock anywhere, nothing rising more than a fifth of a tile; much SIMPLER than the reference, fewer shapes, soft edges, so it reads as 'rocks will grow back here' at a glance. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, lying on the ground inside that box with the SAME footprint as the reference, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no tools."
+    },
+    "mud-pit": {
+      "refs": [
+        "_candidates/sources/approved/openai--painterly-clay-pit-b-1.small.jpg"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached image is this game's CLAY PIT on magenta, a low mound of wet reddish-brown clay with a puddle in a hollow, in the game's bright painterly style. SUBJECT: the same spot after the clay has been taken: a FLATTENED SPLOTCH of reddish-brown clay in exactly the reference's footprint and colours, the BASE of the mound: a smooth flat wet smear of clay with a shallow damp sheen, a few cracked dry patches, a scatter of small lumps at the edge, the grass tuft, nothing rising more than a fifth of a tile; much SIMPLER than the reference, fewer shapes, soft edges, so it reads as 'clay will gather here again' at a glance. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, lying on the ground inside that box with the SAME footprint as the reference, SQUARE-ON, with a soft contact shadow directly under it, and leave every other pixel pure magenta: no grass, no ground, no grid lines over the subject, no vignette. No letters anywhere, no animals, no tools."
     }
   }
 }
