@@ -25,12 +25,12 @@ here; detail lives in the linked docs and backlog items.
   the developer-only Edit Avatar modal exist; the board does not draw it and players cannot
   create or choose one yet). Decide the launch scope: full parts avatar, or a pick-from-presets
   step in the FTUE.
-- [ ] **Atlas size pass.** The atlas is current (`npm run check:atlas` passes) but has grown to
-  eleven 2048 px sheets, 6.7 MB WebP, all loaded at startup: about 185 MB of GPU memory once
-  decoded, a real risk on iPhones (Safari kills heavy tabs) and a slow first load for an ad
-  click. Five sheets hold only four sprites each (very high-res sources). Cap each sprite's
-  baked size at what the board can show at max zoom, rebuild, and consider loading the
-  dungeon / far-region sheets only when needed.
+- [x] **Atlas size pass.** Done 2026-10-30: 11 sheets -> 7 (about 185 MB -> 117 MB of GPU
+  memory once decoded). The waste was packing, not resolution (768 px building slots are what a
+  size-5 building needs at the closest zoom on a 2x phone): frames are now trimmed to their
+  opaque box and MaxRects-packed; every frame verified pixel-identical to the old atlas. The
+  download is unchanged at ~6.6 MB WebP (that is the art itself). Possible later: load the
+  dungeon / far-region art only when needed, or a lower WebP quality after an eye check.
 - [ ] **Tag every link.** `utm_source` per channel (`fb`, `ig`, one per forum), `utm_campaign` per
   buy; never `signin=1` on acquisition links. Judge channels on played-D7, not clicks.
 - [ ] **Spend log.** Record spend, impressions and landing-page views per campaign; House could

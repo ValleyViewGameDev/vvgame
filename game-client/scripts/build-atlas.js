@@ -27,8 +27,14 @@
  *                same art and the world layer never needs a PIXI.Text. Frame name =
  *                src/Utils/emojiKey.js. slot = 128 px for size-1 symbols, 256 up to size 3,
  *                512 up to size 8, 768 beyond (the 20-tile mountain).
- * The 2 px transparent gutter lives INSIDE each slot (frame = slot - 4), so slots tile the
- * 2048 px sheet exactly and a shelf of 768s still has room for a 512 at its end.
+ * A slot is the square an item is rasterised into (frame = slot - 4 for the 2 px gutter).
+ * Art with transparent margins (resources, emoji, player icons, overlays, avatar parts) is then
+ * TRIMMED to its opaque box and stored that size, with Pixi's trim data (spriteSourceSize /
+ * sourceSize) so the runtime texture keeps the full frame as `orig`: sprites, anchors and the
+ * art hit test (artHitTest.js) see exactly what an untrimmed frame gave them. Ground tiles,
+ * edges and walls are never trimmed (their renderers read `texture.frame` directly).
+ * Frames are packed by MaxRects (best short side fit) and each sheet is cropped to the height
+ * it uses, so GPU memory follows the art's real area (2026-10-30: 11 sheets of 2048 -> 7).
  *
  * Output (committed; Render's `npm run build` does not run this)
  *   public/assets/atlas/world-N.png, world-N.webp   the sheets
@@ -67,6 +73,9 @@ const TILE_PAD = 8;                // ground frames are extruded this far into t
 const TILE_CELL = TILE_PX + 2 * TILE_PAD;
 const slotForSize = (size) => (size >= 4 ? 768 : size >= 2 ? 512 : BASE_CELL);
 const WEBP_QUALITY = 90;
+const TRIM_ALPHA = 0;              // trim to pixels with alpha > this (keeps the anti-aliased rim)
+const UNTRIMMED = ['tiles/', 'edges/', 'walls/'];
+const isTrimmable = (key) => !UNTRIMMED.some((ns) => key.startsWith(ns));
 
 const args = new Set(process.argv.slice(2));
 const FORCE = args.has('--force');
@@ -235,39 +244,64 @@ async function rasterise(src, px) {
     .toBuffer();
 }
 
+/** Opaque box of a rasterised frame: { x, y, w, h } inside its px x px square (1x1 when empty). */
+async function opaqueBox(buf) {
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: w, height: h, channels } = info;
+  let x0 = w; let y0 = h; let x1 = -1; let y1 = -1;
+  for (let y = 0; y < h; y++) {
+    const row = y * w * channels;
+    for (let x = 0; x < w; x++) {
+      if (data[row + x * channels + 3] > TRIM_ALPHA) {
+        if (x < x0) x0 = x; if (x > x1) x1 = x;
+        if (y < y0) y0 = y; if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) return { x: 0, y: 0, w: 1, h: 1 };
+  return { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+
 /**
- * Shelf packer over slots. Items are sorted by slot size descending; a shelf's height is
- * its first (largest) slot and smaller slots fill the remaining width. Frame = slot inset
- * by PADDING on every side.
+ * MaxRects packer (best short side fit) over each item's box: the stored frame plus its gutter
+ * (`pad` on every side). Items go largest-side first; a box that fits no free rectangle opens a
+ * new sheet. Returns sheets of placed boxes { ...item, bx, by } (box top-left).
  */
 function pack(items) {
-  const sorted = [...items].sort((a, b) => b.cell - a.cell || a.key.localeCompare(b.key));
+  const sorted = [...items].sort((a, b) => Math.max(b.bw, b.bh) - Math.max(a.bw, a.bh) || (b.bw * b.bh) - (a.bw * a.bh) || a.key.localeCompare(b.key));
   const sheets = [];
-  let sheet = null;
-  const newSheet = () => {
-    sheet = { index: sheets.length, x: 0, y: 0, shelfH: 0, frames: [] };
-    sheets.push(sheet);
+  const newSheet = () => { const sh = { index: sheets.length, free: [{ x: 0, y: 0, w: SHEET_SIZE, h: SHEET_SIZE }], frames: [], usedH: 0 }; sheets.push(sh); return sh; };
+
+  const place = (sh, w, h) => {
+    let best = null;
+    for (const r of sh.free) {
+      if (w > r.w || h > r.h) continue;
+      const shortSide = Math.min(r.w - w, r.h - h);
+      const longSide = Math.max(r.w - w, r.h - h);
+      if (!best || shortSide < best.shortSide || (shortSide === best.shortSide && longSide < best.longSide)) best = { x: r.x, y: r.y, shortSide, longSide };
+    }
+    if (!best) return null;
+    const used = { x: best.x, y: best.y, w, h };
+    const next = [];
+    for (const r of sh.free) {
+      if (used.x >= r.x + r.w || used.x + used.w <= r.x || used.y >= r.y + r.h || used.y + used.h <= r.y) { next.push(r); continue; }
+      if (used.x > r.x) next.push({ x: r.x, y: r.y, w: used.x - r.x, h: r.h });
+      if (used.x + used.w < r.x + r.w) next.push({ x: used.x + used.w, y: r.y, w: r.x + r.w - used.x - used.w, h: r.h });
+      if (used.y > r.y) next.push({ x: r.x, y: r.y, w: r.w, h: used.y - r.y });
+      if (used.y + used.h < r.y + r.h) next.push({ x: r.x, y: used.y + used.h, w: r.w, h: r.y + r.h - used.y - used.h });
+    }
+    // drop free rectangles contained in another
+    sh.free = next.filter((a, i) => !next.some((b, j) => j !== i && a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h && (j < i || a.w !== b.w || a.h !== b.h || a.x !== b.x || a.y !== b.y)));
+    return used;
   };
-  newSheet();
+
   for (const item of sorted) {
-    if (sheet.x + item.cell > SHEET_SIZE) {
-      sheet.x = 0;
-      sheet.y += sheet.shelfH;
-      sheet.shelfH = 0;
-    }
-    if (sheet.y + item.cell > SHEET_SIZE) {
-      newSheet();
-    }
-    const pad = item.pad ?? PADDING;
-    sheet.frames.push({
-      ...item,
-      pad,
-      x: sheet.x + pad,
-      y: sheet.y + pad,
-      px: item.cell - 2 * pad,
-    });
-    sheet.x += item.cell;
-    sheet.shelfH = Math.max(sheet.shelfH, item.cell);
+    let spot = null; let sheet = null;
+    for (const sh of sheets) { spot = place(sh, item.bw, item.bh); if (spot) { sheet = sh; break; } }
+    if (!spot) { sheet = newSheet(); spot = place(sheet, item.bw, item.bh); }
+    if (!spot) throw new Error(`${item.key} (${item.bw}x${item.bh}) does not fit a ${SHEET_SIZE} px sheet`);
+    sheet.frames.push({ ...item, bx: spot.x, by: spot.y });
+    sheet.usedH = Math.max(sheet.usedH, spot.y + item.bh);
   }
   return sheets;
 }
@@ -278,7 +312,7 @@ function sourceHash(items) {
     const stat = fs.statSync(item.src);
     h.update(`${item.key}:${item.cell}:${stat.size}:${Math.floor(stat.mtimeMs)}\n`);
   }
-  h.update(`v8:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
+  h.update(`v9:trim:maxrects:${SHEET_SIZE}:${PADDING}:${BASE_CELL}:${OVERLAY_CELL}:${TILE_CELL}:${TILE_PAD}`);
   return h.digest('hex');
 }
 
@@ -310,30 +344,47 @@ async function main() {
 
   console.log(`Rasterising ${items.length} sources...`);
   const t0 = Date.now();
-  const sheets = pack(items);
+  // Rasterise first (trimming needs each frame's opaque box before packing)
+  const rastered = [];
+  for (const item of items) {
+    const pad = item.pad ?? PADDING;
+    const px = item.cell - 2 * pad;
+    let buf = await rasterise(item.src, px);
+    let trim = null;
+    if (isTrimmable(item.key)) {
+      trim = await opaqueBox(buf);
+      if (trim.w === px && trim.h === px) trim = null;
+      else buf = await sharp(buf).extract({ left: trim.x, top: trim.y, width: trim.w, height: trim.h }).png().toBuffer();
+    }
+    const fw = trim ? trim.w : px; const fh = trim ? trim.h : px;
+    rastered.push({ ...item, pad, px, buf, trim, fw, fh, bw: fw + 2 * pad, bh: fh + 2 * pad });
+  }
+  const sheets = pack(rastered);
   fs.mkdirSync(OUT_DIR, { recursive: true });
   for (const f of fs.readdirSync(OUT_DIR)) if (/^world-\d+\.(png|webp|json)$/.test(f)) fs.unlinkSync(path.join(OUT_DIR, f));
 
   const manifest = { version: 1, sourceHash: hash, sheetSize: SHEET_SIZE, sheets: [], frames: {} };
 
   for (const sheet of sheets) {
+    const sheetH = Math.min(SHEET_SIZE, Math.ceil(sheet.usedH / 16) * 16); // cropped to what it uses
     const composites = [];
     for (const frame of sheet.frames) {
-      const buf = await rasterise(frame.src, frame.px);
-      if (frame.key.startsWith('tiles/') || frame.key.startsWith('edges/') || frame.key.startsWith('walls/')) {
+      frame.x = frame.bx + frame.pad;
+      frame.y = frame.by + frame.pad;
+      if (!isTrimmable(frame.key)) {
         // Ground art fills its frame edge to edge, and the lossy WebP sheet blends every frame
         // edge with the transparent gutter around it (a 10% brighter rim on each tile, a grid on
         // the board). Extrude the edge pixels into the gutter so there is no boundary to blend.
         const pad = frame.pad;
-        const extruded = await sharp(buf).extend({ top: pad, bottom: pad, left: pad, right: pad, extendWith: 'copy' }).png().toBuffer();
-        composites.push({ input: extruded, left: frame.x - pad, top: frame.y - pad });
+        const extruded = await sharp(frame.buf).extend({ top: pad, bottom: pad, left: pad, right: pad, extendWith: 'copy' }).png().toBuffer();
+        composites.push({ input: extruded, left: frame.bx, top: frame.by });
       } else {
-        composites.push({ input: buf, left: frame.x, top: frame.y });
+        composites.push({ input: frame.buf, left: frame.x, top: frame.y });
       }
       manifest.frames[frame.key] = sheet.index;
     }
     const base = sharp({
-      create: { width: SHEET_SIZE, height: SHEET_SIZE, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+      create: { width: SHEET_SIZE, height: sheetH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
     }).composite(composites);
     const pngName = `world-${sheet.index}.png`;
     const webpName = `world-${sheet.index}.webp`;
@@ -343,24 +394,25 @@ async function main() {
     const webp = await sharp(png).webp({ quality: WEBP_QUALITY, alphaQuality: 100, effort: 6 }).toBuffer();
     fs.writeFileSync(path.join(OUT_DIR, webpName), webp);
 
-    // Pixi 7 spritesheet JSON (TexturePacker "hash" format)
+    // Pixi 7 spritesheet JSON (TexturePacker "hash" format); a trimmed frame keeps its full
+    // px x px square as sourceSize, so the runtime texture's `orig` is unchanged.
     const frames = {};
     for (const frame of sheet.frames) {
       frames[frame.key] = {
-        frame: { x: frame.x, y: frame.y, w: frame.px, h: frame.px },
+        frame: { x: frame.x, y: frame.y, w: frame.fw, h: frame.fh },
         rotated: false,
-        trimmed: false,
-        spriteSourceSize: { x: 0, y: 0, w: frame.px, h: frame.px },
+        trimmed: !!frame.trim,
+        spriteSourceSize: { x: frame.trim ? frame.trim.x : 0, y: frame.trim ? frame.trim.y : 0, w: frame.fw, h: frame.fh },
         sourceSize: { w: frame.px, h: frame.px },
       };
     }
     const sheetJson = {
       frames,
-      meta: { app: 'vvgame build-atlas', version: '1', image: pngName, format: 'RGBA8888', size: { w: SHEET_SIZE, h: SHEET_SIZE }, scale: '1' },
+      meta: { app: 'vvgame build-atlas', version: '1', image: pngName, format: 'RGBA8888', size: { w: SHEET_SIZE, h: sheetH }, scale: '1' },
     };
     fs.writeFileSync(path.join(OUT_DIR, jsonName), JSON.stringify(sheetJson));
     manifest.sheets.push({ json: jsonName, png: pngName, webp: webpName, frames: sheet.frames.length });
-    console.log(`  ${pngName}: ${sheet.frames.length} frames, png ${(png.length / 1024).toFixed(0)} KB, webp ${(webp.length / 1024).toFixed(0)} KB`);
+    console.log(`  ${pngName}: ${SHEET_SIZE}x${sheetH}, ${sheet.frames.length} frames, png ${(png.length / 1024).toFixed(0)} KB, webp ${(webp.length / 1024).toFixed(0)} KB`);
   }
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
