@@ -21,6 +21,12 @@ function validateUsername(raw) {
   return null;
 }
 
+// Developer usernames (tuning/developerUsernames.json) grant developer access by name alone, so a
+// listed name that no account holds yet must never be claimable by a signup, the Home Deed or a
+// rename. Callers answer TAKEN when no player holds the exact name and this says it is reserved.
+const developerNames = new Set(require('../tuning/developerUsernames.json').map((n) => n.toLowerCase()));
+const isReservedUsername = (name) => developerNames.has(String(name || '').trim().toLowerCase());
+
 // Generated name for a silent account: "Brave Fox 4821". Unique against the players collection.
 const ADJECTIVES = ['Brave', 'Quiet', 'Merry', 'Clever', 'Gentle', 'Hardy', 'Lucky', 'Nimble', 'Steady', 'Sunny', 'Wild', 'Bold', 'Keen', 'Kind', 'Swift'];
 const NOUNS = ['Fox', 'Hare', 'Otter', 'Finch', 'Badger', 'Heron', 'Lark', 'Wren', 'Stag', 'Vole', 'Robin', 'Ox', 'Goose', 'Hound', 'Ram'];
@@ -32,4 +38,4 @@ async function generateUniqueRandomUsername(Player) {
   return `Wanderer ${Date.now().toString(36)}`;
 }
 
-module.exports = { validateUsername, generateUniqueRandomUsername, USERNAME_MIN: MIN, USERNAME_MAX: MAX };
+module.exports = { validateUsername, isReservedUsername, generateUniqueRandomUsername, USERNAME_MIN: MIN, USERNAME_MAX: MAX };

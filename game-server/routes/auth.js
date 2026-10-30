@@ -16,7 +16,7 @@ const crypto = require('crypto');
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
 const { recordActivity, ensurePageview, sanitizeClientInfo } = require('../utils/analytics');
 const { NO_PASSWORD, hasPassword, publicPlayer } = require('../utils/publicPlayer');
-const { validateUsername, generateUniqueRandomUsername } = require('../utils/usernames');
+const { validateUsername, isReservedUsername, generateUniqueRandomUsername } = require('../utils/usernames');
 const sendMailboxMessage = require('../utils/messageUtils');
 const { sendWelcomeEmail } = require('../utils/emailNotifications');
 const { setMarketingConsent, isMarketingEligible } = require('../utils/crmAudience');
@@ -68,7 +68,7 @@ router.post('/check-username', async (req, res) => {
   const username = String(req.body?.username || '').trim();
   const reason = validateUsername(username);
   if (reason) return res.json({ available: false, reason });
-  const taken = await Player.exists({ username });
+  const taken = (await Player.exists({ username })) || isReservedUsername(username);
   res.json({ available: !taken, reason: taken ? 'TAKEN' : null });
 });
 
@@ -263,7 +263,7 @@ router.post('/register-new-player', async (req, res) => {
       username = await generateUniqueRandomUsername(Player);
     } else {
       const existingPlayer = await Player.findOne({ username });
-      if (existingPlayer) {
+      if (existingPlayer || isReservedUsername(username)) {
         return res.status(400).json({ error: 'Username already exists.', code: 'TAKEN' });
       }
     }
@@ -441,7 +441,7 @@ router.post('/player/name', async (req, res) => {
     if (!player) return res.status(404).json({ error: 'Player not found.', code: 'NOT_FOUND' });
     if (player.named !== false) return res.status(400).json({ error: 'This profile is already named.', code: 'ALREADY_NAMED' });
     const taken = await Player.findOne({ username });
-    if (taken && String(taken._id) !== String(player._id)) {
+    if ((taken && String(taken._id) !== String(player._id)) || (!taken && isReservedUsername(username))) {
       return res.status(400).json({ error: 'Username already exists.', code: 'TAKEN' });
     }
     player.username = username;

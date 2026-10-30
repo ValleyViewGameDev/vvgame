@@ -10,10 +10,11 @@ const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
 const { hopeArtifacts } = require('../utils/hopeArtifacts');
 const { maybeSendReturnGift } = require('../utils/returnGift');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
-const { validateUsername } = require('../utils/usernames');
+const { validateUsername, isReservedUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
 const { derivedStats, magicSlotCount, magicSlotBase } = require('../utils/combatStats');
 const globalTuning = require('../tuning/globalTuning.json');
+const { requireDeveloper } = require('../utils/developerHelpers');
 
 // Account routes the editor uses (and the profile's own delete): the caller must be a developer
 // (x-player-id of a developer account, as the maintenance gate checks) or, for delete, the player themself.
@@ -37,7 +38,7 @@ const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils')
 ///////// PLAYER MANAGEMENT ROUTES ////////////
 
 // POST /api/send-player-home
-router.post('/send-player-home', async (req, res) => {
+router.post('/send-player-home', requireDeveloper, async (req, res) => {
   const { playerId, fromGridId } = req.body;
 
   if (!playerId) {
@@ -166,7 +167,7 @@ router.post('/add-player-quest', async (req, res) => {
   }
 });
 
-router.post('/clear-quest-history', async (req, res) => {
+router.post('/clear-quest-history', requireDeveloper, async (req, res) => {
   const { playerId } = req.body;
 
   if (!playerId) {
@@ -400,7 +401,7 @@ router.post('/update-profile', async (req, res) => {
       const problem = validateUsername(updates.username);
       if (problem) return res.status(400).json({ error: problem, code: problem });
       const existingPlayer = await Player.findOne({ username: updates.username });
-      if (existingPlayer && existingPlayer._id.toString() !== playerId) {
+      if ((existingPlayer && existingPlayer._id.toString() !== playerId) || (!existingPlayer && isReservedUsername(updates.username))) {
         return res.status(400).json({ error: "TAKEN", code: 'TAKEN' });
       }
     }
@@ -1297,7 +1298,7 @@ router.post('/send-mailbox-message', async (req, res) => {
 });
 
 // ✅ POST /api/send-mailbox-message-all
-router.post('/send-mailbox-message-all', async (req, res) => {
+router.post('/send-mailbox-message-all', requireDeveloper, async (req, res) => {
   const { messageId, customRewards = [] } = req.body;
   if (!messageId) { return res.status(400).json({ error: 'Missing messageId.' }); }
   // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
@@ -1891,7 +1892,7 @@ router.post('/grids-tiles', async (req, res) => {
 });
 
 // POST /api/set-all-grids-visited - Debug: Mark all 4096 grids as visited
-router.post('/set-all-grids-visited', async (req, res) => {
+router.post('/set-all-grids-visited', requireDeveloper, async (req, res) => {
   const { playerId } = req.body;
 
   if (!playerId) {

@@ -210,17 +210,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         localStorage.setItem('player', JSON.stringify(updatedPlayer));
         console.log('Updated localStorage after save:', updatedPlayer.settings);
 
-        // ✅ Update the Settlement with the player's new role (only if it's not Citizen)
-        if (formData.role && formData.role !== 'Citizen') {
-          console.log(`🏛️ Assigning player to role "${formData.role}" in the settlement...`);
-          
-          await axios.post(`${API_BASE}/api/update-settlement-role`, {
-            settlementId: currentPlayer.location.s, // ✅ Settlement ID
-            playerId: currentPlayer._id,           // ✅ Player's ID
-            roleName: formData.role                // ✅ Role they are assigned to
-          });
-        }
-
         // ✅ Directly update playersInGrid via playersInGridManager
         const gridId = currentPlayer?.location?.g;
         if (gridId) {

@@ -20,6 +20,7 @@ const gridResourceManager = require('../utils/GridResourceManager');
 const gridTileManager = require('../utils/GridTileManager');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { recordPlayed } = require('../utils/analytics');
+const { requireDeveloper } = require('../utils/developerHelpers');
 
 // Initialize GridResourceManager
 (async () => {
@@ -96,7 +97,7 @@ const { getSeasonLevel } = require('../utils/scheduleHelpers');
 
 
 // create-grid
-router.post('/create-grid', async (req, res) => {
+router.post('/create-grid', requireDeveloper, async (req, res) => {
   console.log('Incoming request: /create-grid');
   console.log('req.body = ', req.body);
 
@@ -110,7 +111,7 @@ router.post('/create-grid', async (req, res) => {
 });
 
 // reset-grid
-router.post('/reset-grid', async (req, res) => {
+router.post('/reset-grid', requireDeveloper, async (req, res) => {
   const { gridCoord, gridId, gridType } = req.body;
   console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
 
@@ -134,7 +135,7 @@ router.post('/reset-grid', async (req, res) => {
 // the template (gridId) AND every player's copy of the same cell from the layout file, each copy
 // through its own grid write lock (the route's own lock covers the template). The season turn
 // does NOT do this: it only replants trees and applies season tiles (gridResolver.applySeasonCatchUp).
-router.post('/reset-grid-all-copies', async (req, res) => {
+router.post('/reset-grid-all-copies', requireDeveloper, async (req, res) => {
   const { gridCoord, gridId, gridType } = req.body;
   if (!gridId || !gridType || gridCoord == null) {
     return res.status(400).json({ error: 'gridId, gridType and gridCoord are required.' });
@@ -172,7 +173,7 @@ router.post('/reset-grid-all-copies', async (req, res) => {
 });
 
 // plant-new-trees - Replant trees on a valley grid
-router.post('/plant-new-trees/:gridId', async (req, res) => {
+router.post('/plant-new-trees/:gridId', requireDeveloper, async (req, res) => {
   const { gridId } = req.params;
   const { gridCoord } = req.body; // Accept gridCoord in body for valleyFixedCoord lookup
   console.log('Reached plant-new-trees; gridId =', gridId, ', gridCoord =', gridCoord);
@@ -193,7 +194,7 @@ router.post('/plant-new-trees/:gridId', async (req, res) => {
 
 
 // Remove homestead - delete grid and update settlement
-router.post('/remove-homestead', async (req, res) => {
+router.post('/remove-homestead', requireDeveloper, async (req, res) => {
   const { gridId } = req.body;
   console.log('🏚️ Removing homestead grid:', gridId);
 
@@ -282,7 +283,7 @@ router.post('/remove-homestead', async (req, res) => {
 });
 
 // Delete orphaned grid (grids without ownerIds from failed account registrations)
-router.post('/delete-orphaned-grid', async (req, res) => {
+router.post('/delete-orphaned-grid', requireDeveloper, async (req, res) => {
   const { gridId } = req.body;
   console.log('🗑️ Deleting orphaned grid:', gridId);
 
@@ -2495,7 +2496,7 @@ function spendIngredients(recipe, inventory, backpack) {
 }
 
 // Make it snow - convert all grass tiles to snow tiles
-router.post('/make-it-snow/:gridId', async (req, res) => {
+router.post('/make-it-snow/:gridId', requireDeveloper, async (req, res) => {
   try {
     const { gridId } = req.params;
     console.log(`❄️ Making it snow on grid ${gridId}`);
@@ -2546,7 +2547,7 @@ router.post('/make-it-snow/:gridId', async (req, res) => {
 });
 
 // Melt the snow - convert all snow tiles to grass tiles
-router.post('/melt-the-snow/:gridId', async (req, res) => {
+router.post('/melt-the-snow/:gridId', requireDeveloper, async (req, res) => {
   try {
     const { gridId } = req.params;
     console.log(`☀️ Melting snow on grid ${gridId}`);
@@ -2597,7 +2598,7 @@ router.post('/melt-the-snow/:gridId', async (req, res) => {
 });
 
 // Create a dungeon grid with template
-router.post('/create-dungeon', async (req, res) => {
+router.post('/create-dungeon', requireDeveloper, async (req, res) => {
   // Editor: create the TEMPLATE instance of a dungeon and register it. Players get their own copies via /enter-grid.
   try {
     const { templateFilename, settlementId, frontierId } = req.body;
@@ -2685,7 +2686,7 @@ router.get('/grids', async (req, res) => {
 });
 
 // Reset a dungeon grid with its template
-router.post('/reset-dungeon', async (req, res) => {
+router.post('/reset-dungeon', requireDeveloper, async (req, res) => {
   try {
     const { gridId } = req.body;
     
@@ -2744,7 +2745,7 @@ router.post('/reset-dungeon', async (req, res) => {
 });
 
 // Delete a dungeon grid by ID (only for dungeon type grids)
-router.delete('/delete-dungeon/:gridId', async (req, res) => {
+router.delete('/delete-dungeon/:gridId', requireDeveloper, async (req, res) => {
   try {
     const { gridId } = req.params;
     
@@ -2785,7 +2786,7 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
 
 // Exit from dungeon back to source grid
 // /enter-dungeon and /exit-dungeon were folded into POST /api/enter-grid (routes/enterGridRoutes.js).
-router.post('/update-dungeon-config', async (req, res) => {
+router.post('/update-dungeon-config', requireDeveloper, async (req, res) => {
   // Editor: which template a dungeon uses and which world cells (gridCoords) lead into it.
   try {
     const { frontierId, dungeonGridId, templateUsed } = req.body;
@@ -2823,7 +2824,7 @@ router.post('/update-dungeon-config', async (req, res) => {
 
 
 // Update region for a single grid
-router.post('/update-grid-region', async (req, res) => {
+router.post('/update-grid-region', requireDeveloper, async (req, res) => {
   const { gridId, region } = req.body;
   console.log(`🗺️ [UPDATE REGION] Updating grid ${gridId} to region: ${region || 'none'}`);
 
@@ -2855,7 +2856,7 @@ router.post('/update-grid-region', async (req, res) => {
 });
 
 // Bulk update region for multiple grids
-router.post('/bulk-update-grid-regions', async (req, res) => {
+router.post('/bulk-update-grid-regions', requireDeveloper, async (req, res) => {
   const { gridIds, region } = req.body;
   console.log(`🗺️ [BULK UPDATE REGION] Updating ${gridIds?.length || 0} grids to region: ${region || 'none'}`);
 

@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const Frontier = require("../models/frontier");
+const { requireDeveloper } = require("../utils/developerHelpers");
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.get("/tuning", (req, res) => {
  * POST /api/force-end-phase
  * Body: { frontierId: "abc123", event: "bank" }
  */
-router.post("/force-end-phase", async (req, res) => {
+router.post("/force-end-phase", requireDeveloper, async (req, res) => {
   const { frontierId, event } = req.body;
   console.log("🛬 Raw request body:", req.body);
   if (!frontierId || !event) {

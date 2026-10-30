@@ -13,6 +13,7 @@ const { getTemplate } = require('../utils/templateUtils');
 const { ObjectId } = require("mongodb");
 const Player = require('../models/player');
 const { buildFrontierThumbnails, THUMB_SIZE } = require('../utils/gridThumbnails');
+const { requireDeveloper } = require('../utils/developerHelpers');
 
 // ========================
 // Coordinate Calculation
@@ -115,7 +116,7 @@ router.get("/get-frontier/:frontierId", async (req, res) => {
 // Purpose: Creates a new Frontier with settlements & sub-grids
 // No more placeholderName—just gridCoord!
 // ============================================
-router.post('/create-frontier', async (req, res) => {
+router.post('/create-frontier', requireDeveloper, async (req, res) => {
   console.log('Debug route hit: /create-frontier');
   try {
     console.log('Step 1: Initializing Frontier creation...');

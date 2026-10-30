@@ -9,6 +9,11 @@ const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Import the Player model
+const { requireDeveloper } = require('../utils/developerHelpers');
+const { isDeveloperPlayerId } = require('../utils/serviceMode');
+
+// What a settlement's Mayor may change from the Courthouse; any other field is developer-only.
+const MAYOR_FIELDS = new Set(['taxrate', 'displayName']);
  
 
 // ✅ Route to get all settlements with full editor UI context
@@ -141,7 +146,7 @@ router.post('/update-settlement', async (req, res) => {
     try {
         const { settlementId, updates } = req.body;
 
-        if (!settlementId || !updates) {
+        if (!settlementId || !updates || typeof updates !== 'object') {
             return res.status(400).json({ success: false, error: "Missing settlementId or updates." });
         }
 
@@ -149,6 +154,16 @@ router.post('/update-settlement', async (req, res) => {
         if (updates.name) {
             updates.displayName = updates.name;
             delete updates.name;
+        }
+
+        // The caller (x-player-id) is a developer, or the settlement's Mayor changing MAYOR_FIELDS.
+        const callerId = req.get('x-player-id');
+        if (!(await isDeveloperPlayerId(callerId))) {
+            const settlement = await Settlement.findById(settlementId, 'roles').lean();
+            const isMayor = !!callerId && (settlement?.roles || []).some((r) => r.roleName === 'Mayor' && String(r.playerId) === String(callerId));
+            if (!isMayor || !Object.keys(updates).every((k) => MAYOR_FIELDS.has(k))) {
+                return res.status(403).json({ success: false, error: "Not allowed." });
+            }
         }
 
         console.log(`Updating settlement ${settlementId} with:`, updates);
@@ -179,7 +194,7 @@ router.post('/update-settlement', async (req, res) => {
 ///////////
 
 
-router.post('/update-settlement-role', async (req, res) => {
+router.post('/update-settlement-role', requireDeveloper, async (req, res) => {
   try {
       const { settlementId, roleName, playerId } = req.body;
 
