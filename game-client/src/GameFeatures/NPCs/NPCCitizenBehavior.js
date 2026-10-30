@@ -113,7 +113,16 @@ export const isStationaryCitizen = (npc) => !!npc && STATIONARY_CITIZENS.has(npc
  * Crafting (owner, 2026-10-09). Switched off, the worker stands by near home while working.
  */
 export const workerAutoWorks = (npc) => (typeof npc?.autoWork === 'boolean' ? npc.autoWork : npc?.type !== 'Crafter');
-export const stateSeconds = (npc, state) => Math.max(0, Number(npc?.[STATE_FIELD[state]]) || 0);
+/**
+ * SOCIALIZING IS PAUSED (owner 2026-10-29): citizens seeking each other out did not work well,
+ * so the state reads as length 0 and the loop skips it (working -> resting -> roaming -> eating
+ * -> working); nobody is ever picked as a partner either. The socializing code below is kept as
+ * it is for a better design later: set this to false to bring it back.
+ */
+const SOCIALIZING_PAUSED = true;
+export const stateSeconds = (npc, state) => (
+  SOCIALIZING_PAUSED && state === 'socializing' ? 0 : Math.max(0, Number(npc?.[STATE_FIELD[state]]) || 0)
+);
 export const hasStateLoop = (npc) => CITIZEN_STATES.some((s) => stateSeconds(npc, s) > 0);
 
 /** The next state in the loop with a non-zero length (wrapping), or null when none has one. */
@@ -638,6 +647,12 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
       return undefined;
     }
     case 'socializing': {
+      // paused (SOCIALIZING_PAUSED): a citizen saved mid-conversation moves straight on
+      if (SOCIALIZING_PAUSED) {
+        leaveConversation(this, gridId, npcs, now);
+        enterCitizenState(this, nextCitizenState(this, 'socializing') || 'working', gridId, now);
+        return undefined;
+      }
       const result = await socialTick(this, gridId, tiles, resources, npcs, now, home);
       if (result === 'done') enterCitizenState(this, nextCitizenState(this, 'socializing') || 'working', gridId, now);
       return undefined;

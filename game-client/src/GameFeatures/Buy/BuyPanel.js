@@ -12,6 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
+import { withScaledAnimalCost } from '../FarmAnimals/animalPricing';
 
 // Farm Animals Progress Bar Component
 const FarmAnimalsProgressBar = ({ currentFarmAnimals, maxFarmAnimals }) => {
@@ -129,31 +130,10 @@ const BuyPanel = ({
       // Callback to get fresh scaled costs before each purchase
       // This reads fresh from NPCsInGrid at execution time to get current animal count
       getEffectiveBuildOptions: () => {
-        // Count animals fresh from NPCsInGrid at time of click
-        const freshAnimalCount = NPCsInGrid?.[gridId]?.npcs
-          ? Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length
-          : 0;
-        const inflation = globalTuning?.farmAnimalInflation || 0.1;
-
-        // Calculate fresh effective item with current animal count
-        const freshEffectiveItem = originalItem ? (() => {
-          if (!originalItem.passable || originalItem.action !== 'graze') return originalItem;
-          const scaledItem = { ...originalItem };
-          for (let i = 1; i <= 4; i++) {
-            const ingredientKey = `ingredient${i}`;
-            const qtyKey = `ingredient${i}qty`;
-            if (scaledItem[ingredientKey] === 'Money' && scaledItem[qtyKey]) {
-              if (freshAnimalCount === 0) {
-                // No scaling needed
-              } else {
-                const multiplier = Math.pow(1 + inflation, freshAnimalCount);
-                const scaledCost = scaledItem[qtyKey] * multiplier;
-                scaledItem[qtyKey] = Math.ceil(scaledCost / 50) * 50;
-              }
-            }
-          }
-          return scaledItem;
-        })() : effectiveItem;
+        // Price from the grid's animals at the moment of the click (per type: animalPricing.js)
+        const freshEffectiveItem = originalItem
+          ? withScaledAnimalCost(originalItem, NPCsInGrid?.[gridId]?.npcs, globalTuning?.farmAnimalInflation)
+          : effectiveItem;
 
         return buyOptions.map(opt =>
           opt.type === effectiveItem.type ? freshEffectiveItem : opt
@@ -215,12 +195,8 @@ const BuyPanel = ({
   // Handle direct purchase (non-cursor mode) with spam-click protection
   const handleDirectPurchase = async (transactionId, transactionKey, item) => {
     console.log(`🔒 [BUY_PANEL] Starting protected purchase for ${item.type}`);
-    // Count animals fresh from NPCsInGrid at time of purchase
-    const freshAnimalCount = NPCsInGrid?.[gridId]?.npcs
-      ? Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length
-      : 0;
-    // Get fresh effective item with current scaled costs using fresh count
-    const effectiveItem = getEffectiveItem(item, freshAnimalCount);
+    // Price from the grid's animals at the moment of purchase
+    const effectiveItem = getEffectiveItem(item);
     const effectiveBuildOptions = buyOptions.map(opt =>
       opt.type === item.type ? effectiveItem : opt
     );
@@ -292,37 +268,11 @@ const BuyPanel = ({
 
   const maxFarmAnimals = globalTuning?.maxFarmAnimals || 10; // Default to 10 if not set
   const currentFarmAnimals = countFarmAnimals();
-  const farmAnimalInflation = globalTuning?.farmAnimalInflation || 0.1; // Default 10% increase per animal
 
-  // Calculate scaled Money cost for farm animals based on existing animals on grid
-  // Takes animalCount as parameter to avoid stale closure issues
-  const getScaledMoneyCost = (baseCost, animalCount) => {
-    if (animalCount === 0) return baseCost;
-    // Each existing animal compounds the cost by farmAnimalInflation (e.g., 10%)
-    // Example with 10%: 0 animals = 500, 1 = 550, 2 = 605 → 650, 3 = 665 → 700
-    const multiplier = Math.pow(1 + farmAnimalInflation, animalCount);
-    const scaledCost = baseCost * multiplier;
-    // Round up to nearest 50
-    return Math.ceil(scaledCost / 50) * 50;
-  };
-
-  // Get the effective item with scaled Money cost for farm animals
-  // Takes optional animalCount parameter - if not provided, uses current count
-  const getEffectiveItem = (item, animalCount = currentFarmAnimals) => {
-    // Only apply scaling to farm animals (graze action)
-    if (!item.passable || item.action !== 'graze') return item;
-
-    // Create a copy with scaled Money costs
-    const scaledItem = { ...item };
-    for (let i = 1; i <= 4; i++) {
-      const ingredientKey = `ingredient${i}`;
-      const qtyKey = `ingredient${i}qty`;
-      if (scaledItem[ingredientKey] === 'Money' && scaledItem[qtyKey]) {
-        scaledItem[qtyKey] = getScaledMoneyCost(scaledItem[qtyKey], animalCount);
-      }
-    }
-    return scaledItem;
-  };
+  // Farm animals cost more for each animal of the same type already on the grid (animalPricing.js).
+  // Reads NPCsInGrid at call time, so a purchase always prices from the current herd.
+  const getEffectiveItem = (item) =>
+    withScaledAnimalCost(item, NPCsInGrid?.[gridId]?.npcs, globalTuning?.farmAnimalInflation);
 
   return (
     <Panel onClose={closePanel} descriptionKey="1003" titleKey="1103" panelName="BuyPanel">

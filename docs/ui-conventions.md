@@ -178,6 +178,14 @@ value rather than trust this page.
   text on desktop only (`.map-panel-controls`). How to Play lives in the header icon row (❓) on every layout. The
   "Have Feedback?" block is `UI/Panels/FeedbackLinks.js`, at the bottom of the Settings panel;
   its two buttons (`EmailUsButton`, `DiscordButton`) also open How to Play.
+- **A locked card is its own unlock button** (owner 2026-10-30, Trade Stall Sell tab): the card
+  ends in a leaf-green CTA line ("Unlock for" / "500 🪵") and a tap anywhere on it unlocks; no
+  separate button under the card. Both Trade Stall tabs lay their cards two per row
+  (`.trade-stall-slots--grid`), one FIXED card height for every state (`--trade-card-h`), text
+  one step down, wrapping inside the card. A card that is sold, collected or cancelled runs the
+  Kent / Bank cycle on its own slot (`runCardReturn`): it pops (or leaves), turns into its next
+  state while hidden, and slides in; the rest of the panel never re-renders, and the server's
+  reply is shaped into the same slots and applied in place (no refetch, no loading state).
 - **Panel titles are text only** (owner 2026-10-24): no emoji or symbol before the name.
   `Panel.js` drops a leading emoji from any title it is given (so a string shared with a button,
   "📊 Leaders", keeps its emoji there); never prefix a title with a resource's `symbol`. An
@@ -302,6 +310,12 @@ value rather than trust this page.
   Resource clicks do not, so a tree behind a tree can still be chopped; an enemy still sees and
   chases you past a tree, it just cannot hit you through one. Multi-tile blockers block their
   whole footprint (shadow tiles resolve to their anchor).
+- **Range to a multi-tile resource is to its NEAREST tile** (owner 2026-10-29,
+  `nearestFootprintTile` in `Utils/worldHelpers.js`): a building is in reach when any tile of its
+  footprint is, never only its anchor (lower-left) corner. Every check uses it (the tap in
+  `PixiRenderer.js`, App's `handleTileClick` range and line-of-sight check, `ResourceClicking.js`),
+  and too far walks toward that nearest tile, not the anchor (which sits inside the building and
+  read as "You can't go that way").
 - **Tall art answers for its own pixels** (owner 2026-10-24, `Render/PixiRenderer/artHitTest.js`).
   Art drawn taller than its footprint (trees, `artSpan` buildings and statues) covers the tiles
   north of it, so a tap there resolves to the ART first: the frontmost tagged sprite with an

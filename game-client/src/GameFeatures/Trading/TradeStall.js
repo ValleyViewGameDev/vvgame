@@ -10,14 +10,14 @@ import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modals/Modal.css';
 import '../../UI/Buttons/SharedButtons.css';
-import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate, getPlayerQuantity, mergeHoldings } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate, getPlayerQuantity, mergeHoldings, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
 // import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass
 import GlobalMarketModal from './GlobalMarketModal';
-import SaleBurst from '../../UI/SaleBurst';
+import SaleBurst, { runCardReturn, CARD_CYCLE } from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
 import { loadMasterTraders } from '../../Utils/TuningManager';
@@ -32,14 +32,14 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
-  // Money coming in from a slot (collected from a buyer, or sold to the game): { index, id }
-  const [slotFx, setSlotFx] = useState(null);
-  // On the tap (house rule: never wait for the server): the slot pops under a burst of sparkles and
-  // "+💰 N" rises from it and flies into the money counter (UI/FlyToTarget.js)
+  // One card in motion per tab, like Kent's and the Bank's slots (runCardReturn, UI/SaleBurst.js):
+  // { slot, id, phase: 'pop' | 'leave' | 'slidein' }. Only that card moves; the rest of the panel
+  // never re-renders into a loading state.
+  const [cardFx, setCardFx] = useState(null);        // Sell tab
+  const [requestFx, setRequestFx] = useState(null);  // Request tab
+  // On the tap (house rule: never wait for the server): "+💰 N" rises from the slot and flies into
+  // the money counter (UI/FlyToTarget.js); the card itself pops away under the burst (cycleSellCard)
   const celebrateSlot = (index, money) => {
-    const id = Date.now() + Math.random();
-    setSlotFx({ index, id });
-    setTimeout(() => setSlotFx((fx) => (fx?.id === id ? null : fx)), 900);
     soundManager.playSFX('collect_money');
     try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
     const el = document.querySelector(`[data-trade-slot="${index}"]`);
@@ -196,6 +196,49 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   };
 
 
+  // The Sell tab always shows 4 slots in index order, whatever shape the server sends back (it may
+  // omit a slot it never saved): a server reply must never reshape the grid under the player.
+  const SELL_SLOT_COUNT = 4;
+  const emptySellSlot = (index, locked) => ({
+    slotIndex: index, locked, resource: null, amount: 0, price: 0, sellTime: null, boughtBy: null, boughtFor: null,
+  });
+  const normalizeSellSlots = (serverSlots) => Array.from({ length: SELL_SLOT_COUNT }, (_, index) => {
+    const existing = (serverSlots || []).find((slot) => slot && slot.slotIndex === index)
+      || ((serverSlots || [])[index] && (serverSlots[index].slotIndex === undefined) ? { ...serverSlots[index], slotIndex: index } : null);
+    return existing || emptySellSlot(index, true);
+  });
+  const sellTotal = (slots) => slots.reduce((sum, slot) => (
+    slot?.resource && slot?.amount && slot?.price && !slot?.boughtBy ? sum + slot.amount * slot.price : sum
+  ), 0);
+
+  /**
+   * A sold or collected card: it pops away under the burst, and while it is gone the slot turns
+   * into its empty "Click to sell" card, which slides in (the Kent / Bank cycle). `request` is the
+   * server call; its reply is applied after the pop so the old card never changes mid-animation,
+   * and a failure brings the old card back. Returns the server's data (or null on failure).
+   */
+  const cycleSellCard = async (index, request) => {
+    const before = tradeSlots;
+    const revert = runCardReturn(setCardFx, index, { returnMs: 900 });
+    const hidden = new Promise((resolve) => setTimeout(resolve, CARD_CYCLE.popMs));
+    hidden.then(() => setTradeSlots((slots) => slots.map((slot, i) => (i === index ? emptySellSlot(index, false) : slot))));
+    try {
+      const data = await request();
+      await hidden;
+      if (data?.tradeStall) {
+        const next = normalizeSellSlots(data.tradeStall);
+        setTradeSlots(next);
+        setTotalSellValue(sellTotal(next));
+      }
+      return data;
+    } catch (error) {
+      await hidden;
+      revert();
+      setTradeSlots(before);
+      throw error;
+    }
+  };
+
   // Lift fetchDataForViewedPlayer out of useEffect for reuse
   const fetchDataForViewedPlayer = async (skipInventoryFetch = false) => {
     try {
@@ -217,28 +260,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         params: { playerId: currentPlayer.playerId },
       });
 
-      const serverSlots = tradeStallResponse.data.tradeStall || [];
-
-      // Ensure we have exactly 4 slots from server, preserve existing slot data
-      const allSlots = Array.from({ length: 4 }, (_, index) => {
-        const existingSlot = serverSlots.find(slot => slot && slot.slotIndex === index);
-        if (existingSlot) {
-          // Preserve all existing slot data including locked state
-          return existingSlot;
-        }
-        // Only create default locked slot if it doesn't exist on server
-        return {
-          slotIndex: index,
-          locked: true,
-          resource: null,
-          amount: 0,
-          price: 0,
-          sellTime: null,
-          boughtBy: null,
-          boughtFor: null
-        };
-      });
-
+      const allSlots = normalizeSellSlots(tradeStallResponse.data.tradeStall || []);
       setTradeSlots(allSlots);
 
       // Fetch request slots data
@@ -307,6 +329,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         updateStatus(152);
         return;
       }
+
+      // Room first, money second: a full Warehouse or Backpack says so and no Money is taken
+      if (!ensureRoomFor({ resource: currentSlot.resource, quantity: currentSlot.amount, currentPlayer, inventory: currentPlayer.inventory || inventory, backpack: currentPlayer.backpack || [], masterResources, globalTuning, updateStatus })) return;
 
       // Use the same purchase logic as the original handleBuy
       const tempRecipe = { ingredient1: 'Money', ingredient1qty: totalCost };
@@ -577,18 +602,21 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     console.log(`🔒 [PROTECTED SELL] Starting protected sell for slot ${slotIndex}`);
     
     try {
-      const response = await axios.post(`${API_BASE}/api/trade-stall/sell-to-game`, {
-        playerId: currentPlayer.playerId,
-        slotIndex,
-        transactionId,
-        transactionKey: `${transactionKey}-${slotIndex}`
+      const data = await cycleSellCard(slotIndex, async () => {
+        const response = await axios.post(`${API_BASE}/api/trade-stall/sell-to-game`, {
+          playerId: currentPlayer.playerId,
+          slotIndex,
+          transactionId,
+          transactionKey: `${transactionKey}-${slotIndex}`
+        });
+        if (!response.data.success) throw new Error('sell-to-game refused');
+        return response.data;
       });
+      const response = { data };
 
       if (response.data.success) {
-        // Update local state with server response
+        // the slot itself was updated by cycleSellCard
         if (response.data.tradeStall) {
-          setTradeSlots(response.data.tradeStall);
-          // Also update currentPlayer to trigger UI updates
           setCurrentPlayer(prev => ({
             ...prev,
             tradeStall: response.data.tradeStall
@@ -607,9 +635,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
         
         updateStatus(`${strings[141]} ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} (💰 ${response.data.sold}).`);
-        
-        // Refresh trade stall data to ensure consistency
-        await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
+        // no refetch: the reply already holds the stall, and a refetch re-laid the whole grid (the flash)
       }
     } catch (error) {
       console.error('Error in protected sell:', error);
@@ -644,18 +670,20 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     console.log(`🔒 [PROTECTED COLLECTION] Starting protected collection for slot ${slotIndex}`);
 
     try {
-      const response = await axios.post(`${API_BASE}/api/trade-stall/collect-payment`, {
-        playerId: currentPlayer.playerId,
-        slotIndex,
-        transactionId,
-        transactionKey: `${transactionKey}-${slotIndex}`
+      const data = await cycleSellCard(slotIndex, async () => {
+        const response = await axios.post(`${API_BASE}/api/trade-stall/collect-payment`, {
+          playerId: currentPlayer.playerId,
+          slotIndex,
+          transactionId,
+          transactionKey: `${transactionKey}-${slotIndex}`
+        });
+        if (!response.data.success) throw new Error('collect-payment refused');
+        return response.data;
       });
+      const response = { data };
 
       if (response.data.success) {
-        // Update local state with server response
-        if (response.data.tradeStall) {
-          setTradeSlots(response.data.tradeStall);
-        }
+        // the slot itself was updated by cycleSellCard
         if (response.data.inventory) {
           setInventory(response.data.inventory);
           // Force update currentPlayer to trigger UI refresh
@@ -670,9 +698,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
 
         updateStatus(`💰 Collected ${response.data.collected}.`);
-
-        // Refresh trade stall data to ensure consistency
-        await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
+        // no refetch: the reply already holds the stall, and a refetch re-laid the whole grid (the flash)
       }
     } catch (error) {
       console.error('Error in protected collection:', error);
@@ -826,6 +852,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
       setRequestSlots(updatedRequestSlots);
       updateStatus(`Request canceled. Refunded 💰${slot.moneyCommitted}`);
+      return true;
     } catch (error) {
       console.error('Error canceling request:', error);
       if (error.response?.status === 429) {
@@ -833,7 +860,20 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       } else {
         updateStatus('❌ Failed to cancel request');
       }
+      return false;
     }
+  };
+
+  // Cancel with the card cycle: the request card leaves, the slot turns into its empty "Add
+  // Request" card while hidden, which slides in; a failed cancel brings the request back
+  const cancelRequestWithMotion = async (transactionId, transactionKey, slotIndex) => {
+    const before = requestSlots;
+    const revert = runCardReturn(setRequestFx, slotIndex, { out: 'leave', returnMs: 700 });
+    const hidden = new Promise((resolve) => setTimeout(resolve, CARD_CYCLE.popMs));
+    hidden.then(() => setRequestSlots((slots) => slots.map((slot, i) => (i === slotIndex
+      ? { slotIndex, locked: slot.locked, resource: null, amount: 0, price: 0, moneyCommitted: 0 } : slot))));
+    const ok = await handleCancelRequest(transactionId, transactionKey, slotIndex);
+    if (!ok) { await hidden; revert(); setRequestSlots(before); }
   };
 
   // Handle unlocking a request slot
@@ -955,7 +995,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         <>
           {/* SELL TAB - TRADE STALL SLOTS */}
           {activeTab === 'sell' && (
-          <div className="trade-stall-slots shared-buttons">
+          <div className="trade-stall-slots trade-stall-slots--grid shared-buttons">
         {tradeSlots.map((slot, index) => {
           const isOwnStall = true; // Always viewing own stall now
           const isEmpty = !slot?.resource;
@@ -967,13 +1007,16 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
           
           return (
             <React.Fragment key={index}>
-              <div className={`trade-slot-container ${slotFx?.index === index ? 'sale-pop' : ''}`} data-trade-slot={index} style={{ position: 'relative' }}>
-                {slotFx?.index === index && <SaleBurst key={slotFx.id} />}
-                {/* 1. SLOT DISPLAY */}
+              <div className="trade-slot-container card-fx-slot" data-trade-slot={index}>
+                {cardFx?.slot === index && cardFx.phase === 'pop' && <SaleBurst key={cardFx.id} />}
+                <div className={`trade-slot-motion ${cardFx?.slot === index ? `card-fx-${cardFx.phase}` : ''}`}>
                 <div
                   className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty && !isPurchased && !isReadyToSell ? 'filled' : ''} ${isPurchased ? 'btn-collect' : ''} ${!slotUnlocked ? 'locked' : ''} ${isReadyToSell && !isPurchased ? 'btn-sell' : ''}`}
                   onClick={() => {
-                    if (isOwnStall && isEmpty && slotUnlocked) {
+                    if (isOwnStall && !slotUnlocked) {
+                      // a locked card is its own "Unlock for N Wood" button
+                      handleUnlockSlot(index);
+                    } else if (isOwnStall && isEmpty && slotUnlocked) {
                       handleSlotClick(index);
                     } else if (isOwnStall && isPurchased) {
                       // Handle collect payment
@@ -990,22 +1033,18 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                     // Show unlock UI for locked slots on own stall
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
-                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
-                      </div>
-                      <div style={{ fontSize: 'var(--text-sm)' }}>
-                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
+                      <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
+                      <div className="trade-slot-status">{formatDuration(config.sellWaitTime / 1000)} {strings[174]}</div>
+                      <div className="trade-slot-unlock-cta">
+                        <span>{strings[175]}</span>
+                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} {getSymbol('Wood')}</span>
                       </div>
                     </div>
                   ) : isEmpty ? (
                     <div className="trade-slot-empty-text">
-                      <div>➕ {strings[156]}</div>
-                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
-                      </div>
-                      <div style={{ fontSize: 'var(--text-sm)' }}>
-                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
-                      </div>
+                      <div className="trade-slot-item-name">➕ {strings[156]}</div>
+                      <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
+                      <div className="trade-slot-status">{formatDuration(config.sellWaitTime / 1000)} {strings[174]}</div>
                     </div>
                   ) : (
                     <div className="trade-slot-content">
@@ -1035,22 +1074,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                     </div>
                   )}
                 </div>
-
-                {/* 2. BUTTON CONTAINER */}
-                {(!slotUnlocked && isOwnStall) ? (
-                  // Show unlock button for locked slots
-                  <div className="trade-button-container">
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <button 
-                        className="btn-basic btn-neutral"
-                        style={{ width: '100%' }}
-                        onClick={() => handleUnlockSlot(index)}
-                      >
-                        {strings[175]} {config.unlockCost} {getSymbol('Wood')} {strings[176]}
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
+                </div>
               </div>
             </React.Fragment>
           );
@@ -1060,7 +1084,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
           {/* REQUEST TAB - REQUEST SLOTS */}
           {activeTab === 'request' && (
-          <div className="trade-stall-slots shared-buttons">
+          <div className="trade-stall-slots trade-stall-slots--grid shared-buttons">
         {requestSlots.map((slot, index) => {
           const isEmpty = !slot?.resource;
           const slotUnlocked = isRequestSlotUnlocked(index);
@@ -1068,30 +1092,32 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
           return (
             <React.Fragment key={index}>
-              <div className="trade-slot-container">
-                {/* 1. SLOT DISPLAY */}
+              <div className="trade-slot-container card-fx-slot">
+                <div className={`trade-slot-motion ${requestFx?.slot === index ? `card-fx-${requestFx.phase}` : ''}`}>
                 <div
                   className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty ? 'filled' : ''} ${!slotUnlocked ? 'locked' : ''}`}
                   onClick={() => {
-                    if (isEmpty && slotUnlocked) {
+                    if (!slotUnlocked) {
+                      // a locked card is its own "Unlock for N Wood" button
+                      handleUnlockRequestSlot(index);
+                    } else if (isEmpty) {
                       handleRequestSlotClick(index);
                     }
                   }}
                 >
                   {(!slotUnlocked) ? (
-                    // Show unlock UI for locked slots
                     <div className="trade-slot-locked">
                       <div className="trade-slot-lock-icon">🔒</div>
-                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
+                      <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
+                      <div className="trade-slot-unlock-cta">
+                        <span>{strings[175]}</span>
+                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} {getSymbol('Wood')}</span>
                       </div>
                     </div>
                   ) : isEmpty ? (
                     <div className="trade-slot-empty-text">
-                      <div>➕ Add Request</div>
-                      <div style={{ fontSize: 'var(--text-sm)', marginTop: '4px' }}>
-                        {strings[173]} {config.maxAmount}
-                      </div>
+                      <div className="trade-slot-item-name">➕ {strings[2120] || 'Add Request'}</div>
+                      <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
                     </div>
                   ) : (
                     <div className="trade-slot-content">
@@ -1099,41 +1125,20 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                         {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
                       </div>
                       <div className="trade-slot-status">
-                        You Pay: 💰{slot.moneyCommitted.toLocaleString()}
+                        {strings[2121] || 'You pay:'} 💰{slot.moneyCommitted.toLocaleString()}
                       </div>
+                      {/* the card's own Cancel line (only this line cancels; the card itself does not) */}
+                      <TransactionButton
+                        className="trade-slot-cancel-cta"
+                        transactionKey={`cancel-request-${index}`}
+                        onAction={(transactionId, transactionKey) => cancelRequestWithMotion(transactionId, transactionKey, index)}
+                      >
+                        {strings[2122] || 'Cancel Request'}
+                      </TransactionButton>
                     </div>
                   )}
                 </div>
-
-                {/* 2. BUTTON CONTAINER */}
-                {(!slotUnlocked) ? (
-                  // Show unlock button for locked slots
-                  <div className="trade-button-container">
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <button
-                        className="btn-basic btn-neutral"
-                        style={{ width: '100%' }}
-                        onClick={() => handleUnlockRequestSlot(index)}
-                      >
-                        {strings[175]} {config.unlockCost} {getSymbol('Wood')} {strings[176]}
-                      </button>
-                    </div>
-                  </div>
-                ) : (!isEmpty) ? (
-                  // Show cancel button for active requests
-                  <div className="trade-button-container">
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                      <TransactionButton
-                        className="btn-basic btn-danger"
-                        style={{ width: '100%' }}
-                        transactionKey={`cancel-request-${index}`}
-                        onAction={(transactionId, transactionKey) => handleCancelRequest(transactionId, transactionKey, index)}
-                      >
-                        Cancel Request
-                      </TransactionButton>
-                    </div>
-                  </div>
-                ) : null}
+                </div>
               </div>
             </React.Fragment>
           );

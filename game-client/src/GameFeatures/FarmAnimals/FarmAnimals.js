@@ -10,6 +10,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import soundManager from '../../Sound/SoundManager';
 import './AnimalPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
+import { countAnimalsOfType, scaledAnimalMoneyCost } from './animalPricing';
 
 const AnimalPanel = ({
   onClose,
@@ -112,22 +113,10 @@ const AnimalPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
-  // Count current farm animals on the grid for inflation calculation
-  const countFarmAnimals = () => {
-    const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-    if (!npcsInGrid) return 0;
-    return Object.values(npcsInGrid).filter(npc => npc.action === 'graze').length;
-  };
-
-  // Calculate scaled Money cost based on animal count (same formula as BuyPanel)
-  const getScaledMoneyCost = (baseCost, animalCount) => {
-    if (animalCount === 0) return baseCost;
-    const inflation = globalTuning?.farmAnimalInflation || 0.1;
-    const multiplier = Math.pow(1 + inflation, animalCount);
-    const scaledCost = baseCost * multiplier;
-    // Round up to nearest 50
-    return Math.ceil(scaledCost / 50) * 50;
-  };
+  // Animals of this type on the grid, for the refund (price inflation is per type: animalPricing.js)
+  const countFarmAnimals = () => countAnimalsOfType(NPCsInGridManager.getNPCsInGrid(gridId), stationType);
+  const getScaledMoneyCost = (baseCost, animalCount) =>
+    scaledAnimalMoneyCost(baseCost, animalCount, globalTuning?.farmAnimalInflation);
 
   // Calculate the refund amount for display in the button
   const getRefundAmount = () => {

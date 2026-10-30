@@ -160,7 +160,7 @@ import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } fro
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
-import { getDerivedRange } from './Utils/worldHelpers';
+import { getDerivedRange, nearestFootprintTile } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import { processRelocation } from './Utils/Relocation';
 import { fetchWorldMap } from './Utils/WorldMap';
@@ -2694,9 +2694,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       isProcessing = false;
       return;
   }
-  // If clicking a resource, check range before interacting (except NPCs, and skip on own homestead)
+  // If clicking a resource, check range before interacting (except NPCs, and skip on own homestead).
+  // A multi-tile resource is in range when ANY tile of it is: measure to its nearest tile.
   if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
-    const distance = calculateDistance(playerPos, targetPos);
+    const reachPos = (resource.size || 1) > 1 ? nearestFootprintTile(playerPos, resource) : targetPos;
+    const distance = calculateDistance(playerPos, reachPos);
     const playerRange = getDerivedRange(currentPlayer, masterResources);
     if (distance > playerRange) {
       FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
@@ -2705,7 +2707,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     }
     
     // Check for walls blocking line of sight
-    if (isWallBlocking(playerPos, targetPos)) {
+    if (isWallBlocking(playerPos, reachPos)) {
       FloatingTextManager.addFloatingText(40, targetPos.x, targetPos.y, activeTileSize); // string[40] for wall blocking
       console.log('Wall blocking interaction from player to resource');
       isProcessing = false;
@@ -3923,6 +3925,7 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
+          setBackpack={setBackpack}
           stationType={activeStation?.type} 
           // the Inventory panel opens this too: only a Warehouse clicked on this grid gets Move
           currentStationPosition={activeStation?.gridId === gridId ? activeStation?.position : null}

@@ -5,7 +5,7 @@ import Panel from '../../UI/Panels/Panel';
 import ProgressModal from '../../UI/Modals/ProgressModal';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
@@ -223,6 +223,9 @@ const FarmHandPanel = ({
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
+
+    // Room first, money second: a full Warehouse or Backpack says so and nothing is spent
+    if (!ensureRoomFor({ resource: resource.type, quantity: 1, currentPlayer, inventory: safeInventory, backpack: safeBackpack, masterResources, globalTuning, updateStatus })) return;
 
     const spent = await spendIngredients({
       playerId: currentPlayer.playerId,

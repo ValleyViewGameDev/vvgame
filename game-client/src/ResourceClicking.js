@@ -20,7 +20,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import { checkAndDropWarehouseIngredient } from './Utils/WarehouseMaterials';
 import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
-import { getDerivedRange } from './Utils/worldHelpers';
+import { getDerivedRange, nearestFootprintTile } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
 
 // FTUE Collect Wheat beat: how many Wheat, and the counter's storage key (survives a refresh)
@@ -70,7 +70,8 @@ const FTUE_WHEAT_COUNT_KEY = 'vv_ftue_wheat_count';
   // Check range before doing anything else (skip on own homestead)
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-  const resourcePos = { x: col, y: row };
+  // range is to the nearest tile of the resource's footprint (a building's closest wall)
+  const resourcePos = (resource.size || 1) > 1 && playerPos ? nearestFootprintTile(playerPos, resource) : { x: col, y: row };
 
   if (!isOnOwnHomestead && playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
     const distance = Math.sqrt(Math.pow(playerPos.x - resourcePos.x, 2) + Math.pow(playerPos.y - resourcePos.y, 2));

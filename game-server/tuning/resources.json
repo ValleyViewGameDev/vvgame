@@ -11108,7 +11108,7 @@
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
-    "qtycollected": 30,
+    "qtycollected": 40,
     "level": 8,
     "ingredient1": "Money",
     "ingredient1qty": 50,

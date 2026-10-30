@@ -152,6 +152,23 @@ export const hasRoomFor = ({
   return totalItems + quantity <= capacity;
 };
 
+/**
+ * Room first, payment second: call before spending on something that hands over an item at once
+ * (a shop, Audrey's goods, the Global Market, an instant gem craft). No room: the status bar says
+ * why (Warehouse full at home, else Backpack full or no Backpack) and it returns false, so the
+ * caller returns BEFORE spendIngredients and nothing is taken (owner 2026-10-30).
+ */
+export const ensureRoomFor = ({ resource, quantity, currentPlayer, inventory, backpack, masterResources, globalTuning, updateStatus }) => {
+  if (hasRoomFor({ resource, quantity, currentPlayer, inventory: inventory || [], backpack: backpack || [], masterResources, globalTuning })) return true;
+  if (currentPlayer?.location?.gtype === 'homestead') {
+    updateStatus?.(20); // Not enough room in the Warehouse
+  } else {
+    const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+    updateStatus?.(hasBackpackSkill ? 21 : 19); // Backpack full / no Backpack
+  }
+  return false;
+};
+
 
 export async function fetchInventoryAndBackpack(playerId) {
   if (!playerId) {

@@ -83,11 +83,11 @@
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
-    "rewardqty": 50,
-    "xp": 10,
+    "rewardqty": 25,
+    "xp": 5,
     "goal1action": "Collect",
     "goal1item": "Wood",
-    "goal1qty": 24,
+    "goal1qty": 48,
     "prereq": "Wood Master"
   },
   {

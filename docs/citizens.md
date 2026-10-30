@@ -1,5 +1,7 @@
 # Citizens: a living Town (Track 4)
 
+> **Socializing is PAUSED (owner 2026-10-29).** Citizens seeking each other out did not work well; `SOCIALIZING_PAUSED` in `NPCCitizenBehavior.js` makes the state read as length 0, so the loop is working → resting → roaming → eating → working and nobody is picked as a partner. The code and the §2.2 design are kept for a better design later; flip the switch to bring it back.
+
 Design for the Citizen kind of NPC (`resource.action` in `quest`, `trade`, `heal`, `worker`),
 Track 4 of docs/audits/combat-and-npc-review-2026-10-07.md. Written from the owner's
 direction of 2026-10-08; the **Open questions** at the end are what still needs agreeing

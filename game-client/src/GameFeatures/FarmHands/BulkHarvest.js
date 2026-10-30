@@ -570,6 +570,19 @@ export async function executeBulkHarvest({
 
     // Add warehouse ingredients to inventory if any were found
     if (warehouseDropsArray.length > 0) {
+      // Each gain starts from the holdings AFTER the previous one: gainIngredients sets local state
+      // to (the list it was given + its item), so handing every call the same post-harvest list
+      // kept only the LAST find locally (a Screwdriver shown in the results modal was missing from
+      // the Warehouse panel until a refresh; the server had it). owner 2026-10-30
+      let runningWarehouse = [...(response.data.inventory?.warehouse || [])];
+      let runningBackpack = [...(response.data.inventory?.backpack || [])];
+      const addTo = (list, type, qty) => {
+        const i = list.findIndex((item) => item.type === type);
+        return i >= 0
+          ? list.map((item, k) => (k === i ? { ...item, quantity: item.quantity + qty } : item))
+          : [...list, { type, quantity: qty }];
+      };
+      const atHome = currentPlayer?.location?.gtype === 'homestead';
       try {
         for (const drop of warehouseDropsArray) {
           const warehouseGained = await gainIngredients({
@@ -577,8 +590,8 @@ export async function executeBulkHarvest({
             currentPlayer,
             resource: drop.type,
             quantity: drop.quantity,
-            inventory: response.data.inventory?.warehouse || [],
-            backpack: response.data.inventory?.backpack || [],
+            inventory: runningWarehouse,
+            backpack: runningBackpack,
             setInventory,
             setBackpack,
             setCurrentPlayer,
@@ -587,7 +600,10 @@ export async function executeBulkHarvest({
             globalTuning,
           });
 
-          if (warehouseGained) {
+          // gainIngredients returns true, or a { success: false } object (truthy) on failure
+          if (warehouseGained === true) {
+            if (atHome) runningWarehouse = addTo(runningWarehouse, drop.type, drop.quantity);
+            else runningBackpack = addTo(runningBackpack, drop.type, drop.quantity);
             console.log(`✅ Added warehouse ingredient: ${drop.type} x${drop.quantity}`);
             
             // Track quest progress for warehouse ingredients

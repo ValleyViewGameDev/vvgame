@@ -6,7 +6,7 @@ import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { useStrings } from '../../UI/StringsContext';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
+import { canAfford, isCurrency, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 import soundManager from '../../Sound/SoundManager';
@@ -19,6 +19,7 @@ import { requestMove } from '../Move/moveMode';
 const WarehousePanel = ({
   onClose,
   setInventory,
+  setBackpack,
   currentPlayer,
   setCurrentPlayer,
   masterResources,
@@ -32,6 +33,8 @@ const WarehousePanel = ({
   const { openPanel } = usePanelContext();
   const strings = useStrings();
   const inventory = currentPlayer?.inventory || [];
+  // "Have" = Backpack + Warehouse, and spending takes the Backpack first (CLAUDE.md, one rule)
+  const backpack = currentPlayer?.backpack || [];
   const [currentLevel, setCurrentLevel] = useState(0);
   const [nextLevel, setNextLevel] = useState(null);
   const [needsLevelMigration, setNeedsLevelMigration] = useState(false);
@@ -77,10 +80,10 @@ const WarehousePanel = ({
 
       if (response.data.success) {
         // Update local state
-        setCurrentPlayer({
-          ...currentPlayer,
+        setCurrentPlayer(prev => ({
+          ...prev,
           warehouseLevel: level
-        });
+        }));
         setNeedsLevelMigration(false);
         console.log('Successfully migrated warehouse level to player document');
       }
@@ -119,7 +122,7 @@ const WarehousePanel = ({
     console.log('Warehouse upgrade - Ingredients array:', ingredients);
 
     // Check if player can afford (now handled by spendIngredients)
-    if (!customRecipe && !canAfford(nextLevel, inventory, null, 1)) {
+    if (!customRecipe && !canAfford(nextLevel, inventory, backpack, 1)) {
       updateStatus(16); // Cannot afford message
       return;
     }
@@ -130,9 +133,9 @@ const WarehousePanel = ({
         playerId: currentPlayer.playerId,
         recipe: recipeToUse,
         inventory,
-        backpack: [],
+        backpack,
         setInventory,
-        setBackpack: () => {}, // Not using backpack for warehouse upgrades
+        setBackpack: setBackpack || (() => {}),
         setCurrentPlayer,
         updateStatus,
       });
@@ -156,12 +159,13 @@ const WarehousePanel = ({
       });
 
       if (response.data.success) {
-        // Update local state
-        setCurrentPlayer({
-          ...currentPlayer,
+        // Update local state (from prev: the closure's currentPlayer predates the spend above, and
+        // spreading it put the spent materials back on screen)
+        setCurrentPlayer(prev => ({
+          ...prev,
           warehouseCapacity: newCapacity,
           warehouseLevel: newLevel
-        });
+        }));
 
         soundManager.playSFX('upgrade');
         updateStatus(`${strings[197] || "Warehouse upgraded"}`);
@@ -242,8 +246,7 @@ const WarehousePanel = ({
                     const qty = nextLevel[`ingredient${i}qty`];
                     if (!type || !qty) continue;
                     
-                    const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                    const playerQty = inventoryQty;
+                    const playerQty = getPlayerQuantity(type, inventory, backpack); // Backpack + Warehouse
                     const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                     const symbol = masterResources.find(r => r.type === type)?.symbol || '';
                     ingredients.push(`<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
@@ -251,13 +254,13 @@ const WarehousePanel = ({
                   return `${strings[461] || "Requires:"}<div>${ingredients.join('')}</div>`;
                 })()}
                 info={`+${nextLevel.add} ${strings[2021] || "capacity"}`}
-                disabled={!canAfford(nextLevel, inventory, null, 1)}
+                disabled={!canAfford(nextLevel, inventory, backpack, 1)}
                 onClick={() => handleUpgrade()}
                 // Don't pass gemCost prop - instead ensure resource has gemcost property
-                onGemPurchase={!canAfford(nextLevel, inventory, null, 1) ? handleGemPurchase : null}
+                onGemPurchase={!canAfford(nextLevel, inventory, backpack, 1) ? handleGemPurchase : null}
                 resource={{...nextLevel, gemcost: 1}} // Add gemcost property to enable gem button
                 inventory={inventory}
-                backpack={[]}
+                backpack={backpack}
                 masterResources={masterResources}
                 currentPlayer={currentPlayer}
               />

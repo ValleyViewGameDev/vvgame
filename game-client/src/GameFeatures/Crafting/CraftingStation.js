@@ -16,7 +16,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { confirmGemSpend } from '../../UI/Modals/GemSpendConfirm';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
 import soundManager from '../../Sound/SoundManager';
@@ -626,6 +626,10 @@ const CraftingStation = ({
     console.log('🔍 [GEM DEBUG] handleGemPurchase called with:', modifiedRecipe);
     
     // This is called by the gem button with a recipe modified to include gems
+    // Room first, payment second: the item lands at once, so a full Warehouse or Backpack says so
+    // and no Gems or ingredients are taken
+    if (allResources.some((res) => res.type === modifiedRecipe.type)
+      && !ensureRoomFor({ resource: modifiedRecipe.type, quantity: 1, currentPlayer, inventory, backpack, masterResources, globalTuning, updateStatus })) return;
     // First spend the ingredients (including gems)
     const spendSuccess = await spendIngredients({
       playerId: currentPlayer.playerId,

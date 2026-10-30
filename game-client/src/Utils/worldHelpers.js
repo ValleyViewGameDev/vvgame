@@ -62,6 +62,22 @@ export const addResourceToGrid = async (resources, newResource) => {
 
 
 // Inline function to calculate Euclidean distance safely
+/**
+ * The tile of a resource's footprint nearest to `pos`. Multi-tile resources are anchored at the
+ * lower-left (x .. x+size-1, y-size+1 .. y), so range and line of sight measure to the closest
+ * part of a building, not to its anchor (owner 2026-10-29: a Bank 2 tiles away read as out of
+ * range because its anchor corner was 5 away). A 1 x 1 resource returns its own tile.
+ */
+export const nearestFootprintTile = (pos, resource) => {
+  const size = resource?.size || 1;
+  if (!pos || !resource || size <= 1) return resource ? { x: resource.x, y: resource.y } : null;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  return {
+    x: clamp(Math.round(pos.x), resource.x, resource.x + size - 1),
+    y: clamp(Math.round(pos.y), resource.y - size + 1, resource.y),
+  };
+};
+
 export const calculateDistance = (pos1, pos2) => {
   if (!pos1 || !pos2 || typeof pos1.x === 'undefined' || typeof pos1.y === 'undefined' || typeof pos2.x === 'undefined' || typeof pos2.y === 'undefined') {
     console.warn("Skipping distance calculation due to invalid position:", { pos1, pos2 });

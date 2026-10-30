@@ -323,3 +323,116 @@
 
 /* Remove clickable slot states - using shared button classes instead */
 
+
+/* SELL TAB: two cards per row (owner 2026-10-30). Each card fills its column; text steps down one
+   size and wraps inside the card in every state (empty, waiting, ready, bought, locked); a row's
+   two cards share one height. */
+.trade-stall-slots--grid {
+  --trade-card-h: 132px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+.trade-stall-slots--grid .trade-slot-container {
+  width: auto;
+  min-width: 0;
+  align-items: stretch;
+}
+.trade-stall-slots--grid .shared-buttons .trade-slot,
+.shared-buttons.trade-stall-slots--grid .trade-slot,
+.shared-buttons.trade-stall-slots--grid .trade-slot.btn-basic,
+.shared-buttons.trade-stall-slots--grid .trade-slot.btn-success,
+.shared-buttons.trade-stall-slots--grid .trade-slot.btn-sell,
+.shared-buttons.trade-stall-slots--grid .trade-slot.btn-collect,
+.shared-buttons.trade-stall-slots--grid .trade-slot.filled:not(.btn-sell):not(.btn-collect) {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  /* ONE fixed size for every state, locked or not (owner 2026-10-30): the tallest content (a
+     locked card with its two-line unlock CTA, a bought card) fits; nothing grows a row */
+  height: var(--trade-card-h);
+  min-height: var(--trade-card-h);
+  overflow: hidden;
+  padding: 8px 4px;
+  font-size: var(--text-md);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.trade-stall-slots--grid .trade-slot-content,
+.trade-stall-slots--grid .trade-slot-empty-text,
+.trade-stall-slots--grid .trade-slot-locked {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.trade-stall-slots--grid .trade-slot-item-name {
+  font-size: var(--text-md);
+  font-weight: bold;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.trade-stall-slots--grid .trade-slot-status {
+  font-size: var(--text-sm);
+  line-height: 1.25;
+}
+.trade-stall-slots--grid .trade-slot-lock-icon {
+  margin-bottom: 0;
+}
+/* A locked card is its own unlock button: the whole card is tappable and ends in the CTA */
+.trade-stall-slots--grid .trade-slot.locked {
+  cursor: pointer;
+}
+.trade-slot-unlock-cta {
+  margin-top: 6px;
+  width: 100%;
+  padding: 4px 2px;
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-btn-primary);
+  color: var(--color-btn-primary-text);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: bold;
+  line-height: 1.2;
+}
+.trade-slot-unlock-cta span { display: block; color: inherit; }
+.trade-slot-unlock-cost { white-space: nowrap; }
+.trade-slot-locked .trade-slot-unlock-cta {
+  color: var(--color-btn-primary-text); /* beats .trade-slot-locked div */
+}
+@media (hover: hover) {
+  .trade-stall-slots--grid .trade-slot.locked:hover .trade-slot-unlock-cta { background-color: var(--color-btn-primary-hover); }
+}
+
+/* The card's motion wrapper (runCardReturn: .card-fx-pop / -leave / -slidein, UI/SaleBurst.css):
+   only this card moves when it is sold, collected or cancelled; the burst sits beside it in the
+   .card-fx-slot container so it is not scaled away with the card */
+.trade-stall-slots--grid .trade-slot-motion {
+  width: 100%;
+  height: var(--trade-card-h);
+}
+.trade-stall-slots--grid .trade-slot.locked {
+  min-height: var(--trade-card-h);
+}
+
+/* A request card's own Cancel line: only this line cancels, the card itself does not */
+.shared-buttons .trade-slot .trade-slot-cancel-cta {
+  margin-top: 6px;
+  width: 100%;
+  padding: 4px 2px;
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-btn-danger);
+  color: var(--color-text-negative);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.shared-buttons .trade-slot .trade-slot-cancel-cta.processing { opacity: 0.6; cursor: default; }

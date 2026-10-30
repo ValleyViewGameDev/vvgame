@@ -81,6 +81,7 @@
   "kentCardCooldownSeconds": 30,
   "askSizing": {
     "exponent": 0.4,
+    "exponentSlow": 0.55,
     "spread": 0.25,
     "kent": [
       {"maxLevel": 2, "qtyAt1Min": 3, "min": 1, "max": 3},

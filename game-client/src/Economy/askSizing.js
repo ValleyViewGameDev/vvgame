@@ -6,14 +6,18 @@
 // production time: quick goods come in dozens, slow ones in a handful.
 //
 //   center   = qtyAt1Min(level) x effort ^ -exponent     (exponent 0.4: Hay Day's crate curve)
+//              for a good over one minute per unit the curve is steeper: effort ^ -exponentSlow
+//              (0.55, owner 2026-10-30), so slow goods come down in number while the crops,
+//              all under a minute, keep 0.4; at one minute the two agree, so the curve is continuous
 //   quantity = round(center x scale x random(1 - spread .. 1 + spread)), clamped to [min, max]
 //
 // The tables live in globalTuning.json `askSizing` (the globalTuning sheet in the editor):
-//   { exponent, spread, kent: [{ maxLevel, qtyAt1Min, min, max }], train: [...],
+//   { exponent, exponentSlow, spread, kent: [{ maxLevel, qtyAt1Min, min, max }], train: [...],
 //     trainBandScale: { basic, easy, aspirational } }
 
 const FALLBACK = {
     exponent: 0.4,
+    exponentSlow: 0.4,
     spread: 0.25,
     kent: [{ maxLevel: 999, qtyAt1Min: 10, min: 1, max: 20 }],
     train: [{ maxLevel: 999, qtyAt1Min: 40, min: 2, max: 40 }],
@@ -39,7 +43,8 @@ export function getAskCenter(resource, playerLevel, globalTuning, kind = 'kent',
     const config = sizingConfig(globalTuning);
     const row = levelRow(config[kind] || FALLBACK[kind], playerLevel);
     const effort = Math.max(MIN_EFFORT, Number(resource?.effort) || DEFAULT_EFFORT);
-    const center = row.qtyAt1Min * Math.pow(effort, -config.exponent) * scale;
+    const exponent = effort > 1 ? (config.exponentSlow ?? config.exponent) : config.exponent;
+    const center = row.qtyAt1Min * Math.pow(effort, -exponent) * scale;
     return Math.min(row.max, Math.max(row.min, center));
 }
 

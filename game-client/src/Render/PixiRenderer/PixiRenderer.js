@@ -5,7 +5,7 @@ import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtil
 import { generateResourceTooltip, generateNPCTooltip } from '../RenderDynamicElements';
 import { canHover } from '../../Utils/inputMode';
 import { calculateTooltipPosition } from '../../Utils/TooltipUtils';
-import { getDerivedRange } from '../../Utils/worldHelpers';
+import { getDerivedRange, nearestFootprintTile } from '../../Utils/worldHelpers';
 import PixiRendererVFX from './PixiRendererVFX';
 import PixiRendererTileFX from './PixiRendererTileFX';
 import PixiRendererStepStones from './PixiRendererStepStones';
@@ -1208,6 +1208,10 @@ const PixiRenderer = ({
           // Set initial position
           displayObj.x = targetPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = targetPos.y * TILE_SIZE + TILE_SIZE / 2;
+          // y-sorted from its first frame: a new sprite used to keep zIndex 0 (behind every resource)
+          // until the NPC next moved, so a worker whose sprite was rebuilt while resting on its slot
+          // drew behind the haybale (owner 2026-10-30)
+          displayObj.zIndex = targetPos.y + 0.5;
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) }; // CombatFX restores to this
         } else {
           // Update existing display object
@@ -1553,6 +1557,11 @@ const PixiRenderer = ({
       return d > getDerivedRange(currentPlayer, masterResources);
     };
     const walk = () => { if (onWalkTo) onWalkTo(row, col); };
+    // a resource is in range when its NEAREST tile is (a building's closest wall, not its anchor
+    // corner); too far, walk toward that tile (walkTo stops beside a blocked goal)
+    const nearestOf = (r) => (playerPos ? nearestFootprintTile(playerPos, r) : { x: r.x, y: r.y });
+    const resourceOutOfRange = (r) => { const t = nearestOf(r); return outOfRange(t.x, t.y); };
+    const walkToward = (r) => { const t = nearestOf(r); if (onWalkTo) onWalkTo(t.y, t.x); };
 
     // At frontier zoom during relocation, clicking on the current settlement should
     // trigger a grid-level click (same as other settlements)
@@ -1633,7 +1642,7 @@ const PixiRenderer = ({
     // the tile north of it; cursor placement stays on tiles (artHitTest.js)
     const artHit = !cursorMode && findArtAt(resourceSpritesRef.current, appRef.current?.renderer, event.clientX - rect.left, event.clientY - rect.top);
     if (artHit) {
-      if (outOfRange(artHit.x, artHit.y)) { if (onWalkTo) onWalkTo(artHit.y, artHit.x); return; }
+      if (resourceOutOfRange(artHit)) { walkToward(artHit); return; }
       if (handleTileClick) handleTileClick(artHit.y, artHit.x);
       return;
     }
@@ -1649,7 +1658,7 @@ const PixiRenderer = ({
       });
       if (resource) {
         // Something to interact with, but too far: walk next to it (tap again once there)
-        if (outOfRange(resource.x, resource.y)) { walk(); return; }
+        if (resourceOutOfRange(resource)) { walkToward(resource); return; }
       } else {
         // Empty tile: walk there, unless the tile has its own click meaning
         const tileType = tileTypes?.[row]?.[col];

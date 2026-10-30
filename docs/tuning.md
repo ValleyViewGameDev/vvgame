@@ -248,6 +248,13 @@ Train halved anything over $2,000. Now every ask is sized by how much production
   5, Lumber Yard 8, Studio 4, Beverage Station 3, Winery 1. Fallbacks where too few own one:
   every crop plot 18 (plots are interchangeable, so one value; the per-crop medians were 16 to
   20), other trees 15, other animals 4, other stations 1. Re-measure as the player base grows.
+  **Cow 2 and Dairy 2 (owner, 2026-10-30):** the measured 11 and 5 came from the oldest homesteads
+  (Oberon, moehong), so the Milk chain was sized for an elder and Kent asked an L8 to L10 player,
+  with one to three cows and one Dairy, for 10 to 16 Milk and 9 Butter. `parallel` is a sizing
+  choice, not only a census: size a chain for the player who meets it first. Efforts recomputed
+  with `node tools/derive-economy.js --write` (Milk 1.09 -> 3, Butter 4.2 -> 11, Cheese 6.8 -> 18,
+  Cream 15 -> 23, and the goods made from them). Other producers keep their measured counts; the
+  Mill (6) is the next candidate if Flour asks feel heavy.
 - **Check:** effort ranks goods in nearly the same order as `maxprice` (Spearman 0.80 over the
   118 sellable goods; the old `totalnestedtime` 0.78, a good's own `crafttime` 0.08). The goods
   that disagree most are price problems, not effort problems: the coffee chain (Coffee Latte
@@ -258,6 +265,11 @@ Train halved anything over $2,000. Now every ask is sized by how much production
   multiplies a Train band. `exponent` 0.4 is Hay Day's boat-crate curve (below): ten times the
   effort asks for about 2.5 times fewer units, so slow goods come in a handful and quick ones in
   dozens, but a slow-good ask is still the bigger job.
+- **`exponentSlow`** (owner, 2026-10-30): a good over one minute of effort per unit uses
+  `effort ^ -exponentSlow` (0.55) instead of 0.4, so slow goods come down in number while every
+  crop (all under a minute) keeps its ask; at one minute the two curves meet. Together with the
+  Cow / Dairy `parallel` change, L9 asks went from about 16 Milk / 9 Butter to 7 / 3.5. The
+  Train's orders use the same sizing and shrink the same way.
 - **Kent's level table** (2026-10-28, owner: L9 asks felt heavy, e.g. 16 Milk + 4 Cornmeal): the base
   `qtyAt1Min` now ramps instead of jumping 10 to 16 at L9 and 16 to 30 at L11. Bands (qtyAt1Min,
   min, max): L1-2 3/1/3, L3-5 5/1/8, L6 7/2/10, L7 8/2/12, L8 10/3/15, **L9 13/3/24, L10 16/3/30,
