@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import PixiCamera from './PixiCamera';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from '../../GameFeatures/FTUE/DoinkerArrow';
 import { resolveFtueDirtTile, nearestResourceOfType } from '../../GameFeatures/FTUE/findBoardTarget';
+import { revealTileBesidePanels } from '../../PlayerMovement';
 import '../../GameFeatures/FTUE/FTUE.css';
 
 /**
@@ -138,13 +139,29 @@ const PixiRendererDoinker = ({
   return <BoardArrows targets={targetPositions} TILE_SIZE={TILE_SIZE} />;
 };
 
+// While a Scrim Moment is up the player cannot pan or walk (FTUEScrim locks input), so an
+// off-screen target would strand them: re-check this often and bring it back.
+const SCRIM_RECHECK_MS = 1000;
+
 function BoardArrows({ targets, TILE_SIZE }) {
   const [arrows, setArrows] = useState([]);
+  const revealedAt = useRef(new Map()); // targetName -> last reveal check (ms)
   useEffect(() => {
     if (!targets.length) { setArrows([]); return undefined; }
     const place = () => {
       const host = PixiCamera.isAttached() && document.querySelector('.homestead')?.getBoundingClientRect();
       if (!host) { setArrows([]); return; }
+      // The thing the arrow points at must be on screen (a phone shows a small slice of the
+      // grid): ease the camera to the first target when it appears, and keep it there while
+      // a scrim is up. Afterwards the player may pan away freely.
+      const first = targets[0];
+      const now = performance.now();
+      const last = revealedAt.current.get(first.targetName);
+      const scrim = document.body.classList.contains('ftue-scrim-active');
+      if (last === undefined || (scrim && now - last > SCRIM_RECHECK_MS)) {
+        revealedAt.current.set(first.targetName, now);
+        revealTileBesidePanels(first.x, first.y, first.size);
+      }
       const z = PixiCamera.getZoom();
       const next = targets.map((t) => {
         const centerOffset = (t.size - 1) / 2;

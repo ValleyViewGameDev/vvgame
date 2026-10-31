@@ -1015,6 +1015,13 @@ const [showFTUE, setShowFTUE] = useState(false);
 const [doinkerTargets, setDoinkerTargets] = useState(null); // Resource type string or array of strings to point doinkers at
 const [doinkerType, setDoinkerType] = useState('resource'); // Type of doinker: 'resource' or 'button'
 const [scrimTarget, setScrimTarget] = useState(null); // FTUE Scrim Moment: the one board thing that stays live
+// Dev hook: point a doinker (and optionally a scrim) without walking an account through the FTUE,
+// e.g. __ftueDoink('Wheat', 'resource', true); __ftueDoink(null) clears it.
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+  window.__ftueDoink = (target, type = 'resource', scrim = false) => {
+    setDoinkerTargets(target); setDoinkerType(type); setScrimTarget(scrim && target ? target : null);
+  };
+}
 const lastCutsceneStep = useRef(null);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight

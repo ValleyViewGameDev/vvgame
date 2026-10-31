@@ -608,27 +608,49 @@ export function centerCameraOnPlayer(position, TILE_SIZE, zoomScale, retryCount,
 }
 
 /**
- * The board minus whatever panel or chat is covering its left side (phones), as a
- * region in host px; then PixiCamera.revealPlayerIn. On desktop panels sit beside the board,
- * so the region is the whole board and this only recentres a panned-away view.
+ * The part of the board nothing covers, as a region in host px: the board minus a panel or
+ * the chat docked over its left side (phones), the floating nav pill (bottom in portrait,
+ * left in landscape) and a notification dropped over its top. On desktop panels sit beside
+ * the board, so the region is the whole board. A cover taller than wide trims the side it
+ * sits on; any other cover trims the top or bottom half it sits in.
  */
-export function revealPlayerBesidePanels() {
+export function visibleBoardRegion() {
   const host = document.querySelector('.pixi-container');
-  if (!host) return false;
+  if (!host) return null;
   const h = host.getBoundingClientRect();
   const region = { left: 0, top: 0, right: h.width, bottom: h.height };
-  const covers = document.querySelectorAll('.panel-container, .chat-panel-slideout');
+  const covers = document.querySelectorAll('.panel-container, .chat-panel-slideout, .nav-column, #notification-container > *');
   covers.forEach((el) => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return;
     const overlapX = Math.min(r.right, h.right) - Math.max(r.left, h.left);
     const overlapY = Math.min(r.bottom, h.bottom) - Math.max(r.top, h.top);
     if (overlapX <= 0 || overlapY <= 0) return; // beside the board (desktop)
-    // Panels dock at the left: the clear region starts at the panel's right edge
-    region.left = Math.max(region.left, r.right - h.left);
+    if (r.height > r.width) {
+      if (r.left + r.width / 2 < h.left + h.width / 2) region.left = Math.max(region.left, r.right - h.left);
+      else region.right = Math.min(region.right, r.left - h.left);
+    } else if (r.top + r.height / 2 < h.top + h.height / 2) region.top = Math.max(region.top, r.bottom - h.top);
+    else region.bottom = Math.min(region.bottom, r.top - h.top);
   });
-  if (region.right - region.left < 80) { region.left = 0; } // no room beside it: use the whole board
-  return PixiCamera.revealPlayerIn(region);
+  // no room left: use the whole board
+  if (region.right - region.left < 80) { region.left = 0; region.right = h.width; }
+  if (region.bottom - region.top < 80) { region.top = 0; region.bottom = h.height; }
+  return region;
+}
+
+/** PixiCamera.revealPlayerIn over visibleBoardRegion(). */
+export function revealPlayerBesidePanels() {
+  const region = visibleBoardRegion();
+  return region ? PixiCamera.revealPlayerIn(region) : false;
+}
+
+/** Ease the camera so tile (x, y) of a `size`-tile footprint is in visibleBoardRegion(). */
+export function revealTileBesidePanels(x, y, size = 1) {
+  const region = visibleBoardRegion();
+  if (!region) return false;
+  const tile = PixiCamera.getTileSize();
+  const centerOffset = (size - 1) / 2;
+  return PixiCamera.revealPointIn((x + centerOffset + 0.5) * tile, (y - centerOffset + 0.5) * tile, region);
 }
 
 export async function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null, updateStatus = null, strings = null, TILE_SIZE = null) {

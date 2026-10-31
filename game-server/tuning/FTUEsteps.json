@@ -90,6 +90,7 @@
   {
     "step": 9,
     "trigger": "ClickedKent",
+    "dismissNotification": true,
     "showModal": false,
     "doinker": true,
     "doinkerType": "button",

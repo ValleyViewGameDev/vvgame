@@ -201,6 +201,29 @@ export function revealPlayerIn(region, margin = 28) {
   return true;
 }
 
+/**
+ * Make sure world point (worldX, worldY) (base px, current grid at the origin) is visible inside
+ * `region` (host px), easing the pan so it sits at the region's centre when it is not. Used by
+ * the FTUE doinker so the thing the arrow points at is on screen (phones show a small slice of
+ * the grid). The point's screen position is centre + pan + (world - player) * zoom.
+ */
+export function revealPointIn(worldX, worldY, region, margin = 40) {
+  if (!worldContainer) return false;
+  const cx = viewport.width / 2, cy = viewport.height / 2;
+  const sx = cx + pan.x + (worldX - playerTile.x * tileSize) * zoom;
+  const sy = cy + pan.y + (worldY - playerTile.y * tileSize) * zoom;
+  const inside = sx >= region.left + margin && sx <= region.right - margin
+              && sy >= region.top + margin && sy <= region.bottom - margin;
+  if (inside) return false;
+  const targetX = (region.left + region.right) / 2;
+  const targetY = (region.top + region.bottom) / 2;
+  animatePanTo({
+    x: targetX - cx + (playerTile.x * tileSize - worldX) * zoom,
+    y: targetY - cy + (playerTile.y * tileSize - worldY) * zoom,
+  });
+  return true;
+}
+
 export function follow(x, y) {
   if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
   // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
@@ -314,7 +337,7 @@ export function screenToTile(screenX, screenY) {
 }
 
 const PixiCamera = {
-  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, revealPlayerIn, setPanBounds, setZoom, animateZoom,
+  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, revealPlayerIn, revealPointIn, setPanBounds, setZoom, animateZoom,
   getZoom, getPan, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
   debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),
