@@ -50,26 +50,22 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   button), and tapping an uncollected one opens a small "Hint:" modal with a riddle (strings
   200803-200817; EN, DE, ES, FR; the partly translated languages fall back to English). The
   "more motivations to explore" half is still open. Not yet checked in the live game.
-- **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). An ongoing
-  process: a template for every valley0-3 grid, built in passes (geography everywhere first,
-  then tiles / resources / enemies, then sets, mini-towns and regions), following
-  `docs/SoE - GRID DESIGN.xlsx` only where no manual template exists (existing work always
-  wins). Design doc and log: `docs/making-original-grids.md`; scripts in `tools/gridgen/`.
-  Eight phases (doc §1). Done 2026-10-09: the six Haunted River grids (1015166, 1015167,
-  1015176, 1015177, 1015260, 1015270) and **phase 1, the base build** (all 1,915 valley grids
-  that had no template), with iterations on the Haunted River, Hell's Mouth, Demon Horn Lake
-  and Star Lake. Phase 2 (mountain ranges) in progress: Prospero's Range (the C), the King's
-  Circle north bank range (slate, hugging the river), The Swoop (a C on grass), and mountain
-  seams closed across grid edges everywhere (a seam only as wide as its range). Ground passes
-  (2026-10-09/10): organic slate edges across the south-east (`slate_blend.mjs`); lava islands
-  of dirt and stone and the lava run down to the river's north bank in 1015435-1015530
-  (`lava_rules.mjs`); the big dirt region between the Haunted River and the King's Circle in
-  settlement 5_2, with soft grass patches, coyotes, and slate through the King's Circle gap
-  (`ground_regions.mjs`, owner grids painted on request); the oasis sand from 1012562 east
-  dropped (`feature_overrides.json`) and a sand beach on the King's Circle's east bank from 1013522
-  to 1013554 instead (2026-10-12). Phase 6 (river and lake banks) done 2026-10-12 (`banks.mjs`:
-  dirt banks 1-3 tiles, slate near slate, the owner's banks, sand, lava and towns left alone).
-  Phases 3-5, 7, 8 not started.
+- **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). Every valley0-3
+  grid now has a template (phase 1, 2026-10-09: the 1,915 that had none). Design doc, phases
+  and log: `docs/making-original-grids.md` (§1 phases, §11 log); scripts in `tools/gridgen/`.
+  Done: phase 1 (base build), phase 2 mountain ranges (Prospero's Range, the King's Circle north
+  bank, The Swoop, the north-south range down column 29 with its pass, seams closed across grid
+  edges), phase 6 river and lake banks (2026-10-12), plus the ground passes (slate edges, lava
+  islands, the settlement 5_2 dirt, the King's Circle sand beach). **Remaining:**
+  - Phase 3, towns and scenarios (mini-towns, sets, the spreadsheet's emoji anchors): only the
+    Haunted River's Drowned Scriptorium and ferry landing exist. This is the same work as W-3
+    and W-6 (making the grids interesting and Regions matter), so do it under those.
+  - Phase 4, roads: a valley-wide pass. Started 2026-10-14 (`roads.py`, `data/roads.json`):
+    the Town's south road, the hamlet road through the column-29 pass, a T off the river road in
+    1012205. Re-run `roads.py --apply` after any `phase1_build.mjs` rebuild.
+  - Phase 5, trees: smooth out repeating tree patterns (doc §8a).
+  - Phase 7, enemy balance across the valley (by ring and level).
+  - Phase 8, final polish.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
 - **W-13. A new character with his hut on Hell's Mouth's peninsula** (added 2026-10-09). The
@@ -82,10 +78,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   sides, Pine Trees blocking the entrance that the player cuts through. Owner to hand-edit them,
   then place one immediately next to each town, so every new player faces a small combat
   scenario on first reaching the valley.
-- **W-15. Redo the Town template, then make E, S and W variations** (added 2026-10-17). First
-  re-do the current Town template; then make three variations of it for the E, S and W towns,
-  each with its entrance facing the valley (`game-server/layouts/gridLayouts/town/`, today
-  townN / townE / townS / townW).
 - **W-17. Re-do the dungeon templates for the new stone walls** (added 2026-10-21). The stone
   wall rendering has changed: walls and fences now join up (`wallSet` on the resource row,
   post + spokes + runs composed from the N/E/S/W mask by `PixiRendererWalls.js`, no diagonals;
@@ -130,10 +122,6 @@ Added 2026-10-10.
 `docs/tuning.md`). Combat tuning stays in Track 5 of the NPC / Combat epic. Tasks are numbered
 T-n (append-only).
 
-- **T-2. Sort out the gem cost function** (added 2026-10-14). For some items the gem cost to buy
-  or finish with gems is astronomical. Find which items and why, and fix the function. Start at
-  `game-client/src/Economy/GemCosts.js` (`calculateGemPurchase`, used by ResourceButton's gem
-  button) and each resource's `gemcost` in `game-server/tuning/resources.json`.
 - **T-4. The Tailor skill costs 100 Potion C** (added 2026-10-16; the rest of the Ink pass was
   done the same day: the Book is now Money + Thread + Cloth, the Library is built from Wood, Stone
   and Thread, Runic Tunic moved to L17, Ghosts drop a Book, and the Long Sword / Flurry quests

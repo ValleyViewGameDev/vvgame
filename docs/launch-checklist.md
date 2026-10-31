@@ -19,7 +19,7 @@ here; detail lives in the linked docs and backlog items.
   the primary action with a reason, and test the real ad-click path on the newest iOS.
 - [ ] **Full playthrough to ~L15 on a phone, FTUE timed.** OB-3, OB-6 and OB-10 are built but not
   played. House saw quits rise past a ~12 minute FTUE.
-- [ ] **Finalize the town layout and upgrade its art.** The town is the first shared place a new
+- [x] **Finalize the town layout and upgrade its art.** Done (owner, 2026-10-31; W-15). The town is the first shared place a new
   player sees; art pipeline: `docs/art-pipeline-plan.md`, `docs/art/buildings-bible.md`.
 - [ ] **Avatar creation / selection.** Plan: `docs/avatar-plan.md` (rig, catalogue, compositor and
   the developer-only Edit Avatar modal exist; the board does not draw it and players cannot
@@ -35,7 +35,7 @@ here; detail lives in the linked docs and backlog items.
   buy; never `signin=1` on acquisition links. Judge channels on played-D7, not clicks.
 - [ ] **Spend log.** Record spend, impressions and landing-page views per campaign; House could
   not compute cost per retained player without it.
-- [ ] **Render plan: no cold starts.** Confirm the server is on an always-on tier.
+- [x] **Render plan: no cold starts.** Done (owner, 2026-10-31): the server is on an always-on tier.
 
 ## Should do
 
