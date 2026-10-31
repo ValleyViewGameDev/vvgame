@@ -1160,6 +1160,10 @@ const handleNPCPanel = (npc) => {
   if (npc.type === 'Kent' && currentPlayer?.firsttimeuser) {
     tryAdvanceFTUEByTrigger('ClickedKent', currentPlayer._id, currentPlayer, setCurrentPlayer);
   }
+  // FTUE trigger: opening The Shepherd's panel moves the scrim onto the quest reward button
+  if (npc.type === 'The Shepherd' && currentPlayer?.firsttimeuser) {
+    tryAdvanceFTUEByTrigger('ClickedShepherd', currentPlayer._id, currentPlayer, setCurrentPlayer);
+  }
 
   switch (npc.action) {
     case 'quest':
@@ -2356,7 +2360,7 @@ useEffect(() => {
 }, [isDeveloper, currentPlayer?.playerId, currentPlayer?.language]);
 
 // The once-only email ask (docs/onboarding-plan.md §4.5): right after the FTUE feedback modal
-// (FTUE.js FTUE_FEEDBACK_DONE_EVENT, which itself follows the first sale's level-up), or, in an
+// (FTUE.js FTUE_FEEDBACK_DONE_EVENT, which itself follows The Shepherd's first quest reward and its level-up), or, in an
 // in-app browser where the session rarely survives, right after the Home Deed is signed. Shown
 // once per profile (email_prompt_seen_at), never to an unnamed or already-emailed player.
 useEffect(() => {

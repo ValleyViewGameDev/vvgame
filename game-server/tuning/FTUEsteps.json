@@ -105,7 +105,6 @@
     "step": 10,
     "trigger": "SoldToKent",
     "showModal": false,
-    "showFeedbackModalAfter": true,
     "continue": false,
     "notificationKey": 7054,
     "notificationSprite": "/assets/icons/icon-farming.svg",
@@ -159,11 +158,31 @@
     "doinkerTarget": "The Shepherd",
     "notificationKey": 7062,
     "addQuests": [],
-    "notificationSprite": "npc-shepherd.svg"
+    "notificationSprite": "npc-shepherd.svg",
+    "scrim": true
   },
   {
     "step": 14,
+    "trigger": "ClickedShepherd",
+    "showModal": false,
+    "continue": false,
+    "dismissNotification": true,
+    "doinker": true,
+    "doinkerType": "button",
+    "doinkerTarget": ".quest-card.reward .quest-giver-button",
+    "scrim": true,
+    "scrimTarget": {
+      "selector": ".quest-card.reward .quest-giver-button"
+    },
+    "addQuests": []
+  },
+  {
+    "step": 15,
     "trigger": "CollectedQuest",
+    "showModal": false,
+    "closePanels": true,
+    "showFeedbackModalAfter": true,
+    "continue": false,
     "addQuests": [
       7
     ],
@@ -175,7 +194,7 @@
     "doinkerTarget": "Signpost Town"
   },
   {
-    "step": 15,
+    "step": 16,
     "trigger": "FirstTownVisit",
     "doinker": true,
     "doinkerType": "resource",
@@ -185,7 +204,7 @@
     "addQuests": []
   },
   {
-    "step": 16,
+    "step": 17,
     "trigger": "AcquiredTownKey",
     "doinker": true,
     "doinkerType": "resource",
@@ -200,7 +219,7 @@
     }
   },
   {
-    "step": 17,
+    "step": 18,
     "trigger": "ClickedAgricultureCenter",
     "showModal": false,
     "doinker": true,
@@ -209,7 +228,7 @@
     "addQuests": []
   },
   {
-    "step": 18,
+    "step": 19,
     "trigger": "AcquiredGrower",
     "showModal": true,
     "modalSprite": "npc-elbow.svg",
@@ -223,7 +242,7 @@
     "addQuests": []
   },
   {
-    "step": 19,
+    "step": 20,
     "trigger": "OpenedQuestPanel",
     "showModal": false,
     "doinker": true,
@@ -234,7 +253,7 @@
     "addQuests": []
   },
   {
-    "step": 20,
+    "step": 21,
     "trigger": "HomesteadVisit",
     "showModal": false,
     "continue": false,
