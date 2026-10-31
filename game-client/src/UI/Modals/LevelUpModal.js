@@ -95,11 +95,11 @@ const LevelUpModal = ({
       <div className="modal-container modal-narrow level-up-modal">
         <CloseButton corner onClick={handleClose} />
 
-        <div className="modal-title">⬆️ {strings[811] || 'Level Up!'}</div>
+        <div className="modal-title">{strings[811] || 'Level Up'}</div>
 
         <div className="modal-content">
           <div className="level-up-message">
-            {(strings[812] || "Congratulations! You've reached level {level}!").replace('{level}', currentLevel)}
+            {(strings[812] || "You've reached level {level}!").replace('{level}', currentLevel)}
           </div>
 
           {unlockedResources.length > 0 && (
