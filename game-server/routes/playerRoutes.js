@@ -11,7 +11,7 @@ const { hopeArtifacts } = require('../utils/hopeArtifacts');
 const { maybeSendReturnGift } = require('../utils/returnGift');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, isReservedUsername } = require('../utils/usernames');
-const { isDeveloperPlayerId } = require('../utils/serviceMode');
+const { isDeveloperPlayerId, forgetDeveloperStatus } = require('../utils/serviceMode');
 const { derivedStats, magicSlotCount, magicSlotBase } = require('../utils/combatStats');
 const globalTuning = require('../tuning/globalTuning.json');
 const { requireDeveloper } = require('../utils/developerHelpers');
@@ -401,7 +401,10 @@ router.post('/update-profile', async (req, res) => {
       const problem = validateUsername(updates.username);
       if (problem) return res.status(400).json({ error: problem, code: problem });
       const existingPlayer = await Player.findOne({ username: updates.username });
-      if ((existingPlayer && existingPlayer._id.toString() !== playerId) || (!existingPlayer && isReservedUsername(updates.username))) {
+      // a free developer name (utils/usernames.js) is only handed out by a developer: the editor's
+      // Players tab renames a fresh account to it (sign up as "Mobile2", rename to "Mobile")
+      const reservedForCaller = !existingPlayer && isReservedUsername(updates.username) && !(await isDeveloperPlayerId(req.get('x-player-id')));
+      if ((existingPlayer && existingPlayer._id.toString() !== playerId) || reservedForCaller) {
         return res.status(400).json({ error: "TAKEN", code: 'TAKEN' });
       }
     }
@@ -411,6 +414,7 @@ router.post('/update-profile', async (req, res) => {
     if (!player) {
       return res.status(404).json({ error: 'Player not found.' });
     }
+    if (updates.username !== undefined) forgetDeveloperStatus(playerId); // developer access follows the name
 
     // Analytics: the quest turn-in path (NPCsPanel) writes completedQuests through
     // this generic route, so a body carrying completedQuests is the "turned in a

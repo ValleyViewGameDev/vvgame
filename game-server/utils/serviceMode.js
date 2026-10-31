@@ -57,4 +57,7 @@ function maintenanceGate() {
   };
 }
 
-module.exports = { getStatus, maintenanceGate, isDeveloperPlayerId };
+// A rename can make a player a developer or stop them being one: drop the cached answer.
+function forgetDeveloperStatus(playerId) { if (playerId) devCache.delete(String(playerId)); }
+
+module.exports = { getStatus, maintenanceGate, isDeveloperPlayerId, forgetDeveloperStatus };
