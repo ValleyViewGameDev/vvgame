@@ -237,6 +237,7 @@
     "doinker": true,
     "doinkerType": "element",
     "doinkerTarget": "[data-nav=\"QuestPanel\"]",
+    "doinkerPointing": "left",
     "notificationKey": 7069,
     "notificationIcon": "📜",
     "addQuests": []

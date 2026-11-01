@@ -118,7 +118,21 @@
   position: fixed !important;
   z-index: 10001 !important;
   pointer-events: none;
-  animation: doinker-bounce 0.6s ease-in-out infinite;
+  animation: doinker-bounce-button 0.6s ease-in-out infinite; /* left is already centred: no translateX(-50%) */
+}
+/* Horizontal variant (step doinkerPointing: "left"): the down arrow turned to point left, bouncing sideways */
+.ftue-doinker-button.ftue-doinker-left { animation-name: doinker-bounce-left; }
+.ftue-doinker-left-arrow {
+  position: absolute; left: 50%; top: 50%; line-height: 0;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+@keyframes doinker-bounce-button {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes doinker-bounce-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(12px); }
 }
 
 .ftue-doinker-arrow {

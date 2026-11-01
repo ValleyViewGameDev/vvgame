@@ -1014,12 +1014,13 @@ const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
 const [doinkerTargets, setDoinkerTargets] = useState(null); // Resource type string or array of strings to point doinkers at
 const [doinkerType, setDoinkerType] = useState('resource'); // Type of doinker: 'resource' or 'button'
+const [doinkerPointing, setDoinkerPointing] = useState('down'); // step doinkerPointing: 'down' (above) or 'left'
 const [scrimTarget, setScrimTarget] = useState(null); // FTUE Scrim Moment: the one board thing that stays live
 // Dev hook: point a doinker (and optionally a scrim) without walking an account through the FTUE,
 // e.g. __ftueDoink('Wheat', 'resource', true); __ftueDoink(null) clears it.
 if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
-  window.__ftueDoink = (target, type = 'resource', scrim = false) => {
-    setDoinkerTargets(target); setDoinkerType(type); setScrimTarget(scrim && target ? target : null);
+  window.__ftueDoink = (target, type = 'resource', scrim = false, pointing = 'down') => {
+    setDoinkerTargets(target); setDoinkerType(type); setDoinkerPointing(pointing); setScrimTarget(scrim && target ? target : null);
   };
 }
 const lastCutsceneStep = useRef(null);
@@ -1877,9 +1878,11 @@ useEffect(() => {
     const type = stepData.doinkerType || 'resource'; // Default to 'resource' if not specified
     setDoinkerTargets(targets);
     setDoinkerType(type);
+    setDoinkerPointing(stepData.doinkerPointing || 'down');
   } else {
     setDoinkerTargets(null);
     setDoinkerType('resource');
+    setDoinkerPointing('down');
   }
 }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId, masterResources]);
 
@@ -3736,6 +3739,7 @@ return (
             visible={!!doinkerTargets}
             gridId={gridId}
             activePanel={activePanel}
+            pointing={doinkerPointing}
           />
         )}
 

@@ -16,8 +16,10 @@ import './FTUE.css';
  * - visible: boolean - Whether the doinker should be visible
  * - gridId: string - The current grid ID (needed to look up NPCs)
  * - activePanel: string - The currently open panel (needed for button targeting)
+ * - pointing: 'down' (default: above the target) | 'left' (to the target's right, pointing at it;
+ *   button / element doinkers only, from the step's doinkerPointing)
  */
-const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visible, gridId, activePanel }) => {
+const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visible, gridId, activePanel, pointing = 'down' }) => {
   const [targetPositions, setTargetPositions] = useState([]);
   const [buttonPosition, setButtonPosition] = useState(null);
 
@@ -148,6 +150,8 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
       return {
         x: rect.left + rect.width / 2, // Center of button in viewport
         y: rect.top, // Top of button (arrow will be positioned above)
+        right: rect.right,
+        midY: rect.top + rect.height / 2,
         width: rect.width,
         height: rect.height
       };
@@ -189,6 +193,27 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
   if ((doinkerType === 'button' || doinkerType === 'element') && buttonPosition) {
     const arrowHeight = 40;
     const arrowWidth = 30;
+
+    // Pointing left: a horizontal arrow just right of the target, centred on its middle
+    if (pointing === 'left') {
+      return createPortal(
+        <div
+          key="doinker-button"
+          className="ftue-doinker-button ftue-doinker-left"
+          style={{
+            left: `${buttonPosition.right + 6}px`,
+            top: `${buttonPosition.midY - arrowWidth / 2}px`,
+            width: `${arrowHeight}px`,
+            height: `${arrowWidth}px`,
+          }}
+        >
+          <div className="ftue-doinker-left-arrow">
+            <DoinkerArrow width={arrowWidth} height={arrowHeight} />
+          </div>
+        </div>,
+        document.body
+      );
+    }
 
     // Use portal to render at document.body level, escaping any parent overflow:hidden/auto
     return createPortal(
