@@ -217,8 +217,10 @@ rows when deciding which cohorts have real data.
   `NON_PLAYER_USERNAMES` (read from `game-server/tuning/testUsernames.json`: test
   accounts that are not developers, such as `Mobile`, `facebook`, `ftuetester`;
   never reserved, no developer access, freely deleted and re-made; matched on
-  `analytics_player.username` too, so a deleted one's history stays out),
-  `ABUSE_USERNAME_RES`, `NON_PLAYER_IDS`. They are applied through `excludeFor(url)` on every endpoint
+  `analytics_player.username` too, so a deleted one's history stays out; re-read
+  on every request, so an added name needs no restart), `ABUSE_USERNAME_RES`,
+  `NON_PLAYER_IDS` (a test account with a generated name, e.g. "Kind Stag 6047",
+  pinned by `_id`). They are applied through `excludeFor(url)` on every endpoint
   regardless of the toggle. Add a real-but-not-organic account (a friend, a
   payment-test account) by username; a multi-account farmer by regex; and pin
   by `_id` whenever the handle is ordinary enough that a regex would swallow

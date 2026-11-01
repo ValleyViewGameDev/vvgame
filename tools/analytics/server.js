@@ -267,12 +267,16 @@ function testUsernames() {
   } catch { return []; }
 }
 const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const NON_PLAYER_USERNAMES = testUsernames();
 const ABUSE_USERNAME_RES = [];
-const NON_PLAYER_IDS = [];
+// Test accounts with a generated name (an unnamed silent account, "Kind Stag 6047"): pinned by
+// _id, since a real player may be dealt the same name once the test account is gone.
+const NON_PLAYER_IDS = [
+  '6ae7b8cad2bda7135a57c424', // Kind Stag 6047 (owner's test, 2026-11-01)
+];
 
 async function abuseExcludeIds() {
-  const rx = [...ABUSE_USERNAME_RES, ...NON_PLAYER_USERNAMES.map((n) => new RegExp(`^${escapeRe(n)}$`, 'i'))];
+  // testUsernames.json is re-read on every request, so an added name applies without a restart
+  const rx = [...ABUSE_USERNAME_RES, ...testUsernames().map((n) => new RegExp(`^${escapeRe(n)}$`, 'i'))];
   const ids = new Set(NON_PLAYER_IDS);
   if (rx.length) {
     const q = { username: { $in: rx } };
@@ -784,7 +788,7 @@ async function activeUsers(start, end, excludeIds = []) {
 // ---- Users tab middle column: accounts EXCLUDED from every other number ----
 async function ignoredUsers(hideDevs) {
   const rxOf = (n) => new RegExp(`^${String(n).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
-  const npRx = NON_PLAYER_USERNAMES.map(rxOf);
+  const npRx = testUsernames().map(rxOf);
   const devNames = developerUsernames();
   const devRx = devNames.map(rxOf);
   const orRx = [...npRx, ...devRx, ...ABUSE_USERNAME_RES];
