@@ -14,7 +14,8 @@ import './BeginModal.css';
  *
  * Inside a Meta/TikTok in-app browser the primary action is "Play in Safari" (iOS) or "Play in
  * your browser" (Android, the default browser) with the
- * reason (the homestead survives the return visit); Begin drops to a "Play here anyway" link.
+ * reason (the way back is easy to find); Begin drops to a "Play here anyway" link, and there is
+ * no sign-in link (owner, 2026-11-01).
  * If the page is still showing after the hand-off, the ⋯-menu instructions, a pointer at the
  * menu and a Copy link button take over (docs/launch-checklist.md).
  */
@@ -70,20 +71,22 @@ export default function BeginModal({ onBegin, onSignIn }) {
             </div>
           )}
           {showHelp && ReactDOM.createPortal(<div className="begin-inapp-pointer" aria-hidden="true">☝️</div>, document.body)}
-          <p className="begin-signin">
+          <p className="begin-signin begin-inapp-anyway">
             <a href="#" onClick={(e) => { e.preventDefault(); begin(); }}>{busy ? strings[4093] : strings[4126]}</a>
           </p>
         </>
       ) : (
-        <div className="shared-buttons">
-          <button className="btn-basic btn-success begin-button" onClick={begin} disabled={busy}>
-            {busy ? strings[4093] : strings[4096]}
-          </button>
-        </div>
+        <>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-success begin-button" onClick={begin} disabled={busy}>
+              {busy ? strings[4093] : strings[4096]}
+            </button>
+          </div>
+          <p className="begin-signin">
+            <a href="#" onClick={(e) => { e.preventDefault(); onSignIn(); }}>{strings[4010]}</a>
+          </p>
+        </>
       )}
-      <p className="begin-signin">
-        <a href="#" onClick={(e) => { e.preventDefault(); onSignIn(); }}>{strings[4010]}</a>
-      </p>
     </Modal>
   );
 }
