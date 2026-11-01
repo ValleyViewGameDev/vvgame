@@ -253,18 +253,26 @@ async function devPlayerIds() {
 }
 
 // ALWAYS-ON exclusions, applied on EVERY endpoint regardless of the toggle.
-// Empty at launch: VVGame's test accounts are all in developerUsernames.json.
-// Add a username here for a real account that is not an organic player (a
+// Test accounts that are NOT developers (tuning/testUsernames.json: made, deleted
+// and re-made freely, no developer access, never counted) come first. Add a
+// username to that file for a real account that is not an organic player (a
 // friend, a payment-test account), a regex to ABUSE_USERNAME_RES for a
 // multi-account farmer, and an _id to NON_PLAYER_IDS when the handle is
-// ordinary-looking enough that a regex would swallow real players.
-// See docs/analytics.md.
-const NON_PLAYER_USERNAMES = [];
+// ordinary-looking enough that a regex would swallow real players. Matched by
+// the last-known username on analytics_players too, so a deleted test account's
+// history stays out. See docs/analytics.md.
+function testUsernames() {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(GAME_SERVER, 'tuning', 'testUsernames.json'), 'utf8'));
+  } catch { return []; }
+}
+const escapeRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const NON_PLAYER_USERNAMES = testUsernames();
 const ABUSE_USERNAME_RES = [];
 const NON_PLAYER_IDS = [];
 
 async function abuseExcludeIds() {
-  const rx = [...ABUSE_USERNAME_RES, ...NON_PLAYER_USERNAMES.map((n) => new RegExp(`^${n}$`, 'i'))];
+  const rx = [...ABUSE_USERNAME_RES, ...NON_PLAYER_USERNAMES.map((n) => new RegExp(`^${escapeRe(n)}$`, 'i'))];
   const ids = new Set(NON_PLAYER_IDS);
   if (rx.length) {
     const q = { username: { $in: rx } };
