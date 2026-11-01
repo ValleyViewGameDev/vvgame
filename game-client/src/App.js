@@ -2972,14 +2972,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       });
     }
   } else {
-    // Check if clicked tile is dirt - auto-open FarmingPanel (only on own homestead)
-    const clickedTileType = tileTypes?.[rowIndex]?.[colIndex];
-    if (clickedTileType === 'd' && isOnOwnHomestead) {
-      openPanel('FarmingPanel');
-      isProcessing = false;
-      return;
-    }
-
     console.log('isTeleportEnabled:', currentPlayer?.settings?.isTeleportEnabled);
 
     if (currentPlayer?.settings?.isTeleportEnabled) {
