@@ -2313,8 +2313,9 @@ const zoomOut = () => {
   if (!currentPlayer?.location?.g || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
 
-  // Already at maximum zoom out - nothing to do
-  if (zoomLevel === 'frontier') { return; }
+  // Already at maximum zoom out - nothing to do. Phones stop at the settlement: the frontier view
+  // crashes mobile browsers (owner, 2026-11-01), so it is desktop-only.
+  if (zoomLevel === 'frontier' || (zoomLevel === 'settlement' && isPhone())) { return; }
 
   // Set animating ref BEFORE changing zoomLevel to prevent flash
   // This ensures components see isZoomAnimatingRef.current === true on their first render
@@ -3341,7 +3342,7 @@ return (
       <div className="zoom-controls">
         <div className="zoom-button-container">
           <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
-          <button className="zoom-button zoom-out" disabled={!currentPlayer} onClick={zoomOut}><span>−</span></button>
+          <button className="zoom-button zoom-out" disabled={!currentPlayer || (zoomLevel === 'settlement' && isPhone())} onClick={zoomOut}><span>−</span></button>
         </div>
       </div>
     )}

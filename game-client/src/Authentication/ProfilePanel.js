@@ -20,6 +20,7 @@ import FeedbackLinks from '../UI/Panels/FeedbackLinks';
 import { authErrorText } from './authErrors';
 import EmailModal from '../UI/Modals/EmailModal';
 import { gameConfirm, gameAlert } from '../UI/Modals/GameDialog';
+import { isPhone } from '../UI/Modals/InstallPromptModal';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -255,6 +256,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       setZoomLevel('close');
       updateStatus(0);
     } else {
+      // Relocation picks a spot in the frontier view, which is desktop-only (it crashes phones)
+      if (isPhone()) { updateStatus(strings[10220]); return; }
       // Check if player is at their own homestead before allowing relocation
       const currentLocationGridId = currentPlayer?.location?.g;
       const homesteadGridId = currentPlayer?.gridId;
