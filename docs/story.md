@@ -15,7 +15,10 @@ milestone line serves it. The old intro (string 16019: "an evil scourge grows...
 rule of King Leontes") was rewritten on 2026-10-24 around this tale, and on 2026-10-25 (owner)
 given to **Gertrude's spirit**: the Queen, turned to stone in her castle, speaks to the stranger
 in the sea cave ("Who comes? A stranger... It turned me to stone and took my King's crown...")
-and sends them to Constable Elbow for the Home Deed. Her waking at the end of the early game pays
+and sends them to Constable Elbow for the Home Deed. Rewritten 2026-11-01 (owner): the stranger
+now steps out of the forest, the tale is three pages (forest; the storm, stone and crown; the
+Oracle and "bring us Hope!"), and the page sending them to Elbow is gone (toast 741 points the
+way). Her waking at the end of the early game pays
 off the voice the player heard first.
 
 - **Before.** Elsinore was a merry kingdom by the sea under King Leontes (The Winter's Tale) and
@@ -41,7 +44,7 @@ off the voice the player heard first.
   playing the part their play gave them; the player is a stranger the storm washed up with no
   script at all ("All the world's a stage... and one man in his time plays many parts", which is
   also the aspiration choice). So the player is the only one who can change how the story ends.
-  They wake in the sea cave (the FTUE cave), where **Gertrude's spirit** speaks to them first
+  They step out of the forest (the FTUE opening; a sea cave until 2026-11-01), where **Gertrude's spirit** speaks to them first
   (the opening intro, 16019; owner 2026-10-25) and sends them to **Constable Elbow** (Measure for
   Measure), "the poor duke's constable" who "do lean upon justice": once Angelo's officer, still
   loyal to the King while Angelo rules the Town's law by force. He sees the stranger settled (the
