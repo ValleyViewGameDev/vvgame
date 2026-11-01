@@ -5,7 +5,7 @@ const Player = require('../models/player');
 const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils');
 const Frontier = require('../models/frontier');
-const { isDeveloper } = require('./developerHelpers');
+const { isExcludedFromRankings } = require('./developerHelpers'); // developers and test accounts
 const { awardTrophy } = require('./trophyUtils');
 
 async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
@@ -21,7 +21,7 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
     // Get all players, then filter out developers
     const allPlayers = await Player.find({ frontierId }).sort({ netWorth: -1 });
     const topPlayers = allPlayers
-      .filter(player => !isDeveloper(player.username))
+      .filter(player => !isExcludedFromRankings(player.username))
       .slice(0, 3);
 
     console.log("📊 Calculating top settlement by combined net worth (excluding developers)...");
@@ -33,7 +33,7 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
     for (const settlement of settlements) {
       const players = await Player.find({ settlementId: settlement._id });
       const combinedNetWorth = players
-        .filter(player => !isDeveloper(player.username))
+        .filter(player => !isExcludedFromRankings(player.username))
         .reduce((sum, player) => sum + (player.netWorth || 0), 0);
       
       if (combinedNetWorth > highestNetWorth) {
@@ -76,8 +76,8 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
       const winningPlayers = await Player.find({ settlementId: winningSettlement._id });
       for (const player of winningPlayers) {
         // Skip developers from receiving rewards
-        if (isDeveloper(player.username)) {
-          console.log(`⚠️ Skipping developer ${player.username} from top settlement rewards`);
+        if (isExcludedFromRankings(player.username)) {
+          console.log(`⚠️ Skipping developer/test account ${player.username} from top settlement rewards`);
           continue;
         }
         try {

@@ -1640,11 +1640,12 @@ router.get('/ftue-steps', (req, res) => {
 router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) => {
   try {
     const { frontierId } = req.params;
-    const { addDeveloperFlags } = require('../utils/developerHelpers');
+    const { addDeveloperFlags, isTestAccount } = require('../utils/developerHelpers');
     
-    const players = await Player.find({ frontierId })
+    // Test accounts never reach the Leaderboard or Season panels (tuning/testUsernames.json)
+    const players = (await Player.find({ frontierId })
       .select('username settlementId netWorth') // Only select fields we need
-      .lean();
+      .lean()).filter((p) => !isTestAccount(p.username));
     
     // Add isDeveloper flag to each player
     const playersWithDeveloperFlag = addDeveloperFlags(players);

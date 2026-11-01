@@ -1,5 +1,8 @@
 // Developer-related helper functions
 const developerUsernames = require('../tuning/developerUsernames.json');
+// Test accounts that are not developers (made, deleted and re-made freely): no developer access,
+// but kept off the leaderboards and season rewards like developers. Matched case-insensitively.
+const testUsernames = new Set(require('../tuning/testUsernames.json').map((n) => n.toLowerCase()));
 
 /**
  * Checks if a username belongs to a developer
@@ -9,6 +12,15 @@ const developerUsernames = require('../tuning/developerUsernames.json');
 function isDeveloper(username) {
   if (!username) return false;
   return developerUsernames.includes(username);
+}
+
+function isTestAccount(username) {
+  return !!username && testUsernames.has(String(username).toLowerCase());
+}
+
+// Kept off the leaderboards, season winners and season rewards: developers and test accounts.
+function isExcludedFromRankings(username) {
+  return isDeveloper(username) || isTestAccount(username);
 }
 
 /**
@@ -46,6 +58,8 @@ async function requireDeveloper(req, res, next) {
 
 module.exports = {
   isDeveloper,
+  isTestAccount,
+  isExcludedFromRankings,
   requireDeveloper,
   addDeveloperFlags,
   excludeDevelopers
