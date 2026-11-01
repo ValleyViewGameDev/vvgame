@@ -68,7 +68,6 @@ import LevelUpModal from './UI/Modals/LevelUpModal';
 import LanguagePickerModal from './UI/Modals/LanguagePickerModal';
 import PrivacyPolicyModal from './UI/Modals/PrivacyPolicyModal';
 import { useStrings } from './UI/StringsContext';
-import LANGUAGE_OPTIONS from './UI/Languages.json';
 import panelIconsData from './UI/Icons.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
 import { getDerivedLevel, getXpForNextLevel } from './Utils/playerManagement';
@@ -3304,15 +3303,12 @@ return (
             {badgeState.chat && <div className="badge-dot" />}
           </div>
           <span></span>
-          {/* Row 2: Leaders, Language, Share */}
+          {/* Row 2: How to Play, Leaders, Share (Language lives in Settings) */}
           <button className="header-link header-link--howto" title={strings[10110]} disabled={!currentPlayer} onClick={() => openPanel('HowToPanel')}>
             {headerLabel(strings[10110], '❓')}
           </button>
           <button className="header-link header-link--leaders" title={strings[1140]} disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
             {headerLabel(strings[1140], '📊')}
-          </button>
-          <button className="header-link header-link--language" title="Language" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
-            🌐 {isPhoneLayout ? '' : (LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language')}
           </button>
           <button className="header-link header-link--share" title={strings[10106]} onClick={() => setShowShareModal(true)}>
             {headerLabel(strings[10106], '📢')}

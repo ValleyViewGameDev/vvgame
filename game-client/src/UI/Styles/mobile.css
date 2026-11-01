@@ -141,7 +141,6 @@
   .header-link--settings { order: 3; }
   .header-link--leaders  { order: 4; }
   .header-link--chat     { order: 5; }
-  .header-link--language { order: 6; }
   .header-link--share    { order: 7; }
   .header-link--howto    { order: 8; }
   /* the badge wrappers carry the order of the link inside them */
