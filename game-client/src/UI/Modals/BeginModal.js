@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Modal from './Modal';
 import { useStrings } from '../StringsContext';
 import { isInAppBrowser } from '../../Utils/pageviewBeacon';
-import { openInExternalBrowser, externalBrowserName } from '../../Utils/openInBrowser';
+import { openInExternalBrowser, opensDefaultBrowser } from '../../Utils/openInBrowser';
 import '../Buttons/SharedButtons.css';
 import './BeginModal.css';
 
@@ -12,7 +12,8 @@ import './BeginModal.css';
  * It exists so a page load alone never creates an account: the silent account is made when
  * Begin is tapped. Not dismissable; "Already have a profile?" goes to the sign-in form.
  *
- * Inside a Meta/TikTok in-app browser the primary action is "Play in Safari/Chrome" with the
+ * Inside a Meta/TikTok in-app browser the primary action is "Play in Safari" (iOS) or "Play in
+ * your browser" (Android, the default browser) with the
  * reason (the homestead survives the return visit); Begin drops to a "Play here anyway" link.
  * If the page is still showing after the hand-off, the ⋯-menu instructions, a pointer at the
  * menu and a Copy link button take over (docs/launch-checklist.md).
@@ -23,8 +24,9 @@ export default function BeginModal({ onBegin, onSignIn }) {
   const [inApp] = useState(isInAppBrowser);
   const [showHelp, setShowHelp] = useState(false);
   const [copied, setCopied] = useState(false);
-  const browser = externalBrowserName();
-  const fill = (s) => String(s || '').replace('{browser}', browser);
+  // Android opens the default browser, so its copy names none (4127-4129); iOS names Safari.
+  const toDefault = opensDefaultBrowser();
+  const fill = (s) => String(s || '').replace('{browser}', 'Safari');
 
   const begin = async () => {
     if (busy) return;
@@ -52,10 +54,10 @@ export default function BeginModal({ onBegin, onSignIn }) {
       <img className="begin-logo" src="/logo512.png" alt="" width="96" height="96" />
       {inApp ? (
         <>
-          <p className="begin-inapp-reason">{fill(strings[4122])}</p>
+          <p className="begin-inapp-reason">{toDefault ? strings[4128] : fill(strings[4122])}</p>
           <div className="shared-buttons">
             <button className="btn-basic btn-success begin-button" onClick={openExternal}>
-              {fill(strings[4121])}
+              {toDefault ? strings[4127] : fill(strings[4121])}
             </button>
           </div>
           {showHelp && (
@@ -64,7 +66,7 @@ export default function BeginModal({ onBegin, onSignIn }) {
               <div className="shared-buttons">
                 <button className="btn-basic btn-neutral" onClick={copyLink}>{strings[4124]}</button>
               </div>
-              {copied && <p className="begin-inapp-copied">{fill(strings[4125])}</p>}
+              {copied && <p className="begin-inapp-copied">{toDefault ? strings[4129] : fill(strings[4125])}</p>}
             </div>
           )}
           {showHelp && ReactDOM.createPortal(<div className="begin-inapp-pointer" aria-hidden="true">☝️</div>, document.body)}

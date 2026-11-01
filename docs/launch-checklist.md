@@ -18,7 +18,7 @@ here; detail lives in the linked docs and backlog items.
   43%, D1 3%; 88% of iOS 26 Meta clicks never left the in-app browser. Make "open in your browser"
   the primary action with a reason, and test the real ad-click path on the newest iOS.
   **Built 2026-11-01:** in an in-app browser the Begin screen's main button is "Play in Safari"
-  (iOS, `x-safari-https://`) or "Play in Chrome" (Android, `intent://`), with the reason (the
+  (iOS, `x-safari-https://`) or "Play in your browser" (Android, `intent://` to the default browser, no package; strings 4127-4129), with the reason (the
   homestead is still there when you come back); Begin becomes "Play here anyway". If the page is
   still showing 1.5 s after the tap, the ⋯-menu instructions, a bouncing pointer at the menu and
   Copy link appear (`UI/Modals/BeginModal.js`, `Utils/openInBrowser.js`, strings 4121-4126).
