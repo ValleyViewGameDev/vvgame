@@ -205,9 +205,11 @@ const ToolsPanel = ({
           <p>{strings[98]}</p>
         ) : (
           <>
-            {/* Dynamically render all tile tools from masterResources */}
+            {/* Dynamically render all tile tools from masterResources, in unlock-level order;
+                tiles on the same level keep their resources.json order (Dirt, Grass, Slate) */}
             {masterResources
               ?.filter(r => r.category === 'tile')
+              .sort((a, b) => (a.level || 1) - (b.level || 1)) // Array sort is stable
               .map((tileResource) => {
                 const tileType = tileResource.type;
                 const requiredSkill = tileResource.requires || null;
