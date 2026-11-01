@@ -326,8 +326,9 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   const isTrainingBuilding = stationResource?.category === 'training';
 
   // Sell section, pinned under the panel (UI/Panels/SellSection.js): a training building is only
-  // removed (no refund: "Sell (💰0)"), any other building sells for its recipe; both can Move
-  const sellFooter = sellSection({
+  // removed (no refund: "Sell (💰0)"), any other building sells for its recipe; both can Move.
+  // Opened from the nav (Basic Skills) there is no building, so no footer.
+  const sellFooter = currentStationPosition && sellSection({
     canSell: false,
     isDeveloper: !!showSellButton,
     resourceType: stationType,
