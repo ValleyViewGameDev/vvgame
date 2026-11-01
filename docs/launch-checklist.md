@@ -17,6 +17,13 @@ here; detail lives in the linked docs and backlog items.
 - [ ] **Open-in-your-browser prompt for Meta's in-app browser.** House's Campaign 3: in-app FTUE
   43%, D1 3%; 88% of iOS 26 Meta clicks never left the in-app browser. Make "open in your browser"
   the primary action with a reason, and test the real ad-click path on the newest iOS.
+  **Built 2026-11-01:** in an in-app browser the Begin screen's main button is "Play in Safari"
+  (iOS, `x-safari-https://`) or "Play in Chrome" (Android, `intent://`), with the reason (the
+  homestead is still there when you come back); Begin becomes "Play here anyway". If the page is
+  still showing 1.5 s after the tap, the ⋯-menu instructions, a bouncing pointer at the menu and
+  Copy link appear (`UI/Modals/BeginModal.js`, `Utils/openInBrowser.js`, strings 4121-4126).
+  Dev test: localStorage `vv:forceInApp` = `1`. **Open:** test on real phones from a Facebook
+  post link (iPhone and Android): does the hand-off leave Facebook, or does the fallback show?
 - [ ] **Full playthrough to ~L15 on a phone, FTUE timed.** OB-3, OB-6 and OB-10 are built but not
   played. House saw quits rise past a ~12 minute FTUE.
 - [x] **Finalize the town layout and upgrade its art.** Done (owner, 2026-10-31; W-15). The town is the first shared place a new

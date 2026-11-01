@@ -62,7 +62,9 @@ function detectSurface(params) {
 
 // Meta/TikTok in-app browsers: localStorage rarely survives, so the game asks for email early
 // and shows the "open in your browser" hint (docs/onboarding-plan.md §4.4).
+// Dev builds: localStorage 'vv:forceInApp' = '1' acts as an in-app browser, to test the prompts.
 export function isInAppBrowser() {
+  if (process.env.NODE_ENV !== 'production') { try { if (localStorage.getItem('vv:forceInApp') === '1') return true; } catch (_) { /* no storage */ } }
   return /FBAN|FBAV|FB_IAB|Instagram|musical_ly|TikTok|Bytedance/i.test(navigator.userAgent || '');
 }
 

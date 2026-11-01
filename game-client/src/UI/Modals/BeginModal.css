@@ -7,3 +7,15 @@
 .begin-modal .begin-button:focus:not(:focus-visible) { outline: none; } /* no browser focus ring from a tap or programmatic focus; keyboard focus keeps its ring */
 .begin-modal .begin-signin { margin: 14px 0 0; font-size: var(--text-md); }
 .begin-modal .begin-signin a { color: var(--color-text-secondary); text-decoration: underline; }
+/* In-app browser (Meta/TikTok): the reason, the hand-off button, then the ⋯-menu fallback */
+.begin-modal .begin-inapp-reason { margin: 0 0 12px; font-size: var(--text-md); }
+.begin-modal .begin-inapp-help { margin: 12px 0 0; font-size: var(--text-md); }
+.begin-modal .begin-inapp-help p { margin: 0 0 8px; }
+.begin-modal .begin-inapp-copied { color: var(--color-text-green); }
+/* Points at the in-app browser's ⋯ menu, top right in Facebook, Instagram and TikTok; above the modal overlay */
+.begin-inapp-pointer {
+  position: fixed; top: 8px; right: 14px; z-index: 2147483000;
+  font-size: var(--text-4xl); pointer-events: none;
+  animation: begin-inapp-pointer-bounce 0.7s ease-in-out infinite alternate;
+}
+@keyframes begin-inapp-pointer-bounce { from { transform: translateY(0); } to { transform: translateY(-10px); } }
