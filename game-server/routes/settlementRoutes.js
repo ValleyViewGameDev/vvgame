@@ -348,66 +348,7 @@ router.post('/cast-vote', async (req, res) => {
 ////// CARNIVAL ROUTES
 ///////////
 
-router.post('/update-carnival-offer/:settlementId', async (req, res) => {
-  const { updateOffer } = req.body;
-  const { settlementId } = req.params;
-
-  try {
-    const settlement = await Settlement.findById(settlementId);
-    if (!settlement) return res.status(404).json({ error: 'Settlement not found' });
-
-    // Initialize carnival object if it doesn't exist
-    if (!settlement.carnival) {
-      settlement.carnival = { currentoffers: [], nextoffers: [], carnivallog: [], nextCarnivalNumber: 1 };
-    }
-
-    // ✅ Use _id to locate the specific offer to update
-    const offerIndex = settlement.carnival.currentoffers.findIndex(
-      (o) => o._id.toString() === updateOffer._id
-    );
-
-    if (offerIndex === -1) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
-
-    // ✅ Validate claim attempts
-    const currentOffer = settlement.carnival.currentoffers[offerIndex];
-    
-    console.log('🎪 Carnival offer update attempt:', {
-      currentClaimedBy: currentOffer.claimedBy,
-      newClaimedBy: updateOffer.claimedBy,
-      offerItem: currentOffer.itemBought
-    });
-    
-    if ('claimedBy' in updateOffer && updateOffer.claimedBy) {
-      // Someone is trying to claim this offer
-      if (currentOffer.claimedBy && currentOffer.claimedBy.toString() !== updateOffer.claimedBy) {
-        // Offer was already claimed by someone else
-        console.log('❌ Rejecting claim - already claimed by:', currentOffer.claimedBy);
-        return res.status(409).json({ 
-          error: 'Offer already claimed',
-          claimedBy: currentOffer.claimedBy 
-        });
-      }
-      // Either unclaimed or same player reclaiming - allow the update
-      settlement.carnival.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
-    } else if ('claimedBy' in updateOffer && !updateOffer.claimedBy) {
-      // Clearing the claim (setting claimedBy to null)
-      settlement.carnival.currentoffers[offerIndex].claimedBy = null;
-    }
-    
-    if ('filled' in updateOffer) {
-      settlement.carnival.currentoffers[offerIndex].filled = updateOffer.filled;
-    }
-
-    await settlement.save();
-    return res.status(200).json({ success: true });
-
-  } catch (error) {
-    console.error("❌ Error updating carnival offer:", error);
-    return res.status(500).json({ error: 'Server error' });
-  }
-});
+// The Harvest Fair's claim and fill are routes/harvestFairRoutes.js (decided on the server).
 
 
 ///////////

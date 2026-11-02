@@ -6,7 +6,7 @@ import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
-import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import './Carnival.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst from '../../UI/SaleBurst';
@@ -253,6 +253,8 @@ function CarnivalPanel({
     return masterResources.find(r => r.type === type)?.symbol || "❓";
   };
 
+  // Claiming and filling are decided on the server (game-server/routes/harvestFairRoutes.js);
+  // the rewards are mailed by the Fair's departure to everyone who filled an order.
   const handleClaim = async (offer) => {
     if (!offer || offer.claimedBy) return;
 
@@ -265,52 +267,23 @@ function CarnivalPanel({
       return;
     }
 
+    // On the tap: the order shows as yours; a refusal puts it back
+    const offersBefore = carnivalOffers;
+    setCarnivalOffers(prev => prev.map(o => (o._id === offer._id ? { ...o, claimedBy: currentPlayer.playerId } : o)));
+    setPlayerUsernames(prev => ({ ...prev, [currentPlayer.playerId]: currentPlayer.username }));
     try {
-      // Find the exact index of the offer to ensure uniqueness
-      const offerIndex = carnivalOffers.findIndex(
-        (o) => o.itemBought === offer.itemBought &&
-              o.qtyBought === offer.qtyBought &&
-              !o.claimedBy &&
-              !o.filled
-      );
-      if (offerIndex === -1) {
-        console.warn("⚠️ No matching unclaimed offer found to claim.");
-        return;
-      }
-
-      const updatedOffer = {
-        ...carnivalOffers[offerIndex],
-        claimedBy: currentPlayer.playerId,
-      };
-
-      const response = await axios.post(`${API_BASE}/api/update-carnival-offer/${currentPlayer.settlementId}`, {
-        updateOffer: updatedOffer,
+      const { data } = await axios.post(`${API_BASE}/api/harvest-fair/claim`, {
+        playerId: currentPlayer.playerId,
+        offerId: offer._id,
       });
-
-      if (response.status === 200) {
-        setCarnivalOffers(prev => {
-          const newOffers = [...prev];
-          newOffers[offerIndex] = updatedOffer;
-          return newOffers;
-        });
-        
-        // Add current player's username to the map immediately
-        setPlayerUsernames(prev => ({
-          ...prev,
-          [currentPlayer.playerId]: currentPlayer.username
-        }));
-      }
+      if (data?.offers) setCarnivalOffers(data.offers);
     } catch (err) {
       console.error("❌ Error claiming carnival offer:", err);
-      
-      // Handle case where offer was already claimed
-      if (err.response?.status === 409) {
-        updateStatus(2017); // This order has already been claimed.
-        // Refresh offers to get latest state
-        fetchCarnivalOffers();
-      } else {
-        updateStatus(505); // Generic error
-      }
+      setCarnivalOffers(offersBefore);
+      const code = err.response?.data?.error;
+      if (code === 'claimed') { updateStatus(2017); fetchCarnivalOffers(); } // This order has already been claimed.
+      else if (code === 'has-claim') updateStatus(2014);
+      else updateStatus(505); // Generic error
     }
   };
 
@@ -331,69 +304,31 @@ function CarnivalPanel({
   };
 
   const handleFulfill = async (offer, index) => {
-    if (index != null) celebrateOrder(offer, index);
-    if (!offer || offer.claimedBy !== currentPlayer.playerId) return;
+    if (!offer || offer.claimedBy !== currentPlayer.playerId || offer.filled) return;
+    if (getPlayerQuantity(offer.itemBought, inventory, backpack) < offer.qtyBought) return;
 
-    // Spend the ingredients (the item being delivered)
-    const success = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe: { 
-        type: offer.itemBought, 
-        ingredient1: offer.itemBought, 
-        ingredient1qty: offer.qtyBought 
-      },
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-    });
-    if (!success) return;
+    // On the tap: the burst, the flying payment and the order filled; a refusal puts it back
+    if (index != null) celebrateOrder(offer, index);
+    const offersBefore = carnivalOffers;
+    setCarnivalOffers(prev => prev.map(o => (o._id === offer._id ? { ...o, filled: true } : o)));
 
     try {
-      // First update the carnival offer
-      await axios.post(`${API_BASE}/api/update-carnival-offer/${currentPlayer.settlementId}`, {
-        updateOffer: {
-          ...offer,
-          filled: true,
-        },
+      const transactionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const { data } = await axios.post(`${API_BASE}/api/harvest-fair/fill`, {
+        playerId: currentPlayer.playerId,
+        offerId: offer._id,
+        transactionId,
       });
-
-    // Award Money for fulfillment
-    await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: "Money",
-      quantity: offer.qtyGiven,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-      masterResources,
-      globalTuning,
-    });
-
-      // Update local state in correct order
-      setCarnivalOffers(prev => {
-        const index = prev.findIndex(o =>
-          o.itemBought === offer.itemBought &&
-          o.qtyBought === offer.qtyBought &&
-          o.claimedBy === currentPlayer.playerId &&
-          !o.filled
-        );
-        if (index === -1) return prev;
-        const newOffers = [...prev];
-        newOffers[index] = { ...newOffers[index], filled: true };
-        return newOffers;
-      });
-
+      if (!data?.success) throw new Error(data?.error || 'fill failed');
+      setInventory(data.inventory);
+      setBackpack(data.backpack);
+      setCurrentPlayer(prev => ({ ...prev, inventory: data.inventory, backpack: data.backpack }));
+      if (data.offers) setCarnivalOffers(data.offers);
       updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}.`);
-
     } catch (error) {
       console.error("❌ Error fulfilling offer:", error);
+      setCarnivalOffers(offersBefore);
+      updateStatus(505);
       fetchCarnivalOffers(); // Refresh offers on error to ensure sync
     }
   };
