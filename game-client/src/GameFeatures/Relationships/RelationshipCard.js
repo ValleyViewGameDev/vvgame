@@ -9,6 +9,7 @@ import {
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { playConversation, calculateModifiedChance } from './Conversation';
+import { rememberNpcInteraction } from './conversationMemory';
 import ConversationManager from './ConversationManager';
 import '../../UI/Buttons/SharedButtons.css';
 
@@ -133,6 +134,10 @@ const RelationshipCard = ({
       return;
     }
     
+    // an NPC the player used a relationship button on: round 2 of their NEXT conversation with
+    // someone else shows it (conversationMemory.js; the current one excludes its own NPC)
+    if (targetType === 'npc') rememberNpcInteraction(currentPlayer?.playerId, targetName);
+
     // Play conversation sequence if positions are provided
     if (playerPosition && targetPosition) {
       const playerEmoji = currentPlayer.icon || '😊';

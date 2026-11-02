@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { slamIn } from '../../UI/slamIn';
+import { createCollectEffectAt } from '../../VFX/VFX';
+import soundManager from '../../Sound/SoundManager';
 import { useStrings } from '../../UI/StringsContext';
 import QuestForHopeModal from './QuestForHopeModal';
 import './QuestForHope.css';
@@ -18,6 +21,16 @@ import './QuestForHope.css';
  * @param {boolean} showTitle - Whether to show the "Hope Quest" title (default: true)
  * @param {string} size - Size variant: 'normal' or 'small' (default: 'normal')
  */
+// A newly found artifact landing in its slot (HopeFound.js opens the Quest panel, then calls
+// playHopeLanding): the icon hangs big, slams into the slot (UI/slamIn.js, the Heir & Spare war
+// glyph's curve) and bursts with the doober collection poof as it hits, the slot filling green on
+// impact. Resolves once it has landed, or at once when no slots are on screen to land in.
+const landingListeners = new Set();
+export function playHopeLanding(name) {
+  if (landingListeners.size === 0) return Promise.resolve();
+  return Promise.all([...landingListeners].map((fn) => fn(name))).then(() => undefined);
+}
+
 function HopeQuest({
   inventory = [],
   backpack = [],
@@ -28,6 +41,28 @@ function HopeQuest({
 }) {
   const strings = useStrings();
   const [modalOpen, setModalOpen] = useState(false);
+  const [landing, setLanding] = useState(null);   // the artifact mid-slam: its slot stays unfilled until impact
+  const iconRefs = useRef({});
+
+  useEffect(() => {
+    const land = (name) => new Promise((resolve) => {
+      setLanding(name);
+      // two frames: the slot has rendered as unfilled and the icon has its place before it is measured
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const el = iconRefs.current[name];
+        if (!el) { setLanding(null); resolve(); return; }
+        slamIn(el, {
+          onImpact: (r) => {
+            setLanding(null);
+            createCollectEffectAt(r.left + r.width / 2, r.top + r.height / 2, Math.max(40, r.width * 1.6));
+            soundManager.playSFX('collect_item');
+          },
+        }).then(resolve);
+      }));
+    });
+    landingListeners.add(land);
+    return () => { landingListeners.delete(land); };
+  }, []);
 
   // Dynamically load Oracle recipe items from masterTraders
   const oracleRecipe = masterTraders?.find(trader => trader.trader === 'Oracle');
@@ -90,19 +125,21 @@ function HopeQuest({
       }}>
         {items.map((item, index) => {
           const playerHasItem = item.collected;
+          const filled = playerHasItem && landing !== item.name;
 
           return (
             <div key={index} style={{
               flex: 1,
               aspectRatio: '1',
               borderRadius: 'var(--radius-xs)',
-              backgroundColor: playerHasItem ? 'var(--color-btn-primary)' : 'var(--brand-gold)',
+              backgroundColor: filled ? 'var(--color-btn-primary)' : 'var(--brand-gold)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: fontSize
             }}>
-              <span className={`hope-quest-slot-icon ${playerHasItem ? 'collected' : 'uncollected'}`}>{item.symbol}</span>
+              <span ref={(el) => { iconRefs.current[item.name] = el; }} data-hope-slot={item.name}
+                className={`hope-quest-slot-icon ${playerHasItem ? 'collected' : 'uncollected'}`}>{item.symbol}</span>
             </div>
           );
         })}

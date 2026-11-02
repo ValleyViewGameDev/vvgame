@@ -3,16 +3,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import StoryModal from '../../UI/Modals/StoryModal';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
+import { playHopeLanding } from './HopeQuest';
 
 /**
  * HopeFound - the Quest for Hope "found" moment (docs/early-game.md §3, backlog OB-5).
  *
  * Watches the player's holdings; when a Quest for Hope artifact turns up that is not yet in
- * `currentPlayer.hopeFound`, the artifact's story modal plays at once (optimistic, house rule)
- * and `POST /api/hope/found` records it in parallel and mails the Oracle's letter with the hint
- * to the next artifact (messages.json rows with `hopeArtifact`). An account from before this
- * existed has no `hopeFound`: the first call seeds it silently, so old finds never replay.
+ * `currentPlayer.hopeFound`, the moment plays at once (optimistic, house rule): the Quest panel
+ * opens and the artifact slams into its slot (HopeQuest.js playHopeLanding, owner 2026-11-02),
+ * then its story modal follows; the panel stays open for the player to close. In parallel
+ * `POST /api/hope/found` records it and mails the Oracle's letter with the hint to the next
+ * artifact (messages.json rows with `hopeArtifact`). An account from before this existed has no
+ * `hopeFound`: the first call seeds it silently, so old finds never replay.
  */
+const PANEL_SETTLE_MS = 420; // the Quest panel's slide-in (--d-anim-in 260 ms) is over before the slot is measured
 const FOUND_STRING = {
   "King's Crown": 200830,
   Trident: 200831,
@@ -25,8 +29,9 @@ const FOUND_STRING = {
 
 const held = (list, type) => (Array.isArray(list) ? list : []).some((i) => i?.type === type && (i.quantity || i.qty || 0) > 0);
 
-export default function HopeFound({ currentPlayer, setCurrentPlayer, inventory, backpack, masterTraders, masterResources }) {
+export default function HopeFound({ currentPlayer, setCurrentPlayer, inventory, backpack, masterTraders, masterResources, openPanel }) {
   const [queue, setQueue] = useState([]);   // artifacts whose moment is waiting to play
+  const [landed, setLanded] = useState(null); // the head of the queue once its slam is over (its story may show)
   const shown = useRef(new Set());          // played (or queued) this session
   const asking = useRef(false);
 
@@ -53,7 +58,21 @@ export default function HopeFound({ currentPlayer, setCurrentPlayer, inventory, 
   }, [inventory, backpack, masterTraders, currentPlayer?.playerId, currentPlayer?.hopeFound, setCurrentPlayer]);
 
   const current = queue[0];
-  if (!current) return null;
+  const openPanelRef = useRef(openPanel);   // App recreates openPanel every render; the slam must not restart
+  openPanelRef.current = openPanel;
+
+  // the slam: open the Quest panel (left open afterwards), let it slide in, land the artifact
+  useEffect(() => {
+    if (!current || landed === current) return undefined;
+    let cancelled = false;
+    openPanelRef.current?.('QuestPanel');
+    const t = setTimeout(() => {
+      playHopeLanding(current).then(() => { if (!cancelled) setLanded(current); });
+    }, PANEL_SETTLE_MS);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [current, landed]);
+
+  if (!current || landed !== current) return null;
   const symbol = masterResources?.find((r) => r.type === current)?.symbol || '✨';
   return (
     <StoryModal

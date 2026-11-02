@@ -80,10 +80,17 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
     const centerX = gridOffsetX + (x * scaledTileSize) + (scaledTileSize / 2);
     const centerY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize / 2);
 
+    spawnCollectBurst(worldContainer, centerX, centerY, scaledTileSize);
+};
+ 
+// The doober collection "poof": sparkles bursting out and a puff at the centre. Shared by the
+// board (createCollectEffect, in the world overlay) and screen-space moments such as a Quest for
+// Hope artifact landing in its slot (createCollectEffectAt, fixed on <body>).
+const spawnCollectBurst = (container, centerX, centerY, size, position = 'absolute', zIndex = 1000) => {
     // "Poof" particle configuration - burst of particles expanding outward
     const particleCount = 10;
     const particleChars = ['✨', '💫', '⭐']; // Removed ✦ (too dark/hard to see)
-    const baseDistance = scaledTileSize * 1.2; // How far particles travel
+    const baseDistance = size * 1.2; // How far particles travel
     const duration = VFX_TIMING.COLLECT_DURATION;
 
     for (let i = 0; i < particleCount; i++) {
@@ -110,18 +117,18 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
         setTimeout(() => {
             const particle = document.createElement('div');
             particle.innerText = char;
-            particle.style.position = 'absolute';
+            particle.style.position = position;
             particle.style.left = `${centerX}px`;
             particle.style.top = `${centerY}px`;
             particle.style.pointerEvents = 'none';
-            particle.style.zIndex = '1001';
-            particle.style.fontSize = `${scaledTileSize * 0.7}px`;
+            particle.style.zIndex = String(zIndex + 1);
+            particle.style.fontSize = `${size * 0.7}px`;
             particle.style.transform = `translate(-50%, -50%) scale(${startScale})`;
             particle.style.opacity = '1';
             // Separate transitions: position fast, opacity slower
             particle.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0, 0.2, 1), opacity ${duration * 1.2}ms ease-out`;
 
-            worldContainer.appendChild(particle);
+            container.appendChild(particle);
 
             // Trigger animation on next frame
             requestAnimationFrame(() => {
@@ -132,7 +139,7 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
             // Cleanup - wait for longer opacity fade
             setTimeout(() => {
                 if (particle.parentNode) {
-                    worldContainer.removeChild(particle);
+                    container.removeChild(particle);
                 }
             }, duration * 1.2 + 50);
         }, delay);
@@ -141,17 +148,17 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
     // Add a central "poof" flash that quickly expands and fades
     const flashParticle = document.createElement('div');
     flashParticle.innerText = '💨';
-    flashParticle.style.position = 'absolute';
+    flashParticle.style.position = position;
     flashParticle.style.left = `${centerX}px`;
     flashParticle.style.top = `${centerY}px`;
     flashParticle.style.pointerEvents = 'none';
-    flashParticle.style.zIndex = '1000';
-    flashParticle.style.fontSize = `${scaledTileSize * 0.6}px`;
+    flashParticle.style.zIndex = String(zIndex);
+    flashParticle.style.fontSize = `${size * 0.6}px`;
     flashParticle.style.transform = 'translate(-50%, -50%) scale(0.8)';
     flashParticle.style.opacity = '0.9';
     flashParticle.style.transition = `all ${duration * 0.6}ms ease-out`;
 
-    worldContainer.appendChild(flashParticle);
+    container.appendChild(flashParticle);
 
     requestAnimationFrame(() => {
         flashParticle.style.transform = 'translate(-50%, -50%) scale(2)';
@@ -160,11 +167,16 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
 
     setTimeout(() => {
         if (flashParticle.parentNode) {
-            worldContainer.removeChild(flashParticle);
+            container.removeChild(flashParticle);
         }
     }, duration * 0.6 + 50);
 };
- 
+
+/** The collection poof at a point on screen (client px), over the panels; `size` plays the tile size. */
+export const createCollectEffectAt = (clientX, clientY, size = 48) => {
+    spawnCollectBurst(document.body, clientX, clientY, size, 'fixed', 100002);
+};
+
 export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => {
     // Find the PixiJS containers - same approach as createCollectEffect
     const worldContainer = document.querySelector('.pixi-world-container');

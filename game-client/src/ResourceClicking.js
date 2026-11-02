@@ -22,6 +22,7 @@ import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange, nearestFootprintTile } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
+import { rememberLastDoober } from './GameFeatures/Relationships/conversationMemory';
 
 // FTUE Collect Wheat beat: how many Wheat, and the counter's storage key (survives a refresh)
 const FTUE_WHEAT_NEEDED = 3;
@@ -351,6 +352,9 @@ export async function handleDooberClick(
     }
     return filtered;
   });
+
+  // the player's first Interest in their next conversation (Relationships/conversationMemory.js)
+  if (!isCurrencyItem) rememberLastDoober(currentPlayer?.playerId, resource.type);
 
   // Show VFX and floating text immediately for responsiveness
   createCollectEffect(col, row, TILE_SIZE);

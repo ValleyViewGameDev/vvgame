@@ -3394,10 +3394,10 @@ return (
     {/* Zoom controls: a sibling of the nav (not a child) so the phone layouts can place them
         freely; on desktop they are fixed at the top-left, exactly where the nav's corner was */}
     {currentPlayer && (
-      <div className="zoom-controls">
+      <div className="zoom-controls" {...hudTipHandlers}>
         <div className="zoom-button-container">
-          <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
-          <button className="zoom-button zoom-out" disabled={!currentPlayer || (zoomLevel === 'settlement' && isPhone())} onClick={zoomOut}><span>−</span></button>
+          <button className="zoom-button zoom-in" data-tip={strings[10222] || 'Zoom in'} aria-label={strings[10222] || 'Zoom in'} disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
+          <button className="zoom-button zoom-out" data-tip={strings[10223] || 'Zoom out'} aria-label={strings[10223] || 'Zoom out'} disabled={!currentPlayer || (zoomLevel === 'settlement' && isPhone())} onClick={zoomOut}><span>−</span></button>
         </div>
       </div>
     )}
@@ -3855,6 +3855,7 @@ return (
         backpack={backpack}
         masterTraders={masterTraders}
         masterResources={masterResources}
+        openPanel={openPanel}
       />
 
       <RevivalModal

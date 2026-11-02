@@ -1,0 +1,24 @@
+/* UI/slamIn.js: the "hangs big, falls, lands hard" entrance, ported from Heir & Spare's war glyph
+   (house/game-client/ui/modals/RebellionModal.css war-glyph-slam). The weight is in the SHAPE of
+   the curve: it hangs large and still, falls gaining speed all the way (ease-IN, so it is still
+   accelerating at contact: that reads as mass), overshoots PAST its resting size on impact, then
+   rings down. The impact lands at 69% (759 ms of 1100), when slamIn.js fires the burst. Slowed from
+   Heir & Spare's 760 ms (owner 2026-11-02: it went by too fast); the curve's shape is unchanged.
+   transform + opacity only, on a fixed clone over everything (the panels clip their contents). */
+.slam-in-clone {
+  z-index: 100001; /* over the panels, the nav and the modals' overlay */
+  pointer-events: none;
+  animation: slamIn 1100ms both;
+  will-change: transform, opacity;
+}
+@keyframes slamIn {
+  /* HANG: fade in at full size and hold still; both ends hold the same transform */
+  0%    { transform: scale(4); opacity: 0; }
+  8%    { opacity: 1; }
+  26.3% { transform: scale(4); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  /* IMPACT: driven past its resting size, squashed by its own momentum */
+  69%   { transform: scale(0.84); animation-timing-function: cubic-bezier(0.34, 1.2, 0.64, 1); }
+  80.8% { transform: scale(1.10); }   /* rebound */
+  90.4% { transform: scale(0.965); }  /* a second, smaller ring */
+  100%  { transform: scale(1); opacity: 1; }
+}

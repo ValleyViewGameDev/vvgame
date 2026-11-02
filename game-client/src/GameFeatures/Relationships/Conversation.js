@@ -3,6 +3,41 @@ import './Conversation.css';
 import ConversationManager from './ConversationManager';
 import RelationshipMatrix from './RelationshipMatrix.json';
 import Topics from './Topics.json';
+import { lastDoober, lastNpcInteraction } from './conversationMemory';
+
+// A conversation's three rounds (owner 2026-11-02; Talk in interactions.json, and every
+// interaction that uses these topic keys):
+//   1 'interest'     a resource. Player: the last doober collected (conversationMemory.js).
+//                    NPC: its FIRST Interest, every time (the panel lists it first).
+//   2 'people'       an NPC. Player: the last NPC they used a relationship button on, not counting
+//                    this one. NPC: one of its relations at random (RelationshipMatrix friend /
+//                    love / rival), else any character at random.
+//   3 'anyinterest'  a resource again. Player: any doober at random. NPC: one of its own
+//                    Interests at random.
+// So a player who reads an NPC's panel can collect its first Interest and open with it, and bring
+// up someone it likes. A resource round where the two match earns a little extra
+// (INTEREST_MATCH_BONUS) on top of any match bonus.
+export const INTEREST_MATCH_BONUS = 0.05;
+const INTEREST_KEYS = ['interest', 'anyinterest'];
+
+const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
+const symbolOf = (type, masterResources) => masterResources?.find((r) => r.type === type)?.symbol || null;
+// an NPC's Interests as symbols, in the panel's order (NPCConnections.js lists the same, deduped)
+const npcInterestSymbols = (npcId, masterResources) => {
+  const entry = RelationshipMatrix.find((e) => e.type === npcId);
+  if (!entry || !masterResources) return [];
+  const types = [];
+  for (let i = 1; entry[`interest${i}`]; i++) types.push(entry[`interest${i}`]);
+  return [...new Set(types)].map((type) => symbolOf(type, masterResources)).filter(Boolean);
+};
+// the characters an NPC has feelings about (RelationshipMatrix: another NPC's name keyed to a status)
+const npcRelationSymbols = (npcId) => {
+  const entry = RelationshipMatrix.find((e) => e.type === npcId);
+  if (!entry) return [];
+  return RelationshipMatrix
+    .filter((other) => other.type !== npcId && ['friend', 'love', 'rival', 'married'].includes(entry[other.type]))
+    .map((other) => other.symbol).filter(Boolean);
+};
 
 // Track conversation results for chance modification
 let conversationResults = {
@@ -108,6 +143,11 @@ export const calculateModifiedChance = (baseChance, interaction, conversationRes
     modifiedChance -= (0.15 * conversationResults.rivalTopics);
   }
 
+  // 2b. A little extra for each Interest the player matched with the NPC's (any interaction)
+  if (conversationResults.matchingInterests > 0) {
+    modifiedChance += INTEREST_MATCH_BONUS * conversationResults.matchingInterests;
+  }
+
   // 3. Add bonus for relationship status buffs
   // Note: Statuses are stored as boolean properties on relationship (e.g., rel.friend = true)
   if (currentPlayer && currentPlayer.relationships) {
@@ -180,7 +220,8 @@ export const playConversation = async (
     currentPlayer: currentPlayer,
     interaction: interaction,
     masterResources: masterResources,
-    npcId: npcId
+    npcId: npcId,
+    playerId: currentPlayer?.playerId,
   };
   
   // Add relationship score if it exists
@@ -230,6 +271,7 @@ export const playConversation = async (
     // Track results for chance calculation
     if (matchState === 'match') {
       conversationResults.matchingTopics++;
+      if (INTEREST_KEYS.includes(playerTopicKey) && INTEREST_KEYS.includes(npcTopicKey)) conversationResults.matchingInterests++;
     } else if (matchState === 'rival') {
       conversationResults.rivalTopics++;
     }
@@ -281,8 +323,10 @@ export const playNPCConversation = async ({
     const bKey = interaction?.[`npctopic${roundNum}`] || 'random';
     const bTopic = getTopicSymbol(bKey, { ...base, npcId: partnerType, npcIcon: partnerEmoji, playerTopic: aTopic, roundNum }, false);
     const { matchState } = compareTopics(aTopic, bTopic, partnerType, interaction, roundNum);
-    if (matchState === 'match') results.matchingTopics++;
-    else if (matchState === 'rival') results.rivalTopics++;
+    if (matchState === 'match') {
+      results.matchingTopics++;
+      if (INTEREST_KEYS.includes(aKey) && INTEREST_KEYS.includes(bKey)) results.matchingInterests++;
+    } else if (matchState === 'rival') results.rivalTopics++;
     ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState);
     if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
     ConversationManager.removeSpeech(partnerType);
@@ -335,60 +379,40 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
       return context.npcIcon || '🤔';
       
     case 'interest':
-      // Show player's top resources from backpack (priority) or inventory (fallback)
-      if (isPlayerTurn && context.currentPlayer && context.masterResources) {
-        const inventory = context.currentPlayer.inventory || [];
-        const backpack = context.currentPlayer.backpack || [];
-
-        // Use backpack if it has items, otherwise fall back to inventory
-        const itemSource = backpack.length > 0 ? backpack : inventory;
-
-        // Sort by quantity and get top 5, only from doober category resources
-        const topItems = itemSource
-          .filter(item => {
-            const resource = context.masterResources.find(r => r.type === item.type);
-            return resource && resource.category === 'doober';
-          })
-          .sort((a, b) => b.quantity - a.quantity)
-          .slice(0, 5)
-          .map(item => {
-            const resource = context.masterResources.find(r => r.type === item.type);
-            return resource?.symbol || item.type;
-          })
-          .filter(symbol => symbol); // Remove any undefined
-
-        // Return random item from top 5, or fallback
-        if (topItems.length > 0) {
-          return topItems[Math.floor(Math.random() * topItems.length)];
+      // Round 1. Player: the last doober they collected (else one of their most-held doobers)
+      if (isPlayerTurn) {
+        const last = symbolOf(lastDoober(context.playerId), context.masterResources);
+        if (last) return last;
+        if (context.currentPlayer && context.masterResources) {
+          const backpack = context.currentPlayer.backpack || [];
+          const itemSource = backpack.length > 0 ? backpack : (context.currentPlayer.inventory || []);
+          const topItems = itemSource
+            .filter((item) => context.masterResources.find((r) => r.type === item.type)?.category === 'doober')
+            .sort((a, b) => b.quantity - a.quantity)
+            .slice(0, 5)
+            .map((item) => symbolOf(item.type, context.masterResources))
+            .filter(Boolean);
+          if (topItems.length > 0) return pickOne(topItems);
         }
+      } else if (context.npcId) {
+        // NPC: its first Interest, every time
+        const first = npcInterestSymbols(context.npcId, context.masterResources)[0];
+        if (first) return first;
       }
-      
-      // For NPC turn, check RelationshipMatrix for interests
-      if (!isPlayerTurn && context.npcId && context.masterResources) {
-        const npcEntry = RelationshipMatrix.find(entry => entry.type === context.npcId);
-        if (npcEntry) {
-          // Collect all defined interests (interest1, interest2, interest3, etc.)
-          const npcInterests = [];
-          let i = 1;
-          while (npcEntry[`interest${i}`]) {
-            // Look up the interest in masterResources to get its symbol
-            const interest = npcEntry[`interest${i}`];
-            const resource = context.masterResources.find(r => r.type === interest);
-            if (resource && resource.symbol) {
-              npcInterests.push(resource.symbol);
-            }
-            i++;
-          }
-          
-          // If NPC has interests defined, return one randomly
-          if (npcInterests.length > 0) {
-            return npcInterests[Math.floor(Math.random() * npcInterests.length)];
-          }
-        }
+      return pickOne(Topics.fallbackInterests);
+
+    case 'anyinterest':
+      // Round 3. Player: any doober at all; NPC: one of its own Interests
+      if (isPlayerTurn) {
+        const all = (context.masterResources || [])
+          .filter((r) => r.category === 'doober' && r.type !== 'Money' && r.symbol)
+          .map((r) => r.symbol);
+        if (all.length > 0) return pickOne(all);
+      } else if (context.npcId) {
+        const own = npcInterestSymbols(context.npcId, context.masterResources);
+        if (own.length > 0) return pickOne(own);
       }
-      
-      // Fallback to default interests
-      return Topics.fallbackInterests[Math.floor(Math.random() * Topics.fallbackInterests.length)];
+      return pickOne(Topics.fallbackInterests);
 
     case 'npcinterest1':
       // NPC's first interest from RelationshipMatrix
@@ -421,97 +445,34 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
       return '👫';
       
     case 'random':
-      // Random topic selection - includes NPC's interest2 if available
-      if (context.relscore > 80) {
-        // If relscore is high, use secret topics
-        return Topics.secretTopics[Math.floor(Math.random() * Topics.secretTopics.length)];
-      } else {
-        // Base random topics (copy array so we can modify it)
-        const randomTopics = [...Topics.randomTopics];
-
-        // For NPC turn, add their interest2 to the pool
-        if (!isPlayerTurn && context.npcId && context.masterResources) {
-          const npcEntry = RelationshipMatrix.find(entry => entry.type === context.npcId);
-          if (npcEntry && npcEntry.interest2) {
-            const resource = context.masterResources.find(r => r.type === npcEntry.interest2);
-            if (resource && resource.symbol) {
-              randomTopics.push(resource.symbol);
-            }
-          }
-        }
-
-        return randomTopics[Math.floor(Math.random() * randomTopics.length)];
-      }
+      // Random topic selection (secret topics once the relationship is close)
+      if (context.relscore > 80) return pickOne(Topics.secretTopics);
+      return pickOne(Topics.randomTopics);
 
     case 'people':
-      // Generic "people" topic - behavior differs for player vs NPC
+      // Round 2: a character
       if (isPlayerTurn) {
-        // PLAYER: Show their best relationship (married > highest relscore)
-        if (context.currentPlayer && context.masterResources) {
-          const relationships = context.currentPlayer.relationships || [];
-
-          if (relationships.length > 0) {
-            // First, check for any married relationships
-            const marriedRels = relationships.filter(rel => rel.married === true);
-            if (marriedRels.length > 0) {
-              const chosen = marriedRels[Math.floor(Math.random() * marriedRels.length)];
-              const npcEntry = RelationshipMatrix.find(entry => entry.type === chosen.name);
-              return npcEntry?.symbol || '👫';
-            }
-
-            // No married, find highest relscore
-            const maxScore = Math.max(...relationships.map(rel => rel.relscore || 0));
-            const topRels = relationships.filter(rel => (rel.relscore || 0) === maxScore);
-            const chosen = topRels[Math.floor(Math.random() * topRels.length)];
-            const npcEntry = RelationshipMatrix.find(entry => entry.type === chosen.name);
-            return npcEntry?.symbol || '👫';
-          }
-
-          // No relationships at all, fallback to Kent
-          const kentEntry = RelationshipMatrix.find(entry => entry.type === 'Kent');
-          return kentEntry?.symbol || '👨🏽';
+        // PLAYER: the last NPC they used a relationship button on, not counting this one
+        const lastNpc = lastNpcInteraction(context.playerId, context.npcId);
+        const lastSymbol = lastNpc && RelationshipMatrix.find((entry) => entry.type === lastNpc)?.symbol;
+        if (lastSymbol) return lastSymbol;
+        // none yet: their best relationship (married first, else the highest score)
+        const relationships = (context.currentPlayer?.relationships || []).filter((rel) => rel.name !== context.npcId);
+        if (relationships.length > 0) {
+          const married = relationships.filter((rel) => rel.married === true);
+          const maxScore = Math.max(...relationships.map((rel) => rel.relscore || 0));
+          const chosen = pickOne(married.length > 0 ? married : relationships.filter((rel) => (rel.relscore || 0) === maxScore));
+          const symbol = RelationshipMatrix.find((entry) => entry.type === chosen.name)?.symbol;
+          if (symbol) return symbol;
         }
-        return '👫';
-
-      } else {
-        // NPC: Be reactive to player's shown NPC, or pick interest3/random
-        if (context.npcId && context.masterResources) {
-          const npcEntry = RelationshipMatrix.find(entry => entry.type === context.npcId);
-
-          // Check if player showed an NPC character
-          const playerShownNpcType = context.playerTopic ? findNPCTypeFromSymbol(context.playerTopic) : null;
-
-          if (playerShownNpcType) {
-            // Player showed an NPC - check if we have a relationship with them
-            const relationship = checkNPCRelationship(context.npcId, playerShownNpcType);
-
-            if (relationship === 'rival' || relationship === 'friend' || relationship === 'love') {
-              // NPC has strong feelings about player's shown character - ECHO it
-              return context.playerTopic;
-            }
-          }
-
-          // Player showed someone neutral (or not an NPC) - pick our own topic
-          if (npcEntry) {
-            // First try interest3
-            if (npcEntry.interest3) {
-              const resource = context.masterResources.find(r => r.type === npcEntry.interest3);
-              if (resource && resource.symbol) {
-                return resource.symbol;
-              }
-            }
-          }
-
-          // No interest3 defined - pick a random NPC character (trade or quest action)
-          const npcCharacters = context.masterResources.filter(
-            r => r.action === 'trade' || r.action === 'quest'
-          );
-          if (npcCharacters.length > 0) {
-            const randomNpc = npcCharacters[Math.floor(Math.random() * npcCharacters.length)];
-            return randomNpc.symbol || '👤';
-          }
-        }
-        return '👤';
+        return RelationshipMatrix.find((entry) => entry.type === 'Kent')?.symbol || '👫';
+      }
+      // NPC: one of its relations at random; with none, any character at random
+      {
+        const relations = context.npcId ? npcRelationSymbols(context.npcId) : [];
+        if (relations.length > 0) return pickOne(relations);
+        const characters = RelationshipMatrix.filter((entry) => entry.type !== context.npcId && entry.symbol).map((entry) => entry.symbol);
+        return characters.length > 0 ? pickOne(characters) : '👤';
       }
 
     case 'quest':

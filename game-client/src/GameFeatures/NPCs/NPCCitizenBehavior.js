@@ -78,8 +78,8 @@ const SOCIAL_APPROACH_MS = 45000; // a partner not reached in this long counts a
 const SOCIAL_TALK_CAP_MS = 60000; // a partner is never held in a conversation longer than this
 const SOCIAL_BASE_CHANCE = 0.6;  // a citizen talk's base chance of going well (the player's Talk: 0.9)
 const SOCIAL_SCORE = 8;          // the relationship moves this much either way (the player's Talk: 8)
-// the player's Talk, when interactions.json is not loaded: 3 rounds, interest / random / people
-const TALK_FALLBACK = { interaction: 'Talk', rounds: 3, chance: 0.9, relscoreresult: 8, playertopic1: 'interest', playertopic2: 'random', playertopic3: 'people', npctopic1: 'interest', npctopic2: 'random', npctopic3: 'people' };
+// the player's Talk, when interactions.json is not loaded: 3 rounds, interest / people / anyinterest
+const TALK_FALLBACK = { interaction: 'Talk', rounds: 3, chance: 0.9, relscoreresult: 8, playertopic1: 'interest', playertopic2: 'people', playertopic3: 'anyinterest', npctopic1: 'interest', npctopic2: 'people', npctopic3: 'anyinterest' };
 
 const STATE_FIELD = { working: 'stateWorking', resting: 'stateResting', roaming: 'stateRoaming', eating: 'stateEating', socializing: 'stateSocializing' };
 const HEADLINE = { resting: { type: 'Zzz' }, waiting: { type: 'question' }, eating: { type: 'emoji', emoji: '🍽️' } };

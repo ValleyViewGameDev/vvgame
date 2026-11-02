@@ -60,11 +60,11 @@
     "relscoreresult": 8,
     "rounds": 3,
     "playertopic1": "interest",
-    "playertopic2": "random",
-    "playertopic3": "people",
+    "playertopic2": "people",
+    "playertopic3": "anyinterest",
     "npctopic1": "interest",
-    "npctopic2": "random",
-    "npctopic3": "people"
+    "npctopic2": "people",
+    "npctopic3": "anyinterest"
   },
   {
     "interaction": "Joke",

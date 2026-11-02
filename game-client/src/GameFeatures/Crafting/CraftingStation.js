@@ -29,6 +29,7 @@ import './CraftingStation.css'; // Import for crafting station panel and slot st
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import InfoButton from '../../UI/Buttons/InfoButton';
+import { rememberLastDoober } from '../Relationships/conversationMemory';
 
 // Slots with a collect on its way to the server, per station ("gridId:x,y" -> Set of slot
 // indexes). The server answers collects one at a time (the per-grid write lock), and each answer
@@ -451,6 +452,8 @@ const CraftingStation = ({
     const finalQtyCollected = applySkillMultiplier(baseQtyCollected, skillInfo.multiplier);
     const craftedItemResource = masterResources.find(r => r.type === craftedItemType);
     const craftedSymbol = craftedItemResource?.symbol || '🎁';
+    // a collected doober is the player's opening Interest in their next conversation
+    if (craftedItemResource?.category === 'doober') rememberLastDoober(currentPlayer?.playerId, craftedItemType);
 
     const stationKey = `${gridId}:${currentStationPosition.x},${currentStationPosition.y}`;
     if (!pendingSlotCollects.has(stationKey)) pendingSlotCollects.set(stationKey, new Set());

@@ -32,6 +32,7 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
 import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
+import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import CluesModal, { cluesFor } from './CluesModal';
 import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
@@ -594,8 +595,16 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
     console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
     let revertReward = () => {};
     try {
-      // Get relationship-based multiplier from RelationshipMatrix data
-      const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
+      // Get relationship-based multiplier from RelationshipMatrix data. A one-of-a-kind reward is
+      // never multiplied: a Secret (Portia's needs marriage, whose buff is 5x, so it paid out five),
+      // a Quest for Hope artifact, a skill, a power or a worker (owner 2026-11-02).
+      const rewardDef = masterResources.find(r => r.type === quest.reward);
+      const oneOfAKind = /'s Secret$/.test(quest.reward || '')
+        || hopeArtifacts(masterTraders).has(quest.reward)
+        || ['skill', 'power', 'npc'].includes(rewardDef?.category);
+      const { multiplier, bonusMessage } = oneOfAKind
+        ? { multiplier: 1, bonusMessage: '' }
+        : getRelationshipMultiplier(npcData.type, currentPlayer, strings);
       const rewardQuantity = Math.floor((quest.rewardqty || 1) * multiplier);
 
       // On the tap (house rule): the reward and its XP rise from the card and fly home, the card

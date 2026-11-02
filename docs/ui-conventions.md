@@ -150,7 +150,7 @@ value rather than trust this page.
 - The floating HUD buttons (Map, Quest at the left; Season, Town News at the right) get the same
   pill beside the button, toward the middle of the screen: a left-column button's tip opens to
   its right, a right-column button's to its left (`useHoverTip('side')`, same file). The zoom
-  + / − buttons have no tip.
+  + / − buttons say Zoom in / Zoom out (strings 10222, 10223).
 - Phones: the nav is a floating iOS-style pill over the board (horizontal along the bottom
   in portrait, vertical at the left in landscape). Panels (the Map panel
   included) and the chat share one box docked at the left,

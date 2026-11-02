@@ -202,8 +202,11 @@ one, so the rest of the game is a promise, not a mystery.
   player will need, his Cassio line (16502) that Cassio waits beyond the Town's golden gate.
 
 - **The found moment** (built 2026-10-24, for all seven artifacts). When an artifact turns up in
-  the player's holdings (`GameFeatures/Social/HopeFound.js`, mounted in App), its story modal
-  plays at once (strings 200830-200836: a famous line re-aimed, then "one of the seven
+  the player's holdings (`GameFeatures/Social/HopeFound.js`, mounted in App), the Quest panel
+  opens and the artifact slams into its slot (2026-11-02: it hangs big, falls and lands hard, the
+  Heir & Spare war glyph's curve in `UI/slamIn.js`, with the doober collection poof and the slot
+  filling green on impact; `HopeQuest.js` playHopeLanding); the panel stays open. Then its story
+  modal plays (strings 200830-200836: a famous line re-aimed, then "one of the seven
   treasures the Oracle asks for in exchange for Hope"), and `POST /api/hope/found` records it in
   `player.hopeFound` and mails the Oracle's letter (messages.json 401-407, `hopeArtifact`), which
   points to the next artifact: Crown, Trident, Vampire's Blood, Brass Bell, Phoenix Feather,

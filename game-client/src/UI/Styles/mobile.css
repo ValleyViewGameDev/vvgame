@@ -247,7 +247,7 @@
     right: auto;
     clip-path: none;
     border-radius: 50%;
-    font-size: var(--text-3xl);
+    font-size: var(--text-4xl);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
   }
   .zoom-button.zoom-in { top: 6px; }
