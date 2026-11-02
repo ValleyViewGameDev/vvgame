@@ -219,15 +219,12 @@ function BankPanel({
           requiredLevel={bankRequiredLevel}
           featureName={getLocalizedString('Bank', strings)}
         >
-          {/* Check if player is in their home settlement */}
+          {/* Banks in another settlement are closed to you; Counting Houses out in the valleys
+              are open to everyone, a place to sell what you gathered (owner, 2026-11-02) */}
           {(() => {
             const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
-            console.log('🏦 Bank access check:', {
-              currentSettlement: currentPlayer.location.s,
-              homeSettlement: currentPlayer.settlementId,
-              isInHomeSettlement
-            });
-            return !isInHomeSettlement;
+            const isInValley = (currentPlayer.location.gtype || '').startsWith('valley');
+            return !isInHomeSettlement && !isInValley;
           })() ? (
             <div style={{ textAlign: 'center', padding: '20px' }}>
               <h2>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h2>
