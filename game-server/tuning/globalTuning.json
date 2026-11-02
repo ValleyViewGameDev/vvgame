@@ -76,6 +76,14 @@
   "tradeStallHaircut": 0.35,
   "mayorcut": 50,
   "bankOffers": 3,
+  "valleyBankOffers": [
+    { "itemBought": "Wood", "qtyMin": 50, "qtyMax": 100 },
+    { "itemBought": "Stone", "qtyMin": 20, "qtyMax": 40 },
+    { "itemBought": "Clay", "qtyMin": 5, "qtyMax": 10 },
+    { "itemBought": "Silver", "qtyMin": 10, "qtyMax": 10 },
+    { "itemBought": "Diamond Ring", "qtyMin": 1, "qtyMax": 1 },
+    { "itemBought": "Gold", "qtyMin": 2, "qtyMax": 2 }
+  ],
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 16,

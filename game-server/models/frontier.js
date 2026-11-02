@@ -36,6 +36,15 @@ const FrontierSchema = new mongoose.Schema({
         qtyGiven: { type: Number, required: true },
       }
     ],
+    // Counting Houses in the valleys: a fixed list of resources, prices rolled per round
+    valleyOffers: [
+      {
+        itemBought: { type: String, required: true },
+        qtyBought: { type: Number, required: true },
+        itemGiven: { type: String, required: true },
+        qtyGiven: { type: Number, required: true },
+      }
+    ],
   },
 
   // ✅ Season Timing (Controlled Per Frontier)

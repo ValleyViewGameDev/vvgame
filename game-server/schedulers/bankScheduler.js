@@ -23,7 +23,8 @@ async function bankScheduler(frontierId, phase, frontier = null) {
 
                 // ✅ Generate new offers during "active" phase
                 const newOffers = generateBankOffers(seasonLevel);
-                console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
+                const valleyOffers = generateValleyBankOffers();
+                console.log(`💰✅ ${newOffers.length} new bank offers, ${valleyOffers.length} valley offers generated.`);
 
                 
                 // ✅ Log Bank Offers to All Settlements
@@ -56,7 +57,8 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 }
 
                 return {
-                    "bank.offers": newOffers
+                    "bank.offers": newOffers,
+                    "bank.valleyOffers": valleyOffers
                 };
 
             default:
@@ -191,8 +193,32 @@ function generateBankOffers(seasonLevel) {
     return offers;
 }
 
+// Counting Houses in the valleys (owner, 2026-11-02): always the same resources
+// (globalTuning.valleyBankOffers: Wood, Stone, Clay, Silver, Diamond Ring, Gold), ignoring the
+// season level and noBank; only the quantity (qtyMin..qtyMax) and the price vary per round.
+// The price per unit is drawn like the town Bank's (minprice to the min/max midpoint) but not
+// floored per unit, so cheap goods such as Wood still pay something.
+function generateValleyBankOffers() {
+    const offers = [];
+    for (const spec of globalTuning.valleyBankOffers || []) {
+        const resourceData = masterResources.find(res => res.type === spec.itemBought);
+        if (!resourceData) { console.warn(`⚠️ Valley bank offer for unknown resource ${spec.itemBought}`); continue; }
+        const qtyMin = spec.qtyMin || 1;
+        const qtyMax = Math.max(qtyMin, spec.qtyMax || qtyMin);
+        const qtyBought = Math.floor(Math.random() * (qtyMax - qtyMin + 1)) + qtyMin;
+        const minprice = resourceData.minprice || 0;
+        const maxprice = resourceData.maxprice || minprice;
+        const midpoint = (minprice + maxprice) / 2;
+        const pricePerUnit = minprice + Math.random() * (midpoint - minprice);
+        const qtyGiven = Math.max(1, Math.floor(pricePerUnit * qtyBought * 0.9));
+        offers.push({ itemBought: spec.itemBought, qtyBought, itemGiven: "Money", qtyGiven });
+    }
+    return offers;
+}
+
 // Export bankScheduler as the default export
 module.exports = bankScheduler;
 
 // Add generateBankOffers as a property of bankScheduler
 bankScheduler.generateBankOffers = generateBankOffers;
+bankScheduler.generateValleyBankOffers = generateValleyBankOffers;

@@ -56,7 +56,11 @@ function BankPanel({
        setIsContentLoading(true);
        try {
             const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
-            setBankOffers(response.data.bank?.offers || []);
+            // A valley Counting House has its own fixed list (Wood, Stone, Clay, Silver, Diamond Ring,
+            // Gold; bankScheduler.generateValleyBankOffers); until its first round has run, the town list
+            const valleyOffers = response.data.bank?.valleyOffers || [];
+            const inValley = (currentPlayer.location?.gtype || '').startsWith('valley');
+            setBankOffers(inValley && valleyOffers.length > 0 ? valleyOffers : (response.data.bank?.offers || []));
             setBankPhase(response.data.bank?.phase || "");
         } catch (error) {
             console.error('❌ Error fetching bank offers:', error);

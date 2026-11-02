@@ -222,6 +222,11 @@ with the Inventory panel (`canSendHome` = at home or at a Post House).
   were independent, so two identical offers (Diamond Ring x8 twice) could appear.
 - Offers are repeatable for the whole round: a sale puts the card on a short cooldown, it does
   not use the offer up.
+- **Valley Counting Houses (2026-11-02)** are open to every player (town Banks only in the home
+  settlement) and have their own list, `bank.valleyOffers`, rolled in the same round: always the
+  six resources of `globalTuning.valleyBankOffers` (Wood, Stone, Clay, Silver, Diamond Ring, Gold;
+  season level and `noBank` ignored), each with a `qtyMin`..`qtyMax` quantity. The price per unit
+  uses the same min-to-midpoint draw but is not floored per unit, so Wood (price 0 to 1) still pays.
 
 ## 4c. Effort and ask sizing (2026-10-12)
 
