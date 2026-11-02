@@ -72,12 +72,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   long skinny peninsula at 1016632, in Hell's Mouth Lake (the devil's grin), is a place the
   owner likes: create a new character and put his hut there. Character to be designed; the hut
   and the character go in with phase 3 (towns and scenarios) of W-11.
-- **W-14. Refine and place the Coyote Dens** (added 2026-10-17). First-stab mini templates
-  `coyoteDenEast` and `coyoteDenWest` (`game-server/layouts/gridLayouts/miniTemplates/`, 15x15):
-  slate with Rocks to harvest for Stone, Coyotes and 2 Coyote Spawners, small mountains on three
-  sides, Pine Trees blocking the entrance that the player cuts through. Owner to hand-edit them,
-  then place one immediately next to each town, so every new player faces a small combat
-  scenario on first reaching the valley.
 - **W-17. Re-do the dungeon templates for the new stone walls** (added 2026-10-21). The stone
   wall rendering has changed: walls and fences now join up (`wallSet` on the resource row,
   post + spokes + runs composed from the N/E/S/W mask by `PixiRendererWalls.js`, no diagonals;
@@ -216,23 +210,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   `tzOffset`); `player.returnGift` is false on new accounts, unset (never sent) on older ones;
   the claim is atomic. The last toast (7065) promises it.
 
-- **OB-4. Make the walk to Helena a real first trip into the Valley** (added 2026-10-24,
-  revised for the story). Elbow's "More Things in Heaven and Earth" (L5, Meet Helena) now carries
-  the pull (the first valley quest was L8). Reaching her is easy: she stands one grid south of
-  town (copies of her will stand on every grid south of a town, for when settlements fill with
-  players; for tuning, treat her as one grid south of town), so no wayfinding work is needed. What
-  it lacks is something for her to give on arrival: her first quest is the Golden Key at L8, so a
-  player who meets her at L5 finds nothing to do for three levels. Add a short Helena starter at
-  L5-6 that teaches foraging (Rosemary and Daisy, the Potion A herbs, leading into Portia's L7
-  potion), and check the wild crops and enemies on her grid suit an L5 player. Start at
-  `questsEN.json` (Helena, quest 116) and her grid's layout.
-  **Built 2026-10-24** (re-levelled 2026-10-25 by OB-10: the Valley is now L7, where Helena gives
-  the Golden Key on arrival, and this quest moved to L9 with the potions): Helena's "I Know a Bank
-  Where the Wild Thyme Blows" (quest 128, was L5):
-  collect 6 Rosemary (17 on her grid), reward 2 Daisy, so with 16 Milk the player can make the
-  Potion A Portia asks for at L7; her ask (string 16520) teaches that wild herbs grow back where
-  picked. Checked: her grid's Coyotes are L3-fitted, fine at L5; Rosemary has no level gate.
-  Open: her grid has 1 Daisy, so her L8 Daisy quest (50) leans on the wider Valley.
 
 - **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
   Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
