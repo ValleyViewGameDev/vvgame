@@ -14,7 +14,7 @@ here; detail lives in the linked docs and backlog items.
 - [x] **Store grants only verified Stripe payments.** Done 2026-10-30 (c70b066d): session checked
   server-side, one grant per session, a Stripe error no longer crashes the server. New restricted
   Stripe key for this game (House keeps the standard key). Tested with a real purchase.
-- [ ] **Open-in-your-browser prompt for Meta's in-app browser.** House's Campaign 3: in-app FTUE
+- [x] **Open-in-your-browser prompt for Meta's in-app browser.** House's Campaign 3: in-app FTUE
   43%, D1 3%; 88% of iOS 26 Meta clicks never left the in-app browser. Make "open in your browser"
   the primary action with a reason, and test the real ad-click path on the newest iOS.
   **Built 2026-11-01:** in an in-app browser the Begin screen's main button is "Play in Safari"
@@ -22,8 +22,8 @@ here; detail lives in the linked docs and backlog items.
   homestead is still there when you come back); Begin becomes "Play here anyway". If the page is
   still showing 1.5 s after the tap, the ⋯-menu instructions, a bouncing pointer at the menu and
   Copy link appear (`UI/Modals/BeginModal.js`, `Utils/openInBrowser.js`, strings 4121-4126).
-  Dev test: localStorage `vv:forceInApp` = `1`. **Open:** test on real phones from a Facebook
-  post link (iPhone and Android): does the hand-off leave Facebook, or does the fallback show?
+  Dev test: localStorage `vv:forceInApp` = `1`. **Tested (owner, 2026-11-02):** from Facebook's
+  browser the detection and the link out work.
 - [ ] **Full playthrough to ~L15 on a phone, FTUE timed.** OB-3, OB-6 and OB-10 are built but not
   played. House saw quits rise past a ~12 minute FTUE.
 - [x] **Finalize the town layout and upgrade its art.** Done (owner, 2026-10-31; W-15). The town is the first shared place a new
@@ -40,9 +40,14 @@ here; detail lives in the linked docs and backlog items.
   dungeon / far-region art only when needed, or a lower WebP quality after an eye check.
 - [ ] **Tag every link.** `utm_source` per channel (`fb`, `ig`, one per forum), `utm_campaign` per
   buy; never `signin=1` on acquisition links. Judge channels on played-D7, not clicks.
-- [ ] **Spend log.** Record spend, impressions and landing-page views per campaign; House could
-  not compute cost per retained player without it.
 - [x] **Render plan: no cold starts.** Done (owner, 2026-10-31): the server is on an always-on tier.
+- [ ] **Player surveys, like House's** (added 2026-11-02). House runs two Google Forms through one
+  prompt modal (`house/game-client/ui/modals/SurveyPromptModal.js`; analysis in
+  `house/docs/research/feedback-survey.md`): a one-time retention micro-survey at the end of the
+  FTUE (will you come back, what almost made you stop) and an always-on feature / roadmap survey
+  (a Mailbox link plus a one-time nudge later on). Campaign 3 drew more feedback in eight days than
+  the twelve weeks before it, so the forms must be live before the buy. Our FTUE feedback modal
+  (`GameFeatures/FTUE/FTUE.js`) is the natural place for the first; decide where the second goes.
 
 ## Should do
 
@@ -51,11 +56,14 @@ here; detail lives in the linked docs and backlog items.
 - [ ] Re-voice the FTUE toasts and approve the P3 quest asks (narrative pass).
 - [ ] Wake-Gertrude migration (`node scripts/wake-gertrude-for-friends.js --apply --except Oberon`,
   backup first, good connection).
-- [ ] `social-share.png` shows the game as it looks now.
+- [x] `social-share.png` shows the game as it looks now (owner, 2026-11-02).
 - [ ] OS version in the pageview beacon (diagnose in-app browser problems).
 - [ ] Ad creative: static images first, 4:5 (1080x1350) and 9:16 (1080x1920), from the parts of
   the board that already have painted art.
-- [ ] Close `/send-mailbox-message` (the Train's rewards come from the client).
+- [ ] Close `/send-mailbox-message`: it is an open route that mails any player any rewards the
+  request names, and the Caravan uses it by sending its own reward list from the client. The
+  rewards still go to the Mailbox; the server should work out what this Caravan earned and mail
+  it itself, so the route can be closed (or made developer-only, for the debug panel).
 
 ## Deferred
 
