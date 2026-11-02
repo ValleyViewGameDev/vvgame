@@ -1,0 +1,21 @@
+{
+  "name": "icons-r3",
+  "note": "UI icons round 3 (owner, 2026-11-01): Props was close but the objects sat at a 3D three-quarter angle, wrong for a game whose world art is all front-facing; redrawn flat-on from the front and simpler. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "nav": {
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "props-front"
+      ],
+      "prompt": "SUBJECTS: the twelve icons of the game's navigation column, in order on the 4 x 3 grid, left to right then top to bottom, each seen flat-on from the FRONT: 1 FARMING: a bunch of three carrots tied with twine, hanging tops-up, seen from the front. 2 TOOLS: a pickaxe standing upright, head at the top, seen from the front. 3 ANIMALS: a dairy cow's head seen straight from the front, with a brass bell at its neck. 4 BUILD: a small crooked thatched cottage seen from its front wall, one door, a leaning chimney. 5 SKILLS: a closed leather-bound book standing upright, its front cover facing the viewer, a quill pen leaning against it. 6 ZOO: a monkey sitting facing the viewer, drawn naturalistically, no cartoon face. 7 DECORATIONS: a clipped round topiary tree in a stone urn, seen from the front. 8 COMBAT: two crossed Elizabethan rapiers with swept hilts, flat against the picture plane. 9 GOVERNMENT: a rolled parchment scroll standing upright with a hanging red wax seal, seen from the front. 10 TROPHIES: a golden cup with two handles seen from the front, a laurel sprig on each side. 11 MAP: an unfolded parchment map held flat facing the viewer, a dotted path and a compass rose on it. 12 INVENTORY: a worn leather satchel with a buckled flap, seen from the front."
+    }
+  }
+}

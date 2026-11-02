@@ -367,17 +367,6 @@ body {
   margin-right: 22px;
 }
 
-.header-controls-center,
-.header-controls-right {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 7px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
-}
-
-/* Groups the Store/Inbox and Settings/Chat/... blocks for the phone layout (mobile.css).
-   On desktop it must not be a box of its own, or the two blocks stack. */
-.header-secondary { display: contents; }
 
 /* Left header: the phone's two-row grid. Row 1: name, gems + money. Row 2: level, health,
    inventory, each with its fill bar on the thin row below. The <span> fillers are hidden. */
@@ -414,39 +403,6 @@ body {
   gap: 20px; /* <-- TUNE THIS VALUE to adjust spacing between gems and money */
 }
 
-.header-controls-center {
-  align-items: center;
-}
-
-.header-controls-right {
-  flex: 1;
-  align-items: flex-end;
-}
-
-/* Right header uses CSS Grid for column alignment, right-aligned overall:
-   row 1 Settings, Chat, Help; row 2 Leaders, Language, Share */
-.header-controls-right.header-grid-right > span { display: none; }
-.header-controls-right.header-grid-right {
-  display: grid;
-  grid-template-columns: auto auto auto; /* 3 columns */
-  column-gap: 40px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 7px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
-  align-items: center;
-  justify-items: start; /* Left-align items within each column */
-  justify-content: end; /* Right-align the grid itself */
-}
-
-.header-row {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-}
-
-.header-controls-right .header-row {
-  justify-content: flex-end;
-  gap: 32px;
-}
-
 /* Link-style header items */
 .header-link {
   background: none;
@@ -481,6 +437,46 @@ body {
   align-items: center;
 }
 
+/* The action row (owner, 2026-11-01): Store, Inbox, Settings, Leaders, Chat, Help, Share as one row
+   of icon buttons at the header's right. Each button is its icon; on a device with a real
+   pointer the name slides out beside the icon while the mouse is over the button and folds
+   away when it leaves, so the row is icons only at rest. Phones: mobile.css keeps the icons only. */
+.header-secondary {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+.header-icon-btn {
+  height: 44px;
+  padding: 0 6px;
+  gap: 0;
+  border-radius: var(--radius-pill, 22px);
+  transition: background-color 0.15s ease;
+}
+.header-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+.header-icon-label {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.2s ease, opacity 0.15s ease, padding 0.2s ease;
+}
+@media (hover: hover) {
+  .header-icon-btn:hover { opacity: 1; background-color: rgba(255, 255, 255, 0.12); }
+  .header-icon-btn:hover .header-icon-label { max-width: 10em; opacity: 1; padding-left: 6px; padding-right: 4px; }
+}
+.header-icon-btn:disabled .header-icon { opacity: 0.6; }
+.header-link-wrapper > .badge-dot { top: 4px; right: 2px; }
+
 .app-header h1 {
   font-family: var(--font-display); /* the logo: Berkshire (the page default is Lora) */
   margin: 0;
@@ -503,11 +499,6 @@ body {
   width: 8px;
   background-color: var(--color-badge);
   border-radius: 50%;
-}
-
-.badge-dot.badge-dot-left {
-  right: auto;
-  left: -6px;
 }
 
 .nav-button {

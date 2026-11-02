@@ -1,0 +1,25 @@
+{
+  "name": "icons-r1",
+  "note": "UI icons round 1 (owner, 2026-11-01): the nav column (12) and the header buttons (12) drawn as 4 x 3 sheets on the icon grid, in three directions (painted / sticker / inked); tools/art/icons.js splits a sheet into icon files. The owner picks a direction.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "nav": {
+      "refs": [
+        "styles/icons/refs/current-nav-icons.jpg"
+      ],
+      "guide": "guides/icon-grid-4x3.png",
+      "prompt": "SUBJECTS (the attached panel of twelve small pictures on green is the CURRENT icon set being replaced: use it only to see which objects stand for which button, then redraw each object fresh in the new style, bolder and more playful). The twelve icons, in order on the 4 x 3 grid, left to right then top to bottom: 1 FARMING: a fat orange carrot with a leafy top. 2 TOOLS: a pickaxe with a wooden handle. 3 ANIMALS: a friendly spotted cow's head and shoulders. 4 BUILD: a small round thatched hut with a door. 5 SKILLS: a flexed muscular arm. 6 ZOO: a cheeky monkey, head and shoulders. 7 DECORATIONS: a potted green plant in a terracotta pot. 8 COMBAT: two crossed swords. 9 GOVERNMENT: a small classical temple with columns. 10 TROPHIES: a golden trophy cup. 11 MAP: a folded parchment map with a dotted path and an X. 12 INVENTORY: a brown leather backpack with buckles."
+    },
+    "header": {
+      "guide": "guides/icon-grid-4x3.png",
+      "prompt": "SUBJECTS: twelve icons for the game's top bar, in order on the 4 x 3 grid, left to right then top to bottom: 1 STORE: a wooden market basket heaped with goods (no cart). 2 INBOX: a cream envelope sealed with red wax. 3 SETTINGS: a chunky wooden-and-iron cog wheel. 4 LEADERS: a three-step winner's podium with a small golden star on the top step. 5 CHAT: a round speech bubble with three dots. 6 HELP: a bold question mark on a round wooden badge. 7 SHARE: a brass megaphone. 8 GEMS: a faceted blue-green gem. 9 MONEY: a tied cloth sack of coins with a coin showing. 10 HEALTH: a plump red heart. 11 LEVEL: a golden five-point star. 12 PROFILE: a round wooden-framed portrait frame holding a simple smiling face silhouette."
+    }
+  }
+}

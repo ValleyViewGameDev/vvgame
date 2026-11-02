@@ -1,0 +1,24 @@
+{
+  "name": "icons-r2",
+  "note": "UI icons round 2 (owner, 2026-11-01): round 1 read as cutesy sticker-shop; the owner wants grown-up whimsy like the buildings and the game's Shakespearean, literary side. Four new directions on the nav sheet only (props / woodcut / tavern-sign / emblem) with the subjects pulled toward real props: a book and quill for Skills, rapiers for Combat, a laurelled cup for Trophies, a sealed scroll for Government.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "nav": {
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "props",
+        "woodcut",
+        "tavern-sign",
+        "emblem"
+      ],
+      "prompt": "SUBJECTS: the twelve icons of the game's navigation column, in order on the 4 x 3 grid, left to right then top to bottom: 1 FARMING: a bunch of three carrots tied with twine, leafy tops up. 2 TOOLS: a pickaxe with a worn wooden handle. 3 ANIMALS: a dairy cow's head in profile with a brass bell at its neck, drawn naturalistically. 4 BUILD: a small crooked thatched cottage with one door and a leaning chimney. 5 SKILLS: an open leather-bound book with a quill pen laid across it. 6 ZOO: a monkey sitting, drawn naturalistically, no cartoon face. 7 DECORATIONS: a clipped topiary tree in a stone urn. 8 COMBAT: two crossed Elizabethan rapiers with swept hilts. 9 GOVERNMENT: a rolled parchment scroll with a hanging red wax seal. 10 TROPHIES: a golden cup wreathed in laurel. 11 MAP: a folded parchment map with a dotted path and a compass rose. 12 INVENTORY: a worn leather satchel with a buckled flap."
+    }
+  }
+}

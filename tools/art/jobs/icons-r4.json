@@ -1,0 +1,24 @@
+{
+  "name": "icons-r4",
+  "note": "UI icons round 4 (owner, 2026-11-01): round 3 candidate 1 approved as the control; redrawn simpler (biggest shapes only, no texture) and brighter, in the world art's full daylight. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "nav": {
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "props-lit"
+      ],
+      "prompt": "CONTROL: the attached sheet on magenta is this game's approved icon set, the exact objects, poses and layout to keep. Redraw the SAME twelve icons in the SAME cells, each the same object seen flat-on from the front, with two changes only: SIMPLER (biggest shapes, three or four colours each, no fine texture, no stitching, no tiny ornament) and BRIGHTER (full sunny daylight, clean luminous colour, no murk). In order, left to right then top to bottom: 1 FARMING: a bunch of three carrots tied with twine. 2 TOOLS: a pickaxe standing upright. 3 ANIMALS: a brown-and-white cow's head from the front with a brass bell. 4 BUILD: a small crooked thatched cottage from its front wall. 5 SKILLS: a closed leather book standing upright, front cover out, a quill leaning against it. 6 ZOO: a monkey sitting facing the viewer. 7 DECORATIONS: a round clipped topiary in a stone urn. 8 COMBAT: two crossed rapiers with swept hilts, flat to the picture plane. 9 GOVERNMENT: an upright rolled scroll with a hanging red wax seal. 10 TROPHIES: a two-handled golden cup with a laurel sprig each side. 11 MAP: an unfolded parchment map flat to the viewer with a dotted path and a compass rose. 12 INVENTORY: a leather satchel with a buckled flap, from the front.",
+      "refs": [
+        "_candidates/icons-r3/approved/openai--props-front-nav-1.small.jpg"
+      ]
+    }
+  }
+}

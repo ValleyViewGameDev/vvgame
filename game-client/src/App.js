@@ -956,13 +956,6 @@ useEffect(() => {
   if (mql.addEventListener) mql.addEventListener('change', onChange); else mql.addListener(onChange);
   return () => { if (mql.removeEventListener) mql.removeEventListener('change', onChange); else mql.removeListener(onChange); };
 }, []);
-// The leading emoji of a "🛒 Store" style label, for the phone header's icon-only row
-const headerIcon = (label, fallback = '') => {
-  if (typeof label !== 'string') return fallback;
-  const m = label.match(/^\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*/u);
-  return m ? m[0] : fallback;
-};
-const headerLabel = (label, fallback = '') => (isPhoneLayout ? headerIcon(label, fallback) : label);
 const { closeAllPanels } = usePanelContext(); 
 
 // Coming home with a loaded backpack opens Backpack Management (owner, 2026-10-11): when the player's
@@ -3267,53 +3260,27 @@ return (
           <span></span>
         </div>
 
-        {/* header-secondary groups the action links so the phone layout can lay them out as one row */}
+        {/* header-secondary: the action buttons in ONE row of icons (owner, 2026-11-01). Desktop: each
+            button grows to show its name while the mouse is over it (CSS .header-icon-label, hover
+            only); phones: icons only. The badge dots sit on the wrappers as before. */}
         <div className="header-secondary">
-        <div className="header-controls-center">
-          {/* Row 1: Store */}
-          <div className="header-row">
-            <div className="header-link-wrapper">
-              <button className="header-link header-link--store" title={strings[10104]} disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>
-                {headerLabel(strings[10104], '🛒')}
+          {[
+            { key: 'store',    icon: 'icon-store.svg',    label: strings[10104], disabled: !currentPlayer, badge: badgeState.store,   onClick: () => setActiveModal('Store') },
+            { key: 'inbox',    icon: 'icon-inbox.svg',    label: strings[10105], disabled: !currentPlayer, badge: badgeState.mailbox, onClick: () => openModal('Mailbox') },
+            { key: 'settings', icon: 'icon-settings.svg', label: strings[1190],  disabled: false,          badge: false,              onClick: () => openPanel('ProfilePanel') },
+            { key: 'leaders',  icon: 'icon-leaders.svg',  label: strings[1140],  disabled: !currentPlayer, badge: false,              onClick: () => openPanel('LeaderboardPanel') },
+            { key: 'chat',     icon: 'icon-chat.svg',     label: strings[10107], disabled: !currentPlayer, badge: badgeState.chat,    onClick: () => setIsChatOpen(prev => !prev) },
+            { key: 'howto',    icon: 'icon-help.svg',     label: strings[10110], disabled: !currentPlayer, badge: false,              onClick: () => openPanel('HowToPanel') },
+            { key: 'share',    icon: 'icon-share.svg',    label: strings[10106], disabled: false,          badge: false,              onClick: () => setShowShareModal(true) },
+          ].map((b) => (
+            <div key={b.key} className="header-link-wrapper">
+              <button className={`header-link header-icon-btn header-link--${b.key}`} title={b.label} disabled={b.disabled} onClick={b.onClick}>
+                <img className="header-icon" src={`/assets/icons/${b.icon}`} alt="" draggable="false" />
+                <span className="header-icon-label">{b.label}</span>
               </button>
-              {badgeState.store && <div className="badge-dot" />}
+              {b.badge && <div className="badge-dot" />}
             </div>
-          </div>
-          {/* Row 2: Inbox */}
-          <div className="header-row">
-            <div className="header-link-wrapper">
-              {badgeState.mailbox && <div className="badge-dot badge-dot-left" />}
-              <button className="header-link header-link--inbox" title={strings[10105]} disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>
-                {headerLabel(strings[10105], '📨')}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="header-controls-right header-grid-right">
-          {/* Grid layout: 3 columns x 2 rows */}
-          {/* Row 1: Settings, Chat, (empty) */}
-          <button className="header-link header-link--settings" title={strings[1190]} onClick={() => openPanel('ProfilePanel')}>
-            {headerLabel(strings[1190], '⚙️')}
-          </button>
-          <div className="header-link-wrapper">
-            <button className="header-link header-link--chat" title={strings[10107]} disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>
-              {headerLabel(strings[10107], '💬')}
-            </button>
-            {badgeState.chat && <div className="badge-dot" />}
-          </div>
-          <span></span>
-          {/* Row 2: How to Play, Leaders, Share (Language lives in Settings) */}
-          <button className="header-link header-link--howto" title={strings[10110]} disabled={!currentPlayer} onClick={() => openPanel('HowToPanel')}>
-            {headerLabel(strings[10110], '❓')}
-          </button>
-          <button className="header-link header-link--leaders" title={strings[1140]} disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
-            {headerLabel(strings[1140], '📊')}
-          </button>
-          <button className="header-link header-link--share" title={strings[10106]} onClick={() => setShowShareModal(true)}>
-            {headerLabel(strings[10106], '📢')}
-          </button>
-        </div>
+          ))}
         </div>
     </header>
     

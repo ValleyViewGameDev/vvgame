@@ -1,0 +1,24 @@
+{
+  "name": "icons-r5",
+  "note": "UI icons round 5 (owner, 2026-11-01): the nav sheet is approved (icons-r4 props-lit-nav-1); the header sheet drawn in the same rendering with it as the control. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "header": {
+      "refs": [
+        "_candidates/icons-r4/approved/openai--props-lit-nav-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "props-lit"
+      ],
+      "prompt": "CONTROL: the attached sheet on magenta is this game's APPROVED navigation icon set: match its rendering, its simplicity, its daylight, its colours, its icon size within the cell and its flat front-on camera EXACTLY, so the new sheet and this one are one set. SUBJECTS: twelve icons for the game's top bar, in order on the 4 x 3 grid, left to right then top to bottom, each seen flat-on from the front: 1 STORE: a wicker market basket with a hooped handle, a few goods showing above the rim. 2 INBOX: a cream envelope seen from its flap side, closed with a red wax seal. 3 SETTINGS: a chunky iron cog wheel with a wooden hub, flat to the picture plane. 4 LEADERS: a laurel wreath, open at the top, with a small golden star inside it. 5 CHAT: a round parchment speech bubble with three dots. 6 HELP: a bold question mark carved in warm wood, no plaque behind it. 7 SHARE: a brass herald's trumpet with a small hanging banner, seen from the side. 8 GEMS: a faceted blue-green gem, flat front view. 9 MONEY: a tied cloth coin sack with one gold coin leaning against it. 10 HEALTH: a plump red heart. 11 LEVEL: a golden five-point star. 12 PROFILE: a plain oval wooden picture frame holding a cream silhouette of a head and shoulders."
+    }
+  }
+}

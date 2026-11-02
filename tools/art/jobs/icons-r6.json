@@ -1,0 +1,24 @@
+{
+  "name": "icons-r6",
+  "note": "UI icons round 6 (owner, 2026-11-01): the header set redone as system-style glyphs (a classic shopping bag for Store, a standard gear, a standard share arrow) with the round-5 Chat bubble as the exemplar; Gems, Health and Money dropped (the game keeps its own icons for those for now). 3 x 3 grid. Two candidates.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "header": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "SUBJECTS: nine icons for the game's top bar, in order on the 3 x 3 grid, left to right then top to bottom, each the standard system glyph for its function: 1 STORE: a classic shopping bag with two rounded handles, seen from the front, the familiar checkout icon. 2 INBOX: a closed envelope seen from the flap side, the familiar mail icon. 3 SETTINGS: the familiar settings gear: a round cog with eight evenly spaced rounded teeth and a round hole in the centre, flat to the picture plane. 4 LEADERS: a laurel wreath open at the top with a small golden star inside it. 5 CHAT: the exemplar speech bubble with three dots, redrawn exactly. 6 HELP: a bold question mark inside a round cream disc, the familiar help icon. 7 SHARE: the familiar share icon: a bold arrow curving up and out to the right from an open tray or box. 8 LEVEL: a golden five-point star. 9 PROFILE: the familiar profile icon: a round head above rounded shoulders, as a cream silhouette on a honey-wood disc."
+    }
+  }
+}

@@ -109,43 +109,23 @@
   }
   .header-currency-group { gap: 14px; flex: 0 0 auto; }
 
-  /* Row 3: icons only (App.js renders the leading emoji on phones), bigger, in this order */
+  /* Row 3: the action row, icons only (the names never show on a phone) */
   .header-secondary {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
   .header-secondary::-webkit-scrollbar { display: none; }
-  .header-secondary .header-controls-center,
-  .header-secondary .header-controls-right,
-  .header-secondary .header-row { display: contents; }
-  .header-secondary > .header-controls-right > span { display: none; }
-  .header-secondary .header-link {
-    font-size: 20px; /* style-ok: icon */
-    width: 40px;
-    height: 30px;
-    padding: 0;
-    justify-content: center;
-    gap: 0;
-  }
+  .header-secondary .header-icon-btn { height: 32px; width: 42px; padding: 0; justify-content: center; }
+  .header-secondary .header-icon { width: 28px; height: 28px; }
+  .header-secondary .header-icon-label { display: none; }
   .header-secondary .header-link-wrapper { display: inline-flex; }
   .header-secondary .badge-dot { top: 2px; right: 2px; }
-  .header-secondary .badge-dot.badge-dot-left { left: 2px; right: auto; }
-  .header-link--store    { order: 1; }
-  .header-link--inbox    { order: 2; }
-  .header-link--settings { order: 3; }
-  .header-link--leaders  { order: 4; }
-  .header-link--chat     { order: 5; }
-  .header-link--share    { order: 7; }
-  .header-link--howto    { order: 8; }
-  /* the badge wrappers carry the order of the link inside them */
-  .header-link-wrapper:has(.header-link--inbox) { order: 2; }
-  .header-link-wrapper:has(.header-link--chat)  { order: 5; }
 
   /* status bar: full width under the header */
   .status-bar {

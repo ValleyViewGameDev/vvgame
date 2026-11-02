@@ -227,6 +227,19 @@ async function wallGuide(kind = 'all') {
   return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}">${cells.join('')}${spokes}<circle cx="${cx}" cy="${cy}" r="18" fill="#2a1f33"/></svg>`)).png().toBuffer();
 }
 
+
+/**
+ * The icon-grid guide (UI icons, 2026-11-01): a pure magenta field cut into a 4 x 3 grid of cells
+ * by thin lines; one icon per cell, centred, never touching a line, so tools/art/icons.js can
+ * split the sheet by cell, key the magenta and trim each icon to its own box.
+ */
+async function iconGridGuide(cols = 4, rows = 3) {
+  const cw = PX / cols, ch = PX / rows;
+  const rects = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) rects.push(`<rect x="${c * cw}" y="${r * ch}" width="${cw}" height="${ch}" fill="#ff00ff" stroke="#5b4a6a" stroke-width="3"/>`);
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#ff00ff"/>${rects.join('')}</svg>`)).png().toBuffer();
+}
+
 async function main() {
   fs.writeFileSync(path.join(GUIDES, 'wall.png'), await wallGuide());
   fs.writeFileSync(path.join(GUIDES, 'wall-plus.png'), await wallGuide('plus'));
@@ -237,6 +250,8 @@ async function main() {
     fs.writeFileSync(path.join(GUIDES, `lip-${pos}-inv.png`), await lipGuide(pos, true));
   }
   ensureDir(GUIDES);
+  fs.writeFileSync(path.join(GUIDES, 'icon-grid-4x3.png'), await iconGridGuide(4, 3));
+  fs.writeFileSync(path.join(GUIDES, 'icon-grid-3x3.png'), await iconGridGuide(3, 3));
   fs.writeFileSync(path.join(GUIDES, 'head.png'), await headGuide());
   fs.writeFileSync(path.join(GUIDES, 'tile.png'), await tileGuide());
   fs.writeFileSync(path.join(GUIDES, 'figure.png'), await figureGuide());
