@@ -62,8 +62,13 @@ here; detail lives in the linked docs and backlog items.
   the board that already have painted art.
 - [ ] Close `/send-mailbox-message`: it is an open route that mails any player any rewards the
   request names, and the Caravan uses it by sending its own reward list from the client. The
-  rewards still go to the Mailbox; the server should work out what this Caravan earned and mail
-  it itself, so the route can be closed (or made developer-only, for the debug panel).
+  rewards still go to the Mailbox, at the moment the tier is earned (as now); the server should
+  work out what this Caravan earned and mail it itself, so the route can be closed (or made
+  developer-only, for the debug panel). The order fill itself (backpack/warehouse spend + the
+  `train` block saved through `/update-profile`) belongs in the same server route. A tier whose
+  mail failed is today only retried when the player next opens the game (`NewTrain.js`
+  `checkAndDeliverPreviousTrainRewards`); the train scheduler's departure should sweep those
+  instead, so no login is needed.
 
 ## Deferred
 
