@@ -428,8 +428,22 @@ Legendary items the whole tier got 1.9 % and Epic 2.1 %, one particular Legendar
 1,400 reveals. Now adding an item to a tier never moves the tier odds; it only splits that
 tier's share more ways (one Legendary of 27 is about 1 in 675, one Epic of 6 about 1 in 75).
 A tier with no items is skipped and the rest renormalised. Scroll (Epic) and Gem (Legendary)
-are scroll-reveal items too, so raising those tiers also pays out more of them. Pets and the
-warehouse materials still use the per-item weighting (`selectWeightedRandomItem`).
+are scroll-reveal items too, so raising those tiers also pays out more of them. Pets still use
+the per-item weighting (`selectWeightedRandomItem`).
+
+## 4k. Warehouse tools: Saw, Shovel, Screwdriver (owner, 2026-11-02)
+
+A crop harvest (not Wheat; bulk harvest rolls once per plot) drops a tool at
+`globalTuning.warehouseDropRate`, then picks it tier first at `warehouseDropOdds`
+(`Utils/WarehouseMaterials.js`). Each third of players gets the three tools as common, uncommon
+and rare in a different order (by playerId hash), and upgrades cost equal counts of all three, so
+the rare tool is the deliberate bottleneck. It used to share `harvestDropRate` (10%, also Kent's
+bonus valley item) and the per-item weights 100/50/20: per harvest 5.9% / 2.9% / 1.2%. A level-11
+owner test account had 30+ Saw and 30+ Shovel against 2 Screwdrivers, selling the surplus.
+Retuned to rate 7% and odds 55/28/17: per harvest 3.85% / 1.96% / 1.19%, so the common and
+uncommon tools drop about a third less (30 becomes about 20) and the rare one is unchanged in
+absolute terms; it only rises as a share of the drops (12% to 17%). The bottleneck stays; the
+surplus beside it shrinks.
 
 ## 4d. Trophies
 

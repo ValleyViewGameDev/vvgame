@@ -190,6 +190,10 @@ value rather than trust this page.
   `Panel.js` drops a leading emoji from any title it is given (so a string shared with a button,
   "📊 Leaders", keeps its emoji there); never prefix a title with a resource's `symbol`. An
   NPC panel's title keeps the NPC's sprite image, which is a portrait, not an emoji.
+- **Shop and skill cards are text only** (owner 2026-11-02): a `ResourceButton` in a shop
+  (`ShopStation.js`) or a skill panel (`SkillsPanel.js`) passes no `symbol`, so the name stands
+  alone. A shield's name ends in 🤚 (it takes the free hand). Crafting stations and the Adventure
+  Camp keep the emoji, since there it identifies the product.
 - **NPC panels** (`GameFeatures/NPCs/NPCsPanel.js`): a quest giver lists only the quests the
   player can take now (`level` at or below the player's); anything above is hidden, not shown
   locked (owner 2026-10-25), so a giver never shows a wall of future quests. The NPC's quest

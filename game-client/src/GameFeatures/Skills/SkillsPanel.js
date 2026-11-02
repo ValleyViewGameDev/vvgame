@@ -390,7 +390,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     return (
                       <ResourceButton
                         key={resource.type}
-                        symbol={resource.symbol}
                         name={getLocalizedString(resource.type, strings)}
                         className="mini"
                         info={info}
@@ -427,7 +426,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                   return (
                     <ResourceButton
                       key={resource.type}
-                      symbol={resource.symbol}
                       name={getLocalizedString(resource.type, strings)}
                       resourceType={resource.type}
                       details={details}
@@ -496,7 +494,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     return (
                       <ResourceButton
                         key={skill.type}
-                        symbol={resource.symbol}
                         name={getLocalizedString(skill.type, strings)}
                         className="mini"
                         info={info}

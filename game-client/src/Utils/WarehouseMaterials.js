@@ -4,6 +4,21 @@
 
 // Import isACrop from ResourceHelpers since it's a general utility
 import { isACrop } from './ResourceHelpers';
+import { selectTierFirstItem } from '../Economy/DropRates';
+
+/**
+ * The tools' own drop tuning (docs/tuning.md §4k): `globalTuning.warehouseDropRate` is the chance a
+ * crop harvest drops a tool, and `warehouseDropOdds` the percent per rarity tier once it does.
+ * Kept apart from `harvestDropRate`, which Kent's bonus valley item also uses. A tuning file
+ * without them falls back to harvestDropRate and the standard rarity weights.
+ */
+const warehouseDropRate = (globalTuning) =>
+  globalTuning?.warehouseDropRate ?? globalTuning?.harvestDropRate ?? 0.1;
+
+const pickWarehouseIngredient = (personalizedIngredients, globalTuning, selectWeightedRandomItem) =>
+  (globalTuning?.warehouseDropOdds
+    ? selectTierFirstItem(personalizedIngredients, globalTuning.warehouseDropOdds)
+    : selectWeightedRandomItem(personalizedIngredients, 1));
 
 /**
  * Determine which third of players a player belongs to based on their ID
@@ -46,8 +61,8 @@ export function getPersonalizedWarehouseRarity(itemType, playerId) {
 
 /**
  * Checks for and processes warehouse ingredient drops when collecting crops
- * Uses globalTuning.harvestDropRate to determine if a drop occurs (e.g., 0.1 = 10% chance)
- * Then uses resource.scrollchance to determine which warehouse ingredient to drop
+ * Uses globalTuning.warehouseDropRate to determine if a drop occurs (e.g., 0.07 = 7% chance)
+ * Then globalTuning.warehouseDropOdds and the player's personalized rarity pick the tool
  * @param {string} collectedItemType - The type of item that was collected
  * @param {number} col - Column position for floating text
  * @param {number} row - Row position for floating text
@@ -101,8 +116,8 @@ export async function checkAndDropWarehouseIngredient(
   
   console.log(`<> Collected crop: ${collectedItemType}, checking for warehouse ingredient drops...`);
   
-  // Check if we should drop based on harvestDropRate from globalTuning
-  const dropRate = globalTuning?.harvestDropRate || 0.1; // Default to 10% if not configured
+  // Check if we should drop at all (warehouseDropRate)
+  const dropRate = warehouseDropRate(globalTuning);
   const roll = Math.random();
   
   if (roll > dropRate) {
@@ -126,8 +141,8 @@ export async function checkAndDropWarehouseIngredient(
     scrollchance: getPersonalizedWarehouseRarity(ingredient.type, currentPlayer.playerId)
   }));
   
-  // Use weighted random selection based on personalized rarity
-  const selectedIngredient = selectWeightedRandomItem(personalizedIngredients, 1);
+  // Pick the tool by its personalized rarity (warehouseDropOdds)
+  const selectedIngredient = pickWarehouseIngredient(personalizedIngredients, globalTuning, selectWeightedRandomItem);
   
   if (!selectedIngredient) {
     return { dropped: false };
@@ -208,10 +223,7 @@ export function calculateBulkWarehouseDrops(numPlotsHarvested, {
     scrollchance: getPersonalizedWarehouseRarity(ingredient.type, playerId)
   })); 
   
-  // Get drop rate from globalTuning
-  const dropRate = globalTuning?.harvestDropRate || 0.1; // Default to 10%
-  
-  console.log(`<🎲 Bulk warehouse calculation: globalTuning.harvestDropRate = ${globalTuning?.harvestDropRate}, resolved dropRate = ${dropRate}`);
+  const dropRate = warehouseDropRate(globalTuning);
   
   // Roll for drops once per farm plot harvested (ignoring skill multipliers)
   for (let i = 0; i < numPlotsHarvested; i++) {
@@ -219,7 +231,7 @@ export function calculateBulkWarehouseDrops(numPlotsHarvested, {
     
     if (roll <= dropRate) {
       // Select a warehouse ingredient using weighted random with personalized rarity
-      const selectedIngredient = selectWeightedRandomItem(personalizedIngredients, 1);
+      const selectedIngredient = pickWarehouseIngredient(personalizedIngredients, globalTuning, selectWeightedRandomItem);
       
       if (selectedIngredient) {
         // Always drop quantity 1 for warehouse ingredients

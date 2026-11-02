@@ -253,7 +253,7 @@ const WarehousePanel = ({
                   }
                   return `${strings[461] || "Requires:"}<div>${ingredients.join('')}</div>`;
                 })()}
-                info={`+${nextLevel.add} ${strings[2021] || "capacity"}`}
+                info={`+${Number(nextLevel.add).toLocaleString()} ${strings.warehouseCapacity || "Warehouse Capacity"}`}
                 disabled={!canAfford(nextLevel, inventory, backpack, 1)}
                 onClick={() => handleUpgrade()}
                 // Don't pass gemCost prop - instead ensure resource has gemcost property

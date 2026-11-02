@@ -19,7 +19,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import './ScrollStation.css'; // Import for shared station panel styles
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
-import { settingsWearingNewMagic, isWeapon as isWeaponGear, handsIcon, handsOf, gearStatLines } from '../Combat/combatGear';
+import { settingsWearingNewMagic, isWeapon as isWeaponGear, isShield as isShieldGear, handsIcon, handsOf, gearStatLines } from '../Combat/combatGear';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 
@@ -480,9 +480,12 @@ const ShopStation = ({
               return (
                 <ResourceButton
                   key={recipe.index != null ? `${recipe.type}-${recipe.index}` : recipe.type}
-                  symbol={recipe.symbol}
+                  // shop cards carry no emoji before the name (owner 2026-11-02); a shield gets a hand after it,
+                  // since it takes the free hand (combatGear.js isShield)
                   // a trader offer (traders.json) names its quantity, like the NPC trader cards: "10 Scroll"
-                  name={recipe.index != null ? `${recipe.qtycollected || 1} ${getLocalizedString(recipe.type, strings)}` : recipe.type}
+                  name={recipe.index != null
+                    ? `${recipe.qtycollected || 1} ${getLocalizedString(recipe.type, strings)}`
+                    : `${getLocalizedString(recipe.type, strings)}${isShieldGear(masterResources.find(r => r.type === recipe.type) || recipe) ? ' 🤚' : ''}`}
                   className="resource-button"
                   details={details}
                   info={info}

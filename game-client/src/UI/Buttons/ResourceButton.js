@@ -186,7 +186,7 @@ const ResourceButton = ({
                   marginRight: '4px'
                 }}
               />
-            ) : symbol} {name}
+            ) : symbol}{(filename || symbol) ? ' ' : ''}{name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{
             __html: details ? formatDetailsForDisplay(details) : details

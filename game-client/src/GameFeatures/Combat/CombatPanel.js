@@ -11,6 +11,7 @@ import { useStrings } from '../../UI/StringsContext';
 import soundManager from '../../Sound/SoundManager';
 import { gameConfirm, gameAlert } from '../../UI/Modals/GameDialog';
 import { loadGlobalTuning } from '../../Utils/TuningManager';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import {
   isWeapon, isShield, isArmor, isMagic, handsOf, handsIcon, shieldUsable, gearStatLines,
   magicSlotCount, nextMagicSlotCost, equippedMagicTypes,
@@ -208,7 +209,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, m
           disabled={disabled && !checked}
         />
         <div className="equipment-content">
-          <strong>{resource.type}</strong>
+          <strong>{getLocalizedString(resource.type, strings)}</strong>
           {isWeapon(resource) && (
             <span className="equipment-hands" title={handsOf(resource) === 2 ? (strings[10219] || 'Two-handed') : (strings[10218] || 'One-handed')}> {handsIcon(resource)}</span>
           )}
