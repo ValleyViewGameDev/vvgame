@@ -106,6 +106,7 @@ import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
+import RegionName from './UI/RegionName';
 import ScrollStation from './GameFeatures/Crafting/ScrollStation';
 import PetPanel from './GameFeatures/Pets/PetPanel';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
@@ -3315,10 +3316,11 @@ return (
 
     {/* Region name (backlog W-5): the Region the player stands in, floating at the top centre of
         the board, behind where the toasts drop in; only at grid zoom levels and never in a
-        dungeon. Keyed by the name so a new Region fades in. */}
-    {currentPlayer?.location?.region && currentPlayer.location.gtype !== 'dungeon' && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && (
-      <div key={currentPlayer.location.region} className="region-name">{currentPlayer.location.region}</div>
-    )}
+        dungeon. A new Region bursts in, the old one fades out (UI/RegionName.js). */}
+    <RegionName
+      region={currentPlayer?.location?.gtype !== 'dungeon' ? currentPlayer?.location?.region || null : null}
+      visible={zoomLevel !== 'settlement' && zoomLevel !== 'frontier'}
+    />
 
     <MoveBanner cursorMode={cursorMode} setCursorMode={setCursorMode} setResources={setResources} />
 
@@ -3378,7 +3380,7 @@ return (
           const icon = currentPlayer?.icon || '😊';
           const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
           if (svgFilename) {
-            return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} style={{ width: '24px', height: '24px', objectFit: 'contain' }} />;
+            return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} className="nav-icon" />;
           }
           return icon;
         })()}
