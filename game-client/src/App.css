@@ -476,6 +476,8 @@ body {
 }
 .header-icon-btn:disabled .header-icon { opacity: 0.6; }
 .header-link-wrapper > .badge-dot { top: 4px; right: 2px; }
+/* the small icon in front of a text header item (Level, Inventory), in place of the old emoji */
+.header-inline-icon { width: 18px; height: 18px; object-fit: contain; flex: 0 0 auto; margin-right: 2px; }
 
 .app-header h1 {
   font-family: var(--font-display); /* the logo: Berkshire (the page default is Lora) */

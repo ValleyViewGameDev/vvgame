@@ -30,14 +30,15 @@ as controls rather than props.
 Nav (Icons.json, same filenames as before so the toast `{icon:icon-farming.svg}` syntax still
 works): farming (carrots), tools (pickaxe), buy = Animals (cow), build (cottage), skills (book and
 quill), pets = Zoo (monkey), buydeco (topiary), combat (rapiers), gov (sealed scroll), trophy
-(laurelled cup), map, inventory (satchel; drawn, not yet used: the left header still says
-"📦 Inventory").
+(laurelled cup), map, inventory (satchel: the left header's Inventory item, in front of the text).
 
 Header: store (bag), inbox (envelope), settings (gear), leaders (laurel and star), chat (bubble),
-help (question disc), share (arrow), level (star; spare, the left header still says "⬆️ Level"),
-profile (silhouette; spare, the nav shows the player's own avatar).
+help (question disc), share (arrow), level (star: the left header's Level item, in front of the
+text), profile (silhouette; spare, the nav shows the player's own avatar).
 
-Gems, Money and Health keep the game's existing icons for now (owner).
+Gems, Money and Health keep the game's existing icons for now (owner). The Level and Inventory
+strings (10150, 10103) lost their emoji too; PlayerPanel, Leaderboard and WarehousePanel show them
+as plain text.
 
 ## Header row
 

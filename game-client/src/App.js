@@ -3187,10 +3187,10 @@ return (
               openMyProfile();
             }
           }}>
-            {strings[10150]} {getDerivedLevel(currentPlayer ? { ...currentPlayer, xp: headerXP } : currentPlayer, masterXPLevels)}
+            <img className="header-inline-icon" src="/assets/icons/icon-level.svg" alt="" draggable="false" />{strings[10150]} {getDerivedLevel(currentPlayer ? { ...currentPlayer, xp: headerXP } : currentPlayer, masterXPLevels)}
           </button>
           <button className="header-link" data-fly-target="inventory" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
-            {strings[10103]}
+            <img className="header-inline-icon" src="/assets/icons/icon-inventory.svg" alt="" draggable="false" />{strings[10103]}
           </button>
           {/* Row 2 - Progress bars (4px tall) */}
           <span></span>
