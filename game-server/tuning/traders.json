@@ -46,10 +46,9 @@
     "trader": "Snug",
     "index": 2,
     "gives": "Money",
-    "givesqty": 4000,
+    "givesqty": 3000,
     "xp": 3,
     "repeat": true,
-    "rel": "friend",
     "requires1": "Bear Skin",
     "requires1qty": 10
   },
