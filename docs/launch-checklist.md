@@ -60,7 +60,7 @@ here; detail lives in the linked docs and backlog items.
 - [ ] OS version in the pageview beacon (diagnose in-app browser problems).
 - [ ] Ad creative: static images first, 4:5 (1080x1350) and 9:16 (1080x1920), from the parts of
   the board that already have painted art.
-- [ ] Close `/send-mailbox-message`: it is an open route that mails any player any rewards the
+- [x] **Done 2026-11-02** (`routes/caravanRoutes.js`, `utils/caravan.js`). Close `/send-mailbox-message`: it is an open route that mails any player any rewards the
   request names, and the Caravan uses it by sending its own reward list from the client. The
   rewards still go to the Mailbox, at the moment the tier is earned (as now); the server should
   work out what this Caravan earned and mail it itself, so the route can be closed (or made

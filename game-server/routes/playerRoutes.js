@@ -378,7 +378,8 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // route (/player/change-password), the subscription tier is set by the Stripe webhook, the role by the
 // election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
 // The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
-const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token'];
+// The Caravan (`train`) is the server's: routes/caravanRoutes.js makes its orders, fills them and mails the rewards.
+const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
 const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots'];
@@ -1278,8 +1279,9 @@ router.post('/reset-password', async (req, res) => {
 ////////////////////////////////////////////////////////
 ////////////// MESSAGE & STORE BASED ROUTES ///////////
 
-// ✅ POST /api/send-mailbox-message
-router.post('/send-mailbox-message', async (req, res) => {
+// ✅ POST /api/send-mailbox-message (developer only: the debug panel; game rewards are mailed by
+// the server route that earns them, e.g. the Caravan's in routes/caravanRoutes.js)
+router.post('/send-mailbox-message', requireDeveloper, async (req, res) => {
   const { playerId, messageId, customRewards = [] } = req.body;
 
   if (!playerId || !messageId) { return res.status(400).json({ error: 'Missing playerId or messageId.' }); }

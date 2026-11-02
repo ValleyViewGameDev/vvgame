@@ -1,4 +1,6 @@
 // How many units Kent and the Train ask for (docs/tuning.md, "Effort and ask sizing").
+// The Caravan (Train) is sized on the server by a copy of this file in game-server/utils/caravan.js:
+// change both together.
 //
 // Every good carries `effort` in resources.json: production minutes per unit through its whole
 // recipe chain, derived by the editor from crafttime, yield and `parallel` (tools/editor/sheets/

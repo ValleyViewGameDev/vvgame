@@ -1,5 +1,6 @@
 const Frontier = require("../models/frontier");
 const Settlement = require("../models/settlement");
+const { sweepDeparture } = require("../utils/caravan");
 
 async function trainScheduler(frontierId, phase, frontier = null) {
   try {
@@ -53,6 +54,17 @@ async function trainScheduler(frontierId, phase, frontier = null) {
       }
 
       if (phase === "departing") {
+        // Mail any earned Caravan reward a failed send left behind, and close every player's
+        // Caravan, before the log stops calling it current (utils/caravan.js)
+        const leaving = (settlement.trainlog || []).find(log => log.status === "Current Train");
+        if (leaving?.trainnumber) {
+          try {
+            const mailed = await sweepDeparture(settlement._id, leaving.trainnumber);
+            if (mailed) console.log(`📬 Caravan ${leaving.trainnumber}: late rewards mailed to ${mailed} player(s) in ${settlement.name}`);
+          } catch (error) {
+            console.error(`❌ Caravan departure sweep failed for ${settlement.name}:`, error);
+          }
+        }
         // Basic log finalization for phase tracking
         await finalizeBasicTrainLog(settlement._id);
         console.log(`📝 Train log entry finalized for ${settlement.name}`);

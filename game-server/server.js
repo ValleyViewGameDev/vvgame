@@ -223,6 +223,7 @@ console.log('Setting up NPCsInGrid routes...');
 app.use('/api', gridRoutes);
 app.use('/api', enterGridRoutes);
 app.use('/api', require('./routes/snugTravelRoutes')); // Travel with Snug: GET destinations, POST pay + arrival tile
+app.use('/api', require('./routes/caravanRoutes')); // The Caravan: sync, fill an order, mail earned rewards (utils/caravan.js)
 app.use('/api', require('./routes/innRoutes')); // The Inn: POST rest (Money for full hp, then a cooldown on that Inn)
 app.use('/api', require('./routes/storyRoutes')); // Story moments: waking Gertrude (utils/storyState.js)
 app.use('/api', require('./routes/reviveRoutes')); // Revive for Gems from the "You have fallen" modal

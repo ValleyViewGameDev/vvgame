@@ -16,8 +16,8 @@ can check the current value rather than trust this page.
   economies. Edit these in the editor's sheet tabs; the game server caches most of them at
   boot (restart or deploy to apply).
 - **Code second.** Generation logic with its own constants lives beside the feature:
-  `game-client/src/GameFeatures/Trading/KentOfferLogic.js` (Kent), `TrainOfferLogic.js`
-  (Train), `Economy/DropRates.js` (rarity weights). Constants in those files are tuning too;
+  `game-client/src/GameFeatures/Trading/KentOfferLogic.js` (Kent), `game-server/utils/caravan.js`
+  (Train, server side since 2026-11-02), `Economy/DropRates.js` (rarity weights). Constants in those files are tuning too;
   prefer moving a constant into `globalTuning.json` when it needs to change per deploy without
   a client build.
 - **Levels are derived, never stored.** `Utils/playerManagement.js getDerivedLevel`: level =
@@ -158,7 +158,15 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   (`kentOffers.offers[].items/rewards`) must keep reading the legacy single-item form and
   must not invalidate offers already on players.
 
-## 4b. Train (TrainOfferLogic.js, NewTrain.js, 2026-10-12)
+## 4b. Train (game-server/utils/caravan.js, NewTrain.js, 2026-10-12)
+
+- **Server-owned (2026-11-02).** The server makes each player's orders and rewards, fills an
+  order (`POST /api/caravan/fill`: goods out backpack first, Money in) and mails a reward tier in
+  the same write as the order that earns it; the train scheduler's departure mails any tier a
+  failed send left behind and closes every open Caravan (`sweepDeparture`), so nobody has to log
+  back in. `train` is not writable through `/update-profile`, and `/send-mailbox-message` is
+  developer-only. The ask sizing in `utils/caravan.js` is a copy of the client's
+  `Economy/askSizing.js` (still used by Kent): change both together.
 
 - **Shape.** `maxTrainOffers` (8) orders per Train in three bands, stored on each order as
   `band`: 2 **basic** crops (plots unlocked 3+ levels ago when there are any), 4 **easy** goods
