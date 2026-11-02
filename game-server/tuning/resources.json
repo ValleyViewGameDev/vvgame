@@ -3710,15 +3710,13 @@
     "minprice": 942,
     "maxprice": 1346,
     "ingredient1": "Cloth",
-    "ingredient1qty": 2,
-    "ingredient2": "Wool",
-    "ingredient2qty": 3,
-    "ingredient3": "Thread",
-    "ingredient3qty": 2,
-    "gemcost": 153,
+    "ingredient1qty": 3,
+    "ingredient2": "Thread",
+    "ingredient2qty": 2,
+    "gemcost": 156,
     "crafttime": 7200,
     "totalnestedtime": 52200,
-    "effort": 270
+    "effort": 273
   },
   {
     "type": "Runic Tunic",
@@ -3792,17 +3790,15 @@
     "minprice": 1296,
     "maxprice": 1852,
     "ingredient1": "Cloth",
-    "ingredient1qty": 2,
-    "ingredient2": "Wool",
-    "ingredient2qty": 2,
-    "ingredient3": "Thread",
-    "ingredient3qty": 3,
-    "ingredient4": "Pelt",
-    "ingredient4qty": 2,
-    "gemcost": 193,
+    "ingredient1qty": 4,
+    "ingredient2": "Thread",
+    "ingredient2qty": 3,
+    "ingredient3": "Pelt",
+    "ingredient3qty": 2,
+    "gemcost": 247,
     "crafttime": 14400,
     "totalnestedtime": 102900,
-    "effort": 1272
+    "effort": 1358
   },
   {
     "type": "Heavy Jacket",
@@ -3839,10 +3835,10 @@
     "ingredient2qty": 3,
     "ingredient3": "Bear Skin",
     "ingredient3qty": 1,
-    "gemcost": 264,
+    "gemcost": 280,
     "crafttime": 28800,
     "totalnestedtime": 216900,
-    "effort": 4377
+    "effort": 4463
   },
   {
     "type": "Silk Dress",
@@ -6210,17 +6206,15 @@
     "validonu": false,
     "minprice": 25435,
     "maxprice": 36336,
-    "gemcost": 198,
+    "gemcost": 178,
     "totalnestedtime": 2102400,
-    "effort": 2664,
+    "effort": 2344,
     "ingredient1": "Potion A",
     "ingredient1qty": 1,
     "ingredient2": "Mushroom",
     "ingredient2qty": 4,
     "ingredient3": "Tulip",
-    "ingredient3qty": 4,
-    "ingredient4": "Garlic",
-    "ingredient4qty": 2
+    "ingredient3qty": 4
   },
   {
     "type": "Potion C",
@@ -6252,9 +6246,9 @@
     "validonu": false,
     "minprice": 110084,
     "maxprice": 157264,
-    "gemcost": 384,
+    "gemcost": 381,
     "totalnestedtime": 4017600,
-    "effort": 5481,
+    "effort": 5161,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -9024,7 +9018,7 @@
     "growtime": 28800,
     "ingredient1": "Potion B",
     "ingredient1qty": 6,
-    "gemcost": 435,
+    "gemcost": 420,
     "crafttime": 86400,
     "totalnestedtime": 432000,
     "parallel": 3
@@ -9062,7 +9056,7 @@
     "growtime": 28800,
     "ingredient1": "Potion C",
     "ingredient1qty": 3,
-    "gemcost": 431,
+    "gemcost": 429,
     "crafttime": 86400,
     "totalnestedtime": 475200,
     "parallel": 4
@@ -11250,7 +11244,7 @@
     "ingredient3qty": 18,
     "ingredient4": "Potion C",
     "ingredient4qty": 60,
-    "gemcost": 1798
+    "gemcost": 1789
   },
   {
     "type": "Grower",
@@ -11349,7 +11343,7 @@
     "ingredient2qty": 15,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 762
+    "gemcost": 754
   },
   {
     "type": "Beekeeper",
@@ -11364,7 +11358,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 834
+    "gemcost": 832
   },
   {
     "type": "Florist",
@@ -11383,7 +11377,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 1608
+    "gemcost": 1599
   },
   {
     "type": "Sericulture",
@@ -11437,7 +11431,7 @@
     "requires": "Chemistry",
     "qtycollected": 1,
     "level": 11,
-    "gemcost": 528,
+    "gemcost": 524,
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient2": "Potion A",
@@ -11460,7 +11454,7 @@
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
-    "gemcost": 647
+    "gemcost": 632
   },
   {
     "type": "Creamery",
@@ -11479,7 +11473,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Potion C",
     "ingredient4qty": 15,
-    "gemcost": 909
+    "gemcost": 906
   },
   {
     "type": "Winemaker",
@@ -11494,7 +11488,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 834
+    "gemcost": 832
   },
   {
     "type": "Textiles",
@@ -11520,7 +11514,7 @@
     "requires": "Textiles",
     "qtycollected": 1,
     "level": 14,
-    "gemcost": 805,
+    "gemcost": 790,
     "ingredient1": "Money",
     "ingredient1qty": 40000,
     "ingredient2": "Potion B",
@@ -11573,7 +11567,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 50,
-    "gemcost": 1295
+    "gemcost": 1289
   },
   {
     "type": "Weaver",
@@ -11592,7 +11586,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 18,
-    "gemcost": 1034
+    "gemcost": 1027
   },
   {
     "type": "Cuisinier",
@@ -11611,7 +11605,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 18,
-    "gemcost": 1103
+    "gemcost": 1095
   },
   {
     "type": "Fowler",
@@ -11630,7 +11624,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 1159
+    "gemcost": 1152
   },
   {
     "type": "Shepherding",
@@ -11649,7 +11643,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 22,
-    "gemcost": 1265
+    "gemcost": 1256
   },
   {
     "type": "Fromager",
@@ -11668,7 +11662,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 28,
-    "gemcost": 2038
+    "gemcost": 2031
   },
   {
     "type": "Barista",
@@ -11687,7 +11681,7 @@
     "ingredient3qty": 18,
     "ingredient4": "Potion C",
     "ingredient4qty": 35,
-    "gemcost": 1418
+    "gemcost": 1408
   },
   {
     "type": "Artisan",
@@ -11706,7 +11700,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
-    "gemcost": 1766
+    "gemcost": 1756
   },
   {
     "type": "Virtuose Culinaire",
@@ -11725,7 +11719,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
-    "gemcost": 1434
+    "gemcost": 1426
   },
   {
     "type": "Apiarch",
@@ -11744,7 +11738,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 50,
-    "gemcost": 1610
+    "gemcost": 1603
   },
   {
     "type": "Vintner",
@@ -11763,7 +11757,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 3523
+    "gemcost": 3514
   },
   {
     "type": "Law",
@@ -13222,7 +13216,7 @@
     "source": "Magic Shop",
     "shopregion": "Dunsinane",
     "level": 18,
-    "gemcost": 897,
+    "gemcost": 893,
     "maxhp": -50,
     "attackbonus": 2,
     "ingredient1": "Money",
@@ -13774,7 +13768,7 @@
     "source": "Magic Shop",
     "shopregion": "Lethe Wharf",
     "level": 40,
-    "gemcost": 2426,
+    "gemcost": 2425,
     "maxhp": 400,
     "ingredient1": "Money",
     "ingredient1qty": 90000,

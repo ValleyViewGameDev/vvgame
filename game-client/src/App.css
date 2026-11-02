@@ -238,9 +238,8 @@ body {
   color: var(--color-text-white);
   text-shadow: 0 2px 3px rgba(0, 0, 0, 0.7), 0 0 14px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
-  animation: regionNameIn 700ms ease-out both;
 }
-@keyframes regionNameIn { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* its motion (the burst in, the fade out) is UI/RegionName.css */
 
 .season-button {
   width: 45px;
@@ -342,6 +341,157 @@ body {
 
 /* HEADER /////////////////////////////////// */
 
+/* Desktop header (owner 2026-11-02, App.js .header-desk): three columns, the middle one centred on
+   the page. Left: the title on one line, "Logged in as" under it. Centre: Level, Health, Inventory
+   as big icons in rings that fill. Right: Gems and Money (icon + value), then the action icons.
+   The phone header (the .header-title / .header-grid / .header-secondary rows, mobile.css) is
+   hidden here; the desktop block is hidden on a phone. The query is mobile.css's, inverted. */
+.header-desk { display: none; }
+@media (min-width: 768px) and (min-height: 501px), (min-width: 768px) and (orientation: portrait) {
+  .app-header > .header-title,
+  .app-header > .header-controls-left.header-grid,
+  .app-header > .header-secondary { display: none; }
+  .header-desk {
+    display: grid;
+    /* sides share the space evenly so the rings sit at the page centre; never narrower than
+       their content, so on a tight screen the rings move over rather than being covered */
+    grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+    align-items: center;
+    column-gap: 16px;
+    width: 100%;
+    height: 100%;
+  }
+}
+.header-desk-left { display: flex; align-items: center; min-width: 0; }
+.header-desk-titles { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.app-header .header-desk-title { /* over .app-header h1, the phone-era two-line logo */
+  max-width: none;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: var(--text-5xl);
+  font-weight: normal;
+  line-height: 1.05;
+  margin: 0;
+  white-space: nowrap;
+  color: var(--color-text-white);
+  text-shadow: var(--color-shadow) 2px 2px 3px;
+}
+.header-desk-login {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 1px;
+  font-family: var(--font-heading);
+  font-size: var(--text-panel); /* a step above the old name (--text-md) */
+  color: var(--color-text-white);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.header-desk-login strong { font-weight: bold; }
+/* the avatar circle: the HUD's round-button size, centred over that column (left edge at the
+   board edge + --d-gap, where .map-controls sits; the header's own left padding is 12 px) */
+.header-desk-avatar {
+  flex: 0 0 auto;
+  width: var(--d-pill-w);
+  height: var(--d-pill-w);
+  margin-left: calc(var(--d-board-left) + var(--d-gap) - 12px);
+  margin-right: 12px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.85); /* style-ok: the ring on the header green */
+  background-color: var(--color-primary-green-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.header-desk-avatar img { width: 72%; height: 72%; object-fit: contain; }
+.header-desk-avatar span { font-size: var(--text-4xl); line-height: 1; }
+.header-desk-avatar:disabled { cursor: default; }
+@media (hover: hover) { .header-desk-avatar:not(:disabled):hover { filter: brightness(1.1); } }
+.header-desk-login:disabled { cursor: default; }
+@media (hover: hover) { .header-desk-login:not(:disabled):hover { opacity: 0.8; } }
+
+.header-desk-center { display: flex; align-items: center; gap: 12px; }
+.header-ring {
+  position: relative;
+  width: 44px;  /* the action buttons' height, so the same air above and below */
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-ring:disabled { cursor: default; opacity: 0.6; }
+@media (hover: hover) { .header-ring:not(:disabled):hover { filter: brightness(1.1); } }
+.header-ring-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.header-ring-track { fill: none; stroke: rgba(255, 255, 255, 0.3); stroke-width: 4; }
+.header-ring-arc {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s ease-out, stroke 0.3s ease;
+}
+.header-ring-arc--xp { stroke: var(--color-text-white); }
+.header-ring-arc--health { stroke: var(--color-primary-green-light); }
+.header-ring-arc--plain { stroke: var(--color-text-white); }
+.header-ring-arc--danger { stroke: var(--color-text-negative-on-dark); }
+.header-ring-icon {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+.header-ring-emoji { position: relative; font-size: var(--text-2xl); line-height: 1; }
+/* the level number, white with a small drop shadow, in the middle of the star */
+.header-ring-level {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-42%); /* a star's visual middle sits a little below its box's */
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: bold;
+  line-height: 1;
+  color: var(--color-text-white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+.header-desk-right { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
+.header-desk .header-currency-btn { gap: 6px; padding: 0 10px 0 6px; font-size: var(--text-3xl); } /* over .header-link's size */
+.header-currency-icon { font-size: var(--text-6xl); line-height: 1; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)); }
+.header-desk-divider { width: 1px; height: 30px; margin: 0 6px; background: rgba(255, 255, 255, 0.35); } /* style-ok: a hairline on the header green */
+/* narrower desktops: the action icons step down so the three columns still fit */
+@media (max-width: 1340px) {
+  .header-desk .header-icon-btn:not(.header-currency-btn) { padding: 0 3px; }
+  .header-desk .header-icon { width: 28px; height: 28px; }
+  .header-desk-title { font-size: var(--text-4xl); }
+}
+@media (max-width: 960px) {
+  .app-header .header-desk-title { font-size: var(--text-3xl); }
+  .header-desk { column-gap: 10px; }
+  .header-desk-center { gap: 8px; }
+  .header-desk-right { gap: 2px; }
+  .header-desk-divider { display: none; }
+  .header-desk .header-currency-btn { padding: 0 4px 0 2px; font-size: var(--text-lg); }
+  .header-currency-icon { font-size: var(--text-4xl); }
+  .header-desk .header-icon-btn:not(.header-currency-btn) { padding: 0 1px; }
+  .header-desk .header-icon { width: 24px; height: 24px; }
+  .header-ring { width: 40px; height: 40px; }
+  .header-ring-icon { width: 26px; height: 26px; }
+  .header-ring-emoji { font-size: var(--text-xl); }
+  .header-ring-level { font-size: var(--text-lg); }
+}
+
 .app-header {
   background-color: var(--color-primary-green);
   color: var(--color-text-white);
@@ -438,9 +588,8 @@ body {
 }
 
 /* The action row (owner, 2026-11-01): Store, Inbox, Settings, Leaders, Chat, Help, Share as one row
-   of icon buttons at the header's right. Each button is its icon; on a device with a real
-   pointer the name slides out beside the icon while the mouse is over the button and folds
-   away when it leaves, so the row is icons only at rest. Phones: mobile.css keeps the icons only. */
+   of icon buttons. Each button is its icon; on desktop its name is the hovertip under it
+   (.header-icon-label, above). Phones: mobile.css keeps the icons only. */
 .header-secondary {
   display: flex;
   flex: 1;
@@ -462,17 +611,47 @@ body {
   flex: 0 0 auto;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
-.header-icon-label {
-  display: inline-block;
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
+/* Header hovertips (owner 2026-11-02): a button's name (or a ring's numbers) in a parchment pill
+   hanging under it, shown the instant the mouse is over it, gone when it leaves. It floats, so
+   the header's spacing never changes; it replaces the browser's delayed title tooltip, which the
+   header buttons no longer carry (aria-label keeps the name for screen readers). Phones have no
+   hover and never show it (mobile.css hides .header-icon-label). */
+.header-icon-btn, .header-ring { position: relative; }
+.header-icon-label, .header-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: none;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg-panel);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: bold;
+  line-height: 1.3;
   white-space: nowrap;
-  transition: max-width 0.2s ease, opacity 0.15s ease, padding 0.2s ease;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--color-border-dark); /* lifts it off the parchment status bar */
 }
+/* the nav bar's tip (UI/NavHoverTip.js): the same pill, fixed above the bar (the bar clips its
+   buttons, so the tip is drawn outside it), placed by the script and over the bar's z-index */
+.header-tip.nav-hover-tip {
+  position: fixed;
+  top: auto;
+  transform: none;
+  display: block;
+  z-index: 1001;
+}
+/* the last buttons at the right edge hang their tip leftward, so it stays in the window */
+.header-desk-right > :last-child .header-icon-label,
+.header-desk-right > :nth-last-child(2) .header-icon-label { left: auto; right: 0; transform: none; }
 @media (hover: hover) {
-  .header-icon-btn:hover { opacity: 1; background-color: rgba(255, 255, 255, 0.12); }
-  .header-icon-btn:hover .header-icon-label { max-width: 10em; opacity: 1; padding-left: 6px; padding-right: 4px; }
+  .header-icon-btn:hover { opacity: 1; } /* no highlight: the tip is the whole hover state */
+  .header-icon-btn:hover .header-icon-label,
+  .header-ring:hover .header-tip { display: block; }
 }
 .header-icon-btn:disabled .header-icon { opacity: 0.6; }
 .header-link-wrapper > .badge-dot { top: 4px; right: 2px; }

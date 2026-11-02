@@ -1,0 +1,73 @@
+/* RegionName.js: entering a Region bursts its name in; leaving fades it out.
+   Placement (.region-name: fixed, top centre) lives in App.css and UI/Styles/mobile.css; this file
+   is the motion. The text is its own span so it can scale while .region-name keeps its centring
+   transform, and the burst sits behind it with nothing clipping it. */
+.region-name-text {
+  display: inline-block;
+  position: relative;
+  z-index: 1;
+}
+.region-name-in .region-name-text {
+  animation: regionGather 2000ms both;
+}
+/* The reverse expand: the word fades in spread wide, then gathers, speeding up all the way, and
+   slams into place: it stops dead at its natural spacing (no overshoot, no spring back), with a
+   flash and a short jolt of impact, then the glow cools. margin-left follows letter-spacing so the
+   trailing space each letter carries is balanced and the word stays centred while it closes. */
+@keyframes regionGather {
+  0%   { opacity: 0; letter-spacing: 1.2em; margin-left: 1.2em; transform: scale(1.08, 1);
+         filter: brightness(2.6) blur(4px); text-shadow: 0 0 30px var(--brand-sun), 0 0 60px var(--brand-sun);
+         animation-timing-function: cubic-bezier(0.6, 0, 1, 0.6); }
+  22%  { opacity: 1; }
+  58%  { letter-spacing: normal; margin-left: 0; transform: scale(1.06, 0.94) translateY(2px);
+         filter: brightness(2.4) blur(0); animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1); }
+  64%  { transform: scale(1, 1) translateY(0); filter: brightness(1.6); }
+  100% { opacity: 1; letter-spacing: normal; margin-left: 0; transform: scale(1, 1); filter: brightness(1); }
+}
+
+.region-name-leaving { animation: regionNameOut 600ms ease-in forwards; }
+@keyframes regionNameOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* the burst of light: a hot flash, slowly turning rays, a ring flying out, and sparkles */
+.region-burst { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; }
+.region-burst > * { position: absolute; left: 0; top: 0; }
+.region-burst-flash {
+  width: 340px; height: 150px; margin: -75px 0 0 -170px; border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 255, 245, 0.95) 0%, rgba(255, 230, 120, 0.7) 28%, rgba(255, 215, 0, 0.25) 52%, rgba(255, 215, 0, 0) 72%); /* style-ok: art (light burst) */
+  animation: regionFlash 800ms ease-out both;
+}
+@keyframes regionFlash {
+  0%   { transform: scale(0.2); opacity: 0; }
+  20%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.region-burst-rays {
+  width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(255, 240, 170, 0.75) 0deg 5deg, rgba(255, 240, 170, 0) 5deg 22deg); /* style-ok: art (light rays) */
+  -webkit-mask-image: radial-gradient(circle, #000 15%, transparent 68%);
+  mask-image: radial-gradient(circle, #000 15%, transparent 68%);
+  animation: regionRays 1300ms ease-out both;
+}
+@keyframes regionRays {
+  0%   { transform: scale(0.3, 0.12) rotate(0deg);  opacity: 0; }
+  25%  { transform: scale(1, 0.4) rotate(12deg);    opacity: 1; }
+  100% { transform: scale(1.5, 0.6) rotate(40deg);  opacity: 0; }
+}
+.region-burst-ring {
+  width: 120px; height: 60px; margin: -30px 0 0 -60px; border-radius: 50%;
+  border: 3px solid rgba(255, 246, 176, 0.95); /* style-ok: art (light ring) */
+  box-shadow: 0 0 18px 6px rgba(249, 215, 28, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.8); /* style-ok: art (light ring) */
+  animation: regionRing 700ms ease-out both;
+}
+@keyframes regionRing {
+  0%   { transform: scale(0.2); opacity: 1; }
+  100% { transform: scale(3.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .region-name-in .region-name-text, .region-burst > *, .region-name-leaving { animation-duration: 1ms !important; }
+}

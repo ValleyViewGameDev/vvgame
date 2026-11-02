@@ -334,7 +334,7 @@ numbers: docs/economy-plan.md.
   recipe and no crafttime (Money 0.125, gems, specials) keep their stored `gemcost`; since the
   column is read-only in the editor, change those through gemOverride too.
 - **Potions** are Apothecary trades (traders.json), so their ECONOMY recipe is the trade:
-  Potion A = 6 Rosemary + 2 Daisy + 24 Milk; B = 1 A + 4 Mushroom + 4 Tulip + 2 Garlic;
+  Potion A = 6 Rosemary + 2 Daisy + 24 Milk; B = 1 A + 4 Mushroom + 4 Tulip (Garlic dropped 2026-11-02);
   C = 1 B + 12 Sunflower + 2 Ink + 1 Feverfew; no crafttime. Change a trade, change the row.
 - **Result** (2026-10-14): Potion A 520 -> 176, B 4,542 -> 258, C 19,658 -> 393, Book 3,007 ->
   581, Silk Dress 3,238 -> 458, Common Coffee 16,404 -> 599, Queen's Coffee 49,410 -> 845 (the
@@ -415,6 +415,13 @@ Town" (L11, 5 Potion A); Mistress Quickly's "Clay Beneath the Hill" (L9, 30 Clay
 quest); Helena's "Where the Mushrooms Grow Thick" (L12, 12 Mushrooms, pays 4 Tulips: the Potion B
 for Baker). "Baker's Bible" moved to L11 with Baker, the Lemon Cookies to L12, Feste's Artistry
 quest to L14.
+
+Applied 2026-11-02: Potion A takes 5 Rosemary + 2 Daisy + 8 Milk (was 6 + 2 + 24: the 16 Milk
+above had not reached resources.json; gem cost 176 to 102, cascading into Potion B/C and the skills that need it). Hotspur's L10 crowd spread over L10-15
+(quest levels only; the gear each one asks for keeps its own level, so a quest may open after its
+item is buyable): L10 The Howl and the Fury, Focus the Hunt; L11 Hide Like Iron, Pelts for Pain (was
+L10); L12 The Long Blade (was L10), Grim Bears Grimmer Still (was L11); L13 Rapid Is the Arrow; L14
+We Pluck This Flower, Safety (was L10); L15 Exit, Pursued by a Bear (was L11).
 
 ## 4j. Scroll reveals: tier first (owner, 2026-10-23)
 

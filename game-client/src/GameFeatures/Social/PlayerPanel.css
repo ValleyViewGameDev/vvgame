@@ -1,0 +1,24 @@
+/* PlayerPanel.js: the greeting with the Settings gear at the right of the same line */
+.player-greeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.player-greeting-row h2 { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.player-settings-gear {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.player-settings-gear img { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3)); }
+@media (hover: hover) { .player-settings-gear:hover { filter: brightness(1.1); } }
+.player-settings-gear:active { transform: scale(0.92); }

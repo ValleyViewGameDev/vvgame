@@ -470,6 +470,11 @@
   body .modal-overlay .modal-container.modal-small { max-height: 60vh; }
   body .modal-overlay .modal-container.story-modal.modal-small { max-height: 80vh; max-height: 80dvh; }
 
+  /* Map panel: the Home and Town signposts a touch under desktop's, so the map row fits the
+     narrower panel (128 px map + both columns + frame padding) */
+  .minimap-button-column { width: 32px; }
+  .minimap-signpost-button { font-size: 26px; } /* style-ok: icon */
+
   /* ---------- notifications: same drop-down toast from behind the header, nearly full width ---------- */
   #notification-container { top: var(--m-top); left: var(--m-safe-left); right: 0; }
   .quick-notice { top: calc(var(--m-top) + 10px); } /* where the toasts land on a phone */
@@ -479,9 +484,13 @@
     top: calc(var(--m-top) + var(--m-gap));
     left: calc(50% + var(--m-safe-left) / 2);
     font-size: var(--text-2xl);
-    max-width: calc(100% - var(--m-safe-left) - 2 * (48px + 2 * var(--m-gap)));
+  }
+  /* the ellipsis is on the text, so the entrance burst (RegionName.css) is never clipped */
+  .region-name-text {
+    max-width: calc(100vw - var(--m-safe-left) - 2 * (48px + 2 * var(--m-gap)));
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: top;
   }
   .notification,
   .notification.notification-persistent {

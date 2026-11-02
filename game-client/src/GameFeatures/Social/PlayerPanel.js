@@ -10,6 +10,7 @@ import axios from 'axios';
 import { useStrings } from '../../UI/StringsContext';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
+import './PlayerPanel.css';
 
 const PlayerPanel = ({
   currentPlayer,
@@ -248,7 +249,13 @@ const PlayerPanel = ({
 
   return (
     <>
-     <h2>{strings[4051]} {currentPlayer.username} </h2>
+      {/* the greeting, with Settings as the gear at the right of the same line (owner 2026-11-02) */}
+      <div className="player-greeting-row">
+        <h2>{strings[4051]} {currentPlayer.username}</h2>
+        <button className="player-settings-gear" onClick={() => openPanel('ProfilePanel')} title={strings[1190]} aria-label={strings[1190]}>
+          <img src="/assets/icons/icon-settings.svg" alt="" draggable="false" />
+        </button>
+      </div>
 
       {/* Change Avatar Button */}
       <div className="shared-buttons">
@@ -418,14 +425,6 @@ const PlayerPanel = ({
         </button>
         <button className="btn-basic" style={{ flex: 1 }} onClick={() => openPanel('CombatPanel')}>
           {strings[1124]}
-        </button>
-      </div>
-<br />
-
-      {/* Settings: a gray (neutral) button under the others */}
-      <div className="shared-buttons">
-        <button className="btn-basic btn-neutral" onClick={() => openPanel('ProfilePanel')}>
-          {strings[1190]}
         </button>
       </div>
 

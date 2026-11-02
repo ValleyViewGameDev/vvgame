@@ -220,6 +220,23 @@ let currentDismiss = null;
 // instruction has been followed).
 export function dismissNotification() { if (currentDismiss) currentDismiss(); }
 
+// Something that should not compete with a toast (the Region name's burst, UI/RegionName.js) waits
+// for the one on screen to go. Only a timed toast is waited for: a persistent one (To Do, FTUE,
+// Message) can stay up indefinitely, so it never holds anything back.
+let toastOnScreen = null; // the type of the toast showing, or null
+let clearWaiters = [];
+export function whenToastClears(callback) {
+    if (!toastOnScreen || PERSISTENT_NOTIFICATION_TYPES.includes(toastOnScreen)) { callback(); return () => {}; }
+    clearWaiters.push(callback);
+    return () => { clearWaiters = clearWaiters.filter((cb) => cb !== callback); };
+}
+function toastCleared() {
+    toastOnScreen = null;
+    const waiting = clearWaiters;
+    clearWaiters = [];
+    waiting.forEach((cb) => cb());
+}
+
 export function showNotification(type, data, onClick = null) {
     console.log(`[showNotification] Called with type: ${type}`, data);
     // Clear any existing notification
@@ -246,9 +263,15 @@ export function showNotification(type, data, onClick = null) {
         if (notificationRoot) {
             notificationRoot.render(null);
         }
-        if (currentDismiss === handleDismiss) currentDismiss = null;
+        if (currentDismiss === handleDismiss) { currentDismiss = null; toastCleared(); }
     };
     currentDismiss = handleDismiss;
+    toastOnScreen = type;
+    // a persistent toast replacing a timed one releases anyone waiting on the timed one
+    if (PERSISTENT_NOTIFICATION_TYPES.includes(type) && clearWaiters.length) {
+        toastCleared();
+        toastOnScreen = type;
+    }
     
     // Use passed onClick or fall back to global handler for this type
     const clickHandler = onClick || (globalClickHandlers[type] ? () => globalClickHandlers[type](data) : null);

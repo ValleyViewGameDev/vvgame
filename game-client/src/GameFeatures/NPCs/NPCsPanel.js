@@ -117,11 +117,16 @@ const NPCPanel = ({
   // does not trade (Cassio) showed the trader's offers left from the last panel (Juliet). Reset
   // during render (React's reset-on-prop-change pattern), so not one frame shows stale lists;
   // the load effects below then fill them for the new NPC.
+  // The order the quests were first listed in while this panel is open (titles), so a card never
+  // jumps while the player is using it: a repeatable reward collected slides back in where it was
+  // and moves down among the offers only when the panel is next opened.
+  const questOrder = useRef(null);
   const npcKey = `${npcData?.id ?? ''}:${npcData?.type ?? ''}`;
   const [shownNpcKey, setShownNpcKey] = useState(npcKey);
   if (shownNpcKey !== npcKey) {
     setShownNpcKey(npcKey);
     setQuestList([]);
+    questOrder.current = null;
     setQuestFx({});
     setGoneQuests(new Set());
     setTradeFx(null);
@@ -382,6 +387,23 @@ const NPCPanel = ({
         }
         return true;
       });
+
+      // rewards waiting to be collected come first, then the quests to accept, each group in level
+      // order (owner 2026-11-02); the sort is stable, so quests of one level keep quests.json order
+      const rewardWaiting = (quest) => currentPlayer.activeQuests.some(
+        (q) => q.questId === quest.title && q.completed && !q.rewardCollected);
+      npcQuests = [...npcQuests].sort((a, b) =>
+        (Number(rewardWaiting(b)) - Number(rewardWaiting(a))) || ((Number(a.level) || 0) - (Number(b.level) || 0)));
+      // while the panel stays open, quests already listed keep their places (questOrder); a quest
+      // that appears meanwhile goes after them, in the order above
+      if (questOrder.current) {
+        const placed = questOrder.current;
+        const rank = (quest) => (placed.has(quest.title) ? placed.get(quest.title) : Infinity);
+        npcQuests.sort((a, b) => (rank(a) === rank(b) ? 0 : rank(a) - rank(b)));
+      }
+      const order = new Map(questOrder.current || []);
+      npcQuests.forEach((quest) => { if (!order.has(quest.title)) order.set(quest.title, order.size); });
+      questOrder.current = order;
 
       setQuestList(npcQuests);
       setHasHiddenQuests(questsHiddenByRelationship);

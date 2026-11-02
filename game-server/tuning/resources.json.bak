@@ -3710,15 +3710,13 @@
     "minprice": 942,
     "maxprice": 1346,
     "ingredient1": "Cloth",
-    "ingredient1qty": 2,
-    "ingredient2": "Wool",
-    "ingredient2qty": 3,
-    "ingredient3": "Thread",
-    "ingredient3qty": 2,
-    "gemcost": 153,
+    "ingredient1qty": 3,
+    "ingredient2": "Thread",
+    "ingredient2qty": 2,
+    "gemcost": 156,
     "crafttime": 7200,
     "totalnestedtime": 52200,
-    "effort": 270
+    "effort": 273
   },
   {
     "type": "Runic Tunic",
@@ -3792,17 +3790,15 @@
     "minprice": 1296,
     "maxprice": 1852,
     "ingredient1": "Cloth",
-    "ingredient1qty": 2,
-    "ingredient2": "Wool",
-    "ingredient2qty": 2,
-    "ingredient3": "Thread",
-    "ingredient3qty": 3,
-    "ingredient4": "Pelt",
-    "ingredient4qty": 2,
-    "gemcost": 193,
+    "ingredient1qty": 4,
+    "ingredient2": "Thread",
+    "ingredient2qty": 3,
+    "ingredient3": "Pelt",
+    "ingredient3qty": 2,
+    "gemcost": 247,
     "crafttime": 14400,
     "totalnestedtime": 102900,
-    "effort": 1272
+    "effort": 1358
   },
   {
     "type": "Heavy Jacket",
@@ -3839,10 +3835,10 @@
     "ingredient2qty": 3,
     "ingredient3": "Bear Skin",
     "ingredient3qty": 1,
-    "gemcost": 264,
+    "gemcost": 280,
     "crafttime": 28800,
     "totalnestedtime": 216900,
-    "effort": 4377
+    "effort": 4463
   },
   {
     "type": "Silk Dress",
@@ -6218,9 +6214,7 @@
     "ingredient2": "Mushroom",
     "ingredient2qty": 4,
     "ingredient3": "Tulip",
-    "ingredient3qty": 4,
-    "ingredient4": "Garlic",
-    "ingredient4qty": 2
+    "ingredient3qty": 4
   },
   {
     "type": "Potion C",
@@ -7549,7 +7543,7 @@
     "ingredient3qty": 125,
     "ingredient4": "Stone",
     "ingredient4qty": 75,
-    "gemcost": 599,
+    "gemcost": 561,
     "filename": "oven.svg",
     "crafttime": 0,
     "totalnestedtime": 3241800,

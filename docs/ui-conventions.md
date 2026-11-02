@@ -126,10 +126,31 @@ value rather than trust this page.
   `UI/Panels/Panel.js` and get `panel-container--right`: the same box docked at the window's
   right edge, sliding in and out from the right. On phones every panel is a left panel
   (`mobile.css` overrides the class). Add a panel to that set to make it a right panel.
-- The desktop header's left block is
-  the phone's two-row grid (name, gems, money; then level, health, inventory with bars), the
-  title sits at the left on two lines, and the right block is Settings, Chat, Help over
-  Leaders, Language, Share.
+- The desktop header (owner 2026-11-02) is its own block, `.header-desk` in `App.js`, three
+  columns with the middle one at the page centre. Left: the avatar in a circle, the size of the
+  round HUD buttons and in line with their column (`--d-pill-w`, left at `--d-board-left` +
+  `--d-gap`), then the title on one line over "Logged in as: name" (both open the profile). Centre: Level, Health and Inventory as big icons in rings that
+  fill (`UI/HeaderRing.js`; the level number sits in the star, white with a drop shadow; a ring
+  turns red at <= 10% health or >= 90% inventory; hover shows the numbers). Right: Gems and Money
+  (icon and value), a hairline, then the action icons. Two narrower tiers (<= 1180 px,
+  <= 960 px) shrink it to fit down to 768 px. Phones keep the compact rows (`.header-title`,
+  `.header-grid`, `.header-secondary`, `mobile.css`); `App.css` shows one header or the other
+  with `mobile.css`'s query inverted. The action buttons are one list (`headerActions`) used by
+  both. A `data-fly-target` may sit on both versions: the flight goes to the one with a size.
+- Header hovertips (desktop, owner 2026-11-02): every header button names itself in a parchment
+  pill hanging under it, shown instantly on hover (`.header-icon-label` on the action icons,
+  `.header-tip` on the rings, whose tips carry the numbers; the avatar has none). No browser
+  `title` tooltip on them (it was a second, delayed copy; `aria-label` keeps the name), and no
+  hover highlight or growing label, so the header never shifts. Tips near the right edge hang
+  leftward.
+- The nav bar's buttons get the same pill, floating ABOVE the bar (`UI/NavHoverTip.js`): the bar
+  clips its buttons, so one fixed tip is placed from the hovered button. A nav button carries
+  its name in `data-tip` (plus `aria-label`), never `title`. Mouse devices only; kept inside the
+  window's sides; a click clears it.
+- The floating HUD buttons (Map, Quest at the left; Season, Town News at the right) get the same
+  pill beside the button, toward the middle of the screen: a left-column button's tip opens to
+  its right, a right-column button's to its left (`useHoverTip('side')`, same file). The zoom
+  + / − buttons have no tip.
 - Phones: the nav is a floating iOS-style pill over the board (horizontal along the bottom
   in portrait, vertical at the left in landscape). Panels (the Map panel
   included) and the chat share one box docked at the left,

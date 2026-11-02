@@ -64,7 +64,7 @@
 
 /* Button columns on either side of the map */
 .minimap-button-column {
-  width: 24px;
+  width: 36px; /* half again the old 24 (owner 2026-11-02); the phone size is in mobile.css */
   display: flex;
   align-items: center;
 }
@@ -80,7 +80,7 @@
 /* Transit buttons - just emoji icons */
 .minimap-signpost-button {
   cursor: pointer;
-  font-size: 18px; /* style-ok: icon */
+  font-size: 27px; /* style-ok: icon */
   padding: 2px;
   transition: transform 0.1s ease;
   user-select: none;

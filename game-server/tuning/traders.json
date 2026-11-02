@@ -121,9 +121,7 @@
     "requires2": "Mushroom",
     "requires2qty": 4,
     "requires3": "Tulip",
-    "requires3qty": 4,
-    "requires4": "Garlic",
-    "requires4qty": 2
+    "requires3qty": 4
   },
   {
     "trader": "Apothecary",

@@ -107,6 +107,9 @@ import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import RegionName from './UI/RegionName';
+import HeaderRing from './UI/HeaderRing';
+import NavHoverTip, { useNavHoverTip, useHoverTip } from './UI/NavHoverTip';
+import { stripLeadingEmoji } from './UI/Panels/Panel';
 import ScrollStation from './GameFeatures/Crafting/ScrollStation';
 import PetPanel from './GameFeatures/Pets/PetPanel';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
@@ -530,6 +533,8 @@ const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 // the counter waits, and it rolls up when the text hits it
 const headerMoney = useHeldValue(Array.isArray(currentPlayer?.inventory) ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0) : null, 'money');
 const headerXP = useHeldValue(currentPlayer?.xp || 0, 'xp');
+const { navTip, navTipHandlers } = useNavHoverTip(); // the nav bar's instant tips (UI/NavHoverTip.js)
+const { tip: hudTip, handlers: hudTipHandlers } = useHoverTip('side'); // the HUD buttons' tips, beside them
 const headerGems = useHeldValue(Array.isArray(currentPlayer?.inventory) ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0) : null, 'gems');
 
 // PixiJS is now the only renderer - always enabled
@@ -3146,6 +3151,50 @@ const handleLoginSuccess = async (player) => {
   
   const pcs = Object.values(playersInGrid?.[gridId]?.pcs || {});
 
+  // The header's numbers, shared by the desktop rings and the phone's fill bars
+  const headerStats = (() => {
+    const heldPlayer = currentPlayer ? { ...currentPlayer, xp: headerXP } : currentPlayer; // held while XP flies in
+    const level = getDerivedLevel(heldPlayer, masterXPLevels);
+    const prevLevelXP = level > 1 ? (masterXPLevels?.[level - 2] || 0) : 0;
+    const nextLevelXP = getXpForNextLevel(heldPlayer, masterXPLevels);
+    const xpNeeded = nextLevelXP - prevLevelXP;
+    const xpPercent = xpNeeded > 0 ? Math.min(100, ((headerXP - prevLevelXP) / xpNeeded) * 100) : 100;
+    const me = currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)] : null;
+    const hp = me?.hp ?? 0;
+    const maxHp = me?.maxhp ?? 1;
+    const invUsed = (currentPlayer?.inventory || [])
+      .filter((item) => item && !isCurrency(item.type))
+      .reduce((total, item) => total + (item.quantity || 0), 0);
+    const invMax = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning).warehouse || 1;
+    return {
+      level, xpPercent,
+      xpLabel: `${Math.max(0, headerXP - prevLevelXP).toLocaleString()} / ${Math.max(0, xpNeeded).toLocaleString()} XP`,
+      hp, maxHp, hpPercent: Math.min(100, Math.max(0, (hp / maxHp) * 100)),
+      invUsed, invMax, invPercent: Math.min(100, Math.max(0, (invUsed / invMax) * 100)),
+    };
+  })();
+
+  // The action buttons (Store, Inbox, Settings, Leaders, Chat, Help, Share): the desktop header's
+  // right column and the phone's icon row
+  const headerActions = [
+    { key: 'store',    icon: 'icon-store.svg',    label: strings[10104], disabled: !currentPlayer, badge: badgeState.store,   onClick: () => setActiveModal('Store') },
+    { key: 'inbox',    icon: 'icon-inbox.svg',    label: strings[10105], disabled: !currentPlayer, badge: badgeState.mailbox, onClick: () => openModal('Mailbox') },
+    { key: 'settings', icon: 'icon-settings.svg', label: strings[1190],  disabled: false,          badge: false,              onClick: () => openPanel('ProfilePanel') },
+    { key: 'leaders',  icon: 'icon-leaders.svg',  label: strings[1140],  disabled: !currentPlayer, badge: false,              onClick: () => openPanel('LeaderboardPanel') },
+    { key: 'chat',     icon: 'icon-chat.svg',     label: strings[10107], disabled: !currentPlayer, badge: badgeState.chat,    onClick: () => setIsChatOpen(prev => !prev) },
+    { key: 'howto',    icon: 'icon-help.svg',     label: strings[10110], disabled: !currentPlayer, badge: false,              onClick: () => openPanel('HowToPanel') },
+    { key: 'share',    icon: 'icon-share.svg',    label: strings[10106], disabled: false,          badge: false,              onClick: () => setShowShareModal(true) },
+  ];
+  const renderHeaderAction = (b) => (
+    <div key={b.key} className="header-link-wrapper">
+      <button className={`header-link header-icon-btn header-link--${b.key}`} aria-label={b.label} disabled={b.disabled} onClick={b.onClick}>
+        <img className="header-icon" src={`/assets/icons/${b.icon}`} alt="" draggable="false" />
+        <span className="header-icon-label">{b.label}</span>
+      </button>
+      {b.badge && <div className="badge-dot" />}
+    </div>
+  );
+
 
 return (
     <>
@@ -3158,6 +3207,61 @@ return (
 {/* //////////////////////  Header  //////////////////////// */}
 
     <header className="app-header">
+
+        {/* Desktop header (owner 2026-11-02): three columns. Left: the title on one line, "Logged in
+            as" under it. Centre: Level, Health and Inventory as big icons, each in a ring that fills
+            (the level number sits in the star). Right: Gems and Money, then the action icons.
+            Phones keep the compact rows below (UI/Styles/mobile.css); App.css shows one or the other. */}
+        <div className="header-desk">
+          <div className="header-desk-left">
+            {/* the player's avatar in a circle, in line with the round HUD buttons under it */}
+            <button className="header-desk-avatar" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()} aria-label={currentPlayer?.username || ''}>
+              {(() => {
+                const icon = currentPlayer?.icon || '😊';
+                const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
+                return svgFilename
+                  ? <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} draggable="false" />
+                  : <span>{icon}</span>;
+              })()}
+            </button>
+            <div className="header-desk-titles">
+              <h1 className="header-desk-title">{strings[0]}</h1>
+              <button className="header-desk-login" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()}>
+                {strings[10221] || 'Logged in as:'} <strong>{currentPlayer?.username || '...'}</strong>
+              </button>
+            </div>
+          </div>
+          <div className="header-desk-center">
+            <button className="header-ring" data-fly-target="xp" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()}>
+              <span className="header-tip">{`${strings[10150] || 'Level'} ${headerStats.level} · ${headerStats.xpLabel}`}</span>
+              <HeaderRing percent={headerStats.xpPercent} />
+              <img className="header-ring-icon" src="/assets/icons/icon-level.svg" alt="" draggable="false" />
+              <span className="header-ring-level">{currentPlayer ? headerStats.level : ''}</span>
+            </button>
+            <button className="header-ring" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()}>
+              <span className="header-tip">{`${stripLeadingEmoji(strings[10112] || 'Health')} ${headerStats.hp} / ${headerStats.maxHp}`}</span>
+              <HeaderRing percent={headerStats.hpPercent} tone={headerStats.hpPercent <= 10 ? 'danger' : 'health'} />
+              <span className="header-ring-emoji" aria-hidden="true">❤️</span>
+            </button>
+            <button className="header-ring" data-fly-target="inventory" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
+              <span className="header-tip">{`${strings[10103] || 'Inventory'} ${headerStats.invUsed.toLocaleString()} / ${headerStats.invMax.toLocaleString()}`}</span>
+              <HeaderRing percent={headerStats.invPercent} tone={headerStats.invPercent >= 90 ? 'danger' : 'plain'} />
+              <img className="header-ring-icon" src="/assets/icons/icon-inventory.svg" alt="" draggable="false" />
+            </button>
+          </div>
+          <div className="header-desk-right">
+            <button className="header-link header-icon-btn header-currency-btn" data-fly-target="gems" onClick={() => openPanel('HowToGemsPanel')}>
+              <span className="header-currency-icon" aria-hidden="true">💎</span>
+              <span>{headerGems != null ? headerGems.toLocaleString() : '...'}</span>
+            </button>
+            <button className="header-link header-icon-btn header-currency-btn" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
+              <span className="header-currency-icon" aria-hidden="true">💰</span>
+              <span>{headerMoney != null ? headerMoney.toLocaleString() : '...'}</span>
+            </button>
+            <span className="header-desk-divider" aria-hidden="true" />
+            {headerActions.map(renderHeaderAction)}
+          </div>
+        </div>
 
         <div className="header-title">
           <h1>{strings[0]}</h1>
@@ -3261,27 +3365,11 @@ return (
           <span></span>
         </div>
 
-        {/* header-secondary: the action buttons in ONE row of icons (owner, 2026-11-01). Desktop: each
-            button grows to show its name while the mouse is over it (CSS .header-icon-label, hover
-            only); phones: icons only. The badge dots sit on the wrappers as before. */}
+        {/* header-secondary: the phone's row of action icons (owner, 2026-11-01); the desktop header
+            shows the same buttons (headerActions) with a hovertip each. The badge dots sit on the
+            wrappers as before. */}
         <div className="header-secondary">
-          {[
-            { key: 'store',    icon: 'icon-store.svg',    label: strings[10104], disabled: !currentPlayer, badge: badgeState.store,   onClick: () => setActiveModal('Store') },
-            { key: 'inbox',    icon: 'icon-inbox.svg',    label: strings[10105], disabled: !currentPlayer, badge: badgeState.mailbox, onClick: () => openModal('Mailbox') },
-            { key: 'settings', icon: 'icon-settings.svg', label: strings[1190],  disabled: false,          badge: false,              onClick: () => openPanel('ProfilePanel') },
-            { key: 'leaders',  icon: 'icon-leaders.svg',  label: strings[1140],  disabled: !currentPlayer, badge: false,              onClick: () => openPanel('LeaderboardPanel') },
-            { key: 'chat',     icon: 'icon-chat.svg',     label: strings[10107], disabled: !currentPlayer, badge: badgeState.chat,    onClick: () => setIsChatOpen(prev => !prev) },
-            { key: 'howto',    icon: 'icon-help.svg',     label: strings[10110], disabled: !currentPlayer, badge: false,              onClick: () => openPanel('HowToPanel') },
-            { key: 'share',    icon: 'icon-share.svg',    label: strings[10106], disabled: false,          badge: false,              onClick: () => setShowShareModal(true) },
-          ].map((b) => (
-            <div key={b.key} className="header-link-wrapper">
-              <button className={`header-link header-icon-btn header-link--${b.key}`} title={b.label} disabled={b.disabled} onClick={b.onClick}>
-                <img className="header-icon" src={`/assets/icons/${b.icon}`} alt="" draggable="false" />
-                <span className="header-icon-label">{b.label}</span>
-              </button>
-              {b.badge && <div className="badge-dot" />}
-            </div>
-          ))}
+          {headerActions.map(renderHeaderAction)}
         </div>
     </header>
     
@@ -3329,8 +3417,8 @@ return (
         left: ✅ a quest is ready to turn in, ? quests are active but none is done. Accepted quests
         fly into it (data-fly-target="quests", UI/FlyToTarget.js) */}
     {currentPlayer && (
-      <div className="map-controls quest-controls" data-fly-target="quests">
-        <button data-nav="QuestPanel" className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
+      <div className="map-controls quest-controls" data-fly-target="quests" {...hudTipHandlers}>
+        <button data-nav="QuestPanel" className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} data-tip={strings[12004]} aria-label={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
         {questBadge === 'completed' && <img className="hud-badge" src="/assets/overlays/checkmark.svg" alt="" />}
         {questBadge === 'active' && <span className="hud-badge hud-badge--question">?</span>}
       </div>
@@ -3338,8 +3426,8 @@ return (
 
     {/* Season: a round button at the board's top-right, the top of the right-hand stack */}
     {currentPlayer && (
-      <div className="season-controls season-main">
-        <button className="season-button" title={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
+      <div className="season-controls season-main" {...hudTipHandlers}>
+        <button className="season-button" data-tip={`${strings[10113]} ${seasonData?.type || ''}`} aria-label={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
         <HudCountdown endTimes={timers?.seasons?.endTime} />
       </div>
     )}
@@ -3347,8 +3435,8 @@ return (
     {/* Town News: a round button under the season button (under the map button in phone
         landscape, where the map sits under the season button); toggles the Town News panel */}
     {currentPlayer && (
-      <div className="season-controls news-controls">
-        <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} title={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><span>📰</span></button>
+      <div className="season-controls news-controls" {...hudTipHandlers}>
+        <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} data-tip={strings[10125]} aria-label={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><span>📰</span></button>
         {/* the soonest of the Train, Bank and Carnival countdowns */}
         <HudCountdown endTimes={[timers?.train?.endTime, timers?.bank?.endTime, timers?.carnival?.endTime]} />
       </div>
@@ -3356,19 +3444,22 @@ return (
 
     {/* Map: a round button under the zoom pill, the season button's twin; toggles the Map panel */}
     {currentPlayer && (
-      <div className="map-controls">
-        <button className={`map-button ${activePanel === 'MapPanel' ? 'selected' : ''}`} title={strings[2] || 'Map'} onClick={() => (activePanel === 'MapPanel' ? closePanel() : openPanel('MapPanel'))}>{renderNavIcon('MapPanel', '🗺️')}</button>
+      <div className="map-controls" {...hudTipHandlers}>
+        <button className={`map-button ${activePanel === 'MapPanel' ? 'selected' : ''}`} data-tip={strings[2] || 'Map'} aria-label={strings[2] || 'Map'} onClick={() => (activePanel === 'MapPanel' ? closePanel() : openPanel('MapPanel'))}>{renderNavIcon('MapPanel', '🗺️')}</button>
       </div>
     )}
 
-    <div className="nav-column" style={hideNavForFTUE ? { display: 'none' } : undefined}>
+    {/* the nav buttons name themselves in an instant tip above the bar (UI/NavHoverTip.js) */}
+    <NavHoverTip tip={navTip} />
+    <NavHoverTip tip={hudTip} />
+    <div className="nav-column" style={hideNavForFTUE ? { display: 'none' } : undefined} {...navTipHandlers}>
 
       {currentPlayer && (
         <>
 
       <button
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
-        title="My Profile"
+        data-tip="My Profile" aria-label="My Profile"
         disabled={!currentPlayer}
         onClick={() => {
           if (currentPlayer) {
@@ -3390,7 +3481,7 @@ return (
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <>
           <button
-            className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} data-nav="FarmingPanel"
+            className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} data-tip={strings[12001]} aria-label={strings[12001]} disabled={!currentPlayer} data-nav="FarmingPanel"
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
@@ -3398,7 +3489,7 @@ return (
             }}
           >{renderNavIcon('FarmingPanel', '🌽')}</button>
           <button
-            className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} data-nav="ToolsPanel"
+            className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} data-tip={strings[12012]} aria-label={strings[12012]} disabled={!currentPlayer} data-nav="ToolsPanel"
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
@@ -3406,7 +3497,7 @@ return (
             }}
           >{renderNavIcon('ToolsPanel', '⛏️')}</button>
           <button
-            className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer}
+            className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} data-tip={strings[12003]} aria-label={strings[12003]} disabled={!currentPlayer}
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
@@ -3414,14 +3505,14 @@ return (
             }}
           >{renderNavIcon('BuyPanel', '🐮')}</button>
           <button
-            className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer}
+            className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} data-tip={strings[12002]} aria-label={strings[12002]} disabled={!currentPlayer}
             onClick={() => {
               if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
               if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
               openPanel('BuildPanel');
             }}
           >{renderNavIcon('BuildPanel', '🛖')}</button>
-          <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} data-fly-target="skills" onClick={() => {
+          <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} data-tip={strings[12005]} aria-label={strings[12005]} disabled={!currentPlayer} data-fly-target="skills" onClick={() => {
               setActiveStation(null); // ✅ Reset activeStation
               openPanel("SkillsPanel"); // ✅ Open the panel normally
             }}>{renderNavIcon('SkillsPanel', '💪')}</button>
@@ -3430,7 +3521,7 @@ return (
 
       {!currentPlayer?.firsttimeuser && isOnOwnHomestead && (
         <button
-          className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} title={strings[12014]} disabled={!currentPlayer}
+          className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} data-tip={strings[12014]} aria-label={strings[12014]} disabled={!currentPlayer}
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
             if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
@@ -3441,7 +3532,7 @@ return (
 
       {!currentPlayer?.firsttimeuser && (
         <button
-          className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer}
+          className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} data-tip={strings[12011]} aria-label={strings[12011]} disabled={!currentPlayer}
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
             // Check if on another player's homestead
@@ -3452,22 +3543,22 @@ return (
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} data-fly-target="combat" onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
+        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} data-tip={strings[12006]} aria-label={strings[12006]} disabled={!currentPlayer} data-fly-target="combat" onClick={() => openPanel('CombatPanel')}>{renderNavIcon('CombatPanel', '⚔️')}</button>
       )}
 
       {!currentPlayer?.firsttimeuser && (
-        <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>{renderNavIcon('GovPanel', '🏛️')}</button>
+        <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} data-tip={strings[12007]} aria-label={strings[12007]} onClick={() => openPanel('GovPanel')}>{renderNavIcon('GovPanel', '🏛️')}</button>
       )}
 
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
-        <button className={`nav-button nav-button--badged ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>
+        <button className={`nav-button nav-button--badged ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} data-tip={strings[12013]} aria-label={strings[12013]} onClick={() => openPanel('TrophyPanel')}>
           {renderNavIcon('TrophyPanel', '🏆')}
           {trophyReady && <img className="nav-badge" src="/assets/overlays/checkmark.svg" alt="" />}
         </button>
       )}
 
       {isDeveloper && (
-        <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
+        <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} data-tip="Debug" aria-label="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
         </button>
       )}
