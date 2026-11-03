@@ -17,7 +17,7 @@ function ShareModal({ onClose }) {
     <div className="modal-overlay">
       <div className="modal-container modal-narrow">
         <CloseButton corner onClick={onClose} />
-        <div className="modal-title">📢 Share "Secrets of Elsinore"</div>
+        <div className="modal-title">Share "Secrets of Elsinore"</div>
         <p>{strings[95]}</p>
         
 
