@@ -1446,7 +1446,8 @@
     "goal1action": "Collect",
     "goal1item": "Rosemary",
     "goal1qty": 12,
-    "storyKey": "16518"
+    "storyKey": "16518",
+    "clueKey": "16522"
   },
   {
     "index": 114,

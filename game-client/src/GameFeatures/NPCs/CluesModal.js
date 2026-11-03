@@ -15,15 +15,30 @@ import './CluesModal.css';
  * status is gained, kept even if the status is lost later; routes/playerRoutes.js
  * add-or-update-relationship-status) plus any status held now (players who met an NPC before
  * `clues` existed).
+ *
+ * Quest clues (2026-11-03): a quest with a `clueKey` (questsEN.json) plays that story as the
+ * reward is collected (NPCsPanel handleGetReward), and every completed quest of this giver that
+ * has one is listed here after the milestone clues, under the quest's title. Nothing is stored:
+ * it follows from player.completedQuests.
  */
 export const DIALOG_KEYS = { met: 'dialogOnMet', friend: 'dialogOnFriend', love: 'dialogOnLove', married: 'dialogOnMarried', rival: 'dialogOnRival' };
 const LABEL_KEYS = { met: 2101, friend: 2102, love: 2103, married: 2104, rival: 2105 };
 const LABEL_FALLBACK = { met: 'When you met', friend: 'As friends', love: 'In love', married: 'Married', rival: 'As rivals' };
 
-/** The clues to show for an NPC: [{ status, text }], "met" first. Empty when there are none. */
-export function cluesFor(npcType, relationship, strings, username) {
+/** The completed quests of this giver that carry a clue: [{ title, clueKey }], in quests.json order. */
+export function questCluesFor(npcType, allQuests, completedQuests) {
+  const done = new Set((completedQuests || []).map((q) => q?.questId));
+  return (allQuests || []).filter((q) => q.giver === npcType && q.clueKey && done.has(q.title)).map((q) => ({ title: q.title, clueKey: q.clueKey }));
+}
+
+/** The clues to show for an NPC: [{ status, text, label? }], "met" first, then quest clues. Empty when there are none. */
+export function cluesFor(npcType, relationship, strings, username, questClues = []) {
+  const fill = (raw) => raw.replace(/\{username\}/gi, username || 'Adventurer');
+  const fromQuests = questClues
+    .map((q) => (strings[q.clueKey] ? { status: `quest:${q.title}`, label: q.title, text: fill(strings[q.clueKey]) } : null))
+    .filter(Boolean);
   const matrix = RelationshipMatrix.find((r) => r.type === npcType);
-  if (!matrix || !relationship) return [];
+  if (!matrix || !relationship) return fromQuests;
   const earned = [...(relationship.clues || [])];
   Object.keys(DIALOG_KEYS).forEach((status) => { if (relationship[status] && !earned.includes(status)) earned.push(status); });
   const ordered = earned.includes('met') ? ['met', ...earned.filter((s) => s !== 'met')] : earned;
@@ -31,14 +46,15 @@ export function cluesFor(npcType, relationship, strings, username) {
     .map((status) => {
       const id = matrix[DIALOG_KEYS[status]];
       const raw = id ? strings[id] : null;
-      return raw ? { status, text: raw.replace(/\{username\}/gi, username || 'Adventurer') } : null;
+      return raw ? { status, text: fill(raw) } : null;
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .concat(fromQuests);
 }
 
-export default function CluesModal({ npcType, relationship, username, onClose }) {
+export default function CluesModal({ npcType, relationship, username, questClues, onClose }) {
   const strings = useStrings();
-  const clues = cluesFor(npcType, relationship, strings, username);
+  const clues = cluesFor(npcType, relationship, strings, username, questClues);
   const symbol = RelationshipMatrix.find((r) => r.type === npcType)?.symbol;
   return (
     <Modal size="narrow" className="clues-modal" onClose={onClose} title={`${symbol ? symbol + ' ' : ''}${getLocalizedString(npcType, strings)}`}>
@@ -46,7 +62,7 @@ export default function CluesModal({ npcType, relationship, username, onClose })
       <ol className="clues-list">
         {clues.map((c) => (
           <li key={c.status} className="clue">
-            <div className="clue-label">{strings[LABEL_KEYS[c.status]] || LABEL_FALLBACK[c.status]}</div>
+            <div className="clue-label">{c.label || strings[LABEL_KEYS[c.status]] || LABEL_FALLBACK[c.status]}</div>
             {c.text.split(/\n+/).map((para, i) => <p key={i} className="clue-text text-quote">{para}</p>)}
           </li>
         ))}

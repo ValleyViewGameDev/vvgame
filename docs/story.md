@@ -163,6 +163,11 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   been shown, the "when you met" story first, so a hint can be re-read; the server records each
   in the relationship's `clues` and keeps it even if the status is later lost. Write these as
   the place to leave a hint the player will need later.
+- **Quests can leave clues too** (2026-11-03). A quest's `clueKey` (QUESTS sheet) is a string the
+  giver says, as a StoryModal, the moment its reward is collected, and it joins that giver's Clues
+  under the quest's title for every player who has completed the quest (derived from
+  `completedQuests`, nothing stored). First use: Helena's "Rosemary, for Remembrance" (16522),
+  handing over Gertrude's Song and sending the player to Feste.
 - **The QUEST FOR HOPE editor tab** shows every route to the seven artifacts with its gates.
   Check it after changing a quest, trade, door or layout on the spine.
 

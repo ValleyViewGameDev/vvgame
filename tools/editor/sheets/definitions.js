@@ -147,6 +147,7 @@ export const DEFINITIONS = [
       str('rel'), num('relscore'),
       { ...str('prereq'), label: 'prereq (title of a quest that must be complete first; several: "A; B")' },
       { ...str('storyKey'), label: 'storyKey (string id the giver says, as a StoryModal, on accept)' },
+      { ...str('clueKey'), label: 'clueKey (string id the giver says as the reward is collected; kept in their Clues)' },
       bool('retired', 'retired (no longer offered; a player who holds it can still finish and claim it)'),
     ],
   },

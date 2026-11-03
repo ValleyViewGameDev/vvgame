@@ -33,7 +33,7 @@ import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
 import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
-import CluesModal, { cluesFor } from './CluesModal';
+import CluesModal, { cluesFor, questCluesFor } from './CluesModal';
 import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
 import RiddleMinigame from '../Minigames/RiddleMinigame';
@@ -112,6 +112,7 @@ const NPCPanel = ({
   const [storyRelationshipType, setStoryRelationshipType] = useState(null);
   const [storyDialogKey, setStoryDialogKey] = useState(null); // a story quest's ask (quest storyKey), shown on accept
   const [cluesOpen, setCluesOpen] = useState(false); // CluesModal: the story dialogs shown so far, to read again
+  const [allQuests, setAllQuests] = useState([]); // the quest table (questCache), for this giver's quest clues
 
   // Tapping another NPC while this panel is open re-renders it with new npcData instead of
   // remounting it, so everything held for the previous NPC must go: otherwise a quest giver who
@@ -327,6 +328,7 @@ const NPCPanel = ({
       await refreshStateGoals(currentPlayer, setCurrentPlayer);
       // Use cached quests instead of direct API call
       const allQuests = await questCache.getQuests();
+      setAllQuests(allQuests);
 
       // Quests this giver will offer once the player is higher level: not held, not retired, not
       // already done (unless repeatable), and their prereq done, so the level is all that is missing.
@@ -619,6 +621,13 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
       const repeatable = quest.repeatable === true || quest.repeatable === 'true';
       revertReward = sendQuestCardAway(quest, 'pop', repeatable);
       showQuestRewardFloatingText(rewardSymbol, rewardName, rewardQuantity, xpForFloatingText, questCardRect, questRewardFlyTo(quest.reward, rewardResource));
+      // A quest with a clue tells its story as it is handed in, in the giver's StoryModal; the
+      // NPC's Clues keep it (CluesModal questCluesFor)
+      if (quest.clueKey) {
+        setStoryDialogKey(quest.clueKey);
+        setStoryRelationshipType('story');
+        setStoryModalOpen(true);
+      }
       soundManager.playSFX('skill_earned');
       try { navigator.vibrate?.(35); } catch (_) { /* no haptics here */ }
 
@@ -1483,7 +1492,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           {/* Clues, then who and what this NPC cares about (one compact row): first after the status line */}
           {!hideRelationshipUI && (() => {
             const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
-            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username).length;
+            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username, questCluesFor(npcData.type, allQuests, currentPlayer.completedQuests)).length;
             return (
               <>
                 {count > 0 && (
@@ -1832,6 +1841,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           npcType={npcData?.type}
           relationship={currentPlayer.relationships?.find(r => r.name === npcData?.type)}
           username={currentPlayer?.username}
+          questClues={questCluesFor(npcData?.type, allQuests, currentPlayer.completedQuests)}
           onClose={() => setCluesOpen(false)}
         />
       )}
