@@ -19,86 +19,103 @@ import soundManager from '../../Sound/SoundManager';
  *
  * Gertrude stands as a statue ("Gertrude's Statue", action `statue`) in her castle in the Town
  * until the end of the early game:
- *   1. Helena's "Rosemary, for Remembrance" (L14), then Feste's "If Music Be the Food of Love"
- *      (L15, prereq the first).
- *   2. Feste's errand: once his quest is done and the Queen still sleeps, Feste leaves his loop and
- *      walks to the statue (stopping beside it) and stays there. A walk that is blocked, or takes
- *      longer than ERRAND_MS, ends in a teleport to a free tile beside her. The errand is derived
- *      from the player's state on every brain tick (NPCCitizenBehavior), so a reload, a reset or
- *      a fresh town copy just starts it again.
- *   3. Tapping the statue opens the riddle modal. With Feste within FESTE_NEAR tiles, "Music, awake
- *      her!" closes it, Feste sings on the board (bubbles, the song in the status bar), then the
- *      statue becomes Gertrude and her waking speech opens. Optimistic: the server call runs
- *      alongside, and only a refusal puts the statue back.
+ *   1. Helena's "Rosemary, for Remembrance" (L14) gives Gertrude's Song; Feste's "If Music Be the
+ *      Food of Love" (L15) asks for it. Collecting his reward hands him the Song (consumed, POST
+ *      /api/story/give-feste-song), which saves storyFlags.festeHasSong: the statue is READY, shown
+ *      by a checkmark (Utils/ResourceOverlayUtils.js), and that is all waking needs.
+ *   2. Feste's errand (derived from the player's state on every brain tick, NPCCitizenBehavior, so a
+ *      reload just starts it again): while the statue is ready, Feste leaves his loop and walks an
+ *      A* route to a tile beside her, at the player's walking pace, through the Town's doors
+ *      (`passDoors`), then waits with a 🎶. No teleport: if he cannot get there he simply stays put.
+ *   3. Tapping the ready statue opens the riddle modal; "Music, awake her!" always works. Feste sings
+ *      if he is in the Town; then the statue becomes Gertrude and her waking speech opens.
+ *      Optimistic: the server call runs alongside, and only a refusal puts the statue back.
+ *   4. Once she is awake, a Feste still standing by her walks home (homeX/homeY, by the Academy) the
+ *      same way, then returns to his own loop.
  */
 export const STATUE = "Gertrude's Statue";
 export const QUEEN = 'Gertrude';
 const FESTE = 'Feste';
 export const FESTE_QUEST = 'If Music Be the Food of Love';
-const FESTE_NEAR = 3;      // tiles (Chebyshev) from the statue for the song to work
-const ERRAND_MS = 45000;   // a walk to the statue longer than this ends in a teleport
+const FESTE_NEAR = 3;      // tiles (Chebyshev) from the statue that count as "beside her" in the modal
+const ERRAND_STEP_MS = 90; // the errand walk's pace: the player's (PlayerMovement MOVEMENT_STEP_MS)
+const HOME_NEAR = 4;       // after the waking, a Feste this close to the Queen walks home
 const SONG_MS = 4400;      // how long Feste sings before she wakes
 
 const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 export const isGertrudeAwake = (player) => !!player?.storyFlags?.gertrudeAwake;
 const festeQuestDone = (player) => (player?.completedQuests || []).some((q) => q?.questId === FESTE_QUEST);
+/** The statue is ready to wake: Feste has the Song (or the player finished his quest before the Song existed). */
+export const isStatueReady = (player) => !isGertrudeAwake(player) && (!!player?.storyFlags?.festeHasSong || festeQuestDone(player));
 const findStatue = (resources) => (resources || []).find((r) => r.type === STATUE);
 const findFeste = (gridId) => Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {}).find((n) => n?.type === FESTE);
 const hex24 = () => Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 
 // ---------------------------------------------------------------- Feste's errand (brain hook)
 
-const errands = new Map(); // npcId -> { gridId, since }
+const errands = new Map(); // npcId -> { gridId, kind: 'statue' | 'home' }
 
-/** A free tile next to the statue that this NPC may stand on, nearest the NPC first. */
-function freeTileBeside(npc, statue, tiles, resources, npcs) {
-  const options = [];
-  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-    if (!dx && !dy) continue;
-    const x = statue.x + dx, y = statue.y + dy;
-    if (!npc.terrainOpen(x, y, tiles, resources)) continue;
-    if (npcs.some((n) => n && n.id !== npc.id && Math.floor(n.position?.x) === x && Math.floor(n.position?.y) === y)) continue;
-    options.push({ x, y, d: Math.hypot(x - npc.position.x, y - npc.position.y) });
-  }
-  return options.sort((a, b) => a.d - b.d)[0] || null;
+/** Walk the errand at the player's pace and through doors; restore the NPC's own when it ends. */
+function beginErrand(npc) {
+  if (npc.errandBaseStepMs == null) npc.errandBaseStepMs = npc.stepMs;
+  npc.stepMs = ERRAND_STEP_MS;
+  npc.passDoors = true;
+  npc.storyErrand = true;
+  npc.citizenState = null; // out of the loop while on the errand (it restarts when he is free)
+}
+function endErrand(npc) {
+  if (npc.errandBaseStepMs != null) { npc.stepMs = npc.errandBaseStepMs; npc.errandBaseStepMs = null; }
+  npc.passDoors = false;
+  npc.storyErrand = false;
+  npc.path = null;
+  errands.delete(npc.id);
+  stopHeadlineEffect(npc.id);
 }
 
 /**
  * Called by every Citizen's brain tick before anything else. Returns true when this NPC is on a
  * story errand (and has been moved for this tick), so the brain skips its own loop.
  */
-export function runStoryErrand(npc, gridId, tiles, resources, npcs, player, TILE_SIZE = 45) {
+export function runStoryErrand(npc, gridId, tiles, resources, npcs, player) {
   if (npc.type !== FESTE) return false;
   const statue = findStatue(resources);
-  if (!statue || !festeQuestDone(player) || isGertrudeAwake(player)) {
-    if (npc.storyErrand) { npc.storyErrand = false; errands.delete(npc.id); stopHeadlineEffect(npc.id); }
-    return false;
-  }
-  const now = Date.now();
   let errand = errands.get(npc.id);
-  if (!errand || errand.gridId !== gridId) {
-    errand = { gridId, since: now };
-    errands.set(npc.id, errand);
-    npc.citizenState = null; // out of the loop while on the errand (it restarts when he is free)
+  if (errand && errand.gridId !== gridId) { endErrand(npc); errand = null; }
+
+  // to the statue, while she is ready to wake
+  if (statue && isStatueReady(player)) {
+    if (!errand || errand.kind !== 'statue') { errand = { gridId, kind: 'statue' }; errands.set(npc.id, errand); beginErrand(npc); }
+    startHeadlineEffect(npc.id, 'emoji', npc.position, { emoji: '🎶' });
+    if (cheb(npc.position, statue) <= 1) { npc.path = null; return true; } // there: wait beside her
+    const step = npc.followPath(statue.x, statue.y, tiles, resources, npcs, { stopShort: true });
+    if (step === 'blocked') npc.path = null; // no way through right now: stand, and try again next tick
+    return true;
   }
-  npc.storyErrand = true;
-  startHeadlineEffect(npc.id, 'emoji', npc.position, { emoji: '🎶' });
 
-  if (cheb(npc.position, statue) <= 1) { npc.path = null; return true; } // there: wait beside her
-
-  const step = npc.followPath(statue.x, statue.y, tiles, resources, npcs, { stopShort: true });
-  if (step === 'blocked' || now - errand.since > ERRAND_MS) {
-    // no way through (walls, a crowd, a long detour): appear beside her
-    const spot = freeTileBeside(npc, statue, tiles, resources, npcs);
-    if (spot) {
-      npc.position = { x: spot.x, y: spot.y };
-      npc.path = null;
-      NPCsInGridManager.updateNPC(gridId, npc.id, { position: npc.position }).catch(() => {});
-      createCollectEffect(spot.x, spot.y, TILE_SIZE);
+  // home again once she is awake, if he is still standing by her
+  if (isGertrudeAwake(player) && Number.isInteger(npc.homeX) && Number.isInteger(npc.homeY)) {
+    const queen = (npcs || []).find((n) => n?.type === QUEEN);
+    if (!errand && queen && cheb(npc.position, queen.position) <= HOME_NEAR) {
+      errand = { gridId, kind: 'home' };
+      errands.set(npc.id, errand);
+      beginErrand(npc);
+      stopHeadlineEffect(npc.id);
     }
-    errand.since = now;
+    if (errand?.kind === 'home') {
+      const home = { x: npc.homeX, y: npc.homeY };
+      const step = cheb(npc.position, home) === 0 ? 'arrived' : npc.followPath(home.x, home.y, tiles, resources, npcs);
+      if (step === 'arrived') {
+        NPCsInGridManager.updateNPC(gridId, npc.id, { position: npc.position }).catch(() => {});
+        endErrand(npc);
+        return false;
+      }
+      if (step === 'blocked') npc.path = null;
+      return true;
+    }
   }
-  return true;
+
+  if (errand) endErrand(npc);
+  return false;
 }
 
 // ---------------------------------------------------------------- the statue modal
@@ -136,7 +153,14 @@ function wake(req, strings, setStory) {
     });
     soundManager.playSFX('levelup');
     const awakeAt = new Date().toISOString();
-    setCurrentPlayer?.((prev) => ({ ...prev, storyFlags: { ...(prev?.storyFlags || {}), gertrudeAwake: awakeAt } }));
+    // her waking is meeting her (Elbow's "Be Stone No More" is a Meet goal); the server does the same
+    setCurrentPlayer?.((prev) => {
+      const rels = [...(prev?.relationships || [])];
+      const i = rels.findIndex((r) => r?.name === QUEEN);
+      if (i < 0) rels.push({ name: QUEEN, relscore: 10, met: true, clues: ['met'] });
+      else if (!rels[i].met) rels[i] = { ...rels[i], met: true, relscore: Math.max(rels[i].relscore || 0, 10), clues: [...new Set([...(rels[i].clues || []), 'met'])] };
+      return { ...prev, relationships: rels, storyFlags: { ...(prev?.storyFlags || {}), gertrudeAwake: awakeAt } };
+    });
     setStory({ username: currentPlayer?.username, filename: def.filename });
 
     try {
@@ -145,7 +169,7 @@ function wake(req, strings, setStory) {
         NPCsInGridManager.forgetNPC(gridId, npcId);
         await NPCsInGridManager.addLocalNPC(gridId, data.npc);
       }
-      if (data?.storyFlags) setCurrentPlayer?.((prev) => ({ ...prev, storyFlags: data.storyFlags }));
+      if (data?.storyFlags) setCurrentPlayer?.((prev) => ({ ...prev, storyFlags: data.storyFlags, ...(data.relationships ? { relationships: data.relationships } : {}) }));
     } catch (err) {
       if (!err.response) return; // the network: keep the waking; the next enter-grid agrees with the server
       NPCsInGridManager.forgetNPC(gridId, npcId);
@@ -195,10 +219,10 @@ export const StatueHost = () => {
   const { resource, currentPlayer, gridId } = request;
   const feste = findFeste(gridId);
   const festeNear = !!feste && cheb(feste.position, resource) <= FESTE_NEAR;
-  const questDone = festeQuestDone(currentPlayer);
+  const ready = isStatueReady(currentPlayer); // Feste has the Song: waking needs nothing else
   const close = () => setRequest(null);
-  const line = !questDone ? (strings[2152] || 'She does not stir. Perhaps someone who still loves her knows what she needs.')
-    : !festeNear ? (strings[2153] || 'Only silence answers. Where is the fool with his song?')
+  const line = !ready ? (strings[2152] || 'She does not stir. Perhaps someone who still loves her knows what she needs.')
+    : !festeNear ? (strings[2153] || 'Feste has her song, though the fool is not beside her yet. Call it anyway, and the music will find her.')
     : (strings[2154] || 'Feste stands beside her, ready with his song.');
 
   return createPortal(
@@ -213,7 +237,7 @@ export const StatueHost = () => {
             <button className="btn-basic btn-neutral btn-modal" onClick={close}>
               {strings[2156] || 'Leave her be'}
             </button>
-            {questDone && festeNear && (
+            {ready && (
               <button className="btn-basic btn-success btn-modal" onClick={() => { close(); wake(request, strings, setStory); }}>
                 {strings[2155] || 'Music, awake her!'}
               </button>

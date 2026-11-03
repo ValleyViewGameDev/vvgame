@@ -77,11 +77,11 @@
     "rewards": [
       {
         "item": "Money",
-        "qty": 10000
+        "qty": 5000
       },
       {
         "item": "Gem",
-        "qty": 25
+        "qty": 10
       }
     ],
     "everyoneRewards": true,

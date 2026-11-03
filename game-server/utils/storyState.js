@@ -24,6 +24,10 @@ const FESTE_QUEST = 'If Music Be the Food of Love';
 
 const isGertrudeAwake = (player) => !!player?.storyFlags?.gertrudeAwake;
 const hasCompleted = (player, title) => (player?.completedQuests || []).some((q) => q?.questId === title);
+// The statue is ready to wake once Feste has the Song (storyFlags.festeHasSong, set when his quest's
+// reward is collected: POST /story/give-feste-song); a player who finished his quest before then
+// counts as ready too
+const isStatueReady = (player) => !!player?.storyFlags?.festeHasSong || hasCompleted(player, FESTE_QUEST);
 
 /** A fresh Gertrude NPC record at (x, y), shaped like createGridLogic's layout NPCs. */
 function queenRecord(x, y, id = new ObjectId().toString()) {
@@ -87,10 +91,32 @@ const SONG = "Gertrude's Song";
 const HELENA_QUEST = 'Rosemary, for Remembrance';
 const holdsSong = (player) => [...(player.inventory || []), ...(player.backpack || [])].some((i) => i?.type === SONG && i.quantity > 0);
 function ensureGertrudesSong(player) {
-  if (!hasCompleted(player, HELENA_QUEST) || hasCompleted(player, FESTE_QUEST) || isGertrudeAwake(player) || holdsSong(player)) return false;
+  if (!hasCompleted(player, HELENA_QUEST) || isStatueReady(player) || isGertrudeAwake(player) || holdsSong(player)) return false;
   player.inventory = player.inventory || [];
   player.inventory.push({ type: SONG, quantity: 1 });
   player.markModified?.('inventory');
+  return true;
+}
+
+/**
+ * Waking the Queen is meeting her (2026-11-03): Elbow's "Be Stone No More" is a Meet goal, and the
+ * waking speech is the meeting. Marks Gertrude met (relscore at least 10, the "met" clue) on the
+ * player; the caller saves. Also run on every grid entry, for players woken before this rule.
+ * Returns true when it changed anything.
+ */
+function meetGertrude(player) {
+  if (!isGertrudeAwake(player)) return false;
+  player.relationships = player.relationships || [];
+  const rel = player.relationships.find((r) => r?.name === QUEEN);
+  if (rel?.met) return false;
+  if (rel) {
+    rel.met = true;
+    rel.relscore = Math.max(rel.relscore || 0, 10);
+    rel.clues = [...new Set([...(rel.clues || []), 'met'])];
+  } else {
+    player.relationships.push({ name: QUEEN, relscore: 10, met: true, clues: ['met'] });
+  }
+  player.markModified?.('relationships');
   return true;
 }
 
@@ -154,6 +180,6 @@ async function applyStoryState(grid, player) {
 }
 
 module.exports = {
-  STATUE, QUEEN, FESTE_QUEST, isGertrudeAwake, hasCompleted, wakeOnGrid, applyGertrudeState, ensureGertrudesSong,
+  STATUE, QUEEN, FESTE_QUEST, SONG, isGertrudeAwake, isStatueReady, hasCompleted, wakeOnGrid, applyGertrudeState, ensureGertrudesSong, meetGertrude,
   ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState, applyStoryState,
 };

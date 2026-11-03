@@ -36,6 +36,12 @@ export const getResourceOverlayStatus = (
   }
   
   // Mailbox status
+  // The Queen's statue once Feste has her song: she can be woken (GameFeatures/Story/gertrudeWaking.js)
+  if (resource.type === "Gertrude's Statue" && currentPlayer && !currentPlayer.storyFlags?.gertrudeAwake
+      && (currentPlayer.storyFlags?.festeHasSong || (currentPlayer.completedQuests || []).some((q) => q?.questId === 'If Music Be the Food of Love'))) {
+    return { type: 'ready', priority: 1 };
+  }
+
   if (badgeState?.mailbox && resource.type === 'Mailbox') {
     return { type: 'ready', priority: 1 };
   }

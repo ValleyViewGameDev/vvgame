@@ -4,7 +4,7 @@
  * and returns the full grid bundle so the client makes exactly one call per grid change.
  */
 const express = require('express');
-const { applyStoryState, ensureGertrudesSong } = require('../utils/storyState');
+const { applyStoryState, ensureGertrudesSong, meetGertrude } = require('../utils/storyState');
 const router = express.Router();
 const Grid = require('../models/grid');
 const Player = require('../models/player');
@@ -239,6 +239,7 @@ router.post('/enter-grid', async (req, res) => {
     // on his island and Viola with him once reunited (utils/storyState.js)
     await applyStoryState(grid, player).catch((e) => console.error('applyStoryState failed:', e));
     ensureGertrudesSong(player); // finished Helena's quest before it gave the song (saved with the player below)
+    meetGertrude(player); // woken before the waking counted as meeting her
 
     // an account from before regionsVisited gets its list once, from the grids it has visited
     await seedRegionsVisited(player).catch((e) => console.error('seedRegionsVisited failed:', e));

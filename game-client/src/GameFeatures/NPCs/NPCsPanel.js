@@ -34,6 +34,7 @@ import SnugTravelModal from './SnugTravelModal';
 import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import CluesModal, { cluesFor, questCluesFor } from './CluesModal';
+import { FESTE_QUEST } from '../Story/gertrudeWaking';
 import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
 import RiddleMinigame from '../Minigames/RiddleMinigame';
@@ -651,6 +652,26 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
       });
       // Check if gainIngredients failed (returns object with success: false, or falsy value)
       if (success !== true && (!success || success.success === false)) { revertReward(); return; }
+
+      // Feste's quest: he takes Gertrude's Song (consumed like a trade) and the statue becomes ready
+      // to wake (after the reward's own inventory write, so that cannot put the Song back), saved as storyFlags.festeHasSong (routes/storyRoutes.js give-feste-song)
+      if (quest.title === FESTE_QUEST) {
+        const withoutSong = (list) => (list || []).filter((i) => i?.type !== "Gertrude's Song");
+        setInventory((prev) => withoutSong(prev));
+        setBackpack((prev) => withoutSong(prev));
+        setCurrentPlayer((prev) => ({
+          ...prev,
+          inventory: withoutSong(prev?.inventory), backpack: withoutSong(prev?.backpack),
+          storyFlags: { ...(prev?.storyFlags || {}), festeHasSong: prev?.storyFlags?.festeHasSong || new Date().toISOString() },
+        }));
+        axios.post(`${API_BASE}/api/story/give-feste-song`, { playerId: currentPlayer.playerId })
+          .then(({ data }) => {
+            if (!data?.success) return;
+            setInventory(data.inventory); setBackpack(data.backpack);
+            setCurrentPlayer((prev) => ({ ...prev, inventory: data.inventory, backpack: data.backpack, storyFlags: data.storyFlags }));
+          })
+          .catch((err) => console.error('give-feste-song failed:', err));
+      }
 
       // Award trophies for specific quest rewards
       try {

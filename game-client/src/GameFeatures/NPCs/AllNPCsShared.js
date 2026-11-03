@@ -389,12 +389,13 @@ getAdjacentTile(direction) {
   };
 }
 
-// Terrain + resources only (no NPC / player checks): what an A* route may cross
+// Terrain + resources only (no NPC / player checks): what an A* route may cross. An NPC on a
+// story errand (`passDoors`, e.g. Feste walking to the Queen) goes through doors as a resident would.
 terrainOpen(x, y, tiles, resources) {
   if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) return false;
   if (this[`validon${tiles[y][x]}`] !== true) return false;
   const res = resources.find((r) => r.x === x && r.y === y);
-  return !(res && !res.passable);
+  return !(res && !res.passable && !(this.passDoors && res.action === 'door'));
 }
 
 isValidTile(x, y, tiles, resources, npcs) {
@@ -438,7 +439,7 @@ isValidTile(x, y, tiles, resources, npcs) {
     const resourceInTile = resources.find((res) => res.x === x && res.y === y);
     if (resourceInTile) {
   
-      if (!resourceInTile.passable) {
+      if (!resourceInTile.passable && !(this.passDoors && resourceInTile.action === 'door')) {
         //console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
         return false;
       }

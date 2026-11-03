@@ -86,11 +86,15 @@ with The Tempest (Prospero) and Hamlet (Gertrude, Elsinore). That is a cross-pla
 castle hall with the ghosts beside the dungeon entrance. The chain: Helena's "Rosemary, for
 Remembrance" (L14, 12 Rosemary; Ophelia's line, from Gertrude's own play), which rewards
 **Gertrude's Song** (📜, the song the Queen loved best; Helena's ask, string 16518, says to take it to
-Feste), then Feste's "If Music Be the Food of Love" (L15: Find the Song + 5 Thread for his lute
-strings, ask 16519; `prereq` = Helena's quest). The song is carried from one to the other, so the
+Feste), then Feste's "If Music Be the Food of Love" (L15: Find the Song, ask 16519; `prereq` =
+Helena's quest; the 5 Thread goal was dropped 2026-11-03). The song is carried from one to the other, so the
 order reads to the player (owner, 2026-11-03); a player who finished Helena's quest before the
-song existed is given it on the next grid entry (`ensureGertrudesSong`, utils/storyState.js). Once Feste's is done and she still sleeps, Feste leaves his loop and walks to the
-statue (teleported beside her if his route is blocked or takes over 45 s) and waits with a 🎶.
+song existed is given it on the next grid entry (`ensureGertrudesSong`, utils/storyState.js). Collecting Feste's reward hands him the Song (consumed; `POST /api/story/give-feste-song` sets
+`storyFlags.festeHasSong`): the statue is then READY, with a checkmark, and "Music, awake her!"
+works from then on whether or not Feste reaches her (owner, 2026-11-03). Feste walks an A* route
+to her at the player's pace, through the Town's doors, and waits with a 🎶 (no teleport); after
+the waking he walks home to his spot by the Academy. Waking her counts as meeting her, which
+completes Elbow's "Be Stone No More" (a Meet goal).
 Tapping the statue opens "The Queen of Stone" (a riddle: "Music, awake her; strike!"); it can
 wake her only with Feste within 3 tiles: he sings ("O mistress mine, where are you roaming?",
 "Journeys end in lovers meeting"), the statue becomes Gertrude, and her waking speech plays

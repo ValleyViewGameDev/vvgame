@@ -2,14 +2,20 @@
  * Story moments that change the player's world (utils/storyState.js, docs/story.md §0).
  *
  *   POST /api/story/wake-gertrude { playerId, gridId, npcId? }
- *        -> { success, npc, storyFlags }
- *        403 'feste-quest' until Feste's "If Music Be the Food of Love" is complete;
+ *        -> { success, npc, storyFlags, relationships }  (waking her counts as meeting her)
+ *        403 'feste-quest' until Feste has the Song (or his quest is complete);
  *        404 'no-statue' when the grid holds no statue (already awake there: answers success).
  *
  * The client is optimistic (house rule): Feste sings and the Queen stands up on the tap, this
  * call runs alongside; npcId is the id the client gave her so both sides agree. Feste being next
  * to the statue is checked on the client only (NPC positions are client-simulated).
  * The grid write lock queues this by the gridId in the body.
+ *
+ *   POST /api/story/give-feste-song { playerId }  -> { success, inventory, backpack, storyFlags }
+ *        Feste's quest reward is collected: Gertrude's Song leaves the player (backpack first; it
+ *        is a quest item, so it is consumed like a trade) and storyFlags.festeHasSong is set, which
+ *        puts the statue in its ready state (a checkmark; "Music, awake her!" works with or without
+ *        Feste beside her). 403 'feste-quest' until his quest is done. Idempotent.
  */
 const express = require('express');
 const router = express.Router();
@@ -18,7 +24,8 @@ const Grid = require('../models/grid');
 const sendMailboxMessage = require('../utils/messageUtils');
 
 const QUEEN_GIFT_MESSAGE_ID = 7; // messages.json: "A Gift from the Queen"
-const { FESTE_QUEST, QUEEN, hasCompleted, wakeOnGrid, ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState } = require('../utils/storyState');
+const { takeFromHoldings, heldQuantity } = require('../utils/playerHoldings');
+const { FESTE_QUEST, QUEEN, SONG, isStatueReady, meetGertrude, hasCompleted, wakeOnGrid, ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState } = require('../utils/storyState');
 
 router.post('/story/wake-gertrude', async (req, res) => {
   const { playerId, gridId, npcId } = req.body || {};
@@ -26,7 +33,7 @@ router.post('/story/wake-gertrude', async (req, res) => {
   try {
     const player = await Player.findOne({ playerId });
     if (!player) return res.status(404).json({ error: 'Player not found.' });
-    if (!hasCompleted(player, FESTE_QUEST)) return res.status(403).json({ error: 'feste-quest' });
+    if (!isStatueReady(player)) return res.status(403).json({ error: 'feste-quest' });
     const grid = await Grid.findById(gridId);
     if (!grid) return res.status(404).json({ error: 'Grid not found.' });
     if (grid.gridType !== 'town' || String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-your-town' });
@@ -39,16 +46,43 @@ router.post('/story/wake-gertrude', async (req, res) => {
     const firstWaking = !player.storyFlags?.gertrudeAwake;
     player.storyFlags = { ...(player.storyFlags || {}), gertrudeAwake: player.storyFlags?.gertrudeAwake || new Date() };
     player.markModified('storyFlags');
+    meetGertrude(player); // her waking speech is the meeting ("Be Stone No More" is a Meet goal)
     await player.save();
     // the early game's finale (backlog OB-8): the Queen's gift, mailed once, on the first waking
     if (firstWaking) {
       await sendMailboxMessage(String(player._id), QUEEN_GIFT_MESSAGE_ID, [], req.app.get('socketio'))
         .catch((err) => console.error("The Queen's gift failed:", err));
     }
-    res.json({ success: true, npc: queen || already, storyFlags: player.storyFlags });
+    res.json({ success: true, npc: queen || already, storyFlags: player.storyFlags, relationships: player.relationships });
   } catch (err) {
     console.error('story/wake-gertrude failed:', err);
     res.status(500).json({ error: 'Wake failed.' });
+  }
+});
+
+router.post('/story/give-feste-song', async (req, res) => {
+  const { playerId } = req.body || {};
+  if (!playerId) return res.status(400).json({ error: 'playerId is required.' });
+  try {
+    const player = await Player.findOne({ playerId });
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    const questDone = hasCompleted(player, FESTE_QUEST)
+      || (player.activeQuests || []).some((q) => q?.questId === FESTE_QUEST && q.completed);
+    if (!questDone && !player.storyFlags?.festeHasSong) return res.status(403).json({ error: 'feste-quest' });
+    const held = heldQuantity(player.inventory, player.backpack, SONG);
+    if (held > 0) {
+      takeFromHoldings(player.inventory, player.backpack, SONG, held);
+      player.markModified('inventory'); player.markModified('backpack');
+    }
+    if (!player.storyFlags?.festeHasSong) {
+      player.storyFlags = { ...(player.storyFlags || {}), festeHasSong: new Date() };
+      player.markModified('storyFlags');
+    }
+    await player.save();
+    res.json({ success: true, inventory: player.inventory, backpack: player.backpack, storyFlags: player.storyFlags });
+  } catch (err) {
+    console.error('story/give-feste-song failed:', err);
+    res.status(500).json({ error: 'Giving the song failed.' });
   }
 });
 
