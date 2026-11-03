@@ -84,9 +84,12 @@ with The Tempest (Prospero) and Hamlet (Gertrude, Elsinore). That is a cross-pla
 **The Queen wakes (BUILT 2026-10-24).** Gertrude stands as "Gertrude's Statue" (marble-statue art,
 `action: statue`, not in the deco catalog) on her old tile in all four town layouts, in her
 castle hall with the ghosts beside the dungeon entrance. The chain: Helena's "Rosemary, for
-Remembrance" (L14, 12 Rosemary; Ophelia's line, from Gertrude's own play), then Feste's "If
-Music Be the Food of Love" (L15, 5 Thread for his lute strings; `prereq` = Helena's quest, a new
-quest column). Once Feste's is done and she still sleeps, Feste leaves his loop and walks to the
+Remembrance" (L14, 12 Rosemary; Ophelia's line, from Gertrude's own play), which rewards
+**Gertrude's Song** (📜, the song the Queen loved best; Helena's ask, string 16518, says to take it to
+Feste), then Feste's "If Music Be the Food of Love" (L15: Find the Song + 5 Thread for his lute
+strings, ask 16519; `prereq` = Helena's quest). The song is carried from one to the other, so the
+order reads to the player (owner, 2026-11-03); a player who finished Helena's quest before the
+song existed is given it on the next grid entry (`ensureGertrudesSong`, utils/storyState.js). Once Feste's is done and she still sleeps, Feste leaves his loop and walks to the
 statue (teleported beside her if his route is blocked or takes over 45 s) and waits with a 🎶.
 Tapping the statue opens "The Queen of Stone" (a riddle: "Music, awake her; strike!"); it can
 wake her only with Feste within 3 tiles: he sings ("O mistress mine, where are you roaming?",

@@ -6799,6 +6799,21 @@
     "nogems": true
   },
   {
+    "type": "Gertrude's Song",
+    "symbol": "📜",
+    "layoutkey": "gsong",
+    "category": "special",
+    "action": "collect",
+    "output": "noBank",
+    "source": "Helena",
+    "passable": true,
+    "repeatable": false,
+    "qtycollected": 1,
+    "xp": 1,
+    "level": 1,
+    "nogems": true
+  },
+  {
     "type": "Town Key",
     "symbol": "🗝️",
     "layoutkey": "TKey",

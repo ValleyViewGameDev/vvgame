@@ -1480,6 +1480,7 @@
     "200819": "Pin fendu",
     "200818": "Hécate",
     "200860": "L'Oracle, au fond de la Vallée, dit que le pays ne guérira pas « si ce qui est perdu n'est pas retrouvé ». Apporte-lui ces sept trésors perdus, et elle rendra l'Espoir.",
+    "200861": "La chanson de Gertrude",
     "7049": "Tutoriel",
     "7050": "Utilisez A-W-S-D ou les touches fléchées pour vous déplacer. Essayez de parler au Constable Elbow.",
     "7051": "Vous pouvez acheter un Acte de Propriété auprès du Constable Elbow, quand vous êtes prêt à vous installer sur votre Domaine. Ou vous pouvez explorer et vous équiper pour l'aventure.",
@@ -1730,3 +1731,5 @@
     "314": "Des pas japonais posés dans l'herbe forment un chemin qui garde l'air d'une pelouse.",
     "7069": "Le connétable Elbow a une tâche pour vous. Ouvrez vos 📜 Quêtes pour la lire."
 }
+    "16518": "Notre Reine a toujours été bonne pour moi, {username}, et la voilà de pierre froide. Apporte-moi du Romarin, pour le souvenir, et je te donnerai la chanson qu'elle aimait le plus. Porte-la à Feste : lui seul peut la réveiller en chantant.",
+    "16519": "Helena t'envoie, avec la chanson de la Reine elle-même ? Si la musique est la nourriture de l'amour, jouez encore ! Hélas, mon luth a perdu ses cordes. File-moi 5 Fil, {username}, et la chanson la réveillera.",

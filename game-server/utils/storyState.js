@@ -77,6 +77,23 @@ async function applyGertrudeState(grid, player) {
   return true;
 }
 
+/**
+ * Gertrude's Song (2026-11-03): Helena's "Rosemary, for Remembrance" now rewards the song, and
+ * Feste's quest asks for it. A player who finished Helena's quest before that has no song, so on
+ * the next grid entry they are given it, while Feste's quest is still ahead and the Queen sleeps.
+ * Mutates the player (the caller saves). Returns true when the song was given.
+ */
+const SONG = "Gertrude's Song";
+const HELENA_QUEST = 'Rosemary, for Remembrance';
+const holdsSong = (player) => [...(player.inventory || []), ...(player.backpack || [])].some((i) => i?.type === SONG && i.quantity > 0);
+function ensureGertrudesSong(player) {
+  if (!hasCompleted(player, HELENA_QUEST) || hasCompleted(player, FESTE_QUEST) || isGertrudeAwake(player) || holdsSong(player)) return false;
+  player.inventory = player.inventory || [];
+  player.inventory.push({ type: SONG, quantity: 1 });
+  player.markModified?.('inventory');
+  return true;
+}
+
 // ---------------------------------------------------------------- Viola and Sebastian
 // The twins (Twelfth Night). Sebastian stands on the sandy island in Sunflower Lake (valley
 // 1011670, where the Brass Bell used to lie); Viola lives in her own lake (1012435) until the
@@ -137,6 +154,6 @@ async function applyStoryState(grid, player) {
 }
 
 module.exports = {
-  STATUE, QUEEN, FESTE_QUEST, isGertrudeAwake, hasCompleted, wakeOnGrid, applyGertrudeState,
+  STATUE, QUEEN, FESTE_QUEST, isGertrudeAwake, hasCompleted, wakeOnGrid, applyGertrudeState, ensureGertrudesSong,
   ISLAND_COORD, VIOLA_HOME_COORD, SEBASTIAN, VIOLA, npcRecord, npcMap, applyViolaHomeState, applyStoryState,
 };

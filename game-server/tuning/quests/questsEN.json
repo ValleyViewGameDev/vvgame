@@ -1440,12 +1440,13 @@
     "level": 14,
     "repeatable": false,
     "giver": "Helena",
-    "reward": "Money",
-    "rewardqty": 2000,
+    "reward": "Gertrude's Song",
+    "rewardqty": 1,
     "xp": 20,
     "goal1action": "Collect",
     "goal1item": "Rosemary",
-    "goal1qty": 12
+    "goal1qty": 12,
+    "storyKey": "16518"
   },
   {
     "index": 114,
@@ -1458,9 +1459,13 @@
     "reward": "Money",
     "rewardqty": 5000,
     "xp": 40,
-    "goal1action": "Craft",
-    "goal1item": "Thread",
-    "goal1qty": 5
+    "goal1action": "Find",
+    "goal1item": "Gertrude's Song",
+    "goal1qty": 1,
+    "goal2action": "Craft",
+    "goal2item": "Thread",
+    "goal2qty": 5,
+    "storyKey": "16519"
   },
   {
     "index": 115,
