@@ -133,9 +133,8 @@ value rather than trust this page.
   fill (`UI/HeaderRing.js`; the level number sits in the star, white with a drop shadow; a ring
   turns red at <= 10% health or >= 90% inventory; hover shows the numbers). Right: Gems and Money
   (icon and value), a hairline, then the action icons. Two narrower tiers (<= 1180 px,
-  <= 960 px) shrink it to fit down to 768 px. Phones keep the compact rows (`.header-title`,
-  `.header-grid`, `.header-secondary`, `mobile.css`); `App.css` shows one header or the other
-  with `mobile.css`'s query inverted. The action buttons are one list (`headerActions`) used by
+  <= 960 px) shrink it to fit down to 768 px. Phones use the same block, rearranged (next
+  bullet); `App.css` shows it on desktop with `mobile.css`'s query inverted. The action buttons are one list (`headerActions`) used by
   both. A `data-fly-target` may sit on both versions: the flight goes to the one with a size.
 - Header hovertips (desktop, owner 2026-11-02): every header button names itself in a parchment
   pill hanging under it, shown instantly on hover (`.header-icon-label` on the action icons,
@@ -246,13 +245,18 @@ value rather than trust this page.
   `UI/Notifications`) for news and FTUE instructions (it sits behind modals, z 985); a **game
   alert** (`gameAlert`, §2) only when the player must acknowledge it.
 
-- Phone header rows are fixed by orientation (see the `mobile.css` header comment): portrait
-  row 1 is the name at the left edge and gems + money at the right edge (16px), row 2 the
-  three bar stats (level, health, inventory) with their fill bars centred as a group, row 3
-  the icon-only command row centred; landscape is the zoom column, the two-line title, then
-  the control rows. Row 1's two items are absolutely positioned against the full-width grid
-  with `grid-column: auto`: a positioned grid child with a grid placement is boxed to its
-  grid area, not the container.
+- Phone header (owner 2026-11-03): the desktop `.header-desk` pieces placed per orientation
+  (`mobile.css`; the shared block styles the pieces, each orientation places them). Phones show
+  the player's name alone under the title (no "Logged in as:", `.header-desk-login-label` is
+  hidden); a long name ends in an ellipsis. Portrait, 100 px, a step smaller than landscape:
+  the avatar circle (44 px) and the title over the name span rows 1-2 at the left; at the
+  right, the Level, Health and Inventory rings (38 px) over Gems and Money (right-aligned);
+  row 3 the action icons (`.header-secondary`) as one centred cluster, never spread to the
+  edges. The title steps up with the phone's width (`--text-lg`; 390 px+ `--text-xl`, 414 px+
+  `--text-2xl`). Landscape, 74 px, beside the zoom column: the avatar (48 px) spans both rows;
+  row 1 the title | the rings (42 px); row 2 the action cluster centred under the title | Gems
+  and Money under the rings. The desktop block's own action icons and hairline are hidden on
+  phones; the old label-over-bar grid and the two-line logo are not shown.
 - Secondary header commands render icon-only on phones through `headerLabel()` in `App.js`;
   the desktop keeps text labels. Add a new header command to both branches.
 - The status bar sits directly under the header and the board under it; nothing else

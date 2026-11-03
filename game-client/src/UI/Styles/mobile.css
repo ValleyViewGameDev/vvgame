@@ -13,9 +13,10 @@
                         the board stays playable beside them; they slide in from the left
                         and back out on close in both orientations. The Map panel is a
                         panel like any other; the chat uses the same box and motion.
-     HEADER             three rows in both orientations: stats, their fill bars, then the
-                        secondary commands as icons only (centred in portrait, left in
-                        landscape).
+     HEADER             portrait: the desktop header folded into three rows (avatar +
+                        title, the Level/Health/Inventory rings + Gems/Money, the action
+                        icons). Landscape: stats over their fill bars, then the action
+                        icons, left-aligned.
      ZOOM               portrait: a small vertical pill (matching the nav) at the board's
                         top-left under the status bar, the map button under it. Landscape:
                         the header's first column, with the game title in the second, like
@@ -126,6 +127,34 @@
   .header-secondary .header-icon-label { display: none; }
   .header-secondary .header-link-wrapper { display: inline-flex; }
   .header-secondary .badge-dot { top: 2px; right: 2px; }
+
+  /* The phone header (owner 2026-11-03) is the desktop header (App.js .header-desk) rearranged,
+     so every layout reads as one design: the avatar circle, the title over "Logged in as", the
+     Level/Health/Inventory rings, Gems and Money, and the action icons (.header-secondary, a
+     centred cluster). Each orientation places the pieces below; the old label-over-bar grid and
+     the two-line logo are hidden. .header-desk-left dissolves (display: contents) so the avatar
+     and the titles are placed one by one. */
+  .app-header > .header-controls-left.header-grid,
+  .app-header > .header-title { display: none; }
+  .header-desk-left { display: contents; }
+  /* the action icons live in .header-secondary here, not beside the currency */
+  .header-desk-right > .header-link-wrapper,
+  .header-desk-divider { display: none; }
+  .header-desk-avatar { width: 48px; height: 48px; margin: 0 8px 0 0; }
+  .header-desk-avatar span { font-size: var(--text-3xl); }
+  .app-header .header-desk-title { font-size: var(--text-lg); line-height: 1; }
+  .header-desk-titles { overflow: hidden; }
+  /* phones show the name alone (no "Logged in as:"); a long one ends in an ellipsis */
+  .header-desk-login-label { display: none; }
+  .header-desk-login { font-size: var(--text-sm); margin-top: 2px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .header-desk-center { gap: 5px; justify-content: flex-end; }
+  .header-ring { width: 42px; height: 42px; }
+  .header-ring-icon { width: 27px; height: 27px; }
+  .header-ring-emoji { font-size: var(--text-xl); }
+  .header-ring-level { font-size: var(--text-md); }
+  .header-desk-right { justify-content: flex-end; gap: 8px; }
+  .header-desk .header-currency-btn { gap: 4px; padding: 0; font-size: var(--text-xl); }
+  .header-currency-icon { font-size: var(--text-3xl); }
 
   /* status bar: full width under the header */
   .status-bar {
@@ -531,10 +560,10 @@
   .panel-container.panel-container--right.panel-ghost { animation-name: mPanelLeftOut; }
 }
 
-/* ---------- portrait: two-row header, pill along the bottom, panels slide up ---------- */
+/* ---------- portrait: three-row header, pill along the bottom, panels slide up ---------- */
 @media (max-width: 767px) and (orientation: portrait) {
   :root {
-    --m-header-height: 90px;      /* stats, bars, gems/money, icons */
+    --m-header-height: 100px;     /* avatar + title + rings, gems/money, action icons */
     --m-pill-reserve-bottom: calc(var(--m-pill-h) + 2 * var(--m-gap) + var(--m-safe-bottom));
     --m-pill-reserve-left: 0px;
     --m-panel-width: 58vw;        /* wider than landscape's: a portrait screen is narrow */
@@ -568,8 +597,43 @@
   .header-controls-left.header-grid .header-link { font-size: var(--text-md); }
   .header-currency-group { gap: 18px; }
 
-  /* icon row centred in portrait */
+  /* Header, portrait: three rows (the pieces are styled in the shared block above).
+       rows 1-2: the avatar, then the title over "Logged in as", both centred over the two rows;
+                 at the right, the Level, Health and Inventory rings over Gems and Money;
+       row 3: the action icons, clustered and centred (.header-secondary). */
+  .app-header {
+    padding: 4px 10px 2px 10px;
+    gap: 2px;
+    justify-content: flex-start;
+  }
+  .header-desk {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    grid-template-rows: 38px 28px;
+    column-gap: 8px;
+    row-gap: 2px;
+    align-items: center;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .header-desk-avatar { grid-column: 1; grid-row: 1 / span 2; margin-right: 0; } /* the column gap spaces it */
+  .header-desk-titles { grid-column: 2; grid-row: 1 / span 2; }
+  .header-desk-center { grid-column: 3; grid-row: 1; }
+  .header-desk-right { grid-column: 3; grid-row: 2; }
   .header-secondary { justify-content: center; }
+  /* portrait runs a little smaller than landscape (owner 2026-11-03) */
+  .header-desk { grid-template-rows: 35px 25px; }
+  .header-desk-avatar { width: 44px; height: 44px; }
+  .header-desk-avatar span { font-size: var(--text-2xl); }
+  .header-ring { width: 38px; height: 38px; }
+  .header-ring-icon { width: 24px; height: 24px; }
+  .header-ring-emoji { font-size: var(--text-lg); }
+  .header-ring-level { font-size: var(--text-sm); }
+  .header-desk-center { gap: 4px; }
+  .header-desk .header-currency-btn { font-size: var(--text-lg); }
+  .header-currency-icon { font-size: var(--text-2xl); }
+  .header-secondary .header-icon-btn { height: 30px; width: 38px; }
+  .header-secondary .header-icon { width: 25px; height: 25px; }
 
   /* zoom: a small vertical pill matching the nav, top-left of the board under the status bar,
      behind an open panel (990) */
@@ -611,12 +675,21 @@
 
 }
 
-/* ---------- landscape: one-row header, pill at the left, panels slide in from the left ---------- */
+/* portrait, wider phones: the title has room to grow beside the rings */
+@media (min-width: 390px) and (max-width: 767px) and (orientation: portrait) {
+  .app-header .header-desk-title { font-size: var(--text-xl); }
+}
+@media (min-width: 414px) and (max-width: 767px) and (orientation: portrait) {
+  .app-header .header-desk-title { font-size: var(--text-2xl); }
+}
+
+/* ---------- landscape: two-row header, pill at the left, panels slide in from the left ---------- */
 @media (max-height: 500px) and (orientation: landscape) {
   :root {
     --m-pill-reserve-bottom: 0px;
     --m-pill-reserve-left: calc(var(--m-pill-w) + 2 * var(--m-gap));
     --m-zoom-col: 48px;           /* header column 1: the zoom buttons */
+    --m-header-height: 74px;      /* two rows: avatar + title + rings, gems/money + icons */
     --m-panel-width: 33vw;        /* trimmed twice at the owner's request; landscape has the room */
     --m-panel-max-width: 306px;
   }
@@ -624,28 +697,27 @@
   /* the camera housing: the strip under env(safe-area-inset-left) stays black */
   body { background-color: #000; } /* style-ok: art (camera-housing strip) */
 
-  /* Header mimics desktop: zoom column, title column, then the three control rows */
+  /* Header, landscape: two rows beside the zoom column (the pieces are styled in the shared
+     block). The avatar spans both rows. Row 1: the title over "Logged in as" | the rings at the
+     right. Row 2: the action icons clustered and centred under the title | Gems and Money under
+     the rings.
+     .header-desk dissolves too, so every piece sits on the header's own grid. */
   .app-header {
     display: grid;
-    grid-template-columns: var(--m-zoom-col) max-content 1fr;
-    grid-template-rows: 20px 3px 30px;
-    column-gap: 12px;
+    grid-template-columns: var(--m-zoom-col) max-content max-content 1fr max-content;
+    grid-template-rows: 38px 30px;
+    column-gap: 0;
     row-gap: 2px;
     align-items: center;
-    padding: 3px 8px 2px 0;
+    padding: 3px 12px 1px 0;
   }
-  .header-title {
-    display: flex;
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    width: auto;
-    align-self: center;
-    font-size: var(--text-md);
-  }
-  /* "Secrets of" / "Elsinore": a width that fits the first two words but not all three */
-  .header-title h1 { font-size: var(--text-2xl); line-height: 1.05; white-space: normal; max-width: 5.6em; }
-  .header-controls-left.header-grid { grid-column: 3; grid-row: 1 / span 2; }
-  .header-secondary { grid-column: 3; grid-row: 3; justify-content: flex-start; }
+  .header-desk { display: contents; }
+  .header-desk-avatar { grid-column: 2; grid-row: 1 / span 2; }
+  .header-desk-titles { grid-column: 3; grid-row: 1; }
+  .header-desk-center { grid-column: 5; grid-row: 1; }
+  .header-desk-right { grid-column: 5; grid-row: 2; }
+  .header-secondary { grid-column: 3 / span 2; grid-row: 2; justify-content: center; }
+  .app-header .header-desk-title { font-size: var(--text-2xl); } /* landscape has the width */
 
   /* zoom buttons fill the header's first column, top to bottom like desktop */
   .zoom-controls {

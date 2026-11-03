@@ -3227,7 +3227,7 @@ return (
             <div className="header-desk-titles">
               <h1 className="header-desk-title">{strings[0]}</h1>
               <button className="header-desk-login" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()}>
-                {strings[10221] || 'Logged in as:'} <strong>{currentPlayer?.username || '...'}</strong>
+                <span className="header-desk-login-label">{strings[10221] || 'Logged in as:'} </span><strong>{currentPlayer?.username || '...'}</strong>
               </button>
             </div>
           </div>
