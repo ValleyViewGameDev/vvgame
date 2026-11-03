@@ -1,26 +1,14 @@
 [
   {
-    "type": "Kent",
-    "symbol": "🧔",
-    "buff4friend": 1,
-    "buff4love": 1,
-    "buff4marriage": 1,
-    "interest1": "Wheat",
-    "interest2": "Corn",
-    "interest3": "Carrot",
-    "Constable Elbow": "friend",
-    "The Shepherd": "friend"
-  },
-  {
     "type": "The Shepherd",
     "symbol": "👵🏻",
     "buff4friend": 1,
     "buff4love": 2,
     "buff4marriage": 3,
-    "interest1": "Wool",
-    "interest2": "Milk",
-    "interest3": "Wheat",
-    "Kent": "friend"
+    "interest1": "Wheat",
+    "interest2": "Egg",
+    "interest3": "Apple",
+    "Helena": "friend"
   },
   {
     "type": "Portia",
@@ -50,9 +38,9 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Pelt",
-    "interest2": "Bear Skin",
-    "interest3": "Bones",
+    "interest1": "Bear Skin",
+    "interest2": "Bones",
+    "interest3": "Silver",
     "Cassio": "rival"
   },
   {
@@ -100,9 +88,9 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Ink",
-    "interest2": "Portrait",
-    "interest3": "Fan",
+    "interest1": "Portrait",
+    "interest2": "Fan",
+    "interest3": "Thread",
     "Caliban": "friend"
   },
   {
@@ -118,8 +106,9 @@
     "buff4marriage": 1,
     "interest1": "Feverfew",
     "interest2": "Rosemary",
-    "interest3": "Daisy",
-    "Gertrude": "love"
+    "interest3": "Sunflower",
+    "Gertrude": "love",
+    "The Shepherd": "friend"
   },
   {
     "type": "Titania",
@@ -149,8 +138,8 @@
     "buff4love": 1,
     "buff4marriage": 1,
     "interest1": "Garlic",
-    "interest2": "Vampire's Blood",
-    "interest3": "Bones",
+    "interest2": "Bones",
+    "interest3": "Cherry",
     "Hecate": "friend"
   },
   {
@@ -166,7 +155,7 @@
     "buff4marriage": 1,
     "interest1": "Scroll",
     "interest2": "Book",
-    "interest3": "Prospero's Orb",
+    "interest3": "Amulet",
     "Titania": "friend",
     "Leontes": "friend"
   },
@@ -197,9 +186,9 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Potion A",
-    "interest2": "Potion B",
-    "interest3": "Potion C",
+    "interest1": "Mushroom",
+    "interest2": "Ginger",
+    "interest3": "Scorpion",
     "Portia": "friend"
   },
   {
@@ -214,7 +203,7 @@
     "buff4love": 1,
     "buff4marriage": 1,
     "interest1": "Pumpkin",
-    "interest2": "Brass Bell",
+    "interest2": "Diamond Ring",
     "interest3": "Cloth",
     "Portia": "rival",
     "Cassio": "rival"
@@ -231,8 +220,8 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "interest1": "Queen's Cake",
-    "interest2": "Diamond Ring",
-    "interest3": "Wine",
+    "interest2": "Wine",
+    "interest3": "Queen's Coffee",
     "Helena": "love"
   },
   {
@@ -302,8 +291,8 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Tulip",
-    "interest2": "Sunflower",
+    "interest1": "Sunflower",
+    "interest2": "Portrait",
     "interest3": "Peach",
     "Cassio": "friend"
   },
@@ -369,7 +358,7 @@
     "interest1": "Shovel",
     "interest2": "Saw",
     "interest3": "Screwdriver",
-    "Kent": "friend"
+    "Snug": "friend"
   },
   {
     "type": "Snug",
@@ -385,6 +374,7 @@
     "interest1": "Wood",
     "interest2": "Lumber",
     "interest3": "Furniture",
-    "Hotspur": "friend"
+    "Hotspur": "friend",
+    "Constable Elbow": "friend"
   }
 ]

@@ -456,8 +456,10 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
         const lastNpc = lastNpcInteraction(context.playerId, context.npcId);
         const lastSymbol = lastNpc && RelationshipMatrix.find((entry) => entry.type === lastNpc)?.symbol;
         if (lastSymbol) return lastSymbol;
-        // none yet: their best relationship (married first, else the highest score)
-        const relationships = (context.currentPlayer?.relationships || []).filter((rel) => rel.name !== context.npcId);
+        // none yet: their best relationship (married first, else the highest score), among the NPCs
+        // in the relationship system (Kent, the order board, is not: owner 2026-11-02)
+        const relationships = (context.currentPlayer?.relationships || [])
+          .filter((rel) => rel.name !== context.npcId && RelationshipMatrix.some((entry) => entry.type === rel.name));
         if (relationships.length > 0) {
           const married = relationships.filter((rel) => rel.married === true);
           const maxScore = Math.max(...relationships.map((rel) => rel.relscore || 0));
@@ -465,7 +467,7 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
           const symbol = RelationshipMatrix.find((entry) => entry.type === chosen.name)?.symbol;
           if (symbol) return symbol;
         }
-        return RelationshipMatrix.find((entry) => entry.type === 'Kent')?.symbol || '👫';
+        return '👫';
       }
       // NPC: one of its relations at random; with none, any character at random
       {
