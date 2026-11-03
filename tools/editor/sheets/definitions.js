@@ -206,7 +206,7 @@ export const DEFINITIONS = [
     restartNeeded: false,
     columns: [
       { ...str('interaction'), immutable: true, required: true }, bool('isaninteraction'), bool('isvisible'),
-      num('relscoremin'), num('relscoremax'), num('chance'), num('relscoreresult'), num('rounds'),
+      num('relscoremin'), num('relscoremax'), num('chance'), num('relscoreresult'), num('relscorefail'), num('rounds'),
       str('relbitblock1'), str('relbitblock2'), str('relbitrequired'), str('relbitadd'), str('relbitremove'),
       num('relbuff'), str('relbuff1'), str('relbuff2'), str('relbuff3'),
       str('playertopic1'), str('playertopic2'), str('playertopic3'), str('npctopic1'), str('npctopic2'), str('npctopic3'),

@@ -465,6 +465,10 @@ uncommon tools drop about a third less (30 becomes about 20) and the rare one is
 absolute terms; it only rises as a share of the drops (12% to 17%). The bottleneck stays; the
 surplus beside it shrinks.
 
+## 4l. Relationship points follow the bubbles (owner, 2026-11-03)
+
+A conversation's NPC bubbles are green (match), red (rival) or black (neither). The colours size the points an interaction moves (`relationshipPoints` in `GameFeatures/Relationships/Conversation.js`): base = the interaction's `relscoreresult`; net = greens minus reds; a success earns base x (1 + 0.5 x net), a failure loses base x (1 - 0.5 x net), never less than half the base either way; a failure's base is the interaction's `relscorefail` when it has one (Propose: +120 on a yes, -20 on a no, so a refusal stings without stripping Love) (base 8: 0 greens +8, 1 green +12, 2 greens +16, 1 red +4; a failure with 1 red -12, with 1 green -4). The colours move the success CHANCE the same way in every interaction that plays a conversation: +0.10 a green bubble, -0.15 a red one (`MATCH_CHANCE` / `RIVAL_CHANCE`), on top of the base `chance` and the status buff (`relbuff` when the player holds `relbuff1-3`), capped at 1. Still a roll: colours shift the odds, never decide it. Interest rounds (player: last doober collected; NPC: its first Interest) are in Talk, Joke, Apologize, Compliment and Flatter (`interactions.json`). Kiss and Propose have no talking round (owner: a kiss or a proposal is not a conversation): their emoji bubbles never match, so they roll on base chance + status buff alone.
+
 ## 4d. Trophies
 
 - **Skill Builder** milestones `[1, 5, 10, 15, 20, 30, 40, 50, 75, 100]` (2026-10-12; 75 and

@@ -38,7 +38,7 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Bear Skin",
+    "interest1": "Pelt",
     "interest2": "Bones",
     "interest3": "Silver",
     "Cassio": "rival"
@@ -88,9 +88,9 @@
     "buff4friend": 2,
     "buff4love": 3,
     "buff4marriage": 5,
-    "interest1": "Portrait",
+    "interest1": "Thread",
     "interest2": "Fan",
-    "interest3": "Thread",
+    "interest3": "Portrait",
     "Caliban": "friend"
   },
   {

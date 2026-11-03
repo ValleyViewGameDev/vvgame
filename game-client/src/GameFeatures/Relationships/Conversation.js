@@ -15,9 +15,10 @@ import { lastDoober, lastNpcInteraction } from './conversationMemory';
 //   3 'anyinterest'  a resource again. Player: any doober at random. NPC: one of its own
 //                    Interests at random.
 // So a player who reads an NPC's panel can collect its first Interest and open with it, and bring
-// up someone it likes. A resource round where the two match earns a little extra
-// (INTEREST_MATCH_BONUS) on top of any match bonus.
-export const INTEREST_MATCH_BONUS = 0.05;
+// up someone it likes. A match on any round is a green bubble, a rival a red one; both move the
+// odds (calculateModifiedChance) and the points (relationshipPoints) in every interaction.
+export const MATCH_CHANCE = 0.1;
+export const RIVAL_CHANCE = 0.15;
 const INTEREST_KEYS = ['interest', 'anyinterest'];
 
 const pickOne = (list) => list[Math.floor(Math.random() * list.length)];
@@ -127,26 +128,30 @@ const compareTopics = (playerTopic, npcTopic, npcId, interaction, roundNum) => {
   return { matchState, chanceModifier };
 };
 
+// The relationship points an interaction moves (owner 2026-11-03): the bubble colours set the size.
+// Each green bubble (a match) is worth half the interaction's relscoreresult again, each red one
+// (a rival) takes half away; on a failure the same tally sets the size of the loss the other way
+// round (reds make it bigger, greens soften it). Never less than half the base either way.
+// A failure's base is `relscorefail` when the interaction has one (Propose: a refused proposal
+// stings, it does not wipe out the relationship), else the same relscoreresult.
+export const COLOUR_POINTS = 0.5;
+export const relationshipPoints = (interaction, success, results) => {
+  const base = (success ? interaction?.relscoreresult : (interaction?.relscorefail ?? interaction?.relscoreresult)) || 0;
+  const net = (results?.matchingTopics || 0) - (results?.rivalTopics || 0);
+  const scale = Math.max(0.5, 1 + COLOUR_POINTS * (success ? net : -net));
+  const points = Math.round(base * scale);
+  return success ? points : -points;
+};
+
 // Calculate modified chance based on conversation results
 export const calculateModifiedChance = (baseChance, interaction, conversationResults, currentPlayer, targetName) => {
   let modifiedChance = baseChance || 1.0;
 
-  // 1. Add bonus for matching topics during conversation (any topic type)
-  if (interaction.interaction === 'Talk' && conversationResults.matchingTopics > 0) {
-    // Add 0.1 for each matching topic (compounding effect for all 3 rounds)
-    modifiedChance += (0.1 * conversationResults.matchingTopics);
-  }
-
-  // 2. Subtract penalty for rival topics during conversation
-  if (interaction.interaction === 'Talk' && conversationResults.rivalTopics > 0) {
-    // Subtract 0.15 for each rival topic (significant penalty)
-    modifiedChance -= (0.15 * conversationResults.rivalTopics);
-  }
-
-  // 2b. A little extra for each Interest the player matched with the NPC's (any interaction)
-  if (conversationResults.matchingInterests > 0) {
-    modifiedChance += INTEREST_MATCH_BONUS * conversationResults.matchingInterests;
-  }
+  // 1-2. The bubble colours move the odds the same way in every interaction (owner 2026-11-03):
+  // each green bubble (a match, any round) adds MATCH_CHANCE, each red one (a rival) takes
+  // RIVAL_CHANCE away. Still a roll: the colours shift the odds, they never decide it outright.
+  modifiedChance += MATCH_CHANCE * (conversationResults.matchingTopics || 0);
+  modifiedChance -= RIVAL_CHANCE * (conversationResults.rivalTopics || 0);
 
   // 3. Add bonus for relationship status buffs
   // Note: Statuses are stored as boolean properties on relationship (e.g., rel.friend = true)

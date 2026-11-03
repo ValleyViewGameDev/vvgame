@@ -8,7 +8,7 @@ import {
 } from './RelationshipUtils';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { playConversation, calculateModifiedChance } from './Conversation';
+import { playConversation, calculateModifiedChance, relationshipPoints, MATCH_CHANCE, RIVAL_CHANCE } from './Conversation';
 import { rememberNpcInteraction } from './conversationMemory';
 import ConversationManager from './ConversationManager';
 import '../../UI/Buttons/SharedButtons.css';
@@ -186,8 +186,8 @@ const RelationshipCard = ({
 
       // Show debug info for developers
       if (isDeveloper && updateStatus) {
-        const matchBonus = conversationResults?.matchingTopics ? conversationResults.matchingTopics * 0.1 : 0;
-        const rivalPenalty = conversationResults?.rivalTopics ? conversationResults.rivalTopics * 0.15 : 0;
+        const matchBonus = conversationResults?.matchingTopics ? conversationResults.matchingTopics * MATCH_CHANCE : 0;
+        const rivalPenalty = conversationResults?.rivalTopics ? conversationResults.rivalTopics * RIVAL_CHANCE : 0;
 
         // Calculate relbuff for debug display
         // Note: Statuses are stored as boolean properties on relationship (e.g., rel.friend = true)
@@ -205,8 +205,8 @@ const RelationshipCard = ({
           }
         }
 
-        // On failure, score change is negative of relscoreresult
-        const scoreChange = success ? (interaction.relscoreresult || 0) : -(interaction.relscoreresult || 0);
+        // the bubble colours size the points (relationshipPoints)
+        const scoreChange = relationshipPoints(interaction, success, conversationResults);
         const scoreStr = scoreChange >= 0 ? `+${scoreChange}` : `${scoreChange}`;
         const relBuffStr = relBuffBonus > 0 ? ` + RelBuff ${relBuffBonus.toFixed(2)}` : '';
         const debugStr = `🎲 ${interaction.interaction}: Base ${baseChance.toFixed(2)} + Match ${matchBonus.toFixed(2)} - Rival ${rivalPenalty.toFixed(2)}${relBuffStr} = Threshold ${modifiedChance.toFixed(2)} | Roll ${randomRoll.toFixed(2)} ≤ ${modifiedChance.toFixed(2)}? → ${success ? '✅' : '❌'} (${scoreStr})`;
@@ -214,7 +214,7 @@ const RelationshipCard = ({
       }
 
       // Continue with success/failure handling
-      await handleInteractionOutcome(success, interaction);
+      await handleInteractionOutcome(success, interaction, relationshipPoints(interaction, success, conversationResults));
     } else {
       // No conversation - use base chance
       const baseChance = interaction.chance || 1.0;
@@ -231,15 +231,16 @@ const RelationshipCard = ({
       }
 
       // Continue with success/failure handling
-      await handleInteractionOutcome(success, interaction);
+      await handleInteractionOutcome(success, interaction, relationshipPoints(interaction, success, null));
     }
   };
   
   // Helper function to handle interaction outcome
-  const handleInteractionOutcome = async (success, interaction) => {
+  // points: the signed score change, sized by the conversation's bubbles (relationshipPoints)
+  const handleInteractionOutcome = async (success, interaction, points) => {
     if (success) {
       // Update relationship score
-      const scoreChange = interaction.relscoreresult || 0;
+      const scoreChange = points;
       const result = await updateRelationship(currentPlayer, targetName, scoreChange);
       
       if (result.success && result.player) {
@@ -410,8 +411,8 @@ const RelationshipCard = ({
         
       }
     } else {
-      // Failed interaction - decrease score by same amount
-      const scoreChange = -(interaction.relscoreresult || 0);
+      // Failed interaction: lose points (negative, sized by the red bubbles)
+      const scoreChange = points;
       const result = await updateRelationship(currentPlayer, targetName, scoreChange);
       
       if (result.success && result.player) {

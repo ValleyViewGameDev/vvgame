@@ -160,9 +160,9 @@
     "relbitadd": "crush",
     "rounds": 2,
     "playertopic1": "npc",
-    "playertopic2": "random",
+    "playertopic2": "interest",
     "npctopic1": "emoji_blush",
-    "npctopic2": "random"
+    "npctopic2": "interest"
   },
   {
     "interaction": "Flatter",
@@ -178,9 +178,11 @@
     "relbuff": 0.1,
     "relscoreresult": 15,
     "relbitadd": "crush",
-    "rounds": 1,
+    "rounds": 2,
     "playertopic1": "npc",
-    "npctopic1": "emoji_blush"
+    "playertopic2": "interest",
+    "npctopic1": "emoji_blush",
+    "npctopic2": "interest"
   },
   {
     "interaction": "Profess Love",
@@ -225,6 +227,7 @@
     "relbitblock1": "married",
     "chance": 0.9,
     "relscoreresult": 120,
+    "relscorefail": 20,
     "relbitadd": "married",
     "rounds": 2,
     "playertopic1": "emoji_diamond",
