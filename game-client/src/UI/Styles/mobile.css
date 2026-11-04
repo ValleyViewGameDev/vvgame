@@ -598,7 +598,7 @@
   .header-currency-group { gap: 18px; }
 
   /* Header, portrait: three rows (the pieces are styled in the shared block above).
-       rows 1-2: the avatar, then the title over "Logged in as", both centred over the two rows;
+       rows 1-2: the avatar, then the title over the name, top-aligned with the rings;
                  at the right, the Level, Health and Inventory rings over Gems and Money;
        row 3: the action icons, clustered and centred (.header-secondary). */
   .app-header {
@@ -634,6 +634,10 @@
   .header-currency-icon { font-size: var(--text-2xl); }
   .header-secondary .header-icon-btn { height: 30px; width: 38px; }
   .header-secondary .header-icon { width: 25px; height: 25px; }
+  /* the avatar, the title and the rings share one top edge (owner 2026-11-03) */
+  .header-desk-avatar,
+  .header-desk-center { align-self: start; }
+  .header-desk-titles { align-self: start; justify-content: flex-start; }
 
   /* zoom: a small vertical pill matching the nav, top-left of the board under the status bar,
      behind an open panel (990) */

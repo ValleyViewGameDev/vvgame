@@ -160,6 +160,7 @@ import { isInputLocked } from './Utils/inputLock';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
+import SurveyPromptModal from './UI/Modals/SurveyPromptModal';
 import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } from './UI/Modals/InstallPromptModal';
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
@@ -928,6 +929,7 @@ const signinMode = useRef(false); // true when the login panel is the deliberate
 const [isSilentCreating, setIsSilentCreating] = useState(false); // a new visitor's account is being made
 const [showBegin, setShowBegin] = useState(false); // new visitor: key art + the Begin modal until they tap
 const [emailAsk, setEmailAsk] = useState(null); // { inApp } while the once-only email ask is open
+const [showSurveyPrompt, setShowSurveyPrompt] = useState(false); // the once-only survey nudge (closeLevelUp)
 const [showInstallPrompt, setShowInstallPrompt] = useState(false); // BL-1, once per device on phone browsers
 const deferredInstallPrompt = useRef(null); // Android's beforeinstallprompt, captured at boot
 // `?signin=1&u=<name>` (email links, docs/onboarding-plan.md): open the sign-in form prefilled when
@@ -1883,6 +1885,20 @@ useEffect(() => {
     setDoinkerPointing('down');
   }
 }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId, masterResources]);
+
+// The survey nudge (docs/launch-checklist.md): once per profile, when the first level-up modal at
+// SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (survey_prompt_seen_at), like the
+// email ask. The survey itself stays in the Mailbox and Settings (FeedbackLinks).
+const SURVEY_PROMPT_LEVEL = 5;
+const closeLevelUp = () => {
+  setIsLevelUpModalOpen(false);
+  const p = currentPlayerRef.current;
+  if (!p || p.survey_prompt_seen_at || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
+  const seenAt = new Date().toISOString();
+  setCurrentPlayer((prev) => (prev ? { ...prev, survey_prompt_seen_at: seenAt } : prev));
+  axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { survey_prompt_seen_at: seenAt } }).catch(() => {});
+  setTimeout(() => setShowSurveyPrompt(true), 400); // let the level-up modal leave first
+};
 
 // Level-up detection: Watch for XP changes and show level-up modal
 useEffect(() => {
@@ -3938,6 +3954,7 @@ return (
       {emailAsk && currentPlayer && (
         <EmailModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} inApp={emailAsk.inApp} onClose={() => setEmailAsk(null)} />
       )}
+      {showSurveyPrompt && <SurveyPromptModal onClose={() => setShowSurveyPrompt(false)} />}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
           onClose={handleLoginPanelClose}
@@ -4732,7 +4749,7 @@ return (
       {/* Level Up Modal */}
       <LevelUpModal
         isOpen={isLevelUpModalOpen}
-        onClose={() => setIsLevelUpModalOpen(false)}
+        onClose={closeLevelUp}
         currentLevel={levelUpData.currentLevel}
         previousLevel={levelUpData.previousLevel}
         updateStatus={updateStatus}

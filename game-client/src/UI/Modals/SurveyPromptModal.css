@@ -1,0 +1,7 @@
+/* SurveyPromptModal: the one-time survey nudge (sized like the email ask, EmailModal.css) */
+.modal-overlay .modal-container.survey-prompt-modal { width: 360px; max-height: 85vh; height: auto; overflow-y: auto; }
+.survey-prompt-modal .modal-content { text-align: center; }
+.survey-prompt-modal .survey-prompt-body { margin: 2px 0 8px; font-size: var(--text-lg); line-height: 1.35; }
+.survey-prompt-modal .survey-prompt-later { margin: 0 0 12px; font-size: var(--text-md); line-height: 1.35; color: var(--color-text-secondary); }
+.survey-prompt-modal .survey-prompt-actions { display: flex; gap: 8px; justify-content: center; }
+.survey-prompt-modal .survey-prompt-actions .btn-basic { flex: 1; }

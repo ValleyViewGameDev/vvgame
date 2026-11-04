@@ -48,6 +48,14 @@ here; detail lives in the linked docs and backlog items.
   (a Mailbox link plus a one-time nudge later on). Campaign 3 drew more feedback in eight days than
   the twelve weeks before it, so the forms must be live before the buy. Our FTUE feedback modal
   (`GameFeatures/FTUE/FTUE.js`) is the natural place for the first; decide where the second goes.
+  **Always-on survey built 2026-11-03:** the Google Form
+  (https://docs.google.com/forms/d/e/1FAIpQLSf_uEa9lFdncQt6DPlZKIyoB1AMQMLmIoPFzwjqtf2K3n617g/viewform)
+  is a "Take a short survey" button in the "Have Feedback?" block at the bottom of the Mailbox and
+  of Settings (`UI/Panels/FeedbackLinks.js`, `SURVEY_URL` is the one copy of the link), plus a
+  one-time nudge, `UI/Modals/SurveyPromptModal.js`, when the first level-up modal at L5 or above
+  is closed (`SURVEY_PROMPT_LEVEL` in App.js; stamped `Player.survey_prompt_seen_at`; the copy
+  points to the Mailbox for later). Players already past L5 see it after their next level-up.
+  Still open: the FTUE retention micro-survey (no form yet).
 
 ## Should do
 

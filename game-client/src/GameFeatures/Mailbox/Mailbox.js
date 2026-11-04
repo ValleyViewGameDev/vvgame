@@ -17,6 +17,7 @@ import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst from '../../UI/SaleBurst';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
+import FeedbackLinks from '../../UI/Panels/FeedbackLinks';
 
 function Mailbox({ 
   onClose, 
@@ -374,6 +375,7 @@ const renderRewards = (rewards) => {
         })
       )}                      
       <p>{strings[1605]}</p>
+      <FeedbackLinks />
     </Modal>
   );
 }

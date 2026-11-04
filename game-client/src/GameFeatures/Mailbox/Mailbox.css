@@ -111,3 +111,6 @@
 .message-actions button {
   display: inline-block;
 }
+/* "Have Feedback?" (UI/Panels/FeedbackLinks.js): the buttons keep the Settings panel's width
+   instead of stretching across the modal */
+.mailbox-modal .feedback-links .shared-buttons { max-width: 260px; margin-left: auto; margin-right: auto; }

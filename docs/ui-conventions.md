@@ -251,6 +251,7 @@ value rather than trust this page.
   hidden); a long name ends in an ellipsis. Portrait, 100 px, a step smaller than landscape:
   the avatar circle (44 px) and the title over the name span rows 1-2 at the left; at the
   right, the Level, Health and Inventory rings (38 px) over Gems and Money (right-aligned);
+  the avatar, the title and the rings are top-aligned on one edge (`align-self: start`);
   row 3 the action icons (`.header-secondary`) as one centred cluster, never spread to the
   edges. The title steps up with the phone's width (`--text-lg`; 390 px+ `--text-xl`, 414 px+
   `--text-2xl`). Landscape, 74 px, beside the zoom column: the avatar (48 px) spans both rows;

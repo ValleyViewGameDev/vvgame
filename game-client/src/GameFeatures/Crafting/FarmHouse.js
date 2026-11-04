@@ -730,6 +730,7 @@ const FarmHouse = ({
                 <ResourceButton
                   key={recipe.type}
                   symbol={recipe.symbol}
+                  filename={recipe.filename}
                   name={getLocalizedString(recipe.type, strings)}
                   className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
                   details={
