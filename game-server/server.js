@@ -127,6 +127,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   autoIndex: false, // Don't build indexes automatically in production
 })
 
+// the offer rules (utils/offerRules.mjs, an ES module) load before the server takes requests
+.then(() => require('./utils/offerEligibility').ready)
 .then(() => {
     console.log("✅ Connected to MongoDB");
 

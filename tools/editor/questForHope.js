@@ -11,7 +11,7 @@
  *                  shop (flood fill over the layout: tiles and impassable resources block, doors are
  *                  crossed one key at a time)
  *
- * Prerequisite items that are themselves rare (keys, secrets, `special` / noBank items, the
+ * Prerequisite items that are themselves rare (keys, secrets, `special` items, goods no outlet offers, the
  * artifacts) are explained recursively; ordinary goods are just named with their quantity.
  * Where dungeons are entered from is live data (the frontier's dungeon registry): the client tab
  * adds it from the game server.

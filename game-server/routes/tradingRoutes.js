@@ -6,10 +6,11 @@ const fs = require('fs');
 const path = require('path');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { isHopeArtifact } = require('../utils/hopeArtifacts');
-const masterResources = require('../tuning/resources.json');
+const offerEligibility = require('../utils/offerEligibility');
 // Never on a Trade Stall, for sale or on request: the Quest for Hope artifacts, and any resource
-// whose row says noTradeStall (the Diamond Ring: its worth goes through Iago, not the market)
-const stallBlocked = (type) => !!type && (isHopeArtifact(type) || masterResources.some((r) => r.type === type && r.noTradeStall === true));
+// whose row says noTradeStall (the Diamond Ring: its worth goes through Iago). The shared rule:
+// utils/offerRules.mjs
+const stallBlocked = (type) => !!type && (isHopeArtifact(type) || !!offerEligibility.blocked(type, 'tradeStall'));
 
 /**
  * Transaction management helper functions

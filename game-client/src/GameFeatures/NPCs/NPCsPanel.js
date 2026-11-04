@@ -1216,12 +1216,12 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   const tradeSection = (npcData.action === 'trade' || (npcData.action === 'quest' && tradeRecipes.length > 0)) && (
       <div className="trade-options">
 
-        {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
+        {/* Relationship Card - only show if NPC doesn't have noRelationship */}
         {/* Hidden during FTUE for Constable Elbow to simplify the tutorial UI; a quest giver
             already shows it in its quest section */}
         {!hideRelationshipUI && npcData.action !== 'quest' && (() => {
           const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
-          const shouldHideRelationship = npcResource?.output === 'noRel';
+          const shouldHideRelationship = npcResource?.noRelationship === true;
 
           if (shouldHideRelationship) {
             return null;
@@ -1530,13 +1530,13 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       {npcData.action === 'quest' && (
         <div className="quest-options">
 
-          {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
+          {/* Relationship Card - only show if NPC doesn't have noRelationship */}
           {(() => {
             // Hide for NPCs without relationship system (e.g., The Shepherd)
             if (hideRelationshipUI) return null;
 
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
-            const shouldHideRelationship = npcResource?.output === 'noRel';
+            const shouldHideRelationship = npcResource?.noRelationship === true;
 
             if (shouldHideRelationship) {
               return null;

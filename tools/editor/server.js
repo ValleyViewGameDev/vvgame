@@ -33,6 +33,14 @@ const LAYOUTS_DIR = path.join(GAME_SERVER_DIR, 'layouts');
 const GRID_LAYOUT_DIRS = ['valleyFixedCoord', 'homestead', 'town', 'dungeon', 'miniTemplates'];
 
 const defs = require(path.join(SHEETS_DIR, 'definitions.js')); // ESM via require (Node >= 22.12)
+const offerRules = require(path.join(GAME_SERVER_DIR, 'utils', 'offerRules.mjs')); // the game's offer rule (ESM via require)
+const { hopeArtifacts } = require(path.join(GAME_SERVER_DIR, 'utils', 'hopeArtifacts.js'));
+/** The ECONOMY sheet's "Offered at" text per row, from the files as they are now (seasons, the Oracle's trade). */
+function offeredAtFn() {
+  const seasons = readJSONFile(path.join(GAME_SERVER_DIR, 'tuning', 'seasons.json'));
+  const ctx = offerRules.offerContext({ seasons, hopeArtifacts: hopeArtifacts() });
+  return (r) => offerRules.offeredAtText(r, ctx);
+}
 
 // ----------------------------------------------------------------------------- args
 function parseArgs(argv) {
@@ -272,7 +280,7 @@ async function handle(req, res) {
     if (!def) return sendError(res, 404, 'unknown sheet');
     const body = await readJSONBody(req);
     if (!body || body.data === undefined) return sendError(res, 400, 'body must be { data }');
-    if (def.derive && def.shape === 'array') def.derive(body.data); // derived columns are the server's, never the client's
+    if (def.derive && def.shape === 'array') def.derive(body.data, def.id === 'resources' ? { offeredAt: offeredAtFn() } : undefined); // derived columns are the server's, never the client's
     const rows = defs.toRows(def, body.data);
     const refs = refsForValidation();
     const file = tuningFileFor(def);

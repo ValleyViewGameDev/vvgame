@@ -158,7 +158,9 @@
     "layoutkey": "bb",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Blueberry Plot",
     "passable": true,
     "repeatable": true,
@@ -189,7 +191,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 80,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Rosemary",
@@ -227,7 +230,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 160,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Feverfew",
@@ -235,7 +239,9 @@
     "layoutkey": "h3",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Feverfew Plot",
     "passable": true,
     "repeatable": true,
@@ -266,7 +272,8 @@
     "crafttime": 259200,
     "totalnestedtime": 259200,
     "effort": 240,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Mushroom",
@@ -304,7 +311,8 @@
     "crafttime": 64800,
     "totalnestedtime": 64800,
     "effort": 60,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Daisy",
@@ -312,7 +320,9 @@
     "layoutkey": "f1",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Daisy Plot",
     "passable": true,
     "repeatable": true,
@@ -343,7 +353,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 160,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Tulip",
@@ -351,7 +362,9 @@
     "layoutkey": "f2",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Tulip Plot",
     "passable": true,
     "repeatable": true,
@@ -382,7 +395,8 @@
     "crafttime": 259200,
     "totalnestedtime": 259200,
     "effort": 240,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Sunflower",
@@ -390,7 +404,9 @@
     "layoutkey": "f3",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Sunflower Plot",
     "passable": true,
     "repeatable": true,
@@ -421,7 +437,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 80,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Magic Mushroom",
@@ -429,7 +446,9 @@
     "layoutkey": "Mm",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "valley",
     "passable": true,
     "requires": "devonly",
@@ -457,7 +476,8 @@
     "gemcost": 37,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "effort": 2880
+    "effort": 2880,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Wood",
@@ -465,7 +485,9 @@
     "layoutkey": "wo",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Oak Tree",
     "passable": true,
     "qtycollected": 4,
@@ -491,7 +513,8 @@
     "crafttime": 5,
     "totalnestedtime": 5,
     "filename": "wood.svg",
-    "effort": 0.02
+    "effort": 0.02,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Rocks",
@@ -555,7 +578,9 @@
     "layoutkey": "st",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Rocks",
     "passable": true,
     "repeatable": true,
@@ -583,7 +608,8 @@
     "filename": "stone.svg",
     "crafttime": 5,
     "totalnestedtime": 5,
-    "effort": 0.03
+    "effort": 0.03,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Clay Pit",
@@ -647,7 +673,9 @@
     "layoutkey": "cl",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Mud Pit",
     "passable": true,
     "repeatable": true,
@@ -677,7 +705,8 @@
     "filename": "clay.svg",
     "crafttime": 21600,
     "totalnestedtime": 21600,
-    "effort": 6.67
+    "effort": 6.67,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Oak Tree",
@@ -803,7 +832,6 @@
     "layoutkey": "dI",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -831,7 +859,9 @@
     "layoutkey": "$$",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "repeatable": false,
     "qtycollected": 10,
@@ -852,7 +882,8 @@
     "minprice": 1,
     "maxprice": 0,
     "gemcost": 0.01,
-    "gemOverride": 0.01
+    "gemOverride": 0.01,
+    "offeredAt": "Kent ✗ Money · Bank ✗ Money · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Trash",
@@ -860,8 +891,11 @@
     "layoutkey": "yuk",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
-    "qtycollected": 1
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
+    "qtycollected": 1,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Signpost N",
@@ -2386,7 +2420,8 @@
     "gemcost": 1,
     "crafttime": 60,
     "totalnestedtime": 60,
-    "effort": 0.06
+    "effort": 0.06,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Carrot",
@@ -2419,7 +2454,8 @@
     "gemcost": 2,
     "crafttime": 240,
     "totalnestedtime": 240,
-    "effort": 0.22
+    "effort": 0.22,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Corn",
@@ -2452,7 +2488,8 @@
     "gemcost": 3,
     "crafttime": 480,
     "totalnestedtime": 480,
-    "effort": 0.44
+    "effort": 0.44,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Sugarcane",
@@ -2485,7 +2522,8 @@
     "gemcost": 3,
     "crafttime": 600,
     "totalnestedtime": 600,
-    "effort": 0.56
+    "effort": 0.56,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Pumpkin",
@@ -2519,7 +2557,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 27
+    "effort": 27,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Lettuce",
@@ -2553,7 +2592,8 @@
     "gemcost": 12,
     "crafttime": 14400,
     "totalnestedtime": 14400,
-    "effort": 13
+    "effort": 13,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Pepper",
@@ -2587,7 +2627,8 @@
     "gemcost": 9,
     "crafttime": 7200,
     "totalnestedtime": 7200,
-    "effort": 6.67
+    "effort": 6.67,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Potato",
@@ -2621,7 +2662,8 @@
     "gemcost": 4,
     "crafttime": 900,
     "totalnestedtime": 900,
-    "effort": 0.83
+    "effort": 0.83,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Ginger",
@@ -2654,7 +2696,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 27
+    "effort": 27,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Onion",
@@ -2687,7 +2730,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 27
+    "effort": 27,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Garlic",
@@ -2724,7 +2768,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 160,
-    "rare": true
+    "rare": true,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Olive",
@@ -2760,7 +2805,8 @@
     "crafttime": 259200,
     "totalnestedtime": 259200,
     "effort": 270,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Strawberry",
@@ -2797,7 +2843,8 @@
     "gemcost": 15,
     "crafttime": 21600,
     "totalnestedtime": 21600,
-    "effort": 20
+    "effort": 20,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Apple",
@@ -2836,7 +2883,8 @@
     "crafttime": 64800,
     "totalnestedtime": 64800,
     "effort": 33,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Lemon",
@@ -2875,7 +2923,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 80,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓"
   },
   {
     "type": "Orange",
@@ -2913,7 +2962,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 96,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Peach",
@@ -2951,7 +3001,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 32,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Pear",
@@ -2989,7 +3040,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 32,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Tomato",
@@ -3024,7 +3076,8 @@
     "gemcost": 22,
     "crafttime": 57600,
     "totalnestedtime": 57600,
-    "effort": 53
+    "effort": 53,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Cherry",
@@ -3062,7 +3115,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 32,
-    "artSpan": 1.73
+    "artSpan": 1.73,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Coconut",
@@ -3098,7 +3152,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 120,
-    "artSpan": 2.11
+    "artSpan": 2.11,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Grapes",
@@ -3135,7 +3190,8 @@
     "gemcost": 20,
     "crafttime": 43200,
     "totalnestedtime": 43200,
-    "effort": 24
+    "effort": 24,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Mulberry Leaf",
@@ -3173,7 +3229,8 @@
     "crafttime": 345600,
     "totalnestedtime": 345600,
     "effort": 384,
-    "artSpan": 1.43
+    "artSpan": 1.43,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Coffee Cherry",
@@ -3207,7 +3264,8 @@
     "gemcost": 44,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "effort": 240
+    "effort": 240,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Milk",
@@ -3241,7 +3299,8 @@
     "gemcost": 4,
     "crafttime": 720,
     "totalnestedtime": 720,
-    "effort": 3
+    "effort": 3,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Wool",
@@ -3275,7 +3334,8 @@
     "gemcost": 12,
     "crafttime": 14400,
     "totalnestedtime": 14400,
-    "effort": 20
+    "effort": 20,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Bacon",
@@ -3309,7 +3369,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 120
+    "effort": 120,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Fall · Stall ✓"
   },
   {
     "type": "Flour",
@@ -3344,7 +3405,8 @@
     "gemcost": 9,
     "crafttime": 300,
     "totalnestedtime": 660,
-    "effort": 1.17
+    "effort": 1.17,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Sugar",
@@ -3379,7 +3441,8 @@
     "gemcost": 16,
     "crafttime": 900,
     "totalnestedtime": 3300,
-    "effort": 4.72
+    "effort": 4.72,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Chicken Feed",
@@ -3418,7 +3481,8 @@
     "gemcost": 18,
     "crafttime": 600,
     "totalnestedtime": 2640,
-    "effort": 3.56
+    "effort": 3.56,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Cornmeal",
@@ -3453,7 +3517,8 @@
     "gemcost": 35,
     "crafttime": 28800,
     "totalnestedtime": 31680,
-    "effort": 83
+    "effort": 83,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Butter",
@@ -3489,7 +3554,8 @@
     "gemcost": 11,
     "crafttime": 600,
     "totalnestedtime": 2040,
-    "effort": 11
+    "effort": 11,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Cheese",
@@ -3528,7 +3594,8 @@
     "gemcost": 20,
     "crafttime": 720,
     "totalnestedtime": 3600,
-    "effort": 18
+    "effort": 18,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Cream",
@@ -3566,7 +3633,8 @@
     "gemcost": 44,
     "crafttime": 900,
     "totalnestedtime": 4140,
-    "effort": 23
+    "effort": 23,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Pepper Cheese",
@@ -3609,7 +3677,8 @@
     "gemcost": 133,
     "crafttime": 28800,
     "totalnestedtime": 436320,
-    "effort": 631
+    "effort": 631,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Thread",
@@ -3644,7 +3713,8 @@
     "gemcost": 15,
     "crafttime": 300,
     "totalnestedtime": 14700,
-    "effort": 22
+    "effort": 22,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Cloth",
@@ -3679,7 +3749,8 @@
     "gemcost": 39,
     "crafttime": 600,
     "totalnestedtime": 43800,
-    "effort": 63
+    "effort": 63,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Sweater",
@@ -3717,7 +3788,8 @@
     "gemcost": 156,
     "crafttime": 7200,
     "totalnestedtime": 52200,
-    "effort": 273
+    "effort": 273,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Runic Tunic",
@@ -3759,7 +3831,8 @@
     "gemcost": 371,
     "crafttime": 43200,
     "totalnestedtime": 75600,
-    "effort": 2177
+    "effort": 2177,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Jacket",
@@ -3799,7 +3872,8 @@
     "gemcost": 247,
     "crafttime": 14400,
     "totalnestedtime": 102900,
-    "effort": 1358
+    "effort": 1358,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Heavy Jacket",
@@ -3839,7 +3913,8 @@
     "gemcost": 280,
     "crafttime": 28800,
     "totalnestedtime": 216900,
-    "effort": 4463
+    "effort": 4463,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Silk Dress",
@@ -3877,7 +3952,8 @@
     "gemcost": 458,
     "crafttime": 57600,
     "totalnestedtime": 189600,
-    "effort": 25773
+    "effort": 25773,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Silk",
@@ -3915,7 +3991,8 @@
     "gemcost": 409,
     "crafttime": 43200,
     "totalnestedtime": 6955200,
-    "effort": 8400
+    "effort": 8400,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Egg",
@@ -3951,7 +4028,8 @@
     "gemcost": 45,
     "crafttime": 7200,
     "totalnestedtime": 8400,
-    "effort": 19
+    "effort": 19,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring/Summer · Stall ✓"
   },
   {
     "type": "Bread",
@@ -3989,7 +4067,8 @@
     "gemcost": 38,
     "crafttime": 7200,
     "totalnestedtime": 8400,
-    "effort": 37
+    "effort": 37,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Cornbread",
@@ -4031,7 +4110,8 @@
     "gemcost": 192,
     "crafttime": 14400,
     "totalnestedtime": 87300,
-    "effort": 264
+    "effort": 264,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Pumpkin Pie",
@@ -4074,7 +4154,8 @@
     "gemcost": 68,
     "crafttime": 1200,
     "totalnestedtime": 32400,
-    "effort": 59
+    "effort": 59,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Lemon Cookie",
@@ -4119,7 +4200,8 @@
     "gemcost": 223,
     "crafttime": 2700,
     "totalnestedtime": 193800,
-    "effort": 227
+    "effort": 227,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Ginger Cookie",
@@ -4162,7 +4244,8 @@
     "gemcost": 237,
     "crafttime": 2700,
     "totalnestedtime": 136200,
-    "effort": 174
+    "effort": 174,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Olive Bread",
@@ -4205,7 +4288,8 @@
     "gemcost": 313,
     "crafttime": 14400,
     "totalnestedtime": 2275500,
-    "effort": 2407
+    "effort": 2407,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Garlic Bread",
@@ -4244,7 +4328,8 @@
     "gemcost": 75,
     "crafttime": 3600,
     "totalnestedtime": 529200,
-    "effort": 529
+    "effort": 529,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Apple Pie",
@@ -4287,7 +4372,8 @@
     "gemcost": 99,
     "crafttime": 1200,
     "totalnestedtime": 133200,
-    "effort": 97
+    "effort": 97,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Strawberry Pie",
@@ -4330,7 +4416,8 @@
     "gemcost": 179,
     "crafttime": 1800,
     "totalnestedtime": 70500,
-    "effort": 123
+    "effort": 123,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Peach Pie",
@@ -4373,7 +4460,8 @@
     "gemcost": 200,
     "crafttime": 2700,
     "totalnestedtime": 236100,
-    "effort": 304
+    "effort": 304,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Cherry Pie",
@@ -4416,7 +4504,8 @@
     "gemcost": 314,
     "crafttime": 3600,
     "totalnestedtime": 698100,
-    "effort": 813
+    "effort": 813,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Queen's Cake",
@@ -4424,7 +4513,9 @@
     "layoutkey": "QC",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Oven",
     "passable": true,
     "requires": "Baker",
@@ -4462,7 +4553,8 @@
     "gemcost": 413,
     "crafttime": 28800,
     "totalnestedtime": 400200,
-    "effort": 1366
+    "effort": 1366,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Honey",
@@ -4498,7 +4590,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 144,
-    "gemOverride": 37
+    "gemOverride": 37,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Corn Chowder",
@@ -4538,7 +4631,8 @@
     "gemcost": 47,
     "crafttime": 1200,
     "totalnestedtime": 7080,
-    "effort": 25
+    "effort": 25,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Carrot Soup",
@@ -4580,7 +4674,8 @@
     "gemcost": 133,
     "crafttime": 2700,
     "totalnestedtime": 437040,
-    "effort": 433
+    "effort": 433,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Pumpkin Soup",
@@ -4622,7 +4717,8 @@
     "gemcost": 298,
     "crafttime": 3600,
     "totalnestedtime": 72060,
-    "effort": 1605
+    "effort": 1605,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Omelette",
@@ -4665,7 +4761,8 @@
     "gemcost": 315,
     "crafttime": 600,
     "totalnestedtime": 1069980,
-    "effort": 1253
+    "effort": 1253,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Potato Bake",
@@ -4708,7 +4805,8 @@
     "gemcost": 210,
     "crafttime": 14400,
     "totalnestedtime": 370800,
-    "effort": 485
+    "effort": 485,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Mixed Salad",
@@ -4750,7 +4848,8 @@
     "gemcost": 278,
     "crafttime": 900,
     "totalnestedtime": 1275300,
-    "effort": 1315
+    "effort": 1315,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Sandwich",
@@ -4792,7 +4891,8 @@
     "gemcost": 218,
     "crafttime": 2700,
     "totalnestedtime": 276300,
-    "effort": 697
+    "effort": 697,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Pizza",
@@ -4835,7 +4935,8 @@
     "gemcost": 296,
     "crafttime": 900,
     "totalnestedtime": 241620,
-    "effort": 1759
+    "effort": 1759,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Tomato Soup",
@@ -4878,7 +4979,8 @@
     "gemcost": 349,
     "crafttime": 1800,
     "totalnestedtime": 364500,
-    "effort": 2924
+    "effort": 2924,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
   },
   {
     "type": "Poached Pear",
@@ -4917,7 +5019,8 @@
     "gemcost": 370,
     "crafttime": 0,
     "totalnestedtime": 259200,
-    "effort": 2352
+    "effort": 2352,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Lumber",
@@ -4953,7 +5056,8 @@
     "gemcost": 25,
     "crafttime": 1800,
     "totalnestedtime": 1900,
-    "effort": 4.17
+    "effort": 4.17,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Pottery",
@@ -4988,7 +5092,8 @@
     "gemcost": 51,
     "crafttime": 2700,
     "totalnestedtime": 67500,
-    "effort": 31
+    "effort": 31,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Furniture",
@@ -5028,7 +5133,8 @@
     "gemcost": 139,
     "crafttime": 43200,
     "totalnestedtime": 48000,
-    "effort": 295
+    "effort": 295,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Ink",
@@ -5069,7 +5175,8 @@
     "gemcost": 271,
     "crafttime": 14400,
     "totalnestedtime": 561600,
-    "effort": 808
+    "effort": 808,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Urns",
@@ -5109,7 +5216,8 @@
     "gemcost": 329,
     "crafttime": 7200,
     "totalnestedtime": 118800,
-    "effort": 990
+    "effort": 990,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Lemonade",
@@ -5146,7 +5254,8 @@
     "gemcost": 198,
     "crafttime": 900,
     "totalnestedtime": 521100,
-    "effort": 494
+    "effort": 494,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Coconut Milk",
@@ -5181,7 +5290,8 @@
     "gemcost": 60,
     "crafttime": 7200,
     "totalnestedtime": 93600,
-    "effort": 400
+    "effort": 400,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Belmont Tea",
@@ -5219,7 +5329,8 @@
     "gemcost": 220,
     "crafttime": 14400,
     "totalnestedtime": 1800000,
-    "effort": 1733
+    "effort": 1733,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Apple Cider",
@@ -5254,7 +5365,8 @@
     "gemcost": 274,
     "crafttime": 172800,
     "totalnestedtime": 950400,
-    "effort": 3273
+    "effort": 3273,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
   },
   {
     "type": "Olive Oil",
@@ -5289,7 +5401,8 @@
     "gemcost": 229,
     "crafttime": 7200,
     "totalnestedtime": 1303200,
-    "effort": 1470
+    "effort": 1470,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
   },
   {
     "type": "Wine",
@@ -5327,7 +5440,8 @@
     "gemcost": 220,
     "crafttime": 28800,
     "totalnestedtime": 460815,
-    "effort": 720
+    "effort": 720,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Port",
@@ -5367,7 +5481,8 @@
     "gemcost": 248,
     "crafttime": 3600,
     "totalnestedtime": 522020,
-    "effort": 444
+    "effort": 444,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Brandy",
@@ -5409,7 +5524,8 @@
     "gemcost": 299,
     "crafttime": 28800,
     "totalnestedtime": 1238405,
-    "effort": 1920
+    "effort": 1920,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
   },
   {
     "type": "Aged Wine",
@@ -5449,7 +5565,8 @@
     "gemcost": 356,
     "crafttime": 43200,
     "totalnestedtime": 129630,
-    "effort": 2880
+    "effort": 2880,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Green Coffee Bean",
@@ -5484,7 +5601,8 @@
     "gemcost": 257,
     "crafttime": 3600,
     "totalnestedtime": 1558800,
-    "effort": 1450
+    "effort": 1450,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Light Roast Coffee Bean",
@@ -5522,7 +5640,8 @@
     "gemcost": 567,
     "crafttime": 21600,
     "totalnestedtime": 57620,
-    "effort": 14860
+    "effort": 14860,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Medium Roast Coffee Bean",
@@ -5560,7 +5679,8 @@
     "gemcost": 605,
     "crafttime": 43200,
     "totalnestedtime": 86440,
-    "effort": 18120
+    "effort": 18120,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Dark Roast Coffee Bean",
@@ -5598,7 +5718,8 @@
     "gemcost": 654,
     "crafttime": 50400,
     "totalnestedtime": 104450,
-    "effort": 22590
+    "effort": 22590,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Common Coffee",
@@ -5633,7 +5754,8 @@
     "gemcost": 599,
     "crafttime": 900,
     "totalnestedtime": 216900,
-    "effort": 90606
+    "effort": 90606,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Coffee Elsinore",
@@ -5671,7 +5793,8 @@
     "gemcost": 702,
     "crafttime": 1200,
     "totalnestedtime": 692400,
-    "effort": 119751
+    "effort": 119751,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Coffee Latte",
@@ -5711,7 +5834,8 @@
     "gemcost": 710,
     "crafttime": 1800,
     "totalnestedtime": 352440,
-    "effort": 144996
+    "effort": 144996,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Queen's Coffee",
@@ -5751,7 +5875,8 @@
     "gemcost": 845,
     "crafttime": 2700,
     "totalnestedtime": 625500,
-    "effort": 271554
+    "effort": 271554,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Amulet",
@@ -5786,7 +5911,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Beans",
@@ -5819,7 +5945,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Oyster",
@@ -5852,7 +5979,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Meat",
@@ -5885,7 +6013,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Fish",
@@ -5918,7 +6047,8 @@
     "gemcost": 27,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 1440
+    "effort": 1440,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Trumpet",
@@ -5953,7 +6083,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Ancient Coin",
@@ -5988,7 +6119,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Fan",
@@ -6021,7 +6153,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Saw",
@@ -6029,7 +6162,9 @@
     "layoutkey": "saw",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "pets",
     "passable": true,
     "repeatable": false,
@@ -6059,7 +6194,8 @@
     "gemcost": 27,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "effort": 1440
+    "effort": 1440,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Shovel",
@@ -6067,7 +6203,9 @@
     "layoutkey": "sho",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "pets",
     "passable": true,
     "repeatable": false,
@@ -6097,7 +6235,8 @@
     "gemcost": 37,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "effort": 2880
+    "effort": 2880,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Screwdriver",
@@ -6105,7 +6244,9 @@
     "layoutkey": "sdr",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "pets",
     "passable": true,
     "repeatable": false,
@@ -6135,7 +6276,8 @@
     "gemcost": 44,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "effort": 4320
+    "effort": 4320,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Potion A",
@@ -6143,7 +6285,9 @@
     "layoutkey": "p1",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "qtycollected": 1,
     "xp": 4,
@@ -6175,7 +6319,8 @@
     "ingredient2": "Daisy",
     "ingredient2qty": 2,
     "ingredient3": "Milk",
-    "ingredient3qty": 8
+    "ingredient3qty": 8,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Potion B",
@@ -6183,7 +6328,9 @@
     "layoutkey": "p2",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "qtycollected": 1,
     "xp": 5,
@@ -6215,7 +6362,8 @@
     "ingredient2": "Mushroom",
     "ingredient2qty": 4,
     "ingredient3": "Tulip",
-    "ingredient3qty": 4
+    "ingredient3qty": 4,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Potion C",
@@ -6223,7 +6371,9 @@
     "layoutkey": "p3",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "qtycollected": 1,
     "xp": 4,
@@ -6257,7 +6407,8 @@
     "ingredient3": "Ink",
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
-    "ingredient4qty": 1
+    "ingredient4qty": 1,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Book",
@@ -6265,7 +6416,9 @@
     "layoutkey": "bk",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Library",
     "passable": true,
     "qtycollected": 1,
@@ -6299,7 +6452,8 @@
     "gemcost": 327,
     "crafttime": 7200,
     "totalnestedtime": 45003,
-    "effort": 377
+    "effort": 377,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Pelt",
@@ -6333,7 +6487,8 @@
     "gemcost": 17,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "effort": 480
+    "effort": 480,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Bear Skin",
@@ -6365,7 +6520,8 @@
     "gemcost": 37,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "effort": 2880
+    "effort": 2880,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Bones",
@@ -6401,7 +6557,8 @@
     "gemcost": 85,
     "crafttime": 864000,
     "totalnestedtime": 864000,
-    "effort": 14400
+    "effort": 14400,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Silver",
@@ -6438,7 +6595,8 @@
     "gemcost": 85,
     "crafttime": 864000,
     "totalnestedtime": 864000,
-    "effort": 14400
+    "effort": 14400,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Scorpion",
@@ -6467,7 +6625,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Gold",
@@ -6504,7 +6663,8 @@
     "gemcost": 100,
     "crafttime": 1296000,
     "totalnestedtime": 1296000,
-    "effort": 21600
+    "effort": 21600,
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Diamond Ring",
@@ -6512,6 +6672,7 @@
     "layoutkey": "Di",
     "category": "doober",
     "action": "collect",
+    "noBank": true,
     "noTradeStall": true,
     "passable": true,
     "qtycollected": 1,
@@ -6541,7 +6702,8 @@
     "gemcost": 112,
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
-    "effort": 28800
+    "effort": 28800,
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✗ noBank · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✗ noTradeStall"
   },
   {
     "type": "King's Crown",
@@ -6549,7 +6711,9 @@
     "layoutkey": "KC",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Castle",
     "requires": "Golden Key",
     "passable": true,
@@ -6564,7 +6728,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Portrait",
@@ -6572,7 +6737,9 @@
     "layoutkey": "Po",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Duke Angelo",
     "passable": true,
     "repeatable": false,
@@ -6599,7 +6766,8 @@
     "gemcost": 20,
     "crafttime": 43200,
     "totalnestedtime": 43200,
-    "effort": 720
+    "effort": 720,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Trident",
@@ -6607,7 +6775,9 @@
     "layoutkey": "Tr",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Shrine",
     "passable": true,
     "repeatable": false,
@@ -6623,7 +6793,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Phoenix Feather",
@@ -6631,7 +6802,9 @@
     "layoutkey": "fe",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -6658,7 +6831,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Brief Candle",
@@ -6666,7 +6840,9 @@
     "layoutkey": "BCan",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -6687,7 +6863,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Brass Bell",
@@ -6695,7 +6872,9 @@
     "layoutkey": "bell",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Iago",
     "passable": true,
     "repeatable": false,
@@ -6709,7 +6888,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Prospero's Orb",
@@ -6717,7 +6897,9 @@
     "layoutkey": "Mo",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Prospero",
     "passable": true,
     "repeatable": false,
@@ -6731,7 +6913,8 @@
     "crafttime": 2592000,
     "totalnestedtime": 2592000,
     "effort": 43200,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Vampire's Blood",
@@ -6739,7 +6922,9 @@
     "layoutkey": "vb",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "Vampire",
     "passable": true,
     "repeatable": false,
@@ -6753,7 +6938,8 @@
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
     "effort": 28800,
-    "nogems": true
+    "nogems": true,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
   },
   {
     "type": "Home Deed",
@@ -6761,7 +6947,6 @@
     "layoutkey": "HD",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Constable Elbow",
     "passable": true,
     "repeatable": false,
@@ -6776,7 +6961,6 @@
     "layoutkey": "KY",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Cassio",
     "passable": true,
     "repeatable": false,
@@ -6791,7 +6975,6 @@
     "layoutkey": "Ky",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Helena",
     "passable": true,
     "repeatable": false,
@@ -6806,7 +6989,6 @@
     "layoutkey": "gsong",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Helena",
     "passable": true,
     "repeatable": false,
@@ -6821,7 +7003,6 @@
     "layoutkey": "TKey",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Constable Elbow",
     "passable": true,
     "repeatable": false,
@@ -6836,7 +7017,6 @@
     "layoutkey": "DKey",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Constable Elbow",
     "passable": true,
     "repeatable": false,
@@ -6851,7 +7031,6 @@
     "layoutkey": "Mky",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Leontes",
     "passable": true,
     "repeatable": false,
@@ -6866,7 +7045,6 @@
     "layoutkey": "sec",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Portia",
     "repeatable": false,
     "qtycollected": 1,
@@ -6879,7 +7057,6 @@
     "layoutkey": "sec2",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Gertrude",
     "repeatable": false,
     "qtycollected": 1,
@@ -6892,7 +7069,6 @@
     "layoutkey": "sec3",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Prospero",
     "repeatable": false,
     "qtycollected": 1,
@@ -6905,7 +7081,6 @@
     "layoutkey": "sec4",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Titania",
     "repeatable": false,
     "qtycollected": 1,
@@ -6918,7 +7093,6 @@
     "layoutkey": "sec5",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Caliban",
     "repeatable": false,
     "qtycollected": 1,
@@ -6931,7 +7105,6 @@
     "layoutkey": "YSk",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Caliban",
     "repeatable": false,
     "qtycollected": 1,
@@ -6944,7 +7117,6 @@
     "layoutkey": "HTor",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Hecate",
     "repeatable": false,
     "qtycollected": 1,
@@ -6957,7 +7129,6 @@
     "layoutkey": "sec6",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Juliet",
     "repeatable": false,
     "qtycollected": 1,
@@ -6970,7 +7141,6 @@
     "layoutkey": "sec7",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Viola",
     "repeatable": false,
     "qtycollected": 1,
@@ -6983,7 +7153,6 @@
     "layoutkey": "hope",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Oracle",
     "passable": true,
     "repeatable": false,
@@ -6997,7 +7166,6 @@
     "layoutkey": "hrtA",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -7012,7 +7180,6 @@
     "layoutkey": "hrtB",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -7027,7 +7194,6 @@
     "layoutkey": "hrtC",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -7042,7 +7208,9 @@
     "layoutkey": "Sc",
     "category": "doober",
     "action": "collect",
-    "output": "noBank",
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
     "source": "pets",
     "passable": true,
     "qtycollected": 1,
@@ -7070,7 +7238,8 @@
     "gemcost": 1,
     "crafttime": 10,
     "totalnestedtime": 10,
-    "effort": 0.17
+    "effort": 0.17,
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Reveal Scroll",
@@ -9254,7 +9423,7 @@
     "artFacing": "front",
     "movespeed": 0.8,
     "action": "quest",
-    "output": "noRel",
+    "noRelationship": true,
     "source": "Farm House",
     "passable": true,
     "repeatable": false,
@@ -10919,7 +11088,6 @@
     "layoutkey": "te",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Adventure Camp",
     "passable": false,
     "qtycollected": 1,
@@ -10940,7 +11108,6 @@
     "layoutkey": "bt",
     "category": "special",
     "action": "collect",
-    "output": "noBank",
     "source": "Adventure Camp",
     "passable": false,
     "qtycollected": 1,

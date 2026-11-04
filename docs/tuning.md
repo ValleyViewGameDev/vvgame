@@ -9,7 +9,7 @@ can check the current value rather than trust this page.
 
 - **Data first.** `game-server/tuning/resources.json` is the master table (ECONOMY in the
   editor): per-item `level`, `xp`, `minprice`/`maxprice`, `source`, `season`, ingredients,
-  `scrollchance`, `output` (`noBank` = never sold to Kent/Bank). `xpLevels.json` is the level
+  `scrollchance`, the outlet checkboxes (`noKent`/`noBank`/`noCaravan`/`noTradeStall`, §4j). `xpLevels.json` is the level
   curve, `globalTuning.json` the scalar knobs (Kent timers, offer counts, train hours, drop
   rates, scheduler phases), `seasons.json` the season multipliers and crop lists,
   `skillsTuning.json` the skill multipliers, `traders.json`/`quests/questsEN.json` the NPC
@@ -99,8 +99,8 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   2026-10-12 there is no panel-wide "Kent is away" pause, so `kentRefreshTimerSeconds` is no
   longer read). The throughput cap is now per slot: at best (slots) x (XP per offer) x
   (3600 / cooldown seconds) XP an hour, several times the old one-sale-per-pause rate.
-- **Eligibility.** Doobers only; not `noBank`, not `source: valley`, not epic/legendary
-  `scrollchance`, in season (item and ingredients), item level and source level at or below
+- **Eligibility.** The shared rule (§4j: a good, not Money, not `noKent`, not `source: valley`, not epic/legendary
+  `scrollchance`), then in season (item and ingredients), item level and source level at or below
   the player's, every ingredient (recursively) unlocked at the player's level too
   (`areIngredientsUnlocked`, 2026-10-12: Runic Tunic at 10 needs Ink from 17, the soups and
   Pizza need Olive Oil from the level-22 Winery), enemy outputs gated by the Explore the Valley
@@ -174,7 +174,8 @@ nobody is demoted (one production player in range, 693 XP, stays level 9).
   ago), 2 **aspirational** (⭐ in the panel) from the newest station the player's level has
   unlocked, owned or not, skill or not; fallback the highest-`xp` goods they can already make.
   First-time users get crops only. Same eligibility as Kent otherwise (season, levels,
-  ingredients unlocked, no valley / epic / noBank).
+  ingredients unlocked; the shared rule's Caravan gates, §4j: a good with a home source, not
+  `noCaravan`, not epic / legendary).
 - **Quantities** are sized by effort (§4c, `askSizing.train`), the aspirational band at
   `trainBandScale.aspirational` (0.6) of a normal order. First-time users: crops, 5 to 20.
 - **Rewards, tiered.** Each order is worth what Kent would pay for the same goods: 2 x the
@@ -220,7 +221,7 @@ with the Inventory panel (`canSendHome` = at home or at a Post House).
 ## 4f. Bank (schedulers/bankScheduler.js, Bank.js)
 
 - Each Bank round (`globalTuning.bank`, active 480 min) generates `globalTuning.bankOffers` (3)
-  random offers for doobers within ±1 of the season level (not `noBank`), then appends the
+  random offers for goods within ±1 of the season level (not `noBank`, §4j), then appends the
   permanent Silver x10 / Diamond Ring x1 / Gold x2 offers unless a random one already took that
   resource. Payout: a price per unit between `minprice` and the min/max midpoint, x qty x 0.9,
   always Money.
@@ -233,7 +234,7 @@ with the Inventory panel (`canSendHome` = at home or at a Post House).
 - **Valley Counting Houses (2026-11-02)** are open to every player (town Banks only in the home
   settlement) and have their own list, `bank.valleyOffers`, rolled in the same round: always the
   six resources of `globalTuning.valleyBankOffers` (Wood, Stone, Clay, Silver, Diamond Ring, Gold;
-  season level and `noBank` ignored), each with a `qtyMin`..`qtyMax` quantity. The price per unit
+  season level and the `noBank` checkbox ignored), each with a `qtyMin`..`qtyMax` quantity. The price per unit
   uses the same min-to-midpoint draw but is not floored per unit, so Wood (price 0 to 1) still pays.
 
 ## 4c. Effort and ask sizing (2026-10-12)
@@ -309,8 +310,8 @@ numbers: docs/economy-plan.md.
   Orb, Brass Bell, Phoenix Feather, Vampire's Blood; not the Scroll, an ordinary pet find), Hope,
   the Home Deed, the keys (Skeleton, Golden, Town, Dungeon, Mirror) and the seven Secrets. An
   ingredient or skill with no `gemcost` at all is also not gem-buyable (it used to fall back to
-  1 gem, which sold the Shrine's Trident for 1 gem by skipping the Skeleton Key). `output:
-  noBank` is a different thing: it only keeps an item off Kent, the Train and the Bank.
+  1 gem, which sold the Shrine's Trident for 1 gem by skipping the Skeleton Key). The outlet
+  checkboxes (`noKent`, `noBank`, `noCaravan`, `noTradeStall`, §4j) are a different thing.
   Trader (NPC) trades never offer a gem buy-through; the healer's heal is the one NPC gem button.
 
 - **Rule** (Hay Day's "time is diamonds"): `gemcost = ceil(Money x 0.01 + smooth(sum(other
@@ -401,6 +402,28 @@ since 2026-10-16: the Golden Key for 50 Daisy at L8 (it was 50 Feverfew, which a
 player could hardly find), then repeatable Tulip L9, Rosemary L10, Mushroom L12, Feverfew L14 and
 Sunflower L23 (25). Prices should follow the same order (a valley1-common crop is cheap;
 Feverfew, Garlic and Sunflower are not).
+
+## 4j. Where a good can be offered (game-server/utils/offerRules.mjs, 2026-11-04)
+
+One rule decides which outlets may ever use a resource, shared by the game server (Bank, Caravan,
+Trade Stall), the client's Kent (through `offerBlocks` on every row of GET /api/resources) and the
+editor's read-only **offeredAt** column (e.g. "Kent ✓ · Bank ✓ · Caravan ✗ valley find · Fair ✓
+Winter · Stall ✓"), recomputed on every ECONOMY save and by `node tools/derive-economy.js --write`.
+
+| Outlet | Static gates (the rule) | Then, per player / round |
+|---|---|---|
+| Kent | a good (doober), not Money, not `noKent`, not an epic/legendary scroll find, not a valley find | season, levels, ingredients unlocked, "Explore the Valley" for enemy drops |
+| Bank (random offers) | a good, not Money, not `noBank` | within ±1 of the season level; the standing Silver / Diamond Ring / Gold offers and the valley Counting Houses' list are hand-picked |
+| Caravan | a good with a home source, not `noCaravan`, not an epic/legendary scroll find | season, levels, skills, bands |
+| Harvest Fair | listed for the season in `seasons.json` | the effort limit |
+| Trade Stall | not a Quest for Hope artifact, not `noTradeStall` | |
+
+The checkboxes replaced `output: noBank` (2026-11-04): the 28 goods that had it got `noKent`,
+`noBank` and `noCaravan` (no change in play); the 23 special items lost it (no outlet uses
+specials). The Diamond Ring is `noBank` (never a random Bank offer; its standing one stays) and
+`noTradeStall`. `output` now only says what a thing produces or does (`hp`, `Buy`,
+`backpackCapacity`, `range` for NPCs and skills); an NPC with no relationship card is
+`noRelationship` (Kent).
 
 ## 4i. The level 4-16 pinch: tools/progression.js (2026-10-22)
 

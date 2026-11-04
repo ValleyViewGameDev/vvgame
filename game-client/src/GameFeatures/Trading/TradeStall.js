@@ -62,7 +62,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   useEffect(() => {
     loadMasterTraders().then((t) => setHopeItems(new Set([
       ...hopeArtifacts(t),
-      ...(masterResources || []).filter((r) => r.noTradeStall === true).map((r) => r.type),
+      ...(masterResources || []).filter((r) => r.offerBlocks?.tradeStall || r.noTradeStall === true).map((r) => r.type),
     ])));
   }, [masterResources]);
   const { updateStatus } = useContext(StatusBarContext);

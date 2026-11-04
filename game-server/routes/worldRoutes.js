@@ -1,4 +1,5 @@
 const { heldQuantity, takeFromHoldings, recipeCosts, canAffordCosts, spendCosts } = require('../utils/playerHoldings');
+const offerEligibility = require('../utils/offerEligibility');
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
 const fs = require('fs');
@@ -804,7 +805,9 @@ router.get('/resources', (req, res) => {
       console.error('No resources data found');
       return res.status(404).json({ error: 'Resources not found' });
     }
-    res.json(resourcesData);
+    // each row carries the shared offer rule's answer (utils/offerRules.mjs), so the client's Kent
+    // and Trade Stall decide exactly as the server does; computed per request, never stored
+    res.json(resourcesData.map((r) => ({ ...r, offerBlocks: offerEligibility.blocksFor(r) })));
   } catch (error) {
     console.error('Error fetching resources:', error);
     res.status(500).json({ error: 'Error fetching resources' });

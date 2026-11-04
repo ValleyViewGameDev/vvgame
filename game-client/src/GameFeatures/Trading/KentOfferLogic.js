@@ -124,6 +124,13 @@ function pickItemWithQuantity(availableResources, playerLevel, globalTuning) {
     return { resource: randomResource, quantity: pickAskQuantity(randomResource, playerLevel, globalTuning, 'kent') };
 }
 
+// Kent's static gates: the server's answer (offerBlocks); the fallback mirrors it for a server
+// that does not attach offerBlocks yet (an older deploy)
+const kentBlocked = (r) => (r.offerBlocks
+    ? !!r.offerBlocks.kent
+    : (r.category !== 'doober' || r.type === 'Money' || r.output === 'noBank' || r.noKent
+        || r.scrollchance === 'epic' || r.scrollchance === 'legendary' || r.source === 'valley'));
+
 /**
  * Generates new Kent offers based on player level and available resources
  * @param {Object} currentPlayer - The current player object
@@ -143,11 +150,10 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     
     // Filter eligible resources for Kent offers
     const eligibleResources = masterResources.filter(resource => {
-        // Must be a doober
-        if (resource.category !== 'doober') return false;
-        
-        // Exclude resources with noBank output
-        if (resource.output === 'noBank') return false;
+        // The static gates (a good, not Money, not noKent, not an epic/legendary scroll find, not a
+        // valley find) are the server's shared rule (game-server/utils/offerRules.mjs), attached to
+        // each row by GET /api/resources as offerBlocks; the rest below depends on the player
+        if (kentBlocked(resource)) return false;
 
         // Check if resource is seasonal and matches current season
         if (resource.season && resource.season !== currentSeason) {
@@ -168,15 +174,7 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
                 return false;
             }
         }
-        // Filter out epic and legendary scroll chance items
-        if (resource.scrollchance === 'epic' || resource.scrollchance === 'legendary') {
-            return false;
-        }
         
-        // Filter out valley source items
-        if (resource.source === 'valley') {
-            return false;
-        }
 
         // Filter out resources that are outputs of attack resources if player doesn't have "Explore the Valley" trophy
         const hasExploreValleyTrophy = currentPlayer?.trophies?.some(trophy => trophy.title === "Explore the Valley");

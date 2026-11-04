@@ -131,7 +131,13 @@ export function computeGemcost(rows) {
  * `gemcost` onto every row the gem rule prices. Mutates `rows`; returns the number of rows whose
  * value changed.
  */
-export function deriveResources(rows) {
+/**
+ * Recompute the derived columns in place; returns how many values changed. `offeredAt` (optional,
+ * server side only: the editor server and tools/derive-economy.js pass it, built from
+ * game-server/utils/offerRules.mjs) fills the read-only "Offered at" column; the browser's live
+ * recompute leaves that column as saved.
+ */
+export function deriveResources(rows, { offeredAt } = {}) {
   const efforts = computeEffort(rows);
   let changed = 0;
   for (const r of rows) {
@@ -148,6 +154,15 @@ export function deriveResources(rows) {
   const gems = computeGemcost(rows);
   for (const r of rows) {
     if (gems.has(r.type) && r.gemcost !== gems.get(r.type)) { r.gemcost = gems.get(r.type); changed++; }
+  }
+  if (offeredAt) {
+    for (const r of rows) {
+      const text = offeredAt(r);
+      if (r.offeredAt !== text) {
+        if (text === undefined) delete r.offeredAt; else r.offeredAt = text;
+        changed++;
+      }
+    }
   }
   return changed;
 }

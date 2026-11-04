@@ -198,8 +198,8 @@ settlement event participation from the settlement logs. Owner to add the rest.
   old defect never blocks an unrelated save (`errorSignatures` + `validateRows(..., baseline)`);
   the server compares saves semantically (parsed JSON) so a no-op save never rewrites a file;
   `trader` and quest `giver` references warn rather than block (Shiro is category `shop`, not
-  `npc`); `output` accepts the sentinels `noBank`, `hp`, `noRel`, `Buy`, `backpackCapacity`,
-  `range`. Every sheet file on disk is already 2-space JSON, so a real save diffs only the
+  `npc`); `output` accepts the sentinels `hp`, `Buy`, `backpackCapacity`, `range` (the outlet
+  checkboxes and `noRelationship` are their own columns since 2026-11-04, docs/tuning.md §4j). Every sheet file on disk is already 2-space JSON, so a real save diffs only the
   changed rows.
 - **2026-10-05, slice 2 (Layouts), commit d97714ab.** Tile colours come from the client's own
   `game-client/src/UI/Styles/tileColors.js`, served by the tool at `/game-client/tileColors.js`

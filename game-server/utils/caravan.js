@@ -17,6 +17,7 @@ const Settlement = require('../models/settlement');
 const masterResources = require('../tuning/resources.json');
 const globalTuning = require('../tuning/globalTuning.json');
 const XP_THRESHOLDS = require('../tuning/xpLevels.json').map((l) => l.xp);
+const offerEligibility = require('./offerEligibility');
 
 const TRAIN_REWARD_MESSAGE_ID = 101;
 const TRAIN_LEVEL = masterResources.find((r) => r.type === 'Train')?.level || 1;   // the panel's LevelLock
@@ -128,10 +129,9 @@ function splitRewards(rewards) {
 }
 
 function isOrderable(resource, season, playerLevel, hasExploreValleyTrophy) {
-  if (resource.category !== 'doober') return false;
-  if (resource.output === 'noBank') return false;
-  if (!resource.source || resource.source === 'valley') return false;
-  if (resource.scrollchance === 'epic' || resource.scrollchance === 'legendary') return false;
+  // The static gates (a good with a home source, not noCaravan, not an epic/legendary scroll find)
+  // are the shared rule, utils/offerRules.mjs; the rest here depends on the player and the season
+  if (offerEligibility.blocked(resource, 'caravan')) return false;
   if (resource.season && resource.season !== season) return false;
   if (resource.level && resource.level > playerLevel) return false;
   const source = byType.get(resource.source);

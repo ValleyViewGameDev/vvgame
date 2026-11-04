@@ -4,6 +4,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
 const { isACrop } = require("../utils/worldUtils");
+const offerEligibility = require("../utils/offerEligibility");
 
 // **Bank Scheduler**
 async function bankScheduler(frontierId, phase, frontier = null) {
@@ -93,11 +94,8 @@ function generateBankOffers(seasonLevel) {
 
     // Filter resources by both category and level
     const validResources = masterResources.filter(res => {
-        // Must be a doober and not Money
-        if (res.category !== "doober" || res.type === "Money") return false;
-        
-        // Exclude any doobers where output === 'noBank'
-        if (res.output === "noBank") return false;
+        // The static gates (a good, not Money, not noBank) are the shared rule: utils/offerRules.mjs
+        if (offerEligibility.blocked(res, 'bank')) return false;
         
         // Must be within ±1 of current season level
         const resourceLevel = res.level || 1; // Default to level 1 if not specified
@@ -195,7 +193,7 @@ function generateBankOffers(seasonLevel) {
 
 // Counting Houses in the valleys (owner, 2026-11-02): always the same resources
 // (globalTuning.valleyBankOffers: Wood, Stone, Clay, Silver, Diamond Ring, Gold), ignoring the
-// season level and noBank; only the quantity (qtyMin..qtyMax) and the price vary per round.
+// season level and the noBank flag; only the quantity (qtyMin..qtyMax) and the price vary per round.
 // The price per unit is drawn like the town Bank's (minprice to the min/max midpoint) but not
 // floored per unit, so cheap goods such as Wood still pay something.
 function generateValleyBankOffers() {
