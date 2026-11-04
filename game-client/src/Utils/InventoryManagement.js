@@ -215,12 +215,7 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
   try {
     const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
-    
-    console.log('🚨 [HP DEBUG] refreshPlayerAfterInventoryUpdate - Server player data:');
-    console.log('  updatedPlayerData.hp:', updatedPlayerData.hp);
-    console.log('  updatedPlayerData.maxhp:', updatedPlayerData.maxhp);
-    console.log('  updatedPlayerData.baseHp:', updatedPlayerData.baseHp);
-    console.log('  updatedPlayerData.baseMaxhp:', updatedPlayerData.baseMaxhp);
+
     
     // If preserveInventory is true, keep the current inventory and backpack
     if (preserveInventory) {
@@ -349,7 +344,7 @@ export async function gainIngredients({
       inventory: isCurrencyItem || isHomestead ? target : prev.inventory,
       backpack: !isCurrencyItem && !isHomestead ? target : prev.backpack
     }));
-    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+    // No player refetch: the delta changes nothing but the holdings, which are set above
     return true;
   } catch (err) {
     console.error("❌ Error gaining ingredient:", err);
@@ -476,9 +471,9 @@ export async function spendIngredients({
       inventory: updatedInventory,
       backpack: updatedBackpack
     }));
-    
-    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-    
+
+    // No player refetch: the delta changes nothing but the holdings, which are set above
+
     // Return object that's backward compatible (truthy) but also includes updated arrays
     const result = { success: true, updatedInventory, updatedBackpack };
     // Make the object truthy for backward compatibility

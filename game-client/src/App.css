@@ -1,3 +1,17 @@
+/* App feel, every device (owner 2026-11-04): no text selection, no tap flash, no Copy / Look Up
+   callout on a held button or the board. Inputs and text areas stay selectable. */
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, textarea, [contenteditable="true"] {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 
 :root {
   /* Legacy variables - now referencing theme.css */

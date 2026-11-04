@@ -65,20 +65,6 @@
     -webkit-backdrop-filter: none;
   }
 
-  /* Native-app touch: no grey tap flash, no text selection or callout (Copy / Look Up) on a
-     held button or the board; inputs and text areas stay selectable. */
-  body {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-  input, textarea, [contenteditable="true"] {
-    -webkit-touch-callout: default;
-    -webkit-user-select: text;
-    user-select: text;
-  }
-
   /* Safari collapses its bars when the page scrolls; keep 1 px of document to scroll so a
      board tap (App.js onBoardTap) can nudge them away. Nothing else ever scrolls here. */
   body { min-height: calc(100vh + 1px); min-height: calc(100dvh + 1px); overscroll-behavior-y: none; }

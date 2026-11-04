@@ -12,6 +12,7 @@ import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { updatePlayerSettings } from '../../settings';
+import { loadMasterResources } from '../../Utils/TuningManager';
 
 const BuyDecoPanel = ({
   TILE_SIZE,
@@ -67,10 +68,11 @@ const BuyDecoPanel = ({
     const fetchData = async () => {
 //      setIsContentLoading(true);
       try { 
-        const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        setInventory(inventoryResponse.data.inventory || []);
-        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-        const allResourcesData = resourcesResponse.data;
+        // the inventory refresh runs alongside; the panel never waits on it
+        axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`)
+          .then((r) => setInventory(r.data.inventory || []))
+          .catch((e) => console.error('Error refreshing inventory:', e));
+        const allResourcesData = await loadMasterResources(); // cached at boot: no round trip
         setAllResources(allResourcesData);
         const isHomestead = currentPlayer?.location?.gtype === 'homestead';
         const purchasableItems = allResourcesData.filter(

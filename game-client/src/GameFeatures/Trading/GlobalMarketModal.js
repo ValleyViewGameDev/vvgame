@@ -8,6 +8,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/SharedButtons.css';
 import './GlobalMarketModal.css';
+import { loadMasterResources } from '../../Utils/TuningManager';
 
 /**
  * Global Market Modal - Shows all players in settlement with items for sale
@@ -45,8 +46,8 @@ function GlobalMarketModal({
         setSettlementPlayers(players);
 
         // Fetch resource data for symbols
-        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-        setResourceData(resourcesResponse.data);
+        const resourcesData = await loadMasterResources(); // cached at boot: no round trip
+        setResourceData(resourcesData);
 
         // Fetch trade stalls for all players in parallel
         const tradeStallPromises = players.map(player => 

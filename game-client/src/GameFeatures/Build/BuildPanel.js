@@ -14,6 +14,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { getMayorUsername } from '../Government/GovUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
+import { loadMasterResources } from '../../Utils/TuningManager';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -92,11 +93,12 @@ const BuildPanel = ({
         setIsMayor(isPlayerMayor);
         
         // Fetch inventory
-        const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        setInventory(inventoryResponse.data.inventory || []);
+        // the inventory refresh runs alongside; the panel never waits on it
+        axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`)
+          .then((r) => setInventory(r.data.inventory || []))
+          .catch((e) => console.error('Error refreshing inventory:', e));
         // Fetch all resources and filter for build options
-        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-        const allResourcesData = resourcesResponse.data;
+        const allResourcesData = await loadMasterResources(); // cached at boot: no round trip
         setAllResources(allResourcesData);
         
         // Debug: Show all BuildTown resources

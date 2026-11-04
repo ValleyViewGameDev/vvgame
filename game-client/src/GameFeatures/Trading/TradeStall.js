@@ -20,7 +20,7 @@ import GlobalMarketModal from './GlobalMarketModal';
 import SaleBurst, { runCardReturn, CARD_CYCLE } from '../../UI/SaleBurst';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
-import { loadMasterTraders } from '../../Utils/TuningManager';
+import { loadMasterTraders, loadMasterResources } from '../../Utils/TuningManager';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
@@ -252,8 +252,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         setIsLoadingInitial(true);
       }
       // Fetch resource data (e.g., for prices)
-      const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-      setResourceData(resourcesResponse.data);
+      const resourcesData = await loadMasterResources(); // cached at boot: no round trip
+      setResourceData(resourcesData);
 
       // Only fetch inventory if not skipping (to avoid overwriting during collections)
       if (!skipInventoryFetch) {

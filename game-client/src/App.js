@@ -2086,7 +2086,9 @@ useEffect(() => {
   initializeTimers();
   const interval = setInterval(fetchTimersData, 60 * 1000); // ✅ Refresh every 60s; DO WE NEED THIS??
   return () => clearInterval(interval);
-}, [currentPlayer]); // ✅ Runs when currentPlayer is updated
+// Keyed on what the fetch reads, not the whole player: every harvest, craft, gain or spend
+// replaces currentPlayer, and used to refetch the frontier each time.
+}, [currentPlayer?.settlementId, currentPlayer?.frontierId, currentPlayer?.settings?.seasonOverride]);
 
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {

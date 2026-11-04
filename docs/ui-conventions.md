@@ -310,11 +310,11 @@ value rather than trust this page.
   `-webkit-tap-highlight-color: transparent`: on touch, a tap changes nothing but the press
   (owner 2026-10-09, "let's see how that feels"). A transaction-mode button
   stays locked until its handler returns, so do not await follow-up refreshes inside it.
-- Phones feel like an app, not a page (2026-11-04, `mobile.css` shared block): no grey tap flash,
-  no text selection and no Copy / Look Up callout on a held button or the board (`body`
-  `user-select: none`, `-webkit-touch-callout: none`; inputs and text areas stay selectable), and
-  no `backdrop-filter` glass on the floating pills (it re-blurs the board on every moving frame,
-  iOS Safari's costliest compositor job). Desktop keeps the glass.
+- The game feels like an app, not a page (owner 2026-11-04): no text selection anywhere, no grey
+  tap flash and no Copy / Look Up callout (top of `App.css`; inputs and text areas stay
+  selectable). Phones also get no `backdrop-filter` glass on the floating pills (`mobile.css`
+  shared block): it re-blurs the board on every moving frame, iOS Safari's costliest compositor
+  job. Desktop keeps the glass.
 - The board runs at 60 fps while the player is active and drops to 30 after 8 s with no input
   (`Render/PixiRenderer/frameRate.js`; any touch, pointer, wheel or key wakes it). Something that
   animates without input and must stay smooth calls `wakeFrameRate()`.

@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { loadMasterResources } from '../../Utils/TuningManager';
 import { isTouchPrimary } from '../../Utils/inputMode';
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
@@ -99,11 +100,12 @@ const ToolsPanel = ({
   const fetchData = async () => {
     //setIsContentLoading(true);
     try {
-      const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      setInventory(inventoryResponse.data.inventory || []);
+      // the inventory refresh runs alongside; the panel never waits on it
+      axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`)
+        .then((r) => setInventory(r.data.inventory || []))
+        .catch((e) => console.error('Error refreshing inventory:', e));
 
-      const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-      const allResourcesData = resourcesResponse.data;
+      const allResourcesData = await loadMasterResources(); // cached at boot: no round trip
       setAllResources(allResourcesData);
 
       const farmPlotItems = allResourcesData.filter((resource) => resource.category === 'farmplot');

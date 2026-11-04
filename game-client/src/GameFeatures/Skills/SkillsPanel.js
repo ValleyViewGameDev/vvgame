@@ -21,6 +21,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { loadMasterResources } from '../../Utils/TuningManager';
 
 const SkillsPanel = ({
     onClose,
@@ -70,13 +71,13 @@ const SkillsPanel = ({
         const [inventoryResponse, skillsResponse, resourcesResponse] = await Promise.all([
           axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`),
           axios.get(`${API_BASE}/api/skills/${currentPlayer.playerId}`),
-          axios.get(`${API_BASE}/api/resources`),
+          loadMasterResources(), // cached at boot: no round trip
         ]);
 
         const serverInventory = inventoryResponse.data.inventory || [];
         const serverBackpack = inventoryResponse.data.backpack || [];
         const serverSkills = skillsResponse.data.skills || [];
-        const allResourcesData = resourcesResponse.data;
+        const allResourcesData = resourcesResponse;
 
         setInventory(serverInventory);
         setBackpack(serverBackpack);
