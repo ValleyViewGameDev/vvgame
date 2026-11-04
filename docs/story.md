@@ -164,6 +164,8 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   friend line about Queen's Coffee) is never a promise the panel breaks. A deeper gate is a deeper
   status (love, marriage), not a higher number. Leave `relscore` empty on quests and trades; the
   six Secret / Mirror Key rows that paired a status with 90-95 lost the score the same day.
+  The quest and trade lists themselves open on having met the character (`met`), at any score
+  (rivals included); `interactions.json` Quest / Trade `relscoremin` is -100 and unused.
 - **Secrets travel.** A character's Secret is an item: who it is sold to, and why, is a story
   (Portia's Secret buys the Brass Bell from Iago, whom she despises; Leontes collects six).
 - **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /

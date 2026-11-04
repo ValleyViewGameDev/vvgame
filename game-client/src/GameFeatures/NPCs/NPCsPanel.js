@@ -187,11 +187,10 @@ const NPCPanel = ({
       if (questInteraction) {
         setQuestThreshold(questInteraction.relscoremin || 0);
         
-        // Get current relationship status
+        // The quest list opens once the player has met this NPC, whatever the score since
+        // (relationship unlocks follow status, never a score: docs/story.md)
         const relationship = getRelationshipStatus(currentPlayer, npcData.type);
-        const currentScore = relationship?.relscore || 0;
-        
-        setCanQuest(currentScore >= questInteraction.relscoremin);
+        setCanQuest(relationship?.met === true);
       } else {
         // If no quest threshold defined, allow questing
         setCanQuest(true);
@@ -207,11 +206,9 @@ const NPCPanel = ({
       if (tradeInteraction) {
         setTradeThreshold(tradeInteraction.relscoremin || 0);
         
-        // Get current relationship status
+        // The trade list opens once the player has met this NPC (as the quest list above)
         const relationship = getRelationshipStatus(currentPlayer, npcData.type);
-        const currentScore = relationship?.relscore || 0;
-        
-        setCanTrade(currentScore >= tradeInteraction.relscoremin);
+        setCanTrade(relationship?.met === true);
       } else {
         // If no trade threshold defined, allow trading
         setCanTrade(true);
@@ -1340,7 +1337,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             marginTop: '10px',
             textAlign: 'center'
           }}>
-            {strings[626]}{npcData.type}.
+            {(strings[626] || 'Greet {name} to unlock trades.').replace('{name}', getLocalizedString(npcData.type, strings))}
           </div>
         )}
 
@@ -1658,7 +1655,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               marginTop: '10px',
               textAlign: 'center'
             }}>
-              {strings[625]}{npcData.type}.
+              {(strings[625] || 'Greet {name} to unlock their tasks.').replace('{name}', getLocalizedString(npcData.type, strings))}
             </div>
           )}
 
