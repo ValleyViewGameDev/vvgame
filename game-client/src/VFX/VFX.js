@@ -172,6 +172,73 @@ const spawnCollectBurst = (container, centerX, centerY, size, position = 'absolu
     }, duration * 0.6 + 50);
 };
 
+/**
+ * A magical aura on a board object for `durationMs`: a pulsing golden glow, slowly turning light
+ * rays and sparkles twinkling up around it, ending in a bright burst. For story moments (the
+ * Queen's statue while Feste sings, GameFeatures/Story/gertrudeWaking.js). (x, y) is the object's
+ * anchor tile; `span` is its art height in tiles (resources.json artSpan), so the aura centres on
+ * the art, not the footprint. Returns a stop() that ends it early (with the burst).
+ */
+export const createMagicAuraEffect = (x, y, durationMs = 4000, { span = 1 } = {}) => {
+    const container = document.querySelector('.pixi-world-container');
+    if (!container) return () => {};
+    const tile = PixiCamera.getTileSize();
+    const height = Math.max(1, span) * tile;
+    const cx = (x + 0.5) * tile;
+    const cy = (y + 1) * tile - height / 2;
+    const glowSize = height * 1.7;
+
+    const layer = (cls, size) => {
+        const el = document.createElement('div');
+        el.className = cls;
+        el.style.left = `${cx}px`;
+        el.style.top = `${cy}px`;
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+        container.appendChild(el);
+        return el;
+    };
+    const rays = layer('vfx-magic-rays', glowSize * 1.15);
+    const glow = layer('vfx-magic-aura', glowSize);
+
+    const chars = ['✨', '✨', '⭐', '🌟', '💫'];
+    const sparkle = () => {
+        const p = document.createElement('div');
+        p.className = 'vfx-magic-sparkle';
+        p.innerText = chars[Math.floor(Math.random() * chars.length)];
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.sqrt(Math.random());
+        const sx = cx + Math.cos(angle) * r * glowSize * 0.32;
+        const sy = cy + Math.sin(angle) * r * height * 0.55;
+        const rise = tile * (0.5 + Math.random() * 0.7);
+        const drift = (Math.random() - 0.5) * tile * 0.5;
+        const life = 800 + Math.random() * 500;
+        p.style.left = `${sx}px`;
+        p.style.top = `${sy}px`;
+        p.style.fontSize = `${tile * (0.3 + Math.random() * 0.3)}px`;
+        p.style.transition = `transform ${life}ms ease-out, opacity ${life}ms ease-in`;
+        container.appendChild(p);
+        requestAnimationFrame(() => {
+            p.style.transform = `translate(calc(-50% + ${drift}px), calc(-50% - ${rise}px)) scale(1.2) rotate(${Math.random() * 90 - 45}deg)`;
+            p.style.opacity = '0';
+        });
+        setTimeout(() => p.remove(), life + 50);
+    };
+    const timer = setInterval(() => { sparkle(); if (Math.random() < 0.6) sparkle(); }, 60);
+
+    let done = false;
+    const stop = () => {
+        if (done) return;
+        done = true;
+        clearInterval(timer);
+        clearTimeout(end);
+        spawnCollectBurst(container, cx, cy, tile * 1.6);
+        [glow, rays].forEach((el) => { el.classList.add('vfx-magic-out'); setTimeout(() => el.remove(), 600); });
+    };
+    const end = setTimeout(stop, durationMs);
+    return stop;
+};
+
 /** The collection poof at a point on screen (client px), over the panels; `size` plays the tile size. */
 export const createCollectEffectAt = (clientX, clientY, size = 48) => {
     spawnCollectBurst(document.body, clientX, clientY, size, 'fixed', 100002);

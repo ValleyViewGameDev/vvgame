@@ -11,7 +11,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import ConversationManager from '../Relationships/ConversationManager';
 import { startHeadlineEffect, stopHeadlineEffect } from '../../VFX/NPCVFX';
-import { createCollectEffect } from '../../VFX/VFX';
+import { createCollectEffect, createMagicAuraEffect } from '../../VFX/VFX';
 import soundManager from '../../Sound/SoundManager';
 
 /**
@@ -28,7 +28,8 @@ import soundManager from '../../Sound/SoundManager';
  *      A* route to a tile beside her, at the player's walking pace, through the Town's doors
  *      (`passDoors`), then waits with a 🎶. No teleport: if he cannot get there he simply stays put.
  *   3. Tapping the ready statue opens the riddle modal; "Music, awake her!" always works. Feste sings
- *      if he is in the Town; then the statue becomes Gertrude and her waking speech opens.
+ *      if he is in the Town while the statue glows and sparkles (VFX createMagicAuraEffect); then her
+ *      waking speech opens over the statue, and closing it turns the statue into Gertrude.
  *      Optimistic: the server call runs alongside, and only a refusal puts the statue back.
  *   4. Once she is awake, a Feste still standing by her walks home (homeX/homeY, by the Academy) the
  *      same way, then returns to his own loop.
@@ -129,52 +130,48 @@ export function openStatue(opts) {
 
 function wake(req, strings, setStory) {
   const { resource, currentPlayer, setCurrentPlayer, gridId, setResources, updateStatus, TILE_SIZE, masterResources } = req;
+  const { x, y } = resource;
   const feste = findFeste(gridId);
   if (feste) {
     ConversationManager.addSpeech(feste.id, '🎶', 'song');
     startHeadlineEffect(feste.id, 'emoji', feste.position, { emoji: '🎵' });
   }
+  // the statue glows and sparkles for the whole song
+  const statueDef = (masterResources || []).find((r) => r.type === STATUE) || {};
+  createMagicAuraEffect(x, y, SONG_MS, { span: Number(statueDef.artSpan) || 1 });
   soundManager.playSFX('heal');
   updateStatus?.(strings[2157] || '🎶 O mistress mine, where are you roaming?');
   setTimeout(() => updateStatus?.(strings[2158] || '🎶 Journeys end in lovers meeting.'), SONG_MS / 2);
 
-  setTimeout(async () => {
+  setTimeout(() => {
     if (feste) { ConversationManager.removeSpeech(feste.id); stopHeadlineEffect(feste.id); }
-    const { x, y } = resource;
-    const npcId = hex24();
-    const before = GlobalGridStateTilesAndResources.getResources() || [];
-    const after = before.filter((r) => !(r.x === x && r.y === y && r.type === STATUE));
-    GlobalGridStateTilesAndResources.setResources(after);
-    setResources?.(after);
-    createCollectEffect(x, y, TILE_SIZE || 45);
     const def = (masterResources || []).find((r) => r.type === QUEEN && r.category === 'npc') || {};
-    await NPCsInGridManager.addLocalNPC(gridId, {
-      id: npcId, type: QUEEN, position: { x, y }, state: 'idle', hp: def.maxhp || 10, maxhp: def.maxhp || 10, homeX: x, homeY: y,
-    });
     soundManager.playSFX('levelup');
-    const awakeAt = new Date().toISOString();
-    // her waking is meeting her (Elbow's "Be Stone No More" is a Meet goal); the server does the same
-    setCurrentPlayer?.((prev) => {
-      const rels = [...(prev?.relationships || [])];
-      const i = rels.findIndex((r) => r?.name === QUEEN);
-      if (i < 0) rels.push({ name: QUEEN, relscore: 10, met: true, clues: ['met'] });
-      else if (!rels[i].met) rels[i] = { ...rels[i], met: true, relscore: Math.max(rels[i].relscore || 0, 10), clues: [...new Set([...(rels[i].clues || []), 'met'])] };
-      return { ...prev, relationships: rels, storyFlags: { ...(prev?.storyFlags || {}), gertrudeAwake: awakeAt } };
-    });
-    setStory({ username: currentPlayer?.username, filename: def.filename });
 
-    try {
-      const { data } = await axios.post(`${API_BASE}/api/story/wake-gertrude`, { playerId: currentPlayer.playerId, gridId, npcId });
-      if (data?.npc && data.npc.id !== npcId) { // she was already awake there under another id
+    // Her speech opens over the still statue; the statue becomes the Queen when it is closed.
+    // The server call runs alongside (optimistic): its answer only matters if it refuses.
+    let npcId = hex24();
+    let refused = false;
+    let swapped = false;
+    const before = GlobalGridStateTilesAndResources.getResources() || [];
+    const swap = async () => {
+      if (refused || swapped) return;
+      swapped = true;
+      const current = GlobalGridStateTilesAndResources.getResources() || [];
+      const after = current.filter((r) => !(r.x === x && r.y === y && r.type === STATUE));
+      GlobalGridStateTilesAndResources.setResources(after);
+      setResources?.(after);
+      createCollectEffect(x, y, TILE_SIZE || 45);
+      await NPCsInGridManager.addLocalNPC(gridId, {
+        id: npcId, type: QUEEN, position: { x, y }, state: 'idle', hp: def.maxhp || 10, maxhp: def.maxhp || 10, homeX: x, homeY: y,
+      });
+    };
+    const undo = () => {
+      if (swapped) {
         NPCsInGridManager.forgetNPC(gridId, npcId);
-        await NPCsInGridManager.addLocalNPC(gridId, data.npc);
+        GlobalGridStateTilesAndResources.setResources(before);
+        setResources?.(before);
       }
-      if (data?.storyFlags) setCurrentPlayer?.((prev) => ({ ...prev, storyFlags: data.storyFlags, ...(data.relationships ? { relationships: data.relationships } : {}) }));
-    } catch (err) {
-      if (!err.response) return; // the network: keep the waking; the next enter-grid agrees with the server
-      NPCsInGridManager.forgetNPC(gridId, npcId);
-      GlobalGridStateTilesAndResources.setResources(before);
-      setResources?.(before);
       setCurrentPlayer?.((prev) => {
         const flags = { ...(prev?.storyFlags || {}) };
         delete flags.gertrudeAwake;
@@ -182,7 +179,32 @@ function wake(req, strings, setStory) {
       });
       setStory(null);
       updateStatus?.(strings[2160] || 'The Queen did not wake. Try again.');
-    }
+    };
+
+    // her waking is meeting her (Elbow's "Be Stone No More" is a Meet goal); the server does the same
+    const awakeAt = new Date().toISOString();
+    setCurrentPlayer?.((prev) => {
+      const rels = [...(prev?.relationships || [])];
+      const k = rels.findIndex((r) => r?.name === QUEEN);
+      if (k < 0) rels.push({ name: QUEEN, relscore: 10, met: true, clues: ['met'] });
+      else if (!rels[k].met) rels[k] = { ...rels[k], met: true, relscore: Math.max(rels[k].relscore || 0, 10), clues: [...new Set([...(rels[k].clues || []), 'met'])] };
+      return { ...prev, relationships: rels, storyFlags: { ...(prev?.storyFlags || {}), gertrudeAwake: awakeAt } };
+    });
+    setStory({ username: currentPlayer?.username, filename: def.filename, onClosed: swap });
+
+    axios.post(`${API_BASE}/api/story/wake-gertrude`, { playerId: currentPlayer.playerId, gridId, npcId })
+      .then(async ({ data }) => {
+        if (data?.npc && data.npc.id !== npcId) { // she was already awake there under another id
+          if (swapped) { NPCsInGridManager.forgetNPC(gridId, npcId); await NPCsInGridManager.addLocalNPC(gridId, data.npc); }
+          npcId = data.npc.id;
+        }
+        if (data?.storyFlags) setCurrentPlayer?.((prev) => ({ ...prev, storyFlags: data.storyFlags, ...(data.relationships ? { relationships: data.relationships } : {}) }));
+      })
+      .catch((err) => {
+        if (!err.response) return; // the network: keep the waking; the next enter-grid agrees with the server
+        refused = true;
+        undo();
+      });
   }, SONG_MS);
 }
 
@@ -207,7 +229,7 @@ export const StatueHost = () => {
   const storyModal = story && (
     <StoryModal
       isOpen
-      onClose={() => setStory(null)}
+      onClose={() => { const done = story.onClosed; setStory(null); done?.(); }}
       npcName={QUEEN}
       dialogKey={2159}
       username={story.username}
