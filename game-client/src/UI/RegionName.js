@@ -9,6 +9,9 @@ import { whenToastClears } from './Notifications/Notifications';
 // track of the Region, so changing zoom never replays the burst: only a new Region does.
 // Entering a Region also drops a "You are entering ..." toast (GridManagement.js); the burst waits
 // until that toast has gone, so the two never compete for the top of the screen.
+// Only ENTERING bursts: the Region the page starts in (a reload, a sign-in) is where the player
+// already was, so it shows plainly. `ready` says the player's location is known; the Region at
+// that moment is the starting one (owner 2026-11-04: the burst played behind the loading screen).
 const SPARK_GLYPHS = ['✦', '✧', '✨', '•', '✦', '⭐'];
 const SETTLE_MS = 2200;  // the burst and the word's gather are over (.region-name-in); plain from here on
 const LEAVE_MS = 600;    // the old name's fade (.region-name-leaving)
@@ -38,15 +41,24 @@ function RegionBurst() {
   );
 }
 
-export default function RegionName({ region, visible }) {
-  const [current, setCurrent] = useState(region ? { name: region, id: 1, phase: 'in' } : null);
+export default function RegionName({ region, visible, ready = true }) {
+  const [current, setCurrent] = useState(ready && region ? { name: region, id: 1, phase: 'settled' } : null);
   const [leaving, setLeaving] = useState([]);
-  const lastRegion = useRef(region);
+  const lastRegion = useRef(ready ? region : undefined);
+  const started = useRef(ready); // has the starting Region been taken (shown plainly) yet?
 
   const currentRef = useRef(current);
   currentRef.current = current;
 
   useEffect(() => {
+    if (!ready) return undefined;
+    if (!started.current) {
+      // the starting Region: no burst, no wait for a toast
+      started.current = true;
+      lastRegion.current = region;
+      setCurrent(region ? { name: region, id: Date.now(), phase: 'settled' } : null);
+      return undefined;
+    }
     if (region === lastRegion.current) return undefined;
     lastRegion.current = region;
     const prev = currentRef.current;
@@ -71,7 +83,7 @@ export default function RegionName({ region, visible }) {
     const lag = setTimeout(() => { cancelWait = whenToastClears(release); }, TOAST_LAG_MS);
     const cap = setTimeout(release, MAX_TOAST_WAIT_MS);
     return () => { clearTimeout(lag); clearTimeout(cap); cancelWait(); };
-  }, [region]);
+  }, [region, ready]);
 
   useEffect(() => {
     if (current?.phase !== 'in') return undefined;

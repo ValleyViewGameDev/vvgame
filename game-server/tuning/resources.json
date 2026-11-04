@@ -15463,5 +15463,33 @@
   {
     "type": "Sycorax Fen",
     "category": "region"
+  },
+  {
+    "type": "Verona",
+    "category": "region"
+  },
+  {
+    "type": "Padua",
+    "category": "region"
+  },
+  {
+    "type": "Ephesus",
+    "category": "region"
+  },
+  {
+    "type": "Agincourt",
+    "category": "region"
+  },
+  {
+    "type": "Milford Haven",
+    "category": "region"
+  },
+  {
+    "type": "Gaultree Forest",
+    "category": "region"
+  },
+  {
+    "type": "Gadshill Bridge",
+    "category": "region"
   }
 ]

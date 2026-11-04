@@ -3397,6 +3397,7 @@ return (
     <RegionName
       region={currentPlayer?.location?.gtype !== 'dungeon' ? currentPlayer?.location?.region || null : null}
       visible={zoomLevel !== 'settlement' && zoomLevel !== 'frontier'}
+      ready={isAppInitialized && !!currentPlayer?.location}
     />
 
     <MoveBanner cursorMode={cursorMode} setCursorMode={setCursorMode} setResources={setResources} />
