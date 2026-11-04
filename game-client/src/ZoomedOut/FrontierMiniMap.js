@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { formatCountdown } from '../UI/Timers';
 import './FrontierMiniMap.css';
 import { handleTransitSignpost } from '../GameFeatures/Transit/Transit';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
@@ -24,8 +25,7 @@ const FrontierMiniMap = ({
   masterResources, 
   masterTrophies, 
   transitionFadeControl,
-  timers,
-  countdowns
+  timers
 }) => {
   // Player's position in the 64x64 frontier grid, from location.gridCoord
   const playerGridPosition = useMemo(() => {
@@ -41,6 +41,14 @@ const FrontierMiniMap = ({
 
   // Check if player is in a dungeon; the FTUE cave is a dungeon without a timer
   const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
+  // The dungeon countdown ticks here, only while it is shown, so App does not re-render each second
+  const dungeonEnd = timers?.dungeon?.endTime;
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (!isInDungeon || !dungeonEnd) return undefined;
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [isInDungeon, dungeonEnd]);
   const isInFTUECave = !!GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave;
 
   // Check if player is already in their home town (town grid in their home settlement)
@@ -232,7 +240,7 @@ const FrontierMiniMap = ({
       {isInDungeon && !isInFTUECave && (
         <div className="mini-map-dungeon-info">
           {(() => {
-            const countdown = countdowns?.dungeon || '--:--:--';
+            const countdown = dungeonEnd ? formatCountdown(dungeonEnd, now) : '--:--:--';
             const days = countdown.match(/(\d+)d/)?.[1] || '0';
             const hours = countdown.match(/(\d+)h/)?.[1] || '0';
             const minutes = countdown.match(/(\d+)m/)?.[1] || '0';

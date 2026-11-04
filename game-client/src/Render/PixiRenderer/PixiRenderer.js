@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { attachFrameRate, detachFrameRate } from './frameRate';
 import { Application, Container, Graphics, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
 import { handleNPCClickShared } from '../../GameFeatures/NPCs/NPCInteractionUtils';
@@ -51,26 +52,9 @@ const svgLoadingPromises = new Map();
 // This ensures textures are only created when a valid WebGL context exists
 let activePixiRenderer = null;
 
-// Global FPS cap state and toggle function for debug panel
-// Note: PixiJS has a bug where exact values like 30 or 60 don't work reliably
-// on high refresh rate displays. Using slightly lower values (29.97, 59.97) works around this.
-// See: https://github.com/pixijs/pixijs/issues/5741
-let currentMaxFPS = 30;
-
-const getActualMaxFPS = (targetFPS) => {
-  // Use slightly lower value to work around PixiJS maxFPS bug
-  return targetFPS - 0.03;
-};
-
-export const toggleFPSCap = () => {
-  currentMaxFPS = currentMaxFPS === 30 ? 60 : 30;
-  if (activePixiRenderer?.ticker) {
-    activePixiRenderer.ticker.maxFPS = getActualMaxFPS(currentMaxFPS);
-  }
-  return currentMaxFPS;
-};
-
-export const getCurrentFPSCap = () => currentMaxFPS;
+// Frame rate: 60 fps while the player is active, 30 when idle (frameRate.js). The debug panel
+// cycles auto / 60 / 30 through these two re-exports.
+export { cycleFrameRateMode as toggleFPSCap, getFrameRateMode as getCurrentFPSCap } from './frameRate';
 
 // FPS sampling for smooth average (ticker.FPS is instantaneous and fluctuates)
 const fpsSamples = [];
@@ -616,9 +600,8 @@ const PixiRenderer = ({
       // This ensures loadSVGTexture can check if the renderer is still valid
       activePixiRenderer = app;
 
-      // Set default FPS cap to 30 for power efficiency
-      // This reduces GPU/CPU usage significantly without noticeable impact for casual games
-      app.ticker.maxFPS = getActualMaxFPS(currentMaxFPS);
+      // 60 fps while the player is active, 30 once the board sits idle (frameRate.js)
+      attachFrameRate(app.ticker);
 
       // Add canvas to DOM (v7 uses app.view, not app.canvas)
       containerRef.current.appendChild(app.view);
@@ -735,6 +718,7 @@ const PixiRenderer = ({
     // Cleanup on unmount
     return () => {
       // Clear global renderer reference FIRST to prevent texture creation during cleanup
+      if (appRef.current) detachFrameRate(appRef.current.ticker);
       activePixiRenderer = null;
       PixiCamera.detach();
 

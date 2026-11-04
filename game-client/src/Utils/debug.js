@@ -1130,7 +1130,7 @@ const handleGetRich = async () => {
             }}
             style={{ width: '100%', fontSize: 'var(--text-xs)' }}
           >
-            FPS Cap: {fpsCap} → Toggle to {fpsCap === 30 ? 60 : 30}
+            FPS: {fpsCap === 'auto' ? 'auto (60 active, 30 idle)' : fpsCap} → {fpsCap === 'auto' ? 60 : fpsCap === 60 ? 30 : 'auto'}
           </button>
         </div>
         {/* Ambient Systems Debug */}

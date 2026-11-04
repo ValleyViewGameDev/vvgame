@@ -138,7 +138,6 @@ import { useBulkOperation } from './UI/BulkOperationContext';
 import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
-import { formatCountdown } from './UI/Timers';
 // The characters walking random paths over the key art: off for now (they don't read as the game
 // yet); kept for a load screen that shows more of the game one day.
 // import StartScreenAnimation from './UI/StartScreenAnimation';
@@ -2074,7 +2073,6 @@ const [timers, setTimers] = useState(() => {
     dungeon: { phase: "", endTime: null },  
   }; 
 });
-const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", carnival: "", taxes: "", bank: "", dungeon: "" });
 
 // TIMERS Step 2: Initialize Timers on app start/refresh; run once
 useEffect(() => {
@@ -2149,33 +2147,8 @@ const fetchTimersData = async () => {
   }
 };
 
-// TIMERS Step 4: Update countdown timers
-useEffect(() => {
-  const updateCountdowns = () => {
-    // Guard against uninitialized timers
-    if (!timers || !timers.carnival) {
-      console.log("Timers not yet initialized, skipping countdown update");
-      return;
-    }
-    
-    const now = Date.now(); // Get current timestamp
-
-    setCountdowns({
-      seasons: timers.seasons?.endTime ? formatCountdown(timers.seasons.endTime, now) : "--:--:--",
-      elections: timers.elections?.endTime ? formatCountdown(timers.elections.endTime, now) : "--:--:--",
-      train: timers.train?.endTime ? formatCountdown(timers.train.endTime, now) : "--:--:--",
-      carnival: timers.carnival?.endTime ? formatCountdown(timers.carnival.endTime, now) : "--:--:--",
-      taxes: timers.taxes?.endTime ? formatCountdown(timers.taxes.endTime, now) : "--:--:--",
-      bank: timers.bank?.endTime ? formatCountdown(timers.bank.endTime, now) : "--:--:--",
-      dungeon: timers.dungeon?.endTime ? formatCountdown(timers.dungeon.endTime, now) : "--:--:--",
-    });
-  };
-
-  updateCountdowns(); // Run immediately
-  const interval = setInterval(updateCountdowns, 1000); // Update UI every second
-
-  return () => clearInterval(interval); // Cleanup on unmount
-}, [timers]); // Runs when timers update
+// TIMERS Step 4: the countdowns tick inside the components that show them (HudCountdown,
+// FrontierMiniMap, TownNewsPanel), never as App state: a per-second App commit hitched the board.
 
 
 // TIMERS Step 5: Check Phase Transitions (LOCAL)
@@ -4716,7 +4689,6 @@ return (
           masterTrophies={masterTrophies}
           transitionFadeControl={transitionFadeControl}
           timers={timers}
-          countdowns={countdowns}
         />
       )}
       {activePanel === 'SeasonPanel' && (
