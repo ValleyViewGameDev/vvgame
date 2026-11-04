@@ -59,6 +59,11 @@ here; detail lives in the linked docs and backlog items.
 
 ## Should do
 
+  **Built (owner, 2026-11-03):** the FTUE retention survey is the Feedback Modal (responses in the
+  editor); the always-on survey is linked from the Mailbox and Settings (`UI/Panels/FeedbackLinks.js`)
+  and nudged once per profile when the first level-up modal at L5 or above is closed
+  (`UI/Modals/SurveyPromptModal.js`, App.js `SURVEY_PROMPT_LEVEL`, `survey_prompt_seen_at`; its copy
+  says the link is in the Mailbox). Live since 43641239. **Open:** test the nudge.
 - [ ] Phone feel pass: the remaining server-gated actions in OB-2 (craft start, gem purchases,
   Trading Post, shops, pets, scrolls, Farm House) react instantly.
 - [ ] Re-voice the FTUE toasts and approve the P3 quest asks (narrative pass).
