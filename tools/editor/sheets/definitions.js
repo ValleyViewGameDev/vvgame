@@ -63,7 +63,7 @@ export const DEFINITIONS = [
       { ...num('parallel'), label: 'parallel (producers run at once)' },
       { ...num('maxpergrid'), label: 'maxpergrid (most per grid; the Inn: 1)' },
       { ...num('effort'), label: 'effort (min/unit, derived)', derived: true },
-      { ...ref('output', 'resource'), refAllow: ['noBank', 'hp', 'noRel', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), bool('repeatable'),
+      { ...ref('output', 'resource'), refAllow: ['noBank', 'hp', 'noRel', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), bool('repeatable'), { ...bool('noTradeStall'), label: 'noTradeStall (never listed or requested at a Trade Stall)' },
       ref('ingredient1', 'resource'), num('ingredient1qty'), ref('ingredient2', 'resource'), num('ingredient2qty'),
       ref('ingredient3', 'resource'), num('ingredient3qty'), ref('ingredient4', 'resource'), num('ingredient4qty'),
       num('pricemod'), num('minprice'), num('maxprice'),

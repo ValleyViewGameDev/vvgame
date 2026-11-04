@@ -1970,6 +1970,7 @@
   {
     "index": 148,
     "title": "A Dish Fit for the Gods",
+    "retired": true,
     "symbol": "🧑🏻‍🍳",
     "level": 24,
     "repeatable": false,

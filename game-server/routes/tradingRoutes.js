@@ -6,6 +6,10 @@ const fs = require('fs');
 const path = require('path');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { isHopeArtifact } = require('../utils/hopeArtifacts');
+const masterResources = require('../tuning/resources.json');
+// Never on a Trade Stall, for sale or on request: the Quest for Hope artifacts, and any resource
+// whose row says noTradeStall (the Diamond Ring: its worth goes through Iago, not the market)
+const stallBlocked = (type) => !!type && (isHopeArtifact(type) || masterResources.some((r) => r.type === type && r.noTradeStall === true));
 
 /**
  * Transaction management helper functions
@@ -236,9 +240,9 @@ router.post('/trade-stall/sell-to-game', async (req, res) => {
     }
 
     const slot = player.tradeStall[slotIndex];
-    if (isHopeArtifact(slot.resource)) {
+    if (stallBlocked(slot.resource)) {
       await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
-      return res.status(400).json({ error: 'Quest for Hope artifacts cannot be sold', code: 'hope-artifact' });
+      return res.status(400).json({ error: 'This item cannot be sold at the Trade Stall', code: 'not-for-trade-stall' });
     }
     if (!slot.resource || slot.boughtBy || !slot.sellTime || slot.sellTime > Date.now()) {
       await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
@@ -308,9 +312,9 @@ router.post('/update-player-trade-stall', async (req, res) => {
   if (!playerId || !tradeStall) {
     return res.status(400).send('Missing required fields: playerId or tradeStall');
   }
-  // Quest for Hope artifacts never go on sale (utils/hopeArtifacts.js)
-  if (Array.isArray(tradeStall) && tradeStall.some((slot) => slot && isHopeArtifact(slot.resource))) {
-    return res.status(400).json({ error: 'Quest for Hope artifacts cannot be sold', code: 'hope-artifact' });
+  // Quest for Hope artifacts and noTradeStall items never go on sale (stallBlocked above)
+  if (Array.isArray(tradeStall) && tradeStall.some((slot) => slot && stallBlocked(slot.resource))) {
+    return res.status(400).json({ error: 'This item cannot be sold at the Trade Stall', code: 'not-for-trade-stall' });
   }
 
   try {
@@ -481,8 +485,8 @@ router.post('/update-player-trade-stall-requests', async (req, res) => {
     return res.status(400).send('Missing required fields: playerId or tradeStallRequests');
   }
   // nor can anyone ask to buy one
-  if (Array.isArray(tradeStallRequests) && tradeStallRequests.some((slot) => slot && isHopeArtifact(slot.resource))) {
-    return res.status(400).json({ error: 'Quest for Hope artifacts cannot be requested', code: 'hope-artifact' });
+  if (Array.isArray(tradeStallRequests) && tradeStallRequests.some((slot) => slot && stallBlocked(slot.resource))) {
+    return res.status(400).json({ error: 'This item cannot be requested at the Trade Stall', code: 'not-for-trade-stall' });
   }
 
   try {

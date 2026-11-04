@@ -56,9 +56,15 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   const [requestAmounts, setRequestAmounts] = useState({}); // Store amounts for request modal
   const [totalSellValue, setTotalSellValue] = useState(0);
   const [resourceData, setResourceData] = useState([]); // Store resource data
-  // Quest for Hope artifacts never go on sale or on request here (Utils/hopeArtifacts.js)
+  // Quest for Hope artifacts (Utils/hopeArtifacts.js) and resources marked noTradeStall (the
+  // Diamond Ring) never go on sale or on request here; the server refuses them too
   const [hopeItems, setHopeItems] = useState(() => new Set());
-  useEffect(() => { loadMasterTraders().then((t) => setHopeItems(hopeArtifacts(t))); }, []);
+  useEffect(() => {
+    loadMasterTraders().then((t) => setHopeItems(new Set([
+      ...hopeArtifacts(t),
+      ...(masterResources || []).filter((r) => r.noTradeStall === true).map((r) => r.type),
+    ])));
+  }, [masterResources]);
   const { updateStatus } = useContext(StatusBarContext);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true); // Loading state for initial data fetch
   const [isGlobalMarketOpen, setIsGlobalMarketOpen] = useState(false); // Global Market modal state

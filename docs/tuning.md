@@ -379,7 +379,14 @@ Measured 2026-10-16, average laid out per valley grid per season (share of templ
 | Feverfew | 0.1 (2%) | 2.9 (33%) | 40.5 (99%) | rare near, common far |
 | Garlic | ~0 | 0.6 (11%) | 1.5 (9%) | rare |
 | Sunflower | ~0 | 1.2 (1%) | ~0 | very rare (a handful of templates) |
-| Blueberry | none | none | none | scroll / plot only |
+| Blueberry | 12 plots, Belmont only (1011154) | none | none | rarest wild crop: 12 a day per player |
+
+**Blueberries (2026-11-04).** The only steady source is the owner's farm of 12 Blueberry Plots on
+Belmont's grid 1011154 (the plot is developer-only at home). Blueberry is `repeatable`, so a picked
+berry replants and is back in 24 h: 12 a day per player, one short Snug trip. They exist for the
+Queen's Cake (4 each), which only Gertrude buys: 5 cakes for a Diamond Ring (Mistress Quickly's
+10-cake quest was retired to keep the cake hers). The Diamond Ring is priced 60,000-90,000 so it
+reads as valuable everywhere; Iago pays 90,000 for one (friend); it is `noTradeStall`.
 
 **How to use it.** An ask of N of a wild crop is fair at the level when the player can reach the
 valleys that hold enough of it. Near-valley crops (Rosemary, Daisy) suit early asks; Tulip and
