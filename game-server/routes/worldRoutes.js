@@ -166,7 +166,22 @@ router.post('/reset-grid-all-copies', requireDeveloper, async (req, res) => {
       }));
     }
     console.log(`🔄 reset-grid-all-copies ${gridCoord}: template + ${copies.length - failed.length}/${copies.length} copies`);
-    res.status(200).json({ success: true, copies: copies.length, copiesReset: copies.length - failed.length, failed });
+
+    // Anyone standing on a copy right now has a page holding the OLD NPCs (the reset gave them new
+    // ids): reload it, so it neither shows them nor keeps saving them (two Snugs for ftuetester
+    // and Fiona, 2026-11-04; save-single-npc also refuses ids the grid no longer holds).
+    let reloaded = 0;
+    const io = req.app.get('socketio');
+    if (io && copies.length) {
+      const ids = copies.map((c) => c._id);
+      const standing = await Player.find({ 'location.g': { $in: [...ids, ...ids.map(String)] } }, { playerId: 1 }).lean();
+      for (const p of standing) {
+        if (!p.playerId) continue;
+        io.to(String(p.playerId)).emit('force-refresh', { reason: 'grid-reset' });
+        reloaded += 1;
+      }
+    }
+    res.status(200).json({ success: true, copies: copies.length, copiesReset: copies.length - failed.length, failed, reloaded });
   } catch (error) {
     console.error('Error in reset-grid-all-copies:', error);
     res.status(500).json({ error: 'Failed to reset grid.' });

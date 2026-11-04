@@ -428,6 +428,7 @@ class GridStateManager {
         npcId: npc.id,
         npc,
         lastUpdated: now,
+        create: true, // a new NPC: the one save-single-npc that may add an id the grid lacks
       });
       console.log(`✅ Saved single NPC ${npc.id} to server.`);
     } catch (error) {

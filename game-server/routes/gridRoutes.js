@@ -158,8 +158,13 @@ router.get('/load-grid-state/:gridId', async (req, res) => {
   }
 });
 
+// Updates touch only an NPC the grid still holds; only `create: true` (GridStateNPCs.addNPC: a
+// spawn, a bought animal) may add a new id. A grid reset rebuilds the NPCs with NEW ids, and a page
+// that loaded the grid before the reset (another tab, another player's open page, the editor's
+// reset-for-all) kept saving its old NPCs back beside the new ones: two Snugs (2026-11-04). The
+// same rule batch-update-npc-positions already follows.
 router.post('/save-single-npc', async (req, res) => {
-  const { gridId, npcId, npc, lastUpdated } = req.body;
+  const { gridId, npcId, npc, lastUpdated, create } = req.body;
 
   try {
     if (!gridId || !npcId || !npc || !lastUpdated) {
@@ -170,8 +175,9 @@ router.post('/save-single-npc', async (req, res) => {
     // This reduces memory usage by ~100x for grids with many NPCs
     npc.lastUpdated = new Date(lastUpdated);
 
+    const filter = create === true ? { _id: gridId } : { _id: gridId, [`NPCsInGrid.${npcId}`]: { $exists: true } };
     const result = await Grid.updateOne(
-      { _id: gridId },
+      filter,
       {
         $set: {
           [`NPCsInGrid.${npcId}`]: npc,
@@ -181,6 +187,9 @@ router.post('/save-single-npc', async (req, res) => {
     );
 
     if (result.matchedCount === 0) {
+      if (create !== true && await Grid.exists({ _id: gridId })) {
+        return res.status(409).json({ error: 'NPC not in grid (stale page?)', code: 'NPC_NOT_IN_GRID' });
+      }
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
