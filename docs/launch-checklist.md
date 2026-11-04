@@ -62,8 +62,9 @@ here; detail lives in the linked docs and backlog items.
 - [ ] Phone feel pass: the remaining server-gated actions in OB-2 (craft start, gem purchases,
   Trading Post, shops, pets, scrolls, Farm House) react instantly.
 - [ ] Re-voice the FTUE toasts and approve the P3 quest asks (narrative pass).
-- [ ] Wake-Gertrude migration (`node scripts/wake-gertrude-for-friends.js --apply --except Oberon`,
-  backup first, good connection).
+- [x] Wake-Gertrude migration (`node scripts/wake-gertrude-for-friends.js --apply --except Oberon`).
+  Done 2026-11-04 after a backup: PotatoShell, Sheyona, moehong, jgamblin and Entropoly keep her
+  awake (they meet her on their next grid entry); Oberon left asleep on purpose.
 - [x] `social-share.png` shows the game as it looks now (owner, 2026-11-02).
 - [ ] OS version in the pageview beacon (diagnose in-app browser problems).
 - [ ] Ad creative: static images first, 4:5 (1080x1350) and 9:16 (1080x1920), from the parts of
