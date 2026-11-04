@@ -281,21 +281,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
   `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
   session, only if the measured view leaves questions; a dashboard tab, if wanted.
-- **OB-8. The Queen's waking as the early game's finale** (added 2026-10-24). Gertrude wakes at
-  L14-15 (Helena's "Rosemary, for Remembrance", Feste's "If Music Be the Food of Love", Elbow's
-  "Be Stone No More"; `story.md` §0): Act II's end and the exit from the early game. Check it
-  lands as a finale: reachable about day 10, rewarded like a milestone, and followed by the mid
-  game opening up (Elbow's later steps open as a set). Also the live migration for players who
-  already passed it (`scripts/wake-gertrude-for-friends.js`, `narrative-pass.md` §6). Start at
-  `GameFeatures/Story/gertrudeWaking.js` and `utils/storyState.js`.
-  **Partly built 2026-10-24.** Checked: reachable at L15, not earlier (Feste's quest is L15;
-  Helena's L14 step is 12 Rosemary, Feste's is 5 Thread from the L7 Loom, both easy), and Elbow's
-  later steps open on "Be Stone No More" (L15, which also needs the Crown, so the Crown and the
-  Queen together unlock the mid game). Built: the Queen's gift, mailed once on the first waking
-  (messages.json 7 "A Gift from the Queen", Money 10000 + Gem 25, neverPurge;
-  `routes/storyRoutes.js`); its note says the rest of the story opens and Elbow has more to ask.
-  The migration (`wake-gertrude-for-friends.js`) sets the flag directly, so players it wakes get
-  no gift. Open: "about day 10" needs OB-7's level timestamps (L15 is 2,960 xp).
 - **OB-10. One new concept per level to L7; combat from L10** (added 2026-10-25, owner: the
   tuning pass had crowded L3 and L4). **Built 2026-10-25:** the schedule in `early-game.md` §2
   (L3 animals, L4 wood, L5 building, L6 new crops via Green Thumb, L7 the Valley with the Pickaxe
