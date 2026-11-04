@@ -158,6 +158,12 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   building a friendship is grindy, so nothing a player needs before L16 asks for more than a
   Greet (a quest list opens at relationship score 10, which one Greet gives). Secrets therefore
   sit at L16 and up (Titania's moved from L15).
+- **Unlocks follow relationship STATUS, never a score** (owner, 2026-11-03). A quest or trade
+  that a relationship opens is gated by `rel` alone (friend, love, married...), so it is there the
+  moment that status is reached, and the milestone dialog that announces it (e.g. Gertrude's
+  friend line about Queen's Coffee) is never a promise the panel breaks. A deeper gate is a deeper
+  status (love, marriage), not a higher number. Leave `relscore` empty on quests and trades; the
+  six Secret / Mirror Key rows that paired a status with 90-95 lost the score the same day.
 - **Secrets travel.** A character's Secret is an item: who it is sold to, and why, is a story
   (Portia's Secret buys the Brass Bell from Iago, whom she despises; Leontes collects six).
 - **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /

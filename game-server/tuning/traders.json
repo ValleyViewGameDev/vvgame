@@ -70,7 +70,6 @@
     "xp": 30,
     "repeat": false,
     "rel": "love",
-    "relscore": 90,
     "requires1": "Sunflower",
     "requires1qty": 12
   },
@@ -189,7 +188,6 @@
     "xp": 30,
     "repeat": false,
     "rel": "friend",
-    "relscore": 90,
     "requires1": "Ancient Coin",
     "requires1qty": 1
   },
@@ -247,7 +245,6 @@
     "xp": 1000,
     "repeat": false,
     "rel": "friend",
-    "relscore": 90,
     "requires1": "Portia's Secret",
     "requires1qty": 1,
     "requires2": "Gertrude's Secret",
@@ -279,7 +276,6 @@
     "xp": 30,
     "repeat": false,
     "rel": "friend",
-    "relscore": 90,
     "requires1": "Queen's Coffee",
     "requires1qty": 1
   },
