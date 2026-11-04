@@ -130,7 +130,7 @@ value rather than trust this page.
   columns with the middle one at the page centre. Left: the avatar in a circle, the size of the
   round HUD buttons and in line with their column (`--d-pill-w`, left at `--d-board-left` +
   `--d-gap`), then the title on one line over "Logged in as: name" (both open the profile). Centre: Level, Health and Inventory as big icons in rings that
-  fill (`UI/HeaderRing.js`; the level number sits in the star, white with a drop shadow; a ring
+  fill (`UI/HeaderRing.js`; the level number sits in the star, white with a 3 px soft dark-brown stroke all round (`--color-text-outline`) (`-webkit-text-stroke` + `paint-order: stroke fill`, never a drop shadow: it must read over the star on a phone), 22 px desktop, 20 px phone landscape, 16 px phone portrait; a ring
   turns red at <= 10% health or >= 90% inventory; hover shows the numbers). Right: Gems and Money
   (icon and value), a hairline, then the action icons. Two narrower tiers (<= 1180 px,
   <= 960 px) shrink it to fit down to 768 px. Phones use the same block, rearranged (next

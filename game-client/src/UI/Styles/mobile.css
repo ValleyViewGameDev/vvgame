@@ -151,7 +151,7 @@
   .header-ring { width: 42px; height: 42px; }
   .header-ring-icon { width: 27px; height: 27px; }
   .header-ring-emoji { font-size: var(--text-xl); }
-  .header-ring-level { font-size: var(--text-md); }
+  .header-ring-level { font-size: var(--text-2xl); }
   .header-desk-right { justify-content: flex-end; gap: 8px; }
   .header-desk .header-currency-btn { gap: 4px; padding: 0; font-size: var(--text-xl); }
   .header-currency-icon { font-size: var(--text-3xl); }
@@ -628,7 +628,7 @@
   .header-ring { width: 38px; height: 38px; }
   .header-ring-icon { width: 24px; height: 24px; }
   .header-ring-emoji { font-size: var(--text-lg); }
-  .header-ring-level { font-size: var(--text-sm); }
+  .header-ring-level { font-size: var(--text-lg); }
   .header-desk-center { gap: 4px; }
   .header-desk .header-currency-btn { font-size: var(--text-lg); }
   .header-currency-icon { font-size: var(--text-2xl); }

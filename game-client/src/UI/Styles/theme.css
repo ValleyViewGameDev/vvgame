@@ -43,6 +43,7 @@
   --color-text-muted: #6b6b6b;                      /* fine print, empty states (was #888: too faint on parchment) */
   --color-text-white: #ffffff;
   --color-text-black: #000000;
+  --color-text-outline: #5a3d12;                    /* the soft dark-brown outline on white numbers over art (header level star) */
   --color-text-green: rgb(0, 104, 12);   /* Dark green text on panels */
   --color-text-heading: var(--color-heading);       /* sub-headings (Lora) */
   --color-text-title: var(--brand-gold);            /* titles (Berkshire) */

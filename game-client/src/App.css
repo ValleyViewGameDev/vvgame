@@ -450,20 +450,23 @@ body {
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 .header-ring-emoji { position: relative; font-size: var(--text-2xl); line-height: 1; }
-/* the level number, white with a small drop shadow, in the middle of the star */
+/* the level number, white with a soft dark-brown stroke all round (paint-order puts the stroke behind the
+   fill, so it reads as an outline, not a thinner glyph), in the middle of the star; big enough to
+   read over the star on a phone (owner 2026-11-04) */
 .header-ring-level {
   position: absolute;
   left: 0;
   right: 0;
   top: 50%;
-  transform: translateY(-42%); /* a star's visual middle sits a little below its box's */
+  transform: translateY(calc(-42% - 2px)); /* a star's visual middle sits a little below its box's; 2 px up reads centred with the stroke */
   text-align: center;
   font-family: var(--font-heading);
-  font-size: var(--text-xl);
+  font-size: var(--text-3xl);
   font-weight: bold;
   line-height: 1;
   color: var(--color-text-white);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  -webkit-text-stroke: 3px var(--color-text-outline);
+  paint-order: stroke fill;
 }
 
 .header-desk-right { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
@@ -489,7 +492,7 @@ body {
   .header-ring { width: 40px; height: 40px; }
   .header-ring-icon { width: 26px; height: 26px; }
   .header-ring-emoji { font-size: var(--text-xl); }
-  .header-ring-level { font-size: var(--text-lg); }
+  .header-ring-level { font-size: var(--text-2xl); }
 }
 
 .app-header {

@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { isTouchPrimary } from '../../Utils/inputMode';
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
@@ -42,7 +43,7 @@ const BuildPanel = ({
   const [isMayor, setIsMayor] = useState(false);
   const strings = useStrings();
   const [placeWithCursor, setPlaceWithCursor] = useState(
-    currentPlayer?.settings?.plantWithCursor ?? false
+    !isTouchPrimary() && (currentPlayer?.settings?.plantWithCursor ?? false) // no cursor placement on phones
   );
 
   // Toggle handler - persists to player settings
@@ -262,25 +263,27 @@ const BuildPanel = ({
   return (
     <Panel onClose={closePanel} descriptionKey="1002" titleKey="1102" panelName="BuildPanel">
       <div className="standard-panel">
-        {/* Place with cursor toggle */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: '8px',
-          marginBottom: '10px',
-          padding: '5px 0'
-        }}>
-          <label className="cursor-toggle-label">
-            {strings[10187] || 'Place with cursor'}
-          </label>
-          <input
-            type="checkbox"
-            checked={placeWithCursor}
-            onChange={(e) => handleToggleChange(e.target.checked)}
-            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-          />
-        </div>
+        {/* Place with cursor toggle (not on phones) */}
+        {!isTouchPrimary() && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '8px',
+            marginBottom: '10px',
+            padding: '5px 0'
+          }}>
+            <label className="cursor-toggle-label">
+              {strings[10187] || 'Place with cursor'}
+            </label>
+            <input
+              type="checkbox"
+              checked={placeWithCursor}
+              onChange={(e) => handleToggleChange(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+          </div>
+        )}
 
         {isContentLoading ? (
           <p>{strings[98]}</p>

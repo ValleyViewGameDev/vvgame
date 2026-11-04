@@ -59,7 +59,11 @@ export function findArtAt(sprites, renderer, sx, sy, slackPx = 6) {
   // frontmost first: the objects layer sorts by zIndex, ties drawn in the order they were added
   candidates.sort((a, b) => (b.s.zIndex - a.s.zIndex) || (b.i - a.i));
   for (const { s } of candidates) {
-    s.worldTransform.applyInverse(pt, local);
+    // toLocal brings the sprite's transform up to date first. worldTransform alone is only
+    // refreshed by a rendered frame: every resource change re-adds all the sprites, and until
+    // the next frame each sat at identity (scale 1, at 0,0), so a building's 764 px texture
+    // covered most of a phone's board and a tap on a tree opened a far-off station's panel.
+    s.toLocal(pt, undefined, local);
     const tw = s.texture.orig.width; const th = s.texture.orig.height;
     const tx = local.x + s.anchor.x * tw; const ty = local.y + s.anchor.y * th;
     const r = slackPx / Math.max(1e-6, Math.abs(s.worldTransform.a)); // slack in texture px

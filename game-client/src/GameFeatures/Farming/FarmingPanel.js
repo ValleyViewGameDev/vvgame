@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { isTouchPrimary } from '../../Utils/inputMode';
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
@@ -45,7 +46,7 @@ const FarmingPanel = ({
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const [plantWithCursor, setPlantWithCursor] = useState(
-    currentPlayer?.settings?.plantWithCursor ?? false
+    !isTouchPrimary() && (currentPlayer?.settings?.plantWithCursor ?? false) // no cursor placement on phones
   );
   const COOLDOWN_DURATION = 450;
 
@@ -172,25 +173,27 @@ const FarmingPanel = ({
   return (
     <Panel onClose={onClose} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
       <div className="standard-panel">
-        {/* Plant with cursor toggle */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: '8px',
-          marginBottom: '10px',
-          padding: '5px 0'
-        }}>
-          <label className="cursor-toggle-label">
-            {strings[10187] || 'Plant with cursor'}
-          </label>
-          <input
-            type="checkbox"
-            checked={plantWithCursor}
-            onChange={(e) => handleToggleChange(e.target.checked)}
-            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-          />
-        </div>
+        {/* Plant with cursor toggle (not on phones) */}
+        {!isTouchPrimary() && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            gap: '8px',
+            marginBottom: '10px',
+            padding: '5px 0'
+          }}>
+            <label className="cursor-toggle-label">
+              {strings[10187] || 'Plant with cursor'}
+            </label>
+            <input
+              type="checkbox"
+              checked={plantWithCursor}
+              onChange={(e) => handleToggleChange(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+          </div>
+        )}
 
         {isContentLoading ? (
           <p>{strings[98]}</p>
