@@ -41,29 +41,18 @@ here; detail lives in the linked docs and backlog items.
 - [ ] **Tag every link.** `utm_source` per channel (`fb`, `ig`, one per forum), `utm_campaign` per
   buy; never `signin=1` on acquisition links. Judge channels on played-D7, not clicks.
 - [x] **Render plan: no cold starts.** Done (owner, 2026-10-31): the server is on an always-on tier.
-- [ ] **Player surveys, like House's** (added 2026-11-02). House runs two Google Forms through one
-  prompt modal (`house/game-client/ui/modals/SurveyPromptModal.js`; analysis in
-  `house/docs/research/feedback-survey.md`): a one-time retention micro-survey at the end of the
-  FTUE (will you come back, what almost made you stop) and an always-on feature / roadmap survey
-  (a Mailbox link plus a one-time nudge later on). Campaign 3 drew more feedback in eight days than
-  the twelve weeks before it, so the forms must be live before the buy. Our FTUE feedback modal
-  (`GameFeatures/FTUE/FTUE.js`) is the natural place for the first; decide where the second goes.
-  **Always-on survey built 2026-11-03:** the Google Form
+- [x] **Player surveys, like House's** (added 2026-11-02). Done (owner tested, 2026-11-04): the FTUE
+  retention survey is the Feedback Modal (responses in the editor); the always-on Google Form
   (https://docs.google.com/forms/d/e/1FAIpQLSf_uEa9lFdncQt6DPlZKIyoB1AMQMLmIoPFzwjqtf2K3n617g/viewform)
-  is a "Take a short survey" button in the "Have Feedback?" block at the bottom of the Mailbox and
-  of Settings (`UI/Panels/FeedbackLinks.js`, `SURVEY_URL` is the one copy of the link), plus a
-  one-time nudge, `UI/Modals/SurveyPromptModal.js`, when the first level-up modal at L5 or above
-  is closed (`SURVEY_PROMPT_LEVEL` in App.js; stamped `Player.survey_prompt_seen_at`; the copy
-  points to the Mailbox for later). Players already past L5 see it after their next level-up.
-  Still open: the FTUE retention micro-survey (no form yet).
+  is linked from the Mailbox and Settings (`UI/Panels/FeedbackLinks.js`, `SURVEY_URL`) and nudged
+  once per profile when the first level-up modal at L5 or above is closed
+  (`UI/Modals/SurveyPromptModal.js`, App.js `SURVEY_PROMPT_LEVEL`, `survey_prompt_seen_at`; its copy
+  points to the Mailbox for later). Live since 43641239.
+- [x] **Welcome email.** Wired up and confirmed working (owner, 2026-11-04): Loops, once per player
+  on the first saved address (`utils/emailNotifications.js`, `docs/email-setup.md`).
 
 ## Should do
 
-  **Built (owner, 2026-11-03):** the FTUE retention survey is the Feedback Modal (responses in the
-  editor); the always-on survey is linked from the Mailbox and Settings (`UI/Panels/FeedbackLinks.js`)
-  and nudged once per profile when the first level-up modal at L5 or above is closed
-  (`UI/Modals/SurveyPromptModal.js`, App.js `SURVEY_PROMPT_LEVEL`, `survey_prompt_seen_at`; its copy
-  says the link is in the Mailbox). Live since 43641239. **Open:** test the nudge.
 - [ ] Phone feel pass: the remaining server-gated actions in OB-2 (craft start, gem purchases,
   Trading Post, shops, pets, scrolls, Farm House) react instantly.
 - [ ] Re-voice the FTUE toasts and approve the P3 quest asks (narrative pass).
