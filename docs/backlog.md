@@ -116,37 +116,6 @@ Added 2026-10-10.
 `docs/tuning.md`). Combat tuning stays in Track 5 of the NPC / Combat epic. Tasks are numbered
 T-n (append-only).
 
-- **T-4. The Tailor skill costs 100 Potion C** (added 2026-10-16; the rest of the Ink pass was
-  done the same day: the Book is now Money + Thread + Cloth, the Library is built from Wood, Stone
-  and Thread, Runic Tunic moved to L17, Ghosts drop a Book, and the Long Sword / Flurry quests
-  came back to L9 / L13). Tailor (L12) costs 500 Money + 100 Potion C, and each Potion C is a
-  Potion B + 12 Sunflower + 2 Ink + 1 Feverfew, so it really opens at Ink's L17 and needs
-  hundreds of rare crops. Feste's "Needle and Nobility" (acquire Tailor) sits at L17 because of
-  it. Re-cost Tailor (fewer Potion C, or Potion B instead) and bring that quest back toward L12.
-  Start at `Tailor`, `Potion C` in `game-server/tuning/resources.json`; re-run the quest level
-  check afterwards.
-  **Built 2026-10-22:** Tailor (L12) costs 500 Money + 10 Potion A; Potion C cannot exist before
-  Ink (L17), so no skill before then asks for it (docs/tuning.md §4i).
-
-- **T-5. Split combat quests into early and late givers** (added 2026-10-16). Cassio's
-  quests (kill Coyotes, Bears, Spiders, sell Pelts, then Duke Angelo for the Skeleton Key) are
-  early-combat aspiration and motivation, but Cassio sits behind the Golden Key door in Town, so
-  he should be the later-stage combat quest giver. Give the early combat quests (Coyotes and
-  the like) to an NPC the player meets early, such as Hotspur (behind the Town Door, Town Key),
-  and keep Cassio for the late-stage ones. As a stopgap Cassio's quests were pushed to levels
-  8-12 on 2026-10-16. Start at the Cassio and Hotspur rows of
-  `game-server/tuning/quests/questsEN.json` (quest `title` is a persisted id: move a quest by
-  changing its `giver`, never by renaming).
-  **Built 2026-10-22:** Hotspur now gives the Coyotes (L8), Pelts (L8) and Bears (L9); Cassio keeps
-  the Spiders (moved to L13) and Duke Angelo (L12).
-
-- **T-6. Give Blueberries a real source** (added 2026-10-16). Blueberries appear in no valley
-  template (`node tools/wild-crops.js Blueberry`), their plot (`Blueberry Plot`) is
-  developer-only with no level, so the only supply is scrolls (uncommon). Yet the Queen's Cake
-  needs them and Mistress Quickly pays 10 as a quest reward. Decide where they come from (lay
-  them into some valley templates, open the plot at a level, or both), then set price, quest
-  asks and level to match their rarity (docs/tuning.md §4h). Start at `Blueberry`,
-  `Blueberry Plot`, `Queen's Cake` in `game-server/tuning/resources.json`.
 ### EPIC: Onboarding & Early Game ("OB", opened 2026-10-24)
 
 Added 2026-10-24.
@@ -160,8 +129,6 @@ teaches, and where the first Quest for Hope artifact lands (the King's Crown, ab
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
 
-- **OB-1. Agree the phases and write `docs/early-game.md`** (added 2026-10-24). **Built
-  2026-10-24.**
 - **OB-2. Make the game feel instant: trust the client, validate behind it** (added 2026-10-24,
   re-scoped the same day). Movement itself is done: the held-key loop (90 ms a tile, first step
   at once, 220 ms hold delay), the Pixi camera, coalesced React syncs and tap-to-walk were built
@@ -209,7 +176,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   25 / 5). `utils/returnGift.js`, called from `/api/update-last-active` (the client now sends
   `tzOffset`); `player.returnGift` is false on new accounts, unset (never sent) on older ones;
   the claim is atomic. The last toast (7065) promises it.
-
 
 - **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
   Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
@@ -281,55 +247,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
   `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
   session, only if the measured view leaves questions; a dashboard tab, if wanted.
-- **OB-10. One new concept per level to L7; combat from L10** (added 2026-10-25, owner: the
-  tuning pass had crowded L3 and L4). **Built 2026-10-25:** the schedule in `early-game.md` §2
-  (L3 animals, L4 wood, L5 building, L6 new crops via Green Thumb, L7 the Valley with the Pickaxe
-  for Stone and Helena's Golden Key, L8 stone builds, L9 potions, L10 combat, L11 the Crown);
-  the Husbandry quest merged (Husbandry + Cow + 30 Milk; "Bovine Bliss" and "Cream of the Crop"
-  `retired`: never offered, still claimable when held, hidden from the NPC marker and the
-  level-up list); two new Shepherd quests ("Our Bodies Are Our Gardens", L6; "Sermons in
-  Stones", L7); the combat gear moved to L10-11, Short Sword and Darts retired (shops skip
-  `retired`; editor columns on both sheets); the Crown and Queen keep their order (Crown L11).
-  The Sheep quest no longer sits below its unlock. **Same day, owner's play at L4:** L3 wood
-  (Axe + 24 Wood, one quest) and L4 animals (Husbandry + Cow + 12 Milk); Builder + Mill one L5
-  quest; and every skill, station or animal a quest teaches (L1-12) now unlocks at that quest's
-  level (17 unlocks raised, `early-game.md` §2), so Kent's early orders narrow with them. Not yet
-  played. Elbow's chain gains an L6 Town step, "Better a Witty Fool Than a Foolish Wit" (Meet
-  Feste: the Queen of stone and the fool who still sings to her, seeding her waking; between the
-  L3 step and Helena at L7, whose prereq it now is). And (owner): Elbow never sends the player to someone with no quest
-  ready: his first step moved to L4 and greets only Mistress Quickly and Hotspur (Portia waits
-  until she has something to give), each with a first quest that opens on the Greet (Hotspur's
-  20 Wood, Quickly's 6 Milk, then her repeatable Sugar at L5, moved from the Shepherd); the FTUE
-  no longer adds his step (OB-3's hand-off undone; 16521 and 7059 trimmed). Hotspur's first quest is Acquire a Short Sword (back from
-  retired, L4, 2,000 Money), his second Acquire Padding (L7, Padding's unlock moved there); the
-  Shepherd keeps the wood as two quests (Acquire Axe, then the repeatable 24 Wood). **Federation (owner):** every `Build` quest
-  moved to the Shepherd (Dairy, Loom, Oven, Beehive, Kitchen, Hospital, Studio, School, Library,
-  Beverage Station, and the Clay; Prospero's Secret stays his), and 16 specialist quests became
-  2-3 item quests across stations (Quickly, Feste, Helena; "What, You Egg!" moved to Quickly),
-  XP by the quarter-of-item-XP rule (`tuning.md` §2.9). A live player holding one of the moved
-  quests claims it from the Shepherd now. Skills federated too (owner, 2026-10-25/26): each skill quest goes to
-  the giver whose quests use what it unlocks. Quickly: Baker, Cooking, Fromager, plus Winemaker
-  (from the Shepherd) and new Creamery (L17), Cuisinier (L20), Barista (L30); Feste: Textiles,
-  Artistry, Tailor, Weaver; Portia: Medicine, Surgery, Politics, Law; Helena: Florist; Elbow: the
-  adventuring kit (Backpack L7, Scout L13); the Shepherd keeps the homestead skills and Chemistry
-  (owner). Feste gains an L6 quest (6 Wool) so Elbow's L6 "meet Feste" leads somewhere. The
-  Quests list now takes each quest's icon from the current data, not the copy saved on accept. Then
-  (owner, 2026-10-26): L7 is the Dairy (Masonry, Dairy, Butter, Cheese, Cream, Pepper Cheese at
-  L7; Master Mason pays 20 Stone so the Dairy can be built before the Valley) and L8 the Valley
-  with its kit (Backpack and upgrades, Pickaxe, Padding, Medicine at L8, the Valley quests with
-  them); and no product unlocks below its station (Thread and Cloth L9 with the Loom, Sweater L12
-  with Textiles, Lumber L15, the Winery's goods L22; Book left at L1, it is a reward currency). The
-  Golden Key is no longer spent at the Castle (the Crown `requires` it; found artifacts leave the
-  shops); the doors it opens are traced in `early-game.md` §3. Cassio and Juliet stand only behind
-  the key, so Elbow's L10 Cassio step now requires Helena's L8 key quest too (a quest `prereq` may
-  list several titles, "A; B") and his lines say why. The farm workers (owner, 2026-10-27) come one every two levels,
-  each unlocking at its quest: Audrey (Farm Hand) L9, Peter Quince (Lumberjack) L11, Corin
-  (Rancher) L13, Nick Bottom (Crafter) L15 (new Shepherd quest "Let Me Play the Lion Too"); the
-  skills learned from them follow (Bulk Harvest, Bulk Replant, Bulk Animal Collect, Logging,
-  Better Logging L9; Bulk Restart Craft, Bulk Crafting L15). Quest cards show the display name
-  (Audrey, not Farm Hand) and "Hire" for a worker (string 17018) though the goal is a Craft. Open: merge more concepts the
-  Husbandry way once the owner has tried it; near-ring enemy placement (owner: later); Farm Hand
-  (10,000 Money) now L11.
 - **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops
   come from outposts: a valley region found once is reached again with Snug, its Trading Post
   ships goods home, and the crops regrow in one to three days (`tuning.md` §4h, `node
@@ -337,45 +254,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   The first time a player stands in a valley town they found, show how Snug brings them back,
   and that the Trading Post sends goods home. Start at `GameFeatures/NPCs/SnugTravelModal.js` and
   the region-entry notice in `Utils/GridManagement.js`.
-
-### BL-1: "Add to Home Screen" prompt in the FTUE (iOS and Android)
-
-**DONE 2026-10-06** as `UI/Modals/InstallPromptModal.js` (docs/onboarding-plan.md phase D): not an FTUE step but the crop harvest after the email ask, phone browsers only, never inside the installed app, "Not now" remembered per device in localStorage; iOS gets the Share → Add to Home Screen text, Android the captured `beforeinstallprompt`. The standalone-fetch retry posture from House was not ported.
-
-**What.** A step in the first-time-user flow that invites the player to install the game on
-their home screen, surfaced once, at a moment of earned goodwill (after the first homestead
-visit or the first harvest, not on the login screen), with "later" remembered so it never
-nags. On iOS the prompt is instructional (Share → Add to Home Screen, with the two icons);
-on Android/Chrome it calls the `beforeinstallprompt` event that was captured earlier.
-
-**Why.** A page cannot hide the browser's own bars; in landscape on iPhone a tap at the top
-edge brings Safari's toolbar back and takes a strip of the board (owner, 2026-10-04). The
-installed app runs without browser chrome in both orientations, gets the full screen, keeps
-its orientation, and is the only route to iOS web push later. Everything the install needs
-is already in place: `game-client/public/manifest.json` (name, icons, `display: fullscreen`,
-`orientation: any`, green theme) and the `apple-mobile-web-app-capable` /
-`apple-mobile-web-app-status-bar-style` / `apple-touch-icon` tags in `public/index.html`.
-
-**Leverage House.** House already runs as a standalone PWA on iOS and learned the hard
-lessons: `house/game-client/index.html` (the "Add-to-Home-Screen / PWA chrome" block),
-`house/game-client/api.js` (fetch behaviour that differs inside the iOS standalone PWA: a
-dropped request every so often, retried with backoff in `app.js` around the card fetch), and
-`house/docs/crm.md` §"iOS PWA install prompt" (rule: surface the prompt only after a real
-first success, never before; expect a single-digit install rate, so it is a quality-of-life
-step, not a growth lever). Reuse the detection (`window.matchMedia('(display-mode:
-standalone)')` / `navigator.standalone`) so the prompt never shows inside the installed app,
-and copy the retry posture for `axios` calls when running standalone.
-
-**Where to start.** `game-client/src/GameFeatures/FTUE/FTUE.js` and
-`game-server/tuning/FTUEsteps.json` (a new step type `installPrompt` with its own modal in
-`UI/Modals/`), a `dismissedInstallPrompt` flag on the Player (or localStorage, since it is
-per device), and `App.js` to capture `beforeinstallprompt` into a ref at boot. Copy in
-`UI/Strings/*.json` for all ten languages (the six English stubs just need the English).
-
-**Done when.** On a phone browser the prompt appears once at the chosen FTUE step with the
-right instructions for the platform; inside the installed app it never appears; "later" is
-remembered; the installed app launches straight into the game full-screen in both
-orientations.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header
 
