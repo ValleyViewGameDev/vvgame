@@ -3,7 +3,8 @@ import axios from "axios";
 import FloatingTextManager from "../../UI/FloatingText.js";
 import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
 import { handleAttackOnNPC } from "../Combat/Combat.js";
-import { gainIngredients, hasRoomFor, calculateSkillMultiplier, applySkillMultiplier } from "../../Utils/InventoryManagement.js";
+import { gainIngredients, hasRoomFor, isCurrency, calculateSkillMultiplier, applySkillMultiplier } from "../../Utils/InventoryManagement.js";
+import { reportNoRoom } from "../../Utils/noRoom.js";
 import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
@@ -36,7 +37,8 @@ async function handleProtectedFarmAnimalCollection(
   strings = {},
   globalTuning = null,
   inventory = null,
-  backpack = null
+  backpack = null,
+  openPanel = null
 ) {
   console.log(`🔒 [PROTECTED FARM ANIMAL] Starting optimistic collection for NPC ${npc.id}`);
 
@@ -70,6 +72,24 @@ async function handleProtectedFarmAnimalCollection(
   const skillInfo = calculateSkillMultiplier(expectedItem, currentPlayer.skills || [], masterSkills);
   const baseQuantity = animalResource?.qtycollected || 1;  // Fixed: was outputqty, should be qtycollected
   const expectedQuantity = applySkillMultiplier(baseQuantity, skillInfo.multiplier);
+
+  // ===== ROOM FIRST, exactly as a doober (ResourceClicking.js) =====
+  // The server empties the stall on collect and the client adds the product afterwards, so with no
+  // room the product was lost. Now nothing is sent: the animal keeps its ✅ and its product.
+  const awayFromHome = currentPlayer?.location?.gtype !== 'homestead' && !isCurrency(expectedItem);
+  if (awayFromHome && !currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0)) {
+    updateStatus(19); // no Backpack
+    FloatingTextManager.addFloatingText(strings["44"] || "No backpack", col, row, TILE_SIZE);
+    window._processingAnimalCollects.delete(collectId);
+    return { type: 'error', message: 'No backpack' };
+  }
+  if (!hasRoomFor({ resource: expectedItem, quantity: expectedQuantity, currentPlayer,
+    inventory: inventory || currentPlayer.inventory, backpack: backpack || currentPlayer.backpack,
+    masterResources, globalTuning })) {
+    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+    window._processingAnimalCollects.delete(collectId);
+    return { type: 'error', message: 'No room' };
+  }
 
   // ===== OPTIMISTIC UI: Show visual feedback immediately =====
   // 1. Play sound immediately
@@ -127,7 +147,7 @@ async function handleProtectedFarmAnimalCollection(
       if (gained !== true && (!gained || gained.success === false)) {
         console.error('❌ Failed to add animal product to inventory - warehouse may be full');
         // Show "You're full" floating text (the item was still collected server-side)
-        FloatingTextManager.addFloatingText(strings["41"] || "You're full", col, row, TILE_SIZE);
+        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
       }
 
       // Update NPC with authoritative server state (or fallback to grazing)
@@ -190,7 +210,7 @@ async function handleProtectedFarmAnimalCollection(
       // Handle warehouse full error
       if (errorMessage === 'Warehouse full' || errorMessage.includes('Warehouse full')) {
         console.error(`❌ Cannot collect: Warehouse is full`);
-        FloatingTextManager.addFloatingText(strings["41"] || "You're full", col, row, TILE_SIZE);
+        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
         if (window._processingAnimalCollects) {
           window._processingAnimalCollects.delete(collectId);
         }
@@ -384,7 +404,8 @@ export async function handleNPCClick(
         strings,
         globalTuning,
         holdings?.inventory || null,
-        holdings?.backpack || null
+        holdings?.backpack || null,
+        openPanel
       );
     }
 

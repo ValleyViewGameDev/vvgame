@@ -2,6 +2,7 @@ import API_BASE from './config.js';
 import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
 import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
+import { reportNoRoom } from './Utils/noRoom';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills, getFTUEsteps } from './Utils/TuningManager'; // Centralized tuning manager
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
@@ -311,10 +312,7 @@ export async function handleDooberClick(
   if (!hasRoom) {
     // At this point we know they have a backpack if needed, so this is a real capacity issue
     console.warn("Pre-check: No room for resource. Showing error immediately.");
-    FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
-    if (openPanel) {
-      openPanel('InventoryPanel');
-    }
+    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
     // Clear processing flag
     if (window._processingDoobers) {
       window._processingDoobers.delete(dooberId);
@@ -412,15 +410,8 @@ export async function handleDooberClick(
           // Don't show floating text - status message (19) already set by gainIngredients
           // Don't open inventory panel for missing backpack
         } else {
-          // Show floating text for actual capacity error
-          FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
-          // Auto-open inventory panel when truly at capacity
-          console.log("Opening inventory panel. openPanel function:", openPanel);
-          if (openPanel) {
-            openPanel('InventoryPanel');
-          } else {
-            console.warn("openPanel function not available!");
-          }
+          // a real capacity error: the same response as the pre-check
+          reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
         }
         // Clear processing flag
         if (window._processingDoobers) {
