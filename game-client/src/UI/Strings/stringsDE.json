@@ -23,6 +23,8 @@
     "17024": "{crop} kann nur in {region} angebaut werden.",
     "17025": "Wird nur in {region} gehalten",
     "17026": "{animal} kann nur in {region} gehalten werden.",
+    "17027": "Sobald du eine neue Region im Tal entdeckt hast, bringt dich Snug sofort in die Stadt dieser Region. (Nur in Regionen mit einer Stadt.)",
+    "17028": "Kostenlos",
     "17015": "Lebt auf deinem Heimathof",
     "17016": "Lebt in der Stadt",
     "17017": "Lebt draußen im Tal",
@@ -1500,7 +1502,7 @@
     "7056": "Du bist jetzt in der Stadt willkommen! Erkunde alles, was die Stadt zu bieten hat, einschließlich mehr Fähigkeiten aufbauen, Stadtbewohner treffen und mehr Möglichkeiten, Geld zu verdienen.",
     "7057": "Gehe zum 🏪 Holzfällerhof in der Stadt, um eine Axt zu erwerben.",
     "7058": "Gehe zum 🏪 Holzfällerhof in der Stadt, um eine Spitzhacke zu erwerben.",
-    "7059": "Gut gemacht. Kehre jetzt nach Hause zurück, um deine Ernte einzubringen.",
+    "7059": "Geh jetzt nach Hause, hol dir deine Belohnung beim Schäfer ab und ernte deine Pflanzen.",
     "7061": "Du musst in die Stadt reisen, um deine Fähigkeiten auszubauen. Kaufe einen Stadtschlüssel von Constable Elbow. Benutze den Wegweiser zum Reisen.",
     "7062": "Gut gemacht! Ich bin die Hirtin, und ich helfe dir mit deinen ✅ Quests. Komm zu mir zurück, wenn Aufgaben erledigt sind.",
 
@@ -1547,7 +1549,7 @@
     "4095": "Du kannst ihn später im Profil ändern.",
     "7063": "Willkommen zu Hause! Ein Willkommensgeschenk wartet in deinem 📬 Briefkasten.",
     "7064": "Du kannst deinen Avatar jederzeit in deinem Profil ändern.",
-    "7065": "Jetzt bist du auf dich gestellt! Verkaufe weiter an Kent und komm zurück zu deinen Pflanzen. Morgen wartet ein besonderes Geschenk auf dich. Und sieben verlorene Schätze erwarten dich in deiner Suche nach der Hoffnung.",
+    "7065": "Jetzt bist du auf dich gestellt! Bewirtschafte weiter deinen Hof und verkaufe an Kent. Auf Stufe 4 hat Konstabler Elbow Arbeit für dich. Komm morgen wieder, dann wartet ein Geschenk, und suche die verlorenen Schätze deiner Suche nach der Hoffnung.",
     "7066": "Nach etwas mehr Landwirtschaft besuche Ardens Gutshof in der Stadt. Dort kannst du neue Fähigkeiten kaufen.",
     "7067": "Damit dein Gehöft wächst, musst du den Hof bewirtschaften. Sammle zuerst 3 Weizen.",
     "7068": "Verkaufe jetzt deine Waren an den Händler namens Kent.",
@@ -1653,7 +1655,7 @@
     "16511": "Der Wundervogel stirbt und steigt aus seiner Asche. Pflück eine Feder aus dem Feuer, und das ist ein Schatz mehr für das Orakel.",
     "16512": "Sieben Schätze, {username}. Bring sie zum Orakel und hol die Hoffnung heim, und lass uns den König gekrönt sehen und Elbow, ich meine Elsinore, wieder fröhlich.",
     "16520": "Willkommen, {username}. Die Kräuter hier wachsen wild und wachsen dort, wo du sie pflückst, in ein, zwei Tagen nach. Sammle sechs Rosmarin für mich, und ich gebe dir zwei meiner Gänseblümchen. Mit etwas Milch macht der Apotheker in der Stadt daraus einen Heiltrank.",
-    "16521": "Gut gemacht, deine erste Fähigkeit, {username}. Viele weitere erwirbst du hier in der Stadt, also wähle weise. Komm wieder zu mir, wenn du dich eingelebt hast; ich werde Arbeit für dich haben.",
+    "16521": "Gut gemacht, deine erste Fähigkeit, {username}! Viele weitere erwirbst du hier in der Stadt, also wähle weise. Komm auf Stufe 4 zu mir, wenn du dich eingelebt hast; dann habe ich höchst verdächtige Arbeit für dich.",
     "200845": "Audreys Platz",
     "200846": "Corins Platz",
     "200847": "Peter Squenz' Platz",
@@ -1746,5 +1748,5 @@
     "16514": "Unser König Leontes bleibt in seiner Halle im Tal und lässt sich nicht trösten. „Ein trauriges Märchen ist am besten für den Winter“, sagt er. Geh und grüße ihn, {username}, und sag ihm, dass das Orakel uns nicht vergessen hat.",
     "200851": "Trittsteine",
     "314": "Trittsteine im Gras ergeben einen Weg, der noch wie ein Rasen aussieht.",
-    "7069": "Konstabler Elbow hat eine Aufgabe für dich. Öffne deine 📜 Quests, um sie zu lesen."
+    "7069": "Deine Quest „Grower“ ist erledigt! Öffne deine 📜 Quests, um sie zu sehen."
 }

@@ -20,10 +20,14 @@ import './SnugTravelModal.css';
  * tapping one opens ResourceModalSmall titled with the Region: "Blueberry can only be grown in
  * Belmont." (string 17024) / "Goat can only be raised in Bohemia." (17026).
  *
+ * Your Homestead and the home Town head the list and are free (owner, 2026-11-05: free on the Map
+ * panel too); they travel through `onSignpost` ('Signpost Home' / 'Signpost Town Home', the Map
+ * panel's own Transit.handleTransitSignpost), so they arrive exactly as from the Map.
+ *
  * On Travel the server takes the Money and returns the grid and tile; `onTravel(gridCoord, x, y,
  * player)` (App: changePlayerLocation) then moves the player there, carrying the updated holdings.
  */
-export default function SnugTravelModal({ currentPlayer, inventory, backpack, setInventory, setBackpack, setCurrentPlayer, masterResources, updateStatus, onTravel, onClose }) {
+export default function SnugTravelModal({ currentPlayer, inventory, backpack, setInventory, setBackpack, setCurrentPlayer, masterResources, updateStatus, onTravel, onSignpost, onClose }) {
   const loc = useStrings();
   // the partly translated languages lack these keys: fall back to the English text
   const strings = new Proxy(loc, { get: (o, k) => o[k] ?? stringsEN[k] });
@@ -44,6 +48,12 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
 
   const travel = async (dest) => {
     if (busyKey) return;
+    // Home and Town: the Map panel's free signpost travel, same arrival
+    if ((dest.kind === 'home' || dest.kind === 'town') && onSignpost) {
+      onClose();
+      await onSignpost(dest.kind === 'home' ? 'Signpost Home' : 'Signpost Town Home');
+      return;
+    }
     if (money < dest.cost) { updateStatus?.(strings[10199]); return; }
     setBusyKey(dest.key);   // the row reacts at once; the trip waits for the server's arrival tile
     try {
@@ -64,7 +74,7 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
     }
   };
 
-  const nameOf = (d) => (d.kind === 'town' ? strings[10196] : getLocalizedString(d.region, loc));
+  const nameOf = (d) => (d.kind === 'home' ? strings[107] : d.kind === 'town' ? strings[10196] : getLocalizedString(d.region, loc));
   // what only this Region grows or raises: each locked farm plot's crop, each locked animal itself
   const cropsOf = (region) => (masterResources || [])
     .filter((r) => r.growregion === region && ((r.category === 'farmplot' && r.output) || r.action === 'graze'))
@@ -104,7 +114,7 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
                       </button>
                     ))}
                   </td>
-                  <td className={`res-meta ${money < d.cost ? 'snug-travel-short' : ''}`} data-label={strings[10194]}>{moneySymbol} {d.cost.toLocaleString()}</td>
+                  <td className={`res-meta ${money < d.cost ? 'snug-travel-short' : ''}`} data-label={strings[10194]}>{d.cost > 0 ? `${moneySymbol} ${d.cost.toLocaleString()}` : strings[17028]}</td>
                   <td className="res-action">
                     <div className="shared-buttons">
                       <button

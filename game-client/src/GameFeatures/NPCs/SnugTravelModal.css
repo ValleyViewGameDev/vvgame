@@ -16,8 +16,9 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 }
 .snug-travel-table td { padding: 6px 8px; font-size: var(--text-md); vertical-align: middle; }
-/* destination names are labels in a table: body font, bold */
-.snug-travel-table td.res-name { font-family: var(--font-body); font-weight: var(--weight-bold); font-size: var(--text-lg); }
+/* destination names are labels in a table: body font, bold, left-aligned under their header
+   (the modal centres its text and the cells inherited it) */
+.snug-travel-table td.res-name { font-family: var(--font-body); font-weight: var(--weight-bold); font-size: var(--text-lg); text-align: left; }
 .snug-travel-table tbody tr + tr td { border-top: 1px solid rgba(0, 0, 0, 0.08); }
 .snug-travel-table .res-action { text-align: right; white-space: nowrap; }
 .snug-travel-table .res-action .shared-buttons { display: inline-flex; justify-content: flex-end; margin: 0; }

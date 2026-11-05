@@ -35,7 +35,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 - **W-1. Write `docs/world-design.md`.** The design doc this epic needs: regions, template
   inventory, storylines, exploration motivations. Not written yet.
 - **W-3. Iterate on existing templates** to create more interesting scenarios.
-- **W-6. Make Regions matter more to gameplay.**
 - **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
   epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
   side; this is the story side.
@@ -58,8 +57,7 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   edges), phase 6 river and lake banks (2026-10-12), plus the ground passes (slate edges, lava
   islands, the settlement 5_2 dirt, the King's Circle sand beach). **Remaining:**
   - Phase 3, towns and scenarios (mini-towns, sets, the spreadsheet's emoji anchors): only the
-    Haunted River's Drowned Scriptorium and ferry landing exist. This is the same work as W-3
-    and W-6 (making the grids interesting and Regions matter), so do it under those.
+    Haunted River's Drowned Scriptorium and ferry landing exist. This is the same work as W-3 (making the grids interesting; W-6, Regions, closed 2026-11-05), so do it there.
   - Phase 4, roads: a valley-wide pass. Started 2026-10-14 (`roads.py`, `data/roads.json`):
     the Town's south road, the hamlet road through the column-29 pass, a T off the river road in
     1012205. Re-run `roads.py --apply` after any `phase1_build.mjs` rebuild.
@@ -128,31 +126,6 @@ teaches, and where the first Quest for Hope artifact lands (the King's Crown, ab
 5-7). Revised 2026-10-24 for the approved story (`story.md` §0, `narrative-pass.md`): the acts sit on the phases (`early-game.md` §1b); Constable Elbow's story chain (L3-55) carries the WHY, one step at a time in the early game; the Shepherd teaches the homestead; the early game ends when the Queen wakes (L14-15); and no friendship is required before L16. It takes over the "more motivations to explore" half of W-8 (the Quest for Hope slots and
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
-
-- **OB-3. End the FTUE on Elbow's first story step, open loops and a glimpse of the Quest for
-  Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Gertrude's spirit
-  speaks to the stranger in the sea cave (16019, owner 2026-10-25) and sends them to Elbow, and
-  the last beat should hand the player to his chain. Today the FTUE
-  ends around L2 (it gives about 20 xp; L3 needs 25), so his first step ("I Do Lean Upon
-  Justice", L3) is not on screen when the FTUE ends. Either the last beats carry the player to
-  L3 or the step opens at L2; then the last toast names something ready later (crops, Kent's
-  orders), a reason to return tomorrow (a day-2 gift) and the seven dark boxes. Build the
-  structure here; the narrative pass (P4) writes the words, including the intro (string 16019,
-  still the old "evil scourge" tale). Start at the last steps of `FTUEsteps.json` (final toast
-  7065), Elbow's quest 115, `HopeQuest.js`.
-  **Built 2026-10-24 (structure, with first-draft words):** step 18 (Grower) shows Elbow's new
-  line 16521 and adds quest 115 (`addQuests`); toasts 7059 (greet the three, then home) and 7065
-  (crops, Elbow's next task, the Quest for Hope) rewritten in EN / DE / ES / FR (the six
-  English-only files take the English 7065); `NPCsPanel.js` lets a held, completed quest be
-  claimed below its level, since the FTUE ends near L2 (about 20 xp; L3 needs 25) and quest 115's
-  15 xp is what brings L3. Not yet played through. Open: P4's re-voice of the toasts (these are
-  plain first drafts).
-  **Day-2 gift built 2026-10-24** (on top of the daily drip, message 5): a new player who finished
-  the FTUE and opens the game on a later calendar day (their own timezone) gets one Mailbox gift,
-  message 6 "Welcome back to Elsinore!" (Money 3000, Gem 25, Wood 50; the welcome gift is 500 /
-  25 / 5). `utils/returnGift.js`, called from `/api/update-last-active` (the client now sends
-  `tzOffset`); `player.returnGift` is false on new accounts, unset (never sent) on older ones;
-  the claim is atomic. The last toast (7065) promises it.
 
 - **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
   Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
@@ -231,6 +204,18 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   The first time a player stands in a valley town they found, show how Snug brings them back,
   and that the Trading Post sends goods home. Start at `GameFeatures/NPCs/SnugTravelModal.js` and
   the region-entry notice in `Utils/GridManagement.js`.
+  **Built 2026-11-05** (`GameFeatures/NPCs/useSnugLesson.js`): once per profile, a few seconds
+  after a player past the FTUE arrives on a valley grid with Snug, a scrim-forced flow: tap Snug,
+  Greet him if they never have (Travel needs "met"), tap "Travel with Snug"; when the Travel
+  modal opens, control returns and `settings.snugLessonDone` is stamped. A persistent toast
+  (string 17027) explains Snug travel. The Trading Post half is not taught yet.
+- **OB-11. Re-lay the town so early buildings and characters sit by the entry** (added
+  2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
+  where the player enters town, and the later ones farther in, so a new player meets what they
+  can use first. Touch points: `game-server/layouts/gridLayouts/town/townN.json` (townE/S/W are
+  derived from it by `tools/rotate-town.py`; `tools/expand-town.py` for footprints), the arrival
+  tile from the Map / signpost / Snug travel, and the building and NPC levels in
+  `resources.json`.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header
 

@@ -23,6 +23,8 @@
     "17024": "{crop} ne se cultive qu’à {region}.",
     "17025": "Élevé uniquement à {region}",
     "17026": "{animal} ne s’élève qu’à {region}.",
+    "17027": "Une fois une nouvelle région de la vallée découverte, Snug t’emmène instantanément au village de cette région. (Seulement dans les régions qui ont un village.)",
+    "17028": "Gratuit",
     "17015": "Vit sur votre Domaine",
     "17016": "Vit en Ville",
     "17017": "Vit dans la Vallée",
@@ -1500,7 +1502,7 @@
     "7056": "Vous êtes maintenant bienvenu en Ville ! Explorez tout ce que la Ville a à offrir, y compris développer plus de Compétences, rencontrer les Habitants, et plus de moyens de gagner de l'Argent.",
     "7057": "Rendez-vous à la 🏪 Cour du Bûcheron en ville pour acquérir une Hache.",
     "7058": "Rendez-vous à la 🏪 Cour du Bûcheron en ville pour acquérir une Pioche.",
-    "7059": "Bien joué. Rentre maintenant chez toi pour récolter tes cultures.",
+    "7059": "Rentre maintenant chez toi pour récupérer ta récompense auprès du Berger et récolter tes cultures.",
     "7061": "Vous devrez vous rendre en Ville pour développer vos Compétences. Achetez une Clé de la Ville auprès du Constable Elbow. Utilisez le Panneau indicateur pour voyager.",
     "7062": "Bon travail ! Je suis la Bergère, et je vous aiderai avec vos ✅ Quêtes. Revenez me voir quand les tâches sont terminées.",
 
@@ -1547,7 +1549,7 @@
     "4095": "Vous pourrez le changer plus tard dans le Profil.",
     "7063": "Bienvenue chez vous ! Un cadeau de bienvenue vous attend dans votre 📬 Boîte aux lettres.",
     "7064": "Vous pouvez changer d'avatar dans votre Profil à tout moment.",
-    "7065": "Te voilà livré à toi-même ! Continue de vendre à Kent, et reviens pour tes cultures. Un cadeau spécial t'attend demain. Et sept trésors perdus t'attendent dans ta Quête de l'Espoir.",
+    "7065": "Te voilà livré à toi-même ! Continue de cultiver et de vendre à Kent. Au niveau 4, le connétable Elbow aura du travail pour toi. Reviens demain pour un cadeau, et cherche les trésors perdus de ta Quête de l'Espoir.",
     "7066": "Après encore un peu de culture, visitez la Ferme d'Arden en Ville. Vous pouvez y acheter de nouvelles Compétences.",
     "7067": "Pour faire grandir votre domaine, il faudra travailler la ferme. Commencez par récolter 3 Blés.",
     "7068": "Vendez maintenant vos produits au marchand nommé Kent.",
@@ -1653,7 +1655,7 @@
     "16511": "L'oiseau merveille meurt et renaît de ses cendres. Cueille une plume dans le feu, et c'est un trésor de plus pour l'Oracle.",
     "16512": "Sept trésors, {username}. Porte-les à l'Oracle et ramène l'Espoir, et voyons le Roi couronné et Elbow, je veux dire Elsinore, joyeux de nouveau.",
     "16520": "Bienvenue, {username}. Ici les herbes poussent à l'état sauvage, et repoussent là où tu les cueilles en un jour ou deux. Cueille six Romarins pour moi, et je te donnerai deux de mes Marguerites. Avec un peu de Lait, l'Apothicaire de la Ville en fait une potion de soin.",
-    "16521": "Bien joué pour ta première Compétence, {username}. Bien d'autres se gagnent ici en Ville, alors choisis avec sagesse. Reviens me voir quand tu seras installé ; j'aurai du travail pour toi.",
+    "16521": "Bien joué pour ta première Compétence, {username} ! Bien d'autres se gagnent ici en Ville, alors choisis avec sagesse. Reviens me voir au niveau 4, quand tu seras installé ; j'aurai pour toi un travail fort suspect.",
     "200845": "La place d'Audrey",
     "200846": "La place de Corin",
     "200847": "La place de Peter Quince",
@@ -1746,5 +1748,5 @@
     "16514": "Notre roi Leontes reste dans sa salle, dans la Vallée, et refuse d'être consolé. « Un conte triste est le meilleur pour l'hiver », dit-il. Va le saluer, {username}, et dis-lui que l'Oracle ne nous a pas oubliés.",
     "200851": "Pas japonais",
     "314": "Des pas japonais posés dans l'herbe forment un chemin qui garde l'air d'une pelouse.",
-    "7069": "Le connétable Elbow a une tâche pour vous. Ouvrez vos 📜 Quêtes pour la lire."
+    "7069": "Ta quête « Grower » est terminée ! Ouvre tes 📜 Quêtes pour la voir."
 }

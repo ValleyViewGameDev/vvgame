@@ -14,7 +14,7 @@ antagonist, defeated, not killed; Gertrude as the statue). Every intro, hint, qu
 milestone line serves it. The old intro (string 16019: "an evil scourge grows... bring back the
 rule of King Leontes") was rewritten on 2026-10-24 around this tale, and on 2026-10-25 (owner)
 given to **Gertrude's spirit**: the Queen, turned to stone in her castle, speaks to the stranger
-in the sea cave ("Who comes? A stranger... It turned me to stone and took my King's crown...")
+at the edge of the forest (until 2026-11-01, a sea cave) ("Who comes? A stranger... It turned me to stone and took my King's crown...")
 and sends them to Constable Elbow for the Home Deed. Rewritten 2026-11-01 (owner): the stranger
 now steps out of the forest, the tale is three pages (forest; the storm, stone and crown; the
 Oracle and "bring us Hope!"), and the page sending them to Elbow is gone (toast 741 points the
@@ -209,7 +209,7 @@ stub riddle, the real puzzle is still to be designed.
 | Titania | A Midsummer Night's Dream | Quests; Titania's Secret (kill Dragons); "Let Hell Gape Wide" (Demons, L28) points to Acheron |
 | Prospero | The Tempest | **The antagonist** (2026-10-24): his storm of stories broke the land; the Orb, on Prospero's Peak behind Cloven Pines and dragons; defeated, not killed (§0) |
 | Caliban | The Tempest | Trader; Caliban's Secret |
-| Constable Elbow | Measure for Measure | Meets the stranger in the sea cave after Gertrude's spirit sends them to him; the Home Deed, Town and Dungeon Keys; gives the 13 core story quests (§0; built 2026-10-24, `narrative-pass.md` P3.4) |
+| Constable Elbow | Measure for Measure | Meets the stranger at the Town gate as they step out of the forest, after Gertrude's spirit sends them to him; the Home Deed, Town and Dungeon Keys; gives the 13 core story quests (§0; built 2026-10-24, `narrative-pass.md` P3.4) |
 | Duke Angelo | Measure for Measure | An enemy (Cassio's target) |
 | Snug | A Midsummer Night's Dream | Travel companion; the joiner of the Mechanicals, with Quince and Bottom |
 | Falstaff | Henry IV / The Merry Wives of Windsor | Trader (Feverfew for Port, Brandy) |

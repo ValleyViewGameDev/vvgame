@@ -14,9 +14,12 @@
  * - Where Snug stands comes from the template layouts (layouts/gridLayouts/valleyFixedCoord/<coord>.json,
  *   key n13), the source every player's copy of a grid is made from. A Region with several Snugs
  *   uses the first visited one (else the first by gridCoord).
- * - Town is always offered (every town layout has Snug); Home is not part of this.
- * - The place the player is in now is not offered.
- * - Cost: globalTuning.json snugTravel (100 to 2000 by straight-line distance in grids).
+ * - The list (owner, 2026-11-05): Your Homestead first, then the home Town, both FREE (as on the
+ *   Map panel), then the visited Regions by cost. The client sends Home and Town through the Map
+ *   panel's own free signpost travel (Transit.js handleTransitSignpost), so they arrive the same
+ *   way; this route only charges and places for Regions (and still takes a free Town trip).
+ * - The place the player is in now is not offered (Home not on the homestead, Town not in town).
+ * - Region cost: globalTuning.json snugTravel (100 to 2000 by straight-line distance in grids).
  * - Arrival: a free tile next to Snug in the player's copy of the grid (his home or current
  *   position), else next to where the template puts him.
  */
@@ -112,11 +115,16 @@ async function destinationsFor(player, frontier) {
     out.push({ key: `region:${region}`, kind: 'region', region, gridCoord: target.gridCoord, cost: costBetween(from, target.gridCoord) });
   }
   out.sort((a, b) => a.cost - b.cost || a.region.localeCompare(b.region));
-  // the home Town, always, unless the player is in it
+  // the home Town (free, as on the Map panel), always, unless the player is in it
   const settlement = player.settlementId ? await Settlement.findById(player.settlementId, 'grids').lean() : null;
   const townCoord = await findTownCoord(settlement);
   if (townCoord != null && Number(from) !== townCoord) {
-    out.unshift({ key: 'town', kind: 'town', region: null, gridCoord: townCoord, cost: costBetween(from, townCoord) });
+    out.unshift({ key: 'town', kind: 'town', region: null, gridCoord: townCoord, cost: 0 });
+  }
+  // Your Homestead (free) first of all, unless the player is on it or has none yet
+  const home = player.homesteadGridCoord;
+  if (home != null && player.location?.gtype !== 'homestead' && Number(from) !== Number(home)) {
+    out.unshift({ key: 'home', kind: 'home', region: null, gridCoord: Number(home), cost: 0 });
   }
   return out;
 }
@@ -170,6 +178,7 @@ router.post('/snug-travel', async (req, res) => {
     if (!frontier) return res.status(404).json({ error: 'Frontier not found' });
     const dest = (await destinationsFor(player, frontier)).find((d) => d.key === key);
     if (!dest) return res.status(409).json({ error: 'not-a-destination' });
+    if (dest.kind === 'home') return res.status(409).json({ error: 'use-signpost' });   // the client's free Home travel
     if (heldQuantity(player.inventory, player.backpack, 'Money') < dest.cost) return res.status(402).json({ error: 'not-enough-money', cost: dest.cost });
 
     // the player's copy of the grid (created now if this is the first visit to that very grid)

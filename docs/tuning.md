@@ -539,7 +539,7 @@ permanent; the per-crop cap (4n) is what bounds them.
 |---|---|---|---|---|
 | Blueberry Plot | Belmont | 12 | 1 Blueberry | the owner's 12 plots on 1011154 |
 | Coffee Plant | Strathmoore | 25, Green Thumb | 8,000 Money | the plantation on 1012165 (40 Coffee Cherries, the Coffee Factory; `tools/gridgen/coffee_plantation.py`), reached by the trail east to Caliban's Crossing |
-| Mulberry Tree | Avondale | 50, Green Thumb | 25,000 Money | the wild orchard on the river's south bank, 1012334 (40 trees; `tools/gridgen/mulberry_farm.py`) |
+| Mulberry Tree | Avondale | 20, Green Thumb | 6,000 Money | the wild orchard on the river's south bank, 1012334 (40 trees; `tools/gridgen/mulberry_farm.py`) |
 | Sunflower Plot | Sunflower Lake | 23, Florist | none (sand only) | the wild Sunflowers of Sunflower Lake (all but 5 on Hope Mountain, 1014307, the owner's grid, left as they are) |
 | Goat (farm animal) | Bohemia | 26, Husbandry | 20,000 Money (inflates per goat, like every animal) | two Goats in the meadow on 1013542 (`tools/gridgen/goat_meadow.py`) |
 
@@ -558,10 +558,24 @@ a like value). A farm hand's safety-net crop offer never includes a regional cro
 (`playerEconomy.isRegionalCrop`; Blueberry, Coffee Cherry, Sunflower, Mulberry Leaf): those are
 grown in their region.
 
+**The silk line (owner, 2026-11-05: the same pull-back as coffee).** Before: Mulberry Tree,
+Sericulture, the Silkery, Silk and the Silk Dress all at L50, a leaf per tree every 4 days, Silk 20
+leaves in 12 h, the Silkery 400,000 Money, and a Silk Dress sold for 2,590 while its 3 Silk were
+worth 18,800 at minimum. Now: Mulberry Tree and Leaf L20 (a leaf a day; the tree 6,000 Money),
+Sericulture and the Silkery L20 (60,000 Money, 40 Lumber, 150 Stone, 1 Mulberry Leaf), Silk L21
+(8 leaves, 6 h), Silk Dress L22 (4 Cloth + 3 Silk, 8 h). Prices: Mulberry Leaf 120-172, Silk
+1,100-1,573, Silk Dress 4,800-6,864 (each step over its inputs). Gertrude's repeatable Silk Dress
+trade pays 12,000 (was 25,000 for a dress that took 60 leaves; now 24).
+
+**Regional goods skip Kent and the Bank (owner, 2026-11-05):** everything made from a regional
+crop or animal is `noKent` / `noBank`: Blueberry, the coffee line, the silk line, the goat goods.
+The Caravan and the Fair take them once unlocked (4j).
+
 **Where players learn it:** the Snug travel list shows each Region's own crops as their icon
 beside its name (a regional animal shows itself); tapping one opens a small resource modal titled
 with the Region, "{crop} can only be grown in {region}." (string 17024) or "{animal} can only be
-raised in {region}." (17026; `SnugTravelModal.js`). The region-name banner is not used
+raised in {region}." (17026; `SnugTravelModal.js`). The Snug list starts with Your Homestead and the home Town, both free
+(as on the Map panel, and through the same signpost travel), then the Regions by fare. The region-name banner is not used
 for this (owner). Mushrooms are deliberately NOT regional: they grow everywhere (owner).
 
 **The coffee chain (owner, 2026-11-05: pulled back from "hard-core late game").** Before: one
@@ -737,7 +751,12 @@ Knife, and their placement is to be tuned later (owner).
   AC 17 but speed +2; Witches' Charm: attack +2, max hp -50).
 - Near-ring towns (valley1) sell items for L8 to L24, mid-ring towns (valley2) for L20 to L50;
   each region pays in a good it is known for (Belmont Gold, Setebos Pelt, Sunflower Lake
-  Sunflowers, Sycorax Fen Mushrooms, Mantua Potion A, Windsor Port, Lethe Wharf Potion C).
+  Sunflowers, Sycorax Fen Mushrooms, Mantua Potion A, Windsor Port, Lethe Wharf Potion C;
+  2026-11-05: Bohemia Goat Cheese (Hermione's Grace), Avondale silk (Swan Feather 30 Mulberry
+  Leaf, Bard's Blade 3 Silk, Avon Scale 5 Silk), Strathmoore coffee: **Highland Plaid**, a new
+  Armory item at L25, AC 15 with no speed penalty (the shared Heavy Armor at L25 is AC 15,
+  speed +1), for 25,000 Money, 8 Medium Roast Coffee Bean, 45 Book; one level past the near-ring
+  band because coffee starts at L25. Strathmoore's two early items keep their highland Wool).
 - No new weapon passes Long Bow's reach (+5), so the sniping table in 5a still holds.
 - gemcost is derived (4e); a new row needs `gemcost: 0` once to opt in, then the editor prices it.
 

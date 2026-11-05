@@ -582,6 +582,7 @@ const RelationshipCard = ({
               <button
                 key={interaction.interaction} 
                 className="btn-basic"
+                data-interaction={interaction.interaction}
                 onClick={() => handleInteraction(interaction)}
                 disabled={isProcessing}
               >

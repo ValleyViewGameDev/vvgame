@@ -123,6 +123,10 @@ unused). Generated names never collide with the reserved developer usernames.
 
 ### 4.4 FTUE: keep the cave, tighten the arc, end on an open loop
 
+**Superseded setting (owner, 2026-11-01):** the FTUE no longer opens in a cave. The player steps
+out of the forest up to the Town gate; "cave" in this plan means that opening grid, whose code
+name is still `ftue-cave` (`templateKey`, `isFTUECave`).
+
 Keep the existing 14 beats and their triggers; change what is around them.
 
 - **Cave (steps 1 to 4) is the hook.** It is already instanced per player and already has

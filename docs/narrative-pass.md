@@ -195,12 +195,13 @@ titles. The ask text (P3.1) is still not greenlit.
 3. **Givers** (decided 2026-10-24, revised the same day): **Constable Elbow gives the core story
    quests** and **the Shepherd is the homestead specialist**. The Shepherd lives on the
    homestead, and all 23 of his quests are things done there (farming, animals, building, the
-   workers), so he keeps every one. Elbow is the first face in the sea cave and stands in every
+   workers), so he keeps every one. Elbow is the first face at the forest edge by the Town gate (the FTUE opening; a sea cave
+   until 2026-11-01) and stands in every
    Town, the hub the player keeps passing through, and he already sells the keys that move the
    story on. He becomes a quest giver (`action: quest`), keeping his three trades. (A first idea,
    a new Town character Launce for the animal quests, was dropped: Town quests about the
    homestead mean walking back and forth.) To check when it is built: the FTUE steps that point
-   at Elbow's panel, and his quests start at L3 so none shows in the cave.
+   at Elbow's panel, and his quests start at L4 (L3 until 2026-10-26) so none shows during the FTUE.
 4. **The story chain (DRAFT for the owner, below in P3.4).**
 
 ### P3.4 The story chain: Constable Elbow (BUILT in the local build, 2026-10-24)

@@ -23,6 +23,8 @@
     "17024": "{crop} solo se puede cultivar en {region}.",
     "17025": "Solo se cría en {region}",
     "17026": "{animal} solo se puede criar en {region}.",
+    "17027": "Cuando hayas descubierto una nueva región del valle, usa a Snug para viajar al instante al pueblo de esa región. (Solo en regiones con pueblo.)",
+    "17028": "Gratis",
     "17015": "Vive en tu Granja",
     "17016": "Vive en el Pueblo",
     "17017": "Vive en el Valle",
@@ -1498,7 +1500,7 @@
     "7056": "¡Ahora eres bienvenido al Pueblo! Explora todo lo que el Pueblo tiene para ofrecer, incluyendo desarrollar más Habilidades, conocer a los Habitantes, y más formas de ganar Dinero.",
     "7057": "Ve al 🏪 Patio del Leñador en el pueblo para adquirir un Hacha.",
     "7058": "Ve al 🏪 Patio del Leñador en el pueblo para adquirir un Pico.",
-    "7059": "Bien hecho. Ahora vuelve a casa para cosechar tus cultivos.",
+    "7059": "Ahora vuelve a casa para recoger tu recompensa del Pastor y cosechar tus cultivos.",
     "7061": "Necesitarás viajar al Pueblo para desarrollar tus Habilidades. Compra una Llave del Pueblo del Alguacil Elbow. Usa el Poste indicador para viajar.",
     "7062": "¡Buen trabajo! Soy la Pastora y te ayudaré con tus ✅ Misiones. Ven a verme cuando completes las tareas.",
 
@@ -1545,7 +1547,7 @@
     "4095": "Puedes cambiarlo más tarde en el Perfil.",
     "7063": "¡Bienvenido a casa! Un regalo de bienvenida te espera en tu 📬 Buzón.",
     "7064": "Puedes cambiar tu avatar en tu Perfil cuando quieras.",
-    "7065": "¡Ahora estás por tu cuenta! Sigue vendiendo a Kent y vuelve por tus cultivos. Mañana te espera un regalo especial. Y siete tesoros perdidos te aguardan en tu Búsqueda de la Esperanza.",
+    "7065": "¡Ahora estás por tu cuenta! Sigue cultivando y vendiendo a Kent. En el nivel 4, el alguacil Elbow tendrá trabajo para ti. Vuelve mañana por un regalo, y busca los tesoros perdidos de tu Búsqueda de la Esperanza.",
     "7066": "Después de cultivar un poco más, visita la Granja de Arden en el Pueblo. Allí puedes comprar nuevas Habilidades.",
     "7067": "Para hacer crecer tu hacienda, tendrás que trabajar la granja. Empieza recogiendo 3 de Trigo.",
     "7068": "Ahora vende tus productos al comerciante llamado Kent.",
@@ -1651,7 +1653,7 @@
     "16511": "El ave maravilla muere y renace de su ceniza. Arranca una pluma del fuego, y será un tesoro más para el Oráculo.",
     "16512": "Siete tesoros, {username}. Llévalos al Oráculo y trae la Esperanza a casa, y veamos al Rey coronado y a Elbow, digo, a Elsinore, alegre otra vez.",
     "16520": "Bienvenido, {username}. Aquí las hierbas crecen silvestres, y vuelven a brotar donde las recoges en un día o dos. Recoge seis Romeros para mí y te daré dos de mis Margaritas. Con un poco de Leche, el Boticario del Pueblo las convierte en una poción curativa.",
-    "16521": "Bien hecho, tu primera Habilidad, {username}. Aquí en el Pueblo se ganan muchas más, así que elige con sabiduría. Vuelve a verme cuando estés instalado; tendré trabajo para ti.",
+    "16521": "¡Bien hecho, tu primera Habilidad, {username}! Aquí en el Pueblo se ganan muchas más, así que elige con sabiduría. Ven a verme en el nivel 4, cuando estés instalado; tendré un trabajo de lo más sospechoso para ti.",
     "200845": "El sitio de Audrey",
     "200846": "El sitio de Corin",
     "200847": "El sitio de Peter Quince",
@@ -1744,5 +1746,5 @@
     "16514": "Nuestro rey Leontes no sale de su salón en el Valle y no hay quien lo consuele. «Un cuento triste es el mejor para el invierno», dice. Ve a saludarlo, {username}, y dile que el Oráculo no nos ha olvidado.",
     "200851": "Piedras de paso",
     "314": "Las piedras de paso en la hierba forman un camino que sigue pareciendo un césped.",
-    "7069": "El alguacil Elbow tiene una tarea para ti. Abre tus 📜 Misiones para leerla."
+    "7069": "¡Tu misión «Grower» está completa! Abre tus 📜 Misiones para verla."
 }

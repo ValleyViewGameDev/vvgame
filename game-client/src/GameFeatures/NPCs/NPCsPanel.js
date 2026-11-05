@@ -72,6 +72,7 @@ const NPCPanel = ({
   globalTuning,
   isDeveloper,
   onSnugTravel,             // App: (gridCoord, x, y, player) => changePlayerLocation to a tile next to Snug
+  onSnugSignpost,           // App: (signpost) => the Map panel's free Home / Town travel (Transit.js)
 }) => {
   const strings = useStrings();
   const [snugTravelOpen, setSnugTravelOpen] = useState(false);
@@ -1329,7 +1330,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           {/* Travel with Snug: first thing on Snug's panel, once the player has greeted him */}
           {canTravelWithSnug && (
             <div className="shared-buttons">
-              <button className="btn-basic btn-success" onClick={() => setSnugTravelOpen(true)}>
+              <button className="btn-basic btn-success" data-tutorial="snug-travel" onClick={() => setSnugTravelOpen(true)}>
                 {strings[10191] || 'Travel with Snug'}
               </button>
             </div>
@@ -1728,6 +1729,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         masterResources={masterResources}
         updateStatus={updateStatus}
         onTravel={onSnugTravel}
+        onSignpost={onSnugSignpost}
         onClose={() => setSnugTravelOpen(false)}
       />
     )}

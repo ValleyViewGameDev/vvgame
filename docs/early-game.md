@@ -50,7 +50,7 @@ carry the player through them:
 
 | Act | Phase | What happens | Ends with |
 |---|---|---|---|
-| I, washed ashore | FTUE + early-early (L1-6) | the sea cave, Constable Elbow, the Home Deed, the Shepherd, Kent, the Town | the Town cast met (Elbow's first step, L3) |
+| I, washed ashore | FTUE + early-early (L1-6) | the forest edge at the Town gate, Constable Elbow, the Home Deed, the Shepherd, Kent, the Town | the Town cast met (Elbow's first step, L4) |
 | II, the stranded cast | mid-early + late-early (L6-15) | the Valley (Helena, L7), combat (Cassio, L10), the first treasure (the King's Crown, L11), the Trident as a stretch | **the Queen wakes** (Gertrude, L14-15): the end of the early game |
 | III, the Valley and its dangers | mid game (L15-30) | more treasures (Vampire's Blood L16, Brass Bell L18), regions, Potion B | |
 | IV, the witch and the underworld | late game (L30-36) | Hecate, Toil and Trouble, Acheron, the Brief Candle | |
@@ -83,8 +83,8 @@ carry the player through them:
 ### FTUE (session 1, L1 to L3)
 
 Teaches the core loop: plant, harvest, sell to Kent (generate resources, turn them into
-money), then Town and a first skill (Grower). Today: 19 steps in `FTUEsteps.json`, from the
-cave and Constable Elbow to the Home Deed, the Mailbox, 3 Wheat, Kent, planting, the Shepherd's
+money), then Town and a first skill (Grower). Today: 21 steps in `FTUEsteps.json`, from the
+forest edge at the Town gate (the opening grid; its code name is still `ftue-cave`) and Constable Elbow to the Home Deed, the Mailbox, 3 Wheat, Kent, planting, the Shepherd's
 To Do list, the Town Key and the Agriculture Center.
 
 Two separate goals:

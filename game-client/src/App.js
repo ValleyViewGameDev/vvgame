@@ -154,6 +154,7 @@ import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
 import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
+import useSnugLesson from './GameFeatures/NPCs/useSnugLesson';
 import { useMoveMode, MoveBanner } from './GameFeatures/Move/useMoveMode';
 import { playCutscene } from './Utils/cutscene';
 import { isInputLocked } from './Utils/inputLock';
@@ -1885,6 +1886,14 @@ useEffect(() => {
     setDoinkerPointing('down');
   }
 }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, isAppInitialized, gridId, masterResources]);
+
+// The Snug lesson (OB-9): a one-time forced flow to Snug's Travel modal on the first valley town
+// after the FTUE; merged into the FTUE's scrim / doinker below (GameFeatures/NPCs/useSnugLesson.js)
+const snugLesson = useSnugLesson({ currentPlayer, setCurrentPlayer, gridId, isAppInitialized, closePanel, strings });
+const shownScrim = scrimTarget || snugLesson?.scrim || null;
+const shownDoinkerTargets = doinkerTargets || snugLesson?.doinkerTargets || null;
+const shownDoinkerType = doinkerTargets ? doinkerType : (snugLesson?.doinkerType || doinkerType);
+const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (snugLesson?.doinkerPointing || doinkerPointing);
 
 // The survey nudge (docs/launch-checklist.md): once per profile, when the first level-up modal at
 // SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (survey_prompt_seen_at), like the
@@ -3732,9 +3741,9 @@ return (
           isZoomAnimating={isZoomAnimating || isZoomAnimatingRef.current}
           isRelocating={isRelocating}
           // FTUE Doinker props
-          doinkerTargets={doinkerTargets}
-          doinkerType={doinkerType}
-          doinkerVisible={!!doinkerTargets}
+          doinkerTargets={shownDoinkerTargets}
+          doinkerType={shownDoinkerType}
+          doinkerVisible={!!shownDoinkerTargets}
           // Touch: tap-to-walk and pinch zoom (PlayerMovement.walkTo, zoomIn/zoomOut)
           onPlayerClick={() => openMyProfile()}
           onBoardTap={({ placing } = {}) => {
@@ -3787,16 +3796,16 @@ return (
         /> */}
 
         {/* FTUE Doinker - Button-type only (resource/NPC doinkers handled by PixiRendererDoinker) */}
-        {scrimTarget && <FTUEScrim target={scrimTarget} gridId={gridId} />}
-        {(doinkerType === 'button' || doinkerType === 'element') && (
+        {shownScrim && <FTUEScrim target={shownScrim} gridId={gridId} />}
+        {(shownDoinkerType === 'button' || shownDoinkerType === 'element') && (
           <FTUEDoinker
-            doinkerTargets={doinkerTargets}
-            doinkerType={doinkerType}
+            doinkerTargets={shownDoinkerTargets}
+            doinkerType={shownDoinkerType}
             TILE_SIZE={activeTileSize}
-            visible={!!doinkerTargets}
+            visible={!!shownDoinkerTargets}
             gridId={gridId}
             activePanel={activePanel}
-            pointing={doinkerPointing}
+            pointing={shownDoinkerPointing}
           />
         )}
 
@@ -4522,6 +4531,15 @@ return (
             updateStatus, closeAllPanels, bulkOperationContext, strings, transitionFadeControl,
             { x, y, noPrefetch: true }
           )}
+          onSnugSignpost={async (signpost) => {
+            // Snug's Home and Town rows: exactly the Map panel's free travel (FrontierMiniMap.js)
+            const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
+            await handleTransitSignpost(
+              currentPlayer, signpost, setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
+              updateStatus, activeTileSize, currentPlayer.skills, closeAllPanels, bulkOperationContext,
+              masterResources, strings, masterTrophies, transitionFadeControl
+            );
+          }}
         />
       )}
       {activePanel === 'FarmHandPanel' && (

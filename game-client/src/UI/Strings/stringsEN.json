@@ -23,6 +23,8 @@
     "17024": "{crop} can only be grown in {region}.",
     "17025": "Only raised in {region}",
     "17026": "{animal} can only be raised in {region}.",
+    "17027": "Once you have discovered a new region in the valley, use Snug to travel instantly to the town in that region. (Only available on regions with towns.)",
+    "17028": "Free",
     "17015": "Lives on your Homestead",
     "17016": "Lives in Town",
     "17017": "Lives out in the Valley",
@@ -1583,7 +1585,7 @@
 "742": "Click the Signpost to travel to your new homestead.",
 "742_touch": "Tap the Signpost to travel to your new Homestead.",
 "743": "Good to see you again, {username}! You'll need a key to access the Town.",
-"7059": "Well done. Now return home to harvest your crops.",
+"7059": "Now head home to claim your reward from the Shepherd and harvest your crops.",
     "4072": "Password (leave blank if none)",
     "4073": "This profile has no password. Leave the password field blank.",
     "4074": "No profile with that name.",
@@ -1610,7 +1612,7 @@
     "4095": "You can change it later in Profile.",
     "7063": "Welcome to your homestead! A gift awaits in your Mailbox.",
     "7064": "You can change your avatar in your Profile at any time.",
-    "7065": "You're on your own now! Keep selling to Kent, and come back for your crops. A special gift waits for you tomorrow. And seven lost treasures await you in your Quest for Hope.",
+    "7065": "You're on your own now! Keep farming and selling to Kent. At level 4, Constable Elbow will have work for you. Come back tomorrow for a gift, and seek the lost treasures of your Quest for Hope.",
     "7066": "After some more farming, visit Arden's Grange in Town. You can purchase new Skills there.",
     "7067": "To grow your homestead, you'll need to work the farm. Start by collecting 3 Wheat.",
     "7068": "Now sell your goods to the trader named Kent.",
@@ -1715,7 +1717,7 @@
     "16511": "The bird of wonder dies and rises from its ash. Pluck one feather from the fire, and that is one more treasure for the Oracle.",
     "16512": "Seven treasures, {username}. Bring them to the Oracle and take Hope home, and let us see the King crowned and Elbow, I mean Elsinore, merry again.",
     "16520": "Welcome, {username}. The herbs here grow wild, and grow back where you pick them in a day or two. Gather six Rosemary for me, and I will give you two of my Daisies. With a little Milk, the Apothecary in Town makes them into a healing potion.",
-    "16521": "Well done on your first Skill, {username}. Many more are earned here in Town, so choose wisely. Come and see me again once you are settled; I will have work for thee.",
+    "16521": "Well done on thy first Skill, {username}! Many more are earned here in Town, so choose wisely. Come and see me at level 4, when thou art settled; I shall have most suspicious work for thee.",
     "200845": "Audrey's Spot",
     "200846": "Corin's Spot",
     "200847": "Peter Quince's Spot",
@@ -1790,5 +1792,5 @@
     "16514": "Our King Leontes keeps to his hall in the Valley and will not be comforted. \"A sad tale's best for winter,\" he says. Go and greet him, {username}, and tell him the Oracle has not forgotten us.",
     "200851": "Step Stones",
     "314": "Step stones set in the grass make a path that still looks like a lawn.",
-    "7069": "Constable Elbow has a task for you. Open your 📜 Quests to read it."
+    "7069": "Your Grower quest is done! Open your 📜 Quests to see it."
 }
