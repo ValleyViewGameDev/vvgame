@@ -1,25 +1,19 @@
-import API_BASE from './config.js'; 
-import axios from 'axios';
-import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
-import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
+import { fetchInventoryAndBackpack } from './Utils/InventoryManagement';
+import { calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
 import { reportNoRoom } from './Utils/noRoom';
-import { updateGridResource } from './Utils/GridManagement';
+import { applyPlayerDelta, postAction, predictGain } from './Utils/playerDelta';
 import { loadMasterResources, loadMasterSkills, getFTUEsteps } from './Utils/TuningManager'; // Centralized tuning manager
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
-import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { showNotification } from './UI/Notifications/Notifications';
 import { createCollectEffect, createSourceConversionEffect, createPlantGrowEffect, calculateTileCenter } from './VFX/VFX';
 import soundManager from './Sound/SoundManager';
 import CombatFX from './Render/PixiRenderer/CombatFX';
-import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
 import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import { checkAndDropWarehouseIngredient } from './Utils/WarehouseMaterials';
-import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange, nearestFootprintTile } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
@@ -369,83 +363,71 @@ export async function handleDooberClick(
     soundManager.playSFX('collect_item');
   }
 
-  // Perform server validation
-  try {
-    // Use gainIngredients to handle inventory/backpack update, sync, and capacity check
-    console.log("Calling gainIngredients with: ",resource.type);
-    
-    const gainResult = await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: resource.type,
-      quantity: qtyCollected,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-      masterResources,
-      globalTuning,
-    });
+  // The counts move on the tap too (the answer's player delta replaces the prediction)
+  const atHome = currentPlayer?.location?.gtype === 'homestead';
+  predictGain({ type: resource.type, qty: qtyCollected, isCurrencyItem, atHome, setCurrentPlayer, setInventory, setBackpack });
 
-    // Handle the result based on error type
-    if (gainResult === true) {
-      // Success - continue with normal flow
-    } else if (gainResult && gainResult.success === false) {
-      // Check if we should rollback based on error type
-      if (gainResult.isCapacityError) {
-        // Real conflict - rollback the doober (and remove optimistic tree farmplot if any)
-        console.warn("❌ Capacity limit reached. Rolling back doober.");
-        setResources((prevResources) => {
-          // Remove any optimistically placed tree farmplot at this position
-          const filtered = optimisticTreeFarmplot
-            ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
-            : prevResources;
-          return [...filtered, resource];
-        });
-        
-        // Check if the error is specifically about missing backpack
-        if (gainResult.isMissingBackpack) {
-          // Don't show floating text - status message (19) already set by gainIngredients
-          // Don't open inventory panel for missing backpack
-        } else {
-          // a real capacity error: the same response as the pre-check
-          reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
-        }
-        // Clear processing flag
-        if (window._processingDoobers) {
-          window._processingDoobers.delete(dooberId);
-        }
-        return;
-      } else if (gainResult.isNetworkError) {
-        // Network/server error - don't rollback, the server might have queued it
-        console.warn("⚠️ Network error during collection, but server may have queued the operation. Not rolling back.");
-        // Still show success effects since server likely processed it
-      } else {
-        // Other client-side errors - rollback (and remove optimistic tree farmplot if any)
-        console.warn("❌ Client error during collection. Rolling back.");
-        setResources((prevResources) => {
-          const filtered = optimisticTreeFarmplot
-            ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
-            : prevResources;
-          return [...filtered, resource];
-        });
-        // Clear processing flag
-        if (window._processingDoobers) {
-          window._processingDoobers.delete(dooberId);
-        }
+  const putBack = () => setResources((prevResources) => {
+    const filtered = optimisticTreeFarmplot
+      ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
+      : prevResources;
+    return [...filtered, resource];
+  });
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
+
+  // ONE request (game-server routes/actionRoutes.js /action/harvest): the server removes the
+  // doober, grants it with the skill multiplier, advances Collect quests, rolls the crop's bonus
+  // tool, awards collection trophies and replants a repeatable doober, then answers with the
+  // player delta. Nothing here refetches the player.
+  try {
+    const answer = await postAction('/api/action/harvest', { playerId: currentPlayer.playerId, gridId, x: col, y: row });
+
+    if (!answer.ok) {
+      if (answer.status === 0) {
+        // No answer at all (network): the server may have done it; keep the board as it is
+        console.warn('⚠️ Harvest got no answer; leaving the doober collected.');
         return;
       }
+      applyPlayerDelta(answer.data, deltaSetters); // back to the server's counts
+      if (answer.reason === 'gone') return; // already collected (a double tap): it stays gone
+      putBack();
+      if (answer.reason === 'no-backpack') {
+        updateStatus(19);
+      } else if (answer.reason === 'warehouse-full' || answer.reason === 'backpack-full') {
+        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+      } else if (String(answer.reason || '').startsWith('needs-')) {
+        addFloatingText(`${resource.requires} Required`, col, row, TILE_SIZE);
+      } else {
+        console.warn('❌ Harvest refused:', answer.status, answer.reason);
+      }
+      return;
     }
-    
-    // Calculate skill info for formatting
-    const skillInfo = calculateSkillMultiplier(resource.type, skills || [], masterSkills);
-    
+
+    const result = answer.data;
+    applyPlayerDelta(result, deltaSetters);
+
     // Format and show status message using shared formatter
-    const statusMessage = formatSingleCollection('harvest', resource.type, qtyCollected, 
+    const skillInfo = calculateSkillMultiplier(resource.type, skills || [], masterSkills);
+    const statusMessage = formatSingleCollection('harvest', resource.type, result.collected?.qty ?? qtyCollected,
       skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
     updateStatus(statusMessage);
+
+    // The crop's bonus tool, if one dropped (the server rolled it and granted it when it fit)
+    if (result.drop) {
+      const dropDef = (masterResources || []).find((r) => r.type === result.drop.type);
+      FloatingTextManager.addFloatingText(
+        `${dropDef?.symbol || ''} +${result.drop.qty} ${getLocalizedString(result.drop.type, strings)}`,
+        col, row - (30 / TILE_SIZE), TILE_SIZE
+      );
+    }
+
+    // Collection trophies (King's Crown, Trident): the notification for a new milestone
+    for (const t of result.trophies || []) {
+      if (!t.isNewMilestone) continue;
+      const trophyDef = (masterTrophies || []).find((d) => d.name === t.name);
+      if (trophyDef && trophyDef.visible === false) continue;
+      showNotification('Trophy', t.trophy);
+    }
 
     // The tutorial's Wheat: remember its tile so the planting beat can point back at it
     if (currentPlayer?.firsttimeuser && resource.type === 'Wheat') {
@@ -474,98 +456,13 @@ export async function handleDooberClick(
       if (source && source.category === 'farmplot') window.dispatchEvent(new CustomEvent('vv:crop-harvested', { detail: { type: resource.type } }));
     } catch (_) { /* never block a collection */ }
 
-    const gridUpdateResponse = await updateGridResource(
-      gridId,
-      { type: null, x: col, y: row }, // Collecting doober removes it
-      true
-    );
-    if (!gridUpdateResponse?.success) {
-      console.warn('⚠️ Grid update failed even though inventory succeeded.');
-      return;
-    }
-
-    // Track quest progress for "Collect" actions
-    // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
-    await trackQuestProgress(currentPlayer, 'Collect', resource.type, qtyCollected, setCurrentPlayer);
-
-    // Check for warehouse ingredient drops when collecting crops
-    await checkAndDropWarehouseIngredient(
-      resource.type,
-      col,
-      row,
-      TILE_SIZE,
-      {
-        currentPlayer,
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-        strings,
-        FloatingTextManager,
-        gainIngredients,
-        trackQuestProgress,
-        getLocalizedString,
-        selectWeightedRandomItem,
-      }
-    );
-
-    // Award trophies for specific collected items
-    if (masterTrophies && currentPlayer?.playerId) {
-      try {
-        if (resource.type === "King's Crown") {
-          console.log(`🏆 Awarding King's Crown trophy for collecting ${qtyCollected} crown(s)`);
-          
-          // Award the Count-type trophy for each crown collected
-          for (let i = 0; i < qtyCollected; i++) {
-            await earnTrophy(currentPlayer.playerId, "King's Crown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          }
-          
-          console.log(`✅ Successfully awarded ${qtyCollected} King's Crown trophy instance(s)`);
-        } else if (resource.type === "Trident") {
-          console.log(`🏆 Awarding Trident trophy for collecting ${qtyCollected} trident(s)`);
-          
-          // Award the Count-type trophy for each trident collected
-          for (let i = 0; i < qtyCollected; i++) {
-            await earnTrophy(currentPlayer.playerId, "Trident", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          }
-          
-          console.log(`✅ Successfully awarded ${qtyCollected} Trident trophy instance(s)`);
-        }
-      } catch (error) {
-        console.error('❌ Error awarding collection trophy:', error);
-        // Don't fail the collection if trophy awarding fails
-      }
-    }
-
-    // Update currentPlayer state locally
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    console.log('[DEBUG] Player state refreshed after inventory update.');
-
-    // Handle replanting if resource is repeatable
-    if (resource.repeatable === true) {
-      await handleReplant(
-        resource,
-        row,
-        col,
-        setResources,
-        gridId,
-        masterResources,
-        TILE_SIZE
-      );
+    // A repeatable doober was replanted by the server: show it growing, with the server's clock
+    if (result.replant) {
+      await showReplant(result.replant, setResources, masterResources, TILE_SIZE);
     }
   } catch (error) {
     console.error('Error during doober collection:', error);
-    // Rollback local resource state on server failure (and remove optimistic tree farmplot if any)
-    setResources((prevResources) => {
-      const filtered = optimisticTreeFarmplot
-        ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
-        : prevResources;
-      return [...filtered, resource];
-    });
+    putBack();
   } finally {
     unlockResource(col, row); // Always unlock the resource
     // Clear the processing flag for this doober
@@ -575,114 +472,28 @@ export async function handleDooberClick(
   }
 }
 
-// HANDLE REPLANT - Called when a repeatable doober is collected
-// Finds the farmplot that outputs this resource and plants it in the same location
-// Mirrors handleFarmPlotPlacement logic from Farming.js
-async function handleReplant(
-  collectedResource,
-  row,
-  col,
-  setResources,
-  gridId,
-  masterResources,
-  TILE_SIZE
-) {
-  console.log(`🌱 handleReplant: Looking for farmplot that outputs ${collectedResource.type}`);
-
-  // Find the farmplot resource that outputs this collected resource
-  const farmplotResource = masterResources.find(
-    (res) => res.category === 'farmplot' && res.output === collectedResource.type
-  );
-
-  if (!farmplotResource) {
-    console.warn(`⚠️ handleReplant: No farmplot found that outputs ${collectedResource.type}`);
-    return;
-  }
-
-  console.log(`🌱 handleReplant: Found farmplot ${farmplotResource.type}, planting at (${col}, ${row})`);
-
-  // Calculate growEnd based on farmplot's growtime (growtime is in seconds, convert to ms)
-  // This matches Farming.js line 67: Date.now() + (selectedItem.growtime || 0) * 1000
-  const growEndTime = Date.now() + (farmplotResource.growtime || 0) * 1000;
-  console.log(`⏱️ handleReplant: growtime = ${farmplotResource.growtime}, growEndTime = ${growEndTime}, secondsFromNow = ${(growEndTime - Date.now()) / 1000}`);
-
-  // Use enrichResourceFromMaster like Farming.js does for proper enrichment
-  const enrichedNewResource = enrichResourceFromMaster(
-    {
-      type: farmplotResource.type,
-      x: col,
-      y: row,
-      growEnd: growEndTime,
-    },
-    masterResources
-  );
-
-  console.log('🌱 handleReplant: Enriched farmplot resource:', enrichedNewResource);
-
-  // For trees, local state was already updated optimistically in handleDooberClick
-  // For non-trees, update local state now
+// SHOW REPLANT - the board half of a replant the server already made (/action/harvest answers
+// with { type, x, y, growEnd }): the grow animation, the farm plot in local state and FarmState's
+// timer. Trees were placed optimistically on the tap, so they only get their timer.
+async function showReplant(replant, setResources, masterResources, TILE_SIZE) {
+  const { type, x: col, y: row, growEnd } = replant;
+  const farmplotResource = (masterResources || []).find((res) => res.type === type);
+  if (!farmplotResource) return;
+  const enriched = enrichResourceFromMaster({ type, x: col, y: row, growEnd }, masterResources);
   const isTree = farmplotResource.source === 'tree';
 
-  // Start grow animation BEFORE updating state so canvas skips rendering this resource
-  // This prevents the resource from appearing before the animation plays
-  if (!isTree && enrichedNewResource.symbol && TILE_SIZE) {
-    createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
+  if (!isTree && enriched.symbol && TILE_SIZE) {
+    // Start the grow animation BEFORE the state update so the canvas skips drawing it early
+    createPlantGrowEffect(col, row, TILE_SIZE, enriched.symbol, null, enriched.filename);
   }
+  const current = GlobalGridStateTilesAndResources.getResources() || [];
+  const others = current.filter((res) => !(res.x === col && res.y === row));
+  const finalResources = [...others, enriched];
+  GlobalGridStateTilesAndResources.setResources(finalResources);
+  setResources(finalResources);
 
-  if (!isTree) {
-    const currentResources = GlobalGridStateTilesAndResources.getResources();
-    const finalResources = [...currentResources, enrichedNewResource];
-    GlobalGridStateTilesAndResources.setResources(finalResources);
-    setResources(finalResources);
-  } else {
-    // For trees, just sync with GlobalGridState (React state already updated)
-    const currentResources = GlobalGridStateTilesAndResources.getResources();
-    // Check if it's not already there before adding
-    const alreadyExists = currentResources.some(res => res.x === col && res.y === row && res.type === farmplotResource.type);
-    if (!alreadyExists) {
-      GlobalGridStateTilesAndResources.setResources([...currentResources, enrichedNewResource]);
-    }
-  }
-
-  // Perform server update to add the farmplot
-  try {
-    const gridUpdateResponse = await updateGridResource(
-      gridId,
-      {
-        type: farmplotResource.type,
-        x: col,
-        y: row,
-        growEnd: growEndTime
-      },
-      true
-    );
-
-    if (gridUpdateResponse?.success) {
-      console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
-      // Grow animation already started before state update (see above)
-
-      // Add to FarmState so the timer tracks this farmplot for conversion
-      const farmState = (await import('./FarmState')).default;
-      farmState.addSeed({
-        type: farmplotResource.type,
-        x: col,
-        y: row,
-        growEnd: growEndTime,
-        output: farmplotResource.output, // Required for crop conversion
-      });
-      console.log(`🌱 handleReplant: Added ${farmplotResource.type} to FarmState for timer tracking`);
-    } else {
-      throw new Error('Server failed to confirm the replant.');
-    }
-  } catch (error) {
-    console.error('❌ handleReplant: Error during replanting:', error);
-    // Rollback local state on failure
-    const rolledBackResources = GlobalGridStateTilesAndResources.getResources().filter(
-      (res) => !(res.x === col && res.y === row && res.type === farmplotResource.type)
-    );
-    GlobalGridStateTilesAndResources.setResources(rolledBackResources);
-    setResources(rolledBackResources);
-  }
+  const farmState = (await import('./FarmState')).default;
+  farmState.addSeed({ type, x: col, y: row, growEnd, output: farmplotResource.output });
 }
 
 // HANDLE SOURCE CONVERSIONS //
@@ -753,6 +564,8 @@ export async function handleSourceConversion(
 
   // Check if the object should disappear (output is null/empty) or transform
   const shouldDisappear = !resource.output || resource.output === 'null' || !targetResource;
+  // the board as it was, to put back if the server refuses (/action/convert)
+  const boardBefore = GlobalGridStateTilesAndResources.getResources();
   
   if (shouldDisappear) {
     // Find the original resource to check for shadows - use global state like ProtectedSelling does
@@ -781,24 +594,6 @@ export async function handleSourceConversion(
     GlobalGridStateTilesAndResources.setResources(filteredResources);
     setResources(filteredResources);
 
-    // Perform server update to remove the main resource
-    try {
-      const gridUpdateResponse = await updateGridResource(
-        gridId,
-        { type: null, x: col, y: row },
-        true
-      );
-      if (gridUpdateResponse?.success) {
-        // VFX
-        // createSourceConversionEffect(col, row, TILE_SIZE, requirement);
-        console.log('✅ Resource removal completed successfully on the server.');
-      } else {
-        throw new Error('Server failed to confirm the resource removal.');
-      }
-    } catch (error) {
-      console.error('❌ Error during resource removal:', error);
-      console.warn('Server update failed. The client may become out of sync.');
-    }
   } else {
     // Build the new resource object to replace the one we just clicked
     const x = col;
@@ -849,32 +644,19 @@ export async function handleSourceConversion(
     // Update both global and local state with the same filtered array - exactly like ProtectedSelling does
     GlobalGridStateTilesAndResources.setResources(finalResources);
     setResources(finalResources);
-
-    // Perform server update
-    try {
-      const gridUpdateResponse = await updateGridResource(
-        gridId, 
-        { type: targetResource.type, x: col, y: row }, 
-        true
-      );
-      if (gridUpdateResponse?.success) {
-        // VFX
-        //createSourceConversionEffect(col, row, TILE_SIZE, requirement);
-        console.log('✅ Source conversion completed successfully on the server.');
-      } else {
-        throw new Error('Server failed to confirm the source conversion.');
-      }
-    } catch (error) {
-      console.error('❌ Error during source conversion:', error);
-      console.warn('Server update failed. The client may become out of sync.');
-    }
   }
-  
-  // Shared cleanup regardless of disappear/transform
+
+  // ONE validated request (game-server routes/actionRoutes.js /action/convert): the server checks
+  // the tool skill and makes the same change; a refusal puts the board back. No player refetch:
+  // converting a source changes only the grid.
   try {
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+    const answer = await postAction('/api/action/convert', { playerId: currentPlayer.playerId, gridId, x: col, y: row });
+    if (!answer.ok && answer.status !== 0 && answer.reason !== 'gone') {
+      console.warn('❌ Source conversion refused:', answer.status, answer.reason);
+      GlobalGridStateTilesAndResources.setResources(boardBefore);
+      setResources(boardBefore);
+    }
+  } finally {
     unlockResource(col, row);
-  } catch (error) {
-    console.error('❌ Error during cleanup:', error);
   }
 }

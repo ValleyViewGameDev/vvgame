@@ -214,6 +214,8 @@ app.use((req, res, next) => {
 console.log('Setting up authentication routes...');
 // One writer per grid at a time: queues grid write requests per grid id (utils/gridWriteLock.js)
 app.use('/api', require('./utils/gridWriteLock').gridWriteLock);
+// ...then one writer per player: queues player write requests per playerId, after the grid lock (utils/playerWriteLock.js)
+app.use('/api', require('./utils/playerWriteLock').playerWriteLock);
 app.use('/api', authRoutes); // <-- Use auth routes for player registration/login
 app.use('/api', require('./routes/unsubscribe')); // one-click unsubscribe from email footers (no session)
 app.use('/api', require('./routes/dev')); // Edit Mode writes (developers, local dev only)
@@ -231,6 +233,7 @@ app.use('/api', require('./routes/innRoutes')); // The Inn: POST rest (Money for
 app.use('/api', require('./routes/storyRoutes')); // Story moments: waking Gertrude (utils/storyState.js)
 app.use('/api', require('./routes/reviveRoutes')); // Revive for Gems from the "You have fallen" modal
 app.use('/api', require('./routes/combatRoutes')); // POST /action/npc-kill: the one combat write (docs/audits/combat-and-npc-review-2026-10-07.md Track 2)
+app.use('/api', require('./routes/actionRoutes')); // POST /action/*: one validated request per player action, answers with the player delta (Phase 5)
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');
