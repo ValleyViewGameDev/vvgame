@@ -105,9 +105,10 @@
 /* "Plant / Place / Use with cursor" toggle on the Farming, Tools, Pets, Build, Buy and
    Decorations panels: a control label, so Lora */
 .cursor-toggle-label {
-  font-family: var(--font-heading);
-  font-weight: var(--weight-bold);
-  font-size: var(--text-lg);
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
   cursor: pointer;
 }
 

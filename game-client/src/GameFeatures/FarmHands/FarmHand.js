@@ -29,6 +29,23 @@ import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
 import { sellSection } from '../../UI/Panels/SellSection';
 
+// Each worker comes with its own skills (owner, 2026-11-04/05): hiring Corin IS Bulk Animal
+// Collect, hiring Audrey IS Bulk Harvest and Bulk Replant, nothing more to buy at the panel. Only
+// the upgrades (Better Logging, Bulk Restart Craft) are still bought. The skills are implied by the
+// worker standing on the homestead, not granted, so workers hired before this need no migration;
+// the upgrades no longer `require` them.
+const WORKER_SKILLS = {
+  'Farm Hand': ['Bulk Harvest', 'Bulk Replant'],
+  Rancher: ['Bulk Animal Collect'],
+  Lumberjack: ['Logging'],
+  Crafter: ['Bulk Crafting'],
+};
+const withWorkerSkill = (playerSkills, workerType) => {
+  const owned = playerSkills || [];
+  const missing = (WORKER_SKILLS[workerType] || []).filter((type) => !owned.some((s) => s.type === type));
+  return missing.length ? [...owned, ...missing.map((type) => ({ type, quantity: 1 }))] : owned;
+};
+
 const FarmHandPanel = ({
   onClose,
   npc,
@@ -69,7 +86,7 @@ const FarmHandPanel = ({
   const [availableCraftingStations, setAvailableCraftingStations] = useState([]);
   const [bulkCraftingResults, setBulkCraftingResults] = useState(null);
   const [isCraftingResultsModalOpen, setIsCraftingResultsModalOpen] = useState(false);
-  const skills = currentPlayer.skills || [];
+  const skills = withWorkerSkill(currentPlayer.skills, npc?.type || stationType);
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
   const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '' });
@@ -184,7 +201,7 @@ const FarmHandPanel = ({
   }, [stationType, masterResources, currentSeason, isDeveloper, playerLevel, inventory, backpack]);
 
   useEffect(() => {
-    const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];
+    const ownedTypes = withWorkerSkill(currentPlayer.skills, npcType).map(skill => skill.type);
     
     // Get skills from multiple sources based on NPC type
     let validSources = ['Farm Hand']; // Always include Farm Hand skills
@@ -345,7 +362,7 @@ const FarmHandPanel = ({
 
     try {
       // Step 1: Determine how many trees we can chop
-      const loggingSkills = (currentPlayer.skills || []).filter(
+      const loggingSkills = skills.filter(
         (skill) => ['Logging', 'Better Logging'].includes(skill.type)
       );
       const maxTrees = loggingSkills.reduce((sum, skill) => {

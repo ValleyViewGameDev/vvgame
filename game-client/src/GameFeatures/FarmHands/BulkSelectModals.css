@@ -26,8 +26,11 @@
 }
 .bulk-select-group + .bulk-select-group { margin-left: auto; }
 .bulk-select-group-label {
-  font-size: var(--text-md);
-  font-weight: bold;
+  /* a column label: title-3 (ui-conventions §9); phones step it down in mobile.css for room */
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
   white-space: nowrap;
 }
 .bulk-select-group .shared-buttons {

@@ -32,9 +32,8 @@
     margin: 15px 0;
 }
 
-.next-shipment-preview h4 {
-    margin-bottom: 8px;
-    color: var(--color-text-primary);
+.next-shipment-preview h3 {
+    margin-bottom: 8px; /* a panel label: the standard <h3> face (ui-conventions §9) */
 }
 
 /* Next shipment container styling */
@@ -154,9 +153,8 @@
     margin-bottom: 16px;
 }
 
-.reward-section h4 {
-    margin-bottom: 8px;
-    color: var(--color-text-primary);
+.reward-section h3 {
+    margin-bottom: 8px; /* a panel label: the standard <h3> face (ui-conventions §9) */
 }
 
 /* Your claimed offer you cannot fill is a disabled button; the tap passes through to the

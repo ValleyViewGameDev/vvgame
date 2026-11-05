@@ -6,3 +6,10 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
 }
+
+/* The nav bar's buttons (.nav-scroll) fade the same way at the far edge while more buttons lie
+   past it: the right on a horizontal bar, the bottom on the phone-landscape column. */
+.scroll-fade--more-x {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent 100%);
+}

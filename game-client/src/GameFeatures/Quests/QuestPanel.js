@@ -114,6 +114,7 @@ function QuestPanel({ onClose, currentPlayer, setCurrentPlayer, masterResources,
         showTitle={true}
         size="normal"
       />
+      <h3>{strings[17021]}</h3>
       {(!validQuests || validQuests.length === 0) ? (
         <p>{strings[203]}</p>
       ) : (

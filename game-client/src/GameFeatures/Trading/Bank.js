@@ -205,7 +205,7 @@ function BankPanel({
             return !isInHomeSettlement && !isInValley;
           })() ? (
             <div style={{ textAlign: 'center', padding: '20px' }}>
-              <h2>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h2>
+              <h3>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h3>
             </div>
           ) : isContentLoading ? (
             <p>{strings[98]}</p>

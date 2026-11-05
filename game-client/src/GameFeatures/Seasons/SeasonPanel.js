@@ -258,13 +258,13 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
       {seasonData?.phase === "onSeason" ? (
         <>
-          <h2>{strings[3053]} {seasonData?.type || strings[3054]}</h2>
-          <p>{strings[3055]}</p> 
+          <h3>{strings[3053]} {seasonData?.type || strings[3054]}</h3>
+          <h3>{strings[3055]}</h3>
           <h2 className="countdown-timer">{countdown}</h2>
         </>
       ) : (
         <>
-          <h2>{strings[3056]}</h2>
+          <h3>{strings[3056]}</h3>
         </>
       )}
 

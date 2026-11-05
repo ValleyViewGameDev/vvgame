@@ -13,18 +13,23 @@
 }
 
 .inventory-section-header h3 {
-  font-size: var(--text-md);
   margin: 0;
 }
 
+/* the count beside the Backpack / Warehouse label, and the no-Backpack notice: the same
+   panel-label face as the <h3> beside them (title-3, bold; ui-conventions §9) */
 .capacity-info {
-  font-size: var(--text-md);
-  font-weight: bold;
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
 }
 
 .capacity-display {
-  font-size: var(--text-md);
-  font-weight: bold;
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
   margin-bottom: 10px;
 }
 

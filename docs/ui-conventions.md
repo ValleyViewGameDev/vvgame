@@ -122,6 +122,12 @@ value rather than trust this page.
   it scrolls; the fade disappears at the end so the last line is never dimmed. Nothing to
   wire per panel; a new panel gets it as long as its scroller is a real `overflow-y: auto`
   box rather than the window.
+- The nav bar does the same at its far edge (owner 2026-11-05): its buttons scroll inside an
+  inner `.nav-scroll` (the pill `.nav-column` keeps its rounded ends and clips), and
+  scrollFade.js gives that strip `scroll-fade--more-x` (a 56 px fade at the right, wide enough to
+  dim the last whole icon, since the next one barely peeks) on a horizontal bar, or
+  `scroll-fade--more` at the bottom of the phone-landscape column. Put new nav buttons inside
+  `.nav-scroll`.
 - Right panels (desktop only): How to Play, Season, Leaders and Town News are `RIGHT_PANELS` in
   `UI/Panels/Panel.js` and get `panel-container--right`: the same box docked at the window's
   right edge, sliding in and out from the right. On phones every panel is a left panel
@@ -507,8 +513,40 @@ class. `node scripts/check-styles.js` (in `game-client/`) reports every line tha
 `--font-mono` is for developer tools only (debug panels, the GridState overlay). The page
 `body` defaults to Lora (`App.css`): Berkshire is opt-in (a title role or `--font-display`)
 and body text gets Philosopher through its role, so an element that sets nothing reads as a Lora
-label, never as a decorative title. Section headings inside a panel's content use
-`.panel-subheading` (Lora bold 18, title gold; `Panel.css`), not the panel-title face;
+label, never as a decorative title. **A panel's sub-title or section label is a plain `<h3>`**
+in the panel content: title-3 (Lora bold 16, `--color-text-heading`; `.panel-content h3` in
+`Panel.css`), with no class. That is "Your Settlement" (Gov panel), Health / Armor / Weapons
+(Combat panel), the Farm House's "Hire farm workers..." line. A checkbox or toggle label in a panel
+is the same title-3 (family, size, weight AND colour from the `--font-title-3-*` tokens): the
+"Place with cursor" toggle (`.cursor-toggle-label`) and a worker's "Automatically work?"
+(`.worker-autowork`). One face for every panel label: never a smaller body face or a bespoke
+size for one of them. The same goes for labels inside modals (the Clues modal's labels, the
+bulk-harvest results' section headers, the bulk-select column labels; phones may step a label
+down in `mobile.css` for room). A plain `<h2>` in a panel's content renders in the gold display
+face (`.panel-container .panel-content h2`), so an `<h2>` is only for what is a TITLE: the name of
+the thing the panel is about (a crop's, animal's, door's or decoration's symbol and name), a
+proper name shown as a heading (the settlement, the Mayor), a section header of a reference panel
+(What's it about?, Benefits, Have Feedback?), and the big countdowns (`.countdown-timer`). A
+sentence, a notice or a label with a colon is an `<h3>`: "This is not your home
+settlement.", "Welcome, Mayor.", "It's Spring", "Quest for Hope:", "Top players by net worth:"
+(all moved from `<h2>` on 2026-11-05), and the Skills panel's "Acquire more skills at various locations
+in town." (was a plain `<p>`): a panel's line of explanation above its buttons is this `<h3>`, not
+body text. Never an `<h4>` or a bold `<p>` for a panel label either: the Caravan's
+and Harvest Fair's section labels ("Your Caravan Orders", "Next Shipment Preview:", "Rewards for
+filling all orders:"), the Healer's "Your Health Unavailable", the gem offers' "No Brainer:" /
+"Best Value:" / "Most Popular:" and "Season ends in:" all moved to `<h3>` (2026-11-05). What stays
+body text: reading content (the How To pages' paragraphs, the Gov panel's notes, the Gold Pass
+list, the Town News articles, which keep their in-world newspaper face), empty states ("No trades
+available.", `.text-empty`) and loading lines. A panel label is left-aligned like the panel's text (never centred on
+its own: the Quests panel's "Quest for Hope:" was, until 2026-11-05). A label that leads a value ("Output: 2x" at a crafting
+station, "Capacity: 512 / 700" in the Warehouse, the count beside the Inventory's Backpack and
+Warehouse labels) is the same title-3, and always BOLD: never `font-weight: normal` on a panel
+label (the Warehouse's "Capacity:" was, until 2026-11-05). Never give a sub-title, a sentence or a label the title gold: gold
+(`--color-text-title`) is for TITLES only, the panel title and the rare `.panel-subheading` (Lora
+bold 18, gold; `Panel.css`), which is reserved for a true header that splits a long reference
+panel into parts (How to Earn Money / Gems), never a line of explanation or a list label (the
+Skills panel's "Skills you have:" moved to `<h3>` the same day)
+(owner, 2026-11-05: the Farm House line in gold was wrong);
 control labels such as the "Place with cursor" toggle use `.cursor-toggle-label`; a modal that names an action under its title splits them: the place as the Berkshire `.modal-title` ("Trading Post"), the action as a Lora `.modal-subtitle` under it ("Add Items to Sell"), never one "Place: action" string; Google Fonts loads Berkshire Swash, Lora and Philosopher (`public/index.html`); Arial is only the fallback while Philosopher loads. Form controls are the trap: a `<button>`, `<input>`, `<select>` or `<textarea>` ignores the page font and shows the system one (Arial), so `theme.css` sets text fields to the body font and makes buttons inherit, and a component built on a `<button>` (ResourceButton) names `--font-body` itself.
 
 **Six text roles** (family + size + color, `--font-<role>-*`): `title-1` modal title (display,

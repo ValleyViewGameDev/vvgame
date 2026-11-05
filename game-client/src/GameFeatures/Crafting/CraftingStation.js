@@ -675,7 +675,7 @@ const CraftingStation = ({
          !currentPlayer?.location?.gtype?.startsWith('valley') &&
          String(currentPlayer.location.s) !== String(currentPlayer.settlementId) ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h2>{strings[2050] || "This is not your home settlement. You cannot access community services in any settlement but your own."}</h2>
+            <h3>{strings[2050] || "This is not your home settlement. You cannot access community services in any settlement but your own."}</h3>
           </div>
         ) : (
           <>

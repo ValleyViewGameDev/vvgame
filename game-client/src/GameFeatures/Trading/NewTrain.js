@@ -209,7 +209,7 @@ function NewTrainPanel({
 
     return (
       <div className="offer-section">
-        <h4>{strings[2117] || 'Your Caravan Orders'}</h4>
+        <h3>{strings[2117] || 'Your Caravan Orders'}</h3>
         {currentTrainOffers.map((offer, index) => {
           const isCompleted = offer.completed || false;
           const playerQty = inventory?.find(item => item.type === offer.item)?.quantity || 0;
@@ -299,13 +299,13 @@ function NewTrainPanel({
         {currentTrainRewards.length === 0 && <p>No rewards available</p>}
         {base.length > 0 && threshold < total && (
           <>
-            <h4>{(strings[2024] || 'Rewards for filling {n} of {m} orders:').replace('{n}', threshold).replace('{m}', total)}</h4>
+            <h3>{(strings[2024] || 'Rewards for filling {n} of {m} orders:').replace('{n}', threshold).replace('{m}', total)}</h3>
             {renderList(base)}
           </>
         )}
         {(full.length > 0 || (base.length > 0 && threshold >= total)) && (
           <>
-            <h4>{strings[2019]}</h4>
+            <h3>{strings[2019]}</h3>
             {renderList(threshold >= total ? [...base, ...full] : full)}
           </>
         )}
@@ -318,7 +318,7 @@ function NewTrainPanel({
 
     return (
       <div className="next-shipment-preview">
-        <h4>{strings[2003]}</h4>
+        <h3>{strings[2003]}</h3>
         <div className="next-shipment-container">
           <div style={{ marginBottom: '10px' }}>
             <strong>Orders:</strong>
@@ -347,7 +347,7 @@ function NewTrainPanel({
           return !isInHomeSettlement;
         })() ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h2>{strings[2050] || "This is not your home settlement."}</h2>
+            <h3>{strings[2050] || "This is not your home settlement."}</h3>
           </div>
         ) : isContentLoading ? (
           <p>{strings[98]}</p>

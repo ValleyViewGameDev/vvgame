@@ -6,9 +6,11 @@
   gap: 8px;
   min-height: 44px;
   margin: 0 0 6px 0;
-  font-family: var(--font-text-1-family);
-  font-size: var(--text-md);
-  font-weight: bold;
+  /* a panel label: title-3, like a panel <h3> and the "Place with cursor" toggle (ui-conventions §9) */
+  font-family: var(--font-title-3-family);
+  font-size: var(--font-title-3-size);
+  font-weight: var(--font-title-3-weight);
+  color: var(--font-title-3-color);
   cursor: pointer;
 }
 .worker-autowork input[type="checkbox"] {

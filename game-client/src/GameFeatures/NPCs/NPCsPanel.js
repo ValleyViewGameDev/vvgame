@@ -1623,7 +1623,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                 </>
               );
             } else {
-              return <h4>{strings[512]}</h4>;
+              return <h3>{strings[512]}</h3>;
             }
           })()}
 <br />

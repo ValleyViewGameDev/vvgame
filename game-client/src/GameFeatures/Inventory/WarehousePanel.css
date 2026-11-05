@@ -9,9 +9,7 @@
 }
 
 .warehouse-capacity-display h3 {
-  font-size: var(--text-lg);
-  font-weight: normal;
-  color: var(--color-text-primary);
+  /* "Capacity: 512 / 700" is a panel label: the standard <h3> (title-3, bold; ui-conventions §9) */
   margin: 0;
 }
 

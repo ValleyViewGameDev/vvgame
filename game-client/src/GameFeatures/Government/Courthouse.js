@@ -554,7 +554,7 @@ const CourthousePanel = ({
                     </>
                 )}
                 
-                {isMayor && <h2>{strings[2080]}</h2>}
+                {isMayor && <h3>{strings[2080]}</h3>}
                 
                 <div className="debug-buttons">
 
@@ -626,7 +626,7 @@ const CourthousePanel = ({
                         </>
                     )}
 
-                    {!isMayor && <h2>{strings[2079]}</h2>}
+                    {!isMayor && <h3>{strings[2079]}</h3>}
 
                     <p>{strings[2084]}</p>
 

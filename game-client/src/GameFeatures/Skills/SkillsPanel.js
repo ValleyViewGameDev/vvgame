@@ -414,12 +414,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             </div>
 
-          <p>{strings[10175]}</p>
+          <h3>{strings[10175]}</h3>
 
             {(entryPoint === "Basic Skills") && (
               <div className="skills-owned">
                 <br></br>
-                <h2 className="panel-subheading">{strings[1303]}</h2>
+                <h3>{strings[1303]}</h3>
                 {ownedSkills.length > 0 ? (
                   ownedSkills.map((skill) => {
                     // Look up full resource data for this skill

@@ -362,7 +362,11 @@ const FarmHouse = ({
   return (
     <Panel footer={sellFooter} onClose={onClose} descriptionKey="1032" titleKey="1132" panelName="FarmHouse">
       <div className="standard-panel">
-        
+        {/* The hiring line: once every worker stands on the homestead, there is no one left to hire */}
+        <h3>
+          {recipes?.some((recipe) => recipe.action === 'worker') ? strings[17019] : strings[17020]}
+        </h3>
+
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, allResources || []);
@@ -509,7 +513,7 @@ const FarmHouse = ({
                 </ResourceButton>
               );
             })
-          ) : <p>{strings[456]}</p>}
+          ) : null}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 

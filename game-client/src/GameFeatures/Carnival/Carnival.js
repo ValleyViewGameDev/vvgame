@@ -347,7 +347,7 @@ function CarnivalPanel({
   
     return (
       <div className="next-shipment-preview">
-        <h4>{strings[2018]}</h4>
+        <h3>{strings[2018]}</h3>
         <div className="next-shipment-container">
           {uniqueOffers.map((offer, index) => (
             <div key={index} className="next-shipment-item">
@@ -374,7 +374,7 @@ function CarnivalPanel({
   
     return (
       <div className="reward-section">
-        <h4>{strings[2004]}</h4>
+        <h3>{strings[2004]}</h3>
         <div className="carnival-rewards-container">
           {Object.entries(combinedRewards).map(([item, totalQty], index) => (
             <div key={index} className="carnival-reward-item">
@@ -390,7 +390,7 @@ function CarnivalPanel({
     if (!offers.length) return null;
     return (
       <div className="offer-section">
-        <h4>{title}</h4>
+        <h3>{title}</h3>
         {offers.map((offer, index) => {
           const isYours = offer.claimedBy === currentPlayer.playerId;
           const isCompleted = offer.filled;
@@ -480,7 +480,7 @@ function CarnivalPanel({
           return !isInHomeSettlement;
         })() ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h2>{strings[1352] || "This is not your home settlement."}</h2>
+            <h3>{strings[1352] || "This is not your home settlement."}</h3>
           </div>
         ) : (
           <>

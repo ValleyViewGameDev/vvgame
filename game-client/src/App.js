@@ -3447,7 +3447,9 @@ return (
     <div className="nav-column" style={hideNavForFTUE ? { display: 'none' } : undefined} {...navTipHandlers}>
 
       {currentPlayer && (
-        <>
+        // the buttons scroll inside the pill, so the pill keeps its rounded ends while the
+        // overflow fades out at the far edge (UI/Panels/scrollFade.js)
+        <div className="nav-scroll">
 
       <button
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
@@ -3554,7 +3556,7 @@ return (
           🐞
         </button>
       )}
-        </>
+        </div>
       )}
     </div>
 

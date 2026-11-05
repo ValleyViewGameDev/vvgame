@@ -66,7 +66,7 @@ carry the player through them:
   character's own Secret). **The specialists ask the player to make things**: Mistress Quickly
   cooking, Feste crafting (cloth, studio goods), Helena foraging, Portia potions and the healers,
   Hotspur and Cassio fighting. Constable Elbow, besides his story chain, gives the adventuring
-  kit (the Backpack at L8, Scout at L13) and introduces the traders as each becomes useful (the
+  kit (the Backpack at L7, Scout at L13) and introduces the traders as each becomes useful (the
   Apothecary at L9, "I Do Remember an Apothecary", string 16517: the level Potion A first
   blocks, Chemistry and Portia's first potion); these are side quests, outside his chain. A specialist's quest asks for two or three products, from
   different stations where it can ("20 Cheese, 12 Butter and 4 Flour"), so it reads unlike a
@@ -117,7 +117,7 @@ Husbandry quest is the model (Acquire Husbandry, Buy 1 Cow, Collect 12 Milk; the
 into one are `retired`, still claimable by anyone who holds one). **Unlocks match the teaching
 quest** (owner, 2026-10-25): from L1 to L12, a skill, station or animal that a quest teaches
 unlocks at that quest's level, never before, so nothing sits in a shop ahead of its lesson
-(Builder and the Mill L5, Husbandry and the Cow L4, Backpack and its upgrades and the Pickaxe L7,
+(Builder and the Mill L5, Husbandry and the Cow L4, the Backpack L7, its upgrades and the Pickaxe L8,
 Masonry, Mechanics, Dairy and Hospital L8, Loom L9, Politics, Law, Library and Textiles L12). From L8 a level may carry
 more than one. **Combat starts at L10** (owner): combat quests and the first weapons, armour and
 combat magic all unlock there; a player may still fight before with the Knife and Padding.
@@ -130,11 +130,11 @@ combat magic all unlock there; a player may still fight before with the Knife an
 | 4 | animals, and the Town's people | The Gentle Art (Husbandry + Cow + 12 Milk); Elbow's I Do Lean Upon Justice (Meet Mistress Quickly and Hotspur, moved from L3, Portia dropped until she has something to give); their first quests open on the Greet: Hotspur's To Pluck Bright Honour (Acquire a Short Sword: the one weapon before L10, 2,000 Money), Quickly's The Sweet Milk of Concord (6 Milk); I Earn That I Eat (Kent, practice) |
 | 5 | building | Foundations of Stone (Builder + Build Mill; Mill by Moonlight retired); Quickly's Sweet Harvest (Craft 3 Sugar at the Mill, repeatable; moved from the Shepherd); Fleecy Fellowship (Sheep, practice) |
 | 6 | new crops (Green Thumb, no quest) | Feste's I Wear Not Motley in My Brain (6 Wool: he has a quest the moment Elbow sends you to him); Elbow's "Better a Witty Fool Than a Foolish Wit" (Meet Feste, who sings to the Queen of stone; string 16516; added 2026-10-25 so L4-6 is not without a story step); practice: Barns and Garners Never Empty (Earth's Bounty, repeatable) and Quickly's Sugar (Our Bodies Are Our Gardens retired 2026-10-25: Potatoes are seasonal) |
-| 7 | the Dairy | Master Mason (Acquire Masonry, pays the 20 Stone a Dairy costs), Dairy to Dream (Build Dairy), Quickly's Cheddar Ambitions; Cook's Harvest (practice). Masonry, the Dairy and its products all unlock at L7 (owner 2026-10-26: Butter and Cheese showed at L6, the Dairy at L8) |
-| 8 | the Valley | the kit: Elbow's Backpack (its upgrades, the Pickaxe, Padding and Medicine all unlock at L8); Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Hotspur's Give Me My Armour (Padding); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Mechanics, Coop Dreams |
+| 7 | the Dairy | Master Mason (Acquire Masonry, pays the 20 Stone a Dairy costs), Dairy to Dream (Build Dairy), Quickly's Cheddar Ambitions; Elbow's Backpack (moved from L8, owner 2026-11-04; its upgrades stay L8); Cook's Harvest (practice). Masonry, the Dairy and its products all unlock at L7 (owner 2026-10-26: Butter and Cheese showed at L6, the Dairy at L8) |
+| 8 | the Valley | the kit: the Backpack's upgrades, the Pickaxe, Padding and Medicine all unlock at L8 (the Backpack itself is L7); Sermons in Stones (Pickaxe + 20 Stone: Rocks are Valley-only); Hotspur's Give Me My Armour (Padding); Elbow's More Things in Heaven and Earth (Helena); her Daisies for the Door (the Golden Key); Mechanics, Coop Dreams |
 | 9 | potions, cloth | Helena's Rosemary, Portia's Potion A, Chemistry; Loom and Cloth; Dairy Delights; Lumberjack; Serve Kent 12; the Clay |
 | 10 | combat begins | Hotspur's Focus, Long Blade, kit and Coyotes / Pelts; Elbow's Cassio step |
-| 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Fortitude. The workers come one every two levels: Audrey (Farm Hand) L9, Peter Quince (Lumberjack) L11, Corin (Rancher) L13, Nick Bottom (Crafter) L15 |
+| 11 | the Crown | Bears, the Great Bear, Elbow's A Crown for the King; Fortitude. The workers come one every two levels: Audrey (Farm Hand) L9, Peter Quince (Lumberjack) L11, Corin (Rancher) L13, Nick Bottom (Crafter) L15. Each comes with its skills (Bulk Harvest and Bulk Replant, Logging, Bulk Animal Collect, Bulk Crafting; owner 2026-11-04/05, `FarmHand.js` WORKER_SKILLS): nothing to buy at the panel but the upgrades |
 | 12 | | Duke Angelo; Politics and Vote (elections run on their own clock); Textiles |
 
 The XP the moved quests carried was put back on the concept quests (`tuning.md` §2: XP is the

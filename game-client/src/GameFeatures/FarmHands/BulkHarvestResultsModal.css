@@ -16,8 +16,11 @@
 .results-section-header {
   margin: 0 0 10px 0;
   padding-bottom: 5px;
-  font-weight: bold;
-  font-size: var(--text-xl);
+  /* a section label: title-3 (ui-conventions §9) */
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
 }
 
 /* Special 3-column grid for warehouse ingredients */

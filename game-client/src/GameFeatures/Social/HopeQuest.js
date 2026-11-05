@@ -112,9 +112,9 @@ function HopeQuest({
   return (
     <div className="hope-quest" role="button" tabIndex={0} onClick={open} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') open(); }}>
       {showTitle && (
-        <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>
+        <h3 style={{ marginBottom: '10px' }}>
           {strings[200801]}
-        </h2>
+        </h3>
       )}
       <div style={{
         display: 'flex',
