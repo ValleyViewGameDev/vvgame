@@ -23,7 +23,9 @@
  *   POST /action/npc-trade                        an NPC's trader offer (relationship bonus, xp, trophies)
  *   POST /action/shop-buy                         a shop's trader offer
  *   POST /action/quest-reward                     hand in a completed quest
- *   POST /action/heal-pay                         pay a healer (the hp itself is the client's, saved with /player/state)
+ *   POST /action/heal-pay                         pay a healer; the heal is applied on the server
+ *   POST /action/eat                              eat food for hp
+ *   POST /action/respawn                          after a death: respawn hp, the backpack lost (Tent and Boat kept)
  *   POST /action/bank-sell                        sell to the Bank / a valley Counting House at this round's price
  *   POST /action/quests-refresh                   bring the state goals (Acquire / Meet / Find / Discover) up to date
  *   POST /action/place                            build / buy / place a deco, a station, a farm animal or a pet
@@ -1088,8 +1090,8 @@ router.post('/action/quest-reward', async (req, res) => {
 /**
  * POST /api/action/heal-pay { playerId, healerType, useGems? }
  * → { success, amount, player, seq }
- * A healer's price is its own recipe in resources.json; `amount` is its qtycollected (the client
- * caps it at the missing hp and saves hp through /player/state, as before).
+ * A healer's price is its own recipe in resources.json; the heal (its qtycollected, capped at the
+ * derived maxhp) is applied here and answered as `hp` (/player/state never raises hp itself).
  */
 router.post('/action/heal-pay', async (req, res) => {
   try {
@@ -1098,10 +1100,13 @@ router.post('/action/heal-pay', async (req, res) => {
     const { player, answer } = ctx;
     const healer = econ.resourceDef(req.body.healerType);
     if (!healer || healer.action !== 'heal') return answer(400, 'not-a-healer');
+    const stored = Number.isFinite(player.hp) ? player.hp : econ.derivedMaxhp(player);
+    if (healer.output === 'hp' && stored >= econ.derivedMaxhp(player)) return answer(409, 'full-hp');
     const paid = payFor(player, healer, { useGems: req.body.useGems });
     if (!paid.ok) return answer(409, paid.reason);
+    const healed = econ.healBy(player, healer.qtycollected || 0); // the heal itself is the server's
     await player.save();
-    return res.json({ success: true, amount: healer.qtycollected || 0, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+    return res.json({ success: true, amount: healed.healed, hp: healed.hp, maxhp: healed.maxhp, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
   } catch (err) {
     console.error('❌ action/heal-pay failed:', err);
     return res.status(500).json({ success: false, error: 'heal-pay-failed', detail: err.message });
@@ -1617,6 +1622,68 @@ router.post('/action/mail-delete', async (req, res) => {
   } catch (err) {
     console.error('❌ action/mail-delete failed:', err);
     return res.status(500).json({ success: false, error: 'mail-delete-failed', detail: err.message });
+  }
+});
+
+// ---- Hit points: eating and respawning -------------------------------------------------------
+
+/**
+ * POST /api/action/eat { playerId, type, qty, from: 'inventory' | 'backpack' }
+ * → { success, eaten: {type, qty}, hp, maxhp, player, seq }
+ * GameFeatures/Eating/Eating.js: food with an `hp` in resources.json, at most what fills the hp
+ * up (as the panel caps it), taken from the list it was picked from (the food used to stay in
+ * the holdings: nothing saved the removal).
+ */
+router.post('/action/eat', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const def = econ.resourceDef(req.body.type);
+    if (!def || !(def.hp > 0)) return answer(400, 'not-food');
+    const field = req.body.from === 'inventory' ? 'inventory' : 'backpack';
+    const held = (player[field] || []).filter((i) => i && i.type === def.type).reduce((n, i) => n + (i.quantity || 0), 0);
+    const maxhp = econ.derivedMaxhp(player);
+    const stored = Number.isFinite(player.hp) ? player.hp : maxhp;
+    const fills = Math.max(1, Math.floor((maxhp - stored) / def.hp));
+    const qty = Math.min(Math.floor(Number(req.body.qty) || 0), held, fills);
+    if (!(qty > 0)) return answer(409, stored >= maxhp ? 'full-hp' : `short-${def.type}`);
+    takeAll(player[field], [[def.type, qty]]);
+    player.markModified(field);
+    const healed = econ.healBy(player, qty * def.hp);
+    await player.save();
+    return res.json({ success: true, eaten: { type: def.type, qty }, hp: healed.hp, maxhp: healed.maxhp, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/eat failed:', err);
+    return res.status(500).json({ success: false, error: 'eat-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/respawn { playerId }
+ * → { success, hp, maxhp, player, seq }
+ * playerManagement.js handlePlayerDeath: the respawn hp from globalTuning.combat (a flat value, a
+ * share of max hp for Gold) and the backpack emptied except the Tent and the Boat. The client then
+ * moves the player to town as before. Never raises hp above the respawn value.
+ */
+router.post('/action/respawn', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player } = ctx;
+    const combat = globalTuning.combat || {};
+    const maxhp = econ.derivedMaxhp(player);
+    const respawnHp = player.accountStatus === 'Gold' ? Math.floor(maxhp * (combat.respawnHpGoldFraction ?? 0.5)) : (combat.respawnHpFree ?? 40);
+    player.backpack = (player.backpack || []).filter((i) => i && (i.type === 'Tent' || i.type === 'Boat'));
+    player.markModified('backpack');
+    player.hp = Math.min(respawnHp, maxhp);
+    player.maxhp = maxhp;
+    player.hpSavedAt = new Date();
+    await player.save();
+    return res.json({ success: true, hp: player.hp, maxhp, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/respawn failed:', err);
+    return res.status(500).json({ success: false, error: 'respawn-failed', detail: err.message });
   }
 });
 

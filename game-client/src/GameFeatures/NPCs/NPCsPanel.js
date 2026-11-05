@@ -763,16 +763,14 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
     if (!answer.ok) { updateStatus(4); return; }
 
-    const healAmount = npcData.qtycollected;
-    const statToMod = 'hp';
-    const amountToMod = Math.min(healAmount, maxHp - currentHp);  // Ensure it doesn't exceed max HP
+    // The heal was made on the server (heal-pay answers the new hp); the board shows that hp
+    const amountToMod = Number.isFinite(answer.data.amount) ? answer.data.amount : Math.min(npcData.qtycollected, maxHp - currentHp);
 
     try {
-      await modifyPlayerStatsInGridState(statToMod, amountToMod, currentPlayer._id, gridId);
-      setCurrentPlayer((prev) => ({
-        ...prev,
-        hp: Math.min(prev.maxhp, prev.hp + amountToMod),
-      }));
+      if (Number.isFinite(answer.data.hp)) {
+        playersInGridManager.updatePC(gridId, playerId, { hp: answer.data.hp });
+        setCurrentPlayer((prev) => ({ ...prev, hp: answer.data.hp, maxhp: answer.data.maxhp ?? prev.maxhp }));
+      }
       soundManager.playSFX('heal');
       updateStatus(`${strings[405]}${amountToMod}`);
 

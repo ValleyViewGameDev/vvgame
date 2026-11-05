@@ -4,6 +4,7 @@
  * and returns the full grid bundle so the client makes exactly one call per grid change.
  */
 const express = require('express');
+const econ = require('../utils/playerEconomy');
 const { applyStoryState, ensureGertrudesSong, meetGertrude } = require('../utils/storyState');
 const router = express.Router();
 const Grid = require('../models/grid');
@@ -46,8 +47,13 @@ function applyLeaveState(player, leave) {
     if (Number.isInteger(state.x) && Number.isInteger(state.y) && state.x >= 0 && state.x < 64 && state.y >= 0 && state.y < 64) {
       player.location = { ...(player.location?.toObject ? player.location.toObject() : (player.location || {})), x: state.x, y: state.y };
     }
-    if (Number.isFinite(state.maxhp) && state.maxhp > 0) player.maxhp = state.maxhp;
-    if (Number.isFinite(state.hp)) player.hp = Math.max(0, player.maxhp != null ? Math.min(state.hp, player.maxhp) : state.hp);
+    // hp as /player/state takes it (utils/playerEconomy.js acceptReportedHp); maxhp is the server's
+    if (Number.isFinite(state.hp)) {
+      const accepted = econ.acceptReportedHp(player, state.hp);
+      player.hp = accepted.hp;
+      player.maxhp = accepted.maxhp;
+      player.hpSavedAt = new Date();
+    }
   }
 }
 

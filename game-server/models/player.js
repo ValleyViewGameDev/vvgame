@@ -61,6 +61,7 @@ const playerSchema = new mongoose.Schema({
   // Current combat state (Phase 3: lives here, not on the grid; docs/phase-3-contract.md)
   hp: { type: Number, default: null },
   maxhp: { type: Number, default: null },
+  hpSavedAt: { type: Date, default: null }, // when hp was last accepted (the homestead regen allowance runs from it)
   baseHp: { type: Number, default: 0 },
   baseMaxhp: { type: Number, default: 0 },
   baseAttackrange: { type: Number, default: 0 },
@@ -305,6 +306,8 @@ const playerSchema = new mongoose.Schema({
     }
   ],
 
+  // Kent's per-card cooldowns, { [slot]: endTime ms }: set and checked on the server (routes/kentRoutes.js)
+  kentCooldowns: { type: mongoose.Schema.Types.Mixed, default: {} },
   kentOffers: {
     endTime: { type: Number, default: 0 }, // Timestamp when offers become available
     offers: [

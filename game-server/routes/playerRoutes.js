@@ -13,7 +13,7 @@ const { maybeSendReturnGift } = require('../utils/returnGift');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, isReservedUsername } = require('../utils/usernames');
 const { isDeveloperPlayerId, forgetDeveloperStatus } = require('../utils/serviceMode');
-const { derivedStats, magicSlotCount, magicSlotBase } = require('../utils/combatStats');
+const { derivedStats, magicSlotCount, magicSlotBase, sanitizeGear } = require('../utils/combatStats');
 const globalTuning = require('../tuning/globalTuning.json');
 const { requireDeveloper } = require('../utils/developerHelpers');
 
@@ -340,7 +340,7 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
 // The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
 // The Caravan (`train`) is the server's: routes/caravanRoutes.js makes its orders, fills them and mails the rewards.
-const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train', 'kentOffers'];
+const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train', 'kentOffers', 'kentCooldowns', 'hpSavedAt'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
 const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots',
@@ -358,6 +358,13 @@ router.post('/update-profile', async (req, res) => {
   try {
     for (const key of Object.keys(updates)) {
       if (PROFILE_NEVER.includes(key.split('.')[0])) delete updates[key];
+    }
+    // Equipped gear lives in settings (client-written): keep only gear the player owns, of the
+    // slot's kind (utils/combatStats.js sanitizeGear). A dotted gear key is dropped: send settings whole.
+    for (const k of Object.keys(updates)) if (/^settings\.equipped/.test(k)) delete updates[k];
+    if (updates.settings && typeof updates.settings === 'object') {
+      const owner = await Player.findById(playerId).select('powers magicSlots').lean();
+      if (owner) updates.settings = sanitizeGear(updates.settings, owner);
     }
     // matched on the key's root, so a dotted path ('inventory.0.quantity') is caught too
     const devOnly = (key) => PROFILE_DEVELOPER_ONLY.includes(key.split('.')[0]);
@@ -1914,11 +1921,14 @@ router.post('/player/state', async (req, res) => {
     // maxhp is what the server derives from base + powers (never the client's number); hp is
     // clamped to it (utils/combatStats.js)
     if (Number.isFinite(hp)) {
-      const basis = await Player.findById(playerId, 'baseMaxhp powers settings').lean();
+      // damage is taken as reported; a rise only as the homestead regen (utils/playerEconomy.js
+      // acceptReportedHp); every other heal is written by its own server action
+      const basis = await Player.findById(playerId, 'baseMaxhp powers settings hp hpSavedAt location').lean();
       if (!basis) return res.status(404).json({ error: 'Player not found' });
-      const { maxhp: derivedMax } = derivedStats(basis);
-      set.maxhp = derivedMax;
-      set.hp = Math.max(0, Math.min(hp, derivedMax));
+      const accepted = econ.acceptReportedHp(basis, hp);
+      set.maxhp = accepted.maxhp;
+      set.hp = accepted.hp;
+      set.hpSavedAt = new Date();
     }
     const player = await Player.findByIdAndUpdate(playerId, { $set: set }, { new: true, projection: 'location hp maxhp' });
     if (!player) return res.status(404).json({ error: 'Player not found' });

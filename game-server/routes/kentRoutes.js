@@ -18,7 +18,10 @@
  *        -> { success, kentOffers, player, seq }
  *        One card: replaced in its slot (plus growth), as a sale does. All: a whole new board of
  *        as many cards as there were (6 for an empty board, the developer refresh).
- * The slot cooldowns stay on the client (Kent.js, localStorage).
+ * The slot cooldowns are the server's too (player.kentCooldowns, globalTuning.kentCardCooldownSeconds):
+ * a sold or dismissed card's slot cannot be sold or dismissed again until its cooldown ends (409
+ * cooldown); every answer carries `kentCooldowns` for the client's countdowns. A developer's
+ * { all: true, debug: true } refresh skips and clears them.
  */
 const express = require('express');
 const router = express.Router();
@@ -28,6 +31,20 @@ const econ = require('../utils/playerEconomy');
 const kent = require('../utils/kentOffers');
 const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
 const { recordLevelUps } = require('../utils/analytics');
+const globalTuning = require('../tuning/globalTuning.json');
+const { isDeveloper } = require('../utils/developerHelpers');
+
+const COOLDOWN_MS = (Number(globalTuning.kentCardCooldownSeconds) || 30) * 1000;
+const COOLDOWN_SLACK_MS = 2000; // the client's clock starts the same cooldown on the tap
+const cooldownsOf = (player) => ({ ...((player.kentCooldowns && typeof player.kentCooldowns === 'object') ? player.kentCooldowns : {}) });
+const coolingDown = (player, index, now = Date.now()) => (Number(cooldownsOf(player)[index]) || 0) - COOLDOWN_SLACK_MS > now;
+function startCooldowns(player, indexes, now = Date.now()) {
+  const next = {};
+  for (const [k, v] of Object.entries(cooldownsOf(player))) if (Number(v) > now) next[k] = v; // drop expired
+  for (const i of indexes) next[i] = now + COOLDOWN_MS;
+  player.kentCooldowns = next;
+  player.markModified('kentCooldowns');
+}
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ success: false, error: reason, reason, ...extra });
 
@@ -51,7 +68,7 @@ async function loadKent(req, res) {
   const frontier = player.frontierId ? await Frontier.findById(player.frontierId, 'seasons').lean() : null;
   const season = kent.seasonFor(player, frontier);
   const answer = (status, reason, extra = {}) => fail(res, status, reason, {
-    kentOffers: boardOf(player), player: econ.playerDelta(player), seq: econ.nextSeq(), ...extra,
+    kentOffers: boardOf(player), kentCooldowns: cooldownsOf(player), player: econ.playerDelta(player), seq: econ.nextSeq(), ...extra,
   });
   return { player, season, answer };
 }
@@ -68,7 +85,7 @@ router.post('/action/kent-sync', async (req, res) => {
       setBoard(player, kent.fallbackOffers());
       await player.save();
     }
-    return res.json({ success: true, kentOffers: boardOf(player), player: econ.playerDelta(player), seq: econ.nextSeq() });
+    return res.json({ success: true, kentOffers: boardOf(player), kentCooldowns: cooldownsOf(player), player: econ.playerDelta(player), seq: econ.nextSeq() });
   } catch (err) {
     console.error('❌ action/kent-sync failed:', err);
     return res.status(500).json({ success: false, error: 'kent-sync-failed', detail: err.message });
@@ -83,6 +100,7 @@ router.post('/action/kent-sell', async (req, res) => {
     const index = Number(req.body.offerIndex);
     const offers = plainOffers(player);
     if (!Number.isInteger(index) || index < 0 || index >= offers.length) return answer(404, 'no-offer');
+    if (coolingDown(player, index)) return answer(409, 'cooldown');
     const offer = offers[index];
     if (!kent.validGoods(offer)) return answer(400, 'bad-offer');
     const goods = kent.itemsOf(offer).map(({ item, quantity }) => ({ item, quantity: Number(quantity) }));
@@ -117,6 +135,7 @@ router.post('/action/kent-sell', async (req, res) => {
     // The slot's new card is made at the level before this sale's XP, as the client made it
     // (Kent.js replaceSoldOffer read the pre-sale player)
     setBoard(player, kent.replaceSlot(player, offers, index, season));
+    startCooldowns(player, [index]);
 
     const xpGained = kent.calculateKentOfferXP(offer, econ.levelOf(player));
     recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xpGained).catch(() => {});
@@ -129,7 +148,7 @@ router.post('/action/kent-sell', async (req, res) => {
     await player.save();
     return res.json({
       success: true, sold: goods, rewards, xpGained,
-      kentOffers: boardOf(player), player: econ.playerDelta(player), seq: econ.nextSeq(),
+      kentOffers: boardOf(player), kentCooldowns: cooldownsOf(player), player: econ.playerDelta(player), seq: econ.nextSeq(),
     });
   } catch (err) {
     console.error('❌ action/kent-sell failed:', err);
@@ -144,14 +163,21 @@ router.post('/action/kent-dismiss', async (req, res) => {
     const { player, season, answer } = ctx;
     const offers = plainOffers(player);
     if (req.body.all === true) {
-      setBoard(player, kent.regenerateAll(player, offers.length || 6, season));
+      const debug = req.body.debug === true && isDeveloper(player.username);
+      if (!debug && offers.some((_, i) => coolingDown(player, i))) return answer(409, 'cooldown');
+      const board = kent.regenerateAll(player, offers.length || 6, season);
+      setBoard(player, board);
+      if (debug) { player.kentCooldowns = {}; player.markModified('kentCooldowns'); }
+      else startCooldowns(player, board.map((_, i) => i));
     } else {
       const index = Number(req.body.offerIndex);
       if (!Number.isInteger(index) || index < 0 || index >= offers.length) return answer(404, 'no-offer');
+      if (coolingDown(player, index)) return answer(409, 'cooldown');
       setBoard(player, kent.replaceSlot(player, offers, index, season));
+      startCooldowns(player, [index]);
     }
     await player.save();
-    return res.json({ success: true, kentOffers: boardOf(player), player: econ.playerDelta(player), seq: econ.nextSeq() });
+    return res.json({ success: true, kentOffers: boardOf(player), kentCooldowns: cooldownsOf(player), player: econ.playerDelta(player), seq: econ.nextSeq() });
   } catch (err) {
     console.error('❌ action/kent-dismiss failed:', err);
     return res.status(500).json({ success: false, error: 'kent-dismiss-failed', detail: err.message });

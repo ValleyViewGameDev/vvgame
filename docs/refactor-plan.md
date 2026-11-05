@@ -302,10 +302,19 @@ Built (2026-11-04, all in one day):
 - **Closed**: the trusted routes are developer-only and `update-profile` refuses the economy fields
   (see CLAUDE.md, Conventions). `npc-kill` awards Kill the Duke; `cast-vote` advances Vote quests.
 
-Known gaps, for later: Kent's 30 s slot cooldowns are client-only (needs a Player field);
-`/create-homestead` does not check a Home Deed; equipped gear lives in `settings` (client-written);
-`/player/state` hp is client-reported as before; the "Explore the Valley" trophy check in Kent and the
-Caravan reads `trophy.title` (never set), so enemy drops are never offered (kept as it was).
+Closed the same day (the four gaps found at the end of the build):
+- **Kent's slot cooldowns** are the server's: `player.kentCooldowns`, set by kent-sell / kent-dismiss
+  and refused while running (409 cooldown); the client adopts them from every answer.
+- **Homesteads**: `/create-homestead` already required a Home Deed; `/relocate-homestead` now
+  requires the owner's playerId and a relocation to spend (it took no player before).
+- **Equipped gear**: `/update-profile` cleans `settings` with `combatStats.sanitizeGear` (owned gear
+  of the slot's kind, magic up to the slot count); server stats already counted only owned gear.
+- **Hit points**: `/player/state` and enter-grid take damage as reported but a rise only as the
+  homestead regen (`playerEconomy.acceptReportedHp`), and maxhp is always derived. Every other heal
+  is a server action: heal-pay applies the heal, `/action/eat` (the eaten food is now removed:
+  it never was) and `/action/respawn` (respawn hp + the backpack loss); revive and the Inn were already.
+Still open: the "Explore the Valley" trophy check in Kent and the Caravan reads `trophy.title` (never
+set), so enemy drops are never offered (kept as it was).
 
 ### Phase 6: Async multiplayer polish (2-4 days)
 

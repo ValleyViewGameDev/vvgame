@@ -77,4 +77,30 @@ function attackCooldownMs(speed) {
   return Math.max(t.attackCooldownMinMs, Math.min(t.attackCooldownMaxMs, t.attackCooldownMinMs + (s - 1) * t.attackCooldownPerSpeedMs));
 }
 
-module.exports = { derivedStats, powerModifiers, attackCooldownMs, COMBAT_ATTRIBUTES, magicSlotBase, magicSlotCount };
+
+/**
+ * The equipped gear in a settings object, cleaned against what the player owns (Phase 5,
+ * 2026-11-04): a weapon / shield / armour slot keeps only an owned item of that kind (a shield is
+ * dropped under a two-handed weapon), and equippedMagic only owned magic items, up to the player's
+ * magic slots. Settings are client-written; this is what /update-profile saves.
+ */
+function sanitizeGear(settings, player) {
+  if (!settings || typeof settings !== 'object') return settings;
+  const owned = new Set((player.powers || []).filter((p) => p && (p.quantity || 0) > 0).map((p) => p.type));
+  const def = (t) => masterResources.find((r) => r.type === t);
+  const out = { ...settings };
+  const keep = (key, test) => {
+    if (out[key] === undefined || out[key] === null) return;
+    if (!owned.has(out[key]) || !test(def(out[key]))) out[key] = null;
+  };
+  keep('equippedWeapon', isWeapon);
+  keep('equippedShield', isShield);
+  keep('equippedArmor', isArmor);
+  if (out.equippedShield && out.equippedWeapon && handsOf(def(out.equippedWeapon)) === 2) out.equippedShield = null;
+  if (Array.isArray(out.equippedMagic)) {
+    out.equippedMagic = [...new Set(out.equippedMagic)].filter((t) => owned.has(t) && isMagic(def(t))).slice(0, magicSlotCount(player));
+  }
+  return out;
+}
+
+module.exports = { derivedStats, powerModifiers, attackCooldownMs, COMBAT_ATTRIBUTES, magicSlotBase, magicSlotCount, sanitizeGear };

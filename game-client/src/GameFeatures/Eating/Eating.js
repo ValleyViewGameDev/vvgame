@@ -5,6 +5,7 @@ import { useStrings } from '../../UI/StringsContext';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import './Eating.css';
 import CloseButton from '../../UI/Buttons/CloseButton';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const EatingModal = ({
   isOpen,
@@ -118,41 +119,26 @@ const EatingModal = ({
       return;
     }
 
-    const hpToAdd = amountToEat * item.hp;
-    
+    // ONE request (game-server routes/actionRoutes.js /action/eat): the food leaves the list it was
+    // picked from and the hp is raised on the server; the board shows the server's hp
     try {
-      // Update player HP in PlayersInGrid
+      const answer = await postAction('/api/action/eat', {
+        playerId: currentPlayer.playerId || currentPlayer._id,
+        type: item.type,
+        qty: amountToEat,
+        from: isFromWarehouse ? 'inventory' : 'backpack',
+      });
+      applyPlayerDelta(answer.data, { setCurrentPlayer });
+      if (!answer.ok) { updateStatus("Failed to eat item."); return; }
+      const eatenQty = answer.data.eaten.qty;
+      const hpToAdd = eatenQty * item.hp;
       const gridId = currentPlayer.location?.g;
-      if (gridId) {
-        const playerId = currentPlayer._id || currentPlayer.playerId;
-        const currentHp = playersInGridManager.getPlayersInGrid(gridId)?.[playerId]?.hp || 0;
-        const maxHp = playersInGridManager.getPlayersInGrid(gridId)?.[playerId]?.maxhp || 100;
-        const newHp = Math.min(currentHp + hpToAdd, maxHp);
-        
-        playersInGridManager.updatePC(gridId, playerId, { hp: newHp });
-        
-        // Update current player state
-        setCurrentPlayer(prev => ({
-          ...prev,
-          hp: newHp
-        }));
-      }
-
-      // Remove eaten items from inventory
-      const inventoryType = isFromWarehouse ? 'inventory' : 'backpack';
-      setCurrentPlayer(prev => ({
-        ...prev,
-        [inventoryType]: prev[inventoryType].map(invItem => 
-          invItem.type === item.type 
-            ? { ...invItem, quantity: invItem.quantity - amountToEat }
-            : invItem
-        ).filter(invItem => invItem.quantity > 0)
-      }));
-
+      if (gridId) playersInGridManager.updatePC(gridId, currentPlayer._id || currentPlayer.playerId, { hp: answer.data.hp });
+      setCurrentPlayer(prev => ({ ...prev, hp: answer.data.hp }));
       // Reset all eat amounts to clear the modal
       setEatAmounts({});
 
-      updateStatus(`🍽️ Ate ${amountToEat} ${item.type}(s) ${strings[1404]} +${hpToAdd} ❤️‍🩹 ${strings[10157]}`);
+      updateStatus(`🍽️ Ate ${eatenQty} ${item.type}(s) ${strings[1404]} +${hpToAdd} ❤️‍🩹 ${strings[10157]}`);
       
     } catch (error) {
       console.error("Error eating item:", error);

@@ -538,6 +538,53 @@ function withScaledAnimalCost(def, count) {
   return scaled;
 }
 
+
+// ---- Hit points (Phase 5, 2026-11-04) ---------------------------------------------------------
+//
+// hp is reported by the client (combat is simulated there) through /player/state and enter-grid.
+// The server takes a report only as far as it can be true: damage is always accepted; a rise is
+// accepted only as the homestead's slow regen (App.js: +2 every 10 s while at or under half the
+// base max hp). Every other heal is made on the server by the action that pays for it (heal-pay,
+// eat, respawn, revive, the Inn), which writes hp itself. maxhp is always the server's own.
+
+const REGEN_HP = 2;
+const REGEN_EVERY_MS = 10000;
+
+function derivedMaxhp(player) {
+  const { derivedStats } = require('./combatStats'); // lazy: combatStats loads the tuning files
+  return derivedStats(player).maxhp;
+}
+
+/**
+ * The hp to store for a report: { hp, maxhp }. `player` needs hp, hpSavedAt, baseMaxhp, powers,
+ * settings and location (a document or a lean object).
+ */
+function acceptReportedHp(player, reported, now = Date.now()) {
+  const maxhp = derivedMaxhp(player);
+  const stored = Number.isFinite(player.hp) ? player.hp : maxhp; // a new record starts full
+  const wanted = Math.max(0, Math.min(Number(reported), maxhp));
+  if (!Number.isFinite(wanted)) return { hp: Math.min(stored, maxhp), maxhp };
+  if (wanted <= stored) return { hp: wanted, maxhp };
+  // a rise: only the homestead regen, from the last accepted save
+  if (player.location?.gtype !== 'homestead') return { hp: Math.min(stored, maxhp), maxhp };
+  const since = player.hpSavedAt ? now - new Date(player.hpSavedAt).getTime() : REGEN_EVERY_MS;
+  const allowance = (Math.floor(Math.max(0, since) / REGEN_EVERY_MS) + 1) * REGEN_HP;
+  const regenCeiling = Math.floor((player.baseMaxhp || maxhp) / 2) + REGEN_HP;
+  const hp = Math.min(wanted, stored + allowance, Math.max(stored, regenCeiling), maxhp);
+  return { hp, maxhp };
+}
+
+/** A server-made heal: hp + amount, capped at the derived maxhp. Returns { hp, maxhp, healed }. */
+function healBy(player, amount) {
+  const maxhp = derivedMaxhp(player);
+  const stored = Number.isFinite(player.hp) ? player.hp : maxhp;
+  const hp = Math.max(0, Math.min(maxhp, stored + Math.max(0, Number(amount) || 0)));
+  player.hp = hp;
+  player.maxhp = maxhp;
+  player.hpSavedAt = new Date();
+  return { hp, maxhp, healed: hp - stored };
+}
+
 // Answers are numbered so the client can drop one that arrives after a newer one (one process)
 let seqCounter = Date.now();
 const nextSeq = () => ++seqCounter;
@@ -592,6 +639,9 @@ module.exports = {
   stateGoalMet,
   refreshStateGoals,
   addQuest,
+  acceptReportedHp,
+  healBy,
+  derivedMaxhp,
   countAnimalsOfType,
   withScaledAnimalCost,
   spendWithGems,

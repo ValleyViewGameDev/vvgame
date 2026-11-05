@@ -128,23 +128,26 @@ export const handlePlayerDeath = async (
     // Keep only Tent and Boat in the backpack
     const filteredBackpack = (player.backpack || []).filter((item) => item.type === "Tent" || item.type === "Boat");
 
-    const updatedPlayer = {
+    const updatedPlayer = { // the server.s respawn answer refines hp and backpack below
       ...player,
       hp: restoredHp,
       maxhp: properMaxHp,
       backpack: filteredBackpack,
     };
 
-    // 1. Persist the backpack. hp goes through the PC record (/player/state, where the server
-    //    derives maxhp itself); location is written by enter-grid below.
-    //    The backpack loses everything but the Tent and Boat through /action/discard (which can
-    //    only lower the holdings); settings stay a profile write.
-    const dropped = (player.backpack || []).filter((item) => item.type !== "Tent" && item.type !== "Boat")
-      .map((item) => ({ type: item.type, qty: item.quantity }));
-    await Promise.all([
-      dropped.length ? axios.post(`${API_BASE}/api/action/discard`, { playerId: player._id, from: 'backpack', items: dropped }) : null,
+    // 1. The respawn is the server's (/action/respawn): the respawn hp and the backpack emptied but
+    //    for the Tent and Boat, both written there (/player/state never raises hp, so the respawn
+    //    hp must come from the server). Settings stay a profile write; location is written by
+    //    enter-grid below.
+    const [respawned] = await Promise.all([
+      axios.post(`${API_BASE}/api/action/respawn`, { playerId: player._id }).catch(() => null),
       axios.post(`${API_BASE}/api/update-profile`, { playerId: player._id, updates: { settings: player.settings } }),
     ]);
+    if (respawned?.data?.success) {
+      updatedPlayer.hp = respawned.data.hp;
+      updatedPlayer.maxhp = respawned.data.maxhp;
+      updatedPlayer.backpack = respawned.data.player?.backpack || updatedPlayer.backpack;
+    }
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 

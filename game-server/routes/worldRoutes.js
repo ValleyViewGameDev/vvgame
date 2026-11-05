@@ -949,10 +949,21 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
 
 // 🔁 Relocate Homestead
 router.post('/relocate-homestead', async (req, res) => {
-  const { fromGridId, targetGridCoord } = req.body;
+  const { fromGridId, targetGridCoord, playerId } = req.body;
 
   console.log("RELOCATE HOMESTEAD; fromGridId = ", fromGridId, "; targetGridCoord = ", targetGridCoord);
   try {
+    // Only the homestead's owner moves it, and only with a relocation to spend (the Profile panel
+    // offers it when relocations > 0); a developer (x-player-id) may move any (Phase 5, 2026-11-04)
+    const { isDeveloperPlayerId } = require('../utils/serviceMode');
+    const dev = await isDeveloperPlayerId(req.get('x-player-id'));
+    if (!dev) {
+      const owner = playerId ? await Player.findById(playerId).select('gridId relocations').lean() : null;
+      if (!owner || !owner.gridId || String(owner.gridId) !== String(fromGridId)) {
+        return res.status(403).json({ error: 'Not your homestead.' });
+      }
+      if (!(owner.relocations > 0)) return res.status(403).json({ error: 'No relocations left.' });
+    }
     let fromSettlement = null;
     let targetSettlement = null;
     let updated = false;

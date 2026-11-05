@@ -95,6 +95,21 @@ function KentPanel({
 
     // The board is the server's (routes/kentRoutes.js): show what the player record holds at once,
     // then sync (an empty board gets its fallback card there)
+    // The server's cooldowns (routes/kentRoutes.js kentCooldowns) win over the local copy: a card
+    // still cooling down there cannot be sold or dismissed here either
+    const adoptCooldowns = (fromServer) => {
+        if (!fromServer || typeof fromServer !== 'object') return;
+        const now = Date.now();
+        setCardCooldowns((prev) => {
+            const next = {};
+            for (const [k, v] of Object.entries({ ...prev, ...fromServer })) {
+                const end = Math.max(Number(prev[k]) || 0, Number(fromServer[k]) || 0);
+                if (end > now) next[k] = end;
+            }
+            return next;
+        });
+    };
+
     const applyBoard = (board) => {
         if (!board || !Array.isArray(board.offers)) return;
         setKentOffers(board.offers);
@@ -107,6 +122,7 @@ function KentPanel({
         if (stored.length === 0) setIsContentLoading(true);
         const answer = await postAction('/api/action/kent-sync', { playerId: currentPlayer.playerId });
         if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.data?.kentCooldowns) adoptCooldowns(answer.data.kentCooldowns);
         if (!answer.ok) console.error('❌ Kent sync failed:', answer.reason);
         setIsContentLoading(false);
     };
@@ -227,6 +243,7 @@ function KentPanel({
             });
             applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
             if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.data?.kentCooldowns) adoptCooldowns(answer.data.kentCooldowns);
 
             if (!answer.ok) {
                 if (answer.status === 0) return true;   // no answer (network): keep the optimistic sale
@@ -268,6 +285,7 @@ function KentPanel({
             const before = kentOffers.length;
             const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, offerIndex });
             if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.data?.kentCooldowns) adoptCooldowns(answer.data.kentCooldowns);
             if (answer.ok) {
                 startGrowthSlots(before, (answer.data.kentOffers?.offers || []).length);
             } else if (answer.status !== 0) {
@@ -294,6 +312,7 @@ function KentPanel({
         try {
             const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, all: true });
             if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.data?.kentCooldowns) adoptCooldowns(answer.data.kentCooldowns);
             if (answer.ok) coolAll((answer.data.kentOffers?.offers || []).length);
             else if (answer.status !== 0) setCardCooldowns({});
         } finally {
@@ -306,7 +325,7 @@ function KentPanel({
         if (!currentPlayer || isTrading) return;
         setIsTrading(true);
         try {
-            const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, all: true });
+            const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, all: true, debug: true });
             if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
             if (answer.ok) {
                 setCardCooldowns({});

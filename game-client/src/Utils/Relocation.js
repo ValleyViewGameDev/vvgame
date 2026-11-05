@@ -16,6 +16,7 @@ export const processRelocation = async (currentPlayer, setCurrentPlayer, fromGri
 
   try {
     const relocationResponse = await axios.post(`${API_BASE}/api/relocate-homestead`, {
+      playerId: currentPlayer.playerId,
       fromGridId,
       targetGridCoord,
     });
