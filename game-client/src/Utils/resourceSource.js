@@ -3,8 +3,9 @@ import { getLocalizedString } from './stringLookup';
 /**
  * "Where does this come from?" for a resource, from resources.json alone.
  *
- * Returns { line, ingredients } where `line` is a localized sentence such as "Grown on
- * 🌾 Wheat Plot" and `ingredients` (crafted goods only) is "🌾 6 Wheat, ..." or null.
+ * Returns { line, ingredients, regionLine } where `line` is a localized sentence such as "Grown on
+ * 🌾 Wheat Plot", `ingredients` (crafted goods only) is "🌾 6 Wheat, ..." or null, and `regionLine`
+ * is "Only grows in Belmont" when the source is region-locked (resources.json growregion) or null.
  * Strings 17001 to 17013 hold the sentence patterns ({source} is replaced). Used by
  * UI/Modals/ResourceModalSmall.js; reuse it anywhere a hint about a resource's origin helps.
  */
@@ -12,7 +13,7 @@ export function describeResourceSource(resourceType, masterResources, strings) {
   const list = Array.isArray(masterResources) ? masterResources : [];
   const byType = (t) => list.find((r) => r.type === t);
   const resource = byType(resourceType);
-  if (!resource) return { line: strings?.[17010] || '', ingredients: null };
+  if (!resource) return { line: strings?.[17010] || '', ingredients: null, regionLine: null };
 
   const label = (t) => { const r = byType(t); return `${r?.symbol || ''} ${getLocalizedString(t, strings)}`.trim(); };
   const fill = (key, t) => String(strings?.[key] || '').replace('{source}', label(t));
@@ -53,5 +54,10 @@ export function describeResourceSource(resourceType, masterResources, strings) {
     .map((n) => `${byType(resource[`ingredient${n}`])?.symbol || ''} ${resource[`ingredient${n}qty`] || 1} ${getLocalizedString(resource[`ingredient${n}`], strings)}`.trim());
   if (parts.length) ingredients = parts.join(', ');
 
-  return { line: line || '', ingredients };
+  const growregion = srcRes?.growregion || resource.growregion;
+  const regionLine = growregion
+    ? String(strings?.[17022] || 'Only grows in {region}').replace('{region}', getLocalizedString(growregion, strings))
+    : null;
+
+  return { line: line || '', ingredients, regionLine };
 }

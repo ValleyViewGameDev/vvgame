@@ -45,7 +45,7 @@ other way round. Never overwrite a template file without the owner asking for th
     name from the overview, `Created?`, and a free-text description.
 - **The existing templates.** Study them before drawing: Deep Woods River (frontier rows 18-23,
   cols 8-15, e.g. 1012135-1012154), Belmont, the abandoned Dairy island (1012336), the
-  Coffee Plantation (1014204).
+  Duke Angelo's estate (1014204; its coffee moved to Strathmoore 2026-11-05).
 - **`randomValleyGridLayouts.json`**: the rarity ladder (section 7).
 - **`layouts/gridLayouts/miniTemplates/`**: stamps (`valleyTown01`, `valleyTown02`,
   `demonFort01/02`, `demonPod01/02`, `BearAndHoney`, `ancientTemple01`, `volcano01`, roads,
@@ -130,7 +130,7 @@ the templates (a later system).
 - Ground is grass with a speckle of single dirt tiles (~20%), slate and moss in clumps.
 - Forest is dense with organic clearings; dead trees mark sad or haunted places.
 - A **set** is a small place with a story built from existing pieces: the abandoned Dairy on a
-  lake island (Dairy, Cow, Animal Stall, Cheese, a hidden Gem), the Coffee Plantation.
+  lake island (Dairy, Cow, Animal Stall, Cheese, a hidden Gem), the Strathmoore coffee plantation (1012165).
   Sets reward the explorer with a few precious doobers, and sit apart (an island, a clearing).
 - Mini-towns are the `valleyTown` stamps with a road to them.
 
@@ -640,3 +640,33 @@ its manifest into `data/`. The owner-pass CLIs also touch Claude's grids; the bu
   south off the river road in 1012205, fading out in 1012245.
 - Rebuild order: `phase1_build.mjs` regenerates Claude's grids from `mountains.json` (ranges and
   gaps included) but knows nothing of roads, so **run `roads.py --apply` after any rebuild**.
+
+### 2026-11-05: the Strathmoore coffee plantation, the road to Caliban's Crossing, the Avondale mulberry orchard (owner request)
+
+- **1012165 (Strathmoore), coffee plantation**, `coffee_plantation.py` (seeded; preview without
+  `--apply`): a stone-walled compound in the middle of the grid (rows 17-46, cols 12-51; gates
+  east and west on rows 31-32), two coffee fields of planted dirt rows (40 Coffee Cherries,
+  staggered), a stepstone avenue gate to gate and a cross path, a mini lake with shrubs, a stone
+  bust and a marble statue, a cobbled yard with the Coffee Factory, barrels, crates, sacks and a
+  haybale; stone lions outside the front gate, busts at the crossing. Four Bears moved out of the
+  footprint. Pavement leads east from the gate to the grid edge. Marked `ownerEdited` in the
+  manifest.
+- **Road** "Plantation road east to Caliban's Crossing" (`data/roads.json`, trail style) from the
+  pavement's end along frontier row 22 through 1012166, 1012167, 1012260-1012264 to the west
+  edge of Caliban's Crossing (1012265, the owner's template, untouched). Painted with the new
+  **`roads.py --only NAME`**, which routes and paints just the named roads; the earlier five were
+  not re-run.
+- **1012334 (Avondale), mulberry orchard**, `mulberry_farm.py`: a band cleared along the river's
+  south bank (about 9 rows deep, ragged lower edge, no buildings), dirt rows every third row
+  stepping down the diagonal bank, 40 ripe Mulberry trees (Mulberry Leaf) in them; 5 loose
+  flowers moved south of the band.
+- **1014204 (Angelo's Keep)**: the 27 Coffee Cherries removed (owner); the dirt bed stays.
+- No player had a copy of any of these cells (only Oberon's of 1012265), so the files reach every
+  player on first entry once deployed.
+
+### 2026-11-05: the Bohemia goat meadow (owner request)
+
+- **1013542 (Bohemia)**, `goat_meadow.py`: an organic grass field cut into the forest on the grid's
+  west side (centre row 40, col 18; about 15 x 22 tiles, ragged edge), two Goats grazing in it (the
+  Goat is raised only in Bohemia). Three loose flowers moved just outside. Marked `ownerEdited`.
+  No player had a copy of the cell.

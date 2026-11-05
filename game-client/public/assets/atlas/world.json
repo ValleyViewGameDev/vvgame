@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "f2557c80dbd9e6961df2919860a307878550ce56",
+  "sourceHash": "6f757d36b9cf6b1a2b3866fd8b8f61534af816e8",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -43,7 +43,7 @@
       "json": "world-6.json",
       "png": "world-6.png",
       "webp": "world-6.webp",
-      "frames": 189
+      "frames": 190
     }
   ],
   "frames": {
@@ -492,6 +492,7 @@
     "emoji/26fa": 6,
     "emoji/1f331": 6,
     "emoji/1f5dd": 6,
+    "emoji/1f410": 6,
     "emoji/1f3bd": 6,
     "emoji/1f982": 6,
     "emoji/1fa9a": 6,

@@ -41,6 +41,7 @@ function ResourceColumn({ type, masterResources, strings, need, compact, showNam
         </div>
       )}
       {line && <p className="rms-source">{line}</p>}
+      {lineOverride == null && described.regionLine && <p className="rms-source">{described.regionLine}</p>}
       {ingredients && <p className="rms-ingredients"><span className="rms-label">{strings[17008]}</span> {ingredients}</p>}
     </div>
   );

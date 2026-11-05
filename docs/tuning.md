@@ -389,7 +389,9 @@ Measured 2026-10-16, average laid out per valley grid per season (share of templ
 | Blueberry | 12 plots, Belmont only (1011154) | none | none | rarest wild crop: 12 a day per player |
 
 **Blueberries (2026-11-04).** The only steady source is the owner's farm of 12 Blueberry Plots on
-Belmont's grid 1011154 (the plot is developer-only at home). Blueberry is `repeatable`, so a picked
+Belmont's grid 1011154. Since 2026-11-05 players can also plant Blueberry Plots, but only on
+Belmont's grids (`growregion`, 4m), at most 50 per grid (4n), from L12 (Blueberry and its plot
+were L1 placeholders while developer-only). Blueberry is open to the Caravan and the Summer Fair. Blueberry is `repeatable`, so a picked
 berry replants and is back in 24 h: 12 a day per player, one short Snug trip. They exist for the
 Queen's Cake (4 each), which only Gertrude buys: 5 cakes for a Diamond Ring (Mistress Quickly's
 10-cake quest was retired to keep the cake hers). The Diamond Ring is priced 60,000-90,000 so it
@@ -421,8 +423,20 @@ Winter · Stall ✓"), recomputed on every ECONOMY save and by `node tools/deriv
 | Kent | a good (doober), not Money, not `noKent`, not an epic/legendary scroll find, not a valley find | season, levels, ingredients unlocked, "Explore the Valley" for enemy drops |
 | Bank (random offers) | a good, not Money, not `noBank` | within ±1 of the season level; the standing Silver / Diamond Ring / Gold offers and the valley Counting Houses' list are hand-picked |
 | Caravan | a good with a home source, not `noCaravan`, not an epic/legendary scroll find | season, levels, skills, bands |
-| Harvest Fair | listed for the season in `seasons.json` | the effort limit |
+| Harvest Fair | listed for the season in `seasons.json` | the effort limit; the level locks (below) |
 | Trade Stall | not a Quest for Hope artifact, not `noTradeStall` | |
+
+**Level locks on the Caravan and the Fair (owner, 2026-11-05).** Late and regional goods (the
+coffee line, Goat Milk / Goat Cheese / Warden Pie, Blueberry) are open to both outlets, but only
+once they are unlocked: the good's level, its source's level (station, animal, plot) and every
+ingredient down the chain (`caravan.js isUnlockedAt`). The Caravan checks it per player, as it
+always did; the Fair, whose offers are shared by the settlement, checks it against the highest
+level among the settlement's active players (first-time users excluded), so a late good appears
+once someone there can make it. Added to the season lists: Spring Goat Milk, Light Roast Coffee
+Bean, Coffee Elsinore; Summer Blueberry, Goat Cheese, Warden Pie, Coffee Latte; Fall Goat Milk,
+Green Coffee Bean, Medium Roast Coffee Bean, Common Coffee; Winter Goat Cheese, Dark Roast Coffee
+Bean, Queen's Coffee. Kent and the Bank's random offers still skip Blueberry and the goat goods
+(`noKent` / `noBank`).
 
 The checkboxes replaced `output: noBank` (2026-11-04): the 28 goods that had it got `noKent`,
 `noBank` and `noCaravan` (no change in play); the 23 special items lost it (no outlet uses
@@ -504,6 +518,95 @@ surplus beside it shrinks.
 ## 4l. Relationship points follow the bubbles (owner, 2026-11-03)
 
 A conversation's NPC bubbles are green (match), red (rival) or black (neither). The colours size the points an interaction moves (`relationshipPoints` in `GameFeatures/Relationships/Conversation.js`): base = the interaction's `relscoreresult`; net = greens minus reds; a success earns base x (1 + 0.5 x net), a failure loses base x (1 - 0.5 x net), never less than half the base either way; a failure's base is the interaction's `relscorefail` when it has one (Propose: +120 on a yes, -20 on a no, so a refusal stings without stripping Love) (base 8: 0 greens +8, 1 green +12, 2 greens +16, 1 red +4; a failure with 1 red -12, with 1 green -4). The colours move the success CHANCE the same way in every interaction that plays a conversation: +0.10 a green bubble, -0.15 a red one (`MATCH_CHANCE` / `RIVAL_CHANCE`), on top of the base `chance` and the status buff (`relbuff` when the player holds `relbuff1-3`), capped at 1. Still a roll: colours shift the odds, never decide it. Interest rounds (player: last doober collected; NPC: its first Interest) are in Talk, Joke, Apologize, Compliment and Flatter (`interactions.json`). Kiss and Propose have no talking round (owner: a kiss or a proposal is not a conversation): their emoji bubbles never match, so they roll on base chance + status buff alone.
+
+## 4m. Regional crops: growregion (owner, 2026-11-05)
+
+A farm plot with a `growregion` (ECONOMY column; a region type from resources.json) is planted
+only on a grid of that region (`Grid.region`, set per grid in the editor's World tab). Players
+plant on any grid they own, which includes their per-player copies of valley grids, so "only in
+Belmont" means "on your copies of Belmont's grids". The Farming panel lists it with "Only grows in
+{region}" (string 17022; green there, red elsewhere, the card disabled elsewhere); the item modal
+(`Utils/resourceSource.js`) adds the same line under "Grown on ...". Enforced on both sides:
+client `ResourceHelpers.growsInRegion` (FarmingPanel, `Farming.handleFarmPlotPlacement`), server
+`playerEconomy.growsInRegion` in `/action/plant` (refusal `region-<region>`). One region per
+plot. Bulk replant replants on the same tile, so it needs no check.
+
+Per-player valley copies keep what is planted on them across seasons (only trees are topped up,
+`gridResolver.applySeasonCatchUp`), and these crops are `repeatable`, so a planted bush or tree is
+permanent; the per-crop cap (4n) is what bounds them.
+
+| Plot | Region | Lvl / skill | Cost | Where a player first meets it |
+|---|---|---|---|---|
+| Blueberry Plot | Belmont | 12 | 1 Blueberry | the owner's 12 plots on 1011154 |
+| Coffee Plant | Strathmoore | 25, Green Thumb | 8,000 Money | the plantation on 1012165 (40 Coffee Cherries, the Coffee Factory; `tools/gridgen/coffee_plantation.py`), reached by the trail east to Caliban's Crossing |
+| Mulberry Tree | Avondale | 50, Green Thumb | 25,000 Money | the wild orchard on the river's south bank, 1012334 (40 trees; `tools/gridgen/mulberry_farm.py`) |
+| Sunflower Plot | Sunflower Lake | 23, Florist | none (sand only) | the wild Sunflowers of Sunflower Lake (all but 5 on Hope Mountain, 1014307, the owner's grid, left as they are) |
+| Goat (farm animal) | Bohemia | 26, Husbandry | 20,000 Money (inflates per goat, like every animal) | two Goats in the meadow on 1013542 (`tools/gridgen/goat_meadow.py`) |
+
+**Regional farm animals** use the same field: a grazing animal with a `growregion` is bought only
+on a grid of its region (Buy card "Only raised in {region}", string 17025, red elsewhere and
+disabled, no gem button; `BuildAndBuy.handleConstruction`; the server's `/action/place` refuses
+`region-<region>`). The animal then lives on the player's copy of that grid, so collecting means
+going back. The first is the **Goat (Bohemia, 2026-11-05)**: Goat Milk (3 per goat every 8 h,
+90-129; Shepherding doubles it), **Goat Cheese** at the Dairy (4 Goat Milk, 2 h, 430-615; Fromager
+and Creamery boost it as Dairy goods) and **Warden Pie** in the Oven (L27, Baker: 2 Flour, 6 Pear,
+2 Goat Cheese, 2 Sugar, 4 h, 1,960-2,803; the Clown's "warden pies" for the Bohemian sheep-shearing
+feast, *The Winter's Tale* 4.3; wardens are pears). All three are `noKent` / `noBank` but
+open to the Caravan and the Fair once unlocked (4j). Bohemia's regional shop takes Goat Cheese:
+Hermione's Grace (Magic Shop, L29) costs 35,000 Money, 10 Goat Cheese and 50 Books (was 60 Wool,
+a like value). A farm hand's safety-net crop offer never includes a regional crop
+(`playerEconomy.isRegionalCrop`; Blueberry, Coffee Cherry, Sunflower, Mulberry Leaf): those are
+grown in their region.
+
+**Where players learn it:** the Snug travel list shows each Region's own crops as their icon
+beside its name (a regional animal shows itself); tapping one opens a small resource modal titled
+with the Region, "{crop} can only be grown in {region}." (string 17024) or "{animal} can only be
+raised in {region}." (17026; `SnugTravelModal.js`). The region-name banner is not used
+for this (owner). Mushrooms are deliberately NOT regional: they grow everywhere (owner).
+
+**The coffee chain (owner, 2026-11-05: pulled back from "hard-core late game").** Before: one
+Common Coffee was 5 Medium Roast = 60 Green Beans = 360 cherries (Queen's Coffee 1,080), cherries
+at 1 per plant per 3 days, the Coffee Cherry unlocked at L40 though the Green Bean (L28) and the
+drinks (L30) needed it, the Coffee Factory 500,000 Money, and every processing step sold for less
+than its inputs (cherries 4.4 $/effort-minute, beans 0.6). Now: Coffee Plant and Cherry L25, a
+cherry a day per plant; Green Bean 4 cherries; Light / Medium / Dark Roast 5 / 6 / 8 beans (L25,
+L25, L27); Common Coffee 2 Medium (L25), Coffee Elsinore 3 Light + 3 Honey (L26), Coffee Latte 3
+Medium + 2 Milk + 3 Sugar (L26), Queen's Coffee 4 Dark + 6 Sugar + 1 Coconut Milk (L28); Roaster
+skill L25, Barista L26; Coffee Factory L25 at 150,000 Money, 30 Lumber, 200 Stone, 300 Clay.
+Cherries per drink: 48 / 60 / 72 / 128. Prices rebuilt bottom-up so each step pays about 12-15%
+over its inputs' minimum price (2.4-2.8 $/effort-minute, like Aged Wine and Belmont Tea): Cherry
+120-172, Green Bean 560-800, roasts 3,200 / 3,850 / 5,150 minimum, Common Coffee 8,700-12,441,
+Queen's Coffee 24,300-34,749. `skillsTuning.json` gave its x2 to "Coffee Bean", which is no
+resource: it is now Coffee Cherry under Cultivation (with Coconut); the dead Grower key went.
+
+Coffee left Duke Angelo's grid (1014204) on 2026-11-05: 27 Coffee Cherries out of the layout and
+the live template instance (`game-server/scripts/remove-angelo-coffee.js`; no player had a copy).
+His Coffee Factory and Mill stay. The Strathmoore region row's unused `output: "Coffee Plant"`
+went with it: `growregion` on the plot is the one place a regional crop is declared.
+
+## 4n. Per-crop caps: maxpergrid on farm plots (owner, 2026-11-05)
+
+Every crop and tree has a cap per grid: the farm plot's `maxpergrid` (the same ECONOMY column that
+caps the Inn at 1 per grid) counts its plots (growing) plus its ripe output standing on the board,
+on the grid being planted. The farm-animal cap's method, per crop type: the Farming card shows
+"Maximum reached of this crop type (N)" in red and is disabled (string 17023, reactive to the
+board); planting refuses with that floating text; the server's `/action/plant` refuses `limit`.
+With the cursor, reaching the cap drops the cursor (App.js), so no more plants are tried. Helpers:
+client `ResourceHelpers.cropCountOnGrid / cropCapReached`, server `playerEconomy` mirrors. Plots
+with no `maxpergrid` are uncapped (Oak Tree Plot, whose output Oak Tree also grows wild; the
+developer-only pits and wild-crop plots).
+
+The caps are generous on purpose (owner): never below 50, so a player optimising for farming
+keeps a real mid/late-game edge and makes a lot of money. Wild output on a valley grid counts too
+(Daisies, Sunflowers laid out in a template), and template set pieces sit under their cap
+(the plantation's 40 cherries and the orchard's 40 trees each leave 10 to plant).
+
+| Cap | Crops |
+|---|---|
+| 200 | Wheat, Corn, Carrot, Sugarcane |
+| 150 | Pumpkin, Lettuce, Pepper, Potato, Strawberry, Onion, Tomato Vine; Olive, Lemon, Apple, Pear trees |
+| 100 | Garlic, Ginger, Daisy, Tulip; Peach, Orange, Cherry, Coconut trees; Grape Vine |
+| 50 | Sunflower; the regional crops: Blueberry, Coffee Plant, Mulberry Tree |
 
 ## 4d. Trophies
 

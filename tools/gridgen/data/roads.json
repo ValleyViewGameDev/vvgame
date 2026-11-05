@@ -296,6 +296,48 @@
       ],
       "style": "trail",
       "startOnRoad": true
+    },
+    {
+      "name": "Plantation road east to Caliban's Crossing",
+      "purpose": "Owner request 2026-11-05: from the end of the Strathmoore coffee plantation's pavement (1012165, row 31, col 63; coffee_plantation.py) east along frontier row 22 through 1012166, 1012167 and 1012260-1012264 to the west edge of Caliban's Crossing (1012265, the owner's template, not touched).",
+      "fadeTiles": 0,
+      "startOnRoad": true,
+      "points": [
+        [
+          1439,
+          895
+        ],
+        [
+          1436,
+          960
+        ],
+        [
+          1446,
+          1030
+        ],
+        [
+          1440,
+          1100
+        ],
+        [
+          1430,
+          1170
+        ],
+        [
+          1438,
+          1240
+        ],
+        [
+          1445,
+          1300
+        ],
+        [
+          1440,
+          1343
+        ]
+      ],
+      "style": "trail",
+      "protect": []
     }
   ]
 }

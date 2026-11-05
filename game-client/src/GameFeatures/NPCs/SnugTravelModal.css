@@ -23,3 +23,15 @@
 .snug-travel-table .res-action .shared-buttons { display: inline-flex; justify-content: flex-end; margin: 0; }
 .snug-travel-table .snug-travel-short { color: var(--color-text-muted); }
 .snug-travel-table .snug-travel-busy { opacity: 0.6; }
+/* a Region's own crop (resources.json growregion): its icon after the name, tap for the
+   ResourceModalSmall that says where it grows */
+.snug-travel-table .snug-travel-crop {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  margin-left: 6px;
+  cursor: pointer;
+  vertical-align: middle;
+  line-height: 1;
+}
+.snug-travel-table .snug-travel-crop img { width: 22px; height: 22px; object-fit: contain; display: block; }

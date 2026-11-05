@@ -13,8 +13,7 @@
       "Pepper": 2,
       "Ginger": 2,
       "Green Bean": 2,
-      "Onion": 2,
-      "Coffee Bean": 2
+      "Onion": 2
     },
     "Cultivation": {
       "Wheat": 2,
@@ -30,7 +29,7 @@
       "Green Bean": 2,
       "Coconut": 2,
       "Onion": 2,
-      "Coffee Bean": 2
+      "Coffee Cherry": 2
     },
     "Fruit Fingers": {
       "Apple": 2,
@@ -81,7 +80,8 @@
       "Chicken Coop": 3
     },
     "Shepherding": {
-      "Wool": 2
+      "Wool": 2,
+      "Goat Milk": 2
     },
     "Beekeeper": {
       "Beehive": 2

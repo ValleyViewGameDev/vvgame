@@ -8,6 +8,7 @@ const seasonsConfig = require("../tuning/seasons.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
 const { awardTrophy } = require("../utils/trophyUtils");
 const { isACrop } = require("../utils/worldUtils");
+const { playerLevelOf, isUnlockedAt } = require("../utils/caravan");
 
 async function carnivalScheduler(frontierId, phase, frontier = null) {
   try {
@@ -188,12 +189,15 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
     };
   }
 
-  // Get actual player count excluding first-time users
-  const activePlayers = await Player.countDocuments({
+  // Active players (first-time users excluded): their count sizes the Fair, the highest level among
+  // them decides which goods are unlocked (docs/tuning.md 4j: the Fair's level locks)
+  const activeRoster = await Player.find({
     'location.s': settlement._id,
     firsttimeuser: { $ne: true }
-  });
+  }, { xp: 1 }).lean();
+  const activePlayers = activeRoster.length;
   const population = Math.max(1, activePlayers || 1);
+  const topLevel = activeRoster.reduce((best, p) => Math.max(best, playerLevelOf(p)), 1);
   console.log(`👥 Settlement ${settlement.name}: ${activePlayers} active players (excluding first-time users)`);
   const basePlayerHours = globalTuning.baseHoursForCarnival || 6;
   const basePlayerSeconds = basePlayerHours * 60 * 60;
@@ -205,7 +209,8 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
 
   const eligibleItems = seasonResources.filter(item => {
     const time = item.totalnestedtime || item.crafttime || 60;
-    return time <= totalEffort;
+    // a late good (Goat Cheese, the coffee line, Blueberry) waits until someone here has unlocked it
+    return time <= totalEffort && isUnlockedAt(item, topLevel);
   });
 
   if (eligibleItems.length === 0) {

@@ -4698,7 +4698,9 @@
   "enemies": {
    "Bear": 12
   },
-  "sha1": "96ce2ae575bc8e25e9c19a5c52c421abf117c628"
+  "sha1": "96ce2ae575bc8e25e9c19a5c52c421abf117c628",
+  "ownerEdited": true,
+  "note": "Strathmoore coffee plantation, coffee_plantation.py (owner request 2026-11-05)"
  },
  "1012166": {
   "frontier": [
@@ -11050,7 +11052,9 @@
   "row": "valley2Layout3",
   "water": 0,
   "enemies": {},
-  "sha1": "c8ed674e93bcbf2538cce0662eb10f6a1d1b681e"
+  "sha1": "c8ed674e93bcbf2538cce0662eb10f6a1d1b681e",
+  "ownerEdited": true,
+  "note": "Bohemia goat meadow, goat_meadow.py (owner request 2026-11-05)"
  },
  "1013544": {
   "frontier": [

@@ -172,6 +172,10 @@ const FarmHandPanel = ({
         // Check devonly restriction (allow if isDeveloper)
         if (res.requires === 'devonly' && !isDeveloper) return false;
 
+        // A regional crop (its plot has a growregion: Blueberry, Coffee Cherry, ...) is never sold
+        // here: you grow it in its region (docs/tuning.md 4m)
+        if (masterResources.some((p) => p.category === 'farmplot' && p.output === res.type && p.growregion)) return false;
+
         // Check seasonal restriction (allow if isDeveloper)
         if (!isDeveloper && res.season && currentSeason && res.season !== currentSeason) {
           return false;

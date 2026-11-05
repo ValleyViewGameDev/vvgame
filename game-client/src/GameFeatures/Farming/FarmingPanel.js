@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer, growsInRegion, cropCapReached } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { handleFarmPlotPlacement } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
@@ -158,6 +158,7 @@ const FarmingPanel = ({
       masterResources,
       masterSkills,
       updateStatus,
+      strings,
     });
     
     // If placement failed, immediately remove cooldown and cancel timer
@@ -208,7 +209,11 @@ const FarmingPanel = ({
               const affordable = canAfford(item, inventory, backpack, 1);
               const meetsSkillRequirement = hasRequiredSkill(item.requires);
               const meetsLevel = meetsLevelRequirement(item.level);
-              const requirementsMet = meetsSkillRequirement && meetsLevel;
+              // A region-locked crop (resources.json growregion) is planted only on a grid of its region
+              const meetsRegion = growsInRegion(item, currentPlayer?.location?.region || null);
+              const requirementsMet = meetsSkillRequirement && meetsLevel && meetsRegion;
+              // The per-crop cap (resources.json maxpergrid), as the Buy panel's farm-animal cap
+              const cropLimitReached = cropCapReached(item, resources);
               const isOffSeason = item.isOffSeason;
 
               const symbol = item.symbol || '';
@@ -242,9 +247,15 @@ const FarmingPanel = ({
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const regionColor = meetsRegion ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const regionLine = item.growregion
+                ? `<span style="color: ${regionColor};">${String(strings[17022] || 'Only grows in {region}').replace('{region}', getLocalizedString(item.growregion, strings))}</span>`
+                : '';
 
               const details =
+                (cropLimitReached ? `<span style="color: var(--color-text-negative);">${strings[17023] || 'Maximum reached of this crop type'} (${item.maxpergrid})</span>` : '') +
                 (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
+                regionLine +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 (item.growtime ? `${strings[458]}${formatDuration(item.growtime)}<br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
@@ -276,9 +287,9 @@ const FarmingPanel = ({
                   style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                   details={details}
                   info={info}
-                  disabled={isCoolingDown || !affordable || !requirementsMet}
+                  disabled={isCoolingDown || !affordable || !requirementsMet || cropLimitReached}
                   onClick={async () => {
-                    if (!affordable || !requirementsMet) return;
+                    if (!affordable || !requirementsMet || cropLimitReached) return;
                     // FTUE planting beat: the card arms cursor planting (whatever the toggle says) and
                     // the step advances; App closes the panel and points at a dirt tile to plant on.
                     if (currentPlayer?.firsttimeuser) {

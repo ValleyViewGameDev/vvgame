@@ -66,6 +66,25 @@ const atHomeOn = (grid) => grid?.gridType === 'homestead';
 
 const hasSkill = (player, type) => (player.skills || []).some((s) => s && s.type === type && (s.quantity || 0) > 0);
 
+/**
+ * Region-locked resources (resources.json `growregion`, a region type; docs/tuning.md 4m): a farm
+ * plot with one is planted, and a farm animal with one is bought, only on a grid of that region (Grid.region, set in the editor). The
+ * client mirror is game-client Utils/ResourceHelpers.js growsInRegion.
+ */
+const growsInRegion = (def, region) => !def?.growregion || def.growregion === region;
+
+/**
+ * Per-crop cap (resources.json `maxpergrid` on a farm plot, trees included; docs/tuning.md 4n):
+ * its plots plus its ripe output on the grid, against the plot's maxpergrid. Client mirror:
+ * game-client Utils/ResourceHelpers.js cropCountOnGrid / cropCapReached.
+ */
+const cropCountOnGrid = (def, gridResources) => (gridResources || [])
+  .filter((r) => r && (r.type === def.type || (def.output && r.type === def.output))).length;
+const cropCapReached = (def, gridResources) => {
+  const max = Number(def?.maxpergrid) || 0;
+  return max > 0 && cropCountOnGrid(def, gridResources) >= max;
+};
+
 /** { warehouse, backpack } capacity: base + Gold bonus + capacity skills. */
 function capacityOf(player) {
   const isGold = player.accountStatus === 'Gold';
@@ -171,6 +190,11 @@ const findFarmplotFor = (type) => masterResources.find((r) => r.category === 'fa
 function isACrop(type) {
   if (type === 'Oak Tree' || type === 'Pine Tree') return false;
   return masterResources.some((r) => r.category === 'farmplot' && r.output === type);
+}
+
+/** A crop whose farm plot is locked to a region (growregion): grown there, never sold by a farm hand. */
+function isRegionalCrop(type) {
+  return masterResources.some((r) => r.category === 'farmplot' && r.output === type && r.growregion);
 }
 
 // Warehouse tool drops: each third of players finds a different tool rarest (WarehouseMaterials.js)
@@ -616,12 +640,16 @@ module.exports = {
   isAtHome,
   atHomeOn,
   hasSkill,
+  growsInRegion,
+  cropCountOnGrid,
+  cropCapReached,
   capacityOf,
   roomFor,
   grant,
   skillMultiplier,
   advanceQuests,
   isACrop,
+  isRegionalCrop,
   findFarmplotFor,
   rollWarehouseDrop,
   rollToolDrop,

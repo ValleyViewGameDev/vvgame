@@ -5,7 +5,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
-import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer, growsInRegion } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
@@ -218,6 +218,7 @@ const BuyPanel = ({
       setCurrentPlayer,
       gridId,
       updateStatus,
+      strings,
     });
     console.log(`✅ [BUY_PANEL] Purchase completed for ${item.type}`);
   };
@@ -259,6 +260,7 @@ const BuyPanel = ({
       gridId,
       updateStatus,
       modifiedRecipe, // Pass the gem-modified recipe
+      strings,
     });
   };
 
@@ -319,7 +321,10 @@ const BuyPanel = ({
               const affordable = canAfford(effectiveItem, inventory);
               const meetsSkillRequirement = hasRequiredSkill(item.requires);
               const meetsLevel = meetsLevelRequirement(item.level);
-              const requirementsMet = meetsSkillRequirement && meetsLevel;
+              // A regional farm animal (resources.json growregion, e.g. the Goat: Bohemia) is bought
+              // only on a grid of its region (docs/tuning.md 4m)
+              const meetsRegion = growsInRegion(item, currentPlayer?.location?.region || null);
+              const requirementsMet = meetsSkillRequirement && meetsLevel && meetsRegion;
 
               // Check if this is a farm animal and if we've hit the limit
               const isFarmAnimal = item.passable && item.action === 'graze';
@@ -344,9 +349,13 @@ const BuyPanel = ({
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
               const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
+              const regionLine = item.growregion
+                ? `<span style="color: ${meetsRegion ? 'var(--color-text-positive)' : 'var(--color-text-negative)'};">${String(strings[17025] || 'Only raised in {region}').replace('{region}', getLocalizedString(item.growregion, strings))}</span>`
+                : '';
               const details =
                 (farmAnimalLimitReached ? `<span style="color: var(--color-text-negative);">${strings[407]} (${maxFarmAnimals})</span>` : '') +
                 (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
+                regionLine +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
@@ -382,7 +391,7 @@ const BuyPanel = ({
                   onTransactionAction={!placeWithCursor ? (txId, txKey) => handleDirectPurchase(txId, txKey, item) : undefined}
                   // External processing state for cursor mode (shows yellow + hourglass)
                   externalProcessing={isCursorProcessing}
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !farmAnimalLimitReached) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !farmAnimalLimitReached && meetsRegion) ? handleGemPurchase : null}
                   meetsLevelRequirement={meetsLevel}
                   resource={effectiveItem}
                   inventory={inventory}

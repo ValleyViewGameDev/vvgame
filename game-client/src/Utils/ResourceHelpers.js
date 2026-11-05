@@ -193,6 +193,32 @@ export function hasRequiredSkill(requiredSkill, currentPlayer) {
 }
 
 /**
+ * Region-locked resources (resources.json `growregion`, a region type; docs/tuning.md 4m): a farm
+ * plot with one is planted only on a grid of that region. `region` is the grid's region
+ * (GlobalGridStateTilesAndResources.getGridMeta().region, or currentPlayer.location.region).
+ * The server's mirror is game-server utils/playerEconomy.js growsInRegion.
+ */
+export function growsInRegion(resource, region) {
+  return !resource?.growregion || resource.growregion === region;
+}
+
+/**
+ * Per-crop cap (resources.json `maxpergrid` on a farm plot, trees included; docs/tuning.md 4n):
+ * the most of that crop one grid may hold, counting its plots (growing) and its ripe output
+ * standing on the board. The same rule as the farm-animal cap (BuyPanel / BuildAndBuy), per crop
+ * type. Server mirror: game-server utils/playerEconomy.js cropCountOnGrid / cropCapReached.
+ */
+export function cropCountOnGrid(plot, gridResources) {
+  if (!plot) return 0;
+  return (gridResources || []).filter((r) => r && (r.type === plot.type || (plot.output && r.type === plot.output))).length;
+}
+
+export function cropCapReached(plot, gridResources) {
+  const max = Number(plot?.maxpergrid) || 0;
+  return max > 0 && cropCountOnGrid(plot, gridResources) >= max;
+}
+
+/**
  * Check if a resource should be visible based on 'devonly' requirement
  * @param {Object} resource - The resource object with optional 'requires' field
  * @param {boolean} isDeveloper - Whether the current player is a developer

@@ -5,7 +5,8 @@ import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
-import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
+import { getCurrentTileCoordinates, enrichResourceFromMaster, growsInRegion } from '../Utils/ResourceHelpers';
+import { getLocalizedString } from '../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { createCollectEffect } from '../VFX/VFX';
 import soundManager from '../Sound/SoundManager';
@@ -44,6 +45,7 @@ export const handleConstruction = async ({
   globalTuning, // Optional: for limit checking
   masterResources, // Optional: for limit checking
   useGems = false, // the gem button: gems stand in for what is missing (priced on the server)
+  strings = {}, // for the regional-animal refusal text
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -109,6 +111,14 @@ export const handleConstruction = async ({
       FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
       return false; // Exit before deducting inventory
     }
+  }
+
+  // A regional farm animal (resources.json growregion, e.g. the Goat: Bohemia) lives only on a grid of its region
+  const gridRegion = GlobalGridStateTilesAndResources.getGridMeta()?.region ?? currentPlayer?.location?.region ?? null;
+  if (!growsInRegion(selectedResource, gridRegion)) {
+    const onlyIn = String(strings[17025] || 'Only raised in {region}').replace('{region}', getLocalizedString(selectedResource.growregion, strings));
+    FloatingTextManager.addFloatingText(onlyIn, x, y, TILE_SIZE);
+    return false;
   }
 
   // Check limits for farm animals and town buildings

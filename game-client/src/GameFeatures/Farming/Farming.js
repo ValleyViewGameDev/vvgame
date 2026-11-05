@@ -1,7 +1,8 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
-import { validateTileType, enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
+import { validateTileType, enrichResourceFromMaster, growsInRegion, cropCapReached } from '../../Utils/ResourceHelpers';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
@@ -106,6 +107,22 @@ export const handleFarmPlotPlacement = async ({
     if (!tileType || !isValidTile) {
       const errorStringId = getPlantingErrorString(selectedItem);
       FloatingTextManager.addFloatingText(errorStringId, tileX, tileY, TILE_SIZE);
+      window._processingPlants.delete(plantId);
+      return false;
+    }
+
+    // A region-locked crop (resources.json growregion) is planted only on a grid of its region
+    const gridRegion = GlobalGridStateTilesAndResources.getGridMeta()?.region ?? currentPlayer?.location?.region ?? null;
+    if (!growsInRegion(selectedItem, gridRegion)) {
+      const onlyIn = String(strings[17022] || 'Only grows in {region}').replace('{region}', getLocalizedString(selectedItem.growregion, strings));
+      FloatingTextManager.addFloatingText(onlyIn, tileX, tileY, TILE_SIZE);
+      window._processingPlants.delete(plantId);
+      return false;
+    }
+
+    // The per-crop cap (resources.json maxpergrid): its plots + ripe crops on this grid
+    if (cropCapReached(selectedItem, GlobalGridStateTilesAndResources.getResources() || resources)) {
+      FloatingTextManager.addFloatingText(strings[17023] || 'Maximum reached of this crop type', tileX, tileY, TILE_SIZE);
       window._processingPlants.delete(plantId);
       return false;
     }

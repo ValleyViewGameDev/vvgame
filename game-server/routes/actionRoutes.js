@@ -836,6 +836,8 @@ router.post('/action/farmhand-buy-crop', async (req, res) => {
     const { player, answer } = ctx;
     const crop = econ.resourceDef(req.body.cropType);
     if (!crop || !econ.isACrop(crop.type) || crop.requires === 'devonly') return answer(400, 'not-offered');
+    // a regional crop (its farm plot has a growregion) is grown in its region, never sold here
+    if (econ.isRegionalCrop(crop.type)) return answer(400, 'not-offered');
     if (crop.level && econ.levelOf(player) < Number(crop.level)) return answer(403, `level-${crop.level}`);
     if (heldQuantity(player.inventory, player.backpack, crop.type) > 9) return answer(409, 'not-offered');
     const room = econ.roomFor(player, crop.type, 1);
@@ -1185,7 +1187,7 @@ function footprint(x, y, size = 1) {
  * The Build / Buy / Deco / Zoo panels' purchase (BuildAndBuy.js handleConstruction). The item must
  * be sold where the player is (Build anywhere they own, BuildTown in a town by its Mayor, BuildValley
  * in a valley), its footprint free, and the globalTuning limits met (farm animals, town buildings,
- * stations per type). The price is its resources.json recipe (gems for what is missing). A building
+ * stations per type), and a regional animal's region (growregion). The price is its resources.json recipe (gems for what is missing). A building
  * is written to the grid (a station at level 0, a pet too); an NPC (a farm animal) is spawned by the
  * client. Build + Buy quests (an NPC: Buy).
  */
@@ -1212,6 +1214,8 @@ router.post('/action/place', async (req, res) => {
       }
     }
     if (def.level && !dev && econ.levelOf(player) < Number(def.level)) return answer(403, `level-${def.level}`);
+    // a regional farm animal (resources.json growregion, e.g. the Goat: Bohemia) lives only on a grid of its region
+    if (!econ.growsInRegion(def, grid.region)) return answer(403, `region-${def.growregion}`);
 
     const isNPC = def.category === 'npc'; // a pet is a board resource (its panel works on its tile)
     const onGrid = gridResourceManager.getResources(grid) || [];
@@ -1262,7 +1266,8 @@ router.post('/action/place', async (req, res) => {
  * → { success, planted: {type, x, y, growEnd}, player, seq }
  * Farming.js handleFarmPlotPlacement: a farm plot on a free tile whose type it allows
  * (validon<tile>), its `requires` skill held, its seeds spent, growEnd from its growtime.
- * Plant quests advance for its crop. Refusals: occupied, bad-tile, needs-<skill>, short-<seed>.
+ * Plant quests advance for its crop. Refusals: occupied, bad-tile, region-<region> (its growregion is
+ * not this grid's region), limit (its maxpergrid reached on this grid), needs-<skill>, short-<seed>.
  */
 router.post('/action/plant', async (req, res) => {
   const { playerId, gridId, x, y, type } = req.body || {};
@@ -1278,6 +1283,8 @@ router.post('/action/plant', async (req, res) => {
     if ((gridResourceManager.getResources(grid) || []).some((r) => r && r.x === x && r.y === y)) return answer(409, 'occupied');
     const tile = gridTileManager.getTile(grid, x, y);
     if (!tile || def[`validon${tile}`] !== true) return answer(409, 'bad-tile');
+    if (!econ.growsInRegion(def, grid.region)) return answer(409, `region-${def.growregion}`);
+    if (econ.cropCapReached(def, gridResourceManager.getResources(grid))) return answer(409, 'limit');
     if (def.requires && econ.resourceDef(def.requires)?.category === 'skill' && !econ.hasSkill(player, def.requires)) return answer(403, `needs-${def.requires}`);
     if (!spendCosts(def, player.inventory, player.backpack)) {
       const short = recipeCosts(def).find(([t, q]) => heldQuantity(player.inventory, player.backpack, t) < q);

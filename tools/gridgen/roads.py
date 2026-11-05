@@ -22,6 +22,8 @@ an earlier one.
   python3 tools/gridgen/roads.py                  # route every road, list problems (writes nothing)
   python3 tools/gridgen/roads.py --preview NAME   # ASCII view of one road over the terrain
   python3 tools/gridgen/roads.py --apply          # route and paint every road, write the layouts
+  python3 tools/gridgen/roads.py --only NAME [--only NAME2] [--apply]
+                                                  # just these roads (the others are already painted)
 """
 import json, math, os, sys, heapq, random, zlib
 
@@ -322,6 +324,11 @@ def save():
 if __name__ == '__main__':
     roads = json.load(open(os.path.join(HERE, 'data', 'roads.json')))['roads']
     args = sys.argv[1:]; want = args[args.index('--preview') + 1] if '--preview' in args else None
+    only = [args[i + 1] for i, a in enumerate(args) if a == '--only' and i + 1 < len(args)]
+    if only:
+        missing = [n for n in only if n not in {r['name'] for r in roads}]
+        if missing: sys.exit(f'no such road: {missing}')
+        roads = [r for r in roads if r['name'] in only]
     bad = False
     for road in roads:
         if road.get('style', 'trail') == 'smooth':

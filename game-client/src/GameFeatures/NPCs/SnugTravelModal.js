@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
+import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
@@ -14,6 +15,11 @@ import './SnugTravelModal.css';
  * (game-server/routes/snugTravelRoutes.js): visited Regions that have a Snug, plus the home Town,
  * never the place the player is in, cost by distance (globalTuning.json snugTravel).
  *
+ * A Region's own crops and farm animals (resources.json growregion on a farm plot or a grazing
+ * animal, docs/tuning.md 4m) show as an icon beside its name (the crop, or the animal itself);
+ * tapping one opens ResourceModalSmall titled with the Region: "Blueberry can only be grown in
+ * Belmont." (string 17024) / "Goat can only be raised in Bohemia." (17026).
+ *
  * On Travel the server takes the Money and returns the grid and tile; `onTravel(gridCoord, x, y,
  * player)` (App: changePlayerLocation) then moves the player there, carrying the updated holdings.
  */
@@ -24,6 +30,7 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
   const [destinations, setDestinations] = useState(null);
   const [error, setError] = useState(null);
   const [busyKey, setBusyKey] = useState(null);
+  const [cropInfo, setCropInfo] = useState(null);   // { region, crop }: the regional-crop modal
   const money = getPlayerQuantity('Money', inventory, backpack);
   const moneySymbol = (masterResources || []).find((r) => r.type === 'Money')?.symbol || '💰';
 
@@ -58,6 +65,11 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
   };
 
   const nameOf = (d) => (d.kind === 'town' ? strings[10196] : getLocalizedString(d.region, loc));
+  // what only this Region grows or raises: each locked farm plot's crop, each locked animal itself
+  const cropsOf = (region) => (masterResources || [])
+    .filter((r) => r.growregion === region && ((r.category === 'farmplot' && r.output) || r.action === 'graze'))
+    .map((r) => (r.action === 'graze' ? r : (masterResources || []).find((o) => o.type === r.output)))
+    .filter(Boolean);
 
   return (
     <Modal onClose={onClose} title={strings[10191]} className="modal-narrow snug-travel-modal">
@@ -78,7 +90,20 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
             <tbody className="res-rows-body">
               {destinations.map((d) => (
                 <tr key={d.key}>
-                  <td className="res-name">{nameOf(d)}</td>
+                  <td className="res-name">
+                    {nameOf(d)}
+                    {d.kind === 'region' && cropsOf(d.region).map((crop) => (
+                      <button
+                        key={crop.type}
+                        type="button"
+                        className="snug-travel-crop"
+                        aria-label={getLocalizedString(crop.type, loc)}
+                        onClick={() => setCropInfo({ region: d.region, crop: crop.type })}
+                      >
+                        {crop.filename ? <img src={`/assets/resources/${crop.filename}`} alt="" /> : crop.symbol}
+                      </button>
+                    ))}
+                  </td>
                   <td className={`res-meta ${money < d.cost ? 'snug-travel-short' : ''}`} data-label={strings[10194]}>{moneySymbol} {d.cost.toLocaleString()}</td>
                   <td className="res-action">
                     <div className="shared-buttons">
@@ -97,6 +122,17 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
             </tbody>
           </table>
         </div>
+      )}
+      {cropInfo && (
+        <ResourceModalSmall
+          resourceType={cropInfo.crop}
+          masterResources={masterResources}
+          title={getLocalizedString(cropInfo.region, loc)}
+          line={String((masterResources || []).find((r) => r.type === cropInfo.crop)?.action === 'graze' ? strings[17026] : strings[17024])
+            .replace('{crop}', getLocalizedString(cropInfo.crop, loc)).replace('{animal}', getLocalizedString(cropInfo.crop, loc))
+            .replace('{region}', getLocalizedString(cropInfo.region, loc))}
+          onClose={() => setCropInfo(null)}
+        />
       )}
     </Modal>
   );

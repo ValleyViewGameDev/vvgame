@@ -128,15 +128,25 @@ function splitRewards(rewards) {
   };
 }
 
+/**
+ * The level locks alone: the good's level, its source's (station, animal, plot), and every
+ * ingredient down its chain. The Caravan's orders use it per player; the Harvest Fair uses it for
+ * the settlement's highest-level active player (schedulers/carnivalScheduler.js).
+ */
+function isUnlockedAt(resource, playerLevel) {
+  if (!resource) return false;
+  if (resource.level && resource.level > playerLevel) return false;
+  const source = byType.get(resource.source);
+  if (source?.level && source.level > playerLevel) return false;
+  return areIngredientsUnlocked(resource, playerLevel);
+}
+
 function isOrderable(resource, season, playerLevel, player) {
   // The static gates (a good with a home source, not noCaravan, not an epic/legendary scroll find)
   // are the shared rule, utils/offerRules.mjs; the rest here depends on the player and the season
   if (offerEligibility.blocked(resource, 'caravan')) return false;
   if (resource.season && resource.season !== season) return false;
-  if (resource.level && resource.level > playerLevel) return false;
-  const source = byType.get(resource.source);
-  if (source?.level && source.level > playerLevel) return false;
-  if (!areIngredientsUnlocked(resource, playerLevel)) return false;
+  if (!isUnlockedAt(resource, playerLevel)) return false;
   const ingredients = [resource.ingredient1, resource.ingredient2, resource.ingredient3, resource.ingredient4].filter(Boolean);
   for (const ingredient of ingredients) {
     const ing = byType.get(ingredient);
@@ -367,7 +377,7 @@ async function sweepDeparture(settlementId, trainNumber) {
 const homeSettlement = (player) => (player.settlementId ? Settlement.findById(player.settlementId, 'trainlog').lean() : null);
 
 module.exports = {
-  TRAIN_REWARD_MESSAGE_ID, TRAIN_LEVEL, playerLevelOf,
+  TRAIN_REWARD_MESSAGE_ID, TRAIN_LEVEL, playerLevelOf, isUnlockedAt,
   generateTrain, mailEarnedTiers, catchUp, sweepDeparture,
   settlementTrainNumber, seasonFor, orderMoney, baseThreshold, homeSettlement,
 };

@@ -17,7 +17,10 @@
                 "Cherry Pie",
                 "Furniture",
                 "Brandy",
-                "Belmont Tea"
+                "Belmont Tea",
+                "Goat Milk",
+                "Light Roast Coffee Bean",
+                "Coffee Elsinore"
             ],
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
@@ -98,7 +101,11 @@
                 "Sandwich",
                 "Mixed Salad",
                 "Peach Pie",
-                "Corn Chowder"
+                "Corn Chowder",
+                "Blueberry",
+                "Goat Cheese",
+                "Warden Pie",
+                "Coffee Latte"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
@@ -179,7 +186,11 @@
                 "Pumpkin Soup",
                 "Runic Tunic",
                 "Coconut Milk",
-                "Poached Pear"
+                "Poached Pear",
+                "Goat Milk",
+                "Green Coffee Bean",
+                "Medium Roast Coffee Bean",
+                "Common Coffee"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
@@ -260,7 +271,10 @@
                 "Apple Cider",
                 "Heavy Jacket",
                 "Lemonade",
-                "Urns"
+                "Urns",
+                "Goat Cheese",
+                "Dark Roast Coffee Bean",
+                "Queen's Coffee"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,

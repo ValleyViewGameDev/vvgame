@@ -38,6 +38,7 @@ import socket, {
 } from './socketManager';
 
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
+import { cropCapReached } from './Utils/ResourceHelpers';
 import FTUE, { FTUE_FEEDBACK_DONE_EVENT } from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
@@ -2561,7 +2562,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       masterSkills,
       updateStatus,
       overridePosition: { x: colIndex, y: rowIndex }, // Plant at clicked tile, not player position
+      strings,
     });
+    // At the crop's cap (resources.json maxpergrid) the cursor lets go, so no more plants are tried;
+    // the Farming card turns to "Maximum reached" from the same resources
+    if (cropCapReached(cursorMode.item, GlobalGridStateTilesAndResources.getResources())) setCursorMode(null);
     isProcessing = false;
     return;
   }
@@ -2636,6 +2641,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           updateStatus,
           modifiedRecipe: cursorMode.modifiedRecipe,
           overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+          strings,
         });
       } else {
         await handleConstruction({
@@ -2655,6 +2661,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
           globalTuning,
           masterResources,
+          strings,
         });
       }
     } finally {
