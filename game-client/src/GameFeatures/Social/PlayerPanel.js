@@ -11,6 +11,8 @@ import { useStrings } from '../../UI/StringsContext';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
 import './PlayerPanel.css';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { showNotification } from '../../UI/Notifications/Notifications';
 
 const PlayerPanel = ({
   currentPlayer,
@@ -55,56 +57,20 @@ const PlayerPanel = ({
     setTentCount(prev => prev - 1);
 
     try {
-      // First update the camping status
-      const response = await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: { iscamping: true },
-      });
-
-      if (!response.data.success) {
-        // Revert all optimistic updates if server update failed
+      // ONE request (game-server routes/actionRoutes.js /action/pitch-tent): the Tent is used and
+      // the player is camping, both on the server (Adventurer trophy)
+      const answer = await postAction('/api/action/pitch-tent', { playerId: currentPlayer.playerId });
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (!answer.ok) {
         setIsCamping(false);
         setDisplayedPCData(prev => ({ ...prev, iscamping: false }));
         setCurrentPlayer(prev => ({ ...prev, iscamping: false }));
         setTentCount(prev => prev + 1);
         return;
       }
-
-      // Then spend the tent
-      const fakeRecipe = { ingredient1: "Tent", ingredient1qty: 1 };
-      const success = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: fakeRecipe,
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!success) {
-        // Revert camping status if we couldn't spend the tent
-        await axios.post(`${API_BASE}/api/update-profile`, {
-          playerId: currentPlayer.playerId,
-          updates: { iscamping: false },
-        });
-        setIsCamping(false);
-        setDisplayedPCData(prev => ({ ...prev, iscamping: false }));
-        setCurrentPlayer(prev => ({ ...prev, iscamping: false }));
-        setTentCount(prev => prev + 1);
-        return;
-      }
-
-      console.log('⛺️ iscamping: updated profile successfully');
       soundManager.playSFX('tent_on');
       updateStatus(28);
-      
-      // Award Adventurer trophy for first time camping
-      if (currentPlayer?.playerId) {
-        earnTrophy(currentPlayer.playerId, 'Adventurer', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-      }
-      
+      for (const t of answer.data.trophies || []) if (t.isNewMilestone) showNotification('Trophy', t.trophy);
       // Update PlayersInGrid directly
       const gridId = currentPlayer?.location?.g;
       if (gridId) {

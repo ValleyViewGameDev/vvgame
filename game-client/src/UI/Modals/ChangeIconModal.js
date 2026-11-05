@@ -11,6 +11,7 @@ import { spendIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { confirmGemSpend } from './GemSpendConfirm';
 import CloseButton from '../Buttons/CloseButton';
 import { gameAlert } from './GameDialog';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const PREMIUM_AVATAR_GEM_COST = 200;
 
@@ -64,29 +65,16 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
     setIsProcessing(true);
 
     try {
-      // Spend gems
-      const spentResult = await spendIngredients({
-        playerId: currentPlayer.playerId || currentPlayer._id,
-        recipe: gemRecipe,
-        inventory: playerInventory,
-        backpack: playerBackpack,
-        setInventory: setInventory || (() => {}),
-        setBackpack: setBackpack || (() => {}),
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!spentResult) {
+      // ONE request (game-server routes/actionRoutes.js /action/unlock-avatars): the gems and the
+      // unlock both on the server
+      const answer = await postAction('/api/action/unlock-avatars', { playerId: currentPlayer.playerId || currentPlayer._id });
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (!answer.ok) {
         updateStatus('Failed to spend gems');
         setIsProcessing(false);
         return;
       }
-
-      // Update avatarsUnlocked field to true
-      const response = await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer._id,
-        updates: { avatarsUnlocked: true }
-      });
+      const response = { data: { success: true } };
 
       if (response.data.success) {
         // Update local player state

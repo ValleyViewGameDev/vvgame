@@ -12,7 +12,6 @@ import '../../UI/Modals/Modal.css';
 import '../../UI/Buttons/SharedButtons.css';
 import { getPlayerQuantity, mergeHoldings, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
 // import { handlePurchase } from '../../Store/Store'; // COMMENTED OUT - Gold Pass

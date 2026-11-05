@@ -20,6 +20,7 @@ import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { registerFlight } from '../../UI/FlyToTarget';
 import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 import { isViewOnly } from '../../Utils/viewOnly';
+import { showNotification } from '../../UI/Notifications/Notifications';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -267,7 +268,9 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
             ...prev,
             ...(Number.isFinite(d.xp) ? { xp: d.xp } : {}),
             ...(Array.isArray(d.activeQuests) ? { activeQuests: d.activeQuests } : {}),
+            ...(Array.isArray(d.playerTrophies) ? { trophies: d.playerTrophies } : {}),
         }));
+        for (const t of d.trophies || []) if (t.isNewMilestone) showNotification('Trophy', t.trophy);
         if (localDrop && d.drop && (d.drop.x !== localDrop.x || d.drop.y !== localDrop.y)) {
             // the server placed it elsewhere: move ours to match
             const moveLocal = (list) => list.map((r) => (r && r.type === localDrop.type && r.x === localDrop.x && r.y === localDrop.y) ? { ...r, x: d.drop.x, y: d.drop.y } : r);
@@ -287,9 +290,7 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
         report.then(async (ok) => {
             if (!ok) return;
             try {
-                if (masterTrophies && currentPlayer?.playerId) {
-                    await earnTrophy(currentPlayer.playerId, 'Kill the Duke', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-                }
+                // (Kill the Duke is awarded by /action/npc-kill itself)
                 const active = currentPlayer.activeQuests?.find((q) => q.questId === 'Blood for Juliet');
                 if (!active) {
                     const response = await axios.post(`${API_BASE}/api/add-player-quest`, {

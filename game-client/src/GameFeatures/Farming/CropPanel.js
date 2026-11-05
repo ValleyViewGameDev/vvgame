@@ -72,24 +72,7 @@ const CropPanel = ({
     return `${parts.join(' ')} remaining`;
   };
 
-  useEffect(() => {
-    const syncInventory = async () => {
-      try {
-        const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
-        setInventory(storedInventory);
-  
-        const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        const serverInventory = serverResponse.data.inventory || [];
-        if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
-          setInventory(serverInventory);
-          localStorage.setItem('inventory', JSON.stringify(serverInventory));
-        }
-      } catch (error) {
-        console.error('Error syncing inventory:', error);
-      }
-    };
-    syncInventory();
-  }, [currentPlayer]);
+  // (The inventory arrives as props and every action's answer updates it: no resync GET here.)
 
   const removeCrop = async () => {
     if (isActionCoolingDown) return;

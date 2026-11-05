@@ -11,6 +11,7 @@ import soundManager from '../../Sound/SoundManager';
 import './AnimalPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { countAnimalsOfType, scaledAnimalMoneyCost } from './animalPricing';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const AnimalPanel = ({
   onClose,
@@ -94,24 +95,7 @@ const AnimalPanel = ({
     }
   };
 
-  useEffect(() => {
-    const syncInventory = async () => {
-      try {
-        const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
-        setInventory(storedInventory);
-  
-        const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        const serverInventory = serverResponse.data.inventory || [];
-        if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
-          setInventory(serverInventory);
-          localStorage.setItem('inventory', JSON.stringify(serverInventory));
-        }
-      } catch (error) {
-        console.error('Error syncing inventory:', error);
-      }
-    };
-    syncInventory();
-  }, [currentPlayer]);
+  // (The inventory arrives as props and every action's answer updates it: no resync GET here.)
 
   // Animals of this type on the grid, for the refund (price inflation is per type: animalPricing.js)
   const countFarmAnimals = () => countAnimalsOfType(NPCsInGridManager.getNPCsInGrid(gridId), stationType);
@@ -161,32 +145,11 @@ const AnimalPanel = ({
     if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
 
     try {
-      for (const { type, quantity } of ingredients) {
-        const success = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: type,
-          quantity,
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-          globalTuning,
-        });
-        if (!success) return;
-      }
-
-      // Update currentPlayer with the new inventory to ensure money display updates
-      setCurrentPlayer(prev => ({ 
-        ...prev, 
-        inventory: inventory,
-        backpack: backpack 
-      }));
-
-
+      // ONE request (game-server routes/actionRoutes.js /action/animal-sell): the refund at the
+      // price it cost, worked out on the server, and the animal leaves the server's grid
+      const answer = await postAction('/api/action/animal-sell', { playerId: currentPlayer.playerId, gridId, npcId });
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (!answer.ok) { updateStatus('❌ Failed to sell'); return; }
       // Remove the animal NPC from NPCsInGrid using the specific NPC ID
       try {
         if (npcId) {
@@ -200,9 +163,9 @@ const AnimalPanel = ({
         console.error('Error removing NPC:', error);
       }
 
-      const totalRefund = ingredients
+      const totalRefund = (answer.data.refund || [])
         .filter((item) => item.type === "Money")
-        .reduce((sum, item) => sum + item.quantity, 0);
+        .reduce((sum, item) => sum + item.qty, 0);
 
       console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
       updateStatus(`Sold ${getLocalizedString(stationType, strings)} for ${totalRefund} ${getLocalizedString('Money', strings)}.`);

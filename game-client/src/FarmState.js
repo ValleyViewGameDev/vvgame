@@ -1,4 +1,14 @@
-import { updateGridResource } from './Utils/GridManagement';
+import { postAction } from './Utils/playerDelta';
+// A grown plot becomes its crop on the server, which checks the plot's own growEnd
+// (game-server routes/actionRoutes.js /action/ripen). { success } like updateGridResource; a plot
+// already gone (harvested, ripened by another tab) counts as done.
+async function ripenOnServer(gridId, x, y) {
+  let playerId = null;
+  try { playerId = JSON.parse(localStorage.getItem('player') || 'null')?.playerId || null; } catch (_) { /* storage off */ }
+  const answer = await postAction('/api/action/ripen', { playerId, gridId, x, y });
+  return { success: answer.ok || answer.reason === 'gone' };
+}
+
 
 let farmTimer = null;
 
@@ -93,16 +103,7 @@ class FarmState {
           }
 
           try {
-            const response = await updateGridResource(
-              gridId,
-              {
-                type: newCrop.type,
-                x: seed.x,
-                y: seed.y,
-                growEnd: null, // Explicitly clear growEnd when converting to crop
-              },
-              true
-            );
+            const response = await ripenOnServer(gridId, seed.x, seed.y);
 
             if (response?.success) {
               return {
@@ -214,16 +215,7 @@ class FarmState {
             }
 
             try {
-              const response = await updateGridResource(
-                currentGridId,
-                {
-                  type: newCrop.type,
-                  x: seed.x,
-                  y: seed.y,
-                  growEnd: null, // Explicitly clear growEnd when converting to crop
-                },
-                true
-              );
+              const response = await ripenOnServer(currentGridId, seed.x, seed.y);
 
               if (response?.success) {
                 const enriched = {
@@ -294,16 +286,7 @@ class FarmState {
         }
 
         try {
-          const response = await updateGridResource(
-            gridId,
-            {
-              type: newCrop.type,
-              x: seed.x,
-              y: seed.y,
-              growEnd: null, // Explicitly clear growEnd when converting to crop
-            },
-            true
-          );
+          const response = await ripenOnServer(gridId, seed.x, seed.y);
 
           if (response?.success) {
             return { seed, enriched: { ...newCrop, x: seed.x, y: seed.y } };

@@ -517,6 +517,27 @@ function addQuest(player, questId, { homesteadNPCTypes = [], startTime = Date.no
   return quest;
 }
 
+
+// ---- Farm animal prices (GameFeatures/FarmAnimals/animalPricing.js) ----------------------
+
+const npcList = (grid) => (grid?.NPCsInGrid instanceof Map ? [...grid.NPCsInGrid.values()] : Object.values(grid?.NPCsInGrid || {}));
+/** countAnimalsOfType: grazing animals of this type on the grid. */
+const countAnimalsOfType = (grid, type) => npcList(grid).filter((n) => n && n.type === type && resourceDef(n.type)?.action === 'graze').length;
+/** scaledAnimalMoneyCost: each animal of a type you own raises the next one's Money price. */
+function scaledAnimalMoneyCost(baseCost, count, inflation = globalTuning.farmAnimalInflation ?? 0.1) {
+  if (!count) return baseCost;
+  return Math.ceil((baseCost * Math.pow(1 + inflation, count)) / 50) * 50;
+}
+/** withScaledAnimalCost: a grazing animal's recipe with its Money scaled by `count` of its type. */
+function withScaledAnimalCost(def, count) {
+  if (!def?.passable || def.action !== 'graze') return def;
+  const scaled = { ...def };
+  for (let i = 1; i <= 4; i++) {
+    if (scaled[`ingredient${i}`] === 'Money' && scaled[`ingredient${i}qty`]) scaled[`ingredient${i}qty`] = scaledAnimalMoneyCost(scaled[`ingredient${i}qty`], count);
+  }
+  return scaled;
+}
+
 // Answers are numbered so the client can drop one that arrives after a newer one (one process)
 let seqCounter = Date.now();
 const nextSeq = () => ++seqCounter;
@@ -571,6 +592,8 @@ module.exports = {
   stateGoalMet,
   refreshStateGoals,
   addQuest,
+  countAnimalsOfType,
+  withScaledAnimalCost,
   spendWithGems,
   playerDelta,
   nextSeq,

@@ -13,6 +13,7 @@ import ManageContentsModal from './ManageContentsModal';
 import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import CloseButton from '../../UI/Buttons/CloseButton';
+import { postAction } from '../../Utils/playerDelta';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen, autoOpenBackpackModal = false, onBackpackModalAutoOpened }) {
 
@@ -147,10 +148,8 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 return i;
             }).filter(Boolean);
 
-            await axios.post(`${API_BASE}/api/update-inventory`, {
-                playerId: currentPlayer.playerId,
-                inventory: updatedWarehouse,
-            });
+            // the server takes them away (/action/discard: it can only ever lower the holdings)
+            await postAction('/api/action/discard', { playerId: currentPlayer.playerId, from: 'inventory', items: [{ type: item.type, qty: amount }] });
 
             setCurrentPlayer({
                 ...currentPlayer,
@@ -168,10 +167,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
     const handleDiscardAllWarehouse = async () => {
         try {
-            await axios.post(`${API_BASE}/api/update-inventory`, {
-                playerId: currentPlayer.playerId,
-                inventory: [],
-            });
+            await postAction('/api/action/discard', { playerId: currentPlayer.playerId, from: 'inventory', all: true });
 
             setCurrentPlayer({
                 ...currentPlayer,

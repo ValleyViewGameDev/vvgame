@@ -9,6 +9,7 @@ const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Import the Player model
+const econ = require('../utils/playerEconomy');
 const { requireDeveloper } = require('../utils/developerHelpers');
 const { isDeveloperPlayerId } = require('../utils/serviceMode');
 
@@ -335,7 +336,13 @@ router.post('/cast-vote', async (req, res) => {
       await settlement.save();
 
       console.log(`✅ Vote recorded: ${voterId} → ${candidateId}`);
-      res.status(200).json({ message: 'Vote successfully cast.' });
+      // the voter's Vote quests advance here, with the vote (Phase 5: never a client quest write)
+      let activeQuests;
+      try {
+        const voter = await Player.findById(voterId);
+        if (voter && econ.advanceQuests(voter, 'Vote', 'Election', 1)) { await voter.save(); activeQuests = voter.activeQuests; }
+      } catch (e) { console.error('Vote quest update failed:', e.message); }
+      res.status(200).json({ message: 'Vote successfully cast.', ...(activeQuests ? { activeQuests } : {}) });
 
   } catch (error) {
       console.error('❌ Error casting vote:', error);

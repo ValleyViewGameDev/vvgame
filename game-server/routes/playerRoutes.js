@@ -178,8 +178,14 @@ router.post('/update-player-quests', async (req, res) => {
 ///////// TROPHY ROUTES ////////////
 
 // POST /api/earn-trophy
+const CLIENT_TROPHIES = new Set(['TraveledToHomestead', 'TraveledToTown', 'Explore the Valley']);
 router.post('/earn-trophy', async (req, res) => {
   const { playerId, trophyName, progressIncrement = 1 } = req.body;
+  // Only the travel events are the client's to claim (one gem each, once); every other trophy is
+  // awarded by the server route of the action that earns it (Phase 5)
+  if (!CLIENT_TROPHIES.has(trophyName)) {
+    return res.status(403).json({ success: false, error: 'not-client-earned' });
+  }
   
   if (!playerId || !trophyName) {
     return res.status(400).json({ error: 'Player ID and trophy name are required.' });

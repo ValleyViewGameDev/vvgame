@@ -10,6 +10,7 @@ import { deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/Inve
 import ManageContentsModal from './ManageContentsModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import CloseButton from '../../UI/Buttons/CloseButton';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 /**
  * Backpack Management: the backpack's contents with an amount per item.
@@ -35,17 +36,17 @@ export default function BackpackManageModal({
     setter((prev) => ({ ...prev, [type]: clamped }));
   };
 
-  const save = async (updatedWarehouse, updatedBackpack) => {
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-      playerId: currentPlayer.playerId,
-      ...(updatedWarehouse ? { inventory: updatedWarehouse } : {}),
-      backpack: updatedBackpack,
-    });
+  // The new lists show at once; the server makes the same move on its own record
+  // (/action/send-home or /action/discard) and its answer replaces them
+  const save = async (updatedWarehouse, updatedBackpack, request) => {
     setCurrentPlayer({ ...currentPlayer, ...(updatedWarehouse ? { inventory: updatedWarehouse } : {}), backpack: updatedBackpack });
     if (updatedWarehouse) setInventory(updatedWarehouse);
     setBackpack(updatedBackpack);
+    const answer = await postAction(updatedWarehouse ? '/api/action/send-home' : '/api/action/discard',
+      { playerId: currentPlayer.playerId, ...(updatedWarehouse ? {} : { from: 'backpack' }), ...request });
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok && answer.reason === 'warehouse-full') updateStatus(20);
   };
-
   const handleMoveItem = async (item) => {
     const amount = amounts[item.type] || 0;
     if (amount <= 0) return;
@@ -60,10 +61,10 @@ export default function BackpackManageModal({
         const updatedWarehouse = inventory.map((i) => ({ ...i }));
         const existing = updatedWarehouse.find((i) => i.type === item.type);
         if (existing) existing.quantity += amount; else updatedWarehouse.push({ ...item, quantity: amount });
-        await save(updatedWarehouse, updatedBackpack);
+        await save(updatedWarehouse, updatedBackpack, { items: [{ type: item.type, qty: amount }] });
         updateStatus(`Moved ${amount}x ${getLocalizedString(item.type, strings)} to warehouse`);
       } else {
-        await save(null, updatedBackpack);
+        await save(null, updatedBackpack, { items: [{ type: item.type, qty: amount }] });
         updateStatus(`❌ Discarded ${amount}x ${getLocalizedString(item.type, strings)}`);
       }
     } catch (error) {
@@ -82,10 +83,10 @@ export default function BackpackManageModal({
           const existing = updatedWarehouse.find((i) => i.type === item.type);
           if (existing) existing.quantity += item.quantity; else updatedWarehouse.push({ ...item });
         }
-        await save(updatedWarehouse, kept);
+        await save(updatedWarehouse, kept, { all: true });
         updateStatus('Moved all items to warehouse');
       } else {
-        await save(null, kept);
+        await save(null, kept, { all: true });
         updateStatus('❌ Discarded all items except special items');
       }
     } catch (error) {

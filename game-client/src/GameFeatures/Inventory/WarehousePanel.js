@@ -15,6 +15,7 @@ import soundManager from '../../Sound/SoundManager';
 import './WarehousePanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const WarehousePanel = ({
   onClose,
@@ -94,88 +95,25 @@ const WarehousePanel = ({
 
   const handleGemPurchase = async (modifiedRecipe) => {
     // This is called by the gem button with a recipe modified to include gems
-    return handleUpgrade(modifiedRecipe);
+    return handleUpgrade(modifiedRecipe, { useGems: true });
   };
 
-  const handleUpgrade = async (customRecipe = null) => {
+  // ONE request (game-server routes/actionRoutes.js /action/warehouse-upgrade): the next level
+  // from warehouse.json, its ingredients (gems for what is missing) and the new capacity, all on
+  // the server; capacity is no longer written by the client.
+  const handleUpgrade = async (customRecipe = null, { useGems = false } = {}) => {
     if (!nextLevel) return;
-
-    const recipeToUse = customRecipe || nextLevel;
-
-    // Build ingredients array
-    const ingredients = [];
-    
-    // Add all 5 potential ingredients (including gems if present)
-    for (let i = 1; i <= 5; i++) {
-      const ingredientType = recipeToUse[`ingredient${i}`];
-      const ingredientQty = recipeToUse[`ingredient${i}qty`];
-      
-      if (ingredientType && ingredientQty) {
-        ingredients.push({
-          type: ingredientType,
-          quantity: ingredientQty
-        });
-      }
-    }
-    
-    console.log('Warehouse upgrade - Recipe to use:', recipeToUse);
-    console.log('Warehouse upgrade - Ingredients array:', ingredients);
-
-    // Check if player can afford (now handled by spendIngredients)
-    if (!customRecipe && !canAfford(nextLevel, inventory, backpack, 1)) {
+    if (!useGems && !canAfford(nextLevel, inventory, backpack, 1)) {
       updateStatus(16); // Cannot afford message
       return;
     }
-
-    try {
-      // Spend ingredients using the proper async function
-      const spendSuccess = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: recipeToUse,
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack: setBackpack || (() => {}),
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!spendSuccess) {
-        console.warn('Failed to spend ingredients.');
-        return;
-      }
-      
-      // Calculate new capacity and level
-      const newCapacity = (currentPlayer.warehouseCapacity || 1000) + nextLevel.add;
-      const newLevel = nextLevel.Level;
-      
-      // Update player's warehouse capacity AND level
-      const response = await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: {
-          warehouseCapacity: newCapacity,
-          warehouseLevel: newLevel
-        }
-      });
-
-      if (response.data.success) {
-        // Update local state (from prev: the closure's currentPlayer predates the spend above, and
-        // spreading it put the spent materials back on screen)
-        setCurrentPlayer(prev => ({
-          ...prev,
-          warehouseCapacity: newCapacity,
-          warehouseLevel: newLevel
-        }));
-
-        soundManager.playSFX('upgrade');
-        updateStatus(`${strings[197] || "Warehouse upgraded"}`);
-      }
-    } catch (error) {
-      console.error('Error upgrading warehouse:', error);
-      updateStatus('Failed to upgrade warehouse');
-    }
+    const answer = await postAction('/api/action/warehouse-upgrade', { playerId: currentPlayer.playerId, useGems });
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) { updateStatus(answer.reason === 'max' ? 'Failed to upgrade warehouse' : 16); return; }
+    setCurrentPlayer(prev => ({ ...prev, warehouseCapacity: answer.data.warehouseCapacity, warehouseLevel: answer.data.warehouseLevel }));
+    soundManager.playSFX('upgrade');
+    updateStatus(`${strings[197] || "Warehouse upgraded"}`);
   };
-
   // Get current capacity info
   const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
   

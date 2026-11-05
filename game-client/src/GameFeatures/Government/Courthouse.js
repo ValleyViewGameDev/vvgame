@@ -1,5 +1,4 @@
 import API_BASE from '../../config';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
@@ -345,7 +344,7 @@ const CourthousePanel = ({
                 // Store the username of the voted candidate
                 const votedCandidate = candidateList.find(c => c.playerId === selectedCandidate);
                 setVotedFor(votedCandidate?.username || 'Unknown');
-                await trackQuestProgress(currentPlayer, 'Vote', 'Election', 1);
+                if (Array.isArray(response.data.activeQuests)) setCurrentPlayer((prev) => ({ ...prev, activeQuests: response.data.activeQuests }));
                 fetchElectionData();
             }
         } catch (error) {

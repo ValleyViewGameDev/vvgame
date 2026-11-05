@@ -28,6 +28,17 @@
  *   POST /action/quests-refresh                   bring the state goals (Acquire / Meet / Find / Discover) up to date
  *   POST /action/place                            build / buy / place a deco, a station, a farm animal or a pet
  *   POST /action/plant                            plant a farm plot (or a tree) on a free tile it may grow on
+ *   POST /action/terraform                        lay a ground tile from the Tools panel
+ *   POST /action/ripen                            a grown farm plot becomes its crop (FarmState's timer)
+ *   POST /action/remove                           clear something off the player's own grid (no refund)
+ *   POST /action/warehouse-upgrade                the next warehouse level (tuning/warehouse.json)
+ *   POST /action/unlock-avatars                   the premium avatars, for gems
+ *   POST /action/animal-sell                      sell a farm animal back (its price at purchase)
+ *   POST /action/pitch-tent                       camp: a Tent is used, the player is camping (Adventurer)
+ *   POST /action/discard                          throw goods away (warehouse or backpack; only ever less)
+ *   POST /action/send-home                        backpack goods to the warehouse (at home, or by a Post House)
+ *   POST /action/discard-power                    throw away a weapon / armour / magic item (removal only)
+ *   POST /action/mail-read / mail-delete          the Mailbox marks messages read and deletes one (never writes rewards)
  *   POST /action/scroll-reveal / scroll-collect   the Ancient Temple (Reveal Scroll)
  */
 const express = require('express');
@@ -1220,7 +1231,9 @@ router.post('/action/place', async (req, res) => {
     }
     if (def.category === 'crafting' && onGrid.filter((r) => r && r.type === def.type).length >= limit('maxCraftingStationsPerType', 4)) return answer(409, 'limit');
 
-    const paid = payFor(player, def, { useGems });
+    // a grazing animal's Money price rises with each one of its type already owned (animalPricing.js)
+    const price = def.action === 'graze' ? econ.withScaledAnimalCost(def, econ.countAnimalsOfType(grid, def.type)) : def;
+    const paid = payFor(player, price, { useGems });
     if (!paid.ok) return answer(409, paid.reason);
     if (!isNPC) {
       const placed = { type: def.type, x, y };
@@ -1276,6 +1289,334 @@ router.post('/action/plant', async (req, res) => {
   } catch (err) {
     console.error('❌ action/plant failed:', err);
     return res.status(500).json({ success: false, error: 'plant-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/terraform { playerId, gridId, x, y, tileType }
+ * → { success, tile: {x, y, type} }
+ * The Tools panel (Farming.js handleTerraform): the new ground is a `category: 'tile'` row of
+ * resources.json whose skill and level locks the player meets (devonly: developers); water and
+ * lava cannot be changed except by a developer. Free, as before.
+ */
+router.post('/action/terraform', async (req, res) => {
+  const { playerId, gridId, x, y, tileType } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y) || !tileType) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const def = econ.resourceDef(tileType);
+    if (!def || def.category !== 'tile') return fail(res, 400, 'not-a-tile');
+    const dev = isDeveloper(player.username);
+    if (def.requires === 'devonly' && !dev) return fail(res, 403, 'devonly');
+    if (def.requires && def.requires !== 'devonly' && !econ.hasSkillOrPower(player, def.requires)) return fail(res, 403, `needs-${def.requires}`);
+    if (def.level && !dev && econ.levelOf(player) < Number(def.level)) return fail(res, 403, `level-${def.level}`);
+    const before = gridTileManager.getTile(grid, x, y);
+    if (!before) return fail(res, 400, 'no-tile');
+    if ((before === 'w' || before === 'l') && !dev) return fail(res, 403, 'cannot-change');
+    gridTileManager.updateTile(grid, x, y, tileType);
+    await grid.save({ validateBeforeSave: false });
+    return res.json({ success: true, tile: { x, y, type: tileType } });
+  } catch (err) {
+    console.error('❌ action/terraform failed:', err);
+    return res.status(500).json({ success: false, error: 'terraform-failed', detail: err.message });
+  }
+});
+
+const RIPEN_EARLY_MS = 30000; // client clocks run a little ahead; ripening seconds early is harmless
+
+/**
+ * POST /api/action/ripen { playerId, gridId, x, y }
+ * → { success, ripened: {type, x, y} }
+ * FarmState's grow timer: the farm plot on (x, y) becomes its output once its own growEnd has
+ * passed (by the server's clock, a little slack allowed). Refusals: 409 not-ready (with growEnd),
+ * 409 gone (no plot there: already ripened or harvested).
+ */
+router.post('/action/ripen', async (req, res) => {
+  const { playerId, gridId, x, y } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y)) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId).select('_id gridId').lean(), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const plot = (gridResourceManager.getResources(grid) || []).find((r) => r && r.x === x && r.y === y);
+    const def = plot && econ.resourceDef(plot.type);
+    if (!def || def.category !== 'farmplot') return fail(res, 409, 'gone');
+    const growEnd = plot.growEnd ? new Date(plot.growEnd).getTime() : 0;
+    if (growEnd && growEnd - RIPEN_EARLY_MS > Date.now()) return fail(res, 409, 'not-ready', { growEnd });
+    const crop = econ.resourceDef(def.output);
+    if (!crop) return fail(res, 400, 'no-output');
+    gridResourceManager.updateResource(grid, { type: crop.type, x, y });
+    await grid.save({ validateBeforeSave: false });
+    return res.json({ success: true, ripened: { type: crop.type, x, y } });
+  } catch (err) {
+    console.error('❌ action/ripen failed:', err);
+    return res.status(500).json({ success: false, error: 'ripen-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/remove { playerId, gridId, x, y }
+ * → { success, removed: type | null }
+ * Clearing a thing off the player's OWN grid with no refund (a crop, a training building, a
+ * doober a citizen eats, a station after its sell-for-refund). Nothing is granted, so ownership
+ * of the grid is the whole check. A tile already empty answers success (removed: null).
+ */
+router.post('/action/remove', async (req, res) => {
+  const { playerId, gridId, x, y } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y)) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId).select('_id gridId').lean(), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const onTile = (gridResourceManager.getResources(grid) || []).find((r) => r && r.x === x && r.y === y);
+    if (!onTile) return res.json({ success: true, removed: null });
+    gridResourceManager.updateResource(grid, { type: null, x, y });
+    await grid.save({ validateBeforeSave: false });
+    return res.json({ success: true, removed: onTile.type });
+  } catch (err) {
+    console.error('❌ action/remove failed:', err);
+    return res.status(500).json({ success: false, error: 'remove-failed', detail: err.message });
+  }
+});
+
+// ---- Upgrades ----------------------------------------------------------------------------------
+
+const warehouseLevels = require('../tuning/warehouse.json');
+const PREMIUM_AVATAR_GEM_COST = 200; // UI/Modals/ChangeIconModal.js shows the same price
+
+/**
+ * POST /api/action/warehouse-upgrade { playerId, useGems? }
+ * → { success, warehouseLevel, warehouseCapacity, player, seq }
+ * The level after the player's (none stored = 0) from warehouse.json: its ingredients spent (gems
+ * for what is missing), capacity + its `add`. Refusals: 409 max, short-<type>.
+ */
+router.post('/action/warehouse-upgrade', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const level = Number.isInteger(player.warehouseLevel) ? player.warehouseLevel : 0;
+    const next = warehouseLevels[level + 1];
+    if (!next) return answer(409, 'max');
+    const paid = payFor(player, next, { useGems: req.body.useGems });
+    if (!paid.ok) return answer(409, paid.reason);
+    player.warehouseCapacity = (player.warehouseCapacity || 1000) + (Number(next.add) || 0);
+    player.warehouseLevel = next.Level;
+    await player.save();
+    return res.json({ success: true, warehouseLevel: player.warehouseLevel, warehouseCapacity: player.warehouseCapacity, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/warehouse-upgrade failed:', err);
+    return res.status(500).json({ success: false, error: 'warehouse-upgrade-failed', detail: err.message });
+  }
+});
+
+/** POST /api/action/unlock-avatars { playerId } → { success, avatarsUnlocked, player, seq } */
+router.post('/action/unlock-avatars', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    if (player.avatarsUnlocked) return res.json({ success: true, avatarsUnlocked: true, player: econ.playerDelta(player), seq: econ.nextSeq() });
+    if (!spendCosts({ ingredient1: 'Gem', ingredient1qty: PREMIUM_AVATAR_GEM_COST }, player.inventory, player.backpack)) return answer(409, 'short-Gem');
+    player.markModified('inventory'); player.markModified('backpack');
+    player.avatarsUnlocked = true;
+    await player.save();
+    return res.json({ success: true, avatarsUnlocked: true, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/unlock-avatars failed:', err);
+    return res.status(500).json({ success: false, error: 'unlock-avatars-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/animal-sell { playerId, gridId, npcId }
+ * → { success, refund: [{type, qty}], player, seq }
+ * FarmAnimals.js handleSellStation, on the homestead: the animal's own recipe back, its Money at
+ * the price it cost (scaled by the herd of its type minus itself). The animal leaves the grid.
+ */
+router.post('/action/animal-sell', async (req, res) => {
+  const { playerId, gridId, npcId } = req.body || {};
+  if (!playerId || !gridId || !npcId) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player) || grid.gridType !== 'homestead') return fail(res, 403, 'not-your-homestead');
+    const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
+    const npcs = grid.NPCsInGrid instanceof Map ? grid.NPCsInGrid : new Map(Object.entries(grid.NPCsInGrid || {}));
+    const npc = npcs.get(String(npcId));
+    const def = npc && econ.resourceDef(npc.type);
+    if (!def || def.action !== 'graze') return answer(409, 'gone');
+    const paidFor = econ.withScaledAnimalCost(def, Math.max(0, econ.countAnimalsOfType(grid, def.type) - 1));
+    const refund = recipeCosts(paidFor).map(([type, qty]) => ({ type, qty }));
+    npcs.delete(String(npcId));
+    grid.NPCsInGrid = npcs;
+    grid.markModified('NPCsInGrid');
+    for (const r of refund) econ.grant(player, r.type, r.qty, { atHome: true });
+    await grid.save({ validateBeforeSave: false });
+    await player.save();
+    return res.json({ success: true, refund, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/animal-sell failed:', err);
+    return res.status(500).json({ success: false, error: 'animal-sell-failed', detail: err.message });
+  }
+});
+
+/** POST /api/action/pitch-tent { playerId } → { success, trophies, player, seq }: one Tent, iscamping, Adventurer. */
+router.post('/action/pitch-tent', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    if (!spendCosts({ ingredient1: 'Tent', ingredient1qty: 1 }, player.inventory, player.backpack)) return answer(409, 'short-Tent');
+    player.markModified('inventory'); player.markModified('backpack');
+    player.iscamping = true;
+    const trophies = [];
+    const t = applyTrophy(player, 'Adventurer', 1);
+    if (t.success) trophies.push({ name: 'Adventurer', trophy: t.trophy, isNewMilestone: t.isNewMilestone });
+    await player.save();
+    return res.json({ success: true, trophies, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/pitch-tent failed:', err);
+    return res.status(500).json({ success: false, error: 'pitch-tent-failed', detail: err.message });
+  }
+});
+
+// ---- Managing the holdings ---------------------------------------------------------------------
+
+const isSpecialType = (type) => econ.resourceDef(type)?.category === 'special';
+/** The [type, qty] pairs asked for, capped at what the list holds (`all`: everything but specials). */
+function pickFrom(list, { items, all, keepSpecial = false }) {
+  const held = new Map();
+  for (const i of list || []) if (i && i.type) held.set(i.type, (held.get(i.type) || 0) + (i.quantity || 0));
+  if (all) return [...held].filter(([type, q]) => q > 0 && !(keepSpecial && isSpecialType(type)));
+  return (Array.isArray(items) ? items : [])
+    .map((i) => [i?.type, Math.min(Math.floor(Number(i?.qty) || 0), held.get(i?.type) || 0)])
+    .filter(([type, q]) => type && q > 0 && !(keepSpecial && isSpecialType(type)));
+}
+function takeAll(list, pairs) {
+  for (const [type, qty] of pairs) {
+    let rest = qty;
+    for (let i = list.length - 1; i >= 0 && rest > 0; i--) {
+      if (!list[i] || list[i].type !== type) continue;
+      const t = Math.min(list[i].quantity || 0, rest);
+      list[i].quantity -= t; rest -= t;
+      if (list[i].quantity <= 0) list.splice(i, 1);
+    }
+  }
+}
+
+/**
+ * POST /api/action/discard { playerId, from: 'inventory' | 'backpack', items?: [{type, qty}], all? }
+ * → { success, discarded: [{type, qty}], player, seq }
+ * Throwing goods away can only ever lower the holdings (the old update-inventory wrote whatever
+ * list the client sent). `all` from the backpack keeps the special items, as the panel does.
+ */
+router.post('/action/discard', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player } = ctx;
+    const field = req.body.from === 'backpack' ? 'backpack' : 'inventory';
+    if (!Array.isArray(player[field])) player[field] = [];
+    const pairs = pickFrom(player[field], { items: req.body.items, all: !!req.body.all, keepSpecial: field === 'backpack' && !!req.body.all });
+    takeAll(player[field], pairs);
+    player.markModified(field);
+    await player.save();
+    return res.json({ success: true, discarded: pairs.map(([type, qty]) => ({ type, qty })), player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/discard failed:', err);
+    return res.status(500).json({ success: false, error: 'discard-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/send-home { playerId, items?: [{type, qty}], all? }
+ * → { success, moved: [{type, qty}], player, seq }
+ * Backpack goods into the warehouse: on the homestead, or anywhere with a Post House on the grid
+ * (BackpackManageModal's canSendHome). Special items stay in the backpack. Warehouse room first.
+ */
+router.post('/action/send-home', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const here = player.location?.g ? await Grid.findById(player.location.g).select('gridType resources ownerId').lean() : null;
+    const atHome = player.location?.gtype === 'homestead';
+    const byPostHouse = here && (gridResourceManager.getResources(here) || []).some((r) => r && r.type === 'Post House');
+    if (!atHome && !byPostHouse) return answer(403, 'not-here');
+    const pairs = pickFrom(player.backpack, { items: req.body.items, all: !!req.body.all, keepSpecial: true });
+    const moving = pairs.reduce((n, [type, q]) => n + (isCurrency(type) ? 0 : q), 0);
+    const goods = (list) => (list || []).filter((i) => i && !isCurrency(i.type)).reduce((n, i) => n + (i.quantity || 0), 0);
+    if (goods(player.inventory) + moving > econ.capacityOf(player).warehouse) return answer(409, 'warehouse-full');
+    takeAll(player.backpack, pairs);
+    for (const [type, qty] of pairs) econ.grant(player, type, qty, { atHome: true });
+    player.markModified('inventory'); player.markModified('backpack');
+    await player.save();
+    return res.json({ success: true, moved: pairs.map(([type, qty]) => ({ type, qty })), player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/send-home failed:', err);
+    return res.status(500).json({ success: false, error: 'send-home-failed', detail: err.message });
+  }
+});
+
+/** POST /api/action/discard-power { playerId, type } → { success, player, seq }: the Combat panel's Discard (removal only). */
+router.post('/action/discard-power', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player } = ctx;
+    player.powers = (player.powers || []).filter((p) => p && p.type !== req.body.type);
+    player.markModified('powers');
+    await player.save();
+    return res.json({ success: true, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/discard-power failed:', err);
+    return res.status(500).json({ success: false, error: 'discard-power-failed', detail: err.message });
+  }
+});
+
+// ---- The Mailbox ------------------------------------------------------------------------------
+// Messages carry their rewards, so the client never writes the message list: it can mark them
+// read and delete one; only the server creates messages (sendMailboxMessage, the schedulers).
+
+router.post('/action/mail-read', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player } = ctx;
+    let changed = 0;
+    for (const m of player.messages || []) if (m && !m.read) { m.read = true; changed++; }
+    if (changed) { player.markModified('messages'); await player.save(); }
+    return res.json({ success: true, marked: changed, messages: player.messages });
+  } catch (err) {
+    console.error('❌ action/mail-read failed:', err);
+    return res.status(500).json({ success: false, error: 'mail-read-failed', detail: err.message });
+  }
+});
+
+/** POST /api/action/mail-delete { playerId, messageIndex, messageId? } (messageId, when given, must match). */
+router.post('/action/mail-delete', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const i = Number(req.body.messageIndex);
+    const msg = (player.messages || [])[i];
+    if (!msg) return answer(409, 'gone');
+    if (req.body.messageId !== undefined && req.body.messageId !== null && String(msg.messageId) !== String(req.body.messageId)) return answer(409, 'gone');
+    player.messages.splice(i, 1);
+    player.markModified('messages');
+    await player.save();
+    return res.json({ success: true, messages: player.messages });
+  } catch (err) {
+    console.error('❌ action/mail-delete failed:', err);
+    return res.status(500).json({ success: false, error: 'mail-delete-failed', detail: err.message });
   }
 });
 

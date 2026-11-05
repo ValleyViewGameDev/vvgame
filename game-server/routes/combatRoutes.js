@@ -20,6 +20,7 @@ const masterResources = require('../tuning/resources.json');
 const { derivedStats, attackCooldownMs } = require('../utils/combatStats');
 const { publicPlayer } = require('../utils/publicPlayer');
 const { recordQuestCompleted, recordLevelUps } = require('../utils/analytics');
+const { applyTrophy } = require('../utils/trophyUtils');
 
 const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
 let questDefs = null;
@@ -144,10 +145,17 @@ router.post('/action/npc-kill', async (req, res) => {
     recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xpGained).catch(() => {}); // pacing (OB-7)
     player.xp = (player.xp || 0) + xpGained;
     advanceKillQuests(player, npc.type);
+    // Duke Angelo's kill earns its trophy here, with the kill (the client no longer claims it)
+    const trophies = [];
+    if (npc.type === 'Duke Angelo') {
+      const t = applyTrophy(player, 'Kill the Duke', 1);
+      if (t.success) trophies.push({ name: 'Kill the Duke', trophy: t.trophy, isNewMilestone: t.isNewMilestone });
+    }
     player.lastActive = new Date();
     await player.save();
 
-    return res.json({ success: true, xpGained, xp: player.xp, drop, activeQuests: publicPlayer(player).activeQuests });
+    const pub = publicPlayer(player);
+    return res.json({ success: true, xpGained, xp: player.xp, drop, activeQuests: pub.activeQuests, trophies, playerTrophies: pub.trophies });
   } catch (err) {
     console.error('❌ npc-kill failed:', err);
     return res.status(500).json({ error: 'npc-kill failed', detail: err.message });

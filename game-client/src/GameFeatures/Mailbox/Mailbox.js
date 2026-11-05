@@ -6,8 +6,6 @@ import Modal from '../../UI/Modals/Modal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import '../../UI/Buttons/SharedButtons.css';
 import './Mailbox.css';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
@@ -88,14 +86,9 @@ function Mailbox({
       const unreadMessages = freshMessages.filter(msg => !msg.read);
 
       if (unreadMessages.length > 0) {
-        const updatedMessages = freshMessages.map(msg =>
-          !msg.read ? { ...msg, read: true } : msg
-        );
         // Save only to the DB — don't update local state yet
-        await axios.post(`${API_BASE}/api/update-player-messages`, {
-          playerId: currentPlayer.playerId,
-          messages: updatedMessages,
-        });
+        // the server marks them read itself (/action/mail-read); the client never writes messages
+        await axios.post(`${API_BASE}/api/action/mail-read`, { playerId: currentPlayer.playerId });
         // Track which ones we updated
         setMarkedReadIds(unreadMessages.map(msg => msg.messageId));
       }
@@ -199,22 +192,7 @@ function Mailbox({
         if (backpack) setBackpack(backpack);
         setVisibleMessages(messages || []);
 
-        // Handle quest progress tracking for skills
-        if (skills && collectedItems) {
-          for (const item of collectedItems) {
-            const match = item.match(/(\d+)\s+(.+)/);
-            if (match) {
-              const [, qty, skillType] = match;
-              if (skills.some(s => s.type === skillType)) {
-                await trackQuestProgress(currentPlayer, 'Acquire', skillType, parseInt(qty), setCurrentPlayer);
-              }
-            }
-          }
-        }
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
+        // (the collect route answered with the player's new holdings: no refetch)
         updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
         // FTUE: the welcome gift collected is the beat before the avatar picker (tuning/FTUEsteps.json)
         tryAdvanceFTUEByTrigger('CollectedMail', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
@@ -271,10 +249,13 @@ const renderRewards = (rewards) => {
       const updatedMessages = [...visibleMessages];
       updatedMessages.splice(messageIndex, 1); // Remove the one at this index only
     
-      await axios.post(`${API_BASE}/api/update-player-messages`, {
+      // the server deletes it from its own list (/action/mail-delete)
+      const deleted = await axios.post(`${API_BASE}/api/action/mail-delete`, {
         playerId,
-        messages: updatedMessages,
+        messageIndex,
+        messageId: visibleMessages[messageIndex]?.messageId,
       });
+      if (!deleted.data?.success) throw new Error('mail-delete refused');
 
       await rowGone;
       collecting.current = Math.max(0, collecting.current - 1);

@@ -1,7 +1,6 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
-import { convertTileType, updateGridResource } from '../../Utils/GridManagement';
 import { validateTileType, enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -281,7 +280,21 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
   // ===== SERVER UPDATE =====
   // Call convertTileType for server update and React state sync
   // Pass setTileTypes so it updates React state after server confirms
-  await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
+  // ONE validated request (game-server routes/actionRoutes.js /action/terraform): the tile row's
+  // skill and level locks are checked on the server; a refusal puts the old ground back
+  const answer = await postAction('/api/action/terraform', { playerId: currentPlayer.playerId, gridId, x: tileX, y: tileY, tileType: newType });
+  if (!answer.ok && answer.status !== 0) {
+    const now = GlobalGridStateTilesAndResources.getTiles();
+    if (now?.[tileY]) {
+      const row = [...now[tileY]]; row[tileX] = originalTileType;
+      const restored = [...now]; restored[tileY] = row;
+      GlobalGridStateTilesAndResources.setTiles(restored);
+      if (typeof setTileTypes === 'function') setTileTypes(restored);
+    }
+    FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
+  } else if (typeof setTileTypes === 'function') {
+    setTileTypes(GlobalGridStateTilesAndResources.getTiles());
+  }
 
   console.log(`✅ Terraform completed: (${tileX}, ${tileY}) → "${newType}"`);
   window._processingTerraforms.delete(terraformId);

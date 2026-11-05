@@ -29,6 +29,16 @@ export const updateGridResource = async (
   try {
     const { x, y, growEnd, craftEnd, craftedItem, type, stationLevel, slots } = resource;
 
+    // A removal (type null) goes through the validated route (game-server routes/actionRoutes.js
+    // /action/remove: the player's own grid only). Every gameplay write that places or changes a
+    // resource has its own /action/* route; only the debug panel still writes through update-grid.
+    if (type === null || type === undefined) {
+      let playerId = null;
+      try { playerId = JSON.parse(localStorage.getItem('player') || 'null')?.playerId || null; } catch (_) { /* storage off */ }
+      const removed = await axios.post(`${API_BASE}/api/action/remove`, { playerId, gridId, x, y });
+      return { success: !!removed.data?.success };
+    }
+
     // ✅ 1. Flat payload — no "newResource" key
     const payload = {
       resource: {

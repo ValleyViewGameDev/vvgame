@@ -96,7 +96,8 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, m
     try {
       await Promise.all([
         nextSettings && axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: nextSettings } }),
-        nextPowers && axios.post(`${API_BASE}/api/update-powers`, { playerId: currentPlayer.playerId, powers: nextPowers }),
+        // a power only ever leaves here (Discard): /action/discard-power, removal only
+        nextPowers && axios.post(`${API_BASE}/api/action/discard-power`, { playerId: currentPlayer.playerId, type: (currentPlayer.powers || []).find((p) => !nextPowers.some((n) => n.type === p.type))?.type }),
       ]);
       return true;
     } catch (error) {
