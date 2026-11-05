@@ -7,13 +7,12 @@ import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { showNotification } from '../../UI/Notifications/Notifications';
 import { confirmRecipeGemSpend } from '../../UI/Modals/GemSpendConfirm';
 import { QuestGiverButton } from '../../UI/Buttons/QuestButton';
 import { modifyPlayerStatsInGridState, getDerivedLevel } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import RelationshipCard from '../Relationships/RelationshipCard';
@@ -24,7 +23,6 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
-import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import CitizenStatusLine from './CitizenStatusLine';
 import StoryModal from '../../UI/Modals/StoryModal';
@@ -633,23 +631,23 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
       const safeInventory = Array.isArray(inventory) ? inventory : [];
       const safeBackpack = Array.isArray(backpack) ? backpack : [];
       
-      const success = await gainIngredients({
+      // ONE request (game-server routes/actionRoutes.js /action/quest-reward): the server checks the
+      // quest is complete, gives the reward (relationship bonus unless one of a kind; room first),
+      // the xp and the count trophies, and moves the quest to completedQuests.
+      const answer = await postAction('/api/action/quest-reward', {
         playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: quest.reward,
-        quantity: rewardQuantity,
-        inventory: safeInventory,
-        backpack: safeBackpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
+        questId: quest.title,
+        npcType: npcData.type,
       });
-      // Check if gainIngredients failed (returns object with success: false, or falsy value)
-      if (success !== true && (!success || success.success === false)) { revertReward(); return; }
-
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (!answer.ok) {
+        revertReward();
+        if (answer.reason === 'no-backpack') updateStatus(19);
+        else if (answer.reason === 'backpack-full') updateStatus(21);
+        else if (answer.reason === 'warehouse-full') updateStatus(20);
+        else gameAlert({ message: strings[2038] || "Couldn't collect the quest reward. Please try again." });
+        return;
+      }
       // Feste's quest: he takes Gertrude's Song (consumed like a trade) and the statue becomes ready
       // to wake (after the reward's own inventory write, so that cannot put the Song back), saved as storyFlags.festeHasSong (routes/storyRoutes.js give-feste-song)
       if (quest.title === FESTE_QUEST) {
@@ -670,101 +668,13 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
           .catch((err) => console.error('give-feste-song failed:', err));
       }
 
-      // Award trophies for specific quest rewards
-      try {
-        if (quest.reward === "Prospero's Orb") {
-          console.log(`🏆 Awarding Prospero's Orb trophy for collecting ${rewardQuantity} orb(s)`);
-          
-          // Award the Count-type trophy for each orb collected
-          for (let i = 0; i < rewardQuantity; i++) {
-            await earnTrophy(currentPlayer.playerId, "Prospero's Orb", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          }
-          
-          console.log(`✅ Successfully awarded ${rewardQuantity} Prospero's Orb trophy instance(s)`);
-        } else if (quest.reward === "Skeleton Key") {
-          console.log(`🏆 Awarding Skeleton Key trophy for collecting ${rewardQuantity} key(s)`);
-          
-          // Award the Count-type trophy for each key collected
-          for (let i = 0; i < rewardQuantity; i++) {
-            await earnTrophy(currentPlayer.playerId, "Skeleton Key", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          }
-          
-          console.log(`✅ Successfully awarded ${rewardQuantity} Skeleton Key trophy instance(s)`);
-        } else if (quest.reward === "Golden Key") {
-          console.log(`🏆 Awarding Golden Key trophy for collecting ${rewardQuantity} key(s)`);
-          
-          // Award the Count-type trophy for each key collected
-          for (let i = 0; i < rewardQuantity; i++) {
-            await earnTrophy(currentPlayer.playerId, "Golden Key", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-          }
-          
-          console.log(`✅ Successfully awarded ${rewardQuantity} Golden Key trophy instance(s)`);
-        }
-        
-      } catch (error) {
-        console.error('❌ Error awarding quest reward trophy:', error);
-        // Don't fail the quest completion if trophy awarding fails
+      for (const t of answer.data.trophies || []) {
+        if (!t.isNewMilestone) continue;
+        const def = (masterTrophies || []).find((d) => d.name === t.name);
+        if (def && def.visible === false) continue;
+        showNotification('Trophy', t.trophy);
       }
 
-      // Track quest progress for "Collect" type quests (use multiplied quantity)
-      await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);
-
-      // Award XP for completing quest (reuses xpForFloatingText calculated above)
-      const xpToAward = xpForFloatingText;
-      try {
-        const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
-          playerId: currentPlayer.playerId,
-          xpAmount: xpToAward
-        });
-
-        if (xpResponse.data.success) {
-          // Update current player's XP locally
-          setCurrentPlayer(prev => ({
-            ...prev,
-            xp: xpResponse.data.newXP
-          }));
-        }
-      } catch (error) {
-        console.error('❌ Error awarding XP for quest completion:', error);
-        // Don't fail the quest completion if XP award fails, just log it
-      }
-
-      let updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
-        q.questId === quest.title ? { ...q, rewardCollected: true } : q
-      );
-      const alreadyCompleted = updatedCompletedQuests.some(q => q.questId === quest.title);
-      if (!alreadyCompleted) {
-        updatedCompletedQuests.push({
-          questId: quest.title,
-          rewardCollected: true,
-          timestamp: Date.now(),
-        });
-      }
-
-      // Remove the quest from activeQuests
-      const updatedActiveQuests = currentPlayer.activeQuests.filter(q => q.questId !== quest.title);
-
-      const updatedPlayer = {
-        ...currentPlayer,
-        completedQuests: updatedCompletedQuests,
-        activeQuests: updatedActiveQuests,
-      };
-      await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: {
-          completedQuests: updatedPlayer.completedQuests,
-          activeQuests: updatedActiveQuests,
-        },
-      }).then((result) => {
-      });
-      // Don't call refreshPlayerAfterInventoryUpdate here - gainIngredients already updated the state
-      // and calling refresh would overwrite the local updates with potentially stale server data
-      // Update player with quest progress but preserve the inventory that was just updated
-      setCurrentPlayer(prev => ({
-        ...prev,
-        completedQuests: updatedPlayer.completedQuests,
-        activeQuests: updatedActiveQuests,
-      }));
       // a one-time quest leaves the list (its card already has); a repeatable one stays, fresh
       if (!repeatable) setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
       // the slid-back card shows "accept" from its fx until here; now the player data agrees
@@ -842,22 +752,16 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       }
     }
 
-    const spendResult = await spendIngredients({
+    // ONE request (game-server routes/actionRoutes.js /action/heal-pay): the healer's price from
+    // resources.json (gems for what is missing from the gem button); the hp is set here and saved
+    // with /player/state as before.
+    const answer = await postAction('/api/action/heal-pay', {
       playerId: currentPlayer.playerId,
-      recipe,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
+      healerType: npcData.type,
+      useGems: String(transactionKey || '').startsWith('gem-'),
     });
-    if (!spendResult) {
-      return;
-    }
-
-    // Refresh player to update money display
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) { updateStatus(4); return; }
 
     const healAmount = npcData.qtycollected;
     const statToMod = 'hp';
@@ -1001,80 +905,43 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     showQuestRewardFloatingText(gainedResource?.symbol || '', getLocalizedString(recipe.type, strings), quantityToGive,
       tradeXP, tradeCardRect, questRewardFlyTo(recipe.type, gainedResource));
 
-    const spendResult = await spendIngredients({
+    // ONE request (game-server routes/actionRoutes.js /action/npc-trade): the offer comes from
+    // traders.json, the server checks the relationship gate, level and room, spends (gems for what
+    // is missing from the gem button), grants with the relationship bonus, advances Collect quests,
+    // awards the trade trophies and the xp, then answers with the player delta.
+    const answer = await postAction('/api/action/npc-trade', {
       playerId: currentPlayer.playerId,
-      recipe,
-      inventory: safeInventory,
-      backpack: safeBackpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
+      trader: npcData.type,
+      index: recipe.index,
+      gives: recipe.type,
+      useGems: String(transactionKey || '').startsWith('gem-'),
     });
-
-    if (!spendResult || (spendResult.success !== undefined && !spendResult.success)) {
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) {
       revertTradeCard();
-      setErrorMessage('Not enough ingredients.');
+      if (answer.reason === 'no-backpack') updateStatus(19);
+      else if (answer.reason === 'backpack-full') updateStatus(21);
+      else if (answer.reason === 'warehouse-full') updateStatus(20);
+      setErrorMessage(String(answer.reason || '').startsWith('short-') ? 'Not enough ingredients.' : 'Failed to complete trade.');
       return;
     }
-    
-    if (gainsSkill) {
-      const owned = currentPlayer.skills || [];
-      const updatedSkills = owned.some(sk => sk.type === recipe.type) ? owned : [...owned, { type: recipe.type, category: 'skill', quantity: 1 }];
-      try {
-        await axios.post(`${API_BASE}/api/update-skills`, { playerId: currentPlayer.playerId, skills: updatedSkills });
-        setCurrentPlayer(prev => ({ ...prev, skills: updatedSkills }));
-        await trackQuestProgress(currentPlayer, 'Acquire', recipe.type, 1, setCurrentPlayer);
-        await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
-        updateStatus(`💪 ${getLocalizedString(recipe.type, strings)} skill acquired.`);
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      } catch (error) {
-        console.error('Skill trade failed:', error);
-        revertTradeCard();
-        setErrorMessage('Failed to complete trade.');
-      }
+    for (const t of answer.data.trophies || []) {
+      if (!t.isNewMilestone) continue;
+      const def = (masterTrophies || []).find((d) => d.name === t.name);
+      if (def && def.visible === false) continue;
+      showNotification('Trophy', t.trophy);
+    }
+    if (answer.data.skill) {
+      updateStatus(`💪 ${getLocalizedString(recipe.type, strings)} skill acquired.`);
       return;
     }
-
-    // Use the updated inventory and backpack from spendIngredients
-    const gained = await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: recipe.type,
-      quantity: quantityToGive,
-      inventory: spendResult.updatedInventory,  // Use the updated inventory
-      backpack: spendResult.updatedBackpack,   // Use the updated backpack
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-      masterResources,
-      globalTuning,
-    });
-    
-    if (!gained) {
-      revertTradeCard();
-      setErrorMessage('Failed to complete trade.');
-      return;
-    }
-
-    // Track quest progress for trading (using 'Collect' action to match quest system)
-    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
-
-    // Award trophies for specific trade rewards
     try {
       if (recipe.type === "Home Deed") {
         // Create homestead if player doesn't have one yet
         if (!currentPlayer.gridId) {
-          console.log(`🏠 Creating homestead for player ${currentPlayer.playerId}`);
           try {
-            const homesteadResponse = await axios.post(`${API_BASE}/api/create-homestead`, {
-              playerId: currentPlayer.playerId
-            });
-
+            const homesteadResponse = await axios.post(`${API_BASE}/api/create-homestead`, { playerId: currentPlayer.playerId });
             if (homesteadResponse.data.success) {
-              console.log(`✅ Homestead created: gridId=${homesteadResponse.data.gridId}, settlementId=${homesteadResponse.data.settlementId}`);
-              // Update local player state with new homestead info
               setCurrentPlayer(prev => ({
                 ...prev,
                 gridId: homesteadResponse.data.gridId,
@@ -1082,56 +949,20 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                 homesteadGridCoord: homesteadResponse.data.homesteadGridCoord
               }));
             } else {
-              console.error('❌ Homestead creation failed:', homesteadResponse.data);
               updateStatus('Failed to create homestead. Please try again.');
             }
           } catch (homesteadError) {
             console.error('❌ Error creating homestead:', homesteadError);
             updateStatus('Failed to create homestead. Please try again.');
-            // Don't return - still award trophy and advance FTUE even if homestead fails
           }
         }
-
-        console.log(`🏆 Awarding Homesteader trophy for trading Home Deed`);
-        await earnTrophy(currentPlayer.playerId, "Homesteader", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-        // Try to advance FTUE if this is the player's first Home Deed purchase
         await tryAdvanceFTUEByTrigger('BoughtHomeDeed', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-      } else if (recipe.type === "Brass Bell") {
-        console.log(`🏆 Awarding Brass Bell trophy for trading Brass Bell`);
-        await earnTrophy(currentPlayer.playerId, "Brass Bell", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-      } else if (recipe.type === "Hope") {
-        console.log(`🏆 Awarding Hope trophy for trading Hope`);
-        await earnTrophy(currentPlayer.playerId, "Hope", 1, currentPlayer, masterTrophies, setCurrentPlayer);
       } else if (recipe.type === "Town Key") {
-        // Try to advance FTUE when acquiring Town Key from Constable Elbow
         await tryAdvanceFTUEByTrigger('AcquiredTownKey', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }
     } catch (error) {
-      console.error('❌ Error awarding trade trophy:', error);
-      // Don't fail the trade if trophy awarding fails
+      console.error('❌ Error after the trade:', error);
     }
-
-    // Award XP for trading with NPC (use trade-specific XP if available, else fall back to NPC's XP)
-    const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-    const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
-    try {
-      const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
-        playerId: currentPlayer.playerId,
-        xpAmount: xpToAward
-      });
-
-      if (xpResponse.data.success) {
-        // Update current player's XP locally
-        setCurrentPlayer(prev => ({
-          ...prev,
-          xp: xpResponse.data.newXP
-        }));
-      }
-    } catch (error) {
-      console.error('❌ Error awarding XP for NPC trade:', error);
-      // Don't fail the trade if XP award fails, just log it
-    }
-
     // Build ingredient list for status message
     const ingredientList = [];
     

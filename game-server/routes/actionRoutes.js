@@ -20,6 +20,10 @@
  *   POST /action/buy-skill                        a skill at its master price (or gems for what is missing)
  *   POST /action/farmhand-buy-crop                a crop from a farm hand at 10x its max price
  *   POST /action/buy-item                         a 'special' item at its own recipe price (Skills panel stations)
+ *   POST /action/npc-trade                        an NPC's trader offer (relationship bonus, xp, trophies)
+ *   POST /action/shop-buy                         a shop's trader offer
+ *   POST /action/quest-reward                     hand in a completed quest
+ *   POST /action/heal-pay                         pay a healer (the hp itself is the client's, saved with /player/state)
  *   POST /action/scroll-reveal / scroll-collect   the Ancient Temple (Reveal Scroll)
  */
 const express = require('express');
@@ -32,6 +36,7 @@ const { applyTrophy } = require('../utils/trophyUtils');
 const { recordLevelUps } = require('../utils/analytics');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { getSeasonLevel } = require('../utils/scheduleHelpers');
+const { hopeArtifacts } = require('../utils/hopeArtifacts');
 const holdings = require('../utils/playerHoldings');
 const { spendCosts, recipeCosts, heldQuantity } = holdings;
 
@@ -859,6 +864,226 @@ router.post('/action/buy-item', async (req, res) => {
   } catch (err) {
     console.error('❌ action/buy-item failed:', err);
     return res.status(500).json({ success: false, error: 'buy-item-failed', detail: err.message });
+  }
+});
+
+// ---- Trading with NPCs and shops, quests, healers -------------------------------------------
+
+const TRADE_TROPHIES = { 'Home Deed': 'Homesteader', 'Brass Bell': 'Brass Bell', Hope: 'Hope' };
+const SHOP_TROPHIES = { Boat: 'Mariner', "King's Crown": "King's Crown", Trident: 'Trident' };
+const QUEST_COUNT_TROPHIES = new Set(["Prospero's Orb", 'Skeleton Key', 'Golden Key']);
+
+/** An offer as a recipe: the trader row (traders.json) when it has an index, else the item's own recipe sold by that trader. */
+function offerFor(trader, index, gives) {
+  if (index !== undefined && index !== null && index !== '') return econ.traderOffer(trader, index);
+  const def = econ.resourceDef(gives);
+  if (!def || def.source !== trader) return null;
+  return { offer: { trader, gives: def.type, givesqty: def.qtycollected || 1, xp: def.xp }, recipe: def, def };
+}
+
+/** Pay for an offer: its costs, or gems for what is missing. */
+function payFor(player, recipe, { useGems }) {
+  if (useGems) return econ.spendWithGems(player, recipe, holdings);
+  if (!spendCosts(recipe, player.inventory, player.backpack)) {
+    const short = recipeCosts(recipe).find(([type, q]) => heldQuantity(player.inventory, player.backpack, type) < q);
+    return { ok: false, reason: `short-${short ? short[0] : 'ingredients'}` };
+  }
+  player.markModified('inventory'); player.markModified('backpack');
+  return { ok: true, gems: 0 };
+}
+
+const giveXP = (player, amount) => {
+  const xp = Number(amount) || 0;
+  if (!xp) return 0;
+  recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xp).catch(() => {});
+  player.xp = (player.xp || 0) + xp;
+  return xp;
+};
+
+/**
+ * POST /api/action/npc-trade { playerId, trader, index, gives?, useGems? }
+ * → { success, collected: {type, qty}, skill, xpGained, trophies, player, seq }
+ * The offer comes from traders.json (never the payload). Its relationship gate and level lock
+ * apply; goods are floor(givesqty x relationship bonus) (room first), a skill joins the skills
+ * (no bonus, no xp). XP is the offer's, else the NPC's, else 1. Collect quests; Home Deed / Brass
+ * Bell / Hope trophies. (A minigame offer is opened by winning it on the client, then paid as usual.)
+ */
+router.post('/action/npc-trade', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const { trader, index, gives, useGems } = req.body;
+    const found = offerFor(trader, index, gives);
+    if (!found) return answer(400, 'no-offer');
+    const { offer, recipe, def } = found;
+    if (!econ.meetsRelationship(player, trader, offer.rel)) return answer(403, `needs-${offer.rel}`);
+    if (def?.level && econ.levelOf(player) < Number(def.level)) return answer(403, `level-${def.level}`);
+    const isSkill = def?.category === 'skill';
+    const qty = isSkill ? 1 : Math.floor((offer.givesqty || 1) * econ.relationshipMultiplier(player, trader));
+    if (!isSkill) {
+      const room = econ.roomFor(player, offer.gives, qty);
+      if (!room.ok) return answer(409, room.reason);
+    }
+    const paid = payFor(player, recipe, { useGems });
+    if (!paid.ok) return answer(409, paid.reason);
+
+    const trophies = [];
+    let xpGained = 0;
+    if (isSkill) {
+      const g = econ.grantSkillOrPower(player, def, 1, { applyTrophy });
+      if (g.trophy) trophies.push(g.trophy);
+    } else {
+      econ.grant(player, offer.gives, qty);
+      econ.advanceQuests(player, 'Collect', offer.gives, qty);
+      const tName = TRADE_TROPHIES[offer.gives];
+      if (tName) {
+        const t = applyTrophy(player, tName, 1);
+        if (t.success) trophies.push({ name: tName, trophy: t.trophy, isNewMilestone: t.isNewMilestone });
+      }
+      const npcDef = econ.resourceDef(trader);
+      xpGained = giveXP(player, offer.xp ?? (npcDef?.category === 'npc' ? npcDef.xp : undefined) ?? 1);
+    }
+    player.lastActive = new Date();
+    await player.save();
+    return res.json({ success: true, collected: { type: offer.gives, qty }, skill: isSkill, xpGained, trophies, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/npc-trade failed:', err);
+    return res.status(500).json({ success: false, error: 'npc-trade-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/shop-buy { playerId, trader, index, gives?, useGems? }
+ * → { success, collected: {type, qty}, kind: 'goods' | 'power' | 'skill', trophies, player, seq }
+ * A shop's offer (traders.json; a shop with no offers sells the items whose source it is). A power
+ * or skill joins the player's own (a power already owned is refused); goods are givesqty (room
+ * first). Buy quests advance by one; Boat / King's Crown / Trident trophies.
+ */
+router.post('/action/shop-buy', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const { trader, index, gives, useGems } = req.body;
+    const found = offerFor(trader, index, gives);
+    if (!found) return answer(400, 'no-offer');
+    const { offer, recipe, def } = found;
+    if (def?.level && econ.levelOf(player) < Number(def.level)) return answer(403, `level-${def.level}`);
+    const kind = def?.category === 'power' ? 'power' : def?.category === 'skill' ? 'skill' : 'goods';
+    if (kind === 'power' && (player.powers || []).some((p) => p && p.type === def.type)) return answer(409, 'owned');
+    if (hopeArtifacts().has(offer.gives) && heldQuantity(player.inventory, player.backpack, offer.gives) > 0) return answer(409, 'owned');
+    const qty = kind === 'goods' ? (offer.givesqty || 1) : 1;
+    if (kind === 'goods') {
+      const room = econ.roomFor(player, offer.gives, qty);
+      if (!room.ok) return answer(409, room.reason);
+    }
+    const paid = payFor(player, recipe, { useGems });
+    if (!paid.ok) return answer(409, paid.reason);
+    const trophies = [];
+    if (kind === 'goods') econ.grant(player, offer.gives, qty);
+    else {
+      const g = econ.grantSkillOrPower(player, def, 1, { applyTrophy });
+      if (g.trophy) trophies.push(g.trophy);
+    }
+    econ.advanceQuests(player, 'Buy', offer.gives, 1);
+    const tName = SHOP_TROPHIES[offer.gives];
+    if (tName) {
+      const t = applyTrophy(player, tName, 1);
+      if (t.success) trophies.push({ name: tName, trophy: t.trophy, isNewMilestone: t.isNewMilestone });
+    }
+    player.lastActive = new Date();
+    await player.save();
+    return res.json({ success: true, collected: { type: offer.gives, qty }, kind, trophies, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/shop-buy failed:', err);
+    return res.status(500).json({ success: false, error: 'shop-buy-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/quest-reward { playerId, questId, npcType }
+ * → { success, collected: {type, qty}, xpGained, trophies, repeatable, player, seq }
+ * The quest must be the player's, completed and not yet rewarded. Reward, quantity and xp come
+ * from questsEN.json; a one-of-a-kind reward (a Secret, a Hope artifact, a skill, power or NPC) is
+ * never multiplied, anything else takes the giver's relationship bonus. A skill or power joins the
+ * player's own; goods need room (refused, quest kept, when there is none). Collect quests, the
+ * Orb / key count trophies; the quest moves to completedQuests (rewardCollected).
+ */
+router.post('/action/quest-reward', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const { questId, npcType } = req.body;
+    const active = (player.activeQuests || []).find((q) => q && q.questId === questId);
+    if (!active) return answer(409, 'not-active');
+    if (!active.completed) return answer(409, 'not-complete');
+    if (active.rewardCollected) return answer(409, 'collected');
+    const def = econ.loadQuestDefs().find((q) => q.title === questId);
+    if (!def) return answer(400, 'no-quest');
+    const giver = npcType || def.giver;
+    const rewardDef = econ.resourceDef(def.reward);
+    const oneOfAKind = /'s Secret$/.test(def.reward || '') || hopeArtifacts().has(def.reward)
+      || ['skill', 'power', 'npc'].includes(rewardDef?.category);
+    const qty = Math.floor((def.rewardqty || 1) * (oneOfAKind ? 1 : econ.relationshipMultiplier(player, giver)));
+    const trophies = [];
+    if (rewardDef && (rewardDef.category === 'skill' || rewardDef.category === 'power')) {
+      if (!econ.hasSkillOrPower(player, rewardDef.type)) {
+        const g = econ.grantSkillOrPower(player, rewardDef, 1, { applyTrophy });
+        if (g.trophy) trophies.push(g.trophy);
+      }
+    } else if (def.reward) {
+      const room = econ.roomFor(player, def.reward, qty);
+      if (!room.ok) return answer(409, room.reason);
+      econ.grant(player, def.reward, qty);
+      econ.advanceQuests(player, 'Collect', def.reward, qty);
+      if (QUEST_COUNT_TROPHIES.has(def.reward)) {
+        for (let i = 0; i < qty; i++) {
+          const t = applyTrophy(player, def.reward, 1);
+          if (t.success) trophies.push({ name: def.reward, trophy: t.trophy, isNewMilestone: t.isNewMilestone });
+        }
+      }
+    }
+    const giverDef = econ.resourceDef(giver);
+    const xpGained = giveXP(player, def.xp ?? (giverDef?.category === 'npc' ? giverDef.xp : undefined) ?? 1);
+
+    if (!Array.isArray(player.completedQuests)) player.completedQuests = [];
+    const done = player.completedQuests.find((q) => q && q.questId === questId);
+    if (done) done.rewardCollected = true;
+    else player.completedQuests.push({ questId, rewardCollected: true, timestamp: Date.now() });
+    player.activeQuests = (player.activeQuests || []).filter((q) => q && q.questId !== questId);
+    player.markModified('completedQuests'); player.markModified('activeQuests');
+    player.lastActive = new Date();
+    await player.save();
+    const repeatable = def.repeatable === true || def.repeatable === 'true';
+    return res.json({ success: true, collected: { type: def.reward, qty }, xpGained, trophies, repeatable, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/quest-reward failed:', err);
+    return res.status(500).json({ success: false, error: 'quest-reward-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/heal-pay { playerId, healerType, useGems? }
+ * → { success, amount, player, seq }
+ * A healer's price is its own recipe in resources.json; `amount` is its qtycollected (the client
+ * caps it at the missing hp and saves hp through /player/state, as before).
+ */
+router.post('/action/heal-pay', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const healer = econ.resourceDef(req.body.healerType);
+    if (!healer || healer.action !== 'heal') return answer(400, 'not-a-healer');
+    const paid = payFor(player, healer, { useGems: req.body.useGems });
+    if (!paid.ok) return answer(409, paid.reason);
+    await player.save();
+    return res.json({ success: true, amount: healer.qtycollected || 0, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/heal-pay failed:', err);
+    return res.status(500).json({ success: false, error: 'heal-pay-failed', detail: err.message });
   }
 });
 

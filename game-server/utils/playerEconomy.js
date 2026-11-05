@@ -389,6 +389,60 @@ function rollPetReward(player, level = 1, rand = Math.random) {
   return { type: picked.type, qty: Math.floor(rand() * (max - min + 1)) + min, rarity };
 }
 
+
+// ---- Trader offers and relationships -----------------------------------------------------
+
+let relationshipMatrix = null;
+function loadRelationshipMatrix() {
+  if (!relationshipMatrix) {
+    // the client owns this table (GameFeatures/Relationships/RelationshipMatrix.json); the whole
+    // repo is deployed, as auth.js reads PlayerIcons.json from the client too
+    try { relationshipMatrix = JSON.parse(fs.readFileSync(path.join(__dirname, '../../game-client/src/GameFeatures/Relationships/RelationshipMatrix.json'), 'utf-8')); }
+    catch (e) { relationshipMatrix = []; }
+  }
+  return relationshipMatrix;
+}
+
+/** RelationshipUtils.getRelationshipMultiplier: married, then love, then friend buff; else 1. */
+function relationshipMultiplier(player, npcType) {
+  const entry = loadRelationshipMatrix().find((e) => e.type === npcType);
+  if (!entry) return 1;
+  const rel = (player.relationships || []).find((r) => r && r.name === npcType);
+  if (!rel) return 1;
+  if (rel.married === true && entry.buff4marriage) return entry.buff4marriage;
+  if (rel.love === true && entry.buff4love) return entry.buff4love;
+  if (rel.friend === true && entry.buff4friend) return entry.buff4friend;
+  return 1;
+}
+
+/** A relationship gate on an offer ('friend' / 'love'): met by that status or a closer one. */
+function meetsRelationship(player, npcType, need) {
+  if (!need) return true;
+  const rel = (player.relationships || []).find((r) => r && r.name === npcType);
+  if (!rel) return false;
+  if (need === 'friend') return !!(rel.friend || rel.love || rel.married);
+  if (need === 'love') return !!(rel.love || rel.married);
+  return !!rel[need];
+}
+
+const traders = require('../tuning/traders.json');
+/** The offer `index` of `trader` as a recipe: type = gives, ingredientN = requiresN (qty default 1). */
+function traderOffer(trader, index) {
+  const offer = traders.find((t) => t.trader === trader && Number(t.index) === Number(index));
+  if (!offer || offer.retired) return null;
+  const def = resourceDef(offer.gives);
+  const recipe = { type: offer.gives, requires: def?.requires, level: def?.level, nogems: def?.nogems };
+  let n = 1;
+  for (let i = 1; i <= 7; i++) {
+    const type = offer[`requires${i}`];
+    if (!type) continue;
+    recipe[`ingredient${n}`] = type;
+    recipe[`ingredient${n}qty`] = Number(offer[`requires${i}qty`]) || 1;
+    n++;
+  }
+  return { offer, recipe, def };
+}
+
 // Answers are numbered so the client can drop one that arrives after a newer one (one process)
 let seqCounter = Date.now();
 const nextSeq = () => ++seqCounter;
@@ -405,6 +459,7 @@ function playerDelta(player) {
     inventory: plainList(player.inventory),
     backpack: plainList(player.backpack),
     activeQuests: plainList(player.activeQuests),
+    completedQuests: plainList(player.completedQuests),
     trophies: plainList(player.trophies),
     skills: plainList(player.skills),
     powers: plainList(player.powers),
@@ -435,6 +490,9 @@ module.exports = {
   rollScrollReveal,
   gemTopUpCost,
   rollPetReward,
+  relationshipMultiplier,
+  meetsRelationship,
+  traderOffer,
   spendWithGems,
   playerDelta,
   nextSeq,

@@ -5,13 +5,10 @@ import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import '../../UI/Buttons/SharedButtons.css';
-import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import soundManager from '../../Sound/SoundManager';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -22,6 +19,7 @@ import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import { settingsWearingNewMagic, isWeapon as isWeaponGear, isShield as isShieldGear, handsIcon, handsOf, gearStatLines } from '../Combat/combatGear';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const ShopStation = ({
   onClose,
@@ -173,10 +171,10 @@ const ShopStation = ({
 
   const handleGemPurchase = async (modifiedRecipe) => {
     // This is called by the gem button with a recipe modified to include gems
-    return handlePurchase(modifiedRecipe);
+    return handlePurchase(modifiedRecipe, { useGems: true });
   };
 
-  const handlePurchase = async (recipe) => {
+  const handlePurchase = async (recipe, { useGems = false } = {}) => {
     setErrorMessage('');
     if (!recipe) {
       setErrorMessage('Invalid recipe selected.');
@@ -234,44 +232,36 @@ const ShopStation = ({
       FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
     };
 
-    const success = await spendIngredients({
+    // ONE request (game-server routes/actionRoutes.js /action/shop-buy): the offer comes from
+    // traders.json, the server spends (gems for what is missing from the gem button), gives goods,
+    // a power or a skill, advances Buy quests and awards Mariner / King's Crown / Trident.
+    const answer = await postAction('/api/action/shop-buy', {
       playerId: currentPlayer.playerId,
-      recipe,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
+      trader: stationType,
+      index: recipe.index,
+      gives: recipe.type,
+      useGems,
     });
-    if (!success) return;
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) {
+      if (answer.reason === 'no-backpack') updateStatus(19);
+      else if (answer.reason === 'backpack-full') updateStatus(21);
+      else if (answer.reason === 'warehouse-full') updateStatus(20);
+      else updateStatus(4);
+      return;
+    }
     floatPurchase();
-
-    // Refresh player to update money display after any purchase
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-    const tradedQty = 1;
-
-    if (recipe.category === "power") {
-      const updatedPowers = [...(currentPlayer.powers || [])];
-      const powerIndex = updatedPowers.findIndex(p => p.type === recipe.type);
-      if (powerIndex >= 0) {
-        updatedPowers[powerIndex].quantity += tradedQty;
-      } else {
-        updatedPowers.push({ type: recipe.type, quantity: tradedQty });
-      }
-      await axios.post(`${API_BASE}/api/update-powers`, {
-        playerId: currentPlayer.playerId,
-        powers: updatedPowers,
-      });
+    const { kind, trophies } = answer.data;
+    if (kind === 'power') {
       // a magic item goes on at once when a slot is free (combatGear.js); gear waits for the
       // Combat panel, where the player chooses what to wear
-      const owner = { ...currentPlayer, powers: updatedPowers };
+      const owner = { ...currentPlayer, powers: answer.data.player?.powers || currentPlayer.powers };
       const wearing = settingsWearingNewMagic(owner, recipe.type, masterResources, globalTuning);
-      const updatedPlayer = wearing ? { ...owner, settings: wearing } : owner;
-      setCurrentPlayer(prev => ({ ...prev, powers: updatedPowers, ...(wearing ? { settings: wearing } : {}) }));
-      if (wearing) axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
-      playersInGridManager.refreshCombatStats(updatedPlayer);
+      if (wearing) {
+        setCurrentPlayer(prev => ({ ...prev, settings: wearing }));
+        axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
+      }
+      playersInGridManager.refreshCombatStats(wearing ? { ...owner, settings: wearing } : owner);
       soundManager.playSFX('skill_earned');
       if (!wearing) {
         showNotification('Message', {
@@ -279,55 +269,16 @@ const ShopStation = ({
           message: strings[7017] || 'Equip in Combat Panel to use'
         });
       }
+    } else if (kind === 'skill') {
+      soundManager.playSFX('skill_earned');
     }
-    else {
-      const gainSuccess = await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: recipe.type,
-        quantity: recipe.qtycollected || 1,
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-      });
-
-      if (!gainSuccess) {
-        console.warn(`Failed to gain ${recipe.type}`);
-        return;
-      }
-
-      // Play skill_earned SFX for skill purchases
-      // Check both recipe.category and masterResources lookup for robustness
-      const resourceDef = masterResources?.find(r => r.type === recipe.type);
-      if (recipe.category === 'skill' || resourceDef?.category === 'skill') {
-        soundManager.playSFX('skill_earned');
-      }
+    for (const t of trophies || []) {
+      if (!t.isNewMilestone) continue;
+      const def = (masterTrophies || []).find((d) => d.name === t.name);
+      if (def && def.visible === false) continue;
+      showNotification('Trophy', t.trophy);
     }
-
-    await trackQuestProgress(currentPlayer, 'Buy', recipe.type, tradedQty, setCurrentPlayer);
-
     updateStatus(`${strings[80]} ${recipe.type}.`);
-    
-    // Award Mariner trophy if purchased a Boat
-    if (recipe.type === 'Boat' && currentPlayer?.playerId) {
-      earnTrophy(currentPlayer.playerId, 'Mariner', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-    }
-
-    // Award King's Crown trophy if purchased King's Crown
-    if (recipe.type === "King's Crown" && currentPlayer?.playerId) {
-      earnTrophy(currentPlayer.playerId, "King's Crown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-    }
-
-    // Award Trident trophy if purchased Trident
-    if (recipe.type === "Trident" && currentPlayer?.playerId) {
-      earnTrophy(currentPlayer.playerId, "Trident", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-    }
-
     setFetchTrigger(prev => prev + 1);
   };
 
