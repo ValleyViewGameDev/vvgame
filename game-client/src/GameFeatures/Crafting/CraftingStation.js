@@ -29,6 +29,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import InfoButton from '../../UI/Buttons/InfoButton';
 import { rememberLastDoober } from '../Relationships/conversationMemory';
+import { canCollect, reportRefusal } from '../../Utils/noRoom';
 
 // Slots with a collect on its way to the server, per station ("gridId:x,y" -> Set of slot
 // indexes). The server answers collects one at a time (the per-grid write lock), and each answer
@@ -408,6 +409,16 @@ const CraftingStation = ({
     // a collected doober is the player's opening Interest in their next conversation
     if (craftedItemResource?.category === 'doober') rememberLastDoober(currentPlayer?.playerId, craftedItemType);
 
+    // Room FIRST, before any "+N" (Utils/noRoom.js: the board's collect response, at the slot's card)
+    const slotRect = document.querySelector(`[data-craft-slot="${slotIndex}"]`)?.getBoundingClientRect() || null;
+    const roomFeedback = { at: slotRect ? { rect: slotRect } : { col: currentStationPosition.x, row: currentStationPosition.y, TILE_SIZE }, strings, updateStatus };
+    if (craftedItemResource?.category !== 'npc' && !canCollect({
+      resource: craftedItemType, quantity: finalQtyCollected, currentPlayer, inventory, backpack, masterResources, globalTuning, ...roomFeedback,
+    })) {
+      window._processingSlotCollects?.delete(collectId);
+      return;
+    }
+
     const stationKey = `${gridId}:${currentStationPosition.x},${currentStationPosition.y}`;
     if (!pendingSlotCollects.has(stationKey)) pendingSlotCollects.set(stationKey, new Set());
     const pending = pendingSlotCollects.get(stationKey);
@@ -480,10 +491,7 @@ const CraftingStation = ({
         if (answer.status === 0) { rollbackSlot(); updateStatus('❌ Failed to collect item'); return; }
         applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
         rollbackSlot();
-        if (answer.reason === 'no-backpack') updateStatus(19);
-        else if (answer.reason === 'warehouse-full') updateStatus(20);
-        else if (answer.reason === 'backpack-full') updateStatus(21);
-        else updateStatus('❌ Failed to collect item');
+        if (!reportRefusal(answer.reason, roomFeedback)) updateStatus('❌ Failed to collect item');
         return;
       }
 

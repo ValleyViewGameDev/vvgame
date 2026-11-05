@@ -20,6 +20,7 @@ import '../../UI/Buttons/ResourceButton.css';
 import './PetPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { canCollect, reportRefusal } from '../../Utils/noRoom';
 
 // What a fed pet finds is rolled on the server (game-server utils/playerEconomy.js rollPetReward)
 
@@ -185,6 +186,12 @@ const PetPanel = ({
   // Collect: ONE request (/action/pet-collect): the find (room first), the pet's xp, Collect quests
   const handleCollectReward = async () => {
     if (!rewardItem || isCollecting) return;
+    // Room FIRST, before the card moves (Utils/noRoom.js: the board's collect response, at the card)
+    const collectRect = document.querySelector('.pet-collect-button')?.getBoundingClientRect() || null;
+    const roomFeedback = { at: collectRect ? { rect: collectRect } : { col: currentPetPosition.x, row: currentPetPosition.y, TILE_SIZE }, strings, updateStatus };
+    if (!canCollect({
+      resource: rewardItem, quantity: revealedRewardQty || 1, currentPlayer, inventory: currentPlayer.inventory, backpack: currentPlayer.backpack, masterResources, globalTuning, ...roomFeedback,
+    })) return;
     setIsCollecting(true);
     const revertCard = runCardReturn(setCardFx, 'pet');
     // The reward and its XP rise from the Collect card (its place taken on the tap: the panel changes
@@ -201,10 +208,7 @@ const PetPanel = ({
     applyPlayerDelta(answer.data, deltaSetters);
     if (!answer.ok) {
       revertCard();
-      if (answer.reason === 'no-backpack') updateStatus(19);
-      else if (answer.reason === 'warehouse-full') updateStatus(20);
-      else if (answer.reason === 'backpack-full') updateStatus(21);
-      else updateStatus('❌ Failed to collect item');
+      if (!reportRefusal(answer.reason, roomFeedback)) updateStatus('❌ Failed to collect item');
       setIsCollecting(false);
       return;
     }

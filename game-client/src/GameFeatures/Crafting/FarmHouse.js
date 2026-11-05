@@ -23,6 +23,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import { canCollect, reportRefusal } from '../../Utils/noRoom';
 
 const FarmHouse = ({
   onClose,
@@ -253,13 +254,19 @@ const FarmHouse = ({
     // where the collected card is, taken on the tap: what it made rises from it and flies into
     // Inventory (UI/FlyToTarget.js); an NPC (a worker, an animal) walks out instead, so it only rises
     const cardRect = document.querySelector(`[data-resource-type="${CSS.escape(getLocalizedString(recipe.type, strings))}"]`)?.getBoundingClientRect() || null;
+    // Room FIRST for goods (a worker needs a Worker Slot instead: the server checks that)
+    const roomFeedback = { at: cardRect ? { rect: cardRect } : { col: currentStationPosition.x, row: currentStationPosition.y, TILE_SIZE }, strings, updateStatus };
+    const madeDef = allResources.find((r) => r.type === recipe.type);
+    if (madeDef && madeDef.category !== 'npc' && !canCollect({
+      resource: recipe.type, quantity: 1, currentPlayer, inventory, backpack, masterResources, globalTuning, ...roomFeedback,
+    })) return;
     const answer = await postAction('/api/action/craft-collect', {
       playerId: currentPlayer.playerId, gridId,
       stationX: currentStationPosition.x, stationY: currentStationPosition.y,
       slotIndex: 0, // Farm House is a single-slot station
     });
     applyPlayerDelta(answer.data, deltaSetters);
-    if (!answer.ok) { refusalStatus(answer.reason); return; }
+    if (!answer.ok) { if (!reportRefusal(answer.reason, roomFeedback)) refusalStatus(answer.reason); return; }
     const { collected, isNPC, home, trophies } = answer.data;
     {
       const text = `+${collected.qty} ${allResources.find((r) => r.type === collected.type)?.symbol || ''} ${getLocalizedString(collected.type, strings)}`;

@@ -5,7 +5,7 @@ import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
 import { handleAttackOnNPC } from "../Combat/Combat.js";
 import { hasRoomFor, isCurrency, calculateSkillMultiplier, applySkillMultiplier } from "../../Utils/InventoryManagement.js";
 import { applyPlayerDelta, postAction, predictGain } from "../../Utils/playerDelta.js";
-import { reportNoRoom } from "../../Utils/noRoom.js";
+import { canCollect, reportRefusal } from "../../Utils/noRoom.js";
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
 import { getLocalizedString } from '../../Utils/stringLookup.js';
@@ -73,17 +73,10 @@ async function handleProtectedFarmAnimalCollection(
   // ===== ROOM FIRST, exactly as a doober (ResourceClicking.js) =====
   // The server empties the stall on collect and the client adds the product afterwards, so with no
   // room the product was lost. Now nothing is sent: the animal keeps its ✅ and its product.
-  const awayFromHome = currentPlayer?.location?.gtype !== 'homestead' && !isCurrency(expectedItem);
-  if (awayFromHome && !currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0)) {
-    updateStatus(19); // no Backpack
-    FloatingTextManager.addFloatingText(strings["44"] || "No backpack", col, row, TILE_SIZE);
-    window._processingAnimalCollects.delete(collectId);
-    return { type: 'error', message: 'No backpack' };
-  }
-  if (!hasRoomFor({ resource: expectedItem, quantity: expectedQuantity, currentPlayer,
-    inventory: inventory || currentPlayer.inventory, backpack: backpack || currentPlayer.backpack,
-    masterResources, globalTuning })) {
-    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+  if (!canCollect({
+    resource: expectedItem, quantity: expectedQuantity, currentPlayer, inventory, backpack, masterResources, globalTuning,
+    at: { col, row, TILE_SIZE }, strings, updateStatus, openPanel,
+  })) {
     window._processingAnimalCollects.delete(collectId);
     return { type: 'error', message: 'No room' };
   }
@@ -125,8 +118,7 @@ async function handleProtectedFarmAnimalCollection(
   }
   restoreCheckmark();
   if (answer.status === 0) { updateStatus('❌ Failed to collect from animal'); return { type: 'error', message: 'network' }; }
-  if (answer.reason === 'warehouse-full' || answer.reason === 'backpack-full' || answer.reason === 'no-backpack') {
-    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+  if (reportRefusal(answer.reason, { at: { col, row, TILE_SIZE }, strings, updateStatus, openPanel })) {
     return { type: 'error', message: 'No room' };
   }
   if (answer.reason === 'not-ready') {

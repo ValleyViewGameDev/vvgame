@@ -22,6 +22,7 @@ import { showNotification } from '../../UI/Notifications/Notifications';
 import './ScrollStation.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { canCollect, reportRefusal } from '../../Utils/noRoom';
 
 const ScrollStation = ({
   onClose,
@@ -305,8 +306,14 @@ const ScrollStation = ({
       console.error("❌ No revealed item to collect or already collecting.");
       return;
     }
-    setIsCollecting(true);
+    // Room FIRST for goods (a skill, a power or an NPC takes none), before the card moves
     rememberCard('.scroll-collect-button');
+    const roomFeedback = { at: cardRect.current ? { rect: cardRect.current } : { col: currentStationPosition.x, row: currentStationPosition.y, TILE_SIZE }, strings, updateStatus };
+    const foundDef = allResources.find((r) => r.type === craftedItem);
+    if (foundDef && !['skill', 'power', 'npc'].includes(foundDef.category) && !canCollect({
+      resource: craftedItem, quantity: revealedItemQty || 1, currentPlayer, inventory: currentPlayer.inventory, backpack: currentPlayer.backpack, masterResources, globalTuning, ...roomFeedback,
+    })) return;
+    setIsCollecting(true);
     const revertCard = runCardReturn(setCardFx, 'temple');
     const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
 
@@ -323,10 +330,7 @@ const ScrollStation = ({
       if (!answer.ok) {
         revertCard();
         applyPlayerDelta(answer.data, deltaSetters);
-        if (answer.reason === 'no-backpack') updateStatus(19);
-        else if (answer.reason === 'warehouse-full') updateStatus(20);
-        else if (answer.reason === 'backpack-full') updateStatus(21);
-        else updateStatus('❌ Failed to collect item');
+        if (!reportRefusal(answer.reason, roomFeedback)) updateStatus('❌ Failed to collect item');
         setIsCollecting(false);
         return;
       }

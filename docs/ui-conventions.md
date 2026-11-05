@@ -315,6 +315,13 @@ value rather than trust this page.
   selectable). Phones also get no `backdrop-filter` glass on the floating pills (`mobile.css`
   shared block): it re-blurs the board on every moving frame, iOS Safari's costliest compositor
   job. Desktop keeps the glass.
+- **Collecting with no room: one response everywhere** (owner 2026-11-04; `game-client/src/Utils/noRoom.js`).
+  Board doobers, farm animals, crafting-station slots, the Farm House, the Ancient Temple and pets
+  all check room BEFORE they show "+N" (`canCollect`), and answer a server refusal the same way
+  (`reportRefusal`): status 43 "Not enough room...", floating "You're full" where the thing was (its
+  tile, or the panel card that was tapped), and the item stays. No Backpack away from home is status
+  19 + "No backpack". A board collect also opens Inventory; a collect made in a panel leaves the
+  player in it. Anything new that collects into the holdings uses these two calls.
 - The board runs at 60 fps while the player is active and drops to 30 after 8 s with no input
   (`Render/PixiRenderer/frameRate.js`; any touch, pointer, wheel or key wakes it). Something that
   animates without input and must stay smooth calls `wakeFrameRate()`.

@@ -1,6 +1,6 @@
 import { fetchInventoryAndBackpack } from './Utils/InventoryManagement';
-import { calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
-import { reportNoRoom } from './Utils/noRoom';
+import { calculateSkillMultiplier, isCurrency } from './Utils/InventoryManagement';
+import { canCollect, reportRefusal } from './Utils/noRoom';
 import { applyPlayerDelta, postAction, predictGain } from './Utils/playerDelta';
 import { loadMasterResources, loadMasterSkills, getFTUEsteps } from './Utils/TuningManager'; // Centralized tuning manager
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
@@ -273,47 +273,16 @@ export async function handleDooberClick(
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
   
-  // Check for missing backpack FIRST before any optimistic updates
-  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+  // Room FIRST, before any "+N" (Utils/noRoom.js canCollect: the shared collect response)
   const isCurrencyItem = isCurrency(resource.type);
-  const storingInBackpack = !isCurrencyItem && !isHomestead;
-  
-  if (storingInBackpack) {
-    const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
-    if (!hasBackpackSkill) {
-      // Missing backpack - show status message and floating text
-      updateStatus(19); // Missing backpack message
-      FloatingTextManager.addFloatingText(strings["44"] || "No backpack", col, row, TILE_SIZE);
-      // Clear processing flag
-      if (window._processingDoobers) {
-        window._processingDoobers.delete(dooberId);
-      }
-      return;
-    }
-  }
-  
-  // Pre-check capacity before optimistic update
-  const hasRoom = hasRoomFor({
-    resource: resource.type,
-    quantity: qtyCollected,
-    currentPlayer,
-    inventory,
-    backpack,
-    masterResources,
-    globalTuning
-  });
-  
-  if (!hasRoom) {
-    // At this point we know they have a backpack if needed, so this is a real capacity issue
-    console.warn("Pre-check: No room for resource. Showing error immediately.");
-    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
-    // Clear processing flag
-    if (window._processingDoobers) {
-      window._processingDoobers.delete(dooberId);
-    }
+  if (!canCollect({
+    resource: resource.type, quantity: qtyCollected, currentPlayer, inventory, backpack, masterResources, globalTuning,
+    at: { col, row, TILE_SIZE }, strings, updateStatus, openPanel,
+  })) {
+    if (window._processingDoobers) window._processingDoobers.delete(dooberId);
     return;
   }
-  
+
   // Check if this is a repeatable tree resource that should be instantly replaced
   let optimisticTreeFarmplot = null;
   if (resource.repeatable === true) {
@@ -391,10 +360,8 @@ export async function handleDooberClick(
       applyPlayerDelta(answer.data, deltaSetters); // back to the server's counts
       if (answer.reason === 'gone') return; // already collected (a double tap): it stays gone
       putBack();
-      if (answer.reason === 'no-backpack') {
-        updateStatus(19);
-      } else if (answer.reason === 'warehouse-full' || answer.reason === 'backpack-full') {
-        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+      if (reportRefusal(answer.reason, { at: { col, row, TILE_SIZE }, strings, updateStatus, openPanel })) {
+        // no room / no backpack: the shared response (Utils/noRoom.js)
       } else if (String(answer.reason || '').startsWith('needs-')) {
         addFloatingText(`${resource.requires} Required`, col, row, TILE_SIZE);
       } else {
