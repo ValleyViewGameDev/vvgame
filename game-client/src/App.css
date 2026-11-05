@@ -137,13 +137,13 @@ body {
 .nav-button {
   background: none;
   border: none;
-  font-size: 26px; /* style-ok: icon */
+  font-size: 30px; /* style-ok: icon */
   margin: 0 1px;
   cursor: pointer;
   color: var(--color-text-white);
-  width: 48px;
+  width: 52px;
   min-width: 0;
-  height: 48px;
+  height: 52px;
   flex: 0 0 auto;
   border-radius: var(--radius-round);
   transition: background-color 0.15s ease, transform 0.15s ease;
@@ -705,8 +705,8 @@ body {
 
 /* Nav button SVG icons */
 .nav-icon {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 

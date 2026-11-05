@@ -205,7 +205,7 @@
   }
   .nav-button.selected { background-color: var(--color-primary-green); }
   .nav-button:active { transform: scale(0.92); }
-  .nav-icon { width: 28px; height: 28px; }
+  .nav-icon { width: 36px; height: 36px; } /* fill the 56 px pill (owner 2026-11-04) */
 
   /* ---------- Map panel trims: no keyboard controls ---------- */
   .map-panel-controls { display: none; }
@@ -676,7 +676,7 @@
     overflow-x: auto;
     overflow-y: hidden;
   }
-  .nav-button { width: 52px; min-width: 52px; height: 46px; margin: 0 1px; }
+  .nav-button { width: 52px; min-width: 52px; height: 50px; margin: 0 1px; font-size: 32px; } /* style-ok: icon */
 
 }
 
@@ -765,8 +765,8 @@
     overflow-y: auto;
     overflow-x: hidden;
   }
-  .nav-button { width: 44px; min-width: 0; height: 44px; margin: 1px 0; font-size: 24px; } /* style-ok: icon */
-  .nav-icon { width: 26px; height: 26px; }
+  .nav-button { width: 44px; min-width: 0; height: 44px; margin: 1px 0; font-size: 30px; } /* style-ok: icon */
+  .nav-icon { width: 34px; height: 34px; }
 
   /* panels: right of the pill; bottom gap matches the top gap */
   .panel-container,
