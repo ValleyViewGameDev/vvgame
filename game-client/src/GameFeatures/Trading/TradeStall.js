@@ -10,7 +10,7 @@ import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modals/Modal.css';
 import '../../UI/Buttons/SharedButtons.css';
-import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate, getPlayerQuantity, mergeHoldings, ensureRoomFor } from '../../Utils/InventoryManagement';
+import { getPlayerQuantity, mergeHoldings, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
@@ -24,6 +24,7 @@ import { loadMasterTraders, loadMasterResources } from '../../Utils/TuningManage
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, masterResources, masterXPLevels, stationType, currentStationPosition, isDeveloper }) {
   // Level gate (like the Bank, Train and Carnival): the station's `level` in resources.json; the
@@ -136,71 +137,35 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     return true; // If not locked, it's unlocked
   };
   
+  // Applies a stall action's answer: the player delta and both stall arrays
+  const applyStallAnswer = (data) => {
+    applyPlayerDelta(data, { setCurrentPlayer, setInventory, setBackpack });
+    if (data?.tradeStall) setCurrentPlayer((prev) => (prev ? { ...prev, tradeStall: data.tradeStall, tradeStallRequests: data.tradeStallRequests } : prev));
+  };
+  const stallRefusal = (reason) => {
+    if (reason === 'no-backpack') updateStatus(19);
+    else if (reason === 'backpack-full') updateStatus(21);
+    else if (reason === 'warehouse-full') updateStatus(20);
+    else if (reason === 'short-Money') updateStatus(152);
+    else if (reason === 'gone') updateStatus(155);
+    else updateStatus(`❌ ${reason || 'Failed'}`);
+  };
+
+  // ONE request (game-server routes/stallActionRoutes.js /action/stall-unlock): the Wood is the
+  // slot's unlockCost from globalTuning, charged on the server
   const handleUnlockSlot = async (slotIndex) => {
     const config = getSlotConfig(slotIndex);
     if (!config) return;
-    
-    try {
-      // First, use spendIngredients to handle the wood cost properly
-      const tempRecipe = { 
-        ingredient1: 'Wood', 
-        ingredient1qty: config.unlockCost 
-      };
-      
-      const success = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: tempRecipe,
-        inventory: currentPlayer.inventory || inventory,
-        backpack: currentPlayer.backpack || [],
-        setInventory,
-        setBackpack: () => {}, // No-op
-        setCurrentPlayer,
-        updateStatus,
-      });
-      
-      if (!success) {
-        console.warn('Not enough Wood to unlock this slot.');
-        updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
-        return;
-      }
-      
-      // If wood was spent successfully, update only this specific slot
-      const updatedSlots = tradeSlots.map((slot, index) => {
-        if (index === slotIndex) {
-          return {
-            ...slot,
-            locked: false
-          };
-        }
-        return slot;
-      });
-      
-      // Update the trade stall on the server
-      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-        playerId: currentPlayer.playerId,
-        tradeStall: updatedSlots
-      });
-      
-      // Update local state
-      setTradeSlots(updatedSlots);
-      setCurrentPlayer({
-        ...currentPlayer,
-        tradeStall: updatedSlots
-      });
-      
-      // Refresh player data to ensure consistency
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      
-      // Re-fetch trade stall data to ensure UI is in sync
-      await fetchDataForViewedPlayer(true); // Skip inventory fetch since it was just updated
-      
-      updateStatus(`${strings[170]}`);
-    } catch (error) {
-      console.error('Error unlocking slot:', error);
-      updateStatus('Failed to unlock slot');
+    const answer = await postAction('/api/action/stall-unlock', { playerId: currentPlayer.playerId, slotIndex });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
+      else stallRefusal(answer.reason);
+      return;
     }
+    if (answer.data.tradeStall) setTradeSlots(normalizeSellSlots(answer.data.tradeStall));
+    updateStatus(`${strings[170]}`);
   };
-
 
   // The Sell tab always shows 4 slots in index order, whatever shape the server sends back (it may
   // omit a slot it never saved): a server reply must never reshape the grid under the player.
@@ -313,147 +278,31 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   }, [currentPlayer?.playerId]); // Only depend on current player
   
   // Handle buying from global market
-  const handleGlobalMarketBuy = async (playerId, slotIndex, transactionId, transactionKey) => {
-    try {
-      // Re-fetch latest data to confirm availability
-      const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
-        params: { playerId },
-      });
-      const latestSlots = tradeStallResponse.data.tradeStall || [];
-      const currentSlot = latestSlots[slotIndex];
-      
-      if (!currentSlot || currentSlot.boughtBy) {
-        updateStatus(155); // Item was already purchased
-        return;
-      }
-
-      const totalCost = currentSlot.amount * currentSlot.price;
-      const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
-
-      if (totalCost > currentMoney) {
-        console.warn('Not enough money to complete the purchase.');
-        updateStatus(152);
-        return;
-      }
-
-      // Room first, money second: a full Warehouse or Backpack says so and no Money is taken
-      if (!ensureRoomFor({ resource: currentSlot.resource, quantity: currentSlot.amount, currentPlayer, inventory: currentPlayer.inventory || inventory, backpack: currentPlayer.backpack || [], masterResources, globalTuning, updateStatus })) return;
-
-      // Use the same purchase logic as the original handleBuy
-      const tempRecipe = { ingredient1: 'Money', ingredient1qty: totalCost };
-
-      const success = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: tempRecipe,
-        inventory: currentPlayer.inventory || inventory,
-        backpack: currentPlayer.backpack || [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-      });
-      
-      if (!success) {
-        console.warn('Not enough Money to buy this item.');
-        return;
-      }
-
-      const gainResult = await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: currentSlot.resource,
-        quantity: currentSlot.amount,
-        inventory: currentPlayer.inventory || inventory,
-        backpack: currentPlayer.backpack || [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-      });
-
-      // Check if gaining items failed (e.g., warehouse full)
-      if (gainResult && gainResult.success === false) {
-        console.warn('Failed to add items to inventory:', gainResult.error?.message);
-
-        // Rollback the money that was spent
-        await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: 'Money',
-          quantity: totalCost,
-          inventory: currentPlayer.inventory || inventory,
-          backpack: currentPlayer.backpack || [],
-          setInventory,
-          setBackpack: () => {},
-          setCurrentPlayer,
-          updateStatus: () => {}, // Don't show status for refund
-          masterResources,
-          globalTuning,
-        });
-
-        // Don't mark the item as sold, just return
-        // Note: updateStatus was already called by gainIngredients to show warehouse full
-        return;
-      }
-
-      // Update the seller's TradeStall to mark the slot as purchased
-      const updatedSlots = [...latestSlots];
-      updatedSlots[slotIndex] = {
-        ...currentSlot,
-        sellTime: null,
-        boughtBy: currentPlayer.username,
-        boughtFor: totalCost,
-      };
-
-      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-        playerId: playerId,
-        tradeStall: updatedSlots,
-      });
-
-      updateStatus(22); // Purchase successful
-    } catch (error) {
-      console.error('Error processing global market purchase:', error);
-      throw error;
+  // Buying another player's listing: ONE request (/action/stall-buy). The server claims the
+  // seller's slot atomically (nobody else can buy it at the same time), takes the Money and gives
+  // the goods (room first); the seller collects the Money later.
+  const handleGlobalMarketBuy = async (playerId, slotIndex) => {
+    const answer = await postAction('/api/action/stall-buy', { playerId: currentPlayer.playerId, sellerPlayerId: playerId, slotIndex });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      if (answer.status === 0) throw new Error('network');
+      stallRefusal(answer.reason);
+      return;
     }
+    updateStatus(22); // Purchase successful
   };
-
-  // Handle fulfilling a request from global market (selling to a player's request)
-  const handleGlobalMarketFulfillRequest = async (buyerPlayerId, slotIndex, transactionId, transactionKey) => {
-    try {
-      const response = await axios.post(`${API_BASE}/api/trade-stall/fulfill-request`, {
-        sellerPlayerId: currentPlayer.playerId,
-        buyerPlayerId,
-        slotIndex,
-        transactionId,
-        transactionKey: `${transactionKey}-${slotIndex}`
-      });
-
-      if (response.data.success) {
-        // Update seller's (current player's) holdings using the returned data (the items may
-        // have come out of the backpack: utils/playerHoldings.js takes backpack first)
-        setInventory(response.data.sellerInventory);
-        if (response.data.sellerBackpack) setBackpack(response.data.sellerBackpack);
-        setCurrentPlayer(prev => ({
-          ...prev,
-          inventory: response.data.sellerInventory,
-          ...(response.data.sellerBackpack ? { backpack: response.data.sellerBackpack } : {}),
-        }));
-
-        updateStatus(`Sold ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} for 💰${response.data.earned}`);
-      }
-    } catch (error) {
-      console.error('Error fulfilling request:', error);
-      if (error.response?.status === 400) {
-        updateStatus(error.response.data.error || 'Failed to fulfill request');
-      } else {
-        updateStatus('❌ Failed to fulfill request');
-      }
-      throw error;
+  // Filling another player's request: ONE request (/action/request-fulfill); the server claims the
+  // request atomically, takes the goods, pays the held Money and fills the buyer's warehouse
+  const handleGlobalMarketFulfillRequest = async (buyerPlayerId, slotIndex) => {
+    const answer = await postAction('/api/action/request-fulfill', { playerId: currentPlayer.playerId, buyerPlayerId, slotIndex });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      if (answer.status === 0) { updateStatus('❌ Failed to fulfill request'); throw new Error('network'); }
+      updateStatus(answer.reason === 'buyer-full' ? 'Buyer does not have enough warehouse space' : answer.reason === 'gone' ? 'That request was already filled' : 'Failed to fulfill request');
+      throw new Error(answer.reason || 'refused');
     }
+    updateStatus(`Sold ${answer.data.amount}x ${getLocalizedString(answer.data.resource, strings)} for 💰${answer.data.earned}`);
   };
-
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
     const isEmpty = !slot?.resource;
@@ -556,103 +405,36 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     await performAddToSlot(transactionId, transactionKey, resource, amount);
   };
 
+  // Listing goods: ONE request (game-server routes/stallActionRoutes.js /action/stall-list). The
+  // server takes the goods (backpack first), prices them at maxprice and starts the slot's wait.
   const performAddToSlot = async (transactionId, transactionKey, resource, amount) => {
-    const resourceDetails = resourceData.find((item) => item.type === resource);
-    const price = resourceDetails?.maxprice || 0;
-    const slotConfig = getSlotConfig(selectedSlotIndex);
-
-    const updatedSlots = [...tradeSlots];
-    // Update the specific slot with the new item, preserving slotIndex
-    updatedSlots[selectedSlotIndex] = { 
-      slotIndex: selectedSlotIndex,
-      resource, 
-      amount, 
-      price, 
-      sellTime: Date.now() + slotConfig.sellWaitTime,
-      boughtBy: null,
-      boughtFor: null
-    };
-
-    try {
-      // The goods leave the player first, the standard way (backpack, then the warehouse), so a
-      // failed spend never puts goods in the stall
-      const spent = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: { type: resource, ingredient1: resource, ingredient1qty: amount },
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-      });
-      if (!spent) throw new Error('Not enough to add to the Trade Stall');
-
-      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-        playerId: currentPlayer.playerId,
-        tradeStall: updatedSlots,
-      });
-
-      setTradeSlots(updatedSlots);
-      setSelectedSlotIndex(null);
-      calculateTotalSellValue(updatedSlots);
-    } catch (error) {
-      console.error('Error adding item to Trade Stall:', error);
-      throw error; // Re-throw to let TransactionButton handle the error state
+    const answer = await postAction('/api/action/stall-list', { playerId: currentPlayer.playerId, slotIndex: selectedSlotIndex, resource, amount });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      stallRefusal(answer.reason);
+      throw new Error(answer.reason || 'refused'); // let TransactionButton show the error state
     }
+    const next = normalizeSellSlots(answer.data.tradeStall);
+    setTradeSlots(next);
+    setSelectedSlotIndex(null);
+    calculateTotalSellValue(next);
   };
-
-  
   // Protected function to sell items to game using transaction system
   const handleSellSingle = async (transactionId, transactionKey, slotIndex) => {
-    console.log(`🔒 [PROTECTED SELL] Starting protected sell for slot ${slotIndex}`);
-    
     try {
+      // ONE request (/action/stall-sell-to-game): paid at the listing's price, Sell quests on the server
       const data = await cycleSellCard(slotIndex, async () => {
-        const response = await axios.post(`${API_BASE}/api/trade-stall/sell-to-game`, {
-          playerId: currentPlayer.playerId,
-          slotIndex,
-          transactionId,
-          transactionKey: `${transactionKey}-${slotIndex}`
-        });
-        if (!response.data.success) throw new Error('sell-to-game refused');
-        return response.data;
+        const answer = await postAction('/api/action/stall-sell-to-game', { playerId: currentPlayer.playerId, slotIndex });
+        applyStallAnswer(answer.data);
+        if (!answer.ok) throw new Error(answer.reason || 'sell-to-game refused');
+        return answer.data;
       });
-      const response = { data };
-
-      if (response.data.success) {
-        // the slot itself was updated by cycleSellCard
-        if (response.data.tradeStall) {
-          setCurrentPlayer(prev => ({
-            ...prev,
-            tradeStall: response.data.tradeStall
-          }));
-        }
-        if (response.data.inventory) {
-          setInventory(response.data.inventory);
-          // Also update currentPlayer's inventory to trigger UI updates
-          setCurrentPlayer(prev => ({
-            ...prev,
-            inventory: response.data.inventory
-          }));
-        }
-        
-        // Track quest progress for selling this item
-        await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
-        
-        updateStatus(`${strings[141]} ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} (💰 ${response.data.sold}).`);
-        // no refetch: the reply already holds the stall, and a refetch re-laid the whole grid (the flash)
-      }
+      updateStatus(`${strings[141]} ${data.sold.qty}x ${getLocalizedString(data.sold.type, strings)} (💰 ${data.money}).`);
     } catch (error) {
       console.error('Error in protected sell:', error);
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus('❌ Failed to sell item');
-      }
+      updateStatus('❌ Failed to sell item');
     }
   };
-
   const calculateTotalSellValue = (slots) => {
     console.log('Inside calculateTotalSetllValue; Current Inventory:', inventory);
     const total = slots.reduce((sum, slot) => {
@@ -673,48 +455,21 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   
   // Protected function to collect payment from a bought slot using transaction system
   const handleCollectPayment = async (transactionId, transactionKey, slotIndex) => {
-    console.log(`🔒 [PROTECTED COLLECTION] Starting protected collection for slot ${slotIndex}`);
-
     try {
+      // ONE request (/action/stall-collect): the Money a buyer paid, Sell quests on the server
       const data = await cycleSellCard(slotIndex, async () => {
-        const response = await axios.post(`${API_BASE}/api/trade-stall/collect-payment`, {
-          playerId: currentPlayer.playerId,
-          slotIndex,
-          transactionId,
-          transactionKey: `${transactionKey}-${slotIndex}`
-        });
-        if (!response.data.success) throw new Error('collect-payment refused');
-        return response.data;
+        const answer = await postAction('/api/action/stall-collect', { playerId: currentPlayer.playerId, slotIndex });
+        applyStallAnswer(answer.data);
+        if (!answer.ok) throw new Error(answer.reason || 'collect-payment refused');
+        return answer.data;
       });
-      const response = { data };
-
-      if (response.data.success) {
-        // the slot itself was updated by cycleSellCard
-        if (response.data.inventory) {
-          setInventory(response.data.inventory);
-          // Force update currentPlayer to trigger UI refresh
-          setCurrentPlayer(prev => ({
-            ...prev,
-            inventory: response.data.inventory,
-            tradeStall: response.data.tradeStall
-          }));
-        }
-
-        // Track quest progress for selling this item
-        await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
-
-        updateStatus(`💰 Collected ${response.data.collected}.`);
-        // no refetch: the reply already holds the stall, and a refetch re-laid the whole grid (the flash)
-      }
+      updateStatus(`💰 Collected ${data.money}.`);
     } catch (error) {
-      console.error('Error in protected collection:', error);
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus('❌ Failed to collect payment');
-      }
+      console.error('Error collecting payment:', error);
+      updateStatus('❌ Failed to collect payment');
     }
   };
+
 
   // Handle request slot click
   const handleRequestSlotClick = (index) => {
@@ -740,136 +495,34 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   };
 
   // Handle creating a request (commits money)
+  // ONE request (game-server routes/stallActionRoutes.js /action/request-create): priced at
+  // maxprice on the server, the Money held (escrow) until the request is filled or cancelled
   const handleCreateRequest = async (transactionId, transactionKey, resource) => {
     const amount = requestAmounts[resource] || 0;
-
-    if (selectedRequestSlotIndex === null || amount <= 0) {
-      console.warn('Invalid amount for request.');
+    if (selectedRequestSlotIndex === null || amount <= 0) return;
+    const answer = await postAction('/api/action/request-create', { playerId: currentPlayer.playerId, slotIndex: selectedRequestSlotIndex, resource, amount });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      updateStatus(answer.reason === 'short-Money' ? "You don't have enough money" : `❌ ${answer.reason || 'Failed'}`);
+      if (answer.status === 0) throw new Error('network');
       return;
     }
-
-    const resourceDetails = resourceData.find((item) => item.type === resource);
-    const price = resourceDetails?.maxprice || 0;
-    const totalCost = amount * price;
-
-    // Check if player has enough money
-    const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
-    if (totalCost > currentMoney) {
-      updateStatus("You don't have enough money");
-      return;
-    }
-
-    // Commit the money using spendIngredients
-    const tempRecipe = { ingredient1: 'Money', ingredient1qty: totalCost };
-
-    const success = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe: tempRecipe,
-      inventory: currentPlayer.inventory || inventory,
-      backpack: currentPlayer.backpack || [],
-      setInventory,
-      setBackpack: () => {},
-      setCurrentPlayer,
-      updateStatus,
-    });
-
-    if (!success) {
-      console.warn('Not enough Money to create request.');
-      updateStatus("You don't have enough money");
-      return;
-    }
-
-    // Update request slots
-    const updatedRequestSlots = [...requestSlots];
-    updatedRequestSlots[selectedRequestSlotIndex] = {
-      slotIndex: selectedRequestSlotIndex,
-      resource,
-      amount,
-      price,
-      moneyCommitted: totalCost
-    };
-
-    try {
-      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
-        playerId: currentPlayer.playerId,
-        tradeStallRequests: updatedRequestSlots
-      });
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      setInventory(refreshedInventory.data.inventory);
-
-      setRequestSlots(updatedRequestSlots);
-      setSelectedRequestSlotIndex(null);
-      updateStatus(`Request posted for ${amount}x ${getLocalizedString(resource, strings)}`);
-    } catch (error) {
-      console.error('Error creating request:', error);
-      throw error;
-    }
+    if (answer.data.tradeStallRequests) setRequestSlots(answer.data.tradeStallRequests);
+    setSelectedRequestSlotIndex(null);
+    updateStatus(`Request posted for ${amount}x ${getLocalizedString(resource, strings)}`);
   };
-
   // Handle canceling a request (refunds money)
+  // ONE request (/action/request-cancel): the held Money comes back
   const handleCancelRequest = async (transactionId, transactionKey, slotIndex) => {
     const slot = requestSlots[slotIndex];
-
-    if (!slot?.resource || !slot?.moneyCommitted) {
-      console.warn('No request to cancel in this slot.');
-      return;
-    }
-
-    try {
-      // Refund the committed money
-      await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: 'Money',
-        quantity: slot.moneyCommitted,
-        inventory: currentPlayer.inventory || inventory,
-        backpack: currentPlayer.backpack || [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-      });
-
-      // Clear the request slot
-      const updatedRequestSlots = [...requestSlots];
-      updatedRequestSlots[slotIndex] = {
-        slotIndex,
-        locked: slot.locked,
-        resource: null,
-        amount: 0,
-        price: 0,
-        moneyCommitted: 0
-      };
-
-      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
-        playerId: currentPlayer.playerId,
-        tradeStallRequests: updatedRequestSlots
-      });
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      setInventory(refreshedInventory.data.inventory);
-
-      setRequestSlots(updatedRequestSlots);
-      updateStatus(`Request canceled. Refunded 💰${slot.moneyCommitted}`);
-      return true;
-    } catch (error) {
-      console.error('Error canceling request:', error);
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus('❌ Failed to cancel request');
-      }
-      return false;
-    }
+    if (!slot?.resource || !slot?.moneyCommitted) return false;
+    const answer = await postAction('/api/action/request-cancel', { playerId: currentPlayer.playerId, slotIndex });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) { updateStatus('❌ Failed to cancel request'); return false; }
+    if (answer.data.tradeStallRequests) setRequestSlots(answer.data.tradeStallRequests);
+    updateStatus(`Request canceled. Refunded 💰${answer.data.refunded}`);
+    return true;
   };
-
   // Cancel with the card cycle: the request card leaves, the slot turns into its empty "Add
   // Request" card while hidden, which slides in; a failed cancel brings the request back
   const cancelRequestWithMotion = async (transactionId, transactionKey, slotIndex) => {
@@ -883,63 +536,21 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   };
 
   // Handle unlocking a request slot
+  // ONE request (/action/request-unlock): the slot's unlockCost in Wood, charged on the server
   const handleUnlockRequestSlot = async (slotIndex) => {
     const config = getRequestSlotConfig(slotIndex);
     if (!config) return;
-
-    try {
-      const tempRecipe = {
-        ingredient1: 'Wood',
-        ingredient1qty: config.unlockCost
-      };
-
-      const success = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: tempRecipe,
-        inventory: currentPlayer.inventory || inventory,
-        backpack: currentPlayer.backpack || [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!success) {
-        console.warn('Not enough Wood to unlock this request slot.');
-        updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
-        return;
-      }
-
-      const updatedSlots = requestSlots.map((slot, index) => {
-        if (index === slotIndex) {
-          return {
-            ...slot,
-            locked: false
-          };
-        }
-        return slot;
-      });
-
-      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
-        playerId: currentPlayer.playerId,
-        tradeStallRequests: updatedSlots
-      });
-
-      setRequestSlots(updatedSlots);
-      setCurrentPlayer({
-        ...currentPlayer,
-        tradeStallRequests: updatedSlots
-      });
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      await fetchDataForViewedPlayer(true);
-
-      updateStatus(`${strings[170]}`);
-    } catch (error) {
-      console.error('Error unlocking request slot:', error);
-      updateStatus('Failed to unlock slot');
+    const answer = await postAction('/api/action/request-unlock', { playerId: currentPlayer.playerId, slotIndex });
+    applyStallAnswer(answer.data);
+    if (!answer.ok) {
+      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
+      else updateStatus('Failed to unlock slot');
+      return;
     }
+    if (answer.data.tradeStallRequests) setRequestSlots(answer.data.tradeStallRequests);
+    updateStatus(`${strings[170]}`);
   };
+
 
   // Sell section (UI/Panels/SellSection.js): the Trading Post can be moved on the player's own
   // homestead but never sold, by anyone (owner 2026-10-25); none when opened without a building

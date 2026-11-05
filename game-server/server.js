@@ -234,6 +234,7 @@ app.use('/api', require('./routes/storyRoutes')); // Story moments: waking Gertr
 app.use('/api', require('./routes/reviveRoutes')); // Revive for Gems from the "You have fallen" modal
 app.use('/api', require('./routes/combatRoutes')); // POST /action/npc-kill: the one combat write (docs/audits/combat-and-npc-review-2026-10-07.md Track 2)
 app.use('/api', require('./routes/actionRoutes')); // POST /action/*: one validated request per player action, answers with the player delta (Phase 5)
+app.use('/api', require('./routes/stallActionRoutes')); // POST /action/stall-* and request-*: the Trade Stall, server-checked (Phase 5)
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');

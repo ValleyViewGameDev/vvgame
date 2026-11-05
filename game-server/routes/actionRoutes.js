@@ -24,12 +24,14 @@
  *   POST /action/shop-buy                         a shop's trader offer
  *   POST /action/quest-reward                     hand in a completed quest
  *   POST /action/heal-pay                         pay a healer (the hp itself is the client's, saved with /player/state)
+ *   POST /action/bank-sell                        sell to the Bank / a valley Counting House at this round's price
  *   POST /action/scroll-reveal / scroll-collect   the Ancient Temple (Reveal Scroll)
  */
 const express = require('express');
 const router = express.Router();
 const Player = require('../models/player');
 const Grid = require('../models/grid');
+const Frontier = require('../models/frontier');
 const gridResourceManager = require('../utils/GridResourceManager');
 const econ = require('../utils/playerEconomy');
 const { applyTrophy } = require('../utils/trophyUtils');
@@ -1084,6 +1086,42 @@ router.post('/action/heal-pay', async (req, res) => {
   } catch (err) {
     console.error('❌ action/heal-pay failed:', err);
     return res.status(500).json({ success: false, error: 'heal-pay-failed', detail: err.message });
+  }
+});
+
+// ---- The Bank ----------------------------------------------------------------------------------
+
+/**
+ * POST /api/action/bank-sell { playerId, offerIndex }
+ * → { success, sold: {type, qty}, paid: {type, qty}, player, seq }
+ * The offer is this round's, from the frontier (bankScheduler): the valley Counting Houses' list
+ * when the player is in a valley (until its first round, the town list), else the town Bank's.
+ * Only while the Bank is active. Spends the goods (backpack first), pays (room first), Sell quests.
+ */
+router.post('/action/bank-sell', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player, answer } = ctx;
+    const frontier = await Frontier.findById(player.frontierId).select('bank').lean();
+    const bank = frontier?.bank;
+    if (!bank || bank.phase !== 'active') return answer(409, 'closed');
+    const inValley = String(player.location?.gtype || '').startsWith('valley');
+    const list = inValley && (bank.valleyOffers || []).length ? bank.valleyOffers : (bank.offers || []);
+    const offer = list[Number(req.body.offerIndex)];
+    if (!offer) return answer(409, 'no-offer');
+    const room = econ.roomFor(player, offer.itemGiven, offer.qtyGiven);
+    if (!room.ok) return answer(409, room.reason);
+    if (!spendCosts({ ingredient1: offer.itemBought, ingredient1qty: offer.qtyBought }, player.inventory, player.backpack)) return answer(409, `short-${offer.itemBought}`);
+    econ.grant(player, offer.itemGiven, offer.qtyGiven);
+    econ.advanceQuests(player, 'Sell', offer.itemBought, offer.qtyBought);
+    player.markModified('inventory'); player.markModified('backpack');
+    player.lastActive = new Date();
+    await player.save();
+    return res.json({ success: true, sold: { type: offer.itemBought, qty: offer.qtyBought }, paid: { type: offer.itemGiven, qty: offer.qtyGiven }, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/bank-sell failed:', err);
+    return res.status(500).json({ success: false, error: 'bank-sell-failed', detail: err.message });
   }
 });
 

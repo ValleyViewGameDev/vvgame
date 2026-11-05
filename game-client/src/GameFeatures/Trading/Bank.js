@@ -4,8 +4,8 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { spendIngredients, gainIngredients, canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
@@ -98,46 +98,20 @@ function BankPanel({
     }, [currentPlayer?.frontierId]);
 
     // ✅ Handle trade transaction
-    const handleTrade = async (offer) => {
+    // ONE request (game-server routes/actionRoutes.js /action/bank-sell): the server finds this
+    // round's offer on the frontier, spends, pays (room first) and advances Sell quests.
+    const handleTrade = async (offer, offerIndex) => {
         if (!offer || !currentPlayer) return;
-
-        // Spend ingredients
-        const success = await spendIngredients({
-          playerId: currentPlayer.playerId,
-          recipe: {
-            ingredient1: offer.itemBought,
-            ingredient1qty: offer.qtyBought,
-          },
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-        });
-
-        if (!success) return;
-
-        // Gain the given item (usually Money)
-        const gainSuccess = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: offer.itemGiven,
-          quantity: offer.qtyGiven,
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-          globalTuning,
-        });
-
-        if (!gainSuccess) return;
-
-        await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
-
+        const answer = await postAction('/api/action/bank-sell', { playerId: currentPlayer.playerId, offerIndex });
+        applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+        if (!answer.ok) {
+          if (answer.reason === 'no-backpack') updateStatus(19);
+          else if (answer.reason === 'backpack-full') updateStatus(21);
+          else if (answer.reason === 'warehouse-full') updateStatus(20);
+          else if (answer.reason === 'closed' || answer.reason === 'no-offer') fetchBankOffers();
+          else updateStatus(4);
+          return;
+        }
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 
@@ -177,7 +151,7 @@ function BankPanel({
             });
         }, COOLDOWN_DURATION);
 
-        await handleTrade(offer);
+        await handleTrade(offer, buttonIndex);
     };
 
     // ✅ Lookup function for symbols from `masterResources`
