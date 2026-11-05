@@ -53,8 +53,9 @@ here; detail lives in the linked docs and backlog items.
 
 ## Should do
 
-- [ ] Phone feel pass: the remaining server-gated actions in OB-2 (craft start, gem purchases,
-  Trading Post, shops, pets, scrolls, Farm House) react instantly.
+- [x] Phone feel pass. Done 2026-11-04 (owner checked it on a phone): 60 fps board, no per-second
+  App render, and every economic action is one server-checked request answering with the player
+  delta (Phase 5, `docs/refactor-plan.md` "Phase 5 as built"); OB-2 closed.
 - [ ] Re-voice the FTUE toasts and approve the P3 quest asks (narrative pass).
 - [x] Wake-Gertrude migration (`node scripts/wake-gertrude-for-friends.js --apply --except Oberon`).
   Done 2026-11-04 after a backup: PotatoShell, Sheyona, moehong, jgamblin and Entropoly keep her

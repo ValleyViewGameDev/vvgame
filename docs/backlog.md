@@ -129,29 +129,6 @@ teaches, and where the first Quest for Hope artifact lands (the King's Crown, ab
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
 
-- **OB-2. Make the game feel instant: trust the client, validate behind it** (added 2026-10-24,
-  re-scoped the same day). Movement itself is done: the held-key loop (90 ms a tile, first step
-  at once, 220 ms hold delay), the Pixi camera, coalesced React syncs and tap-to-walk were built
-  2026-10-03 (`refactor-plan.md` Phase 4 B+D); what is left there is the owner's feel check on a
-  phone. The rest of the "laggy" feel is actions that still let a server answer overwrite what
-  the client already showed (the optimistic-UI house rule: react on the tap, validate in
-  parallel, revert only on a real refusal, then sweep up). Known cases:
-  - **Crafting queue collect (owner, 2026-10-24, good connection).** Collect several finished
-    crafts in a row and the earlier ones reappear for a beat, then vanish again. Likely shape (to
-    confirm in `CraftingStation.js` / `FarmHouse.js`): each collect's response carries the whole
-    slot list as the server saw it, and an older response lands after a newer local collect and
-    puts the collected slots back until the last response arrives. Fix shape: the client keeps
-    its own collected set and ignores (or merges) responses older than its latest action, rather
-    than replacing state with each reply.
-  - **Still server-first** (audit §1.4, to re-check one by one in the code): craft start, gem
-    purchases, Trading Post list / sell / collect, Skills / Buy / Build purchases, pet feed,
-    scroll craft, Farm House hire. Quest rewards already react on the tap.
-  Where the wait comes from: the owner's hypothesis is the database (Atlas, one US West region)
-  rather than the API server; confirm by timing a request's server-side handling against its
-  round trip (where Render runs the API vs the Atlas region, and the Mongo time inside a route).
-  Out of scope: very poor networks such as airplane Wi-Fi (owner): solve for ordinary mobile
-  and home connections. Start at `docs/audits/client-review-2026-10-03.md` §1.4 and the crafting
-  collect path.
 - **OB-3. End the FTUE on Elbow's first story step, open loops and a glimpse of the Quest for
   Hope** (added 2026-10-24, revised for the story). The FTUE is Act I's opening: Gertrude's spirit
   speaks to the stranger in the sea cave (16019, owner 2026-10-25) and sends them to Elbow, and
@@ -280,7 +257,8 @@ ones that failed or timed out, and eventually credit every collect the player ma
 backpack, quest progress and xp included.
 
 **Where to start.** Walk-over collection goes through `handleTileClick` (App's `onEnterTile`)
-into `ResourceClicking.js` (the optimistic doober collect, ~339-361): find what happens to a
-collect whose request fails or times out (probably dropped, with the sprite already gone), and
-give those calls a durable retry queue. Related to OB-2 (trust the client, validate behind it);
-OB-2 rules out airplane-grade networks, but a phone hotspot is an ordinary mobile connection.
+into `ResourceClicking.js` `handleDooberClick`, which since Phase 5 (2026-11-04) is ONE request,
+`POST /api/action/harvest`. A request with no answer at all (`postAction` status 0) currently
+keeps the doober gone and the predicted count without retrying: give those calls a durable retry
+queue (the server answers 'gone' for a tile already collected, so a retry can never grant twice).
+A phone hotspot is an ordinary mobile connection; airplane-grade networks are out of scope.
