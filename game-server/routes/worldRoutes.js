@@ -523,7 +523,7 @@ router.post('/create-homestead', async (req, res) => {
 });
 
 // Update specific fields of a grid document
-router.patch('/update-grid/:gridId', (req, res) => {
+router.patch('/update-grid/:gridId', requireDeveloper, (req, res) => {
   const startTime = Date.now();
   const { gridId } = req.params;
   const { resource } = req.body; // ✅ this is the new schema you're using
@@ -658,7 +658,7 @@ router.patch('/update-grid/:gridId', (req, res) => {
 });
 
 
-router.patch('/update-tile/:gridId', async (req, res) => {
+router.patch('/update-tile/:gridId', requireDeveloper, async (req, res) => {
   const { gridId } = req.params;
   const { x, y, newType } = req.body;
   
@@ -1100,7 +1100,7 @@ router.post('/relocate-homestead', async (req, res) => {
 
 
 // Protected crafting collection endpoint
-router.post('/crafting/collect-item', async (req, res) => {
+router.post('/crafting/collect-item', requireDeveloper, async (req, res) => {
   const { playerId, gridId, stationX, stationY, craftedItem, slotIndex, transactionId, transactionKey } = req.body;
 
   if (!playerId || !gridId || stationX === undefined || stationY === undefined || !craftedItem || slotIndex === undefined || !transactionId || !transactionKey) {
@@ -1276,7 +1276,7 @@ router.post('/crafting/collect-item', async (req, res) => {
 });
 
 // Protected crafting start endpoint
-router.post('/crafting/start-craft', async (req, res) => {
+router.post('/crafting/start-craft', requireDeveloper, async (req, res) => {
   const { playerId, gridId, stationX, stationY, recipe, qty, rarity, transactionId, transactionKey } = req.body;
   
   if (!playerId || !gridId || stationX === undefined || stationY === undefined || !recipe || !transactionId || !transactionKey) {
@@ -1602,7 +1602,7 @@ router.post('/crafting/upgrade-station', async (req, res) => {
 });
 
 // Protected farm animal collection endpoint
-router.post('/farm-animal/collect', async (req, res) => {
+router.post('/farm-animal/collect', requireDeveloper, async (req, res) => {
   const { playerId, gridId, npcId, npcPosition, transactionId, transactionKey } = req.body;
   
   if (!playerId || !gridId || !npcId || !npcPosition || !transactionId || !transactionKey) {
@@ -1984,7 +1984,7 @@ router.post('/sell-for-refund', async (req, res) => {
 });
 
 // Protected bulk harvest/replant endpoint
-router.post('/bulk-harvest', async (req, res) => {
+router.post('/bulk-harvest', requireDeveloper, async (req, res) => {
   const { playerId, gridId, operations, transactionId, transactionKey } = req.body;
   
   if (!playerId || !gridId || !operations || !Array.isArray(operations) || operations.length === 0 || !transactionId || !transactionKey) {
@@ -2312,7 +2312,7 @@ router.post('/bulk-harvest', async (req, res) => {
 });
 
 // Bulk crafting collection endpoint
-router.post('/crafting/collect-bulk', async (req, res) => {
+router.post('/crafting/collect-bulk', requireDeveloper, async (req, res) => {
   const { playerId, gridId, stations } = req.body;
   
   if (!playerId || !gridId || !Array.isArray(stations) || stations.length === 0) {

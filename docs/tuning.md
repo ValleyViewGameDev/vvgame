@@ -16,7 +16,8 @@ can check the current value rather than trust this page.
   economies. Edit these in the editor's sheet tabs; the game server caches most of them at
   boot (restart or deploy to apply).
 - **Code second.** Generation logic with its own constants lives beside the feature:
-  `game-client/src/GameFeatures/Trading/KentOfferLogic.js` (Kent), `game-server/utils/caravan.js`
+  `game-server/utils/kentOffers.js` (Kent, server side since 2026-11-04; the client's
+  `KentOfferLogic.js` keeps only the XP display), `game-server/utils/caravan.js`
   (Train, server side since 2026-11-02), `Economy/DropRates.js` (rarity weights). Constants in those files are tuning too;
   prefer moving a constant into `globalTuning.json` when it needs to change per deploy without
   a client build.
@@ -87,7 +88,12 @@ than 210; from level 10 the curve is unchanged. Level 8 is the Bank's first leve
 has only Kent and the Bank as XP outlets, so it had read as a wait. Both values are lower:
 nobody is demoted (one production player in range, 693 XP, stays level 9).
 
-## 4. Kent (KentOfferLogic.js, Kent.js, globalTuning.json)
+## 4. Kent (game-server/utils/kentOffers.js, Kent.js, globalTuning.json)
+
+Kent's board is generated and every sale checked on the server since 2026-11-04 (routes/kentRoutes.js,
+Phase 5). `utils/kentOffers.js` is a line-for-line port of the client's old `KentOfferLogic.js`; the
+constants named below live there now. Ask sizing is copied three times (client `Economy/askSizing.js`,
+`utils/caravan.js`, `utils/kentOffers.js`): change all three together.
 
 - **Slots and growth.** The board size depends on level (`MAX_OFFERS_BY_LEVEL` in
   `KentOfferLogic.js`, 2026-10-12; replaced `maxKentOffers`): 6 through level 7, 7 at level 8, 8

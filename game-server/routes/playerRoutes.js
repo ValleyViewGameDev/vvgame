@@ -149,7 +149,7 @@ router.post('/clear-quest-history', requireDeveloper, async (req, res) => {
 });
 
 
-router.post('/update-player-quests', async (req, res) => {
+router.post('/update-player-quests', requireDeveloper, async (req, res) => {
   const { playerId, activeQuests } = req.body;
 
   if (!playerId || !Array.isArray(activeQuests)) {
@@ -343,7 +343,13 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train', 'kentOffers'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
-const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots'];
+const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots',
+  // Phase 5 (2026-11-04): everything an action route owns. Gameplay changes these only through
+  // /action/* (routes/actionRoutes.js and friends); the editor's Players tab (a developer) may still.
+  'inventory', 'backpack', 'skills', 'powers', 'xp', 'activeQuests', 'completedQuests', 'trophies',
+  'messages', 'warehouseCapacity', 'backpackCapacity', 'warehouseLevel', 'avatarsUnlocked', 'range',
+  'tradeStall', 'tradeStallRequests', 'relationships', 'hopeFound', 'storyFlags', 'regionsVisited',
+  'lastTransactionIds', 'activeTransactions', 'relocations'];
 
 router.post('/update-profile', async (req, res) => {
   const { playerId } = req.body;
@@ -353,8 +359,10 @@ router.post('/update-profile', async (req, res) => {
     for (const key of Object.keys(updates)) {
       if (PROFILE_NEVER.includes(key.split('.')[0])) delete updates[key];
     }
-    if (PROFILE_DEVELOPER_ONLY.some((k) => k in updates) && !(await isDeveloperPlayerId(req.get('x-player-id')))) {
-      for (const k of PROFILE_DEVELOPER_ONLY) delete updates[k];
+    // matched on the key's root, so a dotted path ('inventory.0.quantity') is caught too
+    const devOnly = (key) => PROFILE_DEVELOPER_ONLY.includes(key.split('.')[0]);
+    if (Object.keys(updates).some(devOnly) && !(await isDeveloperPlayerId(req.get('x-player-id')))) {
+      for (const k of Object.keys(updates)) if (devOnly(k)) delete updates[k];
     }
 
     // ✅ Username: same rules as registration, and not already taken by someone else
@@ -459,7 +467,7 @@ router.get('/inventory/:playerId', async (req, res) => {
 });
 
 // Endpoint to update the player inventory or backpack
-router.post('/update-inventory', (req, res) => {
+router.post('/update-inventory', requireDeveloper, (req, res) => {
   const { playerId, inventory, backpack } = req.body;
   console.log(`POST /api/update-inventory - Updating inventory and/or backpack for playerId: ${playerId}`);
   console.log("👀 Incoming inventory:", inventory);
@@ -494,7 +502,7 @@ router.post('/update-inventory', (req, res) => {
 });
 
 // ✅ Delta-based inventory update using atomic MongoDB operations
-router.post('/update-inventory-delta', async (req, res) => {
+router.post('/update-inventory-delta', requireDeveloper, async (req, res) => {
   const { playerId, delta } = req.body;
   console.log(`POST /api/update-inventory-delta - Applying delta to playerId: ${playerId}`);
   console.log('Delta Payload:', delta);
@@ -1015,7 +1023,7 @@ router.get('/xp-levels', (req, res) => {
 });
 
 // POST /api/addXP - Efficiently add XP to player
-router.post('/addXP', async (req, res) => {
+router.post('/addXP', requireDeveloper, async (req, res) => {
   const { playerId, xpAmount } = req.body;
   
   if (!playerId || typeof xpAmount !== 'number') {
@@ -1051,7 +1059,7 @@ router.post('/addXP', async (req, res) => {
 });
 
 // Endpoint to update player skills
-router.post('/update-skills', async (req, res) => {
+router.post('/update-skills', requireDeveloper, async (req, res) => {
   const { playerId, skills } = req.body;
   console.log(`POST /api/update-skills - Updating skills for playerId: ${playerId}`);
 
@@ -1080,7 +1088,7 @@ router.post('/update-skills', async (req, res) => {
   }
 });
 
-router.post('/update-powers', async (req, res) => {
+router.post('/update-powers', requireDeveloper, async (req, res) => {
   const { playerId, powers } = req.body;
   if (!playerId || !Array.isArray(powers)) {
     return res.status(400).json({ error: 'Missing or invalid playerId or powers array.' });
@@ -1304,7 +1312,7 @@ router.get('/messages', (req, res) => {
   });
 });
 
-router.post('/update-player-messages', async (req, res) => {
+router.post('/update-player-messages', requireDeveloper, async (req, res) => {
   const { playerId, messages } = req.body;
 
   try {

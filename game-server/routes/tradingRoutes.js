@@ -1,3 +1,4 @@
+const { requireDeveloper } = require('../utils/developerHelpers'); // Phase 5: the old trusted writes are the editor's / debug panel's only
 const { heldQuantity, takeFromHoldings } = require('../utils/playerHoldings');
 const express = require('express');
 const router = express.Router();
@@ -137,7 +138,7 @@ const checkWarehouseCapacity = async (player, itemType, itemQuantity) => {
  */
 
 // Collect Money from sold items - protected endpoint
-router.post('/trade-stall/collect-payment', async (req, res) => {
+router.post('/trade-stall/collect-payment', requireDeveloper, async (req, res) => {
   const { playerId, slotIndex, transactionId, transactionKey } = req.body;
   
   if (!playerId || slotIndex === undefined || !transactionId || !transactionKey) {
@@ -215,7 +216,7 @@ router.post('/trade-stall/collect-payment', async (req, res) => {
 });
 
 // Sell items to game - protected endpoint
-router.post('/trade-stall/sell-to-game', async (req, res) => {
+router.post('/trade-stall/sell-to-game', requireDeveloper, async (req, res) => {
   const { playerId, slotIndex, transactionId, transactionKey } = req.body;
   
   if (!playerId || slotIndex === undefined || !transactionId || !transactionKey) {
@@ -306,7 +307,7 @@ router.post('/trade-stall/sell-to-game', async (req, res) => {
  * POST /api/update-trade-stall
  * Request body should include `username` and `tradeStall` (array of items)
  */
-router.post('/update-player-trade-stall', async (req, res) => {
+router.post('/update-player-trade-stall', requireDeveloper, async (req, res) => {
   console.log('POST /update-player-trade-stall route hit');
   const { playerId, tradeStall } = req.body;
 
@@ -478,7 +479,7 @@ router.get('/player-trade-stall-requests', async (req, res) => {
 });
 
 // Update player's trade stall requests
-router.post('/update-player-trade-stall-requests', async (req, res) => {
+router.post('/update-player-trade-stall-requests', requireDeveloper, async (req, res) => {
   console.log('POST /update-player-trade-stall-requests route hit');
   const { playerId, tradeStallRequests } = req.body;
 
@@ -534,7 +535,7 @@ router.post('/update-player-trade-stall-requests', async (req, res) => {
 });
 
 // Fulfill a player's request (sell to their buy order) - protected endpoint
-router.post('/trade-stall/fulfill-request', async (req, res) => {
+router.post('/trade-stall/fulfill-request', requireDeveloper, async (req, res) => {
   const { sellerPlayerId, buyerPlayerId, slotIndex, transactionId, transactionKey } = req.body;
 
   if (!sellerPlayerId || !buyerPlayerId || slotIndex === undefined || !transactionId || !transactionKey) {

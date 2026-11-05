@@ -76,50 +76,6 @@ export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playe
 };
 
 
-export const modifyPlayerStatsInPlayer = async (statToMod, amountToMod, playerId) => {
-  try {
-    console.log('🔄 Modifying player stats in the Player Profile (DB)');
-    console.log('statToMod = ', statToMod, '; amountToMod = ', amountToMod);
-
-    if (!statToMod || !amountToMod) {
-      console.error('❌ Invalid stat or amount to modify.');
-      return null;
-    }
-
-    // Step 1: Fetch the current player data from the server
-    const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
-    const currentPlayerData = response.data;
-
-    if (!currentPlayerData || !currentPlayerData.playerId) {
-      console.error('❌ Failed to fetch current player data from the server.');
-      return null;
-    }
-
-    // Step 2: Calculate new stat value by adding to the existing value
-    const currentStatValue = currentPlayerData[statToMod] || 0;  // Default to 0 if undefined
-    const newStatValue = currentStatValue + amountToMod;
-    console.log(`✅ Updating ${statToMod}: ${currentStatValue} + ${amountToMod} = ${newStatValue}`);
-
-    // Step 3: Send the updated stat back to the database
-    await axios.post(`${API_BASE}/api/update-profile`, {
-      playerId,
-      updates: {
-        [statToMod]: newStatValue,  // ✅ Now ADDING instead of replacing
-      },
-    });
-
-    console.log(`✅ Successfully updated ${statToMod} in the database.`);
-
-    // Step 4: Return updated player data
-    currentPlayerData[statToMod] = newStatValue;
-    return currentPlayerData;
-
-  } catch (error) {
-    console.error('❌ Error in modifyPlayerStatsInPlayer:', error);
-    return null;
-  }
-};
-
 /**
  * Determines if a given stat should be stored in NPCsInGrid rather than the player document.
  * @param {string} stat - The name of the stat to check.
@@ -181,13 +137,14 @@ export const handlePlayerDeath = async (
 
     // 1. Persist the backpack. hp goes through the PC record (/player/state, where the server
     //    derives maxhp itself); location is written by enter-grid below.
-    await axios.post(`${API_BASE}/api/update-profile`, {
-      playerId: player._id,
-      updates: {
-        backpack: filteredBackpack,
-        settings: player.settings,
-      },
-    });
+    //    The backpack loses everything but the Tent and Boat through /action/discard (which can
+    //    only lower the holdings); settings stay a profile write.
+    const dropped = (player.backpack || []).filter((item) => item.type !== "Tent" && item.type !== "Boat")
+      .map((item) => ({ type: item.type, qty: item.quantity }));
+    await Promise.all([
+      dropped.length ? axios.post(`${API_BASE}/api/action/discard`, { playerId: player._id, from: 'backpack', items: dropped }) : null,
+      axios.post(`${API_BASE}/api/update-profile`, { playerId: player._id, updates: { settings: player.settings } }),
+    ]);
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 

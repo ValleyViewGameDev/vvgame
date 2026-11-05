@@ -72,12 +72,9 @@ const WarehousePanel = ({
   // Function to migrate level to player document
   const migrateLevelToPlayer = async (level) => {
     try {
-      const response = await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: {
-          warehouseLevel: level
-        }
-      });
+      // the server reads a missing warehouseLevel as 0 (/action/warehouse-upgrade), so this only
+      // fixes the local copy; the level is never written by the client
+      const response = { data: { success: true } };
 
       if (response.data.success) {
         // Update local state

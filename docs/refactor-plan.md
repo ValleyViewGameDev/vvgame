@@ -282,11 +282,30 @@ The contract every action route follows (code: `game-server/routes/actionRoutes.
   behaviour let the client grant (crafting collect-item) is replaced by a new `/action/*` route
   rather than changed in place, so an old client never gets an item twice.
 
-Built: `/action/harvest` (doober collect: grant x skills, Collect quests, crop bonus tool,
-King's Crown / Trident trophies, replant), `/action/convert` (source into its output, tool skill
-checked), `/action/craft-start` / `craft-collect` (recipe from master, station / skill / level
-locks, station skill bonus, Craft quests), `/action/scroll-reveal` / `scroll-collect` (the roll
-is on the server; skills and powers granted there).
+Built (2026-11-04, all in one day):
+- **Gather**: `/action/harvest` (doober: grant x skills, Collect quests, crop bonus tool, King's
+  Crown / Trident, replant), `/action/convert` (tool skill), `/action/ripen` (FarmState's timer),
+  `/action/animal-collect`, `/action/bulk-harvest` (server yield; fixes the bulk quest calls that never
+  counted), `/action/bulk-craft-collect`.
+- **Craft**: `craft-start` / `craft-collect` (stations and the Farm House's workers), `gem-craft`
+  (server gem pricing: `gemTopUpCost`), `craft-speedup`, `scroll-reveal` / `scroll-collect` (the roll is
+  the server's), `pet-feed` / `pet-collect` (roll and xp the server's).
+- **Buy and build**: `place` (Build / Buy / Deco / Zoo: where, footprint, limits, herd-scaled animal
+  price), `plant`, `terraform`, `remove`, `buy-skill`, `buy-item`, `shop-buy`, `farmhand-buy-crop`,
+  `warehouse-upgrade`, `unlock-avatars`, `animal-sell`, `pitch-tent`, `discard`, `send-home`, `discard-power`.
+- **NPCs and quests**: `npc-trade` (traders.json, relationship gate and bonus, xp), `quest-reward`,
+  `quests-refresh` (state goals), `heal-pay`; `/add-player-quest` computes starting progress itself.
+- **Trading**: `bank-sell`; the Trade Stall (`routes/stallActionRoutes.js`: listings, requests,
+  escrow, atomic two-player claims); Kent (`routes/kentRoutes.js` + `utils/kentOffers.js`, the board
+  generated on the server).
+- **Mailbox**: `mail-read` / `mail-delete` (the client never writes messages, so never their rewards).
+- **Closed**: the trusted routes are developer-only and `update-profile` refuses the economy fields
+  (see CLAUDE.md, Conventions). `npc-kill` awards Kill the Duke; `cast-vote` advances Vote quests.
+
+Known gaps, for later: Kent's 30 s slot cooldowns are client-only (needs a Player field);
+`/create-homestead` does not check a Home Deed; equipped gear lives in `settings` (client-written);
+`/player/state` hp is client-reported as before; the "Explore the Valley" trophy check in Kent and the
+Caravan reads `trophy.title` (never set), so enemy drops are never offered (kept as it was).
 
 ### Phase 6: Async multiplayer polish (2-4 days)
 
