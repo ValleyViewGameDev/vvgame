@@ -90,7 +90,7 @@ const BuyPanel = ({
   const [isContentLoading, setIsContentLoading] = useState(false);
   const strings = useStrings();
   const [placeWithCursor, setPlaceWithCursor] = useState(
-    !isTouchPrimary() && (currentPlayer?.settings?.plantWithCursor ?? false) // no cursor placement on phones
+    isTouchPrimary() || (currentPlayer?.settings?.plantWithCursor ?? false) // phones always place with the cursor (the toggle is hidden)
   );
   // Track which item is currently being processed (for cursor mode lock)
   const [processingItem, setProcessingItem] = useState(null);

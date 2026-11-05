@@ -1644,11 +1644,11 @@ const PixiRenderer = ({
         // Something to interact with, but too far: walk next to it (tap again once there)
         if (resourceOutOfRange(resource)) { walkToward(resource); return; }
       } else {
-        // Empty tile: walk there, unless the tile has its own click meaning
-        const tileType = tileTypes?.[row]?.[col];
-        const dirtOpensFarming = tileType === 'd' && onOwnHomestead;
+        // Empty tile: walk there (dirt included: a tap on dirt used to be kept for opening
+        // Farming, which nothing does any more, so on the homestead it did nothing at all),
+        // unless teleport is on (handleTileClick moves the avatar there)
         const teleportOn = !!currentPlayer?.settings?.isTeleportEnabled;
-        if (!dirtOpensFarming && !teleportOn) { walk(); return; }
+        if (!teleportOn) { walk(); return; }
       }
     }
 
@@ -1656,7 +1656,7 @@ const PixiRenderer = ({
     if (handleTileClick) {
       handleTileClick(row, col);
     }
-  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, tileTypes, cursorMode, onWalkTo, walkToNpc, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
+  }, [handleTileClick, TILE_SIZE, zoomScale, npcs, resources, cursorMode, onWalkTo, walkToNpc, findHostileAtScreen, onBoardTap, onPlayerClick, currentPlayer, playersInGrid, gridId,
       masterResources, masterSkills, masterTrophies, globalTuning, strings,
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,

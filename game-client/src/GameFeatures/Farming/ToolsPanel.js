@@ -69,7 +69,7 @@ const ToolsPanel = ({
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const [useWithCursor, setUseWithCursor] = useState(
-    !isTouchPrimary() && (currentPlayer?.settings?.plantWithCursor ?? false) // no cursor placement on phones
+    isTouchPrimary() || (currentPlayer?.settings?.plantWithCursor ?? false) // phones always place with the cursor (the toggle is hidden)
   );
   const COOLDOWN_DURATION = 500;
 

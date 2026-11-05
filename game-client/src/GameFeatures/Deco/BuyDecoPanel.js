@@ -39,7 +39,7 @@ const BuyDecoPanel = ({
   const [isContentLoading, setIsContentLoading] = useState(false);
   const strings = useStrings();
   const [placeWithCursor, setPlaceWithCursor] = useState(
-    !isTouchPrimary() && (currentPlayer?.settings?.plantWithCursor ?? false) // no cursor placement on phones
+    isTouchPrimary() || (currentPlayer?.settings?.plantWithCursor ?? false) // phones always place with the cursor (the toggle is hidden)
   );
 
   // Toggle handler - persists to player settings
