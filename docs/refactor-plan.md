@@ -314,7 +314,7 @@ Closed the same day (the four gaps found at the end of the build):
   is a server action: heal-pay applies the heal, `/action/eat` (the eaten food is now removed:
   it never was) and `/action/respawn` (respawn hp + the backpack loss); revive and the Inn were already.
 The "Explore the Valley" check in Kent and the Caravan read `trophy.title` (never set), so enemy
-drops were never offered: fixed 2026-11-05 with the enemy `homelevel` gate (docs/tuning.md 5d).
+drops were never offered: fixed 2026-11-05, gated by the enemy's `level` (docs/tuning.md 5d).
 
 ### Phase 6: Async multiplayer polish (2-4 days)
 

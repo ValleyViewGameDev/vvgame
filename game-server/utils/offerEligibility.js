@@ -42,15 +42,15 @@ function blocksFor(resource) {
 /*
  * Enemy drops (owner, 2026-11-05). A good that only enemies drop (no home source: none, or the
  * valley, or the enemy itself) waits until the player has been to the valley (the "Explore the
- * Valley" trophy) AND has reached the `homelevel` of the easiest enemy that drops it: the player
- * level whose shared gear that enemy is fitted against (resources.json, docs/tuning.md 5d), so a
- * player is only asked for what their gear can win. A good with a home source (Thread: the Loom)
+ * Valley" trophy) AND has reached the `level` of the easiest enemy that drops it: for an enemy that
+ * is the player level whose shared gear it is fitted against (docs/tuning.md 5d), so a player is
+ * only asked for what their gear can win. A good with a home source (Thread: the Loom)
  * is not an enemy drop here; its own level and skill gates apply.
  */
-const dropLevel = new Map();   // good -> lowest homelevel among the enemies that drop it
+const dropLevel = new Map();   // good -> lowest level among the enemies that drop it
 for (const e of masterResources) {
   if (e.action !== 'attack' || !e.output) continue;
-  const lvl = Number(e.homelevel) || 0;
+  const lvl = Number(e.level) || 0;
   dropLevel.set(e.output, Math.min(dropLevel.get(e.output) ?? Infinity, lvl));
 }
 

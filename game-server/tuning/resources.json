@@ -10414,7 +10414,7 @@
     "output": "Pelt",
     "passable": false,
     "xp": 2,
-    "level": 1,
+    "level": 10,
     "range": 15,
     "maxhp": 60,
     "armorclass": 18,
@@ -10436,8 +10436,7 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "attackinterval": 1,
-    "homelevel": 10
+    "attackinterval": 1
   },
   {
     "type": "Bear",
@@ -10450,7 +10449,7 @@
     "output": "Bear Skin",
     "passable": false,
     "xp": 5,
-    "level": 2,
+    "level": 10,
     "range": 20,
     "maxhp": 170,
     "armorclass": 18,
@@ -10472,8 +10471,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6,
-    "homelevel": 10
+    "attackinterval": 1.6
   },
   {
     "type": "Great Bear",
@@ -10486,7 +10484,7 @@
     "output": "Bear Skin",
     "passable": false,
     "xp": 40,
-    "level": 3,
+    "level": 10,
     "range": 12,
     "maxhp": 730,
     "armorclass": 18,
@@ -10509,8 +10507,7 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 1.8,
-    "artScale": 1.5,
-    "homelevel": 10
+    "artScale": 1.5
   },
   {
     "type": "Polar Bear",
@@ -10523,7 +10520,7 @@
     "output": "Bear Skin",
     "passable": false,
     "xp": 6,
-    "level": 2,
+    "level": 10,
     "range": 20,
     "maxhp": 170,
     "armorclass": 18,
@@ -10545,8 +10542,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6,
-    "homelevel": 10
+    "attackinterval": 1.6
   },
   {
     "type": "Spider",
@@ -10559,7 +10555,7 @@
     "output": "Thread",
     "passable": false,
     "xp": 9,
-    "level": 3,
+    "level": 12,
     "range": 40,
     "maxhp": 70,
     "armorclass": 22,
@@ -10582,8 +10578,7 @@
     "validonv": true,
     "validonu": true,
     "projectile": "blob",
-    "attackinterval": 0.9,
-    "homelevel": 12
+    "attackinterval": 0.9
   },
   {
     "type": "Zombie",
@@ -10596,7 +10591,7 @@
     "output": "Potion A",
     "passable": false,
     "xp": 12,
-    "level": 3,
+    "level": 14,
     "range": 30,
     "maxhp": 440,
     "armorclass": 22,
@@ -10618,8 +10613,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2.2,
-    "homelevel": 14
+    "attackinterval": 2.2
   },
   {
     "type": "Ghost",
@@ -10632,7 +10626,7 @@
     "output": "Bones",
     "passable": false,
     "xp": 15,
-    "level": 4,
+    "level": 17,
     "range": 30,
     "maxhp": 240,
     "armorclass": 22,
@@ -10654,8 +10648,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6,
-    "homelevel": 17
+    "attackinterval": 1.6
   },
   {
     "type": "Ogre",
@@ -10668,7 +10661,7 @@
     "output": "Magic Mushroom",
     "passable": false,
     "xp": 18,
-    "level": 4,
+    "level": 22,
     "range": 30,
     "maxhp": 520,
     "armorclass": 30,
@@ -10692,8 +10685,7 @@
     "validonu": true,
     "projectile": "none",
     "leapcooldown": 5,
-    "attackinterval": 2.4,
-    "homelevel": 22
+    "attackinterval": 2.4
   },
   {
     "type": "Demon",
@@ -10706,7 +10698,7 @@
     "output": "Scorpion",
     "passable": false,
     "xp": 25,
-    "level": 5,
+    "level": 28,
     "range": 20,
     "maxhp": 490,
     "armorclass": 31,
@@ -10729,8 +10721,7 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball-small",
-    "attackinterval": 1.8,
-    "homelevel": 28
+    "attackinterval": 1.8
   },
   {
     "type": "Cerberus",
@@ -10743,7 +10734,7 @@
     "output": "Bones",
     "passable": false,
     "xp": 150,
-    "level": 5,
+    "level": 34,
     "range": 20,
     "maxhp": 1010,
     "armorclass": 31,
@@ -10766,8 +10757,7 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true,
-    "homelevel": 34
+    "validonu": true
   },
   {
     "type": "Duke Angelo",
@@ -10780,7 +10770,7 @@
     "output": "Portrait",
     "passable": false,
     "xp": 800,
-    "level": 3,
+    "level": 12,
     "range": 30,
     "maxhp": 500,
     "armorclass": 20,
@@ -10815,7 +10805,7 @@
     "output": "Scroll",
     "passable": false,
     "xp": 50,
-    "level": 5,
+    "level": 40,
     "range": 18,
     "maxhp": 1250,
     "armorclass": 32,
@@ -10838,8 +10828,7 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball",
-    "attackinterval": 2.5,
-    "homelevel": 40
+    "attackinterval": 2.5
   },
   {
     "type": "Phoenix",
@@ -10852,7 +10841,7 @@
     "output": "Phoenix Feather",
     "passable": false,
     "xp": 2000,
-    "level": 5,
+    "level": 55,
     "range": 20,
     "maxhp": 2830,
     "armorclass": 24,
@@ -10874,8 +10863,7 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2,
-    "homelevel": 55
+    "attackinterval": 2
   },
   {
     "type": "Coyote Spawner",
