@@ -3,18 +3,18 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { canAfford } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
-import { spendIngredients, gainIngredients, hasRoomFor } from '../../Utils/InventoryManagement';
+import { hasRoomFor } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { showNotification } from '../../UI/Notifications/Notifications';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { updateGridResource } from '../../Utils/GridManagement';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { createCollectEffect } from '../../VFX/VFX';
-import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import soundManager from '../../Sound/SoundManager';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -171,84 +171,50 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     }
   }
 
-  const spendSuccess = await spendIngredients({
-    playerId: currentPlayer.playerId,
-    recipe: recipeToUse,
-    inventory,
-    backpack,
-    setInventory,
-    setBackpack,
-    setCurrentPlayer,
-    updateStatus,
-  });
-
-  if (!spendSuccess) {
-    console.warn('Failed to spend ingredients.');
+  // ONE request each (game-server routes/actionRoutes.js): /action/buy-item for an item,
+  // /action/buy-skill for a skill; the price is resources.json's, gems for what is missing when
+  // the gem button sent us here (customRecipe).
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
+  const useGems = !!customRecipe;
+  if (isItem) {
+    const answer = await postAction('/api/action/buy-item', { playerId: currentPlayer.playerId, itemType: resource.type, useGems });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) {
+      if (answer.reason === 'no-backpack') updateStatus(19);
+      else if (answer.reason === 'backpack-full') updateStatus(21);
+      else if (answer.reason === 'warehouse-full') updateStatus(20);
+      else updateStatus(4);
+      return;
+    }
+    // a bought item goes to the warehouse / backpack: it flies into Inventory
+    floatFromCard(`+${answer.data.collected.qty} ${resource.symbol || ''} ${getLocalizedString(resource.type, strings)}`, 'inventory');
+    updateStatus(`${strings[80]} ${getLocalizedString(resource.type, strings)}.`);
     return;
   }
 
-  if (isItem) {
-    // Handle as an item - add to inventory
-    const gainSuccess = await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: resource.type,
-      quantity: resource.qtycollected || 1,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-      masterResources: allResources,
-      globalTuning: null,
-    });
-
-    if (!gainSuccess) {
-      console.warn(`Failed to gain ${resource.type}`);
-      return;
-    }
-
-    // a bought item goes to the warehouse / backpack: it flies into Inventory
-    floatFromCard(`+${resource.qtycollected || 1} ${resource.symbol || ''} ${getLocalizedString(resource.type, strings)}`, 'inventory');
-    await trackQuestProgress(currentPlayer, 'Buy', resource.type, 1, setCurrentPlayer);
-    updateStatus(`${strings[80]} ${getLocalizedString(resource.type, strings)}.`);
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-  } else {
-    // Handle as a skill
-    const updatedSkills = [...ownedSkills];
-    // Add the new skill
-    updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
-    setOwnedSkills(updatedSkills);
-    // "+Grower Skill" rises from the card and flies into the Skills button on the nav bar
-    floatFromCard((strings[10201] || '+{skill} Skill').replace('{skill}', getLocalizedString(resource.type, strings)), 'skills');
-    updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
-
-    try {
-      await axios.post(`${API_BASE}/api/update-skills`, {
-        playerId: currentPlayer.playerId,
-        skills: updatedSkills,
-      });
-      await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
-      await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
-      soundManager.playSFX('skill_earned');
-
-      // FTUE: Trigger AcquiredGrower when player acquires the Grower skill
-      if (resource.type === 'Grower') {
-        await tryAdvanceFTUEByTrigger('AcquiredGrower', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-      }
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      // Instead of re-fetching, update the acquire list locally
-      setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
-
-    } catch (error) {
-      console.error('Error updating player on server:', error);
-      setErrorMessage('Error updating player on server.');
-    }
+  // A skill: shown on the tap, put back if the server refuses
+  setOwnedSkills((prev) => [...prev, { type: resource.type, category: resource.category, quantity: 1 }]);
+  setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
+  // "+Grower Skill" rises from the card and flies into the Skills button on the nav bar
+  floatFromCard((strings[10201] || '+{skill} Skill').replace('{skill}', getLocalizedString(resource.type, strings)), 'skills');
+  updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
+  soundManager.playSFX('skill_earned');
+  const answer = await postAction('/api/action/buy-skill', { playerId: currentPlayer.playerId, skillType: resource.type, useGems });
+  applyPlayerDelta(answer.data, deltaSetters);
+  if (!answer.ok) {
+    setOwnedSkills((prev) => prev.filter((sk) => sk.type !== resource.type));
+    setSkillsToAcquire((prev) => (prev.some((sk) => sk.type === resource.type) ? prev : [...prev, resource]));
+    setErrorMessage('Error updating player on server.');
+    updateStatus(4);
+    return;
+  }
+  for (const t of answer.data.trophies || []) if (t.isNewMilestone) showNotification('Trophy', t.trophy);
+  // FTUE: Trigger AcquiredGrower when player acquires the Grower skill
+  if (resource.type === 'Grower') {
+    await tryAdvanceFTUEByTrigger('AcquiredGrower', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
   }
 };
+
 
   const handleSellStation = async () => {
     try {

@@ -3,11 +3,10 @@ import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
 import './BulkSelectModals.css';
-import { canAfford, gainIngredients, deriveWarehouseAndBackpackCapacity, isCurrency, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { canAfford, deriveWarehouseAndBackpackCapacity, isCurrency, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import '../../UI/Buttons/SharedButtons.css';
@@ -344,180 +343,52 @@ export async function executeBulkCrafting({
     restartRecipe: slot.shouldRestart ? slot.recipe : null
   }));
   
-  const transactionId = `bulk-craft-collect-${currentPlayer._id}-${Date.now()}`;
-  const transactionKey = `bulk-craft-collect-${gridId}`;
   
   // Make single API call for both collection and restart
   
   try {
-    const response = await axios.post(`${API_BASE}/api/crafting/collect-bulk`, {
+    // ONE request (game-server routes/actionRoutes.js /action/bulk-craft-collect): the server
+    // delivers every finished slot (room per slot, station skill bonus, Craft quests), restarts the
+    // ones asked, and answers with the player delta.
+    const answer = await postAction('/api/action/bulk-craft-collect', {
       playerId: currentPlayer.playerId || currentPlayer._id,
       gridId,
-      stations: batchStations,
-      transactionId,
-      transactionKey
+      stations: batchStations.map((st) => ({ x: st.x, y: st.y, slotIndex: st.slotIndex, restart: !!st.shouldRestart })),
     });
-    
+    const response = { data: answer.ok ? { success: true, results: answer.data.results } : { success: false } };
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
     if (response.data.success && response.data.results) {
       const results = response.data.results;
       let updatedResources = [...GlobalGridStateTilesAndResources.getResources()];
-      
-      // Track successful collections and applied skills
       const successfulCollects = {};
       const successfulRestarts = {};
       const appliedSkillsInfo = {};
-      
-      // Process each result and build a map of station slot updates
-      // Key: "x-y", Value: { slots: [...updated slots array] }
       const stationUpdates = {};
-
       for (const result of results) {
-        if (result.collected || result.success) {
-          const { station, collectedItem, craftedItem, isNPC, slotIndex, slots } = result;
-          const itemCollected = collectedItem || craftedItem;
-          const key = `${station.x}-${station.y}`;
-
-          // Use the slots array returned by the server if available
-          if (slots) {
-            stationUpdates[key] = { slots };
-          } else {
-            // Fallback: manually update the specific slot
-            const targetSlotIndex = slotIndex ?? station.slotIndex ?? 0;
-            if (!stationUpdates[key]) {
-              // Find the current resource to get existing slots
-              const currentRes = updatedResources.find(r => r.x === station.x && r.y === station.y);
-              stationUpdates[key] = { slots: currentRes?.slots ? [...currentRes.slots] : [] };
-            }
-            // Ensure the slots array is long enough
-            while (stationUpdates[key].slots.length <= targetSlotIndex) {
-              stationUpdates[key].slots.push({ craftEnd: null, craftedItem: null, qty: 1 });
-            }
-            // Update the specific slot
-            if (result.restarted && result.newCraftEnd) {
-              stationUpdates[key].slots[targetSlotIndex] = {
-                craftEnd: result.newCraftEnd,
-                craftedItem: result.newCraftedItem || itemCollected,
-                qty: 1
-              };
-            } else {
-              stationUpdates[key].slots[targetSlotIndex] = {
-                craftEnd: null,
-                craftedItem: null,
-                qty: 1
-              };
-            }
-          }
-
-          // Calculate skill info
-          const stationType = station.stationType || station.type;
-          const playerBuffs = (currentPlayer.skills || [])
-            .filter((item) => {
-              const resourceDetails = masterResources.find((res) => res.type === item.type);
-              const isSkill = resourceDetails?.category === 'skill';
-              const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
-              return isSkill && appliesToStation;
-            })
-            .map((buffItem) => buffItem.type);
-          
-          // Calculate skill multiplier
-          const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-            const buffValue = masterSkills?.[buff]?.[stationType] || 1;
-            return multiplier * buffValue;
-          }, 1);
-          
-          // Base quantity is 1 per crafting station (matching individual crafting)
-          const baseQtyCollected = 1;
-          const finalQtyCollected = baseQtyCollected * skillMultiplier;
-          
-          // Handle NPC spawning
-          if (isNPC) {
-            const craftedResource = masterResources.find(res => res.type === itemCollected);
-            if (craftedResource) {
-              NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
-            }
-          } else {
-            // Server doesn't add items - client handles with skill buffs
-            // Track successful collects with skill bonuses
-            successfulCollects[itemCollected] = (successfulCollects[itemCollected] || 0) + finalQtyCollected;
-            
-            // Track skills applied for this item type (only need to do once per item type)
-            if (!appliedSkillsInfo[itemCollected] && playerBuffs.length > 0) {
-              appliedSkillsInfo[itemCollected] = {
-                skills: playerBuffs,
-                multiplier: skillMultiplier,
-                hasSkills: true
-              };
-            }
-          }
-          
-          // Track restart info
-          if (result.restarted) {
-            const restartedItem = result.newCraftedItem || result.restartedItem || itemCollected;
-            if (restartedItem) {
-              successfulRestarts[restartedItem] = (successfulRestarts[restartedItem] || 0) + 1;
-            }
+        if (!result.collected) continue;
+        const key = `${result.x}-${result.y}`;
+        if (result.slots) stationUpdates[key] = { slots: result.slots };
+        const itemCollected = result.collected.type;
+        const stationType = updatedResources.find(r => r.x === result.x && r.y === result.y)?.type;
+        if (result.isNPC) {
+          const craftedResource = masterResources.find(res => res.type === itemCollected);
+          if (craftedResource) NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: result.x, y: result.y });
+        } else {
+          successfulCollects[itemCollected] = (successfulCollects[itemCollected] || 0) + result.collected.qty;
+          if (!appliedSkillsInfo[itemCollected] && stationType) {
+            const buffs = (currentPlayer.skills || []).filter((sk) => (masterSkills?.[sk.type]?.[stationType] || 1) > 1).map((sk) => sk.type);
+            if (buffs.length) appliedSkillsInfo[itemCollected] = { skills: buffs, multiplier: buffs.reduce((m, b) => m * masterSkills[b][stationType], 1), hasSkills: true };
           }
         }
+        if (result.restarted) successfulRestarts[itemCollected] = (successfulRestarts[itemCollected] || 0) + 1;
       }
-      
-      // Now apply all station updates in one pass using map pattern (like single crafting)
       updatedResources = updatedResources.map(res => {
         const key = `${res.x}-${res.y}`;
-        if (stationUpdates[key]) {
-          return { ...res, ...stationUpdates[key] };
-        }
-        return res;
+        return stationUpdates[key] ? { ...res, ...stationUpdates[key] } : res;
       });
-      
-      // Update inventory from server response if provided
-      if (response.data.inventory) {
-        // Update local inventory with what server says we have after spending for restarts
-        setInventory(response.data.inventory.warehouse || response.data.inventory);
-        setBackpack(response.data.inventory.backpack || []);
-        setCurrentPlayer(prev => ({
-          ...prev,
-          inventory: response.data.inventory.warehouse || response.data.inventory,
-          backpack: response.data.inventory.backpack || []
-        }));
-      }
-      
-      // NOW update global resources with all changes (collections + restarts) - ONLY ONCE
-      // Just like single crafting does it - simple and clean
       GlobalGridStateTilesAndResources.setResources(updatedResources);
       setResources(updatedResources);
-      
-      // Use fresh inventory state from server response
-      const currentInventory = response.data.inventory?.warehouse || inventory;
-      const currentBackpack = response.data.inventory?.backpack || backpack;
-      
-      // Add collected items to inventory with skills applied
-      for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
-        await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer: {
-            ...currentPlayer,
-            inventory: currentInventory,
-            backpack: currentBackpack
-          },
-          resource: collectedItem,
-          quantity: quantity,
-          inventory: currentInventory,
-          backpack: currentBackpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-          globalTuning,
-        });
-        
-        // Track quest progress
-        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
-      }
-      
-      // Refresh player state to ensure everything is in sync
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer, false);
-      
+
       // Check if we have any successful operations
       const hasCollections = Object.keys(successfulCollects).length > 0;
       const hasRestarts = Object.keys(successfulRestarts).length > 0;

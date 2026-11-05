@@ -22,6 +22,7 @@ import '../../UI/Buttons/ResourceButton.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 const CourthousePanel = ({
   onClose,
@@ -287,43 +288,17 @@ const CourthousePanel = ({
             return;
         }
         
-        // Spend ingredients
-        const spendSuccess = await spendIngredients({
-            playerId: currentPlayer.playerId,
-            recipe: resource,
-            inventory,
-            backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-        });
-        
-        if (!spendSuccess) {
-            console.warn('Failed to spend ingredients.');
-            return;
-        }
-        
-        // Add the new skill
-        const updatedSkills = [...ownedSkills];
-        updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
-        setOwnedSkills(updatedSkills);
+        // ONE request (game-server routes/actionRoutes.js /action/buy-skill): priced from
+        // resources.json, Acquire quests and Skill Builder on the server. Shown on the tap.
+        setOwnedSkills((prev) => [...prev, { type: resource.type, category: resource.category, quantity: 1 }]);
+        setCourthouseSkills(prev => prev.filter(skill => skill.type !== resource.type));
         updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
-        
-        try { 
-            await axios.post(`${API_BASE}/api/update-skills`, {
-                playerId: currentPlayer.playerId,
-                skills: updatedSkills,
-            });
-            await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
-            await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
-            await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-            
-            // Update the skills list locally
-            setCourthouseSkills(prev => prev.filter(skill => skill.type !== resource.type));
-        } catch (error) {
-            console.error('Error updating player on server:', error);
-            updateStatus('Error updating player on server.');
+        const answer = await postAction('/api/action/buy-skill', { playerId: currentPlayer.playerId, skillType: resource.type });
+        applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+        if (!answer.ok) {
+            setOwnedSkills((prev) => prev.filter((sk) => sk.type !== resource.type));
+            setCourthouseSkills((prev) => (prev.some((sk) => sk.type === resource.type) ? prev : [...prev, resource]));
+            updateStatus(4);
         }
     };
 

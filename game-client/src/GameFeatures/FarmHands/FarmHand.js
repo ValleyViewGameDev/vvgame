@@ -6,8 +6,8 @@ import ProgressModal from '../../UI/Modals/ProgressModal';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { canAfford, ensureRoomFor } from '../../Utils/InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleDooberClick, handleSourceConversion } from '../../ResourceClicking'; // adjust path if necessary
@@ -211,90 +211,32 @@ const FarmHandPanel = ({
     setFarmhandSkills(skills);
   }, [masterResources, currentPlayer, npcType]);
 
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
+
+  // A crop for maxprice x 10 Money: ONE request (game-server routes/actionRoutes.js
+  // /action/farmhand-buy-crop), which checks the offer, room and money itself
   const handleTrade = async (resource) => {
     setErrorMessage('');
     const cost = (resource.maxprice || 100) * 10;
-
-    const recipe = {
-      ingredient1: 'Money',
-      ingredient1qty: cost,
-      type: resource.type,
-    };
-
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
-
     // Room first, money second: a full Warehouse or Backpack says so and nothing is spent
     if (!ensureRoomFor({ resource: resource.type, quantity: 1, currentPlayer, inventory: safeInventory, backpack: safeBackpack, masterResources, globalTuning, updateStatus })) return;
-
-    const spent = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe,
-      inventory: safeInventory,
-      backpack: safeBackpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-    });
-
-    if (!spent) {
-      setErrorMessage('Not enough money.');
+    const answer = await postAction('/api/action/farmhand-buy-crop', { playerId: currentPlayer.playerId, cropType: resource.type });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) {
+      setErrorMessage(answer.reason === 'short-Money' ? 'Not enough money.' : 'Not enough space to carry that item.');
       return;
     }
-
-    const gained = await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: resource.type,
-      quantity: 1,
-      inventory: safeInventory,
-      backpack: safeBackpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-      masterResources,
-      globalTuning,
-    });
-
-    if (!gained) {
-      setErrorMessage('Not enough space to carry that item.');
-      return;
-    }
-
     updateStatus(`Bought 1 ${resource.type} for ${cost} Money.`);
   };
 
+  // A skill: ONE request (/action/buy-skill), priced from resources.json on the server
   const handlePurchaseSkill = async (resource) => {
     setErrorMessage('');
-    const safeInventory = Array.isArray(inventory) ? inventory : [];
-    const safeBackpack = Array.isArray(backpack) ? backpack : [];
-
-    const spent = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe: resource,
-      inventory: safeInventory,
-      backpack: safeBackpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-    });
-
-    if (!spent) {
-      setErrorMessage('Not enough ingredients.');
-      return;
-    }
-
-    const updatedSkills = [...(currentPlayer.skills || []), { type: resource.type, category: resource.category, quantity: 1 }];
-    await axios.post(`${API_BASE}/api/update-skills`, {
-      playerId: currentPlayer.playerId,
-      skills: updatedSkills,
-    });
-
-    await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+    const answer = await postAction('/api/action/buy-skill', { playerId: currentPlayer.playerId, skillType: resource.type });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) { setErrorMessage('Not enough ingredients.'); return; }
     updateStatus(`${resource.type} acquired.`);
   };
 
@@ -548,7 +490,6 @@ const FarmHandPanel = ({
         updateStatus(`🪵 Logging complete: ${treesToChop.length} trees chopped and collected.`);
       }, 50);
 
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     } catch (error) {
       console.error('Logging failed:', error);
       setErrorMessage('Failed to auto-chop trees.');
@@ -733,79 +674,6 @@ const FarmHandPanel = ({
         return result.error;
       }
     });
-  }
-
-  async function restartCrafting(station, recipe, strings) {
-    if (!recipe) {
-      console.log(`No recipe found for restarting craft at station (${station.x}, ${station.y})`);
-      return false;
-    }
-
-    // Check affordability using the same logic as CraftingStation
-    const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
-    if (!affordable) {
-      console.log(`Cannot afford to restart ${recipe.type} at station (${station.x}, ${station.y})`);
-      return false;
-    }
-
-    // Check skill requirements
-    const requirementsMet = !recipe.requires || currentPlayer.skills?.some((owned) => owned.type === recipe.requires);
-    if (!requirementsMet) {
-      console.log(`Missing required skill ${recipe.requires} to restart ${recipe.type}`);
-      return false;
-    }
-
-    // Call crafting API directly
-    const transactionId = `bulk-restart-${Date.now()}-${Math.random()}`;
-    const transactionKey = `crafting-start-${recipe.type}-${station.x}-${station.y}`;
-    
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: station.x,
-        stationY: station.y,
-        recipe,
-        transactionId,
-        transactionKey
-      });
-      
-      if (response.data.success) {
-        // Update global state with new craft
-        const { craftEnd, craftedItem, inventory: newInventory, backpack: newBackpack } = response.data;
-        
-        // Update inventory from server response
-        if (newInventory) {
-          setInventory(newInventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory: newInventory }));
-        }
-        if (newBackpack) {
-          setBackpack(newBackpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack: newBackpack }));
-        }
-        
-        // Update the specific station resource in global state
-        const updatedResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === station.x && res.y === station.y
-            ? { ...res, craftEnd, craftedItem }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedResources);
-        setResources(updatedResources);
-        
-        FloatingTextManager.addFloatingText(404, station.x, station.y, TILE_SIZE);
-        // Status update will be handled in bulk after all operations complete
-        console.log(`✅ Restarted crafting ${recipe.type} at station (${station.x}, ${station.y})`);
-        return true;
-      }
-    } catch (error) {
-      console.error(`Failed to restart crafting at station (${station.x}, ${station.y}):`, error);
-      if (error.response?.status === 400) {
-        console.log('Not enough ingredients to restart crafting');
-      }
-    }
-    
-    return false;
   }
 
   const getSkillTooltip = (skillType) => {

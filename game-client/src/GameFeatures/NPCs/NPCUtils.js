@@ -3,9 +3,9 @@ import axios from "axios";
 import FloatingTextManager from "../../UI/FloatingText.js";
 import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
 import { handleAttackOnNPC } from "../Combat/Combat.js";
-import { gainIngredients, hasRoomFor, isCurrency, calculateSkillMultiplier, applySkillMultiplier } from "../../Utils/InventoryManagement.js";
+import { hasRoomFor, isCurrency, calculateSkillMultiplier, applySkillMultiplier } from "../../Utils/InventoryManagement.js";
+import { applyPlayerDelta, postAction, predictGain } from "../../Utils/playerDelta.js";
 import { reportNoRoom } from "../../Utils/noRoom.js";
-import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
 import { getLocalizedString } from '../../Utils/stringLookup.js';
@@ -53,9 +53,6 @@ async function handleProtectedFarmAnimalCollection(
   }
   window._processingAnimalCollects.add(collectId);
 
-  // Generate transaction ID and key
-  const transactionId = generateTransactionId();
-  const transactionKey = `farm-animal-collect-${npc.id}-${currentGridId}`;
 
   // ===== CALCULATE EXPECTED VALUES UPFRONT =====
   // Get the animal's output item from masterResources
@@ -111,143 +108,35 @@ async function handleProtectedFarmAnimalCollection(
     skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
   updateStatus(statusMessage);
 
-  // ===== SERVER VALIDATION =====
-  try {
-    console.log(`🐮 Sending collection request - ID: ${npc.id}, Expected: ${expectedQuantity} ${expectedItem}`);
-
-    const response = await axios.post(`${API_BASE}/api/farm-animal/collect`, {
-      playerId: currentPlayer.playerId,
-      gridId: currentGridId,
-      npcId: npc.id,
-      npcPosition: { x: col, y: row },
-      transactionId,
-      transactionKey
-    });
-
-    if (response.data.success) {
-      const { collectedQuantity, collectedItem, updatedNPC } = response.data;
-
-      // Add to inventory using gainIngredients (respects Gold Pass capacity)
-      const gained = await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: collectedItem,
-        quantity: collectedQuantity,
-        inventory: inventory || currentPlayer.inventory,
-        backpack: backpack || currentPlayer.backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-      });
-
-      // Check if gainIngredients succeeded
-      if (gained !== true && (!gained || gained.success === false)) {
-        console.error('❌ Failed to add animal product to inventory - warehouse may be full');
-        // Show "You're full" floating text (the item was still collected server-side)
-        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
-      }
-
-      // Update NPC with authoritative server state (or fallback to grazing)
-      if (updatedNPC) {
-        await NPCsInGridManager.updateNPC(currentGridId, npc.id, { ...updatedNPC, collectPending: false });
-      } else {
-        // Fallback: set to grazing state if server didn't provide updated state
-        await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
-          state: 'grazing',
-          grazeEnd: null,
-          collectPending: false
-        });
-      }
-
-      // Track quest progress
-      await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
-
-      console.log(`✅ Farm animal collection confirmed: ${collectedQuantity} ${collectedItem}`);
-
-      // Clear the processing flag
-      if (window._processingAnimalCollects) {
-        window._processingAnimalCollects.delete(collectId);
-      }
-
-      return {
-        type: 'success',
-        message: `Collected ${collectedQuantity} ${collectedItem}.`,
-        collectedItem,
-        collectedQuantity,
-        stored: gained === true // false when the warehouse or backpack had no room
-      };
-    } else {
-      // Server returned success: false
-      console.error('❌ Server rejected collection');
-      restoreCheckmark();
-      updateStatus('❌ Failed to collect from animal');
-
-      if (window._processingAnimalCollects) {
-        window._processingAnimalCollects.delete(collectId);
-      }
-      return { type: 'error', message: 'Server rejected collection' };
-    }
-  } catch (error) {
-    console.error('Error in protected farm animal collection:', error);
-
-    // Roll back the hidden ✅ (the 'already collected' case below then sets the server's state)
-    restoreCheckmark();
-
-    if (error.response?.status === 429) {
-      updateStatus(471);
-      if (window._processingAnimalCollects) {
-        window._processingAnimalCollects.delete(collectId);
-      }
-      return { type: 'error', message: 'Collection already in progress' };
-    } else if (error.response?.status === 400) {
-      const errorMessage = error.response?.data?.error || 'Animal not ready for collection';
-      const errorDetails = error.response?.data;
-      console.error(`❌ 400 Error details:`, errorDetails);
-
-      // Handle warehouse full error
-      if (errorMessage === 'Warehouse full' || errorMessage.includes('Warehouse full')) {
-        console.error(`❌ Cannot collect: Warehouse is full`);
-        reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
-        if (window._processingAnimalCollects) {
-          window._processingAnimalCollects.delete(collectId);
-        }
-        return { type: 'error', message: 'Warehouse is full' };
-      }
-
-      // If server says NPC is in different state, sync with server state
-      if (errorMessage.includes('state:')) {
-        const serverStateMatch = errorMessage.match(/\(state:\s*(\w+)\)/);
-        if (serverStateMatch) {
-          const serverState = serverStateMatch[1];
-          console.error(`❌ Server reports NPC ${npc.id} in state '${serverState}' but client had '${npc.state}'`);
-
-          // Update local state to match server
-          await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
-            state: serverState,
-            grazeEnd: null
-          });
-
-          updateStatus(473); // "This animal was already collected."
-        }
-      } else {
-        updateStatus(`❌ ${errorMessage}`);
-      }
-
-      if (window._processingAnimalCollects) {
-        window._processingAnimalCollects.delete(collectId);
-      }
-      return { type: 'error', message: errorMessage };
-    } else {
-      updateStatus('❌ Failed to collect from animal');
-      if (window._processingAnimalCollects) {
-        window._processingAnimalCollects.delete(collectId);
-      }
-      return { type: 'error', message: 'Failed to collect from animal' };
-    }
+  // ===== SERVER =====
+  // ONE request (game-server routes/actionRoutes.js /action/animal-collect): the server checks the
+  // animal is ready and that the product fits, empties the stall, grants the product and advances
+  // Collect quests, then answers with the player delta.
+  const done = () => { if (window._processingAnimalCollects) window._processingAnimalCollects.delete(collectId); };
+  predictGain({ type: expectedItem, qty: expectedQuantity, isCurrencyItem: isCurrency(expectedItem),
+    atHome: currentPlayer?.location?.gtype === 'homestead', setCurrentPlayer, setInventory, setBackpack });
+  const answer = await postAction('/api/action/animal-collect', { playerId: currentPlayer.playerId, gridId: currentGridId, npcId: npc.id });
+  applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+  done();
+  if (answer.ok) {
+    const { collected, updatedNPC } = answer.data;
+    await NPCsInGridManager.updateNPC(currentGridId, npc.id, { ...(updatedNPC || { state: 'emptystall', grazeEnd: null }), collectPending: false });
+    return { type: 'success', message: `Collected ${collected.qty} ${collected.type}.`, collectedItem: collected.type, collectedQuantity: collected.qty, stored: true };
   }
+  restoreCheckmark();
+  if (answer.status === 0) { updateStatus('❌ Failed to collect from animal'); return { type: 'error', message: 'network' }; }
+  if (answer.reason === 'warehouse-full' || answer.reason === 'backpack-full' || answer.reason === 'no-backpack') {
+    reportNoRoom({ col, row, TILE_SIZE, strings, updateStatus, openPanel });
+    return { type: 'error', message: 'No room' };
+  }
+  if (answer.reason === 'not-ready') {
+    // our copy said it was ready and the server's did not: it was collected already
+    await NPCsInGridManager.updateNPC(currentGridId, npc.id, { state: 'emptystall', grazeEnd: null });
+    updateStatus(473); // "This animal was already collected."
+    return { type: 'error', message: 'already collected' };
+  }
+  updateStatus('❌ Failed to collect from animal');
+  return { type: 'error', message: answer.reason || 'refused' };
 }
 
 export function loadNPCDefinitions(resources) {

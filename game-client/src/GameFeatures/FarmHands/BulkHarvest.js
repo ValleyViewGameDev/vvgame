@@ -6,14 +6,11 @@ import './BulkSelectModals.css';
 import { calculateBulkHarvestCapacity, buildBulkHarvestOperations } from './BulkHarvestUtils';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { isACrop } from '../../Utils/ResourceHelpers';
-import { calculateBulkWarehouseDrops, aggregateWarehouseDrops } from '../../Utils/WarehouseMaterials';
-import { gainIngredients } from '../../Utils/InventoryManagement';
-import { selectWeightedRandomItem } from '../../Economy/DropRates';
 import '../../UI/Buttons/SharedButtons.css';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 // Component for the bulk harvest selection modal
 export function BulkHarvestModal({ 
@@ -429,222 +426,62 @@ export async function executeBulkHarvest({
   const operations = buildBulkHarvestOperations(capacityCheck, selectedReplantTypes, masterResources);
   
   // Generate transaction ID for idempotency
-  const transactionId = `bulk-harvest-${currentPlayer._id}-${Date.now()}`;
-  const transactionKey = `bulk-harvest-${gridId}`;
 
   // Make the bulk harvest API call
   try {
-    const response = await axios.post(`${API_BASE}/api/bulk-harvest`, {
+    // ONE request (game-server routes/actionRoutes.js /action/bulk-harvest): the server takes the
+    // ripe crops on these tiles, grants its own yield, replants (seeds charged unless repeatable),
+    // rolls the bonus tools and advances quests, then answers with the player delta.
+    const answer = await postAction('/api/action/bulk-harvest', {
       playerId: currentPlayer._id,
-      gridId: gridId,
-      operations: operations,
-      transactionId: transactionId,
-      transactionKey: transactionKey
+      gridId,
+      operations: operations.map(({ cropType, positions, replant }) => ({ cropType, positions, replant })),
     });
-
-
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    const response = { data: answer.ok ? answer.data : { success: false } };
     if (response.data.success) {
       const results = response.data.results;
-    
-    // Update local inventory state
-    if (response.data.inventory) {
-      setInventory(response.data.inventory.warehouse || []);
-      setBackpack(response.data.inventory.backpack || []);
-      
-      // Update player state with new inventory
-      setCurrentPlayer(prev => ({
-        ...prev,
-        inventory: response.data.inventory.warehouse || [],
-        backpack: response.data.inventory.backpack || []
-      }));
-    }
-
-    // Remove harvested resources from local state
     const harvestedPositions = new Set();
-    if (results.harvested) {
-      Object.values(results.harvested).forEach(data => {
-        if (data && data.positions && Array.isArray(data.positions)) {
-          data.positions.forEach(pos => harvestedPositions.add(`${pos.x},${pos.y}`));
-        }
+    Object.values(results.harvested || {}).forEach(data => {
+      (data?.positions || []).forEach(pos => harvestedPositions.add(`${pos.x},${pos.y}`));
+    });
+    const updatedResources = freshResources.filter(res => !harvestedPositions.has(`${res.x},${res.y}`));
+    Object.entries(results.replanted || {}).forEach(([cropType, data]) => {
+      const farmplot = masterResources.find(r => r.category === 'farmplot' && r.output === cropType);
+      if (!farmplot) return;
+      (data.positions || []).forEach((pos) => {
+        updatedResources.push({
+          ...farmplot,
+          x: pos.x,
+          y: pos.y,
+          type: farmplot.type,
+          growEnd: Date.now() + (data.growtime || farmplot.growtime || 300) * 1000,
+          stage: 1,
+          category: 'farmplot',
+          output: farmplot.output,
+        });
       });
-    }
-    
-    
-    const updatedResources = freshResources.filter(res => 
-      !harvestedPositions.has(`${res.x},${res.y}`)
-    );
-    
-    // Add replanted resources
-    if (results.replanted) {
-      Object.entries(results.replanted).forEach(([cropType, data]) => {
-        
-        // Find the farmplot that produces this crop
-        const farmplot = masterResources.find(r => 
-          r.category === 'farmplot' && r.output === cropType
-        );
-        
-        if (farmplot && data.positions && Array.isArray(data.positions)) {
-          data.positions.forEach((pos, index) => {
-            // Calculate growEnd from current time + growtime
-            // The server gives us growtime in seconds, but we need milliseconds
-            const growTimeMs = (data.growtime || farmplot.growtime || 300) * 1000;
-            const growEnd = Date.now() + growTimeMs;
-            
-            
-            // Create the farmplot resource with all necessary properties
-            updatedResources.push({
-              ...farmplot, // Include all properties from the farmplot template
-              x: pos.x,
-              y: pos.y,
-              type: farmplot.type, // This will be "Wheat Plot", not "Wheat"
-              growEnd: growEnd,
-              stage: 1,
-              category: 'farmplot', // Ensure category is set
-              output: farmplot.output // Ensure output is set for crop conversion
-            });
-          });
-        }
-      });
-    }
-    
+    });
     GlobalGridStateTilesAndResources.setResources(updatedResources);
     setResources(updatedResources);
-    
-    // Re-initialize FarmState with the updated resources
     farmState.initializeFarmState(updatedResources, masterResources);
 
-    // Calculate which skills were applied for each harvested type using shared utility
     const harvestSkillsInfo = {};
-    if (results.harvested && typeof results.harvested === 'object') {
-      Object.entries(results.harvested).forEach(([cropType, data]) => {
-        if (data) {
-          const skillInfo = calculateSkillMultiplier(cropType, currentPlayer.skills || [], masterSkills);
-          if (skillInfo.hasSkills) {
-            harvestSkillsInfo[cropType] = skillInfo;
-          }
-        }
-      });
-    }
-    
-    // Transform harvest results to simple format for shared formatter
     const harvestResults = {};
-    if (results.harvested && typeof results.harvested === 'object') {
-      Object.entries(results.harvested).forEach(([type, data]) => {
-        if (data && typeof data.quantity !== 'undefined') {
-          harvestResults[type] = data.quantity;
-        }
-      });
-    }
-    
-    
-    // Transform replant info
+    Object.entries(results.harvested || {}).forEach(([cropType, data]) => {
+      if (!data) return;
+      harvestResults[cropType] = data.quantity;
+      const skillInfo = calculateSkillMultiplier(cropType, currentPlayer.skills || [], masterSkills);
+      if (skillInfo.hasSkills) harvestSkillsInfo[cropType] = skillInfo;
+    });
     const replantInfo = {};
-    if (results.replanted) {
-      Object.entries(results.replanted).forEach(([type, data]) => {
-        replantInfo[type] = data.count;
-      });
-    }
-
-    // Calculate warehouse ingredient drops based on number of non-Wheat plots harvested (not skill-modified quantities)
-    // Exclude Wheat to prevent exploit
-    let numPlotsHarvestedExcludingWheat = 0;
-    if (results.harvested) {
-      Object.entries(results.harvested).forEach(([type, data]) => {
-        if (type !== 'Wheat' && data && data.positions && Array.isArray(data.positions)) {
-          numPlotsHarvestedExcludingWheat += data.positions.length;
-        }
-      });
-    }
-    
-    console.log('🎁 Calculating warehouse drops for', numPlotsHarvestedExcludingWheat, 'non-Wheat plots harvested');
-    const warehouseDropsArray = calculateBulkWarehouseDrops(numPlotsHarvestedExcludingWheat, {
-      masterResources,
-      globalTuning,
-      selectWeightedRandomItem,
-      playerId: currentPlayer.playerId
+    Object.entries(results.replanted || {}).forEach(([type, data]) => { replantInfo[type] = data.count; });
+    const aggregatedWarehouseDrops = {};
+    (results.drops || []).forEach((d) => {
+      const def = masterResources.find((r) => r.type === d.type);
+      aggregatedWarehouseDrops[d.type] = { quantity: d.qty, symbol: def?.symbol, rarity: def?.scrollchance };
     });
-    
-    // Aggregate warehouse drops by type
-    const aggregatedWarehouseDrops = aggregateWarehouseDrops(warehouseDropsArray);
-    console.log('🎁 Aggregated warehouse drops:', aggregatedWarehouseDrops);
 
-    // Add warehouse ingredients to inventory if any were found
-    if (warehouseDropsArray.length > 0) {
-      // Each gain starts from the holdings AFTER the previous one: gainIngredients sets local state
-      // to (the list it was given + its item), so handing every call the same post-harvest list
-      // kept only the LAST find locally (a Screwdriver shown in the results modal was missing from
-      // the Warehouse panel until a refresh; the server had it). owner 2026-10-30
-      let runningWarehouse = [...(response.data.inventory?.warehouse || [])];
-      let runningBackpack = [...(response.data.inventory?.backpack || [])];
-      const addTo = (list, type, qty) => {
-        const i = list.findIndex((item) => item.type === type);
-        return i >= 0
-          ? list.map((item, k) => (k === i ? { ...item, quantity: item.quantity + qty } : item))
-          : [...list, { type, quantity: qty }];
-      };
-      const atHome = currentPlayer?.location?.gtype === 'homestead';
-      try {
-        for (const drop of warehouseDropsArray) {
-          const warehouseGained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: drop.type,
-            quantity: drop.quantity,
-            inventory: runningWarehouse,
-            backpack: runningBackpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus: () => {}, // No status updates during bulk operation
-            masterResources,
-            globalTuning,
-          });
-
-          // gainIngredients returns true, or a { success: false } object (truthy) on failure
-          if (warehouseGained === true) {
-            if (atHome) runningWarehouse = addTo(runningWarehouse, drop.type, drop.quantity);
-            else runningBackpack = addTo(runningBackpack, drop.type, drop.quantity);
-            console.log(`✅ Added warehouse ingredient: ${drop.type} x${drop.quantity}`);
-            
-            // Track quest progress for warehouse ingredients
-            await trackQuestProgress(currentPlayer, 'Collect', drop.type, drop.quantity, setCurrentPlayer);
-          } else {
-            console.warn(`⚠️ Failed to add warehouse ingredient: ${drop.type} x${drop.quantity} (inventory full?)`);
-          }
-        }
-      } catch (error) {
-        console.error('❌ Error adding warehouse ingredients to inventory:', error);
-      }
-    }
-
-    // Track quest progress for harvested items
-    if (results.harvested && typeof results.harvested === 'object') {
-      Object.entries(results.harvested).forEach(([type, data]) => {
-        if (data && data.quantity) {
-          trackQuestProgress({
-            questProgressCategory: 'collect',
-            itemName: type,
-            quantity: data.quantity,
-            currentPlayer,
-            setCurrentPlayer,
-            masterResources
-          });
-        }
-      });
-    }
-
-    // Track quest progress for seeds used in replanting
-    Object.entries(results.seedsUsed || {}).forEach(([type, quantity]) => {
-      trackQuestProgress({
-        questProgressCategory: 'spend',
-        itemName: type,
-        quantity: quantity,
-        currentPlayer,
-        setCurrentPlayer,
-        masterResources
-      });
-    });
-    
     // Return results object for modal display instead of status message
     return {
       success: true,

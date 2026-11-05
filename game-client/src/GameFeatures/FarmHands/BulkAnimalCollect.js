@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../../UI/Modals/Modal';
 import './BulkSelectModals.css';
 import { handleNPCClick } from '../NPCs/NPCUtils';
-import { isCurrency, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { isCurrency } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
@@ -204,7 +204,7 @@ export async function executeBulkAnimalCollect({
   await wait(100);
   
   // Refresh player data from server, including fresh inventory
-  await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer, false);
+  // (each collect's answer carried the player delta: no refetch)
 
   // Use shared formatter for status message
   if (Object.keys(successfulCollects).length > 0) {

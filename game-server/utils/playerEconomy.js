@@ -207,6 +207,11 @@ function pickTierFirst(items, odds, rand) {
  */
 function rollWarehouseDrop(player, cropType, rand = Math.random) {
   if (!isACrop(cropType) || cropType === 'Wheat') return null;
+  return rollToolDrop(player, rand);
+}
+
+/** One crop's bonus-tool roll (the bulk harvest rolls once per non-Wheat plot). Type or null. */
+function rollToolDrop(player, rand = Math.random) {
   const rate = globalTuning.warehouseDropRate ?? globalTuning.harvestDropRate ?? 0.1;
   if (rand() > rate) return null;
   const group = rarityGroup(player._id);
@@ -422,6 +427,7 @@ module.exports = {
   isACrop,
   findFarmplotFor,
   rollWarehouseDrop,
+  rollToolDrop,
   levelOf,
   stationMultiplier,
   hasSkillOrPower,
