@@ -6,23 +6,19 @@ import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
-import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
-import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
+import { canAffordReveal } from './ScrollReveal';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { settingsWearingNewMagic } from '../Combat/combatGear';
 import { showNotification } from '../../UI/Notifications/Notifications';
-import { earnTrophy } from '../Trophies/TrophyUtils';
 import './ScrollStation.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
@@ -273,274 +269,129 @@ const ScrollStation = ({
       return;
     }
 
-    try {
-      // First, spend the scroll
-      const spentSuccess = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        recipe: { ingredient1: 'Scroll', ingredient1qty: 1 },
-        inventory: currentPlayer.inventory,  
-        backpack: currentPlayer.backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-      });
-
-      if (!spentSuccess) {
-        updateStatus(strings[820] || 'Failed to spend scroll');
-        return;
-      }
-      revertCard = runCardReturn(setCardFx, 'temple', { out: 'leave', returnMs: 700 });
-
-      // Generate random reward
-      const reward = getRandomScrollReveal(masterResources);
-      const rewardDisplay = getRevealDisplayString(reward, masterResources);
-      
-      // Get the Reveal Scroll resource to get crafttime
-      const revealScrollResource = masterResources.find(r => r.type === 'Reveal Scroll');
-      const craftTime = revealScrollResource?.crafttime || 30; // Default 30 seconds
-
-      // Now start crafting the revealed item using standard craft API
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        recipe: {
-          type: reward.type,
-          crafttime: craftTime,
-          // No ingredients since we already spent the scroll
-        },
-        qty: reward.quantity,
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { craftEnd, craftedItem, inventory, backpack } = response.data;
-        
-        // Update inventory from server response if provided
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
-        }
-        if (backpack) {
-          setBackpack(backpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack }));
-        }
-
-        // Update station resource in global state using slots format
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res => {
-          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) {
-            const newSlots = res.slots ? [...res.slots] : [];
-            newSlots[0] = { craftEnd, craftedItem, qty: reward.quantity };
-            return { ...res, slots: newSlots };
-          }
-          return res;
-        });
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Update UI state
-        setCraftedItem(craftedItem);
-        setRevealedItemQty(reward.quantity);
-        setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
-        setActiveTimer(true);
-        setIsCrafting(true);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-
-        // Track quest progress for scroll spending
-        await trackQuestProgress(currentPlayer, 'Spend', 'Scroll', 1, setCurrentPlayer);
-
-      }
-    } catch (error) {
+    revertCard = runCardReturn(setCardFx, 'temple', { out: 'leave', returnMs: 700 });
+    // ONE request (game-server routes/actionRoutes.js /action/scroll-reveal): the server spends
+    // the Scroll, rolls the find and starts it in slot 0, then answers with the player delta.
+    const answer = await postAction('/api/action/scroll-reveal', {
+      playerId: currentPlayer.playerId,
+      gridId,
+      stationX: currentStationPosition.x,
+      stationY: currentStationPosition.y,
+    });
+    if (!answer.ok) {
       revertCard();
-      console.error('Error in scroll reveal process:', error);
-      updateStatus(strings[830]);
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      updateStatus(answer.reason === 'short-Scroll' ? (strings[820] || 'You need at least 1 scroll to reveal') : strings[830]);
+      return;
     }
+    const { reveal, craftEnd, slots } = answer.data;
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y ? { ...res, slots } : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setCraftedItem(reveal.type);
+    setRevealedItemQty(reveal.qty);
+    setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
+    setActiveTimer(true);
+    setIsCrafting(true);
+    setIsReadyToCollect(false);
   };
 
   // Handle collection of revealed items (reuse standard collect logic)
-  const handleCollectReveal = async (transactionId, transactionKey) => {
-    
-    if (!craftedItem || isCollecting) { 
-      console.error("❌ No revealed item to collect or already collecting."); 
-      return; 
+  const handleCollectReveal = async () => {
+    if (!craftedItem || isCollecting) {
+      console.error("❌ No revealed item to collect or already collecting.");
+      return;
     }
-
     setIsCollecting(true);
     rememberCard('.scroll-collect-button');
     const revertCard = runCardReturn(setCardFx, 'temple');
+    const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
 
     try {
-      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+      // ONE request (game-server routes/actionRoutes.js /action/scroll-collect): the server gives
+      // the find (goods with room checked, a skill or power unless owned), advances Collect quests
+      // and the Scroll Revealer trophy, and clears slot 0. An NPC is spawned here.
+      const answer = await postAction('/api/action/scroll-collect', {
         playerId: currentPlayer.playerId,
         gridId,
         stationX: currentStationPosition.x,
         stationY: currentStationPosition.y,
-        craftedItem,
-        slotIndex: 0, // Ancient Temple always uses slot 0
-        transactionId,
-        transactionKey
       });
-
-      if (response.data.success) {
-        const { collectedItem, isNPC } = response.data;
-        const collectedQty = revealedItemQty || 1;
-
-        // Find the revealed item in master resources to check its category
-        const revealedResource = allResources.find(res => res.type === collectedItem);
-        
-        // Handle collection based on item category
-        if (isNPC) {
-          // Spawn NPC
-          const craftedResource = allResources.find(res => res.type === collectedItem);
-          if (craftedResource) {
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
-          }
-          floatFromCard(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`);   // an NPC walks out: nothing to fly
-        } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power')) {
-          // Check if player already has this skill/power
-          const alreadyOwned = revealedResource.category === 'skill' 
-            ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
-            : currentPlayer.powers?.some(power => power.type === collectedItem);
-          
-          if (alreadyOwned) {
-            // Player already has this item - show special message
-            updateStatus(strings[828] || 'You already have this');
-            
-            // Still create floating text to show what was attempted
-            const displayName = getLocalizedString(collectedItem, strings);
-            const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
-                                revealedResource.category === 'power' ? '⚡' : '🔧';
-            floatFromCard(`${categoryEmoji} ${displayName} (Already Owned)`);
-          } else {
-            // Handle skills, powers, and upgrades
-            const success = await gainSkillOrPower({
-              item: revealedResource,
-              currentPlayer,
-              setCurrentPlayer,
-              updateStatus,
-              strings,
-              gridId,
-              quantity: collectedQty
-            });
-            
-            if (!success) {
-              console.error('❌ Failed to add skill/power to player.');
-              revertCard();
-              setIsCollecting(false);
-              return;
-            }
-            
-            // Create floating text
-            const displayName = getLocalizedString(collectedItem, strings);
-            const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
-                                revealedResource.category === 'power' ? '⚡' : '🔧';
-            floatFromCard(`${categoryEmoji} ${displayName}`);
-            
-            // A magic item goes on at once when a slot is free (combatGear.js); gear waits for
-            // the Combat panel, where the player chooses what to wear
-            if (revealedResource.category === 'power') {
-              const owned = currentPlayer.powers || [];
-              const powers = owned.some((p) => p.type === revealedResource.type)
-                ? owned.map((p) => (p.type === revealedResource.type ? { ...p, quantity: (p.quantity || 0) + collectedQty } : p))
-                : [...owned, { type: revealedResource.type, quantity: collectedQty }];
-              const owner = { ...currentPlayer, powers };
-              const wearing = settingsWearingNewMagic(owner, revealedResource.type, masterResources, globalTuning);
-              if (wearing) {
-                setCurrentPlayer((prev) => ({ ...prev, settings: wearing }));
-                axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
-              }
-              playersInGridManager.refreshCombatStats(wearing ? { ...owner, settings: wearing } : owner);
-              if (!wearing) {
-                showNotification('Message', {
-                  title: strings[7001] || 'Tip',
-                  message: strings[7017] || 'Equip in Combat Panel to use'
-                });
-              }
-            }
-          }
-        } else {
-          // Handle regular doobers - add to inventory
-          const gained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: collectedQty,
-            inventory: currentPlayer.inventory,
-            backpack: currentPlayer.backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-            globalTuning,
-          });
-
-          if (!gained) {
-            console.error('❌ Failed to add revealed item to inventory.');
-            revertCard();
-            setIsCollecting(false);
-            return;
-          }
-          
-          floatFromCard(`+${collectedQty} ${revealedResource?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`, flyTargetFor(collectedItem, revealedResource));
-        }
-
-        // Track quest progress
-        await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
-
-        // Clear station state using slots format
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res => {
-          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) {
-            const newSlots = res.slots ? [...res.slots] : [];
-            newSlots[0] = { craftEnd: null, craftedItem: null, qty: 1 };
-            return { ...res, slots: newSlots };
-          }
-          return res;
-        });
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Reset UI state
-        setActiveTimer(false);
-        setCraftedItem(null);
-        setCraftingCountdown(null);
-        setIsReadyToCollect(false);
-        setRevealedItemQty(1);
-
-        // Update status - only if we're not dealing with already owned skills/powers
-        if (!(revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power') &&
-            (revealedResource.category === 'skill'
-              ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
-              : currentPlayer.powers?.some(power => power.type === collectedItem)))) {
-          updateStatus(`${strings[469] || 'Collected'} ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);
-        }
-
-        // Refresh player data
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Award Scroll Revealer trophy for successful scroll reveals
-        if (currentPlayer?.playerId) {
-          earnTrophy(currentPlayer.playerId, 'Scroll Revealer', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-        }
-
-        // Clear collecting state after a brief delay
-        setTimeout(() => {
-          setIsCollecting(false);
-        }, 100);
-      } else {
+      if (!answer.ok) {
         revertCard();
+        applyPlayerDelta(answer.data, deltaSetters);
+        if (answer.reason === 'no-backpack') updateStatus(19);
+        else if (answer.reason === 'warehouse-full') updateStatus(20);
+        else if (answer.reason === 'backpack-full') updateStatus(21);
+        else updateStatus('❌ Failed to collect item');
         setIsCollecting(false);
+        return;
       }
+
+      const { collected, isNPC, alreadyOwned, trophies, slots } = answer.data;
+      applyPlayerDelta(answer.data, deltaSetters);
+      const collectedItem = collected.type;
+      const collectedQty = collected.qty;
+      const revealedResource = allResources.find(res => res.type === collectedItem);
+      const isSkillOrPower = revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power');
+
+      if (isNPC) {
+        if (revealedResource) NPCsInGridManager.spawnNPC(gridId, revealedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+        floatFromCard(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`);   // an NPC walks out: nothing to fly
+      } else if (isSkillOrPower) {
+        const displayName = getLocalizedString(collectedItem, strings);
+        const categoryEmoji = revealedResource.category === 'skill' ? '💪' : '⚡';
+        if (alreadyOwned) {
+          updateStatus(strings[828] || 'You already have this');
+          floatFromCard(`${categoryEmoji} ${displayName} (Already Owned)`);
+        } else {
+          floatFromCard(`${categoryEmoji} ${displayName}`);
+          // A magic item goes on at once when a slot is free (combatGear.js); gear waits for
+          // the Combat panel, where the player chooses what to wear
+          const owner = { ...currentPlayer, powers: answer.data.player?.powers || currentPlayer.powers };
+          if (revealedResource.category === 'power') {
+            const wearing = settingsWearingNewMagic(owner, revealedResource.type, masterResources, globalTuning);
+            if (wearing) {
+              setCurrentPlayer((prev) => ({ ...prev, settings: wearing }));
+              axios.post(`${API_BASE}/api/update-profile`, { playerId: currentPlayer.playerId, updates: { settings: wearing } }).catch((e) => console.error('Error wearing new magic item:', e));
+            } else {
+              showNotification('Message', {
+                title: strings[7001] || 'Tip',
+                message: strings[7017] || 'Equip in Combat Panel to use'
+              });
+            }
+            playersInGridManager.refreshCombatStats(wearing ? { ...owner, settings: wearing } : owner);
+          }
+        }
+      } else {
+        floatFromCard(`+${collectedQty} ${revealedResource?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`, flyTargetFor(collectedItem, revealedResource));
+      }
+
+      for (const t of trophies || []) {
+        if (!t.isNewMilestone) continue;
+        const def = (masterTrophies || []).find((d) => d.name === t.name);
+        if (def && def.visible === false) continue;
+        showNotification('Trophy', t.trophy);
+      }
+
+      const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+        res.x === currentStationPosition.x && res.y === currentStationPosition.y ? { ...res, slots } : res
+      );
+      GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+      setResources(updatedGlobalResources);
+
+      setActiveTimer(false);
+      setCraftedItem(null);
+      setCraftingCountdown(null);
+      setIsReadyToCollect(false);
+      setRevealedItemQty(1);
+      if (!(isSkillOrPower && alreadyOwned)) {
+        updateStatus(`${strings[469] || 'Collected'} ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);
+      }
+      setTimeout(() => setIsCollecting(false), 100);
     } catch (error) {
       revertCard();
       console.error('Error collecting revealed item:', error);
@@ -548,7 +399,6 @@ const ScrollStation = ({
       setIsCollecting(false);
     }
   };
-
 
   // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
   const sellFooter = sellSection({

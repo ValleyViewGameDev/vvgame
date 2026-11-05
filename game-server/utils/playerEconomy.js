@@ -217,6 +217,173 @@ function rollWarehouseDrop(player, cropType, rand = Math.random) {
   return pickTierFirst(tools, globalTuning.warehouseDropOdds, rand)?.type || null;
 }
 
+
+// ---- Levels, station bonuses, skills and powers, scroll reveals -------------------------------
+
+const XP_THRESHOLDS = require('../tuning/xpLevels.json').map((l) => l.xp);
+/** The player's level from xp (Utils/playerManagement.js getDerivedLevel: index + 2 per threshold met). */
+function levelOf(player) {
+  const xp = player.xp || 0;
+  let level = 1;
+  for (let i = 0; i < XP_THRESHOLDS.length; i++) {
+    if (xp >= XP_THRESHOLDS[i]) level = i + 2;
+    else break;
+  }
+  return level;
+}
+
+/**
+ * A crafting station's collect bonus: the product of every skill the player holds whose
+ * skillsTuning row buffs this STATION type (InventoryManagement.js calculateSkillMultiplier
+ * called with the station type, as CraftingStation's collect does).
+ */
+function stationMultiplier(player, stationType) {
+  const skills = loadMasterSkills();
+  let multiplier = 1;
+  for (const skill of player.skills || []) {
+    const buff = skill && skills?.[skill.type]?.[stationType];
+    if (buff && buff > 1) multiplier *= buff;
+  }
+  return multiplier;
+}
+
+const hasSkillOrPower = (player, type) => !type
+  || (player.skills || []).some((s) => s && s.type === type)
+  || (player.powers || []).some((p) => p && p.type === type);
+
+/**
+ * Give a skill or a power (Utils/SkillPowerManagement.js gainSkillOrPower): a skill also advances
+ * Acquire quests and the Skill Builder trophy; a power whose output is 'range' raises player.range.
+ * Returns { ok, alreadyOwned, trophy } ; `applyTrophy` is passed in to keep this module free of
+ * the trophy file.
+ */
+function grantSkillOrPower(player, def, qty = 1, { applyTrophy } = {}) {
+  if (!def || (def.category !== 'skill' && def.category !== 'power')) return { ok: false };
+  const field = def.category === 'skill' ? 'skills' : 'powers';
+  if (!Array.isArray(player[field])) player[field] = [];
+  const list = player[field];
+  const owned = list.find((s) => s && s.type === def.type);
+  if (owned) owned.quantity = (owned.quantity || 1) + qty;
+  else list.push({ type: def.type, quantity: qty });
+  player.markModified?.(field);
+  let trophy = null;
+  if (def.category === 'skill') {
+    advanceQuests(player, 'Acquire', def.type, qty);
+    if (applyTrophy) {
+      const t = applyTrophy(player, 'Skill Builder', 1);
+      if (t.success) trophy = { name: 'Skill Builder', trophy: t.trophy, isNewMilestone: t.isNewMilestone };
+    }
+  } else if (def.output === 'range' && typeof def.qtycollected === 'number') {
+    player.range = (player.range || 0) + def.qtycollected;
+  }
+  return { ok: true, alreadyOwned: !!owned, trophy };
+}
+
+const DEFAULT_SCROLL_REVEAL_ODDS = { common: 38, uncommon: 28, rare: 22, epic: 8, legendary: 4 };
+/** A Reveal Scroll's find (GameFeatures/Crafting/ScrollReveal.js getRandomScrollReveal): { type, qty }. */
+function rollScrollReveal(rand = Math.random) {
+  const items = masterResources.filter((r) => r.scrollchance);
+  if (!items.length) return { type: 'Wood', qty: 10 };
+  const picked = pickTierFirst(items, globalTuning.scrollRevealOdds || DEFAULT_SCROLL_REVEAL_ODDS, rand) || items[0];
+  return { type: picked.type, qty: picked.scrollqty || 1 };
+}
+
+
+// ---- Gems for what is missing (Economy/GemCosts.js calculateGemPurchase) ------------------
+
+const GEM_PRICE = { knee: 250, power: 0.35, linear: 'Money' }; // Economy/gemPricing.js
+const smoothGems = (x) => (x <= GEM_PRICE.knee ? x : GEM_PRICE.knee * (x / GEM_PRICE.knee) ** GEM_PRICE.power);
+const isGemBuyable = (def) => !!def && def.nogems !== true && typeof def.gemcost === 'number';
+const heldOf = (player, type) => [...(player.inventory || []), ...(player.backpack || [])]
+  .reduce((n, i) => (i && i.type === type ? n + (i.quantity || 0) : n), 0);
+
+/**
+ * The gems that stand in for whatever the player is short of on this recipe: each missing
+ * ingredient at its gemcost (Money at its flat rate, the rest smoothed), a missing `requires`
+ * skill at its gemcost (the skill is bypassed, not given). null when the recipe cannot be bought
+ * with gems (nogems, or a missing piece that is not gem-buyable).
+ */
+function gemTopUpCost(player, recipe) {
+  if (!recipe || recipe.nogems === true) return null;
+  let smooth = 0; let flat = 0;
+  for (let i = 1; i <= 10; i++) {
+    const type = recipe[`ingredient${i}`]; const qty = Number(recipe[`ingredient${i}qty`]);
+    if (!type || !(qty > 0)) continue;
+    const missing = Math.max(0, qty - heldOf(player, type));
+    if (!missing) continue;
+    const def = resourceDef(type);
+    if (!isGemBuyable(def)) return null;
+    if (type === GEM_PRICE.linear) flat += def.gemcost * missing;
+    else smooth += def.gemcost * missing;
+  }
+  if (recipe.requires && !(player.skills || []).some((s) => s && s.type === recipe.requires)) {
+    const skillDef = resourceDef(recipe.requires);
+    if (!isGemBuyable(skillDef)) return null;
+    smooth += skillDef.gemcost;
+  }
+  let gems = Math.ceil(flat + smoothGems(smooth));
+  if (gems === 0 && flat + smooth > 0) gems = 1;
+  return gems;
+}
+
+/**
+ * Pay for a recipe with what the player holds plus gems for the rest (backpack first, through
+ * playerHoldings). { ok, gems } or { ok: false, reason: 'no-gems-offer' | 'short-Gem' }.
+ */
+function spendWithGems(player, recipe, { takeFromHoldings }) {
+  const gems = gemTopUpCost(player, recipe);
+  if (gems === null) return { ok: false, reason: 'no-gems-offer' };
+  // the held part of each ingredient, then the gems (the recipe's own Gem line is part of the held part)
+  const held = [];
+  let gemNeed = gems;
+  for (let i = 1; i <= 10; i++) {
+    const type = recipe[`ingredient${i}`]; const qty = Number(recipe[`ingredient${i}qty`]);
+    if (!type || !(qty > 0)) continue;
+    const take = Math.min(qty, heldOf(player, type));
+    if (type === 'Gem') gemNeed += take;
+    else if (take > 0) held.push([type, take]);
+  }
+  if (heldOf(player, 'Gem') < gemNeed) return { ok: false, reason: 'short-Gem' };
+  for (const [type, take] of held) takeFromHoldings(player.inventory, player.backpack, type, take);
+  takeFromHoldings(player.inventory, player.backpack, 'Gem', gemNeed);
+  player.markModified?.('inventory'); player.markModified?.('backpack');
+  return { ok: true, gems };
+}
+
+
+// ---- Pets (GameFeatures/Pets/PetPanel.js getRandomPetReward, Economy/DropRates.js) ---------
+
+/** DropRates.getRarityChance: a named rarity's weight, compressed toward even at higher levels. */
+function rarityChance(rarity, level = 1) {
+  if (typeof rarity === 'number') return rarity * level;
+  const base = STANDARD_RARITY[rarity] || STANDARD_RARITY.common;
+  return base * Math.pow(level, (100 - base) / 100);
+}
+const DROP_QTY = { common: [2, 3], uncommon: [2, 3], rare: [2, 3], epic: [1, 1], legendary: [1, 1] };
+
+/**
+ * What a fed pet brings back: one of the `source: pets` finds (the warehouse tools at the
+ * player's personalised rarity), weighted at the pet's level (its qtycollected), with the drop
+ * quantity for its rarity. { type, qty, rarity } or null.
+ */
+function rollPetReward(player, level = 1, rand = Math.random) {
+  const group = rarityGroup(player._id);
+  const items = masterResources.filter((r) => r.source === 'pets')
+    .map((r) => (r.requires === 'Warehouse' ? { ...r, scrollchance: RARITY_ROTATION[r.type]?.[group] || 'common' } : r));
+  if (!items.length) return null;
+  const total = items.reduce((n, i) => n + rarityChance(i.scrollchance, level), 0);
+  const roll = rand() * total;
+  let cumulative = 0;
+  let picked = items[0];
+  for (const item of items) {
+    cumulative += rarityChance(item.scrollchance, level);
+    if (roll <= cumulative) { picked = item; break; }
+  }
+  const rarity = picked.scrollchance || 'common';
+  const [min, max] = DROP_QTY[rarity] || DROP_QTY.common;
+  return { type: picked.type, qty: Math.floor(rand() * (max - min + 1)) + min, rarity };
+}
+
 // Answers are numbered so the client can drop one that arrives after a newer one (one process)
 let seqCounter = Date.now();
 const nextSeq = () => ++seqCounter;
@@ -237,6 +404,7 @@ function playerDelta(player) {
     skills: plainList(player.skills),
     powers: plainList(player.powers),
     xp: player.xp || 0,
+    range: player.range || 0,
   };
 }
 
@@ -254,6 +422,14 @@ module.exports = {
   isACrop,
   findFarmplotFor,
   rollWarehouseDrop,
+  levelOf,
+  stationMultiplier,
+  hasSkillOrPower,
+  grantSkillOrPower,
+  rollScrollReveal,
+  gemTopUpCost,
+  rollPetReward,
+  spendWithGems,
   playerDelta,
   nextSeq,
   loadMasterSkills,

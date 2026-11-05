@@ -257,6 +257,37 @@ Done when: `grep` finds no client call to `update-inventory-delta`, `update-inve
 
 **Ship:** live, route by route, same add-then-remove rule as Phase 3. No player-visible change, so no notice unless a bug slips.
 
+#### Phase 5 as built (started 2026-11-04)
+
+The contract every action route follows (code: `game-server/routes/actionRoutes.js`,
+`game-server/utils/playerEconomy.js`, client `game-client/src/Utils/playerDelta.js`):
+
+- **One request per action.** The route finds the thing acted on in the player's own grid
+  (`ownsGrid`), takes every number from master data (`resources.json`, `skillsTuning.json`,
+  `globalTuning.json`, `xpLevels.json`), never from the payload, makes every change the action
+  implies (grid, holdings, quests, trophies, skills) and saves grid then player.
+- **The answer is the delta.** `{ success, ..., player: playerDelta(player), seq }`: the player
+  fields an action may change (inventory, backpack, activeQuests, trophies, skills, powers, xp,
+  range). The client applies it with `applyPlayerDelta` (drops an answer older than one already
+  applied) and never refetches the player. A refusal is `{ success: false, reason }` with the
+  same delta, so the client resyncs while it reverts.
+- **Instant on the tap.** The client keeps reacting before the answer (`predictGain` for counts,
+  optimistic board changes) and reverts only on a refusal; a missing answer (network) keeps the
+  optimistic state.
+- **One writer per player** (`utils/playerWriteLock.js`, after the grid lock), so overlapping
+  requests cannot undo each other; atomic `$inc` is no longer needed inside an action.
+- **Rules mirror the client.** Each rule in `playerEconomy.js` names its client twin; change both
+  together until the client copy is only a prediction.
+- **Add, then remove.** Old routes stay until every open client has refreshed; a route whose old
+  behaviour let the client grant (crafting collect-item) is replaced by a new `/action/*` route
+  rather than changed in place, so an old client never gets an item twice.
+
+Built: `/action/harvest` (doober collect: grant x skills, Collect quests, crop bonus tool,
+King's Crown / Trident trophies, replant), `/action/convert` (source into its output, tool skill
+checked), `/action/craft-start` / `craft-collect` (recipe from master, station / skill / level
+locks, station skill bonus, Craft quests), `/action/scroll-reveal` / `scroll-collect` (the roll
+is on the server; skills and powers granted there).
+
 ### Phase 6: Async multiplayer polish (2-4 days)
 
 - Read-only homestead snapshot view from the settlement screen (D6).

@@ -5,56 +5,23 @@ import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
+import { canAfford } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { formatCountdown } from '../../UI/Timers';
 import { showNotification } from '../../UI/Notifications/Notifications';
-import { earnTrophy } from '../Trophies/TrophyUtils';
-import { selectWeightedRandomItem, getDropQuantity } from '../../Economy/DropRates';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import { getPersonalizedPetRewards } from '../../Utils/WarehouseMaterials';
 import '../../UI/Buttons/SharedButtons.css';
 import '../../UI/Buttons/ResourceButton.css'; 
 import './PetPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 
-// Helper function to get a random reward from pets source with rarity weighting
-const getRandomPetReward = (masterResources, petRewardRarity = 1, playerId) => {
-  // Get all resources with source === 'pets'
-  const petRewards = masterResources.filter(res => res.source === 'pets');
-  
-  if (petRewards.length === 0) {
-    console.warn('No pet rewards found in masterResources');
-    return null;
-  }
-  
-  // Apply personalized rarity to warehouse ingredients
-  const personalizedRewards = getPersonalizedPetRewards(petRewards, playerId);
-  
-  // Use the shared drop rate utility with pet reward rarity multiplier
-  // Higher rarity pets have better drop rates (rarity 2 = 2x rates, rarity 5 = 5x rates)
-  const selectedReward = selectWeightedRandomItem(personalizedRewards, petRewardRarity);
-  
-  if (!selectedReward) {
-    return null;
-  }
-  
-  // Determine quantity based on rarity using shared utility
-  const quantity = getDropQuantity(selectedReward.scrollchance || 'common');
-  
-  return {
-    type: selectedReward.type,
-    quantity,
-    rarity: selectedReward.scrollchance || 'common'
-  };
-};
+// What a fed pet finds is rolled on the server (game-server utils/playerEconomy.js rollPetReward)
 
 const PetPanel = ({
   onClose,
@@ -177,262 +144,93 @@ const PetPanel = ({
   }, [petResource, currentPetPosition, rewardItem, isFeeding, isReadyToCollect]);
 
   // Handle feeding the pet
-  const handleFeedPet = async (transactionId, transactionKey) => {
-    let revertCard = () => {};
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
+
+  // Feed: ONE request (game-server routes/actionRoutes.js /action/pet-feed): the server spends the
+  // food, rolls the find at the pet's level and starts the search, then answers with the delta.
+  const handleFeedPet = async () => {
     if (!canAffordFeeding) {
       updateStatus(`You need ${feedQuantity}x ${getLocalizedString(feedIngredient, strings)} to feed ${getLocalizedString(petName, strings)}`);
       return;
     }
-
-    try {
-      // First, spend the feed ingredients
-      const spentSuccess = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        recipe: { ingredient1: feedIngredient, ingredient1qty: feedQuantity },
-        inventory: currentPlayer.inventory,
-        backpack: currentPlayer.backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-      });
-
-      if (!spentSuccess) {
-        updateStatus(`Failed to feed ${getLocalizedString(petName, strings)}`);
-        return;
-      }
-      revertCard = runCardReturn(setCardFx, 'pet', { out: 'leave', returnMs: 700 });
-
-      // Generate random reward using pet's qtycollected for better drop rates
-      const petRewardRarity = petResource?.qtycollected || 1; // Default to rarity 1 if not specified
-      const reward = getRandomPetReward(masterResources, petRewardRarity, currentPlayer.playerId);
-      
-      if (!reward) {
-        console.error('Failed to generate pet reward');
-        updateStatus('Something went wrong while feeding the pet');
-        return;
-      }
-
-      // Start the feeding timer using standard craft API
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentPetPosition.x,
-        stationY: currentPetPosition.y,
-        recipe: {
-          type: reward.type,
-          crafttime: feedingTime,
-          // No ingredients since we already spent them
-        },
-        qty: reward.quantity,
-        rarity: reward.rarity, // Store rarity for display
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { craftEnd, craftedItem, inventory, backpack } = response.data;
-        
-        // Update inventory from server response if provided
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
-        }
-        if (backpack) {
-          setBackpack(backpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack }));
-        }
-
-        // Update pet resource in global state with qty and rarity
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentPetPosition.x && res.y === currentPetPosition.y
-            ? { ...res, craftEnd, craftedItem, qty: reward.quantity, rarity: reward.rarity }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Update UI state
-        setRewardItem(craftedItem);
-        setRevealedRewardQty(reward.quantity);
-        setRevealedRewardRarity(reward.rarity);
-        setFeedingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
-        setActiveTimer(true);
-        setIsFeeding(true);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Update status
-        updateStatus(`${getLocalizedString(petName, strings)}${strings[8014] || ' is searching for treasures...'}`);
-
-        // Track quest progress for feeding pets
-        await trackQuestProgress(currentPlayer, 'Feed', petName, 1, setCurrentPlayer);
-      }
-    } catch (error) {
+    const revertCard = runCardReturn(setCardFx, 'pet', { out: 'leave', returnMs: 700 });
+    const answer = await postAction('/api/action/pet-feed', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentPetPosition.x, stationY: currentPetPosition.y,
+    });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) {
       revertCard();
-      console.error('Error in pet feeding process:', error);
       updateStatus(`Failed to feed ${getLocalizedString(petName, strings)}`);
-    }
-  };
-
-  // Handle collection of pet rewards
-  const handleCollectReward = async (transactionId, transactionKey) => {
-    if (!rewardItem || isCollecting) {
-      console.error("L No reward to collect or already collecting.");
       return;
     }
+    const { reward, craftEnd, slots } = answer.data;
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentPetPosition.x && res.y === currentPetPosition.y
+        ? { ...res, slots, craftEnd, craftedItem: reward.type, qty: reward.qty, rarity: reward.rarity }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setRewardItem(reward.type);
+    setRevealedRewardQty(reward.qty);
+    setRevealedRewardRarity(reward.rarity);
+    setFeedingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
+    setActiveTimer(true);
+    setIsFeeding(true);
+    setIsReadyToCollect(false);
+    updateStatus(`${getLocalizedString(petName, strings)}${strings[8014] || ' is searching for treasures...'}`);
+  };
 
+  // Collect: ONE request (/action/pet-collect): the find (room first), the pet's xp, Collect quests
+  const handleCollectReward = async () => {
+    if (!rewardItem || isCollecting) return;
     setIsCollecting(true);
     const revertCard = runCardReturn(setCardFx, 'pet');
     // The reward and its XP rise from the Collect card (its place taken on the tap: the panel changes
-    // once the server answers) and fly home (UI/FlyToTarget.js): Money / Gems to their counters, a
-    // skill to Skills, a power to Combat, anything else to Inventory, the XP to the Level bar
+    // once the server answers) and fly home (UI/FlyToTarget.js)
     const cardRect = document.querySelector('.pet-collect-button')?.getBoundingClientRect() || null;
     const floatFromCard = (text, flyTo, dy = 0) => {
       if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2 + dy, { flyTo });
       else FloatingTextManager.addFloatingText(text, currentPetPosition.x, currentPetPosition.y, TILE_SIZE, { flyTo });
     };
-
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentPetPosition.x,
-        stationY: currentPetPosition.y,
-        craftedItem: rewardItem,
-        slotIndex: 0, // Pets always use slot 0
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        const { collectedItem, isNPC } = response.data;
-        const collectedQty = revealedRewardQty || 1;
-
-        // Find the reward item in master resources to check its category
-        const rewardResource = masterResources.find(res => res.type === collectedItem);
-        
-        const gained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: collectedQty,
-            inventory: currentPlayer.inventory,
-            backpack: currentPlayer.backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-            globalTuning,
-        });
-
-        if (!gained) {
-            console.error('L Failed to add pet reward to inventory.');
-            revertCard();
-            setIsCollecting(false);
-            return;
-        }
-        
-        const rewardSymbol = rewardResource?.symbol || '🎁';
-        const rewardFlyTo = collectedItem === 'Money' ? 'money' : collectedItem === 'Gem' ? 'gems'
-          : rewardResource?.category === 'skill' ? 'skills' : rewardResource?.category === 'power' ? 'combat' : 'inventory';
-        floatFromCard(`+${collectedQty} ${rewardSymbol} ${getLocalizedString(collectedItem, strings)}`, rewardFlyTo, -8);
-
-        // Award XP for collecting from pet
-        const petResourceForXP = masterResources.find(res => res.type === petName);
-        const xpToAward = petResourceForXP?.xp || 1;
-        try {
-          const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
-            playerId: currentPlayer.playerId,
-            xpAmount: xpToAward
-          });
-
-          if (xpResponse.data.success) {
-            // Update current player's XP locally
-            setCurrentPlayer(prev => ({
-              ...prev,
-              xp: xpResponse.data.newXP
-            }));
-
-            // Show XP floating text with delay, same position so it follows the same path
-            setTimeout(() => floatFromCard(`+${xpToAward} 🔷 XP`, 'xp', 14), 260);
-          }
-        } catch (error) {
-          console.error('❌ Error awarding XP for pet collection:', error);
-          // Don't fail the collection if XP award fails, just log it
-        }
-
-        // Track quest progress
-        await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
-
-        // Clear pet state: the top-level fields a feed set AND the server's slot, which the panel
-        // also reads (left behind, it kept the panel on "Collect" until a refresh, and a second
-        // tap was refused: "No item in this slot")
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentPetPosition.x && res.y === currentPetPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined,
-                slots: response.data.slots || (res.slots ? res.slots.map((sl, i) => (i === 0 ? { craftEnd: null, craftedItem: null, qty: 1 } : sl)) : res.slots) }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Reset UI state
-        setActiveTimer(false);
-        setRewardItem(null);
-        setFeedingCountdown(null);
-        setIsReadyToCollect(false);
-        setRevealedRewardQty(1);
-        setRevealedRewardRarity('common');
-
-        // Update status - only if we're not dealing with already owned skills/powers
-        if (!(rewardResource && (rewardResource.category === 'skill' || rewardResource.category === 'power') &&
-            (rewardResource.category === 'skill'
-              ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
-              : currentPlayer.powers?.some(power => power.type === collectedItem)))) {
-          updateStatus(`${getLocalizedString(petName, strings)} found ${collectedQty}x ${getLocalizedString(collectedItem, strings)}!`);
-        }
-
-        // Refresh player data
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Clear collecting state after a brief delay
-        setTimeout(() => {
-          setIsCollecting(false);
-        }, 100);
-      } else {
-        revertCard();
-        setIsCollecting(false);
-      }
-    } catch (error) {
-      console.error('Error collecting pet reward:', error);
-      if (error.response?.data?.error === 'No item in this slot') {
-        // already collected (another tab, or a stale panel): the server's empty slot is the truth
-        const cleared = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentPetPosition.x && res.y === currentPetPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined,
-                slots: res.slots ? res.slots.map((sl, i) => (i === 0 ? { craftEnd: null, craftedItem: null, qty: 1 } : sl)) : res.slots }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(cleared);
-        setResources(cleared);
-        setRewardItem(null); setIsReadyToCollect(false); setActiveTimer(false); setFeedingCountdown(null);
-        setIsCollecting(false);
-        return;
-      }
+    const answer = await postAction('/api/action/pet-collect', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentPetPosition.x, stationY: currentPetPosition.y,
+    });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) {
       revertCard();
-      updateStatus('L Failed to collect reward');
+      if (answer.reason === 'no-backpack') updateStatus(19);
+      else if (answer.reason === 'warehouse-full') updateStatus(20);
+      else if (answer.reason === 'backpack-full') updateStatus(21);
+      else updateStatus('❌ Failed to collect item');
       setIsCollecting(false);
+      return;
     }
+    const { collected, xpGained, slots } = answer.data;
+    const rewardResource = masterResources.find(res => res.type === collected.type);
+    const rewardFlyTo = collected.type === 'Money' ? 'money' : collected.type === 'Gem' ? 'gems' : 'inventory';
+    floatFromCard(`+${collected.qty} ${rewardResource?.symbol || '🎁'} ${getLocalizedString(collected.type, strings)}`, rewardFlyTo, -8);
+    setTimeout(() => floatFromCard(`+${xpGained} 🔷 XP`, 'xp', 14), 260);
+
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentPetPosition.x && res.y === currentPetPosition.y
+        ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1, rarity: undefined, slots }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setActiveTimer(false);
+    setRewardItem(null);
+    setFeedingCountdown(null);
+    setIsReadyToCollect(false);
+    setRevealedRewardQty(1);
+    setRevealedRewardRarity('common');
+    updateStatus(`${getLocalizedString(petName, strings)} found ${collected.qty}x ${getLocalizedString(collected.type, strings)}!`);
+    setTimeout(() => setIsCollecting(false), 100);
   };
 
-  // Handle selling the pet for a refund
   const handleSellPet = async (transactionId, transactionKey) => {
     await handleProtectedSelling({
       currentPlayer,

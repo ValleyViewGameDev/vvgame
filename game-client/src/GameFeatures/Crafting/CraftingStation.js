@@ -9,14 +9,13 @@ import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { canAfford, calculateSkillMultiplier, applySkillMultiplier, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { spendIngredients, gainIngredients, ensureRoomFor } from '../../Utils/InventoryManagement';
+import { ensureRoomFor } from '../../Utils/InventoryManagement';
 import { confirmGemSpend } from '../../UI/Modals/GemSpendConfirm';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
 import soundManager from '../../Sound/SoundManager';
@@ -130,25 +129,7 @@ const CraftingStation = ({
   }, [stationType, currentStationPosition, effectiveSlots, stationRefreshKey]);
 
 
-  // Sync inventory with local storage and server
-  useEffect(() => {
-    const syncInventory = async () => {
-      try {
-        const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
-        setInventory(storedInventory);
-
-        const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        const serverInventory = serverResponse.data.inventory || [];
-        if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
-          setInventory(serverInventory);
-          localStorage.setItem('inventory', JSON.stringify(serverInventory));
-        }
-      } catch (error) {
-        console.error('Error syncing inventory:', error);
-      }
-    };
-    syncInventory();
-  }, [currentPlayer]);
+  // (The inventory arrives as props and every action's answer updates it: no resync GET here.)
 
   // Fetch recipes and resources (refactored: use masterResources directly)
   useEffect(() => {
@@ -285,8 +266,6 @@ const CraftingStation = ({
         FloatingTextManager.addFloatingText(`Slot ${slotIndex + 1}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         soundManager.playSFX('collect_item');
 
-        // Refresh player data
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       }
     } catch (error) {
       if (error.response?.status === 429) {
@@ -351,68 +330,44 @@ const CraftingStation = ({
       return;
     }
 
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        recipe,
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        const { slots: newSlots, slotIndex, inventory, backpack } = response.data;
-        if (!Array.isArray(newSlots)) return; // a repeat answer with no station state: nothing to apply
-
-        // Update inventory from server response
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
-        }
-        if (backpack) {
-          setBackpack(backpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack }));
-        }
-
-        // Update station with new slots array
-        console.log(`🔄 [CRAFT START] Updating slot ${slotIndex} with craft`);
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: newSlots }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Refresh player data to ensure consistency. Not awaited: the craft button stays locked
-        // (processing) until this handler returns, so a second round trip here kept it pale.
-        refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Show "Added" floating text on the slot
-        setSlotAddedAnimation(slotIndex);
-        setTimeout(() => setSlotAddedAnimation(null), 1800); // Clear after animation (matches 1.8s CSS duration)
-
-        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
-
-        console.log(`✅ ${recipe.type} crafting started in slot ${slotIndex}.`);
-      }
-    } catch (error) {
-      console.error('Error in protected crafting start:', error);
-      if (error.response?.status === 429) {
-        updateStatus(451);
-      } else if (error.response?.data?.code === 'SLOTS_FULL') {
+    // ONE request (game-server routes/actionRoutes.js /action/craft-start): the server takes the
+    // recipe from resources.json, checks its station, skill and level, spends it and starts the
+    // slot, then answers with the player delta.
+    const answer = await postAction('/api/action/craft-start', {
+      playerId: currentPlayer.playerId,
+      gridId,
+      stationX: currentStationPosition.x,
+      stationY: currentStationPosition.y,
+      recipeType: recipe.type,
+    });
+    if (!answer.ok) {
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (answer.reason === 'SLOTS_FULL') {
         // Our copy showed a free slot and the server's did not: take the server's state so the
-        // panel shows the truth at once (it used to need a page refresh)
-        applyServerStation(error.response.data);
+        // panel shows the truth at once
+        applyServerStation(answer.data || {});
         updateStatus(409); // "All crafting slots are full."
-      } else if (error.response?.status === 400) {
+      } else if (String(answer.reason || '').startsWith('short-') || answer.status === 400 || answer.status === 403) {
         updateStatus(450);
       } else {
         updateStatus(452);
       }
+      return;
     }
+    const { slots: newSlots, slotIndex } = answer.data;
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        ? { ...res, slots: newSlots }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+
+    // Show "Added" floating text on the slot
+    setSlotAddedAnimation(slotIndex);
+    setTimeout(() => setSlotAddedAnimation(null), 1800); // Clear after animation (matches 1.8s CSS duration)
+    updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
   };
 
 
@@ -441,8 +396,6 @@ const CraftingStation = ({
     window._processingSlotCollects.add(collectId);
 
     const craftedItemType = slot.craftedItem;
-    const transactionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const transactionKey = `crafting-collect-slot-${slotIndex}-${currentStationPosition.x}-${currentStationPosition.y}`;
 
     console.log(`🔒 [PROTECTED CRAFTING] Collecting from slot ${slotIndex}: ${craftedItemType}`);
 
@@ -511,90 +464,50 @@ const CraftingStation = ({
       ...(originalSlots.length === 0 ? { craftEnd: null, craftedItem: null, qty: null } : {}),
     }));
 
-    // ===== SERVER VALIDATION =====
+    // ===== SERVER =====
+    // ONE request (/action/craft-collect): the server grants the goods with the station bonus
+    // (room first), advances Craft quests and clears the slot; an NPC is spawned here.
     try {
-      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+      const answer = await postAction('/api/action/craft-collect', {
         playerId: currentPlayer.playerId,
         gridId,
         stationX: currentStationPosition.x,
         stationY: currentStationPosition.y,
-        craftedItem: craftedItemType,
         slotIndex,
-        transactionId,
-        transactionKey
       });
 
-      if (response.data.success) {
-        const { collectedItem, slots: newSlots, isNPC } = response.data;
-
-        // Handle NPC spawning client-side
-        if (isNPC) {
-          const craftedResource = allResources.find(res => res.type === collectedItem);
-          if (craftedResource) {
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
-            setNpcRefreshKey(prev => prev + 1);
-          }
-        } else {
-          // Add non-NPC items to inventory
-          const gained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: finalQtyCollected,
-            inventory: currentPlayer.inventory,
-            backpack: currentPlayer.backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-            globalTuning,
-          });
-
-          if (gained !== true && (!gained || gained.success === false)) {
-            console.error('❌ Failed to add crafted item to inventory - rolling back');
-            // Rollback the optimistic slot update
-            rollbackSlot();
-            if (window._processingSlotCollects) {
-              window._processingSlotCollects.delete(collectId);
-            }
-            return;
-          }
-        }
-
-        // Track quest progress
-        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
-
-        // Take the server's slots, keeping any slot whose own collect is still in flight empty
-        console.log(`🔄 [COLLECT] Cleared slot ${slotIndex}`);
-        pending.delete(slotIndex);
-        writeStation((res) => ({ ...res, slots: keepPendingEmpty(Array.isArray(newSlots) ? newSlots : (res.slots || [])) }));
-
-        // Refresh player data
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Status message
-        const statusMessage = formatSingleCollection('craft', collectedItem, finalQtyCollected,
-          skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
-        updateStatus(statusMessage);
-
-        console.log(`✅ ${collectedItem} collected from slot ${slotIndex}.`);
-      } else {
-        // Server returned success: false - rollback
-        console.error('❌ Server rejected collection - rolling back');
+      if (!answer.ok) {
+        if (answer.status === 0) { rollbackSlot(); updateStatus('❌ Failed to collect item'); return; }
+        applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
         rollbackSlot();
-        updateStatus('❌ Failed to collect item');
+        if (answer.reason === 'no-backpack') updateStatus(19);
+        else if (answer.reason === 'warehouse-full') updateStatus(20);
+        else if (answer.reason === 'backpack-full') updateStatus(21);
+        else updateStatus('❌ Failed to collect item');
+        return;
       }
+
+      const { collected, slots: newSlots, isNPC } = answer.data;
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (isNPC) {
+        const craftedResource = allResources.find(res => res.type === collected.type);
+        if (craftedResource) {
+          NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+          setNpcRefreshKey(prev => prev + 1);
+        }
+      }
+
+      // Take the server's slots, keeping any slot whose own collect is still in flight empty
+      pending.delete(slotIndex);
+      writeStation((res) => ({ ...res, slots: keepPendingEmpty(Array.isArray(newSlots) ? newSlots : (res.slots || [])) }));
+
+      const statusMessage = formatSingleCollection('craft', collected.type, collected.qty ?? finalQtyCollected,
+        skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
+      updateStatus(statusMessage);
     } catch (error) {
       console.error('Error collecting from slot:', error);
-      // Rollback the optimistic slot update
       rollbackSlot();
-
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus('❌ Failed to collect item');
-      }
+      updateStatus('❌ Failed to collect item');
     } finally {
       // Clear the processing flag
       pending.delete(slotIndex);
@@ -624,72 +537,33 @@ const CraftingStation = ({
     });
   };
 
-  // Handle gem purchase for instant crafting
+  // Handle gem purchase for instant crafting: ONE request (game-server routes/actionRoutes.js
+  // /action/gem-craft). The server prices the missing part in gems with the same formula as the
+  // button (Economy/GemCosts.js), spends, grants one at once and advances Craft quests.
   const handleGemPurchase = async (modifiedRecipe) => {
-    console.log('🔍 [GEM DEBUG] handleGemPurchase called with:', modifiedRecipe);
-    
-    // This is called by the gem button with a recipe modified to include gems
     // Room first, payment second: the item lands at once, so a full Warehouse or Backpack says so
-    // and no Gems or ingredients are taken
     if (allResources.some((res) => res.type === modifiedRecipe.type)
       && !ensureRoomFor({ resource: modifiedRecipe.type, quantity: 1, currentPlayer, inventory, backpack, masterResources, globalTuning, updateStatus })) return;
-    // First spend the ingredients (including gems)
-    const spendSuccess = await spendIngredients({
+    const answer = await postAction('/api/action/gem-craft', {
       playerId: currentPlayer.playerId,
-      recipe: modifiedRecipe,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
+      gridId,
+      stationX: currentStationPosition.x,
+      stationY: currentStationPosition.y,
+      recipeType: modifiedRecipe.type,
     });
-
-    if (!spendSuccess) {
-      console.warn('Failed to spend ingredients for gem purchase.');
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) {
+      if (answer.reason === 'short-Gem') updateStatus(4);
+      else if (answer.reason === 'warehouse-full') updateStatus(20);
+      else if (answer.reason === 'backpack-full') updateStatus(21);
+      else if (answer.reason === 'no-backpack') updateStatus(19);
+      else updateStatus('❌ Failed to add crafted item to inventory');
       return;
     }
-    
-    console.log('🔍 [GEM DEBUG] Ingredients spent successfully');
-
-    // For regular crafting items, add them to inventory immediately
-    const craftedResource = allResources.find(res => res.type === modifiedRecipe.type);
-    if (craftedResource) {
-      // Add the item to inventory
-      const gained = await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: modifiedRecipe.type,
-        quantity: 1,
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-        globalTuning,
-      });
-
-      // Check if gainIngredients succeeded (returns true on success, object with success: false on failure)
-      if (gained === true || (gained && gained.success === true)) {
-        // Track quest progress
-        await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
-        
-        // Update status and effects
-        updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} crafted instantly!`);
-        FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        
-        // Refresh player data
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      } else {
-        updateStatus('❌ Failed to add crafted item to inventory');
-      }
-    } else {
-      updateStatus('Gem purchase not supported for this item type');
-    }
+    updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} crafted instantly!`);
+    FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
   };
-  
+
   // Generate skill bonus info (multiplier + tooltip messages)
   const getSkillBonusInfo = () => {
     // Find all skills that apply to this station

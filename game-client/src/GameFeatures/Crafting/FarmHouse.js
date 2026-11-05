@@ -7,25 +7,22 @@ import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
-import { updateGridResource } from '../../Utils/GridManagement';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
-import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { showNotification } from '../../UI/Notifications/Notifications';
 
 const FarmHouse = ({
   onClose,
@@ -187,251 +184,103 @@ const FarmHouse = ({
   };
 
 
-  // Protected function to start crafting using transaction system
-  const handleCraft = async (transactionId, transactionKey, recipe) => {
-    console.log(`🔒 [PROTECTED CRAFTING] Starting protected craft for ${recipe.type}`);
-    setErrorMessage('');
-    
-    if (!recipe) { 
-      setErrorMessage('Invalid recipe selected.'); 
-      return; 
-    }
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
 
-    try {
-      const payload = {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        recipe,
-        transactionId,
-        transactionKey,
-        // Add flag to indicate if this is a gem purchase (ingredients already paid)
-        isGemPurchase: transactionKey && transactionKey.includes('crafting-gem-')
-      };
-      
-      console.log('🔍 [CRAFT DEBUG] Sending to server:', payload);
-      
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, payload);
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { craftEnd, craftedItem, inventory, backpack } = response.data;
-        
-        // Update inventory from server response
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
-        }
-        if (backpack) {
-          setBackpack(backpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack }));
-        }
-
-        // Update only the specific station resource in global state
-        // Include both slots format and legacy format for consistency
-        const craftSlot = { craftEnd, craftedItem };
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: [craftSlot], craftEnd, craftedItem }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Update UI state immediately
-        setCraftedItem(craftedItem);
-        setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
-        setActiveTimer(true);
-        setIsCrafting(true);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
-
-      }
-    } catch (error) {
-      console.error('Error in protected crafting start:', error);
-      console.error('Error response data:', error.response?.data);
-      if (error.response?.status === 429) {
-        updateStatus(451);
-      } else if (error.response?.status === 400) {
-        updateStatus(450);
-      } else {
-        updateStatus(452);
-      }
+  // An NPC the server has placed on its Worker Slot (now its own '<type> Slot'): show the slot
+  // swap and walk it out (docs/citizens.md decision 3). `home` comes from the answer.
+  const showNewWorker = (npcType, home) => {
+    const craftedResource = allResources.find(res => res.type === npcType);
+    if (!craftedResource || !home) return;
+    const ownSlotType = `${craftedResource.type} Slot`;
+    const ownSlotDef = allResources.find(res => res.type === ownSlotType);
+    const current = GlobalGridStateTilesAndResources.getResources();
+    const swapped = current.map(res => (res.x === home.x && res.y === home.y && res.type === 'Worker Slot')
+      ? { ...(ownSlotDef || res), type: ownSlotDef ? ownSlotType : 'Worker Slot', x: home.x, y: home.y }
+      : res);
+    GlobalGridStateTilesAndResources.setResources(swapped);
+    setResources(swapped);
+    NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: home.x, y: home.y }, { homeX: home.x, homeY: home.y });
+    setNpcRefreshKey(prev => prev + 1);
+  };
+  const showTrophies = (trophies) => {
+    for (const t of trophies || []) {
+      if (!t.isNewMilestone) continue;
+      const def = (masterTrophies || []).find((d) => d.name === t.name);
+      if (def && def.visible === false) continue;
+      showNotification('Trophy', t.trophy);
     }
   };
+  const refusalStatus = (reason) => {
+    if (reason === 'no-worker-slot') updateStatus('No worker slot available!');
+    else if (reason === 'no-backpack') updateStatus(19);
+    else if (reason === 'warehouse-full') updateStatus(20);
+    else if (reason === 'backpack-full') updateStatus(21);
+    else if (reason === 'short-Gem') updateStatus(4);
+    else updateStatus(454);
+  };
 
+  // Start a craft: ONE request (game-server routes/actionRoutes.js /action/craft-start); the
+  // recipe comes from resources.json on the server.
+  const handleCraft = async (transactionId, transactionKey, recipe) => {
+    setErrorMessage('');
+    if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
+    const answer = await postAction('/api/action/craft-start', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentStationPosition.x, stationY: currentStationPosition.y,
+      recipeType: recipe.type,
+    });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) { updateStatus(answer.status === 400 || answer.status === 403 || String(answer.reason).startsWith('short-') ? 450 : 452); return; }
+    const { craftEnd, slots } = answer.data;
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y ? { ...res, slots, craftEnd: undefined, craftedItem: undefined } : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setCraftedItem(recipe.type);
+    setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
+    setActiveTimer(true);
+    setIsCrafting(true);
+    setIsReadyToCollect(false);
+    FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+    updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
+  };
 
-  // Protected function to collect crafted items using transaction system
+  // Collect: ONE request (/action/craft-collect). The server gives goods with the skill bonus or
+  // seats a new worker on a Worker Slot (First Farm Worker), and advances Craft quests.
   const handleCollect = async (transactionId, transactionKey, recipe) => {
-    
     if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
     // where the collected card is, taken on the tap: what it made rises from it and flies into
     // Inventory (UI/FlyToTarget.js); an NPC (a worker, an animal) walks out instead, so it only rises
     const cardRect = document.querySelector(`[data-resource-type="${CSS.escape(getLocalizedString(recipe.type, strings))}"]`)?.getBoundingClientRect() || null;
-
-    console.log('🔍 [COLLECT DEBUG] Starting collection:', {
-      craftedItem,
-      recipeType: recipe?.type,
-      ftuestep: currentPlayer.ftuestep,
-      firsttimeuser: currentPlayer.firsttimeuser,
-      stationType
+    const answer = await postAction('/api/action/craft-collect', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentStationPosition.x, stationY: currentStationPosition.y,
+      slotIndex: 0, // Farm House is a single-slot station
     });
-
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        craftedItem,
-        slotIndex: 0, // Farm House is a single-slot station
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { collectedItem, isNPC, inventory, updatedStation } = response.data;
-        
-        console.log('🔍 [COLLECT DEBUG] Server response:', {
-          collectedItem,
-          isNPC,
-          hasInventory: !!inventory
-        });
-
-        // ✅ Apply skill buffs to crafted collection
-        console.log('MasterSkills:', masterSkills);
-
-        // Extract player skills
-        const playerBuffs = (currentPlayer.skills || [])
-          .filter((item) => {
-            const resourceDetails = allResources.find((res) => res.type === item.type);
-            const isSkill = resourceDetails?.category === 'skill';
-            const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
-            return isSkill && appliesToResource;
-          })
-          .map((buffItem) => buffItem.type);
-
-        // Calculate skill multiplier
-        const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-          const buffValue = masterSkills?.[buff]?.[collectedItem] || 1;
-          return multiplier * buffValue;
-        }, 1);
-
-        // Apply multiplier to quantity (default to 1 if not provided by backend)
-        const baseQtyCollected = 1;
-        const finalQtyCollected = baseQtyCollected * skillMultiplier;
-
-        console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
-        {
-          const text = `+${finalQtyCollected} ${allResources.find((r) => r.type === collectedItem)?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`;
-          const flyTo = isNPC ? null : collectedItem === 'Money' ? 'money' : 'inventory';
-          if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
-          else FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo });
-        }
-
-        // Handle NPC spawning client-side
-        if (isNPC) {
-          const craftedResource = allResources.find(res => res.type === collectedItem);
-          if (craftedResource) {
-            // Find the next available Worker Slot on the grid
-            const currentResources = GlobalGridStateTilesAndResources.getResources();
-            const workerSlot = currentResources.find(res => res.type === 'Worker Slot');
-
-            if (!workerSlot) {
-              console.error('❌ No Worker Slot available on the grid');
-              updateStatus('No worker slot available!');
-              return;
-            }
-
-            const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
-            console.log(`Spawning ${collectedItem} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
-
-            // The slot STAYS and becomes this worker's own (docs/citizens.md decision 3): a
-            // per-type slot the worker rests on and calls home
-            const ownSlotType = `${craftedResource.type} Slot`;
-            const ownSlotDef = allResources.find(res => res.type === ownSlotType);
-            const ownSlot = { ...(ownSlotDef || workerSlot), type: ownSlotDef ? ownSlotType : 'Worker Slot', x: workerSlot.x, y: workerSlot.y };
-            const swappedResources = currentResources.map(
-              res => (res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot') ? ownSlot : res
-            );
-            GlobalGridStateTilesAndResources.setResources(swappedResources);
-            setResources(swappedResources);
-            await updateGridResource(gridId, { type: ownSlot.type, x: workerSlot.x, y: workerSlot.y }, true);
-
-            // Spawn the NPC on its slot, which is its home
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition, { homeX: workerSlot.x, homeY: workerSlot.y });
-
-            // Check for First Farm Worker trophy
-            if (craftedResource.action === 'worker') {
-              await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-            }
-
-            // Trigger refresh to update available recipes
-            setNpcRefreshKey(prev => prev + 1);
-          }
-        } else {
-          // Only add non-NPC items to inventory
-          // Update inventory with buffed quantity
-          const gained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: finalQtyCollected,
-            inventory: currentPlayer.inventory,
-            backpack: currentPlayer.backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-            globalTuning,
-          });
-
-          if (!gained) {
-            console.error('❌ Failed to add buffed crafted item to inventory.');
-          }
-        }
-
-        // Track quest progress for all crafted items (both NPCs and regular items)
-        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
-        // Update grid resources to remove crafting state
-        // Clear both slots format and legacy format
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: undefined, craftEnd: undefined, craftedItem: undefined }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Reset UI state
-        setActiveTimer(false);
-        setCraftedItem(null);
-        setCraftingCountdown(null);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      }
-    } catch (error) {
-      console.error('Error in protected crafting collection:', error);
-      console.error('Server error response:', error.response?.data);
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus(error.response?.data?.error || 454);
-      }
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) { refusalStatus(answer.reason); return; }
+    const { collected, isNPC, home, trophies } = answer.data;
+    {
+      const text = `+${collected.qty} ${allResources.find((r) => r.type === collected.type)?.symbol || ''} ${getLocalizedString(collected.type, strings)}`;
+      const flyTo = isNPC ? null : collected.type === 'Money' ? 'money' : 'inventory';
+      if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
+      else FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo });
     }
+    if (isNPC) showNewWorker(collected.type, home);
+    showTrophies(trophies);
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        ? { ...res, slots: undefined, craftEnd: undefined, craftedItem: undefined }
+        : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setActiveTimer(false);
+    setCraftedItem(null);
+    setCraftingCountdown(null);
+    setIsReadyToCollect(false);
   };
-
 
   const handleSellStation = async (transactionId, transactionKey) => {
     await handleProtectedSelling({
@@ -450,173 +299,47 @@ const FarmHouse = ({
     });
   };
 
-  // Handle gem speedup for crafting
-  const handleGemSpeedup = async (recipe) => {
-    if (!isCrafting || !craftingCountdown) {
-      console.error('❌ No active crafting to speed up');
-      return;
-    }
-
-    const remainingTimeMs = craftingCountdown * 1000;
-    const gemCost = calculateGemSpeedupCost(remainingTimeMs);
-    
-    // Check if player has enough gems
-    const currentGems = (currentPlayer.inventory?.find(item => item.type === 'Gem')?.quantity || 0) +
-                       (currentPlayer.backpack?.find(item => item.type === 'Gem')?.quantity || 0);
-    
-    if (currentGems < gemCost) {
-      updateStatus(`Need ${gemCost} gems to speed up crafting`);
-      return;
-    }
-
-    try {
-      // Spend gems to complete crafting instantly
-      const spentResult = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: { 
-          ingredient1: 'Gem',
-          ingredient1qty: gemCost,
-        },
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!spentResult) {
-        console.error('❌ Failed to spend gems for speedup');
-        return;
-      }
-
-      // Update the station in the database to mark crafting as complete
-      // Use slots format to match server expectations
-      const completedSlot = {
-        craftEnd: Date.now(), // Set to current time to complete immediately
-        craftedItem
-      };
-
-      const updateResponse = await updateGridResource(
-        gridId,
-        {
-          type: stationType,
-          x: currentStationPosition.x,
-          y: currentStationPosition.y,
-          slots: [completedSlot],
-          // Also include legacy format for backward compatibility
-          craftEnd: Date.now(),
-          craftedItem
-        },
-        true
-      );
-
-      if (updateResponse?.success) {
-        // Update global state to reflect the database change
-        // Include both slots format and legacy format for consistency
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, slots: [completedSlot], craftEnd: Date.now(), craftedItem }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Update UI state
-        setCraftingCountdown(0);
-        setIsCrafting(false);
-        setIsReadyToCollect(true);
-
-        updateStatus(`Used ${gemCost} gems to complete crafting instantly`);
-        FloatingTextManager.addFloatingText(`-${gemCost} 💎`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        
-        console.log(`✅ Crafting completed instantly using ${gemCost} gems`);
-      } else {
-        throw new Error('Failed to update crafting station in database');
-      }
-    } catch (error) {
-      console.error('❌ Error in gem speedup:', error);
-      updateStatus('❌ Failed to speed up crafting');
-    }
-  };
-  
-  // Handle gem purchase
-  const handleGemPurchase = async (modifiedRecipe) => {
-    console.log('🔍 [GEM DEBUG] handleGemPurchase called with:', modifiedRecipe);
-    
-    // This is called by the gem button with a recipe modified to include gems
-    // First spend the ingredients (including gems)
-    const spendSuccess = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe: modifiedRecipe,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
+  // Finish now for gems: ONE request (/action/craft-speedup); the server prices it from its clock
+  const handleGemSpeedup = async () => {
+    if (!isCrafting || !craftingCountdown) { console.error('❌ No active crafting to speed up'); return; }
+    const gemCost = calculateGemSpeedupCost(craftingCountdown * 1000); // the button's figure
+    const answer = await postAction('/api/action/craft-speedup', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentStationPosition.x, stationY: currentStationPosition.y, slotIndex: 0,
     });
-
-    if (!spendSuccess) {
-      console.warn('Failed to spend ingredients for gem purchase.');
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) {
+      updateStatus(answer.reason === 'short-Gem' ? `Need ${gemCost} gems to speed up crafting` : '❌ Failed to speed up crafting');
       return;
     }
-    
-    console.log('🔍 [GEM DEBUG] Ingredients spent successfully');
-
-    // For gem purchases with NPCs, spawn them immediately
-    const craftedResource = allResources.find(res => res.type === modifiedRecipe.type);
-    if (craftedResource && craftedResource.category === 'npc') {
-      // Find the next available Worker Slot on the grid
-      const currentResources = GlobalGridStateTilesAndResources.getResources();
-      const workerSlot = currentResources.find(res => res.type === 'Worker Slot');
-
-      if (!workerSlot) {
-        console.error('❌ No Worker Slot available on the grid');
-        updateStatus('No worker slot available!');
-        return;
-      }
-
-      const spawnPosition = { x: workerSlot.x, y: workerSlot.y };
-      console.log(`Spawning ${modifiedRecipe.type} at Worker Slot position (${spawnPosition.x}, ${spawnPosition.y})`);
-
-      // The slot STAYS and becomes this worker's own (docs/citizens.md decision 3)
-      const ownSlotType = `${craftedResource.type} Slot`;
-      const ownSlotDef = allResources.find(res => res.type === ownSlotType);
-      const ownSlot = { ...(ownSlotDef || workerSlot), type: ownSlotDef ? ownSlotType : 'Worker Slot', x: workerSlot.x, y: workerSlot.y };
-      const swappedResources = currentResources.map(
-        res => (res.x === workerSlot.x && res.y === workerSlot.y && res.type === 'Worker Slot') ? ownSlot : res
-      );
-      GlobalGridStateTilesAndResources.setResources(swappedResources);
-      setResources(swappedResources);
-      await updateGridResource(gridId, { type: ownSlot.type, x: workerSlot.x, y: workerSlot.y }, true);
-
-      // Spawn the NPC on its slot, which is its home
-      NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition, { homeX: workerSlot.x, homeY: workerSlot.y });
-
-      // Check for First Farm Worker trophy
-      if (craftedResource.action === 'worker') {
-        await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
-      }
-
-      // Track quest progress
-      await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
-
-      // Update status and effects
-      updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} hired instantly!`);
-      FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-
-      // Trigger refresh
-      setNpcRefreshKey(prev => prev + 1);
-
-      // Refresh player data
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    } else {
-      // For non-NPC items, we would need different handling
-      updateStatus('Gem purchase not supported for this item type');
-    }
+    const { slots, gems } = answer.data;
+    const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+      res.x === currentStationPosition.x && res.y === currentStationPosition.y ? { ...res, slots, craftEnd: undefined, craftedItem: undefined } : res
+    );
+    GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+    setResources(updatedGlobalResources);
+    setCraftingCountdown(0);
+    setIsCrafting(false);
+    setIsReadyToCollect(true);
+    updateStatus(`Used ${gems} gems to complete crafting instantly`);
+    FloatingTextManager.addFloatingText(`-${gems} 💎`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
   };
 
+  // Gem purchase: ONE request (/action/gem-craft): the worker is bought outright (held
+  // ingredients plus gems for the rest) and seated on a Worker Slot at once
+  const handleGemPurchase = async (modifiedRecipe) => {
+    const answer = await postAction('/api/action/gem-craft', {
+      playerId: currentPlayer.playerId, gridId,
+      stationX: currentStationPosition.x, stationY: currentStationPosition.y,
+      recipeType: modifiedRecipe.type,
+    });
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (!answer.ok) { refusalStatus(answer.reason); return; }
+    const { collected, isNPC, home, trophies } = answer.data;
+    if (isNPC) showNewWorker(collected.type, home);
+    showTrophies(trophies);
+    updateStatus(`💎 ${getLocalizedString(collected.type, strings)}`);
+  };
 
   // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move
   const sellFooter = sellSection({
