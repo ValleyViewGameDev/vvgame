@@ -379,7 +379,7 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // election scheduler. Developers (x-player-id) may still set accountStatus/role from the Profile panel.
 // The full allowlist is refactor-plan Phase 5; this is the denylist that phase A needs.
 // The Caravan (`train`) is the server's: routes/caravanRoutes.js makes its orders, fills them and mails the rewards.
-const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train'];
+const PROFILE_NEVER = ['password', 'signup_ip_hash', '_id', 'playerId', 'created', 'createdAt', 'email', 'email_source', 'marketing_consent', 'unsubscribe_token', 'train', 'kentOffers'];
 // Combat stats are DERIVED on the server (utils/combatStats.js) from base stats + powers; the
 // base stats, hp and maxhp are never set from the client (hp goes through /player/state).
 const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamage', 'baseAttackbonus', 'baseArmorclass', 'baseSpeed', 'baseAttackrange', 'hp', 'maxhp', 'magicSlots'];

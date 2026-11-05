@@ -1,14 +1,12 @@
-import API_BASE from '../../config.js';
 import { canHover } from '../../Utils/inputMode';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
-import { spendIngredients, gainIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { updateKentOffersAfterTrade, generateNewKentOffers, calculateKentOfferXP } from './KentOfferLogic';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { postAction, applyPlayerDelta } from '../../Utils/playerDelta';
+import { calculateKentOfferXP } from './KentOfferLogic';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/Buttons/ResourceButton.css';
@@ -43,7 +41,6 @@ function KentPanel({
     updateStatus,
     masterResources,
     globalTuning,
-    currentSeason,
     masterXPLevels,
     isDeveloper })
 {
@@ -96,67 +93,22 @@ function KentPanel({
         } catch { /* ignore storage errors */ }
     }, [cardCooldowns, cooldownStorageKey]);
 
-    // Generate fallback Kent offer and save to DB
-    const generateFallbackKentOffer = async () => {
-        try {
-            // Find Wheat's maxprice from masterResources
-            const wheatResource = masterResources.find(res => res.type === 'Wheat');
-            const wheatMaxPrice = wheatResource?.maxprice || 100; // fallback to 100 if not found
-
-            const fallbackKentOffers = {
-                endTime: 0, // Available immediately
-                offers: [{
-                    item: 'Wheat',
-                    quantity: 4,
-                    rewards: [{
-                        item: 'Money',
-                        quantity: wheatMaxPrice * 4
-                    }]
-                }]
-            };
-
-            // Save to player's kentOffers in DB
-            const response = await axios.post(`${API_BASE}/api/update-profile`, {
-                playerId: currentPlayer.playerId,
-                updates: { kentOffers: fallbackKentOffers }
-            });
-
-            if (response.data.success) {
-                console.log('✅ Generated fallback Kent offers:', fallbackKentOffers);
-                // Update parent currentPlayer state so canvas can see the new offers
-                setCurrentPlayer(prev => ({
-                    ...prev,
-                    kentOffers: fallbackKentOffers
-                }));
-                return fallbackKentOffers;
-            }
-        } catch (error) {
-            console.error('❌ Error generating fallback Kent offer:', error);
-        }
-        return { endTime: 0, offers: [] };
+    // The board is the server's (routes/kentRoutes.js): show what the player record holds at once,
+    // then sync (an empty board gets its fallback card there)
+    const applyBoard = (board) => {
+        if (!board || !Array.isArray(board.offers)) return;
+        setKentOffers(board.offers);
+        setCurrentPlayer(prev => (prev ? { ...prev, kentOffers: board } : prev));
     };
 
-    // Fetch Kent offers from player data
     const fetchKentOffers = async () => {
-        setIsContentLoading(true);
-        try {
-            // Get Kent offers from currentPlayer data
-            const kentData = currentPlayer?.kentOffers;
-
-            // If no kentOffers exist or offers array is empty, generate fallback
-            if (!kentData || !kentData.offers || kentData.offers.length === 0) {
-                console.log('🔄 No Kent offers found, generating fallback...');
-                const fallbackKentOffers = await generateFallbackKentOffer();
-                setKentOffers(fallbackKentOffers.offers || []);
-            } else {
-                setKentOffers(kentData.offers || []);
-            }
-
-        } catch (error) {
-            console.error('❌ Error fetching Kent offers:', error);
-        } finally {
-            setIsContentLoading(false);
-        }
+        const stored = currentPlayer?.kentOffers?.offers || [];
+        setKentOffers(stored);
+        if (stored.length === 0) setIsContentLoading(true);
+        const answer = await postAction('/api/action/kent-sync', { playerId: currentPlayer.playerId });
+        if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+        if (!answer.ok) console.error('❌ Kent sync failed:', answer.reason);
+        setIsContentLoading(false);
     };
 
     // Per-card cooldown ticks: redraw the countdowns, and flip a card over when its countdown ends
@@ -218,377 +170,153 @@ function KentPanel({
         const moneyReward = originalOffer?.rewards?.find(r => r.item === 'Money');
         showSaleFloatingText(moneyReward?.quantity || offer.qtyGiven || 0, calculateKentXP(originalOffer), index);
         later(300, () => { setFx(index, 'slidein'); later(460, () => setFx(index, null)); });
-        handleTrade(offer, index).then((ok) => {
+        handleTrade(offer, index, originalOffer).then((ok) => {
             if (ok) return;
             clearCardCooldown(index);                        // revert: the offer is still there
             setFx(index, null);
         });
     };
 
-    // Handle trade transaction with protection against spam clicking. Resolves true on success.
-    const handleTrade = async (offer, offerIndex) => {
+    // The tap's counts: the goods leave (backpack first) and the Money arrives at once; the
+    // server's answer (applyPlayerDelta) replaces both, and a refusal's delta puts them back
+    const predictSale = (goods, moneyAmount) => {
+        const take = (list, type, qty) => {
+            let rest = qty;
+            const next = (Array.isArray(list) ? list : []).map(i => ({ ...i }));
+            for (let i = next.length - 1; i >= 0 && rest > 0; i--) {
+                if (next[i]?.type !== type || !(next[i].quantity > 0)) continue;
+                const n = Math.min(next[i].quantity, rest);
+                next[i].quantity -= n;
+                rest -= n;
+            }
+            return { list: next.filter(i => !(i?.type === type && i.quantity <= 0)), rest };
+        };
+        let pack = backpack;
+        let wh = inventory;
+        for (const { item, quantity } of goods) {
+            const fromPack = take(pack, item, quantity);
+            pack = fromPack.list;
+            if (fromPack.rest > 0) wh = take(wh, item, fromPack.rest).list;
+        }
+        if (moneyAmount > 0) {
+            const i = wh.findIndex(it => it?.type === 'Money');
+            wh = i >= 0 ? wh.map((it, j) => (j === i ? { ...it, quantity: (it.quantity || 0) + moneyAmount } : it)) : [...wh, { type: 'Money', quantity: moneyAmount }];
+        }
+        setBackpack(pack);
+        setInventory(wh);
+        setCurrentPlayer(prev => (prev ? { ...prev, inventory: wh, backpack: pack } : prev));
+    };
+
+    // The sale itself: one server request (POST /api/action/kent-sell) spends the goods, pays the
+    // rewards and the XP, advances the Sell / Serve Kent quests and replaces the card. Resolves
+    // true on success.
+    const handleTrade = async (offer, offerIndex, originalOffer) => {
         if (!offer || !currentPlayer || isTrading) return false;
-
-        // Set trading flag to prevent spam clicks
         setIsTrading(true);
-
         try {
-            // Handle both multi-item and single-item offers
-            if (offer.itemsBought && offer.itemsBought.length > 0) {
-                // Multi-item offer: spend each item
-                for (const itemToBuy of offer.itemsBought) {
-                    const success = await spendIngredients({
-                        playerId: currentPlayer.playerId,
-                        recipe: {
-                            ingredient1: itemToBuy.item,
-                            ingredient1qty: itemToBuy.quantity,
-                        },
-                        inventory,
-                        backpack,
-                        setInventory,
-                        setBackpack,
-                        setCurrentPlayer,
-                        updateStatus,
-                    });
+            const goods = (originalOffer?.items?.length ? originalOffer.items : [{ item: originalOffer?.item, quantity: originalOffer?.quantity }])
+                .map(({ item, quantity }) => ({ item, quantity }));
+            const before = kentOffers.length;
+            const money = originalOffer?.rewards?.find(r => r.item === 'Money')?.quantity || 0;
+            predictSale(goods, money);
 
-                    if (!success) {
-                        setIsTrading(false);
-                        return false;
-                    }
-                }
-            } else {
-                // Single-item offer (legacy)
-                const success = await spendIngredients({
-                    playerId: currentPlayer.playerId,
-                    recipe: {
-                        ingredient1: offer.itemBought,
-                        ingredient1qty: offer.qtyBought,
-                    },
-                    inventory,
-                    backpack,
-                    setInventory,
-                    setBackpack,
-                    setCurrentPlayer,
-                    updateStatus,
-                });
-
-                if (!success) {
-                    setIsTrading(false);
-                    return false;
-                }
-            }
-
-            // Gain all rewards
-            let allRewardsSuccess = true;
-            // Find original offer - handle both multi-item and single-item
-            const originalOffer = kentOffers.find(kentOffer => {
-                if (offer.itemsBought && kentOffer.items) {
-                    // Multi-item comparison
-                    if (offer.itemsBought.length !== kentOffer.items.length) return false;
-                    return offer.itemsBought.every((bought, idx) =>
-                        kentOffer.items[idx]?.item === bought.item && kentOffer.items[idx]?.quantity === bought.quantity
-                    );
-                } else {
-                    // Legacy single-item comparison
-                    return kentOffer.item === offer.itemBought && kentOffer.quantity === offer.qtyBought;
-                }
+            const answer = await postAction('/api/action/kent-sell', {
+                playerId: currentPlayer.playerId,
+                offerIndex,
+                expect: goods,
             });
+            applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+            if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
 
-            if (originalOffer && originalOffer.rewards) {
-              for (const reward of originalOffer.rewards) {
-                const gainSuccess = await gainIngredients({
-                  playerId: currentPlayer.playerId,
-                  currentPlayer,
-                  resource: reward.item,
-                  quantity: reward.quantity,
-                  inventory,
-                  backpack,
-                  setInventory,
-                  setBackpack,
-                  setCurrentPlayer,
-                  updateStatus,
-                  masterResources,
-                  globalTuning,
-                });
-
-                if (!gainSuccess) {
-                  allRewardsSuccess = false;
-                  break;
-                }
-              }
-            } else {
-              // Fallback to old single reward system
-              const gainSuccess = await gainIngredients({
-                playerId: currentPlayer.playerId,
-                currentPlayer,
-                resource: offer.itemGiven,
-                quantity: offer.qtyGiven,
-                inventory,
-                backpack,
-                setInventory,
-                setBackpack,
-                setCurrentPlayer,
-                updateStatus,
-                masterResources,
-                globalTuning,
-              });
-              allRewardsSuccess = gainSuccess;
+            if (!answer.ok) {
+                if (answer.status === 0) return true;   // no answer (network): keep the optimistic sale
+                if (answer.reason === 'no-backpack') updateStatus(19);
+                else if (answer.reason === 'backpack-full') updateStatus(21);
+                else if (answer.reason === 'warehouse-full') updateStatus(20);
+                else updateStatus('❌ Trade failed. Please try again.');
+                return false;
             }
 
-            if (!allRewardsSuccess) return false;
-
-            // Award XP for the trade
-            const xpToAward = calculateKentXP(originalOffer);
-            try {
-              const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
-                playerId: currentPlayer.playerId,
-                xpAmount: xpToAward
-              });
-
-              if (xpResponse.data.success) {
-                // Update current player's XP locally
-                setCurrentPlayer(prev => ({
-                  ...prev,
-                  xp: xpResponse.data.newXP
-                }));
-              }
-            } catch (error) {
-              console.error('❌ Error awarding XP for Kent trade:', error);
-              // Don't fail the trade if XP award fails, just log it
-            }
-
-            // (the floating text, sound and burst already played on the tap: sellCard)
-
-            // Create status message for multiple rewards
-            const rewardText = originalOffer && originalOffer.rewards
-              ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
-              : `${offer.qtyGiven} ${offer.itemGiven}`;
-
-            // Create sold items text for multi-item offers
-            const soldText = offer.itemsBought && offer.itemsBought.length > 1
-              ? offer.itemsBought.map(item => `${item.quantity} ${item.item}`).join(' + ')
-              : `${offer.qtyBought} ${offer.itemBought}`;
-
-            await replaceSoldOffer(offer, offerIndex, `✅ Exchanged ${soldText} for ${rewardText} and +${xpToAward} XP.`);
-
-            // Track quest progress for each item sold
-            if (offer.itemsBought && offer.itemsBought.length > 0) {
-                for (const item of offer.itemsBought) {
-                    await trackQuestProgress(currentPlayer, 'Sell', item.item, item.quantity, setCurrentPlayer);
-                }
-            } else {
-                await trackQuestProgress(currentPlayer, 'Sell', offer.itemBought, offer.qtyBought, setCurrentPlayer);
-            }
-            // and one "Serve Kent" per order filled, whatever it was (backlog OB-6: always completable)
-            await trackQuestProgress(currentPlayer, 'Serve', 'Kent', 1, setCurrentPlayer);
+            const { sold = goods, rewards = [], xpGained = 0 } = answer.data;
+            startGrowthSlots(before, (answer.data.kentOffers?.offers || []).length);
+            const rewardText = rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ');
+            const soldText = sold.map(item => `${item.quantity} ${item.item}`).join(' + ');
+            updateStatus(`✅ Exchanged ${soldText} for ${rewardText} and +${xpGained} XP.`);
 
             // Try to advance FTUE if this is the player's first sale to Kent
             await tryAdvanceFTUEByTrigger('SoldToKent', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
             return true;
-
         } catch (error) {
             console.error('❌ Error in Kent trade:', error);
             updateStatus('❌ Trade failed. Please try again.');
             return false;
         } finally {
-            // Always clear the trading flag
             setIsTrading(false);
         }
     };
 
-    // Handle dismissing an individual offer: a replacement is made at once, behind the slot's cooldown
+    // Dismissing one card: its slot cools down ON THE TAP (its countdown card slides in) while the
+    // server makes the replacement (POST /api/action/kent-dismiss); the slot reopens if that fails
     const handleDismiss = async (offer, offerIndex) => {
         if (!offer || !currentPlayer || isTrading) return;
-
-        // Block if this card is already on cooldown
         if (isCardOnCooldown(offerIndex)) return;
-
-        // Set trading flag to prevent spam clicks
         setIsTrading(true);
-
+        startCardCooldown(offerIndex);
+        setFx(offerIndex, 'slidein');
+        later(460, () => setFx(offerIndex, null));
         try {
-            // Generate new offer immediately (remove old, add replacement)
-            const updatedKentOffers = updateKentOffersAfterTrade(
-                currentPlayer,
-                offer,
-                masterResources,
-                globalTuning,
-                currentSeason,
-                masterXPLevels,
-                offerIndex
-            );
-
-            updatedKentOffers.endTime = 0;   // Kent never leaves; only the slot cools down
-
-            // Save to DB
-            const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
-                playerId: currentPlayer.playerId,
-                updates: { kentOffers: updatedKentOffers }
-            });
-
-            if (updateResponse.data.success) {
-                setCurrentPlayer(prev => ({
-                    ...prev,
-                    kentOffers: updatedKentOffers
-                }));
-                setKentOffers(updatedKentOffers.offers || []);
-
-                // Start per-card cooldown on the slot where the new offer was inserted; its countdown card slides in
-                startCardCooldown(offerIndex);
-                setFx(offerIndex, 'slidein');
-                later(460, () => setFx(offerIndex, null));
-                startGrowthSlots(currentPlayer?.kentOffers?.offers?.length || 0, (updatedKentOffers.offers || []).length);
+            const before = kentOffers.length;
+            const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, offerIndex });
+            if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.ok) {
+                startGrowthSlots(before, (answer.data.kentOffers?.offers || []).length);
+            } else if (answer.status !== 0) {
+                clearCardCooldown(offerIndex);
             }
-
-        } catch (error) {
-            console.error('❌ Error dismissing Kent offer:', error);
         } finally {
             setIsTrading(false);
         }
     };
 
-    // Handle dismissing all offers at once: every slot gets its cooldown
+    // Dismissing every card: a whole new board from the server, every slot behind its cooldown
     const handleDismissAll = async () => {
         if (!currentPlayer || isTrading || kentOffers.length === 0) return;
-
-        // Check if any cards are on cooldown
-        const anyOnCooldown = kentOffers.some((_, index) => isCardOnCooldown(index));
-        if (anyOnCooldown) return;
-
+        if (kentOffers.some((_, index) => isCardOnCooldown(index))) return;
         setIsTrading(true);
-
+        const cooldownEndTime = Date.now() + (globalTuning?.kentCardCooldownSeconds || 30) * 1000;
+        const coolAll = (count) => {
+            const next = {};
+            for (let i = 0; i < count; i++) { next[i] = cooldownEndTime; setFx(i, 'slidein'); }
+            setCardCooldowns(next);
+            later(460, () => setCardFx({}));
+        };
+        coolAll(kentOffers.length);
         try {
-            // Remember how many offers we had before discarding
-            const previousOfferCount = kentOffers.length;
-
-            // Generate completely new offers, replacing the same number we had before
-            const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
-            const newOffers = generateNewKentOffers(
-                playerWithEmptyOffers,
-                masterResources,
-                globalTuning,
-                currentSeason,
-                masterXPLevels,
-                previousOfferCount
-            );
-
-            const updatedKentOffers = {
-                endTime: 0,
-                offers: newOffers
-            };
-
-            // Save to DB
-            const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
-                playerId: currentPlayer.playerId,
-                updates: { kentOffers: updatedKentOffers }
-            });
-
-            if (updateResponse.data.success) {
-                setCurrentPlayer(prev => ({
-                    ...prev,
-                    kentOffers: updatedKentOffers
-                }));
-                setKentOffers(updatedKentOffers.offers || []);
-
-                // Start per-card cooldown on ALL cards
-                const cardCooldownSeconds = globalTuning?.kentCardCooldownSeconds || 30;
-                const cooldownEndTime = Date.now() + (cardCooldownSeconds * 1000);
-                const newCooldowns = {};
-                for (let i = 0; i < newOffers.length; i++) {
-                    newCooldowns[i] = cooldownEndTime;
-                    setFx(i, 'slidein');
-                }
-                setCardCooldowns(newCooldowns);
-                later(460, () => setCardFx({}));
-            }
-
-        } catch (error) {
-            console.error('❌ Error dismissing all Kent offers:', error);
+            const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, all: true });
+            if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.ok) coolAll((answer.data.kentOffers?.offers || []).length);
+            else if (answer.status !== 0) setCardCooldowns({});
         } finally {
             setIsTrading(false);
         }
     };
 
-    // Debug: Refresh offers without resetting timer (dev only)
+    // Debug: a new board without the cooldowns (dev only)
     const handleDebugRefresh = async () => {
         if (!currentPlayer || isTrading) return;
-
         setIsTrading(true);
-
         try {
-            // Remember how many offers we had before
-            const previousOfferCount = kentOffers.length || 6;
-
-            // Generate completely new offers
-            const playerWithEmptyOffers = { ...currentPlayer, kentOffers: { offers: [] } };
-            const newOffers = generateNewKentOffers(
-                playerWithEmptyOffers,
-                masterResources,
-                globalTuning,
-                currentSeason,
-                masterXPLevels,
-                previousOfferCount
-            );
-
-            const updatedKentOffers = {
-                endTime: 0,
-                offers: newOffers
-            };
-
-            // Update player's kentOffers
-            const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
-                playerId: currentPlayer.playerId,
-                updates: { kentOffers: updatedKentOffers }
-            });
-
-            if (updateResponse.data.success) {
-                setCurrentPlayer(prev => ({
-                    ...prev,
-                    kentOffers: updatedKentOffers
-                }));
-                setKentOffers(updatedKentOffers.offers || []);
-                // Clear all card cooldowns on debug refresh
+            const answer = await postAction('/api/action/kent-dismiss', { playerId: currentPlayer.playerId, all: true });
+            if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
+            if (answer.ok) {
                 setCardCooldowns({});
+                updateStatus(`🔧 Debug: Refreshed ${(answer.data.kentOffers?.offers || []).length} offers.`);
+            } else {
+                updateStatus('❌ Debug refresh failed.');
             }
-
-            updateStatus(`🔧 Debug: Refreshed ${newOffers.length} offers.`);
-        } catch (error) {
-            console.error('❌ Error in debug refresh:', error);
-            updateStatus('❌ Debug refresh failed.');
         } finally {
             setIsTrading(false);
         }
-    };
-
-    // After a sale: the sold offer is replaced in its slot (the slot's cooldown already runs, from the tap)
-    const replaceSoldOffer = async (offer, offerIndex, statusMessage) => {
-        const updatedKentOffers = updateKentOffersAfterTrade(
-            currentPlayer,
-            offer,
-            masterResources,
-            globalTuning,
-            currentSeason,
-            masterXPLevels,
-            offerIndex
-        );
-        updatedKentOffers.endTime = 0;   // no "Kent is away": he never leaves
-
-        const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { kentOffers: updatedKentOffers }
-        });
-
-        if (updateResponse.data.success) {
-            const before = currentPlayer?.kentOffers?.offers?.length || 0;
-            setCurrentPlayer(prev => ({
-                ...prev,
-                kentOffers: updatedKentOffers
-            }));
-            setKentOffers(updatedKentOffers.offers || []);
-            startGrowthSlots(before, (updatedKentOffers.offers || []).length);
-        }
-
-        updateStatus(statusMessage);
     };
 
     // A trade can add a slot (Kent's list grows to its cap): a new slot arrives like any other,
