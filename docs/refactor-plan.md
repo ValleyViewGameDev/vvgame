@@ -313,8 +313,8 @@ Closed the same day (the four gaps found at the end of the build):
   homestead regen (`playerEconomy.acceptReportedHp`), and maxhp is always derived. Every other heal
   is a server action: heal-pay applies the heal, `/action/eat` (the eaten food is now removed:
   it never was) and `/action/respawn` (respawn hp + the backpack loss); revive and the Inn were already.
-Still open: the "Explore the Valley" trophy check in Kent and the Caravan reads `trophy.title` (never
-set), so enemy drops are never offered (kept as it was).
+The "Explore the Valley" check in Kent and the Caravan read `trophy.title` (never set), so enemy
+drops were never offered: fixed 2026-11-05 with the enemy `homelevel` gate (docs/tuning.md 5d).
 
 ### Phase 6: Async multiplayer polish (2-4 days)
 

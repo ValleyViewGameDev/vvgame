@@ -833,6 +833,16 @@ to 5,000 (about twice a Silver), never bought with gems; Hecate's Torch costs 12
 gear (Ashen Plate, Demonbane, Charon's Obol) is priced in them, so Demon kills pay toward things
 a player wants (docs/story.md §6, the Brief Candle).
 
+**`homelevel` and what Kent and the Caravan ask for** (owner, 2026-11-05). Each enemy row carries
+its home level from the table in step 2 as `homelevel` (ECONOMY column): the player level whose
+shared gear it is fitted against, so the gear you need to beat it. The Coyote and the Bear say 10,
+not 3 and 6: the gear they were fitted for moved to L10 (5b). A good that only enemies drop
+(Pelt, Bear Skin, Bones, Scorpion) is asked for by Kent, or ordered by the Caravan, only once the
+player has the "Explore the Valley" trophy AND has reached the lowest `homelevel` among the
+enemies that drop it: Pelt and Bear Skin L10, Bones L17, Scorpion L28. A good with a home source is
+not an enemy drop for this rule (Thread: the Loom, L9). `offerEligibility.enemyDropReady`. A new
+enemy needs its `homelevel` set, or its drop waits for the trophy only.
+
 **Levers that are not enemy stats.**
 - **Weapon attack by tier** (2026-10-17): every weapon has at least attack +1 from L17, +2 from
   L27, +3 from L40, so attack grows with gear and not only through the 5 magic slots.

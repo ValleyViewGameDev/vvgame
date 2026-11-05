@@ -10436,7 +10436,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "attackinterval": 1
+    "attackinterval": 1,
+    "homelevel": 10
   },
   {
     "type": "Bear",
@@ -10471,7 +10472,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "homelevel": 10
   },
   {
     "type": "Great Bear",
@@ -10507,7 +10509,8 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 1.8,
-    "artScale": 1.5
+    "artScale": 1.5,
+    "homelevel": 10
   },
   {
     "type": "Polar Bear",
@@ -10542,7 +10545,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "homelevel": 10
   },
   {
     "type": "Spider",
@@ -10578,7 +10582,8 @@
     "validonv": true,
     "validonu": true,
     "projectile": "blob",
-    "attackinterval": 0.9
+    "attackinterval": 0.9,
+    "homelevel": 12
   },
   {
     "type": "Zombie",
@@ -10613,7 +10618,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2.2
+    "attackinterval": 2.2,
+    "homelevel": 14
   },
   {
     "type": "Ghost",
@@ -10648,7 +10654,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "homelevel": 17
   },
   {
     "type": "Ogre",
@@ -10685,7 +10692,8 @@
     "validonu": true,
     "projectile": "none",
     "leapcooldown": 5,
-    "attackinterval": 2.4
+    "attackinterval": 2.4,
+    "homelevel": 22
   },
   {
     "type": "Demon",
@@ -10721,7 +10729,8 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball-small",
-    "attackinterval": 1.8
+    "attackinterval": 1.8,
+    "homelevel": 28
   },
   {
     "type": "Cerberus",
@@ -10757,7 +10766,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "homelevel": 34
   },
   {
     "type": "Duke Angelo",
@@ -10828,7 +10838,8 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball",
-    "attackinterval": 2.5
+    "attackinterval": 2.5,
+    "homelevel": 40
   },
   {
     "type": "Phoenix",
@@ -10863,7 +10874,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2
+    "attackinterval": 2,
+    "homelevel": 55
   },
   {
     "type": "Coyote Spawner",

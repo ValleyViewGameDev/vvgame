@@ -128,7 +128,7 @@ function splitRewards(rewards) {
   };
 }
 
-function isOrderable(resource, season, playerLevel, hasExploreValleyTrophy) {
+function isOrderable(resource, season, playerLevel, player) {
   // The static gates (a good with a home source, not noCaravan, not an epic/legendary scroll find)
   // are the shared rule, utils/offerRules.mjs; the rest here depends on the player and the season
   if (offerEligibility.blocked(resource, 'caravan')) return false;
@@ -142,8 +142,8 @@ function isOrderable(resource, season, playerLevel, hasExploreValleyTrophy) {
     const ing = byType.get(ingredient);
     if (ing?.season && ing.season !== season) return false;
   }
-  // Enemy drops wait for the "Explore the Valley" trophy
-  if (!hasExploreValleyTrophy && masterResources.some((r) => r.action === 'attack' && r.output === resource.type)) return false;
+  // Enemy drops wait for the valley trophy and the dropping enemy's home level (offerEligibility.js)
+  if (!offerEligibility.enemyDropReady(resource, player, playerLevel)) return false;
   return true;
 }
 
@@ -158,10 +158,9 @@ function generateOffers(player, season) {
   const skillTypes = (player.skills || []).map((s) => s.type);
   const playerLevel = playerLevelOf(player);
   const firstTimeUser = player.firsttimeuser === true;
-  const hasExploreValleyTrophy = (player.trophies || []).some((t) => t.title === 'Explore the Valley');
   const maxOffers = globalTuning.maxTrainOffers || 8;
 
-  const orderable = masterResources.filter((r) => isOrderable(r, season, playerLevel, hasExploreValleyTrophy));
+  const orderable = masterResources.filter((r) => isOrderable(r, season, playerLevel, player));
   const makeable = orderable.filter((r) => hasSkillsFor(r, skillTypes));
   const sourceLevel = (r) => byType.get(r.source)?.level || 1;
   const isStationGood = (r) => byType.get(r.source)?.category === STATION_CATEGORY;

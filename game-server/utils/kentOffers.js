@@ -4,9 +4,9 @@
  * card. Routes: routes/kentRoutes.js. The client never writes Player.kentOffers (/update-profile
  * drops it); it keeps only display helpers (calculateKentOfferXP for the card's XP).
  *
- * Offer generation is the client's GameFeatures/Trading/KentOfferLogic.js, ported rule for rule
- * (docs/tuning.md §4). Each function names its client twin; change both together while the
- * client copy is still used for display.
+ * Offer generation lives only here (docs/tuning.md §4); it began as a rule-for-rule port of the
+ * client's KentOfferLogic.js, which now keeps only calculateKentOfferXP (its twin below: change
+ * both together).
  *
  * Player.kentOffers: { endTime (always 0: Kent never leaves), offers: [{ item, quantity,
  * items?: [{ item, quantity }], rewards: [{ item, quantity }] }] }. The slot cooldowns
@@ -173,10 +173,8 @@ function isEligible(resource, player, season, playerLevel) {
     const ing = byType.get(ingredient);
     if (ing && ing.season && ing.season !== season) return false;
   }
-  // Mirrors the client exactly: trophies carry `name`, not `title`, so this is never true and
-  // enemy drops are never offered (same in utils/caravan.js). Fix both sides together.
-  const hasExploreValleyTrophy = (player?.trophies || []).some((t) => t.title === 'Explore the Valley');
-  if (!hasExploreValleyTrophy && masterResources.some((r) => r.action === 'attack' && r.output === resource.type)) return false;
+  // Enemy drops wait for the valley trophy and the dropping enemy's home level (offerEligibility.js)
+  if (!offerEligibility.enemyDropReady(resource, player, playerLevel)) return false;
   if (resource.level && resource.level > playerLevel) return false;
   const source = byType.get(resource.source);
   if (source && source.level && source.level > playerLevel) return false;
