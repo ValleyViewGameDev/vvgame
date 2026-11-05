@@ -189,6 +189,9 @@ h2.modal-title {
 /* The game's confirm / alert (GameDialog.js): over every panel and modal, like the gem confirm */
 .modal-overlay.game-dialog-overlay { z-index: 2147482000; }
 .game-dialog .modal-message { font-size: var(--text-md); }
+/* "The Game Has Updated" (UpdatePrompt.js): its one sentence is the whole modal; 14 px Philosopher read
+   small under the 28 px title (owner 2026-11-04) */
+.update-prompt-modal .modal-message { font-size: var(--text-lg); line-height: 1.35; }
 
 /* A modal's sub-header: the action under the modal's title ("Trading Post" / "Add Items to
    Sell"). Lora, the sub-heading face (docs/ui-conventions.md §9). */
