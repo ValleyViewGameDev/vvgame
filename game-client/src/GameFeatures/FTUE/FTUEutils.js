@@ -102,58 +102,22 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
       return currentPlayer;
     }
 
-    // Create the quest object following the activeQuests format
-    const newQuest = {
-      questId: questTemplate.title, // Use title from template
-      startTime: Date.now(),
-      symbol: questTemplate.symbol || '❓',
-      progress: {
-        goal1: 0,
-        goal2: 0,
-        goal3: 0
-      },
-      completed: false,
-      rewardCollected: false,
-      // Add goal fields from template
-      goal1action: questTemplate.goal1action || null,
-      goal1item: questTemplate.goal1item || null,
-      goal1qty: questTemplate.goal1qty || null,
-      goal2action: questTemplate.goal2action || null,
-      goal2item: questTemplate.goal2item || null,
-      goal2qty: questTemplate.goal2qty || null,
-      goal3action: questTemplate.goal3action || null,
-      goal3item: questTemplate.goal3item || null,
-      goal3qty: questTemplate.goal3qty || null
-    };
-
-    // Get current active quests
-    const currentActiveQuests = currentPlayer?.activeQuests || [];
-
-    // Check if quest already exists
-    const questExists = currentActiveQuests.some(q => q.questId === questTemplate.title);
-    if (questExists) {
-      console.log(`📚 Quest "${questTemplate.title}" already exists in active quests`);
+    // Already active: nothing to do
+    if ((currentPlayer?.activeQuests || []).some(q => q.questId === questTemplate.title)) {
       return currentPlayer;
     }
 
-    // Add new quest to active quests
-    const updatedActiveQuests = [...currentActiveQuests, newQuest];
-
-    // Update database
-    const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
+    // The server builds the quest from questsEN.json and works out its starting progress
+    // (/add-player-quest); the client never writes activeQuests itself
+    const addResponse = await axios.post(`${API_BASE}/api/add-player-quest`, {
       playerId,
-      updates: { activeQuests: updatedActiveQuests }
+      questId: questTemplate.title,
+      startTime: Date.now(),
     });
 
-    if (updateResponse.data.success) {
-      // Update local state
-      const updatedPlayer = {
-        ...currentPlayer,
-        activeQuests: updatedActiveQuests
-      };
-      setCurrentPlayer(updatedPlayer);
-
-      console.log(`✅ Quest "${questTemplate.title}" added to active quests`);
+    if (addResponse.data.success && addResponse.data.player) {
+      const updatedPlayer = { ...currentPlayer, activeQuests: addResponse.data.player.activeQuests };
+      setCurrentPlayer((prev) => (prev ? { ...prev, activeQuests: addResponse.data.player.activeQuests } : updatedPlayer));
       return updatedPlayer;
     }
 

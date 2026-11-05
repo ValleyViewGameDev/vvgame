@@ -1,4 +1,5 @@
 const express = require('express');
+const econ = require('../utils/playerEconomy');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
@@ -88,78 +89,32 @@ router.get('/quests', (req, res) => {
 });
 
 // Endpoint to add a quest to a player's active quests
+/**
+ * POST /api/add-player-quest { playerId, questId }
+ * Accept a quest. Its goals and starting progress come from questsEN.json and the player's own
+ * record (Phase 5, 2026-11-04): a state goal already true starts done, a Craft goal starts done when
+ * that NPC already lives on the homestead. Progress / completed in the body are ignored.
+ */
 router.post('/add-player-quest', async (req, res) => {
-  const { playerId, questId, startTime, progress } = req.body;
-
-  if (!playerId || !questId || !startTime) {
-    return res.status(400).json({ error: 'Player ID, quest ID, and start time are required.' });
+  const { playerId, questId, startTime } = req.body;
+  if (!playerId || !questId) {
+    return res.status(400).json({ error: 'Player ID and quest ID are required.' });
   }
-
   try {
     const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    if (!Array.isArray(player.activeQuests)) {
-      player.activeQuests = [];
-    }
-
-    const isQuestActive = player.activeQuests.some((quest) => quest.questId === questId);
-    if (isQuestActive) {
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    if ((player.activeQuests || []).some((q) => q && q.questId === questId)) {
       return res.status(400).json({ error: 'Quest is already active.' });
     }
-
-    // Load quest details from quests.json
-    const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
-    const questsData = JSON.parse(fs.readFileSync(questsPath, 'utf-8'));
-    const questDetails = questsData.find((q) => q.title === questId);
-
-    if (!questDetails) {
-      return res.status(404).json({ error: 'Quest details not found in quests.json.' });
+    let homesteadNPCTypes = [];
+    if (player.gridId) {
+      const home = await Grid.findById(player.gridId).select('NPCsInGrid').lean();
+      const npcs = home?.NPCsInGrid || {};
+      homesteadNPCTypes = Object.values(npcs).map((n) => n && n.type).filter(Boolean);
     }
-
-    // Default progress setup (if none provided)
-    let initialProgress = progress || { goal1: 0, goal2: 0, goal3: 0 };
-
-    // Check if all goals are met at the time of quest addition
-    let totalGoals = 0;
-    let completedGoals = 0;
-
-    for (let i = 1; i <= 3; i++) {
-      const goalAction = questDetails[`goal${i}action`];
-      const goalItem = questDetails[`goal${i}item`];
-      const goalQty = questDetails[`goal${i}qty`];
-
-      if (!goalAction || !goalItem || !goalQty) continue; // Skip undefined goals
-      totalGoals++;
-
-      // Ensure the goal exists in progress
-      if (typeof initialProgress[`goal${i}`] !== 'number') {
-        initialProgress[`goal${i}`] = 0;
-      }
-
-      if (initialProgress[`goal${i}`] >= goalQty) {
-        completedGoals++;
-      }
-    }
-
-    const isQuestCompleted = totalGoals > 0 && completedGoals === totalGoals;
-
-    // Add the full quest details to activeQuests
-    player.activeQuests.push({
-      questId,
-      startTime,
-      progress: initialProgress, // Use provided progress or default to 0
-      completed: isQuestCompleted, // Mark as completed if all goals met
-      rewardCollected: false,
-      ...questDetails, // Include goal actions, items, and quantities
-    });
-
+    const quest = econ.addQuest(player, questId, { homesteadNPCTypes, startTime: Number(startTime) || Date.now() });
+    if (!quest) return res.status(404).json({ error: 'Quest details not found in quests.json.' });
     await player.save();
-
-    console.log(`✅ Quest "${questId}" added to player "${playerId}" with progress:`, initialProgress);
-
     res.json({ success: true, player: publicPlayer(player) });
   } catch (error) {
     console.error('Error adding quest to player:', error);

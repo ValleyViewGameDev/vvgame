@@ -443,6 +443,80 @@ function traderOffer(trader, index) {
   return { offer, recipe, def };
 }
 
+
+// ---- Quests: state goals and adding a quest (GameFeatures/Quests/stateGoals.js) -------------
+
+const STATE_GOALS = ['Acquire', 'Meet', 'Find', 'Discover'];
+const holdsAny = (list, item) => (list || []).some((i) => i && i.type === item && (i.quantity || 0) > 0);
+/** stateGoalMet: a goal that is a fact about the player (owns, has met, holds / found, has discovered). */
+function stateGoalMet(action, item, player) {
+  if (!player || !item) return false;
+  switch (action) {
+    case 'Acquire': return !!((player.skills || []).some((s) => s && s.type === item) || (player.powers || []).some((p) => p && p.type === item));
+    case 'Meet': return !!(player.relationships || []).some((r) => r && r.name === item && r.met);
+    case 'Find': return holdsAny(player.inventory, item) || holdsAny(player.backpack, item)
+      || (Array.isArray(player.hopeFound) && player.hopeFound.includes(item));
+    case 'Discover': return !!((player.regionsVisited || []).includes(item) || player.location?.region === item);
+    default: return false;
+  }
+}
+
+/** applyStateGoals over every active quest; true when anything changed (marks activeQuests). */
+function refreshStateGoals(player) {
+  let changed = false;
+  for (const quest of player.activeQuests || []) {
+    if (!quest || quest.completed || quest.rewardCollected) continue;
+    const progress = { ...(quest.progress || {}) };
+    let total = 0; let met = 0; let touched = false;
+    for (let i = 1; i <= 3; i++) {
+      const action = quest[`goal${i}action`]; const item = quest[`goal${i}item`]; const qty = quest[`goal${i}qty`];
+      if (!action || !item || !qty) continue;
+      total++;
+      if (STATE_GOALS.includes(action) && stateGoalMet(action, item, player) && (progress[`goal${i}`] || 0) < qty) {
+        progress[`goal${i}`] = qty;
+        touched = true;
+      }
+      if ((progress[`goal${i}`] || 0) >= qty) met++;
+    }
+    const completed = total > 0 && met === total;
+    if (touched || completed) {
+      quest.progress = progress;
+      if (completed && !quest.completed) recordQuestCompleted?.(player._id, quest.questId)?.catch?.(() => {});
+      quest.completed = completed;
+      changed = true;
+    }
+  }
+  if (changed) player.markModified?.('activeQuests');
+  return changed;
+}
+
+/**
+ * Add a quest to the player's activeQuests from questsEN.json (never the client's progress):
+ * state goals already true start done, and a Craft goal starts done when that NPC already lives
+ * on the homestead (`homesteadNPCTypes`). Returns the quest, or null when unknown or already active.
+ */
+function addQuest(player, questId, { homesteadNPCTypes = [], startTime = Date.now() } = {}) {
+  const def = loadQuestDefs().find((q) => q.title === questId);
+  if (!def) return null;
+  if (!Array.isArray(player.activeQuests)) player.activeQuests = [];
+  if (player.activeQuests.some((q) => q && q.questId === questId)) return null;
+  const progress = { goal1: 0, goal2: 0, goal3: 0 };
+  let total = 0; let met = 0;
+  for (let i = 1; i <= 3; i++) {
+    const action = def[`goal${i}action`]; const item = def[`goal${i}item`]; const qty = def[`goal${i}qty`];
+    if (!action || !item || !qty) continue;
+    total++;
+    const done = STATE_GOALS.includes(action) ? stateGoalMet(action, item, player)
+      : action === 'Craft' ? homesteadNPCTypes.includes(item) : false;
+    if (done) progress[`goal${i}`] = STATE_GOALS.includes(action) ? qty : 1; // the Craft check counts one, as the client did
+    if ((progress[`goal${i}`] || 0) >= qty) met++;
+  }
+  const quest = { ...def, questId, startTime, progress, completed: total > 0 && met === total, rewardCollected: false };
+  player.activeQuests.push(quest);
+  player.markModified?.('activeQuests');
+  return quest;
+}
+
 // Answers are numbered so the client can drop one that arrives after a newer one (one process)
 let seqCounter = Date.now();
 const nextSeq = () => ++seqCounter;
@@ -493,6 +567,10 @@ module.exports = {
   relationshipMultiplier,
   meetsRelationship,
   traderOffer,
+  STATE_GOALS,
+  stateGoalMet,
+  refreshStateGoals,
+  addQuest,
   spendWithGems,
   playerDelta,
   nextSeq,

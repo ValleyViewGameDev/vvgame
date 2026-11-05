@@ -10,8 +10,9 @@ import HopeQuest from '../Social/HopeQuest';
 import { STATE_GOALS, stateGoalMet } from './stateGoals';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { questGiverHomeLine } from './questGiverHomes';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
-function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpack, masterTraders }) {
+function QuestPanel({ onClose, currentPlayer, setCurrentPlayer, masterResources, inventory, backpack, masterTraders }) {
   const strings = useStrings();
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
@@ -66,18 +67,11 @@ function QuestPanel({ onClose, currentPlayer, masterResources, inventory, backpa
       return updatedQuest;
     });
     
-    // If quests were updated, save to server
+    // If quests were updated, the server makes the same check on its own record and saves it
     if (questsUpdated) {
-      try {
-        await axios.post(`${API_BASE}/api/update-player-quests`, {
-          playerId: currentPlayer.playerId,
-          activeQuests: updatedQuests,
-        });
-      } catch (error) {
-        console.error('Error updating quest progress:', error);
-      }
+      const answer = await postAction('/api/action/quests-refresh', { playerId: currentPlayer.playerId });
+      applyPlayerDelta(answer.data, { setCurrentPlayer });
     }
-    
     return updatedQuests;
   };
 

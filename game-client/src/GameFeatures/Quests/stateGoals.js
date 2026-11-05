@@ -1,5 +1,4 @@
-import API_BASE from '../../config';
-import axios from 'axios';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
 /**
  * Quest goals that are a fact about the player, not a count of things done after accepting:
@@ -57,10 +56,8 @@ export async function refreshStateGoals(player, setCurrentPlayer) {
   const updated = active.map((q) => { const r = applyStateGoals(q, player); if (r.changed) any = true; return r.quest; });
   if (!any) return active;
   setCurrentPlayer?.((prev) => ({ ...prev, activeQuests: updated }));
-  try {
-    await axios.post(`${API_BASE}/api/update-player-quests`, { playerId: player.playerId, activeQuests: updated });
-  } catch (err) {
-    console.error('refreshStateGoals: save failed', err);
-  }
+  // the server works the same check out on its own record and saves it (/action/quests-refresh)
+  const answer = await postAction('/api/action/quests-refresh', { playerId: player.playerId });
+  applyPlayerDelta(answer.data, { setCurrentPlayer });
   return updated;
 }

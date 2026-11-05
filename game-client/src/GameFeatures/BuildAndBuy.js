@@ -1,10 +1,8 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import { refreshPlayerAfterInventoryUpdate, spendIngredients } from '../Utils/InventoryManagement';
-import { updateGridResource } from '../Utils/GridManagement';
+import { applyPlayerDelta, postAction } from '../Utils/playerDelta';
 import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
-import { trackQuestProgress } from './Quests/QuestGoalTracker';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
@@ -22,6 +20,7 @@ export const handleConstructionWithGems = async (params) => {
     return handleConstruction({
       ...params,
       buildOptions: modifiedBuildOptions,
+      useGems: true,
     });
   }
   return handleConstruction(params);
@@ -44,6 +43,7 @@ export const handleConstruction = async ({
   overridePosition, // Optional: { x, y } for cursor mode placement
   globalTuning, // Optional: for limit checking
   masterResources, // Optional: for limit checking
+  useGems = false, // the gem button: gems stand in for what is missing (priced on the server)
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -158,24 +158,6 @@ export const handleConstruction = async ({
     }
   }
 
-  const success = await spendIngredients({
-    playerId: currentPlayer.playerId,
-    recipe: selectedResource,
-    inventory,
-    backpack,
-    setInventory,
-    setBackpack,
-    setCurrentPlayer,
-    updateStatus,
-  });
-  if (!success) {
-    FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
-    return false;
-  }
-  // refreshPlayerAfterInventoryUpdate is already called inside spendIngredients
-
-  console.log('selectedResource.action=', selectedResource.action);
-
   // Calculate total cost for status message
   const costDetails = [];
   for (let i = 1; i <= 4; i++) {
@@ -186,97 +168,67 @@ export const handleConstruction = async ({
     }
   }
   const costString = costDetails.length > 0 ? costDetails.join(', ') : 'free';
+  const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
+  const placeRequest = () => postAction('/api/action/place', { playerId: currentPlayer.playerId, gridId, x, y, type: selectedItem, useGems });
+  const refusal = (answer) => {
+    applyPlayerDelta(answer.data, deltaSetters);
+    if (answer.reason === 'occupied') FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
+    else if (answer.reason === 'limit') FloatingTextManager.addFloatingText(407, x, y, TILE_SIZE);
+    else FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
+  };
 
+  // ONE request (game-server routes/actionRoutes.js /action/place): the server checks where it may
+  // go, the footprint and the limits, charges resources.json's price, writes the building and
+  // advances Build / Buy quests.
   if (selectedResource.category === 'npc') {
+    const answer = await placeRequest();
+    if (!answer.ok) { refusal(answer); return false; }
+    applyPlayerDelta(answer.data, deltaSetters);
     // Spawning NPC at the target position (cursor position if in cursor mode, otherwise player position)
     const spawnPosition = overridePosition ? { x, y } : playerPosition;
     NPCsInGridManager.spawnNPC(gridId, selectedResource, spawnPosition);
-    console.log('Spawned NPC:', gridId, selectedResource, spawnPosition);
-
-    // Show VFX and floating text for NPC purchase
     createCollectEffect(x, y, TILE_SIZE);
     FloatingTextManager.addFloatingText(300, x, y, TILE_SIZE);
     soundManager.playSFX('place');
-    
-    // Show status message with purchase details
     updateStatus(`${selectedResource.type} purchased for ${costString}.`);
-    
-    // Track quest progress for "Buy" actions
-    await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
+    return true;
+  }
 
-  } else {
-    console.log('Placing resource on the grid:', selectedItem);
-    const debugBefore = resources.find(res => res.x === x && res.y === y);
-    console.log('🔍 Existing resource at location before setResources:', debugBefore);
-
-    const rawResource = { type: selectedItem, x, y };
-    // Set initial stationLevel for crafting stations
-    if (selectedResource.category === 'crafting') {
-      rawResource.stationLevel = 0;
-    }
-    const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
-
-    // Ensure size is included for multi-tile resources
-    if (resourceSize > 1) {
-      enriched.size = resourceSize;
-      enriched.anchorKey = `${selectedItem}_${x}_${y}`;
-    }
-
-    let finalResources = [...resources, enriched];
-
-    console.log('📦 Preparing resource update with:', enriched);
-
-    try {
-      // Create shadow placeholders for multi-tile objects in LOCAL STATE ONLY
-      if (resourceSize > 1) {
-
-        for (let dx = 0; dx < resourceSize; dx++) {
-          for (let dy = 0; dy < resourceSize; dy++) {
-            // Skip the anchor tile (0,0)
-            if (dx === 0 && dy === 0) continue;
-
-            const shadowX = x + dx;
-            const shadowY = y - dy;
-            const shadowResource = {
-              type: 'shadow',
-              x: shadowX,
-              y: shadowY,
-              parentAnchorKey: enriched.anchorKey,
-              passable: enriched.passable // Inherit passable property from parent
-              // No symbol - renders as empty/invisible
-            };
-
-
-            // Add shadow to final resources array (LOCAL STATE ONLY - NOT SAVED TO DB)
-            finalResources.push(shadowResource);
-          }
-        }
+  // A building appears on the tap; a refusal takes it away again
+  const rawResource = { type: selectedItem, x, y };
+  if (selectedResource.category === 'crafting') rawResource.stationLevel = 0;
+  const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
+  if (resourceSize > 1) {
+    enriched.size = resourceSize;
+    enriched.anchorKey = `${selectedItem}_${x}_${y}`;
+  }
+  const before = resources;
+  const finalResources = [...resources, enriched];
+  // Shadow placeholders for multi-tile objects in LOCAL STATE ONLY (never saved)
+  if (resourceSize > 1) {
+    for (let dx = 0; dx < resourceSize; dx++) {
+      for (let dy = 0; dy < resourceSize; dy++) {
+        if (dx === 0 && dy === 0) continue;
+        finalResources.push({ type: 'shadow', x: x + dx, y: y - dy, parentAnchorKey: enriched.anchorKey, passable: enriched.passable });
       }
-      
-      // Update local state ONCE with all resources (main + shadows)
-      console.log('🧪 Updating local state with all resources');
-      GlobalGridStateTilesAndResources.setResources(finalResources);
-      setResources(finalResources);
-      
-      // Update ONLY the main resource in DB (NOT shadows)
-      await updateGridResource(gridId, rawResource, true);
-
-      // Show VFX and floating text for resource placement
-      createCollectEffect(x, y, TILE_SIZE);
-      FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
-      soundManager.playSFX('place');
-      
-      // Show status message with purchase details
-      updateStatus(`${selectedItem} purchased for ${costString}.`);
-      
-      // Track quest progress sequentially to avoid conflicts
-      await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
-      await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
-      return true; // Success
-    } catch (error) {
-      console.error('Error placing resource on grid:', error);
-      return false;
     }
   }
-  return true; // Success (for NPC category)
+  GlobalGridStateTilesAndResources.setResources(finalResources);
+  setResources(finalResources);
+  createCollectEffect(x, y, TILE_SIZE);
+  FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+  soundManager.playSFX('place');
+
+  const answer = await placeRequest();
+  if (!answer.ok) {
+    if (answer.status !== 0) {
+      GlobalGridStateTilesAndResources.setResources(before);
+      setResources(before);
+    }
+    refusal(answer);
+    return false;
+  }
+  applyPlayerDelta(answer.data, deltaSetters);
+  updateStatus(`${selectedItem} purchased for ${costString}.`);
+  return true;
 };

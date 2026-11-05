@@ -3,10 +3,9 @@ import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
 import { convertTileType, updateGridResource } from '../../Utils/GridManagement';
 import { validateTileType, enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
-import { refreshPlayerAfterInventoryUpdate, spendIngredients } from '../../Utils/InventoryManagement';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
@@ -146,94 +145,28 @@ export const handleFarmPlotPlacement = async ({
     FloatingTextManager.addFloatingText(landsGrown ? 300 : 302, tileX, tileY, TILE_SIZE); // "Added" / "Planted!"
 
     // 6. Save original inventory state for potential rollback
-    const originalInventory = inventory ? [...inventory] : [];
-    const originalBackpack = backpack ? [...backpack] : [];
-
-    // 7. Optimistically spend ingredients (this updates inventory state)
-    const didSpend = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe: selectedItem,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus,
-    });
-    if (!didSpend) {
-      FloatingTextManager.addFloatingText(305, tileX, tileY, TILE_SIZE); // "Missing ingredients"
-      window._processingPlants.delete(plantId);
-      return false;
-    }
-
-    // 8. Optimistically update local resources (add the new plant)
+    // The plot appears on the tap; ONE request (game-server routes/actionRoutes.js /action/plant)
+    // checks the tile and the skill, spends the seeds, starts the clock and advances Plant quests.
     const existingResources = GlobalGridStateTilesAndResources.getResources() || [];
     GlobalGridStateTilesAndResources.setResources([...existingResources, enrichedNewResource]);
     setResources([...existingResources, enrichedNewResource]);
-
-    // ===== SERVER VALIDATION =====
-    try {
-      const gridUpdateResponse = await updateGridResource(
-        gridId,
-        {
-          type: selectedItem.type,
-          x: tileX,
-          y: tileY,
-          growEnd: growEndTime,
-        },
-        true
-      );
-
-      if (gridUpdateResponse?.success) {
-        // Server confirmed - add to farmState for timer tracking
-        farmState.addSeed({
-          type: selectedItem.type,
-          x: tileX,
-          y: tileY,
-          growEnd: growEndTime,
-          output: selectedItem.output,
-        });
-
-        // Track quest progress
-        const cropName = selectedItem.output || selectedItem.type;
-        await trackQuestProgress(currentPlayer, 'Plant', cropName, 1, setCurrentPlayer);
-
-        // Try to advance FTUE if this is the player's first crop planted
-        await tryAdvanceFTUEByTrigger('PlantedFirstCrop', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-
-        console.log(`✅ Planting confirmed by server: ${selectedItem.type} at (${tileX}, ${tileY})`);
-        window._processingPlants.delete(plantId);
-        return true;
-      } else {
-        throw new Error('Server rejected planting');
-      }
-    } catch (serverError) {
-      // ===== ROLLBACK: Server failed, undo optimistic changes =====
-      console.error('❌ Server rejected planting, rolling back:', serverError);
-
-      // Rollback resources - remove the optimistically placed plant
-      const currentResources = GlobalGridStateTilesAndResources.getResources() || [];
-      const rolledBackResources = currentResources.filter(
+    const answer = await postAction('/api/action/plant', { playerId: currentPlayer.playerId, gridId, x: tileX, y: tileY, type: selectedItem.type });
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok && answer.status !== 0) {
+      const rolledBack = (GlobalGridStateTilesAndResources.getResources() || []).filter(
         (res) => !(res.x === tileX && res.y === tileY && res.type === selectedItem.type)
       );
-      GlobalGridStateTilesAndResources.setResources(rolledBackResources);
-      setResources(rolledBackResources);
-
-      // Rollback inventory - restore original state
-      setInventory(originalInventory);
-      setBackpack(originalBackpack);
-      setCurrentPlayer(prev => ({
-        ...prev,
-        inventory: originalInventory,
-        backpack: originalBackpack
-      }));
-
-      // Show error feedback
-      FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Can't plant here"
-
+      GlobalGridStateTilesAndResources.setResources(rolledBack);
+      setResources(rolledBack);
+      FloatingTextManager.addFloatingText(String(answer.reason || '').startsWith('short-') ? 305 : 304, tileX, tileY, TILE_SIZE);
       window._processingPlants.delete(plantId);
       return false;
     }
+    const growEnd = answer.data?.planted?.growEnd || growEndTime;
+    farmState.addSeed({ type: selectedItem.type, x: tileX, y: tileY, growEnd, output: selectedItem.output });
+    await tryAdvanceFTUEByTrigger('PlantedFirstCrop', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+    window._processingPlants.delete(plantId);
+    return true;
   } catch (error) {
     console.error('❌ Error in handleFarmPlotPlacement:', error);
     window._processingPlants.delete(plantId);

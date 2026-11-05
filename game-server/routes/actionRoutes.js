@@ -25,6 +25,9 @@
  *   POST /action/quest-reward                     hand in a completed quest
  *   POST /action/heal-pay                         pay a healer (the hp itself is the client's, saved with /player/state)
  *   POST /action/bank-sell                        sell to the Bank / a valley Counting House at this round's price
+ *   POST /action/quests-refresh                   bring the state goals (Acquire / Meet / Find / Discover) up to date
+ *   POST /action/place                            build / buy / place a deco, a station, a farm animal or a pet
+ *   POST /action/plant                            plant a farm plot (or a tree) on a free tile it may grow on
  *   POST /action/scroll-reveal / scroll-collect   the Ancient Temple (Reveal Scroll)
  */
 const express = require('express');
@@ -32,7 +35,11 @@ const router = express.Router();
 const Player = require('../models/player');
 const Grid = require('../models/grid');
 const Frontier = require('../models/frontier');
+const globalTuning = require('../tuning/globalTuning.json');
+const Settlement = require('../models/settlement');
+const { isDeveloper } = require('../utils/developerHelpers');
 const gridResourceManager = require('../utils/GridResourceManager');
+const gridTileManager = require('../utils/GridTileManager');
 const econ = require('../utils/playerEconomy');
 const { applyTrophy } = require('../utils/trophyUtils');
 const { recordLevelUps } = require('../utils/analytics');
@@ -1018,6 +1025,7 @@ router.post('/action/quest-reward', async (req, res) => {
     if (!ctx) return;
     const { player, answer } = ctx;
     const { questId, npcType } = req.body;
+    econ.refreshStateGoals(player); // a state goal (owns, has met, holds) may have come true since
     const active = (player.activeQuests || []).find((q) => q && q.questId === questId);
     if (!active) return answer(409, 'not-active');
     if (!active.completed) return answer(409, 'not-complete');
@@ -1122,6 +1130,152 @@ router.post('/action/bank-sell', async (req, res) => {
   } catch (err) {
     console.error('❌ action/bank-sell failed:', err);
     return res.status(500).json({ success: false, error: 'bank-sell-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/quests-refresh { playerId }
+ * → { success, changed, player, seq }
+ * The To Do panel and the giver's panel ask this instead of saving activeQuests themselves.
+ */
+router.post('/action/quests-refresh', async (req, res) => {
+  try {
+    const ctx = await loadPlayer(req, res);
+    if (!ctx) return;
+    const { player } = ctx;
+    const changed = econ.refreshStateGoals(player);
+    if (changed) await player.save();
+    return res.json({ success: true, changed, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/quests-refresh failed:', err);
+    return res.status(500).json({ success: false, error: 'quests-refresh-failed', detail: err.message });
+  }
+});
+
+// ---- Building and buying things onto the board ---------------------------------------------
+
+const PLACE_SOURCES = new Set(['Build', 'BuildTown', 'BuildValley', 'Buy', 'Deco', 'Zoo']);
+
+/** Every tile a resource covers: its anchor and, for size > 1, the square up and to the right. */
+function footprint(x, y, size = 1) {
+  const tiles = [];
+  for (let dx = 0; dx < size; dx++) for (let dy = 0; dy < size; dy++) tiles.push(`${x + dx},${y - dy}`);
+  return tiles;
+}
+
+/**
+ * POST /api/action/place { playerId, gridId, x, y, type, useGems? }
+ * → { success, placed: {type, x, y}, isNPC, player, seq }
+ * The Build / Buy / Deco / Zoo panels' purchase (BuildAndBuy.js handleConstruction). The item must
+ * be sold where the player is (Build anywhere they own, BuildTown in a town by its Mayor, BuildValley
+ * in a valley), its footprint free, and the globalTuning limits met (farm animals, town buildings,
+ * stations per type). The price is its resources.json recipe (gems for what is missing). A building
+ * is written to the grid (a station at level 0, a pet too); an NPC (a farm animal) is spawned by the
+ * client. Build + Buy quests (an NPC: Buy).
+ */
+router.post('/action/place', async (req, res) => {
+  const { playerId, gridId, x, y, type, useGems } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y) || !type) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
+    const def = econ.resourceDef(type);
+    if (!def || !PLACE_SOURCES.has(def.source)) return answer(400, 'not-for-sale');
+    const dev = isDeveloper(player.username);
+    const gtype = String(grid.gridType || '');
+    if (def.source === 'BuildValley' && !gtype.startsWith('valley')) return answer(403, 'not-here');
+    if (def.source === 'BuildTown') {
+      if (gtype !== 'town') return answer(403, 'not-here');
+      if (!dev) {
+        const settlement = await Settlement.findById(grid.settlementId).select('roles').lean();
+        const isMayor = (settlement?.roles || []).some((r) => r.roleName === 'Mayor' && String(r.playerId) === String(player._id));
+        if (!isMayor) return answer(403, 'mayor-only');
+      }
+    }
+    if (def.level && !dev && econ.levelOf(player) < Number(def.level)) return answer(403, `level-${def.level}`);
+
+    const isNPC = def.category === 'npc'; // a pet is a board resource (its panel works on its tile)
+    const onGrid = gridResourceManager.getResources(grid) || [];
+    if (!isNPC) {
+      const taken = new Set();
+      for (const r of onGrid) {
+        if (!r) continue;
+        const size = Number(r.size || econ.resourceDef(r.type)?.size || 1);
+        for (const t of footprint(r.x, r.y, size)) taken.add(t);
+      }
+      if (footprint(x, y, Number(def.size || 1)).some((t) => taken.has(t))) return answer(409, 'occupied');
+    }
+    const limit = (key, fallback) => Number(globalTuning[key] ?? fallback);
+    if (def.action === 'graze') {
+      const npcs = grid.NPCsInGrid instanceof Map ? [...grid.NPCsInGrid.values()] : Object.values(grid.NPCsInGrid || {});
+      const animals = npcs.filter((n) => n && econ.resourceDef(n.type)?.action === 'graze').length;
+      if (animals >= limit('maxFarmAnimals', 10)) return answer(409, 'limit');
+    }
+    if (def.source === 'BuildTown' && gtype !== 'homestead') {
+      const townBuildings = onGrid.filter((r) => r && econ.resourceDef(r.type)?.source === 'BuildTown').length;
+      if (townBuildings >= limit('maxTownBuildings', 500)) return answer(409, 'limit');
+    }
+    if (def.category === 'crafting' && onGrid.filter((r) => r && r.type === def.type).length >= limit('maxCraftingStationsPerType', 4)) return answer(409, 'limit');
+
+    const paid = payFor(player, def, { useGems });
+    if (!paid.ok) return answer(409, paid.reason);
+    if (!isNPC) {
+      const placed = { type: def.type, x, y };
+      if (def.category === 'crafting') placed.stationLevel = 0;
+      gridResourceManager.updateResource(grid, placed);
+      await grid.save({ validateBeforeSave: false });
+      econ.advanceQuests(player, 'Build', def.type, 1);
+    }
+    econ.advanceQuests(player, 'Buy', def.type, 1);
+    player.lastActive = new Date();
+    await player.save();
+    return res.json({ success: true, placed: { type: def.type, x, y }, isNPC, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/place failed:', err);
+    return res.status(500).json({ success: false, error: 'place-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/plant { playerId, gridId, x, y, type }
+ * → { success, planted: {type, x, y, growEnd}, player, seq }
+ * Farming.js handleFarmPlotPlacement: a farm plot on a free tile whose type it allows
+ * (validon<tile>), its `requires` skill held, its seeds spent, growEnd from its growtime.
+ * Plant quests advance for its crop. Refusals: occupied, bad-tile, needs-<skill>, short-<seed>.
+ */
+router.post('/action/plant', async (req, res) => {
+  const { playerId, gridId, x, y, type } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y) || !type) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
+    const def = econ.resourceDef(type);
+    if (!def || def.category !== 'farmplot') return answer(400, 'not-plantable');
+    if ((gridResourceManager.getResources(grid) || []).some((r) => r && r.x === x && r.y === y)) return answer(409, 'occupied');
+    const tile = gridTileManager.getTile(grid, x, y);
+    if (!tile || def[`validon${tile}`] !== true) return answer(409, 'bad-tile');
+    if (def.requires && econ.resourceDef(def.requires)?.category === 'skill' && !econ.hasSkill(player, def.requires)) return answer(403, `needs-${def.requires}`);
+    if (!spendCosts(def, player.inventory, player.backpack)) {
+      const short = recipeCosts(def).find(([t, q]) => heldQuantity(player.inventory, player.backpack, t) < q);
+      return answer(409, `short-${short ? short[0] : 'ingredients'}`);
+    }
+    player.markModified('inventory'); player.markModified('backpack');
+    const growEnd = Date.now() + (Number(def.growtime) || 0) * 1000;
+    gridResourceManager.updateResource(grid, { type: def.type, x, y, growEnd });
+    econ.advanceQuests(player, 'Plant', def.output || def.type, 1);
+    player.lastActive = new Date();
+    await grid.save({ validateBeforeSave: false });
+    await player.save();
+    return res.json({ success: true, planted: { type: def.type, x, y, growEnd }, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/plant failed:', err);
+    return res.status(500).json({ success: false, error: 'plant-failed', detail: err.message });
   }
 });
 
