@@ -162,6 +162,7 @@ import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
 import SurveyPromptModal from './UI/Modals/SurveyPromptModal';
+import { wasShown, markShown } from './Utils/shownOnce';
 import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } from './UI/Modals/InstallPromptModal';
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
@@ -1902,7 +1903,8 @@ const SURVEY_PROMPT_LEVEL = 5;
 const closeLevelUp = () => {
   setIsLevelUpModalOpen(false);
   const p = currentPlayerRef.current;
-  if (!p || p.survey_prompt_seen_at || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
+  if (!p || p.survey_prompt_seen_at || wasShown(p.playerId, 'survey') || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
+  markShown(p.playerId, 'survey');   // a stale player copy can drop the stamp below (Utils/shownOnce.js)
   const seenAt = new Date().toISOString();
   setCurrentPlayer((prev) => (prev ? { ...prev, survey_prompt_seen_at: seenAt } : prev));
   axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { survey_prompt_seen_at: seenAt } }).catch(() => {});
@@ -2369,7 +2371,8 @@ useEffect(() => {
 useEffect(() => {
   const maybeAsk = (inApp) => {
     const p = currentPlayerRef.current;
-    if (!p || p.email || p.email_prompt_seen_at || p.named === false) return;
+    if (!p || p.email || p.email_prompt_seen_at || wasShown(p.playerId, 'email') || p.named === false) return;
+    markShown(p.playerId, 'email');   // a stale player copy can drop the stamp below (Utils/shownOnce.js)
     const seenAt = new Date().toISOString();
     setCurrentPlayer((prev) => (prev ? { ...prev, email_prompt_seen_at: seenAt } : prev));
     axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { email_prompt_seen_at: seenAt } }).catch(() => {});
@@ -2378,7 +2381,7 @@ useEffect(() => {
   const onFeedbackDone = () => maybeAsk(isInAppBrowser());
   const onHarvest = () => {
     const p = currentPlayerRef.current;
-    const emailDue = p && !p.email && !p.email_prompt_seen_at && p.named !== false;
+    const emailDue = p && !p.email && !p.email_prompt_seen_at && !wasShown(p.playerId, 'email') && p.named !== false;
     if (emailDue) return; // the email ask comes first (after the FTUE feedback modal)
     // BL-1: the install invitation takes the next harvest after the email ask, on a phone
     // browser only, never inside the installed app, remembered per device.

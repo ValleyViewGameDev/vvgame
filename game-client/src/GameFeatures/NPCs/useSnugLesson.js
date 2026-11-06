@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { findBoardTarget } from '../FTUE/findBoardTarget';
 import { updatePlayerSettings } from '../../settings';
+import { wasShown, markShown } from '../../Utils/shownOnce';
 
 /**
  * The Snug lesson (backlog OB-9, owner 2026-11-05): a just-in-time tutorial, once per profile, the
@@ -43,7 +44,8 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
 
   const gtype = currentPlayer?.location?.gtype || '';
   const eligible = !!isAppInitialized && !!gridId && !currentPlayer?.firsttimeuser
-    && !currentPlayer?.settings?.snugLessonDone && gtype.startsWith('valley');
+    && !currentPlayer?.settings?.snugLessonDone && !wasShown(currentPlayer?.playerId, 'snugLesson')
+    && gtype.startsWith('valley');
 
   // Start: a little after arriving on a valley grid where Snug stands
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
       if (document.querySelector(SEL_MODAL)) {
         setStage(null);
         const p = playerRef.current;
+        markShown(p?.playerId, 'snugLesson');   // a stale player copy can drop the stamp (Utils/shownOnce.js)
         if (p && !p.settings?.snugLessonDone) updatePlayerSettings({ snugLessonDone: true }, p, setCurrentPlayer);
         return;
       }
