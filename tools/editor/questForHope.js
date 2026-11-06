@@ -8,8 +8,10 @@
  *                  enemies that drop it (npc output), grids it lies on, scroll reveals
  *   gates          the quest / item level, relationship requirements (quest `rel` / `relscore`,
  *                  trade `rel` / `relscore`), and the doors between a grid's way in and the NPC or
- *                  shop (flood fill over the layout: tiles and impassable resources block, doors are
- *                  crossed one key at a time)
+ *                  shop (flood fill over the layout: tiles and impassable resources block; gates are
+ *                  counted by KEY, a held key opening every door of its kind, and every minimal set
+ *                  of keys that gets through is reported, e.g. Acheron's Black Fog or its Mirrors),
+ *                  plus the enemies guarding the target's walled room (Cerberus)
  *
  * Prerequisite items that are themselves rare (keys, secrets, `special` items, goods no outlet offers, the
  * artifacts) are explained recursively; ordinary goods are just named with their quantity.
@@ -105,12 +107,11 @@ function compute(gameServerDir, clientDir) {
     }));
   }
 
-  // Doors to cross, in order, to reach the thing at (x, y) from the grid's way in (its edges, or a
-  // dungeon's exit): a 0-1 search where a door step (or putting out onto water) costs 1 and open
-  // ground 0, so the path found crosses the fewest gates. Trees, rocks and other clearable sources
-  // do not block (the player clears them), nor do Stubs (layout filler the game strips when it
-  // builds a grid); walls, buildings and mountains do. Water is crossed by Boat (gate 'water').
-  // Returns [gates] ([] = none) or false when nothing reaches it.
+  // The gates between the grid's way in (its edges, or a dungeon's exit) and the thing at (x, y):
+  // every minimal set of keys that gets there (below), each as its doors in path order. Trees,
+  // rocks and other clearable sources do not block (the player clears them), nor do Stubs (layout
+  // filler the game strips when it builds a grid); walls, buildings and mountains do. Water is
+  // crossed by Boat (gate 'water'). Returns [[gates], ...] or false when nothing reaches it.
   function doorsTo(layoutIndex, tx, ty) {
     const lay = layouts[layoutIndex];
     if (!lay.blocked) {
@@ -151,42 +152,93 @@ function compute(gameServerDir, clientDir) {
     const goal = new Set();
     for (let dy = 0; dy < s; dy++) for (let dx = 0; dx < s; dx++) goal.add((ty - dy) * SIZE + tx + dx);
     const near = (i) => { const x = i % SIZE, y = (i / SIZE) | 0; for (const [dx, dy] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) if (goal.has((y + dy) * SIZE + x + dx) && x + dx >= 0 && x + dx < SIZE) return true; return false; };
-    const cost = new Int16Array(SIZE * SIZE).fill(32767);
-    const prev = new Int32Array(SIZE * SIZE).fill(-1);
-    const dq = [];
-    for (const i of lay.starts) { const c = blocked[i] === 2 || blocked[i] === 3 ? 1 : 0; if (c < cost[i]) { cost[i] = c; c ? dq.push(i) : dq.unshift(i); } }
-    while (dq.length) {
-      const i = dq.shift();
-      if (near(i)) {
-        const doors = [];
-        for (let j = i; j !== -1; j = prev[j]) if (blocked[j] === 2 || blocked[j] === 3) doors.unshift(doorAt.get(j));
-        return doors.filter((d, k) => d !== doors[k - 1]);
+
+    // Gates are KEYS, not door tiles (2026-11-05): once held, a key opens every door of its kind, so
+    // a patch of Black Fog many tiles deep is one gate, the same as a single Mirror. Try the key
+    // sets smallest first; each set that reaches the target, and holds no smaller set that already
+    // did, is one route. Returns [[door, ...], ...] (one entry per alternative, [[]] = no gate) or
+    // false when nothing reaches it.
+    const keyOf = (i) => { const d = doorAt.get(i); return d === 'water' ? 'Boat' : (byType.get(d)?.requires || d); };
+    const allKeys = [...new Set([...doorAt.keys()].map(keyOf))];
+    const reach = (keys) => {
+      const ok = (i) => blocked[i] === 0 || ((blocked[i] === 2 || blocked[i] === 3) && keys.has(keyOf(i)));
+      const prev = new Int32Array(SIZE * SIZE).fill(-2);
+      const q = [];
+      for (const i of lay.starts) if (ok(i) && prev[i] === -2) { prev[i] = -1; q.push(i); }
+      for (let h = 0; h < q.length; h++) {
+        const i = q[h];
+        if (near(i)) {
+          const doors = [];
+          for (let j = i; j !== -1; j = prev[j]) if (blocked[j] === 2 || blocked[j] === 3) doors.unshift(doorAt.get(j));
+          return doors.filter((d, k) => d !== doors[k - 1]);
+        }
+        const x = i % SIZE, y = (i / SIZE) | 0;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const xx = x + dx, yy = y + dy;
+          if (xx < 0 || yy < 0 || xx >= SIZE || yy >= SIZE) continue;
+          const j = yy * SIZE + xx;
+          if (prev[j] !== -2 || !(ok(j) || goal.has(j))) continue;
+          prev[j] = i; q.push(j);
+        }
       }
-      const x = i % SIZE, y = (i / SIZE) | 0;
+      return null;
+    };
+    const routes = [];
+    const found = [];   // key sets that worked
+    const subsets = [];
+    const n = Math.min(allKeys.length, 8);
+    for (let m = 0; m < (1 << n); m++) subsets.push(allKeys.slice(0, n).filter((_, b) => m & (1 << b)));
+    subsets.sort((a, b) => a.length - b.length);
+    for (const set of subsets) {
+      if (found.some((f) => f.every((k) => set.includes(k)))) continue;   // a smaller set already does it
+      const doors = reach(new Set(set));
+      if (doors) { found.push(set); routes.push(doors); }
+    }
+    return routes.length ? routes : false;
+  }
+
+  // The enemies that share the target's walled room (the open cells around it, no door or wall
+  // crossed), when that room is small enough to be a set piece: "guarded by Cerberus".
+  function guardsOf(layoutIndex, tx, ty) {
+    const lay = layouts[layoutIndex];
+    if (!lay.blocked) doorsTo(layoutIndex, tx, ty);
+    const { blocked, L } = lay;
+    const seen = new Uint8Array(SIZE * SIZE);
+    const q = [ty * SIZE + tx]; seen[q[0]] = 1;
+    const guards = new Map();
+    for (let h = 0; h < q.length; h++) {
+      if (q.length > 600) return [];   // open country, not a room
+      const i = q[h]; const x = i % SIZE, y = (i / SIZE) | 0;
+      const r = byKey.get(L.resources[y][x]);
+      if (r?.category === 'npc' && r.action === 'attack') guards.set(r.type, r);
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         const xx = x + dx, yy = y + dy;
         if (xx < 0 || yy < 0 || xx >= SIZE || yy >= SIZE) continue;
         const j = yy * SIZE + xx;
-        if (blocked[j] === 1 && !goal.has(j)) continue;
-        const c = cost[i] + (blocked[j] === 2 || (blocked[j] === 3 && blocked[i] !== 3) ? 1 : 0);
-        if (c >= cost[j]) continue;
-        cost[j] = c; prev[j] = i;
-        if (c > cost[i]) dq.push(j); else dq.unshift(j);
+        if (seen[j] || blocked[j] !== 0) continue;
+        seen[j] = 1; q.push(j);
       }
     }
-    return false;
+    return [...guards.values()].map((g) => ({ type: g.type, symbol: g.symbol || '', level: g.level ?? null }));
   }
 
   function where(type) {
     const k = byType.get(type)?.layoutkey;
     if (!k) return [];
+    const gate = (d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null });
     return (placements.get(k) || []).map((p) => {
       const [x, y] = p.cells[0];
-      const doors = doorsTo(p.layoutIndex, x, y);
+      const routes = doorsTo(p.layoutIndex, x, y);
+      // the designed way first: a route whose door the item's in-game hint names ("past the black fog")
+      const hint = String(stringsEN[HINT_STRING[type]] || '').toLowerCase();
+      if (routes && hint) routes.sort((a, b) => Number(b.some((d) => hint.includes(String(d).toLowerCase()))) - Number(a.some((d) => hint.includes(String(d).toLowerCase()))));
       return {
         grid: p.grid, dir: p.dir, name: p.name, area: areaOf(p.dir, p.name), count: p.cells.length,
-        doors: (doors || []).map((d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null })),
-        unreachable: doors === false,
+        doors: (routes ? routes[0] : []).map(gate),
+        // other ways past the gates, when there are several (Acheron: the Black Fog OR the Mirrors)
+        altDoors: (routes ? routes.slice(1) : []).map((r) => r.map(gate)),
+        guards: byType.get(type)?.category === 'npc' ? [] : guardsOf(p.layoutIndex, x, y),
+        unreachable: routes === false,
       };
     });
   }
@@ -293,8 +345,8 @@ function compute(gameServerDir, clientDir) {
   return {
     oracle: oracle ? { trader: find('Oracle'), gives: oracle.gives, xp: oracle.xp, gates: [relGate(oracle, 'the Oracle')].filter(Boolean) } : null,
     entranceGates: Object.fromEntries((placements.get(byType.get('Dungeon Entrance')?.layoutkey) || []).map((p) => {
-      const doors = doorsTo(p.layoutIndex, p.cells[0][0], p.cells[0][1]);
-      return [p.grid, (doors || []).map((d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null }))];
+      const routes = doorsTo(p.layoutIndex, p.cells[0][0], p.cells[0][1]);
+      return [p.grid, (routes ? routes[0] : []).map((d) => (d === 'water' ? { door: 'water', key: 'Boat' } : { door: d, key: byType.get(d)?.requires || null }))];
     })),
     keys: resources.filter((x) => x.action === 'door' || isGateSource(x)).map((d) => ({
       door: d.type, symbol: d.symbol || '', key: d.requires || null, keySymbol: byType.get(d.requires)?.symbol || '',

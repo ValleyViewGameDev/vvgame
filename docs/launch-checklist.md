@@ -24,8 +24,9 @@ here; detail lives in the linked docs and backlog items.
   Copy link appear (`UI/Modals/BeginModal.js`, `Utils/openInBrowser.js`, strings 4121-4126).
   Dev test: localStorage `vv:forceInApp` = `1`. **Tested (owner, 2026-11-02):** from Facebook's
   browser the detection and the link out work.
-- [ ] **Full playthrough to ~L15 on a phone, FTUE timed.** OB-3, OB-6 and OB-10 are built but not
-  played. House saw quits rise past a ~12 minute FTUE.
+- [x] **Full playthrough on a phone, FTUE timed.** Done (owner, 2026-11-05): played on a phone
+  to about L10, which the owner judged enough (the target was ~L15). OB-3, OB-6 and OB-10 are
+  built. House saw quits rise past a ~12 minute FTUE.
 - [x] **Finalize the town layout and upgrade its art.** Done (owner, 2026-10-31; W-15). The town is the first shared place a new
   player sees; art pipeline: `docs/art-pipeline-plan.md`, `docs/art/buildings-bible.md`.
 - [ ] **Avatar creation / selection.** Plan: `docs/avatar-plan.md` (rig, catalogue, compositor and

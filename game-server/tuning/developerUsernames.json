@@ -11,5 +11,6 @@
     "newtest",
     "firefoxTest",
     "chromeTest",
-    "safariTest"
+    "safariTest",
+    "ftuetester"
 ]

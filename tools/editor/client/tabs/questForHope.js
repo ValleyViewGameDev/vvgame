@@ -30,7 +30,7 @@ async function dungeonEntrances() {
 // The routes rarely change, and working them out reads every layout plus every frontier from the
 // game server, so the result is kept in this browser (localStorage) and only rebuilt on the
 // side panel's "Refresh data" (or when nothing is cached yet).
-const CACHE_KEY = 'vvEditor.questForHope.v3';   // v3: stand-ins (Gertrude's statue) and quest prereq gates
+const CACHE_KEY = 'vvEditor.questForHope.v4';   // v4: gates by key with alternatives (Acheron: Black Fog or Mirrors), room guards
 function readCache() {
   try {
     const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
@@ -70,20 +70,29 @@ export function questForHopeTab() {
         }
         return `${p.dir} ${p.name}`;
       };
+      const guardText = (p) => (p.guards?.length ? `, guarded by ${p.guards.map((g) => `${g.symbol ? g.symbol + ' ' : ''}${g.type}${g.level ? ` (level ${g.level})` : ''}`).join(' and ')}` : '');
+      const routeText = (doors) => doors.map((d, i) => (d.door === 'water' ? 'across water (by Boat)' : `${i ? '' : 'behind '}the ${d.door}${d.key ? ` (needs ${d.key})` : ''}`)).join(', then ');
       const gateText = (p) => {
         if (p.unreachable) return ' (no way in found on this grid: walled off, or reached from a neighbouring grid)';
-        if (!p.doors?.length) return '';
-        return ' ' + p.doors.map((d, i) => (d.door === 'water' ? 'across water (by Boat)' : `${i ? '' : 'behind '}the ${d.door}${d.key ? ` (needs ${d.key})` : ''}`)).join(', then ');
+        const routes = [p.doors || [], ...(p.altDoors || [])].filter((r) => r.length);
+        return (routes.length ? ' ' + routes.map(routeText).join(', or ') : '') + guardText(p);
       };
       // the same, as nodes: a key the Keys section explains is a link down to it
+      // every minimal way past the gates (Acheron: the Black Fog, or the Mirrors), then the guards
       const gateNodes = (p) => {
-        if (p.unreachable || !p.doors?.length) return [gateText(p)];
-        const out = [' behind '];
-        p.doors.forEach((d, i) => {
-          if (i) out.push(', then ');
-          out.push(`the ${d.door}`);
-          if (d.key) out.push(' (needs ', linkKey(d.key), ')');
+        const routes = [p.doors || [], ...(p.altDoors || [])].filter((r) => r.length);
+        if (p.unreachable || !routes.length) return [gateText(p)];
+        const out = [];
+        routes.forEach((doors, r) => {
+          out.push(r ? ', or behind ' : ' behind ');
+          doors.forEach((d, i) => {
+            if (i) out.push(', then ');
+            if (d.door === 'water') { out.push('water (by Boat)'); return; }
+            out.push(`the ${d.door}`);
+            if (d.key) out.push(' (needs ', linkKey(d.key), ')');
+          });
         });
+        out.push(guardText(p));
         return out;
       };
       // enemies: the area, not every grid (valley1 / valley2 / valley3 / dungeons)

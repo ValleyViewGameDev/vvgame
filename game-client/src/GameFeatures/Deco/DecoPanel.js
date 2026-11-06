@@ -44,15 +44,11 @@ const DecoPanel = ({
   useEffect(() => {
     const syncInventory = async () => {
       try {
-        const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
-        setInventory(storedInventory);
-  
+        // The server copy only: a localStorage snapshot was set first here, and a stale one (written the
+        // last time one of these panels opened, by any account on this browser) flashed old items into
+        // the inventory, e.g. replaying a Quest for Hope find (HopeFound.js) for an artifact no longer held
         const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        const serverInventory = serverResponse.data.inventory || [];
-        if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
-          setInventory(serverInventory);
-          localStorage.setItem('inventory', JSON.stringify(serverInventory));
-        }
+        setInventory(serverResponse.data.inventory || []);
       } catch (error) {
         console.error('Error syncing inventory:', error);
       }

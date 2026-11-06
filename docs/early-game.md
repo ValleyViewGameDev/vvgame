@@ -217,6 +217,17 @@ one, so the rest of the game is a promise, not a mystery.
 - The other five (Vampire's Blood L14+, Brass Bell via Portia's Secret L16+ at marriage, the
   Phoenix Feather, the Brief Candle about L34, Prospero's Orb last) are mid game and later. That
   is fine: the lit box and the hint promise them.
+- **The Brief Candle's route** (traced 2026-11-05): it lies at the bottom of **Acheron** (valley
+  1014571), in Cerberus' walled room (Cerberus L34, with Demons), past the **Black Fog** (a door that
+  needs **Hecate's Torch**, held, not spent). Hecate (Birnam Wood, valley 1011257) trades the torch
+  for 12 Scorpion (Demons drop them) and 10 Bones (Ghosts and Cerberus), no friendship needed;
+  the hint (200822) says so ("Hecate's torch can light the way, if thou bring her what stings").
+  Acheron's six **Mirrors** form a second way in that skips every patch of fog, for whoever holds
+  the Mirror Key (kept on purpose, owner 2026-11-05).
+- **The Mirror Key** (Leontes, friend, for the six Secrets) opens every Mirror: the Phoenix's way in
+  (valley 1012276, Windsor: the Mirror room holds the Dungeon Entrance to dPhoenix, where a Dungeon
+  Door, the Dungeon Key, stands before the Phoenix), Duke Angelo's hidden room (1014204: a bed, books
+  and two Scrolls) and Acheron's bypass. More Mirror rooms are planned as easter eggs (backlog W-18).
 
 **No friendships in the early game** (owner, 2026-10-24): building a friendship is grindy, so
 nothing in the FTUE or the early game (L1-15) asks for more than a Greet. A quest list opens at

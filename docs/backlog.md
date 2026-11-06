@@ -76,6 +76,14 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   `docs/walls.md`). The dungeon templates were laid out before that and need re-doing so their
   walls read well with the joined rendering. Start at `game-server/layouts/gridLayouts/dungeon/`
   (editor Dungeons tab) and `docs/walls.md`.
+- **W-18. Two or three more Mirror Key rooms around the world** (added 2026-11-05). Easter eggs
+  for whoever holds the Mirror Key (Leontes trades it, as a friend, for the six Secrets): small
+  hidden rooms behind a Mirror (deco, `action: door`, `requires: Mirror Key`), like Duke Angelo's
+  bedroom on 1014204 (a bed, books, two Scrolls). Today the Mirrors are Windsor's way to the
+  Phoenix (1012276), Angelo's room, and Acheron's fog bypass (1014571); keep those. A room
+  rewards with a few precious finds, not a Quest for Hope artifact. Check each with the editor's
+  QUEST FOR HOPE tab (Keys and doors).
+
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
@@ -247,3 +255,15 @@ into `ResourceClicking.js` `handleDooberClick`, which since Phase 5 (2026-11-04)
 keeps the doober gone and the predicted count without retrying: give those calls a durable retry
 queue (the server answers 'gone' for a tile already collected, so a retry can never grant twice).
 A phone hotspot is an ordinary mobile connection; airplane-grade networks are out of scope.
+
+### BL-4: Enemies on more tile types (no safe camping on roads)
+
+Added 2026-11-06.
+
+**What.** Enemies can only step on the tile types their `validon<tile>` flags allow
+(resources.json, ECONOMY sheet; checked in `NPCs/AllNPCsShared.js`), and most are kept off some
+of them, roads included. That is a cheat: a player stands on a road (or any tile the enemy
+can't enter) and hits an enemy that can never reach them. Owner's direction: let every enemy go
+on every tile type, except the special cases (water, lava and the like), and let flying enemies
+(Ghosts) go anywhere. Pairs with the NPC / Combat epic; check ranged enemies and the leash /
+home anchor (Track 3b) still behave once enemies can follow onto roads.
