@@ -16,7 +16,8 @@ function hasPassword(player) {
 
 function publicPlayer(playerDoc) {
   if (!playerDoc) return playerDoc;
-  const p = typeof playerDoc.toObject === 'function' ? playerDoc.toObject() : { ...playerDoc };
+  // flattenMaps: Map fields (moments) become plain objects; a raw Map serialises to {} in JSON
+  const p = typeof playerDoc.toObject === 'function' ? playerDoc.toObject({ flattenMaps: true }) : { ...playerDoc };
   p.hasPassword = hasPassword(p);
   delete p.password;
   delete p.signup_ip_hash;

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { findBoardTarget } from '../FTUE/findBoardTarget';
-import { updatePlayerSettings } from '../../settings';
-import { wasShown, markShown } from '../../Utils/shownOnce';
+import { hasMoment, markMoment } from '../../Utils/moments';
 
 /**
  * The Snug lesson (backlog OB-9, owner 2026-11-05): a just-in-time tutorial, once per profile, the
@@ -13,7 +12,7 @@ import { wasShown, markShown } from '../../Utils/shownOnce';
  *   2. 'greet'  only if they have never met him: the panel's Greet button (Travel needs "met")
  *   3. 'travel' the panel's "Travel with Snug" button (NPCsPanel.js, data-tutorial="snug-travel")
  *   4. the Travel modal opens: the scrim and arrow go, control returns, the lesson is stamped done
- *      (player.settings.snugLessonDone, so it never runs again on any device)
+ *      (moment 'snugLesson', Utils/moments.js, so it never runs again on any device)
  *
  * A persistent toast (string 17027) explains Snug travel throughout and stays until dismissed.
  * The stage is read from the DOM a few times a second (the panel's buttons, the modal), so the
@@ -44,8 +43,7 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
 
   const gtype = currentPlayer?.location?.gtype || '';
   const eligible = !!isAppInitialized && !!gridId && !currentPlayer?.firsttimeuser
-    && !currentPlayer?.settings?.snugLessonDone && !wasShown(currentPlayer?.playerId, 'snugLesson')
-    && gtype.startsWith('valley');
+    && !hasMoment(currentPlayer, 'snugLesson') && gtype.startsWith('valley');
 
   // Start: a little after arriving on a valley grid where Snug stands
   useEffect(() => {
@@ -85,8 +83,7 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
       if (document.querySelector(SEL_MODAL)) {
         setStage(null);
         const p = playerRef.current;
-        markShown(p?.playerId, 'snugLesson');   // a stale player copy can drop the stamp (Utils/shownOnce.js)
-        if (p && !p.settings?.snugLessonDone) updatePlayerSettings({ snugLessonDone: true }, p, setCurrentPlayer);
+        if (p && !hasMoment(p, 'snugLesson')) markMoment(p, 'snugLesson', setCurrentPlayer);
         return;
       }
       let next = 'snug';

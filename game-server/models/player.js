@@ -227,6 +227,13 @@ const playerSchema = new mongoose.Schema({
     snugLessonDone: { type: Boolean, default: false },
   },
 
+  // One-time moments (JIT tutorials, nudges, prompts): key -> when it was first shown or done.
+  // Written ONLY by POST /api/player/moment (routes/playerRoutes.js), read on the client through
+  // Utils/moments.js. A new JIT needs no schema change: pick a key. Older accounts may still hold the
+  // pre-2026-11-06 stamps (survey_prompt_seen_at, email_prompt_seen_at, settings.snugLessonDone),
+  // which Utils/moments.js reads as the same moments.
+  moments: { type: Map, of: Date, default: undefined },
+
   // Quest for Hope artifacts whose "found" moment has played (story modal + the Oracle's letter).
   // Unset = an account from before 2026-10-24: its first /hope/found call records what it holds
   // silently, so old finds are not replayed; new accounts start with [] (routes/auth.js).

@@ -350,7 +350,7 @@ const PROFILE_DEVELOPER_ONLY = ['accountStatus', 'role', 'baseMaxhp', 'baseDamag
   'inventory', 'backpack', 'skills', 'powers', 'xp', 'activeQuests', 'completedQuests', 'trophies',
   'messages', 'warehouseCapacity', 'backpackCapacity', 'warehouseLevel', 'avatarsUnlocked', 'range',
   'tradeStall', 'tradeStallRequests', 'relationships', 'hopeFound', 'storyFlags', 'regionsVisited',
-  'lastTransactionIds', 'activeTransactions', 'relocations'];
+  'lastTransactionIds', 'activeTransactions', 'relocations', 'moments'];
 
 router.post('/update-profile', async (req, res) => {
   const { playerId } = req.body;
@@ -812,6 +812,32 @@ router.post('/player/buy-magic-slot', async (req, res) => {
   } catch (error) {
     console.error('Error buying magic slot:', error);
     res.status(500).json({ error: 'Failed to buy a magic slot.' });
+  }
+});
+
+// POST /api/player/moment { playerId, key } -> { moments }
+// Stamps a one-time moment (a JIT tutorial, a nudge, a prompt: Utils/moments.js) the first time it
+// is shown or done; later calls keep the first date. One atomic $set on `moments.<key>`, so it can
+// never be undone by another write of the player. A key is a short name, no dots or dollars.
+const MOMENT_KEY = /^[A-Za-z][A-Za-z0-9_-]{0,47}$/;
+const MAX_MOMENTS = 200;
+router.post('/player/moment', async (req, res) => {
+  const { playerId, key } = req.body || {};
+  if (!playerId || !mongoose.Types.ObjectId.isValid(playerId)) return res.status(400).json({ error: 'playerId is required.' });
+  if (typeof key !== 'string' || !MOMENT_KEY.test(key)) return res.status(400).json({ error: 'Bad moment key.' });
+  try {
+    const current = await Player.findById(playerId).select('moments').lean();
+    if (!current) return res.status(404).json({ error: 'Player not found.' });
+    const held = current.moments || {};
+    if (!held[key]) {
+      if (Object.keys(held).length >= MAX_MOMENTS) return res.status(409).json({ error: 'Too many moments.' });
+      await Player.updateOne({ _id: playerId, [`moments.${key}`]: { $exists: false } }, { $set: { [`moments.${key}`]: new Date() } });
+    }
+    const after = await Player.findById(playerId).select('moments').lean();
+    res.json({ success: true, moments: after?.moments || {} });
+  } catch (error) {
+    console.error('Error stamping a moment:', error);
+    res.status(500).json({ error: 'Failed to record the moment.' });
   }
 });
 

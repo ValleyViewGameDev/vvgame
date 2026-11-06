@@ -162,7 +162,7 @@ import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
 import SurveyPromptModal from './UI/Modals/SurveyPromptModal';
-import { wasShown, markShown } from './Utils/shownOnce';
+import { hasMoment, markMoment } from './Utils/moments';
 import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } from './UI/Modals/InstallPromptModal';
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
@@ -1897,17 +1897,14 @@ const shownDoinkerType = doinkerTargets ? doinkerType : (snugLesson?.doinkerType
 const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (snugLesson?.doinkerPointing || doinkerPointing);
 
 // The survey nudge (docs/launch-checklist.md): once per profile, when the first level-up modal at
-// SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (survey_prompt_seen_at), like the
-// email ask. The survey itself stays in the Mailbox and Settings (FeedbackLinks).
+// SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (moment 'survey', Utils/moments.js),
+// like the email ask. The survey itself stays in the Mailbox and Settings (FeedbackLinks).
 const SURVEY_PROMPT_LEVEL = 5;
 const closeLevelUp = () => {
   setIsLevelUpModalOpen(false);
   const p = currentPlayerRef.current;
-  if (!p || p.survey_prompt_seen_at || wasShown(p.playerId, 'survey') || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
-  markShown(p.playerId, 'survey');   // a stale player copy can drop the stamp below (Utils/shownOnce.js)
-  const seenAt = new Date().toISOString();
-  setCurrentPlayer((prev) => (prev ? { ...prev, survey_prompt_seen_at: seenAt } : prev));
-  axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { survey_prompt_seen_at: seenAt } }).catch(() => {});
+  if (!p || hasMoment(p, 'survey') || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
+  markMoment(p, 'survey', setCurrentPlayer);
   setTimeout(() => setShowSurveyPrompt(true), 400); // let the level-up modal leave first
 };
 
@@ -2367,21 +2364,18 @@ useEffect(() => {
 // The once-only email ask (docs/onboarding-plan.md §4.5): right after the FTUE feedback modal
 // (FTUE.js FTUE_FEEDBACK_DONE_EVENT, which itself follows The Shepherd's first quest reward and its level-up), or, in an
 // in-app browser where the session rarely survives, right after the Home Deed is signed. Shown
-// once per profile (email_prompt_seen_at), never to an unnamed or already-emailed player.
+// once per profile (moment 'email', Utils/moments.js), never to an unnamed or already-emailed player.
 useEffect(() => {
   const maybeAsk = (inApp) => {
     const p = currentPlayerRef.current;
-    if (!p || p.email || p.email_prompt_seen_at || wasShown(p.playerId, 'email') || p.named === false) return;
-    markShown(p.playerId, 'email');   // a stale player copy can drop the stamp below (Utils/shownOnce.js)
-    const seenAt = new Date().toISOString();
-    setCurrentPlayer((prev) => (prev ? { ...prev, email_prompt_seen_at: seenAt } : prev));
-    axios.post(`${API_BASE}/api/update-profile`, { playerId: p.playerId, updates: { email_prompt_seen_at: seenAt } }).catch(() => {});
+    if (!p || p.email || hasMoment(p, 'email') || p.named === false) return;
+    markMoment(p, 'email', setCurrentPlayer);
     setEmailAsk({ inApp });
   };
   const onFeedbackDone = () => maybeAsk(isInAppBrowser());
   const onHarvest = () => {
     const p = currentPlayerRef.current;
-    const emailDue = p && !p.email && !p.email_prompt_seen_at && !wasShown(p.playerId, 'email') && p.named !== false;
+    const emailDue = p && !p.email && !hasMoment(p, 'email') && p.named !== false;
     if (emailDue) return; // the email ask comes first (after the FTUE feedback modal)
     // BL-1: the install invitation takes the next harvest after the email ask, on a phone
     // browser only, never inside the installed app, remembered per device.
