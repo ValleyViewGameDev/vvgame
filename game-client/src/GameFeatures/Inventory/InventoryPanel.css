@@ -105,6 +105,29 @@
 /* Currency section styling */
 .currency-section {
   margin-bottom: 5px;
+  position: relative;
+  padding-right: 40px; /* room for the info button */
+  cursor: pointer;      /* the whole section opens Currencies & Keys (CurrenciesModal.js) */
+  border-radius: var(--radius-md);
+}
+.currency-section:active { background-color: rgba(0, 0, 0, 0.06); } /* style-ok: art (press tint) */
+.currency-section:focus-visible { outline: 2px solid var(--color-primary-green); outline-offset: 2px; }
+/* the info button: top-right, under the panel's close button (same right edge, like the Player
+   panel's settings gear); purely a cue, the tap goes to the section */
+/* (.currency-section in front: this beats HelpBadge's own --md size) */
+.currency-section .currency-info-button {
+  position: absolute;
+  top: 2px;
+  right: -1px; /* under the close button's X glyph (owner 2026-11-06: a touch left, a touch smaller) */
+  width: 22px;
+  height: 22px;
+}
+.currency-keys-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 .currency-display {

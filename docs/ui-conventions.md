@@ -34,7 +34,7 @@ value rather than trust this page.
   | Tier | Width | Content | Phone portrait | Examples |
   |---|---|---|---|---|
   | `modal-small` | 320 px | one message or one fact, plus buttons | the same modal | GameDialog, Spend Gems, Begin, Email ask, Name Deed, Install prompt, ResourceModalSmall, Progress, a hint |
-  | `modal-narrow` | 440 px | a list, or 2 to 3 columns (icon, name, mark; name, cost, button) | the same modal: 440 px is the phone's own modal width, so ONE layout serves both | Quest for Hope, Language picker, Share, Snug travel, Level Up / Train complete, Revival, Gold Pass benefits, bulk results |
+  | `modal-narrow` | 440 px | a list, or 2 to 3 columns (icon, name, mark; name, cost, button) | the same modal: 440 px is the phone's own modal width, so ONE layout serves both | Quest for Hope, Currencies & Keys, Language picker, Share, Snug travel, Level Up / Train complete, Revival, Gold Pass benefits, bulk results |
   | `modal-medium` | up to 600 px | reading text or a wrapping grid | the same modal, reflowed | Privacy policy, Off-season notice, Change Icon grid |
   | `modal-large` / `-xlarge` (or a feature's own wide box) | 800 to 1000 px | a table of 4+ columns the player compares across | its own portrait layout in `mobile.css` (rows become cards: `res-rows`) | Trading inventory, Inventory manage (backpack / warehouse), Eating, Global Market, Store, Mailbox, bulk select (harvest, animals, crafting), Avatar |
 
@@ -122,6 +122,12 @@ value rather than trust this page.
   it scrolls; the fade disappears at the end so the last line is never dimmed. Nothing to
   wire per panel; a new panel gets it as long as its scroller is a real `overflow-y: auto`
   box rather than the window.
+- A panel section that sums things up compactly (icon + number) opens its explanation as a whole
+  (owner 2026-11-06): the Inventory panel's currency block is one tappable region with a help
+  icon at its top-right, centred under the panel's close button (`.currency-info-button`), and
+  opens Currencies & Keys (`GameFeatures/Inventory/CurrenciesModal.js`): one compact row per
+  item (icon, full name, amount, ?), sized to fit a phone without scrolling; a row opens
+  ResourceModalSmall with where it comes from. No per-item `title` hover tips.
 - The nav bar does the same at its far edge (owner 2026-11-05): its buttons scroll inside an
   inner `.nav-scroll` (the pill `.nav-column` keeps its rounded ends and clips), and
   scrollFade.js gives that strip `scroll-fade--more-x` (a 56 px fade at the right, wide enough to
@@ -337,11 +343,19 @@ value rather than trust this page.
   unguarded tip pops up under the finger and sticks. Whatever a tip says that the player needs
   goes on the control itself: the gem button prints its cost (`💎12`, blue on the pale-blue
   chip, every layout), the crafting station prints the next slot's unlock cost under the slots
-  and a gem slot's price on its lock. Secondary details go behind the ℹ️ badge,
+  and a gem slot's price on its lock. Secondary details go behind the "?" details badge,
   `UI/Buttons/InfoButton.js` (resource buttons, trophy cards, a crafting station's Output row): hover on desktop, a TAP on touch
   opens it under the badge and the next tap anywhere closes it; the tap never reaches the
   control underneath. Render it outside a `<button>` (a disabled button swallows taps). The
   board's long-press tooltip is a touch gesture, not a hovertip, and stays.
+- ONE help mark everywhere (owner 2026-11-06): the How to Play "?" disc, `UI/Buttons/HelpBadge.js`.
+  Never a plain-text "?", never ℹ️. Sizes: `sm` 16 px (the flat redraw `icon-help-small.svg`, since the
+  painted `icon-help.svg` muddies below ~22 px) for resource-button / trophy details (InfoButton)
+  and list rows that open an explanation (Currencies & Keys, Quest for Hope); `md` 26 px (or 22 px
+  under a panel's close button, the Inventory currency block) and the header's full-size How to
+  Play button use the painted disc. The badge is a picture: the tap belongs to what it sits in.
+- A resource button's gem chip sits at the LOWER right, the details badge at the top right: the
+  two stay apart so a tap meant for one never hits the other (owner 2026-11-06).
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

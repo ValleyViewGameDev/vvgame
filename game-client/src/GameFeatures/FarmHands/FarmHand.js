@@ -801,7 +801,7 @@ const FarmHandPanel = ({
             <h3>{strings[430]}</h3>
 
             {workerSkills.map((resource) => {
-              const affordable = canAfford(resource, inventory, 1, backpack);
+              const affordable = canAfford(resource, inventory, backpack, 1);
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = resource[`ingredient${i}`];
                 const qty = resource[`ingredient${i}qty`];

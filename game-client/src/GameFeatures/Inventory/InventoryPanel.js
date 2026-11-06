@@ -13,6 +13,8 @@ import ManageContentsModal from './ManageContentsModal';
 import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import CloseButton from '../../UI/Buttons/CloseButton';
+import CurrenciesModal from './CurrenciesModal';
+import HelpBadge from '../../UI/Buttons/HelpBadge';
 import { postAction } from '../../Utils/playerDelta';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen, autoOpenBackpackModal = false, onBackpackModalAutoOpened }) {
@@ -24,6 +26,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
     const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+    const [showCurrencies, setShowCurrencies] = useState(false); // Currencies & Keys (CurrenciesModal)
     // App asks for Backpack Management on returning home with a loaded backpack (App.js)
     useEffect(() => {
         if (!autoOpenBackpackModal) return;
@@ -249,53 +252,57 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
             
 
-            {/* CURRENCIES */}
-            <div className="currency-section">
+            {/* CURRENCIES: the whole section (and its info button) opens Currencies & Keys, which names
+                each one and says where it comes from */}
+            <div
+                className="currency-section"
+                role="button"
+                tabIndex={0}
+                aria-label={strings[98008] || 'Currencies & Keys'}
+                onClick={() => setShowCurrencies(true)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowCurrencies(true); } }}
+            >
+                <HelpBadge size="md" className="currency-info-button" />
                 <div className="currency-display">
                     {/* Column 1: Money, Gems, and Home Deed */}
                     <div className="currency-column">
-                        <div className="currency-item" title={getLocalizedString('Money', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">💰</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Money')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item" title={getLocalizedString('Gem', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">💎</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Gem')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item" title={getLocalizedString('Home Deed', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">🏠</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Home Deed')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
                     {/* Column 2: Hearts */}
                     <div className="currency-column">
-                        <div className="currency-item" title={getLocalizedString('Yellow Heart', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">💛</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Yellow Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item" title={getLocalizedString('Green Heart', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">💚</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Green Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item" title={getLocalizedString('Purple Heart', strings)} style={{ cursor: 'help' }}>
+                        <div className="currency-item">
                             <span className="currency-emoji">💜</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Purple Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
                 </div>
                 {/* Row 3: Keys */}
-                <div className="currency-keys-row" style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+                <div className="currency-keys-row">
                     {masterResources
                         .filter(r => isCurrency(r.type) && r.type.includes('Key'))
                         .map(resourceDef => {
                             const quantity = inventory.find(item => item.type === resourceDef.type)?.quantity || 0;
                             return (
-                                <div
-                                    key={resourceDef.type}
-                                    className="currency-item"
-                                    title={getLocalizedString(resourceDef.type, strings)}
-                                    style={{ cursor: 'help' }}
-                                >
+                                <div key={resourceDef.type} className="currency-item">
                                     <span className="currency-emoji">{resourceDef.symbol || '🔑'}</span>
                                     <span className="currency-amount">{quantity}</span>
                                 </div>
@@ -304,6 +311,10 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     }
                 </div>
             </div>
+            {showCurrencies && createPortal(
+                <CurrenciesModal inventory={inventory} masterResources={masterResources} onClose={() => setShowCurrencies(false)} />,
+                document.body
+            )}
 
             <hr className="inventory-divider" />
 

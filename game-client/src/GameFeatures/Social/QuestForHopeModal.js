@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '../../UI/Modals/Modal';
+import HelpBadge from '../../UI/Buttons/HelpBadge';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import stringsEN from '../../UI/Strings/stringsEN.json';
@@ -49,7 +50,9 @@ export default function QuestForHopeModal({ items = [], onClose }) {
             >
               <span className="qfh-icon" aria-hidden="true">{item.symbol}</span>
               <span className="qfh-name">{getLocalizedString(item.name, strings)}</span>
-              <span className="qfh-mark" aria-hidden="true">{item.collected ? '✅' : '?'}</span>
+              {item.collected
+                ? <span className="qfh-mark" aria-hidden="true">✅</span>
+                : <HelpBadge size="sm" className="qfh-mark" />}
             </button>
           ))}
         </div>

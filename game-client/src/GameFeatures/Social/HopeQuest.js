@@ -55,7 +55,7 @@ function HopeQuest({
           onImpact: (r) => {
             setLanding(null);
             createCollectEffectAt(r.left + r.width / 2, r.top + r.height / 2, Math.max(40, r.width * 1.6));
-            soundManager.playSFX('collect_item');
+            soundManager.playSFX('success');   // sfx_success: the artifact lands in its Quest for Hope slot
           },
         }).then(resolve);
       }));

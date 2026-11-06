@@ -1630,7 +1630,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 <br />
           {healRecipes.map((recipe) => {
             const ingredients = getIngredientDetails(recipe, masterResources);
-            const affordable = canAfford(recipe, inventory, 1);
+            const affordable = canAfford(recipe, inventory, backpack, 1);
             const healAmount = recipe.qtycollected; // Healing value
 
             // Check if healer has HP remaining

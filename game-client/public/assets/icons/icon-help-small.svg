@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- The How to Play "?" (icon-help.svg, a painted 256 px disc) redrawn flat for small sizes
+       (12-20 px): the same honey disc and brown mark, bold enough to read at badge size. -->
+  <defs>
+    <linearGradient id="d" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fee3a0"/>
+      <stop offset="1" stop-color="#f0b655"/>
+    </linearGradient>
+  </defs>
+  <circle cx="16" cy="16" r="14.6" fill="url(#d)" stroke="#b97a2c" stroke-width="2"/>
+  <path d="M11.4 12.4a4.6 4.6 0 1 1 6.9 4c-1.5.9-2.3 1.7-2.3 3.4v.6" fill="none" stroke="#9a520f" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="16" cy="24.4" r="2.2" fill="#9a520f"/>
+</svg>

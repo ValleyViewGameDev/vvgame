@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { canHover } from '../../Utils/inputMode';
+import HelpBadge from './HelpBadge';
 import './ResourceButton.css';
 
 /**
- * The ℹ️ details badge (ResourceButton, Trophy cards). One convention on every layout:
+ * The details badge (the small "?" HelpBadge; ResourceButton, Trophy cards). One convention on every layout:
  * desktop shows the details on hover, beside the cursor; touch screens show them on a TAP of
  * the badge, anchored under it, and close them on the next tap anywhere (docs/ui-conventions.md
  * §5). The tap never reaches the control underneath, so tapping ℹ️ on a resource button does not
@@ -70,7 +71,7 @@ export default function InfoButton({ info, className = '', style }) {
         onMouseMove={(event) => { if (canHover() && !tapMode) followCursor(event); }}
         onMouseLeave={() => { if (!tapMode) setOpen(false); }}
       >
-        ℹ️
+        <HelpBadge size="sm" />
       </span>
       {open && ReactDOM.createPortal(
         <div

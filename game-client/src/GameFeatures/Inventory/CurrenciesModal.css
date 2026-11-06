@@ -1,0 +1,38 @@
+/* Currencies & Keys (CurrenciesModal.js): two columns of compact rows so all eleven fit a phone
+   without the modal scrolling. Row look follows the Quest for Hope list (GameFeatures/Social/QuestForHope.css). */
+.cur-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* two columns: a row is only icon, name, amount, ? */
+  gap: 4px;
+  width: 100%;
+}
+/* the keys: a little apart from the currencies */
+.cur-list--keys {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+.cur-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+  padding: 2px 6px 2px 8px;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-tint);
+  font-family: var(--font-text-2-family);   /* rows use the body font, not the title font */
+  font-size: var(--text-md);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.cur-row:active { background-color: rgba(0, 0, 0, 0.12); } /* style-ok: art (row tint) */
+.cur-icon { font-size: 22px; /* style-ok: icon */ line-height: 1; width: 26px; text-align: center; flex: none; }
+.cur-icon img { width: 24px; height: 24px; object-fit: contain; display: block; margin: 0 auto; }
+.cur-amount { flex: none; font-weight: bold; }
+/* the name takes what is left and ends in "..." rather than wrapping the row */
+.cur-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cur-row--none .cur-amount { opacity: 0.5; }
+
