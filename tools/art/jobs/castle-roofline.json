@@ -1,0 +1,34 @@
+{
+  "name": "castle-roofline",
+  "note": "Owner 2026-11-06: the Armory and the Warrior's Den are approved except their ROOFLINES, which are too straight for the whimsical style. Each redrawn from its approved panel with the roofline swooping and sagging the way the style preamble asks, nothing else changed, straight onto magenta so no cut round is needed. Two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "warriors-den-roof": {
+      "refs": [
+        "_candidates/buildings-bible-r5/approved/openai--painterly-warriors-den-b-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the WARRIOR'S DEN, a tall stone hall with a square tower on the right and a big red heraldic banner with crossed swords hanging from it, no placard. Redraw the SAME building, identical in every way: the same design, footprint, height, materials, colours, banner and its icon, props, door and windows, lighting from the upper left, size and camera (front wall square to the viewer, roof seen from above), with TWO changes only. One, the ROOFLINE: it is far too straight and regular for this game's storybook style. Give it the whimsy the rest of the town has: the hall's slate roof SAGS in the middle and its ridge SWOOPS, the eaves DROOP and curl up a little at the corners, the roof planes bow, the rows of slates follow the sag in wavy lines; the tower's cap tilts a touch and its crenellated parapet is uneven, no two merlons quite the same height; the chimney, if there is one, leans. Nothing perfectly straight, nothing symmetric, still clearly the same roof in the same colour and material. Two, the surroundings: there is NO grass, no ground, no grid, no shadow on the ground; the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end at its bottom, exactly as in the reference, with the roof, tower and banner pole rising above it. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere, no words on the banner."
+    },
+    "armory-roof": {
+      "refs": [
+        "_candidates/buildings-bible-r5/approved/openai--painterly-armory-b-2.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this exact approved building from this game: the ARMORY, a stone hall with a square tower on the LEFT carrying a big grey heraldic banner with a shield, a lighter grey slate roof, two suits of armour on display stands right of the door, no placard. Redraw the SAME building, identical in every way: the same design, footprint, height, materials, colours, banner and its icon, props, door and windows, lighting from the upper left, size and camera (front wall square to the viewer, roof seen from above), with TWO changes only. One, the ROOFLINE: it is far too straight and regular for this game's storybook style. Give it the whimsy the rest of the town has: the hall's slate roof SAGS in the middle and its ridge SWOOPS, the eaves DROOP and curl up a little at the corners, the roof planes bow, the rows of slates follow the sag in wavy lines; the tower's cap tilts a touch and its crenellated parapet is uneven, no two merlons quite the same height; the chimney, if there is one, leans. Nothing perfectly straight, nothing symmetric, still clearly the same roof in the same colour and material. Two, the surroundings: there is NO grass, no ground, no grid, no shadow on the ground; the building stands on a flat, pure, solid magenta (#FF00FF) field that fills the whole image around it, nothing else drawn on it, no vignette, no texture, no gradient. The LAST attached image is a layout guide: a magenta field with a thin grid and a 4 x 4 box outlined in the middle; the building's walls fill that box end to end at its bottom, exactly as in the reference, with the roof, tower and banner pole rising above it. Draw it there, nothing else, and leave every other pixel pure magenta. No letters anywhere, no words on the banner."
+    }
+  }
+}

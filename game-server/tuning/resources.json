@@ -9164,7 +9164,7 @@
     "artLook": "town",
     "artAccent": "iron grey with a red banner",
     "artSign": "crossed swords on the wide red banner hanging from the tower; no placard over the door",
-    "artSpan": 4.91
+    "artSpan": 4.8
   },
   {
     "type": "Armory",
@@ -9197,7 +9197,7 @@
     "artLook": "town",
     "artAccent": "steel grey, grey banner",
     "artSign": "a shield on the wide grey banner hanging from the tower (the Warrior's Den's banner, in grey); no placard",
-    "artSpan": 4.38
+    "artSpan": 4.33
   },
   {
     "type": "Magic Shop",
