@@ -63,6 +63,13 @@ can check the current value rather than trust this page.
    (who pays twice their xp), so a quest is a steady bonus on top of the core loop, never the
    clock. One-time story and lesson quests are set by hand (`early-game.md` §2).
 
+10. **Quest for Hope XP** (owner, 2026-11-06): Constable Elbow's "Find" quests for the seven
+   artifacts pay about 10x what they did, scaled by the quest's level (its difficulty):
+   xp = 400 x (level / 11)^1.14, rounded to 50. Crown L11 400, Trident L13 500, Vampire's Blood
+   L16 600, Brass Bell L18 700, Brief Candle L34 1,450, Prospero's Orb L40 1,750, Phoenix Feather
+   L55 2,500; the closing "Find Hope" quest pays 5,000. Elbow's "Meet" stepping-stone quests are
+   unchanged. A new artifact quest takes its xp from the same formula.
+
 ## 3. The level curve (xpLevels.json)
 
 XP needed to advance (thresholds in `xpLevels.json`: row `lvl N` holds the XP that reaches

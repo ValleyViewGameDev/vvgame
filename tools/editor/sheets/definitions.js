@@ -280,7 +280,7 @@ export const DEFINITIONS = [
     shape: 'array',
     identity: ['id'],
     restartNeeded: true,
-    columns: [{ ...num('id'), immutable: true, required: true }, str('title'), str('body'), json('rewards'), bool('everyoneRewards'), bool('neverPurge'), { ...ref('hopeArtifact', 'resource'), label: 'hopeArtifact (the Oracle letter mailed when this artifact is first found)' }],
+    columns: [{ ...num('id'), immutable: true, required: true }, str('title'), str('body'), json('rewards'), bool('everyoneRewards'), bool('neverPurge'), { ...ref('hopeArtifact', 'resource'), label: 'hopeArtifact (the Oracle letter mailed when this artifact is first found)' }, { ...str('oracleFound'), label: 'oracleFound (Oracle letter: the line for finding this artifact)' }, { ...str('oracleSeek'), label: 'oracleSeek (Oracle letter: the hint when this is the next artifact to seek)' }],
   },
   {
     id: 'FTUEsteps',

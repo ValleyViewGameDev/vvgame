@@ -252,7 +252,8 @@ const playerSchema = new mongoose.Schema({
       ],
       read: { type: Boolean, default: false },
       collected: { type: Boolean, default: false },
-      neverPurge: { type: Boolean, default: false } 
+      neverPurge: { type: Boolean, default: false },
+      body: { type: String }   // this copy's own text, in place of the template's (Oracle letters)
     }
   ],
 

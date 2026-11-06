@@ -317,7 +317,7 @@ const renderRewards = (rewards) => {
                     <span className="unread-tag">🆕</span>
                   )}
                 </h3>
-                <p className="message-body">{template.body}</p>
+                <p className="message-body">{msg.body || template.body}</p>
                 <p className="mailbox-timestamp">
                   {strings[1603]}: {new Date(msg.timestamp).toLocaleString()}
                 </p>

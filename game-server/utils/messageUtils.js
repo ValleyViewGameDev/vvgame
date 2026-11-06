@@ -14,8 +14,11 @@ const messageTemplates = JSON.parse(
  * @param {String} playerId - Player's MongoDB _id
  * @param {String} messageId - ID of the message template
  * @param {Array} [customRewards=[]] - Optional rewards if everyoneRewards is false
+ * @param {Object} [io] - socket.io, for the badge
+ * @param {Object} [opts] - { body }: this copy's own text in place of the template's (the
+ *   Oracle's composed letters, utils/oracleLetter.js)
  */
-async function sendMailboxMessage(playerId, messageId, customRewards = [], io = null) {
+async function sendMailboxMessage(playerId, messageId, customRewards = [], io = null, opts = {}) {
   console.log('DEBUG sendMailboxMessage:', { playerId, messageId, customRewards });
 
   const template = messageTemplates.find(m => m.id === messageId);
@@ -27,6 +30,7 @@ async function sendMailboxMessage(playerId, messageId, customRewards = [], io = 
     collected: false,
     neverPurge: template.neverPurge || false,
   };
+  if (opts.body) message.body = opts.body;
 
   if (!template.everyoneRewards) { message.rewards = customRewards; }
 

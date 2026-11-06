@@ -9,6 +9,7 @@ const { applyDelta: applyNpcDelta } = require('../utils/npcRelationships');
 const avatarCatalogue = require('../utils/avatarCatalogue');
 const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
 const { hopeArtifacts } = require('../utils/hopeArtifacts');
+const { composeOracleLetter } = require('../utils/oracleLetter');
 const { maybeSendReturnGift } = require('../utils/returnGift');
 const { NO_PASSWORD, publicPlayer } = require('../utils/publicPlayer');
 const { validateUsername, isReservedUsername } = require('../utils/usernames');
@@ -818,7 +819,8 @@ router.post('/player/buy-magic-slot', async (req, res) => {
 // The Quest for Hope "found" moment (docs/early-game.md §3): the client calls this when a Quest for
 // Hope artifact turns up in its holdings. The server decides from what the player really holds
 // (backpack + warehouse): each artifact held for the first time is recorded in `hopeFound` and the
-// Oracle's letter for it is mailed (messages.json rows with `hopeArtifact`). Safe to repeat. An
+// Oracle's letter for it is mailed (messages.json rows with `hopeArtifact`), composed from what
+// the player holds so it never points at an artifact already found (utils/oracleLetter.js). Safe to repeat. An
 // account from before this existed (no `hopeFound`) is seeded silently with what it already holds.
 router.post('/hope/found', async (req, res) => {
   const { playerId } = req.body || {};
@@ -837,10 +839,14 @@ router.post('/hope/found', async (req, res) => {
     player.hopeFound = [...player.hopeFound, ...newly];
     await player.save();
     const templates = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/messages.json'), 'utf8'));
+    const quests = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/quests/questsEN.json'), 'utf8'));
     const io = req.app.get('socketio');
+    const context = { artifacts: [...hopeArtifacts()], templates, quests };
     for (const artifact of newly) {
       const letter = templates.find((m) => m.hopeArtifact === artifact);
-      if (letter) await sendMailboxMessage(String(player._id), letter.id, [], io);
+      if (!letter) continue;
+      const body = composeOracleLetter(artifact, player.hopeFound, context);
+      await sendMailboxMessage(String(player._id), letter.id, [], io, body ? { body } : {});
     }
     res.json({ newly, hopeFound: player.hopeFound });
   } catch (error) {

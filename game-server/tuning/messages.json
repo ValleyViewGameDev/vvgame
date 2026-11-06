@@ -235,7 +235,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "King's Crown"
+    "hopeArtifact": "King's Crown",
+    "oracleFound": "\"If that which is lost be found\": so the prophecy runs, and the crown that was lost is found. Hope stirs.",
+    "oracleSeek": "Seek next the crown of a king, lost behind a golden lock in Leontes' castle. A great bear keeps the road."
   },
   {
     "id": 402,
@@ -244,7 +246,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Trident"
+    "hopeArtifact": "Trident",
+    "oracleFound": "The trident wakes, and the sea remembers its gods.",
+    "oracleSeek": "Seek next the old gods' trident, asleep in a sealed shrine. Only a key of bone will wake it, and a brother sworn to vengeance keeps that key."
   },
   {
     "id": 403,
@@ -253,7 +257,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Vampire's Blood"
+    "hopeArtifact": "Vampire's Blood",
+    "oracleFound": "The blood is given, and the dead lie quiet.",
+    "oracleSeek": "Seek next a pale lord of the night who craves quiet among the dead. Put his restless neighbours to rest, and he may bleed for thee."
   },
   {
     "id": 404,
@@ -262,7 +268,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Brass Bell"
+    "hopeArtifact": "Brass Bell",
+    "oracleFound": "The bell has rung, and its echo reached me on my mountain.",
+    "oracleSeek": "Seek next a bell that rings truest when bought with a secret. Win the deepest trust of the lady of laws, then carry what she whispers to the one she despises."
   },
   {
     "id": 405,
@@ -271,7 +279,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Phoenix Feather"
+    "hopeArtifact": "Phoenix Feather",
+    "oracleFound": "The feather is plucked, and still the bird will rise.",
+    "oracleSeek": "Seek next the fire that dies and rises again, behind a mirror by the King's castle. Only the boldest blade will pluck a feather from its ash."
   },
   {
     "id": 406,
@@ -280,7 +290,9 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Brief Candle"
+    "hopeArtifact": "Brief Candle",
+    "oracleFound": "The brief candle burns in thy hand, and no wind shall put it out.",
+    "oracleSeek": "Seek next a light that burns at the bottom of the burning lake, past the black fog and the hound with three heads. The queen of witches can light thy way."
   },
   {
     "id": 407,
@@ -289,6 +301,8 @@
     "rewards": [],
     "everyoneRewards": false,
     "neverPurge": true,
-    "hopeArtifact": "Prospero's Orb"
+    "hopeArtifact": "Prospero's Orb",
+    "oracleFound": "The storm's own heart is thine, and the old magician's Orb hums in thy hand.",
+    "oracleSeek": "Seek next the place where the mountains close like a fist. An old master of storms keeps his counsel there: do as he bids."
   }
 ]
