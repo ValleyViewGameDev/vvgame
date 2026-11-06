@@ -221,6 +221,10 @@ const playerSchema = new mongoose.Schema({
     // the highest-level owned items count (utils/combatStats.js equippedMagicTypes)
     equippedMagic: { type: [String], default: undefined },
     plantWithCursor: { type: Boolean, default: true },
+    // the Snug lesson (GameFeatures/NPCs/useSnugLesson.js) has run: never again on any device.
+    // Every client-written setting must be declared here: a key the schema lacks is silently
+    // dropped by strict mode (this one was, 2026-11-05/06, and the lesson re-ran on every refetch).
+    snugLessonDone: { type: Boolean, default: false },
   },
 
   // Quest for Hope artifacts whose "found" moment has played (story modal + the Oracle's letter).
