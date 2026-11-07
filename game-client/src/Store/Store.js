@@ -9,6 +9,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';
 import { useStrings } from '../UI/StringsContext';
 import { formatNumber } from '../UI/Timers';
+import ResourceIcon from '../UI/Icons/ResourceIcon';
 
 export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
   try {
@@ -134,10 +135,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                   <h3>{offer.title}</h3>
                   <p>{offer.body}</p>
                   <p className="store-reward-line">
-                    {offer.rewards.map(r => {
-                      const symbol = resources.find(res => res.type === r.item)?.symbol || '';
-                      return `${symbol} ${formatNumber(r.qty)} ${r.item}`;
-                    }).join(", ")}
+                    {offer.rewards.map((r, i) => (
+                      <React.Fragment key={r.item}>{i > 0 ? ', ' : ''}<ResourceIcon type={r.item} masterResources={resources} /> {formatNumber(r.qty)} {r.item}</React.Fragment>
+                    ))}
                   </p>
                 </div>
                 <div className="store-offer-right">

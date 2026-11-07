@@ -8,6 +8,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import questCache from '../../Utils/QuestCache';
 import { playCelebrationFireworks } from '../../VFX/Celebration';
 import CloseButton from '../Buttons/CloseButton';
+import ResourceIcon from '../Icons/ResourceIcon';
 
 // Categories to show in unlock list
 const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco', 'station'];
@@ -108,7 +109,7 @@ const LevelUpModal = ({
               <ul className="unlocked-list">
                 {unlockedResources.map((resource, index) => (
                   <li key={index}>
-                    {resource.symbol} {getLocalizedString(resource.type, strings)}
+                    <ResourceIcon resource={resource} /> {getLocalizedString(resource.type, strings)}
                   </li>
                 ))}
               </ul>

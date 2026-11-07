@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import TrainCompleteModal from '../../UI/Modals/TrainCompleteModal';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
@@ -225,17 +226,17 @@ function NewTrainPanel({
           let costDisplay, details, buttonText;
           
           if (isCompleted) {
-            costDisplay = `<span style="color: var(--color-text-positive);">${getSymbol(offer.item)} ${offer.item} ${offer.quantity}</span>`;
+            costDisplay = `<span style="color: var(--color-text-positive);">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity}</span>`;
             details = `<div>${costDisplay}</div>Completed`;
             buttonText = '';
           } else if (loadingExpired) {
-            costDisplay = `<span style="color: var(--color-text-muted);">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
+            costDisplay = `<span style="color: var(--color-text-muted);">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
             details = `<div>${costDisplay}</div>${strings[2118] || 'Caravan Departed'}`;
             buttonText = '';
           } else {
             const costColor = affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-            costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
-            const rewardDisplay = `${getSymbol('Money')} ${moneyReward.toLocaleString()}`;
+            costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
+            const rewardDisplay = `${resourceIconHtml('Money', masterResources)} ${moneyReward.toLocaleString()}`;
             details = `<div>${costDisplay}</div>${strings[42]} ${rewardDisplay}`;
             buttonText = '';
           }
@@ -289,7 +290,7 @@ function NewTrainPanel({
       <div className="train-rewards-container">
         {rewards.map((reward, index) => (
           <div key={index} className="train-reward-item">
-            {getSymbol(reward.item)} {reward.quantity} {reward.item}
+            <ResourceIcon type={reward.item} masterResources={masterResources} /> {reward.quantity} {reward.item}
           </div>
         ))}
       </div>
@@ -325,7 +326,7 @@ function NewTrainPanel({
           </div>
           {nextTrainOffers.map((offer, index) => (
             <div key={index} className="next-shipment-item">
-              {getSymbol(offer.item)} {offer.item}
+              <ResourceIcon type={offer.item} masterResources={masterResources} /> {offer.item}
             </div>
           ))}
         </div>

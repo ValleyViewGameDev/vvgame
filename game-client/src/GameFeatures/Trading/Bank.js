@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
@@ -237,9 +238,9 @@ function BankPanel({
                         >
                           <div className="resource-details">
                             <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
-                            {getSymbol(offer.itemBought)} {offer.itemBought} x{Number(offer.qtyBought).toLocaleString()} / {Number(playerQty).toLocaleString()}
+                            <ResourceIcon type={offer.itemBought} masterResources={masterResources} /> {offer.itemBought} x{Number(offer.qtyBought).toLocaleString()} / {Number(playerQty).toLocaleString()}
                             <br />
-                            {strings["1404"]} {getSymbol(offer.itemGiven)} {Number(offer.qtyGiven).toLocaleString()} {/* "for" */}
+                            {strings["1404"]} <ResourceIcon type={offer.itemGiven} masterResources={masterResources} /> {Number(offer.qtyGiven).toLocaleString()} {/* "for" */}
                           </div>
                         </ResourceButton>
                         </div>

@@ -5,6 +5,7 @@ import '../../UI/Buttons/SharedButtons.css';
 import '../Crafting/ScrollStation.css'; // Import for shared station panel styles
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
@@ -1245,8 +1246,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
                     const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                     const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                    return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                    const icon = resourceIconHtml(type, masterResources);
+                    return `<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${icon} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
                 } else {
                   // Legacy format - check ingredient1 through ingredientN
@@ -1258,8 +1259,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 
                     const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                     const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                    ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                    const icon = resourceIconHtml(type, masterResources);
+                    ingredientsList.push(`<span data-resource="${type}" data-short="${playerQty < qty ? 1 : 0}" style="color: ${color}; display: block;">${icon} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                   }
                   formattedCosts = ingredientsList.join('');
                 }
@@ -1659,6 +1660,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             return (
               <div key={recipe.type}>
                 <ResourceButton
+                  resourceType={recipe.type}
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
                   details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}

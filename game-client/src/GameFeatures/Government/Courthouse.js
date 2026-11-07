@@ -15,6 +15,7 @@ import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css';
@@ -489,8 +490,8 @@ const CourthousePanel = ({
 
                                         const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                                         const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                                        const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                                        return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                                        const icon = resourceIconHtml(type, masterResources);
+                                        return `<span style="color: ${color}; display: block;">${icon} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                                     }).join('');
 
                                     const skillColor = meetsRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -514,17 +515,14 @@ const CourthousePanel = ({
                                         }
                                     }
 
-                                    const unlocks = masterResources
-                                        .filter((res) => res.requires === resource.type)
-                                        .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                                        .join(', ') || 'None';
+                                    const unlocks = masterResources.filter((res) => res.requires === resource.type);
 
                                     const info = (
                                         <div className="info-content">
                                             {attributeModifier && <div>{attributeModifier}</div>}
-                                            {unlocks !== 'None' && (
+                                            {unlocks.length > 0 && (
                                                 <div style={{ display: 'block', marginBottom: '3px' }}>
-                                                    <strong>Unlocks:</strong> {unlocks}
+                                                    <strong>Unlocks:</strong> {unlocks.map((res, i) => <React.Fragment key={res.type}>{i > 0 ? ', ' : ''}<ResourceIcon resource={res} /> {getLocalizedString(res.type, strings)}</React.Fragment>)}
                                                 </div>
                                             )}
                                             {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}

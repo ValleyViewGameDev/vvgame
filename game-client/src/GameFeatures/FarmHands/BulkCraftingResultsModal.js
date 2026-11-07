@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Modal from '../../UI/Modals/Modal';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import soundManager from '../../Sound/SoundManager';
@@ -59,11 +60,10 @@ export function BulkCraftingResultsModal({
 
                 // Find the item symbol from masterResources
                 const itemResource = masterResources?.find(r => r.type === itemType);
-                const itemSymbol = itemResource?.symbol || '📦';
 
                 return (
                   <div key={itemType} className="crop-row">
-                    <span className="crop-symbol">{itemSymbol}</span>
+                    <span className="crop-symbol"><ResourceIcon resource={itemResource} symbol={itemResource?.symbol || '📦'} /></span>
                     <span className="crop-name">{getLocalizedString(itemType, strings)}</span>
                     <span className="crop-quantity">+{quantity}</span>
                     {hasSkillBonus && (
@@ -88,11 +88,10 @@ export function BulkCraftingResultsModal({
               {Object.entries(restartInfo).map(([itemType, count]) => {
                 // Find the item symbol from masterResources
                 const itemResource = masterResources?.find(r => r.type === itemType);
-                const itemSymbol = itemResource?.symbol || '🛖';
 
                 return (
                   <div key={itemType} className="replant-row">
-                    <span className="replant-symbol">{itemSymbol}</span>
+                    <span className="replant-symbol"><ResourceIcon resource={itemResource} symbol={itemResource?.symbol || '🛖'} /></span>
                     <span className="replant-name">{getLocalizedString(itemType, strings)}</span>
                     <span className="replant-quantity">{count}</span>
                   </div>

@@ -1,6 +1,7 @@
 import playersInGridManager from "../GridState/PlayersInGrid";
 import axios from "axios";
 import API_BASE from "../config";
+import { resourceIconHtml } from "../UI/Icons/ResourceIcon";
   
 export const getIngredientDetails = (recipe, allResources) => {
   
@@ -9,8 +10,7 @@ export const getIngredientDetails = (recipe, allResources) => {
       const ingredientType = recipe[`ingredient${i}`];
       const ingredientQty = recipe[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {
-        const ingredientResource = allResources.find((res) => res.type === ingredientType);
-        const symbol = ingredientResource?.symbol || '';
+        const symbol = resourceIconHtml(ingredientType, allResources);
         ingredients.push(`${symbol} ${ingredientType} x${ingredientQty}`);
       }
     }

@@ -381,3 +381,6 @@
 .resource-button.mini {
   padding-right: 28px; /* room for the ℹ️ badge beside the button text */
 }
+/* the card's picture (UI/Icons/ResourceIcon): a fixed 24 px so painted art and emoji rows line up */
+.resource-title .resource-title-icon { width: 24px; height: 24px; vertical-align: middle; margin-right: 4px; }
+.resource-title .resource-title-icon.resource-icon--glyph { width: auto; height: auto; }

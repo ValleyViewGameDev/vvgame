@@ -7,6 +7,7 @@ import { usePanelContext } from '../Panels/PanelContext';
 import { formatNumber } from '../Timers';
 import { canHover } from '../../Utils/inputMode';
 import InfoButton from './InfoButton';
+import ResourceIcon from '../Icons/ResourceIcon';
 import './ResourceButton.css';
 
 // Function to format numbers in HTML details strings
@@ -175,18 +176,15 @@ const ResourceButton = ({
 
           {/* ✅ Ensure default content is displayed - keep visible during processing */}
           <span className="resource-title">
-            {filename ? (
-              <img
-                src={`/assets/resources/${filename}`}
-                alt={name}
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  verticalAlign: 'middle',
-                  marginRight: '4px'
-                }}
-              />
-            ) : symbol}{(filename || symbol) ? ' ' : ''}{name}
+            {/* the card's picture: an explicit filename, else the resource row's art (iconFile / filename,
+                UI/Icons/ResourceIcon), else the row behind resourceType, else the emoji symbol */}
+            <ResourceIcon
+              resource={filename ? { filename } : ((resource?.iconFile || resource?.filename) ? resource : null)}
+              type={(filename || resource?.iconFile || resource?.filename) ? undefined : resourceType}
+              symbol={symbol}
+              masterResources={masterResources}
+              className="resource-title-icon"
+            />{(filename || symbol || resourceType) ? ' ' : ''}{name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{
             __html: details ? formatDetailsForDisplay(details) : details

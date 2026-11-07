@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
@@ -267,7 +268,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     {/* Column 1: Money, Gems, and Home Deed */}
                     <div className="currency-column">
                         <div className="currency-item">
-                            <span className="currency-emoji">💰</span>
+                            <span className="currency-emoji"><ResourceIcon type="Money" masterResources={masterResources} /></span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Money')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                         <div className="currency-item">
@@ -304,7 +305,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                             const quantity = getPlayerQuantity(resourceDef.type, inventory, backpack);
                             return (
                                 <div key={resourceDef.type} className="currency-item">
-                                    <span className="currency-emoji">{resourceDef.symbol || '🔑'}</span>
+                                    <span className="currency-emoji"><ResourceIcon resource={resourceDef} symbol={resourceDef.symbol || '🔑'} /></span>
                                     <span className="currency-amount">{quantity}</span>
                                 </div>
                             );
@@ -371,7 +372,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                     <tbody>
                                         {getSortedBackpack().map((item, index) => (
                                             <tr key={index}>
-                                                <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
+                                                <td><ResourceIcon type={item.type} masterResources={masterResources} /> {getLocalizedString(item.type, strings)}</td>
                                                 <td>{item.quantity.toLocaleString()}</td>
                                             </tr>
                                         ))}
@@ -454,7 +455,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                 <tbody>
                                     {getSortedInventory().map((item, index) => (
                                         <tr key={index}>
-                                            <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
+                                            <td><ResourceIcon type={item.type} masterResources={masterResources} /> {getLocalizedString(item.type, strings)}</td>
                                             <td>{item.quantity.toLocaleString()}</td>
                                         </tr>
                                     ))}

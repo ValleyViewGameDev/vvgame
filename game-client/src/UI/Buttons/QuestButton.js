@@ -24,9 +24,9 @@ const getSvgFilenameForSymbol = (symbol, masterResources) => {
   if (!symbol || !masterResources || !Array.isArray(masterResources)) return null;
   const normalizedSymbol = normalizeEmoji(symbol);
   const resource = masterResources.find(r =>
-    r.symbol && normalizeEmoji(r.symbol) === normalizedSymbol && r.filename
+    r.symbol && normalizeEmoji(r.symbol) === normalizedSymbol && (r.iconFile || r.filename)
   );
-  return resource?.filename || null;
+  return resource?.iconFile || resource?.filename || null;
 };
 
 // Helper component to render symbol (SVG or emoji)

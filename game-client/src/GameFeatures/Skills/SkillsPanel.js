@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { useStrings } from '../../UI/StringsContext';
@@ -335,17 +336,14 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     }
                   }
 
-                  const unlocks = allResources
-                    .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                    .join(', ') || 'None';
+                  const unlocks = allResources.filter((res) => res.requires === resource.type);
 
                   const info = (
                     <div className="info-content">
                       {attributeModifier && <div>{attributeModifier}</div>}
-                      {unlocks !== 'None' && (
+                      {unlocks.length > 0 && (
                         <div style={{ display: 'block', marginBottom: '3px' }}>
-                          <strong>Unlocks:</strong> {unlocks}
+                          <strong>Unlocks:</strong> {unlocks.map((res, i) => <React.Fragment key={res.type}>{i > 0 ? ', ' : ''}<ResourceIcon resource={res} /> {getLocalizedString(res.type, strings)}</React.Fragment>)}
                         </div>
                       )}
                       {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}
@@ -379,8 +377,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
 
                     const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                     const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                    const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                    return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
 
                   const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -441,17 +438,14 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                       }
                     }
 
-                    const unlocks = allResources
-                      .filter((res) => res.requires === resource.type)
-                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                      .join(', ') || 'None';
+                    const unlocks = allResources.filter((res) => res.requires === resource.type);
 
                     const info = (
                       <div className="info-content">
                         {attributeModifier && <div>{attributeModifier}</div>}
-                        {unlocks !== 'None' && (
+                        {unlocks.length > 0 && (
                           <div style={{ display: 'block', marginBottom: '3px' }}>
-                            <strong>Unlocks:</strong> {unlocks}
+                            <strong>Unlocks:</strong> {unlocks.map((res, i) => <React.Fragment key={res.type}>{i > 0 ? ', ' : ''}<ResourceIcon resource={res} /> {getLocalizedString(res.type, strings)}</React.Fragment>)}
                           </div>
                         )}
                         {buffText && <div style={{ color: 'var(--color-text-link)' }}>{buffText}</div>}

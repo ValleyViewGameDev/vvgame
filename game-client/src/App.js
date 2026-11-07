@@ -3267,7 +3267,7 @@ return (
               <span>{headerGems != null ? headerGems.toLocaleString() : '...'}</span>
             </button>
             <button className="header-link header-icon-btn header-currency-btn" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
-              <span className="header-currency-icon" aria-hidden="true">💰</span>
+              <img className="header-currency-icon header-currency-icon--img" src="/assets/resources/doober-money.svg" alt="" draggable="false" />
               <span>{headerMoney != null ? headerMoney.toLocaleString() : '...'}</span>
             </button>
             <span className="header-desk-divider" aria-hidden="true" />
@@ -3357,7 +3357,7 @@ return (
               💎 {headerGems != null ? headerGems.toLocaleString() : "..."}
             </button>
             <button className="header-link" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
-              💰 {headerMoney != null ? headerMoney.toLocaleString() : "..."}
+              <img className="header-inline-icon" src="/assets/resources/doober-money.svg" alt="" draggable="false" />{headerMoney != null ? headerMoney.toLocaleString() : "..."}
             </button>
           </div>
           {/* Row 4 - Progress bars (4px tall) */}

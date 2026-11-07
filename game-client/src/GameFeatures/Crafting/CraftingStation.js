@@ -7,6 +7,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import FloatingTextManager from '../../UI/FloatingText';
 import { canAfford, calculateSkillMultiplier, applySkillMultiplier, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
@@ -775,7 +776,7 @@ const CraftingStation = ({
                                   <span className="crafting-slot-icon"></span>
                                 ) : (
                                   <>
-                                    <span className="crafting-slot-icon">{craftedItemInfo?.symbol || '🎁'}</span>
+                                    <span className="crafting-slot-icon"><ResourceIcon resource={craftedItemInfo} symbol={craftedItemInfo?.symbol || '🎁'} /></span>
                                     {slotIsReady && <span className="crafting-slot-ready-badge">&#x2705;</span>}
                                   </>
                                 )}
@@ -806,12 +807,11 @@ const CraftingStation = ({
                       <div className="crafting-slot-unlock-cost">
                         &#x1F512; {strings[175] || 'Unlock for'}{' '}
                         {entries.map(([resourceType, qty], idx) => {
-                          const symbol = masterResources?.find(r => r.type === resourceType)?.symbol || '';
                           const playerQty = (inventory?.find(item => item.type === resourceType)?.quantity || 0)
                             + ((Array.isArray(backpack) ? backpack : []).find(item => item.type === resourceType)?.quantity || 0);
                           return (
                             <span key={resourceType} className={playerQty >= qty ? 'sufficient' : 'insufficient'}>
-                              {idx > 0 ? ', ' : ''}{symbol} {formatNumber(qty)} / {formatNumber(playerQty)}
+                              {idx > 0 ? ', ' : ''}<ResourceIcon type={resourceType} masterResources={masterResources} /> {formatNumber(qty)} / {formatNumber(playerQty)}
                             </span>
                           );
                         })}
@@ -841,18 +841,18 @@ const CraftingStation = ({
                 ? `${strings[458]} ${formatDuration(recipe.crafttime)}`
                 : strings[459];
 
+              const usedIn = allResources.filter((res) =>
+                [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
+              );
               const info = (
                 <div className="info-content">
                   <div>
                     <strong>{strings[421]}</strong>{' '}
-                    {allResources
-                      .filter((res) =>
-                        [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
-                      )
-                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                      .join(', ') || 'None'}
+                    {usedIn.length
+                      ? usedIn.map((res, i) => <React.Fragment key={res.type}>{i > 0 ? ', ' : ''}<ResourceIcon resource={res} /> {getLocalizedString(res.type, strings)}</React.Fragment>)
+                      : 'None'}
                   </div>
-                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  <div><strong>{strings[422]}</strong> <ResourceIcon type="Money" /> {recipe.minprice || 'n/a'}</div>
                   {/* Show healer maxhp info for Hospital buildings with healer NPCs */}
                   {stationType === 'Hospital' && recipe.action === 'heal' && (
                     <div><strong>{strings[51]}</strong> {recipe.maxhp || 'n/a'}</div>
@@ -868,8 +868,7 @@ const CraftingStation = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               return (
@@ -942,12 +941,11 @@ const CraftingStation = ({
                     .filter(([, v]) => v > 0)
                     .map(([resourceType, qty]) => {
                       const resourceInfo = masterResources?.find(r => r.type === resourceType);
-                      const symbol = resourceInfo?.symbol || '';
                       const playerQty = getPlayerQuantity(resourceType, inventory, backpack); // backpack + warehouse
                       const hasEnough = playerQty >= qty;
                       return (
                         <div key={resourceType} style={{ color: hasEnough ? 'var(--color-text-positive)' : 'var(--color-text-negative)' }}>
-                          {symbol} {getLocalizedString(resourceType, strings)}: {qty} / {playerQty}
+                          <ResourceIcon resource={resourceInfo} /> {getLocalizedString(resourceType, strings)}: {qty} / {playerQty}
                         </div>
                       );
                     })}
@@ -955,7 +953,7 @@ const CraftingStation = ({
             ) : (
               // Crafting or ready slot - show item info (quantity is shown in Output badge)
               <div>
-                <div>{masterResources?.find(r => r.type === slot.craftedItem)?.symbol || '🎁'} {getLocalizedString(slot.craftedItem, strings)}</div>
+                <div><ResourceIcon type={slot.craftedItem} masterResources={masterResources} symbol={masterResources?.find(r => r.type === slot.craftedItem)?.symbol || '🎁'} /> {getLocalizedString(slot.craftedItem, strings)}</div>
                 {slotIsReady && <div style={{ color: 'var(--color-text-positive)' }}>{strings[457] || 'Ready to collect!'}</div>}
               </div>
             )}

@@ -16,6 +16,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst from '../../UI/SaleBurst';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
 import FeedbackLinks from '../../UI/Panels/FeedbackLinks';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 
 function Mailbox({ 
   onClose, 
@@ -222,7 +223,7 @@ const renderRewards = (rewards) => {
     <div className="reward-summary">
       {rewards.map((r, idx) => (
         <span key={idx} className="reward-item">
-          {getSymbol(r.item)} {r.qty} {r.item}
+          <ResourceIcon type={r.item} masterResources={resources} /> {r.qty} {r.item}
         </span>
       ))}
     </div>

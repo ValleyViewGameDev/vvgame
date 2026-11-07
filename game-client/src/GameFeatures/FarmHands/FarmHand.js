@@ -5,6 +5,7 @@ import Panel from '../../UI/Panels/Panel';
 import ProgressModal from '../../UI/Modals/ProgressModal';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { canAfford, ensureRoomFor } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
@@ -809,8 +810,7 @@ const FarmHandPanel = ({
                 const playerQty = (inventory.find((item) => item.type === type)?.quantity || 0) +
                                   (backpack.find((item) => item.type === type)?.quantity || 0);
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, masterResources)} ${type} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const details = `Costs:<div>${formattedCosts}</div>`;
@@ -819,6 +819,7 @@ const FarmHandPanel = ({
                 <ResourceButton
                   key={resource.type}
                   symbol={resource.symbol}
+                  resource={resource}
                   name={resource.type}
                   className="resource-button"
                   details={details}
@@ -840,11 +841,12 @@ const FarmHandPanel = ({
                 const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
                                     (backpack.find((item) => item.type === 'Money')?.quantity || 0);
                 const affordable = playerMoney >= cost;
-                const details = `${strings[347]} 💰 ${cost}`;
+                const details = `${strings[347]} ${resourceIconHtml('Money', masterResources)} ${cost}`;
                 return (
                   <ResourceButton
                     key={resource.type}
                     symbol={resource.symbol}
+                    resource={resource}
                     name={resource.type}
                     className="resource-button"
                     details={details}

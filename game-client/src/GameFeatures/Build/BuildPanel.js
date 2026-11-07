@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
@@ -324,8 +325,7 @@ const BuildPanel = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -341,7 +341,7 @@ const BuildPanel = ({
                 ${strings[820]}${
                   allResources
                     .filter((res) => res.source === item.type)
-                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                    .map((res) => `${resourceIconHtml(res.type, allResources)} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None'
                 }
               `;

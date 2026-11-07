@@ -462,6 +462,7 @@ const ScrollStation = ({
               return (
                 <ResourceButton
                   symbol={revealedResource?.symbol || '📦'}
+                  resource={revealedResource}
                   name={`\n${getLocalizedString(craftedItem, strings)}${revealedItemQty > 1 ? ` (${revealedItemQty})` : ''}`}
                   className={`resource-button scroll-collect-button rarity-${typeof rarity === 'string' ? rarity : 'common'} ${isCollecting ? 'collecting' : 'ready'}`}
                   details={rarityText} 

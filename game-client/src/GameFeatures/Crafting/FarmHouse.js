@@ -4,6 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
@@ -428,18 +429,18 @@ const FarmHouse = ({
                 );
               } else {
                 // Default info for non-worker recipes
+                const usedIn = allResources.filter((res) =>
+                  [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
+                );
                 info = (
                   <div className="info-content">
                     <div>
                       <strong>{strings[421]}</strong>{' '}
-                      {allResources
-                        .filter((res) =>
-                          [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
-                        )
-                        .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                        .join(', ') || 'None'}
+                      {usedIn.length
+                        ? usedIn.map((res, i) => <React.Fragment key={res.type}>{i > 0 ? ', ' : ''}<ResourceIcon resource={res} /> {getLocalizedString(res.type, strings)}</React.Fragment>)
+                        : 'None'}
                     </div>
-                    <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                    <div><strong>{strings[422]}</strong> <ResourceIcon type="Money" /> {recipe.minprice || 'n/a'}</div>
                   </div>
                 );
               }
@@ -452,8 +453,7 @@ const FarmHouse = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import ResourceIcon from '../UI/Icons/ResourceIcon';
 import { getLocalizedString } from '../Utils/stringLookup';
 import { calculateGemSpeedupCost } from './EconomyUtils';
 import { GEM_PRICE, smoothGems } from './gemPricing';
@@ -57,6 +58,7 @@ export const calculateGemPurchase = ({
             // Track what will be spent
             if (willSpend > 0) {
                 spendingItems.push({
+                    type: ingredientType,
                     symbol: resourceData?.symbol || '',
                     name: getLocalizedString(ingredientType, strings),
                     amount: willSpend
@@ -73,6 +75,7 @@ export const calculateGemPurchase = ({
         const hasSkill = ownedSkills.some(skill => skill.type === resource.requires);
         if (hasSkill) {
             spendingItems.push({
+                type: resource.requires,
                 symbol: requiredSkill?.symbol || '',
                 name: getLocalizedString(resource.requires, strings),
                 amount: '✓',
@@ -177,7 +180,7 @@ export const calculateGemPurchase = ({
                     <div className="spending-label">Will use:</div>
                     {spendingItems.map((item, index) => (
                         <div key={index} className="spending-line">
-                            {item.symbol} {item.amount} {item.isSkill ? '(Skill)' : ''}
+                            <ResourceIcon type={item.type} masterResources={safeMasterResources} symbol={item.symbol} /> {item.amount} {item.isSkill ? '(Skill)' : ''}
                         </div>
                     ))}
                     <div className="spending-line gem-line">

@@ -5,6 +5,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel'; // Use Panel instead of Modal
 import LevelLock from '../../UI/Panels/LevelLock';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import TradingInventoryModal from '../../UI/Modals/TradingInventoryModal';
 import axios from 'axios';
 import './TradeStall.css';
@@ -653,7 +654,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       <div className="trade-slot-status">{formatDuration(config.sellWaitTime / 1000)} {strings[174]}</div>
                       <div className="trade-slot-unlock-cta">
                         <span>{strings[175]}</span>
-                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} {getSymbol('Wood')}</span>
+                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} <ResourceIcon type="Wood" masterResources={resourceData} /></span>
                       </div>
                     </div>
                   ) : isEmpty ? (
@@ -665,7 +666,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                   ) : (
                     <div className="trade-slot-content">
                       <div className="trade-slot-item-name">
-                        {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
+                        {slot.amount}x <ResourceIcon type={slot.resource} masterResources={resourceData} /> {getLocalizedString(slot.resource, strings)}
                       </div>
                       {isPurchased && (
                         <>
@@ -673,7 +674,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                             {strings[157]} {slot.boughtBy}
                           </div>
                           <div className="trade-slot-status">
-                            {strings[318]} 💰{slot.boughtFor.toLocaleString()}
+                            {strings[318]} <ResourceIcon type="Money" masterResources={resourceData} />{slot.boughtFor.toLocaleString()}
                           </div>
                         </>
                       )}
@@ -684,7 +685,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       )}
                       {isReadyToSell && !isPurchased && (
                         <div className="trade-slot-status ready">
-                          {strings[167]} 💰{(slot.amount * slot.price).toLocaleString()}
+                          {strings[167]} <ResourceIcon type="Money" masterResources={resourceData} />{(slot.amount * slot.price).toLocaleString()}
                         </div>
                       )}
                     </div>
@@ -727,7 +728,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
                       <div className="trade-slot-unlock-cta">
                         <span>{strings[175]}</span>
-                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} {getSymbol('Wood')}</span>
+                        <span className="trade-slot-unlock-cost" title={strings[176]}>{config.unlockCost.toLocaleString()} <ResourceIcon type="Wood" masterResources={resourceData} /></span>
                       </div>
                     </div>
                   ) : isEmpty ? (
@@ -738,10 +739,10 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                   ) : (
                     <div className="trade-slot-content">
                       <div className="trade-slot-item-name">
-                        {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
+                        {slot.amount}x <ResourceIcon type={slot.resource} masterResources={resourceData} /> {getLocalizedString(slot.resource, strings)}
                       </div>
                       <div className="trade-slot-status">
-                        {strings[2121] || 'You pay:'} 💰{slot.moneyCommitted.toLocaleString()}
+                        {strings[2121] || 'You pay:'} <ResourceIcon type="Money" masterResources={resourceData} />{slot.moneyCommitted.toLocaleString()}
                       </div>
                       {/* the card's own Cancel line (only this line cancels; the card itself does not) */}
                       <TransactionButton

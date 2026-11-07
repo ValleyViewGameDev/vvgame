@@ -73,12 +73,14 @@ export default function HopeFound({ currentPlayer, setCurrentPlayer, inventory, 
   }, [current, landed]);
 
   if (!current || landed !== current) return null;
-  const symbol = masterResources?.find((r) => r.type === current)?.symbol || '✨';
+  const art = masterResources?.find((r) => r.type === current);
+  const symbol = art?.symbol || '✨';
   return (
     <StoryModal
       isOpen
       onClose={() => setQueue((q) => q.slice(1))}
       symbol={symbol}
+      npcFilename={art?.iconFile || art?.filename}
       dialogKey={FOUND_STRING[current]}
       username={currentPlayer?.username}
     />

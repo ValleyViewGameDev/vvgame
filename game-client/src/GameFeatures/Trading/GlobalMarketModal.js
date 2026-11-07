@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import Modal from '../../UI/Modals/Modal';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import axios from 'axios';
 import API_BASE from '../../config';
@@ -164,11 +165,6 @@ function GlobalMarketModal({
     });
   };
 
-  // Get symbol for a resource type
-  const getSymbol = (resourceType) => {
-    const resource = resourceData.find((res) => res.type === resourceType);
-    return resource?.symbol || '';
-  };
 
   // Handle buying an item - delegates to parent component
   const handleBuyItem = async (playerId, slotIndex, transactionId, transactionKey) => {
@@ -279,7 +275,7 @@ function GlobalMarketModal({
                         <div key={actualSlotIndex} className="slot-item">
                           <div className="slot-info">
                             <div className="slot-item-name">
-                              {slot.amount}x {getSymbol(slot.resource)} {getLocalizedString(slot.resource, strings)}
+                              {slot.amount}x <ResourceIcon type={slot.resource} masterResources={resourceData} /> {getLocalizedString(slot.resource, strings)}
                             </div>
                           </div>
                           
@@ -292,7 +288,7 @@ function GlobalMarketModal({
                                   handleBuyItem(player.playerId, actualSlotIndex, transactionId, transactionKey)
                                 }
                               >
-                                {strings[365] || "Buy"} 💰{totalCost.toLocaleString()}
+                                {strings[365] || "Buy"} <ResourceIcon type="Money" masterResources={resourceData} />{totalCost.toLocaleString()}
                               </TransactionButton>
                             </div>
                           </div>
@@ -349,7 +345,7 @@ function GlobalMarketModal({
                         >
                           <div className="slot-info">
                             <div className="slot-item-name">
-                              {slot.amount}x {getSymbol(slot.resource)} {getLocalizedString(slot.resource, strings)}
+                              {slot.amount}x <ResourceIcon type={slot.resource} masterResources={resourceData} /> {getLocalizedString(slot.resource, strings)}
                             </div>
                           </div>
 
@@ -363,7 +359,7 @@ function GlobalMarketModal({
                                 }
                                 disabled={!canFulfill}
                               >
-                                {strings[167] || "Sell"} 💰{slot.moneyCommitted.toLocaleString()}
+                                {strings[167] || "Sell"} <ResourceIcon type="Money" masterResources={resourceData} />{slot.moneyCommitted.toLocaleString()}
                               </TransactionButton>
                             </div>
                           </div>

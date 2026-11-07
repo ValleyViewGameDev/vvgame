@@ -1,5 +1,6 @@
 import React from 'react';
 import Panel from '../../UI/Panels/Panel';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -66,7 +67,7 @@ const DoorPanel = ({
     <Panel footer={sellFooter} onClose={onClose} titleKey="2054" panelName="DoorPanel">
       <div className="deco-panel-container">
         <div className="deco-panel-content">
-          <h2>{door?.symbol || '🚪'} {getLocalizedString(stationType, strings)}</h2>
+          <h2><ResourceIcon resource={door} symbol={door?.symbol || '🚪'} /> {getLocalizedString(stationType, strings)}</h2>
           {keyName && <p>{(strings[2055] || 'This door requires a {key}.').replace('{key}', keyName)}</p>}
         </div>
 

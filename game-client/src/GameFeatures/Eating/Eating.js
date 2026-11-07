@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import { createPortal } from 'react-dom';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
@@ -182,7 +183,7 @@ const EatingModal = ({
                 {foods.map((item, index) => (
                   <tr key={`${item.type}-${index}`}>
                     <td className="res-name">
-                      {item.symbol} {getLocalizedString(item.type, strings)}
+                      <ResourceIcon type={item.type} masterResources={masterResources} symbol={item.symbol} /> {getLocalizedString(item.type, strings)}
                     </td>
                     <td className="res-meta" data-label={strings[10156]}>{item.quantity.toLocaleString()}</td>
                     <td className="res-meta" data-label={strings[10157]}>{item.hp}</td>

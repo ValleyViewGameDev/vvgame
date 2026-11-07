@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import axios from 'axios';
 import { gainIngredients } from '../../Utils/InventoryManagement';
 import React, { useState, useEffect } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Panel from '../../UI/Panels/Panel';
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
@@ -194,7 +195,7 @@ const AnimalPanel = ({
       <div className="animal-panel-container">
         <div className="animal-panel-content">
           <h2>
-              {stallDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
+              <ResourceIcon resource={stallDetails} symbol={stallDetails?.symbol || '🛖'} /> {getLocalizedString(stationType, strings)}
           </h2>
 
           {/* Show current NPC status */}

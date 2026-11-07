@@ -5,6 +5,7 @@ import '../Buttons/SharedButtons.css';
 import { useStrings } from '../StringsContext';
 import CloseButton from '../Buttons/CloseButton';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import ResourceIcon from '../Icons/ResourceIcon';
 
 /**
  * "Confirm / Spend X Gems?": asked before any spend of GEM_CONFIRM_MIN gems or more.
@@ -91,7 +92,7 @@ export const GemSpendConfirmHost = () => {
               <div>{strings[2031] || 'This also uses:'}</div>
               {items.map((i, idx) => (
                 <div key={idx}>
-                  {i.symbol ?? (resourceDefs.find((r) => r.type === i.type)?.symbol || '')} {fmt(i.amount)} {i.name ?? getLocalizedString(i.type, strings)}
+                  <ResourceIcon type={i.type} symbol={i.symbol} masterResources={resourceDefs} /> {fmt(i.amount)} {i.name ?? getLocalizedString(i.type, strings)}
                 </div>
               ))}
             </div>

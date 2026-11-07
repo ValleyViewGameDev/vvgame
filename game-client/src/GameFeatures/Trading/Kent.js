@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { postAction, applyPlayerDelta } from '../../Utils/playerDelta';
@@ -348,11 +349,6 @@ function KentPanel({
         }
     };
 
-    // Lookup function for symbols from `masterResources`
-    const getSymbol = (resourceType) => {
-        const resource = masterResources.find(res => res.type === resourceType);
-        return resource?.symbol || "❓"; // Default to question mark if no symbol found
-    };
 
     // XP for a Kent offer: the same function pays the trade and labels the card
     const calculateKentXP = (offer) =>
@@ -442,7 +438,7 @@ function KentPanel({
                       const moneyRewards = offer.rewards.filter(reward => reward.item === 'Money');
                       const otherRewards = offer.rewards.filter(reward => reward.item !== 'Money');
                       const rewardChip = (reward, key) => (
-                        <span key={key} className="kent-reward-chip">{getSymbol(reward.item)} {reward.quantity.toLocaleString()}</span>
+                        <span key={key} className="kent-reward-chip"><ResourceIcon type={reward.item} masterResources={masterResources} /> {reward.quantity.toLocaleString()}</span>
                       );
                       const rewards = (
                         <div className="kent-offer-reward">
@@ -493,7 +489,7 @@ function KentPanel({
                                       <div className="kent-multi-item-row">
                                         {itemsWithQty.map((item, itemIdx) => (
                                           <div key={itemIdx} className="kent-multi-item-cell" {...itemHover(item)}>
-                                            <div className="kent-offer-symbol">{getSymbol(item.item)}</div>
+                                            <div className="kent-offer-symbol"><ResourceIcon type={item.item} masterResources={masterResources} /></div>
                                             <div className={`kent-multi-item-qty ${item.hasEnough ? 'sufficient' : 'insufficient'}`}>
                                               <CardQty asked={item.quantity} held={item.playerQty} />
                                             </div>
@@ -505,7 +501,7 @@ function KentPanel({
                                   ) : (
                                     <>
                                       <div className="kent-single-item-cell" {...itemHover(itemsWithQty[0])}>
-                                        <div className="kent-offer-symbol">{getSymbol(itemsWithQty[0].item)}</div>
+                                        <div className="kent-offer-symbol"><ResourceIcon type={itemsWithQty[0].item} masterResources={masterResources} /></div>
                                         <div className={`kent-single-item-qty ${itemsWithQty[0].hasEnough ? 'sufficient' : 'insufficient'}`}>
                                           <CardQty asked={itemsWithQty[0].quantity} held={itemsWithQty[0].playerQty} />
                                         </div>

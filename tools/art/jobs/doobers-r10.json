@@ -1,0 +1,24 @@
+{
+  "name": "doobers-r10",
+  "note": "Doobers round 10 (2026-11-07): the one doober the sheets missed, Coconut (its row carried the tree's filename).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "coconut": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 COCONUT: one whole brown hairy coconut seen straight from the front, its three eyes at the top, a small green leaf beside it. Cells 2 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

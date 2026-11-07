@@ -9,6 +9,7 @@ import { getMayorUsername } from '../../GameFeatures/Government/GovUtils';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { handleTransitSignpost } from '../../GameFeatures/Transit/Transit';
+import ResourceIcon from '../Icons/ResourceIcon';
 
 // Town News: a right panel opened by the floating 📰 button under the season button
 // (docs/ui-conventions.md §3). Settlement and bank data are fetched on open and every 30 s;
@@ -30,12 +31,11 @@ function GoodsList({ goods, masterResources, strings, inventory, backpack }) {
     return (
         <ul className="tn-goods">
             {goods.map((g, i) => {
-                const symbol = (masterResources || []).find(r => r.type === g.type)?.symbol || '';
                 const have = playerHas(g.type, inventory, backpack);
                 const cls = g.done ? 'tn-done' : (have >= (g.qty || 0) ? 'tn-enough' : 'tn-short');
                 return (
                     <li key={`${g.type}-${i}`} className="tn-good">
-                        <span className={cls}>{symbol} {getLocalizedString(g.type, strings)} {(g.qty || 0).toLocaleString()} / {have.toLocaleString()}</span>
+                        <span className={cls}><ResourceIcon type={g.type} masterResources={masterResources} /> {getLocalizedString(g.type, strings)} {(g.qty || 0).toLocaleString()} / {have.toLocaleString()}</span>
                         {g.who && <span className="tn-who">{g.who}</span>}
                     </li>
                 );

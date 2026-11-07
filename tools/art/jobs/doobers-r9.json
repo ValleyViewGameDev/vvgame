@@ -1,0 +1,24 @@
+{
+  "name": "doobers-r9",
+  "note": "Doobers round 9 (owner, 2026-11-07): the last sheet, Vampire's Blood, Scroll, Ancient Coin, Money, Trash, with an alternate for four of them to fill the grid and give the owner a choice.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "last": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 VAMPIRE'S BLOOD: a small slim glass vial seen from the front, cork, dark red blood inside, a tiny bat-wing charm on a cord round its neck. 2 SCROLL: a rolled parchment scroll seen from the front, tied with a red ribbon, wooden rod ends showing at left and right. 3 ANCIENT COIN: one old worn bronze coin standing upright with its face flat to the viewer, a crude profile stamped on it, a nick in the rim. 4 MONEY: a small brown leather coin purse seen from the front, tied at the neck with a cord, two gold coins showing at its mouth. 5 MONEY ALTERNATE: a short stack of gold coins seen from the front with one coin leaning against it. 6 TRASH: a small heap of rubbish seen from the front, an apple core, a fish bone and a crumpled scrap of paper, dull colours. 7 TRASH ALTERNATE: a battered grey wooden bucket seen from the front, rubbish poking out of the top, a single small fly above it. 8 SCROLL ALTERNATE: an unrolled parchment scroll standing upright flat to the viewer, a few lines of faint script, curled top and bottom. 9 VAMPIRE'S BLOOD ALTERNATE: a single large glossy drop of dark red blood, flat to the viewer, a small highlight."
+    }
+  }
+}

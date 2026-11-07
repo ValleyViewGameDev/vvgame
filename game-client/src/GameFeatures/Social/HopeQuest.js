@@ -4,6 +4,7 @@ import { createCollectEffectAt } from '../../VFX/VFX';
 import soundManager from '../../Sound/SoundManager';
 import { useStrings } from '../../UI/StringsContext';
 import QuestForHopeModal from './QuestForHopeModal';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import './QuestForHope.css';
 
 /**
@@ -139,7 +140,7 @@ function HopeQuest({
               fontSize: fontSize
             }}>
               <span ref={(el) => { iconRefs.current[item.name] = el; }} data-hope-slot={item.name}
-                className={`hope-quest-slot-icon ${playerHasItem ? 'collected' : 'uncollected'}`}>{item.symbol}</span>
+                className={`hope-quest-slot-icon ${playerHasItem ? 'collected' : 'uncollected'}`}><ResourceIcon type={item.name} symbol={item.symbol} masterResources={masterResources} /></span>
             </div>
           );
         })}

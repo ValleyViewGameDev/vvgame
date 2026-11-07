@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
@@ -175,8 +176,7 @@ const PetsPanel = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';

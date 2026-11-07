@@ -500,6 +500,7 @@ body {
 .header-desk-right { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; }
 .header-desk .header-currency-btn { gap: 6px; padding: 0 10px 0 6px; font-size: var(--text-3xl); } /* over .header-link's size */
 .header-currency-icon { font-size: var(--text-6xl); line-height: 1; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)); }
+.header-currency-icon--img { width: 1em; height: 1em; object-fit: contain; display: block; } /* the painted Money doober, sized by the same font-size as the gem glyph */
 .header-desk-divider { width: 1px; height: 30px; margin: 0 6px; background: rgba(255, 255, 255, 0.35); } /* style-ok: a hairline on the header green */
 /* narrower desktops: the action icons step down so the three columns still fit */
 @media (max-width: 1340px) {

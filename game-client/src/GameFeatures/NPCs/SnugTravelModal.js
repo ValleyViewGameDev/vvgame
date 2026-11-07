@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -36,7 +37,6 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
   const [busyKey, setBusyKey] = useState(null);
   const [cropInfo, setCropInfo] = useState(null);   // { region, crop }: the regional-crop modal
   const money = getPlayerQuantity('Money', inventory, backpack);
-  const moneySymbol = (masterResources || []).find((r) => r.type === 'Money')?.symbol || '💰';
 
   useEffect(() => {
     let cancelled = false;
@@ -114,7 +114,7 @@ export default function SnugTravelModal({ currentPlayer, inventory, backpack, se
                       </button>
                     ))}
                   </td>
-                  <td className={`res-meta ${money < d.cost ? 'snug-travel-short' : ''}`} data-label={strings[10194]}>{d.cost > 0 ? `${moneySymbol} ${d.cost.toLocaleString()}` : strings[17028]}</td>
+                  <td className={`res-meta ${money < d.cost ? 'snug-travel-short' : ''}`} data-label={strings[10194]}>{d.cost > 0 ? <><ResourceIcon type="Money" masterResources={masterResources} /> {d.cost.toLocaleString()}</> : strings[17028]}</td>
                   <td className="res-action">
                     <div className="shared-buttons">
                       <button

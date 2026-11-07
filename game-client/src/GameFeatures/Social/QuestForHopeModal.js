@@ -5,6 +5,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import stringsEN from '../../UI/Strings/stringsEN.json';
 import './QuestForHope.css';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 
 // One mysterious hint per artifact (strings 200811-200817, 200822), keyed by the resource type so the
 // Oracle's recipe order can change without the hints going to the wrong item.
@@ -48,7 +49,7 @@ export default function QuestForHopeModal({ items = [], onClose }) {
               onClick={item.collected ? undefined : () => setHintFor(item)}
               disabled={item.collected}
             >
-              <span className="qfh-icon" aria-hidden="true">{item.symbol}</span>
+              <span className="qfh-icon" aria-hidden="true"><ResourceIcon type={item.name} symbol={item.symbol} /></span>
               <span className="qfh-name">{getLocalizedString(item.name, strings)}</span>
               {item.collected
                 ? <span className="qfh-mark" aria-hidden="true">✅</span>
@@ -63,7 +64,7 @@ export default function QuestForHopeModal({ items = [], onClose }) {
 
       {hintFor && (
         <Modal size="small" onClose={() => setHintFor(null)} title={t(200803)} className="qfh-hint-modal">
-          <div className="qfh-hint-icon" aria-hidden="true">{hintFor.symbol}</div>
+          <div className="qfh-hint-icon" aria-hidden="true"><ResourceIcon type={hintFor.name} symbol={hintFor.symbol} /></div>
           <p className="qfh-hint-text text-quote">{t(HINT_STRING[hintFor.name])}</p>
           <div className="modal-buttons shared-buttons">
             <button className="btn-basic btn-modal btn-success" onClick={() => setHintFor(null)}>{t(796)}</button>

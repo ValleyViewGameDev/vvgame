@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { useStrings } from '../../UI/StringsContext';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -183,8 +184,7 @@ const WarehousePanel = ({
                     
                     const playerQty = getPlayerQuantity(type, inventory, backpack); // Backpack + Warehouse
                     const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                    ingredients.push(`<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                    ingredients.push(`<span style="color: ${color}; display: block;">${resourceIconHtml(type, masterResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
                   }
                   return `${strings[461] || "Requires:"}<div>${ingredients.join('')}</div>`;
                 })()}

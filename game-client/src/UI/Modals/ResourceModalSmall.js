@@ -29,8 +29,8 @@ function ResourceColumn({ type, masterResources, strings, need, compact, showNam
   return (
     <div className="rms-col">
       <div className="rms-icon" aria-hidden="true">
-        {resource?.filename
-          ? <img src={`/assets/resources/${resource.filename}`} alt="" />
+        {(resource?.iconFile || resource?.filename)
+          ? <img src={`/assets/resources/${resource.iconFile || resource.filename}`} alt="" />
           : <span>{resource?.symbol || '❓'}</span>}
       </div>
       {(compact || showName) && <div className="rms-name">{getLocalizedString(type, strings)}</div>}

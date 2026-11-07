@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer, growsInRegion, cropCapReached } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { handleFarmPlotPlacement } from './Farming';
@@ -224,6 +225,7 @@ const FarmingPanel = ({
                   <ResourceButton
                     key={item.type}
                     symbol={symbol}
+                    resourceType={item.type}
                     name={getLocalizedString(item.type, strings)}
                     details="Off season"
                     info={null}
@@ -241,8 +243,7 @@ const FarmingPanel = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -264,7 +265,7 @@ const FarmingPanel = ({
                 `${strings[820]}${
                   allResources
                     .filter((res) => res.source === item.type)
-                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                    .map((res) => `${resourceIconHtml(res.type, allResources)} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None'
                 }`;
 

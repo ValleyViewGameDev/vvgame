@@ -358,6 +358,12 @@ value rather than trust this page.
   Play button use the painted disc. The badge is a picture: the tap belongs to what it sits in.
 - A resource button's gem chip sits at the LOWER right, the details badge at the top right: the
   two stay apart so a tap meant for one never hits the other (owner 2026-11-06).
+- A resource's picture in the DOM is `UI/Icons/ResourceIcon.js` (2026-11-07): `<ResourceIcon
+  type="Wheat" />` renders the row's painted art (`iconFile` / `filename`; every doober has one,
+  docs/art/doobers.md) and the emoji `symbol` only for a row without art. Never print
+  `row.symbol` in JSX next to a name or count; `resourceIconHtml(type)` is the same for a
+  `dangerouslySetInnerHTML` list. The Gem keeps its 💎 glyph for now (owner); Money is the
+  painted coin stack everywhere, the header included.
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

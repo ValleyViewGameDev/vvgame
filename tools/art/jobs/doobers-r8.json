@@ -1,0 +1,34 @@
+{
+  "name": "doobers-r8",
+  "note": "Doobers round 8 (owner, 2026-11-07): fixes (Saw vertical with green handle; Trumpet compact) plus story items one and two. Straight-on camera paragraph per item, plus a keep-inside-cell clause.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "story1": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 SAW: a hand saw standing VERTICAL, its handle at the TOP and the toothed blade pointing straight DOWN, flat to the viewer; the handle is a closed D-shaped wooden grip painted a clear leaf GREEN, the blade pale steel with teeth along one edge; the whole saw stands upright like the shovel and screwdriver on the control sheet. 2 TRUMPET: a small brass trumpet seen flat from the side, bell to the right, drawn COMPACT so it fills no more than two thirds of the cell width, mouthpiece attached. 3 POTION C: a small round-bottomed glass flask seen from the front, cork, glowing blue liquid. 4 BOOK: a closed leather-bound book standing upright with its front cover flat to the viewer, deep red, gold corner pieces and a gold clasp. 5 PELT: a small animal pelt laid flat to the viewer like a rug, grey-brown fur, four short leg flaps, no face. 6 BEAR SKIN: a larger brown bear-skin rug laid flat to the viewer, four leg flaps, the head flap at the top with closed eyes, no gore. 7 BONES: two crossed white bones flat to the viewer, simple and clean, no skull. 8 SILVER: three small silver ingots stacked in a pyramid seen from the front. 9 GOLD: three small gold ingots stacked in a pyramid seen from the front, the same stack as the silver."
+    },
+    "story2": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 SCORPION: a small amber scorpion seen flat from above as a flat symbol, claws forward, tail curled over its back, flat to the viewer. 2 DIAMOND RING: a gold ring standing upright with its round face flat to the viewer, one clear diamond on top. 3 KING'S CROWN: a gold crown seen from the front, five points, red velvet inside, coloured jewels on the band. 4 PORTRAIT: a small framed oil portrait seen flat from the front, ornate gold frame, a duke in a dark doublet and ruff, painted simply. 5 TRIDENT: a three-pronged trident standing upright seen from the front, prongs at the top, bronze with a dark shaft. 6 PHOENIX FEATHER: one long feather standing upright flat to the viewer, red shading into orange and gold, the tip glowing softly. 7 BRIEF CANDLE: a short white candle in a simple brass holder with a ring handle, seen from the front, a small flame. 8 BRASS BELL: a brass hand bell seen from the front, dark wooden handle at the top, bell mouth at the bottom. 9 PROSPERO'S ORB: a glowing violet crystal ball resting in a small bronze stand, seen from the front, soft inner swirl."
+    }
+  }
+}

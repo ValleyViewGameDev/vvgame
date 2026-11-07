@@ -1,0 +1,34 @@
+{
+  "name": "doobers-r7",
+  "note": "Doobers round 7 (owner, 2026-11-07): Studio + tools + roasts, and coffees + story items. Straight-on camera paragraph per item.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "studio": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 FURNITURE: a small wooden chair with a turned back, seen straight from the front, warm oak. 2 INK: a small squat glass ink bottle seen from the front, black ink, a cork, a white quill leaning beside it. 3 URNS: one tall clay urn with two handles seen from the front, terracotta with a simple painted band. 4 SAW: a hand saw seen flat from the side, wooden handle at right, toothed blade pointing left, flat to the viewer. 5 SHOVEL: a shovel standing upright seen from the front, wooden shaft, iron blade at the bottom, flat to the viewer. 6 SCREWDRIVER: a screwdriver standing upright seen from the front, red wooden handle at the top, steel shaft down, flat to the viewer. 7 LIGHT ROAST COFFEE BEAN: a low heap of light tan roasted coffee beans seen from the front. 8 MEDIUM ROAST COFFEE BEAN: a low heap of medium brown roasted coffee beans seen from the front, the same heap shape as the light roast. 9 DARK ROAST COFFEE BEAN: a low heap of very dark glossy roasted coffee beans seen from the front, the same heap shape as the other two."
+    },
+    "coffee": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 COMMON COFFEE: a plain brown earthenware mug seen from the front, handle to the right, steam rising, dark coffee at the rim. 2 COFFEE ELSINORE: a tall white cup on a saucer seen from the front, a small gold crown printed on the cup, steam rising. 3 COFFEE LATTE: a wide pale cup seen from the front, tipped only enough to show a leaf of white latte art on the foam. 4 QUEEN'S COFFEE: a fine gilded porcelain cup on a saucer seen from the front, gold rim and handle, a small purple jewel on it, steam rising. 5 AMULET: a round bronze amulet on a leather cord, hanging flat to the viewer, a blue eye stone in its centre. 6 TRUMPET: a brass trumpet seen flat from the side, bell to the right, flat to the viewer. 7 FAN: a folding hand fan opened flat to the viewer, painted paper with a small flower, dark ribs. 8 POTION A: a small round-bottomed glass flask seen from the front, cork, glowing red liquid. 9 POTION B: a small round-bottomed glass flask seen from the front, the same flask as Potion A, cork, glowing green liquid."
+    }
+  }
+}

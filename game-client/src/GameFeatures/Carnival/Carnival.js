@@ -5,6 +5,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import './Carnival.css';
@@ -351,7 +352,7 @@ function CarnivalPanel({
         <div className="next-shipment-container">
           {uniqueOffers.map((offer, index) => (
             <div key={index} className="next-shipment-item">
-              {getSymbol(offer.itemBought)} {offer.itemBought}
+              <ResourceIcon type={offer.itemBought} masterResources={masterResources} /> {offer.itemBought}
             </div>
           ))}
         </div>
@@ -378,7 +379,7 @@ function CarnivalPanel({
         <div className="carnival-rewards-container">
           {Object.entries(combinedRewards).map(([item, totalQty], index) => (
             <div key={index} className="carnival-reward-item">
-              {getSymbol(item)} {totalQty} {item}
+              <ResourceIcon type={item} masterResources={masterResources} /> {totalQty} {item}
             </div>
           ))}
         </div>
@@ -398,8 +399,8 @@ function CarnivalPanel({
           const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack);
           const affordable = playerQty >= offer.qtyBought;
           const costColor = playerQty >= offer.qtyBought ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-          const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
-          const rewardDisplay = `${getSymbol(offer.itemGiven)} ${offer.qtyGiven.toLocaleString()}`;
+          const costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.itemBought, masterResources)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
+          const rewardDisplay = `${resourceIconHtml(offer.itemGiven, masterResources)} ${offer.qtyGiven.toLocaleString()}`;
           const details = `<div>${costDisplay}</div><br>${strings[42]}: ${rewardDisplay}`;
 
           let buttonText = '';

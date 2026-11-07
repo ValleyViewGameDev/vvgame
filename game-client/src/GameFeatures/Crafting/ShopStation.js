@@ -4,6 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
@@ -365,8 +366,7 @@ const ShopStation = ({
                 if (!type || !qty) return '';
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, masterResources)} ${type} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';

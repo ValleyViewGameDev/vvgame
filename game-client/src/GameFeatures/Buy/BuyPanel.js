@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer, growsInRegion } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
@@ -343,8 +344,7 @@ const BuyPanel = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = meetsSkillRequirement ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
@@ -362,7 +362,7 @@ const BuyPanel = ({
               // Create info tooltip content
               const info = (
                 <div className="info-content">
-                  <div>{strings[820]}{item.output ? `${allResources.find(r => r.type === item.output)?.symbol || ''} ${getLocalizedString(item.output, strings)}` : 'Nothing'}</div>
+                  <div>{strings[820]}{item.output ? <><ResourceIcon type={item.output} masterResources={allResources} /> {getLocalizedString(item.output, strings)}</> : 'Nothing'}</div>
                   <div>{strings[821]}{item.qtycollected || 1}</div>
                 </div>
               );

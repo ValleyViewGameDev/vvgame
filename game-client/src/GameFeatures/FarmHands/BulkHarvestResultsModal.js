@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Modal from '../../UI/Modals/Modal';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import soundManager from '../../Sound/SoundManager';
@@ -62,11 +63,10 @@ export function BulkHarvestResultsModal({
                 
                 // Find the crop symbol from masterResources
                 const cropResource = masterResources?.find(r => r.type === cropType);
-                const cropSymbol = cropResource?.symbol || '🌾';
                 
                 return (
                   <div key={cropType} className="crop-row">
-                    <span className="crop-symbol">{cropSymbol}</span>
+                    <span className="crop-symbol"><ResourceIcon resource={cropResource} symbol={cropResource?.symbol || '🌾'} /></span>
                     <span className="crop-name">{getLocalizedString(cropType, strings)}</span>
                     <span className="crop-quantity">+{quantity}</span>
                     {hasSkillBonus && (
@@ -91,12 +91,11 @@ export function BulkHarvestResultsModal({
               {Object.entries(replantInfo).map(([cropType, count]) => {
                 // Find the crop symbol from masterResources
                 const cropResource = masterResources?.find(r => r.type === cropType);
-                const cropSymbol = cropResource?.symbol || '🌱';
                 const seedsUsedForCrop = seedsUsed[cropType];
                 
                 return (
                   <div key={cropType} className="replant-row">
-                    <span className="replant-symbol">{cropSymbol}</span>
+                    <span className="replant-symbol"><ResourceIcon resource={cropResource} symbol={cropResource?.symbol || '🌱'} /></span>
                     <span className="replant-name">{getLocalizedString(cropType, strings)}</span>
                     <span className="replant-quantity">{count}</span>
                     {seedsUsedForCrop && (
@@ -122,7 +121,7 @@ export function BulkHarvestResultsModal({
                 <div key={ingredientType} className="result-item warehouse">
                   <div className="result-item-label">
                     <span className="result-item-name">
-                      {data.symbol} {getLocalizedString(ingredientType, strings)}
+                      <ResourceIcon type={ingredientType} masterResources={masterResources} symbol={data.symbol} /> {getLocalizedString(ingredientType, strings)}
                     </span>
                   </div>
                   <span className="result-item-quantity warehouse">+{data.quantity}</span>

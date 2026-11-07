@@ -190,7 +190,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-blueberry.svg"
   },
   {
     "type": "Rosemary",
@@ -229,7 +230,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-rosemary.svg"
   },
   {
     "type": "Feverfew",
@@ -271,7 +273,8 @@
     "totalnestedtime": 259200,
     "effort": 240,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-feverfew.svg"
   },
   {
     "type": "Mushroom",
@@ -310,7 +313,8 @@
     "totalnestedtime": 64800,
     "effort": 60,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-mushroom.svg"
   },
   {
     "type": "Daisy",
@@ -352,7 +356,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-daisy.svg"
   },
   {
     "type": "Tulip",
@@ -394,7 +399,8 @@
     "totalnestedtime": 259200,
     "effort": 240,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-tulip.svg"
   },
   {
     "type": "Sunflower",
@@ -436,7 +442,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-sunflower.svg"
   },
   {
     "type": "Magic Mushroom",
@@ -475,7 +482,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-magic-mushroom.svg"
   },
   {
     "type": "Wood",
@@ -510,7 +518,7 @@
     "gemcost": 1,
     "crafttime": 5,
     "totalnestedtime": 5,
-    "filename": "wood.svg",
+    "filename": "doober-wood.svg",
     "effort": 0.02,
     "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
@@ -603,7 +611,7 @@
     "minprice": 5,
     "maxprice": 8,
     "gemcost": 1,
-    "filename": "stone.svg",
+    "filename": "doober-stone.svg",
     "crafttime": 5,
     "totalnestedtime": 5,
     "effort": 0.03,
@@ -700,7 +708,7 @@
     "minprice": 84,
     "maxprice": 120,
     "gemcost": 15,
-    "filename": "clay.svg",
+    "filename": "doober-clay.svg",
     "crafttime": 21600,
     "totalnestedtime": 21600,
     "effort": 6.67,
@@ -881,19 +889,8 @@
     "maxprice": 0,
     "gemcost": 0.01,
     "gemOverride": 0.01,
-    "offeredAt": "Kent ✗ Money · Bank ✗ Money · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
-  },
-  {
-    "type": "Trash",
-    "symbol": "🤮",
-    "layoutkey": "yuk",
-    "category": "doober",
-    "action": "collect",
-    "noKent": true,
-    "noBank": true,
-    "noCaravan": true,
-    "qtycollected": 1,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ Money · Bank ✗ Money · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-money.svg"
   },
   {
     "type": "Signpost N",
@@ -2451,7 +2448,8 @@
     "crafttime": 60,
     "totalnestedtime": 60,
     "effort": 0.06,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-wheat.svg"
   },
   {
     "type": "Carrot",
@@ -2485,7 +2483,8 @@
     "crafttime": 240,
     "totalnestedtime": 240,
     "effort": 0.22,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-carrot.svg"
   },
   {
     "type": "Corn",
@@ -2519,7 +2518,8 @@
     "crafttime": 480,
     "totalnestedtime": 480,
     "effort": 0.44,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-corn.svg"
   },
   {
     "type": "Sugarcane",
@@ -2553,7 +2553,8 @@
     "crafttime": 600,
     "totalnestedtime": 600,
     "effort": 0.56,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-sugarcane.svg"
   },
   {
     "type": "Pumpkin",
@@ -2588,7 +2589,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin.svg"
   },
   {
     "type": "Lettuce",
@@ -2623,7 +2625,8 @@
     "crafttime": 14400,
     "totalnestedtime": 14400,
     "effort": 13,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-lettuce.svg"
   },
   {
     "type": "Pepper",
@@ -2658,7 +2661,8 @@
     "crafttime": 7200,
     "totalnestedtime": 7200,
     "effort": 6.67,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pepper.svg"
   },
   {
     "type": "Potato",
@@ -2693,7 +2697,8 @@
     "crafttime": 900,
     "totalnestedtime": 900,
     "effort": 0.83,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-potato.svg"
   },
   {
     "type": "Ginger",
@@ -2727,7 +2732,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ginger.svg"
   },
   {
     "type": "Onion",
@@ -2761,7 +2767,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-onion.svg"
   },
   {
     "type": "Garlic",
@@ -2799,7 +2806,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-garlic.svg"
   },
   {
     "type": "Olive",
@@ -2836,7 +2844,8 @@
     "totalnestedtime": 259200,
     "effort": 270,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "iconFile": "doober-olive.svg"
   },
   {
     "type": "Strawberry",
@@ -2874,7 +2883,8 @@
     "crafttime": 21600,
     "totalnestedtime": 21600,
     "effort": 20,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-strawberry.svg"
   },
   {
     "type": "Apple",
@@ -2914,7 +2924,8 @@
     "totalnestedtime": 64800,
     "effort": 33,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "iconFile": "doober-apple.svg"
   },
   {
     "type": "Lemon",
@@ -2954,7 +2965,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓",
+    "iconFile": "doober-lemon.svg"
   },
   {
     "type": "Orange",
@@ -2993,7 +3005,8 @@
     "totalnestedtime": 86400,
     "effort": 96,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "iconFile": "doober-orange.svg"
   },
   {
     "type": "Peach",
@@ -3032,7 +3045,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "iconFile": "doober-peach.svg"
   },
   {
     "type": "Pear",
@@ -3071,7 +3085,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "iconFile": "doober-pear.svg"
   },
   {
     "type": "Tomato",
@@ -3107,7 +3122,8 @@
     "crafttime": 57600,
     "totalnestedtime": 57600,
     "effort": 53,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-tomato.svg"
   },
   {
     "type": "Cherry",
@@ -3146,7 +3162,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "iconFile": "doober-cherry.svg"
   },
   {
     "type": "Coconut",
@@ -3183,7 +3200,8 @@
     "totalnestedtime": 28800,
     "effort": 120,
     "artSpan": 2.11,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "iconFile": "doober-coconut.svg"
   },
   {
     "type": "Grapes",
@@ -3221,7 +3239,8 @@
     "crafttime": 43200,
     "totalnestedtime": 43200,
     "effort": 24,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-grapes.svg"
   },
   {
     "type": "Mulberry Leaf",
@@ -3262,7 +3281,8 @@
     "totalnestedtime": 86400,
     "effort": 96,
     "artSpan": 1.43,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "iconFile": "doober-mulberry-leaf.svg"
   },
   {
     "type": "Coffee Cherry",
@@ -3299,7 +3319,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 80,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-coffee-cherry.svg"
   },
   {
     "type": "Milk",
@@ -3334,7 +3355,8 @@
     "crafttime": 720,
     "totalnestedtime": 720,
     "effort": 3,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-milk.svg"
   },
   {
     "type": "Goat Milk",
@@ -3371,7 +3393,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 40,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring/Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring/Fall · Stall ✓",
+    "filename": "doober-goat-milk.svg"
   },
   {
     "type": "Wool",
@@ -3406,7 +3429,8 @@
     "crafttime": 14400,
     "totalnestedtime": 14400,
     "effort": 20,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-wool.svg"
   },
   {
     "type": "Bacon",
@@ -3441,7 +3465,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 120,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Fall · Stall ✓",
+    "filename": "doober-bacon.svg"
   },
   {
     "type": "Flour",
@@ -3477,7 +3502,8 @@
     "crafttime": 300,
     "totalnestedtime": 660,
     "effort": 1.17,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-flour.svg"
   },
   {
     "type": "Sugar",
@@ -3513,7 +3539,8 @@
     "crafttime": 900,
     "totalnestedtime": 3300,
     "effort": 4.72,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-sugar.svg"
   },
   {
     "type": "Chicken Feed",
@@ -3553,7 +3580,8 @@
     "crafttime": 600,
     "totalnestedtime": 2640,
     "effort": 3.56,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-chicken-feed.svg"
   },
   {
     "type": "Cornmeal",
@@ -3589,7 +3617,8 @@
     "crafttime": 28800,
     "totalnestedtime": 31680,
     "effort": 83,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-cornmeal.svg"
   },
   {
     "type": "Butter",
@@ -3626,7 +3655,8 @@
     "crafttime": 600,
     "totalnestedtime": 2040,
     "effort": 11,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-butter.svg"
   },
   {
     "type": "Cheese",
@@ -3666,7 +3696,8 @@
     "crafttime": 720,
     "totalnestedtime": 3600,
     "effort": 18,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-cheese.svg"
   },
   {
     "type": "Goat Cheese",
@@ -3707,7 +3738,8 @@
     "gemcost": 77,
     "crafttime": 7200,
     "effort": 220,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓",
+    "filename": "doober-goat-cheese.svg"
   },
   {
     "type": "Cream",
@@ -3746,7 +3778,8 @@
     "crafttime": 900,
     "totalnestedtime": 4140,
     "effort": 23,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-cream.svg"
   },
   {
     "type": "Pepper Cheese",
@@ -3790,7 +3823,8 @@
     "crafttime": 28800,
     "totalnestedtime": 436320,
     "effort": 631,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pepper-cheese.svg"
   },
   {
     "type": "Thread",
@@ -3826,7 +3860,8 @@
     "crafttime": 300,
     "totalnestedtime": 14700,
     "effort": 22,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-thread.svg"
   },
   {
     "type": "Cloth",
@@ -3862,7 +3897,8 @@
     "crafttime": 600,
     "totalnestedtime": 43800,
     "effort": 63,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-cloth.svg"
   },
   {
     "type": "Sweater",
@@ -3901,7 +3937,8 @@
     "crafttime": 7200,
     "totalnestedtime": 52200,
     "effort": 273,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-sweater.svg"
   },
   {
     "type": "Runic Tunic",
@@ -3944,7 +3981,8 @@
     "crafttime": 43200,
     "totalnestedtime": 75600,
     "effort": 2177,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-runic-tunic.svg"
   },
   {
     "type": "Jacket",
@@ -3985,7 +4023,8 @@
     "crafttime": 14400,
     "totalnestedtime": 102900,
     "effort": 1358,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-jacket.svg"
   },
   {
     "type": "Heavy Jacket",
@@ -4026,7 +4065,8 @@
     "crafttime": 28800,
     "totalnestedtime": 216900,
     "effort": 4463,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-heavy-jacket.svg"
   },
   {
     "type": "Silk Dress",
@@ -4067,7 +4107,8 @@
     "crafttime": 28800,
     "totalnestedtime": 189600,
     "effort": 3797,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silk-dress.svg"
   },
   {
     "type": "Silk",
@@ -4108,7 +4149,8 @@
     "crafttime": 21600,
     "totalnestedtime": 6955200,
     "effort": 1128,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silk.svg"
   },
   {
     "type": "Egg",
@@ -4145,7 +4187,8 @@
     "crafttime": 7200,
     "totalnestedtime": 8400,
     "effort": 19,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring/Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring/Summer · Stall ✓",
+    "filename": "doober-egg.svg"
   },
   {
     "type": "Bread",
@@ -4184,7 +4227,8 @@
     "crafttime": 7200,
     "totalnestedtime": 8400,
     "effort": 37,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-bread.svg"
   },
   {
     "type": "Cornbread",
@@ -4227,7 +4271,8 @@
     "crafttime": 14400,
     "totalnestedtime": 87300,
     "effort": 264,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-cornbread.svg"
   },
   {
     "type": "Pumpkin Pie",
@@ -4271,7 +4316,8 @@
     "crafttime": 1200,
     "totalnestedtime": 32400,
     "effort": 59,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin-pie.svg"
   },
   {
     "type": "Lemon Cookie",
@@ -4317,7 +4363,8 @@
     "crafttime": 2700,
     "totalnestedtime": 193800,
     "effort": 227,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-lemon-cookie.svg"
   },
   {
     "type": "Ginger Cookie",
@@ -4361,7 +4408,8 @@
     "crafttime": 2700,
     "totalnestedtime": 136200,
     "effort": 174,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ginger-cookie.svg"
   },
   {
     "type": "Olive Bread",
@@ -4405,7 +4453,8 @@
     "crafttime": 14400,
     "totalnestedtime": 2275500,
     "effort": 2407,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-olive-bread.svg"
   },
   {
     "type": "Garlic Bread",
@@ -4445,7 +4494,8 @@
     "crafttime": 3600,
     "totalnestedtime": 529200,
     "effort": 529,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-garlic-bread.svg"
   },
   {
     "type": "Apple Pie",
@@ -4489,7 +4539,8 @@
     "crafttime": 1200,
     "totalnestedtime": 133200,
     "effort": 97,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-apple-pie.svg"
   },
   {
     "type": "Strawberry Pie",
@@ -4533,7 +4584,8 @@
     "crafttime": 1800,
     "totalnestedtime": 70500,
     "effort": 123,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-strawberry-pie.svg"
   },
   {
     "type": "Peach Pie",
@@ -4577,7 +4629,8 @@
     "crafttime": 2700,
     "totalnestedtime": 236100,
     "effort": 304,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-peach-pie.svg"
   },
   {
     "type": "Cherry Pie",
@@ -4621,7 +4674,8 @@
     "crafttime": 3600,
     "totalnestedtime": 698100,
     "effort": 813,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-cherry-pie.svg"
   },
   {
     "type": "Queen's Cake",
@@ -4670,7 +4724,8 @@
     "crafttime": 28800,
     "totalnestedtime": 400200,
     "effort": 1366,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-queens-cake.svg"
   },
   {
     "type": "Warden Pie",
@@ -4715,7 +4770,8 @@
     "gemcost": 272,
     "crafttime": 14400,
     "effort": 692,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-warden-pie.svg"
   },
   {
     "type": "Honey",
@@ -4752,7 +4808,8 @@
     "totalnestedtime": 86400,
     "effort": 144,
     "gemOverride": 37,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-honey.svg"
   },
   {
     "type": "Corn Chowder",
@@ -4793,7 +4850,8 @@
     "crafttime": 1200,
     "totalnestedtime": 7080,
     "effort": 25,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-corn-chowder.svg"
   },
   {
     "type": "Carrot Soup",
@@ -4836,7 +4894,8 @@
     "crafttime": 2700,
     "totalnestedtime": 437040,
     "effort": 433,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-carrot-soup.svg"
   },
   {
     "type": "Pumpkin Soup",
@@ -4879,7 +4938,8 @@
     "crafttime": 3600,
     "totalnestedtime": 72060,
     "effort": 1605,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin-soup.svg"
   },
   {
     "type": "Omelette",
@@ -4923,7 +4983,8 @@
     "crafttime": 600,
     "totalnestedtime": 1069980,
     "effort": 1253,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-omelette.svg"
   },
   {
     "type": "Potato Bake",
@@ -4967,7 +5028,8 @@
     "crafttime": 14400,
     "totalnestedtime": 370800,
     "effort": 485,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-potato-bake.svg"
   },
   {
     "type": "Mixed Salad",
@@ -5010,7 +5072,8 @@
     "crafttime": 900,
     "totalnestedtime": 1275300,
     "effort": 1315,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-mixed-salad.svg"
   },
   {
     "type": "Sandwich",
@@ -5053,7 +5116,8 @@
     "crafttime": 2700,
     "totalnestedtime": 276300,
     "effort": 697,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-sandwich.svg"
   },
   {
     "type": "Pizza",
@@ -5097,7 +5161,8 @@
     "crafttime": 900,
     "totalnestedtime": 241620,
     "effort": 1759,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-pizza.svg"
   },
   {
     "type": "Tomato Soup",
@@ -5141,7 +5206,8 @@
     "crafttime": 1800,
     "totalnestedtime": 364500,
     "effort": 2924,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-tomato-soup.svg"
   },
   {
     "type": "Poached Pear",
@@ -5181,7 +5247,8 @@
     "crafttime": 0,
     "totalnestedtime": 259200,
     "effort": 2352,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-poached-pear.svg"
   },
   {
     "type": "Lumber",
@@ -5218,7 +5285,8 @@
     "crafttime": 1800,
     "totalnestedtime": 1900,
     "effort": 4.17,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-lumber.svg"
   },
   {
     "type": "Pottery",
@@ -5254,7 +5322,8 @@
     "crafttime": 2700,
     "totalnestedtime": 67500,
     "effort": 31,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-pottery.svg"
   },
   {
     "type": "Furniture",
@@ -5295,7 +5364,8 @@
     "crafttime": 43200,
     "totalnestedtime": 48000,
     "effort": 295,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-furniture.svg"
   },
   {
     "type": "Ink",
@@ -5337,7 +5407,8 @@
     "crafttime": 14400,
     "totalnestedtime": 561600,
     "effort": 808,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ink.svg"
   },
   {
     "type": "Urns",
@@ -5378,7 +5449,8 @@
     "crafttime": 7200,
     "totalnestedtime": 118800,
     "effort": 990,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-urns.svg"
   },
   {
     "type": "Lemonade",
@@ -5416,7 +5488,8 @@
     "crafttime": 900,
     "totalnestedtime": 521100,
     "effort": 494,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-lemonade.svg"
   },
   {
     "type": "Coconut Milk",
@@ -5452,7 +5525,8 @@
     "crafttime": 7200,
     "totalnestedtime": 93600,
     "effort": 400,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-coconut-milk.svg"
   },
   {
     "type": "Belmont Tea",
@@ -5491,7 +5565,8 @@
     "crafttime": 14400,
     "totalnestedtime": 1800000,
     "effort": 1733,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-belmont-tea.svg"
   },
   {
     "type": "Apple Cider",
@@ -5527,7 +5602,8 @@
     "crafttime": 172800,
     "totalnestedtime": 950400,
     "effort": 3273,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-apple-cider.svg"
   },
   {
     "type": "Olive Oil",
@@ -5563,7 +5639,8 @@
     "crafttime": 7200,
     "totalnestedtime": 1303200,
     "effort": 1470,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-olive-oil.svg"
   },
   {
     "type": "Wine",
@@ -5602,7 +5679,8 @@
     "crafttime": 28800,
     "totalnestedtime": 460815,
     "effort": 720,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-wine.svg"
   },
   {
     "type": "Port",
@@ -5643,7 +5721,8 @@
     "crafttime": 3600,
     "totalnestedtime": 522020,
     "effort": 444,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-port.svg"
   },
   {
     "type": "Brandy",
@@ -5686,7 +5765,8 @@
     "crafttime": 28800,
     "totalnestedtime": 1238405,
     "effort": 1920,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-brandy.svg"
   },
   {
     "type": "Aged Wine",
@@ -5727,7 +5807,8 @@
     "crafttime": 43200,
     "totalnestedtime": 129630,
     "effort": 2880,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-aged-wine.svg"
   },
   {
     "type": "Green Coffee Bean",
@@ -5765,7 +5846,8 @@
     "crafttime": 3600,
     "totalnestedtime": 1558800,
     "effort": 330,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-green-coffee-bean.svg"
   },
   {
     "type": "Light Roast Coffee Bean",
@@ -5806,7 +5888,8 @@
     "crafttime": 10800,
     "totalnestedtime": 57620,
     "effort": 1830,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-light-roast-coffee-bean.svg"
   },
   {
     "type": "Medium Roast Coffee Bean",
@@ -5847,7 +5930,8 @@
     "crafttime": 18000,
     "totalnestedtime": 86440,
     "effort": 2280,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-medium-roast-coffee-bean.svg"
   },
   {
     "type": "Dark Roast Coffee Bean",
@@ -5888,7 +5972,8 @@
     "crafttime": 28800,
     "totalnestedtime": 104450,
     "effort": 3120,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-dark-roast-coffee-bean.svg"
   },
   {
     "type": "Common Coffee",
@@ -5926,7 +6011,8 @@
     "crafttime": 900,
     "totalnestedtime": 216900,
     "effort": 4565,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-common-coffee.svg"
   },
   {
     "type": "Coffee Elsinore",
@@ -5967,7 +6053,8 @@
     "crafttime": 1200,
     "totalnestedtime": 692400,
     "effort": 5929,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-coffee-elsinore.svg"
   },
   {
     "type": "Coffee Latte",
@@ -6010,7 +6097,8 @@
     "crafttime": 1800,
     "totalnestedtime": 352440,
     "effort": 6870,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-coffee-latte.svg"
   },
   {
     "type": "Queen's Coffee",
@@ -6053,7 +6141,8 @@
     "crafttime": 2700,
     "totalnestedtime": 625500,
     "effort": 12924,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-queens-coffee.svg"
   },
   {
     "type": "Amulet",
@@ -6089,7 +6178,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ epic scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-amulet.svg"
   },
   {
     "type": "Beans",
@@ -6123,7 +6213,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-beans.svg"
   },
   {
     "type": "Oyster",
@@ -6157,7 +6248,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-oyster.svg"
   },
   {
     "type": "Meat",
@@ -6191,7 +6283,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-meat.svg"
   },
   {
     "type": "Fish",
@@ -6225,7 +6318,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-fish.svg"
   },
   {
     "type": "Trumpet",
@@ -6261,7 +6355,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-trumpet.svg"
   },
   {
     "type": "Ancient Coin",
@@ -6297,7 +6392,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ancient-coin.svg"
   },
   {
     "type": "Fan",
@@ -6331,7 +6427,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-fan.svg"
   },
   {
     "type": "Saw",
@@ -6372,7 +6469,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-saw.svg"
   },
   {
     "type": "Shovel",
@@ -6413,7 +6511,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-shovel.svg"
   },
   {
     "type": "Screwdriver",
@@ -6454,7 +6553,8 @@
     "crafttime": 259200,
     "totalnestedtime": 259200,
     "effort": 4320,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-screwdriver.svg"
   },
   {
     "type": "Potion A",
@@ -6497,7 +6597,8 @@
     "ingredient2qty": 2,
     "ingredient3": "Milk",
     "ingredient3qty": 8,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-a.svg"
   },
   {
     "type": "Potion B",
@@ -6540,7 +6641,8 @@
     "ingredient2qty": 4,
     "ingredient3": "Tulip",
     "ingredient3qty": 4,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-b.svg"
   },
   {
     "type": "Potion C",
@@ -6585,7 +6687,8 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-c.svg"
   },
   {
     "type": "Book",
@@ -6630,7 +6733,8 @@
     "crafttime": 7200,
     "totalnestedtime": 45003,
     "effort": 377,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-book.svg"
   },
   {
     "type": "Pelt",
@@ -6665,7 +6769,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-pelt.svg"
   },
   {
     "type": "Bear Skin",
@@ -6698,7 +6803,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-bear-skin.svg"
   },
   {
     "type": "Bones",
@@ -6735,7 +6841,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-bones.svg"
   },
   {
     "type": "Silver",
@@ -6773,7 +6880,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silver.svg"
   },
   {
     "type": "Scorpion",
@@ -6803,7 +6911,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-scorpion.svg"
   },
   {
     "type": "Gold",
@@ -6841,7 +6950,8 @@
     "crafttime": 1296000,
     "totalnestedtime": 1296000,
     "effort": 21600,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-gold.svg"
   },
   {
     "type": "Diamond Ring",
@@ -6880,7 +6990,8 @@
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
     "effort": 28800,
-    "offeredAt": "Kent ✗ epic scroll find · Bank ✗ noBank · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✗ noTradeStall"
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✗ noBank · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✗ noTradeStall",
+    "filename": "doober-diamond-ring.svg"
   },
   {
     "type": "King's Crown",
@@ -6906,7 +7017,8 @@
     "totalnestedtime": 86400,
     "effort": 1440,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-kings-crown.svg"
   },
   {
     "type": "Portrait",
@@ -6944,7 +7056,8 @@
     "crafttime": 43200,
     "totalnestedtime": 43200,
     "effort": 720,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-portrait.svg"
   },
   {
     "type": "Trident",
@@ -6971,7 +7084,8 @@
     "totalnestedtime": 86400,
     "effort": 1440,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-trident.svg"
   },
   {
     "type": "Phoenix Feather",
@@ -7009,7 +7123,8 @@
     "totalnestedtime": 864000,
     "effort": 14400,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-phoenix-feather.svg"
   },
   {
     "type": "Brief Candle",
@@ -7041,7 +7156,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-brief-candle.svg"
   },
   {
     "type": "Brass Bell",
@@ -7066,7 +7182,8 @@
     "totalnestedtime": 864000,
     "effort": 14400,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-brass-bell.svg"
   },
   {
     "type": "Prospero's Orb",
@@ -7091,7 +7208,8 @@
     "totalnestedtime": 2592000,
     "effort": 43200,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-prosperos-orb.svg"
   },
   {
     "type": "Vampire's Blood",
@@ -7116,7 +7234,8 @@
     "totalnestedtime": 1728000,
     "effort": 28800,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-vampires-blood.svg"
   },
   {
     "type": "Home Deed",
@@ -7416,7 +7535,8 @@
     "crafttime": 10,
     "totalnestedtime": 10,
     "effort": 0.17,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Reveal Scroll",

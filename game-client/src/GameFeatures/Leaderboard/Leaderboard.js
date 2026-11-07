@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import '../../UI/Modals/Modal.css';
 import '../../UI/Buttons/SharedButtons.css';
 import './Leaderboard.css';
@@ -121,7 +122,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
                       </div>
                     </div>
                     <div className="player-networth">
-                      💰 {player.netWorth.toLocaleString()}
+                      <ResourceIcon type="Money" /> {player.netWorth.toLocaleString()}
                     </div>
 
                     {/* Level Display */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Modal from '../../UI/Modals/Modal';
 import './BulkSelectModals.css';
 import { handleNPCClick } from '../NPCs/NPCUtils';
@@ -77,7 +78,7 @@ export function BulkAnimalModal({
                   <input type="checkbox" checked={checked} onChange={(e) => toggle(e.target.checked)} />
                 </div>
                 <div className="bs-name" onClick={() => handleToggleAnimal(animal.type)}>
-                  {animal.symbol} {getLocalizedString(animal.type, strings)} ({animal.count})
+                  <ResourceIcon type={animal.type} symbol={animal.symbol} /> {getLocalizedString(animal.type, strings)} ({animal.count})
                 </div>
               </div>
             );

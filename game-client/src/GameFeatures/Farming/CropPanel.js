@@ -1,6 +1,7 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Panel from '../../UI/Panels/Panel';
 import { updateGridResource } from '../../Utils/GridManagement';
 import '../../UI/Buttons/SharedButtons.css';
@@ -121,7 +122,7 @@ const CropPanel = ({
     <Panel footer={sellFooter} onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
       <div className="standard-panel">
         <h2>
-            {cropDetails?.symbol || '🌱'} {stationType}
+            <ResourceIcon resource={cropDetails} symbol={cropDetails?.symbol || '🌱'} /> {stationType}
         </h2>
 
         {/* Show crop growth status */}

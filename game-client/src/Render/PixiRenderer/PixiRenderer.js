@@ -262,6 +262,10 @@ const loadEmojiTexture = async (symbol) => {
 // scale the sprite to match what the Text fallback would have drawn.
 const EMOJI_SPRITE_SCALE = 1.0;
 
+// A painted doober's art (the 1 x 1 pickups in resources.json, category 'doober') is drawn this
+// much of a tile wide and centred on its tile; the owner picked 0.9 (docs/art/doobers.md).
+const DOOBER_TILE_SCALE = 0.9;
+
 /**
  * Get the SVG filename for a resource type from masterResources
  */
@@ -963,11 +967,21 @@ const PixiRenderer = ({
         // Use SVG texture if available
         if (texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
-          // Scale sprite to desired size (texture is fixed at BASE_TEXTURE_SIZE)
-          sprite.width = size;
-          sprite.height = size;
-          sprite.x = x;
-          sprite.y = visualY;
+          if (resource.category === 'doober' && tileSpan === 1) {
+            // Painted doobers (docs/art/doobers.md): oversized pickups drawn at DOOBER_TILE_SCALE of
+            // a tile, centred on it, so a pickup reads bigger than a prop of the same footprint
+            sprite.anchor.set(0.5, 0.5);
+            sprite.width = TILE_SIZE * DOOBER_TILE_SCALE;
+            sprite.height = TILE_SIZE * DOOBER_TILE_SCALE;
+            sprite.x = x + size / 2;
+            sprite.y = visualY + size / 2;
+          } else {
+            // Scale sprite to desired size (texture is fixed at BASE_TEXTURE_SIZE)
+            sprite.width = size;
+            sprite.height = size;
+            sprite.x = x;
+            sprite.y = visualY;
+          }
           addResource(sprite, resource.y, resource);
           svgCount++;
           continue;

@@ -6,6 +6,7 @@ import { useStrings } from '../StringsContext';
 import { isCurrency } from '../../Utils/InventoryManagement';
 import './TradingInventoryModal.css';
 import CloseButton from '../Buttons/CloseButton';
+import ResourceIcon from '../Icons/ResourceIcon';
 
 const TradingInventoryModal = ({
   isOpen,
@@ -132,9 +133,9 @@ const TradingInventoryModal = ({
 
                 return (
                   <tr key={item.type}>
-                    <td className="res-name">{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
+                    <td className="res-name"><ResourceIcon type={item.type} masterResources={resourceData} /> {getLocalizedString(item.type, strings)}</td>
                     <td className="res-meta" data-label={strings[162]}>{item.quantity}</td>
-                    <td className="res-meta">💰 {price}</td>
+                    <td className="res-meta"><ResourceIcon type="Money" /> {price}</td>
                     <td className="res-amount">
                       <div className="amount-input">
                         <button

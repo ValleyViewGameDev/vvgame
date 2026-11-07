@@ -260,6 +260,7 @@ const ToolsPanel = ({
                   <ResourceButton
                     key={tileType}
                     symbol={symbol}
+                    resource={tileResource}
                     name={getLocalizedString(displayName, strings)}
                     className={getButtonClassName(tileType)}
                     style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}

@@ -309,6 +309,7 @@ const PetPanel = ({
                 return (
                   <ResourceButton
                     symbol={rewardResource?.symbol || '📦'}
+                    resource={rewardResource}
                     name={`${getLocalizedString(rewardItem, strings)}${revealedRewardQty > 1 ? ` (${revealedRewardQty})` : ''}`}
                     details={`(+ 🔷${xpToAward})`}
                     className={`resource-button pet-collect-button scroll-collect-button rarity-${revealedRewardRarity} ${isCollecting ? 'collecting' : 'ready'}`}

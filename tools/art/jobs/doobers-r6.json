@@ -1,0 +1,34 @@
+{
+  "name": "doobers-r6",
+  "note": "Doobers round 6 (owner, 2026-11-07): Kitchen two + drinks, and Winery + Loom. Straight-on camera paragraph per item.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "kitchen2": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 SANDWICH: a sandwich of two bread slices with lettuce, tomato and cheese between, its cut face toward the viewer. 2 PIZZA: one wedge slice of pizza standing with its cut side flat to the viewer, red sauce, melted cheese, a basil leaf, no top-down whole pizza. 3 TOMATO SOUP: a wide bowl seen from the front, tipped only enough to show its red surface, a swirl of cream, one basil leaf. 4 POACHED PEAR: one whole pear standing upright on a plain plate seen from the front, glossy wine-red from poaching, stem up. 5 LEMONADE: a tall clear glass seen from the front, pale yellow lemonade, a lemon wheel on the rim, a straw. 6 COCONUT MILK: a half coconut shell upright seen from the front, white milk filled to its rim, a small green leaf. 7 BELMONT TEA: a small round china teapot seen from the front, cream with a blue band, spout to one side, steam from the lid. 8 APPLE CIDER: a wooden tankard with a hoop and handle seen from the front, golden cider, a small red apple beside it. 9 OLIVE OIL: a slim green glass bottle seen from the front, cork stopper, a plain label with one olive sprig drawn on it."
+    },
+    "wineloom": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 PORT: a short squat dark glass bottle seen from the front, cork, a plain cream label, deep red wine inside. 2 BRANDY: a round-bellied amber glass bottle seen from the front, a short neck and cork, a plain label. 3 AGED WINE: a dusty dark green wine bottle seen from the front, wax-sealed cork, a cobweb on the shoulder, a plain aged label. 4 CLOTH: a folded bolt of undyed linen cloth seen from the front, the folds stacked flat toward the viewer. 5 SWEATER: a knitted wool sweater laid flat and seen from the front, sleeves out to the sides, cable pattern, warm brown. 6 RUNIC TUNIC: a simple belted tunic seen from the front, laid flat, deep blue with a row of pale runes stitched along the hem. 7 JACKET: a short leather jacket seen from the front, laid flat, sleeves out, brass buttons. 8 HEAVY JACKET: a thick fur-collared winter coat seen from the front, laid flat, sleeves out, toggles down the front. 9 SILK DRESS: a long flowing dress seen from the front, laid flat, shimmering pale rose silk, a fitted bodice and full skirt."
+    }
+  }
+}

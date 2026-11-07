@@ -3,6 +3,7 @@ import axios from 'axios';
 import API_BASE from '../../config';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import '../../UI/Buttons/ResourceButton.css';
 import { useStrings } from '../../UI/StringsContext';
 import { formatCountdown } from '../../UI/Timers';
@@ -81,7 +82,7 @@ export default function InnPanel({
     ? `<span style="color: var(--color-text-negative);">${strings[2107] || 'The Inn is being prepared.'}</span><span>${formatCountdown(restEnd, now)}</span>`
     : `${strings[2106] || 'Restores full health'}<br>` +
       (fullHealth ? `<span style="color: var(--color-text-negative);">${strings[2108] || 'You are already at full health.'}</span>` : '') +
-      `<span style="color: ${affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)'}; display: block;">💰 ${costMoney.toLocaleString()}</span>`;
+      `<span style="color: ${affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)'}; display: block;">${resourceIconHtml('Money')} ${costMoney.toLocaleString()}</span>`;
 
   return (
     <Panel onClose={onClose} titleKey="2088" descriptionKey="2089" panelName="InnPanel">

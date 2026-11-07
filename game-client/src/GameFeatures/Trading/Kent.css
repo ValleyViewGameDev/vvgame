@@ -134,6 +134,7 @@
   font-size: 32px !important; /* style-ok: icon */
   line-height: 1;
 }
+.kent-offer-symbol .resource-icon { width: 1em; height: 1em; vertical-align: middle; } /* the painted doober at the cell's own 32 px, where the glyph sat */
 
 /* Reward Section: two fixed rows (Kent.js): Money alone, then any other reward and the XP.
    No height cap: both rows always fit the card (an emoji line is taller than its text). */

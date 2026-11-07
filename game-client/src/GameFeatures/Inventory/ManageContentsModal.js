@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
 import { isCurrency } from '../../Utils/InventoryManagement';
@@ -122,7 +123,7 @@ const ManageContentsModal = ({
                     {isFood ? `❤️‍🩹 +${resourceData.hp}` : ''}
                   </td>
                   <td className="res-name">
-                    {resourceData?.symbol || ''} {getLocalizedString(item.type, strings)}
+                    <ResourceIcon resource={resourceData} /> {getLocalizedString(item.type, strings)}
                   </td>
                   <td className="res-meta" data-label={strings[185] || 'Quantity'}>{item.quantity.toLocaleString()}</td>
                 {showActions && (

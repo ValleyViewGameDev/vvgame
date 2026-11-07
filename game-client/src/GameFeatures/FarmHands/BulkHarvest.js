@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
@@ -268,7 +269,7 @@ export function BulkHarvestModal({
                   />
                 </div>
                 <div className="bs-name" onClick={() => handleToggleCrop(crop.type)}>
-                  {crop.symbol} {getLocalizedString(crop.type, strings)} ({crop.count})
+                  <ResourceIcon type={crop.type} masterResources={masterResources} symbol={crop.symbol} /> {getLocalizedString(crop.type, strings)} ({crop.count})
                 </div>
                 {showBulkReplant && (
                   <label className="bs-opt" data-label={strings[343] || 'Replant?'}>

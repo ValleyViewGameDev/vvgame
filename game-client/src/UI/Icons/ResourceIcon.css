@@ -1,0 +1,16 @@
+/* ResourceIcon: a resource's painted art inline with text (docs/ui-conventions.md §3 Icons) */
+.resource-icon {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.3em;
+  object-fit: contain;
+  flex: none;
+}
+.resource-icon--glyph { /* an emoji row (no painted art yet): sized like the picture it stands in for */
+  width: auto;
+  height: auto;
+  line-height: 1;
+  vertical-align: baseline;
+}
+.resource-icon + * { margin-left: 0.25em; }

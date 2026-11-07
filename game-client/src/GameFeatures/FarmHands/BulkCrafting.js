@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import axios from 'axios';
 import API_BASE from '../../config';
 import Modal from '../../UI/Modals/Modal';
@@ -198,10 +199,10 @@ export function BulkCraftingModal({
                   />
                 </div>
                 <div className="bs-name" onClick={() => handleToggleCollect(slotKey)}>
-                  {slot.craftedSymbol} {getLocalizedString(slot.craftedItem, strings)}
+                  <ResourceIcon type={slot.craftedItem} masterResources={masterResources} symbol={slot.craftedSymbol} /> {getLocalizedString(slot.craftedItem, strings)}
                 </div>
                 <div className="bs-meta">
-                  {station.stationSymbol} {getLocalizedString(station.stationType, strings)}
+                  <ResourceIcon type={station.stationType} masterResources={masterResources} symbol={station.stationSymbol} /> {getLocalizedString(station.stationType, strings)}
                   {station.readySlots.length > 1 && <span className="bs-sub"> · slot {slot.slotIndex + 1}</span>}
                 </div>
                 {hasBulkRestartCraft && (
@@ -221,7 +222,7 @@ export function BulkCraftingModal({
                 <div className="bs-cost">
                   {needs && Object.entries(needs).map(([type, data], idx) => (
                     <span key={idx} className={data.available >= data.needed ? 'ok' : 'short'}>
-                      {data.symbol}{data.needed}
+                      <ResourceIcon type={type} masterResources={masterResources} symbol={data.symbol} />{data.needed}
                     </span>
                   ))}
                 </div>
