@@ -33,6 +33,7 @@ import {
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
+import { actorZ } from './depthSort';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
@@ -1064,7 +1065,7 @@ const PixiRenderer = ({
         if (displayObj) {
           displayObj.x = animation.currentPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
-          displayObj.zIndex = animation.currentPos.y + 0.5; // y-sorted with the resources and the PC
+          displayObj.zIndex = actorZ(animation.currentPos.y); // by its feet: leaves a row's depth as it leaves the row (depthSort.js)
         }
       }
 
@@ -1195,7 +1196,7 @@ const PixiRenderer = ({
           // y-sorted from its first frame: a new sprite used to keep zIndex 0 (behind every resource)
           // until the NPC next moved, so a worker whose sprite was rebuilt while resting on its slot
           // drew behind the haybale (owner 2026-10-30)
-          displayObj.zIndex = targetPos.y + 0.5;
+          displayObj.zIndex = actorZ(targetPos.y);
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) }; // CombatFX restores to this
         } else {
           // Update existing display object
@@ -1231,7 +1232,7 @@ const PixiRenderer = ({
           const renderPos = getNPCRenderPosition(npc);
           displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.zIndex = renderPos.y + 0.5; // over the resources of its own row, under the row south
+          displayObj.zIndex = actorZ(renderPos.y); // over the resources of its own row, under the row south
         }
         // Resting scale for CombatFX. Only a sprite is re-sized above (width/height reset its scale),
         // so only a sprite may re-record it here: an emoji (Text) NPC keeps the scale it was created

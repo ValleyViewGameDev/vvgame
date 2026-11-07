@@ -7,6 +7,7 @@ import playerIconsData from '../../Authentication/PlayerIcons.json';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
+import { actorZ } from './depthSort';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -382,7 +383,7 @@ const PixiRendererPCs = ({
       sprite.height = TILE_SIZE * 0.9;
       sprite.x = xPos;
       sprite.y = yPos;
-      sprite.zIndex = posY + 0.51; // y-sorted; wins a tie with an NPC on the same row
+      sprite.zIndex = actorZ(posY, 0.51); // by its feet (depthSort.js); wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();
     } else {
@@ -392,7 +393,7 @@ const PixiRendererPCs = ({
       text.style.fontSize = TILE_SIZE * 0.8;
       text.x = xPos;
       text.y = yPos;
-      text.zIndex = posY + 0.51;
+      text.zIndex = actorZ(posY, 0.51);
       text.alpha = 1.0;
       hideSprite();
 
