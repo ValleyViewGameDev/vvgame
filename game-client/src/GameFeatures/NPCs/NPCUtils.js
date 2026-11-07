@@ -290,8 +290,10 @@ export async function handleNPCClick(
       );
     }
 
+    case 'spawn': // invisible and indestructible (BL-19): nothing to click
+      return;
+
     case 'attack': 
-    case 'spawn':
       handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZE, setResources, masterResources, masterTrophies, globalTuning);
       
     break;

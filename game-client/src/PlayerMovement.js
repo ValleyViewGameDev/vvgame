@@ -713,7 +713,7 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
   if (currentPlayer?.location?.g) {
     const npcsInGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
     if (npcsInGrid) {
-      const npcInTile = Object.values(npcsInGrid).find(npc =>
+      const npcInTile = Object.values(npcsInGrid).find(npc => npc.action !== 'spawn' && // spawners are passable (BL-19)
         Math.floor(npc.position?.x) === x && Math.floor(npc.position?.y) === y
       );
       if (npcInTile && npcInTile.passable === false) {

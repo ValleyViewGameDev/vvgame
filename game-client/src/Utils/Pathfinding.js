@@ -42,7 +42,8 @@ export function buildPassability({ tiles, resources, npcs, masterResources, curr
   const blockedByNpc = new Set();
   const npcList = Array.isArray(npcs) ? npcs : Object.values(npcs || {});
   for (const npc of npcList) {
-    if (npc && npc.passable === false && npc.position) {
+    // Spawners are passable (BL-19), whatever their row or saved record says
+    if (npc && npc.passable === false && npc.action !== 'spawn' && npc.position) {
       blockedByNpc.add(key(Math.floor(npc.position.x), Math.floor(npc.position.y)));
     }
   }

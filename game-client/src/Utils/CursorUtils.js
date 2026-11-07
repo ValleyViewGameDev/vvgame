@@ -21,7 +21,6 @@ export function getNPCCursorClass(npc) {
       return 'cursor-help';
       
     case 'attack':
-    case 'spawn':
       // For attack NPCs, check cooldown status from shared state
       const cooldownStatus = getAttackCooldownStatus();
       return cooldownStatus.isOnCooldown ? 'cursor-wait' : 'cursor-crosshair';

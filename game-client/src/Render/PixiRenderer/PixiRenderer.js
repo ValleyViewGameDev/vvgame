@@ -297,7 +297,7 @@ const PixiRenderer = ({
   grid,
   tileTypes,
   resources,
-  npcs,
+  npcs: allNpcs,
   pcs,
   currentPlayer,
   inventory,              // Live warehouse / backpack (Kent's overlay counts these, like his panel)
@@ -360,6 +360,8 @@ const PixiRenderer = ({
   onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
   onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
 }) => {
+  // Spawners are invisible (BL-19): never drawn, hovered, hit-tested or clicked; they still tick in NPCsInGridManager
+  const npcs = useMemo(() => (allNpcs ? allNpcs.filter((n) => n?.action !== 'spawn') : allNpcs), [allNpcs]);
   const containerRef = useRef(null);   // the canvas host: fills the board, viewport-sized
   const overlayRef = useRef(null);     // DOM overlay mirrored to the Pixi world by PixiCamera
   const appRef = useRef(null);
@@ -1532,7 +1534,7 @@ const PixiRenderer = ({
     const px = w.x / TILE_SIZE; const py = w.y / TILE_SIZE;
     let best = null; let bestD = Infinity;
     for (const n of npcs) {
-      if (!n || !(n.action === 'attack' || n.action === 'spawn')) continue;
+      if (!n || n.action !== 'attack') continue;
       const r = getNPCRenderPosition(n);
       if (!r) continue;
       const dx = Math.abs(r.x + 0.5 - px); const dy = Math.abs(r.y + 0.5 - py);
@@ -1609,9 +1611,9 @@ const PixiRenderer = ({
 
     if (npc) {
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
-      // the NPC) and open it on arrival, as if it had been tapped from there. Enemies and
-      // spawners keep the plain click (walking into them is not a tap's intent).
-      const isHostile = npc.action === 'attack' || npc.action === 'spawn';
+      // the NPC) and open it on arrival, as if it had been tapped from there. Enemies
+      // keep the plain click (walking into them is not a tap's intent).
+      const isHostile = npc.action === 'attack';
       if (!isHostile && !cursorMode && outOfRange(col, row)) { walkToNpc(npc.id, 1); return; }
 
       // Use the shared click handler that includes cooldown logic for attack NPCs

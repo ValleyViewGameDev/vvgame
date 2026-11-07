@@ -251,7 +251,7 @@ const PixiRendererVFX = ({
       const attackNPCs = npcs.filter(npc =>
         npc &&
         npc.position &&
-        (npc.action === 'attack' || npc.action === 'spawn') &&
+        npc.action === 'attack' &&
         npc.attackrange &&
         npc.attackrange > 0
       );

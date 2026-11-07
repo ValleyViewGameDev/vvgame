@@ -380,7 +380,7 @@ followPath(x, y, tiles, resources, npcs, { stopShort = false } = {}) {
     // (terrainOpen), never the player's tile, never another NPC's tile
     const me = playersInGridManager.getLocalRecord?.()?.position;
     const open = (px, py) => this.terrainOpen(px, py, tiles, resources) && !(me && Math.round(me.x) === px && Math.round(me.y) === py)
-      && !npcs.some((n) => n && n.id !== this.id && Math.floor(n.position?.x) === px && Math.floor(n.position?.y) === py);
+      && !npcs.some((n) => n && n.id !== this.id && n.action !== 'spawn' && Math.floor(n.position?.x) === px && Math.floor(n.position?.y) === py);
     const path = findPath(here, goal, open, { stopShort });
     this.path = { goal, steps: path, replans: (this.path?.goal?.x === goal.x && this.path?.goal?.y === goal.y) ? (this.path.replans || 0) + 1 : 0 };
     return path;
@@ -492,8 +492,8 @@ isValidTile(x, y, tiles, resources, npcs) {
     return true;
   }
 
-  // Never onto another NPC's tile (farm animals included: no stacking)
-  const npcInTile = npcs.find(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y && npc.id !== this.id);
+  // Never onto another NPC's tile (farm animals included: no stacking); spawners are passable (BL-19)
+  const npcInTile = npcs.find(npc => npc.action !== 'spawn' && Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y && npc.id !== this.id);
   if (npcInTile) return false;
 
   return true;

@@ -52,7 +52,8 @@ export function reachDistance(a, b) {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
-const isHostile = (npc) => npc && (npc.action === 'attack' || npc.action === 'spawn');
+// Spawners are not targets (BL-19): invisible, passable, indestructible
+const isHostile = (npc) => npc && npc.action === 'attack';
 
 /**
  * Melee or ranged is the EQUIPPED WEAPON's `ranged` flag (resources.json), not the reach:

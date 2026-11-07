@@ -35,20 +35,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 - **W-1. Write `docs/world-design.md`.** The design doc this epic needs: regions, template
   inventory, storylines, exploration motivations. Not written yet.
 - **W-3. Iterate on existing templates** to create more interesting scenarios.
-- **W-7. Finish all the storyline threads between Citizens.** Related to the NPC / Combat
-  epic's Track 4 (Citizens: socializing and motives, docs/citizens.md), which is the behaviour
-  side; this is the story side.
-- **W-8. Better surface the Quest for Hope** and create more motivations for players to explore.
-  (2026-10-24: the "more motivations" half moved to the Onboarding & Early Game epic, OB-3 and
-  OB-5.)
-  The Quest for Hope UI must let players tap an uncollected item to see what it is (added
-  2026-10-09).
-  **Built 2026-10-11:** the seven Quest for Hope slots (Player Character and Leaderboard panels,
-  `GameFeatures/Social/HopeQuest.js`) show a very faint icon of each uncollected artifact; tapping
-  the title or any slot opens `QuestForHopeModal.js` (the seven listed with icon and name, OK
-  button), and tapping an uncollected one opens a small "Hint:" modal with a riddle (strings
-  200803-200817; EN, DE, ES, FR; the partly translated languages fall back to English). The
-  "more motivations to explore" half is still open. Not yet checked in the live game.
 - **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). Every valley0-3
   grid now has a template (phase 1, 2026-10-09: the 1,915 that had none). Design doc, phases
   and log: `docs/making-original-grids.md` (§1 phases, §11 log); scripts in `tools/gridgen/`.

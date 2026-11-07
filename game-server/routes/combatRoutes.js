@@ -41,7 +41,8 @@ const fail = (res, status, reason) => res.status(status).json({ error: reason, r
 const KILL_CREDIT_MS = 5 * 60 * 1000;
 const busyUntil = new Map();
 
-const isHostile = (def) => def && (def.action === 'attack' || def.action === 'spawn');
+// Spawners are not targets (BL-19): invisible, passable, indestructible; only what they spawn is fought
+const isHostile = (def) => def && def.action === 'attack';
 
 /** The grid belongs to this player: their homestead, or their own copy of a town/valley/dungeon. */
 function ownsGrid(grid, player) {
