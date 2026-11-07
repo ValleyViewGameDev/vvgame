@@ -693,6 +693,7 @@
   {
     "index": 104,
     "title": "Daisies for the Door",
+    "clueKey": "16530",
     "symbol": "🧑‍🎤",
     "level": 8,
     "repeatable": false,
@@ -1058,6 +1059,7 @@
   {
     "index": 67,
     "title": "Blood for Juliet",
+    "clueKey": "16531",
     "symbol": "🧝",
     "level": 12,
     "repeatable": false,
@@ -1158,6 +1160,7 @@
   {
     "index": 100,
     "title": "Titania's Secret",
+    "clueKey": "16533",
     "symbol": "🧝‍♀️",
     "level": 16,
     "repeatable": false,
@@ -1303,6 +1306,7 @@
   {
     "index": 86,
     "title": "Portia's Secret",
+    "clueKey": "16532",
     "symbol": "👩🏻‍⚖️",
     "level": 16,
     "repeatable": false,

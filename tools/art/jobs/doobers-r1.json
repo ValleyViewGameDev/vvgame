@@ -1,0 +1,18 @@
+{
+  "name": "doobers-r1",
+  "note": "Doobers round 1 (owner, 2026-11-06): nine representative resources (crop, raw, animal, crafted) on the 3 x 3 grid in three directions; the owner picks a style before the full set is drawn.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "sample": {
+      "guide": "guides/icon-grid-3x3.png",
+      "prompt": "SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 a fat orange CARROT with a leafy top, pointing down. 2 a bound SHEAF OF WHEAT, golden, tied with twine. 3 a round orange PUMPKIN with a short stem. 4 a short cut LOG of wood, seen end-on enough to show the rings, bark around it. 5 a grey STONE, a rounded chunk of rock. 6 a cluster of three BLUEBERRIES with a leaf. 7 a single cream EGG, upright. 8 a stoneware JUG OF MILK with a splash of white at the lip. 9 a WHEEL OF CHEESE with a wedge cut out, golden rind."
+    }
+  }
+}

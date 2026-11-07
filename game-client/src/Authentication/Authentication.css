@@ -74,17 +74,23 @@
   gap: 10px;
 }
 
-.login-panel-form .form-group {
+.login-panel-form .form-group,
+.profile-field { /* Settings (ProfilePanel): label on its own row above the field, so it never wraps beside it */
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.login-panel-form .form-group label {
+.login-panel-form .form-group label,
+.profile-field label {
   font-size: var(--text-md);
   font-weight: bold;
   color: var(--color-text-primary);
 }
+
+.profile-field { display: flex; flex-direction: column; align-items: stretch; margin-bottom: 8px; }
+.profile-field label { display: block; }
+.profile-field input { display: block; width: 100%; box-sizing: border-box; }
 
 /* Error message styling */
 .error-message,

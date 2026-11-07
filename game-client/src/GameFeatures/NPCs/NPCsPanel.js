@@ -31,7 +31,7 @@ import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
 import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
 import { hopeArtifacts } from '../../Utils/hopeArtifacts';
-import CluesModal, { cluesFor, questCluesFor } from './CluesModal';
+import CluesModal, { cluesFor, questCluesFor, tradeCluesFor } from './CluesModal';
 import { FESTE_QUEST } from '../Story/gertrudeWaking';
 import NPCConnections from './NPCConnections';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
@@ -272,6 +272,7 @@ const NPCPanel = ({
             requires: resourceDef?.requires, // Skill requirement from resource definition
             xp: offer.xp, // XP reward for this specific trade (from traders.json)
             minigame: offer.minigame || null, // won in a minigame instead of paid for (Minigames/minigames.js)
+            clueKey: offer.clueKey || null, // the story played as the trade is made, then kept in Clues (CluesModal tradeCluesFor)
           };
 
           // Collect all requires fields into ingredient format
@@ -930,6 +931,14 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       if (def && def.visible === false) continue;
       showNotification('Trophy', t.trophy);
     }
+    // A trade with a clue (traders.json clueKey): the trader tells its story now, and the clue the
+    // server recorded joins this NPC's Clues
+    if (answer.data.clueKey) {
+      if (Array.isArray(answer.data.relationships)) setCurrentPlayer((prev) => ({ ...prev, relationships: answer.data.relationships }));
+      setStoryDialogKey(answer.data.clueKey);
+      setStoryRelationshipType('story');
+      setStoryModalOpen(true);
+    }
     if (answer.data.skill) {
       updateStatus(`💪 ${getLocalizedString(recipe.type, strings)} skill acquired.`);
       return;
@@ -1198,8 +1207,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                     const hasInInventory = inventory?.some(item => item.type === recipe.type);
                     const hasInBackpack = backpack?.some(item => item.type === recipe.type);
                     const hasAsSkill = currentPlayer?.skills?.some(item => item.type === recipe.type);
+                    // a clue trade is recorded once made, so it stays done after the item is spent
+                    const recorded = currentPlayer?.relationships?.find(r => r.name === npcData.type)?.clues?.includes(`trade:${recipe.type}`);
 
-                    if (hasInInventory || hasInBackpack || hasAsSkill) {
+                    if (hasInInventory || hasInBackpack || hasAsSkill || recorded) {
                       return false; // Don't show this offer
                     }
                   }
@@ -1340,7 +1351,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           {/* Clues, then who and what this NPC cares about (one compact row): first after the status line */}
           {!hideRelationshipUI && (() => {
             const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
-            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username, questCluesFor(npcData.type, allQuests, currentPlayer.completedQuests)).length;
+            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username, [
+              ...questCluesFor(npcData.type, allQuests, currentPlayer.completedQuests),
+              ...tradeCluesFor(npcData.type, rel, masterTraders, strings),
+            ]).length;
             return (
               <>
                 {count > 0 && (
@@ -1689,7 +1703,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
           npcType={npcData?.type}
           relationship={currentPlayer.relationships?.find(r => r.name === npcData?.type)}
           username={currentPlayer?.username}
-          questClues={questCluesFor(npcData?.type, allQuests, currentPlayer.completedQuests)}
+          questClues={[
+            ...questCluesFor(npcData?.type, allQuests, currentPlayer.completedQuests),
+            ...tradeCluesFor(npcData?.type, currentPlayer.relationships?.find(r => r.name === npcData?.type), masterTraders, strings),
+          ]}
           onClose={() => setCluesOpen(false)}
         />
       )}

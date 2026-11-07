@@ -177,6 +177,7 @@ export const DEFINITIONS = [
       ...[1, 2, 3, 4, 5, 6, 7].flatMap((n) => [ref(`requires${n}`, 'resource'), num(`requires${n}qty`)]),
       str('rel'), { ...num('relscore'), label: 'relscore (do not gate unlocks on a score: use rel, docs/story.md)' },
       { ...str('minigame'), label: 'minigame (won, not paid: Minigames/minigames.js id)' },
+      { ...str('clueKey'), label: 'clueKey (string id the trader says as the trade is made; kept in their Clues)' },
     ],
   },
   {

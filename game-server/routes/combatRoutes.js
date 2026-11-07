@@ -31,8 +31,15 @@ const loadQuestDefs = () => {
 
 const fail = (res, status, reason) => res.status(status).json({ error: reason, reason });
 
-// Kill-rate bound: the earliest a player may have finished a kill, per process (Render runs one)
-const lastKillAt = new Map();
+// Kill-rate bound, per process (Render runs one). Swing time is a running ledger, not a gap since
+// the last kill: wounds stay client-side and a player fights a pack at once (Demons around
+// Cerberus), so a kill may land one swing after the previous one when its swings were spent
+// earlier. Each kill's swings are laid end to end after the previous kills' (`busyUntil`),
+// starting no earlier than KILL_CREDIT_MS ago; the kill stands if they fit before now (owner
+// 2026-11-06: the old gap check refused a boss finished just after a pack kill, losing its xp
+// and drop).
+const KILL_CREDIT_MS = 5 * 60 * 1000;
+const busyUntil = new Map();
 
 const isHostile = (def) => def && (def.action === 'attack' || def.action === 'spawn');
 
@@ -120,9 +127,10 @@ router.post('/action/npc-kill', async (req, res) => {
     const minHits = Math.max(1, Math.ceil(maxhp / (stats.damage + 6)));
     const needMs = (minHits - 1) * attackCooldownMs(stats.speed);
     const now = Date.now();
-    const last = lastKillAt.get(String(player._id)) || 0;
-    if (now - last < needMs) return fail(res, 429, 'too-fast');
-    lastKillAt.set(String(player._id), now);
+    const key = String(player._id);
+    const done = Math.max(busyUntil.get(key) || 0, now - KILL_CREDIT_MS) + needMs;
+    if (done > now) return fail(res, 429, 'too-fast');
+    busyUntil.set(key, done);
 
     // 1. The NPC is gone
     npcs.delete(String(npcId));

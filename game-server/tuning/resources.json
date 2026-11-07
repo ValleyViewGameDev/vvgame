@@ -10949,7 +10949,7 @@
     "action": "attack",
     "output": "Bones",
     "passable": false,
-    "xp": 150,
+    "xp": 1000,
     "level": 34,
     "range": 20,
     "maxhp": 1010,

@@ -5,6 +5,7 @@ import ChangeIconModal from '../UI/Modals/ChangeIconModal';
 import axios from 'axios';
 import '../UI/Panels/Panel.css'; // Use the standardized styles
 import '../UI/Buttons/SharedButtons.css'; // Use the standardized buttons
+import './Authentication.css'; // stacked .form-group (label above field)
 import Panel from '../UI/Panels/Panel';
 import { updatePlayerSettings } from '../settings';  
 import NPCsInGridManager from '../GridState/GridStateNPCs';
@@ -340,7 +341,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <h3>{strings[4054]}</h3>
 
         {/* User Details Form */}
-        <div className="form-group">
+        <div className="form-group profile-field">
           <label>{strings[4052]}</label>
           <input
             name="username"
@@ -353,7 +354,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <h3>{strings[4076]}</h3>
         <p className="profile-password-note">{hasPassword ? strings[4085] : strings[4089]}</p>
         {hasPassword && (
-          <div className="form-group">
+          <div className="form-group profile-field">
             <label>{strings[4078]}</label>
             <input
               type="password"
@@ -363,7 +364,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             />
           </div>
         )}
-        <div className="form-group">
+        <div className="form-group profile-field">
           <label>{strings[4079]}</label>
           <input
             type="password"
@@ -400,7 +401,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <br />
 
         {isDeveloper && (
-          <div className="form-group">
+          <div className="form-group profile-field">
             <label>{strings[4055]}</label>
             <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
               <option value="Free">Free</option>

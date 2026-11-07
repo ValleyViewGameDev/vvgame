@@ -328,7 +328,9 @@ dropAt? }` (`game-server/routes/combatRoutes.js`) checks grid ownership, that th
 there and is hostile, and a kill-rate bound from the server's OWN derived stats
 (`utils/combatStats.js`: base + equipped weapon/armour + enhancements, the client's
 `powerModifiers` mirrored): a kill may not land sooner than `(ceil(maxhp / (damage + 6)) - 1)`
-swings at the tuning's fastest cooldown. It then removes the NPC, grants the template `xp`,
+swings at the tuning's fastest cooldown (since 2026-11-06 a running ledger, not a gap since the
+last kill: each kill's swings are laid end to end after the previous kills', crediting at most
+5 minutes back, so a boss finished a swing after a pack kill still stands). It then removes the NPC, grants the template `xp`,
 places the drop on the nearest free tile (the client's suggestion when free) and advances
 Kill quests, in one write; the client reconciles xp, quests and the drop tile from the answer.
 Combat no longer calls `/addXP`, `/update-grid`, `/remove-single-npc` or `/save-single-npc`

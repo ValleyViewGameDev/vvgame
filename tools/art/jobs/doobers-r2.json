@@ -1,0 +1,44 @@
+{
+  "name": "doobers-r2",
+  "note": "Doobers round 2 (owner, 2026-11-06): Lined approved at 0.9 tile; the bigger sample, three sheets of nine with the round-1 Lined sheet as the control: crops and wild, crafted and found, and the hard cases (Mill products that share one emoji, cheeses, soups, invented items).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "crops": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the attached sheet on magenta is this game's APPROVED doober set (carrot, wheat, pumpkin, log, stone, blueberries, egg, milk jug, cheese): match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 CORN: one fat ear of corn, husk peeled back at the top. 2 LETTUCE: a round head of lettuce. 3 STRAWBERRY: one big strawberry with its leafy cap. 4 APPLE: one red apple with a leaf. 5 MUSHROOM: one brown-capped mushroom. 6 TULIP: one red tulip on a short stem with a leaf. 7 ROSEMARY: a sprig of rosemary, needle leaves, tied with twine. 8 SUNFLOWER: one sunflower head with a short stem. 9 GRAPES: a bunch of purple grapes with a leaf."
+    },
+    "crafted": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the attached sheet on magenta is this game's APPROVED doober set (carrot, wheat, pumpkin, log, stone, blueberries, egg, milk jug, cheese): match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 CLAY: a rough lump of orange-brown clay. 2 WOOL: a bundle of fleece tied with twine, cream and fluffy. 3 HONEY: a glass jar of golden honey with a cloth lid tied on. 4 SILK: a folded bolt of shimmering pale silk. 5 BREAD: one crusty round loaf, scored on top. 6 FLOUR: a small cloth sack of flour, open at the top, white flour showing. 7 LUMBER: two planks of cut lumber stacked. 8 COFFEE BEANS: a small burlap sack open at the top, dark roasted beans showing. 9 WINE: one dark green bottle of wine with a cork, no label."
+    },
+    "hard": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the attached sheet on magenta is this game's APPROVED doober set (carrot, wheat, pumpkin, log, stone, blueberries, egg, milk jug, cheese): match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 SUGAR: a small paper cone of white sugar, open at the top, sugar crystals showing, clearly different from a flour sack. 2 CORNMEAL: a wooden bowl heaped with golden yellow cornmeal. 3 GOAT CHEESE: a small white log of soft goat cheese, one end cut. 4 CARROT SOUP: a round earthenware bowl of orange soup with a wooden spoon. 5 POTTERY: a round-bellied clay pot with two small handles. 6 AMULET: a bronze medallion on a leather cord with a blue stone set in it. 7 PHOENIX FEATHER: one big feather of red and gold, flame-coloured. 8 POTION: a round glass flask with a cork, glowing green liquid inside. 9 ANCIENT COIN: one old worn gold coin with a crude face stamped on it."
+    }
+  }
+}

@@ -943,6 +943,12 @@ router.post('/action/npc-trade', async (req, res) => {
     const { offer, recipe, def } = found;
     if (!econ.meetsRelationship(player, trader, offer.rel)) return answer(403, `needs-${offer.rel}`);
     if (def?.level && econ.levelOf(player) < Number(def.level)) return answer(403, `level-${def.level}`);
+    // A trade with a clue (traders.json `clueKey`, e.g. Caliban's Yorick's Skull) is recorded on the
+    // relationship as `trade:<gives>` (the Clues modal lists it; NPCsPanel plays its story). A
+    // one-time one stays done once recorded, even after the item is spent (handed to Hecate).
+    const clueTag = offer.clueKey ? `trade:${offer.gives}` : null;
+    const rel = clueTag ? (player.relationships || []).find((r) => r.name === trader) : null;
+    if (clueTag && offer.repeat === false && (rel?.clues || []).includes(clueTag)) return answer(409, 'owned');
     const isSkill = def?.category === 'skill';
     const qty = isSkill ? 1 : Math.floor((offer.givesqty || 1) * econ.relationshipMultiplier(player, trader));
     if (!isSkill) {
@@ -968,9 +974,18 @@ router.post('/action/npc-trade', async (req, res) => {
       const npcDef = econ.resourceDef(trader);
       xpGained = giveXP(player, offer.xp ?? (npcDef?.category === 'npc' ? npcDef.xp : undefined) ?? 1);
     }
+    if (clueTag) {
+      if (rel) rel.clues = [...new Set([...(rel.clues || []), clueTag])];
+      else player.relationships.push({ name: trader, relscore: 0, clues: [clueTag] });
+      player.markModified('relationships');
+    }
     player.lastActive = new Date();
     await player.save();
-    return res.json({ success: true, collected: { type: offer.gives, qty }, skill: isSkill, xpGained, trophies, gems: paid.gems || 0, player: econ.playerDelta(player), seq: econ.nextSeq() });
+    return res.json({
+      success: true, collected: { type: offer.gives, qty }, skill: isSkill, xpGained, trophies, gems: paid.gems || 0,
+      ...(clueTag ? { clueKey: offer.clueKey, relationships: player.relationships.map((r) => (r.toObject ? r.toObject() : r)) } : {}),
+      player: econ.playerDelta(player), seq: econ.nextSeq(),
+    });
   } catch (err) {
     console.error('❌ action/npc-trade failed:', err);
     return res.status(500).json({ success: false, error: 'npc-trade-failed', detail: err.message });
