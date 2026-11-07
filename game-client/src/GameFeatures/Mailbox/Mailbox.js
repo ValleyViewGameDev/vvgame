@@ -315,7 +315,7 @@ const renderRewards = (rewards) => {
                 <h3>
                   {template.title}
                   {(!msg.read || markedReadIds.includes(msg.messageId)) && (
-                    <span className="unread-tag">🆕</span>
+                    <span className="unread-tag" aria-label="new" />
                   )}
                 </h3>
                 <p className="message-body">{msg.body || template.body}</p>

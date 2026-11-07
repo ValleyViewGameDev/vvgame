@@ -42,7 +42,7 @@ const TrainCompleteModal = ({ onClose }) => {
       <div className="modal-container modal-narrow level-up-modal">
         <CloseButton corner onClick={onClose} />
 
-        <div className="modal-title">🚂 {strings[2021] || 'All Train orders filled!'}</div>
+        <div className="modal-title">{strings[2021] || 'All Train orders filled!'}</div>
 
         <div className="modal-content">
           <div className="level-up-message">

@@ -49,7 +49,7 @@ function RevivalModal({
   return createPortal(
     <div className="modal-overlay">
       <div className={`modal-container ${hasEnoughGems ? 'modal-small' : 'modal-narrow'}`}>
-        <h2 className="modal-title">{strings["5004"] || "💀 You have fallen!"}</h2>
+        <h2 className="modal-title">{strings["5004"] || "You have fallen!"}</h2>
 
         <div className="modal-content">
           <p className="modal-message">{strings["5070"] || "Your journey doesn't have to end here..."}</p>

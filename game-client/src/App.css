@@ -286,6 +286,7 @@ body {
   align-items: center;
   justify-content: center;
 }
+.season-button .hud-button-icon { width: 28px; height: 28px; object-fit: contain; display: block; } /* the Season calendar, Town News paper and Quest scroll (emoji until 2026-11-07) */
 @media (hover: hover) {
   .season-button:hover { background-color: var(--color-button-hover); }
 }

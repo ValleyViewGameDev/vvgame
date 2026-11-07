@@ -16,7 +16,7 @@ export default function MinigameButton({ recipe, quantity, disabled, onStart, ..
       resourceType={recipe.type}
       symbol={recipe.symbol}
       name={`${quantity} ${getLocalizedString(recipe.type, strings)}`}
-      details={`🧩 ${strings[minigameLabelKey] || 'Answer the riddle'}`}
+      details={strings[minigameLabelKey] || 'Answer the riddle'}
       disabled={disabled}
       onClick={() => { if (!disabled) onStart(recipe); }}
       className="minigame"

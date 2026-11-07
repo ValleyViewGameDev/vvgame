@@ -102,7 +102,7 @@ return (
     <div className="chat-container">
 
     <div className="chat-panel-header">
-      <h3>💬 Chat</h3>
+      <h3>Chat</h3>
       <CloseButton onClick={onClose} />
     </div>
 

@@ -214,7 +214,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                     style={hasUncollectedReward ? { cursor: isCollecting ? 'wait' : 'pointer' } : undefined}
                                 >
                                     <div className="trophy-icon-wrapper">
-                                        <div className="trophy-icon">🏆</div>
+                                        <div className="trophy-icon"><img src="/assets/icons/icon-trophy.svg" alt="" draggable="false" /></div>
                                         {isEarned && trophyDef.type === 'Progress' && progressInfo?.lastAchievedMilestone && (
                                             <div className="progress-number">{progressInfo.lastAchievedMilestone}</div>
                                         )}

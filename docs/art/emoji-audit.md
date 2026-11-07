@@ -91,6 +91,18 @@ rich-line token (pass 5) or reword.
   star (`UI/Icons/XpStar.js`, the owner's). Wired: the Inventory currency block, the header
   gem and heart ring, the gem chips on ResourceButton and the crafting slots, the avatar and
   change-icon modals, the heal lines, the Scroll station, the FTUE notices (`notificationSprite`).
+- **Pass 2 shipped 2026-11-07.** The decorative leading emoji are stripped from the ten string
+  files (164 English keys, 1,403 values in all) and from messages.json, by a text-level script
+  that keeps each file's own formatting; the functional signals stay (⚠️ 🚫 ❌ ✅ ⏳ 🔒 and the
+  song mark 🎶). The decorative JSX emoji are gone (Off Season modal, Chat header, Caravan
+  complete, Revival, Share, the minigame line, the Post House title); the Mailbox unread tag is a
+  dot; the Trophy panel and the notifications reuse the existing icons (trophy, inbox, map, help,
+  and the new season calendar for phase changes); the Season and Town News buttons got drawn
+  icons (`icons/icon-season.svg`, `icon-news.svg`, `tools/art/jobs/icons-r7.json`) and the Quest
+  button the Scroll art. **The owner's rule (2026-11-07): common symbols that do a job stay.**
+  The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
+  buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
+  ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
 
 ## The passes
 

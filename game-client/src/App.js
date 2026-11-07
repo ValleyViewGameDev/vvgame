@@ -3431,7 +3431,7 @@ return (
         fly into it (data-fly-target="quests", UI/FlyToTarget.js) */}
     {currentPlayer && (
       <div className="map-controls quest-controls" data-fly-target="quests" {...hudTipHandlers}>
-        <button data-nav="QuestPanel" className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} data-tip={strings[12004]} aria-label={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><span>📜</span></button>
+        <button data-nav="QuestPanel" className={`season-button quest-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} data-tip={strings[12004]} aria-label={strings[12004]} onClick={() => (activePanel === 'QuestPanel' ? closePanel() : openPanel('QuestPanel'))}><img className="hud-button-icon" src="/assets/resources/doober-scroll.svg" alt="" draggable="false" /></button>
         {questBadge === 'completed' && <img className="hud-badge" src="/assets/overlays/checkmark.svg" alt="" />}
         {questBadge === 'active' && <span className="hud-badge hud-badge--question">?</span>}
       </div>
@@ -3440,7 +3440,7 @@ return (
     {/* Season: a round button at the board's top-right, the top of the right-hand stack */}
     {currentPlayer && (
       <div className="season-controls season-main" {...hudTipHandlers}>
-        <button className="season-button" data-tip={`${strings[10113]} ${seasonData?.type || ''}`} aria-label={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><span>📅</span></button>
+        <button className="season-button" data-tip={`${strings[10113]} ${seasonData?.type || ''}`} aria-label={`${strings[10113]} ${seasonData?.type || ''}`} onClick={() => openPanel('SeasonPanel')}><img className="hud-button-icon" src="/assets/icons/icon-season.svg" alt="" draggable="false" /></button>
         <HudCountdown endTimes={timers?.seasons?.endTime} />
       </div>
     )}
@@ -3449,7 +3449,7 @@ return (
         landscape, where the map sits under the season button); toggles the Town News panel */}
     {currentPlayer && (
       <div className="season-controls news-controls" {...hudTipHandlers}>
-        <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} data-tip={strings[10125]} aria-label={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><span>📰</span></button>
+        <button className={`season-button news-button ${activePanel === 'TownNewsPanel' ? 'selected' : ''}`} data-tip={strings[10125]} aria-label={strings[10125]} onClick={() => (activePanel === 'TownNewsPanel' ? closePanel() : openPanel('TownNewsPanel'))}><img className="hud-button-icon" src="/assets/icons/icon-news.svg" alt="" draggable="false" /></button>
         {/* the soonest of the Train, Bank and Carnival countdowns */}
         <HudCountdown endTimes={[timers?.train?.endTime, timers?.bank?.endTime, timers?.carnival?.endTime]} />
       </div>
@@ -4064,7 +4064,7 @@ return (
           globalTuning={globalTuning}
           updateStatus={updateStatus}
           canSendHome={true}
-          title={`📯 ${strings[2111] || 'Send Home by Post'}`}
+          title={strings[2111] || 'Send Home by Post'}
           onClose={() => setPostHouseOpen(false)}
         />
       )}

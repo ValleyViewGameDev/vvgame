@@ -1,0 +1,24 @@
+{
+  "name": "icons-r7",
+  "note": "Emoji audit pass 2 (owner, 2026-11-07): the two HUD buttons that were still emoji, Season (a calendar) and Town News (a newspaper), in the header's system style; two candidates each. The Quest button takes the Scroll art and the Map button its map icon.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "hud": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "SUBJECTS: four icons for the game's board buttons, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each the standard system glyph for its function and in exactly the rendering of the exemplar: 1 CALENDAR: the familiar calendar icon, a page with two ring binders at the top and a grid of small day squares, flat to the viewer. 2 CALENDAR ALTERNATE: a tear-off calendar page with a single bold day square in the middle, two rings at the top. 3 NEWS: the familiar newspaper icon, a folded broadsheet with a bold headline bar and lines of text, flat to the viewer. 4 NEWS ALTERNATE: a rolled newspaper with a paper band, flat to the viewer. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

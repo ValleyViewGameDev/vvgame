@@ -362,8 +362,12 @@ value rather than trust this page.
   type="Wheat" />` renders the row's painted art (`iconFile` / `filename`; every doober has one,
   docs/art/doobers.md) and the emoji `symbol` only for a row without art. Never print
   `row.symbol` in JSX next to a name or count; `resourceIconHtml(type)` is the same for a
-  `dangerouslySetInnerHTML` list. The Gem keeps its 💎 glyph for now (owner); Money is the
-  painted coin stack everywhere, the header included.
+  `dangerouslySetInnerHTML` list. Money, Gem, the Hearts and Health are painted everywhere,
+  the header included (docs/art/emoji-audit.md).
+- Emoji in chrome and copy (owner 2026-11-07): no decorative emoji on titles, headings, buttons
+  or the start of a sentence; a thing's picture is its art. Common symbols that DO A JOB and
+  render alike on every OS stay: ⚠️ 🚫 ❌ ✅ ⏳ 🔒 ➕, the status bar's ⬥ separator and ◀ ▶
+  arrows, the 🎶 song mark. Never ℹ️ (one help mark) and never an emoji where art exists.
 - Touch targets on phones are at least 44 px (nav pill buttons are 44 to 52 px); keep that
   for any new tappable control.
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the

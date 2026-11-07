@@ -244,3 +244,6 @@
     top: 4px;
     right: 6px;
 }
+
+/* the trophy picture (icons/icon-trophy.svg, in place of the 🏆 glyph, 2026-11-07) */
+.trophy-icon img { width: 36px; height: 36px; object-fit: contain; display: block; margin: 0 auto; }

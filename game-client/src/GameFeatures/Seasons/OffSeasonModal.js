@@ -117,7 +117,7 @@ function OffSeasonModal({ onClose, currentPlayer }) {
     >
       <h2 className="countdown-timer"><strong>{seasonData.type} begins in:</strong> {countdown}</h2>
 
-        <h3>💰 Results from {previousSeason.seasonType}</h3>
+        <h3>Results from {previousSeason.seasonType}</h3>
         {richestCitizens.length > 0 ? (
         richestCitizens.map((c, i) => (
             <p key={i}>{i + 1}. <strong>{c.username}</strong> – Net Worth: {c.netWorth}</p>
@@ -129,10 +129,10 @@ function OffSeasonModal({ onClose, currentPlayer }) {
 
 
       <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
-        <p>🧑‍🌾 Sending players home</p>
-        <p>🛠️ Resetting towns and valleys</p>
-        <p>💰 Nerfing money accounts</p>
-        <p>📬 Sending out rewards</p>
+        <p>Sending players home</p>
+        <p>Resetting towns and valleys</p>
+        <p>Nerfing money accounts</p>
+        <p>Sending out rewards</p>
       </ul>
 
 

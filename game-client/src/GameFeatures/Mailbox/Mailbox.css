@@ -114,3 +114,6 @@
 /* "Have Feedback?" (UI/Panels/FeedbackLinks.js): the buttons keep the Settings panel's width
    instead of stretching across the modal */
 .mailbox-modal .feedback-links .shared-buttons { max-width: 260px; margin-left: auto; margin-right: auto; }
+
+/* an unread message: a plain dot now (the 🆕 glyph went on 2026-11-07) */
+.unread-tag:empty { width: 9px; height: 9px; padding: 0; border-radius: 50%; vertical-align: middle; }

@@ -30,7 +30,7 @@ function ShareModal({ onClose }) {
         <div className="copy-link">
           <input type="text" readOnly value={url} />
           <div className="shared-buttons">
-            <button className="btn-basic btn-modal-small" onClick={() => copyToClipboard(url, strings)}>📋 Copy</button>
+            <button className="btn-basic btn-modal-small" onClick={() => copyToClipboard(url, strings)}>Copy</button>
           </div>
         </div>
 
