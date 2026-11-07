@@ -3,7 +3,7 @@ import axios from 'axios';
 import API_BASE from '../../config';
 import Panel from '../../UI/Panels/Panel';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import '../../UI/Buttons/ResourceButton.css';
 import { useStrings } from '../../UI/StringsContext';
 import { formatCountdown } from '../../UI/Timers';
@@ -87,7 +87,7 @@ export default function InnPanel({
   return (
     <Panel onClose={onClose} titleKey="2088" descriptionKey="2089" panelName="InnPanel">
       <div className="standard-panel">
-        <p>❤️ {strings[10157] || 'Health'}: {Math.round(hp)} / {maxhp}</p>
+        <p><ResourceIcon file="item-health-heart.svg" /> {strings[10157] || 'Health'}: {Math.round(hp)} / {maxhp}</p>
         <ResourceButton
           symbol="🛏️"
           name={strings[2091] || 'Rest'}

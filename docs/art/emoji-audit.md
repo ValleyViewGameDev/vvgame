@@ -80,6 +80,18 @@ rich-line token (pass 5) or reword.
 | PlayerIcons.json | 28 | the old avatar set; all 28 have a `filename` already | BL-17 (the parts-based avatar, docs/avatar-plan.md) |
 | RelationshipMatrix.json | 47 | NPC glyphs on relationship cards and speech | BL-17 |
 
+## Status
+
+- **Pass 1 shipped 2026-11-07** (`tools/art/jobs/doobers-r11.json`, files `item-<slug>.png/.svg`):
+  the four keys (flipped to the owner's taste), the Mirror Key charm, Hecate's Torch, the three
+  Hearts, the Gem, a Health heart (not a row: `<ResourceIcon file="item-health-heart.svg" />`),
+  Yorick's Skull, Boat, a red Tent, the Gold Pass as a golden ticket, Hope as a white dove.
+  Home Deed, Gertrude's Song, Portia's Pardon, Reveal Scroll and the "Only Found in Scrolls"
+  hint share `doober-scroll.svg`; each Secret shows its character's portrait; XP is the level
+  star (`UI/Icons/XpStar.js`, the owner's). Wired: the Inventory currency block, the header
+  gem and heart ring, the gem chips on ResourceButton and the crafting slots, the avatar and
+  change-icon modals, the heal lines, the Scroll station, the FTUE notices (`notificationSprite`).
+
 ## The passes
 
 Each pass follows the doober loop: a 3 x 3 sheet in the Lined style on the icon grid,

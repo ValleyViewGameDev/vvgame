@@ -824,7 +824,8 @@
     "type": "Gold Account",
     "symbol": "⭐",
     "layoutkey": "gacct",
-    "category": "special"
+    "category": "special",
+    "filename": "item-gold-pass.svg"
   },
   {
     "type": "XP",
@@ -857,7 +858,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "item-gem.svg"
   },
   {
     "type": "Money",
@@ -7249,7 +7251,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Skeleton Key",
@@ -7263,7 +7266,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-skeleton-key.svg"
   },
   {
     "type": "Golden Key",
@@ -7277,7 +7281,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-golden-key.svg"
   },
   {
     "type": "Gertrude's Song",
@@ -7291,7 +7296,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Town Key",
@@ -7305,7 +7311,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 2,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-town-key.svg"
   },
   {
     "type": "Dungeon Key",
@@ -7319,7 +7326,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 12,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-dungeon-key.svg"
   },
   {
     "type": "Mirror Key",
@@ -7333,7 +7341,8 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 14,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-mirror-key.svg"
   },
   {
     "type": "Portia's Secret",
@@ -7345,7 +7354,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-portia.svg"
   },
   {
     "type": "Portia's Pardon",
@@ -7357,7 +7367,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Gertrude's Secret",
@@ -7369,7 +7380,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-gertrude.svg"
   },
   {
     "type": "Titania's Secret",
@@ -7381,7 +7393,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-titania.svg"
   },
   {
     "type": "Caliban's Secret",
@@ -7393,7 +7406,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-caliban.svg"
   },
   {
     "type": "Yorick's Skull",
@@ -7405,7 +7419,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-yoricks-skull.svg"
   },
   {
     "type": "Hecate's Torch",
@@ -7417,7 +7432,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-hecates-torch.svg"
   },
   {
     "type": "Juliet's Secret",
@@ -7429,7 +7445,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-juliet.svg"
   },
   {
     "type": "Viola's Secret",
@@ -7441,7 +7458,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-mermaid.svg"
   },
   {
     "type": "Hope",
@@ -7454,7 +7472,8 @@
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-hope.svg"
   },
   {
     "type": "Yellow Heart",
@@ -7468,7 +7487,8 @@
     "xp": 1,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "filename": "item-yellow-heart.svg"
   },
   {
     "type": "Green Heart",
@@ -7482,7 +7502,8 @@
     "xp": 1,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "filename": "item-green-heart.svg"
   },
   {
     "type": "Purple Heart",
@@ -7496,7 +7517,8 @@
     "xp": 1,
     "gemcost": 55,
     "crafttime": 432000,
-    "totalnestedtime": 432000
+    "totalnestedtime": 432000,
+    "filename": "item-purple-heart.svg"
   },
   {
     "type": "Scroll",
@@ -7549,13 +7571,15 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
     "crafttime": 4,
-    "totalnestedtime": 28814
+    "totalnestedtime": 28814,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Only Found in Scrolls",
     "symbol": "📜",
     "layoutkey": "OF",
-    "category": "special"
+    "category": "special",
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Town Door",
@@ -11468,7 +11492,8 @@
     "ingredient2qty": 2,
     "gemcost": 81,
     "crafttime": 3,
-    "totalnestedtime": 1203
+    "totalnestedtime": 1203,
+    "filename": "item-tent.svg"
   },
   {
     "type": "Backpack",
@@ -11659,7 +11684,8 @@
     "ingredient1qty": 1000000,
     "gemcost": 10001,
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "filename": "item-boat.svg"
   },
   {
     "type": "Tracking",

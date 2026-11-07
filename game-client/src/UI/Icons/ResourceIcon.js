@@ -16,17 +16,18 @@ import './ResourceIcon.css';
  *   <ResourceIcon resource={row} />                    a row you already hold
  *   <ResourceIcon type={t} masterResources={list} />   a list other than the loaded master
  *   <ResourceIcon symbol="💰" />                       a bare symbol (Money, Gem) when no row is at hand
+ *   <ResourceIcon file="item-health-heart.svg" />     a picture that is not a resource row (Health)
  *
  * Plain-string contexts (status toasts, chat lines, `title` attributes) cannot hold an <img>;
  * those keep `symbol` until the toast renders rich content (docs/art/doobers.md "What is left").
  */
-export default function ResourceIcon({ type, resource, symbol, masterResources, size, className = '', title }) {
+export default function ResourceIcon({ type, resource, symbol, file: fileProp, masterResources, size, className = '', title }) {
   const list = masterResources || getMasterResources() || [];
   const row = resource || (type ? list.find((r) => r.type === type) : null) || (symbol ? list.find((r) => r.symbol === symbol && r.filename) : null);
   const style = size ? { width: size, height: size } : undefined;
   // iconFile: the panel picture when the board draws something else (Apple's board art is the
   // fruited tree, tree-apple.svg; its panel icon is the painted apple, doober-apple.svg)
-  const file = row?.iconFile || row?.filename;
+  const file = fileProp || row?.iconFile || row?.filename;
   if (file) {
     return <img className={`resource-icon ${className}`.trim()} src={`/assets/resources/${file}`} alt="" draggable="false" style={style} title={title} />;
   }
@@ -47,10 +48,10 @@ export function resourceIconFile(type, masterResources) {
  * with dangerouslySetInnerHTML (`<span style="color: ...">${icon} ${name} ${qty} / ${have}</span>`).
  * Falls back to the emoji symbol like the component does.
  */
-export function resourceIconHtml(type, masterResources) {
+export function resourceIconHtml(type, masterResources, fileOverride) {
   const list = masterResources || getMasterResources() || [];
-  const row = list.find((r) => r.type === type);
-  const file = row?.iconFile || row?.filename;
+  const row = type ? list.find((r) => r.type === type) : null;
+  const file = fileOverride || row?.iconFile || row?.filename;
   if (file) return `<img class="resource-icon" src="/assets/resources/${file}" alt="" draggable="false">`;
   return row?.symbol || '';
 }

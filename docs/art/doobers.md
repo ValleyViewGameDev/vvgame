@@ -80,6 +80,12 @@ tree's `artSpan`, and collecting them turns the cell back into the bare tree. Th
 `ResourceModalSmall.js`, `QuestButton.js`); the atlas keeps their full 256 px slot (a doober row
 with `artSpan` above 1 is not given the small slot) and does not pack `iconFile`.
 
+## Story items and currencies (pass 1 of the emoji audit, 2026-11-07)
+
+The `special` rows got the same treatment from `tools/art/jobs/doobers-r11.json`, shipped as
+`item-<slug>.png/.svg` (they are not pickups, so not `doober-`): see docs/art/emoji-audit.md
+"Status". The keys are the one family drawn on the diagonal (owner); everything else is straight on.
+
 ## In the DOM
 
 `game-client/src/UI/Icons/ResourceIcon.js` is the one way to show a resource's picture in a

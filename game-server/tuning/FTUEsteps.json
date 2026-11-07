@@ -74,7 +74,8 @@
     "scrim": true,
     "notificationKey": 7067,
     "notificationIcon": "🌾",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "doober-wheat.svg"
   },
   {
     "step": 8,
@@ -216,7 +217,8 @@
     "cutscene": {
       "target": "Agriculture Center",
       "holdMs": 2000
-    }
+    },
+    "notificationSprite": "item-town-key.svg"
   },
   {
     "step": 18,
@@ -240,7 +242,8 @@
     "doinkerPointing": "left",
     "notificationKey": 7069,
     "notificationIcon": "📜",
-    "addQuests": []
+    "addQuests": [],
+    "notificationSprite": "doober-scroll.svg"
   },
   {
     "step": 20,

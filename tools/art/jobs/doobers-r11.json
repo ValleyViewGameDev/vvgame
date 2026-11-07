@@ -1,0 +1,44 @@
+{
+  "name": "doobers-r11",
+  "note": "Pass 1 of the emoji audit (docs/art/emoji-audit.md, owner 2026-11-07): story items and currencies. Keys may lie on the diagonal (owner); the Mirror Key is a charm, not a key; Hope has two candidates (dove / lantern) for the owner to pick. story-c (owner feedback): Gold Pass as a golden ticket (two candidates), the Tent in red canvas, the dove re-drawn without the glow that keyed as a halo.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "story-a": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: EXCEPTION for this sheet only: the four KEYS (items 1 to 4) lie on the DIAGONAL, bow at upper left and bit at lower right, like the classic key glyph; everything else stays straight on. 1 GOLDEN KEY: a slim ornate gold key on the diagonal, a round bow with a small flourish, warm gold. 2 SKELETON KEY: an old iron skeleton key on the diagonal, a simple oval bow, dark grey iron, a little worn. 3 TOWN KEY: a sturdy brass key on the diagonal, its bow shaped like a small town gate arch, brass. 4 DUNGEON KEY: a heavy black iron key on the diagonal, a bow with a skull-like notch, rusted edges. 5 MIRROR KEY: NOT a key: a small oval hand-mirror charm hanging from a short chain, seen straight from the front, silver frame, the glass a soft swirl of violet light with a faint glow, magical. 6 HECATE'S TORCH: a short dark wooden torch standing upright, seen from the front, a bright green-white witch flame with a faint glow. 7 YELLOW HEART: one plump glossy heart flat to the viewer, warm yellow, a small highlight. 8 GREEN HEART: the same heart in leaf green. 9 PURPLE HEART: the same heart in royal purple."
+    },
+    "story-b": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 GEM: one faceted blue gem seen straight from the front, a brilliant cut with a flat top facet, clean highlights. 2 HEALTH HEART: one plump glossy heart flat to the viewer, bright red, the same heart shape as the game's currency hearts. 3 PORTIA'S PARDON: a folded parchment letter seen from the front, tied with a red ribbon and a wax seal, a small scales-of-justice mark. 4 YORICK'S SKULL: a human skull seen straight from the front, bone white, kindly rather than grim, no jaw gore. 5 HOPE: a small glowing white dove seen from the front with wings slightly raised, a soft golden glow, simple. 6 TENT: a small canvas camping tent seen straight from the front, its door flap open, brown and cream canvas, a wooden pole tip at the top. 7 BOAT: a small wooden rowing boat seen from the side, flat to the viewer, two oars resting inside, warm brown planks. 8 GOLD PASS: a five-pointed gold star seen flat to the viewer, a small shine, a thin darker outline. 9 HOPE ALTERNATE: a small brass lantern seen from the front with a warm golden flame, simple."
+    },
+    "story-c": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 GOLD PASS: a golden admission ticket seen flat to the viewer, a rounded rectangle with scalloped punched ends, embossed gold with a darker gold border, a small crown stamped in the middle, no text. 2 GOLD PASS ALTERNATE: a golden ticket on the diagonal, one corner torn along a perforation, a small star stamped on it, no text. 3 TENT: a small camping tent seen straight from the front, its door flap open, deep RED canvas with darker red folds and cream trim, a wooden pole tip at the top. 4 HOPE: a small white dove seen from the front with wings slightly raised, soft golden light on its breast, a crisp dark outline and NO outer glow, NO halo, nothing drawn outside the bird's outline. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

@@ -42,7 +42,7 @@ export default function CurrenciesModal({ inventory = [], backpack = [], masterR
     return (
       <button key={type} type="button" className={`cur-row ${n ? '' : 'cur-row--none'}`} onClick={() => setInfoFor(type)}>
         <span className="cur-icon" aria-hidden="true">
-          {r?.filename ? <img src={`/assets/resources/${r.filename}`} alt="" /> : (r?.symbol || '❓')}
+          {(r?.iconFile || r?.filename) ? <img src={`/assets/resources/${r.iconFile || r.filename}`} alt="" /> : (r?.symbol || '❓')}
         </span>
         {/* one line: icon, amount, name, then the ? at the right (owner 2026-11-06) */}
         <span className="cur-amount">{n.toLocaleString()}</span>

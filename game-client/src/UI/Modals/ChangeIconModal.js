@@ -13,6 +13,7 @@ import CloseButton from '../Buttons/CloseButton';
 import { gameAlert } from './GameDialog';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 
+import ResourceIcon from '../Icons/ResourceIcon';
 const PREMIUM_AVATAR_GEM_COST = 200;
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
@@ -142,7 +143,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
               onClick={handleUnlockPremiumAvatars}
               disabled={isProcessing}
             >
-              {isProcessing ? 'Unlocking...' : `Unlock for 💎 ${PREMIUM_AVATAR_GEM_COST}`}
+              {isProcessing ? 'Unlocking...' : <>Unlock for <ResourceIcon type="Gem" /> {PREMIUM_AVATAR_GEM_COST}</>}
             </button>
           </div>
         )}

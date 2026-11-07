@@ -19,6 +19,7 @@ import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, palette, defaultSpe
 import { renderLookDataUrl } from './avatarCompositor';
 import CloseButton from '../UI/Buttons/CloseButton';
 
+import ResourceIcon from '../UI/Icons/ResourceIcon';
 const SLOT_LABEL = { skin: 'Face', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
 const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
@@ -120,7 +121,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
     const bought = (currentPlayer?.avatarParts || []).includes(row.id);
-    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? 'owned' : `${row.gemcost || '?'} 💎`}</span>;
+    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? 'owned' : <>{row.gemcost || '?'} <ResourceIcon type="Gem" /></>}</span>;
   };
 
   return createPortal(
@@ -161,7 +162,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
                 <div className="avatar-swatches">
                   {palette(data.palettes, PALETTE_OF_SPEC_KEY[colorKey]).map((sw) => (
                     <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} title={`${sw.label || sw.id}${sw.tier === 'paid' ? ` (${sw.gemcost || '?'} gems)` : ''}`} onClick={() => set(colorKey, sw.id)}>
-                      {sw.tier === 'paid' && !owned.includes(sw.id) ? <span className="avatar-swatch-lock">💎</span> : null}
+                      {sw.tier === 'paid' && !owned.includes(sw.id) ? <span className="avatar-swatch-lock"><ResourceIcon type="Gem" /></span> : null}
                     </button>
                   ))}
                 </div>

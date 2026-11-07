@@ -86,7 +86,7 @@ export const GemSpendConfirmHost = () => {
         <CloseButton corner onClick={() => answer(false)} />
         <div className="modal-title">{strings[2026] || 'Confirm'}</div>
         <div className="modal-content">
-          <p className="modal-message">💎 {(strings[2027] || 'Spend {n} Gems?').replace('{n}', fmt(request.gems))}</p>
+          <p className="modal-message"><ResourceIcon type="Gem" /> {(strings[2027] || 'Spend {n} Gems?').replace('{n}', fmt(request.gems))}</p>
           {items.length > 0 && (
             <div className="modal-message">
               <div>{strings[2031] || 'This also uses:'}</div>

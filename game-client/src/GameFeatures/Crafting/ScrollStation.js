@@ -24,6 +24,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
 
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 const ScrollStation = ({
   onClose,
   inventory,
@@ -424,7 +425,7 @@ const ScrollStation = ({
           fontSize: 'var(--text-lg)',
           fontWeight: 'bold',
          }}>
-          {strings[825]}: <br></br>{scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
+          {strings[825]}: <br></br>{scrollCount} <ResourceIcon type="Scroll" /> {scrollCount > 1 ? strings[826] : strings[827]}
         </div>
 
 
@@ -448,7 +449,7 @@ const ScrollStation = ({
           isCrafting ? (
             // Animated scroll emoji during crafting
             <div className="scroll-reveal-animation">
-              <div className="scroll-emoji">📜</div>
+              <div className="scroll-emoji"><ResourceIcon type="Scroll" /></div>
               <div className="scroll-revealing-text">Revealing Scroll...</div>
               <div className="scroll-countdown-text">{formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}</div>
             </div>
@@ -479,7 +480,7 @@ const ScrollStation = ({
           <ResourceButton
             name={strings[831]}
             className="resource-button"
-            details={`${strings[461]} 1x 📜 ${strings[827]}`}
+            details={`${strings[461]} 1x ${resourceIconHtml('Scroll')} ${strings[827]}`}
             disabled={false}
             isTransactionMode={true}
             transactionKey={`scroll-reveal-${currentStationPosition.x}-${currentStationPosition.y}`}

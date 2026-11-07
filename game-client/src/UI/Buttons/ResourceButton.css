@@ -384,3 +384,6 @@
 /* the card's picture (UI/Icons/ResourceIcon): a fixed 24 px so painted art and emoji rows line up */
 .resource-title .resource-title-icon { width: 24px; height: 24px; vertical-align: middle; margin-right: 4px; }
 .resource-title .resource-title-icon.resource-icon--glyph { width: auto; height: auto; }
+
+/* the gem chip's picture (item-gem.svg), sized by the chip's own font-size like the glyph it replaced */
+.gem-button-icon { width: 1em; height: 1em; vertical-align: -0.15em; }

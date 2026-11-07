@@ -120,7 +120,7 @@ const ManageContentsModal = ({
               return (
                 <tr key={index}>
                   <td className="res-meta res-food">
-                    {isFood ? `❤️‍🩹 +${resourceData.hp}` : ''}
+                    {isFood ? <><ResourceIcon file="item-health-heart.svg" /> +{resourceData.hp}</> : ''}
                   </td>
                   <td className="res-name">
                     <ResourceIcon resource={resourceData} /> {getLocalizedString(item.type, strings)}

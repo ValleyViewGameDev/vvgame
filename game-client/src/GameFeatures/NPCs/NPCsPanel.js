@@ -1663,7 +1663,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                   resourceType={recipe.type}
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
-                  details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
+                  details={`${strings[463]} ${resourceIconHtml(null, masterResources, 'item-health-heart.svg')} +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
                   info={`${strings[51]}${totalHeals}`}
                   disabled={!affordable || healerOutOfHP}
                   onClick={undefined}

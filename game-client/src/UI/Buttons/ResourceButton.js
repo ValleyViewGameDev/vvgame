@@ -219,7 +219,7 @@ const ResourceButton = ({
             onMouseMove={(event) => { if (hoverTips) updateGemTooltipPosition(event); }}
             onMouseLeave={() => setShowGemTooltip(false)}
           >
-            💎{gemCalculation.gemCost != null ? <span className="gem-button-cost">{formatNumber(gemCalculation.gemCost)}</span> : null}
+            <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />{gemCalculation.gemCost != null ? <span className="gem-button-cost">{formatNumber(gemCalculation.gemCost)}</span> : null}
           </span>
         )}
       </div>

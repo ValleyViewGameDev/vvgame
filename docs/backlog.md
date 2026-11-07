@@ -233,3 +233,18 @@ docs/art/emoji-audit.md: characters come last, after BL-16. When this lands the 
 emoji left and `scripts/build-atlas.js` can drop its Twemoji step. **Where to start.**
 docs/avatar-plan.md §0 for what is built; the Citizens with portraits (Kent, Portia, ...) for
 the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
+
+### BL-18: Deco art pass: redraw the emoji deco and add more
+
+Added 2026-11-07.
+
+**What.** Fifteen deco rows still draw as emoji (docs/art/emoji-audit.md §1): the Holiday
+Tree (in 5 layouts), Stack of Books (3), the five one-gem emoji walls (Green / Black / Sand /
+Blue / Orange, `action: wall`), Harp, Chair, Toilet, Bed, Teddy Bear, Slide, White Dove and
+the Black Fog door. Each is either drawn in the whimsical deco style (docs/art/deco.md) or
+retired (check live grids first: a one-gem wall may stand on a homestead), and the Deco
+catalogue grows with new props while the sheet is open. **Why.** The owner's rule: the art
+cannot be called a complete pass while any deco is an emoji; this is a big pass of its own,
+before BL-16 and BL-17. **Where to start.** docs/art/deco.md (square-on camera, silhouette
+fit, pricing ladder) and the first 13 props' job `tools/art/jobs/deco-whimsical-r1.json`;
+the wall rows want the joining wall-set treatment (docs/walls.md) or retirement.

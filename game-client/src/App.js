@@ -3253,7 +3253,7 @@ return (
             <button className="header-ring" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()}>
               <span className="header-tip">{`${stripLeadingEmoji(strings[10112] || 'Health')} ${headerStats.hp} / ${headerStats.maxHp}`}</span>
               <HeaderRing percent={headerStats.hpPercent} tone={headerStats.hpPercent <= 10 ? 'danger' : 'health'} />
-              <span className="header-ring-emoji" aria-hidden="true">❤️</span>
+              <img className="header-ring-icon" src="/assets/resources/item-health-heart.svg" alt="" draggable="false" />
             </button>
             <button className="header-ring" data-fly-target="inventory" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
               <span className="header-tip">{`${strings[10103] || 'Inventory'} ${headerStats.invUsed.toLocaleString()} / ${headerStats.invMax.toLocaleString()}`}</span>
@@ -3263,7 +3263,7 @@ return (
           </div>
           <div className="header-desk-right">
             <button className="header-link header-icon-btn header-currency-btn" data-fly-target="gems" onClick={() => openPanel('HowToGemsPanel')}>
-              <span className="header-currency-icon" aria-hidden="true">💎</span>
+              <img className="header-currency-icon header-currency-icon--img" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
               <span>{headerGems != null ? headerGems.toLocaleString() : '...'}</span>
             </button>
             <button className="header-link header-icon-btn header-currency-btn" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
@@ -3354,7 +3354,7 @@ return (
           </button>
           <div className="header-currency-group">
             <button className="header-link" data-fly-target="gems" onClick={() => openPanel('HowToGemsPanel')}>
-              💎 {headerGems != null ? headerGems.toLocaleString() : "..."}
+              <img className="header-inline-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />{headerGems != null ? headerGems.toLocaleString() : "..."}
             </button>
             <button className="header-link" data-fly-target="money" onClick={() => openPanel('HowToMoneyPanel')}>
               <img className="header-inline-icon" src="/assets/resources/doober-money.svg" alt="" draggable="false" />{headerMoney != null ? headerMoney.toLocaleString() : "..."}
