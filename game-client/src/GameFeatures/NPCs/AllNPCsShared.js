@@ -10,6 +10,7 @@ import { attachSpawnBehavior } from './NPCSpawnerBehavior';
 import { attachFarmerBehavior } from './NPCWorkerBehavior';
 import { attachCitizenBehavior } from './NPCCitizenBehavior';
 import { attachTraderBehavior } from './NPCTraderBehavior';
+import { getMasterResources, getGlobalTuning } from '../../Utils/TuningManager';
 
 const DIRECTION_DELTAS = {
   N: { x: 0, y: -1 },
@@ -27,6 +28,33 @@ function passable_(goal, tiles, resources) {
   const t = tiles?.[goal.y]?.[goal.x]; if (!t) return false;
   const res = (resources || []).find((r) => r && r.x === goal.x && r.y === goal.y);
   return !(res && res.passable === false);
+}
+
+// Ground a player can walk on: the tile rows marked passable in resources.json (water is not).
+// Built once, after the master resources load.
+let footTiles = null;
+function playerCanWalkOn(tileType) {
+  if (!footTiles) {
+    const rows = getMasterResources();
+    if (!rows?.length) return false;
+    footTiles = new Set(rows.filter((r) => r.category === 'tile' && r.passable).map((r) => r.type));
+  }
+  return footTiles.has(tileType);
+}
+
+/**
+ * May this NPC stand on a tile of this type? Its own validon<tile> flag says yes; and an Enemy
+ * (action 'attack') also goes wherever a player on foot can, so no tile is a safe spot to fight
+ * from (BL-4: roads were). Ground that hurts (globalTuning.tileHazards: lava) stays its own call:
+ * only an enemy flagged for it goes there (Demon, Dragon, Phoenix, Ghost). The validon flags
+ * still decide where an enemy is PLACED (grid creation, the editor); this is only where it walks.
+ */
+function npcCanStandOn(npc, tileType) {
+  if (npc[`validon${tileType}`] === true) return true;
+  if (npc.action !== 'attack') return false;
+  const hazards = getGlobalTuning()?.tileHazards || { l: true };
+  if (hazards[tileType]) return false;
+  return playerCanWalkOn(tileType);
 }
 
 // Small stable hash for per-NPC jitter (ids are timestamps or ObjectIds)
@@ -345,7 +373,7 @@ followPath(x, y, tiles, resources, npcs, { stopShort = false } = {}) {
   const adjacentDone = stopShort && Math.max(Math.abs(here.x - goal.x), Math.abs(here.y - goal.y)) <= 1;
   if ((here.x === goal.x && here.y === goal.y) || adjacentDone) { this.path = null; return 'arrived'; }
   const plan = () => {
-    // Passability is the NPC's own: its validon<tile> flags and impassable resources
+    // Passability is the NPC's own: its tiles (npcCanStandOn) and impassable resources
     // (terrainOpen), never the player's tile, never another NPC's tile
     const me = playersInGridManager.getLocalRecord?.()?.position;
     const open = (px, py) => this.terrainOpen(px, py, tiles, resources) && !(me && Math.round(me.x) === px && Math.round(me.y) === py)
@@ -393,7 +421,7 @@ getAdjacentTile(direction) {
 // story errand (`passDoors`, e.g. Feste walking to the Queen) goes through doors as a resident would.
 terrainOpen(x, y, tiles, resources) {
   if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) return false;
-  if (this[`validon${tiles[y][x]}`] !== true) return false;
+  if (!npcCanStandOn(this, tiles[y][x])) return false;
   const res = resources.find((r) => r.x === x && r.y === y);
   return !(res && !res.passable && !(this.passDoors && res.action === 'door'));
 }
@@ -425,10 +453,8 @@ isValidTile(x, y, tiles, resources, npcs) {
     const tileType = tiles[y][x]; // Get the tile type at x, y
     //console.log(`Checking tileType: ${tileType} for NPC ${this.id}`);
   
-    // Dynamically check if NPC can walk on this tile type
-    // Property name is 'validon' + tileType (e.g., 'validong' for 'g')
-    const validPropertyName = `validon${tileType}`;
-    const canWalkOnTile = this[validPropertyName] === true;
+    // Its validon<tile> flags; an Enemy also goes wherever a player on foot can (npcCanStandOn)
+    const canWalkOnTile = npcCanStandOn(this, tileType);
   
     if (!canWalkOnTile) {
     //   console.warn(`NPC ${this.id} cannot step on tile type "${tileType}".`);

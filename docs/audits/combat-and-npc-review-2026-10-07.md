@@ -394,6 +394,15 @@ defaulted: no maximum drift, no drifting back, Spawners unchanged. Not done: a p
 that can close on the player (enemies step at `movespeed`, 0.6-2.2 tiles/s; the player walks
 ~11), which is tuning (Track 5).
 
+**Where enemies walk (BL-4, built 2026-11-07).** An Enemy goes wherever a player on foot can
+(every tile row marked `passable` in resources.json, so roads, pavement, stepstones and clay
+too), so no tile is a safe spot to fight from. Two exceptions keep their own per-enemy flag:
+water (not passable on foot) and ground that hurts (`globalTuning.tileHazards`, lava today);
+Ghost, Dragon and Phoenix are flagged for both, Demon for lava. The `validon<tile>` flags now
+only decide where an enemy is PLACED (grid creation, the editor), not where it walks.
+`npcCanStandOn` in `GameFeatures/NPCs/AllNPCsShared.js`; Citizens, farm animals and Spawners
+are unchanged.
+
 Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor MOVES.
 
 - Each Enemy gets a **home tile** (its spawn/layout position) and a **leash** radius; roam

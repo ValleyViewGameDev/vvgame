@@ -257,15 +257,3 @@ into `ResourceClicking.js` `handleDooberClick`, which since Phase 5 (2026-11-04)
 keeps the doober gone and the predicted count without retrying: give those calls a durable retry
 queue (the server answers 'gone' for a tile already collected, so a retry can never grant twice).
 A phone hotspot is an ordinary mobile connection; airplane-grade networks are out of scope.
-
-### BL-4: Enemies on more tile types (no safe camping on roads)
-
-Added 2026-11-06.
-
-**What.** Enemies can only step on the tile types their `validon<tile>` flags allow
-(resources.json, ECONOMY sheet; checked in `NPCs/AllNPCsShared.js`), and most are kept off some
-of them, roads included. That is a cheat: a player stands on a road (or any tile the enemy
-can't enter) and hits an enemy that can never reach them. Owner's direction: let every enemy go
-on every tile type, except the special cases (water, lava and the like), and let flying enemies
-(Ghosts) go anywhere. Pairs with the NPC / Combat epic; check ranged enemies and the leash /
-home anchor (Track 3b) still behave once enemies can follow onto roads.

@@ -46,6 +46,9 @@ export async function loadMasterResources() {
   return masterResources;
 }
 
+/** The cached resources.json rows (null until loadMasterResources has run). */
+export function getMasterResources() { return masterResources; }
+
 
 /**
  * Fetch and cache globalTuning.json
