@@ -173,6 +173,12 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         FloatingTextManager.addFloatingText(31, freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
         return false;
     }
+    // No fighting from a boat: walking enemies cannot follow onto water, so a bow from a boat
+    // would be untouchable (BL-4). An enemy on the shore can still hit a boat beside it.
+    if (player.isinboat || currentPlayer.isinboat) {
+        FloatingTextManager.addFloatingText(39, freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
+        return false;
+    }
     // Cooling down: no swing, no feedback beyond the ring that is already showing
     if (Date.now() < attackReadyAt) return false;
     if (!checkRange(player, freshNPC, TILE_SIZE)) return false;

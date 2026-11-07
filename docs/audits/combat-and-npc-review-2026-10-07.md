@@ -401,7 +401,9 @@ water (not passable on foot) and ground that hurts (`globalTuning.tileHazards`, 
 Ghost, Dragon and Phoenix are flagged for both, Demon for lava. The `validon<tile>` flags now
 only decide where an enemy is PLACED (grid creation, the editor), not where it walks.
 `npcCanStandOn` in `GameFeatures/NPCs/AllNPCsShared.js`; Citizens, farm animals and Spawners
-are unchanged.
+are unchanged. No attacking from a boat (`Combat.handleAttackOnNPC`, string 39, like the tent's
+31): a bow from the water would otherwise be untouchable by walking enemies; an enemy on the
+shore can still hit a boat beside it. Trees and walls still block flyers (owner, 2026-11-07).
 
 Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor MOVES.
 
