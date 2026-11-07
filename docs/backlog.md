@@ -135,29 +135,6 @@ teaches, and where the first Quest for Hope artifact lands (the King's Crown, ab
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
 
-- **OB-5. The King's Crown as the first-artifact moment** (added 2026-10-24). Golden Key from
-  Helena (L8, friend, 50 Daisy), the Castle in Belmont (1011165), the King's Crown at about
-  L10-11. Claiming it plays a story modal at the Castle, then the Oracle mails a message that
-  lights box 1 and gives the next artifact's hint. First check that a level 8 player can
-  reasonably be Helena's friend; if not, the D7 artifact slips. Start at the Castle and Helena
-  in `game-server/tuning/resources.json` / `traders.json` / `questsEN.json`, `story.md` §4,
-  `GameFeatures/Social/QuestForHopeModal.js`.
-  **Partly built 2026-10-24:** the friendship gate checked (no cooldowns; friend in one visit:
-  Greet, a few Talks, Make Friends at 35+). The four Ogres on 1011165 gave way to two Bears and
-  the Great Bear (fitted for L10, `artScale` 1.5, a new NPC column); quests: Hotspur's "We Pluck
-  This Flower, Safety" (L9, Light Armor + Buckler) and "Exit, Pursued by a Bear" (L10), Helena's
-  "Uneasy Lies the Head" (L10, buy the King's Crown; retired in OB-6, Elbow's Find step carries
-  it); Helena's friend dialog fixed (it asked for
-  Feverfew, the quest wants Daisies) and her interest "Rosesmary" spelled right; the Crown hint
-  names Belmont and the bear (`docs/early-game.md` §3).
-  **Built 2026-10-24:** the found moment for all seven artifacts (`GameFeatures/Social/HopeFound.js`
-  + `POST /api/hope/found`, `player.hopeFound`): a story modal on the find (strings 200830-200836)
-  and the Oracle's letter (messages.json 401-407; since 2026-11-06 composed per player by
-  `utils/oracleLetter.js`: how many remain, and the hint for the earliest one still unfound). And no
-  friendships before L16: a quest list opens at relationship score 10 (one Greet), every quest at
-  L15 and under is ungated (18 quests), Titania's Secret moved to L16, Constable Elbow's Dungeon
-  Key needs no friend, and Helena's Greet dialog (16006) now carries the Daisy ask.
-
 - **OB-6. Close the quest gaps** (added 2026-10-24, revised for the story). L11 has two quests;
   selling to Kent is taught in the FTUE and then only once (Hotspur's Pelts, L8); and between
   Elbow's L18 and L30 steps the mid game has no story step (L16-30 is where the open goals must
