@@ -4,7 +4,7 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import HelpBadge from '../../UI/Buttons/HelpBadge';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { isCurrency } from '../../Utils/InventoryManagement';
+import { isKey, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import stringsEN from '../../UI/Strings/stringsEN.json';
 import './CurrenciesModal.css';
 
@@ -27,14 +27,14 @@ const CURRENCIES = ['Money', 'Gem', 'Home Deed', 'Yellow Heart', 'Green Heart', 
  * list. Sized to fit a phone without scrolling: two columns, no paragraphs.
  * Opened from the Inventory panel (tapping its currency section, or the info button there).
  */
-export default function CurrenciesModal({ inventory = [], masterResources = [], onClose }) {
+export default function CurrenciesModal({ inventory = [], backpack = [], masterResources = [], onClose }) {
   const strings = useStrings();
   const [infoFor, setInfoFor] = useState(null);
   // the partly translated languages lack these keys: fall back to the English text
   const t = (id) => strings[id] || stringsEN[id] || '';
-  const qty = (type) => inventory.find((i) => i.type === type)?.quantity || 0;
+  const qty = (type) => getPlayerQuantity(type, inventory, backpack);
   const def = (type) => masterResources.find((r) => r.type === type);
-  const keys = masterResources.filter((r) => isCurrency(r.type) && r.type.includes('Key')).map((r) => r.type);
+  const keys = masterResources.filter((r) => isKey(r.type)).map((r) => r.type); // keys + Hecate's Torch
 
   const row = (type) => {
     const r = def(type);

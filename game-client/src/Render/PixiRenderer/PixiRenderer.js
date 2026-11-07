@@ -1233,8 +1233,13 @@ const PixiRenderer = ({
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
           displayObj.zIndex = renderPos.y + 0.5; // over the resources of its own row, under the row south
         }
-        // Resting scale for CombatFX (sizing above may have just reset it under an effect)
-        displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
+        // Resting scale for CombatFX. Only a sprite is re-sized above (width/height reset its scale),
+        // so only a sprite may re-record it here: an emoji (Text) NPC keeps the scale it was created
+        // with, and re-reading it mid-hit captured the pop as "rest", so every hit stretched the
+        // Phoenix a little more (owner 2026-11-07).
+        if (newDisplayType === 'sprite') {
+          displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
+        }
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).
         // Sizing above leaves scale.x positive; facing only changes on a horizontal step.

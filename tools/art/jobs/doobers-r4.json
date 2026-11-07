@@ -1,0 +1,34 @@
+{
+  "name": "doobers-r4",
+  "note": "Doobers round 4 (owner, 2026-11-06): round 3 both sheets approved (Stone's grey to be matched to the Rocks source at cut time, owner). Next: wild plants and valley finds; animal products with the Mill and Dairy leftovers.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "wild": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 FEVERFEW: a sprig of three small white daisy-like flowers with yellow centres and feathery leaves. 2 DAISY: one big white daisy with a yellow centre on a short stem. 3 MAGIC MUSHROOM: one mushroom with a red cap and white spots, faintly glowing. 4 MULBERRY LEAF: one broad heart-shaped green leaf with toothed edges. 5 COFFEE CHERRY: a small sprig of bright red coffee cherries with two glossy leaves. 6 BEANS: a small heap of dried beans, speckled brown and cream. 7 OYSTER: one oyster, shell open, a pearl-white inside. 8 MEAT: a raw cut of red meat on the bone, a small ham-like joint. 9 FISH: one plump silver-blue fish, side view."
+    },
+    "animal": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 GOAT MILK: a short brown-glazed clay jug with a wooden stopper and a white drip at the lip, clearly a different vessel from the control's grey milk jug. 2 BACON: two rashers of streaky bacon, side by side. 3 CHICKEN FEED: a small open burlap sack of golden grain with a few grains spilling. 4 GREEN COFFEE BEAN: a small heap of pale green unroasted coffee beans. 5 BUTTER: a golden block of butter on a small wooden board, one pat cut. 6 CREAM: a small wide-mouthed stoneware pot with thick cream swirled on top. 7 PEPPER CHEESE: a wedge of cream cheese flecked with black pepper and a red chilli slice on its face. 8 CORNBREAD: a golden square of cornbread, one corner cut, crumbly. 9 THREAD: a wooden spool of cream thread."
+    }
+  }
+}

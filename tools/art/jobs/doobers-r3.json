@@ -1,0 +1,36 @@
+{
+  "name": "doobers-r3",
+  "note": "Doobers round 3 (owner, 2026-11-06): the owner's fixes to round 2 (Wood = a pile of three logs like the emoji, not one fat log; Wine with a plain label; Stone and Clay as little pieces in the colour of the Rocks and the Clay Pit sources, so they read apart from the sources) plus Wool as a fleece (read as cauliflower), and the next crops. Presented on grass and dirt with names from here on.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "fixes": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg",
+        "_candidates/sources/approved/openai--painterly-rocks-1.small.jpg",
+        "_candidates/sources/approved/openai--painterly-clay-pit-b-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. The second and third attached images are the game's ROCKS source and CLAY PIT source: take the STONE's grey and the CLAY's colour from them exactly, the pickups are little pieces of those. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 WOOD: a small PILE of three short cut logs, two below and one on top, bark around them, cut ends showing rings. 2 WINE: one dark green bottle of wine with a cork and a plain cream paper LABEL on its belly, blank, no writing. 3 STONE: a little heap of four or five small broken stone chips, the Rocks' grey. 4 CLAY: a little heap of four or five small lumps of raw clay, the Clay Pit's colour, soft and rounded. 5 WOOL: a shorn FLEECE, a soft cream bundle with visible curls of wool, tied once with twine, unmistakably wool. 6 POTATO: one brown potato with a few eyes. 7 ONION: one golden onion with papery skin and a short top. 8 GARLIC: one white bulb of garlic. 9 PEPPER: one red chilli pepper with a green stem."
+    },
+    "crops2": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours, item size within the cell and flat front-on camera EXACTLY, so every sheet is one set. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom: 1 SUGARCANE: two short cut stalks of green sugarcane, jointed, side by side. 2 GINGER: one knobbly tan ginger root. 3 OLIVE: a small sprig with three green olives and two leaves. 4 LEMON: one yellow lemon with a leaf. 5 ORANGE: one orange with a leaf. 6 PEACH: one peach with a leaf, blushed pink. 7 PEAR: one green-yellow pear with a leaf. 8 TOMATO: one red tomato with its green calyx. 9 CHERRY: a pair of red cherries on a joined stem with a leaf."
+    }
+  }
+}

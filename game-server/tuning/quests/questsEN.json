@@ -1,19 +1,5 @@
 [
   {
-    "index": 101,
-    "title": "Prospero's Secret",
-    "symbol": "🧙🏻",
-    "level": 16,
-    "repeatable": false,
-    "giver": "Prospero",
-    "reward": "Prospero's Secret",
-    "rewardqty": 1,
-    "xp": 30,
-    "goal1action": "Build",
-    "goal1item": "Inn",
-    "goal1qty": 1
-  },
-  {
     "index": 6,
     "title": "Plant Wheat",
     "symbol": "👵🏻",
@@ -1301,6 +1287,22 @@
     "xp": 40,
     "goal1action": "Acquire",
     "goal1item": "Medicine",
+    "goal1qty": 1
+  },
+  {
+    "index": 167,
+    "title": "The Quality of Mercy",
+    "clueKey": "16534",
+    "symbol": "👩🏻‍⚖️",
+    "level": 18,
+    "repeatable": false,
+    "giver": "Portia",
+    "rel": "love",
+    "reward": "Portia's Pardon",
+    "rewardqty": 1,
+    "xp": 30,
+    "goal1action": "Acquire",
+    "goal1item": "Law",
     "goal1qty": 1
   },
   {

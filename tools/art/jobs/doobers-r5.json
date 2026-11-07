@@ -1,0 +1,34 @@
+{
+  "name": "doobers-r5",
+  "note": "Doobers round 5 (owner, 2026-11-07): Oven one and Oven two + Kitchen, straight-on camera paragraph per item. Pies front-on with a wedge cut out at the front to show filling; soups tipped the minimum.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "oven1": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 PUMPKIN PIE: a round pie in a shallow dish seen from the front, a wedge cut out at the front so the orange pumpkin filling shows in the cut face, plain golden crust. 2 LEMON COOKIE: one round pale golden cookie flat to the viewer, a slice of lemon on top. 3 GINGER COOKIE: one round dark brown gingerbread cookie flat to the viewer, a zigzag of white icing. 4 OLIVE BREAD: a round rustic loaf front view, cross scored on top, black olives pressed into the crust. 5 GARLIC BREAD: a split baguette half, its buttered garlic face toward the viewer, flecked with green herb. 6 APPLE PIE: a round pie in a dish seen from the front, lattice crust, a wedge cut out at the front showing pale apple filling, one small red apple beside the dish. 7 STRAWBERRY PIE: a round pie in a dish seen from the front, a wedge cut out at the front showing bright red filling, one whole strawberry on top. 8 PEACH PIE: a round pie in a dish seen from the front, a wedge cut out at the front showing peach-orange filling, a peach half on top. 9 CHERRY PIE: a round pie in a dish seen from the front, lattice crust, a wedge cut out at the front showing dark red filling, a pair of cherries on top."
+    },
+    "oven2": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front: 1 QUEEN'S CAKE: a small round frosted cake on a plain plate seen from the front, white icing, a tiny gold crown on top. 2 WARDEN PIE: a tall raised hand-pie seen from the front, dark golden crust, a whole green pear standing on top (it is a pear pie). 3 HONEY: a small glass jar of golden honey seen from the front, cloth cap tied over the lid, a wooden dipper leaning against it. 4 CORN CHOWDER: a wide bowl seen from the front, tipped only enough to show its creamy pale yellow surface with corn kernels. 5 CARROT SOUP: a wide bowl seen from the front, tipped only enough to show its bright orange surface, one carrot slice floating. 6 PUMPKIN SOUP: a wide bowl seen from the front, tipped only enough to show its deep orange surface, a swirl of cream, a small pumpkin leaf. 7 OMELETTE: a folded yellow omelette on a plain plate seen from the front, a sprig of green herb. 8 POTATO BAKE: a square earthenware dish seen from the front, golden crusty potato top showing above the rim. 9 MIXED SALAD: a wide bowl seen from the front, green leaves heaped above its rim with slices of red tomato."
+    }
+  }
+}

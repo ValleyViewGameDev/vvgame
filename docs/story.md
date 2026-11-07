@@ -105,7 +105,7 @@ hers again once she is awake.
 
 **The twins (BUILT 2026-10-24).** Sebastian stands on the sandy island in Sunflower Lake (valley
 1011670), on the tile where the Brass Bell lay (the Bell now comes only from Iago, for Portia's
-Secret). Viola's quest asks the player to find him. Greeting him plays his grief ("drowned my
+Pardon). Viola's quest asks the player to find him. Greeting him plays his grief ("drowned my
 sister Viola"); as it closes, Viola, who has been watching from the water, rises out of the lake
 a few tiles off, swims to the shore beside him, and the recognition scene from Twelfth Night 5.1
 plays at once as a two-voice modal ("My father had a mole upon his brow." "And so had mine!" ...
@@ -167,7 +167,10 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   The quest and trade lists themselves open on having met the character (`met`), at any score
   (rivals included); `interactions.json` Quest / Trade `relscoremin` is -100 and unused.
 - **Secrets travel.** A character's Secret is an item: who it is sold to, and why, is a story
-  (Portia's Secret buys the Brass Bell from Iago, whom she despises; Leontes collects six).
+  (Leontes collects six; Portia's goes to him). Iago, a criminal, wants the judge's mercy
+  instead: Portia's Pardon (her quest The Quality of Mercy, L18, love) buys the Brass Bell
+  (owner 2026-11-07: the Secret used to buy the Bell, but it is single-source and Leontes
+  needs it too).
 - **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /
   `dialogOnFriend` / `dialogOnLove` / `dialogOnMarried` / `dialogOnRival` (RelationshipMatrix,
   strings 16xxx) play once, as a StoryModal, when the relationship first reaches that status. The

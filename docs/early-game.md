@@ -62,8 +62,8 @@ carry the player through them:
   are the WHY and point at a person or a treasure; the other givers' quests are the HOW.
 - **How quests are federated** (owner, 2026-10-25). **The Shepherd** builds up the homestead:
   he asks the player to buy and build (stations, animals, crops, workers, the materials for
-  them: Stone, Clay) and to farm. Every `Build` quest is his (Prospero's Secret aside, a
-  character's own Secret). **The specialists ask the player to make things**: Mistress Quickly
+  them: Stone, Clay) and to farm. Every `Build` quest is his (Prospero's Secret quest and item removed
+  2026-11-07: nothing used the Secret). **The specialists ask the player to make things**: Mistress Quickly
   cooking, Feste crafting (cloth, studio goods), Helena foraging, Portia potions and the healers,
   Hotspur and Cassio fighting. Constable Elbow, besides his story chain, gives the adventuring
   kit (the Backpack at L7, Scout at L13) and introduces the traders as each becomes useful (the
@@ -214,7 +214,7 @@ one, so the rest of the game is a promise, not a mystery.
   from the holdings (`HopeQuest.js`). Accounts from before 2026-10-24 have no `hopeFound`; the
   first call records what they hold silently, so old finds never replay.
 - **The Trident** is the stretch goal for L12 to L15.
-- The other five (Vampire's Blood L14+, Brass Bell via Portia's Secret L16+ at marriage, the
+- The other five (Vampire's Blood L14+, Brass Bell via Portia's Pardon L18+ at love, the
   Phoenix Feather, the Brief Candle about L34, Prospero's Orb last) are mid game and later. That
   is fine: the lit box and the hint promise them.
 - **The Brief Candle's route** (traced 2026-11-05): it lies at the bottom of **Acheron** (valley

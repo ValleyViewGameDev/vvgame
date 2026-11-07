@@ -3,6 +3,11 @@ import { confirmRecipeGemSpend } from '../UI/Modals/GemSpendConfirm';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
+// The keys: currencies that open doors. Hecate's Torch counts as one (it lights the Black Fog,
+// held, not spent; owner 2026-11-07): free of backpack/warehouse capacity, listed with the keys.
+export const KEY_TYPES = ['Town Key', 'Skeleton Key', 'Golden Key', 'Dungeon Key', 'Mirror Key', "Hecate's Torch"];
+export const isKey = (resourceType) => KEY_TYPES.includes(resourceType);
+
 // Helper function to check if an item is a currency (doesn't count against inventory)
 export const isCurrency = (resourceType) => {
   return resourceType === 'Money' || 
@@ -13,6 +18,7 @@ export const isCurrency = (resourceType) => {
          resourceType === 'Golden Key' ||
          resourceType === 'Dungeon Key' ||
          resourceType === 'Mirror Key' ||
+         resourceType === "Hecate's Torch" ||
          resourceType === 'Yellow Heart' ||
          resourceType === 'Green Heart' ||
          resourceType === 'Purple Heart';

@@ -126,8 +126,10 @@ value rather than trust this page.
   (owner 2026-11-06): the Inventory panel's currency block is one tappable region with a help
   icon at its top-right, centred under the panel's close button (`.currency-info-button`), and
   opens Currencies & Keys (`GameFeatures/Inventory/CurrenciesModal.js`): one compact row per
-  item (icon, full name, amount, ?), sized to fit a phone without scrolling; a row opens
-  ResourceModalSmall with where it comes from. No per-item `title` hover tips.
+  item (icon, amount, full name, ?, on one line, two columns), sized to fit a phone without
+  scrolling; a row opens ResourceModalSmall with where it comes from. No per-item `title` hover
+  tips. The keys row lists `KEY_TYPES` (`Utils/InventoryManagement.js`): the five keys plus
+  Hecate's Torch 🔥, which is held like a key (owner 2026-11-07); counts are backpack + warehouse.
 - The nav bar does the same at its far edge (owner 2026-11-05): its buttons scroll inside an
   inner `.nav-scroll` (the pill `.nav-column` keeps its rounded ends and clips), and
   scrollFade.js gives that strip `scroll-fade--more-x` (a 56 px fade at the right, wide enough to

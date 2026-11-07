@@ -12,6 +12,7 @@ function isCurrency(resourceType) {
          resourceType === 'Golden Key' ||
          resourceType === 'Dungeon Key' ||
          resourceType === 'Mirror Key' ||
+         resourceType === "Hecate's Torch" || // held like a key (lights the Black Fog), owner 2026-11-07
          resourceType === 'Yellow Heart' ||
          resourceType === 'Green Heart' ||
          resourceType === 'Purple Heart';

@@ -152,7 +152,8 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   names Belmont and the bear (`docs/early-game.md` §3).
   **Built 2026-10-24:** the found moment for all seven artifacts (`GameFeatures/Social/HopeFound.js`
   + `POST /api/hope/found`, `player.hopeFound`): a story modal on the find (strings 200830-200836)
-  and the Oracle's letter with the next artifact's hint (messages.json 401-407). And no
+  and the Oracle's letter (messages.json 401-407; since 2026-11-06 composed per player by
+  `utils/oracleLetter.js`: how many remain, and the hint for the earliest one still unfound). And no
   friendships before L16: a quest list opens at relationship score 10 (one Greet), every quest at
   L15 and under is ungated (18 quests), Titania's Secret moved to L16, Constable Elbow's Dungeon
   Key needs no friend, and Helena's Greet dialog (16006) now carries the Daisy ask.
@@ -215,8 +216,9 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   **Built 2026-11-05** (`GameFeatures/NPCs/useSnugLesson.js`): once per profile, a few seconds
   after a player past the FTUE arrives on a valley grid with Snug, a scrim-forced flow: tap Snug,
   Greet him if they never have (Travel needs "met"), tap "Travel with Snug"; when the Travel
-  modal opens, control returns and `settings.snugLessonDone` is stamped. A persistent toast
-  (string 17027) explains Snug travel. The Trading Post half is not taught yet.
+  modal opens, control returns and the `snugLesson` moment is stamped (`Utils/moments.js`,
+  `player.moments`, 2026-11-06). A persistent toast (string 17027) explains Snug travel. The
+  Trading Post half is not taught yet.
 - **OB-11. Re-lay the town so early buildings and characters sit by the entry** (added
   2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
   where the player enters town, and the later ones farther in, so a new player meets what they

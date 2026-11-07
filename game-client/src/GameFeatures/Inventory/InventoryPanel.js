@@ -8,7 +8,7 @@ import '../../UI/Buttons/SharedButtons.css';
 import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity, isCurrency, isKey, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
 import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
@@ -295,12 +295,13 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         </div>
                     </div>
                 </div>
-                {/* Row 3: Keys */}
+                {/* Row 3: Keys (and Hecate's Torch, held like one). Counted from backpack + warehouse:
+                    a key picked up before it was a currency can still sit in the backpack */}
                 <div className="currency-keys-row">
                     {masterResources
-                        .filter(r => isCurrency(r.type) && r.type.includes('Key'))
+                        .filter(r => isKey(r.type))
                         .map(resourceDef => {
-                            const quantity = inventory.find(item => item.type === resourceDef.type)?.quantity || 0;
+                            const quantity = getPlayerQuantity(resourceDef.type, inventory, backpack);
                             return (
                                 <div key={resourceDef.type} className="currency-item">
                                     <span className="currency-emoji">{resourceDef.symbol || '🔑'}</span>
@@ -312,7 +313,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 </div>
             </div>
             {showCurrencies && createPortal(
-                <CurrenciesModal inventory={inventory} masterResources={masterResources} onClose={() => setShowCurrencies(false)} />,
+                <CurrenciesModal inventory={inventory} backpack={backpack} masterResources={masterResources} onClose={() => setShowCurrencies(false)} />,
                 document.body
             )}
 
