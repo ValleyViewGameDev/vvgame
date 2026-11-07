@@ -218,3 +218,32 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 (issued at login / silent signup, verified server-side), and derive the caller from it rather
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
+
+### BL-16: Art pass, animals and pets (second to last)
+
+Added 2026-11-07.
+
+**What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat; the Pig already has art)
+and the twelve Zoo pets (Cat, Poodle, Monkey, Duck, Donkey, Owl, Parrot, Eagle, Zebra,
+Giraffe, Orangutan, Dodo Bird) in the game's style, on the board and in the Buy / Pets panel
+cards, so the last emoji outside the characters are gone. **Why.** The emoji audit
+(docs/art/emoji-audit.md) leaves animals and pets to the second-to-last art pass by the
+owner's decision: after the story items, the UI chrome, the board's growing plots and
+signposts, the power and skill icons and the rich status line, and before the avatars.
+**Where to start.** The doober loop in docs/art/doobers.md (a sheet per family, cut with
+`tools/art/icons.js`, approved on grass and dirt); animals move, so check PixiRendererNPCs'
+facing flip and bob with the Pig first. No animals in any other art (building bible rule).
+
+### BL-17: Art pass, player avatars and NPC avatars (the final one)
+
+Added 2026-11-07.
+
+**What.** The last art pass: the parts-based player avatar (docs/avatar-plan.md, scaffolded,
+not on the board) in play and in the Profile / Change Icon modals, then every character that
+is still an emoji: the twelve enemies (Coyote to Phoenix), the spawners if they stay visible,
+Fairy, Santa Claus, The Porter, the Oracle, the RelationshipMatrix glyphs, the quest symbols
+(the giver's glyph) and the conversation / speech glyphs. **Why.** Owner's order in
+docs/art/emoji-audit.md: characters come last, after BL-16. When this lands the game has no
+emoji left and `scripts/build-atlas.js` can drop its Twemoji step. **Where to start.**
+docs/avatar-plan.md §0 for what is built; the Citizens with portraits (Kent, Portia, ...) for
+the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
