@@ -1,0 +1,44 @@
+{
+  "name": "board-r2",
+  "note": "Pass 3 redraws (owner, 2026-11-07): the signposts without roofs, one big arrow-shaped board each, more iconic; the mountain simpler and without snow.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "signposts": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECTS, nine signposts on the grid in order, left to right then top to bottom: each is ONE plain wooden post with ONE big arrow-shaped board on it, the board itself cut in the shape of an arrow, NO roof, NO second board, no text, a tiny tuft of grass at the foot at most; the arrow must be big, bold and instantly readable at a small size, the post short and sturdy. 1 arrow pointing UP (north): the arrow board stands vertical on the post, point up. 2 pointing RIGHT (east). 3 pointing DOWN (south), point down. 4 pointing LEFT (west). 5 pointing UP-LEFT (diagonal). 6 pointing UP-RIGHT. 7 pointing DOWN-RIGHT. 8 pointing DOWN-LEFT. 9 the same post with a board shaped like a plain rectangle, blank. The LAST attached image is the layout guide: a pure magenta (#FF00FF) field divided into a 3 x 3 grid of cells; draw ONE object per cell, centred and well inside its cell with clear magenta around it, never touching a grid line, every cell on the same flat magenta with no ground, no shadow on the ground, no grass."
+    },
+    "mountain": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECT: a MOUNTAIN, drawn SIMPLE and iconic: one big rounded grey-brown peak with a smaller shoulder peak beside it, a few broad painted ledges and cracks, a line of small pines along its foot, NO snow, no cap, no clutter; it fills the box and rises high above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "mountain-small": {
+      "refs": [
+        "_candidates/board-r2/approved/openai--painterly-mountain-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's approved LARGE MOUNTAIN on magenta: grey-brown rock painted in chunky ledges and cracks with moss, a line of small pines at the foot, no snow, the light from the upper left. SUBJECT: the game's REGULAR MOUNTAIN, a SMALLER mountain of exactly the same rock, paint, pines and camera, as if a piece of the large one stood alone: ONE rounded peak with one low ledge at its side, about three quarters of the large mountain's height, its rock the same size per ledge (do not shrink the texture, shrink the mountain), the pines at its foot the same size as the reference's pines; it fills the box and rises above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}

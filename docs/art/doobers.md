@@ -10,6 +10,9 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
   as an icon, not a prop. The approved control is `tools/art/_candidates/doobers-r1/approved/openai--lined-sample-1`
   (carrot, wheat, pumpkin, log, stone, blueberries, egg, milk jug, cheese); its `.small.jpg` is
   the FIRST ref of every later sheet, with "match it EXACTLY" in the prompt, so all sheets are one set.
+- **Growing plots draw the same way** (emoji audit pass 3, 2026-11-07): a farmplot's `filename`
+  (the sprouts, young vine, shrub, sapling) is a plant alone in this style, drawn at the doober
+  scale, so the growing state is never bigger than the pickup.
 - **Oversized: 0.9 of a tile.** A pickup should read bigger than a prop of the same footprint.
   `DOOBER_TILE_SCALE` in `Render/PixiRenderer/PixiRenderer.js` draws a doober's art 0.9 tile
   wide, centred on its tile (the atlas gives it a 128 px slot, `DOOBER_CELL` in

@@ -1,0 +1,24 @@
+{
+  "name": "doobers-r13",
+  "note": "Pass 3 redraw (owner, 2026-11-07): the growing plots and the dungeon exit as simple icons in the doober style, so they match the pickups.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "plots": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: These are the GROWING states of farm plots, so they must read as simply and iconically as the control's pickups: 1 SEEDLINGS A: a low oval mound of brown earth, flat to the viewer, with three small green sprouts of two leaves each standing up from it. 2 SEEDLINGS B: the same mound with four sprouts, one taller. 3 SEEDLINGS C: the same mound with two sprouts and a tiny stone. 4 SEEDLINGS D: the same mound with five sprouts in a row. 5 YOUNG VINE: two short wooden stakes with a crossbar, flat to the viewer, a simple green vine with a few leaves climbing it, no fruit. 6 YOUNG SHRUB: a small round leafy green shrub on a small mound of earth, simple leaves. 7 SAPLING: a thin young tree with a few leaves tied to a short stake, on a small mound. 8 STAIRS UP: a small plain flight of four stone steps rising to the back, seen from the front, NO door, NO arch, nothing but the steps. 9 STAIRS UP ALTERNATE: three worn stone steps with a small upward arrow carved on the top step."
+    }
+  }
+}

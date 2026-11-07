@@ -265,7 +265,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
           pointerEvents: isClickable ? 'auto' : 'none',
         }}
       >
-        <span style={{ lineHeight: 1 }}>🏠</span>
+        {/* an owned homestead: the Farm House art (an emoji until 2026-11-07, docs/art/emoji-audit.md pass 3) */}
+        <img src="/assets/resources/farm-house.svg" alt="" draggable="false" style={{ width: fontSize, height: fontSize, objectFit: 'contain', display: 'block' }} />
       </div>
     );
   }
@@ -349,7 +350,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontWeight: 'bold',
         textShadow,
       }}>
-        <span style={{ fontSize: emojiSize }}>👤</span>
+        <img src="/assets/icons/icon-profile.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain' }} />
         <span>&nbsp;{owner.username || 'Unknown'}</span>
       </div>
 
@@ -362,7 +363,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontWeight: isMayor ? 'bold' : 'normal',
         textShadow,
       }}>
-        <span style={{ fontSize: emojiSize }}>🏛️</span>
+        <img src="/assets/resources/town-hall.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
         <span>&nbsp;{role}</span>
       </div>
 
@@ -373,7 +374,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontFamily: 'var(--font-body)',
         color: 'var(--color-text-primary)',
       }}>
-        <span style={{ fontSize: emojiSize }}>💰</span>
+        <img src="/assets/resources/doober-money.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
         <span>&nbsp;Net Worth:</span>
       </div>
 
@@ -397,7 +398,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         color: 'var(--color-text-primary)',
         marginTop: px(2),
       }}>
-        <span style={{ fontSize: emojiSize }}>📥</span>
+        <img src="/assets/resources/trading-post.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
         <span>&nbsp;Trade:</span>
       </div>
 

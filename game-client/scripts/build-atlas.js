@@ -13,7 +13,7 @@
  * Sources
  *   resources/   every `filename` in game-server/tuning/resources.json
  *                slot = 256 px for size 1, 512 px for size 2-3, 768 px for size 4-5;
- *                128 px for a `doober` row (a pickup drawn at 0.9 of a tile; docs/art/doobers.md),
+ *                128 px for a `doober` or growing `farmplot` row (drawn at 0.9 of a tile; docs/art/doobers.md),
  *                unless its artSpan is above 1 (a fruit tree's ready state). A row's `iconFile`
  *                (the panel icon when the board art is something else) is NOT packed: panels load it raw.
  *                (a size-5 building is 375 CSS px at the closest zoom, 750 px on a 2x screen)
@@ -96,7 +96,7 @@ function listResourceSources() {
   for (const r of list) {
     const size = Math.max(1, Math.min(5, Number(r.size) || 1));
     // a doober whose art is taller than its tile (the fruit trees' ready state: Apple = tree-apple.svg at artSpan 1.73) keeps the full slot
-    const cell = r.category === 'doober' && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(size);
+    const cell = (r.category === 'doober' || r.category === 'farmplot') && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(size);
     // the row's file plus its cosmetic variants (`artVariants`: "file=weight;file=weight", Utils/artVariants.js)
     const files = [r.filename, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean);
     for (const file of files) {

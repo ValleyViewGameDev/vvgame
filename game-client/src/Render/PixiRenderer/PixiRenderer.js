@@ -263,7 +263,9 @@ const loadEmojiTexture = async (symbol) => {
 const EMOJI_SPRITE_SCALE = 1.0;
 
 // A painted doober's art (the 1 x 1 pickups in resources.json, category 'doober') is drawn this
-// much of a tile wide and centred on its tile; the owner picked 0.9 (docs/art/doobers.md).
+// much of a tile wide and centred on its tile; the owner picked 0.9 (docs/art/doobers.md). A growing
+// farmplot (the sprouts, the young vine, shrub and sapling; emoji audit pass 3) draws the same way,
+// so a plant is never bigger than the pickup it becomes.
 const DOOBER_TILE_SCALE = 0.9;
 
 /**
@@ -969,7 +971,7 @@ const PixiRenderer = ({
         // Use SVG texture if available
         if (texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
-          if (resource.category === 'doober' && tileSpan === 1) {
+          if ((resource.category === 'doober' || resource.category === 'farmplot') && tileSpan === 1) {
             // Painted doobers (docs/art/doobers.md): oversized pickups drawn at DOOBER_TILE_SCALE of
             // a tile, centred on it, so a pickup reads bigger than a prop of the same footprint
             sprite.anchor.set(0.5, 0.5);

@@ -79,10 +79,11 @@ function isClosedSettlement(settlement) {
  * Get tree emoji for valley type
  */
 function getValleyTreeEmoji(settlementType) {
+  // the valley's tree art (an emoji until 2026-11-07, docs/art/emoji-audit.md pass 3)
   if (settlementType?.includes('2') || settlementType?.includes('3')) {
-    return '🌲'; // Pine for valley2 and valley3
+    return { src: '/assets/resources/pine-tree.svg' }; // Pine for valley2 and valley3
   }
-  return '🌳'; // Oak for valley0 and valley1
+  return { src: '/assets/resources/oak-tree.svg' }; // Oak for valley0 and valley1
 }
 
 /**
@@ -121,10 +122,10 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       } else if (thumbCells?.has(`${row}-${col}`)) {
         // Visited town/valley: the settlement's thumbnail image shows through (frontierThumbnails.js)
       } else if (grid?.gridType === 'homestead' && grid.gridId) {
-        content = '🏠'; // Owned homestead (a closed settlement's free cells are unavailable but empty)
+        content = { src: '/assets/resources/farm-house.svg' }; // Owned homestead (a closed settlement's free cells are unavailable but empty)
         cellBg = GRASS; // Green background behind house emoji
       } else if (grid?.gridType === 'town') {
-        content = '🏛️'; // Town (classical building)
+        content = { src: '/assets/resources/town-hall.svg' }; // Town
         cellBg = '#4a4a4a'; // Dark gray background for town
       } else if (isValley && !hasBeenVisited) {
         // Only show tree emoji for unvisited valley grids
@@ -160,7 +161,9 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
             pointerEvents: isClickable ? 'auto' : 'none',
           }}
         >
-          <span style={{ fontSize: 'inherit', lineHeight: 1 }}>{content}</span>
+          {content?.src
+            ? <img src={content.src} alt="" draggable="false" style={{ width: '1em', height: '1em', objectFit: 'contain', display: 'block' }} />
+            : <span style={{ fontSize: 'inherit', lineHeight: 1 }}>{content}</span>}
         </div>
       );
     }

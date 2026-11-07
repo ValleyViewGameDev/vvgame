@@ -170,7 +170,7 @@ const FrontierMiniMap = ({
               )}
               title={strings && strings[107] ? strings[107] : "Go Home"}
             >
-              🏠
+              <img src="/assets/resources/signpost-home.svg" alt="" draggable="false" style={{ width: '1em', height: '1em', objectFit: 'contain', verticalAlign: 'middle' }} />
             </span>
           )}
         </div>
@@ -230,7 +230,7 @@ const FrontierMiniMap = ({
               title={strings && strings[108] ? strings[108] : "Go to Town"}
               style={isInHomeTown ? { opacity: 0.4, cursor: 'default' } : undefined}
             >
-              🏛️
+              <img src="/assets/resources/signpost-town.svg" alt="" draggable="false" style={{ width: '1em', height: '1em', objectFit: 'contain', verticalAlign: 'middle' }} />
             </span>
           )}
         </div>

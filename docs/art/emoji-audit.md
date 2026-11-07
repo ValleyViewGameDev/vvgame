@@ -103,6 +103,21 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Pass 3 shipped 2026-11-07** (`tools/art/jobs/board-r1..r3.json`, `doobers-r13/r14.json`): the
+  growing plots are plants alone in the doober style (`plot-sprouts.svg` for the twenty ordinary
+  plots, one art, no variants by the owner's choice; `plot-vine.svg` for the Tomato and Grape
+  vines, `plot-shrub.svg` for the Coffee Plant, `plot-sapling.svg` for the Oak Tree Plot), drawn
+  at the doober scale (0.9 tile, `PixiRenderer.js`, 128 px slot) so a plant is never bigger than
+  the pickup it becomes; the eight signposts are the approved Home / Town post with the arrow
+  printed on the board (`signpost-n.svg` ..); the Dungeon Exit is plain stairs
+  (`dungeon-exit.svg`); the Dungeon Entrance (2 x 2, artSpan 2.36), the Mountain (`mountain.svg`,
+  a smaller peak of the same rock, artSpan 3.06), the Mountain Large (`mountain-large.svg`, 4.08)
+  and the Enormous Mountain (the large art scaled to 20 tiles, artSpan 20.4, to be judged in
+  game), the Volcano (10.57) and the Big Statue (11.65) are painterly panels cut with
+  `cutout.js`. The zoomed-out settlement and frontier views use the Farm House, Town Hall,
+  Trading Post, Money and tree art for their markers. Feverfew was redrawn as eight tiny flowers
+  over greenery so it stops competing with the Daisy. Left for their own passes: the deco rows
+  (BL-18), the spawners (BL-19), the farm animals (BL-16).
 
 ## The passes
 

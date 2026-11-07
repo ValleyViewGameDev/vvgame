@@ -1,0 +1,24 @@
+{
+  "name": "doobers-r14",
+  "note": "Pass 3 redraw (owner, 2026-11-07): the growing plots as plants alone, no soil, floating like the doobers.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "plots": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: These are the GROWING states of farm plots and must read exactly like the control's pickups: just the PLANT, floating alone on the magenta, NO soil, NO mound, NO ground, NO shadow under it. 1 SPROUTS A: a tight cluster of three small green sprouts, each a short stem with two round leaves, flat to the viewer. 2 SPROUTS B: four sprouts, one taller, leaves a little bigger. 3 SPROUTS C: two sprouts side by side, simple. 4 SPROUTS D: five sprouts in a short row, tiny. 5 YOUNG VINE: two short wooden stakes with a crossbar and a simple green vine with a few leaves climbing it, no fruit, nothing beneath it. 6 YOUNG SHRUB: a small round leafy green shrub, simple leaves, nothing beneath it. 7 SAPLING: a thin young tree with a few leaves, tied to a short stake, nothing beneath it. 8 SPROUTS E: three sprouts with slightly pointed leaves. 9 SPROUTS F: a single sturdy sprout with four leaves."
+    }
+  }
+}

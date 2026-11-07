@@ -914,7 +914,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-n.svg"
   },
   {
     "type": "Signpost E",
@@ -936,7 +937,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-e.svg"
   },
   {
     "type": "Signpost S",
@@ -958,7 +960,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-s.svg"
   },
   {
     "type": "Signpost W",
@@ -980,7 +983,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-w.svg"
   },
   {
     "type": "Signpost NW",
@@ -1002,7 +1006,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-nw.svg"
   },
   {
     "type": "Signpost NE",
@@ -1024,7 +1029,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-ne.svg"
   },
   {
     "type": "Signpost SE",
@@ -1046,7 +1052,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-se.svg"
   },
   {
     "type": "Signpost SW",
@@ -1068,7 +1075,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-sw.svg"
   },
   {
     "type": "Signpost Town",
@@ -1140,7 +1148,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dungeon-entrance.svg",
+    "artSpan": 2.36
   },
   {
     "type": "Dungeon Exit",
@@ -1163,7 +1173,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dungeon-exit.svg"
   },
   {
     "type": "Mountain",
@@ -1185,7 +1196,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain.svg",
+    "artSpan": 3.06
   },
   {
     "type": "Mountain Large",
@@ -1207,7 +1220,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain-large.svg",
+    "artSpan": 4.08
   },
   {
     "type": "Enormous Mountain",
@@ -1229,7 +1244,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain-large.svg",
+    "artSpan": 20.4
   },
   {
     "type": "Big Dead Tree",
@@ -1299,7 +1316,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "big-statue.svg",
+    "artSpan": 11.65
   },
   {
     "type": "Volcano",
@@ -1321,7 +1340,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "volcano.svg",
+    "artSpan": 10.57
   },
   {
     "type": "Dead Tree",
@@ -1401,7 +1422,8 @@
     "growtime": 60,
     "crafttime": 60,
     "totalnestedtime": 60,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Carrot Plot",
@@ -1433,7 +1455,8 @@
     "ingredient1qty": 1,
     "crafttime": 240,
     "totalnestedtime": 480,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Corn Plot",
@@ -1465,7 +1488,8 @@
     "ingredient1qty": 1,
     "crafttime": 480,
     "totalnestedtime": 960,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Sugarcane Plot",
@@ -1497,7 +1521,8 @@
     "ingredient1qty": 1,
     "crafttime": 600,
     "totalnestedtime": 1200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Pumpkin Plot",
@@ -1530,7 +1555,8 @@
     "ingredient1qty": 1,
     "crafttime": 28800,
     "totalnestedtime": 57600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Lettuce Plot",
@@ -1563,7 +1589,8 @@
     "ingredient1qty": 1,
     "crafttime": 14400,
     "totalnestedtime": 28800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Pepper Plot",
@@ -1596,7 +1623,8 @@
     "ingredient1qty": 1,
     "crafttime": 7200,
     "totalnestedtime": 14400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Potato Plot",
@@ -1629,7 +1657,8 @@
     "ingredient1qty": 1,
     "crafttime": 900,
     "totalnestedtime": 1800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Strawberry Plot",
@@ -1662,7 +1691,8 @@
     "ingredient1qty": 1,
     "crafttime": 21600,
     "totalnestedtime": 43200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Onion Plot",
@@ -1694,7 +1724,8 @@
     "ingredient1qty": 1,
     "crafttime": 14400,
     "totalnestedtime": 43200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Garlic Plot",
@@ -1727,7 +1758,8 @@
     "ingredient1qty": 1,
     "crafttime": 172800,
     "totalnestedtime": 345600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Olive Tree",
@@ -1866,7 +1898,8 @@
     "ingredient1qty": 1,
     "crafttime": 57600,
     "totalnestedtime": 115200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-vine.svg"
   },
   {
     "type": "Pear Tree",
@@ -2042,7 +2075,8 @@
     "ingredient1qty": 1,
     "crafttime": 28800,
     "totalnestedtime": 57600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Coconut Tree",
@@ -2109,7 +2143,8 @@
     "ingredient1qty": 1,
     "crafttime": 86400,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Rosemary Plot",
@@ -2137,7 +2172,8 @@
     "growtime": 172800,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Feverfew Plot",
@@ -2165,7 +2201,8 @@
     "growtime": 259200,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Mushroom Plot",
@@ -2193,7 +2230,8 @@
     "growtime": 64800,
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Daisy Plot",
@@ -2223,7 +2261,8 @@
     "growtime": 172800,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Tulip Plot",
@@ -2253,7 +2292,8 @@
     "growtime": 259200,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Sunflower Plot",
@@ -2284,7 +2324,8 @@
     "growtime": 86400,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Grape Vine",
@@ -2316,7 +2357,8 @@
     "ingredient1qty": 5000,
     "crafttime": 43200,
     "totalnestedtime": 43200,
-    "parallel": 30
+    "parallel": 30,
+    "filename": "plot-vine.svg"
   },
   {
     "type": "Mulberry Tree",
@@ -2385,7 +2427,8 @@
     "ingredient1qty": 8000,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Oak Tree Plot",
@@ -2416,7 +2459,8 @@
     "ingredient1qty": 5,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sapling.svg"
   },
   {
     "type": "Wheat",

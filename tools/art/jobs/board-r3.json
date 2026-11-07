@@ -1,0 +1,25 @@
+{
+  "name": "board-r3",
+  "note": "Pass 3 signposts, third try (owner, 2026-11-07): exactly the approved Home / Town signpost with the arrow printed on the board, nothing else changed.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "signposts": {
+      "refs": [
+        "guides/control-signpost-home.jpg",
+        "guides/control-signpost-town.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the two attached images are this game's approved SIGNPOSTS, the Home signpost (a house symbol on the board) and the Town signpost (a left arrow on the board): a sturdy wooden post, one wide horizontal plank board with two nail heads, a tuft of grass with two small flowers at the foot, painted in the game's bright storybook style with the light from the upper left. SUBJECTS: nine signposts on the grid in order, left to right then top to bottom, each EXACTLY the reference signpost, the same post, the same board, the same grass and flowers, the same size and camera, and ONLY the symbol printed on the board changes: a big bold dark-brown arrow painted flat on the plank, the same paint as the Town signpost's arrow, filling most of the board, no text: 1 arrow pointing UP. 2 arrow pointing RIGHT. 3 arrow pointing DOWN. 4 arrow pointing LEFT. 5 arrow pointing UP-LEFT (diagonal). 6 arrow pointing UP-RIGHT. 7 arrow pointing DOWN-RIGHT. 8 arrow pointing DOWN-LEFT. 9 a small upward arrow above three short horizontal lines (a stair), for a dungeon exit. The LAST attached image is the layout guide: a pure magenta (#FF00FF) field divided into a 3 x 3 grid of cells; draw ONE signpost per cell, centred and well inside its cell with clear magenta around it, never touching a grid line, on flat magenta with no ground."
+    }
+  }
+}

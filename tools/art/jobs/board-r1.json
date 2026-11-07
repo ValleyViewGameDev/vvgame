@@ -1,0 +1,76 @@
+{
+  "name": "board-r1",
+  "note": "Emoji audit pass 3 (owner, 2026-11-07): the board's last emoji. Growing-plot art for the farmplots (seedling mounds with variants, a young vine, a young shrub, a sapling), the eight signposts and the dungeon exit on the grid; the Dungeon Entrance (2 x 2), the Mountain (one art for the three sizes), the Volcano and the Big Statue as single panels for cutout.js.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "plots": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. The second attached image is this game's OAK TREE: its leaf colour and paint are the reference for every green here. SUBJECTS, nine small 1 x 1 board objects, in order on the grid, left to right then top to bottom: 1 SEEDLINGS A: a low mound of dark tilled earth with a row of four young green seedlings just sprouted, two leaves each. 2 SEEDLINGS B: the same mound with five seedlings a little taller, leaning different ways. 3 SEEDLINGS C: the same mound with three seedlings and a few small stones. 4 YOUNG VINE: a short wooden trellis of two stakes and a crossbar with a young green vine climbing it, no fruit. 5 YOUNG SHRUB: a small round leafy shrub in a mound of earth, glossy dark green leaves, no berries. 6 SAPLING: a young oak sapling tied to a stake with twine, a few leaves. 7 STAIRS UP: a short flight of worn stone steps rising toward the back into a dark arched opening, a warm light at the top: the way OUT of a dungeon. 8 SEEDLINGS D: the mound with six tiny seedlings in two rows. 9 YOUNG VINE B: the trellis with the vine a little fuller. The LAST attached image is the layout guide: a pure magenta (#FF00FF) field divided into a 3 x 3 grid of cells; draw ONE object per cell, centred and well inside its cell with clear magenta around it, never touching a grid line, every cell on the same flat magenta with no ground, no shadow on the ground, no grass."
+    },
+    "signposts": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-signpost-home.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. The second attached image is this game's approved SIGNPOST (the Home signpost): a wooden post with a pointing arrow board and a small roof. SUBJECTS, nine signposts on the grid in order, left to right then top to bottom, each the SAME post as the reference with its arrow board pointing a different way, the arrow drawn large and clear on the board, no text: 1 arrow pointing UP (north). 2 arrow pointing RIGHT (east). 3 arrow pointing DOWN (south). 4 arrow pointing LEFT (west). 5 arrow pointing UP-LEFT. 6 arrow pointing UP-RIGHT. 7 arrow pointing DOWN-RIGHT. 8 arrow pointing DOWN-LEFT. 9 STAIRS UP ALTERNATE: a worn stone stair rising to a dark arch with a lantern beside it, the way out of a dungeon. The LAST attached image is the layout guide: a pure magenta (#FF00FF) field divided into a 3 x 3 grid of cells; draw ONE object per cell, centred and well inside its cell with clear magenta around it, never touching a grid line, every cell on the same flat magenta with no ground, no shadow on the ground, no grass."
+    },
+    "dungeon-entrance": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECT: a DUNGEON ENTRANCE, 2 x 2 tiles: a dark cave mouth in a rough grey rock outcrop, a worn stone stair going down into the dark, a few skulls or bones by the opening, moss on the rocks, a little torch bracket; ominous but storybook. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "mountain": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECT: a MOUNTAIN, a big rugged grey-brown peak with a snowy white cap and a second smaller shoulder peak, pines at its foot, cracks and ledges painted chunky; it fills the box and rises high above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "volcano": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECT: a VOLCANO, a dark cone of rough black-brown rock with a glowing orange crater at the top, thin smoke, lava streaks down one side, cooled grey rock at the foot; it fills the box and rises high above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "big-statue": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. SUBJECT: a BIG STATUE, a colossal weathered stone statue of a crowned king standing on a mossy cracked plinth, hands on a great sword point-down, lichen and ivy, a storybook monument; it fills the box and rises high above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}
