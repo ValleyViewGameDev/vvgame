@@ -278,7 +278,24 @@
     "interest3": "Wine",
     "Caliban": "friend",
     "Prospero": "rival",
-    "Vampire": "friend"
+    "Vampire": "friend",
+    "The Porter": "friend"
+  },
+  {
+    "type": "The Porter",
+    "symbol": "🧔🏻‍♂️",
+    "dialogOnMet": 16023,
+    "dialogOnFriend": 16123,
+    "dialogOnLove": 16223,
+    "dialogOnRival": 16323,
+    "dialogOnMarried": 16423,
+    "buff4friend": 2,
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "interest1": "Scorpion",
+    "interest2": "Wine",
+    "interest3": "Bones",
+    "Hecate": "friend"
   },
   {
     "type": "Juliet",

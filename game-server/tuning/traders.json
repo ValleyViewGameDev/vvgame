@@ -348,5 +348,15 @@
     "requires6qty": 1,
     "requires7": "Brief Candle",
     "requires7qty": 1
+  },
+  {
+    "trader": "The Porter",
+    "index": 1,
+    "gives": "Money",
+    "givesqty": 75000,
+    "xp": 20,
+    "repeat": true,
+    "requires1": "Scorpion",
+    "requires1qty": 10
   }
 ]

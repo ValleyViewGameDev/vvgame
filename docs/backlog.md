@@ -66,10 +66,6 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
   - Phase 8, final polish.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
-- **W-13. A new character with his hut on Hell's Mouth's peninsula** (added 2026-10-09). The
-  long skinny peninsula at 1016632, in Hell's Mouth Lake (the devil's grin), is a place the
-  owner likes: create a new character and put his hut there. Character to be designed; the hut
-  and the character go in with phase 3 (towns and scenarios) of W-11.
 - **W-17. Re-do the dungeon templates for the new stone walls** (added 2026-10-21). The stone
   wall rendering has changed: walls and fences now join up (`wallSet` on the resource row,
   post + spokes + runs composed from the N/E/S/W mask by `PixiRendererWalls.js`, no diagonals;
@@ -113,6 +109,12 @@ numbered SP-n (append-only).
 - **SP-2. The spells themselves** (the set of spells and what each does).
 - **SP-3. Spell VFX.**
 - **SP-4. Spells for sale at the Magic Shop.**
+- **SP-5. The Porter's potions for Scorpions** (added 2026-11-07). The Porter (Macbeth's porter of
+  hell-gate, his stone hut behind a Mirror on the Hell's Mouth spit, 1016632) trades 10 Scorpions
+  for 75,000 Money today (`traders.json`). Once consumables exist (SP-1), he also gives potions
+  for Scorpions: Scorpion Oil, the Renaissance cure for poison, as a one-fight ward against the
+  fire and venom of Demons, Cerberus and Dragons. Scorpions only drop from Demons (L28) and have
+  few sinks (54 over a whole account, all one-time), so this is a repeatable one.
 
 ### EPIC: Tuning ("T", opened 2026-10-10)
 

@@ -227,6 +227,7 @@ stub riddle, the real puzzle is still to be designed.
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |
 | Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |
+| The Porter | Macbeth (the porter of hell-gate) | Easter egg (owner 2026-11-07): a stone hut on the Hell's Mouth spit (1016632) whose only door is a Mirror, so only a Mirror Key holder meets him. Hell is empty since the storm, so he keeps its mouth. His met dialog (16023) is a clue, not critical path: the Oracle's gate opens to seven knocks in any order. Trades 10 Scorpions for 75,000 Money (repeatable); potions later (backlog SP-5) |
 | Audrey | As You Like It | The Farm Hand (the worker type `Farm Hand`, shown by name): Arden's cheerful country girl |
 | Corin | As You Like It | The Rancher: Arden's old shepherd, "the greatest of my pride is to see my ewes graze" |
 | Peter Quince | A Midsummer Night's Dream | The Lumberjack: the Mechanicals' carpenter |
