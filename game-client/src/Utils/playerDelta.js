@@ -36,11 +36,11 @@ export function applyPlayerDelta(answer, { setCurrentPlayer, setInventory, setBa
 /**
  * POST an action route. Never throws: { ok, status, reason, data } where a refusal (4xx with a
  * reason) is ok:false with data still carrying the player delta to resync with, and a network
- * failure is status 0.
+ * failure (or `timeout` ms with no answer) is status 0.
  */
-export async function postAction(path, body) {
+export async function postAction(path, body, { timeout } = {}) {
   try {
-    const res = await axios.post(`${API_BASE}${path}`, body);
+    const res = await axios.post(`${API_BASE}${path}`, body, timeout ? { timeout } : undefined);
     return { ok: !!res.data?.success, status: res.status, reason: res.data?.reason || null, data: res.data };
   } catch (err) {
     const data = err.response?.data || null;

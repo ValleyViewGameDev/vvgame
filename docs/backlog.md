@@ -239,21 +239,3 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 (issued at login / silent signup, verified server-side), and derive the caller from it rather
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
-
-### BL-3: Walk-over collects lost on a slow connection
-
-Added 2026-11-03.
-
-**What.** On a slow connection (owner, hotspotting through a phone) the owner walked over 12
-Rosemary doobers in ftuetester's Town; every one vanished from the board, but only 8 reached the
-server, so Helena's "Rosemary, for Remembrance" counted 8. Waiting a long time never caught it up.
-The client saw all 12 collects; it should keep each one until the server confirms it, retry the
-ones that failed or timed out, and eventually credit every collect the player made, the
-backpack, quest progress and xp included.
-
-**Where to start.** Walk-over collection goes through `handleTileClick` (App's `onEnterTile`)
-into `ResourceClicking.js` `handleDooberClick`, which since Phase 5 (2026-11-04) is ONE request,
-`POST /api/action/harvest`. A request with no answer at all (`postAction` status 0) currently
-keeps the doober gone and the predicted count without retrying: give those calls a durable retry
-queue (the server answers 'gone' for a tile already collected, so a retry can never grant twice).
-A phone hotspot is an ordinary mobile connection; airplane-grade networks are out of scope.

@@ -2,6 +2,7 @@ import { fetchInventoryAndBackpack } from './Utils/InventoryManagement';
 import { calculateSkillMultiplier, isCurrency } from './Utils/InventoryManagement';
 import { canCollect, reportRefusal } from './Utils/noRoom';
 import { applyPlayerDelta, postAction, predictGain } from './Utils/playerDelta';
+import { queueRetry, isNoAnswer, ACTION_TIMEOUT_MS } from './Utils/actionRetry';
 import { loadMasterResources, loadMasterSkills, getFTUEsteps } from './Utils/TuningManager'; // Centralized tuning manager
 import { tryAdvanceFTUEByTrigger } from './GameFeatures/FTUE/FTUEutils';
 import FloatingTextManager from './UI/FloatingText';
@@ -349,12 +350,16 @@ export async function handleDooberClick(
   // tool, awards collection trophies and replants a repeatable doober, then answers with the
   // player delta. Nothing here refetches the player.
   try {
-    const answer = await postAction('/api/action/harvest', { playerId: currentPlayer.playerId, gridId, x: col, y: row });
+    const harvestBody = { playerId: currentPlayer.playerId, gridId, x: col, y: row };
+    const answer = await postAction('/api/action/harvest', harvestBody, { timeout: ACTION_TIMEOUT_MS });
 
     if (!answer.ok) {
-      if (answer.status === 0) {
-        // No answer at all (network): the server may have done it; keep the board as it is
-        console.warn('⚠️ Harvest got no answer; leaving the doober collected.');
+      if (isNoAnswer(answer.status)) {
+        // No answer (network, timeout, gateway): the server may or may not have done it. Keep the
+        // board and the predicted counts, and send it again until it answers (Utils/actionRetry.js;
+        // a harvest is safe to repeat: a tile already collected answers 'gone' with the true counts)
+        console.warn('⚠️ Harvest got no answer; queued to retry.');
+        queueRetry('/api/action/harvest', harvestBody);
         return;
       }
       applyPlayerDelta(answer.data, deltaSetters); // back to the server's counts

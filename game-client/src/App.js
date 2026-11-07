@@ -163,6 +163,7 @@ import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
 import SurveyPromptModal from './UI/Modals/SurveyPromptModal';
 import { hasMoment, markMoment } from './Utils/moments';
+import { registerActionRetry } from './Utils/actionRetry';
 import InstallPromptModal, { isStandalone, isPhone, installPromptDismissed } from './UI/Modals/InstallPromptModal';
 import { sendPageviewBeacon, isInAppBrowser } from './Utils/pageviewBeacon';
 import './UI/Panels/scrollFade.css';
@@ -896,6 +897,13 @@ const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
+
+// Harvests that got no answer on a slow connection are sent again until the server answers,
+// across reloads too (Utils/actionRetry.js, BL-3): it needs the player and the delta setters
+const retryPlayerId = currentPlayer?.playerId;
+useEffect(() => {
+  if (retryPlayerId) registerActionRetry(retryPlayerId, { setCurrentPlayer, setInventory, setBackpack });
+}, [retryPlayerId]);
 
 const NPCsInGrid = useGridState();
 const setGridState = useGridStateUpdate();
