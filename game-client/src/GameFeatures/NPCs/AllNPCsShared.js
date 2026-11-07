@@ -236,9 +236,12 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
   // A leash ({ home, radius }, set by the citizen brain) keeps the wander near home
   const leash = this.leash;
   const inLeash = (x, y) => !leash || Math.max(Math.abs(x - leash.home.x), Math.abs(y - leash.home.y)) <= leash.radius;
+  // An Enemy chases anywhere but lives on its own ground: once on it, its wander stays on it
+  const keepToGround = this.action === 'attack' && this.isHomeGround(this.position.x, this.position.y, tiles);
   const validDirections = preferredDirections.filter((direction) => {
     const { x, y } = this.getAdjacentTile(direction);
-    return inLeash(x, y) && this.isValidTile(x, y, tiles, resources, npcs);
+    return inLeash(x, y) && this.isValidTile(x, y, tiles, resources, npcs)
+      && (!keepToGround || this.isHomeGround(x, y, tiles));
   })
   if (validDirections.length > 0) {
     const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
@@ -415,6 +418,13 @@ getAdjacentTile(direction) {
       x: this.position.x + delta.x,
       y: this.position.y + delta.y,
   };
+}
+
+// Its own ground: the tiles its validon<tile> flags name, where it is placed and where an
+// Enemy settles (it may chase a player beyond them, npcCanStandOn).
+isHomeGround(x, y, tiles) {
+  const t = tiles?.[Math.floor(y)]?.[Math.floor(x)];
+  return !!t && this[`validon${t}`] === true;
 }
 
 // Terrain + resources only (no NPC / player checks): what an A* route may cross. An NPC on a

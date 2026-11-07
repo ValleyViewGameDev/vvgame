@@ -404,6 +404,11 @@ only decide where an enemy is PLACED (grid creation, the editor), not where it w
 are unchanged. No attacking from a boat (`Combat.handleAttackOnNPC`, string 39, like the tent's
 31): a bow from the water would otherwise be untouchable by walking enemies; an enemy on the
 shore can still hit a boat beside it. Trees and walls still block flyers (owner, 2026-11-07).
+An Enemy chases anywhere but LIVES on its own ground (its `validon` tiles): when it settles
+(`anchorHere`, giving up or drifting out of its leash) its home is the nearest tile of its own
+ground it can walk to, its roam walks it back there and then keeps to that ground, so a Bear
+that loses the player on a road or in a town square goes back to the grass. Valley towns are
+mostly closed by doors, which enemies never pass.
 
 Owner's direction (2026-10-08): enemy movement is anchor-based, but the anchor MOVES.
 

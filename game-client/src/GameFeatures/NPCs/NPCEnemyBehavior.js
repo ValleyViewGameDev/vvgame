@@ -117,10 +117,43 @@ function hasHome(npc) {
   return Number.isInteger(npc.homeX) && Number.isInteger(npc.homeY);
 }
 
-/** Make the enemy's current tile its home (first sight of it, or it lost the player). */
+/**
+ * The nearest tile of the enemy's own ground (its validon flags) it can walk to from here, or
+ * null. A breadth-first search over what it may cross (terrainOpen), bounded so a hopeless
+ * search stays cheap.
+ */
+const HOME_SEARCH_LIMIT = 900; // tiles visited (a 30x30 patch)
+function nearestHomeGround(npc, tiles, resources) {
+  const start = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
+  if (npc.isHomeGround(start.x, start.y, tiles)) return start;
+  const seen = new Set([`${start.x},${start.y}`]);
+  const queue = [start];
+  while (queue.length && seen.size < HOME_SEARCH_LIMIT) {
+    const { x, y } = queue.shift();
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const nx = x + dx, ny = y + dy, k = `${nx},${ny}`;
+      if ((!dx && !dy) || seen.has(k)) continue;
+      seen.add(k);
+      if (!npc.terrainOpen(nx, ny, tiles, resources)) continue;
+      if (npc.isHomeGround(nx, ny, tiles)) return { x: nx, y: ny };
+      queue.push({ x: nx, y: ny });
+    }
+  }
+  return null;
+}
+
+/**
+ * Settle: a new home where the enemy stands (first sight of it, or it lost the player). It may
+ * chase a player onto any ground, but it only LIVES on its own (BL-4): given up on a road or in
+ * a town square, its home is the nearest tile of its own ground, and its roam walks it back.
+ */
 function anchorHere(npc) {
-  npc.homeX = Math.floor(npc.position.x);
-  npc.homeY = Math.floor(npc.position.y);
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  const resources = GlobalGridStateTilesAndResources.getResources() || [];
+  const spot = (npc.action === 'attack' && tiles && nearestHomeGround(npc, tiles, resources))
+    || { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
+  npc.homeX = spot.x;
+  npc.homeY = spot.y;
   npc.leash = { home: { x: npc.homeX, y: npc.homeY }, radius: enemyLeashRadius(npc) };
 }
 
@@ -297,6 +330,16 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (Math.max(Math.abs(here.x - this.leash.home.x), Math.abs(here.y - this.leash.home.y)) > this.leash.radius) {
         anchorHere(this); // drifted out (an unstick wander): this is home now
         await updateThisNPC.call(this, gridId);
+      }
+      // Off its own ground (it gave up a chase on a road, or a home saved before BL-4): walk
+      // home first. A home that is itself off its ground is re-picked; no route, roam as before.
+      if (!this.isHomeGround(here.x, here.y, tiles)) {
+        if (!this.isHomeGround(this.leash.home.x, this.leash.home.y, tiles)) {
+          anchorHere(this);
+          await updateThisNPC.call(this, gridId);
+        }
+        if (this.isHomeGround(this.leash.home.x, this.leash.home.y, tiles)
+          && this.followPath(this.leash.home.x, this.leash.home.y, tiles, resources, npcs) === 'moving') break;
       }
       await this.handleRoamState(tiles, resources, npcs, () => {
         // Don't change state - stay in roam
