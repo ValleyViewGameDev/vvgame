@@ -448,10 +448,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   
   
-  const getSymbol = (resourceType) => {
-    const resource = resourceData.find((res) => res.type === resourceType);
-    return resource?.symbol || '';
-  };
   
   // Protected function to collect payment from a bought slot using transaction system
   const handleCollectPayment = async (transactionId, transactionKey, slotIndex) => {

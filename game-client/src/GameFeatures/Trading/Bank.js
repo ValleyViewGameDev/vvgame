@@ -156,10 +156,6 @@ function BankPanel({
     };
 
     // ✅ Lookup function for symbols from `masterResources`
-    const getSymbol = (resourceType) => {
-        const resource = masterResources.find(res => res.type === resourceType);
-        return resource?.symbol || "❓"; // Default to question mark if no symbol found
-    };
 
     const handleSellStation = async (transactionId, transactionKey) => {
         await handleProtectedSelling({
