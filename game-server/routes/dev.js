@@ -154,4 +154,38 @@ router.post('/dev/edit-string', async (req, res) => {
   }
 });
 
+// POST /api/dev/edit-resource { playerId, type, field, value }
+// Dev Edit Mode's resource editor (game-client/src/Dev/devResourceEditor.js): one field of one
+// resources.json row. Only `artSpan` for now (a number, tiles; the footprint size or less removes
+// it, the default). Read-modify-write of the whole file, 2-space JSON as the editor writes it; the
+// server caches resources.json at boot, so nodemon's restart on this save serves it to new loads.
+const RESOURCE_FIELDS = { artSpan: (v) => Number.isFinite(Number(v)) && Number(v) >= 0.25 && Number(v) <= 12 };
+router.post('/dev/edit-resource', async (req, res) => {
+  if (!(await requireLocalDeveloper(req, res))) return;
+  const { type, field, value } = req.body || {};
+  if (typeof type !== 'string' || !type) return res.status(400).json({ error: 'type is required.' });
+  if (!RESOURCE_FIELDS[field]) return res.status(400).json({ error: `Field not editable here: ${field}` });
+  if (!RESOURCE_FIELDS[field](value)) return res.status(400).json({ error: `Bad value for ${field}: ${value}` });
+  const file = path.resolve(__dirname, '..', 'tuning', 'resources.json');
+  try {
+    const text = fs.readFileSync(file, 'utf8');
+    const rows = JSON.parse(text);
+    const row = rows.find((r) => r && r.type === type);
+    if (!row) return res.status(404).json({ error: `No resources.json row "${type}".` });
+    const num = parseFloat(Number(value).toFixed(2));
+    const before = row[field];
+    if (field === 'artSpan' && num <= (Number(row.size) || 1)) delete row.artSpan; // the footprint is the default
+    else row[field] = num;
+    const out = JSON.stringify(rows, null, 2) + (text.endsWith('\n') ? '\n' : '');
+    const tmp = `${file}.tmp`;
+    fs.writeFileSync(tmp, out, 'utf8');
+    fs.renameSync(tmp, file);
+    console.log(`[dev] /edit-resource ${type}.${field}: ${before ?? '(none)'} → ${row[field] ?? '(none)'}`);
+    res.json({ ok: true, type, field, value: row[field] ?? null });
+  } catch (err) {
+    console.error('[dev] /edit-resource error:', err);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 module.exports = router;

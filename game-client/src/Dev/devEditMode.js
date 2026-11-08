@@ -2,7 +2,8 @@
 // it; while ON every game click is suppressed and clicking visible TEXT bumps that text's
 // font-size by one step (Shift = shrink), written back to the real .css file on disk through
 // POST /api/dev/edit-css (local dev only; CRA's HMR then reloads the stylesheet). Holding S
-// turns the click into "edit this string" (Dev/devStringEditor.js).
+// turns the click into "edit this string" (Dev/devStringEditor.js). A click on a placed thing's
+// art on the board opens its resources.json row (artSpan for now: Dev/devResourceEditor.js).
 //
 // Which rule governs the text: the browser knows the cascade, so we read the CSSOM, walk up
 // from the clicked element to the first ancestor with an explicit font-size rule and pick the
@@ -16,6 +17,7 @@
 import axios from 'axios';
 import API_BASE from '../config';
 import { openStringEditorFor, closeStringPanel } from './devStringEditor';
+import { findBoardResourceAt, openResourceEditorFor, closeResourcePanel } from './devResourceEditor';
 import './devEditMode.css';
 
 const STEP = { px: 1, rem: 0.0625, em: 0.05 };
@@ -35,7 +37,7 @@ export function setDevEditContext(next) { ctx = { ...ctx, ...next }; }
 export function toggleEditMode() {
   editModeOn = !editModeOn;
   html().classList.toggle('dev-edit-mode', editModeOn);
-  if (!editModeOn) { html().classList.remove('dev-edit-minus'); setStringMode(false); closeStringPanel(); }
+  if (!editModeOn) { html().classList.remove('dev-edit-minus'); setStringMode(false); closeStringPanel(); closeResourcePanel(); }
   showEditIndicator(editModeOn);
   return editModeOn;
 }
@@ -90,6 +92,15 @@ async function onEditClick(e) {
       flash('✓');
     } });
     if (!opened) deny('no editable string under the cursor (S-click)');
+    return;
+  }
+
+  // A click on the board (the Pixi canvas): the placed thing whose art is under it, if any
+  const onBoard = e.target?.tagName === 'CANVAS' || !!e.target?.closest?.('.pixi-container');
+  if (onBoard) {
+    const res = findBoardResourceAt(e.clientX, e.clientY);
+    if (!res) { deny('no placed resource under the cursor'); return; }
+    if (!openResourceEditorFor(res, { playerId: ctx.playerId, onSaved: () => flash('✓') })) deny(`no resources.json row for ${res.type}`);
     return;
   }
 
@@ -261,7 +272,7 @@ function showEditIndicator(on) {
     indicatorEl = document.createElement('div');
     indicatorEl.className = 'dev-edit-indicator';
     indicatorEl.setAttribute('data-edit-exempt', '');
-    indicatorEl.textContent = '✎ EDIT MODE · ⌘+Ctrl+E to exit · Shift = shrink · hold S = edit text';
+    indicatorEl.textContent = '✎ EDIT MODE · ⌘+Ctrl+E to exit · Shift = shrink · hold S = edit text · click board art = artSpan';
     indicatorEl.style.cssText = 'position:fixed;bottom:0.5rem;right:0.5rem;z-index:9999;font-size:0.75rem;font-weight:700;letter-spacing:0.03em;background:rgba(120,20,20,0.9);color:#fff;padding:0.25rem 0.6rem;border-radius:8px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,0.4)';
     document.body.appendChild(indicatorEl);
   } else if (!on && indicatorEl) { indicatorEl.remove(); indicatorEl = null; }

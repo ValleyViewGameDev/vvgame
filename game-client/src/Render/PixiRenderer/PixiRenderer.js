@@ -428,6 +428,15 @@ const PixiRenderer = ({
     return () => registerForceRender(null);
   }, []);
 
+  // Dev Edit Mode's resource editor (Dev/devResourceEditor.js) changed a row's art (artSpan): redraw
+  const [devArtTick, setDevArtTick] = useState(0);
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return undefined;
+    const bump = () => setDevArtTick((t) => t + 1);
+    window.addEventListener('vv:dev-art-changed', bump);
+    return () => window.removeEventListener('vv:dev-art-changed', bump);
+  }, []);
+
   // Render version tracking to prevent stale async renders
   // When TILE_SIZE changes, we increment these versions to invalidate in-flight renders
   const resourceRenderVersionRef = useRef(0);
@@ -1043,7 +1052,7 @@ const PixiRenderer = ({
     };
 
     renderResources();
-  }, [resources, masterResources, animationVersion]); // animationVersion triggers re-render when grow animations complete
+  }, [resources, masterResources, animationVersion, devArtTick]); // animationVersion triggers re-render when grow animations complete; devArtTick, a dev artSpan edit
 
   // NPC animation ticker - ON-DEMAND pattern for performance
   // The ticker only runs when there are active animations, then removes itself
