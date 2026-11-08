@@ -1,0 +1,25 @@
+{
+  "name": "icons-r11",
+  "note": "Owner 2026-11-08: an original padlock icon to replace the 🔒 emoji on locked crafting slots, locked Trade Stall slots, the level lock and the bulk-crafting note. System style, square glyph, reads at 20 px.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "lock": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r9/approved/openai--system-places-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved Home and clock-tower glyphs: match their rendering, outline weight, colours and SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: four PADLOCK icons, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each a SQUARE glyph of a few big simple shapes with thick dark outlines and no small details, that still reads at 20 pixels: 1 LOCK: the classic closed padlock, a rounded golden brass body with a dark keyhole and a thick dark iron shackle arched over it, seen flat from the front. 2 LOCK ALTERNATE: the same padlock with a dark iron body and a brass shackle. 3 LOCK ALTERNATE B: the same brass padlock, squarer body, the shackle a little wider. 4 LOCK OPEN: the brass padlock of 1 with its shackle swung open to the right. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

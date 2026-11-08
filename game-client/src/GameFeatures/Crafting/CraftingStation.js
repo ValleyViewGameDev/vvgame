@@ -817,7 +817,7 @@ const CraftingStation = ({
                               >
                                 {!isUnlocked ? (
                                   <>
-                                    <span className="crafting-slot-icon locked">&#x1F512;</span>
+                                    <span className="crafting-slot-icon locked"><img className="lock-icon" src="/assets/icons/icon-lock.svg" alt="" draggable="false" /></span>
                                   </>
                                 ) : slotIsEmpty ? (
                                   <span className="crafting-slot-icon"></span>

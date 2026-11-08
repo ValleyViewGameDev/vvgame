@@ -104,6 +104,7 @@
 .crafting-slot-icon.locked {
   font-size: 22px; /* style-ok: icon */
 }
+.crafting-slot-icon.locked .lock-icon { width: 22px; height: 22px; display: block; } /* the padlock icon (icons-r11), not the 🔒 emoji */
 
 .crafting-slot-icon {
   font-size: 28px; /* style-ok: icon */

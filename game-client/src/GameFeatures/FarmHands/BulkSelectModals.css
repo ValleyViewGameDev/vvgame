@@ -73,6 +73,7 @@
 
 .bulk-select .bs-sub { color: var(--color-text-muted); font-size: var(--text-xs); }
 .bulk-select .bs-note { color: var(--color-text-muted); font-size: var(--text-xs); white-space: nowrap; }
+.bulk-select .bs-note .lock-icon { width: 1.25em; height: 1.25em; vertical-align: -0.3em; } /* the padlock icon (icons-r11) */
 .bulk-select .bs-cost .ok { color: var(--color-text-positive); margin-right: 6px; }
 .bulk-select .bs-cost .short { color: var(--color-text-negative); margin-right: 6px; }
 

@@ -49,7 +49,7 @@ const LevelLock = ({
   // String 815: "Your current level: {level}"
   return (
     <div className="level-lock-container">
-      <div className="level-lock-icon">🔒</div>
+      <div className="level-lock-icon"><img className="lock-icon" src="/assets/icons/icon-lock.svg" alt="" draggable="false" /></div>
       <div className="level-lock-message">
         {(strings[814] || '{feature} unlocks at level {level}.')
           .replace('{feature}', featureName || 'feature')

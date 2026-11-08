@@ -215,7 +215,7 @@ export function BulkCraftingModal({
                         disabled={!slot.affordable}
                       />
                     ) : (
-                      <span className="bs-note">🔒</span>
+                      <span className="bs-note"><img className="lock-icon" src="/assets/icons/icon-lock.svg" alt="" draggable="false" /></span>
                     )}
                   </label>
                 )}

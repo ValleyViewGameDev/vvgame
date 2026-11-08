@@ -71,3 +71,13 @@ picture (a whole cottage, a row of buildings) is not a glyph; ask for a SQUARE s
 or four big shapes that reads at 20 px. And when the model draws a sheet four across (as it does
 with four subjects), the icons sit lower than a 256 px row: cut with `--cols 4 --rows 2`, or the
 bottoms are clipped (that was the "cut off" in r8).
+
+## The padlock
+
+`icon-lock.svg` and `icon-lock-open.svg` (`icons-r11`, owner 2026-11-08): the classic padlock
+glyph in the `system` style, turned GRAY (a system mark, not a coloured thing: the owner asked
+for monochrome after a brass first cut; the gray is the approved brass art desaturated, with a
+touch of blue so it reads as iron). It replaces the 🔒 emoji on a locked crafting slot
+(`CraftingStation.js`, 22 px), a locked Trade Stall slot (24 px), the level lock
+(`UI/Panels/LevelLock.js`, 64 px) and the bulk-crafting note; each site sizes the `.lock-icon`
+img to the glyph it replaced. The Locked Door deco row keeps its 🔒 until the deco pass (BL-18).

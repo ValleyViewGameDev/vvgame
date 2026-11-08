@@ -103,6 +103,9 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Padlock 2026-11-08**: `icon-lock.svg` (gray, icons-r11) on locked crafting and Trade Stall
+  slots, the level lock and the bulk-crafting note; 🔒 remains only in console logs and on the
+  Locked Door deco row (BL-18).
 - **Tools panel 2026-11-08**: the tile tools show a square of the ground they lay
   (`UI/Icons/TileSwatch.js`: the cut art, or the tile's flat colour, step stones as grass with
   stones) and the placement cursor carries the same picture; the tile emoji remain only as the

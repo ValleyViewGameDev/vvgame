@@ -645,7 +645,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                   {(!slotUnlocked && isOwnStall) ? (
                     // Show unlock UI for locked slots on own stall
                     <div className="trade-slot-locked">
-                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div className="trade-slot-lock-icon"><img className="lock-icon" src="/assets/icons/icon-lock.svg" alt="" draggable="false" /></div>
                       <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
                       <div className="trade-slot-status">{formatDuration(config.sellWaitTime / 1000)} {strings[174]}</div>
                       <div className="trade-slot-unlock-cta">
@@ -720,7 +720,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 >
                   {(!slotUnlocked) ? (
                     <div className="trade-slot-locked">
-                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div className="trade-slot-lock-icon"><img className="lock-icon" src="/assets/icons/icon-lock.svg" alt="" draggable="false" /></div>
                       <div className="trade-slot-status">{strings[173]} {config.maxAmount}</div>
                       <div className="trade-slot-unlock-cta">
                         <span>{strings[175]}</span>
