@@ -156,10 +156,10 @@ router.post('/dev/edit-string', async (req, res) => {
 
 // POST /api/dev/edit-resource { playerId, type, field, value }
 // Dev Edit Mode's resource editor (game-client/src/Dev/devResourceEditor.js): one field of one
-// resources.json row. Only `artSpan` for now (a number, tiles; the footprint size or less removes
-// it, the default). Read-modify-write of the whole file, 2-space JSON as the editor writes it; the
+// resources.json row. Only `artSpan` for now (tiles, hundredths, 0.1 to 12; exactly the footprint
+// size removes it, the default). Read-modify-write of the whole file, 2-space JSON as the editor writes it; the
 // server caches resources.json at boot, so nodemon's restart on this save serves it to new loads.
-const RESOURCE_FIELDS = { artSpan: (v) => Number.isFinite(Number(v)) && Number(v) >= 0.25 && Number(v) <= 12 };
+const RESOURCE_FIELDS = { artSpan: (v) => Number.isFinite(Number(v)) && Number(v) >= 0.1 && Number(v) <= 12 };
 router.post('/dev/edit-resource', async (req, res) => {
   if (!(await requireLocalDeveloper(req, res))) return;
   const { type, field, value } = req.body || {};
@@ -174,7 +174,7 @@ router.post('/dev/edit-resource', async (req, res) => {
     if (!row) return res.status(404).json({ error: `No resources.json row "${type}".` });
     const num = parseFloat(Number(value).toFixed(2));
     const before = row[field];
-    if (field === 'artSpan' && num <= (Number(row.size) || 1)) delete row.artSpan; // the footprint is the default
+    if (field === 'artSpan' && num === (Number(row.size) || 1)) delete row.artSpan; // exactly the footprint is the default
     else row[field] = num;
     const out = JSON.stringify(rows, null, 2) + (text.endsWith('\n') ? '\n' : '');
     const tmp = `${file}.tmp`;

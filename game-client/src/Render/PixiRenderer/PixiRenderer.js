@@ -913,7 +913,9 @@ const PixiRenderer = ({
         // artSpan (resource row): the square art covers artSpan x artSpan tiles with the footprint
         // at its bottom-centre, so a roof can rise above a building's footprint (the walls work the same way)
         const artSpan = master?.artSpan;
-        if (texture) return { resource, texture, emojiTexture: null, wallSpan: artSpan > (resource.size || 1) ? artSpan : undefined };
+        // any artSpan other than the footprint counts, smaller ones too (a prop drawn at 0.85 of its tile)
+        const span = Number(artSpan);
+        if (texture) return { resource, texture, emojiTexture: null, wallSpan: span > 0 && span !== (resource.size || 1) ? span : undefined };
         const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
         return { resource, texture: null, emojiTexture };
       });

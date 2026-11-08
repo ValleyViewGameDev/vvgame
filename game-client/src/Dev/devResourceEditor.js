@@ -2,7 +2,8 @@
 // devEditMode.js, the string half in devStringEditor.js). While Edit Mode is on, a click on a
 // placed thing's art on the board opens this little panel for that thing's resources.json row.
 //
-// For now it edits one field, `artSpan` (the square art's size in tiles, anchored at the
+// For now it edits one field, `artSpan` (the square art's size in tiles, in hundredths, smaller or
+// bigger than the footprint, anchored at the
 // footprint's bottom-centre: docs/art/buildings-bible.md §5). Each change is applied at once to
 // the in-memory row (the same objects App and the renderer hold, Utils/TuningManager.js) and the
 // board redraws (PixiRenderer listens for DEV_ART_CHANGED), so the scale can be tuned by eye.
@@ -13,7 +14,8 @@ import API_BASE from '../config';
 import { getMasterResources } from '../Utils/TuningManager';
 
 export const DEV_ART_CHANGED = 'vv:dev-art-changed';
-const STEP = 0.05;
+const STEP = 0.01; // hundredths of a tile
+const MIN_SPAN = 0.1;
 
 let panel = null;
 
@@ -70,10 +72,10 @@ export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
     <label style="display:block;margin-bottom:4px">artSpan (tiles)</label>
     <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
       <button data-d="-1" style="width:28px">−</button>
-      <input type="number" step="${STEP}" min="${footprint}" max="12" style="flex:1;min-width:0;padding:2px 4px" />
+      <input type="number" step="${STEP}" min="${MIN_SPAN}" max="12" style="flex:1;min-width:0;padding:2px 4px" />
       <button data-d="1" style="width:28px">+</button>
     </div>
-    <input type="range" min="${footprint}" max="${Math.max(8, footprint + 4)}" step="${STEP}" style="width:100%;margin-bottom:8px" />
+    <input type="range" min="${MIN_SPAN}" max="${Math.max(8, footprint + 4)}" step="${STEP}" style="width:100%;margin-bottom:8px" />
     <div style="display:flex;gap:6px">
       <button data-act="save" style="flex:1">Save</button>
       <button data-act="cancel" style="flex:1">Cancel</button>
@@ -86,9 +88,9 @@ export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
   const msg = panel.querySelector('[data-msg]');
 
   const apply = (next) => {
-    // the renderer only draws artSpan when it is bigger than the footprint (PixiRenderer.js), so the
-    // footprint is the floor (and, saved, means "no artSpan")
-    value = Math.max(footprint, Math.min(12, Math.round(Number(next) / STEP) * STEP));
+    // any span from MIN_SPAN up, in hundredths (the art stays bottom-centred on the footprint;
+    // exactly the footprint, saved, means "no artSpan")
+    value = Math.max(MIN_SPAN, Math.min(12, Math.round(Number(next) / STEP) * STEP));
     value = parseFloat(value.toFixed(2));
     input.value = String(value);
     slider.value = String(value);
