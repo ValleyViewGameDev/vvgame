@@ -159,7 +159,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const answer = await postAction('/api/action/stall-unlock', { playerId: currentPlayer.playerId, slotIndex });
     applyStallAnswer(answer.data);
     if (!answer.ok) {
-      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
+      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} {res:Wood} ${strings[176]} ${strings[178]}`);
       else stallRefusal(answer.reason);
       return;
     }
@@ -543,7 +543,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const answer = await postAction('/api/action/request-unlock', { playerId: currentPlayer.playerId, slotIndex });
     applyStallAnswer(answer.data);
     if (!answer.ok) {
-      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
+      if (answer.reason === 'short-Wood') updateStatus(`${strings[177]} ${config.unlockCost} {res:Wood} ${strings[176]} ${strings[178]}`);
       else updateStatus('Failed to unlock slot');
       return;
     }

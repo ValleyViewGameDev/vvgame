@@ -465,7 +465,7 @@ const CraftingStation = ({
     if (slotEl) {
       const r = slotEl.getBoundingClientRect();
       const flyTo = craftedItemType === 'Money' ? 'money' : craftedItemResource?.category === 'npc' ? null : 'inventory';
-      FloatingTextManager.addFloatingTextAt(`+${finalQtyCollected} ${craftedSymbol} ${getLocalizedString(craftedItemType, strings)}`,
+      FloatingTextManager.addFloatingTextAt(`+${finalQtyCollected} {res:${craftedItemType}} ${getLocalizedString(craftedItemType, strings)}`,
         r.left + r.width / 2, r.top + r.height / 2, { flyTo });
     }
 

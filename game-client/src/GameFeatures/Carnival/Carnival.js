@@ -250,9 +250,6 @@ function CarnivalPanel({
     }
   };
 
-  const getSymbol = (type) => {
-    return masterResources.find(r => r.type === type)?.symbol || "❓";
-  };
 
   // Claiming and filling are decided on the server (game-server/routes/harvestFairRoutes.js);
   // the rewards are mailed by the Fair's departure to everyone who filled an order.
@@ -300,7 +297,7 @@ function CarnivalPanel({
     const el = document.querySelector(`[data-carnival-slot="${index}"]`);
     if (el) {
       const r = el.getBoundingClientRect();
-      FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} ${getSymbol(offer.itemGiven)}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: offer.itemGiven === 'Money' ? 'money' : 'inventory' });
+      FloatingTextManager.addFloatingTextAt(`+${Number(offer.qtyGiven).toLocaleString()} {res:${offer.itemGiven}}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: offer.itemGiven === 'Money' ? 'money' : 'inventory' });
     }
   };
 

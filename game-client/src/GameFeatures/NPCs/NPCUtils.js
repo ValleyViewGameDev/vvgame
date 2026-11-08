@@ -87,7 +87,7 @@ async function handleProtectedFarmAnimalCollection(
 
   // 2. Visual feedback - poof effect and floating text
   createCollectEffect(col, row, TILE_SIZE);
-  FloatingTextManager.addFloatingText(`+${expectedQuantity} ${expectedSymbol} ${getLocalizedString(expectedItem, strings)}`, col, row, TILE_SIZE);
+  FloatingTextManager.addFloatingText(`+${expectedQuantity} {res:${expectedItem}} ${getLocalizedString(expectedItem, strings)}`, col, row, TILE_SIZE); // the thing's art (UI/Icons/RichText.js)
 
   // 3. The ✅ goes NOW: a client-only collectPending mark hides it (markLocal never saves).
   //    The NPC's real state stays 'processing' until the server confirms, because the server
