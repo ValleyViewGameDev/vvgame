@@ -52,13 +52,18 @@ had been shifted by one id, so the Store button showed "Bandeja de entrada").
 
 ## Place icons: Home and Town
 
-`icon-home.svg` (the classic house glyph: red roof, chimney, one door) and `icon-town.svg` (the
-Courthouse's clock tower as a glyph), `icons-r9` (owner, 2026-11-07), in the header's `system`
-style: for buttons and labels too small for the board's Farm House / Town Hall art or the
+`icon-home.svg` (the classic house glyph: red roof, chimney, one door; `icons-r9`) and
+`icon-town.svg` (the Courthouse's clock tower with a lower slate gable on each side, three roof
+peaks in a row; `icons-r10`), owner 2026-11-07, in the header's `system` style: for buttons and labels too small for the board's Farm House / Town Hall art or the
 signposts, which cannot be read under about 48 px. The Map panel's Go Home / Go to Town buttons
-(`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em. The zoomed-out boards (settlement and
-frontier views) keep the full building art, which is drawn at tile size there. Alternates on
-file in the approved sheet: a house with a round window, the tower with a red flag.
+(`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em, and the frontier view marks the player's
+homestead with the Home glyph (`PixiRendererFrontierSettlements.js`); the settlement view keeps
+the Farm House, drawn at tile size. Alternates on file: a house with a round window (r9), the
+town with red side roofs, taller side gables, or a flag (r10).
+
+A four-across sheet whose icons nearly touch is cut with `tools/art/icons-split.js`, which splits
+at the empty columns between icons instead of at the guide's cells, then the stray specks
+(pieces of a neighbour's eave) are pruned to the main piece.
 
 The first pair (`icons-r8`) failed twice over and is the rule for small icons: a wide landscape
 picture (a whole cottage, a row of buildings) is not a glyph; ask for a SQUARE silhouette of three

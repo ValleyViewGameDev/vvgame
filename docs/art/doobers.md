@@ -17,7 +17,8 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
   `plot-shrub.svg` (the young bush) is for crops that grow on a bush: the Coffee Plant, the
   Blueberry Plot and the Rosemary Plot; `plot-sapling.svg` only for the Oak Tree Plot.
 - **`artScale` on a 1 x 1 resource row** draws its art that many tiles wide, centred, instead of
-  the doober or full-tile default: the Gem is 0.5 (owner: the gem on the board was far too big).
+  the doober or full-tile default: the Gem is 0.65 and the XP star (OneKXP) 0.62, so the two read
+  the same size (owner: the gem was far too big, the star a little big).
   Same field the NPC rows use for the Great Bear; `boardArt.js boardArtScale` reads it.
 - **A plot never pops into its crop.** Planting grows the plot in from nothing
   (`VFX.js createPlantGrowEffect`); when its `growEnd` passes, `FarmState.js` crossfades the plot

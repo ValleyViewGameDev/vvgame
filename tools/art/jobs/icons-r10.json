@@ -1,0 +1,25 @@
+{
+  "name": "icons-r10",
+  "note": "Owner 2026-11-07: the Town icon gets two more roof peaks, one each side of the clock tower, so it reads as a town; same style and scale as the approved Home glyph (icons-r9).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "town": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r9/approved/openai--system-places-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved HOME glyph (first cell: red roof, chimney, door) and its approved clock-tower glyph (third cell): match their rendering, outline weight, colours and above all their SIZE IN THE CELL exactly, so the new icons and the Home glyph are one set. SUBJECTS: four TOWN icons, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each a SQUARE glyph of a few big simple shapes with thick dark outlines, no small details, that still reads at 20 pixels, the whole glyph the same height and width as the Home glyph: 1 TOWN: the control's clock tower in the middle (cream timbered tower, gold-rimmed clock face, pointed grey slate roof with a gold finial) with a lower cream building and its own grey slate gable on EACH side, the three roof peaks in a row, the side gables about two thirds of the tower's height, one small window in each, the three joined into one block. 2 TOWN ALTERNATE: the same three-peak block with the two side gables red-tiled like the Home glyph's roof and the tower's roof grey. 3 TOWN ALTERNATE B: the same three-peak block, all three roofs grey slate, the side buildings a little taller (three quarters of the tower). 4 TOWN ALTERNATE C: the same as 1 with a small red flag on the tower's finial. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

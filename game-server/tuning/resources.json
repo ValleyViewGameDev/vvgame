@@ -838,7 +838,7 @@
     "symbol": "💎",
     "layoutkey": "dI",
     "category": "special",
-    "artScale": 0.5,
+    "artScale": 0.65,
     "action": "collect",
     "passable": true,
     "repeatable": false,

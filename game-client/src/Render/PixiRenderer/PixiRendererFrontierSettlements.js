@@ -122,7 +122,7 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       } else if (thumbCells?.has(`${row}-${col}`)) {
         // Visited town/valley: the settlement's thumbnail image shows through (frontierThumbnails.js)
       } else if (grid?.gridType === 'homestead' && grid.gridId) {
-        content = { src: '/assets/resources/farm-house.svg' }; // Owned homestead (a closed settlement's free cells are unavailable but empty)
+        content = { src: '/assets/icons/icon-home.svg' }; // Owned homestead: the Home glyph (docs/art/ui-icons.md), the cell is too small for the Farm House art
         cellBg = GRASS; // Green background behind house emoji
       } else if (grid?.gridType === 'town') {
         content = { src: '/assets/resources/town-hall.svg' }; // Town
