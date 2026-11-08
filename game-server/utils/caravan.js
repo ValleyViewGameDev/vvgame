@@ -256,7 +256,13 @@ const orderMoney = (offer) => (byType.get(offer.item)?.maxprice || 100) * offer.
 // ---------- the Caravan on a player document ----------
 
 /** The season a player's Caravan is made for: the developer override, else the frontier's. */
-const seasonFor = (player, frontier) => player.settings?.seasonOverride || frontier?.seasons?.seasonType || 'Spring';
+// The Profile panel saves 'None' for "no override" (as Kent's seasonFor knows): it is not a season.
+// Taken as one, globalTuning.trainRewards had no 'none' list and every Caravan got NO rewards.
+const seasonFor = (player, frontier) => {
+  const override = player.settings?.seasonOverride;
+  if (override && override !== 'None') return override;
+  return frontier?.seasons?.seasonType || 'Spring';
+};
 
 /**
  * The settlement's Caravan number: the "Current Train" log, else (between departing and the next
@@ -339,6 +345,16 @@ function catchUp(player, settlementNumber, season) {
     train.currentTrainRewards = fresh.rewards;
     train.nextTrainOffers = preview.offers;
     train.nextTrainRewards = preview.rewards;
+    changed = true;
+  }
+  // Heal a Caravan saved without rewards (a seasonOverride of 'None' made them all empty, fixed
+  // 2026-11-08): its rewards are made for its own orders, so the orders and any fills stand
+  if ((train.currentTrainOffers || []).length > 0 && (train.currentTrainRewards || []).length === 0) {
+    train.currentTrainRewards = generateRewards(plain(train.currentTrainOffers), player, season);
+    changed = true;
+  }
+  if ((train.nextTrainOffers || []).length > 0 && (train.nextTrainRewards || []).length === 0) {
+    train.nextTrainRewards = generateRewards(plain(train.nextTrainOffers), player, season);
     changed = true;
   }
   if (changed) player.markModified('train');
