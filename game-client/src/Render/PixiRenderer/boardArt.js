@@ -8,9 +8,15 @@
 // so a plant is never bigger than the pickup it becomes.
 export const DOOBER_TILE_SCALE = 0.9;
 
-/** The fraction of a tile the row's art is drawn at: DOOBER_TILE_SCALE for 1 x 1 pickups and plots, else 1. */
+/**
+ * The fraction of a tile a 1 x 1 row's art is drawn at, centred on its tile: the row's own
+ * `artScale` when it has one (the Gem's 0.5, half a tile: a gem is small), else DOOBER_TILE_SCALE
+ * for pickups and plots, else 1 (full tile). Rows with artSpan or a bigger footprint are 1.
+ */
 export const boardArtScale = (row) => {
   if (!row) return 1;
   const oneTile = (row.size || 1) === 1 && !(Number(row.artSpan) > 1);
-  return oneTile && (row.category === 'doober' || row.category === 'farmplot') ? DOOBER_TILE_SCALE : 1;
+  if (!oneTile) return 1;
+  if (Number(row.artScale) > 0) return Number(row.artScale);
+  return row.category === 'doober' || row.category === 'farmplot' ? DOOBER_TILE_SCALE : 1;
 };

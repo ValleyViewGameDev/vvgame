@@ -838,6 +838,7 @@
     "symbol": "💎",
     "layoutkey": "dI",
     "category": "special",
+    "artScale": 0.5,
     "action": "collect",
     "passable": true,
     "repeatable": false,
@@ -1198,7 +1199,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "mountain.svg",
-    "artSpan": 3.06
+    "artSpan": 3.24
   },
   {
     "type": "Mountain Large",
@@ -2144,7 +2145,7 @@
     "crafttime": 86400,
     "totalnestedtime": 172800,
     "parallel": 18,
-    "filename": "plot-sprouts.svg"
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Rosemary Plot",
@@ -2173,7 +2174,7 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "parallel": 18,
-    "filename": "plot-sprouts.svg"
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Feverfew Plot",

@@ -32,7 +32,7 @@ import {
   SETTLEMENTS_PER_FRONTIER,
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
-import { DOOBER_TILE_SCALE } from './boardArt';
+import { boardArtScale } from './boardArt';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 
@@ -967,12 +967,14 @@ const PixiRenderer = ({
         // Use SVG texture if available
         if (texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
-          if ((resource.category === 'doober' || resource.category === 'farmplot') && tileSpan === 1) {
+          const artScale = tileSpan === 1 ? boardArtScale(resource) : 1;
+          if (artScale !== 1) {
             // Painted doobers (docs/art/doobers.md): oversized pickups drawn at DOOBER_TILE_SCALE of
-            // a tile, centred on it, so a pickup reads bigger than a prop of the same footprint
+            // a tile, centred on it, so a pickup reads bigger than a prop of the same footprint; a
+            // row's own `artScale` (the Gem's 0.5) draws it that many tiles wide, centred, instead
             sprite.anchor.set(0.5, 0.5);
-            sprite.width = TILE_SIZE * DOOBER_TILE_SCALE;
-            sprite.height = TILE_SIZE * DOOBER_TILE_SCALE;
+            sprite.width = TILE_SIZE * artScale;
+            sprite.height = TILE_SIZE * artScale;
             sprite.x = x + size / 2;
             sprite.y = visualY + size / 2;
           } else {

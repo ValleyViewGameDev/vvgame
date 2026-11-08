@@ -1,0 +1,35 @@
+{
+  "name": "board-r4",
+  "note": "Owner 2026-11-07: mountains must NOT have trees built in (they do not match the game's trees and complicate the piece). Redraw the large mountain from the approved r2 one with a bare rock foot, then the regular mountain from it.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "mountain": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/board-r2/approved/openai--painterly-mountain-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. The SECOND attached panel is this game's approved LARGE MOUNTAIN on magenta: keep its shape, its grey-brown rock painted in chunky ledges and cracks, its patches of moss and its light from the upper left EXACTLY. CHANGE ONE THING: there are NO TREES. No pines, no bushes, no plants at the foot or anywhere on it; the rock simply ends at the bottom in a broad bare base of boulders and ledges meeting the magenta. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "mountain-small": {
+      "refs": [
+        "_candidates/board-r4/approved/openai--painterly-mountain-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's approved LARGE MOUNTAIN on magenta: grey-brown rock painted in chunky ledges and cracks with moss, NO trees, a bare rock foot, the light from the upper left. SUBJECT: the game's REGULAR MOUNTAIN, a SMALLER mountain of exactly the same rock, paint and camera, as if a piece of the large one stood alone: ONE rounded peak with one low ledge at its side, about three quarters of the large mountain's height, its rock the same size per ledge (do not shrink the texture, shrink the mountain), NO trees, no bushes, no plants anywhere, a bare base of boulders meeting the magenta; it fills the box and rises above it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}

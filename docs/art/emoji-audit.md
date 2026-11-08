@@ -113,7 +113,9 @@ rich-line token (pass 5) or reword.
   and stands back up at full size, docs/art/doobers.md); the eight signposts are the approved Home / Town post with the arrow
   printed on the board (`signpost-n.svg` ..); the Dungeon Exit is plain stairs
   (`dungeon-exit.svg`); the Dungeon Entrance (2 x 2, artSpan 2.36), the Mountain (`mountain.svg`,
-  a smaller peak of the same rock, artSpan 3.06), the Mountain Large (`mountain-large.svg`, 4.08)
+  a smaller peak of the same rock, artSpan 3.24), the Mountain Large (`mountain-large.svg`, 4.08;
+  both redrawn WITHOUT trees in `board-r4`, owner 2026-11-07: a mountain's trees never match the
+  game's trees and overcomplicate the piece)
   and the Enormous Mountain (the large art scaled to 20 tiles, artSpan 20.4, to be judged in
   game), the Volcano (10.57) and the Big Statue (11.65) are painterly panels cut with
   `cutout.js`. The zoomed-out settlement and frontier views use the Farm House, Town Hall,

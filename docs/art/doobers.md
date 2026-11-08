@@ -14,6 +14,11 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
   (one sprout, the young vine, shrub, sapling) is a plant alone in this style, drawn at the doober
   scale, so the growing state is never bigger than the pickup. `plot-sprouts.svg` is a SINGLE
   sprout (the owner's call: the left one of the Sprouts C pair, `doobers-r14`), no variants.
+  `plot-shrub.svg` (the young bush) is for crops that grow on a bush: the Coffee Plant, the
+  Blueberry Plot and the Rosemary Plot; `plot-sapling.svg` only for the Oak Tree Plot.
+- **`artScale` on a 1 x 1 resource row** draws its art that many tiles wide, centred, instead of
+  the doober or full-tile default: the Gem is 0.5 (owner: the gem on the board was far too big).
+  Same field the NPC rows use for the Great Bear; `boardArt.js boardArtScale` reads it.
 - **A plot never pops into its crop.** Planting grows the plot in from nothing
   (`VFX.js createPlantGrowEffect`); when its `growEnd` passes, `FarmState.js` crossfades the plot
   into the crop (`createRipenEffect`: the plant fades out while the crop fades in and swells from
