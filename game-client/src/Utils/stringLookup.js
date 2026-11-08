@@ -39,6 +39,8 @@ export const DISPLAY_ALIASES = {
   Stepstones: 'Step Stones',      // the step stones tile's tool label (its action, capitalised)
   Fairy: 'Peaseblossom',          // the healer fairy (Titania's attendant); Doctor, Surgeon, Field Nurse stay plain
   Armory: 'Hector Protector',
+  // too close to the XP star in yellow (owner 2026-11-08): reads, and is drawn, as a white heart
+  'Yellow Heart': 'White Heart',
   Buckler: 'Buckler Shield',      // reads as a shield like its Kite/Heater/Tower siblings (owner 2026-11-02)
   // the four farm workers, one of each per player, so each is a character
   'Farm Hand': 'Audrey',

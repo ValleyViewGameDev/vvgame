@@ -7523,7 +7523,7 @@
   },
   {
     "type": "Yellow Heart",
-    "symbol": "💛",
+    "symbol": "🤍",
     "layoutkey": "hrtA",
     "category": "special",
     "action": "collect",
@@ -7534,7 +7534,7 @@
     "gemcost": 27,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "filename": "item-yellow-heart.svg"
+    "filename": "item-white-heart.svg"
   },
   {
     "type": "Green Heart",

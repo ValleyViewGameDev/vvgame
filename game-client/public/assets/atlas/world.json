@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "2a7fd3368d221801216a578a4c9afad66717ddd0",
+  "sourceHash": "b5e27947ab58a212a813ad108a3af2d1ceb00cef",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -223,7 +223,7 @@
     "resources/item-tent.svg": 5,
     "resources/item-green-heart.svg": 5,
     "resources/item-gem.svg": 5,
-    "resources/item-yellow-heart.svg": 5,
+    "resources/item-white-heart.svg": 5,
     "resources/item-yoricks-skull.svg": 5,
     "resources/npc-helena.svg": 5,
     "resources/npc-falstaff.svg": 5,
