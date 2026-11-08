@@ -35,6 +35,7 @@ import { isResourceAnimating, getAnimationVersion, registerForceRender } from '.
 import { boardArtScale } from './boardArt';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
+import { hasHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
@@ -1083,6 +1084,8 @@ const PixiRenderer = ({
           displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
           displayObj.zIndex = actorZ(animation.currentPos.y); // by its feet: leaves a row's depth as it leaves the row (depthSort.js)
         }
+        // A headline glyph (❗, Zzz, 💬: VFX/NPCVFX.js) rides above the NPC as it walks
+        if (hasHeadlineEffect(npcId)) updateHeadlineEffectPosition(npcId, animation.currentPos);
       }
 
       // PERFORMANCE: Remove ticker when no active animations

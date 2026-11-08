@@ -171,6 +171,9 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   instead: Portia's Pardon (her quest The Quality of Mercy, L18, love) buys the Brass Bell
   (owner 2026-11-07: the Secret used to buy the Bell, but it is single-source and Leontes
   needs it too).
+- **Every story moment plays in THE story modal** (`UI/Modals/StoryModal.js`; the rule and its
+  shape: `docs/ui-conventions.md` §2, "Story moments"). A new scene, however many speakers, is a
+  sequence of StoryModals, never a modal of its own.
 - **Milestone dialogs are clues the player keeps.** A character's `dialogOnMet` /
   `dialogOnFriend` / `dialogOnLove` / `dialogOnMarried` / `dialogOnRival` (RelationshipMatrix,
   strings 16xxx) play once, as a StoryModal, when the relationship first reaches that status. The

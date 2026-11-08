@@ -20,8 +20,18 @@
 .story-modal-symbol {
   font-size: 64px; /* style-ok: icon */
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   line-height: 1;
+}
+
+/* The speaker's name under the art: a plain sub-heading (title 3), never the Berkshire display face */
+.story-modal-name {
+  font-family: var(--font-title-3-family);
+  font-size: var(--font-title-3-size);
+  font-weight: var(--font-title-3-weight);
+  color: var(--font-title-3-color);
+  text-align: center;
+  margin: 0 0 8px;
 }
 
 /* SVG image for NPCs with custom art */

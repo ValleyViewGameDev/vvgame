@@ -6,9 +6,14 @@ import '../Buttons/SharedButtons.css';
 import { useStrings } from '../StringsContext';
 import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMatrix.json';
 import CloseButton from '../Buttons/CloseButton';
+import { getMasterResources } from '../../Utils/TuningManager';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 /**
- * StoryModal Component
+ * StoryModal Component: THE story modal (docs/ui-conventions.md §2, "Story moments"). Every story
+ * moment (an NPC's milestone dialog, an FTUE speech, a quest's clue, a story scene with several
+ * speakers) uses this modal, so it can be iterated on in one place: the speaker's art, the
+ * speaker's name under it, then the words. No title.
  *
  * Displays dialog when a relationship milestone is reached with an NPC,
  * or for FTUE moments featuring the player character.
@@ -16,15 +21,18 @@ import CloseButton from '../Buttons/CloseButton';
  * Text appears word by word to simulate talking.
  *
  * @param {boolean} isOpen - Whether the modal is visible
- * @param {function} onClose - Callback when modal is closed
+ * @param {function} onClose - Callback when modal is closed: onClose() from OK, onClose('dismiss') from the corner X
  * @param {string} npcName - The name/type of the NPC (e.g., "Portia", "Hotspur") - used for NPC dialog lookup
  * @param {string} relationshipType - The relationship milestone (e.g., "met", "friend", "married", "FTUE")
  * @param {string} username - The player's username to replace {username} placeholders
  * @param {string} symbol - Direct symbol to display (overrides NPC lookup, useful for PC icon in FTUE)
  * @param {number|string} dialogKey - Direct string ID for dialog text (overrides NPC dialog lookup)
  * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-portia.svg") - used instead of emoji if provided
+ * @param {string} speakerName - Optional name under the icon; by default the localized npcName, else the
+ *   resource whose art npcFilename is, else (FTUE, the player's own icon) the player's username
+ * @param {string} okLabel - Optional label for the last page's button (a scene's "Next" between speakers)
  */
-function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, dialogKey: directDialogKey, npcFilename }) {
+function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, dialogKey: directDialogKey, npcFilename, speakerName, okLabel }) {
   const strings = useStrings();
   const [currentPage, setCurrentPage] = useState(0);
   const [pages, setPages] = useState([]);
@@ -53,6 +61,14 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   // 2. Otherwise use NPC symbol from RelationshipMatrix
   // 3. Fall back to '?' if neither available
   const displaySymbol = symbol || npcData?.symbol || '?';
+
+  // The name under the icon (every version of this modal)
+  const spriteDef = !npcName && npcFilename
+    ? (getMasterResources() || []).find((r) => r.filename === npcFilename || r.iconFile === npcFilename)
+    : null;
+  const nameType = npcName || spriteDef?.type;
+  const displayName = speakerName
+    || (nameType ? getLocalizedString(nameType, strings) : (relationshipType === 'FTUE' ? (username || 'Adventurer') : null));
 
   // Determine the dialog text:
   // 1. If directDialogKey is provided, use it directly (for FTUE)
@@ -204,7 +220,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     <div className="modal-overlay">
       <div className="modal-container modal-small story-modal">
         {/* Close Button */}
-        <CloseButton corner onClick={onClose} />
+        <CloseButton corner onClick={() => onClose('dismiss')} />
 
         {/* Character Symbol (NPC or PC) - use SVG if filename provided, otherwise emoji */}
         <div className="story-modal-symbol">
@@ -218,6 +234,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
             displaySymbol
           )}
         </div>
+        {displayName && <h3 className="story-modal-name">{displayName}</h3>}
 
         {/* Dialog Content */}
         <div className="modal-content story-modal-content">
@@ -235,7 +252,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
         <div className="modal-buttons shared-buttons">
           {isLastPage ? (
             <button className="btn-basic btn-modal btn-success" onClick={handleOk}>
-              {strings[796] || 'OK'}
+              {okLabel || strings[796] || 'OK'}
             </button>
           ) : (
             <button className="btn-basic btn-modal btn-success" onClick={handleNext}>

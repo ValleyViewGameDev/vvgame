@@ -51,6 +51,16 @@ value rather than trust this page.
   clipboard") is a quick notice (§4), not an alert. Developer-only tools (`Utils/debug.js`,
   `Utils/WorldGeneration.js`, `Dev/`) may still use the browser's.
 
+- **Story moments: always THE story modal** (`UI/Modals/StoryModal.js`, owner 2026-11-08). Every
+  story moment uses it, never a modal of its own: an NPC's milestone dialog (met, friend, ...),
+  an FTUE speech, a quest's clue, a found Quest for Hope artifact, and a scene with several
+  speakers (the twins' reunion, `Story/violaReunion.js`: one StoryModal per line, `key` per
+  line, `okLabel` "Next" until the last). Its shape: the corner X, the speaker's art, the
+  speaker's NAME under it (title 3, never the Berkshire display face; from `npcName`, else the
+  resource whose art `npcFilename` is, else the player's username for an FTUE speech in their own
+  icon, or `speakerName`), then the words, revealed word by word, paged at sentences or at a
+  blank line; no title. The corner X calls `onClose('dismiss')`, OK calls `onClose()`. The owner
+  iterates on this modal: change it there, and every story moment follows.
 - Every modal is `.modal-overlay > .modal-container` with a size class (`modal-small` 320 px,
   `modal-medium` 50vw/600 max, `modal-large` 80vw/800 max, `modal-xlarge` 90vw/1400 max; the
   bare container is 80vw/1000 max). Use `UI/Modals/Modal.js` (`size`, `className`, `title`)

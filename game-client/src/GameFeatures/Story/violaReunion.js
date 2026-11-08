@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import axios from 'axios';
 import API_BASE from '../../config';
-import '../../UI/Modals/Modal.css';
-import '../../UI/Buttons/SharedButtons.css';
+import StoryModal from '../../UI/Modals/StoryModal';
 import { useStrings } from '../../UI/StringsContext';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { startHeadlineEffect, stopHeadlineEffect } from '../../VFX/NPCVFX';
 import { createCollectEffect } from '../../VFX/VFX';
 import soundManager from '../../Sound/SoundManager';
-import { getLocalizedString } from '../../Utils/stringLookup';
 
 /**
  * The twins (Twelfth Night; docs/story.md; server: utils/storyState.js, POST
@@ -122,7 +119,12 @@ export async function startViolaReunion(ctx) {
   };
 }
 
-/** The two-voice scene: one line per page, the speaker's art and name above it. Mounted at the root (index.js). */
+/**
+ * The two-voice scene, on THE story modal (UI/Modals/StoryModal.js; docs/ui-conventions.md §2,
+ * "Story moments"): one line per modal, the speaker's art and name in its header, no title.
+ * Closing it (OK on the last line, or the corner X at any line) ends the scene. Mounted at the
+ * root (index.js).
+ */
 export const ReunionHost = () => {
   const strings = useStrings();
   const [scene, setScene] = useState(null);
@@ -143,30 +145,22 @@ export const ReunionHost = () => {
   const [speaker, key] = SCENE[page];
   const def = defs[speaker] || {};
   const last = page === SCENE.length - 1;
-  const next = () => {
-    if (!last) { setPage(page + 1); return; }
+  const end = () => {
     const done = scene.onDone;
     setScene(null);
     done?.();
   };
-  return createPortal(
-    <div className="modal-overlay">
-      <div className="modal-container modal-small">
-        <div className="modal-title">{strings[2169] || 'Thrice Welcome'}</div>
-        <div className="modal-content" style={{ textAlign: 'center' }}>
-          {def.filename
-            ? <img src={`/assets/resources/${def.filename}`} alt={speaker} style={{ width: 64, height: 64 }} />
-            : <div style={{ fontSize: 48 }}>{def.symbol || ''}</div>}
-          <div className="modal-message"><strong>{getLocalizedString(speaker, strings)}</strong></div>
-          <p className="modal-message">{(strings[key] || '').replace('{username}', scene.username || '')}</p>
-          <div className="modal-buttons shared-buttons">
-            <button className="btn-basic btn-success btn-modal" onClick={next}>
-              {last ? (strings[2171] || 'OK') : (strings[2170] || 'Next')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body
+  return (
+    <StoryModal
+      key={page}
+      isOpen
+      npcName={speaker}
+      symbol={def.symbol}
+      npcFilename={def.filename}
+      dialogKey={key}
+      username={scene.username}
+      okLabel={last ? undefined : (strings[2170] || 'Next')}
+      onClose={(e) => (last || e === 'dismiss' ? end() : setPage(page + 1))}
+    />
   );
 };
