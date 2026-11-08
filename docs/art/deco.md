@@ -217,3 +217,7 @@ hedge wall set is parked in BL-22. Every cut is seated at its square's bottom af
 - **Black Fog** redrawn as a CLOUD, black and dark grey with feathered edges, no cube; artSpan
   1.15 -> 1.4 so it bleeds past its tile and a row of them overlaps into one bank. Still
   impassable, still the story door. Not seated at the square's bottom (a cloud floats).
+
+The six door rows (Town Door, Dungeon Door, Mirror, Locked Door, Arena Door, Black Fog) are in
+the Buy Deco catalogue under Walls and Fences for DEVELOPERS only (`source: Deco`, `requires:
+devonly`, 2026-11-08), so a layout can be dressed in game; players never see them.
