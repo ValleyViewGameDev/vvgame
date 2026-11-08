@@ -226,5 +226,12 @@ devonly`, 2026-11-08), so a layout can be dressed in game; players never see the
 
 In the Lion's sandstone (its cut as the third ref): Sundial (`sundial`, artSpan 1.11, 1,500,
 statuary + garden), Stone Urn (`stone-urn`, 0.96, 800, statuary + garden), Obelisk (`obelisk`,
-1.93, 3,000, statuary); and the Maypole (`maypole`, 2.03, 1,200, garden), ribbons in red, yellow
+1.93, 3,000, statuary; made 2 x 3 at artSpan 4.5 and 8,000 Gold the same day: the owner wanted it much bigger, overflowing the top of its footprint); and the Maypole (`maypole`, 2.03, 1,200, garden), ribbons in red, yellow
 and blue (no pink or purple near the key). The Gargoyle came with the castle set.
+
+## The deco pass is done (2026-11-08)
+
+Pass A (the emoji rows), B1 castle, B2 farm, B3 greenery and B4 art pieces shipped; B5
+furniture was skipped by the owner (the Chair, Bed, Royal Bed, Oak Table, Stack of Books and
+Harp stand for furniture). No deco row draws an emoji. Parked: the wall sets (BL-22). Next art
+passes: BL-16 animals and pets (strategy in docs/art/zoo-animals-plan.md), then BL-17 avatars.

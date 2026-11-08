@@ -245,7 +245,7 @@ the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
 
 ### BL-18: Deco art pass: redraw the emoji deco and add more
 
-Added 2026-11-07.
+Added 2026-11-07. **DONE 2026-11-08** (docs/art/deco.md; B5 furniture skipped, walls parked in BL-22).
 
 **What.** Fifteen deco rows still draw as emoji (docs/art/emoji-audit.md §1): the Holiday
 Tree (in 5 layouts), Stack of Books (3), the five one-gem emoji walls (Green / Black / Sand /

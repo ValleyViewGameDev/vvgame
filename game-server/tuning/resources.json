@@ -15638,6 +15638,8 @@
       "symbol": "🗿",
       "layoutkey": "obk",
       "category": "deco",
+    "sizeY": 3,
+    "sizeX": 2,
       "decoGroup": "statuary",
       "source": "Deco",
       "passable": false,
@@ -15653,10 +15655,10 @@
       "validonx": true,
       "validony": true,
       "ingredient1": "Money",
-      "ingredient1qty": 3000,
-      "gemcost": 30,
+      "ingredient1qty": 8000,
+      "gemcost": 80,
       "filename": "obelisk.svg",
-      "artSpan": 1.93
+      "artSpan": 4.5
   },
   {
       "type": "Maypole",

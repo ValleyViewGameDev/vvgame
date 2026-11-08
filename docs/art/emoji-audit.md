@@ -103,6 +103,7 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Deco pass DONE 2026-11-08** (BL-18): passes A and B1-B4 shipped, ~30 new props; docs/art/deco.md.
 - **Deco pass A 2026-11-08** (BL-18, docs/art/deco-pass-plan.md): Stack of Books, Chair, Bed, Harp,
   Black Fog and Black Wall drawn, Plant and Red Plant redrawn; nine rows cut. No deco row draws an
   emoji any more; the catalogue has tabs.

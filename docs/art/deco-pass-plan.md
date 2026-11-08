@@ -1,3 +1,5 @@
+# The deco pass (BL-18): DONE 2026-11-08. The record of what shipped is docs/art/deco.md (passes A, B1-B4; B5 furniture skipped; walls parked in BL-22).
+
 # The deco pass (BL-18): plan for the owner's greenlight (2026-11-08)
 
 Three jobs in one pass: (A) every deco row that still draws an emoji is drawn or cut,
