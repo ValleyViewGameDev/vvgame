@@ -1300,6 +1300,7 @@ router.post('/action/place', async (req, res) => {
     const def = econ.resourceDef(type);
     if (!def || !PLACE_SOURCES.has(def.source)) return answer(400, 'not-for-sale');
     const dev = isDeveloper(player.username);
+    if (def.requires === 'devonly' && !dev) return answer(403, 'devonly'); // the catalogue hides these from players too
     const gtype = String(grid.gridType || '');
     if (def.source === 'BuildValley' && !gtype.startsWith('valley')) return answer(403, 'not-here');
     if (def.source === 'BuildTown') {
