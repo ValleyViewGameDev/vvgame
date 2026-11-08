@@ -133,8 +133,11 @@
 .tab-navigation.buy-deco-tabs {
   margin: 0 0 4px;
   gap: 2px;
+  flex-wrap: wrap; /* as many rows as the panel's fixed width needs */
 }
 .tab-navigation.buy-deco-tabs .tab-button {
+  flex: 1 1 auto; /* each tab its own width, a row's tabs stretching to fill it */
+  white-space: nowrap;
   padding: 2px 4px;
 }
 
