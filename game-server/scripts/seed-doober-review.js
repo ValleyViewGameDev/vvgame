@@ -11,6 +11,8 @@
  *
  *   node scripts/seed-doober-review.js --player Oberon            -> dry run, prints the ledger
  *   node scripts/seed-doober-review.js --player Oberon --apply    -> writes
+ *   --extra Gem,Hope                                              -> rows outside the doober category to add too
+ *   --at 51,48                                                    -> no rectangle search: walk right then down from this tile, first free tiles
  */
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
@@ -23,6 +25,8 @@ const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
 const apply = args.includes('--apply');
 const username = opt('player', 'Oberon');
+const at = args.includes('--at') ? String(opt('at')).split(',').map(Number) : null;
+const extra = String(opt('extra', '')).split(',').map((t) => t.trim()).filter(Boolean);
 
 (async () => {
   await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 15000 });
@@ -37,6 +41,11 @@ const username = opt('player', 'Oberon');
   const tiles = gridTileManager.getTiles(grid);
   const master = gridResourceManager.masterResources;
   const doobers = master.filter((r) => r.category === 'doober');
+  for (const t of extra) {
+    const row = master.find((r) => r.type === t);
+    if (!row) throw new Error(`--extra: no resource row "${t}"`);
+    if (!doobers.includes(row)) doobers.push(row);
+  }
 
   const present = new Map(); // type -> count on the grid
   for (const r of resources) if (doobers.some((d) => d.type === r.type)) present.set(r.type, (present.get(r.type) || 0) + 1);
@@ -57,7 +66,7 @@ const username = opt('player', 'Oberon');
   const need = missing.length;
   const shapes = [16, 14, 12, 10, 8, 6].map((w) => [w, Math.ceil(need / w)]);
   let block = null;
-  outer: for (const [w, h] of shapes) {
+  outer: for (const [w, h] of (at ? [] : shapes)) {
     for (let y = 0; y + h <= 64; y++) for (let x = 0; x + w <= 64; x++) {
       let ok = true;
       for (let dy = 0; dy < h && ok; dy++) for (let dx = 0; dx < w; dx++) if (!free(x + dx, y + dy)) { ok = false; break; }
@@ -65,7 +74,14 @@ const username = opt('player', 'Oberon');
     }
   }
   const placed = [];
-  if (!block) {
+  if (at) {
+    // the caller's spot: the first free tiles right then down from it (the spare cells of an
+    // earlier review block, say)
+    const walk = [];
+    for (let y = at[1]; y < 64 && walk.length < need; y++) for (let x = (y === at[1] ? at[0] : 0); x < 64 && walk.length < need; x++) if (free(x, y)) walk.push({ x, y });
+    if (walk.length < need) console.log(`only ${walk.length} free tiles from (${at[0]}, ${at[1]})`);
+    missing.slice(0, walk.length).forEach((d, i) => placed.push({ type: d.type, x: walk[i].x, y: walk[i].y }));
+  } else if (!block) {
     console.log(`NO empty rectangle holds ${need} pickups (tried widths ${shapes.map((s) => s[0]).join(', ')}); clear some ground first.`);
   } else {
     console.log(`block ${block.w} x ${block.h} at (${block.x}, ${block.y})`);
