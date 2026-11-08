@@ -132,7 +132,7 @@
    above and below (the shared tabs pad 8px 12px and leave 12px under the row) */
 .tab-navigation.buy-deco-tabs {
   margin: 0 0 4px;
-  gap: 2px;
+  gap: 4px 2px; /* 4px between wrapped rows, 2px between tabs */
   flex-wrap: wrap; /* as many rows as the panel's fixed width needs */
 }
 .tab-navigation.buy-deco-tabs .tab-button {
