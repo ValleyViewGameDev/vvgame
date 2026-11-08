@@ -1,0 +1,25 @@
+{
+  "name": "deco-castle-5",
+  "note": "The Round Tower again (owner 2026-11-08): keep the one-tile width, the stone body two full tiles tall, the roof above that into a third tile.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "round-tower": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1x2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a ROUND CASTLE TOWER, ONE tile wide and TALL: a drum tower of grey castle stone (the same weathered grey-brown blocks as the game's mountains, moss in a few joints) whose stone body fills the box from its bottom edge all the way to its top edge, with one arrow-slit window; above the box's top edge sits a conical blue-grey slate roof as tall as half the stone body, with a small red pennant at its peak. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in it that is ONE tile wide and TWO tiles tall; the tower's STONE BODY fills exactly that box, side to side and bottom to top, and the ROOF rises above the box's top edge into the row above, never wider than the box; seen in the game's camera, square-on, with a soft contact shadow under it only; everything outside the tower is flat magenta, no ground, no grass."
+    }
+  }
+}

@@ -154,15 +154,15 @@ artSpan 2, so the fronds overhang a one-tile trunk) and the Marble Statue (1 x 2
 
 | Prop | Footprint | Art | artSpan | Price | Note |
 |---|---|---|---|---|---|
-| Round Tower | 1 x 2 | `round-tower` | 2.43 | 15,000 | drawn on the 2 x 2 guide, then recut on a one-tile base at the owner's ask (2 x 2 was too big a scale) |
+| Round Tower | 1 x 2 | `round-tower` | 3.08 | 15,000 | first drawn on the 2 x 2 guide (too big a scale), then redrawn on the 1 x 2 guide (`deco-castle-5`): the stone body fills the two tiles and the slate roof rises into a third, one tile wide |
 | Gatehouse | 3 x 2 | `gatehouse` | 3.13 | 25,000 | twin towers over a portcullis arch, candidate 1 |
 | Heraldic Banner | 1 x 1 | `heraldic-banner` | 1.54 | 300 | |
 | Brazier | 1 x 1 | `brazier` | 1.13 | 200 | |
 | Knight Statue | 1 x 1 | `knight-statue` | 2.01 | 5,000 | |
 | Throne | 1 x 1 | `throne` | 1.58 | 2,000 | |
-| Gargoyle | 1 x 1 | `gargoyle` | 1.09 | 2,500 | added at the owner's ask |
+| Gargoyle | 1 x 1 | `gargoyle` | 1.27 | 2,500 | added at the owner's ask; candidate 2 |
 | Royal Bed | 1 x 2 | `royal-bed` | 2.12 | 12,000 | furniture group; a purple canopy that may overhang the frame. Took three tries: a "purple" canopy comes out pink-leaning (hue ~0.88), next to the magenta key, and the keyer un-mixes it to TEAL; ask for a BLUISH indigo violet (`deco-castle-4`) |
-| Oak Table | 2 x 1 | `oak-table` | 2.08 | 1,500 | furniture group, the plain oak of the chair; the first 2 x 1 row |
+| Oak Table | 2 x 1 | `oak-table` | 1.45 | 1,500 | furniture group, the plain oak of the chair; the first 2 x 1 row. Cut at 2.08 (filling its two tiles) it was too big next to the chair (owner): a table wants the chair's height, so the span came down to 1.45 with buffer in the footprint |
 
 The Cannon was drawn and CUT from the list (owner: no guns in the game). The castle wall set is
 next, through the walls pipeline (docs/walls.md).
