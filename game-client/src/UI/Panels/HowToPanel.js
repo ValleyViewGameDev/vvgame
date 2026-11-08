@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { richText } from '../Icons/RichText';
 import Panel from './Panel'; // Importing the shared Panel component
 import { useStrings } from '../StringsContext';
 import { EmailUsButton, DiscordButton } from './FeedbackLinks';
@@ -11,19 +12,19 @@ const HowToPanel = memo(({ onClose }) => {
         <EmailUsButton />
         <DiscordButton />
         <h2>{strings[9001]}</h2>
-        <p>{strings[9002]}</p>
-        <p>{strings[9003]}</p>
+        <p>{richText(strings[9002])}</p>
+        <p>{richText(strings[9003])}</p>
         <h3>{strings[9004]}</h3>
-        <p>{strings[9005]}</p>
-        <p>{strings[9006]}</p>
-        <p>{strings[9007]}</p>
+        <p>{richText(strings[9005])}</p>
+        <p>{richText(strings[9006])}</p>
+        <p>{richText(strings[9007])}</p>
         <h3>{strings[9008]}</h3>
-        <p>{strings[9009]}</p>
-        <p>{strings[9010]}</p>
-        <p>{strings[9011]}</p>
+        <p>{richText(strings[9009])}</p>
+        <p>{richText(strings[9010])}</p>
+        <p>{richText(strings[9011])}</p>
         <h3>{strings[9012]}</h3>
-        <p>{strings[9013]}</p>
-        <p>{strings[9014]}</p>
+        <p>{richText(strings[9013])}</p>
+        <p>{richText(strings[9014])}</p>
       </div>
     </Panel>
   );

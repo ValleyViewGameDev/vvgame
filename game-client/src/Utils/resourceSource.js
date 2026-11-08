@@ -4,7 +4,8 @@ import { getLocalizedString } from './stringLookup';
  * "Where does this come from?" for a resource, from resources.json alone.
  *
  * Returns { line, ingredients, regionLine } where `line` is a localized sentence such as "Grown on
- * 🌾 Wheat Plot", `ingredients` (crafted goods only) is "🌾 6 Wheat, ..." or null, and `regionLine`
+ * {res:Wheat Plot} Wheat Plot" (a rich-text token, UI/Icons/RichText.js richText renders the art),
+ * `ingredients` (crafted goods only) is "{res:Wheat} 6 Wheat, ..." or null, and `regionLine`
  * is "Only grows in Belmont" when the source is region-locked (resources.json growregion) or null.
  * Strings 17001 to 17013 hold the sentence patterns ({source} is replaced). Used by
  * UI/Modals/ResourceModalSmall.js; reuse it anywhere a hint about a resource's origin helps.
@@ -15,7 +16,7 @@ export function describeResourceSource(resourceType, masterResources, strings) {
   const resource = byType(resourceType);
   if (!resource) return { line: strings?.[17010] || '', ingredients: null, regionLine: null };
 
-  const label = (t) => { const r = byType(t); return `${r?.symbol || ''} ${getLocalizedString(t, strings)}`.trim(); };
+  const label = (t) => `{res:${t}} ${getLocalizedString(t, strings)}`;
   const fill = (key, t) => String(strings?.[key] || '').replace('{source}', label(t));
 
   const src = resource.source;
@@ -51,7 +52,7 @@ export function describeResourceSource(resourceType, masterResources, strings) {
 
   const parts = [1, 2, 3, 4]
     .filter((n) => resource[`ingredient${n}`])
-    .map((n) => `${byType(resource[`ingredient${n}`])?.symbol || ''} ${resource[`ingredient${n}qty`] || 1} ${getLocalizedString(resource[`ingredient${n}`], strings)}`.trim());
+    .map((n) => `{res:${resource[`ingredient${n}`]}} ${resource[`ingredient${n}qty`] || 1} ${getLocalizedString(resource[`ingredient${n}`], strings)}`);
   if (parts.length) ingredients = parts.join(', ');
 
   const growregion = srcRes?.growregion || resource.growregion;

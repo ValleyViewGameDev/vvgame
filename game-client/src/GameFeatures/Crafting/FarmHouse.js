@@ -266,7 +266,7 @@ const FarmHouse = ({
     if (!answer.ok) { if (!reportRefusal(answer.reason, roomFeedback)) refusalStatus(answer.reason); return; }
     const { collected, isNPC, home, trophies } = answer.data;
     {
-      const text = `+${collected.qty} ${allResources.find((r) => r.type === collected.type)?.symbol || ''} ${getLocalizedString(collected.type, strings)}`;
+      const text = `+${collected.qty} {res:${collected.type}} ${getLocalizedString(collected.type, strings)}`;
       const flyTo = isNPC ? null : collected.type === 'Money' ? 'money' : 'inventory';
       if (cardRect) FloatingTextManager.addFloatingTextAt(text, cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, { flyTo });
       else FloatingTextManager.addFloatingText(text, currentStationPosition.x, currentStationPosition.y, TILE_SIZE, { flyTo });
@@ -326,7 +326,7 @@ const FarmHouse = ({
     setIsCrafting(false);
     setIsReadyToCollect(true);
     updateStatus(`Used ${gems} gems to complete crafting instantly`);
-    FloatingTextManager.addFloatingText(`-${gems} 💎`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+    FloatingTextManager.addFloatingText(`-${gems} {res:Gem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
   };
 
   // Gem purchase: ONE request (/action/gem-craft): the worker is bought outright (held
@@ -342,7 +342,7 @@ const FarmHouse = ({
     const { collected, isNPC, home, trophies } = answer.data;
     if (isNPC) showNewWorker(collected.type, home);
     showTrophies(trophies);
-    updateStatus(`💎 ${getLocalizedString(collected.type, strings)}`);
+    updateStatus(`{res:${collected.type}} ${getLocalizedString(collected.type, strings)}`);
   };
 
   // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move

@@ -124,7 +124,7 @@ until they are redrawn; Money is now redrawn).
 ## What is left
 
 - Plain-string contexts still carry the emoji `symbol`: status toasts and float-ups, chat and
-  conversation lines, `title` attributes, mail bodies, the "Grown on 🌾 Wheat Plot" sentences in
+  conversation lines and `title` attributes (mail bodies and the "Grown on {res:Wheat Plot}" sentences now render tokens, UI/Icons/RichText.js) in
   `Utils/resourceSource.js`. They need a rich toast / rich line before they can carry an <img>.
 - Non-doober rows without art (a few NPC symbols, 🐦‍🔥 and 🪉 that Twemoji lacks) still fall back
   to the glyph on the board and in panels.

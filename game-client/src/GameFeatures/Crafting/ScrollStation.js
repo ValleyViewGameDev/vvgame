@@ -368,7 +368,7 @@ const ScrollStation = ({
           }
         }
       } else {
-        floatFromCard(`+${collectedQty} ${revealedResource?.symbol || ''} ${getLocalizedString(collectedItem, strings)}`, flyTargetFor(collectedItem, revealedResource));
+        floatFromCard(`+${collectedQty} {res:${collectedItem}} ${getLocalizedString(collectedItem, strings)}`, flyTargetFor(collectedItem, revealedResource));
       }
 
       for (const t of trophies || []) {

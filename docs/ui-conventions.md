@@ -350,6 +350,9 @@ value rather than trust this page.
   opens it under the badge and the next tap anywhere closes it; the tap never reaches the
   control underneath. Render it outside a `<button>` (a disabled button swallows taps). The
   board's long-press tooltip is a touch gesture, not a hovertip, and stays.
+- ONE XP mark everywhere (owner 2026-11-07): the header's level star, `UI/Icons/XpStar.js`
+  (`<XpStar />` in JSX, `XP_STAR_HTML` in HTML strings, the `{xpStar}` token in floating text).
+  Never the 🔷 emoji, and never an emoji in a string for it: the code draws the star.
 - ONE help mark everywhere (owner 2026-11-06): the How to Play "?" disc, `UI/Buttons/HelpBadge.js`.
   Never a plain-text "?", never ℹ️. Sizes: `sm` 16 px (the flat redraw `icon-help-small.svg`, since the
   painted `icon-help.svg` muddies below ~22 px) for resource-button / trophy details (InfoButton)
@@ -358,7 +361,20 @@ value rather than trust this page.
   Play button use the painted disc. The badge is a picture: the tap belongs to what it sits in.
 - A resource button's gem chip sits at the LOWER right, the details badge at the top right: the
   two stay apart so a tap meant for one never hits the other (owner 2026-11-06).
+- A reward card the player may refuse gets a 🗑️ discard chip in that same lower-right corner
+  (ResourceButton `onDiscard`, styled like the Mailbox delete button; a card never has both
+  chips). The tap confirms once (danger), then clears the card optimistically. First use: the
+  Ancient Temple's revealed find (owner 2026-11-07).
 - A resource's picture in the DOM is `UI/Icons/ResourceIcon.js` (2026-11-07): `<ResourceIcon
+
+**Rich text in strings.** A string that names a thing carries its picture as a token, never an
+emoji: `{res:Wheat}` (a resources.json row, drawn through ResourceIcon), `{icon:icon-farming.svg}`
+(a UI icon), `{art:item-health-heart.svg}` (a picture in public/assets/resources), `{xpStar}`.
+`richText(text)` from `UI/Icons/RichText.js` renders them in JSX (the status bar, floating text,
+Notifications, Modal and GameDialog, Mailbox and the How to Play pages already do), and
+`richTextHtml(text)` for an innerHTML list. A plain string with no token passes through untouched,
+so wrap any new text surface in it. For a `title` attribute use `plainText(text)`.
+
   type="Wheat" />` renders the row's painted art (`iconFile` / `filename`; every doober has one,
   docs/art/doobers.md) and the emoji `symbol` only for a row without art. Never print
   `row.symbol` in JSX next to a name or count; `resourceIconHtml(type)` is the same for a

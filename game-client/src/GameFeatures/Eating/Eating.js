@@ -139,7 +139,7 @@ const EatingModal = ({
       // Reset all eat amounts to clear the modal
       setEatAmounts({});
 
-      updateStatus(`🍽️ Ate ${eatenQty} ${item.type}(s) ${strings[1404]} +${hpToAdd} ❤️‍🩹 ${strings[10157]}`);
+      updateStatus(`Ate ${eatenQty} ${item.type}(s) ${strings[1404]} +${hpToAdd} {art:item-health-heart.svg} ${strings[10157]}`);
       
     } catch (error) {
       console.error("Error eating item:", error);

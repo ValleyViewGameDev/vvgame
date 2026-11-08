@@ -215,7 +215,7 @@ const PetPanel = ({
     const { collected, xpGained, slots } = answer.data;
     const rewardResource = masterResources.find(res => res.type === collected.type);
     const rewardFlyTo = collected.type === 'Money' ? 'money' : collected.type === 'Gem' ? 'gems' : 'inventory';
-    floatFromCard(`+${collected.qty} ${rewardResource?.symbol || '🎁'} ${getLocalizedString(collected.type, strings)}`, rewardFlyTo, -8);
+    floatFromCard(`+${collected.qty} {res:${collected.type}} ${getLocalizedString(collected.type, strings)}`, rewardFlyTo, -8);
     setTimeout(() => floatFromCard(`+${xpGained} 🔷 XP`, 'xp', 14), 260);
 
     const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>

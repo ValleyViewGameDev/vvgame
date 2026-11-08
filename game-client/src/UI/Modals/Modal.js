@@ -1,5 +1,6 @@
 // src/UI/Modals/Modal.js
 import React from 'react';
+import { richText } from '../Icons/RichText';
 import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
@@ -22,8 +23,8 @@ function Modal({ isOpen = true, onClose, title, children, custom, message, messa
         {title && <h2 className="modal-title">{title}</h2>}
 
         <div className="modal-content">
-          {message && <p className="modal-message">{message}</p>}
-          {message2 && <p className="modal-message">{message2}</p>}
+          {message && <p className="modal-message">{richText(message)}</p>}
+          {message2 && <p className="modal-message">{richText(message2)}</p>}
           {children}
           {custom}
         </div>

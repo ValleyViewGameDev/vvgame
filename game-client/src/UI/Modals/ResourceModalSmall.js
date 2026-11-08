@@ -1,4 +1,5 @@
 import React from 'react';
+import { richText } from '../Icons/RichText';
 import Modal from './Modal';
 import { useStrings } from '../StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -40,9 +41,9 @@ function ResourceColumn({ type, masterResources, strings, need, compact, showNam
           {Number(need.need).toLocaleString()} / {Number(need.have).toLocaleString()}
         </div>
       )}
-      {line && <p className="rms-source">{line}</p>}
+      {line && <p className="rms-source">{richText(line)}</p>}
       {lineOverride == null && described.regionLine && <p className="rms-source">{described.regionLine}</p>}
-      {ingredients && <p className="rms-ingredients"><span className="rms-label">{strings[17008]}</span> {ingredients}</p>}
+      {ingredients && <p className="rms-ingredients"><span className="rms-label">{strings[17008]}</span> {richText(ingredients)}</p>}
     </div>
   );
 }

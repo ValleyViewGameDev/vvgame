@@ -569,7 +569,7 @@ const CraftingStation = ({
       else updateStatus('❌ Failed to add crafted item to inventory');
       return;
     }
-    updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} crafted instantly!`);
+    updateStatus(`${getLocalizedString(modifiedRecipe.type, strings)} crafted instantly!`);
     FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
   };
 

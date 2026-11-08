@@ -4,6 +4,7 @@ import './FloatingText.css';
 import { useStrings } from '../UI/StringsContext';
 import PixiCamera from '../Render/PixiRenderer/PixiCamera';
 import { registerFlight, flyToTarget } from './FlyToTarget';
+import { richText } from './Icons/RichText'; // {xpStar} and the resource tokens (emoji audit pass 5)
 
 // Global array to store floating texts - shared across all instances. World texts (addFloatingText)
 // follow the map; screen texts (addFloatingTextAt) sit on the UI, e.g. a Kent card.
@@ -148,7 +149,7 @@ const FloatingTextManager = () => {
                             }}
                             onAnimationEnd={(e) => { if (e.target === e.currentTarget) finish('world', id, flyTo, e.currentTarget); }}
                         >
-                            {text}
+                            {richText(text)}
                         </div>
                     ))}
                 </div>,
@@ -163,7 +164,7 @@ const FloatingTextManager = () => {
                             style={{ left: x, top: y, color: color || undefined, fontSize: size || undefined }}
                             onAnimationEnd={(e) => { if (e.target === e.currentTarget) finish('screen', id, flyTo, e.currentTarget); }}
                         >
-                            {text}
+                            {richText(text)}
                         </div>
                     ))}
                 </div>,

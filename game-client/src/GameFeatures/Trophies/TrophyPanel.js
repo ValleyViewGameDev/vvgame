@@ -71,7 +71,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
             const card = document.querySelector(`[data-trophy-card="${CSS.escape(trophyName)}"]`);
             if (card) {
                 const r = card.getBoundingClientRect();
-                FloatingTextManager.addFloatingTextAt(`+${gemReward} 💎`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'gems' });
+                FloatingTextManager.addFloatingTextAt(`+${gemReward} {res:Gem}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'gems' });
             }
             const optimistic = addGems(inventory, gemReward);
             setInventory(optimistic);
@@ -90,7 +90,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                     setInventory(serverInventory);
                     setCurrentPlayer(prev => ({ ...prev, inventory: serverInventory }));
                 }
-                updateStatus(`💎 Earned ${serverReward} Gem${serverReward > 1 ? 's' : ''} from your trophy`);
+                updateStatus(`Earned ${serverReward} {res:Gem} from your trophy`);
             } else {
                 throw new Error(response.data.message || 'Failed to collect reward');
             }

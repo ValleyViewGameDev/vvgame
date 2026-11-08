@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { richText } from '../Icons/RichText';
 import { useStrings } from '../StringsContext';
 import './StatusBar.css';
 
@@ -165,7 +166,7 @@ const StatusBar = () => {
         {messages.length > 0 && messages[0].id !== prevFirstId.current && (
           <div style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }}>
             <span ref={newMessageRef} className="status-message">
-              {messages[0].text}
+              {richText(messages[0].text)}
             </span>
             <span className="status-separator">&nbsp;&nbsp;⬥&nbsp;&nbsp;</span>
           </div>
@@ -184,7 +185,7 @@ const StatusBar = () => {
           {displayMessages.map((msg, index) => (
             <React.Fragment key={msg.id}>
               <span className="status-message">
-                {msg.text}
+                {richText(msg.text)}
               </span>
               {index < displayMessages.length - 1 && (
                 <span className="status-separator">&nbsp;&nbsp;⬥&nbsp;&nbsp;</span>

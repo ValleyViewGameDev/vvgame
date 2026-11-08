@@ -341,7 +341,7 @@ useEffect(() => {
 
         /// If Gold Pass was purchased, show modal and panel
         if (String(offerId) === "1") {
-          updateStatus && updateStatus("🎉 Congratulations on purchasing a Gold Pass!");
+          updateStatus && updateStatus("Congratulations on purchasing a Gold Pass!");
           // Re-fetch player to get updated accountStatus
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {            
           openPanel('GoldBenefitsPanel');
@@ -1652,7 +1652,7 @@ const handleRevive = async () => {
   setRevivalPending(false);
   revivalPendingRef.current = false;
   localStorage.removeItem('revivalState');
-  updateStatus(`Revived with ${restoredHp} HP! 💎 -${reviveCost} Gems`);
+  updateStatus(`Revived with ${restoredHp} HP! {res:Gem} -${reviveCost} Gems`);
   deathResolvingRef.current = false; // hp is above 0 now, so the death check has nothing to see
 
   try {
@@ -2053,7 +2053,7 @@ useEffect(() => {
       if (playerPC?.hp <= (currentPlayer.baseMaxhp/2) && currentPlayer.location.gtype === 'homestead') {
           const healing = 2;
           playersInGridManager.updatePC(gridId, playerId, { hp: playerPC.hp + healing });
-          FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
+          FloatingTextManager.addFloatingText(`+ ${healing} {art:item-health-heart.svg} HP`, col, row, activeTileSize);
         }
     }
   }, 10000);
@@ -2509,7 +2509,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       return colIndex >= res.x && colIndex < res.x + span && rowIndex <= res.y && rowIndex > res.y - span;
     });
     if (here?.category !== 'travel') {
-      if (here || cursorMode) updateStatus(strings[10023] || '👁️ Just looking: nothing here can be changed.');
+      if (here || cursorMode) updateStatus(strings[10023] || 'Just looking: nothing here can be changed.');
       return;
     }
   }

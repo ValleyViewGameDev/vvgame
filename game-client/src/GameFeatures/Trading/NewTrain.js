@@ -62,7 +62,7 @@ function NewTrainPanel({
   // train scheduler's departure mails anything a failed send left behind, so no login is needed.
   // This panel shows what the server holds and reacts on the tap.
   const rewardSummaryText = (rewards) =>
-    rewards.map(reward => `${getSymbol(reward.item)} ${reward.quantity} ${reward.item}`).join(', ');
+    rewards.map(reward => `{res:${reward.item}} ${reward.quantity} ${getLocalizedString(reward.item, strings)}`).join(', ');
 
   // The server's answer is the truth: train, holdings and mail land together
   const applyServerState = (data) => {
@@ -94,7 +94,7 @@ function NewTrainPanel({
       const { data } = await axios.post(`${API_BASE}/api/caravan/sync`, { playerId: currentPlayer.playerId });
       if (data?.success) {
         applyServerState(data);
-        if (data.delivered?.length > 0) updateStatus(`📦 Caravan rewards delivered to your mailbox: ${rewardSummaryText(data.delivered)}`);
+        if (data.delivered?.length > 0) updateStatus(`Caravan rewards delivered to your mailbox: ${rewardSummaryText(data.delivered)}`);
       }
     } catch (error) {
       console.error("❌ Error syncing the Caravan:", error);
@@ -182,7 +182,7 @@ function NewTrainPanel({
     const card = document.querySelector(`[data-train-slot="${offerIndex}"]`);
     if (card) {
       const r = card.getBoundingClientRect();
-      FloatingTextManager.addFloatingTextAt(`+${earned.toLocaleString()} ${getSymbol('Money')}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
+      FloatingTextManager.addFloatingTextAt(`+${earned.toLocaleString()} {res:Money}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
     }
 
     try {
@@ -191,7 +191,7 @@ function NewTrainPanel({
       if (!data?.success) throw new Error(data?.error || 'fill failed');
       applyServerState(data);
       const tierText = data.delivered?.length > 0 ? ` 🚂 Rewards sent to your mailbox: ${rewardSummaryText(data.delivered)}` : '';
-      updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for ${getSymbol('Money')} ${data.money.toLocaleString()}.${tierText}`);
+      updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for {res:Money} ${data.money.toLocaleString()}.${tierText}`);
     } catch (error) {
       const code = error?.response?.data?.error;
       console.error("❌ Error fulfilling Caravan order:", code || error);

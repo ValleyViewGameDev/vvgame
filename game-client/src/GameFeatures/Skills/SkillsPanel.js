@@ -198,7 +198,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
   // "+Grower Skill" rises from the card and flies into the Skills button on the nav bar
   floatFromCard((strings[10201] || '+{skill} Skill').replace('{skill}', getLocalizedString(resource.type, strings)), 'skills');
-  updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
+  updateStatus(`${getLocalizedString(resource.type, strings)} skill acquired.`);
   soundManager.playSFX('skill_earned');
   const answer = await postAction('/api/action/buy-skill', { playerId: currentPlayer.playerId, skillType: resource.type, useGems });
   applyPlayerDelta(answer.data, deltaSetters);

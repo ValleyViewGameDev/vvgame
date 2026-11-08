@@ -62,7 +62,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
       }).then(() => {
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");
-        updateStatus("🎉 Purchase successful! Check your Inbox.");
+        updateStatus("Purchase successful! Check your Inbox.");
         updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
 
         axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {

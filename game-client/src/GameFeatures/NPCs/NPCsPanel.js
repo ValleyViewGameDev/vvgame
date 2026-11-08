@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { richText } from '../../UI/Icons/RichText';
 import React, { useState, useEffect, useRef } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import '../../UI/Buttons/SharedButtons.css';
@@ -521,7 +522,7 @@ const NPCPanel = ({
     // (data-fly-target="quests"), and the card leaves the list (the cards below glide up)
     const acceptCardRect = document.querySelector(`[data-quest-card="${CSS.escape(questTitle)}"]`)?.getBoundingClientRect();
     if (acceptCardRect) {
-      FloatingTextManager.addFloatingTextAt('📜', acceptCardRect.left + acceptCardRect.width / 2, acceptCardRect.top + acceptCardRect.height / 2, { flyTo: 'quests' });
+      FloatingTextManager.addFloatingTextAt('{res:Scroll}', acceptCardRect.left + acceptCardRect.width / 2, acceptCardRect.top + acceptCardRect.height / 2, { flyTo: 'quests' });
     }
     const revertAccept = sendQuestCardAway(acceptedQuest, 'leave', false);
     // A story quest (Constable Elbow's chain, docs/narrative-pass.md P3.4) says why it matters,
@@ -941,7 +942,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       setStoryModalOpen(true);
     }
     if (answer.data.skill) {
-      updateStatus(`💪 ${getLocalizedString(recipe.type, strings)} skill acquired.`);
+      updateStatus(`${getLocalizedString(recipe.type, strings)} skill acquired.`);
       return;
     }
     try {
@@ -1539,7 +1540,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               textAlign: 'center',
               whiteSpace: 'pre-line' // the string's two sentences sit on two lines
             }}>
-              {strings[205]}
+              {richText(strings[205])}
             </div>
           )}
 

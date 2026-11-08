@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { richText } from '../Icons/RichText';
 import { createPortal } from 'react-dom';
 import './Modal.css';
 import '../Buttons/SharedButtons.css';
@@ -50,7 +51,7 @@ export const GameDialogHost = () => {
         <CloseButton corner onClick={() => answer(false)} />
         <div className="modal-title">{request.title || (isConfirm ? (strings[2026] || 'Confirm') : '')}</div>
         <div className="modal-content">
-          <p className="modal-message">{request.message}</p>
+          <p className="modal-message">{richText(request.message)}</p>
           <div className="modal-buttons shared-buttons">
             {isConfirm && (
               <button className="btn-basic btn-neutral btn-modal" onClick={() => answer(false)}>
@@ -62,7 +63,7 @@ export const GameDialogHost = () => {
               onClick={() => answer(true)}
               autoFocus
             >
-              {isConfirm ? (request.confirmLabel || strings[2028] || 'Yes') : (request.okLabel || strings[2037] || 'OK')}
+              {richText(isConfirm ? (request.confirmLabel || strings[2028] || 'Yes') : (request.okLabel || strings[2037] || 'OK'))}
             </button>
           </div>
         </div>

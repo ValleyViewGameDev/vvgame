@@ -112,6 +112,9 @@ export function handleNPCClickShared(npc, {
   // Developer bypass for homestead restrictions
   isDeveloper = false
 }) {
+  // Scenery NPCs (resources.json noClick: Peter Quince, the Oracle's woodcutter) never open anything
+  if ((masterResources || []).find((m) => m.type === npc?.type)?.noClick) return false;
+
   // Check if NPC has an overlay that prevents clicking (DOM mode feature)
   if (getNPCOverlay) {
     const overlayData = getNPCOverlay(npc.id);
@@ -122,7 +125,7 @@ export function handleNPCClickShared(npc, {
 
   // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): look, don't touch
   if (isViewOnly()) {
-    if (updateStatus) updateStatus(strings?.[10023] || '👁️ Just looking: nothing here can be changed.');
+    if (updateStatus) updateStatus(strings?.[10023] || 'Just looking: nothing here can be changed.');
     return false;
   }
 

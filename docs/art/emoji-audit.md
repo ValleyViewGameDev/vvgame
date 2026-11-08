@@ -103,6 +103,8 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Pass 5 shipped 2026-11-07**: the rich status line (`UI/Icons/RichText.js`, see plan item 5).
+  Plain strings can now carry art, so no toast, float-up, notice or mail body needs an emoji.
 - **Pass 4 decided 2026-11-07**: no icons for skills and powers at all; ResourceIcon draws
   nothing for those rows, so the Skills panel, the Academy and the shops show names only. The
   Combat panel is untouched.
@@ -159,10 +161,18 @@ unapproved, `iconFile` (panel-only) or `filename` (board) on the row, `npm run b
    them (`UI/Icons/ResourceIcon.js` renders nothing for a `skill` or `power` row). The Combat
    panel stays as it is (its hands marks and section headings included). The 173 rows keep
    their `symbol` in resources.json for the editor only.
-5. **The rich status line.** Toasts, float-ups, the status bar, mail bodies and the "Grown on
-   🌾 Wheat Plot" sentences are plain strings. The FTUE toast already renders `{icon:<file>}`
-   inline (FTUE.js); extend that token to `{res:<Type>}` so any string can carry a resource's
-   art, then convert the 122 toast lines and the 40 mid-sentence strings. Chat and
+5. **The rich status line.** SHIPPED 2026-11-07. `UI/Icons/RichText.js` renders four tokens
+   inline, `{res:<Type>}` (a row's art through ResourceIcon), `{icon:<file>}` (public/assets/icons),
+   `{art:<file>}` (public/assets/resources) and `{xpStar}`; `richText()` for JSX, `richTextHtml()`
+   for innerHTML lists, `plainText()` to strip. Wired into the status bar, floating text,
+   Notifications (every type), mail bodies, the game dialogs and the generic Modal, the How to
+   Play and Gems pages, the Courthouse, the NPC panel and the resource modal ("Grown on
+   {res:Wheat Plot} Wheat Plot", the ingredient list). The 124 toast lines in code carry
+   `{res:..}` for a collected thing, Gold and Gems, `{art:item-health-heart.svg}` for HP, and
+   lose their decorative leads (the kept marks ⚠️ 🚫 ❌ ✅ stay). The 40 mid-sentence strings in
+   all ten languages are converted by one map (`stringsEN.json` 722 "Harvest some {res:Wheat}
+   Wheat, and then sell it to {res:Kent} Kent"): a thing with art gets its token, a panel its
+   button icon, a skill nothing, an animal or a character nothing until BL-16 / BL-17. Chat and
    conversation glyphs (Conversation.js) are NPC speech and wait for BL-17.
 6. **Animals and pets** (BL-16): Cow, Sheep, Brown Cow, Ram, Goat (Pig has art), the 12 Zoo
    pets, their panel rows and the Buy / Pets cards.

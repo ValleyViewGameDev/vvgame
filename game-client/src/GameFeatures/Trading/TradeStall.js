@@ -46,7 +46,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const el = document.querySelector(`[data-trade-slot="${index}"]`);
     if (el && money > 0) {
       const r = el.getBoundingClientRect();
-      FloatingTextManager.addFloatingTextAt(`+${Number(money).toLocaleString()} 💰`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
+      FloatingTextManager.addFloatingTextAt(`+${Number(money).toLocaleString()} {res:Money}`, r.left + r.width / 2, r.top + r.height / 2, { flyTo: 'money' });
     }
   };
   const [requestSlots, setRequestSlots] = useState([]);
@@ -301,7 +301,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       updateStatus(answer.reason === 'buyer-full' ? 'Buyer does not have enough warehouse space' : answer.reason === 'gone' ? 'That request was already filled' : 'Failed to fulfill request');
       throw new Error(answer.reason || 'refused');
     }
-    updateStatus(`Sold ${answer.data.amount}x ${getLocalizedString(answer.data.resource, strings)} for 💰${answer.data.earned}`);
+    updateStatus(`Sold ${answer.data.amount}x ${getLocalizedString(answer.data.resource, strings)} for {res:Money}${answer.data.earned}`);
   };
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
@@ -429,7 +429,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         if (!answer.ok) throw new Error(answer.reason || 'sell-to-game refused');
         return answer.data;
       });
-      updateStatus(`${strings[141]} ${data.sold.qty}x ${getLocalizedString(data.sold.type, strings)} (💰 ${data.money}).`);
+      updateStatus(`${strings[141]} ${data.sold.qty}x ${getLocalizedString(data.sold.type, strings)} ({res:Money} ${data.money}).`);
     } catch (error) {
       console.error('Error in protected sell:', error);
       updateStatus('❌ Failed to sell item');
@@ -463,7 +463,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         if (!answer.ok) throw new Error(answer.reason || 'collect-payment refused');
         return answer.data;
       });
-      updateStatus(`💰 Collected ${data.money}.`);
+      updateStatus(`Collected ${data.money} {res:Money}.`);
     } catch (error) {
       console.error('Error collecting payment:', error);
       updateStatus('❌ Failed to collect payment');
@@ -520,7 +520,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     applyStallAnswer(answer.data);
     if (!answer.ok) { updateStatus('❌ Failed to cancel request'); return false; }
     if (answer.data.tradeStallRequests) setRequestSlots(answer.data.tradeStallRequests);
-    updateStatus(`Request canceled. Refunded 💰${answer.data.refunded}`);
+    updateStatus(`Request canceled. Refunded {res:Money}${answer.data.refunded}`);
     return true;
   };
   // Cancel with the card cycle: the request card leaves, the slot turns into its empty "Add

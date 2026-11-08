@@ -243,10 +243,10 @@ const FarmHandPanel = ({
     const answer = await postAction('/api/action/farmhand-buy-crop', { playerId: currentPlayer.playerId, cropType: resource.type });
     applyPlayerDelta(answer.data, deltaSetters);
     if (!answer.ok) {
-      setErrorMessage(answer.reason === 'short-Money' ? 'Not enough money.' : 'Not enough space to carry that item.');
+      setErrorMessage(answer.reason === 'short-Money' ? 'Not enough Gold.' : 'Not enough space to carry that item.');
       return;
     }
-    updateStatus(`Bought 1 ${resource.type} for ${cost} Money.`);
+    updateStatus(`Bought 1 ${resource.type} for ${cost} Gold.`);
   };
 
   // A skill: ONE request (/action/buy-skill), priced from resources.json on the server
@@ -505,7 +505,7 @@ const FarmHandPanel = ({
             console.warn('⚠️ No doober found at position:', pos);
           }
         }
-        updateStatus(`🪵 Logging complete: ${treesToChop.length} trees chopped and collected.`);
+        updateStatus(`Logging complete: ${treesToChop.length} trees chopped and collected.`);
       }, 50);
 
     } catch (error) {
@@ -810,7 +810,7 @@ const FarmHandPanel = ({
                 const playerQty = (inventory.find((item) => item.type === type)?.quantity || 0) +
                                   (backpack.find((item) => item.type === type)?.quantity || 0);
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, masterResources)} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, masterResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const details = `Costs:<div>${formattedCosts}</div>`;

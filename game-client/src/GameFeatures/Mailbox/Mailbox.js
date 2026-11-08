@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { richText } from '../../UI/Icons/RichText';
 import axios from 'axios';
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -318,7 +319,7 @@ const renderRewards = (rewards) => {
                     <span className="unread-tag" aria-label="new" />
                   )}
                 </h3>
-                <p className="message-body">{msg.body || template.body}</p>
+                <p className="message-body">{richText(msg.body || template.body)}</p>
                 <p className="mailbox-timestamp">
                   {strings[1603]}: {new Date(msg.timestamp).toLocaleString()}
                 </p>

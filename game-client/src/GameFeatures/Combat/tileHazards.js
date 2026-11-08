@@ -51,7 +51,7 @@ export function burnTick(gridId, playerId, TILE_SIZE) {
   burnAt = now + everyMs;
   const hp = Math.max(0, pc.hp - hazard.damage);
   playersInGridManager.updatePC(gridId, playerId, { hp });
-  if (TILE_SIZE) FloatingTextManager.addFloatingText(`- ${hazard.damage} ❤️‍🩹 HP`, x, y, TILE_SIZE);
+  if (TILE_SIZE) FloatingTextManager.addFloatingText(`- ${hazard.damage} {art:item-health-heart.svg} HP`, x, y, TILE_SIZE);
   soundManager.playSFX('take_damage');
   if (hp <= 0) playersInGridManager.flushAfterTransaction(); // death is worth saving now
 }

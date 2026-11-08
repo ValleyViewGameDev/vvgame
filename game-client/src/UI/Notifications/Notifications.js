@@ -1,4 +1,5 @@
 import React from 'react';
+import { richText } from '../Icons/RichText';
 import ReactDOM from 'react-dom/client';
 import './Notifications.css';
 import { useStrings } from '../StringsContext';
@@ -63,12 +64,8 @@ function Notification({ type, data, onDismiss, onClick }) {
     // Inline icons in toast text: "{icon:icon-farming.svg}" renders the SVG the nav column shows
     // for that panel (public/assets/icons), so a toast's icon matches the button it points at
     const renderMessage = (text) => {
-        const t = replaceUsername(text);
-        if (!t || typeof t !== 'string' || !t.includes('{icon:')) return t;
-        return t.split(/(\{icon:[^}]+\})/g).map((part, i) => {
-            const m = part.match(/^\{icon:([^}]+)\}$/);
-            return m ? <img key={i} className="notification-inline-icon" src={`/assets/icons/${m[1]}`} alt="" /> : part;
-        });
+        // the rich status line (UI/Icons/RichText.js): {res:Wheat}, {icon:icon-farming.svg}, {art:..}, {xpStar}
+        return richText(replaceUsername(text));
     };
 
     // Render different content based on notification type
@@ -101,7 +98,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Phase Change</div>
-                            <div className="notification-name">{data.message || 'Day has turned to night'}</div>
+                            <div className="notification-name">{richText(data.message || 'Day has turned to night')}</div>
                         </div>
                     </>
                 );
@@ -114,7 +111,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || 'New Message'}</div>
-                            <div className="notification-name">{data.message}</div>
+                            <div className="notification-name">{richText(data.message)}</div>
                         </div>
                     </>
                 );
@@ -127,7 +124,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[204]}</div>
-                            <div className="notification-name">{data.message}</div>
+                            <div className="notification-name">{richText(data.message)}</div>
                         </div>
                     </>
                 );
@@ -153,7 +150,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7001]}</div>
-                            <div className="notification-name">{data.message}</div>
+                            <div className="notification-name">{richText(data.message)}</div>
                         </div>
                     </>
                 );
@@ -179,7 +176,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Notification</div>
-                            <div className="notification-name">{data.message || 'Something happened!'}</div>
+                            <div className="notification-name">{richText(data.message || 'Something happened!')}</div>
                         </div>
                     </>
                 );

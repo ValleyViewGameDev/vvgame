@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
+import { richText } from '../Icons/RichText';
 import Panel from './Panel'; // Importing the shared Panel component
 import { handlePurchase } from '../../Store/Store';
 import { useStrings } from '../StringsContext';
@@ -38,11 +39,11 @@ const HowToGemsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
 
         <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '10px' }}>
         <h3 style={{ marginBottom: '0px' }}>{strings[9040]}</h3>
-            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(6, currentPlayer, updateStatus)}>{strings[9041]}{offers[6] ? ` $${offers[6].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(6, currentPlayer, updateStatus)}>{richText(strings[9041])}{offers[6] ? ` $${offers[6].price.toFixed(2)}` : ''}</button>
         <h3 style={{ marginBottom: '0px', marginTop: '6px' }}>{strings[9042]}</h3>
-            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(7, currentPlayer, updateStatus)}>{strings[9043]}{offers[7] ? ` $${offers[7].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(7, currentPlayer, updateStatus)}>{richText(strings[9043])}{offers[7] ? ` $${offers[7].price.toFixed(2)}` : ''}</button>
         <h3 style={{ marginBottom: '0px', marginTop: '6px' }}>{strings[9044]}</h3>
-            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(8, currentPlayer, updateStatus)}>{strings[9045]}{offers[8] ? ` $${offers[8].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(8, currentPlayer, updateStatus)}>{richText(strings[9045])}{offers[8] ? ` $${offers[8].price.toFixed(2)}` : ''}</button>
         </div>
 
         <p>{strings[9033]}</p>

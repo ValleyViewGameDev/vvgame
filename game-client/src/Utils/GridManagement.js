@@ -527,7 +527,7 @@ export const changePlayerLocation = async (
     );
 
     if (updateStatus && viewOnly) {
-      updateStatus((strings?.[10022] || "👁️ {name}'s homestead, as last saved. Look around: nothing here can be changed.").replace('{name}', ownerUsername || '?'));
+      updateStatus((strings?.[10022] || "{name}'s homestead, as last saved. Look around: nothing here can be changed.").replace('{name}', ownerUsername || '?'));
     } else if (updateStatus && gtype) {
       updateGridStatus(gtype, ownerUsername ?? null, updateStatus, updatedPlayer, toGridId);
     }

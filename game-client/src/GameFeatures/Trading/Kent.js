@@ -330,7 +330,7 @@ function KentPanel({
             if (answer.data?.kentOffers) applyBoard(answer.data.kentOffers);
             if (answer.ok) {
                 setCardCooldowns({});
-                updateStatus(`🔧 Debug: Refreshed ${(answer.data.kentOffers?.offers || []).length} offers.`);
+                updateStatus(`Debug: Refreshed ${(answer.data.kentOffers?.offers || []).length} offers.`);
             } else {
                 updateStatus('❌ Debug refresh failed.');
             }
@@ -361,9 +361,9 @@ function KentPanel({
         if (!card) return;
         const r = card.getBoundingClientRect();
         const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        FloatingTextManager.addFloatingTextAt(`+${moneyAmount.toLocaleString()} 💰`, cx, cy - 8, { flyTo: 'money' });
+        FloatingTextManager.addFloatingTextAt(`+${moneyAmount.toLocaleString()} {res:Money}`, cx, cy - 8, { flyTo: 'money' });
         setTimeout(() => {
-            FloatingTextManager.addFloatingTextAt(`+${xpAmount} 🔷 XP`, cx, cy + 14, { flyTo: 'xp' });
+            FloatingTextManager.addFloatingTextAt(`+${xpAmount} ${XP_STAR_TOKEN} XP`, cx, cy + 14, { flyTo: 'xp' });
         }, 260);
     };
 

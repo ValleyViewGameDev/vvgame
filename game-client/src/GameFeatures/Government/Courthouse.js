@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { richText } from '../../UI/Icons/RichText';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import LevelLock from '../../UI/Panels/LevelLock';
@@ -292,7 +293,7 @@ const CourthousePanel = ({
         // resources.json, Acquire quests and Skill Builder on the server. Shown on the tap.
         setOwnedSkills((prev) => [...prev, { type: resource.type, category: resource.category, quantity: 1 }]);
         setCourthouseSkills(prev => prev.filter(skill => skill.type !== resource.type));
-        updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
+        updateStatus(`${getLocalizedString(resource.type, strings)} skill acquired.`);
         const answer = await postAction('/api/action/buy-skill', { playerId: currentPlayer.playerId, skillType: resource.type });
         applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
         if (!answer.ok) {
@@ -318,7 +319,7 @@ const CourthousePanel = ({
 
             if (response.data.message) {
                 console.log(`📢 ${response.data.message}`);
-                updateStatus('🏛️ Campaign promise submitted.');
+                updateStatus('Campaign promise submitted.');
                 setCampaignPromises(response.data.campaignPromises);
                 setNewPromise('');
             }
@@ -340,7 +341,7 @@ const CourthousePanel = ({
 
             if (response.data.message) {
                 console.log(`🗳️ ${response.data.message}`);
-                updateStatus('🏛️ Vote successfully cast.');
+                updateStatus('Vote successfully cast.');
                 setHasVoted(true);
                 // Store the username of the voted candidate
                 const votedCandidate = candidateList.find(c => c.playerId === selectedCandidate);
@@ -371,7 +372,7 @@ const CourthousePanel = ({
     
             if (response.data.success) {
                 console.log(`✅ Tax rate updated successfully.`);
-                updateStatus(`💰 Tax rate set to ${tempTaxRate}%`);
+                updateStatus(`Tax rate set to ${tempTaxRate}%`);
                 // ✅ Sync stored tax rate with UI slider
                 setTaxRate(tempTaxRate);
             } else {
@@ -626,7 +627,7 @@ const CourthousePanel = ({
 
                     {!isMayor && <h3>{strings[2079]}</h3>}
 
-                    <p>{strings[2084]}</p>
+                    <p>{richText(strings[2084])}</p>
 
 
 {/* ELECTIONS section */} 

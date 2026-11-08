@@ -1225,7 +1225,7 @@ const handleGetRich = async () => {
             try {
               const response = await axios.post(`${API_BASE}/api/make-it-snow/${currentGridId}`);
               console.log('❄️ Make it snow response:', response.data);
-              updateStatus(`❄️ Made it snow! ${response.data.tilesConverted} tiles converted.`);
+              updateStatus(`Made it snow! ${response.data.tilesConverted} tiles converted.`);
               window.location.reload(); // Refresh to see the changes
             } catch (error) {
               console.error('❌ Error making it snow:', error);
@@ -1243,7 +1243,7 @@ const handleGetRich = async () => {
             try {
               const response = await axios.post(`${API_BASE}/api/melt-the-snow/${currentGridId}`);
               console.log('☀️ Melt the snow response:', response.data);
-              updateStatus(`☀️ Snow melted! ${response.data.tilesConverted} tiles converted.`);
+              updateStatus(`Snow melted! ${response.data.tilesConverted} tiles converted.`);
               window.location.reload(); // Refresh to see the changes
             } catch (error) {
               console.error('❌ Error melting snow:', error);

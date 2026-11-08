@@ -57,7 +57,7 @@ export default function InnPanel({
     playersInGridManager.updatePC(gridId, playerKey, { hp: maxhp });
     setInnRestEnd(Date.now() + cooldownMs);
     soundManager.playSFX('skill_earned');
-    if (pc?.position) FloatingTextManager.addFloatingText(`+${maxhp - prevHp} ❤️`, pc.position.x, pc.position.y, TILE_SIZE);
+    if (pc?.position) FloatingTextManager.addFloatingText(`+${maxhp - prevHp} {art:item-health-heart.svg}`, pc.position.x, pc.position.y, TILE_SIZE);
     updateStatus?.(strings[2109] || 'Rested! Full health restored.');
     try {
       const { data } = await axios.post(`${API_BASE}/api/inn/rest`, { playerId: currentPlayer.playerId, gridId, x: stationPosition.x, y: stationPosition.y });
