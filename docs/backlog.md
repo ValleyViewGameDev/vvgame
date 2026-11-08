@@ -264,3 +264,19 @@ the client). **Where to start.** Make the route refuse the fields an `/action/*`
 (e.g. a graze animal's move to `processing` before the server's own `grazeEnd`, hp rises), or
 have the server derive graze state from its own `grazeEnd`; check the graze behaviour's
 `updateThisNPC` calls in `NPCGrazeBehavior.js` first.
+
+### BL-21: Rectangular footprints for deco (a 1 wide, 2 tall bed)
+
+Added 2026-11-08.
+
+**What.** A resource's footprint is one number, `size`, and every path treats it as size x
+size: the renderer (`PixiRenderer.js` tileSpan), the server's occupancy and move checks
+(`worldRoutes.js` sizeOf: x..x+n-1, y-n+1..y), placement, path-blocking, the atlas slot, the
+editor, the seed scripts. A bed that is 1 wide and 2 tall cannot be expressed; in the deco pass
+it ships as a 1 x 1 row with tall art (artSpan ~1.3, the headboard rising into the tile behind,
+like the statues), so a player can walk through the tile its head appears to stand on. **Why.**
+Furniture and village pieces (bed, bench, cart, market stall, gatehouse) read better as 2 x 1 /
+1 x 2 / 3 x 2. **Where to start.** Add `sizeW` / `sizeH` (default = size) and thread them
+through the places above, the client's enrich of shadow tiles (AppInit.enrichGridResources)
+first; artSpan stays a square around the footprint's bottom-centre.
+

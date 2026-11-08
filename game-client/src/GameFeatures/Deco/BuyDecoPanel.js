@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+
 import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
@@ -14,6 +15,20 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { updatePlayerSettings } from '../../settings';
 import { loadMasterResources } from '../../Utils/TuningManager';
+
+// The catalogue's sections (resources.json decoGroup, docs/art/deco-pass-plan.md §C), in this order;
+// a row with no group lands in "Other" at the end
+const DECO_GROUPS = [
+  { key: 'farm', stringId: 200720, label: 'Farm' },
+  { key: 'garden', stringId: 200721, label: 'Garden' },
+  { key: 'furniture', stringId: 200722, label: 'Furniture' },
+  { key: 'statuary', stringId: 200723, label: 'Statuary' },
+  { key: 'castle', stringId: 200724, label: 'Castle' },
+  { key: 'village', stringId: 200725, label: 'Village' },
+  { key: 'walls', stringId: 200726, label: 'Walls and Fences' },
+  { key: 'other', stringId: 200727, label: 'Other' },
+];
+const decoGroupOf = (item) => (DECO_GROUPS.some((g) => g.key === item.decoGroup) ? item.decoGroup : 'other');
 
 const BuyDecoPanel = ({
   TILE_SIZE,
@@ -172,7 +187,10 @@ const BuyDecoPanel = ({
           <p>{strings[98]}</p>
         ) : (
           <>
-            {buyOptions.map((item) => {
+            {DECO_GROUPS.filter((g) => buyOptions.some((it) => decoGroupOf(it) === g.key)).map((g) => (
+            <React.Fragment key={g.key}>
+            <h3 className="buy-deco-group">{strings[g.stringId] || g.label}</h3>
+            {buyOptions.filter((it) => decoGroupOf(it) === g.key).map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
               const requirementsMet = hasRequiredSkill(item.requires);
@@ -244,6 +262,8 @@ const BuyDecoPanel = ({
                 />
               );
             })}
+            </React.Fragment>
+            ))}
           </>
         )}
       </div>
