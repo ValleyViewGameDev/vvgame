@@ -141,7 +141,7 @@
     },
     {
       "slotIndex": 1,
-      "maxAmount": 75,
+      "maxAmount": 50,
       "sellWaitTime": 28800000,
       "unlocked": false,
       "unlockCost": 50,
@@ -149,7 +149,7 @@
     },
     {
       "slotIndex": 2,
-      "maxAmount": 100,
+      "maxAmount": 75,
       "sellWaitTime": 86400000,
       "unlocked": false,
       "unlockCost": 500,
@@ -157,7 +157,7 @@
     },
     {
       "slotIndex": 3,
-      "maxAmount": 200,
+      "maxAmount": 100,
       "sellWaitTime": 86400000,
       "unlocked": false,
       "unlockCost": 1000,
