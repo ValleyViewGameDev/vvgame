@@ -188,7 +188,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       return;
     }
     // a bought item goes to the warehouse / backpack: it flies into Inventory
-    floatFromCard(`+${answer.data.collected.qty} ${resource.symbol || ''} ${getLocalizedString(resource.type, strings)}`, 'inventory');
+    floatFromCard(`+${answer.data.collected.qty} ${getLocalizedString(resource.type, strings)}`, 'inventory'); // a skill has no picture (emoji audit pass 4)
     updateStatus(`${strings[80]} ${getLocalizedString(resource.type, strings)}.`);
     return;
   }

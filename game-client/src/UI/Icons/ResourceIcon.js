@@ -17,6 +17,7 @@ import './ResourceIcon.css';
  *   <ResourceIcon type={t} masterResources={list} />   a list other than the loaded master
  *   <ResourceIcon symbol="💰" />                       a bare symbol (Money, Gem) when no row is at hand
  *   <ResourceIcon file="item-health-heart.svg" />     a picture that is not a resource row (Health)
+ *   A skill or power row renders NOTHING (no art, no emoji): names only, by the owner's rule.
  *
  * Plain-string contexts (status toasts, chat lines, `title` attributes) cannot hold an <img>;
  * those keep `symbol` until the toast renders rich content (docs/art/doobers.md "What is left").
@@ -24,6 +25,9 @@ import './ResourceIcon.css';
 export default function ResourceIcon({ type, resource, symbol, file: fileProp, masterResources, size, className = '', title }) {
   const list = masterResources || getMasterResources() || [];
   const row = resource || (type ? list.find((r) => r.type === type) : null) || (symbol ? list.find((r) => r.symbol === symbol && r.filename) : null);
+  // Skills and powers carry no picture at all (owner, 2026-11-07, emoji audit pass 4): in the
+  // Skills panel, the shops and the Academy the name is enough, so nothing is drawn beside it
+  if (row && (row.category === 'skill' || row.category === 'power')) return null;
   const style = size ? { width: size, height: size } : undefined;
   // iconFile: the panel picture when the board draws something else (Apple's board art is the
   // fruited tree, tree-apple.svg; its panel icon is the painted apple, doober-apple.svg)

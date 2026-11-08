@@ -103,6 +103,9 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Pass 4 decided 2026-11-07**: no icons for skills and powers at all; ResourceIcon draws
+  nothing for those rows, so the Skills panel, the Academy and the shops show names only. The
+  Combat panel is untouched.
 - **Pass 3 shipped 2026-11-07** (`tools/art/jobs/board-r1..r3.json`, `doobers-r13/r14.json`): the
   growing plots are plants alone in the doober style (`plot-sprouts.svg`, a single sprout, for
   the twenty ordinary plots, one art, no variants by the owner's choice; `plot-vine.svg` for the Tomato and Grape
@@ -151,9 +154,11 @@ unapproved, `iconFile` (panel-only) or `filename` (board) on the row, `npm run b
    grids first: the emoji walls cost 1 gem and may stand on a homestead); decide whether
    spawners draw at all (a lair sprite or nothing); the settlement and frontier zoom views
    (🏠 👤 🏛️ 💰 📥) as small sprites.
-4. **Powers and skills.** 116 powers in seven families and 57 skills in ~25: one icon per
-   family, not per row, assigned through `iconFile` in the ECONOMY sheet; the Combat panel's
-   section headings (🛡️ ⚔️ ✨ strings 522-526, 550-557) use the same icons.
+4. **Powers and skills: no icons.** DECIDED 2026-11-07 (owner): skills and powers get no art
+   and no emoji; the name is enough in the Skills panel, the Academy and the shops that sell
+   them (`UI/Icons/ResourceIcon.js` renders nothing for a `skill` or `power` row). The Combat
+   panel stays as it is (its hands marks and section headings included). The 173 rows keep
+   their `symbol` in resources.json for the editor only.
 5. **The rich status line.** Toasts, float-ups, the status bar, mail bodies and the "Grown on
    🌾 Wheat Plot" sentences are plain strings. The FTUE toast already renders `{icon:<file>}`
    inline (FTUE.js); extend that token to `{res:<Type>}` so any string can carry a resource's

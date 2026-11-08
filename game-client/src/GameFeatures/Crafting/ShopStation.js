@@ -222,7 +222,7 @@ const ShopStation = ({
       const name = getLocalizedString(recipe.type, strings);
       const category = recipe.category || boughtDef.category;
       const [text, flyTo] =
-        category === 'power' ? [`+${recipe.symbol || boughtDef.symbol || ''} ${name}`, 'combat']
+        category === 'power' ? [`+${name}`, 'combat'] // a power has no picture (emoji audit pass 4)
         : category === 'skill' ? [(strings[10201] || '+{skill} Skill').replace('{skill}', name), 'skills']
         : [`+${recipe.qtycollected || 1} ${recipe.symbol || boughtDef.symbol || ''} ${name}`,
            recipe.type === 'Money' ? 'money' : recipe.type === 'Gem' ? 'gems' : 'inventory'];
