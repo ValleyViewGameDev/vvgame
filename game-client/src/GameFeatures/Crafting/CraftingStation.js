@@ -824,7 +824,6 @@ const CraftingStation = ({
                                 ) : (
                                   <>
                                     <span className="crafting-slot-icon"><ResourceIcon resource={craftedItemInfo} symbol={craftedItemInfo?.symbol || '🎁'} /></span>
-                                    {slotIsReady && <span className="crafting-slot-ready-badge">&#x2705;</span>}
                                   </>
                                 )}
                                 {/* "Added" floating text animation on slot */}

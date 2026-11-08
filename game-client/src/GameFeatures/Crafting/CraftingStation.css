@@ -189,14 +189,6 @@
   }
 }
 
-/* Ready badge (small checkmark in corner) */
-.crafting-slot-ready-badge {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  font-size: 12px; /* style-ok: icon (checkmark badge) */
-}
-
 /* Timer overlay at bottom of slot - matches FloatingText.css styling */
 .crafting-slot-timer {
   position: absolute;
