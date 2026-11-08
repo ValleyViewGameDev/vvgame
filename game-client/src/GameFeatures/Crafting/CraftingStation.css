@@ -289,3 +289,8 @@
   width: 72cqi;
   height: 72cqi;
 }
+
+/* Slots beyond the next one to buy: a faint padlock (only the next slot is clickable) */
+.crafting-slot.locked:not(.clickable) .crafting-slot-icon.locked {
+  opacity: 0.35;
+}
