@@ -195,14 +195,17 @@
   top: 2px; /* the top of the slot: the speed-up chip overlaps its bottom */
   left: 50%;
   transform: translateX(-50%);
+  /* white on a dark pill (like the gem chip), in the plain body face with even-width digits, so
+     it reads over any craft's picture and does not jitter as it ticks */
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-bg-chip-dark);
   font-size: var(--text-xs);
   font-weight: bold;
+  line-height: 16px;
   color: var(--color-text-white);
-  /* a crisp dark outline (no blur) so it reads over any craft's picture */
-  text-shadow:
-    1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black,
-    1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
-  font-family: var(--font-text-1-family);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
   pointer-events: none;

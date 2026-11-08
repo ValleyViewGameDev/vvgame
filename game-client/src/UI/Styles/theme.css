@@ -36,6 +36,7 @@
   --color-bg-white: #ffffff;
   --color-bg-light: #f5f5f5;
   --color-bg-overlay: rgba(0, 0, 0, 0.5); /* Modal overlays */
+  --color-bg-chip-dark: rgba(0, 0, 0, 0.75); /* a dark pill for white text over art (crafting slot timers) */
 
   /* ========== TEXT COLORS ========== */
   --color-text-primary: var(--brand-ink);           /* every sentence */

@@ -41,6 +41,16 @@ import { usePanelContext } from '../../UI/Panels/PanelContext';
 // their own answer lands; a failed collect puts back only its own slot.
 const pendingSlotCollects = new Map();
 
+// A slot's countdown, one unit so it fits the slot: "2d", "3h", "14m", then seconds in the last
+// minute ("45s"). The exact time is in the slot's hovertip.
+const formatSlotCountdown = (ms) => {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  if (s >= 86400) return `${Math.floor(s / 86400)}d`;
+  if (s >= 3600) return `${Math.floor(s / 3600)}h`;
+  if (s >= 60) return `${Math.floor(s / 60)}m`;
+  return `${s}s`;
+};
+
 const CraftingStation = ({
   onClose,
   inventory,
@@ -833,7 +843,7 @@ const CraftingStation = ({
                                 {/* Countdown timer overlay at bottom of slot */}
                                 {slotIsCrafting && slotCountdowns[i] !== undefined && (
                                   <span className="crafting-slot-timer">
-                                    {formatCompactCountdown(slot.craftEnd, Date.now())}
+                                    {formatSlotCountdown(slot.craftEnd - Date.now())}
                                   </span>
                                 )}
                               </div>
@@ -1012,6 +1022,7 @@ const CraftingStation = ({
               <div>
                 <div><ResourceIcon type={slot.craftedItem} masterResources={masterResources} symbol={masterResources?.find(r => r.type === slot.craftedItem)?.symbol || '🎁'} /> {getLocalizedString(slot.craftedItem, strings)}</div>
                 {slotIsReady && <div style={{ color: 'var(--color-text-positive)' }}>{strings[457] || 'Ready to collect!'}</div>}
+                {slotIsCrafting && <div>{strings[441] || 'Ready in '}{formatCompactCountdown(slot.craftEnd, Date.now())}</div>}
               </div>
             )}
           </div>,
