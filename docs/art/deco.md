@@ -120,9 +120,9 @@ magenta in thin gaps: harp strings, under a chair's arms; a hue pass clears it).
 | Prop | Art | artSpan | Note |
 |---|---|---|---|
 | Stack of Books | `stack-of-books` | 0.93 | leather tomes, the top one open (`a`, candidate 2) |
-| Chair | `chair` | 1.44 | a PLAIN oak chair with a red cushion (`a2`, candidate 1): the first, carved, was too detailed for the game's scale (owner) |
+| Chair | `chair` | 1.12 | a PLAIN oak chair with a red cushion (`a2`, candidate 1): the first, carved, was too detailed for the game's scale (owner) |
 | Bed | `bed` | 1.28 | a plain bed frame, cream blanket, one pillow, foot toward the viewer (`a2`, candidate 2); the canopied first try was too detailed. A 1 x 1 row with tall art until BL-21 (rectangular footprints) |
-| Harp | `harp` | 1.65 | gilded concert harp (`a`, candidate 2) |
+| Harp | `harp` | 1.3 | gilded concert harp (`a`, candidate 2) |
 | Plant / Red Plant | `plant`, `plant-red` | 0.87 | generic leafy plants, no flowers, no pot (`a3`: plant 2, red plant 1), replacing the off-style originals |
 | Black Fog | `black-fog` | 1.15 | the story barrier (Hecate's step, docs/story.md): a block of dark mist with violet curls (`a`, candidate 1) |
 | Black Wall | `black-wall` | 1.19 | the level-design void block, kept as a system wall (`a`, candidate 2) |
@@ -133,3 +133,7 @@ in every prop prompt.
 
 Cut (resources.json, with `game-server/scripts/remove-cut-deco.js` run on the live grids first):
 Toilet, Teddy Bear, Slide, White Dove, Green / Blue / Orange / Sand Wall, Holiday Tree.
+
+Scale tweak (owner, 2026-11-08): the chair (1.44 -> 1.12), the sack (0.73 -> 0.58) and the harp
+(1.65 -> 1.3) filled too much of their tile; a prop wants buffer around it. Lower the artSpan,
+no recut.
