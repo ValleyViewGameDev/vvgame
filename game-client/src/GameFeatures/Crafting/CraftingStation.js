@@ -895,7 +895,7 @@ const CraftingStation = ({
               const healerLimitReached = isHealer && currentHealers >= maxHealersAllowed;
 
               // Craft time display (no longer shows countdown - that's in slots now)
-              // shown at the right of the "Costs:" row, bold, without the redundant "Time:"
+              // the card's FIRST details row, right-justified under the ℹ️ badge, bold, no "Time:"
               const craftTimeText = recipe.crafttime ? formatDuration(recipe.crafttime) : strings[459];
 
               const usedIn = allResources.filter((res) =>
@@ -933,13 +933,13 @@ const CraftingStation = ({
                   key={recipe.type}
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
-                  className="resource-button"
+                  className="resource-button craft-card"
                   details={
+                    `<strong class="craft-time">${craftTimeText}</strong>` + // floats right on whichever row comes first
                     (healerLimitReached ? `<span style="color: var(--color-text-negative);">${strings[408]}</span>` : '') +
                     (recipe.level > 1 && !meetsLevel ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') + // spans are block-level here: no <br>
                     (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
-                    `<span class="craft-costs-row"><span>${strings[461]}</span><strong>${craftTimeText}</strong></span>` +
-                    `<div>${formattedCosts}</div>`
+                    `${strings[461]}<div>${formattedCosts}</div>`
                   }
                   info={info}
                   disabled={!affordable || !requirementsMet || healerLimitReached}

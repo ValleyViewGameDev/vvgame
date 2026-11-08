@@ -160,16 +160,16 @@
   text-transform: uppercase;
 }
 
-/* A craft card's "Costs:" line carries the craft time at its right, in bold (one row saved) */
-.resource-details .craft-costs-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
+/* A craft card's time: the FIRST details row, whatever that row is (Level, Requires, Costs),
+   right-justified to the card's edge under the ℹ️ badge, bold, without "Time:" (one row saved).
+   The details stretch to the card's width (the card is a column that otherwise shrinks them). */
+.resource-button.craft-card .resource-details {
+  align-self: stretch;
 }
-.resource-details .craft-costs-row > span {
-  display: inline;
-  margin: 0;
+.resource-details .craft-time {
+  float: right;
+  margin-left: 8px;
+  font-weight: bold;
 }
 
 /* Crafting state - item being made */
