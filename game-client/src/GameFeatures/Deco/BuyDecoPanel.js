@@ -116,6 +116,9 @@ const BuyDecoPanel = ({
             return true;
           }
         );
+        // Always cheapest first, on every tab (owner 2026-11-08): the price is the one order a
+        // catalogue of deco needs, and a sub-sort keeps it
+        purchasableItems.sort((a, b) => (Number(a.ingredient1qty) || 0) - (Number(b.ingredient1qty) || 0));
         setBuyOptions(purchasableItems);
       } catch (error) {
         console.error('Error fetching buy panel data:', error);

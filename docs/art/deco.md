@@ -46,9 +46,16 @@ commissioned and approved 2026-10-22.
   second over-corrected to a pure front view; the stack of crates was drawn from the barrel's
   camera, seen from the front and clearly from above, each lid a real top face about a third
   as tall as the front. Send the barrel as the camera reference and say that.
-- **Pricing** follows the existing ladder: small props $25 to $50 and 1 gem; a stone bust
-  $2,000 / 20 gems, a stone lion $3,000 / 30, the marble statue $5,000 / 50, the Shakespeare
-  statue $7,500 / 75 (the Birdbath is $8,000 / 80, the Fountain $10,000 / 100).
+- **Pricing** (the ladder, re-set 2026-11-08 over the whole catalogue; gems = coins / 100). Garden
+  stays affordable: plants and flowers $25 to $60, trellis and topiary $120 to $200, urn $800,
+  maypole $1,200, birdbath and sundial $1,500, the palm $2,500, the Fountain $6,000, the Large
+  Fountain $20,000 (the benchmark). Farm props $10 to $30, the cart $600, the well $1,000. Basic
+  furniture is cheap (books $150, chair $200, table $600, bed $1,500); castle furniture dear
+  (throne $6,000, royal bed $15,000). Castle: flag $100, brazier $300, banner $400, harp $750,
+  gargoyle $3,000, knight $8,000, Round Tower $20,000, Gatehouse $35,000. Statuary is the
+  late-game coin sink: bust $2,000, lion $4,000, marble statue $10,000, Shakespeare $30,000,
+  the Obelisk $50,000 (the most expensive thing in the game). Bigger footprints cost more within
+  a family. The Buy Deco panel always sorts cheapest first, on every tab.
 - **Names** go in `stringsEN.json`'s 2005xx block (the deco names; other languages fall back
   to English through `getLocalizedString`).
 - **The safety filter.** OpenAI refused "Venus de Milo" by name three ways (sexual), even
