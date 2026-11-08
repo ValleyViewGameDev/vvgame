@@ -235,3 +235,15 @@ Pass A (the emoji rows), B1 castle, B2 farm, B3 greenery and B4 art pieces shipp
 furniture was skipped by the owner (the Chair, Bed, Royal Bed, Oak Table, Stack of Books and
 Harp stand for furniture). No deco row draws an emoji. Parked: the wall sets (BL-22). Next art
 passes: BL-16 animals and pets (strategy in docs/art/zoo-animals-plan.md), then BL-17 avatars.
+
+## Mountains redrawn as slab blocks (2026-11-08)
+
+The three-peak massifs (board-r5) read as dozens of small rock columns, completely out of scale at
+3 to 4 tiles. Rule learned: a big prop is seen ZOOMED IN, so its parts must be tile-sized; the
+barrel on magenta is the scale control ("each chunk as big as that barrel"), and the prompt caps
+the shape count (nine or ten slabs). Silhouette: ONE centre summit, shoulders left and right at
+slightly different heights rising high and wide so the block nearly fills its square. Three
+constructions were offered (boulders, slabs, ledges: tools/art/jobs/mountain-r6.json); the owner
+chose slabs, refined in mountain-r7 (fuller upper portion). Installed: `mountain-large.svg` (r7 3,
+4 x 4, artSpan 4.08), `mountain.svg` (slabs-small 2, 3 x 3, artSpan 3.06, six or seven of the
+SAME slabs); the Enormous Mountain is the large art at artSpan 20.4, unchanged.

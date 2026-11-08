@@ -1,0 +1,47 @@
+{
+  "name": "mountain-r6",
+  "note": "Owner 2026-11-08: the massifs read as dozens of small rock columns, completely out of scale at 3 to 4 tiles. Redo as FEW BIG chunks, zoomed in (each chunk about a barrel wide), one centre summit with lower left and right shoulders at slightly different heights so the block is roughly square. Three construction options, two candidates each; the owner picks one, then the regular (3 x 3) and the enormous follow from it.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "boulders": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached hospital panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once) and in its painterly storybook rendering; match that camera, the warm full daylight from high up and a little left, and the soft shadows only in the recesses. SCALE CONTROL, the most important instruction: the attached BARREL on magenta is one board tile wide. This mountain is only FOUR barrels wide, so it is seen ZOOMED IN: every rock chunk in it is as big as that barrel or bigger. The whole mountain is made of no more than EIGHT to TEN big plain rock shapes in all, each one a single flat area of colour with a lighter sunlit top and a darker shaded side, thick painted edges, NO small rocks, NO columns, NO cracks, NO pebbles, NO fine texture, NO scattered detail; moss only as two or three broad plain patches. SUBJECT: a MOUNTAIN built as a PILE OF GIANT BOULDERS: six to nine huge rounded grey-brown boulders heaped on each other into a peak, each boulder one smooth plain rounded shape as big as the barrel or bigger, the biggest at the base, the summit one boulder. SILHOUETTE: ONE summit at the centre, and the mass rises to a lower point on the LEFT and a lower point on the RIGHT, those two shoulders a little different in height from each other, so the outline is a broad organic block about as wide as it is tall, never a single triangle, never a row of three equal peaks; the flanks drop to a bare base that spans the full width. No trees, no plants, no snow. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the mountain's base fills the box from side to side and its summit rises only a little above the box's top edge; everything outside the mountain is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "slabs": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached hospital panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once) and in its painterly storybook rendering; match that camera, the warm full daylight from high up and a little left, and the soft shadows only in the recesses. SCALE CONTROL, the most important instruction: the attached BARREL on magenta is one board tile wide. This mountain is only FOUR barrels wide, so it is seen ZOOMED IN: every rock chunk in it is as big as that barrel or bigger. The whole mountain is made of no more than EIGHT to TEN big plain rock shapes in all, each one a single flat area of colour with a lighter sunlit top and a darker shaded side, thick painted edges, NO small rocks, NO columns, NO cracks, NO pebbles, NO fine texture, NO scattered detail; moss only as two or three broad plain patches. SUBJECT: a MOUNTAIN built as a few GIANT ANGULAR SLABS: six to nine big flat-faced blocks of grey-brown rock leaning together into a peak, each block a simple angular shape with one lit face and one shaded face, like a low-polygon cliff, clean straight edges, nothing fiddly. SILHOUETTE: ONE summit at the centre, and the mass rises to a lower point on the LEFT and a lower point on the RIGHT, those two shoulders a little different in height from each other, so the outline is a broad organic block about as wide as it is tall, never a single triangle, never a row of three equal peaks; the flanks drop to a bare base that spans the full width. No trees, no plants, no snow. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the mountain's base fills the box from side to side and its summit rises only a little above the box's top edge; everything outside the mountain is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "ledges": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the attached hospital panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once) and in its painterly storybook rendering; match that camera, the warm full daylight from high up and a little left, and the soft shadows only in the recesses. SCALE CONTROL, the most important instruction: the attached BARREL on magenta is one board tile wide. This mountain is only FOUR barrels wide, so it is seen ZOOMED IN: every rock chunk in it is as big as that barrel or bigger. The whole mountain is made of no more than EIGHT to TEN big plain rock shapes in all, each one a single flat area of colour with a lighter sunlit top and a darker shaded side, thick painted edges, NO small rocks, NO columns, NO cracks, NO pebbles, NO fine texture, NO scattered detail; moss only as two or three broad plain patches. SUBJECT: a MOUNTAIN built as broad STEPPED LEDGES: three or four wide terraces of grey-brown rock rising one on the other to the summit, each terrace one plain band with a flat mossy top and a rounded front, the terraces narrowing as they climb, a few of their edges staggered so the shoulders left and right step lower than the summit. SILHOUETTE: ONE summit at the centre, and the mass rises to a lower point on the LEFT and a lower point on the RIGHT, those two shoulders a little different in height from each other, so the outline is a broad organic block about as wide as it is tall, never a single triangle, never a row of three equal peaks; the flanks drop to a bare base that spans the full width. No trees, no plants, no snow. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the mountain's base fills the box from side to side and its summit rises only a little above the box's top edge; everything outside the mountain is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}

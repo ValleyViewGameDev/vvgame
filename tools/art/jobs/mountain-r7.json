@@ -1,0 +1,36 @@
+{
+  "name": "mountain-r7",
+  "note": "Owner 2026-11-08: slabs 2 from mountain-r6 chosen, but it must fill the 4 x 4 footprint: taller, wider in the upper portion (high shoulders near the box's upper corners). Owner picked r7 3 for the Large; slabs-small is the regular 3 x 3 drawn from it.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 3,
+  "subjects": {
+    "slabs": {
+      "refs": [
+        "_candidates/mountain-r6/exploration/openai/painterly-slabs-2.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel on magenta is this game's chosen MOUNTAIN: a few giant angular slabs of grey-brown rock leaning together into a peak, each slab one plain flat-faced shape with a lit face and a shaded face, thick painted edges, no small rocks, no cracks, no pebbles, no fine texture, no trees, no snow, moss only as two or three broad plain patches. Keep that rock, that chunk size (each slab about one board tile wide; the attached BARREL is one tile) and that rendering EXACTLY. CHANGE THE SILHOUETTE: the reference is too much of a triangle and leaves the upper corners of its square empty. Make the mountain TALLER and much WIDER IN ITS UPPER PORTION: still ONE summit at the centre, but the left and right shoulders rise high, to about three quarters of the summit's height, and sit far out toward the sides, at slightly different heights from each other, so the outline is a broad, nearly square block with a rounded top edge, like a block of rock with one point rising from its top, never a cone, never a triangle; the flanks fall steeply and almost vertically from the shoulders to a bare base that spans the full width. Still no more than nine or ten slabs in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the mountain's base fills the box from side to side, its shoulders reach nearly to the box's upper corners and its summit rises a little above the box's top edge; everything outside the mountain is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "slabs-small": {
+      "refs": [
+        "_candidates/mountain-r7/exploration/openai/painterly-slabs-3.png",
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel on magenta is this game's approved LARGE MOUNTAIN: a few giant angular slabs of grey-brown rock leaning together into a peak, each slab one plain flat-faced shape with a lit face and a shaded face, thick painted edges, no small rocks, no cracks, no pebbles, no fine texture, no trees, no snow, moss only as two or three broad plain patches; the attached BARREL is one board tile wide and each slab is about one tile wide. SUBJECT: the game's REGULAR MOUNTAIN, a SMALLER mountain of exactly the same rock, slab size, paint and camera, as if a piece of the large one stood alone: SIX or SEVEN slabs in all (do not shrink the slabs, use fewer of them), ONE summit at the centre with a lower shoulder on the left and on the right at slightly different heights, the shoulders high and wide so the outline is a broad block nearly as wide as it is tall, never a triangle; the flanks fall steeply to a bare base spanning the full width. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the mountain's base fills the box from side to side, its shoulders reach nearly to the box's upper corners and its summit rises a little above the box's top edge; everything outside the mountain is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}
