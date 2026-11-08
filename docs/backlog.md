@@ -216,7 +216,7 @@ than from the header or a `playerId` in the body. Found while closing the open a
 
 ### BL-16: Art pass, animals and pets (second to last) (LAUNCH BLOCKER)
 
-Added 2026-11-07.
+Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). No art yet.
 
 **What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat; the Pig already has art)
 and the twelve Zoo pets (Cat, Poodle, Monkey, Duck, Donkey, Owl, Parrot, Eagle, Zebra,
