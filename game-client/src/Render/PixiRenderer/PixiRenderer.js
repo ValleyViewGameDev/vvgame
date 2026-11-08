@@ -360,6 +360,9 @@ const PixiRenderer = ({
   onPlayerClick,          // () => void: the local avatar's tile was clicked (opens the Player Character panel)
   onWalkTo,               // (row, col) => void: walk to a tile (empty tile, or next to an out-of-range target)
   onPinchZoom,            // ('in' | 'out') => void: a pinch gesture crossed a zoom step
+  // Login scene (docs/login-scene-plan.md): a look-only board. No input, no player, no overlays,
+  // the camera pinned to the grid's top-left corner, 30 fps. LoginScene/LoginScene.js drives it.
+  scene = false,
 }) => {
   // Spawners are invisible (BL-19): never drawn, hovered, hit-tested or clicked; they still tick in NPCsInGridManager
   const npcs = useMemo(() => (allNpcs ? allNpcs.filter((n) => n?.action !== 'spawn') : allNpcs), [allNpcs]);
@@ -617,8 +620,10 @@ const PixiRenderer = ({
       // This ensures loadSVGTexture can check if the renderer is still valid
       activePixiRenderer = app;
 
-      // 60 fps while the player is active, 30 once the board sits idle (frameRate.js)
-      attachFrameRate(app.ticker);
+      // 60 fps while the player is active, 30 once the board sits idle (frameRate.js); the login
+      // scene never needs more than 30
+      if (scene) app.ticker.maxFPS = 29.97;
+      else attachFrameRate(app.ticker);
 
       // Add canvas to DOM (v7 uses app.view, not app.canvas)
       containerRef.current.appendChild(app.view);
@@ -667,6 +672,7 @@ const PixiRenderer = ({
         overlayElement: overlayRef.current,
         baseTileSize: TILE_SIZE,
       });
+      if (scene) PixiCamera.pinTopLeft(true);
 
       // Start the sprite-sheet download now so it overlaps the grid bundle fetch; once it
       // lands, the ground re-composes from the atlas tiles (PixiRendererTileTextures)
@@ -738,7 +744,8 @@ const PixiRenderer = ({
     // Cleanup on unmount
     return () => {
       // Clear global renderer reference FIRST to prevent texture creation during cleanup
-      if (appRef.current) detachFrameRate(appRef.current.ticker);
+      if (appRef.current && !scene) detachFrameRate(appRef.current.ticker);
+      if (scene) ambientVFXManager.destroy(); // the scene's butterflies and clouds go with its app
       activePixiRenderer = null;
       PixiCamera.detach();
 
@@ -798,7 +805,7 @@ const PixiRenderer = ({
   // Settlement zoom, relocation at Frontier zoom) sit over the canvas and would swallow the wheel.
   useEffect(() => {
     const host = containerRef.current;
-    if (!host) return undefined;
+    if (!host || scene) return undefined; // the login scene does not pan
     const overlay = overlayRef.current;
     const onWheel = (event) => {
       event.preventDefault();
@@ -916,7 +923,7 @@ const PixiRenderer = ({
         const artSpan = master?.artSpan;
         // any artSpan other than the footprint counts, smaller ones too (a prop drawn at 0.85 of its tile)
         const span = Number(artSpan);
-        if (texture) return { resource, texture, emojiTexture: null, wallSpan: span > 0 && span !== (resource.size || 1) ? span : undefined };
+        if (texture) return { resource, texture, emojiTexture: null, wallSpan: span > 0 && span !== footprintOf(resource).w ? span : undefined };
         const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
         return { resource, texture: null, emojiTexture };
       });
@@ -1681,11 +1688,7 @@ const PixiRenderer = ({
     if (!cursorMode) {
       // Anything placed on the tile is clickable (trees and rocks are 'source' and get chopped
       // or mined through handleTileClick); only shadows are decoration
-      const resource = resources?.find(r => {
-        if (!r || r.type === 'shadow') return false;
-        const span = r.size || 1;
-        return col >= r.x && col < r.x + span && row <= r.y && row > r.y - span;
-      });
+      const resource = resources?.find(r => r && r.type !== 'shadow' && coversTile(r, col, row));
       if (resource) {
         // Something to interact with, but too far: walk next to it (tap again once there)
         if (resourceOutOfRange(resource)) { walkToward(resource); return; }
@@ -1765,10 +1768,7 @@ const PixiRenderer = ({
     // Check for tooltip-eligible resource (excluding doobers and sources)
     const resource = hoverArt ? (['doober', 'source', 'deco'].includes(hoverArt.category) ? null : hoverArt) : resources?.find(r => {
       if (r.type === 'shadow' || r.category === 'doober' || r.category === 'source' || r.category === 'deco') return false;
-      const tileSpan = r.size || 1;
-      // Multi-tile resources grow upward from anchor
-      return col >= r.x && col < r.x + tileSpan &&
-             row <= r.y && row > r.y - tileSpan;
+      return coversTile(r, col, row); // the footprint, anchored lower-left (Utils/footprint.js)
     });
 
     if (resource) {
@@ -1963,13 +1963,13 @@ const PixiRenderer = ({
       <div
         ref={containerRef}
         className="pixi-container"
-        onClick={handleClick}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+        onClick={scene ? undefined : handleClick}
+        onMouseMove={scene ? undefined : handleMouseMove}
+        onMouseLeave={scene ? undefined : handleMouseLeave}
+        onPointerDown={scene ? undefined : handlePointerDown}
+        onPointerMove={scene ? undefined : handlePointerMove}
+        onPointerUp={scene ? undefined : handlePointerUp}
+        onPointerCancel={scene ? undefined : handlePointerUp}
         style={{
           position: 'absolute',
           top: 0,
@@ -1978,7 +1978,7 @@ const PixiRenderer = ({
           bottom: 0,
           overflow: 'hidden',
           zIndex: 1,
-          cursor: 'pointer',
+          cursor: scene ? 'default' : 'pointer',
           touchAction: 'none', // taps, long-presses and pinches are ours, not the page's
         }}
       />
@@ -2052,7 +2052,7 @@ const PixiRenderer = ({
           />
         </div>
         {/* FTUE Doinker - bouncing arrow pointing at target resources/NPCs */}
-        {doinkerType !== 'button' && doinkerType !== 'element' && (
+        {!scene && doinkerType !== 'button' && doinkerType !== 'element' && (
           <PixiRendererDoinker
             doinkerTargets={doinkerTargets}
             doinkerType={doinkerType}
@@ -2063,15 +2063,15 @@ const PixiRenderer = ({
         )}
       </div>
       {/* Cursor highlight for placement modes */}
-      <PixiRendererCursor
+      {!scene && <PixiRendererCursor
         app={appRef.current}
         hoveredTile={hoveredTile}
         cursorMode={cursorMode}
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
-      />
+      />}
       {/* VFX layer for range indicators and other effects */}
-      <PixiRendererVFX
+      {!scene && <PixiRendererVFX
         app={appRef.current}
         npcs={npcs}
         pcs={pcs}
@@ -2080,11 +2080,13 @@ const PixiRenderer = ({
         masterResources={masterResources}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         getNPCRenderPosition={getNPCRenderPosition}
-      />
+      />}
       {/* Ambient tile effects (lava bubbles; water and sand later): PixiRendererTileFX */}
       <PixiRendererTileFX app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} atlasTick={atlasTick} />
       {/* Step-stone paths: their stones as one layer over the ground (PixiRendererStepStones) */}
       <PixiRendererStepStones app={appRef.current} tileTypes={tileTypes} TILE_SIZE={TILE_SIZE} />
+      {/* The player, speech and NPC status marks: none in the login scene */}
+      {!scene && (<>
       {/* PC layer with state-based icons */}
       <PixiRendererPCs
         app={appRef.current}
@@ -2115,6 +2117,7 @@ const PixiRenderer = ({
         getNPCRenderPosition={getNPCRenderPosition}
         npcAnimations={npcAnimations}
       />
+      </>)}
     </>
   );
 };

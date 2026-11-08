@@ -43,6 +43,9 @@ let resizeObserver = null;
 let zoomFrame = null;
 let zoomDone = null;
 let readyResolvers = [];
+// Pinned: the world's origin (the grid's top-left corner) sits at the viewport's top-left and
+// nothing moves it (the login scene, docs/login-scene-plan.md). follow / pan are ignored.
+let pinnedTopLeft = false;
 
 const ZOOM_DURATION_MS = 220; // ease-out over real time, so a slow frame rate still lands on time
 const ZOOM_EPSILON = 0.001;
@@ -67,8 +70,8 @@ function apply() {
   const cx = viewport.width / 2;
   const cy = viewport.height / 2;
   // Snap to whole device pixels at the current zoom so tile edges stay crisp
-  const x = Math.round(cx - playerTile.x * tileSize * zoom + pan.x);
-  const y = Math.round(cy - playerTile.y * tileSize * zoom + pan.y);
+  const x = pinnedTopLeft ? 0 : Math.round(cx - playerTile.x * tileSize * zoom + pan.x);
+  const y = pinnedTopLeft ? 0 : Math.round(cy - playerTile.y * tileSize * zoom + pan.y);
   worldContainer.scale.set(zoom);
   worldContainer.position.set(x, y);
   if (overlayEl) {
@@ -115,6 +118,8 @@ export function detach() {
   cancelPanReturn();
   pan = { x: 0, y: 0 };
   zoomDone = null;
+  // the login scene's framing never carries over to the game's board
+  if (pinnedTopLeft) { pinnedTopLeft = false; zoom = 1; targetZoom = 1; }
   if (resizeObserver) { resizeObserver.disconnect(); resizeObserver = null; }
   window.removeEventListener('resize', resizeToHost);
   app = null;
@@ -237,6 +242,13 @@ export function revealPointIn(worldX, worldY, region, margin = 40) {
   return true;
 }
 
+/** Pin the grid's top-left corner to the viewport's top-left (true), or go back to following. */
+export function pinTopLeft(on) {
+  pinnedTopLeft = !!on;
+  pan = { x: 0, y: 0 };
+  apply();
+}
+
 export function follow(x, y) {
   if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) return;
   // Sprites are centred on the tile (anchor 0.5), so follow the tile centre
@@ -350,7 +362,7 @@ export function screenToTile(screenX, screenY) {
 }
 
 const PixiCamera = {
-  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, panToTile, revealPlayerIn, revealPointIn, setPanBounds, setZoom, animateZoom,
+  attach, detach, whenReady, setOverlayElement, pinTopLeft, follow, panBy, resetPan, animatePanTo, panToTile, revealPlayerIn, revealPointIn, setPanBounds, setZoom, animateZoom,
   getZoom, getPan, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
   debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),

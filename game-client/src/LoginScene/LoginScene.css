@@ -1,0 +1,9 @@
+/* The login scene (docs/login-scene-plan.md): fills .keyart-wrapper, whose own background is the
+   plain grass shown until the scene's first frame is ready; then the scene fades in. Look-only. */
+.login-scene {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 400ms ease-out;
+}
+.login-scene--visible { opacity: 1; }

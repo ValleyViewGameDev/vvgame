@@ -863,8 +863,44 @@ class HopeCloudsEffect extends BaseCloudEffect {
   }
 }
 
+/**
+ * Several effects at once, named "a+b" in VFXMap.json (the login scene: "butterflies+clouds").
+ * The children fade together through this container; each child stays fully opaque inside it.
+ */
+class CombinedEffect extends AmbientEffect {
+  constructor(app, gridWidth, gridHeight, TILE_SIZE, names) {
+    super(app, gridWidth, gridHeight, TILE_SIZE);
+    this.children = names
+      .map((name) => createAmbientEffect(name, app, gridWidth, gridHeight, TILE_SIZE))
+      .filter(Boolean);
+    for (const child of this.children) {
+      child.container.alpha = 1;
+      this.container.addChild(child.container);
+    }
+  }
+
+  start() {
+    super.start();
+    for (const child of this.children) child.start();
+  }
+
+  stop() {
+    super.stop();
+    for (const child of this.children) child.stop();
+  }
+
+  destroy() {
+    for (const child of this.children) child.destroy(); // each removes and destroys its own container
+    this.children = [];
+    super.destroy();
+  }
+}
+
 // Export effect factory
 export const createAmbientEffect = (effectName, app, gridWidth, gridHeight, TILE_SIZE) => {
+  if (typeof effectName === 'string' && effectName.includes('+')) {
+    return new CombinedEffect(app, gridWidth, gridHeight, TILE_SIZE, effectName.split('+'));
+  }
   switch (effectName) {
     case 'butterflies':
       return new ButterfliesEffect(app, gridWidth, gridHeight, TILE_SIZE);

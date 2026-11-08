@@ -8080,7 +8080,7 @@
     "parallel": 10,
     "size": 1,
     "filename": "chicken-coop.svg",
-    "artSpan": 1.13
+    "artSpan": 1.22
   },
   {
     "type": "Oven",
@@ -15015,7 +15015,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "haybale.svg",
-    "artSpan": 0.77
+    "artSpan": 0.88
   },
   {
     "type": "Crate",
@@ -15040,7 +15040,7 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "crate.svg",
-    "artSpan": 0.77
+    "artSpan": 0.85
   },
   {
     "type": "Barrel",
@@ -15065,7 +15065,7 @@
     "ingredient1qty": 20,
     "gemcost": 1,
     "filename": "barrel.svg",
-    "artSpan": 0.78
+    "artSpan": 0.87
   },
   {
     "type": "Stone Wall",
@@ -15242,7 +15242,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "flower-pot.svg"
+    "filename": "flower-pot.svg",
+    "artSpan": 1.1
   },
   {
     "type": "Potted Plant",
@@ -15590,7 +15591,7 @@
     "ingredient1qty": 30,
     "gemcost": 1,
     "filename": "sack.svg",
-    "artSpan": 0.58
+    "artSpan": 0.65
   },
   {
     "type": "Stack of Books",
@@ -15615,7 +15616,7 @@
     "ingredient1qty": 1000,
     "gemcost": 10,
     "filename": "stack-of-books.svg",
-    "artSpan": 0.93
+    "artSpan": 0.8
   },
   {
     "type": "Chair",

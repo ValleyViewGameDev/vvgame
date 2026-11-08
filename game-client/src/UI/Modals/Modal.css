@@ -40,6 +40,11 @@
     z-index: 100000;
 }
 
+/* The Begin modal over the login scene: a lighter dim so the living grid shows (docs/login-scene-plan.md) */
+.modal-overlay.modal-overlay--scene {
+    background-color: var(--color-modal-overlay-scene);
+}
+
 /* STANDARDIZED Modal Container - Use this for ALL modals */
 .modal-container {
     background: var(--color-bg-modal);

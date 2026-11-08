@@ -143,10 +143,9 @@ import { StatusBarContext } from './UI/StatusBar/StatusBar';
 // The characters walking random paths over the key art: off for now (they don't read as the game
 // yet); kept for a load screen that shows more of the game one day.
 // import StartScreenAnimation from './UI/StartScreenAnimation';
-import LoginScreenButterflies from './UI/LoginScreenButterflies';
+import LoginScene from './LoginScene/LoginScene';
 import { useTransition } from './UI/TransitionContext';
 import LoadingScreen from './UI/LoadingScreen';
-import KeyArtImage from './UI/KeyArtImage';
 
 import { enterGrid, seedGridFromBundle, updateGridStatus, isWallBlocking, getLineOfSightTiles, changePlayerLocation } from './Utils/GridManagement';
 import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, setMovementContext, stopMovement, walkTo } from './PlayerMovement';
@@ -2532,10 +2531,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // A read-only snapshot of someone else's homestead (Utils/viewOnly.js): only signposts work
   if (isViewOnly(gridId)) {
-    const here = resources.find((res) => {
-      const span = res.size || 1;
-      return colIndex >= res.x && colIndex < res.x + span && rowIndex <= res.y && rowIndex > res.y - span;
-    });
+    const here = resources.find((res) => coversTile(res, colIndex, rowIndex));
     if (here?.category !== 'travel') {
       if (here || cursorMode) updateStatus(strings[10023] || 'Just looking: nothing here can be changed.');
       return;
@@ -2717,13 +2713,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   }
 
   // Find resource including multi-tile resources
-  const resource = resources.find((res) => {
-    const tileSpan = res.size || 1;
-    // Check if the clicked tile falls within the resource's size
-    // Resource is anchored at lower-left (res.x, res.y)
-    return colIndex >= res.x && colIndex < res.x + tileSpan &&
-           rowIndex <= res.y && rowIndex > res.y - tileSpan;
-  });
+  const resource = resources.find((res) => coversTile(res, colIndex, rowIndex)); // the footprint, anchored lower-left (Utils/footprint.js)
   console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
 
   // 🛡️ Prevent interaction on another player's homestead
@@ -3618,9 +3608,8 @@ return (
 
       {showKeyArt && (
         <div className="keyart-wrapper">
-          <KeyArtImage />
-          <LoginScreenButterflies />
-          {/* <StartScreenAnimation /> */}
+          {/* the living grid behind Begin and sign-in (docs/login-scene-plan.md); grass until it is ready */}
+          <LoginScene masterResources={masterResources} TILE_SIZE={PIXI_BASE_TILE_SIZE} strings={strings} />
         </div>
       )}
 

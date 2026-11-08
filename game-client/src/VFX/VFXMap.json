@@ -1,5 +1,9 @@
 [
   {
+    "ambientVFX": "butterflies+clouds",
+    "gtype": "loginScene"
+  },
+  {
     "ambientVFX": "butterflies",
     "gtype": "homestead"
   },

@@ -217,6 +217,7 @@ app.use('/api', require('./utils/gridWriteLock').gridWriteLock);
 // ...then one writer per player: queues player write requests per playerId, after the grid lock (utils/playerWriteLock.js)
 app.use('/api', require('./utils/playerWriteLock').playerWriteLock);
 app.use('/api', authRoutes); // <-- Use auth routes for player registration/login
+app.use('/api', require('./routes/loginSceneRoutes')); // the Begin screen's living grid (no player, read-only)
 app.use('/api', require('./routes/unsubscribe')); // one-click unsubscribe from email footers (no session)
 app.use('/api', require('./routes/dev')); // Edit Mode writes (developers, local dev only)
 console.log('Setting up player routes...');

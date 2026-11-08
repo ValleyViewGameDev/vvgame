@@ -798,7 +798,7 @@ body {
   right: 0;
   bottom: 0;
   overflow: hidden;
-  background-color: #81bc4d; /* style-ok: art (the key art's own edge green, for windows larger than the art) */
+  background-color: var(--tile-g); /* plain grass until the login scene's first frame (LoginScene/LoginScene.js) */
 }
 
 /* The key art (login and loading) is pinned to the top-left at its natural size (1698 x 1545):

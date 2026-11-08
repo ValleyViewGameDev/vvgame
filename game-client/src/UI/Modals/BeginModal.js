@@ -51,7 +51,7 @@ export default function BeginModal({ onBegin, onSignIn }) {
   };
 
   return (
-    <Modal size="small" className="begin-modal" onClose={() => {}} title={strings[0]}>
+    <Modal size="small" className="begin-modal" overlayClassName="modal-overlay--scene" onClose={() => {}} title={strings[0]}>
       <img className="begin-logo" src="/logo512.png" alt="" width="96" height="96" />
       {inApp ? (
         <>

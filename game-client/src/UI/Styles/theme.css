@@ -110,6 +110,7 @@
   /* ========== MODAL COLORS ========== */
   --color-modal-title: var(--brand-gold);  /* Brown/gold panel header color */
   --color-modal-overlay: rgba(0, 0, 0, 0.4); /* lightened from 0.6 (owner, 2026-10-11) */
+  --color-modal-overlay-scene: rgba(0, 0, 0, 0.12); /* over the login scene, so the living grid reads (owner, 2026-11-08) */
   --color-table-alt-row: #f9f9f9;          /* Alternating table row background */
 
   /* ========== PANEL COLORS ========== */

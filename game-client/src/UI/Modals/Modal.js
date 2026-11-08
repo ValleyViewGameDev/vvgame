@@ -6,14 +6,14 @@ import './Modal.css';
 import '../Buttons/SharedButtons.css';
 import CloseButton from '../Buttons/CloseButton';
 
-function Modal({ isOpen = true, onClose, title, children, custom, message, message2, size = "standard", className }) {
+function Modal({ isOpen = true, onClose, title, children, custom, message, message2, size = "standard", className, overlayClassName }) {
   if (!isOpen) return null;
 
   // Portal to <body> so a modal opened from inside a panel is positioned by the viewport,
   // not by the panel (phones animate panels with a transform, which would otherwise capture
   // the fixed overlay)
   return createPortal(
-    <div className="modal-overlay">
+    <div className={`modal-overlay${overlayClassName ? ` ${overlayClassName}` : ""}`}>
       {/* size: "small" | "narrow" | "medium" | "large" | "xlarge" (docs/ui-conventions.md §2, modal
           widths); "standard" (the default) takes no tier class */}
       <div className={`modal-container ${size && size !== "standard" ? `modal-${size}` : ""} ${className || ""}`}>
