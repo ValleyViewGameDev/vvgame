@@ -221,3 +221,10 @@ hedge wall set is parked in BL-22. Every cut is seated at its square's bottom af
 The six door rows (Town Door, Dungeon Door, Mirror, Locked Door, Arena Door, Black Fog) are in
 the Buy Deco catalogue under Walls and Fences for DEVELOPERS only (`source: Deco`, `requires:
 devonly`, 2026-11-08), so a layout can be dressed in game; players never see them.
+
+## Pass B4: art pieces (2026-11-08, `tools/art/jobs/deco-art.json`)
+
+In the Lion's sandstone (its cut as the third ref): Sundial (`sundial`, artSpan 1.11, 1,500,
+statuary + garden), Stone Urn (`stone-urn`, 0.96, 800, statuary + garden), Obelisk (`obelisk`,
+1.93, 3,000, statuary); and the Maypole (`maypole`, 2.03, 1,200, garden), ribbons in red, yellow
+and blue (no pink or purple near the key). The Gargoyle came with the castle set.
