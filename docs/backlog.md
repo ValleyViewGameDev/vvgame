@@ -4,6 +4,19 @@ Loose list of work that is agreed but not scheduled. One entry per item: what, w
 where to start. Items move to `refactor-plan.md` (or a feature doc) when they get a slot.
 Keep done items out of here; the git log is the record.
 
+## Launch blockers
+
+Flagged by the owner 2026-11-08: these must be done before the launch (the next ad buy). Each
+item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
+
+- **BL-2.** Real session auth: today any client can act as any player whose id it knows (delete
+  their account through `/delete-player`'s "self" check, spend their holdings on every
+  `/action/*` route), and a developer's id opens the admin routes.
+- **BL-17.** Final art for the player avatars and every NPC (the enemies, Fairy, Santa Claus,
+  The Porter, the Oracle, the quest-giver and speech glyphs).
+- **BL-16.** Final art for the animals: the farm animals and the twelve Zoo animals (the Zoo
+  panel's pets).
+
 ## Open
 
 ### EPIC: NPC / Combat System overhaul (opened 2026-10-07)
@@ -188,7 +201,7 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   tile from the Map / signpost / Snug travel, and the building and NPC levels in
   `resources.json`.
 
-### BL-2: Real session auth in place of the bare `x-player-id` header
+### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
 Added 2026-10-30.
 
@@ -201,7 +214,7 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
 
-### BL-16: Art pass, animals and pets (second to last)
+### BL-16: Art pass, animals and pets (second to last) (LAUNCH BLOCKER)
 
 Added 2026-11-07.
 
@@ -216,7 +229,7 @@ signposts, the power and skill icons and the rich status line, and before the av
 `tools/art/icons.js`, approved on grass and dirt); animals move, so check PixiRendererNPCs'
 facing flip and bob with the Pig first. No animals in any other art (building bible rule).
 
-### BL-17: Art pass, player avatars and NPC avatars (the final one)
+### BL-17: Art pass, player avatars and NPC avatars (the final one) (LAUNCH BLOCKER)
 
 Added 2026-11-07.
 
