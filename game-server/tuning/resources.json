@@ -14787,7 +14787,6 @@
     "type": "Cat",
     "symbol": "🐈",
     "layoutkey": "pt10",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Milk",
@@ -14801,13 +14800,16 @@
     "ingredient1qty": 8,
     "gemcost": 233,
     "crafttime": 28800,
-    "totalnestedtime": 720000
+    "totalnestedtime": 720000,
+    "filename": "pet-cat.svg",
+    "artSpan": 0.8,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Poodle",
     "symbol": "🐩",
     "layoutkey": "pt8",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
@@ -14821,13 +14823,16 @@
     "ingredient1qty": 12,
     "gemcost": 280,
     "crafttime": 43200,
-    "totalnestedtime": 1080000
+    "totalnestedtime": 1080000,
+    "filename": "pet-poodle.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Monkey",
     "symbol": "🐒",
     "layoutkey": "pt1",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14841,13 +14846,16 @@
     "ingredient1qty": 15,
     "gemcost": 301,
     "crafttime": 43200,
-    "totalnestedtime": 1339200
+    "totalnestedtime": 1339200,
+    "filename": "pet-monkey.svg",
+    "artSpan": 0.85,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Duck",
     "symbol": "🦆",
     "layoutkey": "pt4",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Corn",
@@ -14861,13 +14869,16 @@
     "ingredient1qty": 18,
     "gemcost": 321,
     "crafttime": 50400,
-    "totalnestedtime": 1605600
+    "totalnestedtime": 1605600,
+    "filename": "pet-duck.svg",
+    "artSpan": 0.8,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Donkey",
     "symbol": "🫏",
     "layoutkey": "pt5",
-    "size": 1.6,
     "category": "pet",
     "action": "feed",
     "output": "Carrot",
@@ -14883,13 +14894,16 @@
     "ingredient2qty": 8,
     "gemcost": 327,
     "crafttime": 57600,
-    "totalnestedtime": 2649600
+    "totalnestedtime": 2649600,
+    "filename": "pet-donkey.svg",
+    "artSpan": 1.1,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Owl",
     "symbol": "🦉",
     "layoutkey": "pt2",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Egg",
@@ -14905,13 +14919,16 @@
     "ingredient2qty": 12,
     "gemcost": 370,
     "crafttime": 57600,
-    "totalnestedtime": 3859200
+    "totalnestedtime": 3859200,
+    "filename": "pet-owl.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Parrot",
     "symbol": "🦜",
     "layoutkey": "pt12",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14927,13 +14944,16 @@
     "ingredient2qty": 16,
     "gemcost": 406,
     "crafttime": 64800,
-    "totalnestedtime": 5076000
+    "totalnestedtime": 5076000,
+    "filename": "pet-parrot.svg",
+    "artSpan": 1.0,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Eagle",
     "symbol": "🦅",
     "layoutkey": "pt11",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
@@ -14949,13 +14969,16 @@
     "ingredient2qty": 20,
     "gemcost": 437,
     "crafttime": 64800,
-    "totalnestedtime": 6285600
+    "totalnestedtime": 6285600,
+    "filename": "pet-eagle.svg",
+    "artSpan": 1.05,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Zebra",
     "symbol": "🦓",
     "layoutkey": "pt3",
-    "size": 1.8,
     "category": "pet",
     "action": "feed",
     "output": "Wheat",
@@ -14973,13 +14996,16 @@
     "ingredient3qty": 11,
     "gemcost": 467,
     "crafttime": 86400,
-    "totalnestedtime": 8985600
+    "totalnestedtime": 8985600,
+    "filename": "pet-zebra.svg",
+    "artSpan": 2.04,
+    "sizeX": 2,
+    "sizeY": 1
   },
   {
     "type": "Giraffe",
     "symbol": "🦒",
     "layoutkey": "pt6",
-    "size": 3,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14997,13 +15023,16 @@
     "ingredient3qty": 21,
     "gemcost": 546,
     "crafttime": 86400,
-    "totalnestedtime": 14688000
+    "totalnestedtime": 14688000,
+    "filename": "pet-giraffe.svg",
+    "artSpan": 2.6,
+    "sizeX": 1,
+    "sizeY": 2
   },
   {
     "type": "Orangutan",
     "symbol": "🦧",
     "layoutkey": "pt7",
-    "size": 1.5,
     "category": "pet",
     "action": "feed",
     "output": "Orange",
@@ -15021,13 +15050,16 @@
     "ingredient3qty": 28,
     "gemcost": 602,
     "crafttime": 86400,
-    "totalnestedtime": 19612800
+    "totalnestedtime": 19612800,
+    "filename": "pet-orangutan.svg",
+    "artSpan": 1.3,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Dodo Bird",
     "symbol": "🦤",
     "layoutkey": "pt9",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Corn",
@@ -15045,7 +15077,11 @@
     "ingredient3qty": 40,
     "gemcost": 668,
     "crafttime": 172800,
-    "totalnestedtime": 26870400
+    "totalnestedtime": 26870400,
+    "filename": "pet-dodo.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Haybale",

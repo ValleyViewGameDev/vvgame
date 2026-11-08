@@ -26,7 +26,16 @@ and the Pig, which already has `npc-pig.svg` from the first style slice) bought 
 panel, that WALK: the NPC renderer tweens each step with a facing flip (`artFacing`) and a bob,
 and their grazing / ready states are the NPC headline effects. Five still draw as Twemoji.
 
-## Track 1: the zoo animals as standing props
+## Track 1: the zoo animals as standing props (DONE 2026-11-08)
+
+Shipped after the farm animals. A three-animal style probe first (Owl on a stump, Cat sitting,
+Donkey; `zoo-probe`), approved, then the nine others in `zoo-sheet`, every one drawn with the
+shipped Cow on magenta as the animal reference and the barrel as the camera, bright colour where
+the animal allows (mallard drake, scarlet macaw, bald eagle, orange orangutan). Installed as
+`pet-<name>.svg`; artSpan: Cat and Duck 0.8, Monkey 0.85, Owl, Poodle and Dodo 0.9, Parrot 1.0,
+Eagle 1.05, Donkey 1.1, Orangutan 1.3, Zebra 2.04 (2 x 1; not 2.0, which the renderer would read
+as "no span" and stretch), Giraffe 2.6 (1 x 2). `size` removed from all twelve rows, `sizeX` /
+`sizeY` explicit, so the master row decides the footprint over any old placed record.
 
 They do not move, so they take the deco pipeline, not the NPC one: drawn on magenta with the
 barrel as the camera reference and the Pig's panel as the ANIMAL reference (slice A's
@@ -79,8 +88,8 @@ renderer already bobs and flips, the states are headline effects.
 
 ## Order and gates
 
-1. Zoo small sheet (eight) -> approve -> rows, panels, atlas.
-2. Zoo large sheet (four, the two rectangles) -> approve -> rows.
+1. Zoo small sheet (eight) -> DONE 2026-11-08 (probe + sheet in one pass).
+2. Zoo large sheet (four, the two rectangles) -> DONE 2026-11-08.
 3. Farm animals (six) -> DONE 2026-11-08.
 4. Then BL-17, the avatars, which is the last emoji in the game.
 

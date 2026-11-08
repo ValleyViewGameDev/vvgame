@@ -35,7 +35,7 @@ on 2026-11-07; re-run the counts before each pass rather than trusting these.
 | npc | 28 | the board, panels, quest cards | 5 farm animals DONE 2026-11-08 (BL-16, `npc-cow/-brown-cow/-sheep/-ram/-goat.svg`, Pig redrawn); 12 enemies + 7 spawners + Fairy, Santa, Porter, Oracle → BL-17 (spawners: pass 3 decides whether they draw at all) |
 | farmplot | 23 | the board: every growing plot is a 🌱 (vines 🍃) | pass 3: growing-plot art |
 | deco | 15 | board + Deco panel | pass 3: Holiday Tree (5 layouts) and Stack of Books (3) get art; the 13 unused rows (5 emoji walls, Harp, Chair, Toilet, Bed, Teddy Bear, Slide, White Dove, Black Fog as a door) are retired or drawn |
-| pet | 12 | board, Pets panel | BL-16 |
+| pet | 12 | board, Pets panel | DONE 2026-11-08 (BL-16, `pet-<name>.svg`, footprints explicit, PetPanel through ResourceIcon) |
 | travel | 10 | the board: 8 signpost arrows, Dungeon Entrance / Exit | pass 3 |
 | editor | 5 | the board: Mountain (3 sizes), Big Statue, Volcano | pass 3 (the 20-tile mountain is the largest emoji in the game) |
 
@@ -187,8 +187,8 @@ unapproved, `iconFile` (panel-only) or `filename` (board) on the row, `npm run b
    Wheat, and then sell it to {res:Kent} Kent"): a thing with art gets its token, a panel its
    button icon, a skill nothing, an animal or a character nothing until BL-16 / BL-17. Chat and
    conversation glyphs (Conversation.js) are NPC speech and wait for BL-17.
-6. **Animals and pets** (BL-16): Cow, Sheep, Brown Cow, Ram, Goat, Pig (DONE 2026-11-08), the 12 Zoo
-   pets, their panel rows and the Buy / Pets cards.
+6. **Animals and pets** (BL-16, DONE 2026-11-08): the six farm animals and the 12 Zoo pets, their
+   panel rows and the Buy / Pets cards.
 7. **Avatars** (BL-17): the parts-based player avatar (docs/avatar-plan.md) on the board and in
    the Profile / Change Icon modals, then NPC avatars: the 12 enemies, the 7 spawners if they
    stay visible, Fairy, Santa Claus, The Porter, the Oracle, the RelationshipMatrix glyphs,

@@ -216,7 +216,7 @@ than from the header or a `playerId` in the body. Found while closing the open a
 
 ### BL-16: Art pass, Zoo animals (farm animals done) (LAUNCH BLOCKER)
 
-Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). Farm animals DONE 2026-11-08: six side-on sprites (the Pig redrawn too, so the set matches) at `npc-<name>.svg`, every row `artFacing: right` with a per-animal `artScale` (cows 1.1, ram 1.0, pig and sheep 0.95, goat 0.85); job tools/art/jobs/farm-animals.json. Zoo sheets next.
+Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). Farm animals DONE 2026-11-08: six side-on sprites (the Pig redrawn too, so the set matches) at `npc-<name>.svg`, every row `artFacing: right` with a per-animal `artScale` (cows 1.1, ram 1.0, pig and sheep 0.95, goat 0.85); job tools/art/jobs/farm-animals.json. Zoo animals DONE 2026-11-08: style probe (Owl on a stump, Cat sitting, Donkey; tools/art/jobs/zoo-probe.json) then the nine others (zoo-sheet.json), all twelve installed as `pet-<name>.svg` with explicit footprints (Zebra 2 x 1, Giraffe 1 x 2, the rest 1 x 1; fractional `size` gone) and artSpan per animal; PetPanel shows the art through ResourceIcon. BL-16 is complete; only BL-17 (avatars) remains of the emoji project.
 
 **What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat, Pig: done 2026-11-08)
 and the twelve Zoo pets (Cat, Poodle, Monkey, Duck, Donkey, Owl, Parrot, Eagle, Zebra,
