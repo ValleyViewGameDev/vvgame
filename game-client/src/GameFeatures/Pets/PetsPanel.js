@@ -176,7 +176,9 @@ const PetsPanel = ({
 
                 const playerQty = getPlayerQuantity(type, inventory, backpack); // backpack + warehouse
                 const color = playerQty >= qty ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                // Zoo animals only: a heart (Yellow / Green / Purple Heart) shows its icon and counts, no name
+                const name = / Heart$/.test(type) ? '' : ` ${getLocalizedString(type, strings)}`;
+                return `<span style="color: ${color}; display: block;">${resourceIconHtml(type, allResources)}${name} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = requirementsMet ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
