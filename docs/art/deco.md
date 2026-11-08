@@ -183,3 +183,12 @@ Lion, Bust; grey = Knight, Gargoyle.
 
 A deco row may carry several groups, `decoGroup: "castle;statuary"`, and lists under each tab
 (Knight Statue and Gargoyle: castle + statuary; Royal Bed and Throne: furniture + castle).
+
+## Pass B2: three farm props (2026-11-08, `tools/art/jobs/deco-farm.json`)
+
+The plan's village set, trimmed by the owner: no cottages (a fake building that does nothing
+confuses), no market stall (the Trade Stall is gameplay), no dovecote. Three props under the
+Farm tab: Stone Well (`stone-well`, 1 x 1, artSpan 1.24, 1,000), Woodpile (`woodpile`, 1 x 1,
+0.87, 100), Hand Cart (`hand-cart`, 2 x 1, cut 1.83 and set to 1.65 for buffer, 600).
+`cutout.js` now clamps its padding at zero: an art drawn edge to edge in its panel (the wide
+cart) used to throw on a negative pad.

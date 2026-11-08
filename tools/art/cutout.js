@@ -58,7 +58,8 @@ if (!subject) { console.error('need --subject'); process.exit(1); }
   const L = Math.max(0, left), T = Math.max(0, top);
   const W = Math.min(side, info.width - L), H = Math.min(side, info.height - T);
   let cut = sharp(keyed).extract({ left: L, top: T, width: W, height: H });
-  if (W < side || H < side) cut = cut.extend({ left: L - left, top: T - top, right: side - W - (L - left), bottom: side - H - (T - top), background: { r: 0, g: 0, b: 0, alpha: 0 } });
+  // pad the square out where it runs past the panel (an art drawn edge to edge, a wide 2 x 1 cart); never a negative pad
+  if (W < side || H < side) cut = cut.extend({ left: Math.max(0, L - left), top: Math.max(0, T - top), right: Math.max(0, side - W - (L - left)), bottom: Math.max(0, side - H - (T - top)), background: { r: 0, g: 0, b: 0, alpha: 0 } });
   const out = await cut.resize(px, px, { kernel: 'lanczos3' }).png({ compressionLevel: 9 }).toBuffer();
   const dir = path.join(ROOT, 'game-client', 'public', 'assets', 'resources');
   fs.writeFileSync(path.join(dir, `${file}.png`), out);

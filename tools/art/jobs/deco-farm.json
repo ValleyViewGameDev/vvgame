@@ -1,0 +1,47 @@
+{
+  "name": "deco-farm",
+  "note": "BL-18 pass B2, trimmed by the owner to three farm props (2026-11-08): no cottages (fake buildings confuse), no market stall (the Trade Stall is gameplay), no dovecote. Stone Well, Woodpile, Hand Cart (2 x 1); decoGroup farm.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "stone-well": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a STONE WELL: a round well of grey fieldstone with a little pitched wooden roof on two posts and a windlass with a bucket, about one and a half tiles tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "woodpile": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a WOODPILE: split firewood logs stacked neatly in a low block, their cut ends toward the viewer, under a small plank lean-to roof on two posts; about one tile tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "hand-cart": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2x1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a HAND CART, two tiles wide: a wooden two-wheeled farm cart with raised plank sides and two handles at one end, seen from the side so the whole cart is long, two grain sacks in it; the wheels are the game's plain wooden wheels. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in it that is TWO tiles wide and ONE tile deep; the subject stands inside that box and fills it from side to side, twice as wide as it is deep, seen in the game's camera, square-on (its front parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow under it only; everything outside the subject is flat magenta, no ground, no grass."
+    }
+  }
+}
