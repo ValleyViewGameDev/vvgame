@@ -248,3 +248,19 @@ cannot be called a complete pass while any deco is an emoji; this is a big pass 
 before BL-16 and BL-17. **Where to start.** docs/art/deco.md (square-on camera, silhouette
 fit, pricing ladder) and the first 13 props' job `tools/art/jobs/deco-whimsical-r1.json`;
 the wall rows want the joining wall-set treatment (docs/walls.md) or retirement.
+
+### BL-20: `save-single-npc` trusts whatever NPC state the client sends
+
+Added 2026-11-08.
+
+**What.** `POST /api/save-single-npc` (`game-server/routes/gridRoutes.js`, called by
+`NPCsInGridManager.updateNPC` in `GridState/GridStateNPCs.js`) writes the client's NPC record
+(state, grazeEnd, hp, position, ...) into the grid as sent. A tampered client can mark a grazing
+farm animal `processing` for free, which undercuts the gem price of the new
+`/action/graze-speedup` (and any timer the server prices), or rewrite an enemy's hp. **Why.**
+Every economic action is meant to be one `/action/*` request that takes its numbers from the
+server (CLAUDE.md, Phase 5); this route predates that. Same family as BL-2 (the server trusting
+the client). **Where to start.** Make the route refuse the fields an `/action/*` route owns
+(e.g. a graze animal's move to `processing` before the server's own `grazeEnd`, hp rises), or
+have the server derive graze state from its own `grazeEnd`; check the graze behaviour's
+`updateThisNPC` calls in `NPCGrazeBehavior.js` first.
