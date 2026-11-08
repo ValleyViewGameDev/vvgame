@@ -8,7 +8,6 @@ import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import TrainCompleteModal from '../../UI/Modals/TrainCompleteModal';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
-import { getTrainBaseThreshold, splitTrainRewards } from './TrainOfferLogic';
 import './Train.css';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
@@ -58,7 +57,7 @@ function NewTrainPanel({
   const [showTrainComplete, setShowTrainComplete] = useState(false); // "All Train orders filled!" celebration
 
   // The Caravan is the server's (game-server/routes/caravanRoutes.js, utils/caravan.js): it makes
-  // the orders and rewards, fills an order and mails each reward tier the moment it is earned; the
+  // the orders and rewards, fills an order (its Money and XP at once) and mails the all-orders reward when the last is filled; the
   // train scheduler's departure mails anything a failed send left behind, so no login is needed.
   // This panel shows what the server holds and reacts on the tap.
   const rewardSummaryText = (rewards) =>
@@ -73,6 +72,7 @@ function NewTrainPanel({
       ...(data.inventory ? { inventory: data.inventory } : {}),
       ...(data.backpack ? { backpack: data.backpack } : {}),
       ...(data.messages ? { messages: data.messages } : {}),
+      ...(Number.isFinite(data.playerXP) ? { xp: data.playerXP } : {}), // a filled order's XP
     }));
     if (data.inventory) setInventory(data.inventory);
     if (data.backpack) setBackpack(data.backpack);
@@ -191,7 +191,8 @@ function NewTrainPanel({
       if (!data?.success) throw new Error(data?.error || 'fill failed');
       applyServerState(data);
       const tierText = data.delivered?.length > 0 ? ` 🚂 Rewards sent to your mailbox: ${rewardSummaryText(data.delivered)}` : '';
-      updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for {res:Money} ${data.money.toLocaleString()}.${tierText}`);
+      const xpText = data.xp > 0 ? ` +${data.xp} XP.` : '';
+      updateStatus(`✅ Delivered ${offer.quantity} ${offer.item} for {res:Money} ${data.money.toLocaleString()}.${xpText}${tierText}`);
     } catch (error) {
       const code = error?.response?.data?.error;
       console.error("❌ Error fulfilling Caravan order:", code || error);
@@ -236,7 +237,9 @@ function NewTrainPanel({
           } else {
             const costColor = affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
             costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
-            const rewardDisplay = `${resourceIconHtml('Money', masterResources)} ${moneyReward.toLocaleString()}`;
+            // the order pays its Money and its own XP when filled (offer.xp; older orders: none shown)
+            const rewardDisplay = `${resourceIconHtml('Money', masterResources)} ${moneyReward.toLocaleString()}`
+              + (offer.xp > 0 ? ` + ${resourceIconHtml('XP', masterResources)} ${offer.xp} XP` : '');
             details = `<div>${costDisplay}</div>${strings[42]} ${rewardDisplay}`;
             buttonText = '';
           }
@@ -281,35 +284,21 @@ function NewTrainPanel({
   };
 
   const renderCurrentRewards = () => {
-    // Two tiers (TrainOfferLogic.js): the base tier for every order but the stretch (⭐) ones,
-    // the full tier for all of them
-    const { base, full } = splitTrainRewards(currentTrainRewards);
-    const threshold = getTrainBaseThreshold(currentTrainOffers);
-    const total = currentTrainOffers.length;
-    const renderList = (rewards) => (
-      <div className="train-rewards-container">
-        {rewards.map((reward, index) => (
-          <div key={index} className="train-reward-item">
-            <ResourceIcon type={reward.item} masterResources={masterResources} /> {reward.quantity} {reward.item}
-          </div>
-        ))}
-      </div>
-    );
+    // One reward for filling ALL the orders (the seasonal hearts, mailed when the last one is
+    // filled); each order pays its own Money and XP on the card the moment it is filled
+    // (game-server/utils/caravan.js, owner 2026-11-08). Older Caravans also list XP: not shown.
+    const allOrders = currentTrainRewards.filter((r) => r.item !== 'XP');
+    if (allOrders.length === 0) return null;
     return (
       <div className="reward-section">
-        {currentTrainRewards.length === 0 && <p>No rewards available</p>}
-        {base.length > 0 && threshold < total && (
-          <>
-            <h3>{(strings[2024] || 'Rewards for filling {n} of {m} orders:').replace('{n}', threshold).replace('{m}', total)}</h3>
-            {renderList(base)}
-          </>
-        )}
-        {(full.length > 0 || (base.length > 0 && threshold >= total)) && (
-          <>
-            <h3>{strings[2019]}</h3>
-            {renderList(threshold >= total ? [...base, ...full] : full)}
-          </>
-        )}
+        <h3>{strings[2019]}</h3>
+        <div className="train-rewards-container">
+          {allOrders.map((reward, index) => (
+            <div key={index} className="train-reward-item">
+              <ResourceIcon type={reward.item} masterResources={masterResources} /> {reward.quantity} {getLocalizedString(reward.item, strings)}
+            </div>
+          ))}
+        </div>
       </div>
     );
   };

@@ -191,19 +191,19 @@ constants named below live there now. Ask sizing is copied three times (client `
   `noCaravan`, not epic / legendary).
 - **Quantities** are sized by effort (§4c, `askSizing.train`), the aspirational band at
   `trainBandScale.aspirational` (0.6) of a normal order. First-time users: crops, 5 to 20.
-- **Rewards, tiered.** Each order is worth what Kent would pay for the same goods: 2 x the
-  good's `xp` per Kent card it equals, where cards = quantity / Kent's usual ask for that good at
-  this level (rounded, at least 1). The **base tier**
-  (XP of the basic and easy orders) is mailed the moment every order but the aspirational ones
-  is filled (6 of 8); the **full tier** (XP of the aspirational orders + 1 to 3 seasonal hearts)
-  when all are filled, with the celebration. Money per order on delivery is unchanged
-  (`maxprice` x quantity). Markers on `player.train`: `lastBaseRewardTrainNumber`,
-  `lastRewardDeliveryTrainNumber` (full; also set at departure). Trains saved before tiers read
-  their XP as the base tier and the rest as the full tier. Typical totals (simulated): about 90
-  to 110 XP at levels 9 to 11, 140 at 14, 190 at 20 (was a flat 15 to 45 for all eight). To pay
-  the Train more, raise `askSizing.train` qtyAt1Min: bigger orders count as more Kent cards.
-- **Why tiered:** aspirational orders are a stretch, never a wall; without tiers one unfillable
-  order voided the whole Train.
+- **Rewards: per order, plus one for all orders** (owner 2026-11-08; the two tiers of 2026-10-12
+  are gone). Each order pays, the moment it is filled, its Money (`maxprice` x quantity) AND its
+  own XP: what Kent would pay for the same goods, 2 x the good's `xp` per Kent card it equals,
+  where cards = quantity / Kent's usual ask for that good at this level (rounded, at least 1),
+  stored on the order as `xp` when the Caravan is made (an older order without it is priced at
+  fill). Filling ALL the orders mails 1 to 3 seasonal hearts (`trainRewards`, the panel's
+  "Rewards for filling all orders"), with the celebration. Marker on `player.train`:
+  `lastRewardDeliveryTrainNumber` (mailed, or the Caravan closed at departure);
+  `lastBaseRewardTrainNumber` is retired. An older Caravan's saved XP reward entries are never
+  mailed (its orders pay their XP now). To pay the Caravan more, raise `askSizing.train`
+  qtyAt1Min: bigger orders count as more Kent cards.
+- **Why per order:** aspirational orders are a stretch, never a wall: an unfillable one costs only
+  its own XP and the hearts, never the rest of the Caravan's pay.
 
 ## 4g. Station level gates
 

@@ -8,9 +8,9 @@
  *        Brings the player's Caravan up to the settlement's (the earned tiers of an old one mailed
  *        first) or makes one; the panel calls it when it opens.
  *   POST /api/caravan/fill { playerId, offerIndex, transactionId }
- *        -> { success, train, delivered, money, inventory, backpack, messages }
+ *        -> { success, train, delivered, money, xp, playerXP, inventory, backpack, messages }
  *        Fills one order while the Caravan is loading: the goods leave (backpack first), its Money
- *        arrives, and any reward tier it completes is mailed in the same write.
+ *        and its XP arrive, and filling the last order mails the hearts in the same write.
  *        409 departed | stale-train | already-filled; 400 not-enough (the goods are short).
  */
 const express = require('express');
@@ -19,6 +19,7 @@ const Player = require('../models/player');
 const Frontier = require('../models/frontier');
 const { takeFromHoldings } = require('../utils/playerHoldings');
 const caravan = require('../utils/caravan');
+const { recordLevelUps } = require('../utils/analytics');
 
 const TX_KEY = 'caravan-fill';
 
@@ -92,16 +93,22 @@ router.post('/caravan/fill', async (req, res) => {
     else player.inventory.push({ type: 'Money', quantity: money });
     player.markModified('inventory');
     player.markModified('backpack');
+    // and its XP, at once (each order pays its own; filling all of them mails the hearts)
+    const xp = caravan.orderXP(offer, player);
+    if (xp > 0) {
+      recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xp).catch(() => {});
+      player.xp = (player.xp || 0) + xp;
+    }
 
     offer.completed = true;
     player.markModified('train');
     const delivered = caravan.mailEarnedTiers(player);
 
-    const result = { money, delivered };
+    const result = { money, xp, delivered };
     player.lastTransactionIds.set(TX_KEY, { id: transactionId, timestamp: Date.now(), result });
     await player.save();
     if (delivered.length) emitMailboxBadge(req, player);
-    res.json({ success: true, ...result, train: player.train, inventory: player.inventory, backpack: player.backpack, messages: player.messages });
+    res.json({ success: true, ...result, train: player.train, inventory: player.inventory, backpack: player.backpack, messages: player.messages, playerXP: player.xp });
   } catch (err) {
     console.error('❌ caravan/fill failed:', err);
     res.status(500).json({ error: 'Caravan order failed.' });

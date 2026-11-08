@@ -1,16 +1,18 @@
 /**
  * The Caravan (code name: Train), server side. The server owns a player's Caravan: it makes the
- * orders and rewards, fills an order (goods out, Money in), and mails each reward tier the moment
- * it is earned; the train scheduler's departure mails any tier a failed send left behind, so no
- * player has to come back for rewards they earned (owner, 2026-11-02). Routes: routes/caravanRoutes.js.
+ * orders and rewards, fills an order (goods out, Money and the order's XP in), and mails the
+ * all-orders reward (seasonal hearts) the moment the last order is filled; the train scheduler's
+ * departure mails it if a failed send left it behind, so no player has to come back for rewards
+ * they earned (owner, 2026-11-02; per-order XP, 2026-11-08). Routes: routes/caravanRoutes.js.
  *
  * Offer and reward generation is the client's former TrainOfferLogic.js + Economy/askSizing.js,
  * ported unchanged (docs/tuning.md, Train; "Effort and ask sizing").
  *
- * Player.train: currentTrainNumber, currentTrainOffers [{ item, quantity, completed, band }],
- * currentTrainRewards [{ item, quantity, tier }], nextTrainOffers / nextTrainRewards (the preview),
- * and two no-double-mail markers: lastBaseRewardTrainNumber (base tier mailed) and
- * lastRewardDeliveryTrainNumber (full tier mailed, or the Caravan closed at departure).
+ * Player.train: currentTrainNumber, currentTrainOffers [{ item, quantity, completed, band, xp }],
+ * currentTrainRewards [{ item, quantity, tier: 'full' }] (hearts; older Caravans also carry XP
+ * entries, never mailed now), nextTrainOffers / nextTrainRewards (the preview), and the
+ * no-double-mail marker lastRewardDeliveryTrainNumber (all-orders reward mailed, or the Caravan
+ * closed at departure). lastBaseRewardTrainNumber is a retired marker (the base tier is gone).
  */
 const Player = require('../models/player');
 const Settlement = require('../models/settlement');
@@ -110,22 +112,16 @@ function trainOrderXP(offer, playerLevel) {
   return (resource?.xp || 1) * 2 * kentCards;
 }
 
-/** Filled orders that unlock the base reward: all but the aspirational ones. */
+/** The XP an order pays when filled: its own `xp`, else (an order made before 2026-11-08) priced now. */
+const orderXP = (offer, player) => (Number.isFinite(offer.xp) ? offer.xp : trainOrderXP(offer, playerLevelOf(player)));
+
+/** The count of non-aspirational orders (kept for older callers; no reward tier hangs on it now). */
 function baseThreshold(offers) {
   const count = offers?.length || 0;
   const aspirational = offers?.some((o) => o.band)
     ? offers.filter((o) => o.band === 'aspirational').length
     : Math.min(ASPIRATIONAL_ORDERS, Math.max(0, count - 1));
   return Math.max(1, count - aspirational);
-}
-
-/** Rewards saved before tiers existed: their XP is the base tier and the rest the full tier. */
-function splitRewards(rewards) {
-  const tierOf = (r) => r.tier || (r.item === 'XP' ? 'base' : 'full');
-  return {
-    base: (rewards || []).filter((r) => tierOf(r) === 'base'),
-    full: (rewards || []).filter((r) => tierOf(r) === 'full'),
-  };
 }
 
 /**
@@ -217,21 +213,15 @@ function generateOffers(player, season) {
   return offers.sort((a, b) => bandOrder[a.band] - bandOrder[b.band]);
 }
 
-/** Base tier: XP worth the basic and easy orders. Full tier: the aspirational XP + 1-3 seasonal items. */
+/**
+ * The Caravan's reward for filling ALL its orders: 1 to 3 seasonal hearts (tier 'full'). XP is no
+ * longer a reward tier: each order pays its own XP (trainOrderXP, stored on the order as `xp`)
+ * with its Money the moment it is filled (owner 2026-11-08).
+ */
 function generateRewards(offers, player, season) {
   const rewards = [];
   const seasonal = globalTuning.trainRewards?.[(season || 'Spring').toLowerCase()];
   if (!Array.isArray(seasonal)) return rewards;
-
-  if (seasonal.includes('XP')) {
-    const playerLevel = playerLevelOf(player);
-    const threshold = baseThreshold(offers);
-    const isAspirational = (o, i) => (o.band ? o.band === 'aspirational' : i >= threshold);
-    const baseXP = offers.filter((o, i) => !isAspirational(o, i)).reduce((sum, o) => sum + trainOrderXP(o, playerLevel), 0);
-    const fullXP = offers.filter((o, i) => isAspirational(o, i)).reduce((sum, o) => sum + trainOrderXP(o, playerLevel), 0);
-    if (baseXP > 0) rewards.push({ item: 'XP', quantity: baseXP, tier: 'base' });
-    if (fullXP > 0) rewards.push({ item: 'XP', quantity: fullXP, tier: 'full' });
-  }
   const pool = seasonal.filter((r) => r !== 'XP');
   const count = pool.length > 0 ? Math.floor(Math.random() * Math.min(3, pool.length)) + 1 : 0;
   const usedRewards = new Set();
@@ -246,7 +236,8 @@ function generateRewards(offers, player, season) {
 }
 
 function generateTrain(player, season) {
-  const offers = generateOffers(player, season);
+  const playerLevel = playerLevelOf(player);
+  const offers = generateOffers(player, season).map((o) => ({ ...o, xp: trainOrderXP(o, playerLevel) }));
   return { offers, rewards: generateRewards(offers, player, season) };
 }
 
@@ -288,9 +279,8 @@ function mailEarnedTiers(player) {
   const offers = train.currentTrainOffers || [];
   if (!n || offers.length === 0) return [];
   const filled = offers.filter((o) => o.completed === true).length;
-  const { base, full } = splitRewards(plain(train.currentTrainRewards) || []);
+  const full = (plain(train.currentTrainRewards) || []).filter((r) => r.item !== 'XP');
   const fullDone = (train.lastRewardDeliveryTrainNumber || 0) >= n;
-  const baseDone = fullDone || (train.lastBaseRewardTrainNumber || 0) >= n;
   const delivered = [];
   const mail = (rewards) => {
     if (rewards.length === 0) return;
@@ -300,15 +290,11 @@ function mailEarnedTiers(player) {
     });
     delivered.push(...rewards.map((r) => ({ item: r.item, quantity: r.quantity })));
   };
-  if (!baseDone && filled >= baseThreshold(offers)) {
-    mail(base);
-    player.train.lastBaseRewardTrainNumber = n;
-  }
   if (!fullDone && filled === offers.length) {
     mail(full);
     player.train.lastRewardDeliveryTrainNumber = n;
   }
-  if (delivered.length || !baseDone || !fullDone) player.markModified('train');
+  if (delivered.length || !fullDone) player.markModified('train');
   return delivered;
 }
 
@@ -395,5 +381,5 @@ const homeSettlement = (player) => (player.settlementId ? Settlement.findById(pl
 module.exports = {
   TRAIN_REWARD_MESSAGE_ID, TRAIN_LEVEL, playerLevelOf, isUnlockedAt,
   generateTrain, mailEarnedTiers, catchUp, sweepDeparture,
-  settlementTrainNumber, seasonFor, orderMoney, baseThreshold, homeSettlement,
+  settlementTrainNumber, seasonFor, orderMoney, orderXP, baseThreshold, homeSettlement,
 };
