@@ -195,3 +195,5 @@
    sparkle burst; the card animates inside it (UI/SaleBurst.css .card-fx-*). */
 .quest-slot { position: relative; padding: 4px 0; }
 .quest-slot > .quest-slot-card > .quest-item { margin: 0; }
+/* the XP a quest pays, under its Reward line (QuestButton + QuestGiverButton), with the XP star */
+.quest-xp { color: var(--color-text-positive); margin-top: 5px; }

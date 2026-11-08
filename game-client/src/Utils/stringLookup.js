@@ -39,6 +39,10 @@ export const DISPLAY_ALIASES = {
   Stepstones: 'Step Stones',      // the step stones tile's tool label (its action, capitalised)
   Fairy: 'Peaseblossom',          // the healer fairy (Titania's attendant); Doctor, Surgeon, Field Nurse stay plain
   Armory: 'Hector Protector',
+  // the currency reads as Gold (owner 2026-11-07); the type stays 'Money' in data and saves. The
+  // rare valley find that was called Gold becomes Fairy Gold (The Winter's Tale), so the two never clash.
+  Money: 'Gold',
+  Gold: 'Fairy Gold',
   // too close to the XP star in yellow (owner 2026-11-08): reads, and is drawn, as a white heart
   'Yellow Heart': 'White Heart',
   Buckler: 'Buckler Shield',      // reads as a shield like its Kite/Heater/Tower siblings (owner 2026-11-02)

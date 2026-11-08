@@ -62,6 +62,18 @@ off the voice the player heard first.
   damage mends, the King's Crown is back on Leontes' head, and Elsinore is merry again.
   Prospero's own epilogue asks to be set free ("As you from crimes would pardoned be, let your
   indulgence set me free"): the player may forgive him.
+- **The finale (BUILT 2026-11-07).** The Oracle's Hope trade plays it (client
+  `GameFeatures/Story/hopeFinale.js`, server `utils/hopeFinale.js` + POST /api/story/hope-finale,
+  flag `storyFlags.hopeReturned`): three Oracle speeches (16535 Hope is home; 16536 the ending:
+  the cast cast apart, the pages sewn back, and they choose to stay, as friends, "What's past is
+  prologue"; 16537 her farewell, "the mountain was only ever my veil"); the camera zooms out; every
+  quarrel is mended (the player is a friend of everyone, romance kept, no rivals; citizen pairs
+  are friends, and the matrix's rivalries read as friendships, `matrixRelation`); the Oracle glows
+  and flies off north as a dove; the Enormous Mountain fades; behind it stand the Home of the
+  Oracle (a Farm House look with no function), a Post House, Snug (Snug Travel now reaches Hope
+  Mountain) and Peter Quince, a woodcutter who chops for the joy of it (the wood vanishes); 100
+  Gems fall from the sky over 10 s. The Hope Mountain blue clouds (VFXMap `hopeClouds`) end with
+  the flag. A player who holds Hope without the flag gets the finale on arriving at her grid.
 
 **Who stands where.** Caliban, Prospero's old servant, knows the mountain and hates him, so he
 helps. Hecate is the witches' queen whose kin Prospero drove out (Sycorax, Caliban's mother, was
@@ -230,7 +242,7 @@ stub riddle, the real puzzle is still to be designed.
 | The Vampire | original | The Vampire's Blood (Zombies) |
 | Santa Claus | original (seasonal) | Seasonal quests |
 | Hecate | Macbeth | Toil and Trouble (the axe for the Cloven Pines); Hecate's Torch (through the Black Fog) |
-| The Porter | Macbeth (the porter of hell-gate) | Easter egg (owner 2026-11-07): a stone hut on the Hell's Mouth spit (1016632) whose only door is a Mirror, so only a Mirror Key holder meets him. Hell is empty since the storm, so he keeps its mouth. His met dialog (16023) is a clue, not critical path: the Oracle's gate opens to seven knocks in any order. Trades 10 Scorpions for 75,000 Money (repeatable); potions later (backlog SP-5) |
+| The Porter | Macbeth (the porter of hell-gate) | Easter egg (owner 2026-11-07): a stone hut on the Hell's Mouth spit (1016632) whose only door is a Mirror, so only a Mirror Key holder meets him. Hell is empty since the storm, so he keeps its mouth. His met dialog (16023) is a clue, not critical path: the Oracle's gate opens to seven knocks in any order. Trades 10 Scorpions for 75,000 Gold (repeatable); potions later (backlog SP-5) |
 | Audrey | As You Like It | The Farm Hand (the worker type `Farm Hand`, shown by name): Arden's cheerful country girl |
 | Corin | As You Like It | The Rancher: Arden's old shepherd, "the greatest of my pride is to see my ewes graze" |
 | Peter Quince | A Midsummer Night's Dream | The Lumberjack: the Mechanicals' carpenter |

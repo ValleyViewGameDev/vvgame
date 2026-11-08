@@ -265,7 +265,7 @@ const RelationshipCard = ({
             // Check for NPC reactions only if this is an NPC
             let npcReactions = [];
             if (targetType === 'npc') {
-              npcReactions = getNPCReactions(targetName, interaction.relbitadd);
+              npcReactions = getNPCReactions(targetName, interaction.relbitadd, statusResult.player || currentPlayer);
               
               // Apply each reaction
               for (const reaction of npcReactions) {

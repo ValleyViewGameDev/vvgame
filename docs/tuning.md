@@ -226,7 +226,7 @@ Priced against the healers (50 to 300 Money for 20 to 50 hp): a full Rest from n
 cheaper than healing the same with a Surgeon, but once a day per Inn.
 
 **The Post House** (2026-10-19, 📯): the other Valley building (BuildValley), level 18, 600 Wood +
-200 Stone, one per grid. Tapping it opens Backpack Management (no panel) in send-home mode: the
+200 Stone, one per grid, 2 x 2 (like the Warehouse; 3 x 3 until 2026-11-07). Tapping it opens Backpack Management (no panel) in send-home mode: the
 backpack's items go to the warehouse by the post, as at home (warehouse capacity applies; special
 items stay in the backpack). `GameFeatures/Inventory/BackpackManageModal.js` is that modal, shared
 with the Inventory panel (`canSendHome` = at home or at a Post House).
@@ -521,6 +521,10 @@ Retuned to rate 7% and odds 55/28/17: per harvest 3.85% / 1.96% / 1.19%, so the 
 uncommon tools drop about a third less (30 becomes about 20) and the rare one is unchanged in
 absolute terms; it only rises as a share of the drops (12% to 17%). The bottleneck stays; the
 surplus beside it shrinks.
+
+## 4k2. One-of-a-kind gains are never multiplied (owner, 2026-11-07)
+
+Quest rewards and NPC trades are multiplied by the giver's relationship buff (`buff4friend` / `buff4love` / `buff4marriage` in RelationshipMatrix.json), except a one-of-a-kind gain, which is always exactly its quantity: a resource row flagged `unique: true` (the Secrets, the story keys: Golden, Skeleton, Dungeon, Mirror, Town; Portia's Pardon, Gertrude's Song, Yorick's Skull, Hecate's Torch, Hope, Home Deed), a Quest for Hope artifact, a skill, a power or a worker. One rule, `isOneOfAKind` in `utils/playerEconomy.js` (client twin `Utils/oneOfAKind.js`). Gems and Hearts are `special` rows too but are currencies, so the flag is explicit rather than by category. A new story item that must come singly gets `unique` in the ECONOMY sheet.
 
 ## 4l. Relationship points follow the bubbles (owner, 2026-11-03)
 

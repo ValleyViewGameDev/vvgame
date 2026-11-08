@@ -4,7 +4,7 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import HelpBadge from '../../UI/Buttons/HelpBadge';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { isKey, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { KEY_TYPES, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import stringsEN from '../../UI/Strings/stringsEN.json';
 import './CurrenciesModal.css';
 
@@ -34,7 +34,7 @@ export default function CurrenciesModal({ inventory = [], backpack = [], masterR
   const t = (id) => strings[id] || stringsEN[id] || '';
   const qty = (type) => getPlayerQuantity(type, inventory, backpack);
   const def = (type) => masterResources.find((r) => r.type === type);
-  const keys = masterResources.filter((r) => isKey(r.type)).map((r) => r.type); // keys + Hecate's Torch
+  const keys = KEY_TYPES.filter((t) => masterResources.some((r) => r.type === t)); // keys + Hecate's Torch
 
   const row = (type) => {
     const r = def(type);

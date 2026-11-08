@@ -13,6 +13,7 @@ import soundManager from '../../Sound/SoundManager';
 import './PlayerPanel.css';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import XpStar from '../../UI/Icons/XpStar';
 
 const PlayerPanel = ({
   currentPlayer,
@@ -294,7 +295,7 @@ const PlayerPanel = ({
       <h3>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h3>
 
       {/* XP Display */}
-      <h3>{strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h3>
+      <h3><XpStar /> {strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h3>
       
       {/* XP Progress Bar */}
       <div style={{

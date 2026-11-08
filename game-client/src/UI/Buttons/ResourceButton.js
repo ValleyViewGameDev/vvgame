@@ -54,10 +54,16 @@ const ResourceButton = ({
   devOnly = false,
   // SVG filename - when provided, shows SVG image instead of emoji symbol
   filename = null,
+  // true = a text-only title (no picture), e.g. the Warehouse upgrade
+  noIcon = false,
   // Resource type - used for data attribute to enable CSS selector targeting
   resourceType = null,
   // When true, suppresses the global button_press SFX (use when button has its own SFX)
   noClickSfx = false,
+  // A small 🗑️ chip at the lower right that throws the item away instead (the temple's find,
+  // owner 2026-11-07). Outside the <button>, like the gem chip, so a tap never fires the button.
+  onDiscard = null,
+  discardLabel = 'Discard',
   // External processing state - used for cursor mode where processing happens outside the button
   externalProcessing = false
 }) => {
@@ -181,13 +187,13 @@ const ResourceButton = ({
           <span className="resource-title">
             {/* the card's picture: an explicit filename, else the resource row's art (iconFile / filename,
                 UI/Icons/ResourceIcon), else the row behind resourceType, else the emoji symbol */}
-            <ResourceIcon
+            {!noIcon && <ResourceIcon
               resource={filename ? { filename } : ((resource?.iconFile || resource?.filename) ? resource : null)}
               type={(filename || resource?.iconFile || resource?.filename) ? undefined : resourceType}
               symbol={symbol}
               masterResources={masterResources}
               className="resource-title-icon"
-            />{(filename || symbol || resourceType) ? ' ' : ''}{name}
+            />}{!noIcon && (filename || symbol || resourceType) ? ' ' : ''}{name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{
             __html: details ? formatDetailsForDisplay(details) : details
@@ -207,6 +213,13 @@ const ResourceButton = ({
         {/* ℹ️ details: hover on desktop, tap on touch. Outside the <button> so a tap on it never
             fires the button, and still works when the button is disabled. */}
         {!hideInfo && info && <InfoButton info={info} />}
+
+        {onDiscard && !isProcessing && (
+          <button type="button" className="discard-button" title={discardLabel} aria-label={discardLabel}
+            onClick={(e) => { e.stopPropagation(); onDiscard(); }}>
+            🗑️
+          </button>
+        )}
 
         {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
         {/* Hidden when level requirement not met - cannot bypass level requirements with gems */}

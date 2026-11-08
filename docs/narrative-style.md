@@ -160,7 +160,8 @@ act and scene, and checks each line against the text.
 | Music | "If music be the food of love, play on" | Twelfth Night |
 | Fools, mistakes | "Lord, what fools these mortals be!" | A Midsummer Night's Dream |
 | Skills, levels | "Some are born great, some achieve greatness, and some have greatness thrust upon 'em" | Twelfth Night |
-| Money, trading | "Put money in thy purse" | Othello |
+| Gold (the currency), trading | "Put money in thy purse" (a real line: keep "money" inside the quote) | Othello |
+| Fairy Gold (the rare valley find) | "This is fairy gold, boy" | The Winter's Tale |
 | The Bank | "Neither a borrower nor a lender be" | Hamlet |
 | Gold, the Store | "All that glisters is not gold" | The Merchant of Venice |
 | A crown, the King's Crown | "Uneasy lies the head that wears a crown" | Henry IV Part 2 |
@@ -181,3 +182,12 @@ act and scene, and checks each line against the text.
 4. Would a player who never read Shakespeare understand it first time (§5)?
 5. Is the ask or instruction plain?
 6. Short enough for a phone? No em-dashes? All ten languages (`ui-conventions.md` §7)?
+
+## The currency is Gold
+
+Since 2026-11-07 the currency reads **Gold** everywhere a player sees it (owner): never "Money" in
+copy. The code and saves keep the type `Money`; `DISPLAY_ALIASES` (`Utils/stringLookup.js`) shows
+it as Gold. The rare valley find whose type is `Gold` (⚱️) reads **Fairy Gold**, so the two never
+share a name. Print item names through `getLocalizedString`, never the raw type, or the old names
+leak through. Iago's "Put money in thy purse" (string 16012, the quest of that title) stays: it is
+the play's own line.

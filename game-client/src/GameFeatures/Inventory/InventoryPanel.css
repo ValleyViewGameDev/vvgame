@@ -124,10 +124,14 @@
 }
 .currency-keys-row {
   display: flex;
-  justify-content: flex-start;
-  gap: 12px;
+  justify-content: space-between; /* all six keys on one row (owner 2026-11-07) */
+  gap: 4px;
   margin-top: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.currency-keys-row .currency-item {
+  gap: 2px;
 }
 
 .currency-display {

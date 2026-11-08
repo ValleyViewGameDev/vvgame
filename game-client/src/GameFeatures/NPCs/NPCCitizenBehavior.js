@@ -54,7 +54,10 @@ import { handleDooberClick, handleSourceConversion } from '../../ResourceClickin
 import { handleNPCClick } from './NPCUtils';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { prepareBulkCraftingData, executeBulkCrafting } from '../FarmHands/BulkCrafting';
-import { createCollectEffect } from '../../VFX/VFX';
+import { createCollectEffect, createSourceConversionEffect } from '../../VFX/VFX';
+import StoryFX from '../../Render/PixiRenderer/StoryFX';
+import axios from 'axios';
+import API_BASE from '../../config';
 import { startHeadlineEffect, stopHeadlineEffect } from '../../VFX/NPCVFX';
 import { playNPCConversation } from '../Relationships/Conversation';
 import ConversationManager from '../Relationships/ConversationManager';
@@ -62,6 +65,9 @@ import { getNPCRelationship, updateNPCRelationship } from '../Relationships/Rela
 import soundManager from '../../Sound/SoundManager';
 import { runStoryErrand } from '../Story/gertrudeWaking';
 import { runStoryGoal } from '../Story/storyGoal';
+
+const QUINCE_TREE_SKILLS = ['Axe', 'Better Axe']; // oak and pine (routes/storyRoutes.js quince-chop)
+const QUINCE_HOME = 'Home of the Oracle';
 
 export const CITIZEN_ACTIONS = ['quest', 'trade', 'heal', 'worker'];
 export const CITIZEN_STATES = ['working', 'resting', 'roaming', 'eating', 'socializing'];
@@ -346,6 +352,57 @@ async function workTick(npc, gridId, tiles, resources, npcs) {
       else if (r === 'blocked') return 'done';
       return 'busy';
     }
+    case 'Peter Quince': {
+      // The Oracle's woodcutter (utils/hopeFinale.js) clears the trees around the Home of the
+      // Oracle, nearest first and working outward, oak and pine alike, for the joy of it: the tree
+      // falls on the swing (optimistic; POST /api/story/quince-chop removes it, a refusal puts it
+      // back), a log pops off and vanishes, and nothing reaches the player.
+      const now = Date.now();
+      if (task.phase === 'pause') { if (now < task.until) return 'busy'; setTask(npc, gridId, null); return 'busy'; }
+      const all = GlobalGridStateTilesAndResources.getResources() || [];
+      const isTree = (r) => r && r.action === 'convertTo' && QUINCE_TREE_SKILLS.includes(r.requires);
+      let tree = task.phase === 'toTree' ? all.find((t) => t && t.x === task.x && t.y === task.y && isTree(t)) : null;
+      if (!tree) {
+        const home = all.find((r) => r && r.type === QUINCE_HOME);
+        const span = Number(home?.size) || 1;
+        const from = home ? { x: home.x + (span - 1) / 2, y: home.y - (span - 1) / 2 } : npc.position;
+        tree = all.filter(isTree).reduce((best, t) => {
+          const d = (t.x - from.x) ** 2 + (t.y - from.y) ** 2;
+          return !best || d < best.d ? { t, d } : best;
+        }, null)?.t || null;
+        if (!tree) return 'done';
+        setTask(npc, gridId, { phase: 'toTree', x: tree.x, y: tree.y });
+      }
+      const r = walkTo(npc, tree.x, tree.y, tiles, resources, npcs, { stopShort: true });
+      if (r === 'blocked') {
+        // can't reach this one (walled in by others): skip it for a while, try the next
+        setTask(npc, gridId, { phase: 'pause', until: now + 1500 });
+        return 'busy';
+      }
+      if (r !== 'arrived') return 'busy';
+      createSourceConversionEffect(tree.x, tree.y, ctx?.TILE_SIZE || 45, tree.requires);
+      const felled = tree;
+      setTimeout(() => {
+        const c = ctx;
+        const before = GlobalGridStateTilesAndResources.getResources() || [];
+        if (!before.some((t) => t.x === felled.x && t.y === felled.y && t.type === felled.type)) return;
+        const after = before.filter((t) => !(t.x === felled.x && t.y === felled.y && t.type === felled.type));
+        GlobalGridStateTilesAndResources.setResources(after);
+        c?.setResources?.(after);
+        StoryFX.woodChip(felled.x, felled.y);
+        axios.post(`${API_BASE}/api/story/quince-chop`, { playerId: c?.currentPlayer?.playerId, gridId, x: felled.x, y: felled.y })
+          .catch((err) => {
+            if (!err.response) return; // the network: the next grid entry agrees with the server
+            const now2 = GlobalGridStateTilesAndResources.getResources() || [];
+            if (now2.some((t) => t.x === felled.x && t.y === felled.y)) return;
+            const restored = [...now2, felled];
+            GlobalGridStateTilesAndResources.setResources(restored);
+            c?.setResources?.(restored);
+          });
+      }, 650);
+      setTask(npc, gridId, { phase: 'pause', until: now + 2500 + Math.random() * 2000 });
+      return 'busy';
+    }
     case 'Crafter': {
       const station = findReadyStation(npc);
       if (!station) return 'done';
@@ -547,6 +604,7 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
   if (!tiles || !resources) return;
   const isWorker = this.action === 'worker';
+  if (this.storyHold) { this.path = null; return undefined; } // a story moment holds this NPC still (the Oracle's dove, hopeFinale.js)
 
   // ---- a story errand comes before everything (Feste walking to the Queen's statue to sing:
   // GameFeatures/Story/gertrudeWaking.js); the loop resumes when it is over

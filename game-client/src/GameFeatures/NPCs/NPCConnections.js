@@ -1,6 +1,8 @@
 import React from 'react';
 import RelationshipMatrix from '../Relationships/RelationshipMatrix.json';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { matrixRelation } from '../Relationships/RelationshipUtils';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import './NPCConnections.css';
 
 /**
@@ -20,7 +22,7 @@ const CATEGORIES = [
 ];
 const clean = (s) => String(s || '').replace(/:\s*$/, '').trim();
 
-export default function NPCConnections({ npcType, relationship, masterResources, strings }) {
+export default function NPCConnections({ npcType, relationship, masterResources, strings, currentPlayer }) {
   if (!relationship?.met) return null;
   const matrix = RelationshipMatrix.find((r) => r.type === npcType);
   if (!matrix) return null;
@@ -28,9 +30,10 @@ export default function NPCConnections({ npcType, relationship, masterResources,
   const groups = { interest: [], love: [], married: [], friend: [], rival: [] };
   [...new Set([matrix.interest1, matrix.interest2, matrix.interest3].filter(Boolean))].forEach((type) => {
     const res = (masterResources || []).find((r) => r.type === type);
-    if (res) groups.interest.push({ name: getLocalizedString(type, strings), symbol: res.symbol });
+    if (res) groups.interest.push({ name: getLocalizedString(type, strings), symbol: res.symbol, resource: res });
   });
-  Object.entries(matrix).forEach(([name, value]) => {
+  Object.entries(matrix).forEach(([name, raw]) => {
+    const value = matrixRelation(raw, currentPlayer); // rivals are friends once hope is returned
     if (!groups[value] || value === 'interest') return;
     const other = RelationshipMatrix.find((r) => r.type === name);
     if (other) groups[value].push({ name: getLocalizedString(name, strings), symbol: other.symbol });
@@ -46,7 +49,7 @@ export default function NPCConnections({ npcType, relationship, masterResources,
         return (
           <span key={c.key} className="npc-chip" title={`${label}: ${who}`} aria-label={`${label}: ${who}`}>
             <span className="npc-chip-icon" aria-hidden="true">{c.icon}</span>
-            {groups[c.key].map((g, i) => <span key={i} className="npc-chip-item" title={g.name} aria-hidden="true">{g.symbol}</span>)}
+            {groups[c.key].map((g, i) => <span key={i} className="npc-chip-item" title={g.name} aria-hidden="true">{g.resource ? <ResourceIcon resource={g.resource} /> : g.symbol}</span>)}
           </span>
         );
       })}

@@ -136,6 +136,7 @@ function NewTrainPanel({
   }, [trainPhase]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const getSymbol = (type) => {
+    if (type === 'XP') return ''; // plain status text cannot hold the XP star; the word "XP" follows
     return masterResources.find(r => r.type === type)?.symbol || "❓";
   };
 
@@ -227,16 +228,16 @@ function NewTrainPanel({
           let costDisplay, details, buttonText;
           
           if (isCompleted) {
-            costDisplay = `<span style="color: var(--color-text-positive);">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity}</span>`;
+            costDisplay = `<span style="color: var(--color-text-positive);">${resourceIconHtml(offer.item, masterResources)} ${getLocalizedString(offer.item, strings)} ${offer.quantity}</span>`;
             details = `<div>${costDisplay}</div>Completed`;
             buttonText = '';
           } else if (loadingExpired) {
-            costDisplay = `<span style="color: var(--color-text-muted);">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
+            costDisplay = `<span style="color: var(--color-text-muted);">${resourceIconHtml(offer.item, masterResources)} ${getLocalizedString(offer.item, strings)} ${offer.quantity} / ${totalQty}</span>`;
             details = `<div>${costDisplay}</div>${strings[2118] || 'Caravan Departed'}`;
             buttonText = '';
           } else {
             const costColor = affordable ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-            costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.item, masterResources)} ${offer.item} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
+            costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.item, masterResources)} ${getLocalizedString(offer.item, strings)} ${offer.quantity} / ${totalQty}</span>${offer.band === 'aspirational' ? ' ⭐' : ''}`;
             // the order pays its Money and its own XP when filled (offer.xp; older orders: none shown)
             const rewardDisplay = `${resourceIconHtml('Money', masterResources)} ${moneyReward.toLocaleString()}`
               + (offer.xp > 0 ? ` + ${resourceIconHtml('XP', masterResources)} ${offer.xp} XP` : '');
@@ -315,7 +316,7 @@ function NewTrainPanel({
           </div>
           {nextTrainOffers.map((offer, index) => (
             <div key={index} className="next-shipment-item">
-              <ResourceIcon type={offer.item} masterResources={masterResources} /> {offer.item}
+              <ResourceIcon type={offer.item} masterResources={masterResources} /> {getLocalizedString(offer.item, strings)}
             </div>
           ))}
         </div>

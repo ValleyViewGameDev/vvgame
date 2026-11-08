@@ -17,6 +17,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import FloatingTextManager from '../../UI/FloatingText';
 import soundManager from '../../Sound/SoundManager';
+import XpStar, { XP_STAR_TOKEN } from '../../UI/Icons/XpStar';
 
 // Held counts of 1,000 and up in compact form (1.2k, 15k): card quantities stay short
 const compactCount = (n) => {
@@ -257,7 +258,7 @@ function KentPanel({
 
             const { sold = goods, rewards = [], xpGained = 0 } = answer.data;
             startGrowthSlots(before, (answer.data.kentOffers?.offers || []).length);
-            const rewardText = rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ');
+            const rewardText = rewards.map(reward => `${reward.quantity} ${getLocalizedString(reward.item, strings)}`).join(', ');
             const soldText = sold.map(item => `${item.quantity} ${item.item}`).join(' + ');
             updateStatus(`✅ Exchanged ${soldText} for ${rewardText} and +${xpGained} XP.`);
 
@@ -445,7 +446,7 @@ function KentPanel({
                           <div className="kent-reward-row">{moneyRewards.map(rewardChip)}</div>
                           <div className="kent-reward-row">
                             {otherRewards.map(rewardChip)}
-                            <span className="kent-reward-chip">🔷 {calculateKentXP(offer)}</span>
+                            <span className="kent-reward-chip"><XpStar /> {calculateKentXP(offer)}</span>
                           </div>
                         </div>
                       );

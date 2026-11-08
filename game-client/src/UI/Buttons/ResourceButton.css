@@ -394,6 +394,28 @@
 /* the gem chip's picture (item-gem.svg), sized by the chip's own font-size like the glyph it replaced */
 .gem-button-icon { width: 1em; height: 1em; vertical-align: -0.15em; }
 
+/* The discard chip (ResourceButton onDiscard): a small trash can at the lower right, the same
+   corner as the gem chip (a button never has both), styled like the Mailbox's delete button */
+.discard-button {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  line-height: 1;
+  border: none;
+  border-radius: var(--btn-radius-sm);
+  background-color: var(--color-btn-active);
+  box-shadow: 0 1px 2px var(--color-shadow);
+  cursor: pointer;
+}
+.discard-button:active { transform: translateY(1px); }
+
 /* A make/grow card's time (Crafting Station, Farm House, Farming panel: className craft-card,
    details starting with <strong class="craft-time">): the FIRST details row, whatever that row
    is (Level, Requires, Costs), right-justified to the card's edge under the ℹ️ badge, bold,

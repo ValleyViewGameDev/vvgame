@@ -9,7 +9,7 @@ import soundManager from '../../Sound/SoundManager';
 /**
  * Get the sound event name for a door based on its required key
  * @param {string} requiredItem - The item required to open the door
- * @returns {string} - The sound event name
+ * @returns {string|null} - The sound event name, or null for a silent door
  */
 function getDoorSoundEvent(requiredItem) {
   switch (requiredItem) {
@@ -23,6 +23,8 @@ function getDoorSoundEvent(requiredItem) {
       return 'door_mirror';
     case 'Skeleton Key':
       return 'door_skeleton';
+    case "Hecate's Torch":
+      return null; // the Black Fog parts silently (owner 2026-11-07)
     default:
       return 'door_town'; // Default door sound
   }
@@ -140,7 +142,7 @@ export function canPassThroughDoor(resource, currentPlayer, updateStatus, string
   // If player has access, play the appropriate door sound
   if (accessResult.hasAccess && resource.requires) {
     const doorSound = getDoorSoundEvent(resource.requires);
-    soundManager.playSFX(doorSound);
+    if (doorSound) soundManager.playSFX(doorSound);
   }
 
   return accessResult.hasAccess;

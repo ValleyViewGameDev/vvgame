@@ -76,7 +76,10 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   let rawDialogText = null;
   if (directDialogKey) {
     // Direct dialog key provided (e.g., from FTUE step's bodyKey)
-    rawDialogText = strings[directDialogKey];
+    // an array of keys reads as ONE story, paged as one sequence (the Oracle's finale speeches)
+    rawDialogText = Array.isArray(directDialogKey)
+      ? directDialogKey.map((k) => strings[k]).filter(Boolean).join(' ') || null
+      : strings[directDialogKey];
   } else if (npcData && relationshipType) {
     // NPC-based dialog lookup
     const dialogKeyName = relationshipDialogKeys[relationshipType];

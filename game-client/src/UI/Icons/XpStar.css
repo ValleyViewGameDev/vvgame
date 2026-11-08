@@ -1,0 +1,9 @@
+/* XpStar.js: the XP star inline with text, a touch taller than the cap height */
+.xp-star {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  object-fit: contain;
+  pointer-events: none;
+}

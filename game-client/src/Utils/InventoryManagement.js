@@ -5,7 +5,8 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 
 // The keys: currencies that open doors. Hecate's Torch counts as one (it lights the Black Fog,
 // held, not spent; owner 2026-11-07): free of backpack/warehouse capacity, listed with the keys.
-export const KEY_TYPES = ['Town Key', 'Skeleton Key', 'Golden Key', 'Dungeon Key', 'Mirror Key', "Hecate's Torch"];
+// in display order (the Inventory keys row and the Currencies modal list them this way)
+export const KEY_TYPES = ['Town Key', 'Golden Key', 'Dungeon Key', 'Skeleton Key', 'Mirror Key', "Hecate's Torch"];
 export const isKey = (resourceType) => KEY_TYPES.includes(resourceType);
 
 // Helper function to check if an item is a currency (doesn't count against inventory)

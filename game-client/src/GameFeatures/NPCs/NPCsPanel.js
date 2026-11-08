@@ -20,6 +20,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import RelationshipMatrix from '../Relationships/RelationshipMatrix.json';
 import { getRelationshipStatus, getRelationshipMultiplier } from '../Relationships/RelationshipUtils';
+import { isOneOfAKind } from '../../Utils/oneOfAKind';
 import '../Relationships/Relationships.css';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
@@ -32,10 +33,10 @@ import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
 import SnugTravelModal from './SnugTravelModal';
 import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoals';
-import { hopeArtifacts } from '../../Utils/hopeArtifacts';
 import CluesModal, { cluesFor, questCluesFor, tradeCluesFor } from './CluesModal';
 import { FESTE_QUEST } from '../Story/gertrudeWaking';
 import NPCConnections from './NPCConnections';
+import { startHopeFinale } from '../Story/hopeFinale';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
 import RiddleMinigame from '../Minigames/RiddleMinigame';
 import { MINIGAMES } from '../Minigames/minigames';
@@ -48,6 +49,7 @@ import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { gameAlert } from '../../UI/Modals/GameDialog';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { prereqsMet } from '../Quests/questPrereqs';
+import { XP_STAR_TOKEN, XP_STAR_HTML } from '../../UI/Icons/XpStar';
 
 const NPCPanel = ({
   onClose,
@@ -587,7 +589,7 @@ const showQuestRewardFloatingText = (rewardSymbol, rewardName, rewardQuantity, x
   // Show reward item first (emoji + localized name)
   at(`+${rewardQuantity} ${rewardSymbol} ${rewardName}`, rewardFlyTo, -8);
   // Then the XP, a little below, so the two never sit on top of each other
-  setTimeout(() => at(`+${xpAmount} 🔷 XP`, 'xp', 14), 260);
+  setTimeout(() => at(`+${xpAmount} ${XP_STAR_TOKEN} XP`, 'xp', 14), 260);
 };
 
 const handleGetReward = async (transactionId, transactionKey, quest) => {
@@ -597,14 +599,10 @@ const handleGetReward = async (transactionId, transactionKey, quest) => {
     console.log(`🔒 [PROTECTED QUEST] Starting get reward for ${quest.title}`);
     let revertReward = () => {};
     try {
-      // Get relationship-based multiplier from RelationshipMatrix data. A one-of-a-kind reward is
-      // never multiplied: a Secret (Portia's needs marriage, whose buff is 5x, so it paid out five),
-      // a Quest for Hope artifact, a skill, a power or a worker (owner 2026-11-02).
-      const rewardDef = masterResources.find(r => r.type === quest.reward);
-      const oneOfAKind = /'s Secret$/.test(quest.reward || '')
-        || hopeArtifacts(masterTraders).has(quest.reward)
-        || ['skill', 'power', 'npc'].includes(rewardDef?.category);
-      const { multiplier, bonusMessage } = oneOfAKind
+      // Get relationship-based multiplier from RelationshipMatrix data. A one-of-a-kind reward
+      // (Utils/oneOfAKind.js: a `unique` row such as a Secret or Portia's Pardon, a Quest for Hope
+      // artifact, a skill, a power or a worker) is never multiplied.
+      const { multiplier, bonusMessage } = isOneOfAKind(quest.reward, masterResources, masterTraders)
         ? { multiplier: 1, bonusMessage: '' }
         : getRelationshipMultiplier(npcData.type, currentPlayer, strings);
       const rewardQuantity = Math.floor((quest.rewardqty || 1) * multiplier);
@@ -855,8 +853,11 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     // A trade can pay a skill (Hecate's Toil and Trouble): it joins player.skills, takes no room
     const gainsSkill = masterResources.find(res => res.type === recipe.type)?.category === 'skill';
     
-    // Get relationship-based multiplier from RelationshipMatrix data
-    const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
+    // Get relationship-based multiplier from RelationshipMatrix data; a one-of-a-kind item (a
+    // Secret, a story key, a skill: Utils/oneOfAKind.js) is never multiplied
+    const { multiplier, bonusMessage } = isOneOfAKind(recipe.type, masterResources, masterTraders)
+      ? { multiplier: 1, bonusMessage: '' }
+      : getRelationshipMultiplier(npcData.type, currentPlayer, strings);
     quantityToGive = Math.floor(quantityToGive * multiplier);
     
     // Check if we have room for the trade reward BEFORE spending ingredients
@@ -940,6 +941,11 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
       setStoryDialogKey(answer.data.clueKey);
       setStoryRelationshipType('story');
       setStoryModalOpen(true);
+    }
+    // Hope from the Oracle: the Quest for Hope's finale (GameFeatures/Story/hopeFinale.js) plays now
+    if (recipe.type === 'Hope') {
+      const finaleOpts = { currentPlayer, setCurrentPlayer, gridId: currentPlayer?.location?.g, setResources, updateStatus, masterResources, TILE_SIZE };
+      setTimeout(() => { onClose?.(); startHopeFinale(finaleOpts); }, 900);
     }
     if (answer.data.skill) {
       updateStatus(`${getLocalizedString(recipe.type, strings)} skill acquired.`);
@@ -1273,7 +1279,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                 const levelColor = meetsLevel ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
                 const details =
                   (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
-                  `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: var(--color-text-positive);">🔷 +${xpToAward} XP</div>`;
+                  `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: var(--color-text-positive);">${XP_STAR_HTML} +${xpToAward} XP</div>`;
 
                 const isDisabled = !affordable || !requirementsMet;
 
@@ -1366,7 +1372,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                     </button>
                   </div>
                 )}
-                <NPCConnections npcType={npcData.type} relationship={rel} masterResources={masterResources} strings={strings} />
+                <NPCConnections npcType={npcData.type} relationship={rel} masterResources={masterResources} strings={strings} currentPlayer={currentPlayer} />
               </>
             );
           })()}

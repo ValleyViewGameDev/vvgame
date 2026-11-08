@@ -499,7 +499,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const answer = await postAction('/api/action/request-create', { playerId: currentPlayer.playerId, slotIndex: selectedRequestSlotIndex, resource, amount });
     applyStallAnswer(answer.data);
     if (!answer.ok) {
-      updateStatus(answer.reason === 'short-Money' ? "You don't have enough money" : `❌ ${answer.reason || 'Failed'}`);
+      updateStatus(answer.reason === 'short-Money' ? "You don't have enough Gold" : `❌ ${answer.reason || 'Failed'}`);
       if (answer.status === 0) throw new Error('network');
       return;
     }

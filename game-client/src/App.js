@@ -129,6 +129,7 @@ import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
 import HopeFound from './GameFeatures/Social/HopeFound';
+import { startHopeFinale, setHopeFinaleHooks, isHopeReturned, holdsHope, isHopeFinaleRunning, HOPE_COORD as HOPE_FINALE_COORD } from './GameFeatures/Story/hopeFinale';
 import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
 import PlayerIcons from './Authentication/PlayerIcons.json';
@@ -2317,6 +2318,31 @@ const zoomIn = async () => {
     setZoomLevel('closer'); // useLayoutEffect will center camera
   }
 };
+
+// The Quest for Hope's finale (GameFeatures/Story/hopeFinale.js): it zooms the camera out to the
+// far zoom when its effects begin, so the whole of the Oracle's grid is in view
+useEffect(() => {
+  setHopeFinaleHooks({
+    // zoomTo('closer' | 'close' | 'farish' | 'far'): a grid zoom; nothing when already there
+    zoomTo: (level) => {
+      if (!['closer', 'close', 'farish', 'far'].includes(level) || zoomLevelRef.current === level) return;
+      isZoomAnimatingRef.current = true;
+      setZoomLevel(level);
+    },
+  });
+}, []);
+// ...and it plays on the Oracle's grid for a player who holds Hope but has not seen it (a trade
+// from before the finale existed, or a reload part-way); the Hope trade itself starts it in NPCsPanel
+useEffect(() => {
+  if (!isAppInitialized || !currentPlayer?.location?.g) return undefined;
+  if (Number(currentPlayer.location.gridCoord) !== HOPE_FINALE_COORD) return undefined;
+  if (isHopeReturned(currentPlayer) || !holdsHope(currentPlayer, inventory, backpack) || isHopeFinaleRunning()) return undefined;
+  const timer = setTimeout(() => startHopeFinale({
+    currentPlayer, setCurrentPlayer, gridId: currentPlayer.location.g, setResources, updateStatus, masterResources, TILE_SIZE: activeTileSize,
+  }), 2500);
+  return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [isAppInitialized, currentPlayer?.location?.g, currentPlayer?.storyFlags?.hopeReturned]);
 
 const zoomOut = () => {
   if (!currentPlayer?.location?.g || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }

@@ -9,7 +9,7 @@ import '../../UI/Buttons/SharedButtons.css';
 import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { deriveWarehouseAndBackpackCapacity, isCurrency, isKey, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity, isCurrency, KEY_TYPES, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
 import BackpackManageModal from './BackpackManageModal';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
@@ -299,8 +299,9 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 {/* Row 3: Keys (and Hecate's Torch, held like one). Counted from backpack + warehouse:
                     a key picked up before it was a currency can still sit in the backpack */}
                 <div className="currency-keys-row">
-                    {masterResources
-                        .filter(r => isKey(r.type))
+                    {KEY_TYPES
+                        .map(type => masterResources.find(r => r.type === type))
+                        .filter(Boolean)
                         .map(resourceDef => {
                             const quantity = getPlayerQuantity(resourceDef.type, inventory, backpack);
                             return (

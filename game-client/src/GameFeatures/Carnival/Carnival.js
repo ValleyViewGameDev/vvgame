@@ -396,7 +396,7 @@ function CarnivalPanel({
           const playerQty = getPlayerQuantity(offer.itemBought, inventory, backpack);
           const affordable = playerQty >= offer.qtyBought;
           const costColor = playerQty >= offer.qtyBought ? 'var(--color-text-positive)' : 'var(--color-text-negative)';
-          const costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.itemBought, masterResources)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
+          const costDisplay = `<span style="color: ${costColor};">${resourceIconHtml(offer.itemBought, masterResources)} ${getLocalizedString(offer.itemBought, strings)} ${offer.qtyBought} / ${playerQty}</span>`;
           const rewardDisplay = `${resourceIconHtml(offer.itemGiven, masterResources)} ${offer.qtyGiven.toLocaleString()}`;
           const details = `<div>${costDisplay}</div><br>${strings[42]}: ${rewardDisplay}`;
 

@@ -115,6 +115,7 @@ export const initializeGridFromData = async (
 
     const toggleVFX = player?.settings?.toggleVFX ?? true;
     ambientVFXManager.setEnabled(toggleVFX);
+    ambientVFXManager.setStoryFlags(player?.storyFlags);
     ambientVFXManager.onGridEnter(player?.location, gridWidth, gridHeight, ambientTileSize);
 
     const musicOn = player?.settings?.musicOn ?? true;

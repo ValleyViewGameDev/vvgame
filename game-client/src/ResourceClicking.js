@@ -277,6 +277,25 @@ export async function handleDooberClick(
   
   // Room FIRST, before any "+N" (Utils/noRoom.js canCollect: the shared collect response)
   const isCurrencyItem = isCurrency(resource.type);
+  // A doober that IS experience (resources.json grantsXP: OneKXP, the Quest for Hope finale's
+  // stars) needs no room and goes to no inventory: "+1000 XP" on the tap, the server adds it
+  const grantsXP = Number(masterResources?.find((m) => m.type === resource.type)?.grantsXP || resource.grantsXP) || 0;
+  if (grantsXP > 0) {
+    const xp = grantsXP * (resource.qtycollected || 1);
+    setResources((prev) => prev.filter((res) => !(res.x === col && res.y === row)));
+    createCollectEffect(col, row, TILE_SIZE);
+    FloatingTextManager.addFloatingText(`+${xp} XP`, col, row, TILE_SIZE);
+    soundManager.playSFX('success');
+    setCurrentPlayer?.((prev) => ({ ...prev, xp: (prev?.xp || 0) + xp }));
+    const body = { playerId: currentPlayer.playerId, gridId, x: col, y: row };
+    const answer = await postAction('/api/action/harvest', body, { timeout: ACTION_TIMEOUT_MS });
+    if (window._processingDoobers) window._processingDoobers.delete(dooberId);
+    if (answer.ok) { applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack }); return; }
+    if (isNoAnswer(answer.status)) { queueRetry('/api/action/harvest', body); return; } // safe to repeat ('gone' after the first)
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack }); // the server's true xp
+    if (answer.reason !== 'gone') setResources((prev) => [...prev, resource]);
+    return;
+  }
   if (!canCollect({
     resource: resource.type, quantity: qtyCollected, currentPlayer, inventory, backpack, masterResources, globalTuning,
     at: { col, row, TILE_SIZE }, strings, updateStatus, openPanel,

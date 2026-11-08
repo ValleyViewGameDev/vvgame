@@ -33,6 +33,7 @@ import {
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
 import { boardArtScale } from './boardArt';
+import StoryFX from './StoryFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
@@ -677,6 +678,9 @@ const PixiRenderer = ({
         },
       });
 
+      // Story moments (StoryFX.js): the Quest for Hope's dove, mountain fade and gem rain
+      StoryFX.attach({ app, worldContainer, TILE_SIZE, getResourceSprites: () => resourceSpritesRef.current });
+
       // Wire up AmbientVFXManager with PixiJS app and world container
       // Pass TILE_SIZE as the base tile size - this is the constant rendering size (e.g., 40)
       // that doesn't change with zoom, ensuring ambient effects render at correct world coordinates
@@ -738,6 +742,7 @@ const PixiRenderer = ({
           canvas.removeEventListener('webglcontextrestored', appRef.current._contextRestoredHandler);
         }
         CombatFX.detach();
+        StoryFX.detach();
         appRef.current.destroy(true, { children: true, texture: true });
         appRef.current = null;
       }
@@ -872,6 +877,7 @@ const PixiRenderer = ({
     resourceSpritesRef.current = [];
     const addResource = (obj, row, res) => {
       obj.zIndex = row;
+      obj.__res = res; // StoryFX.fadeResource finds a resource's sprite by it
       // picked up by Move (GameFeatures/Move): the original stays as a ghost until it is put down
       if (res?.__moving) obj.alpha = 0.35;
       resourceContainer.addChild(obj);
@@ -1606,8 +1612,9 @@ const PixiRenderer = ({
 
     // Enemies are hit-tested on the sprite you SEE (its tween can trail the logical tile);
     // everything else on the logical tile
+    // an NPC whose row says noClick (Peter Quince, the Oracle's woodcutter) is scenery: the tap goes through
     const npc = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
-      n && n.position &&
+      n && n.position && !masterResources?.find((m) => m.type === n.type)?.noClick &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
     );

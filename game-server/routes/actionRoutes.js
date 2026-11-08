@@ -43,7 +43,7 @@
  *   POST /action/send-home                        backpack goods to the warehouse (at home, or by a Post House)
  *   POST /action/discard-power                    throw away a weapon / armour / magic item (removal only)
  *   POST /action/mail-read / mail-delete          the Mailbox marks messages read and deletes one (never writes rewards)
- *   POST /action/scroll-reveal / scroll-collect   the Ancient Temple (Reveal Scroll)
+ *   POST /action/scroll-reveal / scroll-collect / scroll-discard   the Ancient Temple (Reveal Scroll)
  */
 const express = require('express');
 const router = express.Router();
@@ -95,6 +95,19 @@ router.post('/action/harvest', async (req, res) => {
 
     if ((def.requires === 'Pickaxe' || def.requires === 'Better Pickaxe') && !econ.hasSkill(player, def.requires)) {
       return answer(403, `needs-${def.requires}`);
+    }
+
+    // A doober that IS experience (resources.json grantsXP: OneKXP, the Quest for Hope finale's
+    // falling stars): picking it up adds the XP; nothing goes into the warehouse, so no room check
+    if (Number(def.grantsXP) > 0) {
+      const xpGained = Number(def.grantsXP) * (onTile.qtycollected || def.qtycollected || 1);
+      gridResourceManager.updateResource(grid, { type: null, x, y });
+      recordLevelUps(player._id, player.xp || 0, (player.xp || 0) + xpGained).catch(() => {});
+      player.xp = (player.xp || 0) + xpGained;
+      player.lastActive = new Date();
+      await grid.save({ validateBeforeSave: false });
+      await player.save();
+      return res.json({ success: true, collected: { type: def.type, qty: 0 }, xpGained, drop: null, replant: null, trophies: [], player: econ.playerDelta(player), seq: econ.nextSeq() });
     }
 
     const atHome = econ.atHomeOn(grid);
@@ -420,6 +433,33 @@ router.post('/action/scroll-collect', async (req, res) => {
   } catch (err) {
     console.error('❌ action/scroll-collect failed:', err);
     return res.status(500).json({ success: false, error: 'scroll-collect-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/scroll-discard { playerId, gridId, stationX, stationY }
+ * → { success, discarded: {type, qty}, slots, seq }
+ * The trash chip on the temple's find (owner 2026-11-07): the finished find (slot 0) is thrown
+ * away instead of collected. Nothing is granted, no quest advances, no trophy. Refusals: 409
+ * empty / not-ready.
+ */
+router.post('/action/scroll-discard', async (req, res) => {
+  try {
+    const ctx = await actionContext(req, res);
+    if (!ctx) return;
+    const { grid, at, x, y, answer } = ctx;
+    const slot = at.slots[0];
+    if (!slot || !slot.craftedItem) return answer(409, 'empty');
+    if (slot.craftEnd && slot.craftEnd > Date.now()) return answer(409, 'not-ready');
+    const discarded = { type: slot.craftedItem, qty: slot.qty || 1 };
+    const slots = [...at.slots];
+    slots[0] = { craftEnd: null, craftedItem: null, qty: 1 };
+    writeSlots(grid, x, y, at, slots);
+    await grid.save({ validateBeforeSave: false });
+    return res.json({ success: true, discarded, slots, seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/scroll-discard failed:', err);
+    return res.status(500).json({ success: false, error: 'scroll-discard-failed', detail: err.message });
   }
 });
 
@@ -992,7 +1032,8 @@ router.post('/action/npc-trade', async (req, res) => {
     const rel = clueTag ? (player.relationships || []).find((r) => r.name === trader) : null;
     if (clueTag && offer.repeat === false && (rel?.clues || []).includes(clueTag)) return answer(409, 'owned');
     const isSkill = def?.category === 'skill';
-    const qty = isSkill ? 1 : Math.floor((offer.givesqty || 1) * econ.relationshipMultiplier(player, trader));
+    // a one-of-a-kind item (a Secret, a key, a skill) is never multiplied by the relationship buff
+    const qty = Math.floor((offer.givesqty || 1) * (econ.isOneOfAKind(offer.gives) ? 1 : econ.relationshipMultiplier(player, trader)));
     if (!isSkill) {
       const room = econ.roomFor(player, offer.gives, qty);
       if (!room.ok) return answer(409, room.reason);
@@ -1106,9 +1147,7 @@ router.post('/action/quest-reward', async (req, res) => {
     if (!def) return answer(400, 'no-quest');
     const giver = npcType || def.giver;
     const rewardDef = econ.resourceDef(def.reward);
-    const oneOfAKind = /'s Secret$/.test(def.reward || '') || hopeArtifacts().has(def.reward)
-      || ['skill', 'power', 'npc'].includes(rewardDef?.category);
-    const qty = Math.floor((def.rewardqty || 1) * (oneOfAKind ? 1 : econ.relationshipMultiplier(player, giver)));
+    const qty = Math.floor((def.rewardqty || 1) * (econ.isOneOfAKind(def.reward) ? 1 : econ.relationshipMultiplier(player, giver)));
     const trophies = [];
     if (rewardDef && (rewardDef.category === 'skill' || rewardDef.category === 'power')) {
       if (!econ.hasSkillOrPower(player, rewardDef.type)) {

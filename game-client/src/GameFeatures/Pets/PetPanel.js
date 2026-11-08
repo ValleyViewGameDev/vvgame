@@ -21,6 +21,7 @@ import './PetPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
+import { XP_STAR_TOKEN, XP_STAR_HTML } from '../../UI/Icons/XpStar';
 
 // What a fed pet finds is rolled on the server (game-server utils/playerEconomy.js rollPetReward)
 
@@ -216,7 +217,7 @@ const PetPanel = ({
     const rewardResource = masterResources.find(res => res.type === collected.type);
     const rewardFlyTo = collected.type === 'Money' ? 'money' : collected.type === 'Gem' ? 'gems' : 'inventory';
     floatFromCard(`+${collected.qty} {res:${collected.type}} ${getLocalizedString(collected.type, strings)}`, rewardFlyTo, -8);
-    setTimeout(() => floatFromCard(`+${xpGained} 🔷 XP`, 'xp', 14), 260);
+    setTimeout(() => floatFromCard(`+${xpGained} ${XP_STAR_TOKEN} XP`, 'xp', 14), 260);
 
     const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
       res.x === currentPetPosition.x && res.y === currentPetPosition.y
@@ -311,7 +312,7 @@ const PetPanel = ({
                     symbol={rewardResource?.symbol || '📦'}
                     resource={rewardResource}
                     name={`${getLocalizedString(rewardItem, strings)}${revealedRewardQty > 1 ? ` (${revealedRewardQty})` : ''}`}
-                    details={`(+ 🔷${xpToAward})`}
+                    details={`(+ ${XP_STAR_HTML}${xpToAward})`}
                     className={`resource-button pet-collect-button scroll-collect-button rarity-${revealedRewardRarity} ${isCollecting ? 'collecting' : 'ready'}`}
                     disabled={!isReadyToCollect || isCollecting}
                     isTransactionMode={isReadyToCollect && !isCollecting}

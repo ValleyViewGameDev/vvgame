@@ -172,7 +172,7 @@ const WarehousePanel = ({
           <>
             <div className="skills-options">
               <ResourceButton
-                symbol="📦"
+                noIcon
                 name={strings[2025] || "Upgrade Warehouse"}
                 details={(() => {
                   // Build details string similar to CraftingStation

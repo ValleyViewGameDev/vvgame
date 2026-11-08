@@ -832,6 +832,37 @@ class PoisonCloudsEffect extends BaseCloudEffect {
   }
 }
 
+/**
+ * Hope clouds - the Oracle's own blue mist over Hope Mountain (owner 2026-11-07). Played only in
+ * that Region, and only until the Quest for Hope is done: VFXMap's entry ends with the
+ * hopeReturned story flag (AmbientVFXManager), and the finale stops it on the spot.
+ */
+class HopeCloudsEffect extends BaseCloudEffect {
+  getCloudConfig() {
+    return {
+      densityMultiplier: 1.6,
+      speedMin: 0.16,          // slow and dreamy
+      speedMax: 0.12,
+      alphaMin: 0.30,
+      alphaMax: 0.22,
+      baseColors: [
+        0x3b6fd8,   // the Oracle's blue
+        0x4f86e8,
+        0x5d9cf0,
+        0x7fb3f5,
+        0x9cc8fa,
+      ],
+      highlightColors: [
+        0xc6e2ff,   // pale sky
+        0xddeeff,
+        0xb8dcff,
+      ],
+      puffAlphaMin: 0.45,
+      puffAlphaVariation: 0.25,
+    };
+  }
+}
+
 // Export effect factory
 export const createAmbientEffect = (effectName, app, gridWidth, gridHeight, TILE_SIZE) => {
   switch (effectName) {
@@ -847,6 +878,8 @@ export const createAmbientEffect = (effectName, app, gridWidth, gridHeight, TILE
       return new LavaCloudsEffect(app, gridWidth, gridHeight, TILE_SIZE);
     case 'poisonClouds':
       return new PoisonCloudsEffect(app, gridWidth, gridHeight, TILE_SIZE);
+    case 'hopeClouds':
+      return new HopeCloudsEffect(app, gridWidth, gridHeight, TILE_SIZE);
     default:
       console.warn(`Unknown ambient effect: ${effectName}`);
       return null;
@@ -860,5 +893,6 @@ export {
   DarkCloudsEffect,
   LavaCloudsEffect,
   PoisonCloudsEffect,
+  HopeCloudsEffect,
   BaseCloudEffect
 };

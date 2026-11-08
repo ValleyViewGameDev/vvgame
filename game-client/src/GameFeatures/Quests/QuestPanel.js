@@ -160,6 +160,8 @@ function QuestPanel({ onClose, currentPlayer, setCurrentPlayer, masterResources,
                 state={quest.completed ? 'reward' : 'in-progress'}
                 onClick={template?.giver ? () => setGiverInfo(template.giver) : null}
                 masterResources={masterResources}
+                // the XP the reward pays: the quest's own, else its giver's, else 1 (as NPCsPanel / quest-reward)
+                xpReward={template?.xp ?? masterResources?.find((r) => r.type === template?.giver && r.category === 'npc')?.xp ?? 1}
               />
             );
           })}

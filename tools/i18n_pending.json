@@ -70,6 +70,89 @@
         "SV"
       ],
       "ts": "2026-10-09T00:13:09.000Z"
+    },
+    {
+      "key": "9003",
+      "en_old": "Your Town, the Valley and the dungeons are yours to explore, at your own pace. Other players are your neighbours: their Homesteads share your SETTLEMENT, and you play together through the CARAVAN, the HARVEST FAIR, the TRADING POST, elections for MAYOR, chat and the leaderboards.",
+      "en_new": "Your Town, the Valley and the dungeons are yours to explore, at your own pace. Other players are your neighbours: their Homesteads share your Settlement, and you play together through trading, chat and the leaderboards.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:18:48.156Z"
+    },
+    {
+      "key": "9006",
+      "en_old": "Explore {icon:icon-farming.svg} FARMING, {icon:icon-build.svg} BUILD, and {icon:icon-buy.svg} BUY to improve your Homestead and generate resources.",
+      "en_new": "Explore {icon:icon-farming.svg} Farming, {icon:icon-build.svg} Build, and {icon:icon-buy.svg} Buy to improve your Homestead and generate resources.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:19:09.128Z"
+    },
+    {
+      "key": "9007",
+      "en_old": "Generate {res:Money} GOLD from {res:Kent} KENT or at the {res:Trading Post} TRADING POST.",
+      "en_new": "Generate {res:Money} Gold from {res:Kent} Kent or at the {res:Trading Post} Trading Post.",
+      "langs": [
+        "DE",
+        "ES",
+        "FI",
+        "FR",
+        "IT",
+        "NO",
+        "PT",
+        "RU",
+        "SV"
+      ],
+      "ts": "2026-11-08T16:19:25.406Z"
+    },
+    {
+      "key": "9009",
+      "en_old": "As you create wealth, improve yourself with SKILLS and ABILITIES. For example, purchase the BACKPACK SKILL to collect items from the Valley.",
+      "en_new": "As you create wealth, improve yourself with Skills and Abilities. For example, purchase the Backpack Skill to collect items from the Valley.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:19:43.149Z"
+    },
+    {
+      "key": "9010",
+      "en_old": "Walk off the edge of the map, or into a signpost, to travel. Zoom out (- and +) to see how big the world is. Your Homestead is one of many in a SETTLEMENT, which shares a TOWN. Your Settlement is one of many in the FRONTIER.",
+      "en_new": "Walk off the edge of the map, or into a signpost, to travel. Zoom out (- and +) to see how big the world is. Your Homestead is one of many in a Settlement, which shares a Town. Your Settlement is one of many in the Frontier.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:20:10.175Z"
+    },
+    {
+      "key": "9011",
+      "en_old": "When you are ready, explore the VALLEY and its dungeons, full of danger and wonders. Click an enemy within reach to attack it (or press Space). The secrets of the wizard PROSPERO and the lost king LEONTES , among others, are hidden there.",
+      "en_new": "When you are ready, explore the Valley and its dungeons, full of danger and wonders. Click an enemy within reach to attack it (or press Space). The secrets of the wizard Prospero and the lost king Leontes , among others, are hidden there. Pursue the Quest for Hope at the Oracle.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:20:40.861Z"
+    },
+    {
+      "key": "9013",
+      "en_old": "Set your own goals. At the end of each {icon:icon-season.svg} SEASON, which runs three months, players and settlements are ranked, and the top places earn extra rewards. Your Homestead, skills and inventory carry over into the next Season.",
+      "en_new": "Set your own goals. At the end of each {icon:icon-season.svg} Season, which runs three months, players and settlements are ranked, and the top places earn extra rewards. Your Homestead, skills and inventory carry over into the next Season.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-08T16:20:56.341Z"
     }
   ]
 }

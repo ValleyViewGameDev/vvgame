@@ -6,7 +6,7 @@ import { getAskCenter } from '../../Economy/askSizing';
  */
 
 /**
- * XP a Kent offer pays. One function for the card's "🔷 XP" and the award, so the card stays
+ * XP a Kent offer pays. One function for the card's XP (star) chip and the award, so the card stays
  * exactly what the trade pays (tuning.md principle 3). Per item: 2 x its `xp` (1 if undefined),
  * plus 2 more when the asked quantity is above the good's usual ask at this level (the center of
  * its effort-sized ask), so a big ask pays more than a small one of the same good.

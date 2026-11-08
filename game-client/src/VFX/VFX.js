@@ -646,3 +646,22 @@ export const holdResourceRender = (x, y) => {
         if (forceResourceRender) forceResourceRender();
     };
 };
+
+/**
+ * holdResourceRender for many tiles at once ([{ x, y }]), with ONE board re-render; the release
+ * takes the tiles to show again (a subset, or all when omitted), again with one re-render. Used
+ * by the Quest for Hope's gem rain (GameFeatures/Story/hopeFinale.js), where 100 gems land in
+ * batches.
+ */
+export const holdResourceRenders = (positions) => {
+    const keys = (positions || []).map((p) => `${p.x},${p.y}`);
+    keys.forEach((k) => animatingResources.add(k));
+    animationVersion++;
+    if (forceResourceRender) forceResourceRender();
+    return (subset) => {
+        const out = subset ? subset.map((p) => `${p.x},${p.y}`) : keys;
+        out.forEach((k) => animatingResources.delete(k));
+        animationVersion++;
+        if (forceResourceRender) forceResourceRender();
+    };
+};

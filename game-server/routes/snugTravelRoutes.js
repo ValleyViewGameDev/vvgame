@@ -92,6 +92,12 @@ async function frontierRegions(frontier) {
   return out;
 }
 
+// After the Quest for Hope, Snug also stands in the Oracle's clearing (utils/hopeFinale.js): that
+// grid counts as having a Snug for this player, at the clearing's spot
+const { HOPE_COORD, SNUG_SPOT: HOPE_SNUG_SPOT, isHopeReturned } = require('../utils/hopeFinale');
+const storySnug = (player, gridCoord) => Number(gridCoord) === HOPE_COORD && isHopeReturned(player);
+const snugSpotFor = (player, gridCoord) => snugInLayout(gridCoord) || (storySnug(player, gridCoord) ? HOPE_SNUG_SPOT : null);
+
 const hasGreetedSnug = (player) => (player.relationships || []).some((r) => r.name === SNUG && r.met === true);
 const here = (player) => player.location?.gridCoord ?? player.homesteadGridCoord ?? null;
 
@@ -109,7 +115,7 @@ async function destinationsFor(player, frontier) {
   for (const [region, list] of byRegion) {
     if (region === currentRegion) continue;
     if (!list.some((c) => isGridVisited(player.gridsVisited, c.gridCoord))) continue;   // never been to this Region
-    const withSnug = list.filter((c) => snugInLayout(c.gridCoord)).sort((a, b) => a.gridCoord - b.gridCoord);
+    const withSnug = list.filter((c) => snugSpotFor(player, c.gridCoord)).sort((a, b) => a.gridCoord - b.gridCoord);
     if (!withSnug.length) continue;
     const target = withSnug.find((c) => isGridVisited(player.gridsVisited, c.gridCoord)) || withSnug[0];
     out.push({ key: `region:${region}`, kind: 'region', region, gridCoord: target.gridCoord, cost: costBetween(from, target.gridCoord) });
@@ -152,7 +158,7 @@ function tileNextToSnug(grid, templateSpot) {
 
 router.get('/snug-travel/:playerId', async (req, res) => {
   try {
-    const player = await Player.findOne({ playerId: req.params.playerId }).select('relationships gridsVisited location homesteadGridCoord settlementId frontierId');
+    const player = await Player.findOne({ playerId: req.params.playerId }).select('relationships gridsVisited location homesteadGridCoord settlementId frontierId storyFlags');
     if (!player) return res.status(404).json({ error: 'Player not found' });
     if (!hasGreetedSnug(player)) return res.status(403).json({ error: 'not-greeted' });
     const frontier = await Frontier.findById(player.location?.f || player.frontierId).select('settlements').lean();
@@ -183,7 +189,7 @@ router.post('/snug-travel', async (req, res) => {
 
     // the player's copy of the grid (created now if this is the first visit to that very grid)
     const { grid } = await resolveCellGrid(player, frontier, dest.gridCoord);
-    const spot = tileNextToSnug(grid, dest.kind === 'town' ? TOWN_SNUG : snugInLayout(dest.gridCoord));
+    const spot = tileNextToSnug(grid, dest.kind === 'town' ? TOWN_SNUG : snugSpotFor(player, dest.gridCoord));
     if (!spot) return res.status(409).json({ error: 'no-room-next-to-snug' });
 
     if (!takeFromHoldings(player.inventory, player.backpack, 'Money', dest.cost)) return res.status(402).json({ error: 'not-enough-money', cost: dest.cost });

@@ -3,6 +3,7 @@ import { questDisplayTitle } from '../../GameFeatures/Quests/questTitles';
 import './QuestButton.css';
 import { useStrings } from '../StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import XpStar from '../Icons/XpStar';
 
 // A goal's words on a card: the item's display name (the Farm Hand is Audrey), and "Hire" for a farm
 // worker, whose goal is a Craft at the Farm House underneath
@@ -47,7 +48,7 @@ const SymbolDisplay = ({ symbol, masterResources, size = 32 }) => {
 // A To Do list card (QuestPanel): status in the top-right (✅ when done, "In Progress" while
 // not), the title tight under the icon, then one line per task, "Collect Wheat: 3/10"
 // (green once done), and a bold "Reward:".
-const QuestButton = ({ quest, state, onClick, masterResources }) => {
+const QuestButton = ({ quest, state, onClick, masterResources, xpReward }) => {
   const strings = useStrings();
   const { symbol, title, completed, goals = [], reward, rewardqty } = quest;
 
@@ -76,8 +77,9 @@ const QuestButton = ({ quest, state, onClick, masterResources }) => {
         )}
       </div>
       {reward && rewardqty && (
-        <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {reward}</p>
+        <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {getLocalizedString(reward, strings)}</p>
       )}
+      {xpReward > 0 && <p className="quest-xp"><XpStar /> +{xpReward} XP</p>}
     </div>
   );
 };
@@ -160,10 +162,9 @@ const QuestGiverButton = ({
           ) : null
         )}
       </div>
-      <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {reward}</p>
-      {xpReward && state === 'reward' && (
-        <p style={{ color: 'var(--color-text-positive)', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
-      )}
+      <p><strong>{strings[98002] || 'Reward:'}</strong> {rewardqty} {getLocalizedString(reward, strings)}</p>
+      {/* the XP it pays, offered or ready (owner 2026-11-07: XP shows on every quest card) */}
+      {xpReward > 0 && <p className="quest-xp"><XpStar /> +{xpReward} XP</p>}
       <button
         className={`quest-giver-button${isProcessing ? ' processing' : ''}`}
         data-no-click-sfx={noClickSfx ? 'true' : undefined}

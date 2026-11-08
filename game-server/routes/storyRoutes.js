@@ -141,4 +141,82 @@ router.post('/story/reunite-viola', async (req, res) => {
   }
 });
 
+/**
+ *   POST /api/story/hope-finale { playerId, gridId }
+ *        -> { success, first, storyFlags, relationships, npcRelationships,
+ *             removedNpcIds, removedResources, addedResources, addedNpcs, gems }
+ * The Quest for Hope's finale (utils/hopeFinale.js): the player holds Hope (the Oracle's trade);
+ * the client calls this from the Oracle's grid as the Oracle turns into a dove. The first call
+ * sets storyFlags.hopeReturned, makes everyone friends, and drops the 100 gems; every call puts
+ * the grid in its after-Hope state and answers what changed, so the client can stage it.
+ * 403 'no-hope' without Hope; 403 'not-the-oracle' off the player's own copy of her grid.
+ * The grid write lock queues this by the gridId in the body. Idempotent.
+ */
+router.post('/story/hope-finale', async (req, res) => {
+  const { playerId, gridId } = req.body || {};
+  if (!playerId || !gridId) return res.status(400).json({ error: 'playerId and gridId are required.' });
+  try {
+    const hope = require('../utils/hopeFinale');
+    const player = await Player.findOne({ playerId });
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    if (!hope.holdsHope(player)) return res.status(403).json({ error: 'no-hope' });
+    const grid = await Grid.findById(gridId);
+    if (!grid) return res.status(404).json({ error: 'Grid not found.' });
+    if (Number(grid.gridCoord) !== hope.HOPE_COORD || String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-the-oracle' });
+
+    const first = !hope.isHopeReturned(player);
+    if (first) {
+      player.storyFlags = { ...(player.storyFlags || {}), hopeReturned: new Date() };
+      player.markModified('storyFlags');
+      hope.reconcileRelationships(player);
+    }
+    const avoid = player.location?.g && String(player.location.g) === String(grid._id) ? [{ x: Math.round(player.location.x), y: Math.round(player.location.y) }] : [];
+    const diff = hope.applyHopeGrid(grid, player, { dropGems: true, avoid });
+    if (diff.changed) await grid.save();
+    await player.save();
+    res.json({
+      success: true, first, storyFlags: player.storyFlags, relationships: player.relationships, npcRelationships: player.npcRelationships || [],
+      removedNpcIds: diff.removedNpcIds, removedResources: diff.removedResources, addedResources: diff.addedResources, addedNpcs: diff.addedNpcs, gems: diff.gems,
+    });
+  } catch (err) {
+    console.error('story/hope-finale failed:', err);
+    res.status(500).json({ error: 'Hope finale failed.' });
+  }
+});
+
+/**
+ *   POST /api/story/quince-chop { playerId, gridId, x, y } -> { success }
+ * Peter Quince, the Oracle's woodcutter (utils/hopeFinale.js), fells the tree at (x, y) on the
+ * player's copy of the Oracle's grid after the finale: the tree goes and its wood goes nowhere
+ * (no doober, nothing to the player). Trees only (convertTo with an Axe or Better Axe); the
+ * valley's lazy tree top-up grows them back. The client is optimistic (the tree falls on the
+ * swing); a refusal puts it back.
+ */
+const QUINCE_TREE_SKILLS = ['Axe', 'Better Axe'];
+router.post('/story/quince-chop', async (req, res) => {
+  const { playerId, gridId } = req.body || {};
+  const x = Number(req.body?.x), y = Number(req.body?.y);
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y)) return res.status(400).json({ error: 'playerId, gridId, x and y are required.' });
+  try {
+    const hope = require('../utils/hopeFinale');
+    const gridResourceManager = require('../utils/GridResourceManager');
+    const masterResources = require('../tuning/resources.json');
+    const player = await Player.findOne({ playerId }).select('_id storyFlags');
+    if (!player) return res.status(404).json({ error: 'Player not found.' });
+    if (!hope.isHopeReturned(player)) return res.status(403).json({ error: 'no-hope' });
+    const grid = await Grid.findById(gridId);
+    if (!grid) return res.status(404).json({ error: 'Grid not found.' });
+    if (Number(grid.gridCoord) !== hope.HOPE_COORD || String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-the-oracle' });
+    const tree = gridResourceManager.getResources(grid).find((r) => r.x === x && r.y === y);
+    const def = tree && masterResources.find((m) => m.type === tree.type);
+    if (!def || def.action !== 'convertTo' || !QUINCE_TREE_SKILLS.includes(def.requires)) return res.status(409).json({ error: 'not-a-tree' });
+    gridResourceManager.updateResource(grid, { x, y, type: null });
+    await grid.save();
+    res.json({ success: true });
+  } catch (err) {
+    console.error('story/quince-chop failed:', err);
+    res.status(500).json({ error: 'Chop failed.' });
+  }
+});
+
 module.exports = router;

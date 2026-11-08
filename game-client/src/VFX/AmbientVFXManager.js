@@ -19,6 +19,18 @@ class AmbientVFXManager {
     this.currentLocation = null;
     this.currentGridWidth = null;
     this.currentGridHeight = null;
+    // the player's story flags: an entry with `endsWithStoryFlag` stops playing once that flag is set
+    this.storyFlags = {};
+  }
+
+  /** The player's storyFlags (AppInit on every grid entry; the Quest for Hope's finale when it sets one). */
+  setStoryFlags(flags) {
+    this.storyFlags = flags || {};
+  }
+
+  /** Re-pick the effect for where the player stands (after a story flag changed). */
+  refresh() {
+    if (this.currentLocation) this.startEffect(this.currentLocation, this.currentGridWidth, this.currentGridHeight);
   }
 
   setPixiApp(app) {
@@ -66,7 +78,7 @@ class AmbientVFXManager {
   getEffectForLocation(gtype, region) {
     // If player has a region, check for region-specific VFX first
     if (region) {
-      const regionMatch = VFXMap.find(entry => entry.region === region);
+      const regionMatch = VFXMap.find(entry => entry.region === region && !(entry.endsWithStoryFlag && this.storyFlags?.[entry.endsWithStoryFlag]));
       if (regionMatch) return regionMatch.ambientVFX;
     }
 

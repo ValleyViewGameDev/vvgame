@@ -122,8 +122,11 @@ export const getRelationshipStatus = (currentPlayer, targetName) => {
  * Get NPC reactions when player forms a new relationship status
  * Returns an array of NPCs that would react and their relationship changes
  */
-export const getNPCReactions = (targetNPC, newStatus) => {
+export const getNPCReactions = (targetNPC, newStatus, currentPlayer = null) => {
   const reactions = [];
+  // After the Quest for Hope (GameFeatures/Story/hopeFinale.js) nobody in Elsinore is anybody's
+  // rival: befriending or loving one character no longer turns another against the player
+  if (currentPlayer?.storyFlags?.hopeReturned) return reactions;
   
   // RelationshipMatrix is now an array, so iterate through it
   RelationshipMatrix.forEach((npcEntry) => {
@@ -207,8 +210,8 @@ export const checkOtherRelationships = (currentPlayer, targetNPC, interaction) =
     }
   }
   
-  // Check for friend status with rivals
-  if (interaction.relbitadd === 'friend') {
+  // Check for friend status with rivals (none once hope is returned: everyone is friends)
+  if (interaction.relbitadd === 'friend' && !currentPlayer?.storyFlags?.hopeReturned) {
     // Get all NPCs that are rivals of the target
     const targetRivals = [];
     RelationshipMatrix.forEach((npcEntry) => {
@@ -373,13 +376,20 @@ export const getRelationshipMultiplier = (npcName, currentPlayer, strings) => {
 // talk yet reads as the static RelationshipMatrix says (seeded on the first conversation).
 
 export const NPC_FRIEND_AT = 30;
+
+/**
+ * What a RelationshipMatrix entry ('friend' | 'rival' | 'love' | 'married') means for this
+ * player: once hope is returned (the Quest for Hope's finale) every rivalry is a friendship.
+ */
+export const matrixRelation = (value, currentPlayer) =>
+  (value === 'rival' && currentPlayer?.storyFlags?.hopeReturned ? 'friend' : value);
 export const NPC_RIVAL_AT = -30;
 const npcPair = (a, b) => (String(a) < String(b) ? [String(a), String(b)] : [String(b), String(a)]);
 
 /** What the static matrix says about a pair: { relscore, love } (either side naming the other). */
-export const seedNPCRelationship = (a, b) => {
+export const seedNPCRelationship = (a, b, currentPlayer = null) => {
   const says = (from, to) => RelationshipMatrix.find((e) => e.type === from)?.[to];
-  const r = says(a, b) || says(b, a);
+  const r = matrixRelation(says(a, b) || says(b, a), currentPlayer);
   if (r === 'love') return { relscore: 80, love: true };
   if (r === 'friend') return { relscore: 50, love: false };
   if (r === 'rival') return { relscore: -50, love: false };
@@ -391,7 +401,7 @@ export const getNPCRelationship = (currentPlayer, a, b) => {
   const [x, y] = npcPair(a, b);
   const row = (currentPlayer?.npcRelationships || []).find((r) => r.a === x && r.b === y);
   if (row) return row;
-  const seed = seedNPCRelationship(x, y);
+  const seed = seedNPCRelationship(x, y, currentPlayer);
   return { a: x, b: y, relscore: seed.relscore, love: seed.love, friend: seed.relscore >= NPC_FRIEND_AT, rival: seed.relscore <= NPC_RIVAL_AT, talks: 0, seeded: true };
 };
 

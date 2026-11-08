@@ -43,7 +43,7 @@ router.post('/inn/rest', async (req, res) => {
     const inventory = player.inventory || [];
     const backpack = player.backpack || [];
     if (!spendCosts({ Money: costMoney }, inventory, backpack, { table: true })) {
-      return res.status(400).json({ error: 'Not enough Money.', code: 'not-enough-money', cost: costMoney });
+      return res.status(400).json({ error: 'Not enough Gold.', code: 'not-enough-money', cost: costMoney });
     }
     const { maxhp } = derivedStats(player);
     player.inventory = inventory;

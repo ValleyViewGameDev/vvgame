@@ -9,6 +9,7 @@ import './Leaderboard.css';
 import HopeQuest from '../Social/HopeQuest';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
 import { useStrings } from '../../UI/StringsContext';
+import XpStar from '../../UI/Icons/XpStar';
 
 function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen, masterResources, masterTraders, masterXPLevels }) {
   const strings = useStrings();
@@ -132,7 +133,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
 
                     {/* XP Display */}
                     <div className="player-stats">
-                      {strings[10151]} {player.xp} / {xpForNextLevel}
+                      <XpStar /> {strings[10151]} {player.xp} / {xpForNextLevel}
                     </div>
 
                     {/* XP Progress Bar */}

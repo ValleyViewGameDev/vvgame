@@ -173,6 +173,13 @@ async function applyStoryState(grid, player) {
   if (!grid || !grid.ownerId || String(grid.ownerId) !== String(player._id)) return false;
   if (grid.gridType === 'town') return applyGertrudeState(grid, player);
   const coord = Number(grid.gridCoord);
+  // the Quest for Hope's finale: the Oracle's grid after Hope came home (utils/hopeFinale.js)
+  const hope = require('./hopeFinale');
+  if (coord === hope.HOPE_COORD) {
+    const r = hope.applyHopeGrid(grid, player);
+    if (r.changed) await grid.save();
+    return r.changed;
+  }
   const changed = coord === ISLAND_COORD ? applyIslandState(grid, player)
     : coord === VIOLA_HOME_COORD ? applyViolaHomeState(grid, player) : false;
   if (changed) await grid.save();

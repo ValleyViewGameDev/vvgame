@@ -18,6 +18,8 @@ import SaleBurst from '../../UI/SaleBurst';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
 import FeedbackLinks from '../../UI/Panels/FeedbackLinks';
 import ResourceIcon from '../../UI/Icons/ResourceIcon';
+import { XP_STAR_TOKEN } from '../../UI/Icons/XpStar';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 function Mailbox({ 
   onClose, 
@@ -131,7 +133,7 @@ function Mailbox({
     rewards.forEach((reward, i) => {
       setTimeout(() => {
         FloatingTextManager.addFloatingTextAt(
-          `+${Number(reward.qty || 0).toLocaleString()} ${getSymbol(reward.item) || reward.item}`,
+          `+${Number(reward.qty || 0).toLocaleString()} ${reward.item === 'XP' ? `${XP_STAR_TOKEN} XP` : (getSymbol(reward.item) || reward.item)}`,
           cx + ((i % 3) - 1) * 26, cy - 6 + Math.floor(i / 3) * 22,
           { flyTo: flyTargetFor(reward.item) }
         );
@@ -224,7 +226,7 @@ const renderRewards = (rewards) => {
     <div className="reward-summary">
       {rewards.map((r, idx) => (
         <span key={idx} className="reward-item">
-          <ResourceIcon type={r.item} masterResources={resources} /> {r.qty} {r.item}
+          <ResourceIcon type={r.item} masterResources={resources} /> {r.qty} {getLocalizedString(r.item, strings)}
         </span>
       ))}
     </div>

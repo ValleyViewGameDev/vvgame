@@ -1,6 +1,7 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import Panel from '../../UI/Panels/Panel';
 import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
@@ -36,7 +37,7 @@ const DecoPanel = ({
   useEffect(() => {
     const availableResource = masterResources.find((res) =>
       res.type === stationType &&
-      (isHomestead || res.passable !== false)
+      (isHomestead || res.passable !== false || res.flavorKey)
     );
     setResourceDetails(availableResource);
   }, [stationType, masterResources, isHomestead]);
@@ -91,8 +92,12 @@ const DecoPanel = ({
       <div className="deco-panel-container">
         <div className="deco-panel-content">
           <h2>
-              {resourceDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
+              <ResourceIcon resource={resourceDetails} symbol={resourceDetails?.symbol || '🛖'} /> {getLocalizedString(stationType, strings)}
           </h2>
+          {/* a story building's one line (resources.json flavorKey: the Home of the Oracle) */}
+          {resourceDetails?.flavorKey && strings[resourceDetails.flavorKey] && (
+            <p className="text-quote">{strings[resourceDetails.flavorKey]}</p>
+          )}
         </div>
 
 

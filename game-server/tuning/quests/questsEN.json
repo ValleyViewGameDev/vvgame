@@ -1262,20 +1262,6 @@
     "goal1qty": 1
   },
   {
-    "index": 79,
-    "title": "By Letter of Law",
-    "symbol": "👩🏻‍⚖️",
-    "level": 16,
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 3,
-    "xp": 30,
-    "goal1action": "Acquire",
-    "goal1item": "Law",
-    "goal1qty": 1
-  },
-  {
     "index": 80,
     "title": "A Tonic for the State",
     "symbol": "👩🏻‍⚖️",

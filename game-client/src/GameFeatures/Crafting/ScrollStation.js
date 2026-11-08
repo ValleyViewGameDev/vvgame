@@ -23,6 +23,8 @@ import './ScrollStation.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
+import { gameConfirm } from '../../UI/Modals/GameDialog';
+import { hasSkillOrPower } from '../../Utils/SkillPowerManagement';
 
 import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 const ScrollStation = ({
@@ -297,6 +299,58 @@ const ScrollStation = ({
     setIsReadyToCollect(false);
   };
 
+  // The trash chip on the find: throw it away instead of collecting it (owner 2026-11-07). One
+  // confirm (it cannot be undone), then optimistic: the card clears on the tap, the server clears
+  // the temple's slot in parallel (routes/actionRoutes.js /action/scroll-discard), and the find
+  // comes back only if the server refuses.
+  const handleDiscardReveal = async () => {
+    if (!craftedItem || isCollecting || !isReadyToCollect) return;
+    const name = getLocalizedString(craftedItem, strings);
+    const ok = await gameConfirm({
+      message: (strings[98014] || 'Discard {item}? It will be lost.').replace('{item}', name),
+      confirmLabel: strings[98015] || 'Discard',
+      danger: true,
+    });
+    if (!ok) return;
+    const was = { item: craftedItem, qty: revealedItemQty };
+    // the shared grid state too, on the tap: the 1 s station check above re-reads it, and while it
+    // still held the find it brought the card back and replayed the reveal (owner 2026-11-07)
+    const writeSlots = (fn) => {
+      const next = GlobalGridStateTilesAndResources.getResources().map(res =>
+        res.x === currentStationPosition.x && res.y === currentStationPosition.y ? { ...res, slots: fn(res.slots) } : res
+      );
+      GlobalGridStateTilesAndResources.setResources(next);
+      setResources(next);
+    };
+    let oldSlots = null;
+    writeSlots((slots) => {
+      oldSlots = slots;
+      const s = Array.isArray(slots) ? [...slots] : [];
+      s[0] = { craftEnd: null, craftedItem: null, qty: 1 };
+      return s;
+    });
+    setCraftedItem(null);
+    setIsReadyToCollect(false);
+    setActiveTimer(false);
+    setCraftingCountdown(null);
+    setRevealedItemQty(1);
+    const answer = await postAction('/api/action/scroll-discard', {
+      playerId: currentPlayer.playerId,
+      gridId,
+      stationX: currentStationPosition.x,
+      stationY: currentStationPosition.y,
+    });
+    if (!answer.ok) {
+      writeSlots(() => oldSlots);
+      setCraftedItem(was.item);
+      setRevealedItemQty(was.qty);
+      setIsReadyToCollect(true);
+      updateStatus('❌ Failed to discard');
+      return;
+    }
+    writeSlots(() => answer.data.slots);
+  };
+
   // Handle collection of revealed items (reuse standard collect logic)
   const handleCollectReveal = async () => {
     if (!craftedItem || isCollecting) {
@@ -347,7 +401,7 @@ const ScrollStation = ({
         const categoryEmoji = revealedResource.category === 'skill' ? '💪' : '⚡';
         if (alreadyOwned) {
           updateStatus(strings[828] || 'You already have this');
-          floatFromCard(`${categoryEmoji} ${displayName} (Already Owned)`);
+          floatFromCard(`${categoryEmoji} ${displayName} (${strings[98016] || 'Already owned'})`);
         } else {
           floatFromCard(`${categoryEmoji} ${displayName}`);
           // A magic item goes on at once when a slot is free (combatGear.js); gear waits for
@@ -459,6 +513,10 @@ const ScrollStation = ({
               const revealedResource = masterResources.find(r => r.type === craftedItem);
               const rarity = revealedResource?.scrollchance || 'common';
               const rarityText = typeof rarity === 'string' ? rarity.toUpperCase() : 'COMMON';
+              // a skill or power the player has already: say so before they collect (owner 2026-11-07);
+              // goods never, more of them is still a gain
+              const ownedAlready = ['skill', 'power'].includes(revealedResource?.category)
+                && hasSkillOrPower(currentPlayer, craftedItem);
               
               return (
                 <ResourceButton
@@ -466,11 +524,15 @@ const ScrollStation = ({
                   resource={revealedResource}
                   name={`\n${getLocalizedString(craftedItem, strings)}${revealedItemQty > 1 ? ` (${revealedItemQty})` : ''}`}
                   className={`resource-button scroll-collect-button rarity-${typeof rarity === 'string' ? rarity : 'common'} ${isCollecting ? 'collecting' : 'ready'}`}
-                  details={rarityText} 
+                  details={ownedAlready
+                    ? `${rarityText}<br><span class="scroll-already-owned">${strings[98016] || 'Already owned'}</span>`
+                    : rarityText}
                   disabled={!isReadyToCollect || isCollecting}
                   isTransactionMode={isReadyToCollect && !isCollecting}
                   transactionKey={isReadyToCollect ? `scroll-collect-${craftedItem}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
                   onTransactionAction={isReadyToCollect ? handleCollectReveal : undefined}
+                  onDiscard={isReadyToCollect && !isCollecting ? handleDiscardReveal : null}
+                  discardLabel={strings[98015] || 'Discard'}
                 />
               );
             })()

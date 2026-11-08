@@ -274,3 +274,6 @@
     padding: 12px 30px;
   }
 }
+
+/* "Already owned" on the temple's find, for a skill or power the player has (ScrollStation.js) */
+.scroll-already-owned { color: var(--color-text-negative); font-weight: bold; }

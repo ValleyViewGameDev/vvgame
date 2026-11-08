@@ -182,6 +182,19 @@ export function animatePanTo(target, ms = 320) {
 }
 
 /**
+ * Ease the view so tile (x, y) of the current grid sits at the viewport centre (a story moment
+ * looking at something other than the player: the Oracle turning into a dove). The pan that puts
+ * world point W at the centre is (player - W) * zoom. A movement eases it back to the player.
+ */
+export function panToTile(x, y, ms = 600) {
+  if (!worldContainer) return;
+  animatePanTo({
+    x: (playerTile.x - (x + 0.5)) * tileSize * zoom,
+    y: (playerTile.y - (y + 0.5)) * tileSize * zoom,
+  }, ms);
+}
+
+/**
  * Make sure the player is visible inside `region` (host px: left/top/right/bottom), easing
  * the pan so they sit at the region's centre when they are not. Used when a panel covers
  * part of the board and something is about to happen at the avatar (a conversation).
@@ -337,7 +350,7 @@ export function screenToTile(screenX, screenY) {
 }
 
 const PixiCamera = {
-  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, revealPlayerIn, revealPointIn, setPanBounds, setZoom, animateZoom,
+  attach, detach, whenReady, setOverlayElement, follow, panBy, resetPan, animatePanTo, panToTile, revealPlayerIn, revealPointIn, setPanBounds, setZoom, animateZoom,
   getZoom, getPan, getTileSize, getViewport, isAttached, screenToWorld, worldToScreen, screenToTile,
   // read-only debug view of the internals (dev console: __pixiCamera.debug())
   debug: () => ({ zoom, targetZoom, playerTile: { ...playerTile }, pan: { ...pan }, viewport: { ...viewport }, attached: !!worldContainer, animating: !!zoomFrame, panReturning: !!panReturnFrame }),

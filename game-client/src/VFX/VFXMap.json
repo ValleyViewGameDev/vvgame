@@ -22,5 +22,10 @@
   {
     "ambientVFX": "lavaClouds",
     "region": "Acheron"
+  },
+  {
+    "ambientVFX": "hopeClouds",
+    "region": "Hope Mountain",
+    "endsWithStoryFlag": "hopeReturned"
   }
 ]
