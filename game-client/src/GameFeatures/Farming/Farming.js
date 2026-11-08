@@ -14,41 +14,23 @@ import { boardArtScale } from '../../Render/PixiRenderer/boardArt';
 import soundManager from '../../Sound/SoundManager';
 
 /**
- * Determines the appropriate error string for an invalid planting attempt.
- * Checks all validon[x] fields to find which tile types ARE valid.
- * - If exactly 1 tile type is valid, returns the specific error string for that tile.
- * - If multiple or zero valid tile types, returns the default "Can't plant here" (304).
- *
- * Tile type to string mapping:
- * - d (dirt) → 303 "Must plant on dirt"
- * - z (moss) → 307 "Must plant on moss"
- * - n (sand) → 308 "Must plant on sand"
- * - fallback → 304 "Can't plant here"
+ * The status string for planting a farmplot on the wrong ground: "Must plant on <ground>" for
+ * the ground the plot takes (its validon<x> flags), "Can't plant here" (304) for any other set.
  */
+const PLANTING_ERROR_BY_GROUND = {
+  d: 303, // dirt
+  z: 307, // moss
+  n: 308, // sand
+  g: 309, // grass (Daisy)
+  s: 321, // slate (Rock Pit)
+  c: 322, // clay (Mud Pit)
+  dg: 323, // grass or dirt (Rosemary, Feverfew)
+};
+const VALIDON_GROUNDS = ['g', 'd', 's', 'p', 'w', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u', 'k'];
+
 const getPlantingErrorString = (farmplotItem) => {
-  // Map of tile type codes to their specific error strings
-  const tileTypeToString = {
-    'd': 303, // dirt
-    'z': 307, // moss
-    'n': 308, // sand
-  };
-
-  // All possible validon fields to check
-  const validonFields = ['g', 'd', 's', 'p', 'w', 'l', 'n', 'o', 'x', 'y', 'z'];
-
-  // Find all tile types that are valid for this farmplot
-  const validTileTypes = validonFields.filter(tileCode => {
-    const fieldName = `validon${tileCode}`;
-    return farmplotItem[fieldName] === true;
-  });
-
-  // If exactly one valid tile type and we have a specific string for it
-  if (validTileTypes.length === 1 && tileTypeToString[validTileTypes[0]]) {
-    return tileTypeToString[validTileTypes[0]];
-  }
-
-  // Otherwise return default "Can't plant here"
-  return 304;
+  const grounds = VALIDON_GROUNDS.filter((code) => farmplotItem[`validon${code}`] === true).sort().join('');
+  return PLANTING_ERROR_BY_GROUND[grounds] || 304;
 };
 
 export const handleFarmPlotPlacement = async ({
