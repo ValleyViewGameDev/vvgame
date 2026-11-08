@@ -862,9 +862,10 @@ const CraftingStation = ({
                                       <span className="gem-button-cost">{formatNumber(costQty)}</span>
                                     </span>
                                   ) : (
-                                    <span className={`crafting-slot-cost ${short ? 'insufficient' : 'sufficient'}`}
+                                    <span className={`gem-button crafting-slot-below-gem crafting-slot-cost ${short ? 'insufficient' : ''}`}
                                       onClick={() => !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : updateStatus(305))}>
-                                      <ResourceIcon type={costType} masterResources={masterResources} />{formatNumber(costQty)}
+                                      <ResourceIcon type={costType} masterResources={masterResources} className="gem-button-icon" />
+                                      <span className="gem-button-cost">{formatNumber(costQty)}</span>
                                     </span>
                                   );
                                 })() : slotIsCrafting ? (

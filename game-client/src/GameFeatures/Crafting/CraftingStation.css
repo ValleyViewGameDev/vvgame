@@ -131,16 +131,14 @@
   align-items: flex-start;
 }
 
-.crafting-slot-cost {
-  font-size: var(--text-xs);
-  font-weight: bold;
-  font-family: var(--font-text-1-family);
-  line-height: 18px;
-  white-space: nowrap;
-  cursor: pointer;
+/* A non-gem unlock price (Wood) wears the gem chip too (.gem-button, same shape and colours);
+   its count turns red when the player is short */
+.crafting-slot-cost .resource-icon.gem-button-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
 }
-.crafting-slot-cost.sufficient { color: var(--color-text-positive); }
-.crafting-slot-cost.insufficient { color: var(--color-text-negative); }
+.crafting-slot-cost.insufficient .gem-button-cost { color: var(--color-text-negative); }
 
 /* The gem chip (UI/Buttons/ResourceButton.css .gem-button) in the line's flow, not pinned to a card corner */
 .crafting-slot-below .crafting-slot-below-gem {
