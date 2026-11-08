@@ -1,0 +1,80 @@
+{
+  "name": "farm-animals",
+  "note": "BL-16 Track 2 (2026-11-08): the six farm animal NPCs as side-on standing sprites in the Pig's shape language (the current npc-pig.svg is a flat vector, shown as the animal reference on magenta). All face RIGHT; the rows set artFacing right and the renderer flips. The Pig is redrawn too so the owner can keep the set uniform or keep the old pig.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "pig": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: the PIG itself, redrawn in the approved rendering: pink, a round body, a curly tail, a flat snout, floppy ears, standing side-on with its head to the viewer's right. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "cow": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: a dairy COW: white with a few big black patches, a pink udder, a pale muzzle, small horns, a plain head, standing side-on with its head to the viewer's right. No bell, no collar. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "brown-cow": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: a BROWN COW: a warm chestnut-brown body, a cream muzzle and underbelly, small horns, standing side-on with its head to the viewer's right. No bell, no collar. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "sheep": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: a SHEEP: a thick cloud of cream-white wool as one big rounded mass, a dark grey face and dark legs, standing side-on with its head to the viewer's right. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "ram": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: a RAM: a cream-white woolly body like the sheep but heavier, a dark grey face, and two big curled horns, one on each side of the head, standing side-on with its head to the viewer's right. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "goat": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "guides/control-pig-side.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached image of a PIG on a magenta field is this game's existing pig on magenta: the SHAPE LANGUAGE to match. Every farm animal in this game is drawn like that pig: standing still, seen straight from the SIDE with its head to the viewer's RIGHT, the whole body one big plain rounded mass, four short simple legs, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur texture, no background. Match that pig's scale: the new animal is about as long as the pig, with the same chunky, friendly proportions. SUBJECT: a GOAT: a light grey body with a white belly, a small beard under the chin, two short backswept horns, short upright ears, standing side-on with its head to the viewer's right. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (its back may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    }
+  }
+}

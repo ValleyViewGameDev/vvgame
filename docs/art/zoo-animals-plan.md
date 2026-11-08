@@ -55,7 +55,14 @@ no magenta macaw), one contact shadow only, the oak's green for any foliage.
 - **Prices and levels unchanged**; the rows gain `filename`, `artSpan`, the footprint fields and
   lose `size`; `npm run build:atlas`; the Twemoji frames for them drop out of the atlas.
 
-## Track 2: the farm animals as walking NPCs
+## Track 2: the farm animals as walking NPCs (DONE 2026-11-08, drawn first)
+
+Shipped ahead of the zoo sheets at the owner's call. The old `npc-pig.svg` turned out to be a
+flat vector tracing from January, not pipeline art, so the Pig was redrawn with the other five
+(job `farm-animals`, whimsical style, barrel camera, the old pig on magenta as the shape
+reference). All six face RIGHT; rows carry `artFacing: right` and a per-animal `artScale`
+(cows 1.1, Ram 1.0, Pig and Sheep 0.95, Goat 0.85) so the cows read big and the goat small.
+Silhouette cut, defringed, seated; no frames.
 
 The Pig is the proof: `npc-pig.svg`, `artFacing: right`, drawn on the board by the NPC renderer
 with the flip and bob. The other five follow it exactly: one sheet (`farm-animals`), the Pig's
@@ -74,7 +81,7 @@ renderer already bobs and flips, the states are headline effects.
 
 1. Zoo small sheet (eight) -> approve -> rows, panels, atlas.
 2. Zoo large sheet (four, the two rectangles) -> approve -> rows.
-3. Farm animals (five) -> approve -> rows with `artFacing`.
+3. Farm animals (six) -> DONE 2026-11-08.
 4. Then BL-17, the avatars, which is the last emoji in the game.
 
 Each step ships on its own commit; the server restarts for the rows locally and a push deploys.

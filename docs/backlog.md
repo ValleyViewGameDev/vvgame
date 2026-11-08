@@ -216,9 +216,9 @@ than from the header or a `playerId` in the body. Found while closing the open a
 
 ### BL-16: Art pass, animals and pets (second to last) (LAUNCH BLOCKER)
 
-Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). No art yet.
+Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). Farm animals DONE 2026-11-08: six side-on sprites (the Pig redrawn too, so the set matches) at `npc-<name>.svg`, every row `artFacing: right` with a per-animal `artScale` (cows 1.1, ram 1.0, pig and sheep 0.95, goat 0.85); job tools/art/jobs/farm-animals.json. Zoo sheets next.
 
-**What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat; the Pig already has art)
+**What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat, Pig: done 2026-11-08)
 and the twelve Zoo pets (Cat, Poodle, Monkey, Duck, Donkey, Owl, Parrot, Eagle, Zebra,
 Giraffe, Orangutan, Dodo Bird) in the game's style, on the board and in the Buy / Pets panel
 cards, so the last emoji outside the characters are gone. **Why.** The emoji audit

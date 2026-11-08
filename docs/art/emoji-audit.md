@@ -32,7 +32,7 @@ on 2026-11-07; re-run the counts before each pass rather than trusting these.
 | power | 116 | Combat panel, shop cards, inventory | pass 4: a small icon set by power family (7 glyphs today: 🛡️ 🔪 🗡️ 🏹 ⚔️ 👁️ 🎯) assigned per row via `iconFile` |
 | skill | 57 | Skills panel, school/guild cards, level-up modal | pass 4: an icon set by skill family (~25 glyphs today), per row via `iconFile` |
 | special | 28 | currency lists, inventory, Kent/quest rewards, story modals | pass 1 (keys, torch, hearts, deed, secrets, Hope, XP, tent, boat, Gold Pass) |
-| npc | 28 | the board, panels, quest cards | 5 farm animals → BL-16; 12 enemies + 7 spawners + Fairy, Santa, Porter, Oracle → BL-17 (spawners: pass 3 decides whether they draw at all) |
+| npc | 28 | the board, panels, quest cards | 5 farm animals DONE 2026-11-08 (BL-16, `npc-cow/-brown-cow/-sheep/-ram/-goat.svg`, Pig redrawn); 12 enemies + 7 spawners + Fairy, Santa, Porter, Oracle → BL-17 (spawners: pass 3 decides whether they draw at all) |
 | farmplot | 23 | the board: every growing plot is a 🌱 (vines 🍃) | pass 3: growing-plot art |
 | deco | 15 | board + Deco panel | pass 3: Holiday Tree (5 layouts) and Stack of Books (3) get art; the 13 unused rows (5 emoji walls, Harp, Chair, Toilet, Bed, Teddy Bear, Slide, White Dove, Black Fog as a door) are retired or drawn |
 | pet | 12 | board, Pets panel | BL-16 |
@@ -187,7 +187,7 @@ unapproved, `iconFile` (panel-only) or `filename` (board) on the row, `npm run b
    Wheat, and then sell it to {res:Kent} Kent"): a thing with art gets its token, a panel its
    button icon, a skill nothing, an animal or a character nothing until BL-16 / BL-17. Chat and
    conversation glyphs (Conversation.js) are NPC speech and wait for BL-17.
-6. **Animals and pets** (BL-16): Cow, Sheep, Brown Cow, Ram, Goat (Pig has art), the 12 Zoo
+6. **Animals and pets** (BL-16): Cow, Sheep, Brown Cow, Ram, Goat, Pig (DONE 2026-11-08), the 12 Zoo
    pets, their panel rows and the Buy / Pets cards.
 7. **Avatars** (BL-17): the parts-based player avatar (docs/avatar-plan.md) on the board and in
    the Profile / Change Icon modals, then NPC avatars: the 12 enemies, the 7 spawners if they
