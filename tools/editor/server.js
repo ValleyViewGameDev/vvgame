@@ -209,6 +209,9 @@ async function handle(req, res) {
   if (p === '/favicon.ico') { res.writeHead(204); return res.end(); }
   if (p === '/' || p === '/index.html') return serveStatic(res, CLIENT_DIR, 'index.html');
   if (p.startsWith('/sheets/')) return serveStatic(res, SHEETS_DIR, p.slice('/sheets/'.length));
+  if (p === '/game-client/artVariants.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'Utils'), 'artVariants.js'); // dependency-free, the Layouts canvas's per-cell art pick
+  // the game's own art (resources, walls), read-only, so the Layouts canvas draws real sprites
+  if (p.startsWith('/game-assets/')) return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'public', 'assets'), decodeURIComponent(p.slice('/game-assets/'.length)));
   if (p === '/game-client/tileColors.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'UI', 'Styles'), 'tileColors.js'); // the client's own module, dependency-free
   // the avatar system's pure modules and part files, so the Avatar Lab composes busts exactly as the game does
   if (p === '/game-client/avatarLook.js' || p === '/game-client/avatarCompositor.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'Avatar'), p.slice('/game-client/'.length));

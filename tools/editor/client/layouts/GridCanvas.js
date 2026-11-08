@@ -1,12 +1,14 @@
 /**
  * GridCanvas: draws a 64x64 layout grid on one <canvas> (rulers, tile colours, resource
  * symbols, multi-tile footprints anchored bottom-left like the game, selection, brush hover)
- * and turns pointer events into cell callbacks.
+ * and turns pointer events into cell callbacks. With `art` on (the default) resources draw as the
+ * game's own sprites (./boardArt.js), y-sorted like the board; off, as emoji symbols.
  *
  *   const cv = new GridCanvas(container, { idx, tileColors, onCellClick(row, col, ev), onHover(row, col|null) })
- *   cv.setState({ grid, selected, tileSize, brush: { size, shape }, hover })
+ *   cv.setState({ grid, selected, tileSize, brush: { size, shape }, hover, art })
  */
 import { GRID_SIZE, isBlank, brushTiles } from './GridModel.js';
+import { artImage, artBox, boardFile, wallPieces, setArtReadyHandler } from './boardArt.js';
 
 export class GridCanvas {
   constructor(container, { idx, tileColors, onCellClick, onHover }) {
@@ -18,7 +20,8 @@ export class GridCanvas {
     this.canvas.className = 'grid-canvas';
     container.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
-    this.state = { grid: null, selected: null, tileSize: 20, brush: { size: 1, shape: 'square' }, hover: null };
+    this.state = { grid: null, selected: null, tileSize: 20, brush: { size: 1, shape: 'square' }, hover: null, art: true };
+    setArtReadyHandler(() => this.draw()); // art arrives a file at a time: redraw as it lands
     this.dpr = window.devicePixelRatio || 1;
     this.canvas.addEventListener('click', (e) => { const c = this.cellAt(e); if (c) this.onCellClick?.(c.row, c.col, e); });
     this.canvas.addEventListener('mousemove', (e) => {
@@ -86,7 +89,78 @@ export class GridCanvas {
     }
     ctx.stroke();
 
-    // single-tile symbols, then multi-tile footprints on top
+    if (this.state.art) this.drawArt(o, ts);
+    else this.drawSymbols(o, ts);
+
+    // brush hover
+    if (hover && brush) {
+      ctx.fillStyle = 'rgba(63,138,47,0.25)';
+      for (const { row, col } of brushTiles(hover.row, hover.col, brush.size, brush.shape === 'scatter' ? 'circle' : brush.shape)) {
+        ctx.fillRect(o + col * ts, o + row * ts, ts, ts);
+      }
+    }
+    // selection
+    if (selected) {
+      ctx.strokeStyle = '#e3342f'; ctx.lineWidth = 3;
+      ctx.strokeRect(o + selected.col * ts + 1.5, o + selected.row * ts + 1.5, ts - 3, ts - 3);
+    }
+  }
+
+  footprintOf(res) {
+    // size, or sizeX x sizeY (BL-21); an NPC never takes a footprint
+    if (res.category === 'npc') return { fw: 1, fh: 1 };
+    return { fw: Number(res.sizeX) || Number(res.size) || 1, fh: Number(res.sizeY) || Number(res.size) || 1 };
+  }
+
+  /** The game's sprites, y-sorted (the further south row draws in front, NPCs half a row on). */
+  drawArt(o, ts) {
+    const { grid } = this.state;
+    const ctx = this.ctx;
+    const items = [];
+    for (let r = 0; r < GRID_SIZE; r++) {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        const name = grid[r][c].resource;
+        const res = name && this.idx.byType.get(name);
+        if (res) items.push({ r, c, res, z: r + (res.category === 'npc' ? 0.5 : 0) });
+      }
+    }
+    items.sort((a, b) => a.z - b.z || a.c - b.c);
+    const setAt = (c, r) => this.idx.byType.get(grid[r]?.[c]?.resource)?.wallSet || null;
+    ctx.imageSmoothingEnabled = true;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (const { r, c, res } of items) {
+      const { fw, fh } = this.footprintOf(res);
+      if (res.wallSet && fw * fh === 1) {
+        const wall = wallPieces(res.wallSet, c, r, setAt);
+        if (wall) {
+          const s = wall.span;
+          const x = o + (c - (s - 1) / 2) * ts, y = o + (r - (s - 1)) * ts;
+          for (const img of wall.pieces) ctx.drawImage(img, x, y, s * ts, s * ts);
+          continue;
+        }
+      }
+      const img = artImage(res.category === 'npc' ? res.filename && `resources/${res.filename}` : (boardFile(res, c, r) && `resources/${boardFile(res, c, r)}`));
+      if (img) {
+        const b = artBox(res, c, r, fw, fh);
+        ctx.drawImage(img, o + b.x * ts, o + b.y * ts, b.w * ts, b.h * ts);
+        continue;
+      }
+      // no art (or not loaded yet): the symbol, as before
+      const left = o + c * ts, bottom = o + (r + 1) * ts;
+      if (fw * fh > 1) {
+        ctx.fillStyle = 'rgba(255,255,255,0.25)';
+        ctx.fillRect(left, bottom - ts * fh, ts * fw, ts * fh);
+      }
+      ctx.font = `${ts * (fw * fh > 1 ? 0.85 * Math.min(fw, fh) : 0.65)}px sans-serif`;
+      ctx.fillStyle = '#000';
+      ctx.fillText(symbolOf(res), left + (ts * fw) / 2, bottom - (ts * fh) / 2 + 1);
+    }
+  }
+
+  /** Emoji symbols: single-tile, then multi-tile footprints on top. */
+  drawSymbols(o, ts) {
+    const { grid } = this.state;
+    const ctx = this.ctx;
     const big = [];
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     for (let r = 0; r < GRID_SIZE; r++) {
@@ -114,19 +188,6 @@ export class GridCanvas {
       ctx.font = `${ts * 0.85 * Math.min(fw, fh)}px sans-serif`;
       ctx.fillStyle = '#000';
       ctx.fillText(symbolOf(res), left + w / 2, bottom - h / 2 + 1);
-    }
-
-    // brush hover
-    if (hover && brush) {
-      ctx.fillStyle = 'rgba(63,138,47,0.25)';
-      for (const { row, col } of brushTiles(hover.row, hover.col, brush.size, brush.shape === 'scatter' ? 'circle' : brush.shape)) {
-        ctx.fillRect(o + col * ts, o + row * ts, ts, ts);
-      }
-    }
-    // selection
-    if (selected) {
-      ctx.strokeStyle = '#e3342f'; ctx.lineWidth = 3;
-      ctx.strokeRect(o + selected.col * ts + 1.5, o + selected.row * ts + 1.5, ts - 3, ts - 3);
     }
   }
 }

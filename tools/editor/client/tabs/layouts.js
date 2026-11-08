@@ -27,7 +27,7 @@ const T = {
   dir: 'valleyFixedCoord', name: null, gridType: 'valley1',
   state: null, loaded: null,         // state = { grid, tileDistribution, resourceDistribution, enemiesDistribution }; loaded = snapshot at load
   selected: null, copied: null,
-  tileSize: 14, brush: { size: 1, shape: 'square', scatter: 20 }, clump: { ...M.DEFAULT_CLUMP },
+  tileSize: 14, art: true, brush: { size: 1, shape: 'square', scatter: 20 }, clump: { ...M.DEFAULT_CLUMP },
   deleteTypes: Object.fromEntries(M.TILE_KEYS.map((k) => [k, true])),
   templates: [], miniTemplates: [], dirs: {},
   els: {},
@@ -162,6 +162,9 @@ function renderEditor() {
     T.els.btnUndo, T.els.btnRedo,
     el('button', { class: 'danger', onclick: async () => { if (await confirm('Delete this layout file? (kept as .bak)', { danger: true, okLabel: 'Delete' })) { await local.deleteLayout(T.dir, T.name); T.dirs = (await local.layouts()).dirs; T.state = null; T.name = null; setDirty('layout', '', false); T.ctx.navigate('layouts'); } } }, 'Delete file'),
     el('span', { class: 'spacer' }),
+    el('label', { class: 'muted', title: "Draw resources as the game's sprites (off: emoji symbols)" }, [
+      el('input', { type: 'checkbox', checked: T.art, onchange: (e) => { T.art = e.target.checked; T.canvas.setState({ art: T.art }); } }), ' art',
+    ]),
     el('span', { class: 'muted' }, 'zoom'), sizeSlider,
     T.els.btnSave, T.els.dirtyBadge,
   );
@@ -174,7 +177,7 @@ function renderEditor() {
     // A click only selects; tile types change through the letter keys (brush) or the tools (BL-8)
     onCellClick: (row, col) => select(row, col),
   });
-  T.canvas.setState({ grid: T.state.grid, selected: T.selected, tileSize: T.tileSize, brush: T.brush });
+  T.canvas.setState({ grid: T.state.grid, selected: T.selected, tileSize: T.tileSize, brush: T.brush, art: T.art });
   renderTools();
   afterChange(false);
 }
