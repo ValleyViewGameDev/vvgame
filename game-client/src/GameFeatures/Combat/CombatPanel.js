@@ -12,6 +12,7 @@ import soundManager from '../../Sound/SoundManager';
 import { gameConfirm, gameAlert } from '../../UI/Modals/GameDialog';
 import { loadGlobalTuning } from '../../Utils/TuningManager';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import {
   isWeapon, isShield, isArmor, isMagic, handsOf, handsIcon, shieldUsable, gearStatLines,
   magicSlotCount, nextMagicSlotCost, equippedMagicTypes,
@@ -250,7 +251,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, m
     <Panel onClose={onClose} titleKey="1124" panelName="CombatPanel">
       <div className="standard-panel">
         <div className="combat-section combat-stats">
-          <h3>{strings[10112]} <span className="stat-total">{hp.total}</span></h3>
+          <h3><ResourceIcon file="item-health-heart.svg" className="combat-health-icon" /> {strings[10112]} <span className="stat-total">{hp.total}</span></h3>
           <table className="stats-table">
             <tbody>
               {statRow(550, 'maxhp')}

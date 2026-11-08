@@ -186,6 +186,14 @@
   margin-bottom: 4px;
 }
 
+/* The Health heading carries the health heart (the same art as the header ring) */
+.combat-stats h3 .combat-health-icon {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.15em;
+  margin-right: 2px;
+}
+
 /* A stat that changed: a quick pop in the colour of the change (the kentPop family) */
 .stat-pulse-up,
 .stat-pulse-down {
