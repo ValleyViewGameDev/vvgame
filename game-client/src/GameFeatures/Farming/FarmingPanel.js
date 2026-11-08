@@ -253,12 +253,13 @@ const FarmingPanel = ({
                 ? `<span style="color: ${regionColor};">${String(strings[17022] || 'Only grows in {region}').replace('{region}', getLocalizedString(item.growregion, strings))}</span>`
                 : '';
 
+              // the grow time is the card's FIRST details row, right-justified and bold (craft-card)
               const details =
+                (item.growtime ? `<strong class="craft-time">${formatDuration(item.growtime)}</strong>` : '') +
                 (cropLimitReached ? `<span style="color: var(--color-text-negative);">${strings[17023] || 'Maximum reached of this crop type'} (${item.maxpergrid})</span>` : '') +
                 (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
                 regionLine +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
-                (item.growtime ? `${strings[458]}${formatDuration(item.growtime)}<br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
               const info =
@@ -274,7 +275,7 @@ const FarmingPanel = ({
               const isSelectedForCursor = cursorMode?.type === 'plant' && cursorMode?.item?.type === item.type;
 
               // Build className based on state
-              let buttonClassName = '';
+              let buttonClassName = 'craft-card ';
               if (isCoolingDown) buttonClassName += 'cooldown ';
               if (isSelectedForCursor) buttonClassName += 'cursor-selected ';
 

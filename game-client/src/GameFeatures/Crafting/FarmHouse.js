@@ -462,14 +462,15 @@ const FarmHouse = ({
                   symbol={recipe.symbol}
                   filename={recipe.filename}
                   name={getLocalizedString(recipe.type, strings)}
-                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
+                  className={`resource-button craft-card ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
                   details={
                     isCrafting ? craftTimeText :
                     (
+                      // the craft time is the card's FIRST details row, right-justified and bold (craft-card)
+                      (isReadyToCollect ? '' : `<strong class="craft-time">${recipe.crafttime ? formatDuration(recipe.crafttime) : strings[459]}</strong>`) +
                       (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
                       (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
-                      `${craftTimeText}<br>` +
-                      (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
+                      (isReadyToCollect ? `${strings[457]}<br>` : `${strings[461]}<div>${formattedCosts}</div>`)
                     )
                   }
                   info={info}

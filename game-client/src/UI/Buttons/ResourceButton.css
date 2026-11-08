@@ -393,3 +393,17 @@
 
 /* the gem chip's picture (item-gem.svg), sized by the chip's own font-size like the glyph it replaced */
 .gem-button-icon { width: 1em; height: 1em; vertical-align: -0.15em; }
+
+/* A make/grow card's time (Crafting Station, Farm House, Farming panel: className craft-card,
+   details starting with <strong class="craft-time">): the FIRST details row, whatever that row
+   is (Level, Requires, Costs), right-justified to the card's edge under the ℹ️ badge, bold,
+   without "Time:" (one row saved). The details stretch to the card's width (the card is a column
+   that otherwise shrinks them). */
+.resource-button.craft-card .resource-details {
+  align-self: stretch;
+}
+.resource-details .craft-time {
+  float: right;
+  margin-left: 8px;
+  font-weight: bold;
+}

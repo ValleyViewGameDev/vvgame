@@ -166,17 +166,6 @@
   white-space: nowrap;
 }
 
-/* A craft card's time: the FIRST details row, whatever that row is (Level, Requires, Costs),
-   right-justified to the card's edge under the ℹ️ badge, bold, without "Time:" (one row saved).
-   The details stretch to the card's width (the card is a column that otherwise shrinks them). */
-.resource-button.craft-card .resource-details {
-  align-self: stretch;
-}
-.resource-details .craft-time {
-  float: right;
-  margin-left: 8px;
-  font-weight: bold;
-}
 
 /* Crafting state - item being made */
 .crafting-slot.crafting {
