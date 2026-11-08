@@ -169,3 +169,17 @@ next, through the walls pipeline (docs/walls.md).
 
 **Keyer rule learned here:** any cloth, roof or flower meant to be purple must be asked for as a
 bluish violet; a red-purple or pink-purple sits within the magenta key's reach.
+
+## Statue unification (2026-11-08, `tools/art/jobs/deco-statues.json`)
+
+From the owner's screenshot of the six statues on cobblestone: three stones, three plinths.
+Shakespeare redrawn in the Marble Statue's white marble on its round stepped plinth (artSpan
+2.09); the Stone Bust in the Lion's warm sandstone on the Lion's square carved plinth (1.5); the
+Gargoyle in the Knight's grey stone on the Knight's tall stepped plinth (1.29), which is what
+keeps its base from vanishing on a cobblestone floor. The reference statue's cut PNG is sent as
+the THIRD ref ("match its stone exactly, and the same plinth"): that is the way to keep a
+family of props on one material. The rows: marble = Marble Statue, Shakespeare; sandstone =
+Lion, Bust; grey = Knight, Gargoyle.
+
+A deco row may carry several groups, `decoGroup: "castle;statuary"`, and lists under each tab
+(Knight Statue and Gargoyle: castle + statuary; Royal Bed and Throne: furniture + castle).

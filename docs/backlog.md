@@ -291,3 +291,16 @@ Furniture and village pieces (bed, bench, cart, market stall, gatehouse) read be
 through the places above, the client's enrich of shadow tiles (AppInit.enrichGridResources)
 first; artSpan stays a square around the footprint's bottom-centre.
 
+### BL-22: More wall sets (castle wall, hedge, sandstone)
+
+Added 2026-11-08.
+
+**What.** The deco pass plan (docs/art/deco-pass-plan.md B1, B3) called for a crenellated
+CASTLE WALL set and a clipped HEDGE set (the Green Wall's replacement), each a joining
+`wallSet` of seven pieces through the walls pipeline (docs/walls.md: one plus panel + one
+lone-post panel, `tools/art/walls.js`), plus a sandstone wall for the valley3 desert where
+the Sand Wall stood. The owner parked walls on 2026-11-08 after the castle props landed.
+**Why.** The castle set reads as a castle only with its wall; the garden has no edge piece
+but the stone wall and the wooden fence. **Where to start.** `tools/art/jobs/walls.json`
+(the stone set's prompts and the TALL window), then a `Castle Wall` row with `wallSet:
+castle`, `decoGroup: castle;walls`.

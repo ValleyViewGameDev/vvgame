@@ -15393,7 +15393,7 @@
     "ingredient1qty": 2000,
     "gemcost": 20,
     "filename": "stone-bust.svg",
-    "artSpan": 1.62
+    "artSpan": 1.5
   },
   {
     "category": "deco",
@@ -15492,7 +15492,7 @@
     "ingredient1qty": 7500,
     "gemcost": 75,
     "filename": "shakespeare-statue.svg",
-    "artSpan": 2.15
+    "artSpan": 2.09
   },
   {
     "type": "Round Tower",
@@ -15603,7 +15603,7 @@
     "symbol": "🗿",
     "layoutkey": "kst",
     "category": "deco",
-    "decoGroup": "castle",
+    "decoGroup": "castle;statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15628,7 +15628,7 @@
     "symbol": "🗿",
     "layoutkey": "thr",
     "category": "deco",
-    "decoGroup": "castle",
+    "decoGroup": "castle;furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15655,7 +15655,7 @@
       "sizeX": 1,
       "sizeY": 2,
       "category": "deco",
-      "decoGroup": "furniture",
+      "decoGroup": "furniture;castle",
       "source": "Deco",
       "passable": false,
       "qtycollected": 1,
@@ -15707,7 +15707,7 @@
       "symbol": "🗿",
       "layoutkey": "ggl",
       "category": "deco",
-      "decoGroup": "castle",
+      "decoGroup": "castle;statuary",
       "source": "Deco",
       "passable": false,
       "qtycollected": 1,
@@ -15725,7 +15725,7 @@
       "ingredient1qty": 2500,
       "gemcost": 25,
       "filename": "gargoyle.svg",
-      "artSpan": 1.27
+      "artSpan": 1.29
   },
   {
     "type": "Cactus",

@@ -28,7 +28,12 @@ const DECO_GROUPS = [
   { key: 'walls', stringId: 200726, label: 'Walls and Fences' },
   { key: 'other', stringId: 200727, label: 'Other' },
 ];
-const decoGroupOf = (item) => (DECO_GROUPS.some((g) => g.key === item.decoGroup) ? item.decoGroup : 'other');
+// a row's groups: "castle;statuary" lists it under both tabs (owner 2026-11-08); unknown or none = other
+const decoGroupsOf = (item) => {
+  const keys = String(item.decoGroup || '').split(/[;,]/).map((k) => k.trim()).filter((k) => DECO_GROUPS.some((g) => g.key === k));
+  return keys.length ? keys : ['other'];
+};
+const decoGroupOf = (item) => decoGroupsOf(item)[0];
 
 const BuyDecoPanel = ({
   TILE_SIZE,
@@ -184,13 +189,13 @@ const BuyDecoPanel = ({
             {/* the catalogue's tabs (owner 2026-11-08): All, then one per decoGroup present; the same
                 .tab-button row the Trade Stall uses */}
             <div className="tab-navigation buy-deco-tabs">
-              {[{ key: 'all', stringId: 200728, label: 'All' }, ...DECO_GROUPS.filter((g) => buyOptions.some((it) => decoGroupOf(it) === g.key))].map((g) => (
+              {[{ key: 'all', stringId: 200728, label: 'All' }, ...DECO_GROUPS.filter((g) => buyOptions.some((it) => decoGroupsOf(it).includes(g.key)))].map((g) => (
                 <button key={g.key} className={`tab-button ${decoTab === g.key ? 'active' : ''}`} onClick={() => setDecoTab(g.key)}>{strings[g.stringId] || g.label}</button>
               ))}
             </div>
             {[null].map(() => (
             <React.Fragment key="list">
-            {buyOptions.filter((it) => decoTab === 'all' || decoGroupOf(it) === decoTab).map((item) => {
+            {buyOptions.filter((it) => decoTab === 'all' || decoGroupsOf(it).includes(decoTab)).map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
               const requirementsMet = hasRequiredSkill(item.requires);

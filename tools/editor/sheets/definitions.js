@@ -62,7 +62,7 @@ export const DEFINITIONS = [
       { ...bool('unique'), label: 'unique (one of a kind: a Secret, a story key; quest rewards and trades never multiply it by the relationship buff)' },
       { ...bool('noClick'), label: 'noClick (an NPC that is scenery: a tap goes through it; Peter Quince)' },
       { ...str('flavorKey'), label: 'flavorKey (string id of the one line a story building shows in its panel)' },
-      { key: 'decoGroup', type: 'enum', enum: ['', 'farm', 'garden', 'furniture', 'statuary', 'castle', 'village', 'walls'], label: 'decoGroup (the Buy Deco panel section; docs/art/deco-pass-plan.md)' },
+      { ...str('decoGroup'), label: 'decoGroup (the Buy Deco panel tab(s): farm, garden, furniture, statuary, castle, village, walls; several separated by ; e.g. castle;statuary)' },
       { ...num('gemOverride'), label: 'gemOverride (hand-set gemcost)' },
       { ...bool('rare'), label: 'rare (gems by effort)' },
       { ...num('parallel'), label: 'parallel (producers run at once)' },
