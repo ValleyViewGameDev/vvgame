@@ -121,11 +121,13 @@
    price (one resource), the gem speed-up while it counts down, COLLECT when ready. A fixed
    height, so a row does not jump when a slot changes state. Each does what a tap on the slot does. */
 .crafting-slot-below {
-  height: 20px;
+  height: 18px;
+  margin-top: -9px; /* the chip's top half overlaps the slot's bottom edge */
+  position: relative;
+  z-index: 7; /* over the slot */
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  overflow: hidden;
 }
 
 .crafting-slot-cost {
@@ -157,8 +159,9 @@
   margin: 0;
   padding: 0 6px;
   max-width: 100%;
-  font-size: var(--text-xs);
+  font-size: 9px; /* style-ok: tile overlay (a mini label under a crafting slot; COLLECT must fit the slot's width) */
   line-height: 18px;
+  letter-spacing: 0;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -207,7 +210,7 @@
 /* Timer overlay at bottom of slot - matches FloatingText.css styling */
 .crafting-slot-timer {
   position: absolute;
-  bottom: 2px;
+  top: 2px; /* the top of the slot: the speed-up chip overlaps its bottom */
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px; /* style-ok: tile overlay (timer over a crafting slot, §9) */
@@ -275,3 +278,32 @@
   }
 }
 
+/* A second row of slots: 2px under the first row's cost line */
+.crafting-slots-grid + .crafting-slots-grid {
+  margin-top: 2px;
+}
+
+/* The slot's picture fills it: sized from the slot's own width (container units), so the padlock
+   and a craft's icon fill the square at any panel width (owner 2026-11-08) */
+.crafting-slot {
+  container-type: inline-size;
+}
+.crafting-slot-icon {
+  font-size: 70cqi; /* style-ok: icon (glyph fallback) */
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.crafting-slot-icon .resource-icon {
+  width: 86cqi;
+  height: 86cqi;
+  vertical-align: middle;
+}
+.crafting-slot-icon.locked {
+  font-size: 60cqi; /* style-ok: icon */
+}
+.crafting-slot-icon.locked .lock-icon {
+  width: 72cqi;
+  height: 72cqi;
+}
