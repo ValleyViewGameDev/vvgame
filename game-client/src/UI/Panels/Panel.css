@@ -117,6 +117,26 @@
   cursor: pointer;
 }
 
+/* The toggle's row at the top of those panels: tight above and below (owner 2026-11-08; was
+   5px padding + a 10px gap under it) */
+.cursor-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 0;
+}
+
+/* The Decorations catalogue's sub-sorts (BuyDecoPanel: the group headings, or the tab row):
+   tight above and below */
+.panel-content .buy-deco-group {
+  margin: 6px 0 2px;
+}
+.tab-navigation.buy-deco-tabs {
+  margin: 2px 0 6px;
+}
+
 /* Countdown timers should use Lora (title-3) for better number readability */
 .countdown-timer {
   font-family: var(--font-title-3-family) !important;

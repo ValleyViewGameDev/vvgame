@@ -188,14 +188,7 @@ const ToolsPanel = ({
       <div className="standard-panel">
         {/* Terraform with cursor toggle (not on phones) */}
         {!isTouchPrimary() && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            gap: '8px',
-            marginBottom: '10px',
-            padding: '5px 0'
-          }}>
+          <div className="cursor-toggle-row">
             <label className="cursor-toggle-label">
               {strings[10187] || 'Use with cursor'}
             </label>
