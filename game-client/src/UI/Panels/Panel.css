@@ -83,6 +83,11 @@
   margin-bottom: 4px; /* Reduce space below */
   color: var(--font-title-2-color);
 }
+/* Berkshire is never bold (docs/ui-conventions.md §9): a <strong> or <b> inside a display title stays normal */
+.panel-container .panel-content h2 strong,
+.panel-container .panel-content h2 b {
+  font-weight: normal;
+}
 .panel-content h3 {
   font-family: var(--font-title-3-family);
   font-weight: var(--font-title-3-weight);

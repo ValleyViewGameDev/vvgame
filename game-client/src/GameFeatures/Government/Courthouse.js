@@ -580,7 +580,7 @@ const CourthousePanel = ({
                             </div>
                         </div>
                     ) : (
-                        <h2 style={{ color: 'var(--color-text-title)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h2>
+                        <h2 style={{ color: 'var(--color-text-title)' }}>{settlement?.displayName || 'Unnamed'}</h2>
                     )}
  
 {/* POPULATION section */}
@@ -621,7 +621,7 @@ const CourthousePanel = ({
                     {!isMayor && (
                         <>
                             <h3>{strings[2085]}</h3>
-                            <h2 style={{ color: 'var(--color-text-title)' }}><strong>{mayor || "Vacant"}</strong></h2>
+                            <h2 style={{ color: 'var(--color-text-title)' }}>{mayor || "Vacant"}</h2>
                         </>
                     )}
 

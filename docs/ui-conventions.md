@@ -567,6 +567,13 @@ class. `node scripts/check-styles.js` (in `game-client/`) reports every line tha
 | Lora, bold | `--font-heading` | every action button (`btn-basic`), sub-headings, tabs, section labels, real-money prices (`.store-price`) | paragraphs |
 | Philosopher | `--font-body` | everything the player reads: sentences, numbers, costs, labels, inputs, tooltips (chosen 2026-10-19 over Arial for a fantasy, literary voice that keeps numbers clear; the trial sheet is `docs/art/font-trial.html`) | titles |
 
+**Berkshire is never bold** (owner 2026-11-08). The display face is drawn heavy already; a bold
+weight smears it. Every Berkshire surface sets `font-weight: normal` (a panel's `<h2>`, titles,
+`.resource-title`, the Story modal's words), and nothing wraps display text in `<strong>` / `<b>`
+or gives it `font-weight: bold` (`Panel.css` neutralises a `<strong>` inside a panel `<h2>` as a
+safety net). Emphasis inside a title is the colour token, never weight. The Gov panel's and
+Portia's Court's settlement and Mayor names were the last bold ones (2026-11-08).
+
 `--font-mono` is for developer tools only (debug panels, the GridState overlay). The page
 `body` defaults to Lora (`App.css`): Berkshire is opt-in (a title role or `--font-display`)
 and body text gets Philosopher through its role, so an element that sets nothing reads as a Lora
