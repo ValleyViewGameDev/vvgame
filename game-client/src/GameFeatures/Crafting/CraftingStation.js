@@ -774,7 +774,7 @@ const CraftingStation = ({
                     const rowEndSlot = Math.min(rowStartSlot + SLOTS_PER_ROW, maxSlots);
 
                     return (
-                      <div className="crafting-slots-grid" key={rowIndex} style={rowIndex > 0 ? { marginTop: '8px' } : undefined}>
+                      <div className="crafting-slots-grid" key={rowIndex}>
                         {Array.from({ length: rowEndSlot - rowStartSlot }, (_, slotInRow) => {
                           const i = rowStartSlot + slotInRow;
                           const isUnlocked = i <= stationLevel;
@@ -842,18 +842,19 @@ const CraftingStation = ({
                                   locked slot, the gem speed-up while it counts down, COLLECT when ready.
                                   Each does what a tap on the slot does. */}
                               <div className="crafting-slot-below">
-                                {!isUnlocked && slotCostRecipe ? (() => {
+                                {/* only the NEXT slot to buy shows its price; the ones beyond it show nothing */}
+                                {!isUnlocked && isNextSlot && slotCostRecipe ? (() => {
                                   const [costType, costQty] = Object.entries(globalTuning.craftingStationSlotCosts[`slot${i}`]).find(([, v]) => v > 0);
                                   const short = getPlayerQuantity(costType, inventory, backpack) < costQty;
                                   return costType === 'Gem' ? (
-                                    <span className={`gem-button crafting-slot-below-gem ${isNextSlot ? '' : 'disabled'}`}
-                                      onClick={() => isNextSlot && !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : openPanel('HowToGemsPanel'))}>
+                                    <span className="gem-button crafting-slot-below-gem"
+                                      onClick={() => !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : openPanel('HowToGemsPanel'))}>
                                       <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
                                       <span className="gem-button-cost">{formatNumber(costQty)}</span>
                                     </span>
                                   ) : (
                                     <span className={`crafting-slot-cost ${short ? 'insufficient' : 'sufficient'}`}
-                                      onClick={() => isNextSlot && !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : updateStatus(305))}>
+                                      onClick={() => !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : updateStatus(305))}>
                                       <ResourceIcon type={costType} masterResources={masterResources} />{formatNumber(costQty)}
                                     </span>
                                   );

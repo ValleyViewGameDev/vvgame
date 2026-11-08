@@ -148,16 +148,19 @@
   box-sizing: border-box;
 }
 
-.crafting-slot-below-collect {
+.crafting-slot-below-collect.shared-buttons {
   display: flex;
   max-width: 100%;
+  margin: 0; /* .shared-buttons' own 8px margin pushed it down and the line clipped it */
 }
 .crafting-slot-below-collect.shared-buttons .btn-basic.btn-mini {
   margin: 0;
   padding: 0 6px;
   max-width: 100%;
-  line-height: 16px;
+  font-size: var(--text-xs);
+  line-height: 18px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* A craft card's time: the FIRST details row, whatever that row is (Level, Requires, Costs),
