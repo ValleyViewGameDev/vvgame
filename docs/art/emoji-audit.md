@@ -124,7 +124,9 @@ rich-line token (pass 5) or reword.
   (`dungeon-exit.svg`); the Dungeon Entrance (2 x 2, artSpan 2.36), the Mountain (`mountain.svg`,
   a smaller peak of the same rock, artSpan 3.24), the Mountain Large (`mountain-large.svg`, 4.08;
   both redrawn WITHOUT trees in `board-r4`, owner 2026-11-07: a mountain's trees never match the
-  game's trees and overcomplicate the piece)
+  game's trees and overcomplicate the piece); REDESIGNED 2026-11-08 as three-peak MASSIFS (`board-r5`): a broad block about as
+  wide as it is tall that fills its square footprint, so the art never looks as if it blocked
+  tiles it does not; one pointed peak is out
   and the Enormous Mountain (the large art scaled to 20 tiles, artSpan 20.4, to be judged in
   game), the Volcano (10.57) and the Big Statue (11.65) are painterly panels cut with
   `cutout.js`. The zoomed-out settlement and frontier views use the Farm House, Town Hall,

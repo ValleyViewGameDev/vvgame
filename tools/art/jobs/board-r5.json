@@ -1,0 +1,35 @@
+{
+  "name": "board-r5",
+  "note": "Owner 2026-11-08: the mountains were too vertical and pointed, so they looked as if they blocked tiles they should not. Redesign as a three-peak massif that fills its square footprint (3 x 3, 4 x 4) more fully, organic, not a perfect square. Large first, then the regular from it.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "massif": {
+      "refs": [
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "_candidates/board-r4/approved/openai--painterly-mountain-1.png"
+      ],
+      "guide": "guides/building4-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA AND STYLE REFERENCE: the first attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses, and SQUARE-ON: each object's front face parallel to the bottom edge, never turned on the diagonal. The SECOND attached panel is this game's approved mountain ROCK on magenta: keep its grey-brown rock painted in chunky ledges and cracks, its patches of moss, its bare rock foot with NO trees, and its light from the upper left EXACTLY. SUBJECT: a MOUNTAIN MASSIF, a broad BLOCK of mountain about as WIDE as it is TALL, so it fills a SQUARE: THREE rounded peaks across its top, the middle one a little higher than the two at its shoulders, with only shallow saddles between them; the flanks drop steeply from the outer peaks to a broad bare base of boulders and ledges that spans the FULL width; the silhouette fills the box almost to its upper corners, never one pointed peak, never a triangle, never a perfect square either: a natural, weathered block of rock. The massif's base fills the box from side to side and its peaks rise only a little above the box's top edge, so the whole thing is about as tall as the box is wide. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    },
+    "massif-small": {
+      "refs": [
+        "_candidates/board-r5/approved/openai--painterly-massif-1.png"
+      ],
+      "guide": "guides/building3-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "REFERENCE: the attached panel is this game's approved LARGE MOUNTAIN MASSIF on magenta: a broad three-peak block of grey-brown rock painted in chunky ledges and cracks with moss, no trees, a bare rock foot, the light from the upper left. SUBJECT: the game's REGULAR MOUNTAIN, a SMALLER massif of exactly the same rock, paint and camera, as if a piece of the large one stood alone: still a broad block about as wide as it is tall, with THREE rounded peaks, the middle a little higher, its rock the same size per ledge (do not shrink the texture, shrink the mountain), no trees, a bare base of boulders spanning the full width; its base fills the box from side to side and its peaks rise only a little above the box. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in the middle; the object's footprint fills the box from side to side and its height may rise above the box; everything outside the object is flat magenta, no ground, no grass, no cast shadow on the ground."
+    }
+  }
+}
