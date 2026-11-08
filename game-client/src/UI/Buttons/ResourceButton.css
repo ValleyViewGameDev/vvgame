@@ -190,6 +190,12 @@
   transform: translateY(-50%);
 }
 
+/* A card with a gem chip: the chip's own row at the bottom (the chip is pinned to the lower right,
+   outside the <button>), so it never sits over the ingredient lines (owner 2026-11-08) */
+.resource-button.has-gem {
+  padding-bottom: 32px;
+}
+
 /* Gem purchase button */
 .gem-button {
   position: absolute;

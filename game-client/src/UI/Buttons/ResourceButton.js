@@ -97,6 +97,9 @@ const ResourceButton = ({
       return null;
     }
   }, [shouldCalculateGem, resource, inventory, backpack, masterResources, currentPlayer, strings]);
+  // The gem chip gets a row of its own at the card's bottom (.has-gem reserves it), so it never
+  // covers the ingredients. Kept while processing too, so the card does not jump.
+  const showsGem = !hideGem && meetsLevelRequirement && shouldCalculateGem && !!gemCalculation;
 
   // Debug processing state changes
   useEffect(() => {
@@ -163,7 +166,7 @@ const ResourceButton = ({
       >
         <button
           ref={buttonRef}
-          className={`resource-button ${disabled || isProcessing ? 'disabled' : ''} ${className || ''} ${isProcessing ? 'processing' : ''} ${devOnly ? 'dev-only' : ''}`}
+          className={`resource-button ${showsGem ? 'has-gem' : ''} ${disabled || isProcessing ? 'disabled' : ''} ${className || ''} ${isProcessing ? 'processing' : ''} ${devOnly ? 'dev-only' : ''}`}
           onClick={handleClick}
           disabled={disabled || isProcessing}
           data-no-click-sfx={noClickSfx ? 'true' : undefined}
@@ -207,7 +210,7 @@ const ResourceButton = ({
 
         {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
         {/* Hidden when level requirement not met - cannot bypass level requirements with gems */}
-        {!hideGem && meetsLevelRequirement && shouldCalculateGem && gemCalculation && !isProcessing && (
+        {showsGem && !isProcessing && (
           <span
             className="gem-button"
             onClick={handleGemClick}
