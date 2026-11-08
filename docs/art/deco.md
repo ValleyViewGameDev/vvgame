@@ -188,7 +188,11 @@ A deco row may carry several groups, `decoGroup: "castle;statuary"`, and lists u
 
 The plan's village set, trimmed by the owner: no cottages (a fake building that does nothing
 confuses), no market stall (the Trade Stall is gameplay), no dovecote. Three props under the
-Farm tab: Stone Well (`stone-well`, 1 x 1, artSpan 1.24, 1,000), Woodpile (`woodpile`, 1 x 1,
-0.87, 100), Hand Cart (`hand-cart`, 2 x 1, cut 1.83 and set to 1.65 for buffer, 600).
+Farm tab: Stone Well (`stone-well`, 1 x 1, artSpan 1.24, 1,000) and Hand Cart (`hand-cart`,
+2 x 1, cut 1.83 and set to 1.65 for buffer, 600). The Woodpile was drawn and then cut the same
+day (owner: it could confuse, like a source). The cart's cut kept the panel's contact shadow as
+near-empty rows under the wheels, so it floated in its footprint: the rows under 60 alpha were
+dropped and the art re-seated at the square's bottom (a pass worth running on any cut that
+floats).
 `cutout.js` now clamps its padding at zero: an art drawn edge to edge in its panel (the wide
 cart) used to throw on a negative pad.
