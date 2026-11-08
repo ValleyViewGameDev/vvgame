@@ -196,6 +196,18 @@
   border-bottom: 2px solid var(--color-border);
 }
 
+/* A tab row with more tabs than fit on one line (the Buy Deco catalogue: All + seven groups) wraps;
+   each tab then takes its own width instead of an equal share */
+.tab-navigation.buy-deco-tabs {
+  flex-wrap: wrap;
+  row-gap: 0;
+}
+.tab-navigation.buy-deco-tabs .tab-button {
+  flex: 0 0 auto;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 .tab-button {
   flex: 1;
   padding: 8px 12px;
