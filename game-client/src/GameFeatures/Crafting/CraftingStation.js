@@ -31,6 +31,8 @@ import { requestMove } from '../Move/moveMode';
 import InfoButton from '../../UI/Buttons/InfoButton';
 import { rememberLastDoober } from '../Relationships/conversationMemory';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
+import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
+import { usePanelContext } from '../../UI/Panels/PanelContext';
 
 // Slots with a collect on its way to the server, per station ("gridId:x,y" -> Set of slot
 // indexes). The server answers collects one at a time (the per-grid write lock), and each answer
@@ -66,6 +68,7 @@ const CraftingStation = ({
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const { updateStatus } = useContext(StatusBarContext);
+  const { openPanel } = usePanelContext();
   const [stationDetails, setStationDetails] = useState(null);
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
   const [stationRefreshKey, setStationRefreshKey] = useState(0);
@@ -527,6 +530,52 @@ const CraftingStation = ({
   };
 
 
+  // Finish a running slot now for gems: ONE request (/action/craft-speedup), priced by the server
+  // from its own clock (ceil(minutes left ^ 0.45), the button's figure). Optimistic: the slot turns
+  // ready on the tap; a refusal puts its countdown back.
+  const speedupsInFlight = React.useRef(new Set());
+  const handleSpeedupSlot = async (slotIndex) => {
+    const slot = effectiveSlots?.[slotIndex];
+    const left = slot?.craftEnd ? slot.craftEnd - Date.now() : 0;
+    if (!slot?.craftedItem || !(left > 0) || speedupsInFlight.current.has(slotIndex)) return;
+    const gems = calculateGemSpeedupCost(left);
+    if (getPlayerQuantity('Gem', inventory, backpack) < gems) { openPanel('HowToGemsPanel'); return; }
+    if (!(await confirmGemSpend({ gems }))) return;
+    speedupsInFlight.current.add(slotIndex);
+    const writeSlot = (craftEnd) => {
+      const updated = GlobalGridStateTilesAndResources.getResources().map((res) => {
+        if (res.x !== currentStationPosition.x || res.y !== currentStationPosition.y) return res;
+        if (!res.slots?.length) return { ...res, craftEnd }; // a pre-slots station: its one craft
+        const slots = [...res.slots];
+        if (slots[slotIndex]?.craftedItem === slot.craftedItem) slots[slotIndex] = { ...slots[slotIndex], craftEnd };
+        return { ...res, slots };
+      });
+      GlobalGridStateTilesAndResources.setResources(updated);
+      setResources(updated);
+      setStationRefreshKey((k) => k + 1);
+    };
+    writeSlot(Date.now());
+    soundManager.playSFX('collect_item');
+    const slotEl = document.querySelector(`[data-craft-slot="${slotIndex}"]`);
+    if (slotEl) {
+      const r = slotEl.getBoundingClientRect();
+      FloatingTextManager.addFloatingTextAt(`-${gems} {res:Gem}`, r.left + r.width / 2, r.top + r.height / 2);
+    }
+    try {
+      const answer = await postAction('/api/action/craft-speedup', {
+        playerId: currentPlayer.playerId, gridId,
+        stationX: currentStationPosition.x, stationY: currentStationPosition.y, slotIndex,
+      });
+      applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+      if (!answer.ok) {
+        writeSlot(slot.craftEnd);
+        updateStatus(answer.reason === 'short-Gem' ? `Need ${gems} gems to speed up crafting` : '❌ Failed to speed up crafting');
+      }
+    } finally {
+      speedupsInFlight.current.delete(slotIndex);
+    }
+  };
+
   const handleSellStation = async (transactionId, transactionKey) => {
     // Mayor can sell town buildings, homestead owners can sell at home
     const isTownMayorSelling = stationDetails?.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && isMayor;
@@ -761,16 +810,14 @@ const CraftingStation = ({
                                     }
                                   } else if (slotIsReady) {
                                     handleCollectSlot(i);
+                                  } else if (slotIsCrafting) {
+                                    handleSpeedupSlot(i); // a tap on a counting-down slot is the speed-up
                                   }
                                 }}
                               >
                                 {!isUnlocked ? (
                                   <>
                                     <span className="crafting-slot-icon locked">&#x1F512;</span>
-                                    {/* Gem slots print their price on the lock (every layout) */}
-                                    {globalTuning?.craftingStationSlotCosts?.[`slot${i}`]?.Gem > 0 && (
-                                      <span className="crafting-slot-gem-cost"><ResourceIcon type="Gem" masterResources={masterResources} />{formatNumber(globalTuning.craftingStationSlotCosts[`slot${i}`].Gem)}</span>
-                                    )}
                                   </>
                                 ) : slotIsEmpty ? (
                                   <span className="crafting-slot-icon"></span>
@@ -791,33 +838,44 @@ const CraftingStation = ({
                                   </span>
                                 )}
                               </div>
+                              {/* Under the slot, inside its width (every layout): the unlock price of a
+                                  locked slot, the gem speed-up while it counts down, COLLECT when ready.
+                                  Each does what a tap on the slot does. */}
+                              <div className="crafting-slot-below">
+                                {!isUnlocked && slotCostRecipe ? (() => {
+                                  const [costType, costQty] = Object.entries(globalTuning.craftingStationSlotCosts[`slot${i}`]).find(([, v]) => v > 0);
+                                  const short = getPlayerQuantity(costType, inventory, backpack) < costQty;
+                                  return costType === 'Gem' ? (
+                                    <span className={`gem-button crafting-slot-below-gem ${isNextSlot ? '' : 'disabled'}`}
+                                      onClick={() => isNextSlot && !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : openPanel('HowToGemsPanel'))}>
+                                      <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
+                                      <span className="gem-button-cost">{formatNumber(costQty)}</span>
+                                    </span>
+                                  ) : (
+                                    <span className={`crafting-slot-cost ${short ? 'insufficient' : 'sufficient'}`}
+                                      onClick={() => isNextSlot && !isUpgrading && (canAffordSlot ? handleUpgradeSlot(i) : updateStatus(305))}>
+                                      <ResourceIcon type={costType} masterResources={masterResources} />{formatNumber(costQty)}
+                                    </span>
+                                  );
+                                })() : slotIsCrafting ? (
+                                  <span className="gem-button crafting-slot-below-gem" onClick={() => handleSpeedupSlot(i)}>
+                                    <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
+                                    <span className="gem-button-cost">{formatNumber(calculateGemSpeedupCost(slot.craftEnd - Date.now()))}</span>
+                                  </span>
+                                ) : slotIsReady ? (
+                                  <span className="shared-buttons crafting-slot-below-collect">
+                                    <button type="button" className="btn-basic btn-mini btn-success" onClick={() => handleCollectSlot(i)}>
+                                      {strings[318] || 'Collect'}
+                                    </button>
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
                           );
                         })}
                       </div>
                     );
                   })}
-                  {/* Touch screens have no slot hovertip, so the next slot's unlock cost is
-                      printed under the slots (have / need, red when short). */}
-                  {!canHover() && stationLevel + 1 < maxSlots && (() => {
-                    const costs = globalTuning?.craftingStationSlotCosts?.[`slot${stationLevel + 1}`];
-                    const entries = costs ? Object.entries(costs).filter(([, v]) => v > 0) : [];
-                    if (entries.length === 0) return null;
-                    return (
-                      <div className="crafting-slot-unlock-cost">
-                        &#x1F512; {strings[175] || 'Unlock for'}{' '}
-                        {entries.map(([resourceType, qty], idx) => {
-                          const playerQty = (inventory?.find(item => item.type === resourceType)?.quantity || 0)
-                            + ((Array.isArray(backpack) ? backpack : []).find(item => item.type === resourceType)?.quantity || 0);
-                          return (
-                            <span key={resourceType} className={playerQty >= qty ? 'sufficient' : 'insufficient'}>
-                              {idx > 0 ? ', ' : ''}<ResourceIcon type={resourceType} masterResources={masterResources} /> {formatNumber(qty)} / {formatNumber(playerQty)}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
                 </div>
               );
             })()}
@@ -837,9 +895,8 @@ const CraftingStation = ({
               const healerLimitReached = isHealer && currentHealers >= maxHealersAllowed;
 
               // Craft time display (no longer shows countdown - that's in slots now)
-              const craftTimeText = recipe.crafttime
-                ? `${strings[458]} ${formatDuration(recipe.crafttime)}`
-                : strings[459];
+              // shown at the right of the "Costs:" row, bold, without the redundant "Time:"
+              const craftTimeText = recipe.crafttime ? formatDuration(recipe.crafttime) : strings[459];
 
               const usedIn = allResources.filter((res) =>
                 [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
@@ -881,8 +938,8 @@ const CraftingStation = ({
                     (healerLimitReached ? `<span style="color: var(--color-text-negative);">${strings[408]}</span>` : '') +
                     (recipe.level > 1 && !meetsLevel ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') + // spans are block-level here: no <br>
                     (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
-                    `${craftTimeText}<br>` +
-                    `${strings[461]}<div>${formattedCosts}</div>`
+                    `<span class="craft-costs-row"><span>${strings[461]}</span><strong>${craftTimeText}</strong></span>` +
+                    `<div>${formattedCosts}</div>`
                   }
                   info={info}
                   disabled={!affordable || !requirementsMet || healerLimitReached}

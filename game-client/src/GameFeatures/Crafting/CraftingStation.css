@@ -51,16 +51,6 @@
   border-radius: var(--radius-sm);
 }
 
-.crafting-slot-unlock-cost {
-  margin-top: 6px;
-  font-size: var(--text-xs);
-  font-family: var(--font-text-1-family);
-  color: var(--color-text-secondary);
-  text-align: center;
-}
-.crafting-slot-unlock-cost .sufficient { color: var(--color-text-positive); }
-.crafting-slot-unlock-cost .insufficient { color: var(--color-text-negative); }
-
 .crafting-slots-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -111,27 +101,6 @@
   transform: scale(0.95);
 }
 
-/* A locked gem slot's price, under the lock: blue on a pale-blue chip like the gem button */
-.crafting-slot-gem-cost {
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 0 4px;
-  border-radius: var(--radius-xs);
-  background-color: var(--color-btn-gem);
-  color: var(--color-btn-gem-hover);
-  font-size: var(--text-xs);
-  font-weight: bold;
-  font-family: var(--font-text-1-family);
-  line-height: 16px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-.crafting-slot.locked:has(.crafting-slot-gem-cost) .crafting-slot-icon.locked {
-  transform: translateY(-6px);
-}
-
 .crafting-slot-icon.locked {
   font-size: 22px; /* style-ok: icon */
 }
@@ -140,11 +109,67 @@
   font-size: 28px; /* style-ok: icon */
 }
 
-/* Slot wrapper for timer positioning */
+/* Slot wrapper: the slot, then the line under it */
 .crafting-slot-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  min-width: 0;
+}
+
+/* Under each slot, inside its width, its top touching the slot's bottom: a locked slot's unlock
+   price (one resource), the gem speed-up while it counts down, COLLECT when ready. A fixed
+   height, so a row does not jump when a slot changes state. Each does what a tap on the slot does. */
+.crafting-slot-below {
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.crafting-slot-cost {
+  font-size: var(--text-xs);
+  font-weight: bold;
+  font-family: var(--font-text-1-family);
+  line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.crafting-slot-cost.sufficient { color: var(--color-text-positive); }
+.crafting-slot-cost.insufficient { color: var(--color-text-negative); }
+
+/* The gem chip (UI/Buttons/ResourceButton.css .gem-button) in the line's flow, not pinned to a card corner */
+.crafting-slot-below .crafting-slot-below-gem {
+  position: static;
+  max-width: 100%;
+  padding: 0 6px;
+  line-height: 18px;
+  box-sizing: border-box;
+}
+
+.crafting-slot-below-collect {
+  display: flex;
+  max-width: 100%;
+}
+.crafting-slot-below-collect.shared-buttons .btn-basic.btn-mini {
+  margin: 0;
+  padding: 0 6px;
+  max-width: 100%;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+/* A craft card's "Costs:" line carries the craft time at its right, in bold (one row saved) */
+.resource-details .craft-costs-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.resource-details .craft-costs-row > span {
+  display: inline;
+  margin: 0;
 }
 
 /* Crafting state - item being made */
