@@ -17,6 +17,7 @@
  */
 import { Texture } from 'pixi.js-legacy';
 import { peekAtlasTexture } from './AtlasTextures';
+import { isMultiTile } from '../../Utils/footprint';
 
 // a set's piece size comes from its atlas frame: 128 (one tile) or 192 (a 1.5-tile square whose
 // bottom and middle tile is the wall's tile; the stone wall stands taller than a tile)
@@ -43,7 +44,7 @@ export function indexWalls(resources, masterResources) {
   const index = new Map();
   for (const r of resources || []) {
     const set = r.wallSet || setOf.get(r.type);
-    if (set && (r.size || 1) === 1) index.set(`${r.x},${r.y}`, set);
+    if (set && !isMultiTile(r)) index.set(`${r.x},${r.y}`, set);
   }
   return index;
 }

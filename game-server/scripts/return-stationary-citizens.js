@@ -20,14 +20,15 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const gridResourceManager = require('../utils/GridResourceManager');
+const { footprintOf } = require('../utils/footprint');
 
 const apply = process.argv.includes('--apply');
 const TYPES = new Set(['Kent', 'The Shepherd']);
 const LOOP_FIELDS = ['citizenState', 'citizenStateUntil', 'citizenStateAt', 'citizenTask', 'citizenResume', 'path'];
 
 const covers = (r, x, y) => {
-  const span = r.size || 1; // anchored at the lower-left tile
-  return x >= r.x && x < r.x + span && y <= r.y && y > r.y - span;
+  const { w, h } = footprintOf(r); // anchored at the lower-left tile; size, or sizeX x sizeY
+  return x >= r.x && x < r.x + w && y <= r.y && y > r.y - h;
 };
 
 (async () => {

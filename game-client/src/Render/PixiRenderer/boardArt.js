@@ -1,3 +1,4 @@
+import { footprintOf } from '../../Utils/footprint';
 // How big a resource's art is drawn on its tile, shared by the board (PixiRenderer) and the DOM
 // overlays that stand in for a sprite while it animates (VFX.js), so a plant that grows in or a
 // crop that ripens lands exactly where its sprite is drawn.
@@ -15,7 +16,8 @@ export const DOOBER_TILE_SCALE = 0.9;
  */
 export const boardArtScale = (row) => {
   if (!row) return 1;
-  const oneTile = (row.size || 1) === 1 && !(Number(row.artSpan) > 1);
+  const { w, h } = footprintOf(row);
+  const oneTile = w === 1 && h === 1 && !(Number(row.artSpan) > 1);
   if (!oneTile) return 1;
   if (Number(row.artScale) > 0) return Number(row.artScale);
   return row.category === 'doober' || row.category === 'farmplot' ? DOOBER_TILE_SCALE : 1;

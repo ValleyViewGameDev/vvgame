@@ -20,6 +20,7 @@ import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange, nearestFootprintTile } from './Utils/worldHelpers';
 import { enrichResourceFromMaster, isACrop } from './Utils/ResourceHelpers';
 import { rememberLastDoober } from './GameFeatures/Relationships/conversationMemory';
+import { isMultiTile } from './Utils/footprint';
 
 // FTUE Collect Wheat beat: how many Wheat, and the counter's storage key (survives a refresh)
 const FTUE_WHEAT_NEEDED = 3;
@@ -69,7 +70,7 @@ const FTUE_WHEAT_COUNT_KEY = 'vv_ftue_wheat_count';
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
   // range is to the nearest tile of the resource's footprint (a building's closest wall)
-  const resourcePos = (resource.size || 1) > 1 && playerPos ? nearestFootprintTile(playerPos, resource) : { x: col, y: row };
+  const resourcePos = isMultiTile(resource) && playerPos ? nearestFootprintTile(playerPos, resource) : { x: col, y: row };
 
   if (!isOnOwnHomestead && playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
     const distance = Math.sqrt(Math.pow(playerPos.x - resourcePos.x, 2) + Math.pow(playerPos.y - resourcePos.y, 2));
@@ -573,7 +574,7 @@ export async function handleSourceConversion(
         if (res.x === col && res.y === row) return false;
         
         // Remove any shadows belonging to this resource if it was multi-tile
-        if (originalResource && originalResource.size && originalResource.size > 1 && res.type === 'shadow') {
+        if (originalResource && isMultiTile(originalResource) && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
             return false;
@@ -614,7 +615,7 @@ export async function handleSourceConversion(
         if (res.x === col && res.y === row) return false;
 
         // Remove any shadows belonging to this resource if it was multi-tile
-        if (originalResource && originalResource.size && originalResource.size > 1 && res.type === 'shadow') {
+        if (originalResource && isMultiTile(originalResource) && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
             return false;

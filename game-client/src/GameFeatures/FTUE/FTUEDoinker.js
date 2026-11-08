@@ -5,6 +5,7 @@ import { resolveFtueDirtTile, nearestResourceOfType } from './findBoardTarget';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import DoinkerArrow from './DoinkerArrow';
 import './FTUE.css';
+import { footprintOf } from '../../Utils/footprint';
 
 /**
  * FTUEDoinker - Bouncing red arrows that point to target resources, NPCs, or UI buttons
@@ -56,7 +57,9 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
             foundPositions.push({
               x: targetResource.x,
               y: targetResource.y,
-              size: targetResource.size || 1,
+              size: Math.max(footprintOf(targetResource).w, footprintOf(targetResource).h),
+              w: footprintOf(targetResource).w,
+              h: footprintOf(targetResource).h,
               source: 'resource',
               targetName
             });
@@ -239,9 +242,9 @@ const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visi
       {targetPositions.map((targetPosition, index) => {
         // Calculate pixel position
         // Center the doinker on the target tile (or center of multi-tile resource)
-        const centerOffset = (targetPosition.size - 1) / 2;
-        const pixelX = (targetPosition.x + centerOffset + 0.5) * TILE_SIZE;
-        const pixelY = (targetPosition.y - centerOffset + 0.5) * TILE_SIZE;
+        const cw = ((targetPosition.w || targetPosition.size || 1) - 1) / 2, ch = ((targetPosition.h || targetPosition.size || 1) - 1) / 2;
+        const pixelX = (targetPosition.x + cw + 0.5) * TILE_SIZE;
+        const pixelY = (targetPosition.y - ch + 0.5) * TILE_SIZE;
 
         // Arrow dimensions (responsive to tile size)
         const arrowHeight = Math.max(30, TILE_SIZE * 0.8);

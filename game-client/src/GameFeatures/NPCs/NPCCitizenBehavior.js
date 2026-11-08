@@ -65,6 +65,7 @@ import { getNPCRelationship, updateNPCRelationship } from '../Relationships/Rela
 import soundManager from '../../Sound/SoundManager';
 import { runStoryErrand } from '../Story/gertrudeWaking';
 import { runStoryGoal } from '../Story/storyGoal';
+import { footprintCenter } from '../../Utils/footprint';
 
 const QUINCE_TREE_SKILLS = ['Axe', 'Better Axe']; // oak and pine (routes/storyRoutes.js quince-chop)
 const QUINCE_HOME = 'Home of the Oracle';
@@ -364,8 +365,7 @@ async function workTick(npc, gridId, tiles, resources, npcs) {
       let tree = task.phase === 'toTree' ? all.find((t) => t && t.x === task.x && t.y === task.y && isTree(t)) : null;
       if (!tree) {
         const home = all.find((r) => r && r.type === QUINCE_HOME);
-        const span = Number(home?.size) || 1;
-        const from = home ? { x: home.x + (span - 1) / 2, y: home.y - (span - 1) / 2 } : npc.position;
+        const from = home ? footprintCenter(home) : npc.position;
         tree = all.filter(isTree).reduce((best, t) => {
           const d = (t.x - from.x) ** 2 + (t.y - from.y) ** 2;
           return !best || d < best.d ? { t, d } : best;

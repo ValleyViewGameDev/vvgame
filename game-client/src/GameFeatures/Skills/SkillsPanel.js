@@ -23,6 +23,7 @@ import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { loadMasterResources } from '../../Utils/TuningManager';
+import { isMultiTile } from '../../Utils/footprint';
 
 const SkillsPanel = ({
     onClose,
@@ -263,7 +264,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
           if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
 
           // Remove any shadows belonging to this station
-          if (soldResource && soldResource.size && soldResource.size > 1 && res.type === 'shadow') {
+          if (soldResource && isMultiTile(soldResource) && res.type === 'shadow') {
             const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
             if (res.parentAnchorKey === anchorKey) {
               return false;

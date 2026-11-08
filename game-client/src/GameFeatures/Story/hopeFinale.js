@@ -11,6 +11,7 @@ import PixiCamera from '../../Render/PixiRenderer/PixiCamera';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { enrichGridResources } from '../../AppInit';
 import soundManager from '../../Sound/SoundManager';
+import { footprintCenter } from '../../Utils/footprint';
 
 /**
  * The Quest for Hope's finale (owner 2026-11-07; server: utils/hopeFinale.js, POST
@@ -140,8 +141,8 @@ async function playSpectacle(req, strings) {
   if (mountain) setTimeout(() => StoryFX.clearFade(mountain.x, mountain.y), 1000);
   say(16540);
   for (const r of added) {
-    const span = (masterResources || []).find((m) => m.type === r.type)?.size || 1;
-    createCollectEffect(r.x + (span - 1) / 2, r.y - (span - 1) / 2, tile);
+    const c = footprintCenter({ ...((masterResources || []).find((m) => m.type === r.type) || {}), x: r.x, y: r.y });
+    createCollectEffect(c.x, c.y, tile);
   }
   for (const n of data.addedNpcs || []) {
     await NPCsInGridManager.addLocalNPC(gridId, n);

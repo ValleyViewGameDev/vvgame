@@ -1,3 +1,4 @@
+const { footprintOf, recordFootprint } = require('../utils/footprint');
 /**
  * Action routes (docs/refactor-plan.md Phase 5, "Transaction hardening"; started 2026-11-04).
  *
@@ -1271,10 +1272,10 @@ router.post('/action/quests-refresh', async (req, res) => {
 const PLACE_SOURCES = new Set(['Build', 'BuildTown', 'BuildValley', 'Buy', 'Deco', 'Zoo']);
 
 /** Every tile a resource covers: its anchor and, for size > 1, the square up and to the right. */
-function footprint(x, y, size = 1) {
-  const tiles = [];
-  for (let dx = 0; dx < size; dx++) for (let dy = 0; dy < size; dy++) tiles.push(`${x + dx},${y - dy}`);
-  return tiles;
+function footprint(x, y, w = 1, h = w) { // a rectangle: sizeX x sizeY (utils/footprint.js, BL-21)
+  const cells = [];
+  for (let dx = 0; dx < w; dx++) for (let dy = 0; dy < h; dy++) cells.push(`${x + dx},${y - dy}`);
+  return cells;
 }
 
 /**
@@ -1319,10 +1320,11 @@ router.post('/action/place', async (req, res) => {
       const taken = new Set();
       for (const r of onGrid) {
         if (!r) continue;
-        const size = Number(r.size || econ.resourceDef(r.type)?.size || 1);
-        for (const t of footprint(r.x, r.y, size)) taken.add(t);
+        const fp = recordFootprint(r, econ.resourceDef(r.type));
+        for (const t of footprint(r.x, r.y, fp.w, fp.h)) taken.add(t);
       }
-      if (footprint(x, y, Number(def.size || 1)).some((t) => taken.has(t))) return answer(409, 'occupied');
+      const want = footprintOf(def);
+      if (footprint(x, y, want.w, want.h).some((t) => taken.has(t))) return answer(409, 'occupied');
     }
     const limit = (key, fallback) => Number(globalTuning[key] ?? fallback);
     if (def.action === 'graze') {

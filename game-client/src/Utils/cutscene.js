@@ -27,8 +27,8 @@ export function playCutscene({ tile, target, gridId, holdMs = 2000, panMs = 600 
     blocker.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); }, true);
     document.body.appendChild(blocker);
     try {
-      const size = spot.size || 1;
-      const centre = { x: (spot.x + size / 2) * BASE_TILE, y: (spot.y + size / 2) * BASE_TILE };
+      const sw = spot.w || spot.size || 1, sh = spot.h || spot.size || 1;
+      const centre = { x: (spot.x + sw / 2) * BASE_TILE, y: (spot.y - sh / 2 + 1) * BASE_TILE };
       const s = PixiCamera.worldToScreen(centre.x, centre.y);
       const v = PixiCamera.getViewport();
       const pan = PixiCamera.getPan();

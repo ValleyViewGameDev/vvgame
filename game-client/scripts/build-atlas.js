@@ -94,7 +94,7 @@ function listResourceSources() {
   const list = Array.isArray(raw) ? raw : (raw.resources || Object.values(raw));
   const seen = new Map();
   for (const r of list) {
-    const size = Math.max(1, Math.min(5, Number(r.size) || 1));
+    const size = Math.max(1, Math.min(5, Number(r.sizeX) || Number(r.size) || 1, Number(r.sizeY) || Number(r.size) || 1)); // a rectangle takes its larger side's slot (BL-21)
     // a doober whose art is taller than its tile (the fruit trees' ready state: Apple = tree-apple.svg at artSpan 1.73) keeps the full slot
     const cell = (r.category === 'doober' || r.category === 'farmplot') && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(size);
     // the row's file plus its cosmetic variants (`artVariants`: "file=weight;file=weight", Utils/artVariants.js)
@@ -134,7 +134,7 @@ function listEmojiSources() {
   const wanted = new Map(); // symbol -> max size
   for (const r of list) {
     if (r.filename || !looksLikeEmoji(r.symbol)) continue;
-    const size = Math.max(1, Number(r.size) || 1);
+    const size = Math.max(1, Number(r.size) || 1, Number(r.sizeX) || 1, Number(r.sizeY) || 1);
     wanted.set(r.symbol, Math.max(wanted.get(r.symbol) || 1, size));
   }
   for (const e of PC_STATE_EMOJI) if (!wanted.has(e)) wanted.set(e, 1);

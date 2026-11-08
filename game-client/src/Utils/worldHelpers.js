@@ -1,5 +1,6 @@
 import { loadMasterResources } from './TuningManager';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { footprintOf, isMultiTile } from './footprint';
 
 /**
  * Owner + type of the LOADED grid, from the enter-grid meta (no HTTP). Other
@@ -69,12 +70,12 @@ export const addResourceToGrid = async (resources, newResource) => {
  * range because its anchor corner was 5 away). A 1 x 1 resource returns its own tile.
  */
 export const nearestFootprintTile = (pos, resource) => {
-  const size = resource?.size || 1;
-  if (!pos || !resource || size <= 1) return resource ? { x: resource.x, y: resource.y } : null;
+  if (!pos || !resource || !isMultiTile(resource)) return resource ? { x: resource.x, y: resource.y } : null;
+  const { w, h } = footprintOf(resource);
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   return {
-    x: clamp(Math.round(pos.x), resource.x, resource.x + size - 1),
-    y: clamp(Math.round(pos.y), resource.y - size + 1, resource.y),
+    x: clamp(Math.round(pos.x), resource.x, resource.x + w - 1),
+    y: clamp(Math.round(pos.y), resource.y - h + 1, resource.y),
   };
 };
 

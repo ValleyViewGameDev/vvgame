@@ -7,6 +7,7 @@ import DoinkerArrow from '../../GameFeatures/FTUE/DoinkerArrow';
 import { resolveFtueDirtTile, nearestResourceOfType } from '../../GameFeatures/FTUE/findBoardTarget';
 import { revealTileBesidePanels } from '../../PlayerMovement';
 import '../../GameFeatures/FTUE/FTUE.css';
+import { footprintOf } from '../../Utils/footprint';
 
 /**
  * PixiRendererDoinker - Bouncing red arrows that point to target resources or NPCs
@@ -66,7 +67,9 @@ const PixiRendererDoinker = ({
             foundPositions.push({
               x: targetResource.x,
               y: targetResource.y,
-              size: targetResource.size || 1,
+              size: Math.max(footprintOf(targetResource).w, footprintOf(targetResource).h),
+              w: footprintOf(targetResource).w,
+              h: footprintOf(targetResource).h,
               source: 'resource',
               targetName
             });
@@ -164,8 +167,8 @@ function BoardArrows({ targets, TILE_SIZE }) {
       }
       const z = PixiCamera.getZoom();
       const next = targets.map((t) => {
-        const centerOffset = (t.size - 1) / 2;
-        const p = PixiCamera.worldToScreen((t.x + centerOffset + 0.5) * TILE_SIZE, (t.y - centerOffset + 0.5) * TILE_SIZE);
+        const cw = ((t.w || t.size || 1) - 1) / 2, ch = ((t.h || t.size || 1) - 1) / 2;
+        const p = PixiCamera.worldToScreen((t.x + cw + 0.5) * TILE_SIZE, (t.y - ch + 0.5) * TILE_SIZE);
         const x = host.left + p.x;
         const y = host.top + p.y;
         const height = Math.max(30, TILE_SIZE * 0.8) * z;

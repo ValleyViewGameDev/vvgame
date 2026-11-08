@@ -1,3 +1,4 @@
+const { recordFootprint, footprintKeys } = require('../utils/footprint');
 const { heldQuantity, takeFromHoldings, recipeCosts, canAffordCosts, spendCosts } = require('../utils/playerHoldings');
 const offerEligibility = require('../utils/offerEligibility');
 const mongoose = require('mongoose');
@@ -1812,22 +1813,18 @@ router.post('/move-resource', async (req, res) => {
     const idx = resources.findIndex((r) => r.x === fromX && r.y === fromY && (!type || r.type === type));
     if (idx < 0) return res.status(404).json({ error: 'Nothing to move there', code: 'NOT_FOUND' });
     const moving = resources[idx];
-    const sizeOf = (r) => Number(r.size || masterResources.find((m) => m.type === r.type)?.size || 1);
-    const size = sizeOf(moving);
+    const shapeOf = (r) => recordFootprint(r, masterResources.find((m) => m.type === r.type)); // size, or sizeX x sizeY (utils/footprint.js)
+    const { w: fw, h: fh } = shapeOf(moving);
 
-    // the footprint, anchored at the lower-left: x .. x+size-1, y-size+1 .. y
-    const footprint = (x, y, n) => {
-      const cells = [];
-      for (let dx = 0; dx < n; dx++) for (let dy = 0; dy < n; dy++) cells.push(`${x + dx},${y - dy}`);
-      return cells;
-    };
+    // the footprint, anchored at the lower-left: x .. x+w-1, y-h+1 .. y
+    const footprint = footprintKeys;
     const SIZE = 64;
-    const target = footprint(toX, toY, size);
+    const target = footprint(toX, toY, fw, fh);
     if (target.some((c) => { const [x, y] = c.split(',').map(Number); return x < 0 || y < 0 || x >= SIZE || y >= SIZE; })) {
       return res.status(400).json({ error: 'Off the grid', code: 'OUT_OF_BOUNDS' });
     }
     const taken = new Set();
-    resources.forEach((r, i) => { if (i !== idx && r.type) footprint(r.x, r.y, sizeOf(r)).forEach((c) => taken.add(c)); });
+    resources.forEach((r, i) => { if (i !== idx && r.type) { const s = shapeOf(r); footprint(r.x, r.y, s.w, s.h).forEach((c) => taken.add(c)); } });
     if (target.some((c) => taken.has(c))) {
       return res.status(409).json({ error: 'That spot is taken', code: 'OCCUPIED' });
     }

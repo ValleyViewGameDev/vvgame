@@ -5,6 +5,7 @@ import soundManager from '../Sound/SoundManager';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { updateGridResource } from './GridManagement';
 import { checkDeveloperStatus } from './appUtils';
+import { coversTile, isMultiTile } from './footprint';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -45,12 +46,7 @@ export async function handleProtectedSelling({
       return true;
     }
     // Check if this position is covered by a multi-tile resource
-    const tileSpan = res.size || 1;
-    if (tileSpan > 1) {
-      return currentStationPosition.x >= res.x && currentStationPosition.x < res.x + tileSpan &&
-             currentStationPosition.y <= res.y && currentStationPosition.y > res.y - tileSpan;
-    }
-    return false;
+    return isMultiTile(res) && coversTile(res, currentStationPosition.x, currentStationPosition.y);
   });
   
   console.log(`🔍 Resources at/covering position (${currentStationPosition.x}, ${currentStationPosition.y}):`, resourcesAtPosition);
@@ -100,7 +96,7 @@ export async function handleProtectedSelling({
           if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
           
           // Remove any shadows belonging to this station
-          if (soldResource && soldResource.size && soldResource.size > 1 && res.type === 'shadow') {
+          if (soldResource && isMultiTile(soldResource) && res.type === 'shadow') {
             // Generate the anchorKey the same way we do when creating shadows
             const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
             if (res.parentAnchorKey === anchorKey) {

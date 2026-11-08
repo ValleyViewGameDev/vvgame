@@ -17,7 +17,7 @@ export function useMoveMode({ cursorMode, setCursorMode, setResources, closePane
       if (!anchor) return;
       setGhost(from, true, setResources);
       setCursorMode({
-        type: 'move', from, item: anchor.type, size: anchor.size || 1,
+        type: 'move', from, item: anchor.type, size: anchor.size || 1, sizeX: anchor.sizeX, sizeY: anchor.sizeY,
         emoji: anchor.symbol || null, filename: anchor.filename || null,
       });
       closePanel?.();

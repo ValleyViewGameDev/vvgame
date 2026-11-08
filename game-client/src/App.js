@@ -178,6 +178,7 @@ import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
 import { confirmGemSpend, setGemConfirmResources } from './UI/Modals/GemSpendConfirm';
+import { footprintOf, coversTile, isMultiTile } from './Utils/footprint';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -1062,9 +1063,10 @@ useEffect(() => {
 useEffect(() => {
   if (cursorMode?.emoji || cursorMode?.filename || cursorMode?.src) {
     // Scale cursor based on resource size (multi-tile resources get larger cursors)
-    const tileSpan = cursorMode.size || 1;
+    const { w: fw, h: fh } = footprintOf(cursorMode); // size, or sizeX x sizeY (Utils/footprint.js)
+    const tileSpan = Math.max(fw, fh); // the cursor canvas is square: the larger side
     const baseSize = 32;
-    const canvasSize = baseSize * tileSpan;
+    const canvasSize = baseSize * Math.max(fw, fh);
     const center = canvasSize / 2;
 
     // Helper to apply cursor style
@@ -2750,7 +2752,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   // If clicking a resource, check range before interacting (except NPCs, and skip on own homestead).
   // A multi-tile resource is in range when ANY tile of it is: measure to its nearest tile.
   if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
-    const reachPos = (resource.size || 1) > 1 ? nearestFootprintTile(playerPos, resource) : targetPos;
+    const reachPos = isMultiTile(resource) ? nearestFootprintTile(playerPos, resource) : targetPos;
     const distance = calculateDistance(playerPos, reachPos);
     const playerRange = getDerivedRange(currentPlayer, masterResources);
     if (distance > playerRange) {

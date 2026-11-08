@@ -95,23 +95,25 @@ export class GridCanvas {
         if (!cell.resource) continue;
         const res = this.idx.byType.get(cell.resource);
         if (!res) continue;
-        const size = res.size > 1 && res.category !== 'npc' ? res.size : 1;
-        if (size > 1) { big.push({ r, c, res, size }); continue; }
+        // the footprint: size, or sizeX x sizeY (BL-21); an NPC never takes a footprint
+        const fw = res.category === 'npc' ? 1 : (Number(res.sizeX) || Number(res.size) || 1);
+        const fh = res.category === 'npc' ? 1 : (Number(res.sizeY) || Number(res.size) || 1);
+        if (fw * fh > 1) { big.push({ r, c, res, fw, fh }); continue; }
         ctx.font = `${ts * 0.65}px sans-serif`;
         ctx.fillStyle = '#000';
         ctx.fillText(symbolOf(res), o + c * ts + ts / 2, o + r * ts + ts / 2 + 1);
       }
     }
-    for (const { r, c, res, size } of big) {
-      const w = ts * size;
+    for (const { r, c, res, fw, fh } of big) {
+      const w = ts * fw, h = ts * fh;
       const left = o + c * ts, bottom = o + (r + 1) * ts; // anchored bottom-left of the anchor cell
       ctx.fillStyle = 'rgba(255,255,255,0.25)';
-      ctx.fillRect(left, bottom - w, w, w);
+      ctx.fillRect(left, bottom - h, w, h);
       ctx.strokeStyle = 'rgba(0,0,0,0.35)';
-      ctx.strokeRect(left + 0.5, bottom - w + 0.5, w - 1, w - 1);
-      ctx.font = `${ts * 0.85 * size}px sans-serif`;
+      ctx.strokeRect(left + 0.5, bottom - h + 0.5, w - 1, h - 1);
+      ctx.font = `${ts * 0.85 * Math.min(fw, fh)}px sans-serif`;
       ctx.fillStyle = '#000';
-      ctx.fillText(symbolOf(res), left + w / 2, bottom - w / 2 + 1);
+      ctx.fillText(symbolOf(res), left + w / 2, bottom - h / 2 + 1);
     }
 
     // brush hover

@@ -267,7 +267,9 @@ have the server derive graze state from its own `grazeEnd`; check the graze beha
 
 ### BL-21: Rectangular footprints for deco (a 1 wide, 2 tall bed)
 
-Added 2026-11-08.
+Added 2026-11-08. **DONE 2026-11-08**: `sizeX` / `sizeY` on a resource row (editor columns),
+`game-client/src/Utils/footprint.js` + `game-server/utils/footprint.js`, every site below threaded;
+verified with a temporary 1 x 2 Bed (placement highlight, blocking of the upper tile, move).
 
 **What.** A resource's footprint is one number, `size`, and every path treats it as size x
 size: the renderer (`PixiRenderer.js` tileSpan), the server's occupancy and move checks

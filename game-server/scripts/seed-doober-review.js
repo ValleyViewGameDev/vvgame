@@ -19,6 +19,7 @@ const mongoose = require('mongoose');
 const Grid = require('../models/grid');
 const Player = require('../models/player');
 const gridResourceManager = require('../utils/GridResourceManager');
+const { recordFootprint } = require('../utils/footprint');
 const gridTileManager = require('../utils/GridTileManager');
 
 const args = process.argv.slice(2);
@@ -52,8 +53,8 @@ const extra = String(opt('extra', '')).split(',').map((t) => t.trim()).filter(Bo
   const occupied = new Set(resources.map((r) => `${r.x},${r.y}`));
   // a multi-tile resource covers tiles above and to the right of its anchor (the renderer grows upward)
   for (const r of resources) {
-    const def = master.find((m) => m.type === r.type); const size = Number(def?.size) || 1;
-    for (let dx = 0; dx < size; dx++) for (let dy = 0; dy < size; dy++) occupied.add(`${r.x + dx},${r.y - dy}`);
+    const { w, h } = recordFootprint(r, master.find((m) => m.type === r.type));
+    for (let dx = 0; dx < w; dx++) for (let dy = 0; dy < h; dy++) occupied.add(`${r.x + dx},${r.y - dy}`);
   }
 
   const missing = doobers.filter((d) => !present.has(d.type));

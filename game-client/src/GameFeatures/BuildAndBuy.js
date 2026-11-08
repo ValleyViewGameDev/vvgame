@@ -10,6 +10,7 @@ import { getLocalizedString } from '../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { createCollectEffect } from '../VFX/VFX';
 import soundManager from '../Sound/SoundManager';
+import { footprintOf, footprintCells } from '../Utils/footprint';
 
 export const handleConstructionWithGems = async (params) => {
   // Wrapper function that uses a modified recipe if provided
@@ -85,19 +86,15 @@ export const handleConstruction = async ({
   const selectedResource = buildOptions.find((item) => item.type === selectedItem);
 
   // Check if this is a multi-tile resource (size is tile footprint)
-  const resourceSize = selectedResource.size || 1;
-  console.log(`🏗️ Building ${selectedItem} with size ${resourceSize}`);
+  const { w: fw, h: fh } = footprintOf(selectedResource); // size, or sizeX x sizeY (Utils/footprint.js)
+  const resourceSize = fw * fh;
+  console.log(`🏗️ Building ${selectedItem} with footprint ${fw} x ${fh}`);
 
   // Skip tile occupation check for NPCs since they don't occupy grid tiles
   if (selectedResource.category !== 'npc') {
     // For multi-tile resources, check all required tiles
     // Using player position as lower-left anchor
-    const tilesToCheck = [];
-    for (let dx = 0; dx < resourceSize; dx++) {
-      for (let dy = 0; dy < resourceSize; dy++) {
-        tilesToCheck.push({ x: x + dx, y: y - dy });
-      }
-    }
+    const tilesToCheck = footprintCells(x, y, fw, fh);
 
     console.log('📍 Tiles to check for placement:', tilesToCheck);
 
@@ -209,8 +206,7 @@ export const handleConstruction = async ({
   if (selectedResource.category === 'crafting') rawResource.stationLevel = 0;
   const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
   if (resourceSize > 1) {
-    enriched.size = resourceSize;
-    enriched.anchorKey = `${selectedItem}_${x}_${y}`;
+    enriched.anchorKey = `${selectedItem}_${x}_${y}`; // size / sizeX / sizeY came with the master row
   }
   const before = resources;
   const finalResources = [...resources, enriched];

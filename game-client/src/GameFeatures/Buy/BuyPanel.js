@@ -121,7 +121,7 @@ const BuyPanel = ({
       item: effectiveItem.type,
       emoji: effectiveItem.symbol || '🐮',
       filename: effectiveItem.filename || null,
-      size: effectiveItem.size || 1,
+      size: effectiveItem.size || 1, sizeX: effectiveItem.sizeX, sizeY: effectiveItem.sizeY,
       buildOptions: effectiveBuildOptions,
       // Spam-click protection for cursor mode
       isProcessing: false,
@@ -233,7 +233,7 @@ const BuyPanel = ({
         item: modifiedRecipe.type,
         emoji: item.symbol || '🐮',
         filename: item.filename || null,
-        size: item.size || 1,
+        size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
         buildOptions: buyOptions,
         modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
         // Spam-click protection for cursor mode

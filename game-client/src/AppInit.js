@@ -3,6 +3,7 @@ import farmState from './FarmState';
 import ambientVFXManager from './VFX/AmbientVFXManager';
 import soundManager from './Sound/SoundManager';
 import { isViewOnly } from './Utils/viewOnly';
+import { footprintOf } from './Utils/footprint';
 
 /**
  * Enrich raw grid resources with master data and add shadow tiles for
@@ -29,11 +30,12 @@ export function enrichGridResources(rawResources, masterResources) {
 
     // Multi-tile resource (size > 1): add shadow tiles. Resources from the
     // server might not have anchorKey, so generate one if needed.
-    if (resource.size && resource.size > 1) {
+    const { w: fw, h: fh } = footprintOf(resource); // size, or sizeX x sizeY (Utils/footprint.js)
+    if (fw * fh > 1) {
       const anchorKey = resource.anchorKey || `${resource.type}-${resource.x}-${resource.y}`;
 
-      for (let dx = 0; dx < resource.size; dx++) {
-        for (let dy = 0; dy < resource.size; dy++) {
+      for (let dx = 0; dx < fw; dx++) {
+        for (let dy = 0; dy < fh; dy++) {
           if (dx === 0 && dy === 0) continue; // anchor tile
 
           processedResources.push({

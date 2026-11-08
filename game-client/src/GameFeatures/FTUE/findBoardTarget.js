@@ -1,6 +1,7 @@
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import PixiCamera from '../../Render/PixiRenderer/PixiCamera';
+import { footprintOf } from '../../Utils/footprint';
 
 export const FTUE_WHEAT_TILE_KEY = 'vv_ftue_wheat_tile'; // set by ResourceClicking when the tutorial Wheat is harvested
 
@@ -19,7 +20,7 @@ export function nearestResourceOfType(resources, targetName) {
 
 export function findBoardTarget(targetName, gridId) {
   const res = nearestResourceOfType(GlobalGridStateTilesAndResources.getResources(), targetName);
-  if (res) return { x: res.x, y: res.y, size: res.size || 1 };
+  if (res) { const { w, h } = footprintOf(res); return { x: res.x, y: res.y, size: Math.max(w, h), w, h }; }
   if (gridId) {
     const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
     const npc = npcs && Object.values(npcs).find((n) => n.type === targetName);
@@ -65,10 +66,10 @@ export function targetRect(target, gridId, pad = 6) {
     ? resolveFtueDirtTile()
     : findBoardTarget(target, gridId);
   if (!spot || !PixiCamera.isAttached()) return null;
-  const size = spot.size || 1;
+  const sw = spot.w || spot.size || 1, sh = spot.h || spot.size || 1;
   const host = document.querySelector('.homestead')?.getBoundingClientRect() || { left: 0, top: 0 };
-  const tl = PixiCamera.worldToScreen(spot.x * BASE_TILE, spot.y * BASE_TILE);
-  const br = PixiCamera.worldToScreen((spot.x + size) * BASE_TILE, (spot.y + size) * BASE_TILE);
+  const tl = PixiCamera.worldToScreen(spot.x * BASE_TILE, (spot.y - sh + 1) * BASE_TILE);
+  const br = PixiCamera.worldToScreen((spot.x + sw) * BASE_TILE, (spot.y + 1) * BASE_TILE);
   return { x1: Math.round(host.left + tl.x - pad), y1: Math.round(host.top + tl.y - pad), x2: Math.round(host.left + br.x + pad), y2: Math.round(host.top + br.y + pad) };
 }
 

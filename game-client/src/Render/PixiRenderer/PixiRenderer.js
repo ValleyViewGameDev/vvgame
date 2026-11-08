@@ -37,6 +37,7 @@ import StoryFX from './StoryFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
+import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
@@ -902,7 +903,7 @@ const PixiRenderer = ({
       // Phase 1: Kick off all texture loads in parallel
       const loadPromises = resources.map(async (resource) => {
         const wallSet = wallIndex.get(`${resource.x},${resource.y}`);
-        if (wallSet && (resource.size || 1) === 1) {
+        if (wallSet && !isMultiTile(resource)) {
           const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
           if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet), isWall: true };
         }
@@ -959,21 +960,23 @@ const PixiRenderer = ({
           continue;
         }
 
-        const tileSpan = resource.size || 1;
-        const size = TILE_SIZE * tileSpan;
+        const { w: fw, h: fh } = footprintOf(resource); // size, or sizeX x sizeY (Utils/footprint.js)
+        const tileSpan = Math.max(fw, fh);
+        const size = TILE_SIZE * fw; // the art box is the footprint: fw wide, fh tall
+        const sizeH = TILE_SIZE * fh;
 
-        // Position calculation (multi-tile resources grow UPWARD from anchor)
+        // Position calculation (a footprint grows UPWARD from its anchor)
         const x = resource.x * TILE_SIZE;
-        const visualY = (tileSpan > 1) ? (resource.y - tileSpan + 1) * TILE_SIZE : resource.y * TILE_SIZE;
+        const visualY = (resource.y - fh + 1) * TILE_SIZE;
 
         // Art taller than its footprint (a composed wall from PixiRendererWalls, a building or a
         // statue with artSpan): a span x span square of tiles whose bottom rows and middle columns
         // are the footprint; the rest is headroom
-        if (span && span !== tileSpan && texture && texture.valid !== false) {
+        if (span && span !== fw && texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
           sprite.width = TILE_SIZE * span;
           sprite.height = TILE_SIZE * span;
-          sprite.x = (resource.x - (span - tileSpan) / 2) * TILE_SIZE;
+          sprite.x = (resource.x - (span - fw) / 2) * TILE_SIZE; // centred on the footprint's width
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
           // taps on the part above the footprint hit this art, not the tile behind it (artHitTest.js)
           if (!isWall && resource.action !== 'wall') sprite.__artHit = resource;
@@ -985,7 +988,7 @@ const PixiRenderer = ({
         // Use SVG texture if available
         if (texture && texture.valid !== false) {
           const sprite = new Sprite(texture);
-          const artScale = tileSpan === 1 ? boardArtScale(resource) : 1;
+          const artScale = fw === 1 && fh === 1 ? boardArtScale(resource) : 1;
           if (artScale !== 1) {
             // Painted doobers (docs/art/doobers.md): oversized pickups drawn at DOOBER_TILE_SCALE of
             // a tile, centred on it, so a pickup reads bigger than a prop of the same footprint; a
@@ -996,9 +999,9 @@ const PixiRenderer = ({
             sprite.x = x + size / 2;
             sprite.y = visualY + size / 2;
           } else {
-            // Scale sprite to desired size (texture is fixed at BASE_TEXTURE_SIZE)
+            // Scale sprite to the footprint (fw x fh tiles; a rectangular row's art is cut to that aspect)
             sprite.width = size;
-            sprite.height = size;
+            sprite.height = sizeH;
             sprite.x = x;
             sprite.y = visualY;
           }
@@ -1797,8 +1800,7 @@ const PixiRenderer = ({
     const art = findArtAt(resourceSpritesRef.current, appRef.current?.renderer, clientX - rect.left, clientY - rect.top);
     const resource = art ? (['doober', 'source', 'deco'].includes(art.category) ? null : art) : resources?.find(r => {
       if (r.type === 'shadow' || r.category === 'doober' || r.category === 'source' || r.category === 'deco') return false;
-      const tileSpan = r.size || 1;
-      return col >= r.x && col < r.x + tileSpan && row <= r.y && row > r.y - tileSpan;
+      return coversTile(r, col, row); // the footprint, anchored lower-left (Utils/footprint.js)
     });
     if (resource) {
       setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateResourceTooltip(resource, strings, timers) });

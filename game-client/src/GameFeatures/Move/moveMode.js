@@ -6,6 +6,7 @@ import { createCollectEffect } from '../../VFX/VFX';
 import soundManager from '../../Sound/SoundManager';
 import FloatingTextManager from '../../UI/FloatingText';
 import { TILES_PER_GRID } from '../../Render/PixiRenderer/UnifiedCamera';
+import { footprintOf, footprintCells } from '../../Utils/footprint';
 
 /**
  * Move: pick up something placed on the grid and put it down somewhere else on the same grid
@@ -27,12 +28,8 @@ export function requestMove({ type, x, y }) {
   window.dispatchEvent(new CustomEvent(MOVE_START_EVENT, { detail: { type, x, y } }));
 }
 
-// the footprint, anchored at the lower-left like placement: x .. x+size-1, y-size+1 .. y
-const cells = (x, y, size) => {
-  const out = [];
-  for (let dx = 0; dx < size; dx++) for (let dy = 0; dy < size; dy++) out.push(`${x + dx},${y - dy}`);
-  return out;
-};
+// the footprint, anchored at the lower-left like placement (Utils/footprint.js)
+const cells = (x, y, w, h) => footprintCells(x, y, w, h).map((c) => `${c.x},${c.y}`);
 
 export const findAnchor = (from) => GlobalGridStateTilesAndResources.getResources()
   .find((r) => r.x === from.x && r.y === from.y && r.type === from.type);
@@ -57,11 +54,11 @@ export function placeMovedResource({ cursorMode, x, y, gridId, currentPlayer, ma
   const { from } = cursorMode;
   const anchor = findAnchor(from);
   if (!anchor) return 'cancel';
-  const size = anchor.size || cursorMode.size || 1;
+  const { w: fw, h: fh } = footprintOf(anchor);
   if (x === from.x && y === from.y) return 'cancel';
 
-  const own = new Set(cells(from.x, from.y, size));
-  const target = cells(x, y, size);
+  const own = new Set(cells(from.x, from.y, fw, fh));
+  const target = cells(x, y, fw, fh);
   const outside = target.some((c) => { const [cx, cy] = c.split(',').map(Number); return cx < 0 || cy < 0 || cx >= TILES_PER_GRID || cy >= TILES_PER_GRID; });
   const all = GlobalGridStateTilesAndResources.getResources();
   const taken = new Set(all.filter((r) => r.type && !own.has(`${r.x},${r.y}`)).map((r) => `${r.x},${r.y}`));

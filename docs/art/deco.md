@@ -137,3 +137,11 @@ Toilet, Teddy Bear, Slide, White Dove, Green / Blue / Orange / Sand Wall, Holida
 Scale tweak (owner, 2026-11-08): the chair (1.44 -> 1.12), the sack (0.73 -> 0.58) and the harp
 (1.65 -> 1.3) filled too much of their tile; a prop wants buffer around it. Lower the artSpan,
 no recut.
+
+## Rectangular footprints (BL-21, 2026-11-08)
+
+A deco row may be `sizeX` x `sizeY` tiles instead of square (CLAUDE.md "A resource's
+footprint"). The board draws the art in that w x h box, so the cut must have the same aspect:
+cut a 1 x 2 bed from a 1 x 2 guide, not from the square one. The pass's rectangular pieces
+(bed 1 x 2, bench and hand cart 2 x 1, market stall 2 x 1, gatehouse 3 x 2) wait for a
+rectangular guide and a `cutout.js --ny` option.

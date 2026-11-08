@@ -21,6 +21,7 @@ import { registerFlight } from '../../UI/FlyToTarget';
 import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 import { isViewOnly } from '../../Utils/viewOnly';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import { footprintOf, footprintCells } from '../../Utils/footprint';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -75,8 +76,7 @@ function findDropTile(x, y, avoid = null) {
   if (avoid) taken.add(`${Math.round(avoid.x)},${Math.round(avoid.y)}`); // not under the player's feet: walking ON is what collects
   for (const r of resources) {
     if (!r) continue;
-    const span = r.size || 1;
-    for (let dx = 0; dx < span; dx++) for (let dy = 0; dy < span; dy++) taken.add(`${r.x + dx},${r.y - dy}`);
+    for (const c of footprintCells(r.x, r.y, footprintOf(r).w, footprintOf(r).h)) taken.add(`${c.x},${c.y}`);
   }
   const free = (tx, ty) => tiles[ty]?.[tx] && !['w', 'l'].includes(tiles[ty][tx]) && !taken.has(`${tx},${ty}`);
   if (free(x, y)) return { x, y };

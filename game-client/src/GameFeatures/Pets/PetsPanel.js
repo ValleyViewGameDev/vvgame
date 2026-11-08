@@ -60,7 +60,7 @@ const PetsPanel = ({
       item: item.type,
       emoji: item.symbol || '🐒',
       filename: item.filename || null,
-      size: item.size || 1,
+      size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
       buildOptions: buyOptions,
     });
   };

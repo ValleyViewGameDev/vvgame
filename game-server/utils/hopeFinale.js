@@ -1,3 +1,4 @@
+const { recordFootprint } = require('./footprint');
 /**
  * The Quest for Hope's finale (owner 2026-11-07; docs/story.md §4, "The ending").
  *
@@ -103,8 +104,8 @@ function reconcileRelationships(player) {
 function occupiedTiles(resources) {
   const taken = new Set();
   for (const r of resources) {
-    const s = Number(r.size) || sizeOf(r.type);
-    for (let dx = 0; dx < s; dx++) for (let dy = 0; dy < s; dy++) taken.add(`${r.x + dx},${r.y - dy}`);
+    const { w, h } = recordFootprint(r, masterResources.find((m) => m.type === r.type)); // size, or sizeX x sizeY
+    for (let dx = 0; dx < w; dx++) for (let dy = 0; dy < h; dy++) taken.add(`${r.x + dx},${r.y - dy}`);
   }
   return taken;
 }

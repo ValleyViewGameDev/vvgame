@@ -1,3 +1,4 @@
+const { recordFootprint } = require('./footprint');
 /**
  * Per-player world resolver (docs/phase-2-contract.md).
  *
@@ -173,11 +174,10 @@ function openTileTest(grid) {
 }
 
 function footprint(r) {
-  const def = masterByType.get(r.type);
-  const size = Number(def?.size) > 1 ? Number(def.size) : 1;
+  const { w, h } = recordFootprint(r, masterByType.get(r.type)); // size, or sizeX x sizeY (utils/footprint.js)
   const cells = [];
-  for (let dx = 0; dx < size; dx++) {
-    for (let dy = 0; dy < size; dy++) cells.push([r.x + dx, r.y - dy]);
+  for (let dx = 0; dx < w; dx++) {
+    for (let dy = 0; dy < h; dy++) cells.push([r.x + dx, r.y - dy]);
   }
   return cells;
 }

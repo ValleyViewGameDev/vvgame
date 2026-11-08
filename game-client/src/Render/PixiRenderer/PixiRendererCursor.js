@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
 import { TILES_PER_GRID } from './UnifiedCamera';
+import { footprintOf } from '../../Utils/footprint';
 
 /**
  * PixiRendererCursor - Cursor tile highlight for placement modes
@@ -89,12 +90,12 @@ const PixiRendererCursor = ({
     highlightGraphic.visible = true;
 
     // Get size from cursorMode (multi-tile resources have size > 1)
-    const tileSpan = cursorMode.size || 1;
+    const { w: fw, h: fh } = footprintOf(cursorMode); // size, or sizeX x sizeY (Utils/footprint.js)
 
     // Draw highlight for all tiles that will be occupied
-    // Multi-tile resources expand right (+col) and up (-row) from the anchor
-    for (let dx = 0; dx < tileSpan; dx++) {
-      for (let dy = 0; dy < tileSpan; dy++) {
+    // A footprint expands right (+col) and up (-row) from the anchor
+    for (let dx = 0; dx < fw; dx++) {
+      for (let dy = 0; dy < fh; dy++) {
         const tileCol = col + dx;
         const tileRow = row - dy;
 

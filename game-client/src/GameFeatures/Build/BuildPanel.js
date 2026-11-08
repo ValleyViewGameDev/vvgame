@@ -65,7 +65,7 @@ const BuildPanel = ({
       item: item.type,
       emoji: item.symbol || '🏗️',
       filename: item.filename || null,
-      size: item.size || 1,
+      size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
       buildOptions: buildOptions,
     });
   };
@@ -236,7 +236,7 @@ const BuildPanel = ({
         item: modifiedRecipe.type,
         emoji: item.symbol || '🏗️',
         filename: item.filename || null,
-        size: item.size || 1,
+        size: item.size || 1, sizeX: item.sizeX, sizeY: item.sizeY,
         buildOptions: buildOptions,
         modifiedRecipe: modifiedRecipe, // Include the gem-modified recipe for cursor placement
       });
