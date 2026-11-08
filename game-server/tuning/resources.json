@@ -7785,7 +7785,9 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "black-fog.svg",
+    "artSpan": 1.15
   },
   {
     "type": "School",
@@ -15139,7 +15141,9 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 1
+    "gemcost": 1,
+    "filename": "black-wall.svg",
+    "artSpan": 1.19
   },
   {
     "type": "Invisible Wall",
@@ -15188,7 +15192,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "plant.svg"
+    "filename": "plant.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Red Plant",
@@ -15212,7 +15217,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "plant-red.svg"
+    "filename": "plant-red.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Flower Pot",
@@ -15265,6 +15271,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15364,7 +15371,7 @@
   },
   {
     "category": "deco",
-    "decoGroup": "garden",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15461,6 +15468,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15513,6 +15521,7 @@
     "symbol": "🪉",
     "layoutkey": "ha",
     "category": "deco",
+    "decoGroup": "castle",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15528,13 +15537,16 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 100,
-    "gemcost": 1
+    "gemcost": 1,
+    "filename": "harp.svg",
+    "artSpan": 1.65
   },
   {
     "type": "Flag",
     "symbol": "🚩",
     "layoutkey": "Fl",
     "category": "deco",
+    "decoGroup": "castle",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15599,13 +15611,16 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 10
+    "gemcost": 10,
+    "filename": "stack-of-books.svg",
+    "artSpan": 0.93
   },
   {
     "type": "Chair",
     "symbol": "🪑",
     "layoutkey": "Ch",
     "category": "deco",
+    "decoGroup": "furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15621,13 +15636,16 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 10
+    "gemcost": 10,
+    "filename": "chair.svg",
+    "artSpan": 1.44
   },
   {
     "type": "Bed",
     "symbol": "🛏️",
     "layoutkey": "Bd",
     "category": "deco",
+    "decoGroup": "furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15643,7 +15661,9 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
-    "gemcost": 50
+    "gemcost": 50,
+    "filename": "bed.svg",
+    "artSpan": 1.28
   },
   {
     "type": "Birdbath",

@@ -103,6 +103,9 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Deco pass A 2026-11-08** (BL-18, docs/art/deco-pass-plan.md): Stack of Books, Chair, Bed, Harp,
+  Black Fog and Black Wall drawn, Plant and Red Plant redrawn; nine rows cut. No deco row draws an
+  emoji any more; the catalogue has tabs.
 - **Padlock 2026-11-08**: `icon-lock.svg` (gray, icons-r11) on locked crafting and Trade Stall
   slots, the level lock and the bulk-crafting note; 🔒 remains only in console logs and on the
   Locked Door deco row (BL-18).
