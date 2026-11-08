@@ -1,4 +1,6 @@
 import { postAction } from './Utils/playerDelta';
+import { createRipenEffect } from './VFX/VFX';
+import { boardArtScale } from './Render/PixiRenderer/boardArt';
 // A grown plot becomes its crop on the server, which checks the plot's own growEnd
 // (game-server routes/actionRoutes.js /action/ripen). { success } like updateGridResource; a plot
 // already gone (harvested, ripened by another tab) counts as done.
@@ -244,8 +246,15 @@ class FarmState {
             );
           }
 
-          // Single batched UI update for all successful conversions
+          // Single batched UI update for all successful conversions. Each plot crossfades into
+          // its crop first (VFX.js createRipenEffect), so the swap under it is never seen.
           if (successfulConversions.length > 0) {
+            for (const { seed, enriched } of successfulConversions) {
+              const plot = masterResources.find((res) => res.type === seed.type);
+              if (plot?.filename && enriched.filename) {
+                createRipenEffect(seed.x, seed.y, plot.filename, enriched.filename, boardArtScale(plot), boardArtScale(enriched));
+              }
+            }
             setResources(prev => {
               let updated = [...prev];
               for (const { seed, enriched } of successfulConversions) {

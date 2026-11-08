@@ -104,11 +104,13 @@ rich-line token (pass 5) or reword.
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
 - **Pass 3 shipped 2026-11-07** (`tools/art/jobs/board-r1..r3.json`, `doobers-r13/r14.json`): the
-  growing plots are plants alone in the doober style (`plot-sprouts.svg` for the twenty ordinary
-  plots, one art, no variants by the owner's choice; `plot-vine.svg` for the Tomato and Grape
+  growing plots are plants alone in the doober style (`plot-sprouts.svg`, a single sprout, for
+  the twenty ordinary plots, one art, no variants by the owner's choice; `plot-vine.svg` for the Tomato and Grape
   vines, `plot-shrub.svg` for the Coffee Plant, `plot-sapling.svg` for the Oak Tree Plot), drawn
   at the doober scale (0.9 tile, `PixiRenderer.js`, 128 px slot) so a plant is never bigger than
-  the pickup it becomes; the eight signposts are the approved Home / Town post with the arrow
+  the pickup it becomes, and a ripe plot crossfades into its crop instead of popping
+  (`FarmState.js` + `VFX.js createRipenEffect`, 2026-11-07; the Grape Vine is `noGrow`: it lands
+  and stands back up at full size, docs/art/doobers.md); the eight signposts are the approved Home / Town post with the arrow
   printed on the board (`signpost-n.svg` ..); the Dungeon Exit is plain stairs
   (`dungeon-exit.svg`); the Dungeon Entrance (2 x 2, artSpan 2.36), the Mountain (`mountain.svg`,
   a smaller peak of the same rock, artSpan 3.06), the Mountain Large (`mountain-large.svg`, 4.08)

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "c98114a1bf8b80ab99f052aa4b56777c88e510c6",
+  "sourceHash": "8970634988944588bdd917f5caeab6ee5490f9ea",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -113,9 +113,9 @@
     "resources/doober-trumpet.svg": 1,
     "resources/doober-brass-bell.svg": 1,
     "resources/doober-rosemary.svg": 1,
-    "resources/plot-sprouts.svg": 1,
     "resources/doober-phoenix-feather.svg": 1,
     "emoji/1f441": 1,
+    "avatar/facialHair/beard-03-male.svg": 1,
     "avatar/facialHair/beard-01.svg": 1,
     "resources/carnival.svg": 2,
     "resources/agriculture.svg": 2,
@@ -220,7 +220,7 @@
     "resources/doober-aged-wine.svg": 4,
     "resources/doober-olive-oil.svg": 4,
     "resources/doober-amulet.svg": 4,
-    "avatar/facialHair/beard-03-male.svg": 4,
+    "resources/plot-sprouts.svg": 4,
     "resources/item-purple-heart.svg": 5,
     "resources/item-skeleton-key.svg": 5,
     "resources/item-dungeon-key.svg": 5,

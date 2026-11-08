@@ -11,8 +11,19 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
   (carrot, wheat, pumpkin, log, stone, blueberries, egg, milk jug, cheese); its `.small.jpg` is
   the FIRST ref of every later sheet, with "match it EXACTLY" in the prompt, so all sheets are one set.
 - **Growing plots draw the same way** (emoji audit pass 3, 2026-11-07): a farmplot's `filename`
-  (the sprouts, young vine, shrub, sapling) is a plant alone in this style, drawn at the doober
-  scale, so the growing state is never bigger than the pickup.
+  (one sprout, the young vine, shrub, sapling) is a plant alone in this style, drawn at the doober
+  scale, so the growing state is never bigger than the pickup. `plot-sprouts.svg` is a SINGLE
+  sprout (the owner's call: the left one of the Sprouts C pair, `doobers-r14`), no variants.
+- **A plot never pops into its crop.** Planting grows the plot in from nothing
+  (`VFX.js createPlantGrowEffect`); when its `growEnd` passes, `FarmState.js` crossfades the plot
+  into the crop (`createRipenEffect`: the plant fades out while the crop fades in and swells from
+  0.6 to full size, 900 ms) before the state swap, so the sprite never changes under the player's
+  eyes. Both overlays sit in the box the sprite is drawn in (`Render/PixiRenderer/boardArt.js`
+  `boardArtScale`: 0.9 for pickups and plots, 1 for trees). Conversions on load (plots that
+  finished while the player was away) do not animate.
+- **`noGrow` on a farmplot row** (the Grape Vine): the plot lands at full size when planted and
+  stands back up at full size after a harvest, with no grow-in; it still crossfades into its crop
+  when ripe. Trees (`source: tree`) never grew in either.
 - **Oversized: 0.9 of a tile.** A pickup should read bigger than a prop of the same footprint.
   `DOOBER_TILE_SCALE` in `Render/PixiRenderer/PixiRenderer.js` draws a doober's art 0.9 tile
   wide, centred on its tile (the atlas gives it a 128 px slot, `DOOBER_CELL` in

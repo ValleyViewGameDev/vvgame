@@ -67,7 +67,7 @@ export const DEFINITIONS = [
       { ...num('parallel'), label: 'parallel (producers run at once)' },
       { ...num('maxpergrid'), label: 'maxpergrid (most per grid; the Inn: 1)' },
       { ...num('effort'), label: 'effort (min/unit, derived)', derived: true },
-      { ...ref('output', 'resource'), refAllow: ['hp', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), bool('repeatable'),
+      { ...ref('output', 'resource'), refAllow: ['hp', 'Buy', 'backpackCapacity', 'range'] }, num('growtime'), { ...bool('noGrow'), label: 'noGrow (the plot lands full-size and stands back up after a harvest, with no grow-in: the Grape Vine)' }, bool('repeatable'),
       // where a good may be offered (game-server/utils/offerRules.mjs; docs/tuning.md "Where a good can be offered")
       { ...bool('noKent'), label: 'noKent (Kent never asks for it)' },
       { ...bool('noBank'), label: 'noBank (never a random Bank offer)' },

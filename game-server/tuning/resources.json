@@ -2353,6 +2353,7 @@
     "validonv": false,
     "validonu": false,
     "growtime": 43200,
+    "noGrow": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "crafttime": 43200,

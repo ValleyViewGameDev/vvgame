@@ -10,6 +10,7 @@ import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import { createCollectEffect, createPlantGrowEffect } from '../../VFX/VFX';
+import { boardArtScale } from '../../Render/PixiRenderer/boardArt';
 import soundManager from '../../Sound/SoundManager';
 
 /**
@@ -129,8 +130,10 @@ export const handleFarmPlotPlacement = async ({
 
     // ===== OPTIMISTIC UI: Show feedback immediately =====
     // A tree from the catalog comes fully grown: it lands like deco (BuildAndBuy.js), with no
-    // grow-in from a seedling the way a crop plot has
-    const landsGrown = selectedItem.source === 'tree';
+    // grow-in from a seedling the way a crop plot has. So does a plot flagged noGrow in
+    // resources.json (the Grape Vine: the vine simply stands there, then bears)
+    const isTree = selectedItem.source === 'tree';
+    const landsGrown = isTree || !!selectedItem.noGrow;
 
     // 1. Play sound immediately
     soundManager.playSFX(landsGrown ? 'place' : 'plant');
@@ -153,12 +156,12 @@ export const handleFarmPlotPlacement = async ({
 
     // 4. Start grow animation BEFORE updating state so PixiRenderer skips rendering
     if (enrichedNewResource.symbol && !landsGrown) {
-      createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
+      createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename, boardArtScale(enrichedNewResource));
     }
 
     // 5. Show VFX and floating text immediately
     createCollectEffect(tileX, tileY, TILE_SIZE);
-    FloatingTextManager.addFloatingText(landsGrown ? 300 : 302, tileX, tileY, TILE_SIZE); // "Added" / "Planted!"
+    FloatingTextManager.addFloatingText(isTree ? 300 : 302, tileX, tileY, TILE_SIZE); // "Added" / "Planted!"
 
     // 6. Save original inventory state for potential rollback
     // The plot appears on the tap; ONE request (game-server routes/actionRoutes.js /action/plant)

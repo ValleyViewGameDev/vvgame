@@ -9,6 +9,7 @@ import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { showNotification } from './UI/Notifications/Notifications';
 import { createCollectEffect, createSourceConversionEffect, createPlantGrowEffect, calculateTileCenter } from './VFX/VFX';
+import { boardArtScale } from './Render/PixiRenderer/boardArt';
 import soundManager from './Sound/SoundManager';
 import CombatFX from './Render/PixiRenderer/CombatFX';
 import { useStrings } from './UI/StringsContext';
@@ -446,7 +447,8 @@ export async function handleDooberClick(
 
 // SHOW REPLANT - the board half of a replant the server already made (/action/harvest answers
 // with { type, x, y, growEnd }): the grow animation, the farm plot in local state and FarmState's
-// timer. Trees were placed optimistically on the tap, so they only get their timer.
+// timer. Trees were placed optimistically on the tap, so they only get their timer; a plot
+// flagged noGrow (the Grape Vine) just stands back up at full size.
 async function showReplant(replant, setResources, masterResources, TILE_SIZE) {
   const { type, x: col, y: row, growEnd } = replant;
   const farmplotResource = (masterResources || []).find((res) => res.type === type);
@@ -454,9 +456,9 @@ async function showReplant(replant, setResources, masterResources, TILE_SIZE) {
   const enriched = enrichResourceFromMaster({ type, x: col, y: row, growEnd }, masterResources);
   const isTree = farmplotResource.source === 'tree';
 
-  if (!isTree && enriched.symbol && TILE_SIZE) {
+  if (!isTree && !farmplotResource.noGrow && enriched.symbol && TILE_SIZE) {
     // Start the grow animation BEFORE the state update so the canvas skips drawing it early
-    createPlantGrowEffect(col, row, TILE_SIZE, enriched.symbol, null, enriched.filename);
+    createPlantGrowEffect(col, row, TILE_SIZE, enriched.symbol, null, enriched.filename, boardArtScale(enriched));
   }
   const current = GlobalGridStateTilesAndResources.getResources() || [];
   const others = current.filter((res) => !(res.x === col && res.y === row));

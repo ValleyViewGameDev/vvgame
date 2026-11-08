@@ -6,6 +6,7 @@ const VFX_TIMING = {
     SWIPE_DURATION: 1000,        // Source conversion swipe animation (was 400)
     FADE_DURATION: 400,         // How long fade-out takes
     PLANT_GROW_DURATION: 1500,  // Plant grow animation
+    RIPEN_DURATION: 900,        // A grown plot crossfading into its crop
 };
 
 // Track recent effects to prevent duplicates
@@ -391,7 +392,13 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
  * @param {string} emoji - The emoji to display (seed/crop symbol)
  * @param {function} onComplete - Optional callback when animation completes (to trigger re-render)
  */
-export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filename = null) => {
+/**
+ * A plant growing in on (x, y) from a seed: its art scales up from nothing over PLANT_GROW_DURATION
+ * while the board's own sprite is hidden. `box` is the fraction of a tile the art is drawn at
+ * (boardArt.js boardArtScale: 0.9 for a 1 x 1 pickup or plot, 1 for a tree), so the overlay ends
+ * exactly where the sprite then appears.
+ */
+export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filename = null, box = 1) => {
     // Find the PixiJS container - get its position to calculate world coordinates
     const worldContainer = document.querySelector('.pixi-world-container');
 
@@ -430,14 +437,15 @@ export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filena
     if (filename) {
         // SVG images: position at grid offset + tile position (scaled)
         // This places the VFX at the same world position as the PixiJS canvas renders
-        const worldX = gridOffsetX + (x * scaledTileSize);
-        // Add small Y offset (5% of tile size) to align with PixiJS sprite rendering
-        const worldY = gridOffsetY + (y * scaledTileSize) + (scaledTileSize * 0.05);
-        console.log(`🎬 VFX DEBUG: filename=${filename}, tile=(${x},${y}), gridOffset=(${gridOffsetX},${gridOffsetY}), scaledTileSize=${scaledTileSize}, worldPos=(${worldX},${worldY})`);
+        // A 1 x 1 pickup or plot sits centred in a box of `box` tiles (the sprite is drawn the
+        // same way); full-tile art keeps the small Y offset that aligns it with its sprite
+        const inset = (scaledTileSize * (1 - box)) / 2;
+        const worldX = gridOffsetX + (x * scaledTileSize) + inset;
+        const worldY = gridOffsetY + (y * scaledTileSize) + (box < 1 ? inset : scaledTileSize * 0.05);
         particle.style.left = `${worldX}px`;
         particle.style.top = `${worldY}px`;
-        particle.style.width = `${scaledTileSize}px`;
-        particle.style.height = `${scaledTileSize}px`;
+        particle.style.width = `${scaledTileSize * box}px`;
+        particle.style.height = `${scaledTileSize * box}px`;
         particle.style.transformOrigin = 'center center';
         particle.style.transform = 'scale(0.02)'; // Start at 2% scale
 
@@ -522,6 +530,57 @@ function spawnChunk(worldContainer, cx, cy, { size, color, endX, endY, duration,
  * attacker when (fromX, fromY) is given. Lightweight by design, smaller than any death burst;
  * it only accompanies CombatFX's flash/knockback on the sprite.
  */
+/**
+ * A grown plot becoming its crop on (x, y) (FarmState.js, when the plot's growEnd passes): the
+ * plot's art fades out while the crop's art fades in and swells to full size, so the sprout
+ * turns into the wheat instead of popping. Both pictures sit in the box their sprites are drawn
+ * in (boardArt.js boardArtScale); the board's own sprite is hidden until the crossfade ends.
+ * Call it BEFORE the state swap so the plot sprite never redraws under the overlay.
+ */
+export const createRipenEffect = (x, y, fromFile, toFile, fromBox = 1, toBox = 1, onComplete) => {
+    const worldContainer = document.querySelector('.pixi-world-container');
+    if (!worldContainer) { if (onComplete) onComplete(); return; }
+
+    const posKey = `${x},${y}`;
+    animatingResources.add(posKey);
+    animationVersion++;
+    if (forceResourceRender) forceResourceRender();
+
+    const T = PixiCamera.getTileSize();
+    const duration = VFX_TIMING.RIPEN_DURATION;
+    const layer = (file, box) => {
+        const inset = (T * (1 - box)) / 2;
+        const el = document.createElement('img');
+        el.src = `/assets/resources/${file}`;
+        el.alt = '';
+        el.draggable = false;
+        el.style.cssText = `position:absolute; left:${x * T + inset}px; top:${y * T + inset}px; width:${T * box}px; height:${T * box}px; pointer-events:none; z-index:1001; transform-origin:center center; will-change:transform, opacity;`;
+        worldContainer.appendChild(el);
+        return el;
+    };
+    const from = layer(fromFile, fromBox);
+    const to = layer(toFile, toBox);
+    to.style.opacity = '0';
+    to.style.transform = 'scale(0.6)';
+    void to.offsetHeight; // commit the start state before the transitions
+    from.style.transition = `opacity ${duration * 0.6}ms ease-in`;
+    to.style.transition = `opacity ${duration * 0.5}ms ease-out, transform ${duration}ms cubic-bezier(0.2, 0.8, 0.3, 1.1)`;
+    requestAnimationFrame(() => {
+        from.style.opacity = '0';
+        to.style.opacity = '1';
+        to.style.transform = 'scale(1)';
+    });
+
+    setTimeout(() => {
+        if (from.parentNode) worldContainer.removeChild(from);
+        if (to.parentNode) worldContainer.removeChild(to);
+        animatingResources.delete(posKey);
+        animationVersion++;
+        if (forceResourceRender) forceResourceRender();
+        if (onComplete) onComplete();
+    }, duration);
+};
+
 export const createImpactEffect = (x, y, fromX = null, fromY = null) => {
     const worldContainer = document.querySelector('.pixi-world-container');
     if (!worldContainer) return;

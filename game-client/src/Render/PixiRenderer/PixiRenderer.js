@@ -32,6 +32,7 @@ import {
   SETTLEMENTS_PER_FRONTIER,
 } from './UnifiedCamera';
 import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../../VFX/VFX';
+import { DOOBER_TILE_SCALE } from './boardArt';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 
@@ -262,11 +263,6 @@ const loadEmojiTexture = async (symbol) => {
 // scale the sprite to match what the Text fallback would have drawn.
 const EMOJI_SPRITE_SCALE = 1.0;
 
-// A painted doober's art (the 1 x 1 pickups in resources.json, category 'doober') is drawn this
-// much of a tile wide and centred on its tile; the owner picked 0.9 (docs/art/doobers.md). A growing
-// farmplot (the sprouts, the young vine, shrub and sapling; emoji audit pass 3) draws the same way,
-// so a plant is never bigger than the pickup it becomes.
-const DOOBER_TILE_SCALE = 0.9;
 
 /**
  * Get the SVG filename for a resource type from masterResources
