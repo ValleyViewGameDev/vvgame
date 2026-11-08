@@ -206,3 +206,14 @@ Lavender (`lavender`, 0.93, 40), Topiary Ball (`topiary-ball`, 1.34, 150), Topia
 (`wildflower-patch`, 0.97, 30; PASSABLE, the first floor deco: a character walks over it). The
 hedge wall set is parked in BL-22. Every cut is seated at its square's bottom after the defringe
 (the cart lesson).
+
+## Tweaks after B3 (2026-11-08, `tools/art/jobs/deco-tweaks.json`)
+
+- **Wildflower Patch** redrawn with NO green mat: flowers and a few single blades over flat
+  magenta, so the real grass tile shows through and the patch blends (owner).
+- **Mulberry Tree, ready state** (`tree-mulberry`, the Mulberry Leaf row's board art): the same
+  tree dotted with small WHITE FLOWERS, so ready reads at a glance; the purple-leaved ready
+  state could not be told from the growing one. Not realistic, by the owner's choice.
+- **Black Fog** redrawn as a CLOUD, black and dark grey with feathered edges, no cube; artSpan
+  1.15 -> 1.4 so it bleeds past its tile and a row of them overlaps into one bank. Still
+  impassable, still the story door. Not seated at the square's bottom (a cloud floats).
