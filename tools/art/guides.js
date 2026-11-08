@@ -97,6 +97,22 @@ async function buildingGuide(n) {
 }
 
 /**
+ * The cut-out guide for a RECTANGULAR footprint (BL-21, 2026-11-08): the magenta patch with a w x h
+ * box outlined (a 1 x 2 bed, a 2 x 1 stall, a 3 x 2 gatehouse). The patch is square, max(w, h) + 2
+ * cells a side, so the box sits one cell in from the left and one cell up from the bottom row's
+ * top, the way the square guides place theirs; the art is still cut square by cutout.js (artSpan
+ * = the taller side), anchored at the footprint's bottom-centre by the renderer.
+ */
+async function buildingCutGuideRect(w, h) {
+  const cells = Math.max(w, h) + 2, t = PX / cells;
+  const rects = [];
+  for (let r = 0; r < cells; r++) for (let c = 0; c < cells; c++) rects.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="#ff00ff" stroke="#c000c0" stroke-width="2"/>`);
+  const bx = Math.floor((cells - w) / 2) * t, by = (cells - 1 - h) * t; // centred, its bottom one cell above the patch's bottom
+  const box = `<rect x="${bx}" y="${by}" width="${w * t}" height="${h * t}" fill="none" stroke="#5b4a6a" stroke-width="3"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#ff00ff"/>${rects.join('')}${box}</svg>`)).png().toBuffer();
+}
+
+/**
  * The cut-out guide for a building: the same (n + 2) patch, but pure magenta (#ff00ff) with the
  * thin grid and the n x n box outlined, no tan fill. The model redraws an approved building on
  * it and tools/art/cutout.js keys the magenta out for the game's sprite.
@@ -265,6 +281,9 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'building5.png'), await buildingGuide(5));
   fs.writeFileSync(path.join(GUIDES, 'building2-cut.png'), await buildingCutGuide(2));
   fs.writeFileSync(path.join(GUIDES, 'building5-cut.png'), await buildingCutGuide(5));
+  fs.writeFileSync(path.join(GUIDES, 'building1x2-cut.png'), await buildingCutGuideRect(1, 2));
+  fs.writeFileSync(path.join(GUIDES, 'building2x1-cut.png'), await buildingCutGuideRect(2, 1));
+  fs.writeFileSync(path.join(GUIDES, 'building3x2-cut.png'), await buildingCutGuideRect(3, 2));
   fs.writeFileSync(path.join(GUIDES, 'patch4.png'), await patch4Guide());
   fs.writeFileSync(path.join(GUIDES, 'edge4.png'), await edge4Guide());
   for (const [type, hex] of Object.entries(PATCH4_COLOURS)) fs.writeFileSync(path.join(GUIDES, `patch4-${type}.png`), await patch4ColourGuide(hex));

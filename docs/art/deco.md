@@ -141,7 +141,11 @@ no recut.
 ## Rectangular footprints (BL-21, 2026-11-08)
 
 A deco row may be `sizeX` x `sizeY` tiles instead of square (CLAUDE.md "A resource's
-footprint"). The board draws the art in that w x h box, so the cut must have the same aspect:
-cut a 1 x 2 bed from a 1 x 2 guide, not from the square one. The pass's rectangular pieces
-(bed 1 x 2, bench and hand cart 2 x 1, market stall 2 x 1, gatehouse 3 x 2) wait for a
-rectangular guide and a `cutout.js --ny` option.
+footprint"). The art stays a SQUARE cut with an `artSpan` of at least the taller side: the
+renderer anchors that square at the footprint's bottom-centre, so a 1 x 2 bed cut at artSpan
+1.75 stands 1 wide and 1.75 tall over its two tiles. Draw it on the matching guide
+(`guides/building1x2-cut.png`, `building2x1-cut.png`, `building3x2-cut.png`; `tools/art/guides.js`
+buildingCutGuideRect) and cut with `cutout.js --n <width> --fit silhouette` as usual. Rows made
+rectangular on 2026-11-08: the Bed (1 x 2, redrawn taller and skinnier on the 1 x 2 guide,
+`deco-bed-1x2`), the Large Decorative Palm Tree (1 x 2 instead of 2 x 2, its 2 x 2 art kept at
+artSpan 2, so the fronds overhang a one-tile trunk) and the Marble Statue (1 x 2, art unchanged).

@@ -15439,6 +15439,8 @@
     "type": "Marble Statue",
     "symbol": "🏛️",
     "layoutkey": "ven",
+    "sizeX": 1,
+    "sizeY": 2,
     "ingredient1qty": 5000,
     "gemcost": 50,
     "filename": "marble-statue.svg",
@@ -15638,11 +15640,13 @@
     "ingredient1qty": 1000,
     "gemcost": 10,
     "filename": "chair.svg",
-    "artSpan": 1.12
+    "artSpan": 1.16
   },
   {
     "type": "Bed",
     "symbol": "🛏️",
+    "sizeX": 1,
+    "sizeY": 2,
     "layoutkey": "Bd",
     "category": "deco",
     "decoGroup": "furniture",
@@ -15663,7 +15667,7 @@
     "ingredient1qty": 5000,
     "gemcost": 50,
     "filename": "bed.svg",
-    "artSpan": 1.28
+    "artSpan": 1.75
   },
   {
     "type": "Birdbath",
@@ -15745,7 +15749,8 @@
     "type": "Large Decorative Palm Tree",
     "symbol": "🌴",
     "layoutkey": "P2",
-    "size": 2,
+    "sizeX": 1,
+    "sizeY": 2,
     "category": "deco",
     "decoGroup": "garden",
     "source": "Deco",
@@ -15764,7 +15769,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 40000,
     "gemcost": 400,
-    "filename": "palm-tree.svg"
+    "filename": "palm-tree.svg",
+    "artSpan": 2
   },
   {
     "type": "Dunsinane",

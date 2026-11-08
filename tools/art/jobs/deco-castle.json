@@ -1,0 +1,91 @@
+{
+  "name": "deco-castle",
+  "note": "BL-18 pass B1, the castle set (docs/art/deco-pass-plan.md): tower (2 x 2), gatehouse (3 x 2), banner, brazier, cannon, knight statue, throne; the castle wall set goes through the walls pipeline separately. Barrel = camera reference; the scale sentence in every prompt.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "round-tower": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a ROUND CASTLE TOWER: a drum tower of grey castle stone, the same weathered grey-brown blocks as the game's mountains, with moss in a few joints, two tiles wide, rising about three tiles tall, with a conical slate roof, a small red pennant at the peak and one arrow-slit window. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 2 x 2 box outlined in the middle, 2 board tiles a side. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow under it only; everything outside the subject is flat magenta, no ground, no grass."
+    },
+    "gatehouse": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building3x2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a CASTLE GATEHOUSE: two square stone towers of grey castle stone, the same weathered grey-brown blocks as the game's mountains, with moss in a few joints joined over a central pointed arch, a raised iron portcullis in the arch, crenellations along the top, a red banner on each tower; three tiles wide and two deep, rising about three tiles tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in it that is THREE tiles wide and TWO tiles deep. Draw the SUBJECT alone, standing on the ground inside that box and filling it from side to side (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow under it only; everything outside the subject is flat magenta, no ground, no grass."
+    },
+    "heraldic-banner": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a HERALDIC BANNER: a tall wooden pole with a long red banner hanging from a crossbar, a gold lion on the red, the banner's tip cut in two points; it rises about two tiles tall on a one-tile base. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "brazier": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a BRAZIER: a black iron basket on three legs holding a bright fire, flames licking up, a little taller than it is wide. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "cannon": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a TUDOR CANNON: a short bronze cannon barrel on a wooden two-wheeled carriage, seen from the front and a little from the side, muzzle toward the viewer's right. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "knight-statue": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a KNIGHT STATUE: a stone statue of an armoured knight standing with a sword point-down between his hands, on a square stone plinth; the whole piece rises about two tiles tall on a one-tile base, grey stone like the other statues. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "throne": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a THRONE: a tall gilded oak throne with a high pointed back, red velvet seat and back cushion, standing on a one-step dais; about one and a half tiles tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    }
+  }
+}

@@ -17,6 +17,9 @@ function footprintKeys(x, y, w, h) {
 }
 /** The footprint of a placed record, taking the shape from the record, else the master row. */
 function recordFootprint(r, def) {
+  // the master row decides a rectangle; a placed record's own `size` (the encoder keeps it for
+  // old 2 x 2 rows) only counts when the row has no sizeX / sizeY
+  if (def && (def.sizeX || def.sizeY)) return footprintOf(def);
   const shaped = (r && (r.sizeX || r.sizeY || r.size)) ? r : def;
   return footprintOf(shaped || r);
 }
