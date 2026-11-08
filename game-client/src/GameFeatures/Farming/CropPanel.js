@@ -8,6 +8,19 @@ import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
+import '../../UI/Buttons/ResourceButton.css'; // the .gem-button chip
+import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { confirmGemSpend } from '../../UI/Modals/GemSpendConfirm';
+import { usePanelContext } from '../../UI/Panels/PanelContext';
+import { formatCountdown, formatNumber } from '../../UI/Timers';
+import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import FloatingTextManager from '../../UI/FloatingText';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import FarmState from '../../FarmState';
+import { createRipenEffect } from '../../VFX/VFX';
+import { boardArtScale } from '../../Render/PixiRenderer/boardArt';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 const CropPanel = ({
   onClose,
@@ -32,8 +45,7 @@ const CropPanel = ({
   const [cropDetails, setCropDetails] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const strings = useStrings();
-
-  console.log('--------Inside Crop Panel:', { stationType, currentStationPosition, currentResource });
+  const { openPanel } = usePanelContext();
 
   useEffect(() => {
     const cropResource = masterResources.find((res) => res.type === stationType);
@@ -49,28 +61,40 @@ const CropPanel = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Function to generate countdown text like the tooltip
-  const getCropStatusText = () => {
-    if (!currentResource || !currentResource.growEnd) return "Unknown status";
-    
-    const remainingTime = Math.max(0, currentResource.growEnd - currentTime);
-    
-    if (remainingTime <= 0) {
-      return "Ready for harvest!";
+  // The plot's growEnd: the board's copy (it moves when a speed-up lands), else the panel's snapshot
+  const liveGrowEnd = () => {
+    const onBoard = (GlobalGridStateTilesAndResources.getResources() || [])
+      .find((r) => r.x === currentStationPosition.x && r.y === currentStationPosition.y);
+    return onBoard?.growEnd ?? currentResource?.growEnd;
+  };
+  const growLeftMs = Math.max(0, (liveGrowEnd() || 0) - currentTime);
+
+  // Ripen it now for gems: ONE request (/action/grow-speedup), priced by the server from its own
+  // clock (ceil(minutes left ^ 0.45), the chip's figure). Optimistic: the plot crossfades into its
+  // crop and the panel closes on the tap; a refusal puts the growing plot back.
+  const growGemCost = growLeftMs > 0 ? calculateGemSpeedupCost(growLeftMs) : 0;
+  const handleGrowSpeedup = async () => {
+    const { x, y } = currentStationPosition;
+    const plotDef = cropDetails;
+    const cropDef = masterResources.find((r) => r.type === plotDef?.output);
+    if (!plotDef || !cropDef || !(growGemCost > 0)) return;
+    if (getPlayerQuantity('Gem', inventory, backpack) < growGemCost) { openPanel('HowToGemsPanel'); return; }
+    if (!(await confirmGemSpend({ gems: growGemCost }))) return;
+    const before = (GlobalGridStateTilesAndResources.getResources() || []).find((r) => r.x === x && r.y === y)
+      || { ...plotDef, ...currentResource, x, y };
+    const seed = FarmState.takeSeedAt(x, y);
+    if (plotDef.filename && cropDef.filename) createRipenEffect(x, y, plotDef.filename, cropDef.filename, boardArtScale(plotDef), boardArtScale(cropDef));
+    const swap = (next) => setResources((prev) => [...prev.filter((r) => !(r.x === x && r.y === y)), next]);
+    swap({ ...cropDef, x, y });
+    FloatingTextManager.addFloatingText(`-${growGemCost} {res:Gem}`, x, y, TILE_SIZE);
+    onClose();
+    const answer = await postAction('/api/action/grow-speedup', { playerId: currentPlayer.playerId, gridId, x, y });
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) {
+      swap(before);
+      if (seed) FarmState.addSeed(seed);
+      updateStatus(answer.reason === 'short-Gem' ? `Need ${growGemCost} gems` : '❌ Failed to speed up');
     }
-    
-    const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-    
-    const parts = [];
-    if (days > 0) parts.push(`${days}d`);
-    if (hours > 0) parts.push(`${hours}h`);
-    if (minutes > 0) parts.push(`${minutes}m`);
-    if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
-    
-    return `${parts.join(' ')} remaining`;
   };
 
   // (The inventory arrives as props and every action's answer updates it: no resync GET here.)
@@ -122,13 +146,21 @@ const CropPanel = ({
     <Panel footer={sellFooter} onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
       <div className="standard-panel">
         <h2>
-            <ResourceIcon resource={cropDetails} symbol={cropDetails?.symbol || '🌱'} /> {stationType}
+            <ResourceIcon resource={cropDetails} symbol={cropDetails?.symbol || '🌱'} /> {getLocalizedString(stationType, strings)}
         </h2>
 
-        {/* Show crop growth status */}
-        <p>
-          {getCropStatusText()}
-        </p>
+        {/* Growing: the countdown on its own row, the gem speed-up right-justified on it
+            (the Animals panel's row, Panel.css .panel-timer-row) */}
+        {growLeftMs <= 0 && <p>{strings[457] || 'Ready to collect!'}</p>}
+        {growLeftMs > 0 && (
+          <div className="panel-timer-row">
+            <span>{strings[324] || 'Remaining:'} {formatCountdown(liveGrowEnd(), currentTime)}</span>
+            <button type="button" className="gem-button" onClick={handleGrowSpeedup}>
+              <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
+              <span className="gem-button-cost">{formatNumber(growGemCost)}</span>
+            </button>
+          </div>
+        )}
 
       </div>
     </Panel>

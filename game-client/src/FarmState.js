@@ -152,6 +152,13 @@ class FarmState {
       }
     }
   
+    /** Take the seed on (x, y) out of the timer (CropPanel's gem speed-up ripens it itself). */
+    takeSeedAt(x, y) {
+      const seed = this.farmState.find((s) => s.x === x && s.y === y) || null;
+      if (seed) this.farmState = this.farmState.filter((s) => s !== seed);
+      return seed;
+    }
+
     addSeed(seed) {
       if (!seed.output) {
         console.warn('⚠️ Trying to add a seed without an output! This will break later.', seed);

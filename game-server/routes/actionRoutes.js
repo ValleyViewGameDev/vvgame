@@ -16,6 +16,7 @@
  *   POST /action/pet-feed / pet-collect           feed a pet, collect what it found (+ its xp)
  *   POST /action/animal-collect                   a farm animal's product
  *   POST /action/graze-speedup                    a grazing farm animal ready now, for gems
+ *   POST /action/grow-speedup                     a growing crop ripe now, for gems
  *   POST /action/bulk-craft-collect               the Crafter's bulk collect (and restart) over many stations
  *   POST /action/bulk-harvest                     the Farmer's bulk harvest (and replant) of ripe crops
  *   POST /action/buy-skill                        a skill at its master price (or gems for what is missing)
@@ -1423,6 +1424,42 @@ router.post('/action/ripen', async (req, res) => {
   } catch (err) {
     console.error('❌ action/ripen failed:', err);
     return res.status(500).json({ success: false, error: 'ripen-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/grow-speedup { playerId, gridId, x, y }
+ * → { success, gems, ripened: {type, x, y}, player, seq }
+ * CropPanel's gem chip: a growing farm plot becomes its crop now. Priced like craft-speedup,
+ * ceil(minutes left ^ 0.45), from the server's own growEnd and clock. Refusals: 409 not-growing
+ * (no plot, or already ripe: the farm timer ripens it), short-Gem.
+ */
+router.post('/action/grow-speedup', async (req, res) => {
+  const { playerId, gridId, x, y } = req.body || {};
+  if (!playerId || !gridId || !Number.isInteger(x) || !Number.isInteger(y)) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
+    const plot = (gridResourceManager.getResources(grid) || []).find((r) => r && r.x === x && r.y === y);
+    const def = plot && econ.resourceDef(plot.type);
+    if (!def || def.category !== 'farmplot') return answer(409, 'not-growing');
+    const left = plot.growEnd ? new Date(plot.growEnd).getTime() - Date.now() : 0;
+    if (!(left > 0)) return answer(409, 'not-growing');
+    const crop = econ.resourceDef(def.output);
+    if (!crop) return answer(400, 'no-output');
+    const gems = Math.ceil((left / 60000) ** 0.45);
+    if (!spendCosts({ ingredient1: 'Gem', ingredient1qty: gems }, player.inventory, player.backpack)) return answer(409, 'short-Gem');
+    player.markModified('inventory'); player.markModified('backpack');
+    gridResourceManager.updateResource(grid, { type: crop.type, x, y });
+    await grid.save({ validateBeforeSave: false });
+    await player.save();
+    return res.json({ success: true, gems, ripened: { type: crop.type, x, y }, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/grow-speedup failed:', err);
+    return res.status(500).json({ success: false, error: 'grow-speedup-failed', detail: err.message });
   }
 });
 

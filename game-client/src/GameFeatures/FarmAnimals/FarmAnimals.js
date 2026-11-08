@@ -231,9 +231,9 @@ const AnimalPanel = ({
 
           {/* Grazing: the countdown on its own row, the gem skip right-justified on it */}
           {grazeLeftMs > 0 && (
-            <div className="animal-panel-timer-row">
+            <div className="panel-timer-row">
               <span>{strings[324] || 'Remaining:'} {formatCountdown(currentNPC.grazeEnd, currentTime)}</span>
-              <button type="button" className="gem-button animal-panel-gem" onClick={handleGrazeSpeedup}>
+              <button type="button" className="gem-button" onClick={handleGrazeSpeedup}>
                 <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
                 <span className="gem-button-cost">{formatNumber(grazeGemCost)}</span>
               </button>
