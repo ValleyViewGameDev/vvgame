@@ -14,8 +14,8 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
   `/action/*` route), and a developer's id opens the admin routes.
 - **BL-17.** Final art for the player avatars and every NPC (the enemies, Fairy, Santa Claus,
   The Porter, the Oracle, the quest-giver and speech glyphs).
-- **BL-16.** Final art for the animals: the farm animals and the twelve Zoo animals (the Zoo
-  panel's pets).
+- **BL-16.** Final art for the twelve Zoo animals (the Zoo panel's pets); the farm animals are
+  done (2026-11-08).
 
 ## Open
 
@@ -214,7 +214,7 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
 
-### BL-16: Art pass, animals and pets (second to last) (LAUNCH BLOCKER)
+### BL-16: Art pass, Zoo animals (farm animals done) (LAUNCH BLOCKER)
 
 Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). Farm animals DONE 2026-11-08: six side-on sprites (the Pig redrawn too, so the set matches) at `npc-<name>.svg`, every row `artFacing: right` with a per-animal `artScale` (cows 1.1, ram 1.0, pig and sheep 0.95, goat 0.85); job tools/art/jobs/farm-animals.json. Zoo sheets next.
 
@@ -242,21 +242,6 @@ docs/art/emoji-audit.md: characters come last, after BL-16. When this lands the 
 emoji left and `scripts/build-atlas.js` can drop its Twemoji step. **Where to start.**
 docs/avatar-plan.md §0 for what is built; the Citizens with portraits (Kent, Portia, ...) for
 the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
-
-### BL-18: Deco art pass: redraw the emoji deco and add more
-
-Added 2026-11-07. **DONE 2026-11-08** (docs/art/deco.md; B5 furniture skipped, walls parked in BL-22).
-
-**What.** Fifteen deco rows still draw as emoji (docs/art/emoji-audit.md §1): the Holiday
-Tree (in 5 layouts), Stack of Books (3), the five one-gem emoji walls (Green / Black / Sand /
-Blue / Orange, `action: wall`), Harp, Chair, Toilet, Bed, Teddy Bear, Slide, White Dove and
-the Black Fog door. Each is either drawn in the whimsical deco style (docs/art/deco.md) or
-retired (check live grids first: a one-gem wall may stand on a homestead), and the Deco
-catalogue grows with new props while the sheet is open. **Why.** The owner's rule: the art
-cannot be called a complete pass while any deco is an emoji; this is a big pass of its own,
-before BL-16 and BL-17. **Where to start.** docs/art/deco.md (square-on camera, silhouette
-fit, pricing ladder) and the first 13 props' job `tools/art/jobs/deco-whimsical-r1.json`;
-the wall rows want the joining wall-set treatment (docs/walls.md) or retirement.
 
 ### BL-20: `save-single-npc` trusts whatever NPC state the client sends
 
