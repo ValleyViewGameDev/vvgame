@@ -13,6 +13,20 @@
   overflow-y: auto;
 }
 
+/* Grazing: "Remaining: 4m 30s" left, the gem skip right-justified on the same row. The gem chip
+   (UI/Buttons/ResourceButton.css .gem-button) is absolutely placed inside a ResourceButton; here it
+   sits in the row's flow */
+.animal-panel-timer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.animal-panel-timer-row .animal-panel-gem {
+  position: static;
+}
+
 /* Footer section for sell button */
 .animal-panel-footer {
   padding: 10px;

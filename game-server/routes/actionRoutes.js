@@ -15,6 +15,7 @@
  *   POST /action/craft-speedup                    finish a running slot now for gems
  *   POST /action/pet-feed / pet-collect           feed a pet, collect what it found (+ its xp)
  *   POST /action/animal-collect                   a farm animal's product
+ *   POST /action/graze-speedup                    a grazing farm animal ready now, for gems
  *   POST /action/bulk-craft-collect               the Crafter's bulk collect (and restart) over many stations
  *   POST /action/bulk-harvest                     the Farmer's bulk harvest (and replant) of ripe crops
  *   POST /action/buy-skill                        a skill at its master price (or gems for what is missing)
@@ -619,6 +620,46 @@ router.post('/action/animal-collect', async (req, res) => {
   } catch (err) {
     console.error('❌ action/animal-collect failed:', err);
     return res.status(500).json({ success: false, error: 'animal-collect-failed', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/action/graze-speedup { playerId, gridId, npcId }
+ * → { success, gems, updatedNPC, player, seq }
+ * AnimalPanel's gem button: a grazing farm animal finishes now and is ready to collect. Priced
+ * like craft-speedup, ceil(minutes left ^ 0.45) (Economy/EconomyUtils.js calculateGemSpeedupCost),
+ * from the server's own copy of grazeEnd and its own clock. Refusals: 409 not-grazing, short-Gem.
+ */
+router.post('/action/graze-speedup', async (req, res) => {
+  const { playerId, gridId, npcId } = req.body || {};
+  if (!playerId || !gridId || !npcId) return fail(res, 400, 'bad-request');
+  try {
+    const [player, grid] = await Promise.all([Player.findById(playerId), Grid.findById(gridId)]);
+    if (!player) return fail(res, 404, 'no-player');
+    if (!grid) return fail(res, 404, 'no-grid');
+    if (!econ.ownsGrid(grid, player)) return fail(res, 403, 'not-your-grid');
+    const answer = (status, reason) => fail(res, status, reason, { player: econ.playerDelta(player), seq: econ.nextSeq() });
+    const npcs = grid.NPCsInGrid instanceof Map ? grid.NPCsInGrid : new Map(Object.entries(grid.NPCsInGrid || {}));
+    const npc = npcs.get(String(npcId));
+    const def = npc && econ.resourceDef(npc.type);
+    if (!def || def.action !== 'graze') return answer(409, 'no-animal');
+    const left = npc.state === 'grazing' && npc.grazeEnd ? npc.grazeEnd - Date.now() : 0;
+    if (!(left > 0)) return answer(409, 'not-grazing');
+    const gems = Math.ceil((left / 60000) ** 0.45);
+    if (!spendCosts({ ingredient1: 'Gem', ingredient1qty: gems }, player.inventory, player.backpack)) return answer(409, 'short-Gem');
+    player.markModified('inventory'); player.markModified('backpack');
+    npc.state = 'processing';
+    npc.grazeEnd = Date.now();
+    npc.lastUpdated = Date.now();
+    npcs.set(String(npcId), npc);
+    grid.NPCsInGrid = npcs;
+    grid.markModified('NPCsInGrid');
+    await grid.save({ validateBeforeSave: false });
+    await player.save();
+    return res.json({ success: true, gems, updatedNPC: npc, player: econ.playerDelta(player), seq: econ.nextSeq() });
+  } catch (err) {
+    console.error('❌ action/graze-speedup failed:', err);
+    return res.status(500).json({ success: false, error: 'graze-speedup-failed', detail: err.message });
   }
 });
 

@@ -9,10 +9,17 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import soundManager from '../../Sound/SoundManager';
+import '../../UI/Buttons/ResourceButton.css'; // the .gem-button chip
 import './AnimalPanel.css';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { countAnimalsOfType, scaledAnimalMoneyCost } from './animalPricing';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
+import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
+import { getPlayerQuantity } from '../../Utils/InventoryManagement';
+import { confirmGemSpend } from '../../UI/Modals/GemSpendConfirm';
+import { usePanelContext } from '../../UI/Panels/PanelContext';
+import { formatCountdown, formatNumber } from '../../UI/Timers';
+import FloatingTextManager from '../../UI/FloatingText';
 
 const AnimalPanel = ({
   onClose,
@@ -38,8 +45,7 @@ const AnimalPanel = ({
   const [currentNPC, setCurrentNPC] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const strings = useStrings();
-
-  console.log('--------Inside Animal Panel:', { stationType, currentStationPosition });
+  const { openPanel } = usePanelContext();
 
   useEffect(() => {
     const stallResource = masterResources.find((res) => res.type === stationType);
@@ -82,13 +88,7 @@ const AnimalPanel = ({
         const lookingFor = npc.type === 'Pig' ? 'dirt' : 'grass';
         return `is hungry and looking for ${lookingFor}.`;
       case 'grazing':
-        if (npc.grazeEnd) {
-          const remainingTime = Math.max(0, npc.grazeEnd - currentTime);
-          const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-          return `is grazing. ${minutes}m ${seconds}s`;
-        }
-        return "is grazing.";
+        return "is grazing."; // the countdown has its own row, with the gem skip
       case 'roam':
         return "is roaming.";
       default:
@@ -178,6 +178,30 @@ const AnimalPanel = ({
   };
   
 
+  // Skip the grazing timer for gems: ONE request (/action/graze-speedup), priced by the server from
+  // its own clock. Optimistic: the animal shows ready on the tap; reverted if the server refuses.
+  const grazeLeftMs = currentNPC?.state === 'grazing' && currentNPC.grazeEnd ? Math.max(0, currentNPC.grazeEnd - currentTime) : 0;
+  const grazeGemCost = grazeLeftMs > 0 ? calculateGemSpeedupCost(grazeLeftMs) : 0;
+  const handleGrazeSpeedup = async () => {
+    const npc = currentNPC;
+    if (!npc || !(grazeGemCost > 0)) return;
+    if (getPlayerQuantity('Gem', inventory, backpack) < grazeGemCost) { openPanel('HowToGemsPanel'); return; }
+    if (!(await confirmGemSpend({ gems: grazeGemCost }))) return;
+    const before = { state: npc.state, grazeEnd: npc.grazeEnd };
+    NPCsInGridManager.markLocal(gridId, npc.id, { state: 'processing', grazeEnd: Date.now() });
+    setCurrentNPC({ ...npc, state: 'processing', grazeEnd: Date.now() });
+    const answer = await postAction('/api/action/graze-speedup', { playerId: currentPlayer.playerId, gridId, npcId: npc.id });
+    applyPlayerDelta(answer.data, { setCurrentPlayer, setInventory, setBackpack });
+    if (!answer.ok) {
+      NPCsInGridManager.markLocal(gridId, npc.id, before);
+      updateStatus(answer.reason === 'short-Gem' ? `Need ${grazeGemCost} gems` : '❌ Failed to skip the timer');
+      return;
+    }
+    const { gems, updatedNPC } = answer.data;
+    await NPCsInGridManager.updateNPC(gridId, npc.id, { state: 'processing', grazeEnd: updatedNPC?.grazeEnd || Date.now() });
+    if (npc.position) FloatingTextManager.addFloatingText(`-${gems} {res:Gem}`, Math.round(npc.position.x), Math.round(npc.position.y), TILE_SIZE);
+  };
+
   // Sell section (UI/Panels/SellSection.js): an animal walks about, so Sell only (no Move); its
   // refund is the panel's own figure (the price scales with the herd: getRefundAmount)
   const sellFooter = sellSection({
@@ -203,6 +227,17 @@ const AnimalPanel = ({
             <p>
               <strong>{getLocalizedString(currentNPC.type, strings)}</strong> {getNPCStatusText(currentNPC)}
             </p>
+          )}
+
+          {/* Grazing: the countdown on its own row, the gem skip right-justified on it */}
+          {grazeLeftMs > 0 && (
+            <div className="animal-panel-timer-row">
+              <span>{strings[324] || 'Remaining:'} {formatCountdown(currentNPC.grazeEnd, currentTime)}</span>
+              <button type="button" className="gem-button animal-panel-gem" onClick={handleGrazeSpeedup}>
+                <img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" />
+                <span className="gem-button-cost">{formatNumber(grazeGemCost)}</span>
+              </button>
+            </div>
           )}
         </div>
         
