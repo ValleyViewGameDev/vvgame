@@ -99,3 +99,11 @@
 /* Go to Town: centered under everything else (the Map panel's Town signpost, as a button) */
 .town-news-panel .tn-go-to-town { display: flex; justify-content: center; margin: 16px 0 8px; }
 .town-news-panel .tn-go-to-town .btn-basic { width: auto; padding-left: 20px; padding-right: 20px; }
+
+/* Go to Town: the Map panel's Town icon (icon-town.svg), not the 🏛️ emoji */
+.tn-go-to-town .tn-town-icon {
+  width: 1.4em;
+  height: 1.4em;
+  object-fit: contain;
+  vertical-align: middle;
+}

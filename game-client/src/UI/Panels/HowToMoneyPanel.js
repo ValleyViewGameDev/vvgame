@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; // Importing the shared Panel component
 import { useStrings } from '../StringsContext';
+import { richText } from '../Icons/RichText';
 
 const HowToMoneyPanel = memo(({ onClose }) => {
 
@@ -10,15 +11,13 @@ const HowToMoneyPanel = memo(({ onClose }) => {
       <div className="panel-content">
 
         <h2 className="panel-subheading">{strings[9020]}</h2>
-        <p>{strings[9021]}</p>
-        <p>{strings[9022]}</p>
-        <p>{strings[9023]}</p>
-        <p>{strings[9024]}</p>
+        <p>{richText(strings[9021])}</p>
+        <p>{richText(strings[9022])}</p>
+        <p>{richText(strings[9023])}</p>
+        <p>{richText(strings[9024])}</p>
         <h2 className="panel-subheading">{strings[9025]}</h2>
-        <p>{strings[9026]}</p>
-        <p>{strings[9027]}</p>
-
-
+        <p>{richText(strings[9026])}</p>
+        <p>{richText(strings[9027])}</p>
       </div>
     </Panel>
   );

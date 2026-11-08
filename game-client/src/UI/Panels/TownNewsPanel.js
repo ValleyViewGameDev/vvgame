@@ -255,7 +255,7 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
                             bulkOperationContext, masterResources, strings, masterTrophies, transitionFadeControl
                         )}
                     >
-                        🏛️ {strings[1519] || 'Go to Town'}
+                        <img src="/assets/icons/icon-town.svg" alt="" draggable="false" className="tn-town-icon" /> {strings[1519] || 'Go to Town'}
                     </button>
                 </div>
             )}
