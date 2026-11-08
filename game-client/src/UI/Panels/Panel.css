@@ -128,13 +128,14 @@
   padding: 0;
 }
 
-/* The Decorations catalogue's sub-sorts (BuyDecoPanel: the group headings, or the tab row):
-   tight above and below */
-.panel-content .buy-deco-group {
-  margin: 6px 0 2px;
-}
+/* The Decorations catalogue's sub-sort tabs (BuyDecoPanel): a compact .tab-button row, tight
+   above and below (the shared tabs pad 8px 12px and leave 12px under the row) */
 .tab-navigation.buy-deco-tabs {
-  margin: 2px 0 6px;
+  margin: 0 0 4px;
+  gap: 2px;
+}
+.tab-navigation.buy-deco-tabs .tab-button {
+  padding: 2px 4px;
 }
 
 /* Countdown timers should use Lora (title-3) for better number readability */
