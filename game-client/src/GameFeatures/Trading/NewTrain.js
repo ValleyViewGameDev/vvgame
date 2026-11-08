@@ -42,7 +42,7 @@ function NewTrainPanel({
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall for an order you cannot fill
 
   const [trainPhase, setTrainPhase] = useState("loading");
-  const [trainTimer, setTrainTimer] = useState("⏳");
+  const [trainTimer, setTrainTimer] = useState("");
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [playerTrainNumber, setPlayerTrainNumber] = useState(0);
   const [currentTrainOffers, setCurrentTrainOffers] = useState([]);
@@ -343,8 +343,8 @@ function NewTrainPanel({
           <p>{strings[98]}</p>
         ) : (
           <>
-            <h3>Caravan is {trainPhase} (#{playerTrainNumber})</h3>
-            <h2 className="countdown-timer">⏳ {trainTimer}</h2>
+            <h3>{strings[{ arriving: 2123, loading: 2124, departing: 2125 }[trainPhase]] || `The Caravan is ${trainPhase}.`}</h3>
+            <h2 className="countdown-timer">{trainTimer}</h2>
 
             {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (
               <div style={{

@@ -42,7 +42,7 @@ function CarnivalPanel({
 
   const [carnivalOffers, setCarnivalOffers] = useState([]);
   const [carnivalPhase, setCarnivalPhase] = useState("here");
-  const [carnivalTimer, setCarnivalTimer] = useState("⏳");
+  const [carnivalTimer, setCarnivalTimer] = useState("");
   const [nextOffers, setNextOffers] = useState([]);
   const [carnivalRewards, setCarnivalRewards] = useState([]);
   const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
@@ -482,8 +482,8 @@ function CarnivalPanel({
           </div>
         ) : (
           <>
-            <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(#${currentCarnivalNumber})` : ''}</h3>
-            <h2 className="countdown-timer">⏳ {carnivalTimer}</h2>
+            <h3>{strings[{ arriving: 2126, here: 2127, departing: 2128 }[carnivalPhase]] || `The Harvest Fair is ${carnivalPhase}.`}</h3>
+            <h2 className="countdown-timer">{carnivalTimer}</h2>
 
             {carnivalPhase === "here" && (
               <>
