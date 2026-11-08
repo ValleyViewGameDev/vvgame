@@ -1,0 +1,25 @@
+{
+  "name": "deco-castle-3",
+  "note": "The Royal Bed again: the first pair came out with a green-teal canopy; this one insists on royal purple.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "royal-bed": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png"
+      ],
+      "guide": "guides/building1x2-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. SUBJECT: a ROYAL BED, TALL and NARROW: a plain wooden bed frame one tile wide and two tiles deep like a simple bed, the foot toward the viewer, a cream blanket and one pillow near the head, with four slim posts carrying a canopy of DEEP PURPLE cloth (royal purple, violet: the colour of a plum, NOT green, NOT teal, NOT blue) with a gold fringe over the whole bed, and matching purple curtains tied back at the posts; the canopy may reach a little past the frame. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a box outlined in it that is ONE tile wide and TWO tiles tall; the subject stands inside that box, its foot at the box's bottom edge, as wide as the box and twice as tall as it is wide, seen in the game's camera, square-on (its front parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow under it only; everything outside the subject is flat magenta, no ground, no grass."
+    }
+  }
+}

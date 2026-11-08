@@ -149,3 +149,23 @@ buildingCutGuideRect) and cut with `cutout.js --n <width> --fit silhouette` as u
 rectangular on 2026-11-08: the Bed (1 x 2, redrawn taller and skinnier on the 1 x 2 guide,
 `deco-bed-1x2`), the Large Decorative Palm Tree (1 x 2 instead of 2 x 2, its 2 x 2 art kept at
 artSpan 2, so the fronds overhang a one-tile trunk) and the Marble Statue (1 x 2, art unchanged).
+
+## Pass B1: the castle set (2026-11-08, , , , )
+
+| Prop | Footprint | Art | artSpan | Price | Note |
+|---|---|---|---|---|---|
+| Round Tower | 1 x 2 |  | 2.43 | 15,000 | drawn on the 2 x 2 guide, then recut on a one-tile base at the owner's ask (2 x 2 was too big a scale) |
+| Gatehouse | 3 x 2 |  | 3.13 | 25,000 | twin towers over a portcullis arch, candidate 1 |
+| Heraldic Banner | 1 x 1 |  | 1.54 | 300 | |
+| Brazier | 1 x 1 |  | 1.13 | 200 | |
+| Knight Statue | 1 x 1 |  | 2.01 | 5,000 | |
+| Throne | 1 x 1 |  | 1.58 | 2,000 | |
+| Gargoyle | 1 x 1 |  | 1.09 | 2,500 | added at the owner's ask |
+| Royal Bed | 1 x 2 |  | 2.12 | 12,000 | furniture group; a purple canopy that may overhang the frame. Took three tries: a "purple" canopy comes out pink-leaning (hue ~0.88), next to the magenta key, and the keyer un-mixes it to TEAL; ask for a BLUISH indigo violet (deco-castle-4) |
+| Oak Table | 2 x 1 |  | 2.08 | 1,500 | furniture group, the plain oak of the chair; the first 2 x 1 row |
+
+The Cannon was drawn and CUT from the list (owner: no guns in the game). The castle wall set is
+next, through the walls pipeline (docs/walls.md).
+
+**Keyer rule learned here:** any cloth, roof or flower meant to be purple must be asked for as a
+bluish violet; a red-purple or pink-purple sits within the magenta key's reach.
