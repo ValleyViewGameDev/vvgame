@@ -27,7 +27,7 @@ const T = {
   dir: 'valleyFixedCoord', name: null, gridType: 'valley1',
   state: null, loaded: null,         // state = { grid, tileDistribution, resourceDistribution, enemiesDistribution }; loaded = snapshot at load
   selected: null, copied: null,
-  tileSize: 14, art: true, brush: { size: 1, shape: 'square', scatter: 20 }, clump: { ...M.DEFAULT_CLUMP },
+  tileSize: 14, art: true, paintedTiles: true, resFilter: { category: '', group: '' }, brush: { size: 1, shape: 'square', scatter: 20 }, clump: { ...M.DEFAULT_CLUMP },
   deleteTypes: Object.fromEntries(M.TILE_KEYS.map((k) => [k, true])),
   templates: [], miniTemplates: [], dirs: {},
   els: {},
@@ -165,6 +165,9 @@ function renderEditor() {
     el('label', { class: 'muted', title: "Draw resources as the game's sprites (off: emoji symbols)" }, [
       el('input', { type: 'checkbox', checked: T.art, onchange: (e) => { T.art = e.target.checked; T.canvas.setState({ art: T.art }); } }), ' art',
     ]),
+    el('label', { class: 'muted', title: "Draw the ground with the game's painted tiles (off: flat colours)" }, [
+      el('input', { type: 'checkbox', checked: T.paintedTiles, onchange: (e) => { T.paintedTiles = e.target.checked; T.canvas.setState({ paintedTiles: T.paintedTiles }); } }), ' tiles',
+    ]),
     el('span', { class: 'muted' }, 'zoom'), sizeSlider,
     T.els.btnSave, T.els.dirtyBadge,
   );
@@ -177,12 +180,47 @@ function renderEditor() {
     // A click only selects; tile types change through the letter keys (brush) or the tools (BL-8)
     onCellClick: (row, col) => select(row, col),
   });
-  T.canvas.setState({ grid: T.state.grid, selected: T.selected, tileSize: T.tileSize, brush: T.brush, art: T.art });
+  T.canvas.setState({ grid: T.state.grid, selected: T.selected, tileSize: T.tileSize, brush: T.brush, art: T.art, paintedTiles: T.paintedTiles });
   renderTools();
   afterChange(false);
 }
 
 function section(title, children) { return el('div', { class: 'tool-section' }, [el('h3', {}, title), ...children]); }
+
+// ---- the resource filter (category, and for deco its decoGroup), shared by the Resources list and
+// the selected tile's Resource menu, like the Economy sheet's category chips
+const decoGroupsOf = (r) => String(r.decoGroup || '').split(';').map((g) => g.trim()).filter(Boolean);
+function resMatches(r) {
+  const f = T.resFilter;
+  if (f.category && r.category !== f.category) return false;
+  if (f.category === 'deco' && f.group && !(f.group === '(none)' ? decoGroupsOf(r).length === 0 : decoGroupsOf(r).includes(f.group))) return false;
+  return true;
+}
+/** Category menu (with counts), plus a group menu while the category is deco. */
+function resFilterControls(onChange) {
+  const items = T.idx.placeable;
+  const counts = new Map();
+  for (const r of items) counts.set(r.category, (counts.get(r.category) || 0) + 1);
+  const cats = [...counts.keys()].sort();
+  const set = (patch) => { Object.assign(T.resFilter, patch); onChange(); };
+  const catSel = el('select', { title: 'Category', onchange: (e) => set({ category: e.target.value, group: '' }) }, [
+    el('option', { value: '' }, `All categories (${items.length})`),
+    ...cats.map((c) => el('option', { value: c, selected: T.resFilter.category === c }, `${c} (${counts.get(c)})`)),
+  ]);
+  const row = el('div', { class: 'row' }, [catSel]);
+  if (T.resFilter.category === 'deco') {
+    const groups = new Map();
+    for (const r of items.filter((x) => x.category === 'deco')) {
+      const gs = decoGroupsOf(r);
+      for (const g of gs.length ? gs : ['(none)']) groups.set(g, (groups.get(g) || 0) + 1);
+    }
+    row.appendChild(el('select', { title: 'Deco group', onchange: (e) => set({ group: e.target.value }) }, [
+      el('option', { value: '' }, 'All groups'),
+      ...[...groups.keys()].sort().map((g) => el('option', { value: g, selected: T.resFilter.group === g }, `${g} (${groups.get(g)})`)),
+    ]));
+  }
+  return row;
+}
 
 function renderTools() {
   const t = clear(T.els.tools);
@@ -255,8 +293,18 @@ function renderTools() {
     ...idx.enemies.map((e) => qtyRow(e, st.enemiesDistribution)),
   ]));
 
-  // resources
+  // resources: filtered by the category / deco group menus and the text box together
   const resRows = idx.placeable.map((r) => qtyRow(r, st.resourceDistribution));
+  let textFilter = '';
+  const applyResFilter = () => {
+    for (const row of resRows) {
+      const r = idx.byType.get(row.dataset.type);
+      row.style.display = r && resMatches(r) && (!textFilter || row.dataset.type.toLowerCase().includes(textFilter)) ? '' : 'none';
+    }
+  };
+  const filterSlot = el('div', {});
+  const drawFilter = () => { clear(filterSlot); filterSlot.appendChild(resFilterControls(() => { drawFilter(); applyResFilter(); renderSelectedTile(); })); };
+  drawFilter();
   t.appendChild(section('Resources', [
     el('div', { class: 'row' }, [
       el('button', { onclick: () => { const r = M.generateResources(st.grid, st.resourceDistribution, idx, true); commit({ grid: r.grid }); if (r.unplaced) toast(`${r.unplaced} resources could not be placed (tile validity)`, 'warn'); } }, 'Regenerate (clear + repopulate)'),
@@ -266,9 +314,11 @@ function renderTools() {
       el('button', { class: 'danger', onclick: () => commit({ grid: M.clearResources(st.grid) }) }, 'Delete all resources'),
       el('button', { class: 'danger', onclick: () => commit({ grid: M.clearResourcesOfTypes(st.grid, ['Tulip', 'Mushroom']) }) }, 'Delete Tulips + Mushrooms'),
     ]),
-    el('input', { placeholder: 'filter resources…', oninput: debounce((e) => { const f = e.target.value.toLowerCase(); for (const r of resRows) r.style.display = !f || r.dataset.type.toLowerCase().includes(f) ? '' : 'none'; }, 80) }),
+    filterSlot,
+    el('input', { placeholder: 'filter resources…', oninput: debounce((e) => { textFilter = e.target.value.toLowerCase(); applyResFilter(); }, 80) }),
     ...resRows,
   ]));
+  applyResFilter(); // the menus' current choice holds across re-renders
 }
 
 function qtyRow(res, dist) {
@@ -289,7 +339,9 @@ function renderSelectedTile() {
     const sel = el('select', { onchange: (e) => { commit({ grid: M.setResource(T.state.grid, row, col, e.target.value) }); } }, [el('option', { value: '' }, 'None'), ...items.map((r) => el('option', { value: r.type, selected: cell.resource === r.type }, `${icon ? icon : r.symbol || ''} ${r.type}`))]);
     return el('div', { class: 'row' }, [el('label', { style: { minWidth: '70px' } }, label), sel]);
   };
-  box.appendChild(mkSelect('Resource', T.idx.placeable));
+  // the Resource menu follows the category / deco group filter (the cell's own resource always stays listed)
+  box.appendChild(resFilterControls(() => { renderSelectedTile(); renderTools(); }));
+  box.appendChild(mkSelect('Resource', T.idx.placeable.filter((r) => resMatches(r) || r.type === cell.resource)));
   box.appendChild(mkSelect('NPC', T.idx.npcs));
   const tmpl = el('select', { onchange: async (e) => {
     const name = e.target.value; if (!name) return;

@@ -5,10 +5,10 @@
  * game's own sprites (./boardArt.js), y-sorted like the board; off, as emoji symbols.
  *
  *   const cv = new GridCanvas(container, { idx, tileColors, onCellClick(row, col, ev), onHover(row, col|null) })
- *   cv.setState({ grid, selected, tileSize, brush: { size, shape }, hover, art })
+ *   cv.setState({ grid, selected, tileSize, brush: { size, shape }, hover, art, paintedTiles })
  */
 import { GRID_SIZE, isBlank, brushTiles } from './GridModel.js';
-import { artImage, artBox, boardFile, wallPieces, setArtReadyHandler } from './boardArt.js';
+import { artImage, artBox, boardFile, wallPieces, setArtReadyHandler, tileImage } from './boardArt.js';
 
 export class GridCanvas {
   constructor(container, { idx, tileColors, onCellClick, onHover }) {
@@ -20,7 +20,7 @@ export class GridCanvas {
     this.canvas.className = 'grid-canvas';
     container.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
-    this.state = { grid: null, selected: null, tileSize: 20, brush: { size: 1, shape: 'square' }, hover: null, art: true };
+    this.state = { grid: null, selected: null, tileSize: 20, brush: { size: 1, shape: 'square' }, hover: null, art: true, paintedTiles: true };
     setArtReadyHandler(() => this.draw()); // art arrives a file at a time: redraw as it lands
     this.dpr = window.devicePixelRatio || 1;
     this.canvas.addEventListener('click', (e) => { const c = this.cellAt(e); if (c) this.onCellClick?.(c.row, c.col, e); });
@@ -76,6 +76,9 @@ export class GridCanvas {
       for (let c = 0; c < GRID_SIZE; c++) {
         const cell = grid[r][c];
         const tile = isBlank(cell.type) ? null : this.idx.tileByLayoutKey.get(cell.type);
+        // the game's painted ground (its cut tiles) when on and the type has them, else the flat colour
+        const painted = tile && this.state.paintedTiles ? tileImage(tile.type, r, c) : null;
+        if (painted) { ctx.drawImage(painted, o + c * ts, o + r * ts, ts, ts); continue; }
         ctx.fillStyle = tile ? (this.tileColors[tile.type] || '#ff0000') : (isBlank(cell.type) ? '#ffffff' : '#ff0000');
         ctx.fillRect(o + c * ts, o + r * ts, ts, ts);
       }

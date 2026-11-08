@@ -47,6 +47,17 @@ export function artImage(rel) {
   return null;
 }
 
+// The game's cut ground tiles: sixteen per type for these (tools/art/tiles.js); step stones
+// ('k') are grass underneath; other types (water, lava, moss, ...) keep their flat colour
+const CUT_TILES = new Set(['d', 'g', 'n', 'p', 's', 'x']);
+/** The painted ground tile for a cell, or null (PixiRendererTileTextures.js getRasterVariant). */
+export function tileImage(type, row, col) {
+  const t = type === 'k' ? 'g' : type;
+  if (!CUT_TILES.has(t)) return null;
+  const variant = (row * 7 + col * 11 + ((row * 3 + col * 5) % 7)) % 16;
+  return artImage(`tiles/${t}-${variant}.png`);
+}
+
 /** The resource file the board would draw for this row at this cell (artVariants, else filename). */
 export function boardFile(row, col, rowIdx) {
   return pickArtFile(row, col, rowIdx);
