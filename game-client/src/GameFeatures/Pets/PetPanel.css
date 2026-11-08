@@ -5,6 +5,7 @@
   font-size: 48px; /* style-ok: icon */
   text-align: center;
 }
+.pet-display .resource-icon { display: inline-block; vertical-align: middle; }
 
 /* Pet info section */
 .pet-info {

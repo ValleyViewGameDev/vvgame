@@ -1,0 +1,47 @@
+{
+  "name": "zoo-probe",
+  "note": "BL-16 Track 1 style probe (2026-11-08): three examples before the full zoo sheets, a bird (Owl on a stump), a small mammal (Cat, sitting) and a big mammal (Donkey, from the large sheet, 1 x 1 here). Same shape language as the farm animals: the new cow cut is the animal reference beside the barrel.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "owl": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "../../game-client/public/assets/resources/npc-cow.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL cut on magenta: draw the subject from the SAME camera as that barrel (from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached COW on magenta is one of this game's animals: the SHAPE LANGUAGE and scale to match. Every animal in this game is drawn like it: standing still, seen from the side with its head to the viewer's right and turned a little toward the viewer, the body one big plain rounded mass, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur or feather texture, no background. SUBJECT: an OWL, a plump brown-and-cream owl with big round eyes and two small ear tufts, perched on a short cut tree stump about half the owl's height so it sits on the ground tile without floating; the stump is plain brown wood with a pale cut top. The owl faces the viewer, its body a single egg shape. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "cat": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "../../game-client/public/assets/resources/npc-cow.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL cut on magenta: draw the subject from the SAME camera as that barrel (from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached COW on magenta is one of this game's animals: the SHAPE LANGUAGE and scale to match. Every animal in this game is drawn like it: standing still, seen from the side with its head to the viewer's right and turned a little toward the viewer, the body one big plain rounded mass, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur or feather texture, no background. SUBJECT: a CAT, an orange tabby with a cream chest, sitting upright on its haunches with its tail curled around its front paws, head turned toward the viewer, pointed ears, a simple face. One sitting cat, its body one plain rounded shape. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "donkey": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "../../game-client/public/assets/resources/npc-cow.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL cut on magenta: draw the subject from the SAME camera as that barrel (from the side, a little from above), at the same rendering and daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). ANIMAL REFERENCE: the attached COW on magenta is one of this game's animals: the SHAPE LANGUAGE and scale to match. Every animal in this game is drawn like it: standing still, seen from the side with its head to the viewer's right and turned a little toward the viewer, the body one big plain rounded mass, no more than six or seven shapes in all, flat areas of colour with gentle shading, no fine detail, no fur or feather texture, no background. SUBJECT: a DONKEY, a grey donkey with a pale muzzle and belly, long upright ears, a short dark mane and a tufted tail, standing side-on with its head to the viewer's right, about the cow's size; the whole animal plain and chunky. Keep it SIMPLE and at the game's scale: this animal is seen 45 pixels wide on the board next to a barrel, so big plain shapes, thick outlines, no fine detail. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), its feet on the box's bottom edge, with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    }
+  }
+}

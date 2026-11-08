@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import FloatingTextManager from '../../UI/FloatingText';
 import SaleBurst, { runCardReturn } from '../../UI/SaleBurst';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -271,7 +272,8 @@ const PetPanel = ({
         <div className="pet-panel-content">
 
           {/* Pet display */}
-          <div className="pet-display">{petSymbol}</div>
+          {/* the pet's art (BL-16, 2026-11-08) through ResourceIcon; the emoji only for a row with no file */}
+          <div className="pet-display"><ResourceIcon resource={petResource} symbol={petSymbol} size={96} /></div>
 
           {/* Pet info */}
           <div className="pet-info">
