@@ -7,7 +7,7 @@ import ResourceButton from '../../UI/Buttons/ResourceButton';
 
 import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
-import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer, isDevOnly } from '../../Utils/ResourceHelpers';
 import { canAfford, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
@@ -262,7 +262,7 @@ const BuyDecoPanel = ({
                   backpack={backpack}
                   masterResources={masterResources || allResources}
                   currentPlayer={currentPlayer}
-                  devOnly={item.requires === 'devonly'}
+                  devOnly={isDevOnly(item)}
                   filename={item.filename}
                 />
               );

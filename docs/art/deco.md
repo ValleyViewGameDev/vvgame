@@ -219,8 +219,10 @@ hedge wall set is parked in BL-22. Every cut is seated at its square's bottom af
   impassable, still the story door. Not seated at the square's bottom (a cloud floats).
 
 The six door rows (Town Door, Dungeon Door, Mirror, Locked Door, Arena Door, Black Fog) are in
-the Buy Deco catalogue under Walls and Fences for DEVELOPERS only (`source: Deco`, `requires:
-devonly`, 2026-11-08), so a layout can be dressed in game; players never see them.
+the Buy Deco catalogue under Walls and Fences for DEVELOPERS only (`source: Deco`, `devonly:
+true`, 2026-11-08), so a layout can be dressed in game; players never see them. Not `requires:
+devonly`: a door's `requires` is its KEY (Town Key, Mirror Key, ...), and overwriting it locked
+every door.
 
 ## Pass B4: art pieces (2026-11-08, `tools/art/jobs/deco-art.json`)
 

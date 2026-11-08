@@ -225,9 +225,16 @@ export function cropCapReached(plot, gridResources) {
  * @returns {boolean} True if the resource should be visible
  */
 export function isVisibleToPlayer(resource, isDeveloper) {
-  // If requires is 'devonly', only show to developers
-  if (resource.requires === 'devonly') return isDeveloper;
-  return true;
+  return isDevOnly(resource) ? isDeveloper : true;
+}
+
+/**
+ * Developers only: `requires: 'devonly'`, or `devonly: true` for a row whose `requires` already
+ * means something else (a door's key: the Town Door is dev-only in Buy Deco and still opens with
+ * the Town Key).
+ */
+export function isDevOnly(resource) {
+  return resource?.requires === 'devonly' || resource?.devonly === true;
 }
 
 /**

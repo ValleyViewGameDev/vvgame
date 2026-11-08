@@ -56,6 +56,7 @@ export const DEFINITIONS = [
       { ...ref('shopregion', 'resource', 'error'), label: 'shopregion (only this region\'s shops sell it)' },
       { ...ref('growregion', 'resource', 'error'), label: 'growregion (farm plots: only planted, farm animals: only bought, on grids of this region)' }, str('requires'),
       bool('retired', 'retired (no longer sold or offered; players who own it keep it)'),
+      { ...bool('devonly'), label: 'devonly (developers only, when requires already names something else: a door\'s key)' },
       num('size'), num('qtycollected'), num('xp'), num('crafttime'), num('totalnestedtime'),
       { ...num('gemcost'), label: 'gemcost (derived)', derived: true },
       { ...bool('nogems'), label: 'nogems (never bought with gems)' },
