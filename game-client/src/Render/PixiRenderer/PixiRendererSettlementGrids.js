@@ -265,8 +265,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
           pointerEvents: isClickable ? 'auto' : 'none',
         }}
       >
-        {/* an owned homestead: the Farm House art (an emoji until 2026-11-07, docs/art/emoji-audit.md pass 3) */}
-        <img src="/assets/resources/farm-house.svg" alt="" draggable="false" style={{ width: fontSize, height: fontSize, objectFit: 'contain', display: 'block' }} />
+        {/* an owned homestead at frontier zoom: the Home glyph (docs/art/ui-icons.md), filling the little cell like the other settlements' */}
+        <img src="/assets/icons/icon-home.svg" alt="" draggable="false" style={{ width: '94%', height: '94%', objectFit: 'contain', display: 'block' }} />
       </div>
     );
   }

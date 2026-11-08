@@ -162,7 +162,7 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
           }}
         >
           {content?.src
-            ? <img src={content.src} alt="" draggable="false" style={{ width: '1em', height: '1em', objectFit: 'contain', display: 'block' }} />
+            ? <img src={content.src} alt="" draggable="false" style={{ width: '94%', height: '94%', objectFit: 'contain', display: 'block' }} />
             : <span style={{ fontSize: 'inherit', lineHeight: 1 }}>{content}</span>}
         </div>
       );

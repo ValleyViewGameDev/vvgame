@@ -27,6 +27,10 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
   eyes. Both overlays sit in the box the sprite is drawn in (`Render/PixiRenderer/boardArt.js`
   `boardArtScale`: 0.9 for pickups and plots, 1 for trees). Conversions on load (plots that
   finished while the player was away) do not animate.
+- **The Tent and the Boat are also the avatar.** A camping player wears `item-tent.svg` and a
+  player afloat `item-boat.svg` (`PixiRendererPCs.js getStateArt`, the `resources:` texture
+  name; the 🏕️ 🛶 emoji stay only as the text fallback while the texture loads). Both pictures
+  were brightened on 2026-11-07 to the other pickups' value (boat x1.28, tent x1.10 in HSV V).
 - **`noGrow` on a farmplot row** (the Grape Vine): the plot lands at full size when planted and
   stands back up at full size after a harvest, with no grow-in; it still crossfades into its crop
   when ripe. Trees (`source: tree`) never grew in either.

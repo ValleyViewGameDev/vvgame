@@ -56,9 +56,10 @@ had been shifted by one id, so the Store button showed "Bandeja de entrada").
 `icon-town.svg` (the Courthouse's clock tower with a lower slate gable on each side, three roof
 peaks in a row; `icons-r10`), owner 2026-11-07, in the header's `system` style: for buttons and labels too small for the board's Farm House / Town Hall art or the
 signposts, which cannot be read under about 48 px. The Map panel's Go Home / Go to Town buttons
-(`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em, and the frontier view marks the player's
-homestead with the Home glyph (`PixiRendererFrontierSettlements.js`); the settlement view keeps
-the Farm House, drawn at tile size. Alternates on file: a house with a round window (r9), the
+(`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em, and at frontier zoom every owned homestead
+cell, in the current settlement (`PixiRendererSettlementGrids.js`) and in every other
+(`PixiRendererFrontierSettlements.js`), is the Home glyph at 94% of its little cell. The
+settlement view one level in keeps the Farm House, drawn at tile size. Alternates on file: a house with a round window (r9), the
 town with red side roofs, taller side gables, or a flag (r10).
 
 A four-across sheet whose icons nearly touch is cut with `tools/art/icons-split.js`, which splits

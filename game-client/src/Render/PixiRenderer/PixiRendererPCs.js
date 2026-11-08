@@ -78,6 +78,19 @@ const PixiRendererPCs = ({
   }, []);
 
   /**
+   * The painted art a state wears instead of an emoji: camping is the Tent, afloat is the Boat
+   * (resources.json item-tent / item-boat, the same pictures as the pickups; emoji audit pass 1).
+   * A `resources:` name loads from the world atlas / public/assets/resources; the emoji above
+   * stays the text fallback while it loads.
+   */
+  const getStateArt = useCallback((pc) => {
+    if (pc.hp === 0 || pc.hp < 100) return null;
+    if (pc.iscamping) return 'resources:item-tent.svg';
+    if (pc.isinboat) return 'resources:item-boat.svg';
+    return null;
+  }, []);
+
+  /**
    * Get SVG filename for an emoji icon (if available)
    */
   const getSvgFilename = useCallback((emoji) => {
@@ -117,9 +130,11 @@ const PixiRendererPCs = ({
         // Atlas first (scripts/build-atlas.js); the SVG rasterisation below is the fallback.
         // `emoji:<key>` names are Twemoji frames and have no SVG to fall back to.
         const isEmojiKey = filename.startsWith('emoji:');
+        const isResourceArt = filename.startsWith('resources:'); // a state's painted art (getStateArt)
+        const resourceFile = isResourceArt ? filename.slice('resources:'.length) : null;
         const atlasTexture = isEmojiKey
           ? await getAtlasTexture('emoji', filename.slice('emoji:'.length))
-          : await getAtlasTexture('playerIcons', filename);
+          : await getAtlasTexture(isResourceArt ? 'resources' : 'playerIcons', resourceFile || filename);
         if (atlasTexture) {
           if (isMountedRef.current) atlasTextureCache.set(filename, atlasTexture);
           return atlasTexture;
@@ -127,7 +142,7 @@ const PixiRendererPCs = ({
         if (isEmojiKey) return null;
 
         // Fetch SVG text so we can modify its dimensions
-        const response = await fetch(`/assets/playerIcons/${filename}`);
+        const response = await fetch(isResourceArt ? `/assets/resources/${resourceFile}` : `/assets/playerIcons/${filename}`);
         if (!response.ok) {
           console.warn(`Failed to load player icon SVG: ${filename}`);
           return null;
@@ -360,8 +375,8 @@ const PixiRendererPCs = ({
     // Get display icon based on state
     const displayIcon = getDisplayIcon(pc);
 
-    // Check if we have an SVG for this icon; otherwise use its Twemoji atlas frame
-    const svgFilename = getSvgFilename(displayIcon) || getEmojiCacheKey(displayIcon);
+    // A state's painted art (tent, boat), else the icon's SVG, else its Twemoji atlas frame
+    const svgFilename = getStateArt(pc) || getSvgFilename(displayIcon) || getEmojiCacheKey(displayIcon);
     const svgTextureCache = svgTextureCacheRef.current;
     const atlasTextureCache = atlasTextureCacheRef.current;
 
@@ -405,7 +420,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
 
   // Initial render and re-render on state changes
   useEffect(() => {
