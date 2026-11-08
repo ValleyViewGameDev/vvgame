@@ -1,0 +1,25 @@
+{
+  "name": "icons-r9",
+  "note": "Owner 2026-11-07, second try after icons-r8: the first pair were wide landscape pictures that cut off in a square button and were not icon-like. These are SQUARE, bold glyphs that read at 20 px; the Town is the Courthouse's clock tower.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "places": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "../../game-client/public/assets/resources/town-hall.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "The SECOND attached image is this game's COURTHOUSE: its clock tower (the half-timbered cream tower with the gold-rimmed clock face and the pointed grey slate roof with a gold finial) is the model for the TOWN icon below. SUBJECTS: four ICONS for the game's small buttons, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, in exactly the rendering of the exemplar. These are GLYPHS, not pictures: each one a SQUARE silhouette, as tall as it is wide, filling its cell, built from three or four big simple shapes with thick dark outlines and no small details, so it still reads at 20 pixels. 1 HOME: the classic house glyph: one wide steep red roof like a hat with a stubby chimney, a short cream wall under it, one big arched brown door in the middle, nothing else. 2 HOME ALTERNATE: the same glyph with a single round window over the door instead of a chimney. 3 TOWN: the top of the Courthouse clock tower as a glyph: a square cream tower with two timber beams, one big gold-rimmed clock face filling its front, a pointed grey slate roof with a gold ball finial, the tower as wide as it is tall, nothing else. 4 TOWN ALTERNATE: the same tower glyph with a small red flag on the finial instead of the gold ball. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

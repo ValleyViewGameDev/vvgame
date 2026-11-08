@@ -52,10 +52,16 @@ had been shifted by one id, so the Store button showed "Bandeja de entrada").
 
 ## Place icons: Home and Town
 
-`icon-home.svg` (a cottage) and `icon-town.svg` (a clock-tower cluster), `icons-r8` (owner,
-2026-11-07), in the header's `system` style: for buttons and labels too small for the board's
-Farm House / Town Hall art or the signposts, which cannot be read under about 48 px. The Map
-panel's Go Home / Go to Town buttons (`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em. The
-zoomed-out boards (settlement and frontier views) keep the full building art, which is drawn at
-tile size there. Alternates on file in the approved sheet: a cottage with a heart, a domed town
-hall.
+`icon-home.svg` (the classic house glyph: red roof, chimney, one door) and `icon-town.svg` (the
+Courthouse's clock tower as a glyph), `icons-r9` (owner, 2026-11-07), in the header's `system`
+style: for buttons and labels too small for the board's Farm House / Town Hall art or the
+signposts, which cannot be read under about 48 px. The Map panel's Go Home / Go to Town buttons
+(`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em. The zoomed-out boards (settlement and
+frontier views) keep the full building art, which is drawn at tile size there. Alternates on
+file in the approved sheet: a house with a round window, the tower with a red flag.
+
+The first pair (`icons-r8`) failed twice over and is the rule for small icons: a wide landscape
+picture (a whole cottage, a row of buildings) is not a glyph; ask for a SQUARE silhouette of three
+or four big shapes that reads at 20 px. And when the model draws a sheet four across (as it does
+with four subjects), the icons sit lower than a 256 px row: cut with `--cols 4 --rows 2`, or the
+bottoms are clipped (that was the "cut off" in r8).
