@@ -36,6 +36,8 @@ the animal allows (mallard drake, scarlet macaw, bald eagle, orange orangutan). 
 Eagle 1.05, Donkey 1.1, Orangutan 1.3, Zebra 2.04 (2 x 1; not 2.0, which the renderer would read
 as "no span" and stretch), Giraffe 2.6 (1 x 2). `size` removed from all twelve rows, `sizeX` /
 `sizeY` explicit, so the master row decides the footprint over any old placed record.
+Poodle, Duck, Dodo, Zebra, Monkey and Donkey were mirrored after install so the zoo does not all
+face right (owner 2026-11-08); the six others face right or the viewer.
 
 They do not move, so they take the deco pipeline, not the NPC one: drawn on magenta with the
 barrel as the camera reference and the Pig's panel as the ANIMAL reference (slice A's
