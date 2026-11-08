@@ -1,0 +1,24 @@
+{
+  "name": "icons-r8",
+  "note": "Owner 2026-11-07: a HOME icon and a TOWN icon for the Map panel buttons and other small places where the Farm House, Town Hall and signpost art cannot be read. System style, two candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "places": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "SUBJECTS: four icons for the game's buttons, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each the standard system glyph for its function, BOLD and SIMPLE so it still reads at 24 pixels, and in exactly the rendering of the exemplar: 1 HOME: the familiar house icon, one small cottage seen flat from the front: a steep warm red roof with a little chimney, cream walls, one door, one window, big shapes and no clutter. 2 HOME ALTERNATE: the same cottage with a small red heart over the door. 3 TOWN: the familiar town icon, a tight cluster of three building fronts in a row, the middle one taller with a pointed clock-tower roof and a tiny flag, the two beside it lower with simple windows, big shapes and no clutter. 4 TOWN ALTERNATE: a single town hall seen flat from the front: a wide stone building with a central dome and a small flag on top, a row of three arched windows, one big door. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}

@@ -49,3 +49,13 @@ icons only, 42 x 32 buttons. The old two-column / 3 x 2 grid rules and the phone
 trick (`headerIcon` / `headerLabel`) are gone, and the emoji prefixes are stripped from the
 seven header strings in all ten languages (the Spanish 10100-10108 block was also realigned: it
 had been shifted by one id, so the Store button showed "Bandeja de entrada").
+
+## Place icons: Home and Town
+
+`icon-home.svg` (a cottage) and `icon-town.svg` (a clock-tower cluster), `icons-r8` (owner,
+2026-11-07), in the header's `system` style: for buttons and labels too small for the board's
+Farm House / Town Hall art or the signposts, which cannot be read under about 48 px. The Map
+panel's Go Home / Go to Town buttons (`ZoomedOut/FrontierMiniMap.js`) use them at 1.4em. The
+zoomed-out boards (settlement and frontier views) keep the full building art, which is drawn at
+tile size there. Alternates on file in the approved sheet: a cottage with a heart, a domed town
+hall.
