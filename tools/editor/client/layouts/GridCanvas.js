@@ -8,7 +8,7 @@
  *   cv.setState({ grid, selected, tileSize, brush: { size, shape }, hover, art, paintedTiles })
  */
 import { GRID_SIZE, isBlank, brushTiles } from './GridModel.js';
-import { artImage, artBox, boardFile, wallPieces, setArtReadyHandler, tileImage } from './boardArt.js';
+import { artImage, artBox, boardFile, wallPieces, setArtReadyHandler, tileImage, stepStonesFor, stoneCanvas, STONE_RADIUS_PX } from './boardArt.js';
 
 export class GridCanvas {
   constructor(container, { idx, tileColors, onCellClick, onHover }) {
@@ -81,6 +81,16 @@ export class GridCanvas {
         if (painted) { ctx.drawImage(painted, o + c * ts, o + r * ts, ts, ts); continue; }
         ctx.fillStyle = tile ? (this.tileColors[tile.type] || '#ff0000') : (isBlank(cell.type) ? '#ffffff' : '#ff0000');
         ctx.fillRect(o + c * ts, o + r * ts, ts, ts);
+      }
+    }
+    // step stones over the painted grass of 'k' cells (the game's step-stones layer)
+    if (this.state.paintedTiles) {
+      const types = grid.map((line) => line.map((cell) => (isBlank(cell.type) ? '' : this.idx.tileByLayoutKey.get(cell.type)?.type || '')));
+      for (const st of stepStonesFor(types)) {
+        const img = stoneCanvas(st.shape);
+        const scale = (st.r * ts) / STONE_RADIUS_PX;
+        const w = img.width * scale;
+        ctx.drawImage(img, o + st.x * ts - w / 2, o + st.y * ts - w / 2, w, w);
       }
     }
     // grid lines

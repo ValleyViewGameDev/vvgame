@@ -209,6 +209,7 @@ async function handle(req, res) {
   if (p === '/favicon.ico') { res.writeHead(204); return res.end(); }
   if (p === '/' || p === '/index.html') return serveStatic(res, CLIENT_DIR, 'index.html');
   if (p.startsWith('/sheets/')) return serveStatic(res, SHEETS_DIR, p.slice('/sheets/'.length));
+  if (p === '/game-client/stepStonesArt.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'Render', 'PixiRenderer'), 'stepStonesArt.js'); // pure: the step-stone layout + stone painter
   if (p === '/game-client/artVariants.js') return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'src', 'Utils'), 'artVariants.js'); // dependency-free, the Layouts canvas's per-cell art pick
   // the game's own art (resources, walls), read-only, so the Layouts canvas draws real sprites
   if (p.startsWith('/game-assets/')) return serveStatic(res, path.join(REPO_ROOT, 'game-client', 'public', 'assets'), decodeURIComponent(p.slice('/game-assets/'.length)));

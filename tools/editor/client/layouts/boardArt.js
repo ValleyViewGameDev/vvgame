@@ -17,6 +17,7 @@
  *     assets/walls/<set>-<piece>.png by the 4-neighbour mask (PixiRendererWalls.js)
  */
 import { pickArtFile } from '/game-client/artVariants.js';
+import { SHAPES, STONE_PAD, layoutStepStones, paintStone } from '/game-client/stepStonesArt.js';
 
 const ROOT = '/game-assets';
 const DOOBER_TILE_SCALE = 0.9;
@@ -101,3 +102,29 @@ export function wallPieces(set, col, row, setAt) {
   const pieces = names.map((n) => artImage(`walls/${set}-${n}.png`)).filter(Boolean);
   return { pieces, span: post.naturalWidth / 128 };
 }
+
+// Step stones (tile 'k'): the game draws the cell as grass and lays the stones over the whole path
+// at once (PixiRendererStepStones.js + stepStonesArt.js, imported as-is); same tiles, same stones.
+const STONE_TEX_R = 64;
+let stoneCanvases = null;
+let stoneCache = { key: null, stones: [] };
+/** The stones for a grid of game tile types (rows of type letters), as { x, y, r, shape } in tiles. */
+export function stepStonesFor(tileTypes) {
+  const key = tileTypes.map((row) => row.map((t) => (t === 'k' ? 'k' : '.')).join('')).join('|');
+  if (stoneCache.key !== key) stoneCache = { key, stones: key.includes('k') ? layoutStepStones(tileTypes) : [] };
+  return stoneCache.stones;
+}
+/** The pre-drawn stone for a shape: a canvas of radius STONE_TEX_R px, STONE_PAD around it. */
+export function stoneCanvas(shape) {
+  if (!stoneCanvases) {
+    const half = Math.ceil(STONE_TEX_R * STONE_PAD);
+    stoneCanvases = Array.from({ length: SHAPES }, (_, s) => {
+      const cv = document.createElement('canvas');
+      cv.width = cv.height = half * 2;
+      paintStone(cv.getContext('2d'), s, STONE_TEX_R);
+      return cv;
+    });
+  }
+  return stoneCanvases[shape % SHAPES];
+}
+export const STONE_RADIUS_PX = STONE_TEX_R;
