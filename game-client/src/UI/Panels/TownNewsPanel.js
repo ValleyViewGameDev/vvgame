@@ -155,7 +155,8 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
         return () => { clearInterval(dataInterval); clearInterval(timerInterval); };
     }, [currentPlayer?.settlementId, currentPlayer?.frontierId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const showElection = ['Campaigning', 'Voting', 'Counting'].includes(electionPhase);
+    // Every phase has a line: between elections (Administration) the countdown to the next campaign
+    const showElection = ['Administration', 'Campaigning', 'Voting', 'Counting'].includes(electionPhase);
     const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
     const isInHomeTown = currentPlayer?.location?.gtype === 'town' && !!currentPlayer?.location?.s && !!currentPlayer?.settlementId
         && currentPlayer.location.s.toString() === currentPlayer.settlementId.toString();
@@ -180,6 +181,7 @@ function TownNewsPanel({ onClose, currentPlayer, masterResources, inventory, bac
             {showElection && (
                 <section className="tn-article">
                     <div className="tn-article-head">{getLocalizedString('Courthouse', strings)}</div>
+                    {electionPhase === "Administration" && <p>{strings["1520"]} <Timer value={electionTimer} /></p>}
                     {electionPhase === "Campaigning" && <p>{strings["1505"]}</p>}
                     {electionPhase === "Voting" && <p>{strings["1506"]} {strings["10121"]} <Timer value={electionTimer} /></p>}
                     {electionPhase === "Counting" && <p>{strings["1518"]} <Timer value={electionTimer} /></p>}
