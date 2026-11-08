@@ -1,0 +1,86 @@
+{
+  "name": "deco-greenery",
+  "note": "BL-18 pass B3 greenery (owner greenlight 2026-11-08): rose bush, lavender, topiary ball and cone, ivy trellis, a passable wildflower patch; the hedge wall set is parked in BL-22. Purples asked for as bluish violet (the keyer rule).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "rose-bush": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: a ROSE BUSH: a round, leafy dark-green bush with six or seven big red roses dotted over it, standing alone on the ground, no pot. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "lavender": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: a LAVENDER CLUMP: a low rounded clump of grey-green lavender with many short upright stems topped in soft purple-blue flower spikes (a BLUISH violet, never pink), standing alone on the ground, no pot. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "topiary-ball": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: a TOPIARY BALL: a clipped box shrub trimmed into a neat green sphere on a short stem, in a plain square stone planter. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "topiary-cone": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: a TOPIARY CONE: a clipped box shrub trimmed into a tall neat green cone, in a plain square stone planter, about one and a half tiles tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "ivy-trellis": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: an IVY TRELLIS: a wooden lattice panel on two posts, seen square from the front, with green ivy climbing over most of it; about one and a half tiles tall. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    },
+    "wildflower-patch": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "guides/control-oak-tree.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses.  The THIRD attached image is this game's OAK TREE: its leaf green and paint are the reference for every green here. SUBJECT: a WILDFLOWER PATCH: a loose, low patch of meadow grass with small mixed flowers in white, yellow and blue (never pink), lying flat on the ground so a character can walk over it, no edges or border. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. "
+    }
+  }
+}

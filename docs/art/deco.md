@@ -196,3 +196,13 @@ dropped and the art re-seated at the square's bottom (a pass worth running on an
 floats).
 `cutout.js` now clamps its padding at zero: an art drawn edge to edge in its panel (the wide
 cart) used to throw on a negative pad.
+
+## Pass B3: greenery (2026-11-08, `tools/art/jobs/deco-greenery.json`)
+
+Six plants under the Garden tab, the oak's green as the colour reference (`guides/control-oak-tree.png`
+as the third ref), purples asked for as bluish violet: Rose Bush (`rose-bush`, artSpan 0.87, 60),
+Lavender (`lavender`, 0.93, 40), Topiary Ball (`topiary-ball`, 1.34, 150), Topiary Cone
+(`topiary-cone`, 1.79, 150), Ivy Trellis (`ivy-trellis`, 0.98, 120) and the Wildflower Patch
+(`wildflower-patch`, 0.97, 30; PASSABLE, the first floor deco: a character walks over it). The
+hedge wall set is parked in BL-22. Every cut is seated at its square's bottom after the defringe
+(the cart lesson).
