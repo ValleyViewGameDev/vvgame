@@ -195,14 +195,13 @@
   top: 2px; /* the top of the slot: the speed-up chip overlaps its bottom */
   left: 50%;
   transform: translateX(-50%);
-  font-size: 11px; /* style-ok: tile overlay (timer over a crafting slot, §9) */
+  font-size: var(--text-xs);
   font-weight: bold;
   color: var(--color-text-white);
+  /* a crisp dark outline (no blur) so it reads over any craft's picture */
   text-shadow:
-    0px 0px 3px black,
-    0px 0px 6px black,
-    1px 1px 2px black,
-    -1px -1px 2px black;
+    1px 0 0 black, -1px 0 0 black, 0 1px 0 black, 0 -1px 0 black,
+    1px 1px 0 black, -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black;
   font-family: var(--font-text-1-family);
   text-align: center;
   white-space: nowrap;
