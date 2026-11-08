@@ -1059,7 +1059,7 @@ useEffect(() => {
 
 // Apply emoji or SVG cursor when in cursor mode
 useEffect(() => {
-  if (cursorMode?.emoji || cursorMode?.filename) {
+  if (cursorMode?.emoji || cursorMode?.filename || cursorMode?.src) {
     // Scale cursor based on resource size (multi-tile resources get larger cursors)
     const tileSpan = cursorMode.size || 1;
     const baseSize = 32;
@@ -1080,7 +1080,7 @@ useEffect(() => {
       document.body.classList.add('cursor-mode-active');
     };
 
-    if (cursorMode.filename) {
+    if (cursorMode.filename || cursorMode.src) {
       // Load SVG and render to canvas for cursor
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -1109,7 +1109,7 @@ useEffect(() => {
           applyCursor(cursorUrl);
         }
       };
-      img.src = `/assets/resources/${cursorMode.filename}`;
+      img.src = cursorMode.src || `/assets/resources/${cursorMode.filename}`; // src: a tile swatch (UI/Icons/TileSwatch.js)
     } else {
       // Use emoji cursor
       const canvas = document.createElement('canvas');

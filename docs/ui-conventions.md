@@ -367,6 +367,11 @@ value rather than trust this page.
   Ancient Temple's revealed find (owner 2026-11-07).
 - A resource's picture in the DOM is `UI/Icons/ResourceIcon.js` (2026-11-07): `<ResourceIcon
 
+**Ground in a button is a tile swatch.** A tool that lays ground (the Tools panel) shows a
+square of the tile it lays, `UI/Icons/TileSwatch.js`: the tile's own cut art when it has one,
+its flat colour from `UI/Styles/tileColors.js` otherwise, step stones as grass with pale stones.
+The placement cursor carries the same picture (`cursorMode.src`). Never an emoji square.
+
 **Rich text in strings.** A string that names a thing carries its picture as a token, never an
 emoji: `{res:Wheat}` (a resources.json row, drawn through ResourceIcon), `{icon:icon-farming.svg}`
 (a UI icon), `{art:item-health-heart.svg}` (a picture in public/assets/resources), `{xpStar}`.

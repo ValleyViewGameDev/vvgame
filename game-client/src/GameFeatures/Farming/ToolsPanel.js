@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
+import TileSwatch, { tileSwatchSrc } from '../../UI/Icons/TileSwatch';
 import { handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -88,7 +89,8 @@ const ToolsPanel = ({
     setCursorMode({
       type: 'terraform',
       tileType: tileType,
-      emoji: emoji
+      emoji: emoji,
+      src: tileSwatchSrc(tileType), // the tile's own look follows the cursor (App.js)
     });
   };
 
@@ -230,7 +232,7 @@ const ToolsPanel = ({
                 const isCoolingDown = coolingDownItems.has(`terraform-${tileType}`);
                 const isDisabled = isCoolingDown || !meetsSkill || !meetsLevel;
 
-                // Get symbol - use from resource or fall back to defaults
+                // The emoji is only the cursor's fallback if the tile's picture fails to load (App.js)
                 const symbol = tileResource.symbol || DEFAULT_TILE_SYMBOLS[tileType] || '🔲';
 
                 // Get display name from action field, capitalize first letter
@@ -259,9 +261,9 @@ const ToolsPanel = ({
                 return (
                   <ResourceButton
                     key={tileType}
-                    symbol={symbol}
+                    noIcon
                     resource={tileResource}
-                    name={getLocalizedString(displayName, strings)}
+                    name={<><TileSwatch type={tileType} className="resource-title-icon" /> {getLocalizedString(displayName, strings)}</>}
                     className={getButtonClassName(tileType)}
                     style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                     details={details}

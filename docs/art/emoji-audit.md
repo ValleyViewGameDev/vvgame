@@ -103,6 +103,10 @@ rich-line token (pass 5) or reword.
   The status bar's ⬥ separator and ◀ ▶ overflow arrows, the ⏳ on countdowns and processing
   buttons, 🔒 on locks, ➕ on add slots, ✅ on done quests, the NPC Connections marks (💬 ❤️ 💍 🤝
   ⚔️) and the in-app pointer ☝️ are kept on purpose: they render the same everywhere and need no art.
+- **Tools panel 2026-11-08**: the tile tools show a square of the ground they lay
+  (`UI/Icons/TileSwatch.js`: the cut art, or the tile's flat colour, step stones as grass with
+  stones) and the placement cursor carries the same picture; the tile emoji remain only as the
+  cursor's fallback if the picture fails to load.
 - **Pass 5 shipped 2026-11-07**: the rich status line (`UI/Icons/RichText.js`, see plan item 5).
   Plain strings can now carry art, so no toast, float-up, notice or mail body needs an emoji.
 - **Pass 4 decided 2026-11-07**: no icons for skills and powers at all; ResourceIcon draws
