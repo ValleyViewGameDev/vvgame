@@ -9738,7 +9738,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9767,10 +9767,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 24,
-    "filename": "npc-doctor.svg",
+    "filename": "npc-figure-doctor.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "gemOverride": 24
+    "gemOverride": 24,
+    "iconFile": "npc-doctor.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Surgeon",
@@ -9940,7 +9942,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9961,7 +9963,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-portia.svg"
+    "filename": "npc-figure-portia.svg",
+    "iconFile": "npc-portia.svg",
+    "artSpan": 1.8
   },
   {
     "type": "The Shepherd",
@@ -10010,7 +10014,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10031,7 +10035,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-hotspur.svg"
+    "filename": "npc-figure-hotspur.svg",
+    "iconFile": "npc-hotspur.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Cassio",
@@ -10142,7 +10148,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10163,7 +10169,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-feste.svg"
+    "filename": "npc-figure-feste.svg",
+    "iconFile": "npc-feste.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Helena",
@@ -10175,7 +10183,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10196,7 +10204,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-helena.svg"
+    "filename": "npc-figure-helena.svg",
+    "iconFile": "npc-helena.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Titania",
@@ -10305,7 +10315,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10325,7 +10335,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-prospero.svg"
+    "filename": "npc-figure-prospero.svg",
+    "iconFile": "npc-prospero.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Constable Elbow",
@@ -10496,7 +10508,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10517,7 +10529,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-falstaff.svg"
+    "filename": "npc-figure-falstaff.svg",
+    "iconFile": "npc-falstaff.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Apothecary",
@@ -10761,7 +10775,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10782,7 +10796,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-juliet.svg"
+    "filename": "npc-figure-juliet.svg",
+    "iconFile": "npc-juliet.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Viola",

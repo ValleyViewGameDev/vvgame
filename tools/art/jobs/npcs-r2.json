@@ -1,0 +1,50 @@
+{
+  "name": "npcs-r2",
+  "note": "Batch 1 redraws (owner 2026-11-09): Feste's smock lavender (too much green in the cast; asked as pale bluish lavender for the magenta keyer); Portia and the Doctor were TOO CONTEMPORARY (a modern judge, a white coat and stethoscope): fantasy versions of the official and the physician. Rule from here, for the Surgeon and the Nurse too: no modern dress, every profession in fairy-tale terms. ONE candidate per subject from now on (OpenAI spend).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "feste": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "guides/control-feste-bust.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). CHARACTER REFERENCE, the most important image: the attached grown farm man on magenta is an APPROVED character of this game: copy the PROPORTION and the CUTENESS exactly (about three heads tall, a big round head, large eyes set low and wide on a soft round face, a short body, small hands and feet; a sweet storybook doll, never realistic, never lanky), as an ADULT of the same age and build. The new character must look drawn by the same hand on the same day. LIKENESS: the attached flat vector bust on parchment is FESTE, a painter, the character to keep recognisable; keep the signature pieces named below and drop the rest. POSE: standing still, the body square-ish to the viewer with a FAINT three-quarter turn: the head and the eyes turned a little toward the viewer's RIGHT, the near foot a little in front, feet slightly apart on ONE flat ground line, arms relaxed at the sides (a small held item may rest in one hand, close to the body), a calm friendly expression, nothing trailing outside the body's silhouette, clothing symmetrical left to right. SUBJECT: FESTE, a grown man, MEDIUM BROWN skin, a dark curly moustache, dark hair under a wine-red beret, a PALE BLUISH LAVENDER (periwinkle, a light blue-violet, never pink, never magenta) painter's smock to the hips with a brown belt, dark brown trousers and shoes, holding a small round wooden palette at his side. Keep it at the game's scale: seen 45 pixels wide on the board, so big plain shapes, no fine detail, no embroidery, no pattern, no small accessories. COLOUR: bright, saturated, cheerful; never pink, never magenta anywhere on the character; the smock is a pale BLUISH lavender, on the blue side of violet. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom). ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw the character the same size as the reference figure in its panel, feet on the box's bottom edge, head and hair inside the dashed headroom box (a tall hat may touch its top), never past the box's left or right sides; a soft contact shadow directly under the feet; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    },
+    "portia": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r2/approved/openai--painterly-peasant-woman-2.png",
+        "guides/control-portia-bust.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). CHARACTER REFERENCE, the most important image: the attached young farm woman on magenta is an APPROVED character of this game: copy the PROPORTION and the CUTENESS exactly (about three heads tall, a big round head, large eyes set low and wide on a soft round face, a short body, small hands and feet; a sweet storybook doll, never realistic, never lanky), as an ADULT of the same age and build. The new character must look drawn by the same hand on the same day. LIKENESS: the attached flat vector bust on parchment is PORTIA, a judge, the character to keep recognisable; keep the signature pieces named below and drop the rest. POSE: standing still, the body square-ish to the viewer with a FAINT three-quarter turn: the head and the eyes turned a little toward the viewer's RIGHT, the near foot a little in front, feet slightly apart on ONE flat ground line, arms relaxed at the sides (a small held item may rest in one hand, close to the body), a calm friendly expression, nothing trailing outside the body's silhouette, clothing symmetrical left to right. SUBJECT: PORTIA, the valley's MAGISTRATE, a woman of thirty, DEEP BROWN skin, black hair in a neat chin-length bob, warm dark eyes, a confident small smile; a FAIRY-TALE official's dress, nothing modern: a long deep-blue velvet gown to the ankles with wide sleeves, a dark fur-trimmed collar, a gold chain of office with a round medallion on her chest, a flat deep-blue velvet cap, a rolled parchment scroll in one hand, dark shoes. Keep it at the game's scale: seen 45 pixels wide on the board, so big plain shapes, no fine detail, no embroidery, no pattern, no small accessories. COLOUR: bright, saturated, cheerful; never pink, never magenta, never purple anywhere on the character (use deep blue or wine red where the bust has purple). The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom). ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw the character the same size as the reference figure in its panel, feet on the box's bottom edge, head and hair inside the dashed headroom box (a tall hat may touch its top), never past the box's left or right sides; a soft contact shadow directly under the feet; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    },
+    "doctor": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "guides/control-doctor-bust.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). CHARACTER REFERENCE, the most important image: the attached grown farm man on magenta is an APPROVED character of this game: copy the PROPORTION and the CUTENESS exactly (about three heads tall, a big round head, large eyes set low and wide on a soft round face, a short body, small hands and feet; a sweet storybook doll, never realistic, never lanky), as an ADULT of the same age and build. The new character must look drawn by the same hand on the same day. LIKENESS: the attached flat vector bust on parchment is the DOCTOR, the character to keep recognisable; keep the signature pieces named below and drop the rest. POSE: standing still, the body square-ish to the viewer with a FAINT three-quarter turn: the head and the eyes turned a little toward the viewer's RIGHT, the near foot a little in front, feet slightly apart on ONE flat ground line, arms relaxed at the sides (a small held item may rest in one hand, close to the body), a calm friendly expression, nothing trailing outside the body's silhouette, clothing symmetrical left to right. SUBJECT: the DOCTOR, a fairy-tale PHYSICIAN, a grown man, DARK BROWN skin, short black hair, a neat small beard, kind eyes; nothing modern (no white coat, no stethoscope): a long dark-teal physician's robe to the ankles with wide sleeves and a cream collar, a flat black cap, small round spectacles, a brown leather satchel on a strap at his hip, a small glass vial in one hand, dark shoes. Keep it at the game's scale: seen 45 pixels wide on the board, so big plain shapes, no fine detail, no embroidery, no pattern, no small accessories. COLOUR: bright, saturated, cheerful; never pink, never magenta, never purple anywhere on the character (use deep blue or wine red where the bust has purple). The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom). ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw the character the same size as the reference figure in its panel, feet on the box's bottom edge, head and hair inside the dashed headroom box (a tall hat may touch its top), never past the box's left or right sides; a soft contact shadow directly under the feet; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    }
+  }
+}

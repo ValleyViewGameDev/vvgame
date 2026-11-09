@@ -10,6 +10,15 @@ alike) and never paired with a costume cue; a character's culture is the valley'
 real-world one. Signature pieces (Hecate's red hood, Prospero's star hat, Hotspur's horns,
 Kent's top hat) stay because they are how players know them.
 
+Two more rules from batch 1's review (owner 2026-11-09): **no contemporary dress.** Portia as
+a modern judge and the Doctor in a white coat with a stethoscope were rejected as "too
+contemporary"; every profession is cast in fairy-tale terms (a magistrate in a velvet gown with
+a chain of office and a scroll, a physician in a long robe with spectacles, a satchel and a
+vial), and the Surgeon, the Field Nurse and any other modern-looking bust get the same
+treatment. **One candidate per subject** from now on (OpenAI spend); the owner asks for a
+redraw when the one guess misses. Also: the cast has a lot of green clothing, so vary the
+cloth colours (Feste's smock went lavender, asked as a pale bluish lavender for the keyer).
+
 Tones are named T1 (very fair) to T6 (deep brown); hair is named by colour. Generation:
 `tools/art/jobs/npcs-r<n>.json`, refs = the Cow (rendering) + the approved farm woman or
 farm man (proportion per body) + the rasterised bust (`tools/art/guides/control-<name>-bust.png`,
@@ -21,16 +30,16 @@ the bust kept in `iconFile` for panels and quest cards until the head crop repla
 |---|---|---|---|---|---|---|---|
 | 1 | Gertrude | trade | F | queen, red robe, crown | T2, brown, 30s | silver crown, red robe | DONE (Phase 1) |
 | 2 | Kent | quest | M | top hat, red beard | T2, red, 40s | top hat, bow tie | DONE (Phase 1) |
-| 3 | Portia | quest | F | judge, navy, bob | T6, black bob, 30s | navy robe, white collar | 1 |
+| 3 | Portia | quest | F | judge, navy, bob | T6, black bob, 30s | magistrate's velvet gown, chain of office, scroll (the judge's robe was too modern) | 1, redrawn in 2 |
 | 4 | Juliet | trade | F | red bob, tiara, green | T2, red, 20s | tiara with green stone | 1 |
 | 5 | Hotspur | quest | M | horned helmet, fur | T1, blond, 30s | horned helmet, fur collar | 1 |
 | 6 | Falstaff | trade | M | tricorn, eye patch | T3 olive, black and grey, 50s, stout | tricorn, eye patch, belly | 1 |
 | 7 | Prospero | quest | M | star hat, grey beard | T2, grey, old | star hat, staff | 1 |
 | 8 | Helena | quest | F | green hair, flower crown | T4 tan, green, 20s | flower crown, leaf collar | 1 |
 | 9 | Feste | quest | M | beret, palette, moustache | T5, black, 30s | beret, palette | 1 |
-| 10 | Doctor | heal | M | white coat, stethoscope | T6, black, 40s, small beard | white coat | 1 |
-| 11 | Surgeon | heal | M | blue scrubs and cap | T3, dark brown, 30s | blue cap | 2 |
-| 12 | Field Nurse | heal | F | nurse cap, red cross | T2, dark brown, 20s | white cap | 2 |
+| 10 | Doctor | heal | M | white coat, stethoscope | T6, black, 40s, small beard | physician's robe, spectacles, satchel (the coat was too modern) | 1, redrawn in 2 |
+| 11 | Surgeon | heal | M | blue scrubs and cap | T3, dark brown, 30s | a barber-surgeon: leather apron, rolled sleeves, a cloth cap (no scrubs) | 2 |
+| 12 | Field Nurse | heal | F | nurse cap, red cross | T2, dark brown, 20s | a healer: white wimple-style cap, grey dress, white apron, a bandage roll (no red cross) | 2 |
 | 13 | Apothecary | trade | F | kerchief, hoop earrings, herbs | T4, black, 40s | green kerchief (not a scarf tied as any real dress), herb pouch | 2 |
 | 14 | Hecate | trade | F | red hood, grey hair, crook | T2, grey, old | red hood | 2 |
 | 15 | The Shepherd | quest | F | red hood, green eyes, crook | T3, white, old | crook (hood goes brown so she is not Hecate) | 2 |
@@ -62,4 +71,6 @@ creature lane.
 
 ## Progress
 
-- Batch 1 generated 2026-11-09 (`npcs-r1.json`), review pending.
+- Batch 1 (`npcs-r1.json`, 2026-11-09): APPROVED and installed Prospero 2, Juliet 2, Hotspur 1,
+  Falstaff 2, Helena 2. Redrawn in `npcs-r2.json` (one candidate each) and installed: Feste (lavender smock),
+  Portia (magistrate), the Doctor (physician). Ten of 35 named NPCs are on the board.
