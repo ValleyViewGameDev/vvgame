@@ -1,0 +1,41 @@
+{
+  "name": "characters-r3",
+  "note": "Phase 1 round 3 (2026-11-09): woman 2 of r2 approved; the men of r2 came back as boys (Kent 'way off'), so the man and Kent are regenerated as grown adults in the same doll proportion, with the approved woman as the second adult reference. Three candidates each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 3,
+  "subjects": {
+    "peasant-man": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r1/approved/openai--painterly-gertrude-1.png",
+        "_candidates/characters-r2/approved/openai--painterly-peasant-woman-2.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL cut on magenta: draw the subject from the SAME camera as that barrel (from the front, a little from above), at the same daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering: soft painterly, flat areas of colour with gentle shading, soft thick outlines, big plain shapes, no fine texture, no pattern, no background. CHARACTER REFERENCES, the most important images: the attached crowned QUEEN and the attached FARM WOMAN in a red robe on magenta is this game's APPROVED character: copy her PROPORTION and her CUTENESS exactly. She is about THREE heads tall: a big round head about one third of her whole height, large eyes set low and wide on a soft round face, a small nose and mouth, a short body, narrow sloping shoulders, short arms, small hands, small feet; a sweet storybook doll, never realistic, never lanky. This character is a GROWN ADULT MAN in that doll proportion, never a boy: the same big head as the queen but a broader, squarer jaw, a wider neck, broad shoulders and a solid chest, large hands, heavier brows, a longer nose, and the calm face of a man of thirty-five; the attached farm woman on magenta is an approved adult of this game, and he is her age. The new character must look like it was drawn by the same hand on the same day, standing beside her. POSE: standing still, the body square-ish to the viewer with a FAINT three-quarter turn: the head and the eyes turned a little toward the viewer's RIGHT, the near foot a little in front, feet slightly apart on ONE flat ground line, arms relaxed at the sides, hands open, a calm friendly expression, nothing held, nothing trailing outside the body's silhouette, clothing symmetrical left to right. SUBJECT: a grown FARM MAN of this fairy-tale village: short sandy-blond hair, a day's stubble on a square jaw, a plain olive-green tunic to mid-thigh with long sleeves and a brown leather belt, plain brown trousers, brown boots. Keep it at the game's scale: seen 45 pixels wide on the board beside the barrel and the cow, so big plain shapes, no fine detail, no embroidery, no pattern, no small accessories. COLOUR: bright, saturated, cheerful; never pink, never magenta, never purple anywhere on the character. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom). Draw the character alone, the same size as the queen in her panel, feet on the box's bottom edge, head and hair inside the dashed headroom box, never past the box's left or right sides; a soft contact shadow directly under the feet; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    },
+    "kent": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r1/approved/openai--painterly-gertrude-1.png",
+        "_candidates/characters-r2/approved/openai--painterly-peasant-woman-2.png",
+        "guides/control-kent-bust.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: among the attached images is this game's approved BARREL cut on magenta: draw the subject from the SAME camera as that barrel (from the front, a little from above), at the same daylight (warm full daylight from high up and a little left, soft shadows only in the recesses, a soft contact shadow on the ground). RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering: soft painterly, flat areas of colour with gentle shading, soft thick outlines, big plain shapes, no fine texture, no pattern, no background. CHARACTER REFERENCES, the most important images: the attached crowned QUEEN and the attached FARM WOMAN in a red robe on magenta is this game's APPROVED character: copy her PROPORTION and her CUTENESS exactly. She is about THREE heads tall: a big round head about one third of her whole height, large eyes set low and wide on a soft round face, a small nose and mouth, a short body, narrow sloping shoulders, short arms, small hands, small feet; a sweet storybook doll, never realistic, never lanky. This character is a GROWN ADULT MAN in that doll proportion, never a boy: the same big head as the queen but a broader, squarer jaw, a wider neck, broad shoulders and a solid chest, large hands, heavier brows, a longer nose, and the calm face of a man of thirty-five; the attached farm woman on magenta is an approved adult of this game, and he is her age. The new character must look like it was drawn by the same hand on the same day, standing beside her. POSE: standing still, the body square-ish to the viewer with a FAINT three-quarter turn: the head and the eyes turned a little toward the viewer's RIGHT, the near foot a little in front, feet slightly apart on ONE flat ground line, arms relaxed at the sides, hands open, a calm friendly expression, nothing held, nothing trailing outside the body's silhouette, clothing symmetrical left to right. LIKENESS: the attached flat vector bust of a bearded man in a top hat is KENT, the character to keep recognisable. SUBJECT: KENT, a grown man of forty: a tall black top hat, a full bushy red-orange beard and moustache, short red-orange hair, brown eyes, a friendly smile with the beard framing it, a black coat to the hips over a white shirt with a thin black bow tie, black trousers, black shoes; the hat short enough that hat and head together stay inside the headroom. Keep it at the game's scale: seen 45 pixels wide on the board beside the barrel and the cow, so big plain shapes, no fine detail, no embroidery, no pattern, no small accessories. COLOUR: bright, saturated, cheerful; never pink, never magenta, never purple anywhere on the character. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom). Draw the character alone, the same size as the queen in her panel, feet on the box's bottom edge, head and hair inside the dashed headroom box, never past the box's left or right sides; a soft contact shadow directly under the feet; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text."
+    }
+  }
+}
