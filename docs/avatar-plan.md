@@ -251,6 +251,30 @@ P1 can start the day the owner confirms D1 and D9. P2 to P4 follow in order; P5 
 written in parallel with P4 (it needs only the bases and one outfit). P6 is independent of
 P4 and P5 and can run whenever the owner wants to spend review time on it.
 
+### 7a. Phase 1 run (2026-11-09)
+
+`tools/art/jobs/characters-r1.json`: ten panels, all gpt-image-2 medium, about 30 s each
+(`tools/art/_candidates/characters-r1/`; sheets `characters-r1-grass.jpg` at 45 px,
+`-grass-2x.jpg` at 90 px, `-panels.jpg` at full size, beside the Cow and the barrel). New
+tooling: `guides/figure-cut.png` (the 1 x 1 box with a dashed half-tile headroom box, on
+magenta) and `tools/art/figurecut.js` (key, drop the redrawn guide specks and the magenta
+pockets between arm and body, fit the art's own box to the 1 x 1.5 frame, feet on the tile
+bottom, 512 square at artSpan 1.5). Findings before the owner's review:
+
+- **The rendering landed first time**: all ten match the animals' painterly look and each
+  other (the Cow as rendering reference does for characters what it did for the zoo).
+- **The model ignores the box for scale**, as it does for buildings: every figure came back
+  2.2 to 2.7 tiles tall in the panel. The cut fits by the art's height instead, so the figure
+  is always 1.5 tiles tall and its width follows (0.51 to 0.69 tiles across the sleeves).
+  Kent's top hat is part of that height, so his body stands shorter; a hat rule for the rig
+  (hats above the headroom allowed, or figures measured hair-to-feet) is a P2 decision.
+- **The three-quarter turn is faint.** Asked for a body turned to the viewer's right, the
+  model turned the head and eyes a little and left the shoulders nearly square; the two
+  dead-front A/B panels are hard to tell from the three-quarter ones. For the mirror scheme
+  a faint turn is still a turn (the eyes and the near foot give the direction), and it
+  keeps up and down walking honest; a stronger turn ("the left shoulder forward, 30
+  degrees") is one prompt change if the owner wants it.
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front

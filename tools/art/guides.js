@@ -126,6 +126,21 @@ async function buildingCutGuide(n) {
 }
 
 /**
+ * The cut-out guide for a CHARACTER (docs/avatar-plan.md v2 §3, 2026-11-09): the 3-cell magenta
+ * patch with the 1 x 1 box outlined (the tile: feet on its bottom edge, shoulders at its top
+ * edge) and a dashed half-tile box above it (the headroom: head and hair, never higher). The
+ * figure frame is one tile wide and one and a half tall; cutout.js cuts it square at artSpan 1.5.
+ */
+async function figureCutGuide() {
+  const cells = 3, t = PX / cells;
+  const rects = [];
+  for (let r = 0; r < cells; r++) for (let c = 0; c < cells; c++) rects.push(`<rect x="${c * t}" y="${r * t}" width="${t}" height="${t}" fill="#ff00ff" stroke="#c000c0" stroke-width="2"/>`);
+  const box = `<rect x="${t}" y="${t}" width="${t}" height="${t}" fill="none" stroke="#5b4a6a" stroke-width="3"/>`;
+  const head = `<rect x="${t}" y="${t / 2}" width="${t}" height="${t / 2}" fill="none" stroke="#5b4a6a" stroke-width="3" stroke-dasharray="14 10"/>`;
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${PX}" height="${PX}"><rect width="${PX}" height="${PX}" fill="#ff00ff"/>${rects.join('')}${box}${head}</svg>`)).png().toBuffer();
+}
+
+/**
  * The tree guide (slice B, buildings lane): the 3 x 3 patch with the centre tile pale (the
  * footprint: one tile wide, trunk base on its bottom edge) and the WHOLE tile above it tinted
  * (the headroom: a tree may rise one full tile above its own tile, so it stands two tiles
@@ -278,6 +293,7 @@ async function main() {
   fs.writeFileSync(path.join(GUIDES, 'building4.png'), await buildingGuide(4));
   fs.writeFileSync(path.join(GUIDES, 'building4-cut.png'), await buildingCutGuide(4));
   fs.writeFileSync(path.join(GUIDES, 'building1-cut.png'), await buildingCutGuide(1));
+  fs.writeFileSync(path.join(GUIDES, 'figure-cut.png'), await figureCutGuide());
   fs.writeFileSync(path.join(GUIDES, 'building5.png'), await buildingGuide(5));
   fs.writeFileSync(path.join(GUIDES, 'building2-cut.png'), await buildingCutGuide(2));
   fs.writeFileSync(path.join(GUIDES, 'building5-cut.png'), await buildingCutGuide(5));
