@@ -220,7 +220,10 @@ hedge wall set is parked in BL-22. Every cut is seated at its square's bottom af
   magenta, so the real grass tile shows through and the patch blends (owner).
 - **Mulberry Tree, ready state** (`tree-mulberry`, the Mulberry Leaf row's board art): the same
   tree dotted with small WHITE FLOWERS, so ready reads at a glance; the purple-leaved ready
-  state could not be told from the growing one. Not realistic, by the owner's choice.
+  state could not be told from the growing one. Not realistic, by the owner's choice. Its base
+  sits where the growing art's does (the growing `mulberry-tree` keeps a gap under its trunk, so
+  the ready art was lifted to the same base line, 2026-11-08): a two-state tree must share one
+  base line or the swap jumps.
 - **Black Fog** redrawn as a CLOUD, black and dark grey with feathered edges, no cube; artSpan
   1.15 -> 1.4 so it bleeds past its tile and a row of them overlaps into one bank. Still
   impassable, still the story door. Not seated at the square's bottom (a cloud floats).
