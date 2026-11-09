@@ -247,8 +247,10 @@ value rather than trust this page.
 - **Sell section.** A panel opened from something placed on the grid (building, station, deco,
   crop plot or tree, pet) or a placed NPC ends in one pinned footer row, `UI/Panels/SellSection.js`,
   passed as `<Panel footer={sellSection({...})}>` (`Panel`'s `footer` renders below the scroll,
-  `.panel-footer`). Left 60%: "Sell (💰x +n🪵)", the refund the server gives back (the recipe at
-  full quantity); a removal that returns nothing reads "Sell (💰0)". Right: Move, a four-arrow
+  `.panel-footer`). Left 60%: "Sell", only the word (owner 2026-11-08: a long refund wrapped the
+  button). Tapping it opens the standard confirm (`gameConfirm`, title "Sell?", strings 2129 /
+  2130) whose message lists the refund the server gives back (the recipe at full quantity) as
+  rich text, Money first; OK sells, Cancel does nothing. Right: Move, a four-arrow
   icon (there is no four-way arrow emoji). Colour says who it is for, not what it pays:
   **green** = this player may do it; **red** = only because they are a developer; not allowed
   and not a developer = the button is hidden, and with both hidden there is no footer at

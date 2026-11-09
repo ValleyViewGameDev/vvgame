@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStrings } from '../StringsContext';
-import TransactionButton from '../Buttons/TransactionButton';
+import { gameConfirm } from '../Modals/GameDialog';
 import '../Buttons/SharedButtons.css';
 import './SellSection.css';
 
@@ -11,11 +11,14 @@ import './SellSection.css';
  *   <Panel footer={sellSection({ canSell, isDeveloper, ... })}>
  * (it returns null when there is nothing to show, so the panel draws no footer at all).
  *
- *   Sell (💰120 +5🪵)   [⤧]      Sell takes the left 60%, Move the rest
+ *   Sell   [⤧]      Sell takes the left 60%, Move the rest
  *
- * The label is the refund the server gives back (routes/worldRoutes.js /sell-for-refund: the
- * item's recipe, every ingredient at full quantity): Money first, then any other ingredient as
- * "+qty symbol"; a removal that returns nothing reads "Sell (💰0)".
+ * The button only says "Sell" (owner 2026-11-08: a refund of several ingredients wrapped the
+ * button awkwardly). Tapping it opens the standard confirm (UI/Modals/GameDialog gameConfirm),
+ * titled "Sell?", whose message lists the refund the server gives back
+ * (routes/worldRoutes.js /sell-for-refund: the item's recipe, every ingredient at full
+ * quantity) as rich text, Money first; OK sells, Cancel does nothing. A removal that returns
+ * nothing says so.
  *
  * Who sees what (owner 2026-10-22):
  *   allowed for this player             green button
@@ -81,7 +84,28 @@ export default function SellSection({ resourceType, masterResources, refund, onS
   const v = visibility({ canSell, canMove, isDeveloper, onMove, sellLocked });
   if (!v.sell && !v.move) return null;
   const { money, others } = refundFor(resourceType, masterResources, refund);
-  const label = `${strings[2112] || 'Sell'} (💰${money.toLocaleString()}${others.map((o) => ` +${o.quantity.toLocaleString()}${o.symbol}`).join('')})`;
+  const label = strings[2112] || 'Sell';
+  // the refund as rich text ("{res:Money} 120, {res:Wood} 5"); nothing back = its own line
+  const refundText = [...(money > 0 || others.length === 0 ? [`{res:Money} ${money.toLocaleString()}`] : []), ...others.map((o) => `{res:${o.type}} ${o.quantity.toLocaleString()}`)].join(', ');
+  // One sale at a time (the spam guard TransactionButton used to give): the button stays "Sell"
+  // while the confirm is open and only locks once OK has been tapped
+  const [selling, setSelling] = useState(false);
+  const [transactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`);
+  const confirmThenSell = async (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (selling || disabled) return;
+    const ok = await gameConfirm({
+      title: strings[2129] || 'Sell?',
+      message: (strings[2130] || 'You will get {refund}.').replace('{refund}', refundText),
+      confirmLabel: strings[2037] || 'OK',
+      cancelLabel: strings[2029] || 'Cancel',
+    });
+    if (!ok) return;
+    setSelling(true);
+    try { await onSell(transactionId, transactionKey || `sell-${resourceType}`); }
+    catch (err) { console.error('Sell failed:', err); }
+    finally { setSelling(false); }
+  };
   return (
     <div className={`sell-section shared-buttons ${v.move ? '' : 'sell-section--sell-only'} ${v.sell ? '' : 'sell-section--move-only'}`}>
       {v.sell && sellLocked && (
@@ -90,14 +114,14 @@ export default function SellSection({ resourceType, masterResources, refund, onS
         </button>
       )}
       {v.sell && !sellLocked && (
-        <TransactionButton
+        <button
+          type="button"
           className={`btn-basic ${v.sellDev ? 'btn-danger' : 'btn-success'} sell-section-sell`}
-          onAction={onSell}
-          transactionKey={transactionKey || `sell-${resourceType}`}
-          disabled={disabled}
+          onClick={confirmThenSell}
+          disabled={disabled || selling}
         >
-          {label}
-        </TransactionButton>
+          {selling ? '⏳' : label}
+        </button>
       )}
       {v.move && (
         <button
