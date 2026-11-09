@@ -353,6 +353,30 @@ bases, one hair in three tints, the blink pair, the two outfits at three skin to
 bases and the composites pass, P4 (the starter set) can start, with `tools/art/parts.js`
 promoted from the probe scripts (`align`, `diff`, `split`, `lids`) first.
 
+### 7d. Phase 4 started (2026-11-09), reordered: NPCs first
+
+Owner's direction on approving the bases and the composites: **the skin tones are too strong
+and will be iterated later** (the tint palette, `avatarPalettes.json`, is data; the probe
+multiplied a flat swatch into an already-peach base, and the production face base is
+neutralised first, so expect the whole scale to shift lighter). **Update the game as we go
+when it is real work, never a demo.** **Start the content with the named NPCs**, so the
+cast is covered, then choose the player parts from what they needed; the current busts are
+a starting point, not a constraint; variety in hair colour and skin tone, no racial
+stereotypes. The casting table and batch order are `docs/art/npc-casting.md`.
+
+Done the same day, all in game: the player figure **mirrors when the player last moved left**
+(`PixiRendererPCs.js`, D1; busts and emoji never flip); **NPC rows take `artSpan`** (the square
+stands on its tile through the sprite anchor, `anchor.y = 1 - 0.5 / span`, so the tween, the
+z-sort and CombatFX are untouched); **Kent and Gertrude stand in the Town as their approved
+figures** (`npc-figure-kent.svg`, `npc-figure-gertrude.svg`, `artSpan 1.8`, `artFacing right`,
+with the bust kept in `iconFile` for panels and quest cards until the head crop replaces it).
+That is the install pattern for every NPC from here: approve, `figurecut.js`, copy to
+`resources/npc-figure-<name>.{png,svg}`, three row fields, `build:atlas`.
+
+Batch 1 (`npcs-r1.json`): Portia, Juliet, Hotspur, Falstaff, Prospero, Helena, Feste, the
+Doctor, two each, cast per the table; refs = the Cow, the approved farm woman or man for the
+body, the rasterised bust for likeness, the figure guide.
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front
