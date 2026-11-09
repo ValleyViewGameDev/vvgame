@@ -9784,7 +9784,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9813,9 +9813,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 150,
     "gemcost": 21,
-    "filename": "npc-surgeon.svg",
+    "filename": "npc-figure-surgeon.svg",
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "iconFile": "npc-surgeon.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Field Nurse",
@@ -9827,7 +9829,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9852,7 +9854,9 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 300,
-    "filename": "npc-nurse.svg"
+    "filename": "npc-figure-nurse.svg",
+    "iconFile": "npc-nurse.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Fairy",
@@ -9977,7 +9981,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Farm House",
@@ -10000,9 +10004,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-shepherd.svg",
+    "filename": "npc-figure-shepherd.svg",
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "iconFile": "npc-shepherd.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Hotspur",
@@ -10049,7 +10055,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10070,7 +10076,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-cassio.svg"
+    "filename": "npc-figure-cassio.svg",
+    "iconFile": "npc-cassio.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Sebastian",
@@ -10082,7 +10090,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10103,7 +10111,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-cassio.svg"
+    "filename": "npc-figure-sebastian.svg",
+    "iconFile": "npc-cassio.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Mistress Quickly",
@@ -10115,7 +10125,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10136,7 +10146,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-chef.svg"
+    "filename": "npc-figure-quickly.svg",
+    "iconFile": "npc-chef.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Feste",
@@ -10543,7 +10555,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10564,7 +10576,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-apothecary.svg"
+    "filename": "npc-figure-apothecary.svg",
+    "iconFile": "npc-apothecary.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Iago",
@@ -10644,7 +10658,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10665,7 +10679,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-leontes.svg"
+    "filename": "npc-figure-leontes.svg",
+    "iconFile": "npc-leontes.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Caliban",
@@ -10710,7 +10726,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10731,7 +10747,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-hecate.svg"
+    "filename": "npc-figure-hecate.svg",
+    "iconFile": "npc-hecate.svg",
+    "artSpan": 1.8
   },
   {
     "type": "The Porter",

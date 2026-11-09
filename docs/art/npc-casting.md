@@ -73,4 +73,11 @@ creature lane.
 
 - Batch 1 (`npcs-r1.json`, 2026-11-09): APPROVED and installed Prospero 2, Juliet 2, Hotspur 1,
   Falstaff 2, Helena 2. Redrawn in `npcs-r2.json` (one candidate each) and installed: Feste (lavender smock),
-  Portia (magistrate), the Doctor (physician). Ten of 35 named NPCs are on the board.
+  Portia (magistrate), the Doctor (physician). Ten of 35 named NPCs were on the board.
+- Batch 2 (`npcs-r3.json`, 2026-11-09, one candidate each, all installed): Juliet redone as a
+  princess (bigger hair, finer gown), Mistress Quickly (poofy orange hair), Leontes (a cool king:
+  sapphire crown, ermine collar), Sebastian (shipwrecked, torn clothes, barefoot; his own look at
+  last), the Apothecary (long deep-plum gown; the dark bluish purple survived the keyer), Hecate
+  (a thin, pale, slightly scary witch in a tattered red hood), the Shepherd (brown hood), Cassio
+  (handsome, princely, blonde), the Surgeon (barber-surgeon in a leather apron) and the Field
+  Nurse (a healer in a wimple cap). Nineteen of 35 named NPCs are on the board.
