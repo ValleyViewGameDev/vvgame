@@ -1,0 +1,26 @@
+{
+  "name": "probes-r1b",
+  "note": "probes-r1 outfit-female redone: without the figure guide the building-art style preamble made the model add a HOUSE beside a tiny figure (both candidates); the guide and 'one figure only' are back. Lesson for the pipeline: every character call attaches the figure guide.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 2,
+  "subjects": {
+    "outfit-female": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r2/approved/openai--painterly-peasant-woman-2.png",
+        "_candidates/probes-r1/base-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached young farm woman on magenta is an APPROVED character of this game, and the attached bald figure in a tan undershift on magenta is that character's BASE BODY, drawn at exactly the same size and position. Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, eyebrows, ears, skin tone, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in her clothes: the teal-green laced bodice over the cream long-sleeved blouse, the rust-brown ankle-length skirt, the tan apron, and her brown shoes on the feet (the one place the base changes besides the clothes), exactly as the approved character wears it, following the base body's arms and legs. The head stays bald and clean, no hair, no hat. Everything that is not the garment stays identical to the base body image. ONE FIGURE ONLY, nothing else in the picture: no building, no house, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "guide": "guides/figure-cut.png"
+    }
+  }
+}

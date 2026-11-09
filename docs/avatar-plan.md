@@ -302,6 +302,57 @@ shoulder line lands on the tile's top edge (y 130 / 126) as D2 wanted, hands han
 tiles wide at the shoulders. `recipes/_body.json` (the bust rig) stays untouched until the
 bust tools retire (D10). Next: P3, the base bodies from the approved woman and man.
 
+### 7c. Phase 3 run (2026-11-09): bases and probes
+
+Board scale: the figure avatars ship at **artSpan 1.8** (owner: "fill the tile a little more");
+the rig's frame units are unchanged, only the on-board multiplier moved from 1.5 to 1.8.
+
+**Base bodies** (`tools/art/jobs/bases-r1.json`, three each from the approved woman and man:
+bald, clean-shaven, tan undershift, lightest tone, bare feet, "same size and place"): all six
+landed within a few units of their source (`figurecut.js --like <source sidecar>` cuts the base
+with the source's exact transform, and a ghost overlay checks it). Picked female-3 and male-2
+(`bases-r1/approved`). The tan shift was the right call: it never confuses the grey-hair diff.
+
+**Probes** (`probes-r1.json`, `probes-r1b.json`), with the findings that decide the pipeline:
+
+- **Everything hinges on alignment, not on the prompt.** Asked to redraw the base "exactly,
+  pixel for pixel" and add one thing, gpt-image-2 keeps the drawing but moves it: head crops
+  came back 0.88 to 1.07 times the size and up to 70 px off, full figures up to 80 px off.
+  Half the candidates failed extraction for that reason alone. An alignment step (find the two
+  pupils in the redraw and in the base, scale and translate the redraw so they coincide) rescued
+  every one of them whose eyes were found: 7 of 9. So the pipeline gets an `align` step before
+  any diff or key, and a candidate whose eyes cannot be found is rejected automatically. The
+  prototype pupil finder (dark blobs on one row) misread one panel; the production step should
+  template-match the base's head instead, which is deterministic and cannot pick a brow.
+- **Hair: head-scale worn-then-subtract WINS.** The 1024 px crop of the base's head and
+  shoulders, "redraw exactly and add only the hair in near-white grey", keyed, aligned, diffed
+  against the base (3 px tolerance, neutral-grey pixels only), specks dropped: three of four
+  candidates gave a clean hair layer that tints to brown, blonde and black on the bald base with
+  no halo and no holes (the fourth redrew a different head shape and is a reject). The
+  **green-scalp mannequin route is dropped**: the model painted hair over the whole green mask
+  every time, so no green survived to key and the layer came from the same diff anyway.
+- **Lids: solved.** "The same head with the eyes closed", cropped to the rig's eye boxes
+  (widened 1.3 x 1.6), composites as a blink with no visible seam; the layer is skin and takes
+  the skin tint. Both candidates usable.
+- **Outfits: the body-is-the-outfit route works, with one rule.** Without the figure guide the
+  building-style preamble made the model draw a HOUSE beside a tiny figure (two of two): every
+  character call attaches `guides/figure-cut.png` and says "one figure only". With it, the
+  worn figure came back in place; after alignment the head above the collar is dropped, the
+  skin inside the rig's hand (and, female, foot) boxes is keyed to a neutral `skin` layer and
+  the rest is the `cloth` layer. Female-1 and male-1 composite with the base's head at three
+  skin tones with the hands and face matching; female-2 (eye finder misread) and male-2 (the
+  model drew it 20 % bigger, eyes not found) are rejects. Skin keying inside the rig boxes
+  caught no cloth: the tan apron and brown belt survived untouched.
+- **Rejection rate**: 4 of 12 extraction candidates, all for drift. Two candidates per part
+  is the right budget; the checker rejects, the owner sees only survivors.
+
+**Decisions taken (within D1 to D10):** hair / beard / hat by head-scale subtraction with
+alignment; outfits worn and split; lids per face; the green mannequin dropped; the figure guide
+on every character call. **For the owner:** the review sheet (`phase3-review.jpg`): the two
+bases, one hair in three tints, the blink pair, the two outfits at three skin tones. If the
+bases and the composites pass, P4 (the starter set) can start, with `tools/art/parts.js`
+promoted from the probe scripts (`align`, `diff`, `split`, `lids`) first.
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front

@@ -1,0 +1,36 @@
+{
+  "name": "bases-r1",
+  "note": "Phase 3 (docs/avatar-plan.md v2 \u00a77 P3, 2026-11-09): the two base bodies, from the approved woman (characters-r2) and man (characters-r3): bald, clean-shaven, tan undershift (not white: a near-white hair layer must be tellable from it), lightest skin tone, bare feet, same size and place as the source. Three candidates each; cut with figurecut.js --like the source's sidecar so the base keeps the source's transform.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 3,
+  "subjects": {
+    "base-female": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r2/approved/openai--painterly-peasant-woman-2.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). CHARACTER REFERENCE, the most important image: the attached young FARM WOMAN with brown hair in a bun on magenta is an APPROVED character of this game. Draw THE SAME PERSON as a bare BASE BODY (the paper-doll base that clothes and hair will be placed on), at EXACTLY the same size and position in the frame as in that image: the top of the head where the top of her hair was, the eye line, the chin, the shoulders, the hands and the feet at the same heights, the same body width, the same faint turn of the head to the viewer's right, the same calm friendly expression. Changes, and ONLY these: she is completely BALD (no hair at all, no hat, a smooth bald scalp with both ears visible and the same eyebrows kept),  the LIGHTEST pale peach skin tone in neutral light with the game's gentle shading, bare arms, bare hands, bare lower legs and BARE FEET (no shoes), wearing only a plain sleeveless UNDYED TAN linen undershift from the shoulders to just above the knees, no pattern, no belt, no collar detail; the same soft oval contact shadow under the feet. One figure only. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box with a dashed headroom box above it; place the figure exactly where the reference figure stands in its own panel (the feet on the box's bottom edge), and leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. Never pink, never magenta, never purple on the figure."
+    },
+    "base-male": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). CHARACTER REFERENCE, the most important image: the attached grown FARM MAN with sandy hair and stubble on magenta is an APPROVED character of this game. Draw THE SAME PERSON as a bare BASE BODY (the paper-doll base that clothes and hair will be placed on), at EXACTLY the same size and position in the frame as in that image: the top of the head where the top of his hair was, the eye line, the chin, the shoulders, the hands and the feet at the same heights, the same body width, the same faint turn of the head to the viewer's right, the same calm friendly expression. Changes, and ONLY these: he is completely BALD (no hair at all, no hat, a smooth bald scalp with both ears visible and the same eyebrows kept), CLEAN-SHAVEN (no stubble, no beard; facial hair is a separate part), the LIGHTEST pale peach skin tone in neutral light with the game's gentle shading, bare arms, bare hands, bare lower legs and BARE FEET (no shoes), wearing only a plain sleeveless UNDYED TAN linen undershift from the shoulders to just above the knees, no pattern, no belt, no collar detail; the same soft oval contact shadow under the feet. One figure only. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box with a dashed headroom box above it; place the figure exactly where the reference figure stands in its own panel (the feet on the box's bottom edge), and leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. Never pink, never magenta, never purple on the figure."
+    }
+  }
+}
