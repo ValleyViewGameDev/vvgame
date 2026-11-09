@@ -135,7 +135,7 @@ template; its numbers came from the elsinore-style figures and will move):
 | chin, jaw outline, eye line and eye boxes, brow, hair band, crown | face/eyes/beard/hair/hat masks, the lids overlay, the blink |
 | contact shadow box | part of the body drawing, kept |
 
-From it, `tools/art/guides.js` draws the pose guide for generation: the magenta field, the
+From it (`tools/avatar/figure-rig.json`, done 2026-11-09, §7b), `tools/art/guides.js` draws the pose guide for generation: the magenta field, the
 1 x 1 tile box with the half-tile headroom marked, and (once a base body exists) a faint
 ghost of it, so a whole character or an outfit lands at the right size and place. The rig is
 one JSON; the guides, the masks, the cut boxes and the Lab overlay are all drawn from it.
@@ -274,6 +274,33 @@ bottom, 512 square at artSpan 1.5). Findings before the owner's review:
   a faint turn is still a turn (the eyes and the near foot give the direction), and it
   keeps up and down walking honest; a stronger turn ("the left shoulder forward, 30
   degrees") is one prompt change if the owner wants it.
+
+### 7b. Phase 1 closed, Phase 2 done (2026-11-09)
+
+**The character bible** (`node tools/art/approve.js --job <job> --list`): Gertrude
+`characters-r1 painterly-gertrude-1` (the owner's pick for build: "bigger heads and a little
+cuter", about three heads tall; the round 1 figures read too realistically proportioned,
+"a bit dead"), the peasant woman `characters-r2 painterly-peasant-woman-2`, the peasant man
+`characters-r3 painterly-peasant-man-2` and Kent `characters-r3 painterly-kent-2` (round 2's
+men came back as boys; round 3 asked for grown adults in the same doll proportion, with the
+approved woman as a second adult reference, and landed). Faint three-quarter turn kept
+(D1). Once a thing is approved it replaces the prose that described it: every later
+character call attaches the approved figure of its body as the character reference.
+
+**The rig** is `tools/avatar/figure-rig.json`: frame 256 x 384 (tile y 128..384, headroom
+above), feet line 377, per body (female from Gertrude and the woman, male from the man and
+Kent): hair top, brow, eye line and eye centres, face and head x ranges, mouth, chin, neck
+box (the socket), collar, shoulder line and width, torso, arms, hands, widest row, hem,
+legs (male) and feet boxes. Measured by eye on gridded read-outs (`node
+tools/avatar/figure-rig.js --grid --in <dir>`) after an automatic pixel-class pass
+(skin / sclera / dark) proved unreliable on painterly art (the apron, the beard and the
+boots all passed for skin); the overlay (`--overlay`) draws the rig over any figure square
+for the check, `tools/art/_candidates/rig-v3/rig-v3-overlays.jpg` is the four approved
+figures under it. Findings: the women's chin sits at y 118 and the men's at 110, the
+shoulder line lands on the tile's top edge (y 130 / 126) as D2 wanted, hands hang at y
+227..250 (female) and 240..275 (male), feet fill y 358..378; the figures stand 0.5 to 0.6
+tiles wide at the shoulders. `recipes/_body.json` (the bust rig) stays untouched until the
+bust tools retire (D10). Next: P3, the base bodies from the approved woman and man.
 
 ## 8. Risks, and what would change the plan
 
