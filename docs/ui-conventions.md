@@ -382,7 +382,7 @@ value rather than trust this page.
 **Ground in a button is a tile swatch.** A tool that lays ground (the Tools panel) shows a
 square of the tile it lays, `UI/Icons/TileSwatch.js`: the tile's own cut art when it has one,
 its flat colour from `UI/Styles/tileColors.js` otherwise, step stones as grass with pale stones.
-The placement cursor carries the same picture (`cursorMode.src`). Never an emoji square.
+Its placement preview on the board shows the same picture (`cursorMode.src`). Never an emoji square.
 
 **Rich text in strings.** A string that names a thing carries its picture as a token, never an
 emoji: `{res:Wheat}` (a resources.json row, drawn through ResourceIcon), `{icon:icon-farming.svg}`
@@ -436,11 +436,19 @@ so wrap any new text surface in it. For a `title` attribute use `plainText(text)
   already finds it). Placement cursors (plant, build, move) stay on tiles. Watch for: a tap on
   open ground just above a tree now hits the tree; a doober or crop hidden behind a canopy is
   reached by walking, not tapping. Dev hook `window.__artHitAt(sx, sy)`.
+- **Placing from a panel is previewed on the board, never on the mouse cursor** (owner,
+  2026-11-08; `Render/PixiRenderer/PixiRendererCursor.js`). While a placement is armed
+  (`cursorMode`: build, deco, animals, pets, plots, Move, terraform) the cursor stays the board's
+  ordinary pointer, and the tile under it shows the footprint plus the thing itself, translucent,
+  at exactly the size and place the board will draw it (artSpan, artScale, a wall joined to its
+  neighbours; terraform: the ground's swatch on its tile). The footprint is white where it can go
+  and RED where it cannot (off the grid, a taken cell, a plot on the wrong ground). Off the board
+  (any panel or UI) the preview stops until the mouse is back. Phones have no hover: a tap places.
 - Hit-testing uses `PixiCamera.screenToTile`; never read `.pixi-container` offsets. DOM that
   must line up with the world goes inside `.pixi-world-container`.
 - Move (the Sell section's Move button, `GameFeatures/Move/`) is a placement mode,
   `cursorMode { type: 'move' }`: the panel closes, the original stays on the board as a ghost
-  (low alpha), the cursor carries the item on desktop, and a banner at the top says what is being
+  (low alpha), the placement preview carries the item on desktop, and a banner at the top says what is being
   moved with Cancel (phones have no cursor; Esc also cancels). The next tap on a free spot in range
   puts it down at once (optimistic) and `POST /api/move-resource` confirms; a taken spot says so
   and stays in move mode; a server refusal puts it back.

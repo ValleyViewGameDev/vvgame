@@ -177,7 +177,7 @@ import Redirect, { shouldRedirect } from './Redirect';
 import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
 import { confirmGemSpend, setGemConfirmResources } from './UI/Modals/GemSpendConfirm';
-import { footprintOf, coversTile, isMultiTile } from './Utils/footprint';
+import { coversTile, isMultiTile } from './Utils/footprint';
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
@@ -1058,86 +1058,10 @@ useEffect(() => {
   }
 }, [activePanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
-// Apply emoji or SVG cursor when in cursor mode
-useEffect(() => {
-  if (cursorMode?.emoji || cursorMode?.filename || cursorMode?.src) {
-    // Scale cursor based on resource size (multi-tile resources get larger cursors)
-    const { w: fw, h: fh } = footprintOf(cursorMode); // size, or sizeX x sizeY (Utils/footprint.js)
-    const tileSpan = Math.max(fw, fh); // the cursor canvas is square: the larger side
-    const baseSize = 32;
-    const canvasSize = baseSize * Math.max(fw, fh);
-    const center = canvasSize / 2;
-
-    // Helper to apply cursor style
-    const applyCursor = (cursorUrl) => {
-      const styleEl = document.createElement('style');
-      styleEl.id = 'cursor-mode-style';
-      styleEl.textContent = `
-        body.cursor-mode-active,
-        body.cursor-mode-active * {
-          cursor: url(${cursorUrl}) ${center} ${center}, crosshair !important;
-        }
-      `;
-      document.head.appendChild(styleEl);
-      document.body.classList.add('cursor-mode-active');
-    };
-
-    if (cursorMode.filename || cursorMode.src) {
-      // Load SVG and render to canvas for cursor
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvasSize, canvasSize);
-        const cursorUrl = canvas.toDataURL();
-        applyCursor(cursorUrl);
-      };
-      img.onerror = () => {
-        // Fall back to emoji if SVG fails to load
-        if (cursorMode.emoji) {
-          const canvas = document.createElement('canvas');
-          canvas.width = canvasSize;
-          canvas.height = canvasSize;
-          const ctx = canvas.getContext('2d');
-          const fontSize = 24 * tileSpan;
-          ctx.font = `${fontSize}px serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(cursorMode.emoji, center, center);
-          const cursorUrl = canvas.toDataURL();
-          applyCursor(cursorUrl);
-        }
-      };
-      img.src = cursorMode.src || `/assets/resources/${cursorMode.filename}`; // src: a tile swatch (UI/Icons/TileSwatch.js)
-    } else {
-      // Use emoji cursor
-      const canvas = document.createElement('canvas');
-      canvas.width = canvasSize;
-      canvas.height = canvasSize;
-      const ctx = canvas.getContext('2d');
-      const fontSize = 24 * tileSpan;
-      ctx.font = `${fontSize}px serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(cursorMode.emoji, center, center);
-      const cursorUrl = canvas.toDataURL();
-      applyCursor(cursorUrl);
-    }
-
-    return () => {
-      document.body.classList.remove('cursor-mode-active');
-      const existingStyle = document.getElementById('cursor-mode-style');
-      if (existingStyle) existingStyle.remove();
-    };
-  } else {
-    document.body.classList.remove('cursor-mode-active');
-    const existingStyle = document.getElementById('cursor-mode-style');
-    if (existingStyle) existingStyle.remove();
-  }
-}, [cursorMode]);
+// Placing something (cursor mode): the mouse stays the ordinary pointer over the board; the thing
+// itself and its footprint are previewed on the board under it (PixiRendererCursor.js), white,
+// or red where it cannot go. Off the board (any panel or UI) the preview stops.
+// (the board's own cursor is the pointer: PixiRenderer's .pixi-container)
 
 // Register notification click handlers
 useEffect(() => {

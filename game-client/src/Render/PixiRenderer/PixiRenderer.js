@@ -2069,6 +2069,9 @@ const PixiRenderer = ({
         cursorMode={cursorMode}
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
+        masterResources={masterResources}
+        resources={resources}
+        tileTypes={tileTypes}
       />}
       {/* VFX layer for range indicators and other effects */}
       {!scene && <PixiRendererVFX
