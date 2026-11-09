@@ -1,4 +1,298 @@
-# Parts-based avatar system: PLAN (2026-10-11)
+# Characters: the full-body avatar and NPC system (plan v2, 2026-11-09)
+
+Status: **PLAN, nothing commissioned.** This section replaces the bust plan of 2026-10-11
+where the two disagree; the bust plan is kept below as the Appendix because its code (the
+catalogue, `lookFor`, the compositor, the routes, the developer-only Edit Avatar modal, the
+Avatar Lab) is art-agnostic and carries straight over. Companion docs:
+`docs/art-pipeline-plan.md` (the generator, slice A and B findings), `docs/art/slice-b/npc-parts.md`
+(the one experiment in generating parts as layers; its findings shape §6), `docs/art/deco.md`
+and `docs/art/zoo-animals-plan.md` (the painterly loop every character must match).
+
+## 0. The answer in one paragraph
+
+One rig, two halves. The **head** is parts (face, eyes, hair, facial hair, hat: tinted,
+blinking, exactly the bust system that already exists, with its art regenerated painterly).
+The **body** is not parts: every clothing row is ONE painted drawing of the base body wearing
+that outfit, with the exposed skin keyed into a tintable layer, so an outfit never has to be
+cut out of anything. The figure stands one tile wide and one and a half tall, feet on the
+tile's bottom edge, shoulders at its top edge, head in the tile above. It has **one pose**: a
+three-quarter view turned a little toward the viewer's right, mirrored for left, unchanged
+for up and down (the scheme Cult of the Lamb, Forager and Pixel Knight Online use). It
+**moves as a puppet**: a bob, a lean and a foot shuffle computed from the still art, no
+frames drawn. **Players** build themselves from parts; **named NPCs** are whole characters
+drawn once each on the same rig, split head from body so they blink and walk the same way.
+The style is landed first on four whole characters at 45 px on grass beside the barrel and
+the cow, and only then are they deconstructed into the first parts.
+
+## 1. The owner's framework, answered point by point
+
+1. **Evolve avatar-plan.md.** Done here; the bust plan is the Appendix.
+2. **The dev-only editor.** `AvatarModal` (Player panel, developer accounts) stays the
+   picker; it composes through `lookFor` + `renderLook`, which do not care what a part
+   looks like. It gains a full-figure preview and the body tab, nothing is thrown away.
+3. **Land the style on three or four characters first, then deconstruct.** Agreed, and it
+   is also how the model works best: whole characters come out consistent, parts drawn alone
+   drift (npc-parts.md §3). Phase 1 is four whole characters; Phase 3 cuts them up.
+4. **Not pixel art; match the animals.** The characters are generated with the same
+   controls as every animal: the barrel for the camera, the Cow for the rendering, magenta
+   for the cut. No game is imitated for the look. Games are cited below only for the
+   scheme (pose and motion), never the drawing.
+5. **Full body, toes to shoulders in the tile, head above.** The frame is 256 x 384
+   (1 x 1.5 tiles): feet line at y 372, shoulder line at y ~128 (the tile's top edge), hair
+   top near y 20, hats up to y 0. The rig is measured from the approved four (§3).
+6. **Future requirements shape the style.** Three rules go into the Phase 1 prompts because
+   they cannot be added later: the three-quarter pose (so one drawing serves four
+   directions), the feet standing slightly apart on a flat ground line (so a foot can be cut
+   and shuffled), and a plain closed silhouette with no trailing cloth or props outside the
+   body (so the mirror flip and the puppet cuts stay clean).
+7. **Skin tone, gender, hair style, face types, facial hair, eye colour, clothing.** All
+   seven are slots or palettes in §4. Gender is the `body` choice (female or male), which
+   picks the base body, the face set and the outfit cut; face types are two to three face
+   rows per body. The pipeline per slot is §6; assembly is the existing compositor plus one
+   new actor container on the board (§5).
+8. **Eyes blink.** The head is its own sprite, so a blink is a texture swap of the head
+   alone (two cached canvases per look, as the bust plan said). Whole-character NPCs get a
+   lids overlay drawn at the rig's eye boxes, so they blink too.
+9. **Walking without turning.** Yes, it looks fine, provided the motion is a puppet motion
+   and the pose is three-quarter rather than dead-front. Forager and Cult of the Lamb both
+   ship a single facing that mirrors, with a bob and lean instead of a walk cycle, and
+   nobody reads it as sliding; Pixel Knight does the same with frames. What reads as
+   sliding is a static picture translating with nothing moving on it, which is what we
+   have today. So: no side or back views, ever, for parts; the rotation multiplier is 1.
+10. **The feet-shuffle idea.** It is the second step of the puppet (§5, v2): the rig knows
+    where the feet are, the build step cuts each outfit into torso, left foot and right foot
+    (or left leg and right leg, from the knee, for trousers), and the renderer alternates
+    them a few pixels while walking. Gowns set `feet: hidden` and sway instead. Trousers
+    work because the cut is the lower leg, not the foot; at 45 px a two-position leg swing
+    reads as walking (Stardew's whole walk cycle is four frames at 16 x 32).
+11. **Forty unique characters instead of parts.** Half yes. The named NPCs (the 35 Citizens,
+    Fairy, Santa, Porter, Oracle) ARE that lane: one whole drawing each, cheapest and most
+    faithful, no parts budget spent on Caliban's build or the Mermaid's tail. Players still
+    get parts, because the owner wants customisation and the head is the part of a figure
+    that varies most and is cheapest to layer. The two lanes share the rig, the actor and
+    the motion, so the board shows one kind of character.
+12. **The Pixel Knight scheme.** Adopted (§2 D1), minus their frames: our frames are a
+    puppet. Their one asymmetry (the weapon changes hands when you walk left) is accepted;
+    every game with this scheme has it and nobody minds.
+
+## 2. Decisions this plan proposes (owner to confirm)
+
+- **D1. One pose, mirrored.** Three-quarter front, turned slightly to the viewer's right;
+  left = `scale.x = -1`; up and down use the same drawing. This retires v1 decision 5 (no
+  flip) and the `artFacing: 'front'` rule for busts. Every character is drawn right-turned
+  so the flip rule is one line.
+- **D2. The frame.** 256 x 384, one tile wide, one and a half tall; feet line y 372, the
+  tile's top edge (shoulders) y 128. Atlas slot 384 square (the figure centred
+  horizontally), anchored at the feet like `artSpan` art. Big builds (Caliban, the Bear
+  enemies later) may use `artScale` above 1 on the same frame.
+- **D3. Head and body are separate layers on one rig,** split at the neck socket (a line and
+  a width the rig fixes per body). The head composes at 256 px for the DOM (header, Profile,
+  Leaderboard) and is placed on the body at the socket on the board.
+- **D4. The body is the outfit.** A clothing row's art is the whole dressed body below the
+  socket (arms, hands, legs, feet included), drawn once per body (female and male). No
+  "skin" body layer under it; "No Clothes" is the base body in its shift. Exposed skin in
+  the drawing is keyed into a second file tinted by `skinTone` (`file2` / `tint2`, which the
+  catalogue already has). Armour rows are outfit rows (`avatarTop` on the weapon/armour row
+  as before).
+- **D5. Two lanes, one rig.** Players: parts. Named NPCs: whole characters (a resource row
+  keeps `filename`, pointing at a figure drawn on the rig, plus `headFile` for the blinking
+  head or a `faceBox` for the lids overlay). Enemies are a third lane, creatures, drawn
+  side-on like the farm animals, outside this plan.
+- **D6. Motion is a puppet, in two steps.** v1: bob and lean computed from the existing
+  step tween (the NPC bob exists; the PC gets the same). v2: foot or lower-leg pieces cut
+  by the rig boxes at atlas-build time, alternated while walking. Generated walk frames are
+  not planned; §8 says what would make us reach for them.
+- **D7. Two bodies, outfits per body, faces per body.** Female and male base bodies; an
+  outfit is two drawings (one per body) or is marked for one body only; two face types per
+  body at launch (round, long), each face naming its eyes as today.
+- **D8. Blink by head swap.** Parts heads: the open and closed head canvases. Whole NPCs: a
+  lids overlay generated once per character, placed by the rig's eye boxes.
+- **D9. Style = the animals' loop.** Barrel camera, Cow rendering, painterly whimsical, full
+  daylight, magenta cut, `finish.py` seat and defringe; the proportion reference is the
+  approved slice A Gertrude (about four heads, adult build, big head) redrawn in this
+  rendering. The first approved character replaces that prose as the reference (the
+  pipeline's standing rule).
+- **D10. The v1 scaffolding stays; the salvage tools retire.** Keep `avatarLook.js`,
+  `avatarCompositor.js`, `AvatarModal.js`, the two tuning sheets, the routes, the Lab,
+  `render.js`. Retire `deconstruct.js`, `assemble.js` and the recipes (parts cut from the
+  flat Citizen busts), and the 18 prototype parts they produced, once the first painterly
+  parts exist. The 29 legacy `pc-*.svg` icons and `PlayerIcons.json` go in Phase 5 as v1
+  §3 D said.
+
+## 3. The rig v3
+
+Measured, not designed: once the four Phase 1 characters are approved, `tools/art/measure.js`
+and colour scans (the method of npc-parts.md §1) give per-body landmarks, written to
+`tools/avatar/recipes/_body.json` v3 (the v2 draft in `docs/art/slice-b/_body.v2.json` is the
+template; its numbers came from the elsinore-style figures and will move):
+
+| landmark | used by |
+|---|---|
+| feet line, feet boxes (left, right), lower-leg boxes | anchor, the foot shuffle cut, the check |
+| shoulder line = the tile's top edge, torso box, arm columns | the outfit mask, the check |
+| hand boxes (left, right) | the `hand` slot (held weapon), drawn at the right hand |
+| neck socket (y, x range) | the head/body split; the head's placement |
+| chin, jaw outline, eye line and eye boxes, brow, hair band, crown | face/eyes/beard/hair/hat masks, the lids overlay, the blink |
+| contact shadow box | part of the body drawing, kept |
+
+From it, `tools/art/guides.js` draws the pose guide for generation: the magenta field, the
+1 x 1 tile box with the half-tile headroom marked, and (once a base body exists) a faint
+ghost of it, so a whole character or an outfit lands at the right size and place. The rig is
+one JSON; the guides, the masks, the cut boxes and the Lab overlay are all drawn from it.
+
+## 4. Slots and z order (v3)
+
+Back to front. "Group" says which composite the layer belongs to.
+
+| z | slot | group | tint | art | notes |
+|---|---|---|---|---|---|
+| 0 | hairBack | head | hairColor | per hair row, optional | hair behind the shoulders, drawn behind the body |
+| 1 | body | body | file2 = skinTone | one drawing per outfit row per body | the outfit IS the body; `feet: hidden` for gowns; armour rows live here |
+| 2 | hand | body | none | per weapon family | the held item at the right hand box; armed grid kinds only (v1 decision 3) |
+| 3 | face | head | skinTone | per face row per body | the bald head and neck down to the socket; names its eyes |
+| 4 | eyes | head | eyeColor (iris) | per face | open; `blinkFile` = the lids |
+| 5 | facialHair | head | hairColor | per beard row | cut to the jaw of the body it is drawn on; `fileMale` as today |
+| 6 | hairFront | head | hairColor | per hair row | `underHat` variant as today |
+| 7 | hat | head | none | per hat row | `hidesHair` as today |
+
+The spec (`player.avatar`) keeps v1's keys and adds `body` (female / male, replacing the
+skin row's implicit body) and `outfit` (replacing `top`). `lookFor` returns two layer lists,
+`head` and `body`, plus their blink variant; `renderLook` draws each; the actor places them.
+Slot folders: `public/assets/avatar/<slot>/`, PNG with alpha (the atlas `avatar/` namespace
+already takes PNG). Palettes stay `avatarPalettes.json`; the tint rule stays multiply, so
+faces are drawn at the lightest tone and hair in near-white grey (npc-parts.md §4, D7: the
+palette becomes relative).
+
+## 5. Runtime: the actor
+
+One Pixi `Container` per character (the PC and every Citizen; enemies keep their path):
+
+- children: `body` sprite (later: `torso`, `footL`, `footR`), `head` sprite, optional
+  `hand`; the container's pivot is the feet line, placed at the tile's bottom-centre;
+  `zIndex = actorZ(feetRow)` as today.
+- facing: `container.scale.x = facing < 0 ? -1 : 1` on a horizontal step (the NPC renderer's
+  flip, now applied to the PC too, with the art always drawn right-turned).
+- walking: from the step tween's `progress` (both renderers have it): `y` bob
+  `sin(progress * PI) * TILE * 0.06` (exists), a lean of 3 to 4 degrees into the direction
+  of travel that eases out on arrival, and in v2 the foot pieces alternating ±2 px with a
+  tiny rotation; standing still: nothing moves except the blink.
+- blink: one shared timer; each actor has a seeded phase (the NPC step jitter's seed), closes
+  for ~120 ms every 3 to 6 s by swapping the head texture; whole NPCs draw the lids overlay
+  sprite instead.
+- states: dead, camping and boat stay whole-icon swaps (v1 decision 6); low health tints the
+  container green through `CombatFX`'s rest-tint rule (v1 §2.5); the lunge and hit flash act
+  on the container, so `CombatFX.registerPC` is unchanged.
+- textures: the compositor's canvases, cached per look (one body canvas, two head canvases);
+  raise `MAX_CACHED` to cover a town of 20 Citizens plus the PC. Whole NPCs come from the
+  atlas directly (`resources/<file>` as today) with the head cut by the socket at atlas
+  build, so they blink without a compositor pass.
+- DOM: `AvatarImage` shows the head composite at 256 (header, Profile, Player and Combat
+  panels, Leaderboard, Market, settlement cell) and the full figure in the picker.
+
+## 6. The pipeline per kind of art
+
+All through `tools/art/generate.js` with the whimsical style, `cutout.js` and `finish.py`;
+new scripts are named where needed. Every call attaches the barrel (camera), the Cow
+(rendering), the pose guide (placement) and, for anything after Phase 1, the approved
+character it must match.
+
+- **Whole character** (Phase 1 prototypes, every named NPC): one image, two candidates,
+  magenta, cut, finished, presented on grass at 45 px beside the barrel and the Cow. Proven
+  on both styles (slice A Gertrude and Hotspur; the farm animals and zoo for this
+  rendering).
+- **Base bodies** (one per body): "the same person, bald, in a plain sleeveless shift in
+  undyed tan, the lightest skin tone, bare feet, same size and place" from an approved
+  character. Proven (npc-parts.md: two of two landed within 3 % of the source). The shift is
+  not white, so near-white hair can be told from it (that experiment's D4).
+- **Faces**: the base body's head, cut at the socket (deterministic, no generation); a
+  second face type per body by "the same head, rounder / longer face" worn on the base.
+  Eyes: the iris keyed out of the face into `file2`; the lids drawn once per face ("the same
+  head with eyes closed") and diffed inside the eye boxes only.
+- **Outfits and armour**: "the base body wearing X" drawn on the base body (proven: the robe
+  came back in place). Then: head removed at the socket, skin pixels keyed by the base
+  tone's hue into `file2` (the defringe keyer's hue test, restricted to the rig's skin-
+  plausible boxes: hands, neck, lower legs, so tan leather on the torso survives). No
+  subtraction. Two drawings per outfit (female, male). Probe first (§7, P3).
+- **Hair, facial hair, hats**: worn-then-subtracted at HEAD scale (the head region of the
+  base body cropped and sent at 1024 px, which gives the model three times the pixels it
+  had for the whole figure in the experiment): "redraw this head exactly and add only the
+  hair, in near-white grey". Diff with the 3 px tolerance, drop small blobs, erode 1 px
+  where the layer touches skin (the halo fix the experiment named). Alternative probed in
+  P3: a mannequin head whose scalp is flat green in the guide, keyed like the background.
+  `underHat` and `hidesHair` rules as in v1 §2.3.
+- **Hands (held weapons)**: one drawing per weapon family at the right hand box, on the
+  base body, subtracted; ~10 drawings for 20 weapon rows.
+- **Checks** (`tools/art/check.js`, from the rig): head top and feet line within 3 % of the
+  base; outfit pixels inside the body footprint plus a collar tolerance and covering the
+  socket line; hair inside the hair band to shoulder band and nothing in the face below the
+  eye line; beard on and under the jaw only; every layer's same lighting (stated, not
+  measured). A failed candidate never reaches the sheet.
+
+Budget (gpt-image-2 medium, two candidates each unless noted): 4 prototypes (8) + 2 bases
+(6) + 4 faces (8) + 10 hair (20) + 4 beards (8) + 6 hats (12) + 8 outfits x 2 bodies (32) +
+7 armours x 2 (28) + 10 hands (20) + 39 named NPCs (78) + lids and probes (~20) = about 240
+images, around $15 to $25 at current prices, spread over five phases. Money is not the
+constraint; **review rounds are**: each gate is one grass sheet the owner looks at, and the
+plan is ordered so each gate unblocks the most art.
+
+## 7. Phases and gates
+
+| phase | what | images | gate |
+|---|---|---|---|
+| P1 Style lock | Four whole characters, right-turned three-quarter, on the rig frame: a peasant woman and a peasant man (the two starter looks), Gertrude (an NPC port, to see a known face survive the rendering), Kent (beard and hat). The peasant woman also dead-front, as the one A/B for D1. | ~10 | the owner picks a rendering, a pose and a proportion; the winners become the character bible |
+| P2 Rig v3 | measure the four, write `_body.json` v3, draw the pose guide and the masks, the Lab overlay | 0 | none (a doc and a JSON) |
+| P3 Bases and probes | the two base bodies; the skin-key probe (one outfit through D4); the hair probe both routes (head-scale subtraction vs green-scalp mannequin); faces cut; lids | ~20 | the owner approves the bases and the two probe results on a sheet; the losing hair route is dropped |
+| P4 Starter parts set | 10 hair, 4 beards, 6 hats, 8 outfits x 2, 7 armours x 2, 10 hands, 2nd face per body | ~130 | one sheet per slot, composited on the base body; picks and regenerates |
+| P5 Runtime and release | the actor container; `lookFor` two groups; `AvatarModal` to players (Profile, Player panel, FTUE beat); routes and per-part entitlement (v1 §2.6-2.7); migration (v1 §6); retire `PlayerIcons.json`, `pc-*.svg`, the salvage tools | 0 | ships |
+| P6 Named NPCs | 39 whole characters, one at a time, oldest emoji first (Fairy, Santa, Porter, Oracle), then the Citizens; each row switches `filename` to its figure and gains `headFile` | ~80 | per batch of ~8 on grass |
+| P7 Foot shuffle | the cut at atlas build, the alternation in the actor; gowns sway | 0 | a short screen recording |
+
+P1 can start the day the owner confirms D1 and D9. P2 to P4 follow in order; P5 can be
+written in parallel with P4 (it needs only the bases and one outfit). P6 is independent of
+P4 and P5 and can run whenever the owner wants to spend review time on it.
+
+## 8. Risks, and what would change the plan
+
+- **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front
+  wins, D1 becomes front with no flip and the weapon hand problem vanishes.
+- **Skin keying misfires** on tan and leather clothes. Fallback: the rig's hand boxes get a
+  tinted `hands` part per body (two small drawings) and outfits are prompted long-sleeved
+  with hose or boots, so the only exposed skin is the hands and the neck.
+- **Head-scale subtraction still halos.** Then the green-scalp mannequin, and failing that
+  the slower route of generating each hair as a whole head (face included) and keying the
+  face out by the rig's face mask, which is coarse but deterministic.
+- **The puppet looks cheap.** v2 (foot pieces) is the answer before any frame is drawn. The
+  only case for generated frames is a hero animation (a swing, a dig) and those would be
+  per body, not per outfit, so still a small set.
+- **Outfits per body double the clothing budget.** Accepted; it is what makes gender a real
+  choice. An outfit may be single-body.
+- **Mirror flip exposes asymmetry** (a parting, a shoulder bag). Accepted (point 12), and the
+  prompts ask for symmetric clothing.
+- **Memory.** Up to ~25 actors x 3 or 4 sprites and ~50 cached canvases at 256 to 384 px:
+  well inside what the board holds today; the atlas sheets grow by one.
+
+## 9. Not in scope
+
+Side and back views; generated walk cycles; body shapes beyond the two bodies; expressions
+and mouths; eye shapes; the enemy creatures (their own lane, side-on); the share image.
+
+## 10. Next steps
+
+1. The owner confirms D1 to D10, or marks the ones to change (D1 the flip and D5 the two
+   lanes are the ones that reshape the work).
+2. P1 job `tools/art/jobs/characters-r1.json` with the five subjects above, two candidates
+   each, and a grass presentation at 45 px beside the barrel and the Cow. One review round,
+   then P2 at once.
+
+---
+
+# Appendix: the bust plan of 2026-10-11 (v1), kept for what it built
+
+Where the text below contradicts v2 (busts, the 256 square frame, no flip, the `skin` body
+layer, `top`), v2 wins. Its §0 (what is built), §1 (the emoji icon code paths), §2.4 to §2.7
+(compositor, equipment feed, picker, server), §3 D (retirement) and §6 (migration) stand.
+
+## Parts-based avatar system: PLAN (2026-10-11)
 
 The player avatar stops being one emoji picked from a list and becomes a head-and-shoulders
 bust built from parts (skin tone, hair style, hair colour, eye colour, hat, clothes), in the
@@ -10,7 +304,7 @@ Status: **slices 0 and 1 built 2026-10-12** (§3); nothing player-facing yet. Th
 proper is a separate pass after the scaffolding (§9, decision 7); slice 1's prototype parts
 come out of the existing Citizen busts.
 
-## 0. What is built today (2026-10-12)
+### 0. What is built today (2026-10-12)
 
 - **Assets**: `game-client/public/assets/avatar/` with `rig.svg` (guides), one folder per
   slot (`skin`, `hairBack`, `hairFront`, `facialHair`, `eyes`, `hat`, `top`, `hand`, `npc`),
@@ -73,7 +367,7 @@ come out of the existing Citizen busts.
   (`top-03`); Angelo's crown (`hat-02`) and Gertrude's tiara (`hat-03`), both paid. Hair,
   facial hair and hat have a None; face, eyes and clothes always have something. Hands stay placeholders (no weapon art in the busts).
 
-## 1. What exists today (file:line)
+### 1. What exists today (file:line)
 
 | Piece | Where | Notes |
 |---|---|---|
@@ -99,9 +393,9 @@ Everything else that shows the avatar reads `icon` as TEXT:
 - settlement / frontier view: `PixiRendererFrontierSettlements.js:116` (the "you are here" cell)
 - chat stores no icon (nothing to do)
 
-## 2. Target
+### 2. Target
 
-### 2.1 Data
+#### 2.1 Data
 
 ```
 player.avatar = {
@@ -130,7 +424,7 @@ player.avatarParts = ['hat-straw', …]   // paid parts this player has bought (
   renderer composes it exactly as the PC. Parts with `tier: 'npc'` exist for them (Kent's
   hat, Portia's robe) and never appear in the player's picker.
 
-### 2.2 Catalogue (tuning, editor sheet)
+#### 2.2 Catalogue (tuning, editor sheet)
 
 `game-server/tuning/avatarParts.json`, one row per part, edited in the VVGame Editor through
 a definition in `tools/editor/sheets/definitions.js` (free sheet, validation, CSV import):
@@ -159,7 +453,7 @@ Equipment mapping lives on the ECONOMY sheet (resources.json), two new columns:
 art per weapon FAMILY (sword, knife, bow, crossbow, spear, halberd, axe, darts) with a
 per-weapon override when a weapon deserves its own (Dragonslayer, Titania's Bow).
 
-### 2.3 The rig and the art
+#### 2.3 The rig and the art
 
 - **The body contract** (`tools/avatar/recipes/_body.json`, 2026-10-14). One 256×256 frame.
   The BODY is one female head (traced from Gertrude), one male head (the shared crown with
@@ -208,7 +502,7 @@ drawings. Then the Citizens' own parts as they move onto the rig. **The art itse
 later pass** (decision 7): the scaffolding ships with a handful of placeholder parts drawn
 to the rig so every path can be verified.
 
-### 2.4 The compositor (one module, two consumers)
+#### 2.4 The compositor (one module, two consumers)
 
 `game-client/src/Avatar/avatarCompositor.js`:
 
@@ -233,7 +527,7 @@ to the rig so every path can be verified.
 - Speech bubbles: `PixiRendererSpeech` accepts a texture topic as well as an emoji, so the
   `player` topic (Greet) shows the player's own bust.
 
-### 2.5 Equipment feed and the put-away rule
+#### 2.5 Equipment feed and the put-away rule
 
 - Clothes = `avatar.top` unless `settings.equippedArmor` maps to an `avatarTop`; then the
   armour's top replaces it, on every grid kind (decision 3).
@@ -247,7 +541,7 @@ to the rig so every path can be verified.
   the threshold, and `restTint` reads that resting value so the red flash restores to green,
   not white.
 
-### 2.6 The picker
+#### 2.6 The picker
 
 `ChangeIconModal` grows into `AvatarModal` (same mount points: Profile, Player panel, the
 FTUE avatar beat with `freeOnly`):
@@ -268,7 +562,7 @@ FTUE avatar beat with `freeOnly`):
 - Mobile: phone layout rules in `docs/ui-conventions.md` apply (full-screen panel box);
   the modal is a portal to `document.body` like every modal.
 
-### 2.7 Server
+#### 2.7 Server
 
 - `avatar` on the Player schema (object with the fields above) and `avatarParts: [String]`,
   default = the starter look (first free part of every slot, tone 3) and no bought parts.
@@ -279,7 +573,7 @@ FTUE avatar beat with `freeOnly`):
 - `POST /api/player/avatar` (above). `createPlayerAccount` gives the starter look.
 - `/players`, leaderboard and market selects include `avatar`.
 
-## 3. Build order (slices; each ships on its own)
+### 3. Build order (slices; each ships on its own)
 
 (Re-cut 2026-10-12 into slices 0 to 6, see the session plan; 0 and 1 are built, §0.)
 
@@ -303,7 +597,7 @@ FTUE avatar beat with `freeOnly`):
   from `filename` to `avatar`; both work meanwhile). Every later batch is a data drop: svg +
   a sheet row + `npm run build:atlas`.
 
-## 4. Gotchas (found while scoping)
+### 4. Gotchas (found while scoping)
 
 1. **Two items are weapon AND armour.** `isArmor` = `armorclass > 0`, so Sword of Song and
    Titania's Bow can be equipped as armour (`CombatPanel` lists them in both). With an
@@ -333,18 +627,18 @@ FTUE avatar beat with `freeOnly`):
 11. **Localisation**: part labels are string keys; the picker copy gets `_touch` siblings if
     it says "click".
 
-## 5. Not in scope
+### 5. Not in scope
 
 Body shapes, expressions / mouths, eye shapes, the share image, chat avatars.
 
-## 6. Migration
+### 6. Migration
 
 One script (`game-server/scripts/`), backup first, run before the slice-D commit deploys:
 every player without `avatar` gets the starter look; `avatarsUnlocked` and Gold players
 get the launch paid set in `avatarParts` (no refund needed: they keep equivalent value);
 `icon` is left in place untouched (read by nothing after D).
 
-## 7. Numbers (for docs/tuning.md once decided)
+### 7. Numbers (for docs/tuning.md once decided)
 
 | knob | today | plan |
 |---|---|---|
@@ -352,11 +646,11 @@ get the launch paid set in `avatarParts` (no refund needed: they keep equivalent
 | starter look | 😀 | first free part per slot, tone 3 |
 | bust size on board | `TILE_SIZE * 0.9` | same |
 
-## 8. Design questions
+### 8. Design questions
 
 All answered 2026-10-11; see §9. New questions go here as they come up.
 
-## 9. Decisions (owner, 2026-10-11)
+### 9. Decisions (owner, 2026-10-11)
 
 1. **Legacy emoji avatars are retired.** Everyone gets a parts bust; the old 200-gem unlock
    and Gold map to the launch paid set (§6).

@@ -243,6 +243,15 @@ emoji left and `scripts/build-atlas.js` can drop its Twemoji step. **Where to st
 docs/avatar-plan.md §0 for what is built; the Citizens with portraits (Kent, Portia, ...) for
 the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
 
+**Plan v2 written 2026-11-09** (docs/avatar-plan.md, the top section; the bust plan is its
+appendix): full-body figures one tile wide and one and a half tall; one three-quarter pose
+mirrored for left (the flip rule reversed); head = parts (tinted, blinking), body = one painted
+outfit per clothing row per body with the skin keyed to a tint layer; motion is a puppet (bob
+and lean, then foot pieces), no frames; players get parts, the 39 named NPCs are whole
+characters on the same rig; enemies are a separate creature lane. Phases P1 (style lock on
+four whole characters) to P7, about 240 images in all. Waiting on the owner's confirmation of
+decisions D1 to D10 before any art is commissioned.
+
 ### BL-20: `save-single-npc` trusts whatever NPC state the client sends
 
 Added 2026-11-08.
