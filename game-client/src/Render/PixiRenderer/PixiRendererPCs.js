@@ -17,10 +17,15 @@ const normalizeEmoji = (emoji) => {
 
 // Build a static lookup map from emoji value to SVG filename (created once at module load)
 const iconToSvgMap = new Map();
+// A full-body figure icon (docs/avatar-plan.md v2, the Phase 1 figures used wholesale) carries
+// `artSpan` 1.5: its square is drawn that many tiles wide and tall, standing on the tile's
+// bottom edge, like artSpan art on the world layer; the busts and emoji keep the 0.9 square
+const iconToSpanMap = new Map();
 ['free', 'paid', 'platinum'].forEach(tier => {
   (playerIconsData[tier] || []).forEach(icon => {
     if (icon.filename) {
       iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
+      if (Number(icon.artSpan) > 0) iconToSpanMap.set(normalizeEmoji(icon.value), Number(icon.artSpan));
     }
   });
 });
@@ -394,10 +399,12 @@ const PixiRendererPCs = ({
       // Use SVG sprite
       const sprite = getSprite();
       sprite.texture = texture;
-      sprite.width = TILE_SIZE * 0.9;
-      sprite.height = TILE_SIZE * 0.9;
+      // a figure icon stands on the tile (its artSpan square's bottom edge is the tile's bottom edge)
+      const span = !getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon));
+      sprite.width = TILE_SIZE * (span || 0.9);
+      sprite.height = TILE_SIZE * (span || 0.9);
       sprite.x = xPos;
-      sprite.y = yPos;
+      sprite.y = span ? yPos + TILE_SIZE / 2 - (TILE_SIZE * span) / 2 : yPos;
       sprite.zIndex = actorZ(posY, 0.51); // by its feet (depthSort.js); wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();

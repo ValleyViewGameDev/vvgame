@@ -1,6 +1,30 @@
 {
   "free": [
     {
+      "label": "Gertrude",
+      "value": "👸",
+      "filename": "pc-figure-gertrude.svg",
+      "artSpan": 1.5
+    },
+    {
+      "label": "Farm Woman",
+      "value": "👩‍🌾",
+      "filename": "pc-figure-woman.svg",
+      "artSpan": 1.5
+    },
+    {
+      "label": "Farm Man",
+      "value": "👨‍🌾",
+      "filename": "pc-figure-man.svg",
+      "artSpan": 1.5
+    },
+    {
+      "label": "Kent",
+      "value": "🎩",
+      "filename": "pc-figure-kent.svg",
+      "artSpan": 1.5
+    },
+    {
       "label": "Cassio",
       "value": "🧝",
       "filename": "pc-cassio.svg"
