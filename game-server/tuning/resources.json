@@ -9901,7 +9901,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "noRelationship": true,
@@ -9924,9 +9924,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-kent.svg",
+    "filename": "npc-figure-kent.svg",
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "iconFile": "npc-kent.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Portia",
@@ -10593,7 +10595,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10614,7 +10616,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-gertrude.svg"
+    "filename": "npc-figure-gertrude.svg",
+    "iconFile": "npc-gertrude.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Leontes",

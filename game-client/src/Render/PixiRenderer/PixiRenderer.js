@@ -1184,7 +1184,13 @@ const PixiRenderer = ({
         // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile); a row's
         // `artScale` (resources.json, e.g. the Great Bear's 1.5) draws a bigger beast on the same tile
         const artScale = Number(npc.artScale) > 0 ? Number(npc.artScale) : 1;
-        const spriteSize = (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
+        // `artSpan` (a full-body figure, docs/avatar-plan.md v2: 1.8) draws the square that many tiles
+        // wide and tall STANDING on its tile: the anchor puts the square's bottom edge on the tile's
+        // bottom edge while the object's position stays the tile centre (the tween, the z-sort and
+        // CombatFX are untouched); a bust or emoji keeps the centred square
+        const artSpan = !emojiSized && Number(npc.artSpan) > 0 ? Number(npc.artSpan) : 0;
+        const anchorY = artSpan ? 1 - 0.5 / artSpan : 0.5;
+        const spriteSize = artSpan ? TILE_SIZE * artSpan : (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
         if (!npc.symbol && !texture) continue;
 
         const targetPos = npc.position || { x: npc.x, y: npc.y };
@@ -1213,7 +1219,7 @@ const PixiRenderer = ({
             displayObj = new Sprite(texture);
             displayObj.width = spriteSize;
             displayObj.height = spriteSize;
-            displayObj.anchor.set(0.5, 0.5);
+            displayObj.anchor.set(0.5, anchorY);
           } else {
             displayObj = new Text(npc.symbol, {
               fontSize: fontSize * artScale,
@@ -1251,6 +1257,7 @@ const PixiRenderer = ({
             displayObj.texture = texture;
             displayObj.width = spriteSize;
             displayObj.height = spriteSize;
+            if (displayObj.anchor.y !== anchorY) displayObj.anchor.set(0.5, anchorY);
           } else {
             // Update text content and style
             displayObj.text = npc.symbol;
