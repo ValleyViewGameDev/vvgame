@@ -81,16 +81,16 @@ const MoveIcon = () => (
 
 export default function SellSection({ resourceType, masterResources, refund, onSell, transactionKey, onMove, canSell, canMove, isDeveloper, sellLocked = false, disabled = false }) {
   const strings = useStrings();
-  const v = visibility({ canSell, canMove, isDeveloper, onMove, sellLocked });
-  if (!v.sell && !v.move) return null;
-  const { money, others } = refundFor(resourceType, masterResources, refund);
-  const label = strings[2112] || 'Sell';
-  // the refund as rich text ("{res:Money} 120, {res:Wood} 5"); nothing back = its own line
-  const refundText = [...(money > 0 || others.length === 0 ? [`{res:Money} ${money.toLocaleString()}`] : []), ...others.map((o) => `{res:${o.type}} ${o.quantity.toLocaleString()}`)].join(', ');
   // One sale at a time (the spam guard TransactionButton used to give): the button stays "Sell"
   // while the confirm is open and only locks once OK has been tapped
   const [selling, setSelling] = useState(false);
   const [transactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`);
+  const v = visibility({ canSell, canMove, isDeveloper, onMove, sellLocked });
+  if (!v.sell && !v.move) return null; // after every hook (react-hooks/rules-of-hooks)
+  const { money, others } = refundFor(resourceType, masterResources, refund);
+  const label = strings[2112] || 'Sell';
+  // the refund as rich text ("{res:Money} 120, {res:Wood} 5"); nothing back = its own line
+  const refundText = [...(money > 0 || others.length === 0 ? [`{res:Money} ${money.toLocaleString()}`] : []), ...others.map((o) => `{res:${o.type}} ${o.quantity.toLocaleString()}`)].join(', ');
   const confirmThenSell = async (e) => {
     e.preventDefault(); e.stopPropagation();
     if (selling || disabled) return;
