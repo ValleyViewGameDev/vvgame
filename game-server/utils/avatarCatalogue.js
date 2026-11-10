@@ -31,7 +31,10 @@ const byId = (rows, id) => (id ? rows.find((r) => r && r.id === id) || null : nu
 function defaultSpec() {
   const { catalogue, palettes } = load();
   const inSlot = (slot) => catalogue.filter((r) => r.slot === slot);
-  const firstFree = (slot) => inSlot(slot).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
+  const face = inSlot('skin').find((p) => (p.tier || 'free') === 'free' && p.file);
+  const body = face?.body || null;
+  // every slot from the face's body: rows with no body (None, shared art) or drawn for it (docs/avatar-plan.md v2 D7)
+  const firstFree = (slot) => inSlot(slot).filter((r) => !r.body || !body || r.body === body).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const swatches = (slot) => palettes.filter((r) => r.slot === slot);
   const tones = swatches('skinTone');
   return {

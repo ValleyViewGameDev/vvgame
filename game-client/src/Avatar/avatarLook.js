@@ -33,6 +33,10 @@ export const partSrc = (part, which = 'file') => (part && part[which] ? `${partF
 
 export const byId = (rows, id) => (id ? (rows || []).find((r) => r && r.id === id) || null : null);
 export const partsInSlot = (catalogue, slot) => (catalogue || []).filter((r) => r && r.slot === slot);
+/** The parts of a slot a BODY can wear: rows with no `body` (None, shared art) and rows drawn for that body (docs/avatar-plan.md v2 D7). */
+export const partsFor = (catalogue, slot, body) => partsInSlot(catalogue, slot).filter((r) => !r.body || !body || r.body === body);
+/** The body a spec stands on: its face's `body` (female / male). */
+export const bodyOf = (catalogue, spec) => byId(catalogue, spec?.skin)?.body || null;
 export const palette = (palettes, slot) => (palettes || []).filter((r) => r && r.slot === slot);
 
 /** Hex for a palette id, or null. */
@@ -48,16 +52,28 @@ export function eyesForFace(catalogue, spec) {
 }
 
 /** The spec with its eyes set from the face. */
-export const withEyes = (catalogue, spec) => ({ ...spec, eyes: eyesForFace(catalogue, spec) });
+export const withEyes = (catalogue, spec) => {
+  const out = { ...spec, eyes: eyesForFace(catalogue, spec) };
+  const body = bodyOf(catalogue, out);
+  if (body) for (const [key, slot] of Object.entries(SLOT_OF_SPEC_KEY)) {
+    if (key === 'skin' || key === 'eyes') continue;
+    const row = byId(catalogue, out[key]);
+    if (row && row.body && row.body !== body) out[key] = partsFor(catalogue, slot, body).find((p) => p.file)?.id || partsFor(catalogue, slot, body)[0]?.id || null; // the other body's part: swap for this body's first
+  }
+  return out;
+};
 
 /** The starter look: the first free part of every slot, the second-lightest skin tone. */
-export function defaultSpec(catalogue, palettes) {
-  const firstFree = (slot) => partsInSlot(catalogue, slot).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
+export function defaultSpec(catalogue, palettes, body = null) {
+  // every slot from the face's body (the first free face when none is asked for)
+  const face = partsInSlot(catalogue, 'skin').find((p) => (p.tier || 'free') === 'free' && p.file && (!body || p.body === body)) || partsInSlot(catalogue, 'skin').find((p) => p.file);
+  const b = face?.body || body;
+  const firstFree = (slot) => partsFor(catalogue, slot, b).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const firstColor = (slot) => palette(palettes, slot)[0]?.id || null;
   const tones = palette(palettes, 'skinTone');
   return withEyes(catalogue, {
     v: SPEC_VERSION,
-    skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest (owner 2026-10-14)
+    skin: face?.id || null, skinTone: (tones[1] || tones[0])?.id || null, // the second lightest (owner 2026-10-14)
     hair: firstFree('hair'), hairColor: firstColor('hairColor'),
     eyes: null, eyeColor: firstColor('eyeColor'),
     facialHair: partsInSlot(catalogue, 'facialHair').find((p) => !p.file)?.id || null,

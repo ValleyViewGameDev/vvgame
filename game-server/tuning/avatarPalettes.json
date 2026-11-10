@@ -2,128 +2,93 @@
   {
     "id": "tone-1",
     "slot": "skinTone",
-    "label": "Porcelain",
-    "hex": "#F6DCC8",
+    "label": "Light",
+    "hex": "#FFFFFF",
     "tier": "free"
   },
   {
     "id": "tone-2",
     "slot": "skinTone",
-    "label": "Fair",
-    "hex": "#EFC6A4",
+    "label": "Warm",
+    "hex": "#F2D6C0",
     "tier": "free"
   },
   {
     "id": "tone-3",
     "slot": "skinTone",
-    "label": "Honey",
-    "hex": "#D9A777",
+    "label": "Tan",
+    "hex": "#E0B894",
     "tier": "free"
   },
   {
     "id": "tone-4",
     "slot": "skinTone",
     "label": "Olive",
-    "hex": "#B98659",
+    "hex": "#C9956A",
     "tier": "free"
   },
   {
     "id": "tone-5",
     "slot": "skinTone",
     "label": "Brown",
-    "hex": "#8C5A3C",
+    "hex": "#A8714A",
     "tier": "free"
   },
   {
-    "id": "hair-black",
-    "slot": "hairColor",
-    "label": "Black",
-    "hex": "#262129",
+    "id": "tone-6",
+    "slot": "skinTone",
+    "label": "Deep",
+    "hex": "#7A4A2A",
     "tier": "free"
   },
   {
     "id": "hair-brown",
     "slot": "hairColor",
     "label": "Brown",
-    "hex": "#5B3A21",
-    "tier": "free"
-  },
-  {
-    "id": "hair-chestnut",
-    "slot": "hairColor",
-    "label": "Chestnut",
-    "hex": "#8B4A2B",
+    "hex": "#8A5A2B",
     "tier": "free"
   },
   {
     "id": "hair-blonde",
     "slot": "hairColor",
     "label": "Blonde",
-    "hex": "#E3C27A",
+    "hex": "#E8C872",
     "tier": "free"
   },
   {
-    "id": "hair-auburn",
+    "id": "hair-black",
     "slot": "hairColor",
-    "label": "Auburn",
-    "hex": "#A8431E",
+    "label": "Black",
+    "hex": "#3A2A22",
+    "tier": "free"
+  },
+  {
+    "id": "hair-red",
+    "slot": "hairColor",
+    "label": "Red",
+    "hex": "#B5452A",
     "tier": "free"
   },
   {
     "id": "hair-grey",
     "slot": "hairColor",
     "label": "Grey",
-    "hex": "#B5B3B0",
+    "hex": "#B8B4AE",
     "tier": "free"
   },
   {
-    "id": "hair-white",
+    "id": "hair-auburn",
     "slot": "hairColor",
-    "label": "White",
-    "hex": "#F1EEE8",
-    "tier": "free"
-  },
-  {
-    "id": "hair-teal",
-    "slot": "hairColor",
-    "label": "Teal",
-    "hex": "#2E8B87",
-    "tier": "paid",
-    "gemcost": 30
-  },
-  {
-    "id": "eye-amber",
-    "slot": "eyeColor",
-    "label": "Amber",
-    "hex": "#C48A4A",
-    "tier": "free"
-  },
-  {
-    "id": "eye-hazel",
-    "slot": "eyeColor",
-    "label": "Hazel",
-    "hex": "#B39A4A",
-    "tier": "free"
-  },
-  {
-    "id": "eye-green",
-    "slot": "eyeColor",
-    "label": "Green",
-    "hex": "#5BB37A",
+    "label": "Auburn",
+    "hex": "#A0522D",
     "tier": "free"
   },
   {
     "id": "eye-blue",
     "slot": "eyeColor",
     "label": "Blue",
-    "hex": "#5AA7E8",
-    "tier": "free"
-  },
-  {
-    "id": "eye-grey",
-    "slot": "eyeColor",
-    "label": "Grey",
-    "hex": "#A3B0BA",
-    "tier": "free"
+    "hex": "#4A7FB5",
+    "tier": "free",
+    "notes": "unused for now: the eyes are drawn in the face"
   }
 ]

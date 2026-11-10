@@ -15,12 +15,12 @@ import '../UI/Modals/Modal.css';
 import '../UI/Buttons/SharedButtons.css';
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
-import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
+import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
 import CloseButton from '../UI/Buttons/CloseButton';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
-const SLOT_LABEL = { skin: 'Face', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
+const SLOT_LABEL = { skin: 'Body', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
 const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
 const PREVIEW_PX = 256;
@@ -98,7 +98,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         localStorage.setItem('player', JSON.stringify(next));
         setCurrentPlayer?.(next);
         dirtyRef.current = false;
-        updateStatus?.('Avatar saved (the board does not draw it yet).');
+        updateStatus?.('Avatar saved.');
         onClose?.();
       }
     } catch (err) {
@@ -116,7 +116,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
   const slot = SLOT_OF_SPEC_KEY[tab];
   // "None" (no drawing) leads; the Eyes tab lists no parts (the eyes follow the face), only the colour
-  const parts = tab === 'eyes' ? [] : partsInSlot(data.catalogue, slot).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0));
+  // the Face tab lists both bodies; every other tab only what the chosen face's body can wear
+  const parts = tab === 'eyes' ? [] : (tab === 'skin' ? partsInSlot(data.catalogue, slot) : partsFor(data.catalogue, slot, bodyOf(data.catalogue, spec))).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0));
   const tierBadge = (row) => {
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
@@ -145,7 +146,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
               ))}
             </div>
 
-            {tab === 'eyes' && <div className="avatar-muted avatar-small-left">The eyes come with the face. Pick their colour.</div>}
+            {tab === 'eyes' && <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Eye colours come later.</div>}
             <div className="avatar-part-grid">
               {parts.map((row) => (
                 <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={row.label || row.id} onClick={() => set(tab, row.id)}>

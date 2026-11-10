@@ -1,59 +1,45 @@
 [
   {
-    "id": "skin-03",
+    "id": "face-f-01",
     "slot": "skin",
-    "label": "Female",
+    "label": "Woman",
     "tier": "free",
-    "file": "skin-03.svg",
+    "file": "face-f-01.png",
     "tint": "skinTone",
-    "notes": "the Female body: Gertrude's traced head, the shared neck and bust, the Rancher's ears; her nose and mouth tinted",
-    "eyes": "eyes-03",
-    "body": "female"
+    "eyes": "eyes-f-01",
+    "body": "female",
+    "notes": "the approved farm woman (characters-r2) as a base body, bases-r1 female-3; the face part is the figure above the collar (tools/art/parts.js)"
   },
   {
-    "id": "skin-04",
+    "id": "face-m-01",
     "slot": "skin",
-    "label": "Male",
+    "label": "Man",
     "tier": "free",
-    "file": "skin-04.svg",
+    "file": "face-m-01.png",
     "tint": "skinTone",
-    "notes": "the Male body: the shared crown with the Crafter's angled jaw, the shared neck and bust, the Rancher's ears and smile (teeth in file2), Gertrude's nose",
-    "file2": "skin-04-detail.svg",
-    "eyes": "eyes-04",
-    "body": "male"
+    "eyes": "eyes-m-01",
+    "body": "male",
+    "notes": "the approved farm man (characters-r3) as a base body, bases-r1 male-2"
   },
   {
-    "id": "eyes-03",
+    "id": "eyes-f-01",
     "slot": "eyes",
-    "label": "Female",
+    "label": "Eyes",
     "tier": "free",
-    "file": "eyes-03.svg",
-    "file2": "eyes-03-iris.svg",
-    "tint2": "eyeColor",
-    "blinkFile": "eyes-03-blink.svg",
+    "blinkFile": "lids-f-01.png",
     "blinkTint": "skinTone",
-    "notes": "assembled from npc-gertrude"
+    "body": "female",
+    "notes": "probes-r1 lids-female-1 cut at the rig eye boxes"
   },
   {
-    "id": "eyes-04",
+    "id": "eyes-m-01",
     "slot": "eyes",
-    "label": "Male",
+    "label": "Eyes",
     "tier": "free",
-    "file": "eyes-04.svg",
-    "file2": "eyes-04-iris.svg",
-    "tint2": "eyeColor",
-    "blinkFile": "eyes-04-blink.svg",
+    "blinkFile": "lids-m-01.png",
     "blinkTint": "skinTone",
-    "notes": "assembled from npc-rancher"
-  },
-  {
-    "id": "hair-01",
-    "slot": "hair",
-    "label": "Short",
-    "tier": "free",
-    "file": "hair-01.svg",
-    "backFile": "hair-01-back.svg",
-    "tint": "hairColor"
+    "body": "male",
+    "notes": "parts-r1 lids-m"
   },
   {
     "id": "hair-none",
@@ -62,12 +48,44 @@
     "tier": "free"
   },
   {
-    "id": "beard-01",
-    "slot": "facialHair",
-    "label": "Beard",
+    "id": "hair-f-bun",
+    "slot": "hair",
+    "label": "Bun",
     "tier": "free",
-    "file": "beard-01.svg",
-    "tint": "hairColor"
+    "file": "hair-f-bun.png",
+    "tint": "hairColor",
+    "body": "female",
+    "notes": "probes-r1 hair-green-1, head-scale subtraction"
+  },
+  {
+    "id": "hair-f-wavy",
+    "slot": "hair",
+    "label": "Long wavy",
+    "tier": "free",
+    "file": "hair-f-wavy.png",
+    "tint": "hairColor",
+    "body": "female",
+    "notes": "parts-r1"
+  },
+  {
+    "id": "hair-m-short",
+    "slot": "hair",
+    "label": "Short",
+    "tier": "free",
+    "file": "hair-m-short.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r1"
+  },
+  {
+    "id": "hair-m-swept",
+    "slot": "hair",
+    "label": "Swept back",
+    "tier": "free",
+    "file": "hair-m-swept.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r1"
   },
   {
     "id": "beard-none",
@@ -76,14 +94,14 @@
     "tier": "free"
   },
   {
-    "id": "beard-03",
+    "id": "beard-m-full",
     "slot": "facialHair",
-    "label": "Beard",
+    "label": "Full beard",
     "tier": "free",
-    "file": "beard-03.svg",
+    "file": "beard-m-full.png",
     "tint": "hairColor",
-    "notes": "Kent's beard cut to each body's jaw (file = female, fileMale = male)",
-    "fileMale": "beard-03-male.svg"
+    "body": "male",
+    "notes": "parts-r1; stubble was tried and is too faint for the diff"
   },
   {
     "id": "hat-none",
@@ -92,74 +110,89 @@
     "tier": "free"
   },
   {
-    "id": "hand-sword-01",
-    "slot": "hand",
-    "label": "Sword",
-    "tier": "npc",
-    "file": "sword-01.svg",
-    "file2": "fist-01.svg",
-    "tint2": "skinTone"
-  },
-  {
-    "id": "hand-bow-01",
-    "slot": "hand",
-    "label": "Bow",
-    "tier": "npc",
-    "file": "bow-01.svg",
-    "file2": "fist-01.svg",
-    "tint2": "skinTone"
-  },
-  {
-    "id": "hair-02",
-    "slot": "hair",
-    "label": "Waves",
-    "tier": "free",
-    "file": "hair-02.svg",
-    "tint": "hairColor",
-    "notes": "assembled from npc-juliet"
-  },
-  {
-    "id": "top-none",
-    "slot": "top",
-    "label": "No Clothes",
-    "tier": "free",
-    "notes": "the bare bust is part of the body (skin)"
-  },
-  {
-    "id": "top-02",
-    "slot": "top",
-    "label": "Tunic",
-    "tier": "free",
-    "file": "top-02.svg",
-    "notes": "assembled from npc-cassio"
-  },
-  {
-    "id": "hat-02",
+    "id": "hat-f-straw",
     "slot": "hat",
-    "label": "Crown",
-    "tier": "paid",
-    "gemcost": 120,
-    "file": "hat-02.svg",
-    "notes": "assembled from npc-angelo",
-    "hidesHair": false
-  },
-  {
-    "id": "hair-05",
-    "slot": "hair",
-    "label": "Long",
+    "label": "Straw hat",
     "tier": "free",
-    "file": "hair-05.svg",
-    "tint": "hairColor",
-    "notes": "assembled from npc-gertrude"
+    "file": "hat-f-straw.png",
+    "hidesHair": false,
+    "body": "female",
+    "notes": "parts-r1; sits on the full hair"
   },
   {
-    "id": "hat-03",
+    "id": "hat-m-cap",
     "slot": "hat",
-    "label": "Tiara",
-    "tier": "paid",
-    "gemcost": 150,
-    "file": "hat-03.svg",
-    "notes": "assembled from npc-gertrude",
-    "hidesHair": false
+    "label": "Flat cap",
+    "tier": "free",
+    "file": "hat-m-cap.png",
+    "hidesHair": false,
+    "body": "male",
+    "notes": "parts-r1"
+  },
+  {
+    "id": "top-shift-f",
+    "slot": "top",
+    "label": "Shift",
+    "tier": "free",
+    "file": "shift-f.cloth.png",
+    "file2": "shift-f.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "No Clothes: the base body in its undershift"
+  },
+  {
+    "id": "top-f-peasant",
+    "slot": "top",
+    "label": "Peasant dress",
+    "tier": "free",
+    "file": "outfit-f-peasant.cloth.png",
+    "file2": "outfit-f-peasant.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "probes-r1b outfit-female-1, worn on the base and split"
+  },
+  {
+    "id": "top-f-gown",
+    "slot": "top",
+    "label": "Blue gown",
+    "tier": "free",
+    "file": "outfit-f-gown.cloth.png",
+    "file2": "outfit-f-gown.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "parts-r1"
+  },
+  {
+    "id": "top-shift-m",
+    "slot": "top",
+    "label": "Shift",
+    "tier": "free",
+    "file": "shift-m.cloth.png",
+    "file2": "shift-m.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "No Clothes: the base body in its undershift"
+  },
+  {
+    "id": "top-m-tunic",
+    "slot": "top",
+    "label": "Green tunic",
+    "tier": "free",
+    "file": "outfit-m-tunic.cloth.png",
+    "file2": "outfit-m-tunic.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "probes-r1 outfit-male-1"
+  },
+  {
+    "id": "top-m-vest",
+    "slot": "top",
+    "label": "Vest and shirt",
+    "tier": "free",
+    "file": "outfit-m-vest.cloth.png",
+    "file2": "outfit-m-vest.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "parts-r1"
   }
 ]
