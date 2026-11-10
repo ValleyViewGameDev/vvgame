@@ -1,0 +1,84 @@
+{
+  "note": "The skin colour model of each base body (docs/avatar-plan.md, 'Skin by colour model', 2026-11-10; read by tools/art/parts.js split). `skin` and `shift` are the mean and covariance, in RGB, of the body's bare skin and of its undershift, measured by `node tools/art/parts.js skinmodel --in <source> --body <body>` from the hand-placed sample boxes below ([x0, y0, x1, y1] in px of the 512 px figure square, placed by eye well inside each region: lit and shaded skin on the arms, hands, chest, legs and feet; the shift's front, its shaded side, its straps and its hem). A new base body gets its own entry: place the boxes, run skinmodel with --preview and look at the picture.",
+  "female": {
+    "source": "tools/art/_candidates/bases-r1/cut/female-3.png",
+    "skinBoxes": [
+      [200, 185, 216, 235],
+      [180, 255, 196, 305],
+      [174, 312, 191, 338],
+      [311, 195, 321, 240],
+      [324, 262, 336, 303],
+      [244, 163, 279, 178],
+      [214, 385, 241, 455],
+      [274, 385, 304, 465],
+      [205, 470, 232, 500],
+      [280, 475, 320, 500],
+      [335, 315, 345, 335]
+    ],
+    "shiftBoxes": [
+      [235, 205, 305, 355],
+      [207, 290, 225, 355],
+      [221, 172, 226, 198],
+      [293, 172, 300, 200],
+      [215, 360, 315, 370]
+    ],
+    "skin": {
+      "mean": [245.47, 181.31, 119.67],
+      "cov": [
+        [92.09, 170.97, 181.73],
+        [170.97, 375.69, 403.1],
+        [181.73, 403.1, 466.07]
+      ],
+      "n": 8781
+    },
+    "shift": {
+      "mean": [223.09, 169.55, 109.29],
+      "cov": [
+        [113.77, 142.84, 147.61],
+        [142.84, 206.12, 210.89],
+        [147.61, 210.89, 229.01]
+      ],
+      "n": 12972
+    }
+  },
+  "male": {
+    "source": "tools/art/_candidates/bases-r1/cut/male-2.png",
+    "skinBoxes": [
+      [150, 190, 190, 290],
+      [163, 173, 180, 193],
+      [147, 310, 180, 365],
+      [330, 200, 350, 290],
+      [345, 320, 365, 360],
+      [240, 150, 275, 165],
+      [195, 410, 235, 470],
+      [280, 410, 320, 480],
+      [180, 480, 215, 505],
+      [290, 490, 340, 505]
+    ],
+    "shiftBoxes": [
+      [215, 200, 310, 370],
+      [200, 300, 215, 375],
+      [190, 165, 200, 200],
+      [305, 160, 318, 240],
+      [185, 380, 330, 388]
+    ],
+    "skin": {
+      "mean": [238.1, 168.24, 94.03],
+      "cov": [
+        [357.34, 453.52, 374.48],
+        [453.52, 642.31, 544.87],
+        [374.48, 544.87, 513.29]
+      ],
+      "n": 14514
+    },
+    "shift": {
+      "mean": [224.01, 175.43, 107.33],
+      "cov": [
+        [111.19, 120.87, 111.41],
+        [120.87, 148.44, 136.07],
+        [111.41, 136.07, 136.72]
+      ],
+      "n": 19810
+    }
+  }
+}

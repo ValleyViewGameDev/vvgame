@@ -575,10 +575,66 @@ the chest in an open neckline, which the old split left in the cloth layer. The 
 shift is skin-coloured and no step stops the growth there. `collar` stays as `fitbody`'s anchor.
 Both faces and all six tops were rebuilt from the fitted intermediates; no art was commissioned.
 The atlas's copies of the avatar parts are not drawn by any code and refresh at the next
-`build:atlas`. **Known limit, seen while checking at the darkest tone and not fixed here:** the
-skin layer outside the neck is only the rig's hand and foot boxes keyed by colour, so bare arms
-and legs (the shift, the vest's rolled sleeves) do not tint and hands tint in patches; it needs
-its own pass before the skin tones are iterated.
+`build:atlas`. The limit seen here at the darkest tone (bare arms and legs untinted, hands
+tinted in patches, the shift's whole band tinted) is fixed by the next paragraph, which also
+replaces this paragraph's neck rule and its `--bare` band.
+
+**Skin by colour model (2026-11-10).** Until now the skin layer was the neck plus whatever
+passed a hue / saturation test inside the rig's hand and foot boxes. At any tone but the
+lightest that left the shift's arms and legs and the vest's forearms peach, tinted hands in
+patches (shaded skin is more saturated than the test's ceiling), showed the hand boxes as
+rectangles on bare arms and tinted the shift's straps. A hue / saturation box cannot fix it:
+skin, the shift and a cream blouse overlap (skin h 26..32 s 0.43..0.69, shift h 32..36 s 0.5,
+cream h 36..38 s 0.37). What does separate them is the SHAPE of skin's colours in RGB: the
+base body's skin is a thin cigar that gets redder as it darkens, where linen and cream only
+get greyer. So each body now has a colour model, `tools/avatar/skin-model.json`: the mean and
+covariance of its bare skin and of its shift, measured from sample boxes placed by hand on the
+base figure (`parts.js skinmodel --in <base figure> --body <body> [--preview <png>]`; about
+ten boxes a body, the only hand-authored part, and the preview paints the result for a look).
+A pixel is judged by its distance to the skin cloud (Mahalanobis, squared: `d2`). Measured on
+the four outfits: skin is under 6 everywhere, a cream sleeve sits at 6..20 with stray specks
+under 6, the apron above 12, the rest far away.
+
+`parts.js split` uses it two ways:
+
+- **A worn outfit** (`outfitSkin`): the core is every pixel under d2 6, opened by a pixel so
+  the sleeve's specks fall away. Of the core's connected masses only real body parts count:
+  the neck under the head cut, and whatever holds a share of a hand or foot box. The boxes
+  now only say where to look; they never clip, so a bare forearm comes with its hand, an open
+  neckline with the neck, the instep in a slipper with the foot, and no box edge can show.
+  From there the mask grows through pixels under d2 12 no more than 8 from the neighbour they
+  are reached from (the old step rule: without it the vest's shaded shirt leaks in at the
+  neck), then small walled-off pockets, pinholes, the anti-aliased rim and lit finger ends are
+  taken. A hand the redraw painted a shade off the base (the peasant's far hand, d2 4..10) is
+  asked for again a little looser; feet are asked once, so a tan shoe never passes for a foot.
+- **The shift** (`--bare`, `shiftMask`): each pixel goes to the nearer of the two models (its
+  colour averaged over 2 px, which irons out the linen's grain; plain distance, because a
+  likelihood hands the pale highlight on a shoulder to the tighter shift model). The shift is
+  the largest connected mass of that answer; its edge is then settled on each pixel's own
+  colour, and the hem's cast shadow on the thighs (a dark orange neither model reaches) is
+  peeled off by saturation (0.68; shaded linen stops at 0.66). Everything else is skin.
+
+The ideas weighed against it: a hand-painted cloth mask per base body would have fixed the
+two shifts only; growing from the hands with the step rule alone (the old `skinish` test)
+needs a box to stop it and cannot tell a cream cuff from a wrist; a per-outfit "bare forearms"
+hint is one more thing to author for every outfit. The model needs no per-outfit input.
+
+All six tops were rebuilt from the same sources (`_candidates/bases-r1/cut` for the shifts,
+`_candidates/parts-fitted` for the outfits); cloth plus skin is pixel for pixel the same
+drawing as before, so the lightest tone is unchanged, and no art was commissioned. Skin pixels:
+shift-f 4,533 to 18,750, shift-m 4,737 to 28,837, peasant 1,566 to 2,491, gown 3,197 to 3,696,
+tunic 3,197 to 5,494, vest 3,651 to 10,329. Checked by composing each top with its face at
+tone-1, tone-4 and tone-6 (the compositor's multiply) and looking, whole and at 4x to 8x.
+What is left, all a pixel or two and invisible at board size: a few pale specks on the man's
+shoulder where his strap meets it (the strap's top and the shoulder's highlight are the same
+colour); the man's hem line, which goes with the skin where it touches a leg; an orange skirt
+or tan vest gives two edge pixels to the hand or neck beside it (they read as its contact
+shadow); a thin pale rim above the gown's far instep. The peasant's insteps are not skin by
+the model (d2 16..60) and stay cloth: they read as stockings. Separate, and not touched: the
+peasant's and the tunic's fitted art carries a few magenta key pixels beside the hands, in
+the cloth layer at every tone; that is the key step's to fix, not the split's. A new body
+needs its own entry in `skin-model.json`; a new outfit needs nothing but `split`, and a look
+at tone-6.
 
 **The eyes keep their own colour (owner 2026-11-10).** The face part is multiplied by the skin
 tone and the eyes are painted into the face, so a darker tone turned the whites and the
