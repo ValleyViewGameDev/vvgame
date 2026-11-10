@@ -8,14 +8,17 @@ class ConversationManager {
   
   // Add a conversation bubble
   // matchState can be: false, 'match', or 'rival'
-  addSpeech(speakerId, emoji, topic, matchState = false) {
+  // flip: draw the bubble mirrored (its tail hooking the other way), for the reply in a
+  // back-and-forth so the two speakers' bubbles face each other (PixiRendererSpeech.js)
+  addSpeech(speakerId, emoji, topic, matchState = false, { flip = false } = {}) {
     console.log('🗨️ ConversationManager.addSpeech:', { speakerId, emoji, topic, matchState });
     console.log('🗨️ Current active conversations:', Array.from(this.activeConversations.keys()));
     this.activeConversations.set(speakerId, {
       emoji,
       topic,
       timestamp: Date.now(),
-      matchState
+      matchState,
+      flip: !!flip,
     });
     this.notifyListeners();
   }

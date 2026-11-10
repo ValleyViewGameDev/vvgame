@@ -4,5 +4,9 @@
 .trader-offer-wrap .resource-button:disabled { pointer-events: none; }
 .trader-offer-wrap { cursor: default; position: relative; } /* holds the sale burst (UI/SaleBurst.js) */
 
-/* the NPC's head crop beside the panel title */
-.npc-panel-title-icon { vertical-align: middle; margin-right: 6px; }
+/* The first row (owner 2026-11-10, docs/ui-conventions.md §3 "NPC panels"): the NPC's headshot,
+   40% of the width, in the same ring as the player's avatar in the header (UI/Icons/NPCPortrait); beside it the Clues button, the interests row and the relationships row(s). */
+.npc-panel-top { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 10px; }
+.npc-panel-portrait { flex: 0 0 40%; } /* the ring itself is UI/Icons/NPCPortrait */
+.npc-panel-top-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.npc-panel-top-info .shared-buttons { margin: 0; width: 100%; } /* the Clues button keeps the shared button look */

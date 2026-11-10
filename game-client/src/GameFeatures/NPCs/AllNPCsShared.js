@@ -111,6 +111,11 @@ class NPC {
     // +1 right, -1 left (renderer flips the sprite relative to `artFacing`); at rest an NPC
     // shows its native art, so left-facing art starts facing left
     this.facing = (this.artFacing || (this.action === 'graze' || this.action === 'attack' ? 'left' : 'front')) === 'left' ? -1 : 1;
+    // Facing is not saved, so every grid load rebuilt each farm animal facing its native art,
+    // and the ones that then stand still (grazing, waiting to be collected) kept it: a pasture
+    // all facing one way (owner 2026-11-10). A farm animal starts facing a way seeded by its id
+    // instead: a mixed field, and the same animal faces the same way on every load.
+    if (this.action === 'graze') this.facing = (hashId(String(this.id)) >>> 3) % 2 ? 1 : -1;
 
     //console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }

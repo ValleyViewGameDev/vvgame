@@ -6,7 +6,7 @@ import ResourceIcon from '../../UI/Icons/ResourceIcon';
 import './NPCConnections.css';
 
 /**
- * NPCConnections: who and what an NPC cares about, in one compact row of chips: an icon for the
+ * NPCConnections: who and what an NPC cares about, in compact rows of chips (interests, then relationships): an icon for the
  * category, then the emoji of each character or item in it. Replaces the old "Interests:" /
  * "In love with:" / "Friends with:" / "Rivals with:" / "Married to:" rows (one line each).
  * The category's name is on the chip as a tooltip and an aria-label. Shown once the player has
@@ -44,18 +44,25 @@ export default function NPCConnections({ npcType, relationship, masterResources,
 
   const chips = CATEGORIES.filter((c) => groups[c.key].length);
   if (!chips.length) return null;
+  // interests on their own row, then the relationships (love, married, friends, rivals) wrapping
+  // onto as many rows as they need (the NPC panel's top row, owner 2026-11-10)
+  const interests = chips.filter((c) => c.key === 'interest');
+  const relations = chips.filter((c) => c.key !== 'interest');
   return (
-    <div className="npc-connections">
-      {chips.map((c) => {
-        const label = clean(strings[c.labelKey]) || c.fallback;
-        const who = groups[c.key].map((g) => g.name).join(', ');
-        return (
-          <span key={c.key} className="npc-chip" title={`${label}: ${who}`} aria-label={`${label}: ${who}`}>
-            <span className="npc-chip-icon" aria-hidden="true">{c.icon}</span>
-            {groups[c.key].map((g, i) => <span key={i} className="npc-chip-item" title={g.name} aria-hidden="true">{g.resource ? <ResourceIcon resource={g.resource} /> : g.symbol}</span>)}
-          </span>
-        );
-      })}
-    </div>
+    <>
+      {interests.length > 0 && <div className="npc-connections npc-connections--interests">{interests.map(renderChip)}</div>}
+      {relations.length > 0 && <div className="npc-connections npc-connections--relations">{relations.map(renderChip)}</div>}
+    </>
   );
+
+  function renderChip(c) {
+    const label = clean(strings[c.labelKey]) || c.fallback;
+    const who = groups[c.key].map((g) => g.name).join(', ');
+    return (
+      <span key={c.key} className="npc-chip" title={`${label}: ${who}`} aria-label={`${label}: ${who}`}>
+        <span className="npc-chip-icon" aria-hidden="true">{c.icon}</span>
+        {groups[c.key].map((g, i) => <span key={i} className="npc-chip-item" title={g.name} aria-hidden="true">{g.resource ? <ResourceIcon resource={g.resource} /> : g.symbol}</span>)}
+      </span>
+    );
+  }
 }

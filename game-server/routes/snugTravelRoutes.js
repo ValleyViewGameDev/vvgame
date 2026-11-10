@@ -137,9 +137,14 @@ async function destinationsFor(player, frontier) {
 
 /** A free tile next to Snug on the player's copy of the grid (ring 1 first, then wider). */
 function tileNextToSnug(grid, templateSpot) {
+  return tileNextToNpc(grid, SNUG, templateSpot);
+}
+
+/** A free tile next to the NPC of this type on the grid (else next to templateSpot), or null. */
+function tileNextToNpc(grid, type, templateSpot) {
   const npcs = grid.NPCsInGrid instanceof Map ? [...grid.NPCsInGrid.values()] : Object.values(grid.NPCsInGrid || {});
-  const snug = npcs.find((n) => n && n.type === SNUG);
-  const at = snug ? { x: Math.round(snug.homeX ?? snug.position?.x), y: Math.round(snug.homeY ?? snug.position?.y) } : templateSpot;
+  const npc = npcs.find((n) => n && n.type === type);
+  const at = npc ? { x: Math.round(npc.homeX ?? npc.position?.x), y: Math.round(npc.homeY ?? npc.position?.y) } : templateSpot;
   if (!at || !Number.isFinite(at.x) || !Number.isFinite(at.y)) return null;
   const open = openTileTest(grid);
   for (let r = 1; r <= 6; r++) {
@@ -209,3 +214,7 @@ module.exports.costBetween = costBetween;
 module.exports.snugInLayout = snugInLayout;
 module.exports.destinationsFor = destinationsFor;   // for checks
 module.exports.tileNextToSnug = tileNextToSnug;
+module.exports.tileNextToNpc = tileNextToNpc;
+module.exports.frontierRegions = frontierRegions;
+module.exports.snugSpotFor = snugSpotFor;
+module.exports.TOWN_SNUG = TOWN_SNUG;

@@ -228,6 +228,7 @@ console.log('Setting up NPCsInGrid routes...');
 app.use('/api', gridRoutes);
 app.use('/api', enterGridRoutes);
 app.use('/api', require('./routes/snugTravelRoutes')); // Travel with Snug: GET destinations, POST pay + arrival tile
+app.use('/api', require('./routes/devTeleportRoutes')); // the debug panel's teleport (developers only): Snug places, arrival next to Snug / an NPC / 31,31
 app.use('/api', require('./routes/caravanRoutes')); // The Caravan: sync, fill an order, mail earned rewards (utils/caravan.js)
 app.use('/api', require('./routes/kentRoutes')); // Kent: POST /action/kent-sync / kent-sell / kent-dismiss, the board made on the server (utils/kentOffers.js)
 app.use('/api', require('./routes/harvestFairRoutes')); // The Harvest Fair: claim and fill an order (server-checked)

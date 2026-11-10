@@ -1,17 +1,22 @@
 // devResourceEditor: the RESOURCE half of dev Edit Mode (the CSS half and the mode toggle live in
 // devEditMode.js, the string half in devStringEditor.js). While Edit Mode is on, a click on a
-// placed thing's art on the board opens this little panel for that thing's resources.json row.
+// placed thing's art, or an NPC, on the board opens this little panel for its resources.json row.
 //
 // For now it edits one field, `artSpan` (the square art's size in tiles, in hundredths, smaller or
 // bigger than the footprint, anchored at the
 // footprint's bottom-centre: docs/art/buildings-bible.md §5). Each change is applied at once to
 // the in-memory row (the same objects App and the renderer hold, Utils/TuningManager.js) and the
 // board redraws (PixiRenderer listens for DEV_ART_CHANGED), so the scale can be tuned by eye.
+// An NPC carries its own copy of the row's fields (GameFeatures/NPCs/AllNPCsShared.js copies them
+// at construction), so a change to an NPC row is also written onto every live NPC of that type.
 // Save writes the value into game-server/tuning/resources.json through POST /api/dev/edit-resource
 // (local dev, developers only); Cancel puts the original value back. Nothing persists until Save.
 import axios from 'axios';
 import API_BASE from '../config';
 import { getMasterResources } from '../Utils/TuningManager';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import { Point } from 'pixi.js-legacy';
+import { spriteOpaqueAt } from '../Render/PixiRenderer/artHitTest';
 
 export const DEV_ART_CHANGED = 'vv:dev-art-changed';
 const STEP = 0.01; // hundredths of a tile
@@ -19,7 +24,12 @@ const MIN_SPAN = 0.1;
 
 let panel = null;
 
-/** The placed thing whose RENDERED art is under a viewport point (frontmost first), or null. */
+/**
+ * The placed thing or NPC whose RENDERED art is under a viewport point, or null: the frontmost
+ * (highest zIndex, the objects layer's y-sort) with an opaque pixel there, so an NPC standing
+ * behind a tree's transparent corners is still clickable; when no art is opaque there (an
+ * emoji NPC, a gap between needles), the frontmost whose box holds the point.
+ */
 export function findBoardResourceAt(clientX, clientY) {
   const app = window.__pixiApp; // PixiRenderer's dev hook (never set in production)
   const canvas = app?.view;
@@ -29,22 +39,24 @@ export function findBoardResourceAt(clientX, clientY) {
   // screen px -> the stage's px (the canvas may be drawn at a different resolution than its CSS box)
   const sx = (clientX - rect.left) * (app.screen.width / rect.width);
   const sy = (clientY - rect.top) * (app.screen.height / rect.height);
-  let best = null;
+  const hits = [];
   const visit = (node) => {
     for (const child of node.children || []) {
       if (!child.visible || child.worldAlpha === 0) continue;
-      if (child.__res && child.__res.type) {
+      const thing = child.__npc || child.__res; // NPC sprites carry __npc, placed resources __res
+      if (thing && thing.type) {
         const b = child.getBounds();
-        if (sx >= b.x && sx <= b.x + b.width && sy >= b.y && sy <= b.y + b.height) {
-          // the frontmost: the further south row draws in front (the objects layer's y-sort)
-          if (!best || (child.zIndex ?? 0) >= (best.zIndex ?? 0)) best = child;
-        }
+        if (sx >= b.x && sx <= b.x + b.width && sy >= b.y && sy <= b.y + b.height) hits.push({ child, thing, i: hits.length });
       }
       if (child.children?.length) visit(child);
     }
   };
   visit(app.stage);
-  return best ? best.__res : null;
+  if (!hits.length) return null;
+  hits.sort((a, b) => ((b.child.zIndex ?? 0) - (a.child.zIndex ?? 0)) || (b.i - a.i)); // frontmost first
+  const pt = new Point(sx, sy);
+  const opaque = hits.find((h) => spriteOpaqueAt(h.child, app.renderer, pt, 2));
+  return (opaque || hits[0]).thing;
 }
 
 export function closeResourcePanel() {
@@ -53,12 +65,23 @@ export function closeResourcePanel() {
 
 function redraw() { window.dispatchEvent(new Event(DEV_ART_CHANGED)); }
 
+/** Write a field onto every live NPC of `type` (each keeps its own copy of its row); undefined removes it. */
+function setOnLiveNpcs(type, field, value) {
+  for (const grid of Object.values(NPCsInGridManager.NPCsInGrid || {})) {
+    for (const npc of Object.values(grid?.npcs || {})) {
+      if (npc?.type !== type) continue;
+      if (value === undefined) delete npc[field]; else npc[field] = value;
+    }
+  }
+}
+
 /** Open the panel for a placed resource. Returns false when its row cannot be found. */
 export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
   closeResourcePanel();
   const row = (getMasterResources() || []).find((r) => r.type === resource?.type);
   if (!row) return false;
   const original = row.artSpan;
+  const isNpc = row.category === 'npc';
   const footprint = Number(row.size) || 1;
   let value = Number(original) > 0 ? Number(original) : footprint;
 
@@ -82,7 +105,9 @@ export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
     </div>
     <div data-msg style="margin-top:6px;font-size:11px;opacity:0.8"></div>`;
   panel.children[0].textContent = row.type;
-  panel.children[1].textContent = `footprint ${footprint} x ${footprint} · saved artSpan ${original ?? '(none)'}`;
+  panel.children[1].textContent = isNpc
+    ? `NPC · saved artSpan ${original ?? '(none: bust or emoji square)'}`
+    : `footprint ${footprint} x ${footprint} · saved artSpan ${original ?? '(none)'}`;
   const input = panel.querySelector('input[type=number]');
   const slider = panel.querySelector('input[type=range]');
   const msg = panel.querySelector('[data-msg]');
@@ -95,6 +120,7 @@ export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
     input.value = String(value);
     slider.value = String(value);
     row.artSpan = value; // live: the renderer reads the row on its next pass
+    if (isNpc) setOnLiveNpcs(row.type, 'artSpan', value);
     redraw();
   };
   apply(value);
@@ -104,6 +130,7 @@ export function openResourceEditorFor(resource, { playerId, onSaved } = {}) {
 
   panel.querySelector('[data-act=cancel]').addEventListener('click', () => {
     if (original === undefined) delete row.artSpan; else row.artSpan = original;
+    if (isNpc) setOnLiveNpcs(row.type, 'artSpan', original);
     redraw();
     closeResourcePanel();
   });

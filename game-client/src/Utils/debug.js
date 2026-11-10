@@ -39,6 +39,8 @@ const DebugPanel = ({
   const [refreshDebug, setRefreshDebug] = useState(false);
   const [singleGridCoord, setSingleGridCoord] = useState('');
   const [toGridCoord, setToGridCoord] = useState('');
+  const [teleportPick, setTeleportPick] = useState(''); // '' | 'snug:<coord>' | 'other:<name>'
+  const [snugPlaces, setSnugPlaces] = useState({ places: [], snugCoords: [] });
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
   const [orphanedGridId, setOrphanedGridId] = useState('');
@@ -887,19 +889,42 @@ const handleGetRich = async () => {
     }
   };
 
-  const handleTeleport = async (gridCoord) => {
+  // The Quick Travel list (routes/devTeleportRoutes.js): first every place Snug stands (as Travel
+  // with Snug picks them), then the shortcuts whose grid has no Snug, plus the Testing Arena
+  useEffect(() => {
+    let live = true;
+    axios.get(`${API_BASE}/api/dev-teleport/snug-places`)
+      .then(({ data }) => { if (live && data?.success) setSnugPlaces({ places: data.places || [], snugCoords: data.snugCoords || [] }); })
+      .catch((e) => console.warn('Could not load the Snug places:', e?.message));
+    return () => { live = false; };
+  }, [currentPlayer?.playerId]);
+  const otherPlaces = [
+    ...Object.entries(debugTravelShortcuts[0])
+      .filter(([, coord]) => !snugPlaces.snugCoords.includes(Number(coord)))
+      .map(([name, coord]) => ({ name, gridCoord: Number(coord) })),
+    { name: 'Testing Arena', gridCoord: 1016101 },
+  ];
+
+  const handleTeleport = async (gridCoord, npc = null) => {
     if (!gridCoord || typeof gridCoord !== 'number' || isNaN(gridCoord)) {
       console.error('❌ Invalid gridCoord passed to handleTeleport:', gridCoord);
       updateStatus('❌ Invalid grid selected for teleport.');
       return;
     }
 
-    // The one grid-change path takes a coord target and resolves the cell itself
-    // (POST /api/enter-grid, docs/phase-2-contract.md); arrival is the server's spawn tile.
+    // Where to arrive: next to Snug, else next to the named NPC, else the open tile nearest 31,31
+    // (POST /api/dev-teleport); then the one grid-change path, as Travel with Snug does
+    let arrival = {};
+    try {
+      const { data } = await axios.post(`${API_BASE}/api/dev-teleport`, { gridCoord, npc });
+      if (data?.success) arrival = { x: data.x, y: data.y };
+    } catch (error) {
+      console.warn('dev-teleport arrival lookup failed, using the spawn tile:', error?.response?.data || error?.message);
+    }
     try {
       const moved = await changePlayerLocation(
         currentPlayer,
-        { type: 'coord', gridCoord },
+        { type: 'coord', gridCoord, ...arrival },
         setCurrentPlayer,
         setGridId,
         setGrid,
@@ -1176,23 +1201,32 @@ const handleGetRich = async () => {
 
         <h3>Teleport to Another Grid</h3>
         <select
+          value={teleportPick}
           onChange={(e) => {
-            if (e.target.value) {
-              setToGridCoord(e.target.value);
-            }
+            const v = e.target.value;
+            setTeleportPick(v);
+            const coord = v.startsWith('snug:') ? v.slice(5) : otherPlaces.find((p) => `other:${p.name}` === v)?.gridCoord;
+            if (coord != null) setToGridCoord(String(coord));
           }}
           style={{ width: '100%', marginBottom: '8px', padding: '4px' }}
         >
           <option value="">-- Quick Travel --</option>
-          {Object.entries(debugTravelShortcuts[0]).map(([name, gridCoord]) => (
-            <option key={name} value={gridCoord}>{name}</option>
-          ))}
+          <optgroup label="With Snug (arrive next to him)">
+            {snugPlaces.places.map((p) => (
+              <option key={`snug:${p.gridCoord}`} value={`snug:${p.gridCoord}`}>{p.label}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Other grids (arrive next to the NPC)">
+            {otherPlaces.map((p) => (
+              <option key={p.name} value={`other:${p.name}`}>{p.name}</option>
+            ))}
+          </optgroup>
         </select>
         <input
           type="text"
           placeholder="Enter GridCoord"
           value={toGridCoord}
-          onChange={(e) => setToGridCoord(e.target.value)}
+          onChange={(e) => { setToGridCoord(e.target.value); setTeleportPick(''); }}
         />
         <div className="shared-buttons">
           <button
@@ -1204,7 +1238,9 @@ const handleGetRich = async () => {
                   alert("Invalid gridCoord (not a number).");
                   return;
                 }
-                await handleTeleport(parsedCoord);
+                // a picked shortcut names its NPC; the server prefers Snug when the grid has one
+                const npc = teleportPick.startsWith('other:') ? teleportPick.slice(6) : null;
+                await handleTeleport(parsedCoord, npc);
               } catch (error) {
                 console.error("Error teleporting:", error);
                 alert("Failed to teleport.");

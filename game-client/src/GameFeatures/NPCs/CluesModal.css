@@ -4,3 +4,8 @@
 .clues-modal .clue-label { font-family: var(--font-title-3-family); font-weight: var(--font-title-3-weight); font-size: var(--font-title-3-size); color: var(--font-title-3-color); margin-bottom: 4px; } /* a label: title-3 (ui-conventions §9) */
 .clues-modal .clue-text { font-family: var(--font-body); font-size: var(--text-md); line-height: var(--leading-body); color: var(--color-text-primary); margin: 0 0 6px; }
 .clues-modal .clue-text:last-child { margin-bottom: 0; }
+/* the NPC's big round avatar under the title (UI/Icons/NPCPortrait) */
+.clues-modal .clues-portrait { width: 120px; margin: 0 auto 10px; }
+/* the avatar sits right under the title: no gap between header and portrait (owner 2026-11-10) */
+.clues-modal .modal-title { margin-bottom: 4px; }
+.clues-modal .modal-content { padding-top: 0; }

@@ -59,20 +59,50 @@ export function findArtAt(sprites, renderer, sx, sy, slackPx = 6) {
   // frontmost first: the objects layer sorts by zIndex, ties drawn in the order they were added
   candidates.sort((a, b) => (b.s.zIndex - a.s.zIndex) || (b.i - a.i));
   for (const { s } of candidates) {
-    // toLocal brings the sprite's transform up to date first. worldTransform alone is only
-    // refreshed by a rendered frame: every resource change re-adds all the sprites, and until
-    // the next frame each sat at identity (scale 1, at 0,0), so a building's 764 px texture
-    // covered most of a phone's board and a tap on a tree opened a far-off station's panel.
-    s.toLocal(pt, undefined, local);
-    const tw = s.texture.orig.width; const th = s.texture.orig.height;
-    const tx = local.x + s.anchor.x * tw; const ty = local.y + s.anchor.y * th;
-    const r = slackPx / Math.max(1e-6, Math.abs(s.worldTransform.a)); // slack in texture px
-    if (tx < -r || ty < -r || tx > tw + r || ty > th + r) continue;
-    const mask = alphaMask(renderer, s.texture);
-    if (opaqueAt(mask, tx, ty) || opaqueAt(mask, tx - r, ty) || opaqueAt(mask, tx + r, ty)
-        || opaqueAt(mask, tx, ty - r) || opaqueAt(mask, tx, ty + r)) {
-      return s.__artHit;
-    }
+    if (spriteOpaqueAt(s, renderer, pt, slackPx, local)) return s.__artHit;
   }
   return null;
+}
+
+/**
+ * Has sprite `s` an opaque pixel at (or within `slackPx` of) stage point `pt`? Also used by dev
+ * Edit Mode (Dev/devResourceEditor.js) to pick the art under a click.
+ */
+export function spriteOpaqueAt(s, renderer, pt, slackPx = 6, local = new Point()) {
+  if (!renderer || !s || s.destroyed || !s.texture?.valid || !s.anchor) return false;
+  // toLocal brings the sprite's transform up to date first. worldTransform alone is only
+  // refreshed by a rendered frame: every resource change re-adds all the sprites, and until
+  // the next frame each sat at identity (scale 1, at 0,0), so a building's 764 px texture
+  // covered most of a phone's board and a tap on a tree opened a far-off station's panel.
+  s.toLocal(pt, undefined, local);
+  const tw = s.texture.orig.width; const th = s.texture.orig.height;
+  const tx = local.x + s.anchor.x * tw; const ty = local.y + s.anchor.y * th;
+  const r = slackPx / Math.max(1e-6, Math.abs(s.worldTransform.a)); // slack in texture px
+  if (tx < -r || ty < -r || tx > tw + r || ty > th + r) return false;
+  const mask = alphaMask(renderer, s.texture);
+  return opaqueAt(mask, tx, ty) || opaqueAt(mask, tx - r, ty) || opaqueAt(mask, tx + r, ty)
+      || opaqueAt(mask, tx, ty - r) || opaqueAt(mask, tx, ty + r);
+}
+
+const tops = new WeakMap();
+/**
+ * Where a texture's art starts: its topmost opaque row, as a fraction of the texture's full
+ * height (0 = the very top). Read once per texture from the same alpha mask; 0 without a renderer.
+ * Used to put an NPC's status overlay just above its head (npcHeadTops.js).
+ */
+export function opaqueTopFraction(renderer, texture) {
+  if (!renderer || !texture?.valid) return 0;
+  if (tops.has(texture)) return tops.get(texture);
+  let frac = 0;
+  try {
+    const mask = alphaMask(renderer, texture);
+    const h = texture.orig?.height || mask.h;
+    outer: for (let y = 0; y < mask.h; y++) {
+      for (let x = 0; x < mask.w; x++) {
+        if (mask.alpha[y * mask.w + x] >= MIN_ALPHA) { frac = Math.max(0, (mask.oy + y) / h); break outer; }
+      }
+    }
+  } catch (e) { frac = 0; }
+  tops.set(texture, frac);
+  return frac;
 }

@@ -5,6 +5,7 @@ import { Container, Sprite, Text, Texture } from 'pixi.js-legacy';
 import { checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus } from '../RenderDynamicElements';
 import { OVERLAY_SVG_MAPPING, OVERLAY_EMOJI_MAPPING } from '../../Utils/ResourceOverlayUtils';
 import { getAtlasTexture } from './AtlasTextures';
+import { npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
 
 /**
  * PixiRendererNPCOverlays - Status overlay indicators for NPCs
@@ -142,6 +143,8 @@ const PixiRendererNPCOverlays = ({
   // Time-based overlay states (Kent cooldowns, timers) change without any prop changing; re-evaluate every 10 s.
   const [overlayTick, setOverlayTick] = useState(0);
   useEffect(() => { const id = setInterval(() => setOverlayTick((t) => t + 1), 10000); return () => clearInterval(id); }, []);
+  // An NPC's head was measured (npcHeadTops.js): re-place the overlays above it
+  useEffect(() => onNpcHeadTopsChanged(() => setOverlayTick((t) => t + 1)), []);
 
   // Track overlay assignments to NPCs for animation updates
   const overlayAssignmentsRef = useRef(new Map()); // npcId -> { overlay, overlaySize }
@@ -332,14 +335,13 @@ const PixiRendererNPCOverlays = ({
           svgFilename = OVERLAY_SVG_MAPPING['available']; // hand.svg
         }
 
-        // Calculate position (lower-left corner of NPC tile)
+        // Centred just above the NPC's head (npcHeadTops.js; owner 2026-11-10)
         // Use animated position if available, otherwise use npc.position
         const renderPos = getNPCRenderPosition ? getNPCRenderPosition(npc) : npc.position;
         // Apply grid offset for settlement zoom
         const npcX = gridOffset.x + renderPos.x * TILE_SIZE;
         const npcY = gridOffset.y + renderPos.y * TILE_SIZE;
-        const overlayX = npcX + 2;
-        const overlayY = npcY + TILE_SIZE - overlaySize - 2;
+        const { x: overlayX, y: overlayY } = npcOverlaySpot(npc.id, npcX, npcY, TILE_SIZE, overlaySize);
 
         // Get overlay from pool
         const overlay = getOverlayFromPool(overlaysUsed);
@@ -434,8 +436,7 @@ const PixiRendererNPCOverlays = ({
           // Calculate new position
           const npcX = gridOffset.x + renderPos.x * TILE_SIZE;
           const npcY = gridOffset.y + renderPos.y * TILE_SIZE;
-          const overlayX = npcX + 2;
-          const overlayY = npcY + TILE_SIZE - overlaySize - 2;
+          const { x: overlayX, y: overlayY } = npcOverlaySpot(npc.id, npcX, npcY, TILE_SIZE, overlaySize);
 
           // Update sprite position if visible
           if (overlay.sprite?.visible) {

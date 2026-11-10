@@ -1,5 +1,5 @@
 import React from 'react';
-import ResourceIcon from '../../UI/Icons/ResourceIcon';
+import NPCPortrait from '../../UI/Icons/NPCPortrait';
 import { getMasterResources } from '../../Utils/TuningManager';
 import Modal from '../../UI/Modals/Modal';
 import { useStrings } from '../../UI/StringsContext';
@@ -72,13 +72,11 @@ export default function CluesModal({ npcType, relationship, username, questClues
   const clues = cluesFor(npcType, relationship, strings, username, questClues);
   const symbol = RelationshipMatrix.find((r) => r.type === npcType)?.symbol;
   const row = (getMasterResources() || []).find((r) => r.type === npcType && r.category === 'npc');
-  // the head crop (ResourceIcon) before the name; the matrix glyph only when the row has no art
-  const title = row && (row.iconFile || row.filename)
-    ? <><ResourceIcon resource={row} size={22} className="clues-title-icon" /> {getLocalizedString(npcType, strings)}</>
-    : `${symbol ? symbol + ' ' : ''}${getLocalizedString(npcType, strings)}`;
+  // "{name}'s Clues"; the NPC's big round avatar (UI/Icons/NPCPortrait) sits under it, then the list (owner 2026-11-10)
+  const title = (strings.cluesTitle || "{name}'s Clues").replace('{name}', getLocalizedString(npcType, strings));
   return (
     <Modal size="narrow" className="clues-modal" onClose={onClose} title={title}>
-      <h3 className="modal-subtitle">{strings[2100] || 'Clues'}</h3>
+      <NPCPortrait resource={row} symbol={symbol} className="clues-portrait" />
       <ol className="clues-list">
         {clues.map((c) => (
           <li key={c.status} className="clue">

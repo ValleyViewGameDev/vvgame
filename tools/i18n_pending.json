@@ -153,6 +153,17 @@
         "FR"
       ],
       "ts": "2026-11-08T16:20:56.341Z"
+    },
+    {
+      "key": "4130",
+      "en_old": "Choose Your Avatar",
+      "en_new": "Edit Your Avatar",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-10T20:36:13.657Z"
     }
   ]
 }

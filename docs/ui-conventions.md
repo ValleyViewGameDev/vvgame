@@ -153,7 +153,10 @@ value rather than trust this page.
 - The desktop header (owner 2026-11-02) is its own block, `.header-desk` in `App.js`, three
   columns with the middle one at the page centre. Left: the avatar in a circle, the size of the
   round HUD buttons and in line with their column (`--d-pill-w`, left at `--d-board-left` +
-  `--d-gap`), then the title on one line over "Logged in as: name" (both open the profile). Centre: Level, Health and Inventory as big icons in rings that
+  `--d-gap`), then the title on one line over "Logged in as: name" (both open the profile). The
+  avatar is a profile picture: a full-body figure is cropped to its face (`UI/Icons/PlayerAvatarFace.js`,
+  the face box of the figure rig; any other icon shows whole). This button is the only way to the
+  profile: the nav bar has no My Profile button (owner 2026-11-09). Centre: Level, Health and Inventory as big icons in rings that
   fill (`UI/HeaderRing.js`; the level number sits in the star, white with a 3 px soft dark-brown stroke all round (`--color-text-outline`) (`-webkit-text-stroke` + `paint-order: stroke fill`, never a drop shadow: it must read over the star on a phone), 22 px desktop, 20 px phone landscape, 16 px phone portrait; a ring
   turns red at <= 10% health or >= 90% inventory; hover shows the numbers). Right: Gems and Money
   (icon and value), a hairline, then the action icons. Two narrower tiers (<= 1180 px,
@@ -233,11 +236,28 @@ value rather than trust this page.
 - **Panel titles are text only** (owner 2026-10-24): no emoji or symbol before the name.
   `Panel.js` drops a leading emoji from any title it is given (so a string shared with a button,
   "📊 Leaders", keeps its emoji there); never prefix a title with a resource's `symbol`. An
-  NPC panel's title keeps the NPC's sprite image, which is a portrait, not an emoji.
+  NPC panel's title is the name alone too: its headshot lives in the panel's first row.
 - **Shop and skill cards are text only** (owner 2026-11-02): a `ResourceButton` in a shop
   (`ShopStation.js`) or a skill panel (`SkillsPanel.js`) passes no `symbol`, so the name stands
   alone. A shield's name ends in 🤚 (it takes the free hand). Crafting stations and the Adventure
   Camp keep the emoji, since there it identifies the product.
+- **NPC panels: the first row** (owner 2026-11-10; quest givers, traders, healers): two columns
+  under the header. Left, 40% of the width: the NPC's headshot (its `iconFile` head crop, filling
+  the circle like a profile picture) in the same ring as the player's avatar in the header
+  (`.header-desk-avatar`: white 2 px ring, a disc in the ResourceButton green `--color-btn-primary`,
+  soft drop shadow; every avatar circle uses that green, owner 2026-11-10). Right, stacked: the
+  Clues button, the interests row, then the relationships (love, married, friends, rivals) on as
+  many rows as they need (`NPCConnections.js`). The round avatar is one component,
+  `UI/Icons/NPCPortrait.js`; the Clues modal shows it too, 120 px, under its title ("{name}'s Clues", string `cluesTitle`) and straight above the list. Everything else (Snug's travel button, the
+  relationship card, quests, trades) comes after that row. No citizen status line in this panel:
+  with it open the NPC is always "waiting for you" (the Farm Animal panel keeps its line). Enemies have no panel (a tap
+  attacks), so this does not apply to them.
+- **The Player panel mirrors it** (owner 2026-11-10; `GameFeatures/Social/PlayerPanel.js`): the
+  title is the greeting "Hi, {username}" (string 4051 + the name, set in `SocialPanel.js`), not
+  "Player Character". First row: the player's avatar (their saved look's face, else the figure
+  icon) in the same 40% ring, and beside it a stack of Settings, Pitch Tent / Put
+  Away Tent, Get in Boat / Get out of Boat. Edit Avatar is a big round pencil button (dark ink pencil) hanging off the avatar's lower right, and tapping the avatar itself opens it too (no separate button). Below: Level and XP, Health with its Eat button, then
+  a gap before Inventory / Skills / Combat (Eat belongs with Health).
 - **NPC panels** (`GameFeatures/NPCs/NPCsPanel.js`): a quest giver lists only the quests the
   player can take now (`level` at or below the player's); anything above is hidden, not shown
   locked (owner 2026-10-25), so a giver never shows a wall of future quests. The NPC's quest

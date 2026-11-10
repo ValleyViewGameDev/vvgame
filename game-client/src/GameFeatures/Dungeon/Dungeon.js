@@ -35,7 +35,7 @@ export async function handleDungeonEntrance(
     console.log("🚪 Handling dungeon entrance click, phase:", dungeonPhase);
 
     if (dungeonPhase !== 'open') {
-      const message = strings?.["10201"] || "The dungeon is currently closed";
+      const message = strings?.[10226] || "The dungeon is closed while it resets. Try again shortly.";
       FloatingTextManager.addFloatingText(message, resourcePosition.x, resourcePosition.y, TILE_SIZE);
       updateStatus(message);
       return false;
@@ -68,7 +68,7 @@ export async function handleDungeonEntrance(
       setCurrentPlayer((prev) => ({ ...prev, sourceGridBeforeDungeon: fromGridId }));
     }
 
-    updateStatus(strings?.["10202"] || "You have entered the dungeon!");
+    updateStatus(strings?.[10224] || "You have entered the dungeon.");
     return true;
   } catch (error) {
     console.error("❌ Error entering dungeon:", error);
@@ -124,7 +124,7 @@ export async function handleDungeonExit(
     }
 
     // Note: the FTUE cave is left through Signpost Home (Transit.js), not Dungeon Exit
-    updateStatus(strings?.["10203"] || "You have exited the dungeon");
+    updateStatus(strings?.[10225] || "You have left the dungeon.");
     return true;
   } catch (error) {
     console.error("❌ Error exiting dungeon:", error);

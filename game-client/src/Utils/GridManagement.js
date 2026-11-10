@@ -254,7 +254,7 @@ function enterGridErrorStatus(error, strings) {
   }
   if (status === 404) {
     if (reason === 'no-homestead') return 113; // "Your homestead is being prepared..."
-    if (reason === 'no-dungeon-here') return strings?.[10201] || 'The dungeon is currently closed';
+    if (reason === 'no-dungeon-here') return 105; // no dungeon registered for the grid we left: a travel problem, not a closed dungeon
     return 105; // "There was a problem trying to travel."
   }
   if (status === 503) {

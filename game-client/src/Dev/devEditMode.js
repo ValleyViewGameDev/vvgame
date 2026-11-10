@@ -3,7 +3,7 @@
 // font-size by one step (Shift = shrink), written back to the real .css file on disk through
 // POST /api/dev/edit-css (local dev only; CRA's HMR then reloads the stylesheet). Holding S
 // turns the click into "edit this string" (Dev/devStringEditor.js). A click on a placed thing's
-// art on the board opens its resources.json row (artSpan for now: Dev/devResourceEditor.js).
+// art, or an NPC, on the board opens its resources.json row (artSpan for now: Dev/devResourceEditor.js).
 //
 // Which rule governs the text: the browser knows the cascade, so we read the CSSOM, walk up
 // from the clicked element to the first ancestor with an explicit font-size rule and pick the
@@ -272,7 +272,7 @@ function showEditIndicator(on) {
     indicatorEl = document.createElement('div');
     indicatorEl.className = 'dev-edit-indicator';
     indicatorEl.setAttribute('data-edit-exempt', '');
-    indicatorEl.textContent = '✎ EDIT MODE · ⌘+Ctrl+E to exit · Shift = shrink · hold S = edit text · click board art = artSpan';
+    indicatorEl.textContent = '✎ EDIT MODE · ⌘+Ctrl+E to exit · Shift = shrink · hold S = edit text · click board art or an NPC = artSpan';
     indicatorEl.style.cssText = 'position:fixed;bottom:0.5rem;right:0.5rem;z-index:9999;font-size:0.75rem;font-weight:700;letter-spacing:0.03em;background:rgba(120,20,20,0.9);color:#fff;padding:0.25rem 0.6rem;border-radius:8px;pointer-events:none;box-shadow:0 1px 4px rgba(0,0,0,0.4)';
     document.body.appendChild(indicatorEl);
   } else if (!on && indicatorEl) { indicatorEl.remove(); indicatorEl = null; }

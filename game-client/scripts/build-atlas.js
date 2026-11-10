@@ -59,6 +59,11 @@ const { emojiKey, looksLikeEmoji } = require('../src/Utils/emojiKey.js'); // ESM
 const TWEMOJI_DIR = path.join(__dirname, '..', 'node_modules', '@twemoji', 'svg');
 // Icons PixiRendererPCs draws for player state (getDisplayIcon) that have no SVG of their own
 const PC_STATE_EMOJI = ['💀', '🤢', '🏕️', '🛶', '🧑'];
+// Conversation topics with no art of their own (PixiRenderer/speechTopicArt.js draws these in the
+// speech bubbles): every list in Topics.json plus the fixed topics in Conversation.js getTopicSymbol
+// and the one-off bubbles (the Healer's thanks, Feste's song)
+const TOPICS_JSON = path.join(__dirname, '..', 'src', 'GameFeatures', 'Relationships', 'Topics.json');
+const CONVERSATION_EMOJI = ['😊', '🤔', '👫', '👤', '❓', '✅', '💰', '💪', '🗺️', '☀️', '🌨️', '🌦️', '🌩️', '🕐', '💬', '🙏', '🎶', '🙂'];
 
 const CLIENT_ROOT = path.resolve(__dirname, '..');
 const PUBLIC = path.join(CLIENT_ROOT, 'public', 'assets');
@@ -139,6 +144,8 @@ function listEmojiSources() {
     wanted.set(r.symbol, Math.max(wanted.get(r.symbol) || 1, size));
   }
   for (const e of PC_STATE_EMOJI) if (!wanted.has(e)) wanted.set(e, 1);
+  const topicLists = Object.values(readJson(TOPICS_JSON)).filter(Array.isArray).flat();
+  for (const e of [...topicLists, ...CONVERSATION_EMOJI]) if (looksLikeEmoji(e) && !wanted.has(e)) wanted.set(e, 1);
 
   const items = [];
   const missing = [];

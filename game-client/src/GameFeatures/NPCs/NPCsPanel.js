@@ -27,7 +27,6 @@ import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import HealerInteraction from './HealerInteraction';
-import CitizenStatusLine from './CitizenStatusLine';
 import StoryModal from '../../UI/Modals/StoryModal';
 import ResourceModalSmall from '../../UI/Modals/ResourceModalSmall';
 import NameDeedModal from '../../UI/Modals/NameDeedModal';
@@ -36,6 +35,7 @@ import { STATE_GOALS, stateGoalMet, refreshStateGoals } from '../Quests/stateGoa
 import CluesModal, { cluesFor, questCluesFor, tradeCluesFor } from './CluesModal';
 import { FESTE_QUEST } from '../Story/gertrudeWaking';
 import NPCConnections from './NPCConnections';
+import NPCPortrait from '../../UI/Icons/NPCPortrait';
 import { startHopeFinale } from '../Story/hopeFinale';
 import MinigameButton from '../../UI/Buttons/MinigameButton';
 import RiddleMinigame from '../Minigames/RiddleMinigame';
@@ -1033,16 +1033,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   // Look up the full NPC resource definition to get filename if available
   const npcResourceDef = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
 
-  // Build the title with either SVG image or emoji
-  // the head crop (iconFile, tools/art/headcrop.js) beside the name: ResourceIcon is the one way
-  const panelTitle = npcResourceDef?.iconFile || npcResourceDef?.filename ? (
-    <>
-      <ResourceIcon resource={npcResourceDef} size={24} className="npc-panel-title-icon" />
-      {getLocalizedString(npcData.type, strings)}
-    </>
-  ) : (
-    getLocalizedString(npcData.type, strings)
-  );
+  // The title is the name alone: the headshot sits big in the panel's first row (owner 2026-11-10)
+  const panelTitle = getLocalizedString(npcData.type, strings);
 
   // Sell section (UI/Panels/SellSection.js), developers only: removing a citizen refunds nothing
   // ("Sell (💰0)"); a citizen walks about, so no Move
@@ -1343,7 +1335,35 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
     <Panel footer={sellFooter} onClose={onClose} descriptionKey="1013" title={panelTitle} panelName="NPCPanel">
       <div className="station-panel-container">
         <div className="station-panel-content">
-          {/* Travel with Snug: first thing on Snug's panel, once the player has greeted him */}
+          {/* First row (owner 2026-11-10): the big headshot in a ring like the header's avatar (30%),
+              then the Clues button, the interests row and the relationships row(s) */}
+          <div className="npc-panel-top">
+            {/* the head crop in the header avatar's ring (UI/Icons/NPCPortrait) */}
+            <NPCPortrait resource={npcResourceDef} symbol={npcData.symbol} className="npc-panel-portrait" />
+            <div className="npc-panel-top-info">
+              {!hideRelationshipUI && (() => {
+                const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
+                const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username, [
+                  ...questCluesFor(npcData.type, allQuests, currentPlayer.completedQuests),
+                  ...tradeCluesFor(npcData.type, rel, masterTraders, strings),
+                ]).length;
+                return (
+                  <>
+                    {count > 0 && (
+                      <div className="shared-buttons">
+                        <button className="btn-basic btn-neutral" onClick={() => setCluesOpen(true)}>
+                          🔍 {strings[2100] || 'Clues'} ({count})
+                        </button>
+                      </div>
+                    )}
+                    <NPCConnections npcType={npcData.type} relationship={rel} masterResources={masterResources} strings={strings} currentPlayer={currentPlayer} />
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Travel with Snug: first thing under the top row on Snug's panel, once the player has greeted him */}
           {canTravelWithSnug && (
             <div className="shared-buttons">
               <button className="btn-basic btn-success" data-tutorial="snug-travel" onClick={() => setSnugTravelOpen(true)}>
@@ -1351,30 +1371,9 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
               </button>
             </div>
           )}
-          <CitizenStatusLine npc={npcData} gridId={currentPlayer?.location?.g} />
+                    {/* no status line here: with the panel open the citizen is always "waiting for you" (owner 2026-11-10) */}
 
-          {/* Clues, then who and what this NPC cares about (one compact row): first after the status line */}
-          {!hideRelationshipUI && (() => {
-            const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
-            const count = cluesFor(npcData.type, rel, strings, currentPlayer?.username, [
-              ...questCluesFor(npcData.type, allQuests, currentPlayer.completedQuests),
-              ...tradeCluesFor(npcData.type, rel, masterTraders, strings),
-            ]).length;
-            return (
-              <>
-                {count > 0 && (
-                  <div className="shared-buttons">
-                    <button className="btn-basic btn-neutral" onClick={() => setCluesOpen(true)}>
-                      🔍 {strings[2100] || 'Clues'} ({count})
-                    </button>
-                  </div>
-                )}
-                <NPCConnections npcType={npcData.type} relationship={rel} masterResources={masterResources} strings={strings} currentPlayer={currentPlayer} />
-              </>
-            );
-          })()}
-
-{/* //////////////////// QUESTS //////////////////////// */}
+      {/* //////////////////// QUESTS //////////////////////// */}
 
       {npcData.action === 'quest' && (
         <div className="quest-options">

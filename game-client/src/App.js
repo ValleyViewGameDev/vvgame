@@ -133,6 +133,8 @@ import { startHopeFinale, setHopeFinaleHooks, isHopeReturned, holdsHope, isHopeF
 import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
 import PlayerIcons from './Authentication/PlayerIcons.json';
+import PlayerAvatarFace from './UI/Icons/PlayerAvatarFace';
+import AvatarFace from './Avatar/AvatarFace';
 import { usePanelContext } from './UI/Panels/PanelContext';
 import { useModalContext } from './UI/ModalContext';
 import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
@@ -3169,14 +3171,10 @@ return (
         <div className="header-desk">
           <div className="header-desk-left">
             {/* the player's avatar in a circle, in line with the round HUD buttons under it */}
+            {/* a figure is cropped to its face, like a profile picture (UI/Icons/PlayerAvatarFace.js) */}
             <button className="header-desk-avatar" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()} aria-label={currentPlayer?.username || ''}>
-              {(() => {
-                const icon = currentPlayer?.icon || '😊';
-                const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
-                return svgFilename
-                  ? <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} draggable="false" />
-                  : <span>{icon}</span>;
-              })()}
+              {/* a saved parts avatar (Edit Avatar) shows its head; otherwise the icon, as before */}
+              <AvatarFace avatar={currentPlayer?.avatar} fallback={<PlayerAvatarFace icon={currentPlayer?.icon} />} />
             </button>
             <div className="header-desk-titles">
               <h1 className="header-desk-title">{strings[0]}</h1>
@@ -3229,14 +3227,14 @@ return (
               openMyProfile();
             }
           }}>
-            {(() => {
+            <AvatarFace avatar={currentPlayer?.avatar} size={16} className="header-link-face" fallback={(() => {
               const icon = currentPlayer?.icon || '😊';
               const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
               if (svgFilename) {
                 return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} />;
               }
               return icon + ' ';
-            })()}
+            })()} />
             {currentPlayer?.username || 'Loading...'}
           </button>
 
@@ -3414,26 +3412,7 @@ return (
         // overflow fades out at the far edge (UI/Panels/scrollFade.js)
         <div className="nav-scroll">
 
-      <button
-        className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
-        data-tip="My Profile" aria-label="My Profile"
-        disabled={!currentPlayer}
-        onClick={() => {
-          if (currentPlayer) {
-            openMyProfile();
-          }
-        }}
-      >
-        {(() => {
-          const icon = currentPlayer?.icon || '😊';
-          const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
-          if (svgFilename) {
-            return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} className="nav-icon" />;
-          }
-          return icon;
-        })()}
-      </button>
-
+      {/* My Profile is the header's avatar button (owner 2026-11-09: the nav copy was redundant) */}
       {/* Hide these panels during early FTUE steps (1-2: Gertrude's story, the walk to Elbow) */}
       {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
         <>

@@ -155,7 +155,8 @@ renderer anchors that square at the footprint's bottom-centre, so a 1 x 2 bed cu
 buildingCutGuideRect) and cut with `cutout.js --n <width> --fit silhouette` as usual. Rows made
 rectangular on 2026-11-08: the Bed (1 x 2, redrawn taller and skinnier on the 1 x 2 guide,
 `deco-bed-1x2`), the Large Decorative Palm Tree (1 x 2 instead of 2 x 2, its 2 x 2 art kept at
-artSpan 2, so the fronds overhang a one-tile trunk) and the Marble Statue (1 x 2, art unchanged).
+artSpan 2, so the fronds overhang a one-tile trunk; made 1 x 1 on 2026-11-09 so the tile behind
+it is walkable, art unchanged at artSpan 2.3) and the Marble Statue (1 x 2, art unchanged).
 
 ## Pass B1: the castle set (2026-11-08, `tools/art/jobs/deco-castle.json`, `-2`, `-3`, `-4`)
 

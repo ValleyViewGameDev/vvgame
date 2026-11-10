@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import AvatarModal from '../../Avatar/AvatarModal';
 import AvatarFace from '../../Avatar/AvatarFace';
+import PlayerAvatarFace from '../../UI/Icons/PlayerAvatarFace';
+import '../../UI/Icons/NPCPortrait.css';
 import EatingModal from '../Eating/Eating';
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -215,73 +217,59 @@ const PlayerPanel = ({
 
   return (
     <>
-      {/* the greeting, with Settings as the gear at the right of the same line (owner 2026-11-02) */}
-      <div className="player-greeting-row">
-        <h2><AvatarFace avatar={currentPlayer.avatar} size={36} className="player-panel-face" /> {strings[4051]} {currentPlayer.username}</h2>
-        <button className="player-settings-gear" onClick={() => openPanel('ProfilePanel')} title={strings[1190]} aria-label={strings[1190]}>
-          <img src="/assets/icons/icon-settings.svg" alt="" draggable="false" />
-        </button>
-      </div>
-
-      {/* Change Avatar Button */}
-      <div className="shared-buttons">
-        <button 
-          className="btn-basic btn-success" 
-          onClick={() => setShowAvatarModal(true)}
-        >
-          {strings[4065]}
-        </button>
-      </div>
-
-      {/* Tent functionality */}
-      {isCamping ? (
-        <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={handlePutAwayTent}>{strings[10155]}</button>
-        </div>
-      ) : (
-        <div className="shared-buttons">
-          <button 
-            className="btn-basic btn-success" 
-            disabled={isInBoat}
-            onClick={() => {
-              if (tentCount <= 0) {
-                console.warn("🚫 No tents found. Button press ignored.");
-                updateStatus(27); // "You don't have a tent."
-              } else {
-                handlePitchTent();
-              }
-            }}
-          >
-            {strings[10154]} ({tentCount})
+      {/* first row, like the NPC panel (owner 2026-11-10): the big round avatar (40%) and, beside it,
+          a stack of Settings, the tent and the boat; Edit Avatar is the pencil on the avatar. The greeting is the panel title. */}
+      <div className="player-panel-top">
+        <div className="player-panel-portrait">
+          {/* the avatar itself opens Edit Avatar too (owner 2026-11-10) */}
+          <button className="npc-portrait player-panel-avatar" onClick={() => setShowAvatarModal(true)} aria-label={strings[4065]}>
+            <AvatarFace avatar={currentPlayer.avatar} fallback={<PlayerAvatarFace icon={currentPlayer.icon} />} />
+          </button>
+          {/* Edit Avatar is the pencil on the avatar's lower right (owner 2026-11-10) */}
+          <button className="player-panel-edit" onClick={() => setShowAvatarModal(true)} title={strings[4065]} aria-label={strings[4065]}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+            </svg>
           </button>
         </div>
-      )}
-
-      {/* Boat functionality */}
-      {isInBoat ? (
-        <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={handleGetOutOfBoat}>{strings[10153]}</button>
+        <div className="player-panel-top-actions">
+          <div className="shared-buttons">
+            <button className="btn-basic btn-neutral" onClick={() => openPanel('ProfilePanel')}>{strings[1190]}</button>
+          </div>
+          <div className="shared-buttons">
+            {isCamping ? (
+              <button className="btn-basic btn-success" onClick={handlePutAwayTent}>{strings[10155]}</button>
+            ) : (
+              <button
+                className="btn-basic btn-success"
+                disabled={isInBoat}
+                onClick={() => {
+                  if (tentCount <= 0) updateStatus(27); // "You don't have a tent."
+                  else handlePitchTent();
+                }}
+              >
+                {strings[10154]} ({tentCount})
+              </button>
+            )}
+          </div>
+          <div className="shared-buttons">
+            {isInBoat ? (
+              <button className="btn-basic btn-success" onClick={handleGetOutOfBoat}>{strings[10153]}</button>
+            ) : (
+              <button
+                className="btn-basic btn-success"
+                disabled={isCamping}
+                onClick={() => {
+                  if (boatCount <= 0) updateStatus(37);
+                  else handleGetInBoat();
+                }}
+              >
+                {strings[10152]}
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        <div className="shared-buttons">
-          <button 
-            className="btn-basic btn-success" 
-            disabled={isCamping}
-            onClick={() => {
-              if (boatCount <= 0) {
-                console.warn("🚫 No boats found. Button press ignored.");
-                updateStatus(37); // TODO: Add proper string ID
-              } else {
-                handleGetInBoat();
-              }
-            }}
-          >
-            {strings[10152]}
-          </button>
-        </div>
-      )}
-
-      <br />
+      </div>
 
       {/* Level Display */}
       <h3>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h3>
@@ -372,8 +360,8 @@ const PlayerPanel = ({
         </button>
       </div>
 
-      {/* Inventory, Skills, Combat */}
-      <div className="shared-buttons">
+      {/* Inventory, Skills, Combat: a gap above, since Eat belongs with Health (owner 2026-11-10) */}
+      <div className="shared-buttons player-panel-group-gap">
         <button className="btn-basic btn-success" onClick={() => openPanel('InventoryPanel')}>
           {strings[10103]}
         </button>

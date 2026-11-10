@@ -1,5 +1,7 @@
-/* NPCConnections.js: one wrapping row of chips, category icon + the emoji in it */
+/* NPCConnections.js: rows of chips (interests, then relationships), category icon + the subjects in it */
 .npc-connections { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+/* in the NPC panel's top row: interests, then the relationships, a tighter stack */
+.npc-panel-top-info .npc-connections { margin: 0; }
 .npc-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px 2px 3px; border-radius: var(--radius-pill); background-color: var(--color-bg-tint); cursor: help; }
 /* the category: a white disc, so it never reads as one of the subjects */
 .npc-chip-icon {

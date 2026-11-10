@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
+import { useStrings } from '../../UI/StringsContext';
 import '../Relationships/Relationships.css';
 import PlayerPanel from './PlayerPanel';
 import '../Leaderboard/Leaderboard.css';
@@ -22,6 +23,7 @@ const SocialPanel = ({
   masterTraders,
   openPanel,
 }) => {
+  const strings = useStrings();
   const [tentCount, setTentCount] = useState(0);
   const [boatCount, setBoatCount] = useState(0);
   const [isCamping, setIsCamping] = useState(false);
@@ -47,8 +49,9 @@ const SocialPanel = ({
     setBoatCount(boatsInBackpack);
   }, [currentPlayer]);
 
+  // the greeting is the title (owner 2026-11-10): "Hi, name" instead of "Player Character"
   return (
-    <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
+    <Panel onClose={onClose} descriptionKey="1014" title={currentPlayer ? `${strings[4051] || 'Hi, '}${currentPlayer.username}` : undefined} titleKey="1114" panelName="SocialPanel">
       <PlayerPanel
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}

@@ -332,7 +332,7 @@ export const playNPCConversation = async ({
       results.matchingTopics++;
       if (INTEREST_KEYS.includes(aKey) && INTEREST_KEYS.includes(bKey)) results.matchingInterests++;
     } else if (matchState === 'rival') results.rivalTopics++;
-    ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState);
+    ConversationManager.addSpeech(partnerType, partnerEmoji, bTopic, matchState, { flip: true }); // the reply: mirrored
     if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
     ConversationManager.removeSpeech(partnerType);
     if (!(await beat(400))) { clear(); return { aborted: true, results }; }
@@ -511,7 +511,8 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
 // Show speech bubble for a character
 // matchState can be: false, 'match', or 'rival'
 const showSpeech = async (speakerType, speakerId, emoji, topic, matchState = false) => {
-  ConversationManager.addSpeech(speakerId, emoji, topic || emoji, matchState);
+  // the NPC's reply is drawn mirrored, so the player's and the NPC's bubbles alternate sides
+  ConversationManager.addSpeech(speakerId, emoji, topic || emoji, matchState, { flip: speakerType === 'npc' });
 };
 
 // Hide speech bubble for a character

@@ -28,8 +28,9 @@ import PixiRendererDoinker from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
-import { findArtAt } from './artHitTest';
-import { loadAtlas, getAtlasTexture, resetAtlas } from './AtlasTextures';
+import { findArtAt, opaqueTopFraction } from './artHitTest';
+import { setNpcHeadTop, clearNpcHeadTop, npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
+import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded } from './AtlasTextures';
 import CombatFX from './CombatFX';
 import { emojiKey } from '../../Utils/emojiKey';
 import {
@@ -465,6 +466,9 @@ const PixiRenderer = ({
 
   // Dev Edit Mode's resource editor (Dev/devResourceEditor.js) changed a row's art (artSpan): redraw
   const [devArtTick, setDevArtTick] = useState(0);
+  // An NPC's head was measured (npcHeadTops.js): re-place the farm animals' ready checks above it
+  const [headTick, setHeadTick] = useState(0);
+  useEffect(() => onNpcHeadTopsChanged(() => setHeadTick((t) => t + 1)), []);
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return undefined;
     const bump = () => setDevArtTick((t) => t + 1);
@@ -959,6 +963,12 @@ const PixiRenderer = ({
       const loadPromises = resources.map(async (resource) => {
         const wallSet = wallIndex.get(`${resource.x},${resource.y}`);
         if (wallSet && !isMultiTile(resource)) {
+          // The wall pieces live in the atlas and are read synchronously (peekAtlasTexture), so
+          // wait for the sheets first, as every other resource does through getAtlasTexture.
+          // Without this a wall drawn while the atlas was still downloading (a slow phone, a
+          // cold cache) fell back to its plain single-tile file and stayed so until the grid's
+          // resources next changed: unjoined fence posts, the stone wall's fallback art.
+          if (!isAtlasLoaded()) await loadAtlas();
           const composed = wallTexture(wallSet, wallMask(wallIndex, wallSet, resource.x, resource.y));
           if (composed) return { resource, texture: composed, emojiTexture: null, wallSpan: wallSpan(wallSet), isWall: true };
         }
@@ -1202,6 +1212,7 @@ const PixiRenderer = ({
           displayObj.parent.removeChild(displayObj);
         }
         delete npcDisplayObjects.current[npcId];
+        clearNpcHeadTop(npcId);
         breathersRef.current.delete(npcId);
         blinkersRef.current.delete(npcId);
         delete npcDisplayTypes.current[npcId];
@@ -1364,11 +1375,21 @@ const PixiRenderer = ({
         const art = npc.artFacing || (npc.action === 'graze' || npc.action === 'attack' ? 'left' : 'front');
         const flip = art === 'left' ? (npc.facing > 0 ? -1 : 1) : art === 'right' ? (npc.facing < 0 ? -1 : 1) : 1;
         displayObj.scale.x = Math.abs(displayObj.scale.x) * flip;
+        displayObj.__npc = npc; // dev Edit Mode finds the NPC under a click by it (Dev/devResourceEditor.js)
+        // Where its head is, for the status overlays (npcHeadTops.js): the sprite stands on its tile
+        // centre with anchor (0.5, anchorY), so its top is anchorY x size above the centre, and the
+        // art starts opaqueTop of the way down from there; an emoji glyph is about its font size tall
+        if (newDisplayType === 'sprite') {
+          const artTop = opaqueTopFraction(appRef.current?.renderer, texture);
+          setNpcHeadTop(npc.id, 0.5 + (spriteSize * (artTop - anchorY)) / TILE_SIZE);
+        } else {
+          setNpcHeadTop(npc.id, 0.5 - (fontSize * artScale * 0.5) / TILE_SIZE);
+        }
       }
     };
 
     renderNPCs();
-  }, [npcs, masterResources, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker, applyBreath]);
+  }, [npcs, masterResources, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker, applyBreath, devArtTick]); // devArtTick: a dev artSpan edit
 
   // The breathing ticker: runs while the renderer is mounted, touches only the standing figures
   // (a few multiplications a frame); players who ask for reduced motion get none
@@ -1558,10 +1579,9 @@ const PixiRenderer = ({
           const npcX = gridOffsetX + Math.floor(npc.position?.x || 0) * TILE_SIZE;
           const npcY = gridOffsetY + Math.floor(npc.position?.y || 0) * TILE_SIZE;
 
-          // Position overlay in lower-left corner of the NPC tile
+          // Centred just above the animal's head (npcHeadTops.js; owner 2026-11-10)
           const overlaySize = TILE_SIZE * 0.4;
-          const overlayX = npcX + 2;
-          const overlayY = npcY + TILE_SIZE - overlaySize - 2;
+          const { x: overlayX, y: overlayY } = npcOverlaySpot(npc.id, npcX, npcY, TILE_SIZE, overlaySize);
 
           // Get overlay from pool
           const overlay = getOverlayFromPool(overlaysUsed);
@@ -1609,7 +1629,7 @@ const PixiRenderer = ({
     };
 
     renderOverlays();
-  }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY]); // TILE_SIZE removed - it's constant now
+  }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY, headTick]); // TILE_SIZE removed - it's constant now; headTick: an NPC's head was measured
 
   // Handle click events - check NPCs and PCs before falling through to tile click
   // Latest props for callbacks that fire after a walk (the click closure would be stale by then)
