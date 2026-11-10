@@ -16,6 +16,8 @@
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
  *   mannequin --in <bald head on magenta> --out <png> [--hue 175]   the teal reference headwear is drawn on
+ *   unskin   --in <headwear layer, figure frame> --face <the body's face part> --body female|male --out <png> [--d2 8] [--shade hueLo,hueHi,satMax]
+ *                                                                headwear: the skin left around the FACE OPENING (a brimmed hat's shaded forehead)
  *   tidy     --in <layer png> --body female|male --out <png> [--figure]   headwear: only the piece itself (strays of the cut dropped)
  *   seat     --in <layer png> --body female|male --out <png> [--axis top|none] [--widen 1.07] [--figure]
  *                                                                headwear: its centre onto the nose line, and a little wider for hair
@@ -224,6 +226,46 @@ function clearFace(img, body, skinclear = 0) {
   }
   console.log(`  face clear: hat hue ${Math.round(dom)}, ${n} px of skin dropped`);
   return img;
+}
+
+/**
+ * `unskin` (a headwear layer, in the figure frame): what is left of the HEAD in it. A hat cut by
+ * `diff` keeps the skin the redraw shaded under its brim (the forehead under a straw hat), and the
+ * column peel of `--skinclear` only reaches it from the layer's top and bottom edges: a brim that
+ * comes round under the face hides the opening from it (hat-f-straw, a crescent of forehead that
+ * sat over the hair and kept its own tone on every skin). Here the peel starts from the FACE
+ * OPENING itself: the layer's transparent pixels that lie on the body's face part, and it walks
+ * outward through pixels that are skin by the body's colour model AND lie on the face part (skin
+ * can only be left where the head is), stopping at the hat's own colours: the band, the straw.
+ */
+function unskinHeadwear(img, face, body, d2max = 8, shade = null) {
+  const { d, W, H } = img;
+  const skinD2 = gaussFns(loadSkinModels()[body].skin);
+  // `shade` [hueLo, hueHi, satMax]: skin in a brim's SHADOW is darker than anything the colour model
+  // was measured on, so the model misses most of it. It keeps skin's hue and stays less saturated
+  // than straw's shaded underside (hat-f-straw: skin 25 to 27 degrees at 0.72 to 0.87, the straw 28
+  // to 30 at 0.89 and up, the leather band 19 to 20): a window measured on the layer, given by hand.
+  const isSkin = (i) => {
+    if (skinD2(d[i], d[i + 1], d[i + 2]) < d2max) return true;
+    if (!shade) return false;
+    const [h, sat] = hsv(d[i], d[i + 1], d[i + 2]); return h >= shade[0] && h <= shade[1] && sat <= shade[2];
+  };
+  const onHead = (p) => face.d[p * 4 + 3] >= 128;
+  const seen = new Uint8Array(W * H); const queue = [];
+  for (let p = 0; p < W * H; p++) if (d[p * 4 + 3] < 24 && onHead(p)) { seen[p] = 1; queue.push(p); }
+  let n = 0;
+  while (queue.length) {
+    const p = queue.pop(); const x = p % W, y = (p - x) / W;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      const q = ny * W + nx; if (seen[q]) continue; seen[q] = 1;
+      if (d[q * 4 + 3] < 24 || !onHead(q)) continue;
+      if (!isSkin(q * 4)) continue;
+      d[q * 4 + 3] = 0; n++; queue.push(q);
+    }
+  }
+  console.log(`  unskin (model, d2 < ${d2max}, ${shade ? `, shade ${shade.join(' ')}` : ''}, peeled from the face opening): ${n} px dropped`);
+  return dropSpecks(img, 0.02);
 }
 
 /** morphological opening of the alpha: erode by r then dilate by r (thin slivers vanish, masses stay) */
@@ -887,6 +929,7 @@ function tintImg(img, hex) {
     }
     case 'seat': { const { img, info } = seatLayer(await load(args.in), args.body || 'female', { axis: args.axis || 'top', widen: +(args.widen || 1), figure: !!args.figure }); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'mannequin': { await save(mannequinOf(await load(args.in), +(args.hue || 175)), args.out); break; }
+    case 'unskin': { await save(unskinHeadwear(await load(args.in), await load(args.face), args.body || 'female', +(args.d2 || 8), args.shade ? String(args.shade).split(',').map(Number) : null), args.out); break; }
     case 'tidy': { await save(tidyHeadwear(await load(args.in), args.body || 'female', !!args.figure), args.out); break; }
     case 'mask': { // --name <part> reads its polygon from tools/art/part-masks.json; --poly "x,y x,y ..." gives one
       const masks = JSON.parse(fs.readFileSync(path.join(__dirname, 'part-masks.json'), 'utf8'));

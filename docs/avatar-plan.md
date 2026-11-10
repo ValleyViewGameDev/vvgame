@@ -939,6 +939,16 @@ taught:
   edge, half over it, as a crafting station's slot wears its price; the grid's rows stand a
   little further apart for it.
 
+**The woman's straw hat: forehead left in the layer (owner 2026-11-10).** The first straw hat
+(parts-r1, cut before the teal mannequin was the rule) kept a crescent of the forehead the
+redraw shaded under its brim; it sat over the hair and kept its own tone on every skin. The
+column peel of `--skinclear` could not reach it (the brim comes round under the face), and the
+skin colour model does not know skin that dark. `parts.js unskin --in <layer> --face <the
+body's face part> --body female --shade 23,27.6,0.885` peels from the face opening itself,
+through pixels on the head that are skin by the model or by the given shaded-skin window, and
+stops at the straw and the band. Rule 4 stands: new headwear is drawn on the teal mannequin
+and never needs this.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.
