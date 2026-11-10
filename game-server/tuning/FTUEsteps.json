@@ -189,10 +189,7 @@
     ],
     "dismissNotification": true,
     "notificationKey": 7066,
-    "notificationSprite": "signpost-town.svg",
-    "doinker": true,
-    "doinkerType": "resource",
-    "doinkerTarget": "Signpost Town"
+    "notificationSprite": "signpost-town.svg"
   },
   {
     "step": 16,
