@@ -1,0 +1,148 @@
+{
+  "note": "Hand-placed eye centres for tools/art/parts.js blink, in figure-square pixels (512 px), for the figures whose eyes the finders miss or misplace (small or deep-set eyes, a hood, a helmet, a robe full of buttons). Read off a gridded head sheet. `eyes`: one or two [x, y] centres; `gap`: the distance between the eyes when only one is given (Falstaff's other eye is under a patch); `scale`: multiplies the lid ellipse (small eyes).",
+  "hecate": {
+    "eyes": [
+      [
+        250,
+        92
+      ],
+      [
+        289,
+        93
+      ]
+    ],
+    "scale": 0.85
+  },
+  "helena": {
+    "eyes": [
+      [
+        240,
+        102
+      ],
+      [
+        292,
+        102
+      ]
+    ]
+  },
+  "leontes": {
+    "eyes": [
+      [
+        242,
+        105
+      ],
+      [
+        285,
+        105
+      ]
+    ],
+    "scale": 1.1
+  },
+  "snug": {
+    "eyes": [
+      [
+        245,
+        100
+      ],
+      [
+        288,
+        100
+      ]
+    ]
+  },
+  "falstaff": {
+    "eyes": [
+      [
+        242,
+        124
+      ]
+    ],
+    "gap": 66
+  },
+  "hotspur": {
+    "eyes": [
+      [
+        242,
+        121
+      ],
+      [
+        295,
+        121
+      ]
+    ]
+  },
+  "oracle": {
+    "eyes": [
+      [
+        256,
+        116
+      ],
+      [
+        296,
+        116
+      ]
+    ]
+  },
+  "porter": {
+    "eyes": [
+      [
+        265,
+        98
+      ],
+      [
+        305,
+        101
+      ]
+    ],
+    "scale": 0.8
+  },
+  "portia": {
+    "eyes": [
+      [
+        240,
+        109
+      ],
+      [
+        288,
+        109
+      ]
+    ]
+  },
+  "vampire": {
+    "eyes": [
+      [
+        252,
+        86
+      ],
+      [
+        295,
+        86
+      ]
+    ],
+    "scale": 0.85
+  },
+  "quickly": {
+    "eyes": [
+      [
+        256,
+        125
+      ],
+      [
+        295,
+        125
+      ]
+    ]
+  },
+  "man": {
+    "eyes": [
+      [
+        244,
+        86
+      ],
+      [
+        290,
+        86
+      ]
+    ]
+  }
+}

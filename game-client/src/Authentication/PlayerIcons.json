@@ -4,25 +4,29 @@
       "label": "Gertrude",
       "value": "👸",
       "filename": "pc-figure-gertrude.svg",
-      "artSpan": 1.8
+      "artSpan": 1.8,
+      "blinkFilename": "pc-figure-gertrude-blink.svg"
     },
     {
       "label": "Farm Woman",
       "value": "👩‍🌾",
       "filename": "pc-figure-woman.svg",
-      "artSpan": 1.8
+      "artSpan": 1.8,
+      "blinkFilename": "pc-figure-woman-blink.svg"
     },
     {
       "label": "Farm Man",
       "value": "👨‍🌾",
       "filename": "pc-figure-man.svg",
-      "artSpan": 1.8
+      "artSpan": 1.8,
+      "blinkFilename": "pc-figure-man-blink.svg"
     },
     {
       "label": "Kent",
       "value": "🎩",
       "filename": "pc-figure-kent.svg",
-      "artSpan": 1.8
+      "artSpan": 1.8,
+      "blinkFilename": "pc-figure-kent-blink.svg"
     },
     {
       "label": "Cassio",

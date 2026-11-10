@@ -52,3 +52,22 @@ export function breathLevel(tMs, seed = 0) {
 
 /** Players who ask the system for less motion get still figures. */
 export const breathingAllowed = () => !(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/**
+ * Blinking (owner 2026-11-10). A figure's eyes close for a moment every few seconds: each figure
+ * has its own cycle length (BLINK.everyMs, from its seed) and, inside every cycle, the blink lands
+ * at a different moment (a hash of the cycle number), so nobody blinks like a metronome and two
+ * figures never stay in step. The closed frame is the figure's own art with the eyes repainted
+ * in its own skin (tools/art/parts.js blink), so a lid always matches the face.
+ */
+export const BLINK = { everyMs: [2800, 6200], closedMs: 130 };
+const hashFrac = (n) => { let h = (n ^ 0x9e3779b9) >>> 0; h = Math.imul(h ^ (h >>> 16), 0x85ebca6b); h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+/** True while the figure with this seed has its eyes closed at time t. */
+export function isBlinking(tMs, seed = 0) {
+  const [lo, hi] = BLINK.everyMs;
+  const period = lo + ((seed % 89) / 89) * (hi - lo);
+  const t = tMs + ((seed % 977) / 977) * period;
+  const cycle = Math.floor(t / period), local = t - cycle * period;
+  const start = hashFrac(seed * 31 + cycle) * (period - BLINK.closedMs - 200);
+  return local >= start && local < start + BLINK.closedMs;
+}

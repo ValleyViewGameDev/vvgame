@@ -38,7 +38,7 @@ import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition, setHeadlineSpan } from '../../VFX/NPCVFX';
 import { facePlayerToward } from '../../PlayerMovement';
-import { breathLevel, breathSeed, breathingAllowed } from './breathing';
+import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
@@ -467,6 +467,7 @@ const PixiRenderer = ({
   // drives them. An NPC sprite is a BreathSprite: the breath bends its vertices (a rise pivoted at
   // the feet plus the chest expansion), so position, scale and anchor are never touched.
   const breathersRef = useRef(new Map());
+  const blinkersRef = useRef(new Map()); // figure NPCs with a blink frame (id -> seed)
   const breathTickerRef = useRef(null);
   const applyBreath = useCallback((npcId, displayObj, now) => {
     if (!displayObj || !('breath' in displayObj)) return;
@@ -1171,6 +1172,7 @@ const PixiRenderer = ({
         }
         delete npcDisplayObjects.current[npcId];
         breathersRef.current.delete(npcId);
+        blinkersRef.current.delete(npcId);
         delete npcDisplayTypes.current[npcId];
         delete npcAnimations.current[npcId];
       }
@@ -1187,7 +1189,10 @@ const PixiRenderer = ({
           texture = await loadEmojiTexture(npc.symbol);
           emojiSized = !!texture;
         }
-        return { npc, texture, filename, emojiSized };
+        // the figure's blink frame (resources.json blinkFile: the same art with the eyes closed)
+        const blinkFile = filename ? masterResources?.find((m) => m.type === npc.type)?.blinkFile : null;
+        const blinkTexture = blinkFile && !emojiSized ? await loadSVGTexture(blinkFile) : null;
+        return { npc, texture, filename, emojiSized, blinkTexture };
       });
 
       const loadedNPCs = await Promise.all(npcTexturePromises);
@@ -1197,7 +1202,7 @@ const PixiRenderer = ({
       if (!npcContainerRef.current) return;
 
       // Phase 2: Update or create display objects for each NPC
-      for (const { npc, texture, filename, emojiSized } of loadedNPCs) {
+      for (const { npc, texture, filename, emojiSized, blinkTexture } of loadedNPCs) {
         // SVG portraits fill the tile; emoji frames match the old Text size (0.8 tile); a row's
         // `artScale` (resources.json, e.g. the Great Bear's 1.5) draws a bigger beast on the same tile
         const artScale = Number(npc.artScale) > 0 ? Number(npc.artScale) : 1;
@@ -1316,6 +1321,11 @@ const PixiRenderer = ({
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         }
         applyBreath(npc.id, displayObj, performance.now());
+        // blinking: the ticker swaps between the open art and the blink frame (breathing.js isBlinking)
+        displayObj.__openTex = newDisplayType === 'sprite' ? texture : null;
+        displayObj.__blinkTex = newDisplayType === 'sprite' ? blinkTexture || null : null;
+        if (displayObj.__blinkTex) { if (!blinkersRef.current.has(npc.id)) blinkersRef.current.set(npc.id, breathSeed(`${npc.id}:blink`)); }
+        else blinkersRef.current.delete(npc.id);
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).
         // Sizing above leaves scale.x positive; facing only changes on a horizontal step.
@@ -1334,11 +1344,17 @@ const PixiRenderer = ({
     const ticker = appRef.current?.ticker;
     if (!ticker || breathTickerRef.current || !breathingAllowed()) return undefined;
     const onBreath = () => {
-      if (!breathersRef.current.size) return;
+      if (!breathersRef.current.size && !blinkersRef.current.size) return;
       const now = performance.now();
       for (const npcId of breathersRef.current.keys()) {
         const displayObj = npcDisplayObjects.current[npcId];
         if (displayObj && !displayObj.destroyed) applyBreath(npcId, displayObj, now);
+      }
+      for (const [npcId, seed] of blinkersRef.current) {
+        const displayObj = npcDisplayObjects.current[npcId];
+        if (!displayObj || displayObj.destroyed || !displayObj.__blinkTex || !displayObj.__openTex) continue;
+        const want = isBlinking(now, seed) ? displayObj.__blinkTex : displayObj.__openTex;
+        if (displayObj.texture !== want) displayObj.texture = want;
       }
     };
     ticker.add(onBreath);

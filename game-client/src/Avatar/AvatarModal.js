@@ -17,7 +17,7 @@ import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
 import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
-import { BREATH, breathLevel, breathBell, breathingAllowed } from '../Render/PixiRenderer/breathing';
+import { BREATH, BLINK, breathLevel, breathBell, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
@@ -43,9 +43,12 @@ const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'hea
  * each strip is lifted (a stretch pivoted at the square's bottom edge, the feet) and widened about
  * the centre line by the chest bell, at the breath level of the moment.
  */
-function BreathingFigure({ src, crop, width, height, className = '' }) {
+function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, height, className = '' }) {
   const canvasRef = useRef(null);
-  const imgRef = useRef(null);
+  const imgRef = useRef(null);       // eyes open
+  const closedImgRef = useRef(null); // the blink frame, loaded once so a 130 ms blink never waits on a decode
+  const closedRef = useRef(false);
+  closedRef.current = closed;
   useEffect(() => {
     if (!src) return undefined;
     const img = new Image();
@@ -53,6 +56,14 @@ function BreathingFigure({ src, crop, width, height, className = '' }) {
     img.src = src;
     return () => { img.onload = null; };
   }, [src]);
+  useEffect(() => {
+    closedImgRef.current = null;
+    if (!srcClosed) return undefined;
+    const img = new Image();
+    img.onload = () => { closedImgRef.current = img; };
+    img.src = srcClosed;
+    return () => { img.onload = null; };
+  }, [srcClosed]);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
@@ -63,7 +74,7 @@ function BreathingFigure({ src, crop, width, height, className = '' }) {
     let raf = 0;
     const draw = () => {
       raf = requestAnimationFrame(draw);
-      const img = imgRef.current;
+      const img = (closedRef.current && closedImgRef.current) || imgRef.current;
       if (!img) return;
       const L = breathingAllowed() ? breathLevel(performance.now(), 0) : 0;
       const S = img.naturalWidth;                 // the composed square, in image px
@@ -102,14 +113,14 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   useEffect(() => {
     if (!blink || !urls.closed) return undefined;
     let t2 = null;
-    const t = setInterval(() => { setClosed(true); t2 = setTimeout(() => setClosed(false), 120); }, 3000 + Math.random() * 3000);
+    const t = setInterval(() => { setClosed(true); t2 = setTimeout(() => setClosed(false), BLINK.closedMs); }, BLINK.everyMs[0] + Math.random() * (BLINK.everyMs[1] - BLINK.everyMs[0]));
     return () => { clearInterval(t); if (t2) clearTimeout(t2); };
   }, [blink, urls.closed]);
   const src = closed && urls.closed ? urls.closed : urls.open;
   if (crop) {
     // the square is scaled so the crop's width fills the box, then shifted so the crop's corner is the box's
     const w = width || size, h = height || Math.round(w * (crop.h / crop.w));
-    if (breathe) return <BreathingFigure src={src} crop={crop} width={w} height={h} className={className} />;
+    if (breathe) return <BreathingFigure src={urls.open} srcClosed={urls.closed} closed={closed} crop={crop} width={w} height={h} className={className} />;
     const full = w / crop.w;
     return (
       <div className={`avatar-preview avatar-crop ${className}`} style={{ width: w, height: h }}>

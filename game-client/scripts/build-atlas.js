@@ -98,7 +98,8 @@ function listResourceSources() {
     // a doober whose art is taller than its tile (the fruit trees' ready state: Apple = tree-apple.svg at artSpan 1.73) keeps the full slot
     const cell = (r.category === 'doober' || r.category === 'farmplot') && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(size);
     // the row's file plus its cosmetic variants (`artVariants`: "file=weight;file=weight", Utils/artVariants.js)
-    const files = [r.filename, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean);
+    // (and its blink frame: `blinkFile`, the same figure with the eyes closed, tools/art/parts.js blink)
+    const files = [r.filename, r.blinkFile, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean);
     for (const file of files) {
       const prev = seen.get(file);
       // The same file can back several resource types; keep the largest cell it needs
@@ -116,7 +117,7 @@ function listPlayerIconSources() {
   const data = readJson(PLAYER_ICONS_JSON);
   const files = new Set();
   for (const tier of Object.values(data)) {
-    for (const icon of tier || []) if (icon.filename) files.add(icon.filename);
+    for (const icon of tier || []) { if (icon.filename) files.add(icon.filename); if (icon.blinkFilename) files.add(icon.blinkFilename); }
   }
   return [...files].map((file) => ({
     key: `playerIcons/${file}`,

@@ -22,6 +22,8 @@
  *                                                                <base>.skin.png (skin keyed inside the
  *                                                                rig's hand / foot boxes, its own colour)
  *   lids     --worn <closed-eyes png> --body female|male --out <png>     the blink layer: the eye boxes
+ *   blink    --in <face or figure png> --out <png> [--name <figure>] [--scale 1.1] [--layer]  the same image with the eyes closed (--layer: only the changed pixels): each eye an
+ *                                                                ellipse in the face's own cheek skin plus a lid arc
  *   iris     --in <face png> --out <png>                          the eye colour layer: the ring around each
  *                                                                pupil, neutralised to grey for the eyeColor tint
  *   tint     --in <png> --hex #rrggbb --out <png>                 multiply preview
@@ -78,20 +80,35 @@ function blobs(img, pred) {
   return out.sort((a, b) => b.n - a.n);
 }
 
-/** the two pupils: dark blobs in the upper half, the largest pair on one row with a plausible gap */
+/**
+ * The two pupils. A dark blob alone is not an eye (buttons, crown gems, a belt buckle, a brow are
+ * dark blobs too): an eye is a dark blob sitting in WHITE, so each candidate in the upper half is
+ * scored by the white-of-the-eye pixels around it, and the best pair on one row with a plausible
+ * gap wins. Returns [{x, y, r}, {x, y, r}] left to right, or null (closed eyes, a mask).
+ */
 function findEyes(img) {
   const { d, W, H } = img; const ymax = Math.floor(H * 0.5);
   const dark = (p) => { const i = p * 4; if (p >= ymax * W || d[i + 3] < 200) return false; return hsv(d[i], d[i + 1], d[i + 2])[2] < 0.30; };
-  const bl = blobs(img, dark).filter((b) => { const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1; return b.n >= 12 && w / h >= 0.5 && w / h <= 2 && w < W * 0.12; });
+  const isWhite = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H) return false; const i = (y * W + x) * 4; if (d[i + 3] < 200) return false; const [, sat, v] = hsv(d[i], d[i + 1], d[i + 2]); return v > 0.8 && sat < 0.25; };
+  const cands = blobs(img, dark).filter((b) => { const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1; return b.n >= 12 && w / h >= 0.5 && w / h <= 2 && w < W * 0.12; }).slice(0, 60);
+  for (const b of cands) {
+    const r = Math.sqrt(b.n / Math.PI), R = Math.ceil(r * 2.2); let white = 0;
+    for (let y = Math.round(b.cy) - R; y <= b.cy + R; y++) for (let x = Math.round(b.cx) - R; x <= b.cx + R; x++) if (Math.hypot(x - b.cx, y - b.cy) <= R && isWhite(x, y)) white++;
+    b.white = white; b.r = r;
+  }
+  const eyesLike = cands.filter((b) => b.white >= Math.max(6, b.n * 0.2));
   let best = null;
-  for (let i = 0; i < bl.length; i++) for (let j = i + 1; j < bl.length; j++) {
-    const a = bl[i], b = bl[j]; const dx = Math.abs(a.cx - b.cx), dy = Math.abs(a.cy - b.cy);
+  for (let i = 0; i < eyesLike.length; i++) for (let j = i + 1; j < eyesLike.length; j++) {
+    const a = eyesLike[i], b = eyesLike[j]; const dx = Math.abs(a.cx - b.cx), dy = Math.abs(a.cy - b.cy);
     const ha = a.y1 - a.y0 + 1, hb = b.y1 - b.y0 + 1;
-    if (dy < Math.max(ha, hb) * 0.8 && dx > W * 0.06 && dx < W * 0.35 && Math.abs(a.n - b.n) < Math.max(a.n, b.n) * 0.6) { const sc = a.n + b.n; if (!best || sc > best.sc) best = { sc, a, b }; }
+    if (dy < Math.max(ha, hb) * 0.8 && dx > W * 0.05 && dx < W * 0.35 && Math.abs(a.n - b.n) < Math.max(a.n, b.n) * 0.7) {
+      const sc = (a.white + b.white) * 2 + a.n + b.n - (a.cy + b.cy) * 0.5; // eyes are white-rimmed and near the top
+      if (!best || sc > best.sc) best = { sc, a, b };
+    }
   }
   if (!best) return null;
   const [l, r] = [best.a, best.b].sort((p, q) => p.cx - q.cx);
-  return [{ x: l.cx, y: l.cy, r: Math.sqrt(l.n / Math.PI) }, { x: r.cx, y: r.cy, r: Math.sqrt(r.n / Math.PI) }];
+  return [{ x: l.cx, y: l.cy, r: l.r }, { x: r.cx, y: r.cy, r: r.r }];
 }
 
 /** scale + translate `worn` so its eyes coincide with `base`'s; returns { img, info } */
@@ -321,6 +338,157 @@ function irisLayer(img) {
   return out;
 }
 
+/**
+ * The BLINK frame of a face or a whole figure, made from the drawing itself (owner 2026-11-10: the
+ * closed eye must match the skin tone). For each eye (findEyes): the skin colour is sampled from
+ * the cheek just below it and the lid just above it; the eye (everything around the pupil that is
+ * not that skin: the white, the iris, the pupil, the lash line) is flood-filled from the pupil
+ * inside a box a little larger than the eye, repainted in the sampled skin (a vertical blend of the
+ * lid and cheek samples, so the patch follows the face's own shading), and a closed-lid arc is
+ * drawn across it in the eye's own lash colour. Because the lid IS the face's skin, it takes any
+ * skin tint exactly as the face does, and it works on every figure without a second drawing.
+ * Returns the whole image with the eyes closed, or null when no eyes are found (a mask, a hood).
+ */
+/**
+ * The two EYES of a whole figure, for the blink (small eyes: a pupil of a dozen pixels, a white of
+ * six). An eye is the one place on a face where near-white and near-black sit together, so the
+ * candidates are the connected blobs of "extreme" pixels (the white of the eye and its highlight,
+ * or the pupil and lash line) in the upper half that hold BOTH kinds, are eye-sized and compact;
+ * the pair on one row, of similar size, nearest the head's centre line wins.
+ * Returns [{x, y, r}, {x, y, r}] left to right (r = half the eye's larger side), or null.
+ */
+function findEyeRegions(img) {
+  const { d, W, H } = img; const ymax = Math.floor(H * 0.5);
+  const kind = new Uint8Array(W * H); // 1 = white, 2 = dark
+  for (let p = 0; p < W * ymax; p++) {
+    const i = p * 4; if (d[i + 3] < 200) continue;
+    const [, sat, v] = hsv(d[i], d[i + 1], d[i + 2]);
+    if (v > 0.72 && sat < 0.2) kind[p] = 1; else if (v < 0.3) kind[p] = 2;
+  }
+  const bl = blobs(img, (p) => kind[p] > 0);
+  // the head's centre line: the opaque centre of the top third (a hat or a turn barely moves it)
+  let sx = 0, n = 0; for (let y = 0; y < H / 3; y += 2) for (let x = 0; x < W; x += 2) if (d[(y * W + x) * 4 + 3] > 60) { sx += x; n++; }
+  const headX = n ? sx / n : W / 2;
+  const cands = [];
+  for (const b of bl) {
+    const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
+    if (b.n < 14 || b.n > 1800 || w > W * 0.14 || h > W * 0.12 || w / h < 0.55 || w / h > 3.2) continue;
+    let white = 0, dark = 0; for (const p of b.px) { if (kind[p] === 1) white++; else dark++; }
+    if (white < 3 || dark < 5) continue;
+    cands.push({ ...b, w, h, white, dark });
+  }
+  let best = null;
+  for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+    const a = cands[i], b = cands[j]; const dx = Math.abs(a.cx - b.cx), dy = Math.abs(a.cy - b.cy);
+    if (dy > Math.max(a.h, b.h) * 0.6 || dx < W * 0.05 || dx > W * 0.3) continue;
+    if (Math.min(a.n, b.n) < Math.max(a.n, b.n) * 0.25) continue;
+    const mid = (a.cx + b.cx) / 2;
+    const sc = (a.white + b.white) * 3 + (a.dark + b.dark) - Math.abs(mid - headX) * 4 - (a.cy + b.cy) * 0.2;
+    if (!best || sc > best.sc) best = { sc, a, b };
+  }
+  if (!best) return null;
+  const [l, r] = [best.a, best.b].sort((p, q) => p.cx - q.cx);
+  const rr = (e) => Math.max(e.w, e.h) / 2;
+  return [{ x: (l.x0 + l.x1) / 2, y: (l.y0 + l.y1) / 2, r: rr(l) }, { x: (r.x0 + r.x1) / 2, y: (r.y0 + r.y1) / 2, r: rr(r) }];
+}
+
+/** fallback finder: two compact dark blobs (pupils) on one row, symmetric about the head's centre line */
+function findPupilPair(img) {
+  const { d, W, H } = img; const ymax = Math.floor(H * 0.5);
+  const dark = (p) => { const i = p * 4; if (p >= ymax * W || d[i + 3] < 200) return false; return hsv(d[i], d[i + 1], d[i + 2])[2] < 0.3; };
+  let sx = 0, n = 0; for (let y = 0; y < H / 3; y += 2) for (let x = 0; x < W; x += 2) if (d[(y * W + x) * 4 + 3] > 60) { sx += x; n++; }
+  const headX = n ? sx / n : W / 2;
+  const cands = blobs(img, dark).filter((b) => { const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1; return b.n >= 6 && b.n <= 260 && w / h >= 0.6 && w / h <= 1.7; }).slice(0, 80);
+  let best = null;
+  for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+    const a = cands[i], b = cands[j]; const dx = Math.abs(a.cx - b.cx), dy = Math.abs(a.cy - b.cy);
+    if (dy > 4 || dx < W * 0.06 || dx > W * 0.2) continue;
+    if (Math.min(a.n, b.n) < Math.max(a.n, b.n) * 0.4) continue;
+    const mid = (a.cx + b.cx) / 2; if (Math.abs(mid - headX) > W * 0.07) continue;
+    const sc = a.n + b.n - Math.abs(mid - headX) * 3 - dy * 10;
+    if (!best || sc > best.sc) best = { sc, a, b };
+  }
+  if (!best) return null;
+  const [l, r] = [best.a, best.b].sort((p, q) => p.cx - q.cx);
+  return [{ x: l.cx, y: l.cy }, { x: r.cx, y: r.cy }];
+}
+
+/**
+ * The BLINK frame of a face or a whole figure, made from the drawing itself (owner 2026-11-10: the
+ * closed eye must match the skin tone). The two eye centres come from findEyeRegions, else
+ * findPupilPair, unless tools/art/blink-eyes.json places them by hand (`override`: a few figures). Each eye is then an ELLIPSE sized from the distance between the eyes (these
+ * faces share one proportion: half-width 0.36 of the gap, half-height 0.30), painted in the skin
+ * sampled from the cheek just below it, feathered at the rim so there is no seam, with a closed-lid
+ * arc across it in the eye's own lash colour. Because the lid IS the face's skin, a tinted face
+ * layer tints it exactly as it tints the face, and a whole figure needs no second drawing.
+ * Returns the image with the eyes closed, or null when no eyes are found.
+ */
+function blinkFrame(img, override = null) {
+  const { d, W, H } = img;
+  const eyes = override ? override.eyes.map(([x, y]) => ({ x, y })) : (findEyeRegions(img) || findPupilPair(img) || findEyes(img));
+  if (!eyes || !eyes.length) return null;
+  const out = { d: Buffer.from(d), W, H };
+  const at = (x, y) => (y * W + x) * 4;
+  const median = (arr) => { const s2 = arr.slice().sort((p, q) => p - q); return s2[s2.length >> 1]; };
+  const gap = eyes.length > 1 ? eyes[1].x - eyes[0].x : (override && override.gap) || 48;
+  const k = (override && override.scale) || blinkFrame.scale || 1;
+  // a little larger than the eye itself (0.36 / 0.30 of the gap): the first size left a rim of white or iris under the lid
+  const rx = Math.max(6, Math.min(34, gap * 0.36 * k)), ry = Math.max(5, Math.min(28, gap * 0.30 * k));
+  const report = [];
+  for (const e of eyes) {
+    // the skin, in two steps. The cheek just under the eye gives this face's skin colour (nothing but
+    // skin is ever there: no hat brim, no brow, no hair). Then the RING around the eye (1.1 to 1.6
+    // ellipse radii, all the way round) gives the local shade: only its pixels close to the cheek
+    // colour count, so a shaded socket is matched but a hat, a brow or a grey beard is not.
+    const med3 = (r, g, b) => (r.length ? [median(r), median(g), median(b)] : null);
+    let cr = [], cg = [], cb = [];
+    for (let y = Math.round(e.y + ry * 1.25); y <= e.y + ry * 2.1; y++) for (let x = Math.round(e.x - rx * 0.7); x <= e.x + rx * 0.7; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue; const i = at(x, y); if (d[i + 3] < 200) continue;
+      const v = Math.max(d[i], d[i + 1], d[i + 2]) / 255; if (v < 0.3) continue;
+      cr.push(d[i]); cg.push(d[i + 1]); cb.push(d[i + 2]);
+    }
+    const cheek = cr.length >= 8 ? med3(cr, cg, cb) : null;
+    if (!cheek) continue;
+    cr = []; cg = []; cb = [];
+    for (let y = Math.floor(e.y - ry * 1.6); y <= e.y + ry * 1.6; y++) for (let x = Math.floor(e.x - rx * 1.6); x <= e.x + rx * 1.6; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue;
+      const q = Math.sqrt(((x - e.x) / rx) ** 2 + ((y - e.y) / ry) ** 2); if (q < 1.1 || q > 1.6) continue;
+      const i = at(x, y); if (d[i + 3] < 200) continue;
+      if (Math.abs(d[i] - cheek[0]) + Math.abs(d[i + 1] - cheek[1]) + Math.abs(d[i + 2] - cheek[2]) > 90) continue;
+      cr.push(d[i]); cg.push(d[i + 1]); cb.push(d[i + 2]);
+    }
+    const skin = cr.length >= 12 ? med3(cr, cg, cb) : cheek;
+    // the lash colour: the darkest pixels inside the eye
+    const lr = [], lg = [], lb = [];
+    for (let y = Math.round(e.y - ry); y <= e.y + ry; y++) for (let x = Math.round(e.x - rx); x <= e.x + rx; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue; const i = at(x, y); if (d[i + 3] < 200) continue;
+      const v = Math.max(d[i], d[i + 1], d[i + 2]) / 255; if (v < 0.36 && v > 0.06) { lr.push(d[i]); lg.push(d[i + 1]); lb.push(d[i + 2]); }
+    }
+    const lash = lr.length > 6 ? [median(lr), median(lg), median(lb)] : [70, 44, 34];
+    // paint the ellipse in skin, feathered over the outer two pixels
+    for (let y = Math.floor(e.y - ry - 1); y <= e.y + ry + 1; y++) for (let x = Math.floor(e.x - rx - 1); x <= e.x + rx + 1; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue; const i = at(x, y); if (d[i + 3] < 200) continue;
+      const q = Math.sqrt(((x - e.x) / rx) ** 2 + ((y - e.y) / ry) ** 2); if (q > 1) continue;
+      const a = Math.min(1, (1 - q) * Math.min(rx, ry) / 2);
+      for (let c = 0; c < 3; c++) out.d[i + c] = Math.round(d[i + c] * (1 - a) + skin[c] * a);
+    }
+    // the closed lid: an arc from corner to corner, sagging in the middle, thinner toward the corners
+    const half = rx * 0.82, yLine = e.y + ry * 0.12, sag = ry * 0.38, th = Math.max(1.4, ry * 0.17);
+    for (let y = Math.floor(yLine - th - 1); y <= yLine + sag + th + 1; y++) for (let x = Math.floor(e.x - half - 1); x <= e.x + half + 1; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue;
+      const u = (x - e.x) / half; if (Math.abs(u) > 1) continue;
+      const yc = yLine + sag * (1 - u * u), taper = 0.5 + 0.5 * (1 - u * u);
+      const a = Math.max(0, Math.min(1, th * taper / 2 + 0.5 - Math.abs(y - yc)));
+      if (a <= 0) continue;
+      const i = at(x, y); if (out.d[i + 3] < 200) continue;
+      for (let c = 0; c < 3; c++) out.d[i + c] = Math.round(out.d[i + c] * (1 - a) + lash[c] * a);
+    }
+    report.push({ x: Math.round(e.x), y: Math.round(e.y) });
+  }
+  console.log(JSON.stringify({ eyes: report, rx: +rx.toFixed(1), ry: +ry.toFixed(1), by: override ? 'override' : 'found' }));
+  return report.length === eyes.length ? out : null;
+}
+
 function tintImg(img, hex) {
   const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16); const out = { d: Buffer.from(img.d), W: img.W, H: img.H };
   for (let p = 0; p < img.W * img.H; p++) { const i = p * 4; if (!out.d[i + 3]) continue; out.d[i] = (out.d[i] * r) >> 8; out.d[i + 1] = (out.d[i + 1] * g) >> 8; out.d[i + 2] = (out.d[i + 2] * b) >> 8; }
@@ -335,6 +503,16 @@ function tintImg(img, hex) {
     case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female'); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
+    case 'blink': { // --name <figure>: its hand-placed eye centres from tools/art/blink-eyes.json, when it has an entry
+      const table = JSON.parse(fs.readFileSync(path.join(__dirname, 'blink-eyes.json'), 'utf8'));
+      const ov = args.name && table[args.name] && table[args.name].eyes ? table[args.name] : null;
+      if (args.scale) blinkFrame.scale = +args.scale; // --scale 1.12: a larger lid for eyes found automatically (a stray lash dot outside the ellipse)
+      const src = await load(args.in);
+      const out = blinkFrame(src, ov); if (!out) { console.error('no eyes found: no blink frame'); process.exit(2); }
+      if (args.layer) { // the lids LAYER of a face part: only what changed, the rest transparent
+        for (let p = 0; p < out.W * out.H; p++) { const i = p * 4; if (out.d[i] === src.d[i] && out.d[i + 1] === src.d[i + 1] && out.d[i + 2] === src.d[i + 2]) out.d[i + 3] = 0; }
+      }
+      await save(out, args.out); break; }
     case 'iris': { const out = irisLayer(await load(args.in)); if (!out) { console.error('no eyes found'); process.exit(2); } await save(out, args.out); break; }
     case 'tint': { const img = await load(args.in); await save(tintImg(img, args.hex), args.out); break; }
     case 'compose': {
@@ -348,6 +526,6 @@ function tintImg(img, hex) {
       await sharp(args.in).extract({ left: Math.round(FX), top: 0, width: Math.round(TILE), height: Math.round(TILE) }).composite([{ input: Buffer.from(`<svg width="${Math.round(TILE)}" height="${Math.round(TILE)}"><rect x="0" y="${collar}" width="${Math.round(TILE)}" height="${Math.round(TILE) - collar}" fill="black"/></svg>`), blend: 'dest-out' }]).resize(+(args.px || 1024), +(args.px || 1024)).png().toFile(args.out);
       break;
     }
-    default: console.error('commands: key align diff fitbody split lids iris tint compose headcrop'); process.exit(1);
+    default: console.error('commands: key align diff fitbody split lids blink iris tint compose headcrop'); process.exit(1);
   }
 })().catch((e) => { console.error(e); process.exit(1); });

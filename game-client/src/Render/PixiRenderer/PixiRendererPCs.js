@@ -8,7 +8,7 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
-import { breathLevel, breathSeed, breathingAllowed } from './breathing';
+import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
@@ -22,6 +22,7 @@ const iconToSvgMap = new Map();
 // A full-body figure icon (docs/avatar-plan.md v2, the Phase 1 figures used wholesale) carries
 // `artSpan` 1.5: its square is drawn that many tiles wide and tall, standing on the tile's
 // bottom edge, like artSpan art on the world layer; the busts and emoji keep the 0.9 square
+const iconToBlinkMap = new Map(); // a figure icon's blink frame (PlayerIcons.json blinkFilename: the same art, eyes closed)
 const iconToSpanMap = new Map();
 /** The art span of a player icon (0 for a bust or emoji): the speech renderer lifts bubbles by it. */
 export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) || 0;
@@ -30,6 +31,7 @@ export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) 
     if (icon.filename) {
       iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
       if (Number(icon.artSpan) > 0) iconToSpanMap.set(normalizeEmoji(icon.value), Number(icon.artSpan));
+      if (icon.blinkFilename) iconToBlinkMap.set(normalizeEmoji(icon.value), icon.blinkFilename);
     }
   });
 });
@@ -68,6 +70,7 @@ const PixiRendererPCs = ({
   const atlasTextureCacheRef = useRef(new Map());
   const svgLoadingPromisesRef = useRef(new Map());
   const isMountedRef = useRef(true);
+  const blinkRequestedRef = useRef(new Set()); // blink frames already asked for
 
   // Ref to track if animation ticker is running (on-demand pattern)
   const animationTickerRef = useRef(null);
@@ -414,6 +417,14 @@ const PixiRendererPCs = ({
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
+      // blinking: the ticker swaps between this texture and the icon's blink frame once it is loaded
+      const blinkFile = span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
+      sprite.__openTex = texture;
+      sprite.__blinkTex = blinkFile ? (atlasTextureCache.get(blinkFile) || svgTextureCache.get(blinkFile) || null) : null;
+      if (blinkFile && !sprite.__blinkTex && !blinkRequestedRef.current.has(blinkFile)) {
+        blinkRequestedRef.current.add(blinkFile);
+        loadSvgTexture(blinkFile).then((tex) => { if (tex && spriteRef.current) spriteRef.current.__blinkTex = tex; });
+      }
       // A figure icon is drawn turned a little to the viewer's right and mirrors when the player's
       // facing says so (PlayerMovement: set by horizontal steps and by facing an NPC; D1); busts
       // and emoji never flip. Sizing above leaves scale.x positive, so the sign is applied after it.
@@ -499,7 +510,12 @@ const PixiRendererPCs = ({
       if (!sprite || !sprite.visible || !sprite.__breathes) return;
       const id = currentPC?.playerId;
       const moving = !!(id && renderPositions[id]);
-      sprite.breath = moving ? 0 : breathLevel(performance.now(), breathSeed(id));
+      const now = performance.now();
+      sprite.breath = moving ? 0 : breathLevel(now, breathSeed(id));
+      if (sprite.__blinkTex && sprite.__openTex) {
+        const want = isBlinking(now, breathSeed(`${id}:blink`)) ? sprite.__blinkTex : sprite.__openTex;
+        if (sprite.texture !== want) sprite.texture = want;
+      }
     };
     ticker.add(onBreath);
     return () => { try { ticker.remove(onBreath); } catch (e) { /* the ticker may be destroyed */ } };
