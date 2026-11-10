@@ -131,8 +131,10 @@ const PixiRendererNPCOverlays = ({
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
   getNPCRenderPosition,   // Function to get animated NPC position
   npcAnimations,          // Ref to NPC animation state (for ticker updates)
+  hidden = false,         // the Settlement and Frontier views draw no NPCs, so none of their status marks either
 }) => {
   const overlayContainerRef = useRef(null);
+  useEffect(() => { if (overlayContainerRef.current) overlayContainerRef.current.visible = !hidden; });
 
   // Object pool for overlay sprites/text
   const overlayPoolRef = useRef([]);      // Pool of { sprite, text, active, npcId }

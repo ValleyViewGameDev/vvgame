@@ -12,8 +12,8 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 - **BL-2.** Real session auth: today any client can act as any player whose id it knows (delete
   their account through `/delete-player`'s "self" check, spend their holdings on every
   `/action/*` route), and a developer's id opens the admin routes.
-- **BL-17.** Final art for the player avatars and every NPC (the enemies, Fairy, Santa Claus,
-  The Porter, the Oracle, the quest-giver and speech glyphs).
+- **BL-17.** The last emoji characters: the twelve enemies and the quest-giver, relationship
+  and speech glyphs (the player avatar and the 34 named NPCs are done and live).
 - **BL-16.** Final art for the twelve Zoo animals (the Zoo panel's pets); the farm animals are
   done (2026-11-08).
 
@@ -229,28 +229,52 @@ signposts, the power and skill icons and the rich status line, and before the av
 `tools/art/icons.js`, approved on grass and dirt); animals move, so check PixiRendererNPCs'
 facing flip and bob with the Pig first. No animals in any other art (building bible rule).
 
-### BL-17: Art pass, player avatars and NPC avatars (the final one) (LAUNCH BLOCKER)
+### BL-17: Art pass, the last emoji characters: enemies and glyphs (LAUNCH BLOCKER)
 
-Added 2026-11-07.
+Added 2026-11-07; rewritten 2026-11-10, when the avatar and named-NPC half shipped.
 
-**What.** The last art pass: the parts-based player avatar (docs/avatar-plan.md, scaffolded,
-not on the board) in play and in the Profile / Change Icon modals, then every character that
-is still an emoji: the twelve enemies (Coyote to Phoenix), the spawners if they stay visible,
-Fairy, Santa Claus, The Porter, the Oracle, the RelationshipMatrix glyphs, the quest symbols
-(the giver's glyph) and the conversation / speech glyphs. **Why.** Owner's order in
-docs/art/emoji-audit.md: characters come last, after BL-16. When this lands the game has no
-emoji left and `scripts/build-atlas.js` can drop its Twemoji step. **Where to start.**
-docs/avatar-plan.md §0 for what is built; the Citizens with portraits (Kent, Portia, ...) for
-the NPC rendering path; PlayerIcons.json for the 28 legacy avatars to retire.
+**Done and live (the record is `docs/avatar-plan.md` and the git log):** the parts-based player
+avatar, on the board, in the header and the panels, with its editor (Change Avatar and the
+FTUE step) for every player; the 34 named NPCs as full figures with head crops; facing, the
+turn, the walk, the breath, the blink and the idle foot tap; a default look for every player
+who has not made one, so no legacy icon is drawn for the local player any more; paid parts
+bought with gems. Santa Claus was cut.
 
-**Plan v2 written 2026-11-09** (docs/avatar-plan.md, the top section; the bust plan is its
-appendix): full-body figures one tile wide and one and a half tall; one three-quarter pose
-mirrored for left (the flip rule reversed); head = parts (tinted, blinking), body = one painted
-outfit per clothing row per body with the skin keyed to a tint layer; motion is a puppet (bob
-and lean, then foot pieces), no frames; players get parts, the 39 named NPCs are whole
-characters on the same rig; enemies are a separate creature lane. Phases P1 (style lock on
-four whole characters) to P7, about 240 images in all. Waiting on the owner's confirmation of
-decisions D1 to D10 before any art is commissioned.
+**What is left of this item (the launch blocker).** Every character that is still an emoji:
+the twelve enemies (Coyote to Phoenix: "a separate creature lane" in the plan, not started),
+the spawners if they stay visible, the RelationshipMatrix glyphs, the quest symbols (the
+giver's glyph) and the conversation / speech glyphs, including the player's picture in a
+speech bubble. **Why.** Owner's order in docs/art/emoji-audit.md: characters come last. When
+this lands the game has no emoji left and `scripts/build-atlas.js` can drop its Twemoji step.
+**Where to start.** docs/art/emoji-audit.md for the list; `tools/art/jobs/npcs-r1..r5.json`
+for how the named NPCs were prompted and cut; the NPC rows' `symbol` (still emoji, and
+`Conversation.js` matches speakers by it) for the glyph half.
+
+**Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
+the rest is small and listed here so it is not lost.
+- Other players' figures on the board, and anything else that still reads `icon` for another
+  player; then `PlayerIcons.json`, `playerIcons/` and the `icon` field can go (the plan's
+  slice D). No record needs rewriting: a player without a look is drawn in the default one.
+- Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
+  owner found the tones a little strong).
+- The Doctor's glasses are partly painted over when he blinks; Falstaff blinks one eye.
+- Arm swing is muted (the art has no separate arms; see the plan).
+
+### BL-23: Avatar equipment: the weapon in the hand, armour as the outfit
+
+Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that later").
+
+**What.** The equipped weapon drawn in the avatar's hand and the equipped armour drawn in
+place of the chosen outfit, as `docs/avatar-plan.md` decided (v1 decisions 3 and 4, v2 D4:
+armour rows are outfit rows; weapons draw in the valley, the dungeon and the FTUE opening and
+are put away in Town and on the Homestead). **Why.** The gear a player earns should show on
+the figure. **Where to start.** The feed already exists and shapes the look: `equipFor` and
+`lookFor` in `game-client/src/Avatar/avatarLook.js` read `settings.equippedArmor` /
+`equippedWeapon` and the resource rows' `avatarTop` / `avatarHand`, and the `hand` layer is in
+`Z_ORDER`; no row names either yet and there is no art. Outfits go through the body pipeline
+(`figurecut`, `align`, `fitbody`, `split`), a hand item needs a rig hand position and its own
+cut; draw both on the base bodies, two per item (female, male). About seven armours and ten
+weapons.
 
 ### BL-20: `save-single-npc` trusts whatever NPC state the client sends
 

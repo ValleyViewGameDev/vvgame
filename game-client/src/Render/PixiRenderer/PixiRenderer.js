@@ -414,6 +414,16 @@ const PixiRenderer = ({
   // This ensures smooth transitions when exiting settlement/frontier zoom
   const isSettlementZoom = isVisuallyInSettlement;
   const isFrontierZoom = isVisuallyInFrontier;
+  // Zoomed out to the Settlement or the Frontier, the player and every NPC are not drawn (owner
+  // 2026-11-10: figures are specks at that size, and they are the only things that animate).
+  // The player, speech and status-mark layers take `hidden`; the NPC sprites live in the shared
+  // objects layer (for depth), so each one's `visible` is set here and in the NPC pass.
+  const actorsHidden = isSettlementZoom || isFrontierZoom;
+  const actorsHiddenRef = useRef(actorsHidden);
+  actorsHiddenRef.current = actorsHidden;
+  useEffect(() => {
+    for (const obj of Object.values(npcDisplayObjects.current)) if (obj && !obj.destroyed) obj.visible = !actorsHidden;
+  }, [actorsHidden]);
 
   // Note: isVisuallyInFrontier/isVisuallyInSettlement track visual state during zoom animations
   // They remain true during zoom-out to keep content visible until animation completes
@@ -1375,6 +1385,7 @@ const PixiRenderer = ({
         const art = npc.artFacing || (npc.action === 'graze' || npc.action === 'attack' ? 'left' : 'front');
         const flip = art === 'left' ? (npc.facing > 0 ? -1 : 1) : art === 'right' ? (npc.facing < 0 ? -1 : 1) : 1;
         displayObj.scale.x = Math.abs(displayObj.scale.x) * flip;
+        displayObj.visible = !actorsHiddenRef.current; // no NPCs in the Settlement and Frontier views
         displayObj.__npc = npc; // dev Edit Mode finds the NPC under a click by it (Dev/devResourceEditor.js)
         // Where its head is, for the status overlays (npcHeadTops.js): the sprite stands on its tile
         // centre with anchor (0.5, anchorY), so its top is anchorY x size above the centre, and the
@@ -2231,6 +2242,7 @@ const PixiRenderer = ({
         currentPlayer={currentPlayer}
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
+        hidden={actorsHidden}
       />
       {/* Speech bubbles and relationship outcomes */}
       <PixiRendererSpeech
@@ -2240,6 +2252,7 @@ const PixiRenderer = ({
         currentPlayer={currentPlayer}
         TILE_SIZE={TILE_SIZE}
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
+        hidden={actorsHidden}
       />
       {/* NPC status overlays (quest checkmarks, trade indicators) */}
       <PixiRendererNPCOverlays
@@ -2253,6 +2266,7 @@ const PixiRenderer = ({
         gridOffset={{ x: gridOffsetX, y: gridOffsetY }}
         getNPCRenderPosition={getNPCRenderPosition}
         npcAnimations={npcAnimations}
+        hidden={actorsHidden}
       />
       </>)}
     </>

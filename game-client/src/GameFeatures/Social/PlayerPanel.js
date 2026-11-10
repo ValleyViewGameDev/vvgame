@@ -379,9 +379,10 @@ const PlayerPanel = ({
         <AvatarModal
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          setInventory={setInventory}
+          setBackpack={setBackpack}
           masterResources={masterResources}
           updateStatus={updateStatus}
-          isDeveloper={isDeveloper}
           onClose={() => setShowAvatarModal(false)}
         />
       )}

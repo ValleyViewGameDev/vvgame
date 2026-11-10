@@ -13,7 +13,7 @@ import { actorZ } from './depthSort';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
-import { lookFor, byId } from '../../Avatar/avatarLook';
+import { lookFor, byId, specFor } from '../../Avatar/avatarLook';
 import { renderLook } from '../../Avatar/avatarCompositor';
 
 // The saved parts avatar on the board (docs/avatar-plan.md v2 P5): composed at 512 px (the figure
@@ -84,6 +84,7 @@ const PixiRendererPCs = ({
   currentPlayer,          // Current player (for ID matching)
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
+  hidden = false,         // the Settlement and Frontier views draw no player (owner 2026-11-10)
 }) => {
   const pcContainerRef = useRef(null);
 
@@ -99,10 +100,11 @@ const PixiRendererPCs = ({
   const isMountedRef = useRef(true);
   const blinkRequestedRef = useRef(new Set()); // blink frames already asked for
 
-  // The player's saved avatar (player.avatar, written by the Edit Avatar editor): composed from the
+  // The player's avatar (player.avatar, written by the avatar editor): composed from the
   // catalogue's parts into two textures, eyes open and the blink frame, and drawn INSTEAD of the
-  // icon. A player who never saved one, or whose spec names parts an older catalogue had, keeps
-  // the icon. The textures are rebuilt only when the spec changes.
+  // icon. A player who has not made one (or whose saved one names a face the catalogue no longer
+  // has) is drawn in the DEFAULT look (avatarLook.specFor), so the old icon only stands in while
+  // the catalogue loads or if it cannot be read. The textures are rebuilt only when the look changes.
   const avatarTexRef = useRef(null); // { key, open, blink, body } | null
   const [avatarVersion, setAvatarVersion] = useState(0);
   const avatarKey = currentPlayer?.avatar && currentPlayer.avatar.skin ? JSON.stringify(currentPlayer.avatar) : '';
@@ -116,12 +118,11 @@ const PixiRendererPCs = ({
       setAvatarVersion((v) => v + 1);
     };
     (async () => {
-      if (!avatarKey) { drop(); return; }
       const data = await loadAvatarCatalogue();
       if (!live) return;
-      const spec = JSON.parse(avatarKey);
+      const spec = specFor(avatarKey ? JSON.parse(avatarKey) : null, data); // the saved look, or the default one
       const face = byId(data.catalogue, spec.skin);
-      if (!face || !face.file) { drop(); return; } // a spec from an older catalogue: the icon stands in
+      if (!face || !face.file) { drop(); return; } // no catalogue to draw from: the icon stands in
       const look = lookFor(spec, data, {});
       if (avatarTexRef.current?.key === look.key) return;
       try {
@@ -453,6 +454,9 @@ const PixiRendererPCs = ({
       return;
     }
 
+    // zoomed out to the Settlement or the Frontier: no player on the board
+    if (hidden) { hideSprite(); hideText(); if (spriteRef.current) spriteRef.current.walking = false; return; }
+
     // Get display icon based on state
     const displayIcon = getDisplayIcon(pc);
 
@@ -528,7 +532,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture, avatarVersion]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden]);
 
   // Initial render and re-render on state changes
   useEffect(() => {

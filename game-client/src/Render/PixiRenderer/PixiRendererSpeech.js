@@ -66,8 +66,10 @@ const PixiRendererSpeech = ({
   currentPlayer,          // Current player object
   TILE_SIZE,              // Tile size in pixels
   gridOffset = { x: 0, y: 0 },  // Offset for settlement zoom (current grid position in world)
+  hidden = false,         // the Settlement and Frontier views draw no player and no NPCs, so no speech either
 }) => {
   const speechContainerRef = useRef(null);
+  useEffect(() => { if (speechContainerRef.current) speechContainerRef.current.visible = !hidden; });
 
   // Force re-render when ConversationManager updates
   const [conversationVersion, setConversationVersion] = useState(0);

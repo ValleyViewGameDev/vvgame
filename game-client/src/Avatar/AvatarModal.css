@@ -22,8 +22,9 @@
 /* The stage figure breathes: AvatarModal.js BreathingFigure draws the board's deformation on a canvas.
    Its size is set HERE (the canvas is `fluid`), so the phone block in mobile.css can make it smaller. */
 .avatar-stage-figure { width: 128px; height: 256px; }
-/* the Body tab: the female / male sign instead of a figure (both previews used to show the current body) */
-.avatar-body-sign { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
+/* a sign in a thumbnail's place (it takes the thumbnail's size): the female / male sign on the Body tab, the no-entry sign for a slot's None */
+.avatar-sign { display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
+.avatar-sign-none { font-size: 36px; } /* style-ok: a glyph used as an icon */
 
 .avatar-controls { flex: 1; min-width: 0; }
 /* the tabs are Panel.css's .tab-navigation.buy-deco-tabs > .tab-button (text, an underline on the active one); only their spacing is set here */
@@ -32,9 +33,7 @@
 .avatar-part-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
 .avatar-part { position: relative; width: 84px; padding: 4px 2px 2px; border: 2px solid transparent; border-radius: var(--radius-md); background: var(--color-bg-light, #f3f3f0); cursor: pointer; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .avatar-part.selected { border-color: var(--color-btn-primary-text, #2d6a2d); background: var(--color-btn-primary-hover, #d9ead3); }
-.avatar-part-label { font-family: var(--font-text-1-family); font-size: var(--text-sm); color: var(--font-text-1-color); line-height: 1.1; text-align: center; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .avatar-badge { position: absolute; top: 2px; right: 2px; font-family: var(--font-text-2-family); font-size: var(--text-xs); padding: 1px 4px; border-radius: var(--radius-md); background: #fff3c4; border: 1px solid #e0c060; } /* style-ok: art (badge tint) */
-.avatar-badge.owned { background: #dff3df; border-color: #7fbf7f; } /* style-ok: art (badge tint) */
 
 .avatar-colors { margin-top: 10px; text-align: left; }
 .avatar-colors-label { font-family: var(--font-title-3-family); font-size: var(--font-title-3-size); font-weight: var(--font-title-3-weight); color: var(--font-title-3-color); margin-bottom: 4px; text-align: left; }

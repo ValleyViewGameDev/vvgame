@@ -29,11 +29,11 @@ here; detail lives in the linked docs and backlog items.
   built. House saw quits rise past a ~12 minute FTUE.
 - [x] **Finalize the town layout and upgrade its art.** Done (owner, 2026-10-31; W-15). The town is the first shared place a new
   player sees; art pipeline: `docs/art-pipeline-plan.md`, `docs/art/buildings-bible.md`.
-- [ ] **Avatar creation / selection.** Plan: `docs/avatar-plan.md`. Built 2026-11-10: Change
-  Avatar and the FTUE's avatar step open the parts editor for every player, and the board, the
-  header and the panels draw the saved look. Left before launch: a wider catalogue than the
-  starter set (two bodies, two or three choices per slot), the hand slot and armour, and
-  retiring the old icons for players who never save a look.
+- [x] **Avatar creation / selection.** Done 2026-11-10 (plan and record: `docs/avatar-plan.md`):
+  Change Avatar and the FTUE's avatar step open the parts editor for every player; the board,
+  the header and the panels draw the look; a player who has not made one is drawn in the
+  default look; some hats and clothes are bought with gems. What is left of the character art
+  (the enemies, the glyphs) is BL-17; equipment on the figure is BL-23 and not a blocker.
 - [x] **Atlas size pass.** Done 2026-10-30: 11 sheets -> 7 (about 185 MB -> 117 MB of GPU
   memory once decoded). The waste was packing, not resolution (768 px building slots are what a
   size-5 building needs at the closest zoom on a 2x phone): frames are now trimmed to their

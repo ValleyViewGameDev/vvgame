@@ -21,7 +21,8 @@
     "file2": "eyeballs-m-01.png",
     "eyes": "eyes-m-01",
     "body": "male",
-    "notes": "the approved farm man (characters-r3) as a base body, bases-r1 male-2; the face part is the figure above the rig's headCut (tools/art/parts.js face); file2 = the eyeballs lifted out of the face, drawn untinted over it (tools/art/eyeballs.js)"
+    "notes": "the approved farm man (characters-r3) as a base body, bases-r1 male-2; the face part is the figure above the rig's headCut (tools/art/parts.js face); file2 = the eyeballs lifted out of the face, drawn untinted over it (tools/art/eyeballs.js)",
+    "default": true
   },
   {
     "id": "eyes-f-01",
@@ -159,21 +160,23 @@
     "id": "hat-f-flowers",
     "slot": "hat",
     "label": "Flower ring",
-    "tier": "free",
+    "tier": "paid",
     "file": "hat-f-flowers.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r6 (2026-11-10): bigger flowers, drawn on the teal mannequin; cut by tools/art/parts.js (diff --drophue)"
+    "notes": "parts-r6 (2026-11-10): bigger flowers, drawn on the teal mannequin; cut by tools/art/parts.js (diff --drophue)",
+    "gemcost": 30
   },
   {
     "id": "hat-f-tiara",
     "slot": "hat",
     "label": "Tiara",
-    "tier": "free",
+    "tier": "paid",
     "file": "hat-f-tiara.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)"
+    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)",
+    "gemcost": 30
   },
   {
     "id": "hat-m-cap",
@@ -199,21 +202,23 @@
     "id": "hat-m-headband",
     "slot": "hat",
     "label": "Gold head band",
-    "tier": "free",
+    "tier": "paid",
     "file": "hat-m-headband.png",
     "hidesHair": false,
     "body": "male",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js, then seat: 7 % wider for hair"
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js, then seat: 7 % wider for hair",
+    "gemcost": 30
   },
   {
     "id": "hat-m-crown",
     "slot": "hat",
     "label": "Crown",
-    "tier": "free",
+    "tier": "paid",
     "file": "hat-m-crown.png",
     "hidesHair": false,
     "body": "male",
-    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)"
+    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)",
+    "gemcost": 30
   },
   {
     "id": "top-shift-f",
@@ -224,7 +229,8 @@
     "file2": "shift-f.skin.png",
     "tint2": "skinTone",
     "body": "female",
-    "notes": "No Clothes: the base body in its undershift"
+    "notes": "No Clothes: the base body in its undershift",
+    "none": true
   },
   {
     "id": "top-f-peasant",
@@ -252,23 +258,25 @@
     "id": "top-f-adventurer",
     "slot": "top",
     "label": "Adventurer",
-    "tier": "free",
+    "tier": "paid",
     "file": "outfit-f-adventurer.cloth.png",
     "file2": "outfit-f-adventurer.skin.png",
     "tint2": "skinTone",
     "body": "female",
-    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
   },
   {
     "id": "top-f-court",
     "slot": "top",
     "label": "Court gown",
-    "tier": "free",
+    "tier": "paid",
     "file": "outfit-f-court.cloth.png",
     "file2": "outfit-f-court.skin.png",
     "tint2": "skinTone",
     "body": "female",
-    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
   },
   {
     "id": "top-shift-m",
@@ -279,7 +287,8 @@
     "file2": "shift-m.skin.png",
     "tint2": "skinTone",
     "body": "male",
-    "notes": "No Clothes: the base body in its undershift"
+    "notes": "No Clothes: the base body in its undershift",
+    "none": true
   },
   {
     "id": "top-m-tunic",
@@ -307,22 +316,24 @@
     "id": "top-m-doublet",
     "slot": "top",
     "label": "Noble doublet",
-    "tier": "free",
+    "tier": "paid",
     "file": "outfit-m-doublet.cloth.png",
     "file2": "outfit-m-doublet.skin.png",
     "tint2": "skinTone",
     "body": "male",
-    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
   },
   {
     "id": "top-m-robe",
     "slot": "top",
     "label": "Scholar's robe",
-    "tier": "free",
+    "tier": "paid",
     "file": "outfit-m-robe.cloth.png",
     "file2": "outfit-m-robe.skin.png",
     "tint2": "skinTone",
     "body": "male",
-    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
   }
 ]

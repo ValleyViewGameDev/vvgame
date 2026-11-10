@@ -884,6 +884,42 @@ taught:
   sliver the cut left on a shoulder sat unseen where it was drawn and showed as a line in the
   air once it moved with the crown.
 
+**Default look, paid parts, Random, and no figures zoomed out (owner 2026-11-10, release 2).**
+- **Every player has a look: the DEFAULT one until they make their own.** The "migration"
+  from the old icons rewrites no record: `avatarLook.specFor(avatar, data)` gives the saved
+  look, or the default look when there is none (or its face is gone from the catalogue), and
+  the board, `AvatarFace` (header, panels, Leaderboard, Market, the FTUE speaker) and the
+  editor all ask it. The default is the man, No Clothes, the short hair, brown hair, green
+  eyes: the rows marked `default` in the tuning files (face-m-01; tone-2, hair-brown,
+  eye-green), every other slot the first free part of that face's body, a None where there is
+  one (`defaultSpec`, mirrored by the server's). The FTUE's avatar step starts from it. The
+  old icon now only stands in while the catalogue loads; the one player who had bought the
+  premium icons is not compensated (owner).
+- **Paid parts, bought one by one with gems.** Tiers (owner): every skin tone, hair colour,
+  hair style, facial hair and eye colour is free; of the hats and of the clothes, the last two
+  in each body's list are paid, 30 gems each (`tier: paid`, `gemcost: 30` on the flower ring,
+  tiara, gold head band, crown, Adventurer, Court gown, Noble doublet, Scholar's robe). In the
+  editor a paid part shows its price until it is owned and can be tried on freely; while the
+  look holds parts the player does not own, Save becomes the gold "Buy for N" button, asks
+  (`GemSpendConfirm`), and `POST /api/player/avatar` with `buy: true` buys them and saves the
+  look in ONE write: never charged for a look that was not saved, never wearing what was not
+  paid for; without `buy` such a look is refused (422). A part a player was ALREADY WEARING
+  when it got its price is theirs (`ownedBy`, client and server; written to `avatarParts` at
+  their next save). The developer bypass is gone, so the flow can be tested on a developer
+  account. The server now also refuses a part drawn for the other body. Tested by running the
+  real route handler against a stand-in player: refused without `buy`, charged once, charged
+  only for what is missing, refused when the gems run short, the worn tiara kept.
+- **The editor.** No captions on parts (a body is its sign, every other part its picture); a
+  slot's None (no hair, no beard, no hat, and No Clothes, the rows with no drawing or marked
+  `none`) is the no-entry sign, not a picture of the figure without it; **Random** (left of
+  Reset) draws a look from the FREE parts and colours, either body, never bald or undressed
+  (`randomSpec`).
+- **Zoomed out to the Settlement or the Frontier, the player and every NPC are not drawn**,
+  nor speech or NPC status marks (`actorsHidden` in `PixiRenderer`): figures are specks at
+  that size and they are the only things that animate.
+- **The FTUE doinker over a figure NPC** sits above its head: it is lifted by `artSpan - 0.5`
+  tiles from the tile's centre, where it used to point across the face.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.

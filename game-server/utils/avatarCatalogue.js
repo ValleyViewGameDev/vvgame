@@ -27,21 +27,27 @@ function load() {
 }
 const byId = (rows, id) => (id ? rows.find((r) => r && r.id === id) || null : null);
 
-/** The starter look (mirrors avatarLook.defaultSpec). */
+/**
+ * The DEFAULT look (mirrors avatarLook.defaultSpec): what a player who has not made one looks like
+ * (owner 2026-11-10: the man, no clothes, the first hair, brown hair, green eyes). The face and the
+ * colours are the rows marked `default` in the tuning files; every other slot is the first free
+ * part of that face's body, a None where the slot has one.
+ */
 function defaultSpec() {
   const { catalogue, palettes } = load();
   const inSlot = (slot) => catalogue.filter((r) => r.slot === slot);
-  const face = inSlot('skin').find((p) => (p.tier || 'free') === 'free' && p.file);
+  const free = (p) => (p.tier || 'free') === 'free' && p.file;
+  const face = inSlot('skin').find((p) => p.default && free(p)) || inSlot('skin').find(free);
   const body = face?.body || null;
   // every slot from the face's body: rows with no body (None, shared art) or drawn for it (docs/avatar-plan.md v2 D7)
   const firstFree = (slot) => inSlot(slot).filter((r) => !r.body || !body || r.body === body).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
   const swatches = (slot) => palettes.filter((r) => r.slot === slot);
-  const tones = swatches('skinTone');
+  const color = (slot) => (swatches(slot).find((r) => r.default) || swatches(slot)[0])?.id || null;
   return {
     v: SPEC_VERSION,
-    skin: firstFree('skin'), skinTone: (tones[1] || tones[0])?.id || null, // the second lightest
-    hair: firstFree('hair'), hairColor: swatches('hairColor')[0]?.id || null,
-    eyes: byId(catalogue, firstFree('skin'))?.eyes || firstFree('eyes'), eyeColor: swatches('eyeColor')[0]?.id || null,
+    skin: face?.id || null, skinTone: color('skinTone'),
+    hair: firstFree('hair'), hairColor: color('hairColor'),
+    eyes: face?.eyes || firstFree('eyes'), eyeColor: color('eyeColor'),
     facialHair: inSlot('facialHair').find((p) => !p.file)?.id || null,
     hat: inSlot('hat').find((p) => !p.file)?.id || null,
     top: firstFree('top'),
@@ -73,6 +79,8 @@ function validateSpec(spec, { owned = [], allowNpc = false } = {}) {
     const row = byId(catalogue, id);
     if (!row) { problems.push(`${key}: unknown part ${id}`); continue; }
     if (row.slot !== slot) { problems.push(`${key}: ${id} is a ${row.slot}`); continue; }
+    // a part drawn for one body is not worn on the other (the editor only offers the face's own; this is for a request that is not the editor's)
+    if (row.body && face && face.body && row.body !== face.body) { problems.push(`${key}: ${id} is drawn for the other body`); continue; }
     tierOk(row, key);
   }
   for (const [key, slot] of Object.entries(PALETTE_OF_SPEC_KEY)) {
@@ -84,6 +92,32 @@ function validateSpec(spec, { owned = [], allowNpc = false } = {}) {
     tierOk(row, key);
   }
   return problems;
+}
+
+/**
+ * What a player owns: the paid parts they have bought, plus any they are ALREADY WEARING in their
+ * saved look (a part that was free when they picked it and has a price now is theirs: nobody is
+ * charged for, or loses, what they have on).
+ */
+function ownedBy(player) {
+  const { catalogue, palettes } = load();
+  const owned = new Set(player?.avatarParts || []);
+  const saved = player?.avatar;
+  if (saved && typeof saved === 'object') for (const id of Object.values(saved)) { const row = typeof id === 'string' ? byId(catalogue, id) || byId(palettes, id) : null; if (row && row.tier === 'paid') owned.add(row.id); }
+  return [...owned];
+}
+
+/** The paid parts and swatches a spec uses that are not in `owned`: [{ id, gemcost }] (an unpriced one has gemcost null). */
+function toBuy(spec, owned = []) {
+  const { catalogue, palettes } = load();
+  const have = new Set(owned); const out = [];
+  for (const id of new Set(Object.values(spec || {}))) {
+    const row = typeof id === 'string' ? byId(catalogue, id) || byId(palettes, id) : null;
+    if (!row || row.tier !== 'paid' || have.has(row.id)) continue;
+    const gemcost = Number(row.gemcost);
+    out.push({ id: row.id, gemcost: Number.isFinite(gemcost) && gemcost > 0 ? gemcost : null });
+  }
+  return out;
 }
 
 /** A buyable part or swatch: { id, gemcost } or null (unknown, free, npc, or unpriced). */
@@ -104,4 +138,4 @@ function paidIds() {
 
 function reload() { cache = null; return load(); }
 
-module.exports = { load, reload, defaultSpec, cleanSpec, validateSpec, purchasable, paidIds, SPEC_VERSION };
+module.exports = { load, reload, defaultSpec, cleanSpec, validateSpec, purchasable, paidIds, ownedBy, toBuy, SPEC_VERSION };

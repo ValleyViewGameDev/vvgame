@@ -4,8 +4,13 @@
  * step (`intro`). It composes the figure from the catalogue exactly as the board does
  * (avatarLook + avatarCompositor), with a tab per slot, swatches per colour, the breath and the
  * blink, and Save, which writes the spec to the Player through POST /api/player/avatar; the
- * board, the header and the panels then draw it. A player who never saves one keeps their old
- * icon. Developers also see each part's catalogue name under its picture.
+ * board, the header and the panels then draw it. A player who has not saved one is drawn in the
+ * default look (avatarLook.specFor), which is also where the editor starts.
+ *
+ * PAID PARTS (owner 2026-11-10): a part with `tier: paid` shows its gem price until the player
+ * owns it. It can be tried on freely; while the look holds parts the player does not own, Save
+ * becomes "Buy for N gems", asks (GemSpendConfirm), and the server buys them and saves the look
+ * in one write (POST /api/player/avatar with `buy: true`).
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -16,17 +21,20 @@ import '../UI/Panels/Panel.css'; // the tabs are the shared .tab-button row, as 
 import '../UI/Buttons/SharedButtons.css';
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
-import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
+import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes, ownedBy, toBuy, randomSpec } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
 import { BLINK, breathLevel, breathDeform, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
+import { confirmGemSpend } from '../UI/Modals/GemSpendConfirm';
+import { gameAlert } from '../UI/Modals/GameDialog';
 import { useStrings } from '../UI/StringsContext';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
-// UI/Strings keys: the tabs, the colour rows and the two bodies
+// UI/Strings keys: the tabs and the colour rows (a part has no caption: its picture is its name)
 const SLOT_LABEL = { skin: 4131, hair: 4132, facialHair: 4133, eyes: 4134, hat: 4135, top: 4136 };
 const COLOR_LABEL = { skinTone: 4137, hairColor: 4138, eyeColor: 4139 };
-const BODY_LABEL = { female: 4140, male: 4141 };
+// a slot's None (no hair, no beard, no hat, No Clothes: a row with no drawing, or marked `none`) is the no-entry sign, not a picture of the figure without it
+const isNone = (row) => !row.file || row.none;
 // the swatch rows of each tab. The Eyes tab has none: its pictures ARE the eye colours (the eyes come with the face)
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: [], hat: [], top: [] };
 const PREVIEW_PX = 256;
@@ -141,7 +149,7 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   return src ? <img className={`avatar-preview ${className}`} src={src} alt="" width={size} height={size} draggable={false} /> : <div className={`avatar-preview avatar-preview-empty ${className}`} style={{ width: size, height: size }} />;
 }
 
-export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterResources, updateStatus, onClose, onSaved, intro = null, isDeveloper = false }) {
+export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInventory, setBackpack, masterResources, updateStatus, onClose, onSaved, intro = null }) {
   const strings = useStrings();
   const [data, setData] = useState(null);           // { catalogue, palettes }
   const [spec, setSpec] = useState(null);
@@ -172,8 +180,10 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   // put-away rule for the grid the player is standing on
   const equip = useMemo(() => (data ? equipFor(currentPlayer, masterResources, currentPlayer?.location?.gtype) : null), [currentPlayer, masterResources, data]);
   const look = useMemo(() => (data && spec ? lookFor(spec, data, equip) : null), [data, spec, equip]);
-  // a developer wears any part (the server allows it too); a player only what they bought
-  const owned = useMemo(() => (isDeveloper && data ? [...data.catalogue, ...data.palettes].filter((r) => r.tier === 'paid').map((r) => r.id) : [...(currentPlayer?.avatarParts || [])]), [currentPlayer, isDeveloper, data]);
+  // what the player owns (bought, or already wearing), and what this look would have them buy
+  const owned = useMemo(() => (data ? ownedBy(currentPlayer, data) : []), [currentPlayer, data]);
+  const buying = useMemo(() => (data && spec ? toBuy(spec, data, owned) : []), [data, spec, owned]);
+  const gems = buying.reduce((sum, row) => sum + (Number(row.gemcost) || 0), 0);
 
   const set = (key, value) => { dirtyRef.current = true; setSpec((prev) => withEyes(data.catalogue, { ...prev, [key]: value })); setProblems([]); };
 
@@ -182,15 +192,19 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
   const handleSave = async () => {
     if (!spec || saving) return;
-    const check = validateSpec(spec, data.catalogue, data.palettes, { owned });
+    const check = validateSpec(spec, data.catalogue, data.palettes, { owned: [...owned, ...buying.map((r) => r.id)] });
     if (check.length) { setProblems(check); return; }
+    // the look holds parts the player does not own: this Save buys them. The server holds the gems, so it waits for the answer.
+    if (buying.length && !(await confirmGemSpend({ gems, oneShot: false }))) return;
     setSaving(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/player/avatar`, { playerId: currentPlayer.playerId || currentPlayer._id, avatar: spec });
+      const res = await axios.post(`${API_BASE}/api/player/avatar`, { playerId: currentPlayer.playerId || currentPlayer._id, avatar: spec, ...(buying.length ? { buy: true } : {}) });
       if (res.data?.success && res.data.player) {
-        const next = { ...currentPlayer, avatar: res.data.player.avatar, avatarParts: res.data.player.avatarParts };
+        const spent = res.data.inventory ? { inventory: res.data.inventory, backpack: res.data.backpack } : {};
+        const next = { ...currentPlayer, avatar: res.data.player.avatar, avatarParts: res.data.player.avatarParts, ...spent };
         localStorage.setItem('player', JSON.stringify(next));
         setCurrentPlayer?.(next);
+        if (res.data.inventory) { setInventory?.(res.data.inventory); if (res.data.backpack) setBackpack?.(res.data.backpack); }
         dirtyRef.current = false;
         updateStatus?.(strings[4144]);
         (onSaved || onClose)?.();
@@ -198,7 +212,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
     } catch (err) {
       // a rejected spec names its problems (a part that is not owned); anything else is "try again"
       const body = err.response?.data;
-      setProblems(body?.problems || [strings[4145]]);
+      if (body?.code === 'not-enough-gems') gameAlert({ message: strings[10217] });
+      else setProblems(body?.problems || [strings[4145]]);
     } finally { setSaving(false); }
   };
 
@@ -213,12 +228,8 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
   // "None" (no drawing) leads; the Eyes tab lists no parts (the eyes follow the face), only the colour
   // the Face tab lists both bodies; every other tab only what the chosen face's body can wear
   const parts = tab === 'eyes' ? [] : (tab === 'skin' ? partsInSlot(data.catalogue, slot) : partsFor(data.catalogue, slot, bodyOf(data.catalogue, spec))).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0));
-  const tierBadge = (row) => {
-    const tier = row.tier || 'free';
-    if (tier !== 'paid') return null;
-    const bought = (currentPlayer?.avatarParts || []).includes(row.id);
-    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? strings[98016] : <>{row.gemcost || '?'} <ResourceIcon type="Gem" /></>}</span>;
-  };
+  // a paid part shows its price until it is owned; an owned one looks like any other
+  const priceBadge = (row) => ((row.tier || 'free') === 'paid' && !owned.includes(row.id) ? <span className="avatar-badge"><ResourceIcon type="Gem" /> {row.gemcost}</span> : null);
 
   return createPortal(
     <div className="modal-overlay">
@@ -243,19 +254,20 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
             <div className="avatar-part-grid">
               {/* the eyes come with the face, so the Eyes tab's pictures are the eye COLOURS: the same size as every other tab's, framed on the eyes alone */}
               {tab === 'eyes' && palette(data.palettes, 'eyeColor').map((sw) => (
-                <button key={sw.id} className={`avatar-part ${spec.eyeColor === sw.id ? 'selected' : ''}`} title={isDeveloper ? sw.label || sw.id : undefined} onClick={() => set('eyeColor', sw.id)}>
+                <button key={sw.id} className={`avatar-part ${spec.eyeColor === sw.id ? 'selected' : ''}`} onClick={() => set('eyeColor', sw.id)}>
                   <AvatarPreview look={thumbLook('eyeColor', sw.id)} blink={false} className="avatar-thumb" crop={CROP.eyes} width={72} height={72} />
-                  {isDeveloper ? <span className="avatar-part-label">{sw.label || sw.id}</span> : null}
+                  {priceBadge(sw)}
                 </button>
               ))}
               {parts.map((row) => (
-                <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={isDeveloper ? row.label || row.id : undefined} onClick={() => set(tab, row.id)}>
+                <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} onClick={() => set(tab, row.id)}>
+                  {/* no captions (owner 2026-11-10): a body is its sign, a None the no-entry sign, every other part its picture */}
                   {tab === 'skin'
-                    ? <span className="avatar-body-sign" aria-hidden="true">{row.body === 'male' ? '\u2642' : '\u2640'}</span>
-                    : <AvatarPreview look={thumbLook(tab, row.id)} blink={false} className="avatar-thumb" crop={CROP[CROP_FOR_TAB[tab]] || CROP.head} width={72} height={72} />}
-                  {/* a picture names a hairstyle or a hat better than a word; only the two bodies are told apart by one (developers see every row's catalogue name) */}
-                  {tab === 'skin' ? <span className="avatar-part-label">{strings[BODY_LABEL[row.body || 'female']]}</span> : (isDeveloper ? <span className="avatar-part-label">{row.label || row.id}</span> : null)}
-                  {tierBadge(row)}
+                    ? <span className="avatar-thumb avatar-sign" aria-hidden="true">{row.body === 'male' ? '\u2642' : '\u2640'}</span>
+                    : isNone(row)
+                      ? <span className="avatar-thumb avatar-sign avatar-sign-none" aria-hidden="true">{'\u{1F6AB}'}</span>
+                      : <AvatarPreview look={thumbLook(tab, row.id)} blink={false} className="avatar-thumb" crop={CROP[CROP_FOR_TAB[tab]] || CROP.head} width={72} height={72} />}
+                  {priceBadge(row)}
                 </button>
               ))}
             </div>
@@ -265,7 +277,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
                 <div className="avatar-colors-label">{strings[COLOR_LABEL[colorKey]]}</div>
                 <div className="avatar-swatches">
                   {palette(data.palettes, PALETTE_OF_SPEC_KEY[colorKey]).map((sw) => (
-                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} title={isDeveloper ? sw.label || sw.id : undefined} onClick={() => set(colorKey, sw.id)}>
+                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} onClick={() => set(colorKey, sw.id)}>
                       {sw.tier === 'paid' && !owned.includes(sw.id) ? <span className="avatar-swatch-lock"><ResourceIcon type="Gem" /></span> : null}
                     </button>
                   ))}
@@ -278,9 +290,14 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         {problems.length > 0 && <div className="avatar-problems">{problems.join('. ')}</div>}
 
         <div className="shared-buttons avatar-actions">
+          {/* Random: a look from the free parts, either body, to flick through without customising */}
+          <button className="btn-basic btn-neutral" onClick={() => { setSpec(randomSpec(data.catalogue, data.palettes)); setProblems([]); dirtyRef.current = true; }}>{strings[4147]}</button>
           {/* Reset: the starter look of the body being edited */}
           <button className="btn-basic btn-neutral" onClick={() => { setSpec(defaultSpec(data.catalogue, data.palettes, bodyOf(data.catalogue, spec))); setProblems([]); dirtyRef.current = true; }}>{strings[4142]}</button>
-          <button className="btn-basic btn-success" disabled={saving} onClick={handleSave}>{saving ? strings[4143] : strings[4102]}</button>
+          {/* Save, or, while the look holds parts the player does not own, the gem button that buys them and saves */}
+          <button className={`btn-basic ${gems ? 'btn-gold' : 'btn-success'}`} disabled={saving} onClick={handleSave}>
+            {saving ? strings[4143] : gems ? <>{strings[4146]} <ResourceIcon type="Gem" /> {gems.toLocaleString()}</> : strings[4102]}
+          </button>
         </div>
       </div>
     </div>,

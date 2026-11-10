@@ -91,6 +91,10 @@ const PixiRendererDoinker = ({
                 y: targetNPC.position.y,
                 size: 1,
                 source: 'npc',
+                // a figure NPC stands `artSpan` tiles tall from its tile's bottom edge, so its head is
+                // (artSpan - 0.5) tiles above the tile's centre, where the arrow used to point: the arrow
+                // is lifted by that much and sits over the head instead of across the face (owner 2026-11-10)
+                lift: Math.max(0, (Number(targetNPC.artSpan) || 0) - 0.5),
                 targetName
               });
               found = true;
@@ -176,7 +180,8 @@ function BoardArrows({ targets, TILE_SIZE }) {
         const height = Math.max(30, TILE_SIZE * 0.8) * z;
         const width = Math.max(20, TILE_SIZE * 0.5) * z;
         const onBoard = x >= host.left && x <= host.right && y >= host.top && y <= host.bottom;
-        return { key: `${t.targetName}-${t.x}-${t.y}`, x: Math.round(x), top: Math.round(y - height - 10 * z), width, height, onBoard };
+        const lift = (t.lift || 0) * TILE_SIZE * z; // a figure NPC: up to the top of its head
+        return { key: `${t.targetName}-${t.x}-${t.y}`, x: Math.round(x), top: Math.round(y - height - 10 * z - lift), width, height, onBoard };
       }).filter((a) => a.onBoard);
       setArrows((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
     };

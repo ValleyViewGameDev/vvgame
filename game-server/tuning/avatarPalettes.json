@@ -11,7 +11,8 @@
     "slot": "skinTone",
     "label": "Warm",
     "hex": "#F2D6C0",
-    "tier": "free"
+    "tier": "free",
+    "default": true
   },
   {
     "id": "tone-3",
@@ -46,7 +47,8 @@
     "slot": "hairColor",
     "label": "Brown",
     "hex": "#8A5A2B",
-    "tier": "free"
+    "tier": "free",
+    "default": true
   },
   {
     "id": "hair-blonde",
@@ -88,7 +90,8 @@
     "slot": "eyeColor",
     "label": "Green",
     "hex": "#36B84C",
-    "tier": "free"
+    "tier": "free",
+    "default": true
   },
   {
     "id": "eye-brown",

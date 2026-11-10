@@ -63,17 +63,23 @@ export const withEyes = (catalogue, spec) => {
   return out;
 };
 
-/** The starter look: the first free part of every slot, the second-lightest skin tone. */
+/**
+ * The DEFAULT look: what a player who has not made one looks like, and what Reset gives (owner
+ * 2026-11-10: the man, no clothes, the first hair, brown hair, green eyes). The face and the
+ * colours are the rows marked `default` in the tuning files (for `body`, that body's first free
+ * face); every other slot is the first free part of that face's body, a None where there is one.
+ * The server's avatarCatalogue.defaultSpec is its mirror.
+ */
 export function defaultSpec(catalogue, palettes, body = null) {
-  // every slot from the face's body (the first free face when none is asked for)
-  const face = partsInSlot(catalogue, 'skin').find((p) => (p.tier || 'free') === 'free' && p.file && (!body || p.body === body)) || partsInSlot(catalogue, 'skin').find((p) => p.file);
+  const free = (p) => (p.tier || 'free') === 'free' && p.file;
+  const faces = partsInSlot(catalogue, 'skin');
+  const face = (body ? faces.find((p) => free(p) && p.body === body) : faces.find((p) => p.default && free(p))) || faces.find(free) || faces.find((p) => p.file);
   const b = face?.body || body;
-  const firstFree = (slot) => partsFor(catalogue, slot, b).find((p) => (p.tier || 'free') === 'free' && p.file)?.id || null;
-  const firstColor = (slot) => palette(palettes, slot)[0]?.id || null;
-  const tones = palette(palettes, 'skinTone');
+  const firstFree = (slot) => partsFor(catalogue, slot, b).find(free)?.id || null;
+  const firstColor = (slot) => (palette(palettes, slot).find((r) => r.default) || palette(palettes, slot)[0])?.id || null;
   return withEyes(catalogue, {
     v: SPEC_VERSION,
-    skin: face?.id || null, skinTone: (tones[1] || tones[0])?.id || null, // the second lightest (owner 2026-10-14)
+    skin: face?.id || null, skinTone: firstColor('skinTone'),
     hair: firstFree('hair'), hairColor: firstColor('hairColor'),
     eyes: null, eyeColor: firstColor('eyeColor'),
     facialHair: partsInSlot(catalogue, 'facialHair').find((p) => !p.file)?.id || null,
@@ -114,6 +120,57 @@ export function validateSpec(spec, catalogue, palettes, { owned = [], allowNpc =
     checkTier(row, key);
   }
   return problems;
+}
+
+/**
+ * A RANDOM look from the FREE parts and colours (the editor's Random button, owner 2026-11-10):
+ * either body, then one free choice per slot for that body and one free colour per kind. A paid
+ * part is never picked. Hair and clothes are never a None (a random look is neither bald nor
+ * undressed); a beard and a hat may be.
+ */
+export function randomSpec(catalogue, palettes, rng = Math.random) {
+  const free = (r) => (r.tier || 'free') === 'free';
+  const pick = (rows) => (rows.length ? rows[Math.floor(rng() * rows.length)] : null);
+  const face = pick(partsInSlot(catalogue, 'skin').filter((p) => free(p) && p.file));
+  const body = face?.body || null;
+  const part = (slot, allowNone) => pick(partsFor(catalogue, slot, body).filter((p) => free(p) && (allowNone || (p.file && !p.none))))?.id || null;
+  const color = (slot) => pick(palette(palettes, slot).filter(free))?.id || null;
+  return withEyes(catalogue, {
+    v: SPEC_VERSION,
+    skin: face?.id || null, skinTone: color('skinTone'),
+    hair: part('hair', false), hairColor: color('hairColor'),
+    eyes: null, eyeColor: color('eyeColor'),
+    facialHair: part('facialHair', true), hat: part('hat', true), top: part('top', false),
+  });
+}
+
+/**
+ * The look to draw for a player: the one they saved, or the DEFAULT look when they have not made
+ * one (or saved one whose face the catalogue no longer has). This is the whole "migration" from
+ * the old icons (owner 2026-11-10): no record is rewritten, every surface that draws a player
+ * asks here, so a player without a look is the default man until they open the editor.
+ */
+export function specFor(avatar, { catalogue, palettes }) {
+  const face = avatar && typeof avatar === 'object' ? byId(catalogue, avatar.skin) : null;
+  return face && face.file ? cleanSpec(avatar) : defaultSpec(catalogue, palettes);
+}
+
+/**
+ * What a player owns: the paid parts they bought, plus any they are already wearing in their saved
+ * look (free when they picked it, priced since: theirs). The server's avatarCatalogue.ownedBy is
+ * its mirror, and writes it down at their next save.
+ */
+export function ownedBy(player, { catalogue, palettes }) {
+  const owned = new Set(player?.avatarParts || []);
+  for (const id of Object.values(player?.avatar || {})) { const row = typeof id === 'string' ? byId(catalogue, id) || byId(palettes, id) : null; if (row && row.tier === 'paid') owned.add(row.id); }
+  return [...owned];
+}
+
+/** The paid parts and swatches a look uses that are not in `owned`: the rows themselves (their `gemcost` is the price). */
+export function toBuy(spec, { catalogue, palettes }, owned = []) {
+  const have = new Set(owned); const out = [];
+  for (const id of new Set(Object.values(spec || {}))) { const row = typeof id === 'string' ? byId(catalogue, id) || byId(palettes, id) : null; if (row && row.tier === 'paid' && !have.has(row.id)) out.push(row); }
+  return out;
 }
 
 /** Keep only the spec keys the schema knows, so stray fields never reach the record. */

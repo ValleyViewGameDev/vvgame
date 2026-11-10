@@ -738,9 +738,12 @@ router.post('/npc-relationship', async (req, res) => {
 
 ////////// AVATAR ROUTES (docs/avatar-plan.md §2.6, §2.7) ///////////
 
-// POST /api/player/avatar { playerId, avatar } → { success, player }
+// POST /api/player/avatar { playerId, avatar, buy? } → { success, player, bought?, gemcost?, inventory?, backpack? }
 // The only writer of `avatar`: every id is checked against the catalogue and the palettes,
-// paid parts against what the player has bought.
+// paid parts against what the player owns (bought, or already wearing: avatarCatalogue.ownedBy).
+// `buy: true` (the editor's "Buy for N gems"): the paid parts of the look the player does not own
+// are bought and the look is saved in the SAME write, so a player is never charged for a look
+// that was not saved, and never wears what was not paid for. Without it such a look is refused.
 router.post('/player/avatar', async (req, res) => {
   const { playerId, avatar } = req.body || {};
   // `avatar: null` clears the saved look (the board goes back to the icon): choosing an icon does it
@@ -755,15 +758,27 @@ router.post('/player/avatar', async (req, res) => {
       return res.json({ success: true, player: publicPlayer(player) });
     }
     const spec = avatarCatalogue.cleanSpec(avatar);
-    // developers may wear any part without buying it (the in-game Edit Avatar preview)
-    const developer = await isDeveloperPlayerId(String(player._id));
-    const owned = developer ? avatarCatalogue.paidIds() : (player.avatarParts || []);
-    const problems = avatarCatalogue.validateSpec(spec, { owned });
-    if (problems.length) return res.status(422).json({ error: 'avatar rejected', problems });
+    const owned = avatarCatalogue.ownedBy(player);
+    const missing = avatarCatalogue.toBuy(spec, owned);
+    let gemcost = 0;
+    if (missing.length && req.body.buy === true) {
+      if (missing.some((m) => m.gemcost == null)) return res.status(400).json({ error: 'That part is not for sale.', code: 'not-for-sale' });
+      gemcost = missing.reduce((sum, m) => sum + m.gemcost, 0);
+    }
+    // everything else about the look must hold before a gem is spent
+    const problems = avatarCatalogue.validateSpec(spec, { owned: gemcost ? [...owned, ...missing.map((m) => m.id)] : owned });
+    if (problems.length) return res.status(422).json({ error: 'avatar rejected', problems, code: missing.length ? 'not-owned' : undefined });
+    if (gemcost && !spendCosts({ Gem: gemcost }, player.inventory, player.backpack, { table: true })) {
+      return res.status(400).json({ error: 'Not enough gems.', code: 'not-enough-gems', gemcost });
+    }
+    // what the player owns is written down: the parts just bought, and any worn since before they had a price
+    const nowOwned = [...new Set([...owned, ...(gemcost ? missing.map((m) => m.id) : [])])];
+    if (nowOwned.length !== (player.avatarParts || []).length) { player.avatarParts = nowOwned; player.markModified('avatarParts'); }
     player.avatar = spec;
     player.markModified('avatar');
+    if (gemcost) { player.markModified('inventory'); player.markModified('backpack'); }
     await player.save();
-    res.json({ success: true, player: publicPlayer(player) });
+    res.json({ success: true, player: publicPlayer(player), ...(gemcost ? { bought: missing.map((m) => m.id), gemcost, inventory: player.inventory, backpack: player.backpack } : {}) });
   } catch (error) {
     console.error('Error saving avatar:', error);
     res.status(500).json({ error: 'Failed to save avatar.' });
