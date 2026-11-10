@@ -6,7 +6,7 @@
   "hairTopMin": 8,
   "rules": {
     "fit": "a figure is fitted hair-top-to-feet to the frame's height by figurecut.js; a hat counts in that height (Kent's top hat), so hat and head together must stay inside the headroom at generation",
-    "socket": "the head/body split is the neck's top row (the chin line): the head composite is everything above it plus the neck down to the collar; the body (an outfit drawing) starts at the collar",
+    "socket": "the head/body split is `headCut`, a flat row just under the jaw where the base's silhouette is narrowest (measured on the base bodies 2026-11-10: female 115.5, male 109.5; the shoulders and every outfit's cloth start below it). The face part is the base above it; an outfit (cloth + its own neck and chest skin) is everything from it down. `collar` stays as fitbody's anchor: the row an outfit's body is resampled from. It was the split until 2026-11-10 and left the base's shoulders in the head layer, showing above every outfit",
     "centre": "the cut centres the figure's opaque box on x 128; the faint right turn and the near foot shift the face a few units right of centre (measured faces sit at x 128..136), which is accepted",
     "flip": "every figure is drawn turned a little to the viewer's right; the renderer mirrors for left (D1)"
   },
@@ -23,6 +23,7 @@
     "chin": 118,
     "neck": { "y": [118, 130], "x": [127, 150] },
     "collar": 130,
+    "headCut": 115.5,
     "shoulderLine": 130,
     "shoulderX": [74, 186],
     "torso": { "y": [130, 230], "x": [74, 186] },
@@ -53,6 +54,7 @@
     "beardMax": 140,
     "neck": { "y": [110, 124], "x": [120, 150] },
     "collar": 124,
+    "headCut": 109.5,
     "shoulderLine": 126,
     "shoulderX": [50, 207],
     "torso": { "y": [126, 262], "x": [50, 207] },

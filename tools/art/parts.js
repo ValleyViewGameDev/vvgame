@@ -18,9 +18,12 @@
  *   fitbody  --worn <aligned outfit, with overflow> --base <base figure> --body female|male --out <png>
  *                                                                resample the body below the collar so its feet land on
  *                                                                the base body's feet line (an outfit never changes height)
- *   split    --in <aligned outfit png> --body female|male --out <base>   outfit -> <base>.cloth.png +
- *                                                                <base>.skin.png (skin keyed inside the
- *                                                                rig's hand / foot boxes, its own colour)
+ *   face     --in <base figure png> --body female|male --out <png>        the face part: the base above the rig's headCut
+ *   split    --in <fitted outfit png> --body female|male --out <base> [--bare] [--step 8]   outfit -> <base>.cloth.png +
+ *                                                                <base>.skin.png, from the rig's headCut down (skin:
+ *                                                                the hand / foot boxes plus what grows from the neck;
+ *                                                                --bare, the shift: the whole band down to the collar),
+ *                                                                its own colour
  *   lids     --worn <closed-eyes png> --body female|male --out <png>     the blink layer: the eye boxes
  *   blink    --in <face or figure png> --out <png> [--name <figure>] [--scale 1.1] [--layer]  the same image with the eyes closed (--layer: only the changed pixels): each eye an
  *                                                                ellipse in the face's own cheek skin plus a lid arc
@@ -261,17 +264,99 @@ function fitBody(worn, base, body) {
 
 const isSkin = (r, g, b) => { const [h, s, v] = hsv(r, g, b); return h >= 8 && h <= 42 && s >= 0.12 && s <= 0.62 && v >= 0.55; };
 
-/** outfit -> cloth + skin (skin inside the rig's hand / foot boxes, neutralised toward white for multiply) */
-function splitOutfit(img, body) {
-  const b = rig[body]; const collar = Math.round(b.collar * S);
+/** where the head layer ends and the outfit layer begins, in px rows of a figure square (rig `headCut`) */
+const headCutRow = (body) => Math.round((rig[body].headCut != null ? rig[body].headCut : rig[body].collar) * S);
+
+/** the FACE part: the base figure above the head cut (the outfit owns everything from that row down) */
+function facePart(img, body) {
+  const cut = headCutRow(body); const out = blank(img.W, img.H);
+  for (let y = 0; y < cut; y++) for (let x = 0; x < img.W; x++) { const i = (y * img.W + x) * 4; out.d.set(img.d.subarray(i, i + 4), i); }
+  return out;
+}
+
+/** skin-like by colour alone (loose: cream cloth passes too, so it is only used along a flood from known skin) */
+const skinish = (r, g, b) => { const [h, s, v] = hsv(r, g, b); return h >= 10 && h <= 44 && s >= 0.2 && s <= 0.92 && v >= 0.55; };
+
+/**
+ * Grow a skin mask from seed pixels through skin-coloured neighbours. A painted outline (dark) or
+ * a colour step between neighbours stops it, which is what separates a neck from the cream blouse
+ * beside it: the two cannot be told apart by colour alone (measured 2026-11-10: skin h 26..32
+ * s 0.43..0.69, cream cloth h 36..38 s 0.37), only by the edge between them. `step` is the largest
+ * channel difference between neighbours the growth crosses: 8 holds at a blouse, a white trim
+ * and a shirt; 12 and 16 leaked into all three. `box` limits the growth.
+ */
+function growSkin(img, seeds, box, step = 8) {
+  const { d, W, H } = img; const m = new Uint8Array(W * H); const st = [];
+  const ok = (p) => d[p * 4 + 3] >= 128 && skinish(d[p * 4], d[p * 4 + 1], d[p * 4 + 2]);
+  for (const p of seeds) if (!m[p] && ok(p)) { m[p] = 1; st.push(p); }
+  while (st.length) {
+    const p = st.pop(); const x = p % W, y = (p / W) | 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy; if (nx < box.x0 || nx > box.x1 || ny < box.y0 || ny > box.y1) continue;
+      const q = ny * W + nx; if (m[q] || !ok(q)) continue;
+      if (Math.max(Math.abs(d[q * 4] - d[p * 4]), Math.abs(d[q * 4 + 1] - d[p * 4 + 1]), Math.abs(d[q * 4 + 2] - d[p * 4 + 2])) > step) continue;
+      m[q] = 1; st.push(q);
+    }
+  }
+  // close pinholes (a shadow pixel under the chin that failed the colour test): opaque, mostly surrounded
+  for (let pass = 0; pass < 2; pass++) {
+    const add = [];
+    for (let y = box.y0 + 1; y < box.y1; y++) for (let x = box.x0 + 1; x < box.x1; x++) {
+      const p = y * W + x; if (m[p] || d[p * 4 + 3] < 128) continue; let n = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) n += m[p + dy * W + dx];
+      if (n >= 6) add.push(p);
+    }
+    for (const p of add) m[p] = 1;
+  }
+  // soak the edge: the anti-aliased rim between skin and a painted line fails the step test and
+  // would stay a bright peach fringe under a dark tone; take the warm, saturated pixels that touch
+  // the mask (two rings; the second asks for more saturation, which shadowed skin has and cream has not)
+  for (const minS of [0.3, 0.45]) {
+    const add = [];
+    for (let y = box.y0 + 1; y < box.y1; y++) for (let x = box.x0 + 1; x < box.x1; x++) {
+      const p = y * W + x; if (m[p] || d[p * 4 + 3] < 128) continue;
+      if (!(m[p - 1] || m[p + 1] || m[p - W] || m[p + W] || m[p - W - 1] || m[p - W + 1] || m[p + W - 1] || m[p + W + 1])) continue;
+      const [h, sa, v] = hsv(d[p * 4], d[p * 4 + 1], d[p * 4 + 2]);
+      if (h >= 8 && h <= 45 && sa >= minS && v >= 0.45) add.push(p);
+    }
+    for (const p of add) m[p] = 1;
+  }
+  return m;
+}
+
+/**
+ * outfit -> cloth + skin, from the head cut down. The skin layer (tinted by skinTone, keeping the
+ * base's own peach) is the skin inside the rig's hand / foot boxes plus the outfit's own NECK,
+ * which the head cut (above the shoulders) hands to the outfit:
+ *  - an outfit: the skin that grows from the neck under the head cut, inside the chest (the neck,
+ *    and the chest an open neckline shows);
+ *  - `bare` (the shift, No Clothes): every pixel between the head cut and the collar. Growing does
+ *    not work there: the shift is skin-coloured and its line too faint to stop the growth (tried at
+ *    colour steps 8, 12 and 16, 2026-11-10), so the band the face part used to hold is kept whole.
+ * Known limit, not this function's to solve by colour: bare arms and legs (the shift, rolled
+ * sleeves) stay in the cloth layer, untinted.
+ */
+function splitOutfit(img, body, bare = false, step = 8) {
+  const b = rig[body]; const cut = headCutRow(body); const collar = Math.round(b.collar * S); const { W, H } = img;
   const boxes = [b.handL, b.handR].concat(body === 'female' ? [b.footL, b.footR] : []);
   const inBox = (x, y) => { const fx = (x - FX) / S, fy = y / S; return boxes.some((bx) => bx && fx >= bx.x[0] - 6 && fx <= bx.x[1] + 6 && fy >= bx.y[0] - 6 && fy <= bx.y[1] + 6); };
-  const cloth = blank(img.W, img.H), skin = blank(img.W, img.H); let n = 0;
-  for (let y = collar; y < img.H; y++) for (let x = 0; x < img.W; x++) {
-    const i = (y * img.W + x) * 4; if (img.d[i + 3] < 8) continue;
+  let grown = null;
+  if (!bare) {
+    // the neck: the opaque run on the cut row that holds the figure's centre column
+    let nx0 = W >> 1, nx1 = W >> 1; const op = (x, y) => img.d[(y * W + x) * 4 + 3] >= 128;
+    if (!op(nx0, cut)) { for (let k = 1; k < 40; k++) { if (op(nx0 - k, cut)) { nx0 = nx1 = nx0 - k; break; } if (op(nx0 + k, cut)) { nx0 = nx1 = nx0 + k; break; } } }
+    while (nx0 > 0 && op(nx0 - 1, cut)) nx0--; while (nx1 < W - 1 && op(nx1 + 1, cut)) nx1++;
+    const mid = (nx0 + nx1) >> 1; const seeds = [];
+    for (let y = cut; y <= cut + 3; y++) for (let x = mid - 8; x <= mid + 8; x++) seeds.push(y * W + x);
+    grown = growSkin(img, seeds, { x0: Math.round(FX + b.shoulderX[0] * S), x1: Math.round(FX + b.shoulderX[1] * S), y0: cut, y1: Math.round((b.collar + 45) * S) }, step);
+  }
+  const cloth = blank(W, H), skin = blank(W, H); let n = 0;
+  for (let y = cut; y < H; y++) for (let x = 0; x < W; x++) {
+    const p = y * W + x, i = p * 4; if (img.d[i + 3] < 8) continue;
     // the skin layer keeps the base's own peach (NOT neutralised): the face part is that same
     // peach, so one skinTone multiplier lands both on the same colour; the lightest tone is #ffffff
-    if (isSkin(img.d[i], img.d[i + 1], img.d[i + 2]) && inBox(x, y)) { skin.d.set(img.d.subarray(i, i + 4), i); n++; }
+    const isNeck = grown ? grown[p] : y < collar;
+    if (isNeck || (isSkin(img.d[i], img.d[i + 1], img.d[i + 2]) && inBox(x, y))) { skin.d.set(img.d.subarray(i, i + 4), i); n++; }
     else cloth.d.set(img.d.subarray(i, i + 4), i);
   }
   return { cloth, skin, n };
@@ -503,7 +588,8 @@ function tintImg(img, hex) {
     case 'align': { const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0)); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
     case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null }); await save(out, args.out); break; }
     case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
-    case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female'); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
+    case 'face': { const img = await load(args.in); await save(facePart(img, args.body || 'female'), args.out); break; }
+    case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female', !!args.bare, +(args.step || 8)); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
     case 'blink': { // --name <figure>: its hand-placed eye centres from tools/art/blink-eyes.json, when it has an entry
       const table = JSON.parse(fs.readFileSync(path.join(__dirname, 'blink-eyes.json'), 'utf8'));

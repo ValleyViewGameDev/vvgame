@@ -560,6 +560,26 @@ list (other players' looks: the Leaderboard row carries `avatar` from `/api/play
 `/players-in-settlement` selects it). Not yet: the Pixi speech bubble's player topic and the
 settlement map cell, which still use the icon.
 
+**The head cut moved up (owner 2026-11-10).** The face part was the base figure above the
+`collar` row (female 130, male 124), which left the base's bare shoulders and shift straps in
+the head layer: they showed above every outfit. The split is now the rig's `headCut`, a flat row
+just under the jaw where the base's silhouette is narrowest (measured on the base bodies: female
+115.5, male 109.5; the shoulders and every outfit's cloth start below it). `parts.js face` cuts
+the face part there, and `parts.js split` starts the outfit there, so an outfit now owns its own
+neck. That neck has to follow the skin tone, so `split` grows the skin layer from the neck under
+the cut through the chest an open neckline shows; a colour step of more than 8 between
+neighbours stops the growth (it holds at the cream blouse, the gown's white trim and the vest's
+shirt; 12 and 16 leaked into all three), then the anti-aliased rim is soaked in. This also tints
+the chest in an open neckline, which the old split left in the cloth layer. The shift
+(`--bare`) keeps the whole band from the cut to the collar as skin, as the face part did: the
+shift is skin-coloured and no step stops the growth there. `collar` stays as `fitbody`'s anchor.
+Both faces and all six tops were rebuilt from the fitted intermediates; no art was commissioned.
+The atlas's copies of the avatar parts are not drawn by any code and refresh at the next
+`build:atlas`. **Known limit, seen while checking at the darkest tone and not fixed here:** the
+skin layer outside the neck is only the rig's hand and foot boxes keyed by colour, so bare arms
+and legs (the shift, the vest's rolled sleeves) do not tint and hands tint in patches; it needs
+its own pass before the skin tones are iterated.
+
 **Next (P5, the rest)**: the Change Avatar modal becoming the editor for everyone, then the
 hand slot and armour.
 
