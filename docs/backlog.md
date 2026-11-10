@@ -242,9 +242,10 @@ bought with gems. Santa Claus was cut.
 
 **What is left of this item (the launch blocker).** Every character that is still an emoji:
 the twelve enemies (Coyote to Phoenix: "a separate creature lane" in the plan, not started),
-the spawners if they stay visible, the RelationshipMatrix glyphs, the quest symbols (the
-giver's glyph) and the conversation / speech glyphs, including the player's picture in a
-speech bubble. **Why.** Owner's order in docs/art/emoji-audit.md: characters come last. When
+the spawners if they stay visible, and the player's picture in a speech bubble (still the
+old icon's face). The named NPCs' glyphs are gone from every panel and modal (2026-11-10: the
+quest cards, the Level Up modal, the Story modal and the hire cards show the head crop; the
+speech bubbles already did). **Why.** Owner's order in docs/art/emoji-audit.md: characters come last. When
 this lands the game has no emoji left and `scripts/build-atlas.js` can drop its Twemoji step.
 **Where to start.** docs/art/emoji-audit.md for the list; `tools/art/jobs/npcs-r1..r5.json`
 for how the named NPCs were prompted and cut; the NPC rows' `symbol` (still emoji, and

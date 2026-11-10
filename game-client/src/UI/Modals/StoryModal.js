@@ -28,7 +28,8 @@ import { getLocalizedString } from '../../Utils/stringLookup';
  * @param {string} symbol - Direct symbol to display (overrides NPC lookup, useful for PC icon in FTUE)
  * @param {React.ReactNode} symbolNode - A picture to show instead of `symbol` (the player's saved avatar head, Avatar/AvatarFace.js)
  * @param {number|string} dialogKey - Direct string ID for dialog text (overrides NPC dialog lookup)
- * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-head-portia.svg") - used instead of emoji if provided
+ * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-head-portia.svg") - used instead of emoji if provided.
+ *   A named NPC (or a file that is an NPC's board figure) shows its head crop whatever is passed here.
  * @param {string} speakerName - Optional name under the icon; by default the localized npcName, else the
  *   resource whose art npcFilename is, else (FTUE, the player's own icon) the player's username
  * @param {string} okLabel - Optional label for the last page's button (a scene's "Next" between speakers)
@@ -68,6 +69,15 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     ? (getMasterResources() || []).find((r) => r.filename === npcFilename || r.iconFile === npcFilename)
     : null;
   const nameType = npcName || spriteDef?.type;
+
+  // The picture: a character speaks with its FACE (owner 2026-11-10). The speaker's row gives its
+  // head crop (`iconFile`), whether the caller named the NPC or handed over its board figure
+  // (`filename`, the whole body, which is a speck at this size); a caller's file with no row
+  // behind it (an FTUE step's modalSprite) is shown as given.
+  const speakerRow = npcName
+    ? (getMasterResources() || []).find((r) => r.type === npcName && r.category === 'npc')
+    : spriteDef;
+  const pictureFile = speakerRow?.iconFile || npcFilename || speakerRow?.filename || null;
   const displayName = speakerName
     || (nameType ? getLocalizedString(nameType, strings) : (relationshipType === 'FTUE' ? (username || 'Adventurer') : null));
 
@@ -228,9 +238,9 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
 
         {/* Character Symbol (NPC or PC) - use SVG if filename provided, otherwise emoji */}
         <div className="story-modal-symbol">
-          {npcFilename ? (
+          {pictureFile ? (
             <img
-              src={`/assets/resources/${npcFilename}`}
+              src={`/assets/resources/${pictureFile}`}
               alt={npcName || 'Character'}
               className="story-modal-svg"
             />

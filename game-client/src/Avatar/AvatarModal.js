@@ -19,6 +19,7 @@ import API_BASE from '../config';
 import '../UI/Modals/Modal.css';
 import '../UI/Panels/Panel.css'; // the tabs are the shared .tab-button row, as the Buy Deco catalogue's sub-sorts are
 import '../UI/Buttons/SharedButtons.css';
+import '../UI/Buttons/ResourceButton.css'; // the price is the shared gem chip (.gem-button)
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
 import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes, ownedBy, toBuy, randomSpec } from './avatarLook';
@@ -228,8 +229,12 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
   // "None" (no drawing) leads; the Eyes tab lists no parts (the eyes follow the face), only the colour
   // the Face tab lists both bodies; every other tab only what the chosen face's body can wear
   const parts = tab === 'eyes' ? [] : (tab === 'skin' ? partsInSlot(data.catalogue, slot) : partsFor(data.catalogue, slot, bodyOf(data.catalogue, spec))).filter((p) => (p.tier || 'free') !== 'npc').sort((a, b) => (a.file ? 1 : 0) - (b.file ? 1 : 0));
-  // a paid part shows its price until it is owned; an owned one looks like any other
-  const priceBadge = (row) => ((row.tier || 'free') === 'paid' && !owned.includes(row.id) ? <span className="avatar-badge"><ResourceIcon type="Gem" /> {row.gemcost}</span> : null);
+  // a paid part shows its price until it is owned; an owned one looks like any other. The price is the
+  // gem chip (UI/Buttons/ResourceButton.css .gem-button) centred on the thumbnail's bottom edge, half
+  // over it, as a crafting station's slot wears its price (owner 2026-11-10)
+  const priceBadge = (row) => ((row.tier || 'free') === 'paid' && !owned.includes(row.id)
+    ? <span className="gem-button avatar-price"><img className="gem-button-icon" src="/assets/resources/item-gem.svg" alt="" draggable="false" /><span className="gem-button-cost">{row.gemcost}</span></span>
+    : null);
 
   return createPortal(
     <div className="modal-overlay">

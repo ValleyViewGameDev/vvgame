@@ -460,7 +460,7 @@ const FarmHouse = ({
                 <ResourceButton
                   key={recipe.type}
                   symbol={recipe.symbol}
-                  filename={recipe.filename}
+                  filename={recipe.iconFile || recipe.filename} // a worker's head crop, not its whole figure at icon size
                   name={getLocalizedString(recipe.type, strings)}
                   className={`resource-button craft-card ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
                   details={

@@ -30,14 +30,18 @@ const getSvgFilenameForSymbol = (symbol, masterResources) => {
   return resource?.iconFile || resource?.filename || null;
 };
 
-// Helper component to render symbol (SVG or emoji)
-const SymbolDisplay = ({ symbol, masterResources, size = 32 }) => {
-  const svgFilename = getSvgFilenameForSymbol(symbol, masterResources);
+// The card's picture: the quest giver's head crop, found by the giver's NAME (owner 2026-11-10: a
+// quest's own emoji can differ from its giver's row, as Mistress Quickly's did, and the card then
+// printed the emoji). Without a giver, the resource whose symbol the quest carries; else the glyph.
+const SymbolDisplay = ({ symbol, giver, masterResources, size = 32 }) => {
+  const giverRow = giver && Array.isArray(masterResources) ? masterResources.find((r) => r.type === giver && r.category === 'npc') : null;
+  const svgFilename = giverRow?.iconFile || giverRow?.filename || getSvgFilenameForSymbol(symbol, masterResources);
   if (svgFilename) {
     return (
       <img
         src={`/assets/resources/${svgFilename}`}
-        alt={symbol}
+        alt=""
+        draggable="false"
         style={{ width: `${size}px`, height: `${size}px`, objectFit: 'contain' }}
       />
     );
@@ -50,7 +54,7 @@ const SymbolDisplay = ({ symbol, masterResources, size = 32 }) => {
 // (green once done), and a bold "Reward:".
 const QuestButton = ({ quest, state, onClick, masterResources, xpReward }) => {
   const strings = useStrings();
-  const { symbol, title, completed, goals = [], reward, rewardqty } = quest;
+  const { symbol, giver, title, completed, goals = [], reward, rewardqty } = quest;
 
   return (
     <div
@@ -58,7 +62,7 @@ const QuestButton = ({ quest, state, onClick, masterResources, xpReward }) => {
       onClick={onClick}
     >
       <div className="quest-header">
-        <span className="quest-symbol"><SymbolDisplay symbol={symbol} masterResources={masterResources} size={28} /></span>
+        <span className="quest-symbol"><SymbolDisplay symbol={symbol} giver={giver} masterResources={masterResources} size={28} /></span>
         {state === 'reward'
           ? <span className="quest-checkmark">✅</span>
           : <span className="quest-status">{strings[207]}</span>}
@@ -99,7 +103,7 @@ const QuestGiverButton = ({
   onTransactionAction
 }) => {
   const strings = useStrings();
-  const { symbol, title, reward, rewardqty, goals = [] } = quest;
+  const { symbol, giver, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
   const isDisabled = !meetsLevelRequirement;
 
@@ -144,7 +148,7 @@ const QuestGiverButton = ({
       }}
     >
       <div className="quest-header">
-        <span className="quest-symbol"><SymbolDisplay symbol={symbol} masterResources={masterResources} size={28} /></span>
+        <span className="quest-symbol"><SymbolDisplay symbol={symbol} giver={giver} masterResources={masterResources} size={28} /></span>
         <span className="quest-header-right">
           {level && (
             <span className={`quest-status quest-level ${meetsLevelRequirement ? 'ok' : 'short'}`}>

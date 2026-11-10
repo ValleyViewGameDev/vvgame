@@ -122,7 +122,8 @@ const LevelUpModal = ({
               <ul className="unlocked-list">
                 {questGivers.map((item, index) => (
                   <li key={index}>
-                    {item.symbol} {getLocalizedString(item.giver, strings)}
+                    {/* the giver's head crop (the NPC row's iconFile); the quest's glyph only when a giver has no art */}
+                    <ResourceIcon type={item.giver} masterResources={masterResources} symbol={item.symbol} className="level-up-giver" /> {getLocalizedString(item.giver, strings)}
                   </li>
                 ))}
               </ul>

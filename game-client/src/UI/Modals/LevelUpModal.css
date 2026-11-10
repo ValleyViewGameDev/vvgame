@@ -78,6 +78,10 @@
   padding: 4px 0;
 }
 
+/* a quest giver's head crop: a little larger than a resource's icon, so a face reads */
+.unlocked-list .level-up-giver { width: 1.75em; height: 1.75em; vertical-align: -0.5em; }
+.unlocked-list .level-up-giver.resource-icon--glyph { width: auto; height: auto; vertical-align: baseline; }
+
 /* Continue button now uses shared-buttons styling */
 
 /* Remove close button overrides - use standard modal close button */

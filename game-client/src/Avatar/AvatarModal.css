@@ -30,10 +30,14 @@
 /* the tabs are Panel.css's .tab-navigation.buy-deco-tabs > .tab-button (text, an underline on the active one); only their spacing is set here */
 .avatar-tabs { margin-bottom: 10px; }
 
-.avatar-part-grid { display: flex; flex-wrap: wrap; gap: 8px; max-height: 260px; overflow: auto; padding: 2px; }
+/* the rows stand a little apart and the grid keeps room under its last row: a paid part's price chip hangs half below its card */
+.avatar-part-grid { display: flex; flex-wrap: wrap; gap: 14px 8px; max-height: 260px; overflow: auto; padding: 2px 2px 12px; }
 .avatar-part { position: relative; width: 84px; padding: 4px 2px 2px; border: 2px solid transparent; border-radius: var(--radius-md); background: var(--color-bg-light, #f3f3f0); cursor: pointer; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .avatar-part.selected { border-color: var(--color-btn-primary-text, #2d6a2d); background: var(--color-btn-primary-hover, #d9ead3); }
-.avatar-badge { position: absolute; top: 2px; right: 2px; font-family: var(--font-text-2-family); font-size: var(--text-xs); padding: 1px 4px; border-radius: var(--radius-md); background: #fff3c4; border: 1px solid #e0c060; } /* style-ok: art (badge tint) */
+/* A paid part's price: the gem chip (UI/Buttons/ResourceButton.css .gem-button) centred on the card's
+   bottom edge, its top half over the card, as a crafting station's slot wears its price
+   (CraftingStation.css .crafting-slot-below). It is part of the card: a tap on it picks the part. */
+.avatar-part .avatar-price { left: 50%; right: auto; bottom: -9px; transform: translateX(-50%); padding: 0 6px; line-height: 18px; white-space: nowrap; }
 
 .avatar-colors { margin-top: 10px; text-align: left; }
 .avatar-colors-label { font-family: var(--font-title-3-family); font-size: var(--font-title-3-size); font-weight: var(--font-title-3-weight); color: var(--font-title-3-color); margin-bottom: 4px; text-align: left; }

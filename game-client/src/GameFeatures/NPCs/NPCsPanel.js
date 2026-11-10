@@ -1580,6 +1580,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                   <QuestGiverButton
                     quest={{
                       symbol: quest.symbol,
+                      giver: npcData.type, // the card shows this NPC's head crop
                       title: quest.title,
                       textbody: quest.textbody,
                       goals: [

@@ -150,6 +150,7 @@ function QuestPanel({ onClose, currentPlayer, setCurrentPlayer, masterResources,
                   // the giver's icon as the quest data has it now (a quest can move to another
                   // giver after it was accepted); the copy stored on accept is the fallback
                   symbol: template?.symbol || quest.symbol,
+                  giver: template?.giver,
                   title: quest.questId,
                   completed: quest.completed,
                   goals,

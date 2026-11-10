@@ -920,6 +920,25 @@ taught:
 - **The FTUE doinker over a figure NPC** sits above its head: it is lifted by `artSpan - 0.5`
   tiles from the tile's centre, where it used to point across the face.
 
+**NPC faces instead of NPC emoji in the panels; the price chip (owner 2026-11-10).**
+- **The sweep.** Every DOM surface that named an NPC was checked for its emoji. Changed: the
+  Level Up modal's quest givers (the giver's head crop, `ResourceIcon type={giver}`); the quest
+  cards (`QuestButton.js`: the head is found by the giver's NAME now, not by matching the
+  quest's emoji to a row, which printed the emoji for all nineteen of Mistress Quickly's quests
+  because her quests carry a different skin tone of the glyph than her row); the Story modal
+  (a named speaker shows its head crop: the Oracle's finale, the twins' scene and Gertrude's
+  waking were handing it the whole board figure, a speck at 64 px); the Farm House's hire
+  cards (the worker's head, not its figure). Already faces before this pass: the NPC panel,
+  the Clues modal, NPC Connections, the giver info modal, the speech bubbles
+  (`speechTopicArt.js`), the FTUE speakers.
+- **What still shows an emoji, and why.** The twelve enemies and the spawners (no art exists:
+  BL-17); the board's quest / trade overlays and the relationship outcome marks (status
+  glyphs, not characters); the player's own picture in a speech bubble (the old icon's face,
+  BL-17). The NPC rows keep `symbol`: `Conversation.js` compares topics by it.
+- **A paid part's price is the gem chip** (`.gem-button`) centred on the thumbnail's bottom
+  edge, half over it, as a crafting station's slot wears its price; the grid's rows stand a
+  little further apart for it.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.
