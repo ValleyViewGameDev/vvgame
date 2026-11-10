@@ -451,6 +451,19 @@ defringe (`--defringe`: skin-coloured pixels on the layer's own edge, the peach 
 the hairline moved). The skin layer of an outfit keeps the base's own peach (not neutralised):
 one skinTone multiplier then lands the face and the hands on the same colour.
 
+**Editor review (owner 2026-11-10), all done.** The Body tab shows the female and male signs
+(both previews used to draw the CURRENT body); every other tab shows a close-up crop of the
+composed figure wearing that part (`CROP` in `AvatarModal.js`: the head for hair, facial hair,
+hat and eyes; below the neck for clothes); the Eyes tab has one head close-up; the stage is
+half as wide, 128 x 256, since a figure is about 1 x 2. **Asset repairs, both in `parts.js`
+`diff`:** `--fill` fills holes fully enclosed by the layer and under 12 % of its area from the
+redraw (the diff drops a part's pixels wherever they match the base within tolerance: straw
+against skin, a hair highlight against the scalp; the short male hair and the straw hat were
+see-through in patches), and `--faceclear <body>` removes the forehead a redraw shades under a
+brim (inside the rig's head column from the hairline to the chin: bright peach always, every
+skin-hued pixel when the hat's own dominant hue is not orange-brown), which would otherwise
+stay light on a dark face because hats are not tinted. Order matters: fill, then face clear.
+
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
 becomes the editor for everyone, then the hand slot and armour.

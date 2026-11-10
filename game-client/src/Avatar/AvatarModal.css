@@ -11,6 +11,13 @@
 .avatar-preview { display: block; image-rendering: auto; background: repeating-conic-gradient(#ecece6 0 25%, #f8f8f4 0 50%) 0 0 / 24px 24px; border-radius: var(--radius-md); }
 .avatar-preview-empty { background: var(--color-bg-light, #eee); border-radius: var(--radius-md); }
 .avatar-thumb { width: 72px; height: 72px; background: none; border-radius: var(--radius-sm); }
+/* a cropped view of the composed figure square: the box clips, the image inside is placed by inline style */
+.avatar-crop { position: relative; overflow: hidden; }
+.avatar-crop img { position: absolute; max-width: none; display: block; }
+.avatar-crop.avatar-thumb { background: none; }
+/* the Body tab: the female / male sign instead of a figure (both previews used to show the current body) */
+.avatar-body-sign { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
+.avatar-eyes-closeup { margin-bottom: 8px; }
 
 .avatar-controls { flex: 1; min-width: 0; }
 .avatar-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
@@ -34,7 +41,7 @@
 .avatar-problems { margin-top: 8px; color: var(--color-text-negative); font-size: var(--text-md); }
 .avatar-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 .avatar-muted { color: var(--color-text-muted, #777); }
-.avatar-small { font-size: var(--text-xs); text-align: center; max-width: 256px; }
+.avatar-small { font-size: var(--text-xs); text-align: center; max-width: 128px; }
 
 /* Phone layout: UI/Styles/mobile.css (the one media block), "Edit Avatar modal". */
 

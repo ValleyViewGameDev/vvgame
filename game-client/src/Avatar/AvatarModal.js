@@ -24,20 +24,32 @@ const SLOT_LABEL = { skin: 'Body', hair: 'Hair', facialHair: 'Facial hair', eyes
 const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
 const PREVIEW_PX = 256;
+const SOURCE_PX = 512; // the composed square every view crops from
 
-/** One composed bust as an <img>, blinking when the look has a blink frame. */
-function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '' }) {
+// What part of the composed figure square (512 px, the figure in its middle column) a view shows,
+// as fractions of the square: the whole figure for the stage (about 1 x 2), the head for hair /
+// hat / facial hair / eyes, the body below the neck for clothes (owner 2026-11-10)
+const CROP = {
+  figure: { x: 0.25, y: 0, w: 0.5, h: 1 },
+  head: { x: 0.27, y: 0, w: 0.46, h: 0.46 },
+  clothes: { x: 0.2, y: 0.3, w: 0.6, h: 0.7 },
+};
+const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'head', top: 'clothes' };
+
+/** One composed figure as an <img>, blinking when the look has a blink frame. `crop` (a CROP entry) shows that region in a width x height box. */
+function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null }) {
   const [urls, setUrls] = useState({ open: null, closed: null });
   const [closed, setClosed] = useState(false);
   useEffect(() => {
     let live = true;
     (async () => {
-      const open = await renderLookDataUrl(look.layers, { size });
-      const shut = look.blinkLayers ? await renderLookDataUrl(look.blinkLayers, { size }) : null;
+      const px = crop ? SOURCE_PX : size;
+      const open = await renderLookDataUrl(look.layers, { size: px });
+      const shut = look.blinkLayers ? await renderLookDataUrl(look.blinkLayers, { size: px }) : null;
       if (live) setUrls({ open, closed: shut });
     })();
     return () => { live = false; };
-  }, [look, size]);
+  }, [look, size, crop]);
   useEffect(() => {
     if (!blink || !urls.closed) return undefined;
     let t2 = null;
@@ -45,6 +57,16 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '' }
     return () => { clearInterval(t); if (t2) clearTimeout(t2); };
   }, [blink, urls.closed]);
   const src = closed && urls.closed ? urls.closed : urls.open;
+  if (crop) {
+    // the square is scaled so the crop's width fills the box, then shifted so the crop's corner is the box's
+    const w = width || size, h = height || Math.round(w * (crop.h / crop.w));
+    const full = w / crop.w;
+    return (
+      <div className={`avatar-preview avatar-crop ${className}`} style={{ width: w, height: h }}>
+        {src && <img src={src} alt="" draggable={false} style={{ width: full, height: full, left: -crop.x * full, top: -crop.y * full }} />}
+      </div>
+    );
+  }
   return src ? <img className={`avatar-preview ${className}`} src={src} alt="" width={size} height={size} draggable={false} /> : <div className={`avatar-preview avatar-preview-empty ${className}`} style={{ width: size, height: size }} />;
 }
 
@@ -133,7 +155,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
         <div className="avatar-editor">
           <div className="avatar-stage">
-            <AvatarPreview look={look} />
+            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} />
             <div className="avatar-muted avatar-small">
               {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
             </div>
@@ -146,11 +168,18 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
               ))}
             </div>
 
-            {tab === 'eyes' && <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Eye colours come later.</div>}
+            {tab === 'eyes' && (
+              <>
+                <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Eye colours come later.</div>
+                <AvatarPreview look={look} className="avatar-eyes-closeup" crop={CROP.head} width={144} height={144} />
+              </>
+            )}
             <div className="avatar-part-grid">
               {parts.map((row) => (
                 <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={row.label || row.id} onClick={() => set(tab, row.id)}>
-                  <AvatarPreview look={thumbLook(tab, row.id)} size={96} blink={false} className="avatar-thumb" />
+                  {tab === 'skin'
+                    ? <span className="avatar-body-sign" aria-hidden="true">{row.body === 'male' ? '\u2642' : '\u2640'}</span>
+                    : <AvatarPreview look={thumbLook(tab, row.id)} blink={false} className="avatar-thumb" crop={CROP[CROP_FOR_TAB[tab]] || CROP.head} width={72} height={72} />}
                   <span className="avatar-part-label">{row.label || row.id}</span>
                   {tierBadge(row)}
                 </button>

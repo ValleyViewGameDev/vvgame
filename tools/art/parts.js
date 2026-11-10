@@ -8,10 +8,11 @@
  *   align    --worn <png> --base <png> --out <png>               scale + translate the redraw so its
  *                                                                pupils land on the base's (the model
  *                                                                redraws a base up to 10 % off)
- *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe]
+ *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male]
  *                                                                (--open: erode+dilate the alpha, kills a redraw's outline
  *                                                                slivers; --defringe: drops skin-coloured pixels on the
- *                                                                layer's edge, the peach fringe where the hairline moved)
+ *                                                                layer's edge, the peach fringe where the hairline moved;
+ *                                                                --fill: enclosed holes are filled from the redraw)
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
  *   split    --in <aligned outfit png> --body female|male --out <base>   outfit -> <base>.cloth.png +
@@ -106,7 +107,7 @@ async function alignByEyes(wornFile, baseFile) {
 }
 
 /** keep worn pixels with no near-match within rad px in base; optionally only neutral (grey) ones; drop specks */
-function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false } = {}) {
+function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false, fill = false, faceclear = null } = {}) {
   const { W, H } = worn; const out = blank(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const p = y * W + x, i = p * 4; if (worn.d[i + 3] < 40) continue;
@@ -123,7 +124,35 @@ function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, op
     out.d.set(worn.d.subarray(i, i + 4), i);
   }
   const opened = openAlpha(out, open);
-  return dropSpecks(defringe ? defringeSkin(opened) : opened, min);
+  const clean = dropSpecks(defringe ? defringeSkin(opened) : opened, min);
+  const filled = fill ? fillHoles(clean, worn) : clean;
+  return faceclear ? clearFace(filled, faceclear) : filled; // last: the hole fill would put the forehead back
+}
+
+/**
+ * `faceclear` (a full-colour part drawn on a head crop: a hat). The forehead the redraw shaded under
+ * a brim differs from the base, so the diff keeps it; untinted, it would stay light on a dark face.
+ * Inside the rig's head column (headX, from the hairline, 34 units above the brow, to the chin): BRIGHT peach always goes (value >= 0.85, saturation <= 0.72: lit skin, never straw shadow
+ * or a leather band), and when the hat itself is not an orange-brown thing (its dominant hue is
+ * more than 20 degrees from skin's 25: a green cap, a blue hood) every skin-hued pixel goes.
+ */
+function clearFace(img, body) {
+  const { d, W, H } = img; const b = rig[body], k = W / 256;
+  // from the hairline (a hat sits low on the forehead) to the chin; the colour rules below protect the hat
+  const x0 = b.headX[0] * k, x1 = b.headX[1] * k, y0 = (b.brow - 34) * k, y1 = b.chin * k; // the whole head column
+  const inBox = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
+  const hues = [];
+  for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x += 2) { const i = (y * W + x) * 4; if (d[i + 3] < 200 || inBox(x, y)) continue; const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]); if (sat > 0.25 && v > 0.2) hues.push(h); }
+  hues.sort((p, q) => p - q); const dom = hues.length ? hues[hues.length >> 1] : 25;
+  const hatIsSkinHued = Math.abs(dom - 25) <= 20;
+  let n = 0;
+  for (let y = Math.floor(y0); y <= y1 && y < H; y++) for (let x = Math.floor(x0); x <= x1 && x < W; x++) {
+    const i = (y * W + x) * 4; if (d[i + 3] < 24) continue;
+    const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]); if (h < 8 || h > 34) continue;
+    if ((v >= 0.85 && sat <= 0.72) || !hatIsSkinHued) { d[i + 3] = 0; n++; }
+  }
+  console.log(`  face clear: hat hue ${Math.round(dom)}, ${n} px of skin dropped`);
+  return img;
 }
 
 /** morphological opening of the alpha: erode by r then dilate by r (thin slivers vanish, masses stay) */
@@ -147,6 +176,26 @@ function defringeSkin(img, r = 2) {
     if (edge) kill.push(i);
   }
   for (const i of kill) d[i + 3] = 0;
+  return img;
+}
+
+/**
+ * Fill the HOLES of a layer from the worn redraw: transparent regions fully enclosed by the layer
+ * (never touching the image border) and smaller than maxFrac of the layer's area. The diff drops
+ * a part's pixels wherever they happen to match the base within tolerance (straw against skin, a
+ * hair highlight against the scalp), which leaves see-through patches; the face opening under
+ * hair or a brim is open to the border (or large) and stays open.
+ */
+function fillHoles(img, worn, maxFrac = 0.12) {
+  const { W, H } = img; let area = 0; for (let p = 0; p < W * H; p++) if (img.d[p * 4 + 3] >= 24) area++;
+  const holes = blobs(img, (p) => img.d[p * 4 + 3] < 24);
+  let filled = 0;
+  for (const b of holes) {
+    if (b.x0 === 0 || b.y0 === 0 || b.x1 === W - 1 || b.y1 === H - 1) continue; // open to the border: background
+    if (b.n > area * maxFrac) continue;                                          // a real opening (the face)
+    for (const p of b.px) { const i = p * 4; if (worn.d[i + 3] >= 40) { img.d.set(worn.d.subarray(i, i + 4), i); filled++; } }
+  }
+  if (filled) console.log(`  filled ${filled} px of holes`);
   return img;
 }
 
@@ -195,7 +244,7 @@ function tintImg(img, hex) {
   switch (cmd) {
     case 'key': { const img = keyOut(await load(args.in), !!args.green); await save(img, args.out); break; }
     case 'align': { const { img, info } = await alignByEyes(args.worn, args.base); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
-    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe }); await save(out, args.out); break; }
+    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null }); await save(out, args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female'); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
     case 'tint': { const img = await load(args.in); await save(tintImg(img, args.hex), args.out); break; }
