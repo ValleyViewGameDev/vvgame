@@ -14,11 +14,12 @@ import { hasMoment, markMoment } from '../../Utils/moments';
  * stamped seen the moment it starts, and the arrow on Snug gives up after HINT_MS. The steps the
  * doinker follows:
  *
- *   1. 'snug'   the board goes dark except Snug; the arrow points at him; tap him (his panel opens)
+ *   1. 'snug'   the arrow points at Snug; tap him (his panel opens; a tap anywhere on his figure,
+ *               head included, hits him: PixiRenderer findNpcAtScreen)
  *   2. 'greet'  only if they have never met him: the panel's Greet button (Travel needs "met")
  *   3. 'travel' the panel's "Travel with Snug" button (NPCsPanel.js, data-tutorial="snug-travel")
- *   4. the Travel modal opens: the scrim and arrow go, control returns, the lesson is stamped done
- *      (moment 'snugLesson', Utils/moments.js, so it never runs again on any device)
+ *   4. the Travel modal opens: the arrow goes (the moment 'snugLesson', Utils/moments.js, was
+ *      already stamped at the start, so it never runs again on any device)
  *
  * A persistent toast (string 17027) explains Snug travel throughout and stays until dismissed.
  * The stage is read from the DOM a few times a second (the panel's buttons, the modal), so the

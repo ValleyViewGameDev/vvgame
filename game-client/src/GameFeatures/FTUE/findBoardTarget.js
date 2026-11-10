@@ -6,7 +6,7 @@ import { footprintOf } from '../../Utils/footprint';
 export const FTUE_WHEAT_TILE_KEY = 'vv_ftue_wheat_tile'; // set by ResourceClicking when the tutorial Wheat is harvested
 
 // The tile of a named thing on the current board: a resource (by type) first, else an NPC.
-// Returns { x, y, size } in tiles, or null. Shared by the doinker, the scrim and cutscenes.
+// Returns { x, y, size, w?, h? } in tiles (x/y the lower-left tile), or null. Shared by the doinker, the scrim and cutscenes.
 // With several of that type (the Collect Wheat beat), the one nearest the player, so the arrow and
 // the scrim's hole move on to the next closest as each is collected.
 export function nearestResourceOfType(resources, targetName) {
@@ -24,7 +24,14 @@ export function findBoardTarget(targetName, gridId) {
   if (gridId) {
     const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
     const npc = npcs && Object.values(npcs).find((n) => n.type === targetName);
-    if (npc && npc.position) return { x: npc.position.x, y: npc.position.y, size: 1 };
+    if (npc && npc.position) {
+      // An NPC answers taps on the figure you SEE (PixiRenderer findNpcAtScreen): `artSpan` tiles
+      // tall from its tile's bottom edge, and up to half a tile off its logical tile while it
+      // steps. The box covers all of that, so a scrim's hole never leaves the head (or a figure
+      // mid-step) under the dark panels, where a tap cannot reach it (the Snug / Kent lockouts).
+      const span = Math.max(1, Number(npc.artSpan) || 1);
+      return { x: npc.position.x - 0.5, y: npc.position.y + 0.5, w: 2, h: span + 1, size: 1, npc: true };
+    }
   }
   return null;
 }

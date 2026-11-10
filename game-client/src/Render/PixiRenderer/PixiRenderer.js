@@ -1786,10 +1786,11 @@ const PixiRenderer = ({
 
     if (npc) {
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
-      // the NPC) and open it on arrival, as if it had been tapped from there. Enemies
+      // the NPC) and open it on arrival, as if it had been tapped from there. Range is from the
+      // NPC's own tile, not the tapped one (a tap on a tall figure's head is a tile or two north). Enemies
       // keep the plain click (walking into them is not a tap's intent).
       const isHostile = npc.action === 'attack';
-      if (!isHostile && !cursorMode && outOfRange(col, row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
+      if (!isHostile && !cursorMode && outOfRange(npc.position?.x ?? col, npc.position?.y ?? row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
       turnToEachOther(npc, gridId); // the player turns to the NPC it taps, and the NPC to the player (owner 2026-11-09, 2026-11-10)
 
       // Use the shared click handler that includes cooldown logic for attack NPCs
