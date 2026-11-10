@@ -104,3 +104,9 @@ The last emoji over the board's characters, as two 4 x 3 sheets in the header's 
   the painted check, question, hand and clock, so the quest and trade overlays, the station
   and farm-animal ready marks, the HUD quest badge, the trophy badge and the quest cards' task
   ticks all changed together. The atlas was rebuilt for them.
+- **The check and the question, second take (`icons-r13`, owner 2026-11-10).** The r12 check was
+  an olive green that sank into the grass and the question mark stood bare. One sheet, two
+  takes of each; the owner chose the first of both: the question mark in dark brown on a
+  golden disc with a white rim (as the old badge was), and the white check on a rounded square
+  of bright emerald, the emoji's green. They replace `mark-question` and `mark-check` and the
+  `question.svg` / `checkmark.svg` overlays; the atlas was rebuilt.

@@ -1,0 +1,25 @@
+{
+  "name": "icons-r13",
+  "note": "Owner 2026-11-10, on the icons-r12 overlays: the check's green must be as bright as the emoji's so it stands out over the board, and the question mark belongs in a circle, as it was. One sheet, two takes of each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "overlays": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r12/approved/openai--system-feelings-1.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved round face glyphs: match their rendering, their thick dark outline, their soft painted fill and their SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: four STATUS BADGES that float over a character's head in a village game and must STAND OUT against green grass and brown earth, in order on the 3 x 3 grid, left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each a few big simple shapes that still read at 20 pixels. No letters and no words. 1 QUESTION BADGE: a round disc, the same plain disc as the face glyphs, in bright golden yellow with a thin WHITE rim just inside its dark outline, and on it one bold, thick, DARK BROWN question mark, centred, filling most of the disc. No face. 2 QUESTION BADGE ALTERNATE: the same golden yellow disc with a bold thick WHITE question mark with a dark outline. 3 CHECK BADGE: a rounded square in BRIGHT VIVID EMERALD GREEN, the pure saturated green of a traffic light, not olive and not yellow-green, with a thick dark green outline, and on it one bold thick pure WHITE check mark. 4 CHECK BADGE ALTERNATE: the same bright vivid emerald green as a round disc, with the same bold white check mark. Cells 5 to 9 stay EMPTY, pure flat magenta, nothing drawn in them."
+    }
+  }
+}
