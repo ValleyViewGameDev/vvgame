@@ -63,6 +63,19 @@ export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) 
  * prevent IOSurface/GPU memory exhaustion. Never create Graphics/Text objects
  * in render loops without proper reuse.
  */
+// Retiring a composed avatar pair: the sprite on the board still holds it (and the breath ticker
+// swaps between its two frames every tick) until the next render pass, so the sprite is handed
+// the pair that replaces it, or nothing, BEFORE the old textures are destroyed. Destroying first
+// threw in the ticker and in BreathSprite on every save in the editor (2026-11-10).
+function retireAvatarTex(old, sprite, next) {
+  if (sprite && !sprite.destroyed && (sprite.__openTex === old.open || sprite.texture === old.open || sprite.texture === old.blink)) {
+    sprite.__openTex = next ? next.open : null;
+    sprite.__blinkTex = next ? next.blink : null;
+    sprite.texture = next ? next.open : Texture.EMPTY; // nothing to draw for a frame: the render pass that follows puts the icon back
+  }
+  old.open.destroy(true); if (old.blink) old.blink.destroy(true);
+}
+
 const PixiRendererPCs = ({
   app,                    // PixiJS Application instance
   pcs,                    // Array of PC objects (single-player: at most the local PC)
@@ -97,7 +110,7 @@ const PixiRendererPCs = ({
       const old = avatarTexRef.current;
       if (!old) return;
       avatarTexRef.current = null;
-      old.open.destroy(true); if (old.blink) old.blink.destroy(true);
+      retireAvatarTex(old, spriteRef.current, avatarTexRef.current);
       setAvatarVersion((v) => v + 1);
     };
     (async () => {
@@ -115,7 +128,7 @@ const PixiRendererPCs = ({
         if (!live) return;
         const old = avatarTexRef.current;
         avatarTexRef.current = { key: look.key, open: Texture.from(open), blink: shut ? Texture.from(shut) : null, body: face.body || 'female' };
-        if (old) { old.open.destroy(true); if (old.blink) old.blink.destroy(true); }
+        if (old) retireAvatarTex(old, spriteRef.current, avatarTexRef.current);
         setAvatarVersion((v) => v + 1);
       } catch (e) { console.warn('avatar: could not compose the saved look', e); }
     })();
@@ -123,7 +136,7 @@ const PixiRendererPCs = ({
   }, [avatarKey]);
   useEffect(() => () => { // unmount: the composed textures go with the renderer
     const old = avatarTexRef.current;
-    if (old) { avatarTexRef.current = null; old.open.destroy(true); if (old.blink) old.blink.destroy(true); }
+    if (old) { avatarTexRef.current = null; retireAvatarTex(old, spriteRef.current, null); }
   }, []);
 
   // Ref to track if animation ticker is running (on-demand pattern)
@@ -575,7 +588,7 @@ const PixiRendererPCs = ({
       sprite.breath = moving ? 0 : breathLevel(now, breathSeed(id));
       if (sprite.__blinkTex && sprite.__openTex) {
         const want = isBlinking(now, breathSeed(`${id}:blink`)) ? sprite.__blinkTex : sprite.__openTex;
-        if (sprite.texture !== want) sprite.texture = want;
+        if (want.baseTexture && sprite.texture !== want) sprite.texture = want; // never a destroyed frame
       }
     };
     ticker.add(onBreath);

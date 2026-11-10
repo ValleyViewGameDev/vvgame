@@ -4,18 +4,22 @@
 /* Berkshire (the modal title, centred like every modal) stays on .modal-title only; everything else in here is Lora */
 .avatar-modal .modal-title { text-align: center; }
 .avatar-modal .avatar-editor, .avatar-modal .avatar-actions, .avatar-modal .avatar-problems { font-family: var(--font-heading); }
-.avatar-dev-tag { font-size: var(--text-xs); font-weight: normal; color: var(--color-text-muted, #777); margin-left: 8px; vertical-align: middle; }
+/* the line under the title when the FTUE opens the editor ("You can change your avatar ... at any time") */
+.avatar-intro { margin: 6px 0 8px; font-family: var(--font-text-1-family); font-size: var(--text-lg); text-align: center; color: var(--color-text-primary); }
 
 .avatar-editor { display: flex; gap: 16px; align-items: flex-start; margin-top: 8px; }
 .avatar-stage { flex: none; display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.avatar-preview { display: block; image-rendering: auto; background: repeating-conic-gradient(#ecece6 0 25%, #f8f8f4 0 50%) 0 0 / 24px 24px; border-radius: var(--radius-md); }
+/* the figure stands on a quiet inset of the parchment (it was a transparency checkerboard while the editor was a developer tool) */
+.avatar-preview { display: block; image-rendering: auto; background: var(--color-bg-tint); border-radius: var(--radius-md); }
 .avatar-preview-empty { background: var(--color-bg-light, #eee); border-radius: var(--radius-md); }
 .avatar-thumb { width: 72px; height: 72px; background: none; border-radius: var(--radius-sm); }
 /* a cropped view of the composed figure square: the box clips, the image inside is placed by inline style */
 .avatar-crop { position: relative; overflow: hidden; }
 .avatar-crop img { position: absolute; max-width: none; display: block; }
 .avatar-crop.avatar-thumb { background: none; }
-/* The stage figure breathes: AvatarModal.js BreathingFigure draws the board's deformation on a canvas. */
+/* The stage figure breathes: AvatarModal.js BreathingFigure draws the board's deformation on a canvas.
+   Its size is set HERE (the canvas is `fluid`), so the phone block in mobile.css can make it smaller. */
+.avatar-stage-figure { width: 128px; height: 256px; }
 /* the Body tab: the female / male sign instead of a figure (both previews used to show the current body) */
 .avatar-body-sign { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
 .avatar-eyes-closeup { margin-bottom: 8px; }
@@ -44,6 +48,5 @@
 .avatar-muted { color: var(--color-text-muted, #777); }
 .avatar-small { font-size: var(--text-xs); text-align: center; max-width: 128px; }
 
-/* Phone layout: UI/Styles/mobile.css (the one media block), "Edit Avatar modal". */
+/* Phone layout: UI/Styles/mobile.css (the one media block), "Avatar editor". */
 
-.avatar-small-left { font-size: var(--text-sm); margin: 4px 0 8px; }

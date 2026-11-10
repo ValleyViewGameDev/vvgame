@@ -337,16 +337,15 @@
     border-radius: var(--radius-lg);
     box-sizing: border-box;
   }
-  /* ---------- Edit Avatar modal (src/Avatar/AvatarModal.js) ----------
-     Desktop puts the big preview beside the tabs; a phone stacks them: a smaller preview on
-     top, the tabs and the part thumbnails below at the SAME thumbnail size as landscape
-     (the stage preview rule is scoped to .avatar-stage so it never reaches the thumbnails,
-     which share the .avatar-preview class). */
+  /* ---------- Avatar editor (src/Avatar/AvatarModal.js, Change Avatar) ----------
+     Desktop puts the figure beside the tabs; a phone stacks them: a smaller figure on top
+     (1 x 2, the stage's own class so the rule never reaches the thumbnails, which share
+     .avatar-preview), the tabs and the part thumbnails below. */
   body .modal-overlay .avatar-modal { max-width: 440px; }
   .avatar-modal .avatar-editor { flex-direction: column; align-items: stretch; gap: 10px; }
   .avatar-modal .avatar-stage { align-items: center; }
-  .avatar-modal .avatar-stage .avatar-preview { width: 150px; height: 150px; }
-  .avatar-modal .avatar-part-grid { max-height: 34vh; max-height: 34dvh; justify-content: center; }
+  .avatar-modal .avatar-stage .avatar-stage-figure { width: 80px; height: 160px; }
+  .avatar-modal .avatar-part-grid { max-height: 26vh; max-height: 26dvh; justify-content: center; }
   .avatar-modal .avatar-part { width: 72px; }
   .avatar-modal .avatar-thumb { width: 60px; height: 60px; }
   .avatar-modal .avatar-actions { flex-wrap: wrap; }

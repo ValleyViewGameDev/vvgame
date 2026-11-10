@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import AvatarModal from '../../Avatar/AvatarModal';
 import AvatarFace from '../../Avatar/AvatarFace';
 import EatingModal from '../Eating/Eating';
@@ -40,8 +39,7 @@ const PlayerPanel = ({
   setDisplayedPCData,
   openPanel
 }) => {
-  const [showChangeIconModal, setShowChangeIconModal] = useState(false);
-  const [showAvatarModal, setShowAvatarModal] = useState(false); // the parts-based avatar editor (docs/avatar-plan.md), developers only for now
+  const [showAvatarModal, setShowAvatarModal] = useState(false); // Change Avatar: the avatar editor (docs/avatar-plan.md)
   const [showEatingModal, setShowEatingModal] = useState(false);
   const strings = useStrings();
 
@@ -229,18 +227,11 @@ const PlayerPanel = ({
       <div className="shared-buttons">
         <button 
           className="btn-basic btn-success" 
-          onClick={() => setShowChangeIconModal(true)}
+          onClick={() => setShowAvatarModal(true)}
         >
           {strings[4065]}
         </button>
       </div>
-      {isDeveloper && (
-        <div className="shared-buttons">
-          <button className="btn-basic btn-neutral" onClick={() => setShowAvatarModal(true)} title="Developer preview: the parts-based avatar editor (docs/avatar-plan.md). Saving puts the look on the board; choosing an icon in Change Avatar takes it off again.">
-            Edit Avatar
-          </button>
-        </div>
-      )}
 
       {/* Tent functionality */}
       {isCamping ? (
@@ -404,22 +395,6 @@ const PlayerPanel = ({
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           onClose={() => setShowAvatarModal(false)}
-        />
-      )}
-
-      {/* Change Icon Modal */}
-      {showChangeIconModal && (
-        <ChangeIconModal
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          updateStatus={updateStatus}
-          currentIcon={currentPlayer.icon}
-          playerId={currentPlayer.playerId}
-          onClose={() => setShowChangeIconModal(false)}
-          onSave={(newIcon) => {
-            setDisplayedPCData(prev => ({ ...prev, icon: newIcon }));
-            setShowChangeIconModal(false);
-          }}
         />
       )}
 

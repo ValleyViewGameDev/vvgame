@@ -649,8 +649,27 @@ short and left the lower third of each iris in its painted blue or brown, which 
 once the eyeball stopped taking the skin tone. A new face needs one run of this tool after
 `parts.js face`.
 
-**Next (P5, the rest)**: the Change Avatar modal becoming the editor for everyone, then the
-hand slot and armour.
+**Change Avatar is the editor, for everyone (owner 2026-11-10).** `AvatarModal` is no longer a
+developer preview: the Player panel's Change Avatar button and the FTUE's avatar step (step 6,
+`modalType: icon`, with its intro line) open it, and the icon chooser is gone
+(`UI/Modals/ChangeIconModal`, `Authentication/ChangeIcon.js`; the Profile panel only held dead
+code for it). Saving writes `player.avatar`, which the board, the header and the panels draw.
+Nothing was migrated: a player who never saves a look keeps their `icon` everywhere, as the v1
+plan's "one release as the fallback" says, but can no longer pick a different icon. For
+players the modal shows its title, the six tabs, pictures without names (only the two bodies
+carry a word), the colour rows, Reset (the starter look of the body being edited) and Save;
+all of it from `UI/Strings` 4130 to 4145, in ten languages. Developers still see the
+equipment line, the catalogue names and Copy spec. On a phone the figure is 80 x 160 above the
+tabs and the modal needs no scroll. Fixed on the way: a save while standing on the board
+destroyed the old composed textures while the sprite and the breath ticker still held them
+(`retireAvatarTex` now hands the sprite the new pair first). Not done here: buying a paid part
+from the modal (the catalogue has none yet; `/player/avatar-part` exists), the old premium
+unlock (`avatarsUnlocked`, `/action/unlock-avatars`) mapping to a paid set, and the surfaces
+that still draw the icon (the speech bubble's player picture, the settlement map cell, other
+players' figures on the board).
+
+**Next (P5, the rest)**: the hand slot and armour, a wider catalogue, then retiring `icon`
+(v1 §6 migration).
 
 ## 8. Risks, and what would change the plan
 

@@ -1,6 +1,5 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext } from 'react';
-import ChangeIconModal from '../UI/Modals/ChangeIconModal';
 // import GoldPassBenefitsModal from '../UI/Modals/GoldPassBenefitsModal'; // COMMENTED OUT
 import axios from 'axios';
 import '../UI/Panels/Panel.css'; // Use the standardized styles
@@ -26,7 +25,6 @@ import { isPhone } from '../UI/Modals/InstallPromptModal';
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
 
-  const [showChangeIconModal, setShowChangeIconModal] = useState(false);
   // const [showGoldBenefitsModal, setShowGoldBenefitsModal] = useState(false); // COMMENTED OUT
 
   const [formData, setFormData] = useState({
@@ -637,21 +635,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <br />
         <FeedbackLinks />
-
-        {showChangeIconModal && (
-          <ChangeIconModal
-            currentPlayer={currentPlayer}
-            setCurrentPlayer={setCurrentPlayer}
-            updateStatus={updateStatus}
-            currentIcon={formData.icon}
-            playerId={currentPlayer.playerId}
-            onClose={() => setShowChangeIconModal(false)}
-            onSave={(newIcon) => {
-              setFormData(prev => ({ ...prev, icon: newIcon }));
-              setShowChangeIconModal(false);
-            }}
-          />
-        )}
 
         {/* Gold Pass Benefits Modal - COMMENTED OUT
         <GoldPassBenefitsModal

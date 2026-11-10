@@ -7,7 +7,7 @@ import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
 import AvatarFace from '../../Avatar/AvatarFace';
-import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
+import AvatarModal from '../../Avatar/AvatarModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
 
@@ -437,20 +437,17 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     return null;
   }
 
-  // modalType "icon": the avatar beat (docs/onboarding-plan.md §4.4). The picker replaces the
-  // signup carousel; saving or closing it advances the step (continue: true on the step).
+  // modalType "icon": the avatar beat (docs/onboarding-plan.md §4.4). The avatar editor replaces
+  // the signup carousel; saving or closing it advances the step (continue: true on the step). A
+  // player who closes it without saving keeps the starting icon and can make one later.
   if (currentStepData?.modalType === 'icon') {
     return (
-      <ChangeIconModal
+      <AvatarModal
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}
-        updateStatus={() => {}}
-        currentIcon={currentPlayer?.icon}
-        playerId={currentPlayer?.playerId}
         intro={uiString(strings, currentStepData.bodyKey)}
-        freeOnly
         onClose={handleOK}
-        onSave={() => handleOK()}
+        onSaved={() => handleOK()}
       />
     );
   }

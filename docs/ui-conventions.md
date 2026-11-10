@@ -35,7 +35,7 @@ value rather than trust this page.
   |---|---|---|---|---|
   | `modal-small` | 320 px | one message or one fact, plus buttons | the same modal | GameDialog, Spend Gems, Begin, Email ask, Name Deed, Install prompt, ResourceModalSmall, Progress, a hint |
   | `modal-narrow` | 440 px | a list, or 2 to 3 columns (icon, name, mark; name, cost, button) | the same modal: 440 px is the phone's own modal width, so ONE layout serves both | Quest for Hope, Currencies & Keys, Language picker, Share, Snug travel, Level Up / Train complete, Revival, Gold Pass benefits, bulk results |
-  | `modal-medium` | up to 600 px | reading text or a wrapping grid | the same modal, reflowed | Privacy policy, Off-season notice, Change Icon grid |
+  | `modal-medium` | up to 600 px | reading text or a wrapping grid | the same modal, reflowed | Privacy policy, Off-season notice |
   | `modal-large` / `-xlarge` (or a feature's own wide box) | 800 to 1000 px | a table of 4+ columns the player compares across | its own portrait layout in `mobile.css` (rows become cards: `res-rows`) | Trading inventory, Inventory manage (backpack / warehouse), Eating, Global Market, Store, Mailbox, bulk select (harvest, animals, crafting), Avatar |
 
   A new modal starts at the narrowest tier its content fits. Going wide is a commitment: it
@@ -74,7 +74,7 @@ value rather than trust this page.
   specificity so a feature stylesheet's desktop width (Mailbox's 800 px, for example) cannot
   leak onto phones. A feature stylesheet may size its modal for desktop; it must not use
   `!important`, inline widths, or a selector heavier than `body .modal-overlay .x`.
-- The NPC greeting, Eat Food, Choose Avatar, level-up, revival, share, language,
+- The NPC greeting, Eat Food, the avatar editor, level-up, revival, share, language,
   service-status, Mailbox, Trade Stall inventory (`.inventory-modal`) and Carnival logic
   modals all follow this. A modal opened FROM a panel (Trade Stall, Inventory, Carnival) is the
   usual offender: it must still portal to `document.body`, never render inline in the panel.

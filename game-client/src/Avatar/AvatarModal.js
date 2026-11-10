@@ -1,11 +1,11 @@
 /**
- * AvatarModal - the parts-based avatar editor (docs/avatar-plan.md §2.6).
- *
- * Developer scaffolding for now (slice 2 preview): opened from the Player panel's "Edit
- * Avatar" button, it composes a bust from the catalogue exactly as the game will
- * (avatarLook + avatarCompositor), with a tab per slot, swatches per colour, a blink, the
- * equipment feed (the equipped weapon and armour, and the grid kind) and Save, which writes
- * the spec to the Player through POST /api/player/avatar. The board does NOT draw it yet.
+ * AvatarModal - the avatar editor, for every player (docs/avatar-plan.md §2.6; it replaced the
+ * icon chooser 2026-11-10). Opened by Change Avatar in the Player panel and by the FTUE's avatar
+ * step (`intro`). It composes the figure from the catalogue exactly as the board does
+ * (avatarLook + avatarCompositor), with a tab per slot, swatches per colour, the breath and the
+ * blink, and Save, which writes the spec to the Player through POST /api/player/avatar; the
+ * board, the header and the panels then draw it. A player who never saves one keeps their old
+ * icon. Developers also see the equipment feed, the part names and Copy spec.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -19,10 +19,13 @@ import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, p
 import { renderLookDataUrl } from './avatarCompositor';
 import { BLINK, breathLevel, breathDeform, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
+import { useStrings } from '../UI/StringsContext';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
-const SLOT_LABEL = { skin: 'Body', hair: 'Hair', facialHair: 'Facial hair', eyes: 'Eyes', hat: 'Hat', top: 'Clothes' };
-const COLOR_LABEL = { skinTone: 'Skin tone', hairColor: 'Hair colour', eyeColor: 'Eye colour' };
+// UI/Strings keys: the tabs, the colour rows and the two bodies
+const SLOT_LABEL = { skin: 4131, hair: 4132, facialHair: 4133, eyes: 4134, hat: 4135, top: 4136 };
+const COLOR_LABEL = { skinTone: 4137, hairColor: 4138, eyeColor: 4139 };
+const BODY_LABEL = { female: 4140, male: 4141 };
 const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
 const PREVIEW_PX = 256;
 const SOURCE_PX = 512; // the composed square every view crops from
@@ -45,7 +48,7 @@ const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'hea
  * each strip is lifted (a stretch pivoted at the square's bottom edge, the feet) and widened about
  * the centre line by the chest bell, at the breath level of the moment.
  */
-function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, height, className = '', top }) {
+function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, height, className = '', top, fluid = false }) {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);       // eyes open
   const closedImgRef = useRef(null); // the blink frame, loaded once so a 130 ms blink never waits on a decode
@@ -95,11 +98,12 @@ function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, h
     draw();
     return () => cancelAnimationFrame(raf);
   }, [crop, width, height, top]);
-  return <canvas ref={canvasRef} className={`avatar-preview ${className}`} style={{ width, height }} />;
+  // `fluid`: the stylesheet sizes the canvas (the stage is smaller on a phone); width x height is then only its bitmap
+  return <canvas ref={canvasRef} className={`avatar-preview ${className}`} style={fluid ? undefined : { width, height }} />;
 }
 
 /** One composed figure as an <img>, blinking when the look has a blink frame. `crop` (a CROP entry) shows that region in a width x height box. */
-function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null, breathe = false, breathTop }) {
+function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null, breathe = false, breathTop, fluid = false }) {
   const [urls, setUrls] = useState({ open: null, closed: null });
   const [closed, setClosed] = useState(false);
   useEffect(() => {
@@ -122,7 +126,7 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   if (crop) {
     // the square is scaled so the crop's width fills the box, then shifted so the crop's corner is the box's
     const w = width || size, h = height || Math.round(w * (crop.h / crop.w));
-    if (breathe) return <BreathingFigure src={urls.open} srcClosed={urls.closed} closed={closed} crop={crop} width={w} height={h} className={className} top={breathTop} />;
+    if (breathe) return <BreathingFigure src={urls.open} srcClosed={urls.closed} closed={closed} crop={crop} width={w} height={h} className={className} top={breathTop} fluid={fluid} />;
     const full = w / crop.w;
     return (
       <div className={`avatar-preview avatar-crop ${className}`} style={{ width: w, height: h }}>
@@ -133,7 +137,8 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   return src ? <img className={`avatar-preview ${className}`} src={src} alt="" width={size} height={size} draggable={false} /> : <div className={`avatar-preview avatar-preview-empty ${className}`} style={{ width: size, height: size }} />;
 }
 
-export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterResources, updateStatus, onClose, isDeveloper = false }) {
+export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterResources, updateStatus, onClose, onSaved, intro = null, isDeveloper = false }) {
+  const strings = useStrings();
   const [data, setData] = useState(null);           // { catalogue, palettes }
   const [spec, setSpec] = useState(null);
   const [tab, setTab] = useState('skin');
@@ -183,18 +188,19 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         localStorage.setItem('player', JSON.stringify(next));
         setCurrentPlayer?.(next);
         dirtyRef.current = false;
-        updateStatus?.('Avatar saved.');
-        onClose?.();
+        updateStatus?.(strings[4144]);
+        (onSaved || onClose)?.();
       }
     } catch (err) {
+      // a rejected spec names its problems (a part that is not owned); anything else is "try again"
       const body = err.response?.data;
-      setProblems(body?.problems || [body?.error || err.message]);
+      setProblems(body?.problems || [strings[4145]]);
     } finally { setSaving(false); }
   };
 
   if (!data || !spec || !look) {
     return createPortal(
-      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><CloseButton corner onClick={onClose} /><div className="modal-title">Edit Avatar</div><p className="avatar-muted">Loading the catalogue…</p></div></div>,
+      <div className="modal-overlay"><div className="modal-container modal-large avatar-modal"><CloseButton corner onClick={onClose} /><div className="modal-title">{strings[4130]}</div><p className="avatar-muted">{strings[3054]}</p></div></div>,
       document.body,
     );
   }
@@ -207,43 +213,43 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
     const tier = row.tier || 'free';
     if (tier !== 'paid') return null;
     const bought = (currentPlayer?.avatarParts || []).includes(row.id);
-    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? 'owned' : <>{row.gemcost || '?'} <ResourceIcon type="Gem" /></>}</span>;
+    return <span className={`avatar-badge ${bought ? 'owned' : ''}`}>{bought ? strings[98016] : <>{row.gemcost || '?'} <ResourceIcon type="Gem" /></>}</span>;
   };
 
   return createPortal(
     <div className="modal-overlay">
       <div className="modal-container modal-large avatar-modal">
         <CloseButton corner onClick={onClose} />
-        <div className="modal-title">Edit Avatar <span className="avatar-dev-tag">developer preview</span></div>
+        <div className="modal-title">{strings[4130]}</div>
+        {intro && <p className="avatar-intro">{intro}</p>}
 
         <div className="avatar-editor">
           <div className="avatar-stage">
-            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe breathTop={BREATH_TOP[bodyOf(data.catalogue, spec)] || undefined} />
-            <div className="avatar-muted avatar-small">
-              {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
-            </div>
+            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe fluid className="avatar-stage-figure" breathTop={BREATH_TOP[bodyOf(data.catalogue, spec)] || undefined} />
+            {isDeveloper && (
+              <div className="avatar-muted avatar-small">
+                {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
+              </div>
+            )}
           </div>
 
           <div className="avatar-controls">
             <div className="avatar-tabs">
               {Object.keys(SLOT_OF_SPEC_KEY).map((key) => (
-                <button key={key} className={`avatar-tab ${tab === key ? 'active' : ''}`} onClick={() => setTab(key)}>{SLOT_LABEL[key]}</button>
+                <button key={key} className={`avatar-tab ${tab === key ? 'active' : ''}`} onClick={() => setTab(key)}>{strings[SLOT_LABEL[key]]}</button>
               ))}
             </div>
 
-            {tab === 'eyes' && (
-              <>
-                <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Pick their colour.</div>
-                <AvatarPreview look={look} className="avatar-eyes-closeup" crop={CROP.head} width={144} height={144} />
-              </>
-            )}
+            {/* the eyes come with the face: this tab is a close-up and the eye colours */}
+            {tab === 'eyes' && <AvatarPreview look={look} className="avatar-eyes-closeup" crop={CROP.head} width={144} height={144} />}
             <div className="avatar-part-grid">
               {parts.map((row) => (
-                <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={row.label || row.id} onClick={() => set(tab, row.id)}>
+                <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={isDeveloper ? row.label || row.id : undefined} onClick={() => set(tab, row.id)}>
                   {tab === 'skin'
                     ? <span className="avatar-body-sign" aria-hidden="true">{row.body === 'male' ? '\u2642' : '\u2640'}</span>
                     : <AvatarPreview look={thumbLook(tab, row.id)} blink={false} className="avatar-thumb" crop={CROP[CROP_FOR_TAB[tab]] || CROP.head} width={72} height={72} />}
-                  <span className="avatar-part-label">{row.label || row.id}</span>
+                  {/* a picture names a hairstyle or a hat better than a word; only the two bodies are told apart by one (developers see every row's catalogue name) */}
+                  {tab === 'skin' ? <span className="avatar-part-label">{strings[BODY_LABEL[row.body || 'female']]}</span> : (isDeveloper ? <span className="avatar-part-label">{row.label || row.id}</span> : null)}
                   {tierBadge(row)}
                 </button>
               ))}
@@ -251,10 +257,10 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
             {COLORS_FOR_TAB[tab].map((colorKey) => (
               <div key={colorKey} className="avatar-colors">
-                <div className="avatar-colors-label">{COLOR_LABEL[colorKey]}</div>
+                <div className="avatar-colors-label">{strings[COLOR_LABEL[colorKey]]}</div>
                 <div className="avatar-swatches">
                   {palette(data.palettes, PALETTE_OF_SPEC_KEY[colorKey]).map((sw) => (
-                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} title={`${sw.label || sw.id}${sw.tier === 'paid' ? ` (${sw.gemcost || '?'} gems)` : ''}`} onClick={() => set(colorKey, sw.id)}>
+                    <button key={sw.id} className={`avatar-swatch ${spec[colorKey] === sw.id ? 'selected' : ''}`} style={{ background: sw.hex }} title={isDeveloper ? sw.label || sw.id : undefined} onClick={() => set(colorKey, sw.id)}>
                       {sw.tier === 'paid' && !owned.includes(sw.id) ? <span className="avatar-swatch-lock"><ResourceIcon type="Gem" /></span> : null}
                     </button>
                   ))}
@@ -267,9 +273,10 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         {problems.length > 0 && <div className="avatar-problems">{problems.join('. ')}</div>}
 
         <div className="shared-buttons avatar-actions">
-          <button className="btn-basic btn-neutral" onClick={() => { setSpec(defaultSpec(data.catalogue, data.palettes)); dirtyRef.current = true; }}>Starter look</button>
-          <button className="btn-basic btn-neutral" onClick={() => navigator.clipboard?.writeText(JSON.stringify(spec)).then(() => updateStatus?.('Avatar spec copied'))}>Copy spec</button>
-          <button className="btn-basic btn-success" disabled={saving} onClick={handleSave}>{saving ? 'Saving…' : 'Save'}</button>
+          {/* Reset: the starter look of the body being edited */}
+          <button className="btn-basic btn-neutral" onClick={() => { setSpec(defaultSpec(data.catalogue, data.palettes, bodyOf(data.catalogue, spec))); setProblems([]); dirtyRef.current = true; }}>{strings[4142]}</button>
+          {isDeveloper && <button className="btn-basic btn-neutral" onClick={() => navigator.clipboard?.writeText(JSON.stringify(spec)).then(() => updateStatus?.('Avatar spec copied'))}>Copy spec</button>}
+          <button className="btn-basic btn-success" disabled={saving} onClick={handleSave}>{saving ? strings[4143] : strings[4102]}</button>
         </div>
       </div>
     </div>,
