@@ -38,6 +38,7 @@ import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition, setHeadlineSpan } from '../../VFX/NPCVFX';
 import { facePlayerToward } from '../../PlayerMovement';
+import { breathScaleY, breathSeed, breathingAllowed } from './breathing';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
@@ -461,6 +462,24 @@ const PixiRenderer = ({
   const npcDisplayTypes = useRef({});
   // Ref to track if NPC animation ticker is currently running (for on-demand ticker pattern)
   const npcAnimationTickerRef = useRef(null);
+  // Idle breathing (breathing.js): the figure NPCs that breathe (id -> seed) and the one ticker that
+  // drives them. A figure's sprite is anchored at its TILE CENTRE (half a tile above its feet), so
+  // the stretch is paired with a small lift of the sprite that keeps the square's bottom edge, the
+  // feet, exactly where it was.
+  const breathersRef = useRef(new Map());
+  const breathTickerRef = useRef(null);
+  const applyBreath = useCallback((npcId, displayObj, now) => {
+    const seed = breathersRef.current.get(npcId);
+    const rest = displayObj?.__restScale;
+    if (seed === undefined || !rest || !displayObj.__breathTile) return;
+    const animation = npcAnimations.current[npcId];
+    const moving = !!animation && animation.duration !== 0;
+    const k = moving ? 1 : breathScaleY(now, seed);
+    displayObj.scale.y = rest.y * k;
+    // standing: lift the anchor by half a tile's worth of the stretch so the feet stay put (a walking
+    // figure's y belongs to its tween)
+    if (!moving && animation?.currentPos) displayObj.y = animation.currentPos.y * displayObj.__breathTile + displayObj.__breathTile / 2 - (k - 1) * 0.5 * displayObj.__breathTile;
+  }, []);
   // Render version tracking for NPC async renders
   const npcRenderVersionRef = useRef(0);
 
@@ -1155,6 +1174,7 @@ const PixiRenderer = ({
           displayObj.parent.removeChild(displayObj);
         }
         delete npcDisplayObjects.current[npcId];
+        breathersRef.current.delete(npcId);
         delete npcDisplayTypes.current[npcId];
         delete npcAnimations.current[npcId];
       }
@@ -1192,6 +1212,9 @@ const PixiRenderer = ({
         const artSpan = !emojiSized && Number(npc.artSpan) > 0 ? Number(npc.artSpan) : 0;
         const anchorY = artSpan ? 1 - 0.5 / artSpan : 0.5;
         setHeadlineSpan(npc.id, artSpan); // the headline glyphs (Zzz, ??) ride above the figure's head
+        // a standing figure breathes; enemies do not (CombatFX owns their scale: hit pops, the death beat)
+        if (artSpan && npc.action !== 'attack') { if (!breathersRef.current.has(npc.id)) breathersRef.current.set(npc.id, breathSeed(npc.id)); }
+        else breathersRef.current.delete(npc.id);
         const spriteSize = artSpan ? TILE_SIZE * artSpan : (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
         if (!npc.symbol && !texture) continue;
 
@@ -1296,6 +1319,9 @@ const PixiRenderer = ({
         if (newDisplayType === 'sprite') {
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         }
+        // re-sizing reset the scale: put the breath straight back so a redraw never shows one rest frame
+        displayObj.__breathTile = TILE_SIZE;
+        applyBreath(npc.id, displayObj, performance.now());
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).
         // Sizing above leaves scale.x positive; facing only changes on a horizontal step.
@@ -1306,7 +1332,25 @@ const PixiRenderer = ({
     };
 
     renderNPCs();
-  }, [npcs, masterResources, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker]);
+  }, [npcs, masterResources, getNPCRenderPosition, NPC_ANIMATION_DURATION, startNPCAnimationTicker, applyBreath]);
+
+  // The breathing ticker: runs while the renderer is mounted, touches only the standing figures
+  // (a few multiplications a frame); players who ask for reduced motion get none
+  useEffect(() => {
+    const ticker = appRef.current?.ticker;
+    if (!ticker || breathTickerRef.current || !breathingAllowed()) return undefined;
+    const onBreath = () => {
+      if (!breathersRef.current.size) return;
+      const now = performance.now();
+      for (const npcId of breathersRef.current.keys()) {
+        const displayObj = npcDisplayObjects.current[npcId];
+        if (displayObj && !displayObj.destroyed) applyBreath(npcId, displayObj, now);
+      }
+    };
+    ticker.add(onBreath);
+    breathTickerRef.current = onBreath;
+    return () => { try { ticker.remove(onBreath); } catch (e) { /* the ticker may be destroyed */ } breathTickerRef.current = null; };
+  }, [npcs, applyBreath]); // re-checked when NPCs arrive: the app may not exist on the first pass
 
   // Cleanup NPC animation ticker on unmount
   useEffect(() => {

@@ -155,7 +155,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
         <div className="avatar-editor">
           <div className="avatar-stage">
-            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} />
+            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} className="avatar-breathe" />
             <div className="avatar-muted avatar-small">
               {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
             </div>

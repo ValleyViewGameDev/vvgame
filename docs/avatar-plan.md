@@ -486,6 +486,23 @@ The eyes row carries it as `file` with `tint: eyeColor` (drawn over the face; th
 still replaces it with the lids). Six eye colours in `avatarPalettes.json`: blue, green, brown,
 hazel, grey, amber. No generation needed: a new face gets its iris by running the command.
 
+**Idle breathing (owner 2026-11-10).** Standing figures breathe; walking ones do not (they
+have the bob). The established ways are two: squash and stretch about the ground contact for a
+single sprite, and a rig's breath deformer on the upper body (Live2D's ParamBreath cycling
+0..1, Character Animator's Breathe scaling the chest). With one sprite per character the first
+gives the second's result: a vertical stretch pivoted exactly at the feet moves nothing at the
+feet and grows linearly to the head. `Render/PixiRenderer/breathing.js` is the one curve
+(`BREATH`: 3.6 s, 1.6 % of the height, inhale 40 %, exhale 45 %, a pause; each figure has its
+own phase and a period within 12 %, from `breathSeed(id)`); width is never scaled (it would
+slide the feet). The player's figure sprite is anchored at its feet (`anchor 0.5, 1`) and a
+ticker scales it while `renderPositions` has no step in progress; NPC figures keep their
+tile-centre anchor, so `applyBreath` pairs the stretch with a lift of half a tile's worth of
+it, which holds the square's bottom edge still (measured: the bottom stays on one pixel row
+through the cycle); enemies do not breathe (CombatFX owns their scale). The Edit Avatar stage
+runs the same curve as CSS keyframes from `transform-origin: 50% 100%`. `prefers-reduced-motion`
+turns all of it off. When the actor splits head from body (P5) the breath can move to the body
+sprite with the head riding it, which is the rig version proper.
+
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
 becomes the editor for everyone, then the hand slot and armour.

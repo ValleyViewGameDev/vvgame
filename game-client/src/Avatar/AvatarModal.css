@@ -15,6 +15,18 @@
 .avatar-crop { position: relative; overflow: hidden; }
 .avatar-crop img { position: absolute; max-width: none; display: block; }
 .avatar-crop.avatar-thumb { background: none; }
+/* The idle breath, up close (owner 2026-11-10): the board's curve (Render/PixiRenderer/breathing.js:
+   3.6 s, 1.6 % of the height, inhale 40 %, exhale 45 %, a pause) as keyframes. The image is the
+   whole figure square, whose bottom edge is the feet line, so stretching it from 50% 100% keeps
+   the feet grounded. */
+.avatar-breathe img { transform-origin: 50% 100%; animation: avatar-breathe 3.6s linear infinite; }
+@keyframes avatar-breathe {
+  0% { transform: scaleY(1); animation-timing-function: ease-in-out; }
+  40% { transform: scaleY(1.016); animation-timing-function: ease-in-out; }
+  85% { transform: scaleY(1); }
+  100% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) { .avatar-breathe img { animation: none; } }
 /* the Body tab: the female / male sign instead of a figure (both previews used to show the current body) */
 .avatar-body-sign { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; font-family: var(--font-heading); font-size: 44px; line-height: 1; color: var(--color-text-primary, #333); } /* style-ok: a glyph used as an icon */
 .avatar-eyes-closeup { margin-bottom: 8px; }
