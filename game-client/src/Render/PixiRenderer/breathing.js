@@ -14,7 +14,7 @@
 export const BREATH = {
   periodMs: 3600,     // one breath: about 17 a minute, a calm resting rate
   amplitude: 0.012,   // the head rises this fraction of the figure's height at full inhale (owner: 75 % of the first 0.016)
-  chest: 0.03,        // the chest widens by this fraction of its width at full inhale
+  chest: 0.055,       // the chest widens by this fraction of its width at full inhale (owner: "go bigger", from 0.03)
   chestAt: 0.44,      // where the chest is, as a fraction of the figure square from its top (collar ~0.33, belt ~0.55)
   chestSpread: 0.12,  // the bell's width (same units): shoulders get about half, the head and the knees nothing
   inhale: 0.4,        // share of the cycle spent breathing in

@@ -495,7 +495,7 @@ horizontal chest expansion; these need to happen at the same time". So the breat
 real deformation with two parts on one curve (`Render/PixiRenderer/breathing.js`, `BREATH`:
 3.6 s, inhale 40 %, exhale 45 %, a pause; each figure its own phase and a period within 12 %):
 the figure RISES 1.2 % of its height (75 % of the first pass), a stretch pivoted at the feet,
-and the CHEST EXPANDS 3 % of its width through a bell weight (`breathBell`: centred 0.44 down
+and the CHEST EXPANDS 5.5 % of its width (first 3 %; owner: "go bigger") through a bell weight (`breathBell`: centred 0.44 down
 the figure square, spread 0.12, so the shoulders get about half and the head, knees and feet
 nothing). The feet never move in either direction.
 
