@@ -3,6 +3,7 @@ import { richText } from '../Icons/RichText';
 import ReactDOM from 'react-dom/client';
 import './Notifications.css';
 import { useStrings } from '../StringsContext';
+import NPCPortrait, { npcRowForFile } from '../Icons/NPCPortrait';
 
 // The big icon at the left of a toast: an emoji (data.icon) or, when data.iconSrc is set, an
 // image such as a resource's own board art (/assets/resources/<file>.svg), so a toast about the
@@ -10,7 +11,11 @@ import { useStrings } from '../StringsContext';
 // The icon: the sender's picture (iconSrc), else the notification type's own icon from
 // /assets/icons (fallbackSrc), else a glyph (the check mark stays for To Do; owner 2026-11-07:
 // common functional symbols are fine). ℹ️ is never used (docs/ui-conventions.md: one help mark).
+// A character's picture (an NPC's head crop or figure) is its round profile icon, the NPC panel's
+// ring (UI/Icons/NPCPortrait; owner 2026-11-10).
 function renderIcon(data, fallbackEmoji, fallbackSrc) {
+  const npcRow = data?.iconSrc && npcRowForFile(data.iconSrc);
+  if (npcRow) return <NPCPortrait resource={npcRow} className="notification-portrait" />;
   if (data?.iconSrc) return <img className="notification-icon-img" src={data.iconSrc} alt="" />;
   if (data?.icon) return data.icon;
   if (fallbackSrc) return <img className="notification-icon-img" src={fallbackSrc} alt="" />;

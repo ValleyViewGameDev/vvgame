@@ -6,6 +6,7 @@ import '../Buttons/SharedButtons.css';
 import { useStrings } from '../StringsContext';
 import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMatrix.json';
 import CloseButton from '../Buttons/CloseButton';
+import NPCPortrait from '../Icons/NPCPortrait';
 import { getMasterResources } from '../../Utils/TuningManager';
 import { getLocalizedString } from '../../Utils/stringLookup';
 
@@ -238,7 +239,10 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
 
         {/* Character Symbol (NPC or PC) - use SVG if filename provided, otherwise emoji */}
         <div className="story-modal-symbol">
-          {pictureFile ? (
+          {speakerRow?.category === 'npc' && speakerRow.iconFile ? (
+            // a character speaks in its round profile icon, the NPC panel's ring (owner 2026-11-10)
+            <NPCPortrait resource={speakerRow} className="story-modal-portrait" />
+          ) : pictureFile ? (
             <img
               src={`/assets/resources/${pictureFile}`}
               alt={npcName || 'Character'}

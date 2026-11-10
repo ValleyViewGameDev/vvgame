@@ -88,6 +88,8 @@
     height: 44px;
     object-fit: contain;
 }
+/* a character's round profile icon (UI/Icons/NPCPortrait), the image icon's size */
+.notification-portrait { width: 44px; }
 /* An icon inside the toast text ({icon:file.svg} in the string) */
 .notification-inline-icon {
     width: 1.25em;

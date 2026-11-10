@@ -34,6 +34,9 @@
   margin: 0 0 8px;
 }
 
+/* A character's round profile icon (UI/Icons/NPCPortrait), centred over its name */
+.story-modal-portrait { width: 88px; margin: 0 auto; }
+
 /* SVG image for NPCs with custom art */
 .story-modal-svg {
   width: 64px;
