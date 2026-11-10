@@ -60,7 +60,7 @@ the bust kept in `iconFile` for panels and quest cards until the head crop repla
 | 30 | Lumberjack / Peter Quince | worker | M | brown hat, plaid, beard | T2, dark brown, 40s | plaid shirt, axe at the side | 4 (one art, two rows) |
 | 31 | Crafter | worker | M | straw hat, green shirt | T3, dark brown, 30s | straw hat, apron | 4 |
 | 32 | Fairy | heal | F | emoji only | T1, white, small | wings, span 1.2 (a small figure) | 4 |
-| 33 | Santa Claus | quest | M | emoji only | T2, white, old, stout | red coat, hat | 4 |
+| 33 | Santa Claus | quest | M | emoji only | removed from the game (owner 2026-11-09) | | cut |
 | 34 | The Porter | trade | M | emoji only | T6, grey, 60s | lantern, brown coat | 4 |
 | 35 | Oracle | trade | F | emoji only | T5, white, ageless | veil and gold circlet | 4 |
 
@@ -89,3 +89,10 @@ creature lane.
   Angelo (the villain: black spiked crown, black and dark red). Twenty-seven of 35 are on the
   board; left: the four workers, the Lumberjack shared with Peter Quince, Fairy, Santa Claus, the
   Porter and the Oracle (batch 4).
+- Batch 4 (`npcs-r5.json`, 2026-11-09, one each, all installed): Farm Hand, Rancher, Lumberjack
+  (the same art on Peter Quince), Crafter, the Fairy (small: `artSpan 1.2`, hovering), the Porter
+  (a gaunt, slightly creepy hermit with a lantern) and the Oracle (blue skin, a Greek chiton and
+  veil with a gold circlet: a genie crossed with a priestess, not a Disney genie). **Santa Claus
+  was removed from resources.json** instead of drawn (owner). **The named cast is complete: 34 of
+  34 named NPCs stand as figures.** The Fairy, the Porter and the Oracle have no bust, so their
+  panel picture is the figure itself until the head crops land.

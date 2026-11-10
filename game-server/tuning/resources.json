@@ -9868,7 +9868,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9895,7 +9895,9 @@
     "ingredient1qty": 1,
     "gemcost": 39,
     "crafttime": 86400,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "filename": "npc-figure-fairy.svg",
+    "artSpan": 1.2
   },
   {
     "type": "Kent",
@@ -10291,37 +10293,6 @@
     "artSpan": 1.8
   },
   {
-    "type": "Santa Claus",
-    "symbol": "🎅",
-    "layoutkey": "n8",
-    "category": "npc",
-    "stateWorking": 900,
-    "stateResting": 0,
-    "stateRoaming": 0,
-    "stateEating": 0,
-    "stateSocializing": 300,
-    "artFacing": "front",
-    "movespeed": 0.8,
-    "action": "quest",
-    "passable": true,
-    "range": 6,
-    "speed": 1000,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "validonz": true,
-    "validonc": true,
-    "validonv": false,
-    "validonu": false
-  },
-  {
     "type": "Prospero",
     "symbol": "🧙🏻",
     "layoutkey": "WI",
@@ -10400,7 +10371,7 @@
     "stateRoaming": 45,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "noClick": true,
@@ -10422,7 +10393,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-lumberjack.svg"
+    "filename": "npc-figure-lumberjack.svg",
+    "iconFile": "npc-lumberjack.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Home of the Oracle",
@@ -10773,7 +10746,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10793,7 +10766,9 @@
     "validonz": true,
     "validonc": true,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-figure-porter.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Juliet",
@@ -10875,7 +10850,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10895,7 +10870,9 @@
     "validonz": true,
     "validonc": true,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-figure-oracle.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Farm Hand",
@@ -10907,7 +10884,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -10934,9 +10911,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 105,
-    "filename": "npc-farmhand.svg",
+    "filename": "npc-figure-farmhand.svg",
     "crafttime": 1800,
-    "totalnestedtime": 1800
+    "totalnestedtime": 1800,
+    "iconFile": "npc-farmhand.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Rancher",
@@ -10948,7 +10927,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -10975,9 +10954,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 112,
-    "filename": "npc-rancher.svg",
+    "filename": "npc-figure-rancher.svg",
     "crafttime": 14400,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "iconFile": "npc-rancher.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Lumberjack",
@@ -10989,7 +10970,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -11016,9 +10997,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 117,
-    "filename": "npc-lumberjack.svg",
+    "filename": "npc-figure-lumberjack.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "iconFile": "npc-lumberjack.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Crafter",
@@ -11030,7 +11013,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -11057,9 +11040,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 122,
-    "filename": "npc-crafter.svg",
+    "filename": "npc-figure-crafter.svg",
     "crafttime": 57600,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "iconFile": "npc-crafter.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Coyote",
