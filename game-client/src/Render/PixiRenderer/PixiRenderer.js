@@ -1816,11 +1816,13 @@ const PixiRenderer = ({
       // NPC's own tile, not the tapped one (a tap on a tall figure's head is a tile or two north). Enemies
       // keep the plain click (walking into them is not a tap's intent).
       const isHostile = npc.action === 'attack';
-      if (!isHostile && !cursorMode && outOfRange(npc.position?.x ?? col, npc.position?.y ?? row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
+      // On a homestead a tap never walks the avatar to the thing tapped, only to the ground (owner 2026-11-10)
+      const onHomestead = currentPlayer?.location?.gtype === 'homestead';
+      if (!isHostile && !cursorMode && !onHomestead && outOfRange(npc.position?.x ?? col, npc.position?.y ?? row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
       // In reach too: a helper NPC is talked to from beside it, one tile to its left or right in its
       // row (owner 2026-11-10), so a player anywhere else first steps there; already there, it opens
       // at once. Farm animals (graze) keep the plain tap: it harvests them where they stand.
-      if (!isHostile && npc.action !== 'graze' && !cursorMode && playerPos && npc.position) {
+      if (!isHostile && npc.action !== 'graze' && !cursorMode && !onHomestead && playerPos && npc.position) {
         const besideInRow = Math.round(playerPos.y) === Math.floor(npc.position.y)
           && Math.abs(Math.round(playerPos.x) - Math.floor(npc.position.x)) === 1;
         if (!besideInRow) { walkToNpc(npc.id, 1, { openIfStuck: true }); return; }
