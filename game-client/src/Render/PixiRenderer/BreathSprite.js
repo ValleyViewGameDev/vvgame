@@ -1,5 +1,5 @@
 import { Sprite } from 'pixi.js-legacy';
-import { BREATH, breathDeform, breathingAllowed, turnAt, turnOver } from './breathing';
+import { BREATH, breathDeform, breathingAllowed, turnAt, turnProgress, turnOver } from './breathing';
 
 /**
  * BreathSprite - a Sprite whose quad becomes a strip of rows while it breathes (breathing.js).
@@ -16,8 +16,8 @@ import { BREATH, breathDeform, breathingAllowed, turnAt, turnOver } from './brea
  *
  * It also TURNS (breathing.js TURN): the renderers go on setting the sign of scale.x the moment a
  * figure's facing changes, and the sprite notices the sign change itself when it next computes
- * its vertices and plays the turn in them, each row's width eased from the old look through
- * edge-on to the new one. Nothing else has to know. A sign change found on a sprite that was not
+ * its vertices and plays the turn in them: each row narrows to TURN.minWidth, flips to the new
+ * look there, and widens again. Nothing else has to know. A sign change found on a sprite that was not
  * being drawn (hidden, pooled, off screen) is taken as it is: there was no old look to turn from.
  */
 const ROWS = 16;
@@ -51,7 +51,7 @@ export default class BreathSprite extends Sprite {
     if (sign !== this._facing) {
       const first = this._facing === 0;
       // reversing a turn in flight starts from where that one had got to, seen from the other side
-      const from = this._turnT0 ? -turnAt(now - this._turnT0, this._turnFrom) : -1;
+      const from = this._turnT0 ? -turnProgress(now - this._turnT0, this._turnFrom) : -1;
       this._facing = sign;
       if (first || !drawnLately || !breathingAllowed()) this._turnT0 = 0;
       else { this._turnT0 = now; this._turnFrom = from; }

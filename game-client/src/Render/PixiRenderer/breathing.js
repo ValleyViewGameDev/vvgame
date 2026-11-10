@@ -63,21 +63,31 @@ export const breathingAllowed = () => !(typeof window !== 'undefined' && window.
 
 /**
  * Turning (owner 2026-11-10): a figure that reverses its facing does not snap to its mirror
- * image. Its width eases down through nothing and out again on the other side, the "paper turn"
- * of a mirrored 2D character, which needs no art beyond the one drawing. `turnAt` is how far the
- * turn has come for one row of the figure: -1 is the old look (the mirror image of where it is
- * going), 0 is edge-on, 1 is the new look.
- *   ms    how long a turn takes
- *   lead  how long the HEAD leads the FEET, in ms: 0 turns the figure as one flat card; above 0
- *         the rows from the shoulders down start later the lower they are, a twist with the feet
- *         planted (try 30 to 50; by 100 the middle frames pinch into an hourglass)
- * `from` is where the turn started (-1 for a full turn, more when it reverses one in flight).
+ * image. It narrows, flips to the mirror image at its narrowest, and widens again, which needs no
+ * art beyond the one drawing. The first version narrowed all the way to a line (the "paper
+ * turn"), and that line is what made the figure read as a cutout (owner): now it never gets
+ * thinner than `minWidth`, and the flip is a small pop at that width instead.
+ *   ms        how long a turn takes
+ *   minWidth  the narrowest the figure gets, as a fraction of its width (0 = down to a line,
+ *             the paper turn; 1 = no narrowing at all, the old snap half way through `ms`)
+ *   lead      how long the HEAD leads the FEET, in ms: 0 turns the figure as one piece; above 0
+ *             the rows from the shoulders down start later the lower they are, a twist with the
+ *             feet planted (try 30 to 50; by 100 the middle frames pinch into an hourglass)
+ * `turnProgress` is how far the turn has come for one row of the figure, from -1 (the old look)
+ * through 0 (half way) to 1 (the new look); `from` is where it started (-1 for a full turn, more
+ * when it reverses one in flight). `turnAt` is what the row is drawn at: its sign is which look
+ * it shows, its size the row's width (never under minWidth).
  */
-export const TURN = { ms: 200, lead: 0 };
-export function turnAt(elapsedMs, from = -1, v = 0, top = BREATH.top) {
+export const TURN = { ms: 200, minWidth: 0.6, lead: 0 };
+export function turnProgress(elapsedMs, from = -1, v = 0, top = BREATH.top) {
   const delay = TURN.lead > 0 && v > top ? TURN.lead * (v - top) / (1 - top) : 0;
   const p = Math.min(1, Math.max(0, (elapsedMs - delay) / TURN.ms));
   return from + (1 - from) * (0.5 - 0.5 * Math.cos(Math.PI * p)); // ease in and out
+}
+export function turnAt(elapsedMs, from = -1, v = 0, top = BREATH.top) {
+  const e = turnProgress(elapsedMs, from, v, top);
+  const min = Math.min(1, Math.max(0, TURN.minWidth));
+  return (e < 0 ? -1 : 1) * (min + (1 - min) * Math.abs(e));
 }
 /** A turn is over once its last row (the feet, when the head leads) has arrived. */
 export const turnOver = (elapsedMs) => elapsedMs >= TURN.ms + Math.max(0, TURN.lead);

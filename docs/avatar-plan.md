@@ -688,10 +688,13 @@ figure on the board already is (the player and the NPCs): the renderers still se
 `scale.x` the moment the facing changes, and the sprite notices the sign change when it next
 computes its vertices and plays the turn there, so no renderer changed. A turn reversed in
 flight carries on from where it was; a sprite that was not being drawn takes the new facing as
-it is; reduced motion gets the snap. Tunables are `TURN` in `breathing.js`: `ms`, and `lead`,
-the time the head leads the feet (0 = one flat card, the default; 30 to 50 twists the body
-after the head with the feet planted; by 100 the middle frames pinch into an hourglass, judged
-on offline film strips, not in motion).
+it is; reduced motion gets the snap. **Never thinner than `minWidth` (owner, same day):**
+narrowing all the way to a line is what made the figure read as a paper cutout, so it now
+narrows only to 0.6 of its width, flips to the mirror image there (a small pop) and widens
+again. Tunables are `TURN` in `breathing.js`: `ms`, `minWidth` (0 = the paper turn, 1 = the old
+snap) and `lead`, the time the head leads the feet (0 = one piece, the default; 30 to 50 twists
+the body after the head with the feet planted; by 100 the middle frames pinch into an
+hourglass, judged on offline film strips, not in motion).
 
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
