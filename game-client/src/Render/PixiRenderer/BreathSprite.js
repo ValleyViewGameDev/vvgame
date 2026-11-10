@@ -1,6 +1,6 @@
 import { Sprite } from 'pixi.js-legacy';
 import { BREATH, breathDeform, breathingAllowed, turnAt, turnProgress, turnOver } from './breathing';
-import { WALK, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs } from './walking';
+import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, tapAt } from './walking';
 
 /**
  * BreathSprite - a Sprite whose quad becomes a mesh while it breathes (breathing.js), turns
@@ -30,6 +30,9 @@ import { WALK, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs } from
  *   sprite.breath = breathLevel(now, seed);   // 0..1, each frame it stands still; 0 while it walks
  *   sprite.walking = true;                    // while it moves; `walkCycleMs` sets its cadence
  *   sprite.walkSideways = true;               // going left or right (stride, arm swing); false going up or down (the feet only step)
+ *
+ * And a figure that stands (one that breathes) TAPS A FOOT now and then (walking.js TAP): the
+ * sprite keeps its own clock of how long it has stood and its own seed, so nothing sets it.
  *
  * It also TURNS (breathing.js TURN): the renderers go on setting the sign of scale.x the moment a
  * figure's facing changes, and the sprite notices the sign change itself when it next computes
@@ -72,6 +75,9 @@ export default class BreathSprite extends Sprite {
     this._walkT0 = 0;      // when this walk began (its phase runs from here)
     this._walkSeen = 0;    // when the walk was last advanced
     this._side = 1;        // 0..1: how sideways the walk is (eased toward walkSideways)
+    this._toldAt = 0;      // when a renderer last said whether it walks (only figures are told)
+    this._stoodAt = 0;     // since when the figure has stood still (0: not known yet)
+    this._tapSeed = (Math.random() * 100000) | 0; // this figure's own tapping rhythm
     this.walkSideways = true;
     this.walkCycleMs = WALK.cycleMs;
   }
@@ -106,10 +112,12 @@ export default class BreathSprite extends Sprite {
 
   get walking() { return this._walkOn; }
   set walking(on) {
+    this._toldAt = performance.now(); // a renderer tells only a FIGURE whether it walks, every tick: that is how the sprite knows it is one
     const v = !!on && breathingAllowed(); // reduced motion: the figure glides as it did
     if (v === this._walkOn) return;
     this._walkOn = v;
     if (v && !this._walkAmp) { this._walkT0 = performance.now(); this._walkSeen = this._walkT0; this._side = this.walkSideways ? 1 : 0; }
+    if (!v) this._stoodAt = performance.now(); // it has just stopped: the foot tap waits from here
     this._transformID = -1;
   }
 
@@ -125,17 +133,28 @@ export default class BreathSprite extends Sprite {
     return { phase: (now - this._walkT0) / (this.walkCycleMs || WALK.cycleMs), amp: ease(this._walkAmp), side: ease(this._side) };
   }
 
+  /** The idle foot tap of the moment ({ foot, lift }), or null. Only a standing figure with two feet to tell apart taps. */
+  _tapNow() {
+    const now = performance.now();
+    // walking, turning, not a figure (never told whether it walks) or not being drawn: the wait starts over
+    if (this._walkOn || this._walkAmp > 0 || this._turnT0 || now - this._toldAt > 500 || now - this._seenAt > 400) { this._stoodAt = now; return null; }
+    if (!this._stoodAt) this._stoodAt = now;
+    const tap = tapAt(now, this._stoodAt, this._tapSeed);
+    return tap && shapeOf(this._texture)?.legs.split ? tap : null;
+  }
+
   calculateVertices() {
     const texture = this._texture;
+    const tap = this._tapNow(); // before the turn stamps _seenAt
     const turning = this._turnElapsed();
     const walk = this._walkNow();
-    if (!this._breath && turning < 0 && !walk) {
+    if (!this._breath && turning < 0 && !walk && !tap) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
       super.calculateVertices();
       return;
     }
-    const moving = turning >= 0 || !!walk; // a turn or a walk moves every frame: never cached
+    const moving = turning >= 0 || !!walk || !!tap; // a turn, a walk or a tap moves every frame: never cached
     if (!moving && this.vertexData === this._meshVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
     this._transformID = moving ? -1 : this.transform._worldID;
     this._textureID = texture._updateID;
@@ -167,6 +186,9 @@ export default class BreathSprite extends Sprite {
     const lines = [vStart, hinge, partV, vEnd];
     if (headBand) lines.push(headV);
     for (const arm of arms) if (arm && arm.bottom > vStart && arm.bottom + ARM_TAIL < vEnd) lines.push(arm.bottom, arm.bottom + ARM_TAIL);
+    const ankle = Math.max(partV, feetV - TAP.foot);                                 // a tapping foot moves from here down
+    const tapLift = tap ? Math.min(tap.lift, 0.45 * (feetV - partV)) : 0;            // never more than under half of what shows of the leg (shoes under a robe)
+    if (tap && ankle > partV + 0.005) lines.push(ankle);
     lines.sort((p, q) => p - q);
     for (let i = 0; i < lines.length; i++) {
       const v = Math.min(vEnd, Math.max(vStart, lines[i]));
@@ -225,6 +247,8 @@ export default class BreathSprite extends Sprite {
           }
           x += bx; y -= by;
         }
+        // the idle tap: the tapping foot rises from the ankle down, the leg above it still
+        if (tapLift && parted && half === tap.foot) y -= tapLift * Math.min(1, Math.max(0, (v - ankle) / (feetV - ankle))) * orig.height;
         x = centreX + x * f;
         const o = (r * COLS + k) * 2, tu = (x0 - left) / (right - left);
         V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;

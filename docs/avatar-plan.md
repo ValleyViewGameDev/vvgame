@@ -770,6 +770,20 @@ In a view this close to the front, both hands move toward the body's middle and 
 that is what arms swinging in opposition look like from here, not a bug. Checked offline as
 before (real vertex code, rasterised, sideways and up-and-down, four figures).
 
+**The idle foot tap (owner 2026-11-10, animation 4).** A figure that has stood still for four
+seconds taps one foot three times, now and then: "occasional and not stressful, just to show a
+little more life". `walking.js` `TAP` and `tapAt`: each figure has its own interval (15 to 35
+seconds, from its seed), the run lands at a different moment inside every interval and on the
+other foot each time, so a crowd never taps in step. The tapping foot rises 0.022 of the square
+from the ankle down (the bottom 0.09), the leg above it still; under a robe the shoe taps by
+less than half its own height. Only a figure with two feet to tell apart taps (the same reading
+as the walk's legs), so a hem or a tail never does. `BreathSprite` keeps the clock itself: it
+knows it is a figure because a renderer tells it every tick whether it walks, and the wait
+starts over whenever it walks, turns or is not being drawn; no renderer changed. Reduced motion:
+no tap. Checked offline: two minutes of standing run through the real sprite code (a run about
+every 20 seconds, alternating feet; the gowned figure with no feet showing never taps) and the
+frames of one run rasterised.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.

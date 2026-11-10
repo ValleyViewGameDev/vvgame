@@ -64,6 +64,39 @@ export const WALK = {
   releaseMs: 140,   // and settle to the drawing this long after it stops
 };
 
+/**
+ * The idle FOOT TAP (owner 2026-11-10): a figure that has stood still for a few seconds taps one
+ * foot a few times, now and then, "occasional and not stressful, just to show a little more
+ * life". Only a figure with two feet to tell apart taps (legs, or shoes under a robe); a hem or a
+ * tail does not. Each figure has its own interval (from its seed) and, inside every interval, the
+ * taps land at a different moment and on the other foot, so a crowd never taps in step.
+ */
+export const TAP = {
+  afterMs: 4000,            // not before it has stood this long
+  everyMs: [15000, 35000],  // one run of taps per interval of this length (per figure, from its seed)
+  taps: 3,                  // taps in a run
+  tapMs: 300,               // one tap, up and down and a beat's rest
+  lift: 0.022,              // the foot rises by this fraction of the figure square's height ...
+  foot: 0.09,               // ... over this much of the square above the ground (the foot and ankle): the leg above stays still
+};
+/**
+ * The tap at time `nowMs` for a figure standing since `stoodAtMs`: null, or { foot (0 the half on
+ * the drawing's left, 1 the right), lift (a fraction of the square's height) }.
+ */
+export function tapAt(nowMs, stoodAtMs, seed = 0) {
+  const every = TAP.everyMs[0] + ((seed % 1000) / 1000) * (TAP.everyMs[1] - TAP.everyMs[0]);
+  const t = nowMs + (seed % 7919) * 37; // each figure's own place in its interval
+  const cycle = Math.floor(t / every), into = t - cycle * every;
+  let h = (Math.imul(cycle, 2654435761) + Math.imul(seed, 40503)) >>> 0; h = (h ^ (h >>> 15)) >>> 0; h = Math.imul(h, 2246822519) >>> 0; h = (h ^ (h >>> 13)) >>> 0; // kept unsigned: a negative hash put the run before its interval and the interval went without
+  const run = TAP.taps * TAP.tapMs;
+  const k = into - ((h % 10000) / 10000) * (every - run); // how far into this interval's run
+  if (k < 0 || k >= run) return null;
+  if (nowMs - k < stoodAtMs + TAP.afterMs) return null;    // the whole run must begin after it has stood long enough
+  const p = (k % TAP.tapMs) / TAP.tapMs;
+  if (p >= 0.6) return { foot: (cycle + seed) & 1, lift: 0 }; // the beat between taps: the foot is down, the run is still on
+  return { foot: (cycle + seed) & 1, lift: Math.sin((Math.PI * p) / 0.6) * TAP.lift };
+}
+
 const GRID = 192;        // the silhouette is read on a grid this size (the figure's whole square)
 const OPAQUE = 96;       // alpha at or above this is the figure
 const MAX_LEG = 0.45;    // legs are never taller than this share of the figure
