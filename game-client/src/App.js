@@ -3690,10 +3690,11 @@ return (
             return true;
           }}
           onWalkTo={(row, col, options) => {
-            if (activeModal || isOffSeason) return;
-            if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return;
+            if (activeModal || isOffSeason) return -1;
+            if (zoomLevel === 'frontier' || zoomLevel === 'settlement') return -1;
             const steps = walkTo(col, row, options);
-            if (steps === 0) updateStatus(10021); // "You can't go that way." (a crossing returns -1)
+            if (steps === 0 && !options?.quiet) updateStatus(10021); // "You can't go that way." (a crossing returns -1)
+            return steps;
           }}
           onPinchZoom={(direction) => {
             if (isZoomAnimating || isZoomAnimatingRef.current) return;

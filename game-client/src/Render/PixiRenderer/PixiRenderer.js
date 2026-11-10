@@ -1665,30 +1665,35 @@ const PixiRenderer = ({
    * again on arrival (it may have wandered); if it has moved out of reach meanwhile the walk
    * is repeated once, then the normal click feedback applies.
    */
-  const walkToNpc = useCallback((npcId, retries) => {
+  // `openIfStuck`: the NPC is already in reach and the walk is only to stand beside it, so when no
+  // step can be taken toward it (walled in, a crowd) its panel opens from here instead
+  const walkToNpc = useCallback((npcId, retries, { openIfStuck = false } = {}) => {
     const L = latestRef.current;
     const npc = L?.npcs?.find((n) => n && n.id === npcId);
     if (!npc?.position || !L.onWalkTo) return;
-    L.onWalkTo(Math.floor(npc.position.y), Math.floor(npc.position.x), {
+    const arrive = () => {
+      const now = latestRef.current;
+      const target = now?.npcs?.find((n) => n && n.id === npcId);
+      if (!target) return;
+      turnToEachOther(target, now.gridId); // on arrival: the engagement begins here, not at the tap
+      const opened = handleNPCClickShared(target, {
+        currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
+        TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
+        masterTrophies: now.masterTrophies, globalTuning: now.globalTuning, strings: now.strings,
+        onNPCClick: now.onNPCClick, setHoverTooltip: now.setHoverTooltip, setInventory: now.setInventory,
+        setBackpack: now.setBackpack, setResources: now.setResources, setCurrentPlayer: now.setCurrentPlayer,
+        setModalContent: now.setModalContent, setIsModalOpen: now.setIsModalOpen, updateStatus: now.updateStatus,
+        openPanel: now.openPanel, setActiveStation: now.setActiveStation, isDeveloper: now.isDeveloper,
+      });
+      if (opened === false && retries > 0) walkToNpc(npcId, retries - 1);
+    };
+    const steps = L.onWalkTo(Math.floor(npc.position.y), Math.floor(npc.position.x), {
       stopShort: true,
       beside: true, // end at its left or right, in its row, the two facing (owner 2026-11-10)
-      onArrive: () => {
-        const now = latestRef.current;
-        const target = now?.npcs?.find((n) => n && n.id === npcId);
-        if (!target) return;
-        turnToEachOther(target, now.gridId); // on arrival: the engagement begins here, not at the tap
-        const opened = handleNPCClickShared(target, {
-          currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
-          TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
-          masterTrophies: now.masterTrophies, globalTuning: now.globalTuning, strings: now.strings,
-          onNPCClick: now.onNPCClick, setHoverTooltip: now.setHoverTooltip, setInventory: now.setInventory,
-          setBackpack: now.setBackpack, setResources: now.setResources, setCurrentPlayer: now.setCurrentPlayer,
-          setModalContent: now.setModalContent, setIsModalOpen: now.setIsModalOpen, updateStatus: now.updateStatus,
-          openPanel: now.openPanel, setActiveStation: now.setActiveStation, isDeveloper: now.isDeveloper,
-        });
-        if (opened === false && retries > 0) walkToNpc(npcId, retries - 1);
-      },
+      quiet: openIfStuck, // no "You can't go that way." when the panel opens anyway
+      onArrive: arrive,
     });
+    if (steps === 0 && openIfStuck) arrive();
   }, []);
 
   // The NPC whose RENDERED sprite is under a board-relative screen point, or null. Enemies tween
@@ -1812,6 +1817,14 @@ const PixiRenderer = ({
       // keep the plain click (walking into them is not a tap's intent).
       const isHostile = npc.action === 'attack';
       if (!isHostile && !cursorMode && outOfRange(npc.position?.x ?? col, npc.position?.y ?? row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
+      // In reach too: a helper NPC is talked to from beside it, one tile to its left or right in its
+      // row (owner 2026-11-10), so a player anywhere else first steps there; already there, it opens
+      // at once. Farm animals (graze) keep the plain tap: it harvests them where they stand.
+      if (!isHostile && npc.action !== 'graze' && !cursorMode && playerPos && npc.position) {
+        const besideInRow = Math.round(playerPos.y) === Math.floor(npc.position.y)
+          && Math.abs(Math.round(playerPos.x) - Math.floor(npc.position.x)) === 1;
+        if (!besideInRow) { walkToNpc(npc.id, 1, { openIfStuck: true }); return; }
+      }
       turnToEachOther(npc, gridId); // the player turns to the NPC it taps, and the NPC to the player (owner 2026-11-09, 2026-11-10)
 
       // Use the shared click handler that includes cooldown logic for attack NPCs
