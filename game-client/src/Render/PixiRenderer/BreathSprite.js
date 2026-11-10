@@ -1,5 +1,5 @@
 import { Sprite } from 'pixi.js-legacy';
-import { BREATH, breathDeform } from './breathing';
+import { BREATH, breathDeform, breathingAllowed, turnAt, turnOver } from './breathing';
 
 /**
  * BreathSprite - a Sprite whose quad becomes a strip of rows while it breathes (breathing.js).
@@ -13,6 +13,12 @@ import { BREATH, breathDeform } from './breathing';
  * vertices). The legacy canvas renderer ignores vertexData, so there a figure simply stands still.
  *
  *   sprite.breath = breathLevel(now, seed);   // 0..1, each frame it stands still; 0 while it walks
+ *
+ * It also TURNS (breathing.js TURN): the renderers go on setting the sign of scale.x the moment a
+ * figure's facing changes, and the sprite notices the sign change itself when it next computes
+ * its vertices and plays the turn in them, each row's width eased from the old look through
+ * edge-on to the new one. Nothing else has to know. A sign change found on a sprite that was not
+ * being drawn (hidden, pooled, off screen) is taken as it is: there was no old look to turn from.
  */
 const ROWS = 16;
 const GRID_INDICES = (() => {
@@ -30,6 +36,30 @@ export default class BreathSprite extends Sprite {
     this._quadVerts = this.vertexData;                       // the Sprite's own 8 floats
     this._gridVerts = new Float32Array((ROWS + 1) * 4);
     this._gridUvs = new Float32Array((ROWS + 1) * 4);
+    this._facing = 0;      // the sign of scale.x last seen (0: not drawn yet)
+    this._turnT0 = 0;      // when the turn in flight began (performance.now), 0 when none
+    this._turnFrom = -1;   // where it began: -1 the full old look, more when it reversed one in flight
+    this._seenAt = 0;      // when the vertices were last computed
+  }
+
+  /** Notice a reversed facing and say how far into its turn the figure is (ms), or -1 when it is not turning. */
+  _turnElapsed() {
+    const now = performance.now();
+    const sign = this.transform.scale.x < 0 ? -1 : 1;
+    const drawnLately = now - this._seenAt < 120;
+    this._seenAt = now;
+    if (sign !== this._facing) {
+      const first = this._facing === 0;
+      // reversing a turn in flight starts from where that one had got to, seen from the other side
+      const from = this._turnT0 ? -turnAt(now - this._turnT0, this._turnFrom) : -1;
+      this._facing = sign;
+      if (first || !drawnLately || !breathingAllowed()) this._turnT0 = 0;
+      else { this._turnT0 = now; this._turnFrom = from; }
+    }
+    if (!this._turnT0) return -1;
+    const elapsed = now - this._turnT0;
+    if (turnOver(elapsed)) { this._turnT0 = 0; this._transformID = -1; return -1; } // one more pass as a plain sprite
+    return elapsed;
   }
 
   get breath() { return this._breath; }
@@ -42,14 +72,15 @@ export default class BreathSprite extends Sprite {
 
   calculateVertices() {
     const texture = this._texture;
-    if (!this._breath) {
+    const turning = this._turnElapsed();
+    if (!this._breath && turning < 0) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
       super.calculateVertices();
       return;
     }
-    if (this.vertexData === this._gridVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
-    this._transformID = this.transform._worldID;
+    if (turning < 0 && this.vertexData === this._gridVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
+    this._transformID = turning < 0 ? this.transform._worldID : -1; // a turn moves every frame: never cached
     this._textureID = texture._updateID;
     this.vertexData = this._gridVerts; this.indices = GRID_INDICES; this.uvs = this._gridUvs;
 
@@ -71,7 +102,8 @@ export default class BreathSprite extends Sprite {
       const t = (v - vStart) / (vEnd - vStart);                 // along the drawn frame, for the texture
       const [, vD] = breathDeform(0, v, L, headV);
       const yD = origTop + vD * orig.height;
-      const [xl] = breathDeform(left - centreX, v, L, headV), [xr] = breathDeform(right - centreX, v, L, headV);
+      let [xl] = breathDeform(left - centreX, v, L, headV), [xr] = breathDeform(right - centreX, v, L, headV);
+      if (turning >= 0) { const f = turnAt(turning, this._turnFrom, v, headV); xl *= f; xr *= f; } // the turn: this row's width, about the centre line
       const o = r * 4;
       V[o] = a * (centreX + xl) + c * yD + tx; V[o + 1] = d * yD + b * (centreX + xl) + ty;
       V[o + 2] = a * (centreX + xr) + c * yD + tx; V[o + 3] = d * yD + b * (centreX + xr) + ty;

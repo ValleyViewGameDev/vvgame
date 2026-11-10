@@ -62,6 +62,27 @@ export function breathLevel(tMs, seed = 0) {
 export const breathingAllowed = () => !(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 /**
+ * Turning (owner 2026-11-10): a figure that reverses its facing does not snap to its mirror
+ * image. Its width eases down through nothing and out again on the other side, the "paper turn"
+ * of a mirrored 2D character, which needs no art beyond the one drawing. `turnAt` is how far the
+ * turn has come for one row of the figure: -1 is the old look (the mirror image of where it is
+ * going), 0 is edge-on, 1 is the new look.
+ *   ms    how long a turn takes
+ *   lead  how long the HEAD leads the FEET, in ms: 0 turns the figure as one flat card; above 0
+ *         the rows from the shoulders down start later the lower they are, a twist with the feet
+ *         planted (try 30 to 50; by 100 the middle frames pinch into an hourglass)
+ * `from` is where the turn started (-1 for a full turn, more when it reverses one in flight).
+ */
+export const TURN = { ms: 200, lead: 0 };
+export function turnAt(elapsedMs, from = -1, v = 0, top = BREATH.top) {
+  const delay = TURN.lead > 0 && v > top ? TURN.lead * (v - top) / (1 - top) : 0;
+  const p = Math.min(1, Math.max(0, (elapsedMs - delay) / TURN.ms));
+  return from + (1 - from) * (0.5 - 0.5 * Math.cos(Math.PI * p)); // ease in and out
+}
+/** A turn is over once its last row (the feet, when the head leads) has arrived. */
+export const turnOver = (elapsedMs) => elapsedMs >= TURN.ms + Math.max(0, TURN.lead);
+
+/**
  * Blinking (owner 2026-11-10). A figure's eyes close for a moment every few seconds: each figure
  * has its own cycle length (BLINK.everyMs, from its seed) and, inside every cycle, the blink lands
  * at a different moment (a hash of the cycle number), so nobody blinks like a metronome and two
