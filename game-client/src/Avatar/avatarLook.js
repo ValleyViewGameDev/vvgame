@@ -137,7 +137,9 @@ export function cleanSpec(spec) {
  */
 export function lookFor(spec, { catalogue, palettes }, equip = {}) {
   const s = { ...(spec || {}), eyes: eyesForFace(catalogue, spec) }; // the face chooses the eyes
-  const color = (key) => colorOf(palettes, s[key]);
+  // a colour the palette no longer has (auburn hair and three eye colours were cut 2026-11-10) falls
+  // back to the first colour of its kind: a saved look keeps drawing, never an untinted grey part
+  const color = (key) => colorOf(palettes, s[key]) || palette(palettes, PALETTE_OF_SPEC_KEY[key])[0]?.hex || null;
   const tintFor = (name) => (name ? color(name) : null);
   const part = (key) => byId(catalogue, s[key]);
   const armed = equip.weaponHand && ARMED_GRID_KINDS.includes(equip.gtype || '');

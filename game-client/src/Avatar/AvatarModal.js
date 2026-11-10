@@ -5,13 +5,14 @@
  * (avatarLook + avatarCompositor), with a tab per slot, swatches per colour, the breath and the
  * blink, and Save, which writes the spec to the Player through POST /api/player/avatar; the
  * board, the header and the panels then draw it. A player who never saves one keeps their old
- * icon. Developers also see the equipment feed, the part names and Copy spec.
+ * icon. Developers also see each part's catalogue name under its picture.
  */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import API_BASE from '../config';
 import '../UI/Modals/Modal.css';
+import '../UI/Panels/Panel.css'; // the tabs are the shared .tab-button row, as the Buy Deco catalogue's sub-sorts are
 import '../UI/Buttons/SharedButtons.css';
 import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
@@ -26,21 +27,24 @@ import ResourceIcon from '../UI/Icons/ResourceIcon';
 const SLOT_LABEL = { skin: 4131, hair: 4132, facialHair: 4133, eyes: 4134, hat: 4135, top: 4136 };
 const COLOR_LABEL = { skinTone: 4137, hairColor: 4138, eyeColor: 4139 };
 const BODY_LABEL = { female: 4140, male: 4141 };
-const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: ['eyeColor'], hat: [], top: [] };
+// the swatch rows of each tab. The Eyes tab has none: its pictures ARE the eye colours (the eyes come with the face)
+const COLORS_FOR_TAB = { skin: ['skinTone'], hair: ['hairColor'], facialHair: ['hairColor'], eyes: [], hat: [], top: [] };
 const PREVIEW_PX = 256;
 const SOURCE_PX = 512; // the composed square every view crops from
 
 // What part of the composed figure square (512 px, the figure in its middle column) a view shows,
 // as fractions of the square: the whole figure for the stage (about 1 x 2), the head for hair /
-// hat / facial hair / eyes, the body below the neck for clothes (owner 2026-11-10)
+// hat / facial hair, just the eyes for the eye colours, the body below the neck for clothes
+// (owner 2026-11-10)
 const CROP = {
   figure: { x: 0.25, y: 0, w: 0.5, h: 1 },
   head: { x: 0.27, y: 0, w: 0.46, h: 0.46 },
+  eyes: { x: 0.42, y: 0.075, w: 0.2, h: 0.2 }, // both bodies' eyes sit inside it (female at y 0.185, male at 0.165)
   clothes: { x: 0.2, y: 0.3, w: 0.6, h: 0.7 },
 };
 // where each body's head ends (tools/art/parts.js eyes on the two faces): the breath leaves everything above it rigid
 const BREATH_TOP = { female: 0.345, male: 0.294 };
-const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'head', top: 'clothes' };
+const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'eyes', hat: 'head', top: 'clothes' };
 
 /**
  * The figure, breathing (owner 2026-11-10): the board's own deformation (BreathSprite.js) drawn on
@@ -226,23 +230,24 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         <div className="avatar-editor">
           <div className="avatar-stage">
             <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe fluid className="avatar-stage-figure" breathTop={BREATH_TOP[bodyOf(data.catalogue, spec)] || undefined} />
-            {isDeveloper && (
-              <div className="avatar-muted avatar-small">
-                {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
-              </div>
-            )}
           </div>
 
           <div className="avatar-controls">
-            <div className="avatar-tabs">
+            {/* the tabs: text with an underline, the shared .tab-button row (as the Buy Deco catalogue's sub-sorts) */}
+            <div className="tab-navigation buy-deco-tabs avatar-tabs">
               {Object.keys(SLOT_OF_SPEC_KEY).map((key) => (
-                <button key={key} className={`avatar-tab ${tab === key ? 'active' : ''}`} onClick={() => setTab(key)}>{strings[SLOT_LABEL[key]]}</button>
+                <button key={key} className={`tab-button ${tab === key ? 'active' : ''}`} onClick={() => setTab(key)}>{strings[SLOT_LABEL[key]]}</button>
               ))}
             </div>
 
-            {/* the eyes come with the face: this tab is a close-up and the eye colours */}
-            {tab === 'eyes' && <AvatarPreview look={look} className="avatar-eyes-closeup" crop={CROP.head} width={144} height={144} />}
             <div className="avatar-part-grid">
+              {/* the eyes come with the face, so the Eyes tab's pictures are the eye COLOURS: the same size as every other tab's, framed on the eyes alone */}
+              {tab === 'eyes' && palette(data.palettes, 'eyeColor').map((sw) => (
+                <button key={sw.id} className={`avatar-part ${spec.eyeColor === sw.id ? 'selected' : ''}`} title={isDeveloper ? sw.label || sw.id : undefined} onClick={() => set('eyeColor', sw.id)}>
+                  <AvatarPreview look={thumbLook('eyeColor', sw.id)} blink={false} className="avatar-thumb" crop={CROP.eyes} width={72} height={72} />
+                  {isDeveloper ? <span className="avatar-part-label">{sw.label || sw.id}</span> : null}
+                </button>
+              ))}
               {parts.map((row) => (
                 <button key={row.id} className={`avatar-part ${spec[tab] === row.id ? 'selected' : ''}`} title={isDeveloper ? row.label || row.id : undefined} onClick={() => set(tab, row.id)}>
                   {tab === 'skin'
@@ -275,7 +280,6 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
         <div className="shared-buttons avatar-actions">
           {/* Reset: the starter look of the body being edited */}
           <button className="btn-basic btn-neutral" onClick={() => { setSpec(defaultSpec(data.catalogue, data.palettes, bodyOf(data.catalogue, spec))); setProblems([]); dirtyRef.current = true; }}>{strings[4142]}</button>
-          {isDeveloper && <button className="btn-basic btn-neutral" onClick={() => navigator.clipboard?.writeText(JSON.stringify(spec)).then(() => updateStatus?.('Avatar spec copied'))}>Copy spec</button>}
           <button className="btn-basic btn-success" disabled={saving} onClick={handleSave}>{saving ? strings[4143] : strings[4102]}</button>
         </div>
       </div>

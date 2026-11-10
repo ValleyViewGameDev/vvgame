@@ -66,7 +66,7 @@
     "id": "hair-red",
     "slot": "hairColor",
     "label": "Red",
-    "hex": "#B5452A",
+    "hex": "#C9582B",
     "tier": "free"
   },
   {
@@ -74,13 +74,6 @@
     "slot": "hairColor",
     "label": "Grey",
     "hex": "#B8B4AE",
-    "tier": "free"
-  },
-  {
-    "id": "hair-auburn",
-    "slot": "hairColor",
-    "label": "Auburn",
-    "hex": "#A0522D",
     "tier": "free"
   },
   {
@@ -102,27 +95,6 @@
     "slot": "eyeColor",
     "label": "Brown",
     "hex": "#8A5A2B",
-    "tier": "free"
-  },
-  {
-    "id": "eye-hazel",
-    "slot": "eyeColor",
-    "label": "Hazel",
-    "hex": "#A8843C",
-    "tier": "free"
-  },
-  {
-    "id": "eye-grey",
-    "slot": "eyeColor",
-    "label": "Grey",
-    "hex": "#93A1AD",
-    "tier": "free"
-  },
-  {
-    "id": "eye-amber",
-    "slot": "eyeColor",
-    "label": "Amber",
-    "hex": "#D08C2A",
     "tier": "free"
   }
 ]
