@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 /**
  * STEP STONES layer (tile type `k`, owner 2026-10-24): the stones of every step-stone path on the
  * grid, as sprites in a `step-stones` layer right above the ground tiles and under everything that

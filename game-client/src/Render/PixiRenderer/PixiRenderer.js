@@ -1,3 +1,10 @@
+// @refresh reset
+// ^ Development only (React Fast Refresh reads it; a production build ignores it). A hot reload
+// normally keeps a component's refs and re-runs its effects, and here the refs hold Pixi objects
+// that the effects' own clean-up (and the app's destroy) has just destroyed: the next effect then
+// called clear() or set a texture on a destroyed Graphics or Sprite and the error overlay came up
+// until the page was refreshed. With this line the component is REMOUNTED on a hot reload
+// instead, so every ref starts empty and the board is built again cleanly.
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { attachFrameRate, detachFrameRate } from './frameRate';
 import { Application, Container, Graphics, Text, Sprite, Texture } from 'pixi.js-legacy';

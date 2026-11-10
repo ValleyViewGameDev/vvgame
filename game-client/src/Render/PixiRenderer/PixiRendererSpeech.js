@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Graphics, Container, Text } from 'pixi.js-legacy';
 import ConversationManager from '../../GameFeatures/Relationships/ConversationManager';

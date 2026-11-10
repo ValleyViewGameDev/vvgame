@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
 import { getDerivedRange } from '../../Utils/worldHelpers';

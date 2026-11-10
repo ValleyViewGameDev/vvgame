@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 /**
  * PixiRendererTileFX: ambient effects on ground tiles (owner, 2026-10-21).
  *

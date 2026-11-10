@@ -38,7 +38,7 @@
  * hang. `side` (0..1) is how sideways the walk is.
  *
  * BreathSprite bends its vertices by these numbers; the renderers only say `sprite.walking` and
- * `sprite.walkSideways`. Everything here but `shapeOf` is pure (no Pixi, no DOM).
+ * `sprite.walkSideways`. Everything here but `shapeOf` is pure: no Pixi, no DOM.
  */
 export const WALK = {
   cycleMs: 420,     // one full cycle, both feet (the player moves fast: about five footfalls a second)

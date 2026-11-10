@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useState } from 'react';
 import { Graphics, Container, Sprite, Texture } from 'pixi.js-legacy';
 import { TILES_PER_GRID } from './UnifiedCamera';

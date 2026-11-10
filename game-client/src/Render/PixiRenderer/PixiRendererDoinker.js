@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import PixiCamera from './PixiCamera';

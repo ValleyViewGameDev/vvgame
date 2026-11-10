@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions, getPlayerFacing, onPlayerFacingChange, isPlayerWalkingSideways } from '../../PlayerMovement';

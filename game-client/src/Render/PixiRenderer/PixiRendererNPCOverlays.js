@@ -1,3 +1,5 @@
+// @refresh reset
+// ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { Container, Sprite, Text, Texture } from 'pixi.js-legacy';
 import { checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus } from '../RenderDynamicElements';
