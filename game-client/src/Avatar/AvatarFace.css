@@ -1,0 +1,5 @@
+/* AvatarFace.js: a saved avatar cropped to its head, in a circle. Without a size it fills its
+   container (the header's round avatar button); with one it sits inline beside a name. */
+.avatar-face-crop { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
+.avatar-face-crop.avatar-face-sized { display: inline-block; vertical-align: middle; flex: none; }
+.avatar-face-crop img { position: absolute; max-width: none; pointer-events: none; }

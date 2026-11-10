@@ -548,8 +548,20 @@ Edit Avatar puts the look on the board, and choosing an icon in Change Avatar cl
 (`POST /api/player/avatar` now accepts `avatar: null`). Still icon-based: the header, panels and
 other DOM surfaces.
 
-**Next (P5, the rest)**: the head crop of the composed avatar in the DOM surfaces, the Change
-Avatar modal becoming the editor for everyone, then the hand slot and armour.
+**The saved avatar's head in the DOM (2026-11-10).** `Avatar/AvatarFace.js` shows a SAVED
+look as a profile picture: the look composed once at 256 px by the shared compositor (cached
+per look) and cropped to the head with CSS (the figure square's head box, x 156, y 0, size 200
+of 512, which holds both bodies' heads), in a circle; without a `size` it fills its container.
+It draws only a saved look and otherwise renders `fallback`, the site's own picture, so no
+site changes for a player without one. Sites: the header's round avatar button and the phone
+header's name row (`App.js`), the Player panel's greeting, the FTUE story modal when the player
+speaks (`StoryModal` gained `symbolNode`), the Leaderboard rows and the Global Market's player
+list (other players' looks: the Leaderboard row carries `avatar` from `/api/player/:id`,
+`/players-in-settlement` selects it). Not yet: the Pixi speech bubble's player topic and the
+settlement map cell, which still use the icon.
+
+**Next (P5, the rest)**: the Change Avatar modal becoming the editor for everyone, then the
+hand slot and armour.
 
 ## 8. Risks, and what would change the plan
 

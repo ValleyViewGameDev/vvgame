@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import AvatarModal from '../../Avatar/AvatarModal';
+import AvatarFace from '../../Avatar/AvatarFace';
 import EatingModal from '../Eating/Eating';
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -218,7 +219,7 @@ const PlayerPanel = ({
     <>
       {/* the greeting, with Settings as the gear at the right of the same line (owner 2026-11-02) */}
       <div className="player-greeting-row">
-        <h2>{strings[4051]} {currentPlayer.username}</h2>
+        <h2><AvatarFace avatar={currentPlayer.avatar} size={36} className="player-panel-face" /> {strings[4051]} {currentPlayer.username}</h2>
         <button className="player-settings-gear" onClick={() => openPanel('ProfilePanel')} title={strings[1190]} aria-label={strings[1190]}>
           <img src="/assets/icons/icon-settings.svg" alt="" draggable="false" />
         </button>

@@ -135,7 +135,7 @@ router.get('/players-in-settlement', async (req, res) => {
   }
 
   try {
-    const players = await Player.find({ 'location.s': settlementId }, 'username playerId accountStatus icon');
+    const players = await Player.find({ 'location.s': settlementId }, 'username playerId accountStatus icon avatar'); // avatar: the Global Market shows a saved look's head
     res.status(200).json({ players });
   } catch (error) {
     console.error('Error fetching players in settlement:', error);

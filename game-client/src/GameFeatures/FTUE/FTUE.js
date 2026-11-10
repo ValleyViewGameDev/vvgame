@@ -6,6 +6,7 @@ import './FTUE.css';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
+import AvatarFace from '../../Avatar/AvatarFace';
 import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
@@ -462,6 +463,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       isOpen={true}
       onClose={handleOK}
       symbol={modalSymbol}
+      symbolNode={!currentStepData?.modalIcon && currentPlayer?.avatar?.skin ? <AvatarFace avatar={currentPlayer.avatar} size={96} fallback={modalSymbol} /> : null}
       npcFilename={currentStepData?.modalSprite}
       dialogKey={currentStepData.bodyKey}
       relationshipType="FTUE"

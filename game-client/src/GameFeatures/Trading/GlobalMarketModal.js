@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AvatarFace from '../../Avatar/AvatarFace';
 import { getPlayerQuantity } from '../../Utils/InventoryManagement';
 import Modal from '../../UI/Modals/Modal';
 import ResourceIcon from '../../UI/Icons/ResourceIcon';
@@ -257,7 +258,7 @@ function GlobalMarketModal({
                 <div key={player.playerId} className="player-row">
                   <div className="player-info">
                     <div className="player-username">
-                      {player.icon && <span className="player-icon">{player.icon}</span>}
+                      <AvatarFace avatar={player.avatar} size={22} fallback={player.icon ? <span className="player-icon">{player.icon}</span> : null} />
                       {player.username}
                     </div>
                     <div className="player-items-count">
@@ -321,7 +322,7 @@ function GlobalMarketModal({
                 <div key={player.playerId} className="player-row">
                   <div className="player-info">
                     <div className="player-username">
-                      {player.icon && <span className="player-icon">{player.icon}</span>}
+                      <AvatarFace avatar={player.avatar} size={22} fallback={player.icon ? <span className="player-icon">{player.icon}</span> : null} />
                       {player.username}
                     </div>
                     <div className="player-items-count">

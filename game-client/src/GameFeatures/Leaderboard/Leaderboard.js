@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import AvatarFace from '../../Avatar/AvatarFace';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
@@ -59,6 +60,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
             return {
               username: fullPlayer.username || player.username,
               icon: fullPlayer.icon || '🙂',
+              avatar: fullPlayer.avatar || null, // a saved parts avatar: its head shows instead of the icon (Avatar/AvatarFace.js)
               netWorth: player.netWorth || 0,
               xp: fullPlayer.xp || 0,
               inventory: fullPlayer.inventory || [],
@@ -119,7 +121,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
                         #{index + 1}
                       </div>
                       <div className="player-info">
-                        {player.icon} <strong>{player.username}</strong>
+                        <AvatarFace avatar={player.avatar} size={22} fallback={player.icon} /> <strong>{player.username}</strong>
                       </div>
                     </div>
                     <div className="player-networth">
