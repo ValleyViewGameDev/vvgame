@@ -91,6 +91,7 @@ const NPCPanel = ({
   // Titles taken off the list on the tap (a quest accepted, a one-time reward collected), hidden
   // until the server-driven list no longer has them (or the action fails and they come back)
   const [goneQuests, setGoneQuests] = useState(() => new Set());
+  const acceptedGone = useRef(new Set()); // of those, the ones hidden by an accept (shown again once held done)
   // A trader's offer in motion after a trade (runCardReturn, UI/SaleBurst.js): { slot, id, phase }
   const [tradeFx, setTradeFx] = useState(null);
   const [healRecipes, setHealRecipes] = useState([]);
@@ -444,25 +445,32 @@ const NPCPanel = ({
   // A card leaves the list: `pop` (reward collected: burst + sparkles) or `leave` (accepted). A
   // repeatable reward slides straight back in as a fresh card; anything else collapses its slot.
   // Returns a revert for a failed server call.
-  const sendQuestCardAway = (quest, kind, comesBack) => {
+  // `asReward`: it comes back as the REWARD card (a quest accepted with its goals already met)
+  const sendQuestCardAway = (quest, kind, comesBack, { asReward = false } = {}) => {
     const title = quest.title;
     const index = Math.max(0, questList.findIndex((q) => q.title === title));
     setQuestCardFx(title, { type: kind, quest, index });
     if (!comesBack) setQuestGone(title, true);
     const outMs = kind === 'pop' ? 300 : 220;
     const timer = setTimeout(() => {
-      if (comesBack) setQuestCardFx(title, { type: 'slidein', quest, index });
+      if (comesBack) setQuestCardFx(title, { type: 'slidein', quest, index, asReward });
       else collapseQuestSlot(title);
     }, outMs);
     return () => { clearTimeout(timer); setQuestCardFx(title, null); setQuestGone(title, false); };
   };
-  // the list no longer has a hidden title: the server has caught up, stop hiding it
+  // the list no longer has a hidden title: the server has caught up, stop hiding it. A quest
+  // ACCEPTED is hidden too while the list still offers it; once the player holds it done (its goals
+  // were met on accepting, or are met while the panel is open) it is back in the list as its reward
+  // card, so it shows again (it used to stay hidden until the panel was reopened)
   useEffect(() => {
     if (!goneQuests.size) return;
     const listed = new Set(questList.map((q) => q.title));
-    const stale = [...goneQuests].filter((t) => !listed.has(t));
+    const doneHeld = (t) => acceptedGone.current.has(t) && (currentPlayer?.activeQuests || []).some(
+      (q) => q.questId === t && q.completed && !q.rewardCollected);
+    const stale = [...goneQuests].filter((t) => !listed.has(t) || doneHeld(t));
+    stale.forEach((t) => acceptedGone.current.delete(t));
     if (stale.length) setGoneQuests((prev) => { const next = new Set(prev); stale.forEach((t) => next.delete(t)); return next; });
-  }, [questList]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [questList, currentPlayer?.activeQuests]); // eslint-disable-line react-hooks/exhaustive-deps
   // What the panel shows: the list minus titles taken away on the tap, plus any leaving card the
   // list has already dropped (kept at its old place until its slot has collapsed)
   const displayQuests = (() => {
@@ -526,7 +534,11 @@ const NPCPanel = ({
     if (acceptCardRect) {
       FloatingTextManager.addFloatingTextAt('{res:Scroll}', acceptCardRect.left + acceptCardRect.width / 2, acceptCardRect.top + acceptCardRect.height / 2, { flyTo: 'quests' });
     }
-    const revertAccept = sendQuestCardAway(acceptedQuest, 'leave', false);
+    // Goals already met: the card goes and slides straight back as the reward card, on the tap;
+    // otherwise it leaves the list (and comes back as a reward card if it is done while open)
+    const revertCard = sendQuestCardAway(acceptedQuest, 'leave', isQuestCompleted, { asReward: isQuestCompleted });
+    if (!isQuestCompleted) acceptedGone.current.add(questTitle);
+    const revertAccept = () => { acceptedGone.current.delete(questTitle); revertCard(); };
     // A story quest (Constable Elbow's chain, docs/narrative-pass.md P3.4) says why it matters,
     // in the giver's own StoryModal, on the tap
     if (acceptedQuest.storyKey) {
@@ -547,6 +559,8 @@ const NPCPanel = ({
       if (response.data.success) {
         setCurrentPlayer(response.data.player); // Update player after quest is added
         updateStatus(202);
+        // the slid-back reward card shows "reward" from its fx until here; now the player data agrees
+        if (isQuestCompleted) setTimeout(() => setQuestCardFx(questTitle, null), 480);
         // No need to invalidate cache when accepting quests
       } else {
         revertAccept();
@@ -1558,7 +1572,8 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
             );
 
             // a repeatable quest that has just been collected slides back in as a fresh offer
-            const state = fx?.type === 'slidein' ? 'accept' : isRewardable ? 'reward' : 'accept';
+            // (one accepted with its goals already met slides back as its reward card)
+            const state = fx?.type === 'slidein' ? (fx.asReward ? 'reward' : 'accept') : isRewardable ? 'reward' : 'accept';
             // a quest already held and done is always claimable: the FTUE hands over Elbow's L3
             // story step at L2 (FTUEsteps addQuests), and its reward is what lifts the player to L3
             const questMeetsLevel = state === 'reward' || meetsLevelRequirement(quest.level);
