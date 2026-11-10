@@ -1,0 +1,25 @@
+{
+  "name": "parts-r2",
+  "note": "The green tunic redrawn (owner 2026-11-10: it made the man taller). The first tunic came from probes-r1, drawn WITHOUT the figure guide, and its body ran 11 % long below the neck; this one uses the vest's prompt and the guide. tools/art/parts.js fitbody then lands every outfit on the base body's feet line.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "outfit-m-tunic": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-male.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a grown man). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a plain olive-green long-sleeved TUNIC to mid-thigh with a small notched collar and a brown leather belt with a brass buckle, brown trousers and brown boots on the feet; the legs and feet stay exactly as long as the base body's, the boots standing where its bare feet stand, following the base body's arms and legs; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. "
+    }
+  }
+}

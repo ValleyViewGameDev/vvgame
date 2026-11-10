@@ -5,7 +5,7 @@
  * squares from figurecut.js, or keyed head crops) and writes PNGs with alpha.
  *
  *   key      --in <magenta panel> --out <png> [--green]          key the magenta (and green) out
- *   align    --worn <png> --base <png> --out <png>               scale + translate the redraw so its
+ *   align    --worn <png> --base <png> --out <png> [--overflow 160]  scale + translate the redraw so its
  *                                                                pupils land on the base's (the model
  *                                                                redraws a base up to 10 % off)
  *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male]
@@ -15,6 +15,9 @@
  *                                                                --fill: enclosed holes are filled from the redraw)
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
+ *   fitbody  --worn <aligned outfit, with overflow> --base <base figure> --body female|male --out <png>
+ *                                                                resample the body below the collar so its feet land on
+ *                                                                the base body's feet line (an outfit never changes height)
  *   split    --in <aligned outfit png> --body female|male --out <base>   outfit -> <base>.cloth.png +
  *                                                                <base>.skin.png (skin keyed inside the
  *                                                                rig's hand / foot boxes, its own colour)
@@ -90,7 +93,7 @@ function findEyes(img) {
 }
 
 /** scale + translate `worn` so its eyes coincide with `base`'s; returns { img, info } */
-async function alignByEyes(wornFile, baseFile) {
+async function alignByEyes(wornFile, baseFile, overflow = 0) {
   const worn = await load(wornFile), base = await load(baseFile);
   const we = findEyes(worn), be = findEyes(base);
   if (!we || !be) return { img: worn, info: { ok: false, wornEyes: !!we, baseEyes: !!be } };
@@ -100,10 +103,11 @@ async function alignByEyes(wornFile, baseFile) {
   const left = Math.round(bcx - wcx * s), top = Math.round(bcy - wcy * s);
   // only the part of the scaled redraw that lands inside the base's canvas (a scale above 1 overflows it)
   const sx0 = Math.max(0, -left), sy0 = Math.max(0, -top);
-  const cw = Math.min(nw - sx0, base.W - Math.max(0, left)), ch = Math.min(nh - sy0, base.H - Math.max(0, top));
+  const outH = base.H + overflow; // `overflow`: extra rows kept below the base's canvas (fitbody reads them)
+  const cw = Math.min(nw - sx0, base.W - Math.max(0, left)), ch = Math.min(nh - sy0, outH - Math.max(0, top));
   const scaled = await sharp(worn.d, { raw: { width: worn.W, height: worn.H, channels: 4 } }).resize(nw, nh).extract({ left: sx0, top: sy0, width: Math.max(1, cw), height: Math.max(1, ch) }).png().toBuffer();
-  const outBuf = await sharp({ create: { width: base.W, height: base.H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: scaled, left: Math.max(0, left), top: Math.max(0, top) }]).raw().toBuffer();
-  return { img: { d: outBuf, W: base.W, H: base.H }, info: { ok: true, scale: +s.toFixed(4), dx: left, dy: top } };
+  const outBuf = await sharp({ create: { width: base.W, height: outH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: scaled, left: Math.max(0, left), top: Math.max(0, top) }]).raw().toBuffer();
+  return { img: { d: outBuf, W: base.W, H: outH }, info: { ok: true, scale: +s.toFixed(4), dx: left, dy: top } };
 }
 
 /** keep worn pixels with no near-match within rad px in base; optionally only neutral (grey) ones; drop specks */
@@ -205,6 +209,35 @@ function dropSpecks(img, minFrac) {
   return img;
 }
 
+/**
+ * Fit a worn outfit's BODY to the base body (owner 2026-11-10: an outfit must not change the
+ * figure's height). After the head is aligned, the redraw's body may still be longer or shorter
+ * than the base's (the first tunic ran 11 % long). Rows above the collar are copied; rows from the
+ * collar to the redraw's lowest opaque row are resampled vertically onto collar .. the base's
+ * lowest opaque row, so the feet land on the base's feet line. Widths are untouched: shoulders
+ * and hands keep matching the head and the rig's boxes. Returns the image on the base's canvas.
+ */
+function fitBody(worn, base, body) {
+  const collar = Math.round(rig[body].collar * S);
+  const lowest = (img) => { for (let y = img.H - 1; y >= 0; y--) for (let x = 0; x < img.W; x++) if (img.d[(y * img.W + x) * 4 + 3] > 60) return y; return 0; };
+  const wb = lowest(worn), bb = lowest(base);
+  const out = blank(base.W, base.H);
+  const k = (wb - collar) / (bb - collar); // source rows per output row below the collar
+  for (let y = 0; y < base.H; y++) {
+    const sy = y <= collar ? y : collar + (y - collar) * k;
+    const y0 = Math.floor(sy), y1 = Math.min(worn.H - 1, y0 + 1), f = sy - y0;
+    if (y0 >= worn.H) continue;
+    for (let x = 0; x < base.W; x++) {
+      const a = (y0 * worn.W + x) * 4, b2 = (y1 * worn.W + x) * 4, o = (y * base.W + x) * 4;
+      const a0 = worn.d[a + 3], a1 = worn.d[b2 + 3]; const al = a0 * (1 - f) + a1 * f; if (al < 1) continue;
+      // premultiplied blend of the two source rows
+      for (let c = 0; c < 3; c++) out.d[o + c] = Math.round((worn.d[a + c] * a0 * (1 - f) + worn.d[b2 + c] * a1 * f) / al);
+      out.d[o + 3] = Math.round(al);
+    }
+  }
+  return { img: out, info: { collar, wornBottom: wb, baseBottom: bb, stretch: +(1 / k).toFixed(4) } };
+}
+
 const isSkin = (r, g, b) => { const [h, s, v] = hsv(r, g, b); return h >= 8 && h <= 42 && s >= 0.12 && s <= 0.62 && v >= 0.55; };
 
 /** outfit -> cloth + skin (skin inside the rig's hand / foot boxes, neutralised toward white for multiply) */
@@ -243,8 +276,9 @@ function tintImg(img, hex) {
 (async () => {
   switch (cmd) {
     case 'key': { const img = keyOut(await load(args.in), !!args.green); await save(img, args.out); break; }
-    case 'align': { const { img, info } = await alignByEyes(args.worn, args.base); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
+    case 'align': { const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0)); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
     case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null }); await save(out, args.out); break; }
+    case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female'); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
     case 'tint': { const img = await load(args.in); await save(tintImg(img, args.hex), args.out); break; }
@@ -259,6 +293,6 @@ function tintImg(img, hex) {
       await sharp(args.in).extract({ left: Math.round(FX), top: 0, width: Math.round(TILE), height: Math.round(TILE) }).composite([{ input: Buffer.from(`<svg width="${Math.round(TILE)}" height="${Math.round(TILE)}"><rect x="0" y="${collar}" width="${Math.round(TILE)}" height="${Math.round(TILE) - collar}" fill="black"/></svg>`), blend: 'dest-out' }]).resize(+(args.px || 1024), +(args.px || 1024)).png().toFile(args.out);
       break;
     }
-    default: console.error('commands: key align diff split lids tint compose headcrop'); process.exit(1);
+    default: console.error('commands: key align diff fitbody split lids tint compose headcrop'); process.exit(1);
   }
 })().catch((e) => { console.error(e); process.exit(1); });

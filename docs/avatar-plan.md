@@ -464,6 +464,17 @@ brim (inside the rig's head column from the hairline to the chin: bright peach a
 skin-hued pixel when the hat's own dominant hue is not orange-brown), which would otherwise
 stay light on a dark face because hats are not tinted. Order matters: fill, then face clear.
 
+**An outfit never changes the figure's height (owner 2026-11-10).** The first green tunic
+made the man taller: aligned at the head, its body ran about 55 px (11 %) past the frame
+bottom, boots clipped. It was the one outfit from the early probe, drawn WITHOUT the figure
+guide, and the model gave it longer legs; the three drawn with the guide were within 3 %.
+Two fixes: the tunic was redrawn with the guide (`jobs/parts-r2.json`), and `parts.js fitbody`
+is now a step of every outfit: `align --overflow 160` keeps the rows a longer body needs, then
+`fitbody` copies the rows above the collar and resamples collar .. the redraw's lowest opaque
+row onto collar .. the base body's lowest row (vertical only: shoulders and hands keep matching
+the head and the rig boxes). All six bodies (two shifts, four outfits) now share one top and
+one bottom row. Pipeline for an outfit: `figurecut` → `align --overflow` → `fitbody` → `split`.
+
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
 becomes the editor for everyone, then the hand slot and armour.

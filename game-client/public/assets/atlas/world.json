@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "sourceHash": "7af179a32c4ca7e9633654c0a235c82c5f8fe127",
+  "sourceHash": "ab5e0af1c25453b1e8ee8c496b780d3adad28030",
   "sheetSize": 2048,
   "sheets": [
     {
@@ -216,7 +216,7 @@
     "resources/pine-tree.svg": 4,
     "resources/stone-lion.svg": 4,
     "resources/door-mirror.svg": 4,
-    "avatar/top/outfit-m-tunic.cloth.png": 4,
+    "avatar/top/outfit-m-vest.cloth.png": 4,
     "avatar/top/outfit-f-peasant.cloth.png": 4,
     "avatar/top/shift-f.cloth.png": 4,
     "emoji/1f311": 4,
@@ -304,7 +304,7 @@
     "playerIcons/pc-frog.svg": 5,
     "resources/npc-figure-fairy.svg": 5,
     "resources/door-gold.svg": 5,
-    "avatar/top/outfit-m-vest.cloth.png": 5,
+    "avatar/top/outfit-m-tunic.cloth.png": 5,
     "avatar/top/outfit-f-gown.cloth.png": 5,
     "edges/g-concave-nw.png": 5,
     "edges/g-concave-se.png": 5,
