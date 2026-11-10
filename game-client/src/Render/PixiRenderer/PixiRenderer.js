@@ -41,6 +41,7 @@ import { facePlayerToward, getPlayerTile } from '../../PlayerMovement';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
+import { WALK } from './walking';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
@@ -492,10 +493,12 @@ const PixiRenderer = ({
   const applyBreath = useCallback((npcId, displayObj, now) => {
     if (!displayObj || !('breath' in displayObj)) return;
     const seed = breathersRef.current.get(npcId);
-    if (seed === undefined) { displayObj.breath = 0; return; }
+    if (seed === undefined) { displayObj.breath = 0; displayObj.walking = false; return; }
     const animation = npcAnimations.current[npcId];
     const moving = !!animation && animation.duration !== 0;
     displayObj.breath = moving ? 0 : breathLevel(now, seed); // a walking figure has its bob instead
+    displayObj.walkCycleMs = WALK.npcCycleMs;                // an NPC strolls (walking.js)
+    displayObj.walking = moving;                             // ... and its legs step while it does
   }, []);
   // Render version tracking for NPC async renders
   const npcRenderVersionRef = useRef(0);

@@ -1,14 +1,19 @@
 import { Sprite } from 'pixi.js-legacy';
 import { BREATH, breathDeform, breathingAllowed, turnAt, turnProgress, turnOver } from './breathing';
+import { WALK, DEFAULT_LEGS, legsOf, walkLegs } from './walking';
 
 /**
- * BreathSprite - a Sprite whose quad becomes a strip of rows while it breathes (breathing.js).
+ * BreathSprite - a Sprite whose quad becomes a mesh of rows while it breathes (breathing.js),
+ * turns (breathing.js TURN) or walks (walking.js).
  *
  * Pixi's batch renderer draws whatever `vertexData`, `uvs` and `indices` an element hands it, so
- * the deformation lives entirely in calculateVertices: each row of the strip goes where
+ * the deformation lives entirely in calculateVertices: each row of the mesh goes where
  * breathDeform sends it (the body stretched up from the feet and widened at the chest; the head,
  * everything above `breathTop`, carried up rigid). One row sits exactly on breathTop, so the
- * head is a single undeformed band. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
+ * head is a single undeformed band; another sits where the legs begin. Every row is two cells,
+ * left and right of the column the legs part at (walking.js legsOf, read from the drawing's own
+ * silhouette): above the legs the two cells share that edge, below it each leg has its own, so
+ * a walking figure's feet lift and swing one at a time. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
  * because nothing but the vertices changes; with `breath` at 0 it is exactly a Sprite (same four
  * vertices). The legacy canvas renderer ignores vertexData, so there a figure simply stands still.
  *
@@ -19,11 +24,18 @@ import { BREATH, breathDeform, breathingAllowed, turnAt, turnProgress, turnOver 
  * its vertices and plays the turn in them: each row narrows to TURN.minWidth, flips to the new
  * look there, and widens again. Nothing else has to know. A sign change found on a sprite that was not
  * being drawn (hidden, pooled, off screen) is taken as it is: there was no old look to turn from.
+ *
+ *   sprite.walking = true;                    // while it moves; `walkCycleMs` sets its cadence
  */
-const ROWS = 16;
+const ROWS = 16;      // 1 head band + BODY_ROWS + LEG_ROWS
+const LEG_ROWS = 3;   // the rows from where the legs begin down to the feet (the walk is linear over them)
+const COLS = 4;       // per row: left edge, the parting column twice (one per half), right edge
 const GRID_INDICES = (() => {
-  const idx = new Uint16Array(ROWS * 6);
-  for (let r = 0; r < ROWS; r++) { const a = r * 2, b = a + 1, c = a + 2, d = a + 3; idx.set([a, b, c, b, d, c], r * 6); }
+  const idx = new Uint16Array(ROWS * 12);
+  for (let r = 0; r < ROWS; r++) {
+    const a = r * COLS, n = a + COLS; // this row, the next one
+    idx.set([a, a + 1, n, a + 1, n + 1, n, a + 2, a + 3, n + 2, a + 3, n + 3, n + 2], r * 12);
+  }
   return idx;
 })();
 const QUAD_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3]);
@@ -34,8 +46,13 @@ export default class BreathSprite extends Sprite {
     this._breath = 0;
     this.breathTop = BREATH.top; // where this figure's head ends (the row's or the icon's breathTop)
     this._quadVerts = this.vertexData;                       // the Sprite's own 8 floats
-    this._gridVerts = new Float32Array((ROWS + 1) * 4);
-    this._gridUvs = new Float32Array((ROWS + 1) * 4);
+    this._gridVerts = new Float32Array((ROWS + 1) * COLS * 2);
+    this._gridUvs = new Float32Array((ROWS + 1) * COLS * 2);
+    this._walkOn = false;  // the renderer says the figure is moving
+    this._walkAmp = 0;     // 0..1: the walk fading in and out
+    this._walkT0 = 0;      // when this walk began (its phase runs from here)
+    this._walkSeen = 0;    // when the walk was last advanced
+    this.walkCycleMs = WALK.cycleMs;
     this._facing = 0;      // the sign of scale.x last seen (0: not drawn yet)
     this._turnT0 = 0;      // when the turn in flight began (performance.now), 0 when none
     this._turnFrom = -1;   // where it began: -1 the full old look, more when it reversed one in flight
@@ -70,17 +87,39 @@ export default class BreathSprite extends Sprite {
     this._transformID = -1; // the vertices depend on it: recompute on the next render
   }
 
+  get walking() { return this._walkOn; }
+  set walking(on) {
+    const v = !!on && breathingAllowed(); // reduced motion: the figure glides as it did
+    if (v === this._walkOn) return;
+    this._walkOn = v;
+    if (v && !this._walkAmp) { this._walkT0 = performance.now(); this._walkSeen = this._walkT0; }
+    this._transformID = -1;
+  }
+
+  /** Advance the walk's fade and say where it is: { phase (cycles), amp (0..1) }, or null when the figure stands. */
+  _walkNow() {
+    if (!this._walkOn && !this._walkAmp) return null;
+    const now = performance.now();
+    const dt = Math.min(100, Math.max(0, now - this._walkSeen)); this._walkSeen = now;
+    this._walkAmp = this._walkOn ? Math.min(1, this._walkAmp + dt / WALK.attackMs) : Math.max(0, this._walkAmp - dt / WALK.releaseMs);
+    if (!this._walkAmp) { this._transformID = -1; return null; } // settled: one more pass as it stands
+    const amp = this._walkAmp * this._walkAmp * (3 - 2 * this._walkAmp); // eased
+    return { phase: (now - this._walkT0) / (this.walkCycleMs || WALK.cycleMs), amp };
+  }
+
   calculateVertices() {
     const texture = this._texture;
     const turning = this._turnElapsed();
-    if (!this._breath && turning < 0) {
+    const walk = this._walkNow();
+    if (!this._breath && turning < 0 && !walk) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
       super.calculateVertices();
       return;
     }
-    if (turning < 0 && this.vertexData === this._gridVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
-    this._transformID = turning < 0 ? this.transform._worldID : -1; // a turn moves every frame: never cached
+    const moving = turning >= 0 || !!walk; // a turn or a walk moves every frame: never cached
+    if (!moving && this.vertexData === this._gridVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
+    this._transformID = moving ? -1 : this.transform._worldID;
     this._textureID = texture._updateID;
     this.vertexData = this._gridVerts; this.indices = GRID_INDICES; this.uvs = this._gridUvs;
 
@@ -95,25 +134,52 @@ export default class BreathSprite extends Sprite {
     const L = this._breath, headV = this.breathTop;
     const vStart = (top - origTop) / orig.height, vEnd = (bottom - origTop) / orig.height; // the drawn rows, as fractions of the square
     const headBand = headV > vStart + 0.01 && headV < vEnd - 0.01; // the head is one band, the body the other rows
+    // the legs (walking.js): where they begin, the column they part at, and where each half is in its walk
+    const legs = legsOf(texture) || DEFAULT_LEGS;
+    const legTop = Math.min(vEnd - 0.02, Math.max(legs.top, (headBand ? headV : vStart) + 0.05));
+    const feetV = Math.max(legTop + 0.01, Math.min(legs.feet, vEnd));
+    const gapX = Math.min(right - 1, Math.max(left + 1, origLeft + legs.gapU * orig.width)); // local x of the parting column
+    const tGap = (gapX - left) / (right - left);                                             // ... and along the drawn frame, for the texture
+    const step = walk ? walkLegs(walk.phase, walk.amp, legs) : null;
+    const bodyRows = ROWS - LEG_ROWS - (headBand ? 1 : 0), bodyFrom = headBand ? headV : vStart, firstBody = headBand ? 1 : 0;
     const uv = texture._uvs; // x0,y0 TL  x1,y1 TR  x2,y2 BR  x3,y3 BL (a rotated frame included)
     const V = this._gridVerts, U = this._gridUvs;
     for (let r = 0; r <= ROWS; r++) {
-      const v = !headBand ? vStart + (vEnd - vStart) * (r / ROWS) : (r === 0 ? vStart : headV + (vEnd - headV) * ((r - 1) / (ROWS - 1)));
+      // the rows: the top of the frame, the head's end, the body down to the legs, the legs down to the feet
+      let v;
+      if (headBand && r === 0) v = vStart;
+      else if (r - firstBody <= bodyRows) v = bodyFrom + (legTop - bodyFrom) * ((r - firstBody) / bodyRows);
+      else v = legTop + (vEnd - legTop) * ((r - firstBody - bodyRows) / LEG_ROWS);
       const t = (v - vStart) / (vEnd - vStart);                 // along the drawn frame, for the texture
       const [, vD] = breathDeform(0, v, L, headV);
-      const yD = origTop + vD * orig.height;
-      let [xl] = breathDeform(left - centreX, v, L, headV), [xr] = breathDeform(right - centreX, v, L, headV);
-      if (turning >= 0) { const f = turnAt(turning, this._turnFrom, v, headV); xl *= f; xr *= f; } // the turn: this row's width, about the centre line
-      const o = r * 4;
-      V[o] = a * (centreX + xl) + c * yD + tx; V[o + 1] = d * yD + b * (centreX + xl) + ty;
-      V[o + 2] = a * (centreX + xr) + c * yD + tx; V[o + 3] = d * yD + b * (centreX + xr) + ty;
-      U[o] = uv.x0 + (uv.x3 - uv.x0) * t; U[o + 1] = uv.y0 + (uv.y3 - uv.y0) * t;
-      U[o + 2] = uv.x1 + (uv.x2 - uv.x1) * t; U[o + 3] = uv.y1 + (uv.y2 - uv.y1) * t;
+      const w = v <= legTop ? 0 : Math.min(1, (v - legTop) / (feetV - legTop)); // how far down the leg this row is
+      const f = turning >= 0 ? turnAt(turning, this._turnFrom, v, headV) : 1;   // the turn: this row's width, about the centre line
+      // texture: the row's two ends, and the parting column between them
+      const ulx = uv.x0 + (uv.x3 - uv.x0) * t, uly = uv.y0 + (uv.y3 - uv.y0) * t, urx = uv.x1 + (uv.x2 - uv.x1) * t, ury = uv.y1 + (uv.y2 - uv.y1) * t;
+      const umx = ulx + (urx - ulx) * tGap, umy = uly + (ury - uly) * tGap;
+      for (let k = 0; k < COLS; k++) {
+        const half = k < 2 ? 0 : 1, inner = k === 1 || k === 2;
+        let [x] = breathDeform((k === 0 ? left : k === 3 ? right : gapX) - centreX, v, L, headV);
+        let y = origTop + vD * orig.height;
+        if (step) {
+          y -= step.bob * (1 - w) * orig.height; // the body bobs; a standing foot stays on the ground
+          if (w > 0) {
+            // legs: each half moves on its own. A hem is one piece: its middle takes the mean of the two sides.
+            const lift = legs.split || !inner ? step.lift[half] : (step.lift[0] + step.lift[1]) / 2;
+            y -= lift * w * orig.height;
+            x += (step.swing[half] + step.sway) * w * orig.width;
+          }
+        }
+        x = centreX + x * f;
+        const o = (r * COLS + k) * 2;
+        V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;
+        U[o] = k === 0 ? ulx : k === 3 ? urx : umx; U[o + 1] = k === 0 ? uly : k === 3 ? ury : umy;
+      }
     }
   }
 
   // Bounds from the full, undeformed square (Sprite reads the first 8 floats of vertexData as a quad,
-  // which the strip is not): a breath of a pixel or two never matters to culling or hit areas
+  // which the mesh is not): a breath of a pixel or two never matters to culling or hit areas
   _calculateBounds() {
     this.calculateTrimmedVertices();
     this._bounds.addQuad(this.vertexTrimmedData);

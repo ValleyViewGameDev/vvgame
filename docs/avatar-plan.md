@@ -696,6 +696,37 @@ snap) and `lead`, the time the head leads the feet (0 = one piece, the default; 
 the body after the head with the feet planted; by 100 the middle frames pinch into an
 hourglass, judged on offline film strips, not in motion).
 
+**Walking (owner 2026-11-10, animation 2: "content agnostic and all procedural").** A figure
+is one drawing, so its walk is a deformation of that drawing, as its breath is, and nothing is
+authored per figure (this replaces P7's "cut at atlas build" and the rig's foot boxes for the
+board). `walking.js`:
+- **Where the legs are is read from the drawing's own silhouette**, once per texture
+  (`legsOf`, on a 192 px grid of the figure's square; any texture, the composed avatar
+  included). From the feet up, a gap that runs between two feet means LEGS: from the top of
+  that gap (the crotch, or a hem with two shoes under it) the drawing is cut along the gap into
+  two halves that move on their own. No gap (a gown to the ground, a tail) means a HEM, which
+  sways in one piece. Of the 34 NPC figures, 32 read as legs (17 of them only shoes under a
+  robe) and two as hems (Juliet, Viola).
+- **The cycle** (`walkLegs`): a foot lifts (its leg shortens from the hip) and swings forward
+  while it is in the air, then stands and slides back while the other swings; the body bobs
+  once per footfall and a standing foot stays on the ground. A foot never lifts more than 55 %
+  of its own leg, so shoes under a hem only shuffle. A hem sways side to side and tips up on
+  the stepping side. Forward is the way the drawing faces, so the facing flip mirrors it.
+- **`BreathSprite` plays it**: its mesh is now two cells per row, left and right of the column
+  the legs part at, sharing that edge above the legs and split below, with a row exactly where
+  the legs begin. The renderers only set `sprite.walking` (the player while it glides between
+  tiles, an NPC while its step animates) and `walkCycleMs`; the walk fades in over 90 ms and
+  settles over 140 ms, back to the exact drawing. Reduced motion: no walk.
+- Tunables are `WALK`: `cycleMs` 420 (the player, about five footfalls a second, since it
+  crosses a tile in 90 ms), `npcCycleMs` 760, `lift` 0.045 and `stride` 0.035 of the figure
+  square, `bob` 0.01, and the hem's span, sway and tip.
+Checked offline, not in motion: the leg finder on a contact sheet of all 34 figures, and the
+sprite's real vertex code run against a stub and rasterised (standing, six frames of a cycle,
+settled) for a legged figure, shoes under a robe and a hem. Known limits: the cut is one
+straight column, so legs that cross it would be sliced (none of the cast's do); the feet slide
+rather than grip the ground, as any short-legged walk at this speed does; the stride is
+sideways even when the figure walks up or down the board; arms do not swing.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.

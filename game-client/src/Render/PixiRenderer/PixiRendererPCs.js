@@ -581,11 +581,12 @@ const PixiRendererPCs = ({
     if (!ticker || !breathingAllowed()) return undefined;
     const onBreath = () => {
       const sprite = spriteRef.current;
-      if (!sprite || !sprite.visible || !sprite.__breathes) return;
+      if (!sprite || !sprite.visible || !sprite.__breathes) { if (sprite) sprite.walking = false; return; }
       const id = currentPC?.playerId;
       const moving = !!(id && renderPositions[id]);
       const now = performance.now();
       sprite.breath = moving ? 0 : breathLevel(now, breathSeed(id));
+      sprite.walking = moving; // the legs step while it moves (walking.js; BreathSprite plays them)
       if (sprite.__blinkTex && sprite.__openTex) {
         const want = isBlinking(now, breathSeed(`${id}:blink`)) ? sprite.__blinkTex : sprite.__openTex;
         if (want.baseTexture && sprite.texture !== want) sprite.texture = want; // never a destroyed frame
