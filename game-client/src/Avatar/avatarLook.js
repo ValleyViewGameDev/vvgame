@@ -128,10 +128,12 @@ export function validateSpec(spec, catalogue, palettes, { owned = [], allowNpc =
  * part is never picked. Hair and clothes are never a None (a random look is neither bald nor
  * undressed); a beard and a hat may be.
  */
-export function randomSpec(catalogue, palettes, rng = Math.random) {
+export function randomSpec(catalogue, palettes, rng = Math.random, onlyBody = null) {
   const free = (r) => (r.tier || 'free') === 'free';
   const pick = (rows) => (rows.length ? rows[Math.floor(rng() * rows.length)] : null);
-  const face = pick(partsInSlot(catalogue, 'skin').filter((p) => free(p) && p.file));
+  // onlyBody ('male' / 'female'): a random look of that body (the FTUE opens on a random man, owner 2026-11-10)
+  const faces = partsInSlot(catalogue, 'skin').filter((p) => free(p) && p.file);
+  const face = pick(onlyBody ? (faces.filter((p) => p.body === onlyBody).length ? faces.filter((p) => p.body === onlyBody) : faces) : faces);
   const body = face?.body || null;
   const part = (slot, allowNone) => pick(partsFor(catalogue, slot, body).filter((p) => free(p) && (allowNone || (p.file && !p.none))))?.id || null;
   const color = (slot) => pick(palette(palettes, slot).filter(free))?.id || null;

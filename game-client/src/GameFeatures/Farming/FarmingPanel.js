@@ -16,6 +16,7 @@ import { updatePlayerSettings } from '../../settings';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
+import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
 
 const FarmingPanel = ({
   onClose,
@@ -107,7 +108,7 @@ const FarmingPanel = ({
         isOffSeason: item.season && currentSeason && item.season !== currentSeason
       }));
       
-      setFarmPlots(farmPlotsWithSeasonInfo);
+      setFarmPlots(sortByLevel(farmPlotsWithSeasonInfo));
     } catch (error) {
       console.error('Error fetching farming panel data:', error);
     } finally {

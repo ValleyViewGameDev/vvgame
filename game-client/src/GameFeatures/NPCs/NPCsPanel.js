@@ -50,6 +50,7 @@ import { gameAlert } from '../../UI/Modals/GameDialog';
 import { sellSection } from '../../UI/Panels/SellSection';
 import { prereqsMet } from '../Quests/questPrereqs';
 import { XP_STAR_TOKEN, XP_STAR_HTML } from '../../UI/Icons/XpStar';
+import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
 
 const NPCPanel = ({
   onClose,
@@ -296,11 +297,11 @@ const NPCPanel = ({
           return recipe;
         });
 
-        setTradeRecipes(filteredRecipes);
+        setTradeRecipes(sortByLevel(filteredRecipes));
       } else {
         // Fallback to old method if masterTraders is not available
         const filteredRecipes = masterResources.filter((resource) => resource.source === npcData.type);
-        setTradeRecipes(filteredRecipes);
+        setTradeRecipes(sortByLevel(filteredRecipes));
         setHasHiddenTrades(false);
       }
     };

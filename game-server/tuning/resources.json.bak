@@ -190,7 +190,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-blueberry.svg"
   },
   {
     "type": "Rosemary",
@@ -229,7 +230,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-rosemary.svg"
   },
   {
     "type": "Feverfew",
@@ -271,7 +273,8 @@
     "totalnestedtime": 259200,
     "effort": 240,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-feverfew.svg"
   },
   {
     "type": "Mushroom",
@@ -310,7 +313,8 @@
     "totalnestedtime": 64800,
     "effort": 60,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-mushroom.svg"
   },
   {
     "type": "Daisy",
@@ -352,7 +356,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-daisy.svg"
   },
   {
     "type": "Tulip",
@@ -394,7 +399,8 @@
     "totalnestedtime": 259200,
     "effort": 240,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-tulip.svg"
   },
   {
     "type": "Sunflower",
@@ -436,7 +442,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "rare": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-sunflower.svg"
   },
   {
     "type": "Magic Mushroom",
@@ -475,7 +482,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-magic-mushroom.svg"
   },
   {
     "type": "Wood",
@@ -510,7 +518,7 @@
     "gemcost": 1,
     "crafttime": 5,
     "totalnestedtime": 5,
-    "filename": "wood.svg",
+    "filename": "doober-wood.svg",
     "effort": 0.02,
     "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
@@ -603,7 +611,7 @@
     "minprice": 5,
     "maxprice": 8,
     "gemcost": 1,
-    "filename": "stone.svg",
+    "filename": "doober-stone.svg",
     "crafttime": 5,
     "totalnestedtime": 5,
     "effort": 0.03,
@@ -700,7 +708,7 @@
     "minprice": 84,
     "maxprice": 120,
     "gemcost": 15,
-    "filename": "clay.svg",
+    "filename": "doober-clay.svg",
     "crafttime": 21600,
     "totalnestedtime": 21600,
     "effort": 6.67,
@@ -816,11 +824,13 @@
     "type": "Gold Account",
     "symbol": "⭐",
     "layoutkey": "gacct",
-    "category": "special"
+    "category": "special",
+    "filename": "item-gold-pass.svg"
   },
   {
     "type": "XP",
     "symbol": "🔷",
+    "iconFile": "xp-star.svg",
     "layoutkey": "xp",
     "category": "special"
   },
@@ -829,6 +839,7 @@
     "symbol": "💎",
     "layoutkey": "dI",
     "category": "special",
+    "artScale": 0.65,
     "action": "collect",
     "passable": true,
     "repeatable": false,
@@ -849,7 +860,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "item-gem.svg"
   },
   {
     "type": "Money",
@@ -881,19 +893,8 @@
     "maxprice": 0,
     "gemcost": 0.01,
     "gemOverride": 0.01,
-    "offeredAt": "Kent ✗ Money · Bank ✗ Money · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
-  },
-  {
-    "type": "Trash",
-    "symbol": "🤮",
-    "layoutkey": "yuk",
-    "category": "doober",
-    "action": "collect",
-    "noKent": true,
-    "noBank": true,
-    "noCaravan": true,
-    "qtycollected": 1,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ Money · Bank ✗ Money · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-money.svg"
   },
   {
     "type": "Signpost N",
@@ -915,7 +916,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-n.svg"
   },
   {
     "type": "Signpost E",
@@ -937,7 +939,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-e.svg"
   },
   {
     "type": "Signpost S",
@@ -959,7 +962,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-s.svg"
   },
   {
     "type": "Signpost W",
@@ -981,7 +985,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-w.svg"
   },
   {
     "type": "Signpost NW",
@@ -1003,7 +1008,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-nw.svg"
   },
   {
     "type": "Signpost NE",
@@ -1025,7 +1031,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-ne.svg"
   },
   {
     "type": "Signpost SE",
@@ -1047,7 +1054,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-se.svg"
   },
   {
     "type": "Signpost SW",
@@ -1069,7 +1077,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "signpost-sw.svg"
   },
   {
     "type": "Signpost Town",
@@ -1117,7 +1126,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "signpost-home.svg"
+    "filename": "signpost-home.svg",
+    "artSpan": 1.13
   },
   {
     "type": "Dungeon Entrance",
@@ -1141,7 +1151,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dungeon-entrance.svg",
+    "artSpan": 2.36
   },
   {
     "type": "Dungeon Exit",
@@ -1164,14 +1176,18 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dungeon-exit.svg"
   },
   {
     "type": "Mountain",
     "symbol": "⛰️",
     "layoutkey": "m1",
     "size": 3,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "other",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1186,14 +1202,19 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain.svg",
+    "artSpan": 3.06
   },
   {
     "type": "Mountain Large",
     "symbol": "⛰️",
     "layoutkey": "m2",
     "size": 4,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "other",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1208,14 +1229,19 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain-large.svg",
+    "artSpan": 4.08
   },
   {
     "type": "Enormous Mountain",
     "symbol": "⛰️",
     "layoutkey": "m3",
     "size": 20,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "other",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1230,14 +1256,19 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "mountain-large.svg",
+    "artSpan": 20.4
   },
   {
     "type": "Big Dead Tree",
     "symbol": "🪾",
     "layoutkey": "dt2",
     "size": 2,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "garden",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1261,7 +1292,10 @@
     "symbol": "🪾",
     "layoutkey": "dt3",
     "size": 4,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "garden",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1285,7 +1319,10 @@
     "symbol": "🗿",
     "layoutkey": "st2",
     "size": 7,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "statuary",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1300,14 +1337,19 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "big-statue.svg",
+    "artSpan": 11.65
   },
   {
     "type": "Volcano",
     "symbol": "🌋",
     "layoutkey": "vo",
     "size": 8,
-    "category": "editor",
+    "category": "deco",
+    "source": "Deco",
+    "decoGroup": "other",
+    "requires": "devonly",
     "passable": false,
     "validong": true,
     "validond": true,
@@ -1322,7 +1364,9 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "volcano.svg",
+    "artSpan": 10.57
   },
   {
     "type": "Dead Tree",
@@ -1402,7 +1446,8 @@
     "growtime": 60,
     "crafttime": 60,
     "totalnestedtime": 60,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Carrot Plot",
@@ -1434,7 +1479,8 @@
     "ingredient1qty": 1,
     "crafttime": 240,
     "totalnestedtime": 480,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Corn Plot",
@@ -1466,7 +1512,8 @@
     "ingredient1qty": 1,
     "crafttime": 480,
     "totalnestedtime": 960,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Sugarcane Plot",
@@ -1498,7 +1545,8 @@
     "ingredient1qty": 1,
     "crafttime": 600,
     "totalnestedtime": 1200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Pumpkin Plot",
@@ -1531,7 +1579,8 @@
     "ingredient1qty": 1,
     "crafttime": 28800,
     "totalnestedtime": 57600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Lettuce Plot",
@@ -1564,7 +1613,8 @@
     "ingredient1qty": 1,
     "crafttime": 14400,
     "totalnestedtime": 28800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Pepper Plot",
@@ -1597,7 +1647,8 @@
     "ingredient1qty": 1,
     "crafttime": 7200,
     "totalnestedtime": 14400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Potato Plot",
@@ -1630,7 +1681,8 @@
     "ingredient1qty": 1,
     "crafttime": 900,
     "totalnestedtime": 1800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Strawberry Plot",
@@ -1663,7 +1715,8 @@
     "ingredient1qty": 1,
     "crafttime": 21600,
     "totalnestedtime": 43200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Onion Plot",
@@ -1695,7 +1748,8 @@
     "ingredient1qty": 1,
     "crafttime": 14400,
     "totalnestedtime": 43200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Garlic Plot",
@@ -1728,7 +1782,8 @@
     "ingredient1qty": 1,
     "crafttime": 172800,
     "totalnestedtime": 345600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Olive Tree",
@@ -1867,7 +1922,8 @@
     "ingredient1qty": 1,
     "crafttime": 57600,
     "totalnestedtime": 115200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-vine.svg"
   },
   {
     "type": "Pear Tree",
@@ -2043,7 +2099,8 @@
     "ingredient1qty": 1,
     "crafttime": 28800,
     "totalnestedtime": 57600,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Coconut Tree",
@@ -2110,7 +2167,8 @@
     "ingredient1qty": 1,
     "crafttime": 86400,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Rosemary Plot",
@@ -2138,7 +2196,8 @@
     "growtime": 172800,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Feverfew Plot",
@@ -2166,7 +2225,8 @@
     "growtime": 259200,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Mushroom Plot",
@@ -2194,7 +2254,8 @@
     "growtime": 64800,
     "crafttime": 64800,
     "totalnestedtime": 64800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Daisy Plot",
@@ -2224,7 +2285,8 @@
     "growtime": 172800,
     "crafttime": 172800,
     "totalnestedtime": 172800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Tulip Plot",
@@ -2254,7 +2316,8 @@
     "growtime": 259200,
     "crafttime": 259200,
     "totalnestedtime": 259200,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Sunflower Plot",
@@ -2285,7 +2348,8 @@
     "growtime": 86400,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sprouts.svg"
   },
   {
     "type": "Grape Vine",
@@ -2313,11 +2377,13 @@
     "validonv": false,
     "validonu": false,
     "growtime": 43200,
+    "noGrow": true,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "crafttime": 43200,
     "totalnestedtime": 43200,
-    "parallel": 30
+    "parallel": 30,
+    "filename": "plot-vine.svg"
   },
   {
     "type": "Mulberry Tree",
@@ -2386,7 +2452,8 @@
     "ingredient1qty": 8000,
     "crafttime": 86400,
     "totalnestedtime": 86400,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-shrub.svg"
   },
   {
     "type": "Oak Tree Plot",
@@ -2417,7 +2484,8 @@
     "ingredient1qty": 5,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 18
+    "parallel": 18,
+    "filename": "plot-sapling.svg"
   },
   {
     "type": "Wheat",
@@ -2451,7 +2519,8 @@
     "crafttime": 60,
     "totalnestedtime": 60,
     "effort": 0.06,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-wheat.svg"
   },
   {
     "type": "Carrot",
@@ -2485,7 +2554,8 @@
     "crafttime": 240,
     "totalnestedtime": 240,
     "effort": 0.22,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-carrot.svg"
   },
   {
     "type": "Corn",
@@ -2519,7 +2589,8 @@
     "crafttime": 480,
     "totalnestedtime": 480,
     "effort": 0.44,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-corn.svg"
   },
   {
     "type": "Sugarcane",
@@ -2553,7 +2624,8 @@
     "crafttime": 600,
     "totalnestedtime": 600,
     "effort": 0.56,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-sugarcane.svg"
   },
   {
     "type": "Pumpkin",
@@ -2588,7 +2660,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin.svg"
   },
   {
     "type": "Lettuce",
@@ -2623,7 +2696,8 @@
     "crafttime": 14400,
     "totalnestedtime": 14400,
     "effort": 13,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-lettuce.svg"
   },
   {
     "type": "Pepper",
@@ -2658,7 +2732,8 @@
     "crafttime": 7200,
     "totalnestedtime": 7200,
     "effort": 6.67,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pepper.svg"
   },
   {
     "type": "Potato",
@@ -2693,7 +2768,8 @@
     "crafttime": 900,
     "totalnestedtime": 900,
     "effort": 0.83,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-potato.svg"
   },
   {
     "type": "Ginger",
@@ -2727,7 +2803,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ginger.svg"
   },
   {
     "type": "Onion",
@@ -2761,7 +2838,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 27,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-onion.svg"
   },
   {
     "type": "Garlic",
@@ -2799,7 +2877,8 @@
     "totalnestedtime": 172800,
     "effort": 160,
     "rare": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-garlic.svg"
   },
   {
     "type": "Olive",
@@ -2836,7 +2915,8 @@
     "totalnestedtime": 259200,
     "effort": 270,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "iconFile": "doober-olive.svg"
   },
   {
     "type": "Strawberry",
@@ -2874,7 +2954,8 @@
     "crafttime": 21600,
     "totalnestedtime": 21600,
     "effort": 20,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-strawberry.svg"
   },
   {
     "type": "Apple",
@@ -2914,7 +2995,8 @@
     "totalnestedtime": 64800,
     "effort": 33,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "iconFile": "doober-apple.svg"
   },
   {
     "type": "Lemon",
@@ -2954,7 +3036,8 @@
     "totalnestedtime": 86400,
     "effort": 80,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓",
+    "iconFile": "doober-lemon.svg"
   },
   {
     "type": "Orange",
@@ -2993,7 +3076,8 @@
     "totalnestedtime": 86400,
     "effort": 96,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "iconFile": "doober-orange.svg"
   },
   {
     "type": "Peach",
@@ -3032,7 +3116,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "iconFile": "doober-peach.svg"
   },
   {
     "type": "Pear",
@@ -3071,7 +3156,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "iconFile": "doober-pear.svg"
   },
   {
     "type": "Tomato",
@@ -3107,7 +3193,8 @@
     "crafttime": 57600,
     "totalnestedtime": 57600,
     "effort": 53,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-tomato.svg"
   },
   {
     "type": "Cherry",
@@ -3146,7 +3233,8 @@
     "totalnestedtime": 28800,
     "effort": 32,
     "artSpan": 1.73,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "iconFile": "doober-cherry.svg"
   },
   {
     "type": "Coconut",
@@ -3183,7 +3271,8 @@
     "totalnestedtime": 28800,
     "effort": 120,
     "artSpan": 2.11,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "iconFile": "doober-coconut.svg"
   },
   {
     "type": "Grapes",
@@ -3221,7 +3310,8 @@
     "crafttime": 43200,
     "totalnestedtime": 43200,
     "effort": 24,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-grapes.svg"
   },
   {
     "type": "Mulberry Leaf",
@@ -3262,7 +3352,8 @@
     "totalnestedtime": 86400,
     "effort": 96,
     "artSpan": 1.43,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "iconFile": "doober-mulberry-leaf.svg"
   },
   {
     "type": "Coffee Cherry",
@@ -3299,7 +3390,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 80,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-coffee-cherry.svg"
   },
   {
     "type": "Milk",
@@ -3334,7 +3426,8 @@
     "crafttime": 720,
     "totalnestedtime": 720,
     "effort": 3,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-milk.svg"
   },
   {
     "type": "Goat Milk",
@@ -3371,7 +3464,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 40,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring/Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring/Fall · Stall ✓",
+    "filename": "doober-goat-milk.svg"
   },
   {
     "type": "Wool",
@@ -3406,7 +3500,8 @@
     "crafttime": 14400,
     "totalnestedtime": 14400,
     "effort": 20,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-wool.svg"
   },
   {
     "type": "Bacon",
@@ -3441,7 +3536,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 120,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer/Fall · Stall ✓",
+    "filename": "doober-bacon.svg"
   },
   {
     "type": "Flour",
@@ -3477,7 +3573,8 @@
     "crafttime": 300,
     "totalnestedtime": 660,
     "effort": 1.17,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-flour.svg"
   },
   {
     "type": "Sugar",
@@ -3513,7 +3610,8 @@
     "crafttime": 900,
     "totalnestedtime": 3300,
     "effort": 4.72,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-sugar.svg"
   },
   {
     "type": "Chicken Feed",
@@ -3553,7 +3651,8 @@
     "crafttime": 600,
     "totalnestedtime": 2640,
     "effort": 3.56,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-chicken-feed.svg"
   },
   {
     "type": "Cornmeal",
@@ -3589,7 +3688,8 @@
     "crafttime": 28800,
     "totalnestedtime": 31680,
     "effort": 83,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-cornmeal.svg"
   },
   {
     "type": "Butter",
@@ -3626,7 +3726,8 @@
     "crafttime": 600,
     "totalnestedtime": 2040,
     "effort": 11,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-butter.svg"
   },
   {
     "type": "Cheese",
@@ -3666,7 +3767,8 @@
     "crafttime": 720,
     "totalnestedtime": 3600,
     "effort": 18,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-cheese.svg"
   },
   {
     "type": "Goat Cheese",
@@ -3707,7 +3809,8 @@
     "gemcost": 77,
     "crafttime": 7200,
     "effort": 220,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer/Winter · Stall ✓",
+    "filename": "doober-goat-cheese.svg"
   },
   {
     "type": "Cream",
@@ -3746,7 +3849,8 @@
     "crafttime": 900,
     "totalnestedtime": 4140,
     "effort": 23,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-cream.svg"
   },
   {
     "type": "Pepper Cheese",
@@ -3790,7 +3894,8 @@
     "crafttime": 28800,
     "totalnestedtime": 436320,
     "effort": 631,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pepper-cheese.svg"
   },
   {
     "type": "Thread",
@@ -3826,7 +3931,8 @@
     "crafttime": 300,
     "totalnestedtime": 14700,
     "effort": 22,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-thread.svg"
   },
   {
     "type": "Cloth",
@@ -3862,7 +3968,8 @@
     "crafttime": 600,
     "totalnestedtime": 43800,
     "effort": 63,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-cloth.svg"
   },
   {
     "type": "Sweater",
@@ -3901,7 +4008,8 @@
     "crafttime": 7200,
     "totalnestedtime": 52200,
     "effort": 273,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-sweater.svg"
   },
   {
     "type": "Runic Tunic",
@@ -3944,7 +4052,8 @@
     "crafttime": 43200,
     "totalnestedtime": 75600,
     "effort": 2177,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-runic-tunic.svg"
   },
   {
     "type": "Jacket",
@@ -3985,7 +4094,8 @@
     "crafttime": 14400,
     "totalnestedtime": 102900,
     "effort": 1358,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-jacket.svg"
   },
   {
     "type": "Heavy Jacket",
@@ -4026,7 +4136,8 @@
     "crafttime": 28800,
     "totalnestedtime": 216900,
     "effort": 4463,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-heavy-jacket.svg"
   },
   {
     "type": "Silk Dress",
@@ -4067,7 +4178,8 @@
     "crafttime": 28800,
     "totalnestedtime": 189600,
     "effort": 3797,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silk-dress.svg"
   },
   {
     "type": "Silk",
@@ -4108,7 +4220,8 @@
     "crafttime": 21600,
     "totalnestedtime": 6955200,
     "effort": 1128,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silk.svg"
   },
   {
     "type": "Egg",
@@ -4145,7 +4258,8 @@
     "crafttime": 7200,
     "totalnestedtime": 8400,
     "effort": 19,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring/Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring/Summer · Stall ✓",
+    "filename": "doober-egg.svg"
   },
   {
     "type": "Bread",
@@ -4184,7 +4298,8 @@
     "crafttime": 7200,
     "totalnestedtime": 8400,
     "effort": 37,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-bread.svg"
   },
   {
     "type": "Cornbread",
@@ -4227,7 +4342,8 @@
     "crafttime": 14400,
     "totalnestedtime": 87300,
     "effort": 264,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-cornbread.svg"
   },
   {
     "type": "Pumpkin Pie",
@@ -4271,7 +4387,8 @@
     "crafttime": 1200,
     "totalnestedtime": 32400,
     "effort": 59,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin-pie.svg"
   },
   {
     "type": "Lemon Cookie",
@@ -4317,7 +4434,8 @@
     "crafttime": 2700,
     "totalnestedtime": 193800,
     "effort": 227,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-lemon-cookie.svg"
   },
   {
     "type": "Ginger Cookie",
@@ -4361,7 +4479,8 @@
     "crafttime": 2700,
     "totalnestedtime": 136200,
     "effort": 174,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ginger-cookie.svg"
   },
   {
     "type": "Olive Bread",
@@ -4405,7 +4524,8 @@
     "crafttime": 14400,
     "totalnestedtime": 2275500,
     "effort": 2407,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-olive-bread.svg"
   },
   {
     "type": "Garlic Bread",
@@ -4445,7 +4565,8 @@
     "crafttime": 3600,
     "totalnestedtime": 529200,
     "effort": 529,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-garlic-bread.svg"
   },
   {
     "type": "Apple Pie",
@@ -4489,7 +4610,8 @@
     "crafttime": 1200,
     "totalnestedtime": 133200,
     "effort": 97,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-apple-pie.svg"
   },
   {
     "type": "Strawberry Pie",
@@ -4533,7 +4655,8 @@
     "crafttime": 1800,
     "totalnestedtime": 70500,
     "effort": 123,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-strawberry-pie.svg"
   },
   {
     "type": "Peach Pie",
@@ -4577,7 +4700,8 @@
     "crafttime": 2700,
     "totalnestedtime": 236100,
     "effort": 304,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-peach-pie.svg"
   },
   {
     "type": "Cherry Pie",
@@ -4621,7 +4745,8 @@
     "crafttime": 3600,
     "totalnestedtime": 698100,
     "effort": 813,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-cherry-pie.svg"
   },
   {
     "type": "Queen's Cake",
@@ -4670,7 +4795,8 @@
     "crafttime": 28800,
     "totalnestedtime": 400200,
     "effort": 1366,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-queens-cake.svg"
   },
   {
     "type": "Warden Pie",
@@ -4715,7 +4841,8 @@
     "gemcost": 272,
     "crafttime": 14400,
     "effort": 692,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-warden-pie.svg"
   },
   {
     "type": "Honey",
@@ -4752,7 +4879,8 @@
     "totalnestedtime": 86400,
     "effort": 144,
     "gemOverride": 37,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-honey.svg"
   },
   {
     "type": "Corn Chowder",
@@ -4793,7 +4921,8 @@
     "crafttime": 1200,
     "totalnestedtime": 7080,
     "effort": 25,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-corn-chowder.svg"
   },
   {
     "type": "Carrot Soup",
@@ -4836,7 +4965,8 @@
     "crafttime": 2700,
     "totalnestedtime": 437040,
     "effort": 433,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-carrot-soup.svg"
   },
   {
     "type": "Pumpkin Soup",
@@ -4879,7 +5009,8 @@
     "crafttime": 3600,
     "totalnestedtime": 72060,
     "effort": 1605,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-pumpkin-soup.svg"
   },
   {
     "type": "Omelette",
@@ -4923,7 +5054,8 @@
     "crafttime": 600,
     "totalnestedtime": 1069980,
     "effort": 1253,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-omelette.svg"
   },
   {
     "type": "Potato Bake",
@@ -4967,7 +5099,8 @@
     "crafttime": 14400,
     "totalnestedtime": 370800,
     "effort": 485,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-potato-bake.svg"
   },
   {
     "type": "Mixed Salad",
@@ -5010,7 +5143,8 @@
     "crafttime": 900,
     "totalnestedtime": 1275300,
     "effort": 1315,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-mixed-salad.svg"
   },
   {
     "type": "Sandwich",
@@ -5053,7 +5187,8 @@
     "crafttime": 2700,
     "totalnestedtime": 276300,
     "effort": 697,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-sandwich.svg"
   },
   {
     "type": "Pizza",
@@ -5097,7 +5232,8 @@
     "crafttime": 900,
     "totalnestedtime": 241620,
     "effort": 1759,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-pizza.svg"
   },
   {
     "type": "Tomato Soup",
@@ -5141,7 +5277,8 @@
     "crafttime": 1800,
     "totalnestedtime": 364500,
     "effort": 2924,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-tomato-soup.svg"
   },
   {
     "type": "Poached Pear",
@@ -5181,7 +5318,8 @@
     "crafttime": 0,
     "totalnestedtime": 259200,
     "effort": 2352,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-poached-pear.svg"
   },
   {
     "type": "Lumber",
@@ -5218,7 +5356,8 @@
     "crafttime": 1800,
     "totalnestedtime": 1900,
     "effort": 4.17,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-lumber.svg"
   },
   {
     "type": "Pottery",
@@ -5254,7 +5393,8 @@
     "crafttime": 2700,
     "totalnestedtime": 67500,
     "effort": 31,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-pottery.svg"
   },
   {
     "type": "Furniture",
@@ -5295,7 +5435,8 @@
     "crafttime": 43200,
     "totalnestedtime": 48000,
     "effort": 295,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-furniture.svg"
   },
   {
     "type": "Ink",
@@ -5337,7 +5478,8 @@
     "crafttime": 14400,
     "totalnestedtime": 561600,
     "effort": 808,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ink.svg"
   },
   {
     "type": "Urns",
@@ -5378,7 +5520,8 @@
     "crafttime": 7200,
     "totalnestedtime": 118800,
     "effort": 990,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-urns.svg"
   },
   {
     "type": "Lemonade",
@@ -5416,7 +5559,8 @@
     "crafttime": 900,
     "totalnestedtime": 521100,
     "effort": 494,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-lemonade.svg"
   },
   {
     "type": "Coconut Milk",
@@ -5452,7 +5596,8 @@
     "crafttime": 7200,
     "totalnestedtime": 93600,
     "effort": 400,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-coconut-milk.svg"
   },
   {
     "type": "Belmont Tea",
@@ -5491,7 +5636,8 @@
     "crafttime": 14400,
     "totalnestedtime": 1800000,
     "effort": 1733,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-belmont-tea.svg"
   },
   {
     "type": "Apple Cider",
@@ -5527,7 +5673,8 @@
     "crafttime": 172800,
     "totalnestedtime": 950400,
     "effort": 3273,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-apple-cider.svg"
   },
   {
     "type": "Olive Oil",
@@ -5563,7 +5710,8 @@
     "crafttime": 7200,
     "totalnestedtime": 1303200,
     "effort": 1470,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-olive-oil.svg"
   },
   {
     "type": "Wine",
@@ -5602,7 +5750,8 @@
     "crafttime": 28800,
     "totalnestedtime": 460815,
     "effort": 720,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-wine.svg"
   },
   {
     "type": "Port",
@@ -5643,7 +5792,8 @@
     "crafttime": 3600,
     "totalnestedtime": 522020,
     "effort": 444,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-port.svg"
   },
   {
     "type": "Brandy",
@@ -5686,7 +5836,8 @@
     "crafttime": 28800,
     "totalnestedtime": 1238405,
     "effort": 1920,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-brandy.svg"
   },
   {
     "type": "Aged Wine",
@@ -5727,7 +5878,8 @@
     "crafttime": 43200,
     "totalnestedtime": 129630,
     "effort": 2880,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-aged-wine.svg"
   },
   {
     "type": "Green Coffee Bean",
@@ -5765,7 +5917,8 @@
     "crafttime": 3600,
     "totalnestedtime": 1558800,
     "effort": 330,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-green-coffee-bean.svg"
   },
   {
     "type": "Light Roast Coffee Bean",
@@ -5806,7 +5959,8 @@
     "crafttime": 10800,
     "totalnestedtime": 57620,
     "effort": 1830,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-light-roast-coffee-bean.svg"
   },
   {
     "type": "Medium Roast Coffee Bean",
@@ -5847,7 +6001,8 @@
     "crafttime": 18000,
     "totalnestedtime": 86440,
     "effort": 2280,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-medium-roast-coffee-bean.svg"
   },
   {
     "type": "Dark Roast Coffee Bean",
@@ -5888,7 +6043,8 @@
     "crafttime": 28800,
     "totalnestedtime": 104450,
     "effort": 3120,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-dark-roast-coffee-bean.svg"
   },
   {
     "type": "Common Coffee",
@@ -5926,7 +6082,8 @@
     "crafttime": 900,
     "totalnestedtime": 216900,
     "effort": 4565,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Fall · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Fall · Stall ✓",
+    "filename": "doober-common-coffee.svg"
   },
   {
     "type": "Coffee Elsinore",
@@ -5967,7 +6124,8 @@
     "crafttime": 1200,
     "totalnestedtime": 692400,
     "effort": 5929,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Spring · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Spring · Stall ✓",
+    "filename": "doober-coffee-elsinore.svg"
   },
   {
     "type": "Coffee Latte",
@@ -6010,7 +6168,8 @@
     "crafttime": 1800,
     "totalnestedtime": 352440,
     "effort": 6870,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Summer · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Summer · Stall ✓",
+    "filename": "doober-coffee-latte.svg"
   },
   {
     "type": "Queen's Coffee",
@@ -6053,7 +6212,8 @@
     "crafttime": 2700,
     "totalnestedtime": 625500,
     "effort": 12924,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✓ · Fair ✓ Winter · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✓ · Fair ✓ Winter · Stall ✓",
+    "filename": "doober-queens-coffee.svg"
   },
   {
     "type": "Amulet",
@@ -6089,7 +6249,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ epic scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-amulet.svg"
   },
   {
     "type": "Beans",
@@ -6123,7 +6284,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-beans.svg"
   },
   {
     "type": "Oyster",
@@ -6157,7 +6319,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-oyster.svg"
   },
   {
     "type": "Meat",
@@ -6191,7 +6354,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-meat.svg"
   },
   {
     "type": "Fish",
@@ -6225,7 +6389,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-fish.svg"
   },
   {
     "type": "Trumpet",
@@ -6261,7 +6426,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-trumpet.svg"
   },
   {
     "type": "Ancient Coin",
@@ -6297,7 +6463,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ legendary scroll find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-ancient-coin.svg"
   },
   {
     "type": "Fan",
@@ -6331,7 +6498,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-fan.svg"
   },
   {
     "type": "Saw",
@@ -6372,7 +6540,8 @@
     "crafttime": 86400,
     "totalnestedtime": 86400,
     "effort": 1440,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-saw.svg"
   },
   {
     "type": "Shovel",
@@ -6413,7 +6582,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-shovel.svg"
   },
   {
     "type": "Screwdriver",
@@ -6454,7 +6624,8 @@
     "crafttime": 259200,
     "totalnestedtime": 259200,
     "effort": 4320,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-screwdriver.svg"
   },
   {
     "type": "Potion A",
@@ -6497,7 +6668,8 @@
     "ingredient2qty": 2,
     "ingredient3": "Milk",
     "ingredient3qty": 8,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-a.svg"
   },
   {
     "type": "Potion B",
@@ -6540,7 +6712,8 @@
     "ingredient2qty": 4,
     "ingredient3": "Tulip",
     "ingredient3qty": 4,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-b.svg"
   },
   {
     "type": "Potion C",
@@ -6585,7 +6758,8 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-potion-c.svg"
   },
   {
     "type": "Book",
@@ -6630,7 +6804,8 @@
     "crafttime": 7200,
     "totalnestedtime": 45003,
     "effort": 377,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-book.svg"
   },
   {
     "type": "Pelt",
@@ -6665,7 +6840,8 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "effort": 480,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-pelt.svg"
   },
   {
     "type": "Bear Skin",
@@ -6698,7 +6874,8 @@
     "crafttime": 172800,
     "totalnestedtime": 172800,
     "effort": 2880,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-bear-skin.svg"
   },
   {
     "type": "Bones",
@@ -6735,7 +6912,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-bones.svg"
   },
   {
     "type": "Silver",
@@ -6773,7 +6951,8 @@
     "crafttime": 864000,
     "totalnestedtime": 864000,
     "effort": 14400,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-silver.svg"
   },
   {
     "type": "Scorpion",
@@ -6803,7 +6982,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✓ · Bank ✓ · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-scorpion.svg"
   },
   {
     "type": "Gold",
@@ -6841,7 +7021,8 @@
     "crafttime": 1296000,
     "totalnestedtime": 1296000,
     "effort": 21600,
-    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ valley find · Bank ✓ · Caravan ✗ valley find · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-gold.svg"
   },
   {
     "type": "Diamond Ring",
@@ -6880,7 +7061,8 @@
     "crafttime": 1728000,
     "totalnestedtime": 1728000,
     "effort": 28800,
-    "offeredAt": "Kent ✗ epic scroll find · Bank ✗ noBank · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✗ noTradeStall"
+    "offeredAt": "Kent ✗ epic scroll find · Bank ✗ noBank · Caravan ✗ no source · Fair ✗ not on a season list · Stall ✗ noTradeStall",
+    "filename": "doober-diamond-ring.svg"
   },
   {
     "type": "King's Crown",
@@ -6906,7 +7088,8 @@
     "totalnestedtime": 86400,
     "effort": 1440,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-kings-crown.svg"
   },
   {
     "type": "Portrait",
@@ -6944,7 +7127,8 @@
     "crafttime": 43200,
     "totalnestedtime": 43200,
     "effort": 720,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-portrait.svg"
   },
   {
     "type": "Trident",
@@ -6971,7 +7155,8 @@
     "totalnestedtime": 86400,
     "effort": 1440,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-trident.svg"
   },
   {
     "type": "Phoenix Feather",
@@ -7009,7 +7194,8 @@
     "totalnestedtime": 864000,
     "effort": 14400,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-phoenix-feather.svg"
   },
   {
     "type": "Brief Candle",
@@ -7041,7 +7227,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-brief-candle.svg"
   },
   {
     "type": "Brass Bell",
@@ -7066,7 +7253,8 @@
     "totalnestedtime": 864000,
     "effort": 14400,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-brass-bell.svg"
   },
   {
     "type": "Prospero's Orb",
@@ -7091,7 +7279,8 @@
     "totalnestedtime": 2592000,
     "effort": 43200,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-prosperos-orb.svg"
   },
   {
     "type": "Vampire's Blood",
@@ -7116,13 +7305,15 @@
     "totalnestedtime": 1728000,
     "effort": 28800,
     "nogems": true,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✗ Quest for Hope artifact",
+    "filename": "doober-vampires-blood.svg"
   },
   {
     "type": "Home Deed",
     "symbol": "🏠",
     "layoutkey": "HD",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Constable Elbow",
     "passable": true,
@@ -7130,13 +7321,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Skeleton Key",
     "symbol": "🗝️",
     "layoutkey": "KY",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Cassio",
     "passable": true,
@@ -7144,13 +7337,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-skeleton-key.svg"
   },
   {
     "type": "Golden Key",
     "symbol": "🔑",
     "layoutkey": "Ky",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Helena",
     "passable": true,
@@ -7158,13 +7353,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-golden-key.svg"
   },
   {
     "type": "Gertrude's Song",
     "symbol": "📜",
     "layoutkey": "gsong",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Helena",
     "passable": true,
@@ -7172,13 +7369,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Town Key",
     "symbol": "🗝️",
     "layoutkey": "TKey",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Constable Elbow",
     "passable": true,
@@ -7186,13 +7385,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 2,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-town-key.svg"
   },
   {
     "type": "Dungeon Key",
     "symbol": "🗝️",
     "layoutkey": "DKey",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Constable Elbow",
     "passable": true,
@@ -7200,13 +7401,15 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 12,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-dungeon-key.svg"
   },
   {
     "type": "Mirror Key",
     "symbol": "🪞",
     "layoutkey": "Mky",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Leontes",
     "passable": true,
@@ -7214,132 +7417,153 @@
     "qtycollected": 1,
     "xp": 1,
     "level": 14,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-mirror-key.svg"
   },
   {
     "type": "Portia's Secret",
     "symbol": "🤫",
     "layoutkey": "sec",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Portia",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-portia.svg"
+  },
+  {
+    "type": "Portia's Pardon",
+    "symbol": "📜",
+    "layoutkey": "pPar",
+    "category": "special",
+    "unique": true,
+    "action": "collect",
+    "source": "Portia",
+    "repeatable": false,
+    "qtycollected": 1,
+    "xp": 1,
+    "nogems": true,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Gertrude's Secret",
     "symbol": "🤫",
     "layoutkey": "sec2",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Gertrude",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
-  },
-  {
-    "type": "Prospero's Secret",
-    "symbol": "🤫",
-    "layoutkey": "sec3",
-    "category": "special",
-    "action": "collect",
-    "source": "Prospero",
-    "repeatable": false,
-    "qtycollected": 1,
-    "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-gertrude.svg"
   },
   {
     "type": "Titania's Secret",
     "symbol": "🤫",
     "layoutkey": "sec4",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Titania",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-titania.svg"
   },
   {
     "type": "Caliban's Secret",
     "symbol": "🤫",
     "layoutkey": "sec5",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Caliban",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-caliban.svg"
   },
   {
     "type": "Yorick's Skull",
     "symbol": "💀",
     "layoutkey": "YSk",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Caliban",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-yoricks-skull.svg"
   },
   {
     "type": "Hecate's Torch",
     "symbol": "🔥",
     "layoutkey": "HTor",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Hecate",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-hecates-torch.svg"
   },
   {
     "type": "Juliet's Secret",
     "symbol": "🤫",
     "layoutkey": "sec6",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Juliet",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-juliet.svg"
   },
   {
     "type": "Viola's Secret",
     "symbol": "🤫",
     "layoutkey": "sec7",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Viola",
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "npc-head-viola.svg"
   },
   {
     "type": "Hope",
     "symbol": "🤞",
     "layoutkey": "hope",
     "category": "special",
+    "unique": true,
     "action": "collect",
     "source": "Oracle",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
     "xp": 1,
-    "nogems": true
+    "nogems": true,
+    "filename": "item-hope.svg"
   },
   {
     "type": "Yellow Heart",
-    "symbol": "💛",
+    "symbol": "🤍",
     "layoutkey": "hrtA",
     "category": "special",
     "action": "collect",
@@ -7349,7 +7573,8 @@
     "xp": 1,
     "gemcost": 27,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "filename": "item-white-heart.svg"
   },
   {
     "type": "Green Heart",
@@ -7363,7 +7588,8 @@
     "xp": 1,
     "gemcost": 44,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "filename": "item-green-heart.svg"
   },
   {
     "type": "Purple Heart",
@@ -7377,7 +7603,8 @@
     "xp": 1,
     "gemcost": 55,
     "crafttime": 432000,
-    "totalnestedtime": 432000
+    "totalnestedtime": 432000,
+    "filename": "item-purple-heart.svg"
   },
   {
     "type": "Scroll",
@@ -7416,7 +7643,8 @@
     "crafttime": 10,
     "totalnestedtime": 10,
     "effort": 0.17,
-    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓",
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Reveal Scroll",
@@ -7429,22 +7657,27 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
     "crafttime": 4,
-    "totalnestedtime": 28814
+    "totalnestedtime": 28814,
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Only Found in Scrolls",
     "symbol": "📜",
     "layoutkey": "OF",
-    "category": "special"
+    "category": "special",
+    "filename": "doober-scroll.svg"
   },
   {
     "type": "Town Door",
     "symbol": "🚪",
     "layoutkey": "Dor",
     "category": "deco",
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "requires": "Town Key",
+    "devonly": true,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7459,16 +7692,20 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "filename": "door-town.svg"
+    "filename": "door-town.svg",
+    "artSpan": 1.3
   },
   {
     "type": "Dungeon Door",
     "symbol": "🚪",
     "layoutkey": "DDor",
     "category": "deco",
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "requires": "Dungeon Key",
+    "devonly": true,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7483,16 +7720,20 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "filename": "door-dungeon.svg"
+    "filename": "door-dungeon.svg",
+    "artSpan": 1.25
   },
   {
     "type": "Mirror",
     "symbol": "🪞",
     "layoutkey": "Mr",
     "category": "deco",
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "requires": "Mirror Key",
+    "devonly": true,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7514,9 +7755,12 @@
     "symbol": "🔒",
     "layoutkey": "Lck",
     "category": "deco",
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "requires": "Golden Key",
+    "devonly": true,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7531,13 +7775,17 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "filename": "door-gold.svg"
+    "filename": "door-gold.svg",
+    "artSpan": 1.3
   },
   {
     "type": "Arena Door",
     "symbol": "🚪",
     "layoutkey": "ADor",
     "category": "deco",
+    "devonly": true,
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "validong": true,
@@ -7561,9 +7809,12 @@
     "symbol": "🌫️",
     "layoutkey": "BFog",
     "category": "deco",
+    "source": "Deco",
+    "decoGroup": "walls",
     "action": "door",
     "passable": false,
     "requires": "Hecate's Torch",
+    "devonly": true,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7577,7 +7828,9 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "black-fog.svg",
+    "artSpan": 1.4
   },
   {
     "type": "School",
@@ -7716,7 +7969,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Builder",
     "qtycollected": 1,
     "level": 5,
@@ -7757,7 +8010,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 7,
@@ -7779,9 +8032,7 @@
     "ingredient1qty": 300,
     "ingredient2": "Wood",
     "ingredient2qty": 150,
-    "ingredient3": "Stone",
-    "ingredient3qty": 20,
-    "gemcost": 173,
+    "gemcost": 153,
     "filename": "dairy.svg",
     "crafttime": 0,
     "totalnestedtime": 850,
@@ -7800,7 +8051,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 9,
@@ -7842,7 +8093,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Builder",
     "qtycollected": 1,
     "level": 8,
@@ -7870,7 +8121,7 @@
     "parallel": 10,
     "size": 1,
     "filename": "chicken-coop.svg",
-    "artSpan": 1.13
+    "artSpan": 1.22
   },
   {
     "type": "Oven",
@@ -7880,7 +8131,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 10,
@@ -7924,7 +8175,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Builder",
     "qtycollected": 1,
     "level": 13,
@@ -7962,7 +8213,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 14,
@@ -8005,7 +8256,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 15,
@@ -8048,7 +8299,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 16,
@@ -8091,7 +8342,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 18,
@@ -8136,7 +8387,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 22,
@@ -8181,7 +8432,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 25,
@@ -8226,7 +8477,7 @@
     "category": "crafting",
     "action": "openUI",
     "source": "Build",
-    "passable": true,
+    "passable": false,
     "requires": "Masonry",
     "qtycollected": 1,
     "level": 20,
@@ -8588,7 +8839,7 @@
     "artLook": "homestead",
     "artAccent": "warm wood",
     "artSign": "none (an open stall; crates will be layered for state)",
-    "artSpan": 2.41
+    "artSpan": 2.21
   },
   {
     "type": "Bank",
@@ -8751,7 +9002,8 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1,
-    "filename": "mailbox.svg"
+    "filename": "mailbox.svg",
+    "artSpan": 1.17
   },
   {
     "type": "Worker Slot",
@@ -8968,7 +9220,7 @@
     "type": "Post House",
     "symbol": "📯",
     "layoutkey": "PoH",
-    "size": 3,
+    "size": 2,
     "category": "station",
     "action": "openUI",
     "source": "BuildValley",
@@ -8998,7 +9250,7 @@
     "artAccent": "sky blue",
     "artSign": "a brass post horn on a hook",
     "filename": "post-house.svg",
-    "artSpan": 4.72
+    "artSpan": 3.15
   },
   {
     "type": "Farm House",
@@ -9164,7 +9416,7 @@
     "artLook": "town",
     "artAccent": "iron grey with a red banner",
     "artSign": "crossed swords on the wide red banner hanging from the tower; no placard over the door",
-    "artSpan": 4.91
+    "artSpan": 4.8
   },
   {
     "type": "Armory",
@@ -9197,7 +9449,7 @@
     "artLook": "town",
     "artAccent": "steel grey, grey banner",
     "artSign": "a shield on the wide grey banner hanging from the tower (the Warrior's Den's banner, in grey); no placard",
-    "artSpan": 4.38
+    "artSpan": 4.33
   },
   {
     "type": "Magic Shop",
@@ -9237,7 +9489,7 @@
     "symbol": "🐄",
     "layoutkey": "Co",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Milk",
@@ -9269,14 +9521,17 @@
     "crafttime": 720,
     "totalnestedtime": 720,
     "parallel": 2,
-    "gemOverride": 67
+    "gemOverride": 67,
+    "filename": "npc-cow.svg",
+    "artScale": 1.1,
+    "artSpan": 1.43
   },
   {
     "type": "Sheep",
     "symbol": "🐑",
     "layoutkey": "Sh",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Wool",
@@ -9307,7 +9562,10 @@
     "gemcost": 27,
     "crafttime": 14400,
     "totalnestedtime": 14400,
-    "parallel": 6
+    "parallel": 6,
+    "filename": "npc-sheep.svg",
+    "artScale": 0.95,
+    "artSpan": 1.11
   },
   {
     "type": "Pig",
@@ -9346,14 +9604,16 @@
     "filename": "npc-pig.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 2
+    "parallel": 2,
+    "artScale": 0.95,
+    "artSpan": 1.21
   },
   {
     "type": "Brown Cow",
     "symbol": "🐂",
     "layoutkey": "BC",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Milk",
@@ -9384,14 +9644,17 @@
     "gemcost": 420,
     "crafttime": 86400,
     "totalnestedtime": 432000,
-    "parallel": 3
+    "parallel": 3,
+    "filename": "npc-brown-cow.svg",
+    "artScale": 1.1,
+    "artSpan": 1.43
   },
   {
     "type": "Ram",
     "symbol": "🐏",
     "layoutkey": "Rm",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Wool",
@@ -9422,14 +9685,17 @@
     "gemcost": 429,
     "crafttime": 86400,
     "totalnestedtime": 475200,
-    "parallel": 4
+    "parallel": 4,
+    "filename": "npc-ram.svg",
+    "artScale": 1,
+    "artSpan": 1.32
   },
   {
     "type": "Goat",
     "symbol": "🐐",
     "layoutkey": "Gt",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.5,
     "action": "graze",
     "output": "Goat Milk",
@@ -9461,7 +9727,9 @@
     "gemcost": 217,
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "parallel": 4
+    "parallel": 4,
+    "filename": "npc-goat.svg",
+    "artScale": 0.85
   },
   {
     "type": "Doctor",
@@ -9473,7 +9741,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9502,10 +9770,14 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 24,
-    "filename": "npc-doctor.svg",
+    "filename": "npc-figure-doctor.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "gemOverride": 24
+    "gemOverride": 24,
+    "iconFile": "npc-head-doctor.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-doctor-blink.svg",
+    "breathTop": 0.37
   },
   {
     "type": "Surgeon",
@@ -9517,7 +9789,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9546,9 +9818,13 @@
     "ingredient1": "Money",
     "ingredient1qty": 150,
     "gemcost": 21,
-    "filename": "npc-surgeon.svg",
+    "filename": "npc-figure-surgeon.svg",
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "iconFile": "npc-head-surgeon.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-surgeon-blink.svg",
+    "breathTop": 0.322
   },
   {
     "type": "Field Nurse",
@@ -9560,7 +9836,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9585,7 +9861,11 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 300,
-    "filename": "npc-nurse.svg"
+    "filename": "npc-figure-nurse.svg",
+    "iconFile": "npc-head-nurse.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-nurse-blink.svg",
+    "breathTop": 0.335
   },
   {
     "type": "Fairy",
@@ -9597,7 +9877,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "heal",
     "output": "hp",
@@ -9624,7 +9904,12 @@
     "ingredient1qty": 1,
     "gemcost": 39,
     "crafttime": 86400,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "filename": "npc-figure-fairy.svg",
+    "artSpan": 1.2,
+    "iconFile": "npc-head-fairy.svg",
+    "blinkFile": "npc-figure-fairy-blink.svg",
+    "breathTop": 0.5
   },
   {
     "type": "Kent",
@@ -9636,7 +9921,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "noRelationship": true,
@@ -9659,9 +9944,13 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-kent.svg",
+    "filename": "npc-figure-kent.svg",
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "iconFile": "npc-head-kent.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-kent-blink.svg",
+    "breathTop": 0.377
   },
   {
     "type": "Portia",
@@ -9673,7 +9962,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9694,7 +9983,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-portia.svg"
+    "filename": "npc-figure-portia.svg",
+    "iconFile": "npc-head-portia.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-portia-blink.svg",
+    "breathTop": 0.363
   },
   {
     "type": "The Shepherd",
@@ -9706,7 +9999,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Farm House",
@@ -9729,9 +10022,13 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-shepherd.svg",
+    "filename": "npc-figure-shepherd.svg",
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "iconFile": "npc-head-shepherd.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-shepherd-blink.svg",
+    "breathTop": 0.373
   },
   {
     "type": "Hotspur",
@@ -9743,7 +10040,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9764,7 +10061,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-hotspur.svg"
+    "filename": "npc-figure-hotspur.svg",
+    "iconFile": "npc-head-hotspur.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-hotspur-blink.svg",
+    "breathTop": 0.402
   },
   {
     "type": "Cassio",
@@ -9776,7 +10077,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9797,7 +10098,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-cassio.svg"
+    "filename": "npc-figure-cassio.svg",
+    "iconFile": "npc-head-cassio.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-cassio-blink.svg",
+    "breathTop": 0.317
   },
   {
     "type": "Sebastian",
@@ -9809,7 +10114,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9830,7 +10135,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-cassio.svg"
+    "filename": "npc-figure-sebastian.svg",
+    "iconFile": "npc-head-sebastian.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-sebastian-blink.svg",
+    "breathTop": 0.313
   },
   {
     "type": "Mistress Quickly",
@@ -9842,7 +10151,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9863,7 +10172,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-chef.svg"
+    "filename": "npc-figure-quickly.svg",
+    "iconFile": "npc-head-quickly.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-quickly-blink.svg",
+    "breathTop": 0.366
   },
   {
     "type": "Feste",
@@ -9875,7 +10188,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9896,7 +10209,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-feste.svg"
+    "filename": "npc-figure-feste.svg",
+    "iconFile": "npc-head-feste.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-feste-blink.svg",
+    "breathTop": 0.406
   },
   {
     "type": "Helena",
@@ -9908,7 +10225,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9929,7 +10246,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-helena.svg"
+    "filename": "npc-figure-helena.svg",
+    "iconFile": "npc-head-helena.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-helena-blink.svg",
+    "breathTop": 0.362
   },
   {
     "type": "Titania",
@@ -9941,7 +10262,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9962,7 +10283,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-titania.svg"
+    "filename": "npc-figure-titania.svg",
+    "iconFile": "npc-head-titania.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-titania-blink.svg",
+    "breathTop": 0.396
   },
   {
     "type": "Vampire",
@@ -9974,7 +10299,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -9995,38 +10320,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-vampire.svg"
-  },
-  {
-    "type": "Santa Claus",
-    "symbol": "🎅",
-    "layoutkey": "n8",
-    "category": "npc",
-    "stateWorking": 900,
-    "stateResting": 0,
-    "stateRoaming": 0,
-    "stateEating": 0,
-    "stateSocializing": 300,
-    "artFacing": "front",
-    "movespeed": 0.8,
-    "action": "quest",
-    "passable": true,
-    "range": 6,
-    "speed": 1000,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "validonz": true,
-    "validonc": true,
-    "validonv": false,
-    "validonu": false
+    "filename": "npc-figure-vampire.svg",
+    "iconFile": "npc-head-vampire.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-vampire-blink.svg",
+    "breathTop": 0.302
   },
   {
     "type": "Prospero",
@@ -10038,7 +10336,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10058,7 +10356,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-prospero.svg"
+    "filename": "npc-figure-prospero.svg",
+    "iconFile": "npc-head-prospero.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-prospero-blink.svg",
+    "breathTop": 0.45
   },
   {
     "type": "Constable Elbow",
@@ -10070,7 +10372,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Buy",
@@ -10091,7 +10393,109 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-elbow.svg"
+    "filename": "npc-figure-elbow.svg",
+    "iconFile": "npc-head-elbow.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-elbow-blink.svg",
+    "breathTop": 0.314
+  },
+  {
+    "type": "Peter Quince",
+    "symbol": "🪓",
+    "layoutkey": "pQn",
+    "category": "npc",
+    "stateWorking": 900,
+    "stateResting": 90,
+    "stateRoaming": 45,
+    "stateEating": 0,
+    "stateSocializing": 0,
+    "artFacing": "right",
+    "movespeed": 0.8,
+    "action": "worker",
+    "noClick": true,
+    "source": "Buy",
+    "passable": true,
+    "requires": "devonly",
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
+    "filename": "npc-figure-lumberjack.svg",
+    "iconFile": "npc-head-lumberjack.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-lumberjack-blink.svg",
+    "breathTop": 0.362
+  },
+  {
+    "type": "Home of the Oracle",
+    "symbol": "🏠",
+    "layoutkey": "HoO",
+    "size": 3,
+    "category": "deco",
+    "flavorKey": "16542",
+    "source": "Build",
+    "passable": false,
+    "requires": "devonly",
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "filename": "farm-house.svg",
+    "artSpan": 3.77
+  },
+  {
+    "type": "OneKXP",
+    "symbol": "⭐",
+    "layoutkey": "x1k",
+    "category": "doober",
+    "artScale": 0.62,
+    "action": "collect",
+    "grantsXP": 1000,
+    "noKent": true,
+    "noBank": true,
+    "noCaravan": true,
+    "nogems": true,
+    "passable": true,
+    "repeatable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
+    "filename": "xp-star.svg",
+    "offeredAt": "Kent ✗ noKent · Bank ✗ noBank · Caravan ✗ noCaravan · Fair ✗ not on a season list · Stall ✓"
   },
   {
     "type": "Snug",
@@ -10103,7 +10507,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10124,7 +10528,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-snug.svg"
+    "filename": "npc-figure-snug.svg",
+    "iconFile": "npc-head-snug.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-snug-blink.svg",
+    "breathTop": 0.33
   },
   {
     "type": "Falstaff",
@@ -10136,7 +10544,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10157,7 +10565,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-falstaff.svg"
+    "filename": "npc-figure-falstaff.svg",
+    "iconFile": "npc-head-falstaff.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-falstaff-blink.svg",
+    "breathTop": 0.448
   },
   {
     "type": "Apothecary",
@@ -10169,7 +10581,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10190,7 +10602,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-apothecary.svg"
+    "filename": "npc-figure-apothecary.svg",
+    "iconFile": "npc-head-apothecary.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-apothecary-blink.svg",
+    "breathTop": 0.304
   },
   {
     "type": "Iago",
@@ -10202,7 +10618,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10223,7 +10639,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-iago.svg"
+    "filename": "npc-figure-iago.svg",
+    "iconFile": "npc-head-iago.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-iago-blink.svg",
+    "breathTop": 0.389
   },
   {
     "type": "Gertrude",
@@ -10235,7 +10655,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10256,7 +10676,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-gertrude.svg"
+    "filename": "npc-figure-gertrude.svg",
+    "iconFile": "npc-head-gertrude.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-gertrude-blink.svg",
+    "breathTop": 0.397
   },
   {
     "type": "Leontes",
@@ -10268,7 +10692,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10289,7 +10713,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-leontes.svg"
+    "filename": "npc-figure-leontes.svg",
+    "iconFile": "npc-head-leontes.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-leontes-blink.svg",
+    "breathTop": 0.339
   },
   {
     "type": "Caliban",
@@ -10301,7 +10729,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10322,7 +10750,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-caliban.svg"
+    "filename": "npc-figure-caliban.svg",
+    "iconFile": "npc-head-caliban.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-caliban-blink.svg",
+    "breathTop": 0.413
   },
   {
     "type": "Hecate",
@@ -10334,7 +10766,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10355,7 +10787,48 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-hecate.svg"
+    "filename": "npc-figure-hecate.svg",
+    "iconFile": "npc-head-hecate.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-hecate-blink.svg",
+    "breathTop": 0.303
+  },
+  {
+    "type": "The Porter",
+    "symbol": "🧔🏻‍♂️",
+    "layoutkey": "Por",
+    "category": "npc",
+    "stateWorking": 900,
+    "stateResting": 0,
+    "stateRoaming": 0,
+    "stateEating": 0,
+    "stateSocializing": 0,
+    "artFacing": "right",
+    "movespeed": 0.8,
+    "action": "trade",
+    "source": "Buy",
+    "passable": true,
+    "requires": "devonly",
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
+    "filename": "npc-figure-porter.svg",
+    "artSpan": 1.8,
+    "iconFile": "npc-head-porter.svg",
+    "blinkFile": "npc-figure-porter-blink.svg",
+    "breathTop": 0.319
   },
   {
     "type": "Juliet",
@@ -10367,7 +10840,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10388,7 +10861,11 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-juliet.svg"
+    "filename": "npc-figure-juliet.svg",
+    "iconFile": "npc-head-juliet.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-juliet-blink.svg",
+    "breathTop": 0.358
   },
   {
     "type": "Viola",
@@ -10400,7 +10877,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Buy",
@@ -10421,7 +10898,11 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-mermaid.svg"
+    "filename": "npc-figure-viola.svg",
+    "iconFile": "npc-head-viola.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-viola-blink.svg",
+    "breathTop": 0.35
   },
   {
     "type": "Oracle",
@@ -10433,7 +10914,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10453,7 +10934,12 @@
     "validonz": true,
     "validonc": true,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "npc-figure-oracle.svg",
+    "artSpan": 1.8,
+    "iconFile": "npc-head-oracle.svg",
+    "blinkFile": "npc-figure-oracle-blink.svg",
+    "breathTop": 0.352
   },
   {
     "type": "Farm Hand",
@@ -10465,7 +10951,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -10474,7 +10960,7 @@
     "repeatable": false,
     "requires": "Grower",
     "qtycollected": 1,
-    "level": 9,
+    "level": 5,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -10489,12 +10975,14 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 105,
-    "filename": "npc-farmhand.svg",
-    "crafttime": 1800,
-    "totalnestedtime": 1800
+    "gemcost": 1,
+    "filename": "npc-figure-farmhand.svg",
+    "crafttime": 3,
+    "totalnestedtime": 3,
+    "iconFile": "npc-head-farmhand.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-farmhand-blink.svg",
+    "breathTop": 0.399
   },
   {
     "type": "Rancher",
@@ -10506,7 +10994,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -10514,47 +11002,6 @@
     "passable": true,
     "repeatable": false,
     "requires": "Husbandry",
-    "qtycollected": 1,
-    "level": 13,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "validonz": true,
-    "validonc": true,
-    "validonv": false,
-    "validonu": false,
-    "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 112,
-    "filename": "npc-rancher.svg",
-    "crafttime": 14400,
-    "totalnestedtime": 14400
-  },
-  {
-    "type": "Lumberjack",
-    "symbol": "👨🏾‍🌾",
-    "layoutkey": "lj",
-    "category": "npc",
-    "stateWorking": 600,
-    "stateResting": 1800,
-    "stateRoaming": 30,
-    "stateEating": 0,
-    "stateSocializing": 0,
-    "artFacing": "front",
-    "movespeed": 0.8,
-    "action": "worker",
-    "output": "Buy",
-    "source": "Farm House",
-    "passable": true,
-    "repeatable": false,
-    "requires": "Axe",
     "qtycollected": 1,
     "level": 11,
     "validong": true,
@@ -10573,10 +11020,59 @@
     "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "gemcost": 112,
+    "filename": "npc-figure-rancher.svg",
+    "crafttime": 14400,
+    "totalnestedtime": 14400,
+    "iconFile": "npc-head-rancher.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-rancher-blink.svg",
+    "breathTop": 0.378
+  },
+  {
+    "type": "Lumberjack",
+    "symbol": "👨🏾‍🌾",
+    "layoutkey": "lj",
+    "category": "npc",
+    "stateWorking": 600,
+    "stateResting": 1800,
+    "stateRoaming": 30,
+    "stateEating": 0,
+    "stateSocializing": 0,
+    "artFacing": "right",
+    "movespeed": 0.8,
+    "action": "worker",
+    "output": "Buy",
+    "source": "Farm House",
+    "passable": true,
+    "repeatable": false,
+    "requires": "Axe",
+    "qtycollected": 1,
+    "level": 8,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
+    "ingredient1": "Money",
+    "ingredient1qty": 10000,
     "gemcost": 117,
-    "filename": "npc-lumberjack.svg",
+    "filename": "npc-figure-lumberjack.svg",
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "iconFile": "npc-head-lumberjack.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-lumberjack-blink.svg",
+    "breathTop": 0.362
   },
   {
     "type": "Crafter",
@@ -10588,7 +11084,7 @@
     "stateRoaming": 30,
     "stateEating": 0,
     "stateSocializing": 0,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "worker",
     "output": "Buy",
@@ -10597,7 +11093,7 @@
     "repeatable": false,
     "requires": "Mechanics",
     "qtycollected": 1,
-    "level": 15,
+    "level": 13,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -10615,9 +11111,13 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "gemcost": 122,
-    "filename": "npc-crafter.svg",
+    "filename": "npc-figure-crafter.svg",
     "crafttime": 57600,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "iconFile": "npc-head-crafter.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-crafter-blink.svg",
+    "breathTop": 0.366
   },
   {
     "type": "Coyote",
@@ -10949,7 +11449,7 @@
     "action": "attack",
     "output": "Bones",
     "passable": false,
-    "xp": 150,
+    "xp": 1000,
     "level": 34,
     "range": 20,
     "maxhp": 1010,
@@ -10980,7 +11480,7 @@
     "symbol": "🙎🏻‍♂️",
     "layoutkey": "nA",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1,
     "action": "attack",
     "output": "Portrait",
@@ -11008,7 +11508,11 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "filename": "npc-angelo.svg"
+    "filename": "npc-figure-angelo.svg",
+    "iconFile": "npc-head-angelo.svg",
+    "artSpan": 1.8,
+    "blinkFile": "npc-figure-angelo-blink.svg",
+    "breathTop": 0.419
   },
   {
     "type": "Dragon",
@@ -11307,7 +11811,7 @@
     "source": "Adventure Camp",
     "passable": false,
     "qtycollected": 1,
-    "level": 1,
+    "level": 10,
     "scrollqty": 1,
     "scrollchance": "rare",
     "ingredient1": "Money",
@@ -11316,7 +11820,8 @@
     "ingredient2qty": 2,
     "gemcost": 81,
     "crafttime": 3,
-    "totalnestedtime": 1203
+    "totalnestedtime": 1203,
+    "filename": "item-tent.svg"
   },
   {
     "type": "Backpack",
@@ -11415,7 +11920,7 @@
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
-    "level": 9,
+    "level": 5,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 1
@@ -11427,7 +11932,7 @@
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
-    "level": 9,
+    "level": 5,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "gemcost": 50
@@ -11439,7 +11944,7 @@
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
-    "level": 9,
+    "level": 11,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 1
@@ -11452,7 +11957,7 @@
     "source": "Farm Hand",
     "requires": "Axe",
     "qtycollected": 5,
-    "level": 9,
+    "level": 8,
     "ingredient1": "Wood",
     "ingredient1qty": 50,
     "gemcost": 50
@@ -11464,10 +11969,10 @@
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 5,
-    "level": 9,
+    "level": 8,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 100
+    "ingredient1qty": 5000,
+    "gemcost": 50
   },
   {
     "type": "Bulk Crafting",
@@ -11476,7 +11981,7 @@
     "category": "skill",
     "source": "Crafter",
     "qtycollected": 1,
-    "level": 15,
+    "level": 13,
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "gemcost": 1
@@ -11488,7 +11993,7 @@
     "category": "skill",
     "source": "Crafter",
     "qtycollected": 1,
-    "level": 15,
+    "level": 13,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "gemcost": 50
@@ -11507,7 +12012,8 @@
     "ingredient1qty": 1000000,
     "gemcost": 10001,
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "filename": "item-boat.svg"
   },
   {
     "type": "Tracking",
@@ -14395,7 +14901,6 @@
     "type": "Cat",
     "symbol": "🐈",
     "layoutkey": "pt10",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Milk",
@@ -14409,13 +14914,16 @@
     "ingredient1qty": 8,
     "gemcost": 233,
     "crafttime": 28800,
-    "totalnestedtime": 720000
+    "totalnestedtime": 720000,
+    "filename": "pet-cat.svg",
+    "artSpan": 0.8,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Poodle",
     "symbol": "🐩",
     "layoutkey": "pt8",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
@@ -14429,13 +14937,16 @@
     "ingredient1qty": 12,
     "gemcost": 280,
     "crafttime": 43200,
-    "totalnestedtime": 1080000
+    "totalnestedtime": 1080000,
+    "filename": "pet-poodle.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Monkey",
     "symbol": "🐒",
     "layoutkey": "pt1",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14449,13 +14960,16 @@
     "ingredient1qty": 15,
     "gemcost": 301,
     "crafttime": 43200,
-    "totalnestedtime": 1339200
+    "totalnestedtime": 1339200,
+    "filename": "pet-monkey.svg",
+    "artSpan": 0.85,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Duck",
     "symbol": "🦆",
     "layoutkey": "pt4",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Corn",
@@ -14469,13 +14983,16 @@
     "ingredient1qty": 18,
     "gemcost": 321,
     "crafttime": 50400,
-    "totalnestedtime": 1605600
+    "totalnestedtime": 1605600,
+    "filename": "pet-duck.svg",
+    "artSpan": 0.8,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Donkey",
     "symbol": "🫏",
     "layoutkey": "pt5",
-    "size": 1.6,
     "category": "pet",
     "action": "feed",
     "output": "Carrot",
@@ -14491,13 +15008,16 @@
     "ingredient2qty": 8,
     "gemcost": 327,
     "crafttime": 57600,
-    "totalnestedtime": 2649600
+    "totalnestedtime": 2649600,
+    "filename": "pet-donkey.svg",
+    "artSpan": 1.1,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Owl",
     "symbol": "🦉",
     "layoutkey": "pt2",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Egg",
@@ -14513,13 +15033,16 @@
     "ingredient2qty": 12,
     "gemcost": 370,
     "crafttime": 57600,
-    "totalnestedtime": 3859200
+    "totalnestedtime": 3859200,
+    "filename": "pet-owl.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Parrot",
     "symbol": "🦜",
     "layoutkey": "pt12",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14535,13 +15058,16 @@
     "ingredient2qty": 16,
     "gemcost": 406,
     "crafttime": 64800,
-    "totalnestedtime": 5076000
+    "totalnestedtime": 5076000,
+    "filename": "pet-parrot.svg",
+    "artSpan": 1,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Eagle",
     "symbol": "🦅",
     "layoutkey": "pt11",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
@@ -14557,13 +15083,16 @@
     "ingredient2qty": 20,
     "gemcost": 437,
     "crafttime": 64800,
-    "totalnestedtime": 6285600
+    "totalnestedtime": 6285600,
+    "filename": "pet-eagle.svg",
+    "artSpan": 1.05,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Zebra",
     "symbol": "🦓",
     "layoutkey": "pt3",
-    "size": 1.8,
     "category": "pet",
     "action": "feed",
     "output": "Wheat",
@@ -14581,13 +15110,16 @@
     "ingredient3qty": 11,
     "gemcost": 467,
     "crafttime": 86400,
-    "totalnestedtime": 8985600
+    "totalnestedtime": 8985600,
+    "filename": "pet-zebra.svg",
+    "artSpan": 2.04,
+    "sizeX": 2,
+    "sizeY": 1
   },
   {
     "type": "Giraffe",
     "symbol": "🦒",
     "layoutkey": "pt6",
-    "size": 3,
     "category": "pet",
     "action": "feed",
     "output": "Apple",
@@ -14605,13 +15137,16 @@
     "ingredient3qty": 21,
     "gemcost": 546,
     "crafttime": 86400,
-    "totalnestedtime": 14688000
+    "totalnestedtime": 14688000,
+    "filename": "pet-giraffe.svg",
+    "artSpan": 2.6,
+    "sizeX": 1,
+    "sizeY": 2
   },
   {
     "type": "Orangutan",
     "symbol": "🦧",
     "layoutkey": "pt7",
-    "size": 1.5,
     "category": "pet",
     "action": "feed",
     "output": "Orange",
@@ -14629,13 +15164,16 @@
     "ingredient3qty": 28,
     "gemcost": 602,
     "crafttime": 86400,
-    "totalnestedtime": 19612800
+    "totalnestedtime": 19612800,
+    "filename": "pet-orangutan.svg",
+    "artSpan": 1.7,
+    "sizeX": 2,
+    "sizeY": 2
   },
   {
     "type": "Dodo Bird",
     "symbol": "🦤",
     "layoutkey": "pt9",
-    "size": 1,
     "category": "pet",
     "action": "feed",
     "output": "Corn",
@@ -14653,13 +15191,18 @@
     "ingredient3qty": 40,
     "gemcost": 668,
     "crafttime": 172800,
-    "totalnestedtime": 26870400
+    "totalnestedtime": 26870400,
+    "filename": "pet-dodo.svg",
+    "artSpan": 0.9,
+    "sizeX": 1,
+    "sizeY": 1
   },
   {
     "type": "Haybale",
     "symbol": "📦",
     "layoutkey": "hay",
     "category": "deco",
+    "decoGroup": "farm",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -14677,13 +15220,14 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "haybale.svg",
-    "artSpan": 0.77
+    "artSpan": 0.88
   },
   {
     "type": "Crate",
     "symbol": "📦",
     "layoutkey": "HB",
     "category": "deco",
+    "decoGroup": "farm",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -14701,13 +15245,14 @@
     "ingredient1qty": 10,
     "gemcost": 1,
     "filename": "crate.svg",
-    "artSpan": 0.77
+    "artSpan": 0.85
   },
   {
     "type": "Barrel",
     "symbol": "📦",
     "layoutkey": "bar",
     "category": "deco",
+    "decoGroup": "farm",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -14725,41 +15270,14 @@
     "ingredient1qty": 20,
     "gemcost": 1,
     "filename": "barrel.svg",
-    "artSpan": 0.78
-  },
-  {
-    "type": "Holiday Tree",
-    "symbol": "🎄",
-    "layoutkey": "Xm",
-    "size": 2,
-    "category": "deco",
-    "source": "Deco",
-    "season": "Winter",
-    "passable": true,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "ingredient2": "Thread",
-    "ingredient2qty": 20,
-    "ingredient3": "Ink",
-    "ingredient3qty": 2,
-    "gemcost": 433
+    "artSpan": 0.87
   },
   {
     "type": "Stone Wall",
     "symbol": "⬜",
     "layoutkey": "wa",
     "category": "deco",
+    "decoGroup": "walls",
     "action": "wall",
     "source": "Deco",
     "passable": false,
@@ -14785,6 +15303,7 @@
     "symbol": "🪵",
     "layoutkey": "wf",
     "category": "deco",
+    "decoGroup": "walls",
     "action": "wall",
     "source": "Deco",
     "passable": false,
@@ -14806,33 +15325,11 @@
     "wallSet": "fence"
   },
   {
-    "type": "Green Wall",
-    "symbol": "🟩",
-    "layoutkey": "Gw",
-    "category": "deco",
-    "action": "wall",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 1
-  },
-  {
     "type": "Black Wall",
     "symbol": "⬛️",
     "layoutkey": "Bw",
     "category": "deco",
+    "decoGroup": "walls",
     "action": "wall",
     "source": "Deco",
     "passable": false,
@@ -14849,12 +15346,15 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 1
+    "gemcost": 1,
+    "filename": "black-wall.svg",
+    "artSpan": 1.19
   },
   {
     "type": "Invisible Wall",
     "layoutkey": "iw",
     "category": "deco",
+    "decoGroup": "walls",
     "action": "wall",
     "source": "Deco",
     "passable": false,
@@ -14876,79 +15376,11 @@
     "gemOverride": 3
   },
   {
-    "type": "Sand Wall",
-    "symbol": "🟨",
-    "layoutkey": "Sw",
-    "category": "deco",
-    "action": "wall",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 1
-  },
-  {
-    "type": "Blue Wall",
-    "symbol": "🟦",
-    "layoutkey": "Lw",
-    "category": "deco",
-    "action": "wall",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 1
-  },
-  {
-    "type": "Orange Wall",
-    "symbol": "🟧",
-    "layoutkey": "Ow",
-    "category": "deco",
-    "action": "wall",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 1
-  },
-  {
     "type": "Plant",
     "symbol": "🪴",
     "layoutkey": "pt",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -14965,13 +15397,15 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "plant.svg"
+    "filename": "plant.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Red Plant",
     "symbol": "🪴",
     "layoutkey": "rpt",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -14988,13 +15422,15 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "plant-red.svg"
+    "filename": "plant-red.svg",
+    "artSpan": 0.87
   },
   {
     "type": "Flower Pot",
     "symbol": "🪴",
     "layoutkey": "fpt",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15011,15 +15447,17 @@
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "gemcost": 1,
-    "filename": "flower-pot.svg"
+    "filename": "flower-pot.svg",
+    "artSpan": 1.1
   },
   {
     "type": "Potted Plant",
     "symbol": "🪴",
     "layoutkey": "pplt",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -15039,6 +15477,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15063,6 +15502,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15087,6 +15527,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15111,6 +15552,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": true,
     "qtycollected": 1,
@@ -15134,7 +15576,158 @@
     "artSpan": 0.97
   },
   {
+    "type": "Rose Bush",
+    "symbol": "🌺",
+    "layoutkey": "rsb",
     "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 60,
+    "gemcost": 1,
+    "filename": "rose-bush.svg",
+    "artSpan": 0.87
+  },
+  {
+    "type": "Lavender",
+    "symbol": "🌺",
+    "layoutkey": "lvd",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 40,
+    "gemcost": 1,
+    "filename": "lavender.svg",
+    "artSpan": 0.93
+  },
+  {
+    "type": "Topiary Ball",
+    "symbol": "🌺",
+    "layoutkey": "tpb",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 150,
+    "gemcost": 2,
+    "filename": "topiary-ball.svg",
+    "artSpan": 1.34
+  },
+  {
+    "type": "Topiary Cone",
+    "symbol": "🌺",
+    "layoutkey": "tpc",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 200,
+    "gemcost": 2,
+    "filename": "topiary-cone.svg",
+    "artSpan": 1.79
+  },
+  {
+    "type": "Ivy Trellis",
+    "symbol": "🌺",
+    "layoutkey": "ivt",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 120,
+    "gemcost": 2,
+    "filename": "ivy-trellis.svg",
+    "artSpan": 0.98
+  },
+  {
+    "type": "Wildflower Patch",
+    "symbol": "🌺",
+    "layoutkey": "wfp",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 30,
+    "gemcost": 1,
+    "filename": "wildflower-patch.svg",
+    "artSpan": 0.97
+  },
+  {
+    "category": "deco",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15155,10 +15748,11 @@
     "ingredient1qty": 2000,
     "gemcost": 20,
     "filename": "stone-bust.svg",
-    "artSpan": 1.62
+    "artSpan": 1.5
   },
   {
     "category": "deco",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15176,13 +15770,116 @@
     "type": "Stone Lion",
     "symbol": "🦁",
     "layoutkey": "lio",
-    "ingredient1qty": 3000,
-    "gemcost": 30,
+    "ingredient1qty": 4000,
+    "gemcost": 40,
     "filename": "stone-lion.svg",
     "artSpan": 1.71
   },
   {
+    "type": "Sundial",
+    "symbol": "🗿",
+    "layoutkey": "sdl",
     "category": "deco",
+    "decoGroup": "statuary;garden",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 1500,
+    "gemcost": 15,
+    "filename": "sundial.svg",
+    "artSpan": 1.11
+  },
+  {
+    "type": "Stone Urn",
+    "symbol": "🗿",
+    "layoutkey": "urn",
+    "category": "deco",
+    "decoGroup": "statuary;garden",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 800,
+    "gemcost": 8,
+    "filename": "stone-urn.svg",
+    "artSpan": 0.96
+  },
+  {
+    "type": "Obelisk",
+    "symbol": "🗿",
+    "layoutkey": "obk",
+    "category": "deco",
+    "sizeY": 3,
+    "sizeX": 2,
+    "decoGroup": "statuary",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 50000,
+    "gemcost": 500,
+    "filename": "obelisk.svg",
+    "artSpan": 4.5
+  },
+  {
+    "type": "Maypole",
+    "symbol": "🗿",
+    "layoutkey": "myp",
+    "category": "deco",
+    "decoGroup": "garden",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 1200,
+    "gemcost": 12,
+    "filename": "maypole.svg",
+    "artSpan": 2.03
+  },
+  {
+    "category": "deco",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15200,8 +15897,10 @@
     "type": "Marble Statue",
     "symbol": "🏛️",
     "layoutkey": "ven",
-    "ingredient1qty": 5000,
-    "gemcost": 50,
+    "sizeX": 1,
+    "sizeY": 2,
+    "ingredient1qty": 10000,
+    "gemcost": 100,
     "filename": "marble-statue.svg",
     "artSpan": 2.51
   },
@@ -15210,6 +15909,7 @@
     "symbol": "🏛️",
     "layoutkey": "GSt",
     "category": "deco",
+    "decoGroup": "statuary",
     "action": "statue",
     "passable": false,
     "qtycollected": 1,
@@ -15228,6 +15928,7 @@
   },
   {
     "category": "deco",
+    "decoGroup": "statuary",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15245,18 +15946,304 @@
     "type": "Shakespeare Statue",
     "symbol": "🎭",
     "layoutkey": "shk",
-    "ingredient1qty": 7500,
-    "gemcost": 75,
+    "ingredient1qty": 30000,
+    "gemcost": 300,
     "filename": "shakespeare-statue.svg",
-    "artSpan": 2.15
+    "artSpan": 2.09
+  },
+  {
+    "type": "Round Tower",
+    "symbol": "🗿",
+    "layoutkey": "rtw",
+    "sizeX": 1,
+    "sizeY": 2,
+    "category": "deco",
+    "decoGroup": "castle",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 20000,
+    "gemcost": 200,
+    "filename": "round-tower.svg",
+    "artSpan": 3.08
+  },
+  {
+    "type": "Gatehouse",
+    "symbol": "🗿",
+    "layoutkey": "gth",
+    "sizeX": 3,
+    "sizeY": 2,
+    "category": "deco",
+    "decoGroup": "castle",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 35000,
+    "gemcost": 350,
+    "filename": "gatehouse.svg",
+    "artSpan": 3.13
+  },
+  {
+    "type": "Heraldic Banner",
+    "symbol": "🗿",
+    "layoutkey": "hbn",
+    "category": "deco",
+    "decoGroup": "castle",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 400,
+    "gemcost": 4,
+    "filename": "heraldic-banner.svg",
+    "artSpan": 1.54
+  },
+  {
+    "type": "Brazier",
+    "symbol": "🗿",
+    "layoutkey": "brz",
+    "category": "deco",
+    "decoGroup": "castle",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 300,
+    "gemcost": 3,
+    "filename": "brazier.svg",
+    "artSpan": 0.98
+  },
+  {
+    "type": "Knight Statue",
+    "symbol": "🗿",
+    "layoutkey": "kst",
+    "category": "deco",
+    "decoGroup": "castle;statuary",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 8000,
+    "gemcost": 80,
+    "filename": "knight-statue.svg",
+    "artSpan": 2.01
+  },
+  {
+    "type": "Throne",
+    "symbol": "🗿",
+    "layoutkey": "thr",
+    "category": "deco",
+    "decoGroup": "castle;furniture",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 6000,
+    "gemcost": 60,
+    "filename": "throne.svg",
+    "artSpan": 1.58
+  },
+  {
+    "type": "Royal Bed",
+    "symbol": "🗿",
+    "layoutkey": "rbd",
+    "sizeX": 1,
+    "sizeY": 2,
+    "category": "deco",
+    "decoGroup": "furniture;castle",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 15000,
+    "gemcost": 150,
+    "filename": "royal-bed.svg",
+    "artSpan": 2.12
+  },
+  {
+    "type": "Oak Table",
+    "symbol": "🗿",
+    "layoutkey": "otb",
+    "sizeX": 2,
+    "sizeY": 1,
+    "category": "deco",
+    "decoGroup": "furniture",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 600,
+    "gemcost": 6,
+    "filename": "oak-table.svg",
+    "artSpan": 1.45
+  },
+  {
+    "type": "Gargoyle",
+    "symbol": "🗿",
+    "layoutkey": "ggl",
+    "category": "deco",
+    "decoGroup": "castle;statuary",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 3000,
+    "gemcost": 30,
+    "filename": "gargoyle.svg",
+    "artSpan": 1.29
+  },
+  {
+    "type": "Stone Well",
+    "symbol": "📦",
+    "layoutkey": "swl",
+    "category": "deco",
+    "decoGroup": "farm",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 10,
+    "filename": "stone-well.svg",
+    "artSpan": 1.35
+  },
+  {
+    "type": "Hand Cart",
+    "symbol": "📦",
+    "layoutkey": "hct",
+    "sizeX": 2,
+    "sizeY": 1,
+    "category": "deco",
+    "decoGroup": "farm",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 600,
+    "gemcost": 6,
+    "filename": "hand-cart.svg",
+    "artSpan": 1.77
   },
   {
     "type": "Cactus",
     "symbol": "🌵",
     "layoutkey": "Cc",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
-    "passable": false,
+    "passable": true,
     "qtycollected": 1,
     "validong": true,
     "validond": true,
@@ -15279,6 +16266,7 @@
     "symbol": "🪉",
     "layoutkey": "ha",
     "category": "deco",
+    "decoGroup": "castle",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15293,14 +16281,17 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 100,
-    "gemcost": 1
+    "ingredient1qty": 750,
+    "gemcost": 8,
+    "filename": "harp.svg",
+    "artSpan": 1.3
   },
   {
     "type": "Flag",
     "symbol": "🚩",
     "layoutkey": "Fl",
     "category": "deco",
+    "decoGroup": "castle",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15324,6 +16315,7 @@
     "symbol": "📦",
     "layoutkey": "deco01",
     "category": "deco",
+    "decoGroup": "farm",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15341,13 +16333,14 @@
     "ingredient1qty": 30,
     "gemcost": 1,
     "filename": "sack.svg",
-    "artSpan": 0.73
+    "artSpan": 0.65
   },
   {
     "type": "Stack of Books",
     "symbol": "📚",
     "layoutkey": "Bo",
     "category": "deco",
+    "decoGroup": "furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15362,14 +16355,17 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 10
+    "ingredient1qty": 150,
+    "gemcost": 2,
+    "filename": "stack-of-books.svg",
+    "artSpan": 0.8
   },
   {
     "type": "Chair",
     "symbol": "🪑",
     "layoutkey": "Ch",
     "category": "deco",
+    "decoGroup": "furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15384,36 +16380,19 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 10
-  },
-  {
-    "type": "Toilet",
-    "symbol": "🚽",
-    "layoutkey": "To",
-    "category": "deco",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 10
+    "ingredient1qty": 200,
+    "gemcost": 2,
+    "filename": "chair.svg",
+    "artSpan": 1.16
   },
   {
     "type": "Bed",
     "symbol": "🛏️",
+    "sizeX": 1,
+    "sizeY": 2,
     "layoutkey": "Bd",
     "category": "deco",
+    "decoGroup": "furniture",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15428,59 +16407,17 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 50
-  },
-  {
-    "type": "Teddy Bear",
-    "symbol": "🧸",
-    "layoutkey": "TB",
-    "category": "deco",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 7500,
-    "gemcost": 75
-  },
-  {
-    "type": "Slide",
-    "symbol": "🛝",
-    "layoutkey": "Sl",
-    "size": 2,
-    "category": "deco",
-    "source": "Deco",
-    "passable": false,
-    "qtycollected": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": true,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "ingredient1": "Money",
-    "ingredient1qty": 15000,
-    "gemcost": 150
+    "ingredient1qty": 1500,
+    "gemcost": 15,
+    "filename": "bed.svg",
+    "artSpan": 1.75
   },
   {
     "type": "Birdbath",
     "symbol": "⛲️",
     "layoutkey": "BB",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15495,8 +16432,8 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 8000,
-    "gemcost": 80,
+    "ingredient1qty": 1500,
+    "gemcost": 15,
     "filename": "bird-bath.svg",
     "artSpan": 0.87
   },
@@ -15505,6 +16442,7 @@
     "symbol": "⛲️",
     "layoutkey": "Fo",
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15519,8 +16457,8 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 100,
+    "ingredient1qty": 6000,
+    "gemcost": 60,
     "filename": "fountain.svg",
     "artSpan": 0.98
   },
@@ -15530,6 +16468,7 @@
     "layoutkey": "F2",
     "size": 2,
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15553,8 +16492,8 @@
     "type": "Large Decorative Palm Tree",
     "symbol": "🌴",
     "layoutkey": "P2",
-    "size": 2,
     "category": "deco",
+    "decoGroup": "garden",
     "source": "Deco",
     "passable": false,
     "qtycollected": 1,
@@ -15569,9 +16508,10 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 40000,
-    "gemcost": 400,
-    "filename": "palm-tree.svg"
+    "ingredient1qty": 2500,
+    "gemcost": 25,
+    "filename": "palm-tree.svg",
+    "artSpan": 2.3
   },
   {
     "type": "Dunsinane",

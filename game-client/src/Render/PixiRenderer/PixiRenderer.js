@@ -51,10 +51,19 @@ import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathi
 import BreathSprite from './BreathSprite';
 import { WALK } from './walking';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
+import { skillsBySource as buildSkillsBySource, useBuildingOffers } from '../../Utils/buildingStatus';
+import { getDerivedLevel } from '../../Utils/playerManagement';
+import { getMasterXPLevels } from '../../Utils/TuningManager';
 
 // The farm animal's ready ✅ sits this many tiles lower than the humanoid head-top spot, so it
 // hugs the animal's art (owner 2026-11-10); quest/trade NPC overlays are unchanged
 const FARM_ANIMAL_OVERLAY_DROP = 0.15;
+
+// Building overlays (✅, clock, ?) sit centred at the top of the footprint, over the art
+// (owner 2026-11-10): twice the old size, except crafting stations and pets (the old size)
+const BUILDING_OVERLAY = 0.8;  // of a tile
+const SMALL_OVERLAY = 0.4;
+const SMALL_OVERLAY_CATEGORIES = new Set(['crafting', 'pet']);
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
@@ -1446,6 +1455,11 @@ const PixiRenderer = ({
 
   // Note: PC rendering is now handled by PixiRendererPCs component
 
+  // What buildings have for the player: skills to take, open Bank / Caravan / Harvest Festival offers (Utils/buildingStatus.js)
+  const skillsBySourceMap = useMemo(() => buildSkillsBySource(masterResources), [masterResources]);
+  const buildingOffers = useBuildingOffers({ resources: scene ? null : resources, currentPlayer, timers });
+  const playerLevel = getDerivedLevel(currentPlayer, getMasterXPLevels() || []);
+
   // Render resource overlays (checkmarks, clocks, etc.)
   // Uses object pooling to prevent GPU memory exhaustion from creating/destroying sprites
   useEffect(() => {
@@ -1520,7 +1534,8 @@ const PixiRenderer = ({
           computedTradingStatus,
           badgeState,
           electionPhase,
-          currentPlayer
+          currentPlayer,
+          currentPlayer ? { level: playerLevel, skillsBySource: skillsBySourceMap, buildingOffers, inventory, backpack, masterResources } : null
         );
 
         if (!overlayInfo) continue;
@@ -1529,11 +1544,12 @@ const PixiRenderer = ({
         const svgFilename = OVERLAY_SVG_MAPPING[overlayType];
         const emojiMapping = OVERLAY_EMOJI_MAPPING[overlayType];
 
-        // Position overlay at bottom-left corner of resource
+        // Centred at the top of the footprint (anchored at its lower-left tile, growing up), inside it
         // At settlement zoom, apply grid offset
-        const overlaySize = TILE_SIZE * 0.4;
-        const x = gridOffsetX + resource.x * TILE_SIZE + 2;
-        const y = gridOffsetY + resource.y * TILE_SIZE + TILE_SIZE - overlaySize - 2;
+        const { w: fpW, h: fpH } = footprintOf(resource);
+        const overlaySize = TILE_SIZE * (SMALL_OVERLAY_CATEGORIES.has(resource.category) ? SMALL_OVERLAY : BUILDING_OVERLAY);
+        const x = gridOffsetX + (resource.x + fpW / 2) * TILE_SIZE - overlaySize / 2;
+        const y = gridOffsetY + (resource.y - fpH + 1) * TILE_SIZE + 2;
 
         // Get overlay from pool
         const overlay = getOverlayFromPool(overlaysUsed);
@@ -1647,7 +1663,7 @@ const PixiRenderer = ({
     };
 
     renderOverlays();
-  }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY, headTick]); // TILE_SIZE removed - it's constant now; headTick: an NPC's head was measured
+  }, [resources, npcs, computedCraftingStatus, computedTradingStatus, badgeState, electionPhase, currentPlayer, gridOffsetX, gridOffsetY, headTick, buildingOffers, inventory, backpack, playerLevel, skillsBySourceMap, masterResources]); // TILE_SIZE removed - it's constant now; headTick: an NPC's head was measured
 
   // Handle click events - check NPCs and PCs before falling through to tile click
   // Latest props for callbacks that fire after a walk (the click closure would be stale by then)

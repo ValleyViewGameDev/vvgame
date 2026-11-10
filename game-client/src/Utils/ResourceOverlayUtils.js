@@ -1,5 +1,6 @@
 // Shared utility for determining resource overlay status
 // Used by both DOM and Canvas rendering systems
+import { skillOverlay, offersOverlay, OFFER_BUILDINGS } from './buildingStatus';
 
 export const getResourceOverlayStatus = (
   resource, 
@@ -7,7 +8,8 @@ export const getResourceOverlayStatus = (
   tradingStatus, 
   badgeState, 
   electionPhase,
-  currentPlayer
+  currentPlayer,
+  extra = null // { level, skillsBySource, buildingOffers, inventory, backpack, masterResources } (Utils/buildingStatus.js)
 ) => {
   if (!resource) return null;
 
@@ -47,15 +49,29 @@ export const getResourceOverlayStatus = (
   }
   
   
-  // Courthouse/Election status
+  // Courthouse/Election status: a sign for each phase (owner 2026-11-10); the clock is the
+  // cooldown between elections (Administration, and the minute of Counting)
   if (resource.type === 'Courthouse') {
-    if (electionPhase === 'Campaigning') {
-      return { type: 'campaign', priority: 3 };
-    } else if (electionPhase === 'Voting') {
-      return { type: 'voting', priority: 1 };
-    }
+    if (electionPhase === 'Campaigning') return { type: 'campaign', priority: 3 };
+    if (electionPhase === 'Voting') return { type: 'voting', priority: 1 };
+    if (electionPhase === 'Administration' || electionPhase === 'Counting') return { type: 'cooldown', priority: 4 };
   }
-  
+
+  if (extra) {
+    // Bank, Caravan, Harvest Festival: once the level unlocks them, ? for open offers, ✅ when one can be paid
+    const offerKey = OFFER_BUILDINGS[resource.type];
+    if (offerKey) {
+      const row = extra.masterResources?.find((r) => r.type === resource.type);
+      if (!row?.level || extra.level >= row.level) {
+        const type = offersOverlay(extra.buildingOffers?.[offerKey], extra.inventory, extra.backpack);
+        if (type) return { type, priority: type === 'ready' ? 1 : 3 };
+      }
+    }
+    // A skill the player can take here now: the green ? when they can also pay for one
+    const skillType = extra.skillsBySource && skillOverlay(resource.type, extra.skillsBySource, currentPlayer, extra.level, extra.inventory, extra.backpack);
+    if (skillType) return { type: skillType, priority: skillType === 'question-ready' ? 2 : 3 };
+  }
+
   // No overlay needed
   return null;
 };
@@ -64,22 +80,25 @@ export const getResourceOverlayStatus = (
 export const OVERLAY_SVG_MAPPING = {
   'ready': 'checkmark.svg',
   'completed': 'checkmark.svg', 
-  'voting': 'checkmark.svg',
+  // campaign and voting have no painted art yet: their emoji below draws them
   'inprogress': 'clock.svg',
-  'campaign': 'clock.svg',
+  'cooldown': 'clock.svg',
   'available': 'hand.svg',
   'question': 'question.svg',
+  'question-ready': 'question-green.svg', // a skill here is open AND affordable (checkmark green)
 };
 
 // Mapping from overlay types to emoji (for DOM fallback)
 export const OVERLAY_EMOJI_MAPPING = {
   'ready': { emoji: '✅', color: 'green' },
   'completed': { emoji: '✅', color: '#32CD32' },
-  'voting': { emoji: '✅', color: 'green' },
+  'voting': { emoji: '🗳️', color: 'green' },
   'inprogress': { emoji: '🕑', color: 'orange' },
-  'campaign': { emoji: '🕐', color: '#FFD700' },
+  'cooldown': { emoji: '🕑', color: 'orange' },
+  'campaign': { emoji: '📣', color: '#FFD700' },
   'available': { emoji: '👋', color: '#FFD700' },
   'question': { emoji: '❓', color: '#f2b705' },
+  'question-ready': { emoji: '❓', color: 'green' },
   'exclamation': { emoji: '❗', color: '#FF6B35' },
   'attack': { emoji: '⚔️', color: '#DC143C' },
 };

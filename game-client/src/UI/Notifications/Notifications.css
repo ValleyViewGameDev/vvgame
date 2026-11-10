@@ -90,6 +90,8 @@
 }
 /* a character's round profile icon (UI/Icons/NPCPortrait), the image icon's size */
 .notification-portrait { width: 44px; }
+/* the Tutorial (FTUE) toast's speaker is bigger: the character is the point of it (owner 2026-11-10) */
+.notification-icon-wrapper--ftue .notification-portrait { width: 68px; }
 /* An icon inside the toast text ({icon:file.svg} in the string) */
 .notification-inline-icon {
     width: 1.25em;

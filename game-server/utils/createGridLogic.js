@@ -13,7 +13,12 @@ const seasonsConfig = require('../tuning/seasons.json');
 const UltraCompactResourceEncoder = require('./ResourceEncoder');
 const TileEncoder = require('./TileEncoder');
 
-async function performGridCreation({ gridCoord, gridType, settlementId, frontierId, ownerId = null, perPlayer = false, seasonNumber = null }) {
+// A first-time player's new homestead: its grazing animals (the layout's two Cows) are already
+// part-way through a graze, so the first Milk is ready within minutes
+// (globalTuning.firstHomesteadGrazeSeconds; owner 2026-11-10: level 4 was slow).
+const FIRST_HOMESTEAD_GRAZE_MS = (Number(require('../tuning/globalTuning.json').firstHomesteadGrazeSeconds) || 120) * 1000;
+
+async function performGridCreation({ gridCoord, gridType, settlementId, frontierId, ownerId = null, perPlayer = false, seasonNumber = null, firstHomestead = false }) {
   if (!gridCoord || !gridType || !settlementId || !frontierId) {
     throw new Error('gridCoord, gridType, settlementId, and frontierId are required.');
   }
@@ -112,8 +117,12 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
         resourceDistribution = seasonData.seasonTownCrops;
         console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
       } else if (gridType === 'homestead' && seasonData.seasonHomesteadCrops) {
-        resourceDistribution = seasonData.seasonHomesteadCrops;
-        console.log(`🏡 Applying seasonHomesteadCrops for ${seasonType} homestead: ${Object.keys(resourceDistribution).length} resource types`);
+        // A new homestead gets no random seasonal pickups (crops, Money): with Audrey at L5 they threw
+        // off the early tuning, and the Town is the discovery ground now (owner 2026-11-10). Only the
+        // table's non-pickup rows (the Oak Tree fill) are placed; the layout's own crops stay.
+        resourceDistribution = Object.fromEntries(Object.entries(seasonData.seasonHomesteadCrops)
+          .filter(([type]) => masterResources.find((r) => r.type === type)?.category !== 'doober'));
+        console.log(`🏡 Applying seasonHomesteadCrops (no pickups) for ${seasonType} homestead: ${Object.keys(resourceDistribution).join(', ') || 'none'}`);
       } else {
         console.warn(`⚠️ No seasonal crops found for ${gridType} in season: ${seasonType}`);
       }
@@ -187,6 +196,10 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
             speed: entry.speed || 1,
             lastUpdated: 0,
           };
+          if (firstHomestead && entry.action === 'graze') {
+            newGridState.npcs[npcId].state = 'grazing';
+            newGridState.npcs[npcId].grazeEnd = Date.now() + FIRST_HOMESTEAD_GRAZE_MS;
+          }
         }
       });
     });

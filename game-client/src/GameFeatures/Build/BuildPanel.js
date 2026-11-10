@@ -16,6 +16,7 @@ import { getMayorUsername } from '../Government/GovUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
 import { loadMasterResources } from '../../Utils/TuningManager';
+import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -180,7 +181,7 @@ const BuildPanel = ({
                                (String(currentPlayer.location.s) === String(currentPlayer.settlementId) || isDeveloper)
         });
         
-        setBuildOptions(validBuildOptions); 
+        setBuildOptions(sortByLevel(validBuildOptions));
       } catch (error) {
         console.error('Error fetching build panel data:', error);
       } finally {

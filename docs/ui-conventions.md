@@ -252,6 +252,19 @@ value rather than trust this page.
   relationship card, quests, trades) comes after that row. No citizen status line in this panel:
   with it open the NPC is always "waiting for you" (the Farm Animal panel keeps its line). Enemies have no panel (a tap
   attacks), so this does not apply to them.
+- **Offer lists are in level order** (owner 2026-11-10): every shop, training, build, buy, farming
+  and NPC-trade list shows its offers by unlock level, lowest first (`Utils/levelOrder.js`
+  `sortByLevel`; stable, so one level keeps the data's order). Crafting stations and shops already
+  did (scroll-only last at a shop). The deco catalogue is the exception: cheapest first (owner 2026-11-08).
+- **Board overlays on buildings** (owner 2026-11-10; `PixiRenderer.js` resource overlays,
+  `Utils/ResourceOverlayUtils.js`, `Utils/buildingStatus.js`): the ✅ / clock / "?" sits centred at
+  the TOP of the building's footprint, inside it and over the art (NPC overlays instead float above
+  the head). Size 0.8 of a tile; crafting stations and pets keep 0.4. A building shows "?" while it
+  teaches a skill the player can take now (not owned, level and required skill met, costs aside),
+  the GREEN ? (`assets/overlays/question-green.svg`, the checkmark's green) once they can also pay for one.
+  Bank, Caravan (Train) and Harvest Festival (Carnival), once the level unlocks them: "?" for open
+  offers, ✅ when the player already holds the goods for one. Courthouse: 📣 campaigning, 🗳️ voting,
+  the clock between elections (campaign and voting have no painted art yet: emoji).
 - **The Player panel mirrors it** (owner 2026-11-10; `GameFeatures/Social/PlayerPanel.js`): the
   title is the greeting "Hi, {username}" (string 4051 + the name, set in `SocialPanel.js`), not
   "Player Character". First row: the player's avatar (their saved look's face, else the figure

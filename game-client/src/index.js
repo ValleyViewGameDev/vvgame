@@ -14,6 +14,7 @@ import { ModalProvider } from './UI/ModalContext';
 import { GemSpendConfirmHost } from './UI/Modals/GemSpendConfirm';
 import { StatueHost } from './GameFeatures/Story/gertrudeWaking';
 import { HopeFinaleHost } from './GameFeatures/Story/hopeFinale';
+import { BulkResultsHost } from './GameFeatures/FarmHands/BulkResultsHost';
 import { ReunionHost } from './GameFeatures/Story/violaReunion';
 import { GameDialogHost } from './UI/Modals/GameDialog';
 import { UpdatePromptHost } from './UI/Modals/UpdatePrompt';
@@ -82,6 +83,7 @@ if (!window.__app_rendered__) {
                         <GemSpendConfirmHost />
                         <StatueHost />
                         <HopeFinaleHost />
+                        <BulkResultsHost />
                         <ReunionHost />
                         <GameDialogHost />
                         <UpdatePromptHost />

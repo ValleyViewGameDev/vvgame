@@ -130,6 +130,7 @@
       "aspirational": 0.6
     }
   },
+  "firstHomesteadGrazeSeconds": 120,
   "tradeStallSlots": [
     {
       "slotIndex": 0,

@@ -157,6 +157,7 @@ import { installScrollFade } from './UI/Panels/scrollFade';
 import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
 import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
 import useSnugLesson from './GameFeatures/NPCs/useSnugLesson';
+import useAudreyLesson from './GameFeatures/FarmHands/useAudreyLesson';
 import { useMoveMode, MoveBanner } from './GameFeatures/Move/useMoveMode';
 import { playCutscene } from './Utils/cutscene';
 import { isInputLocked } from './Utils/inputLock';
@@ -1827,10 +1828,15 @@ useEffect(() => {
 // The Snug lesson (OB-9): a one-time forced flow to Snug's Travel modal on the first valley town
 // after the FTUE; merged into the FTUE's scrim / doinker below (GameFeatures/NPCs/useSnugLesson.js)
 const snugLesson = useSnugLesson({ currentPlayer, setCurrentPlayer, gridId, isAppInitialized, closePanel, strings });
-const shownScrim = scrimTarget || snugLesson?.scrim || null;
-const shownDoinkerTargets = doinkerTargets || snugLesson?.doinkerTargets || null;
-const shownDoinkerType = doinkerTargets ? doinkerType : (snugLesson?.doinkerType || doinkerType);
-const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (snugLesson?.doinkerPointing || doinkerPointing);
+// The Audrey lesson: a one-time forced flow, at level 5 on the homestead, to hire Audrey and open her
+// Bulk Harvest (GameFeatures/FarmHands/useAudreyLesson.js); waits for the level-up modal and the survey nudge
+const audreyLesson = useAudreyLesson({ currentPlayer, setCurrentPlayer, gridId, level: currentLevel, isAppInitialized,
+  blocked: isLevelUpModalOpen || showSurveyPrompt, closePanel, strings });
+const lesson = snugLesson || audreyLesson;
+const shownScrim = scrimTarget || lesson?.scrim || null;
+const shownDoinkerTargets = doinkerTargets || lesson?.doinkerTargets || null;
+const shownDoinkerType = doinkerTargets ? doinkerType : (lesson?.doinkerType || doinkerType);
+const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (lesson?.doinkerPointing || doinkerPointing);
 
 // The survey nudge (docs/launch-checklist.md): once per profile, when the first level-up modal at
 // SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (moment 'survey', Utils/moments.js),

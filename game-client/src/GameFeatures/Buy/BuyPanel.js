@@ -16,6 +16,7 @@ import { getDerivedLevel } from '../../Utils/playerManagement';
 import { updatePlayerSettings } from '../../settings';
 import { withScaledAnimalCost } from '../FarmAnimals/animalPricing';
 import { loadMasterResources } from '../../Utils/TuningManager';
+import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
 
 // Farm Animals Progress Bar Component
 const FarmAnimalsProgressBar = ({ currentFarmAnimals, maxFarmAnimals }) => {
@@ -175,7 +176,7 @@ const BuyPanel = ({
             return true;
           }
         );
-        setBuyOptions(purchasableItems);
+        setBuyOptions(sortByLevel(purchasableItems));
       } catch (error) {
         console.error('Error fetching buy panel data:', error);
       } finally {

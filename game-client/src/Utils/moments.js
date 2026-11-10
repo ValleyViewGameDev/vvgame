@@ -19,7 +19,8 @@ import axios from 'axios';
  *   - LEGACY               the stamps written before moments existed, so old accounts are not asked
  *                          again (no migration needed).
  *
- * Keys in use: survey (the L5 survey nudge), email (the email ask), snugLesson (Travel with Snug).
+ * Keys in use: survey (the L5 survey nudge), email (the email ask), snugLesson (Travel with Snug),
+ * audreyLesson (hire Audrey at L5, FarmHands/useAudreyLesson.js).
  * A key is a short name: letters first, then letters, digits, - or _ (no dots).
  */
 const LEGACY = {

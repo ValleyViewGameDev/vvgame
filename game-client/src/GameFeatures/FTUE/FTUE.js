@@ -446,6 +446,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}
         intro={uiString(strings, currentStepData.bodyKey)}
+        startRandomBody="male"
         onClose={handleOK}
         onSaved={() => handleOK()}
       />

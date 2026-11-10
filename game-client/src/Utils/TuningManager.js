@@ -179,6 +179,9 @@ export async function loadMasterXPLevels() {
   return masterXPLevels;
 }
 
+/** The cached xpLevels.json thresholds (null until loadMasterXPLevels has run). */
+export function getMasterXPLevels() { return masterXPLevels; }
+
 /**
  * Fetch and cache FTUEsteps.json
  */

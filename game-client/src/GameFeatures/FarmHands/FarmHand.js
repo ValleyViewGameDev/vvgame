@@ -19,10 +19,9 @@ import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './BulkHarvest';
-import BulkHarvestResultsModal from './BulkHarvestResultsModal';
+import { showBulkResults } from './BulkResultsHost';
 import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
-import BulkCraftingResultsModal from './BulkCraftingResultsModal';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
@@ -78,15 +77,11 @@ const FarmHandPanel = ({
   const [workerUpgrades, setFarmhandUpgrades] = useState([]);
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
   const [availableCrops, setAvailableCrops] = useState([]);
-  const [bulkHarvestResults, setBulkHarvestResults] = useState(null);
-  const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
   const [isAnimalModalOpen, setIsAnimalModalOpen] = useState(false);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
   const [availableAnimals, setAvailableAnimals] = useState([]);
   const [isCraftingModalOpen, setIsCraftingModalOpen] = useState(false);
   const [availableCraftingStations, setAvailableCraftingStations] = useState([]);
-  const [bulkCraftingResults, setBulkCraftingResults] = useState(null);
-  const [isCraftingResultsModalOpen, setIsCraftingResultsModalOpen] = useState(false);
   const skills = withWorkerSkill(currentPlayer.skills, npc?.type || stationType);
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
@@ -601,12 +596,9 @@ const FarmHandPanel = ({
 
         // Handle the new results format
         if (result.success) {
-          // Store results for modal display
-          setBulkHarvestResults(result);
-          // Show results modal after a brief delay
-          setTimeout(() => {
-            setIsResultsModalOpen(true);
-          }, 500);
+          // The panel closes now and the results show over the board (BulkResultsHost, app root)
+          onClose();
+          setTimeout(() => showBulkResults('harvest', result, masterResources), 500);
           // Return status message for any fallback displays
           return result.statusMessage;
         } else {
@@ -679,12 +671,9 @@ const FarmHandPanel = ({
 
       // Handle the new results format
       if (result.success) {
-        // Store results for modal display
-        setBulkCraftingResults(result);
-        // Show results modal after a brief delay
-        setTimeout(() => {
-          setIsCraftingResultsModalOpen(true);
-        }, 500);
+        // The panel closes now and the results show over the board (BulkResultsHost, app root)
+        onClose();
+        setTimeout(() => showBulkResults('crafting', result, masterResources), 500);
         // Return status message for any fallback displays
         return result.statusMessage;
       } else {
@@ -753,7 +742,7 @@ const FarmHandPanel = ({
         <CitizenStatusLine npc={npc} gridId={currentPlayer?.location?.g} />
 
         {showBulkHarvest && skills?.some(item => item.type === 'Bulk Harvest') && (
-          <div>
+          <div data-tutorial="bulk-harvest">
             <ResourceButton
               symbol="🌱"
               name={getLocalizedString('Bulk Harvest', strings)}
@@ -941,30 +930,6 @@ const FarmHandPanel = ({
         message={bulkProgressModal.message}
       />
 
-      {/* Bulk Harvest Results Modal */}
-      <BulkHarvestResultsModal
-        isOpen={isResultsModalOpen}
-        onClose={() => {
-          setIsResultsModalOpen(false);
-          setBulkHarvestResults(null);
-        }}
-        results={bulkHarvestResults}
-        strings={strings}
-        masterResources={masterResources}
-      />
-
-      {/* Bulk Crafting Results Modal */}
-      <BulkCraftingResultsModal
-        isOpen={isCraftingResultsModalOpen}
-        onClose={() => {
-          setIsCraftingResultsModalOpen(false);
-          setBulkCraftingResults(null);
-          onClose();
-        }}
-        results={bulkCraftingResults}
-        strings={strings}
-        masterResources={masterResources}
-      />
     </Panel>
   );
 

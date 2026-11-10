@@ -66,9 +66,11 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
   const displaySymbol = symbol || npcData?.symbol || '?';
 
   // The name under the icon (every version of this modal)
-  const spriteDef = !npcName && npcFilename
-    ? (getMasterResources() || []).find((r) => r.filename === npcFilename || r.iconFile === npcFilename)
-    : null;
+  // an NPC row wins: an item can share its art (Gertrude's Secret is drawn with Gertrude's head)
+  const spriteMatches = !npcName && npcFilename
+    ? (getMasterResources() || []).filter((r) => r.filename === npcFilename || r.iconFile === npcFilename)
+    : [];
+  const spriteDef = spriteMatches.find((r) => r.category === 'npc') || spriteMatches[0] || null;
   const nameType = npcName || spriteDef?.type;
 
   // The picture: a character speaks with its FACE (owner 2026-11-10). The speaker's row gives its

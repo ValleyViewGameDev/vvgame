@@ -465,6 +465,7 @@ router.post('/create-homestead', async (req, res) => {
       gridType: 'homestead',
       settlementId: targetSettlement._id,
       frontierId: player.frontierId,
+      firstHomestead: true, // its Cows start 2 min from their first Milk
     });
 
     if (!gridResult?.success || !gridResult.gridId) {

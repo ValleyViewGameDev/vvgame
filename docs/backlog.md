@@ -195,8 +195,8 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   modal opens, control returns and the `snugLesson` moment is stamped (`Utils/moments.js`,
   `player.moments`, 2026-11-06). A persistent toast (string 17027) explains Snug travel. The
   Trading Post half is not taught yet.
-- **OB-11. Re-lay the town so early buildings and characters sit by the entry** (added
-  2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
+- **OB-11. Re-lay the town so early buildings and characters sit by the entry (LAUNCH BLOCKER,
+  owner 2026-11-10)** (added 2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
   where the player enters town, and the later ones farther in, so a new player meets what they
   can use first. Touch points: `game-server/layouts/gridLayouts/town/townN.json` (townE/S/W are
   derived from it by `tools/rotate-town.py`; `tools/expand-town.py` for footprints), the arrival

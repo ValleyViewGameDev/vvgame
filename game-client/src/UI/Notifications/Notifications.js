@@ -163,7 +163,7 @@ function Notification({ type, data, onDismiss, onClick }) {
             case 'FTUE':
                 return (
                     <>
-                        <div className="notification-icon-wrapper">
+                        <div className="notification-icon-wrapper notification-icon-wrapper--ftue">
                             <div className="notification-icon">{renderIcon(data, null, '/assets/icons/icon-help-small.svg')}</div>
                         </div>
                         <div className="notification-text">

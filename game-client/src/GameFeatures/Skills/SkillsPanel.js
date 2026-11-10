@@ -24,6 +24,7 @@ import { sellSection } from '../../UI/Panels/SellSection';
 import { requestMove } from '../Move/moveMode';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { isMultiTile } from '../../Utils/footprint';
+import { sortByLevel } from '../../Utils/levelOrder'; // offers by unlock level (owner 2026-11-10)
 
 const SkillsPanel = ({
     onClose,
@@ -102,7 +103,7 @@ const SkillsPanel = ({
           res.source === entryPoint
         );
 
-        setSkillsToAcquire(availableSkills);
+        setSkillsToAcquire(sortByLevel(availableSkills));
       } catch (error) {
         console.error('Error fetching resources, inventory, or skills:', error);
       } finally {
@@ -205,7 +206,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   applyPlayerDelta(answer.data, deltaSetters);
   if (!answer.ok) {
     setOwnedSkills((prev) => prev.filter((sk) => sk.type !== resource.type));
-    setSkillsToAcquire((prev) => (prev.some((sk) => sk.type === resource.type) ? prev : [...prev, resource]));
+    setSkillsToAcquire((prev) => (prev.some((sk) => sk.type === resource.type) ? prev : sortByLevel([...prev, resource])));
     setErrorMessage('Error updating player on server.');
     updateStatus(4);
     return;

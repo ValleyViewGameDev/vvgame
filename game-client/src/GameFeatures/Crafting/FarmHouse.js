@@ -284,6 +284,7 @@ const FarmHouse = ({
     setCraftedItem(null);
     setCraftingCountdown(null);
     setIsReadyToCollect(false);
+    if (isNPC) onClose?.(); // a new worker walks out onto the board: the panel gets out of the way (owner 2026-11-10)
   };
 
   const handleSellStation = async (transactionId, transactionKey) => {
@@ -343,6 +344,7 @@ const FarmHouse = ({
     if (isNPC) showNewWorker(collected.type, home);
     showTrophies(trophies);
     updateStatus(`{res:${collected.type}} ${getLocalizedString(collected.type, strings)}`);
+    if (isNPC) onClose?.(); // as on collect: the new worker is on the board
   };
 
   // Sell section, pinned under the panel (UI/Panels/SellSection.js): Sell (the refund) and Move

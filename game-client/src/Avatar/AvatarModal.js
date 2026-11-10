@@ -150,7 +150,9 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   return src ? <img className={`avatar-preview ${className}`} src={src} alt="" width={size} height={size} draggable={false} /> : <div className={`avatar-preview avatar-preview-empty ${className}`} style={{ width: size, height: size }} />;
 }
 
-export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInventory, setBackpack, masterResources, updateStatus, onClose, onSaved, intro = null }) {
+// startRandomBody ('male' / 'female'): open on a fresh Random look of that body instead of the saved
+// one, as if the player had pressed Random (the FTUE's avatar step, owner 2026-11-10)
+export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInventory, setBackpack, masterResources, updateStatus, onClose, onSaved, intro = null, startRandomBody = null }) {
   const strings = useStrings();
   const [data, setData] = useState(null);           // { catalogue, palettes }
   const [spec, setSpec] = useState(null);
@@ -172,6 +174,11 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, setInvent
       const known = new Set([...d.catalogue, ...d.palettes].map((r) => r.id));
       const own = currentPlayer?.avatar && currentPlayer.avatar.skin ? cleanSpec(currentPlayer.avatar) : null;
       const sane = own ? Object.fromEntries(Object.entries(own).map(([k, v]) => [k, k === 'v' || v == null || known.has(v) ? v : starter[k]])) : null;
+      if (startRandomBody) {
+        dirtyRef.current = true; // as the Random button: the look is a change the player can save
+        setSpec((prev) => prev || randomSpec(d.catalogue, d.palettes, Math.random, startRandomBody));
+        return;
+      }
       setSpec((prev) => prev || (sane ? withEyes(d.catalogue, sane) : starter));
     });
     return () => { live = false; };

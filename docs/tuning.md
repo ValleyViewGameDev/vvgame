@@ -95,6 +95,17 @@ than 210; from level 10 the curve is unchanged. Level 8 is the Bank's first leve
 has only Kent and the Bank as XP outlets, so it had read as a wait. Both values are lower:
 nobody is demoted (one production player in range, 693 XP, stays level 9).
 
+2026-11-10 (owner: "level 4 is a little slow"): the level 4 to 5 step went 50 to 45 XP
+(threshold 100 to 95), so the 5 to 6 step is 105; from level 6 the curve is unchanged. Lower,
+so nobody is demoted. The same day the first homestead's two Cows start 2 min from their first
+Milk (`globalTuning.firstHomesteadGrazeSeconds`), so Kent's Milk asks can be met early.
+
+2026-11-10 (owner: an early Audrey bulk-collects whatever lies on the homestead): a NEW homestead no
+longer gets the random seasonal pickups (`seasons.json` `seasonHomesteadCrops`' crops and Money;
+`createGridLogic.js` keeps only its non-pickup rows, the Oak Tree fill; the layout's own crops stay),
+and the Town's random seasonal pickups (`seasonTownCrops`) are halved per resource, rounded up
+(64 to 33 a season), at creation and at season reset alike. The Town is the discovery ground now.
+
 ## 4. Kent (game-server/utils/kentOffers.js, Kent.js, globalTuning.json)
 
 Kent's board is generated and every sale checked on the server since 2026-11-04 (routes/kentRoutes.js,
