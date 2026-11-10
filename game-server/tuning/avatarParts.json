@@ -29,7 +29,9 @@
     "blinkFile": "lids-f-01.png",
     "blinkTint": "skinTone",
     "body": "female",
-    "notes": "probes-r1 lids-female-1 cut at the rig eye boxes"
+    "notes": "the iris lifted out of the face (tools/art/parts.js iris), tinted by eyeColor; blinkFile = probes-r1 lids-female-1 cut at the eye boxes",
+    "file": "iris-f-01.png",
+    "tint": "eyeColor"
   },
   {
     "id": "eyes-m-01",
@@ -39,7 +41,9 @@
     "blinkFile": "lids-m-01.png",
     "blinkTint": "skinTone",
     "body": "male",
-    "notes": "parts-r1 lids-m"
+    "notes": "the iris lifted out of the face (tools/art/parts.js iris), tinted by eyeColor; blinkFile = parts-r1 lids-m",
+    "file": "iris-m-01.png",
+    "tint": "eyeColor"
   },
   {
     "id": "hair-none",

@@ -22,6 +22,8 @@
  *                                                                <base>.skin.png (skin keyed inside the
  *                                                                rig's hand / foot boxes, its own colour)
  *   lids     --worn <closed-eyes png> --body female|male --out <png>     the blink layer: the eye boxes
+ *   iris     --in <face png> --out <png>                          the eye colour layer: the ring around each
+ *                                                                pupil, neutralised to grey for the eyeColor tint
  *   tint     --in <png> --hex #rrggbb --out <png>                 multiply preview
  *   compose  --out <png> <layer.png>[@#hex] ...                   stack layers (optional tint each)
  *   headcrop --in <figure png> --body female|male --out <png>     the face part: the square above the collar
@@ -89,7 +91,7 @@ function findEyes(img) {
   }
   if (!best) return null;
   const [l, r] = [best.a, best.b].sort((p, q) => p.cx - q.cx);
-  return [{ x: l.cx, y: l.cy }, { x: r.cx, y: r.cy }];
+  return [{ x: l.cx, y: l.cy, r: Math.sqrt(l.n / Math.PI) }, { x: r.cx, y: r.cy, r: Math.sqrt(r.n / Math.PI) }];
 }
 
 /** scale + translate `worn` so its eyes coincide with `base`'s; returns { img, info } */
@@ -267,6 +269,58 @@ function lidsLayer(img, body, crop = 2) {
   return out;
 }
 
+/**
+ * The IRIS layer of a face (the eye colour, docs/avatar-plan.md v2): the eyes are painted into the
+ * face, so the coloured ring around each pupil is lifted into its own layer, neutralised to grey
+ * (its shading kept, the brightest iris pixel near white) for the eyeColor multiply; it draws over
+ * the face. The pupils are found by findEyes (the rig's eye boxes sit a few units off on a base
+ * body); the iris radius is the last ring around the pupil that is mostly iris-like: not
+ * pupil-dark, not the white of the eye or the highlight, not skin.
+ */
+function irisLayer(img) {
+  const { d, W, H } = img; const eyes = findEyes(img); if (!eyes) return null;
+  const out = blank(W, H);
+  const irisLike = (i) => {
+    if (d[i + 3] < 200) return false;
+    const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]);
+    if (v < 0.16 || (v < 0.30 && sat < 0.30)) return false; // the black pupil, the lash line (a dark blue or brown iris edge is darker than 0.30 but saturated)
+    if (v > 0.85 && sat < 0.25) return false;         // the white of the eye, the highlight
+    if (h >= 5 && h <= 50 && v >= 0.72) return false; // skin (a brown iris is darker than skin)
+    return true;
+  };
+  const report = [];
+  const radii = [];
+  for (const e of eyes) {
+    // the iris radius: grow rings from the pupil's edge while most of the ring is iris-like
+    // (findEyes' dark blob can already include a dark iris edge, so the scan starts at the centre:
+    // the largest ring, out to 2.4 blob radii, that is at least 45 % iris-like)
+    let R = e.r;
+    for (let r = 1; r <= e.r * 2.4; r += 0.5) {
+      let n = 0, hit = 0;
+      for (let a = 0; a < 48; a++) { const x = Math.round(e.x + Math.cos(a / 48 * 2 * Math.PI) * r), y = Math.round(e.y + Math.sin(a / 48 * 2 * Math.PI) * r); if (x < 0 || y < 0 || x >= W || y >= H) continue; n++; if (irisLike((y * W + x) * 4)) hit++; }
+      if (n && hit / n >= 0.45) R = Math.max(R, r);
+    }
+    radii.push(R);
+  }
+  // both eyes are the same size: the far eye of a turned face is clipped by its outline and its
+  // rings read short, so the larger radius serves both (never more than 1.6 pupil-blob radii)
+  const Rmax = Math.max(...radii);
+  for (const e of eyes) {
+    const R = Math.min(Rmax, e.r * 1.6);
+    const px = []; let vmax = 0;
+    for (let y = Math.floor(e.y - R - 1); y <= e.y + R + 1; y++) for (let x = Math.floor(e.x - R - 1); x <= e.x + R + 1; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H || Math.hypot(x - e.x, y - e.y) > R + 0.5) continue;
+      const i = (y * W + x) * 4; if (!irisLike(i)) continue;
+      const v = hsv(d[i], d[i + 1], d[i + 2])[2]; px.push([i, v]); if (v > vmax) vmax = v;
+    }
+    // gamma 0.6 lifts the midtones: a painted iris is mostly mid-dark, and a plain multiply made every colour murky
+    for (const [i, v] of px) { const g = Math.round(Math.pow(Math.min(1, v / (vmax || 1)), 0.6) * 250); out.d[i] = g; out.d[i + 1] = g; out.d[i + 2] = g; out.d[i + 3] = 255; }
+    report.push({ x: Math.round(e.x), y: Math.round(e.y), pupil: +e.r.toFixed(1), iris: +R.toFixed(1), px: px.length });
+  }
+  console.log(JSON.stringify(report));
+  return out;
+}
+
 function tintImg(img, hex) {
   const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16); const out = { d: Buffer.from(img.d), W: img.W, H: img.H };
   for (let p = 0; p < img.W * img.H; p++) { const i = p * 4; if (!out.d[i + 3]) continue; out.d[i] = (out.d[i] * r) >> 8; out.d[i + 1] = (out.d[i + 1] * g) >> 8; out.d[i + 2] = (out.d[i + 2] * b) >> 8; }
@@ -281,6 +335,7 @@ function tintImg(img, hex) {
     case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female'); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found inside the rig boxes (misaligned, or long sleeves and hidden hands)'); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
+    case 'iris': { const out = irisLayer(await load(args.in)); if (!out) { console.error('no eyes found'); process.exit(2); } await save(out, args.out); break; }
     case 'tint': { const img = await load(args.in); await save(tintImg(img, args.hex), args.out); break; }
     case 'compose': {
       const layers = []; for (const spec of rest) { const [file, hex] = spec.split('@'); const img = await load(file); layers.push(hex ? tintImg(img, hex) : img); }
@@ -293,6 +348,6 @@ function tintImg(img, hex) {
       await sharp(args.in).extract({ left: Math.round(FX), top: 0, width: Math.round(TILE), height: Math.round(TILE) }).composite([{ input: Buffer.from(`<svg width="${Math.round(TILE)}" height="${Math.round(TILE)}"><rect x="0" y="${collar}" width="${Math.round(TILE)}" height="${Math.round(TILE) - collar}" fill="black"/></svg>`), blend: 'dest-out' }]).resize(+(args.px || 1024), +(args.px || 1024)).png().toFile(args.out);
       break;
     }
-    default: console.error('commands: key align diff fitbody split lids tint compose headcrop'); process.exit(1);
+    default: console.error('commands: key align diff fitbody split lids iris tint compose headcrop'); process.exit(1);
   }
 })().catch((e) => { console.error(e); process.exit(1); });

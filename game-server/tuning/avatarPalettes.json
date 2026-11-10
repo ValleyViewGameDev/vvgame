@@ -87,8 +87,42 @@
     "id": "eye-blue",
     "slot": "eyeColor",
     "label": "Blue",
-    "hex": "#4A7FB5",
-    "tier": "free",
-    "notes": "unused for now: the eyes are drawn in the face"
+    "hex": "#4A90D9",
+    "tier": "free"
+  },
+  {
+    "id": "eye-green",
+    "slot": "eyeColor",
+    "label": "Green",
+    "hex": "#4FA35A",
+    "tier": "free"
+  },
+  {
+    "id": "eye-brown",
+    "slot": "eyeColor",
+    "label": "Brown",
+    "hex": "#8A5A2B",
+    "tier": "free"
+  },
+  {
+    "id": "eye-hazel",
+    "slot": "eyeColor",
+    "label": "Hazel",
+    "hex": "#A8843C",
+    "tier": "free"
+  },
+  {
+    "id": "eye-grey",
+    "slot": "eyeColor",
+    "label": "Grey",
+    "hex": "#93A1AD",
+    "tier": "free"
+  },
+  {
+    "id": "eye-amber",
+    "slot": "eyeColor",
+    "label": "Amber",
+    "hex": "#D08C2A",
+    "tier": "free"
   }
 ]

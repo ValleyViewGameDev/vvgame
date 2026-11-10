@@ -475,6 +475,17 @@ row onto collar .. the base body's lowest row (vertical only: shoulders and hand
 the head and the rig boxes). All six bodies (two shifts, four outfits) now share one top and
 one bottom row. Pipeline for an outfit: `figurecut` → `align --overflow` → `fitbody` → `split`.
 
+**Eye colour works (owner 2026-11-10).** The eyes are painted into the face, so
+`parts.js iris` lifts the coloured ring around each pupil into its own layer
+(`eyes/iris-<body>-01.png`): the pupils come from `findEyes` (the rig's eye boxes sit a few
+units off on a base body), the iris radius is the largest ring that is at least 45 % iris-like
+(not the black pupil or lash line, not the white of the eye or the highlight, not skin), both
+eyes share the larger radius (the far eye of a turned face is clipped by its outline), and the
+ring is neutralised to grey with gamma 0.6 so a multiply does not turn every colour murky.
+The eyes row carries it as `file` with `tint: eyeColor` (drawn over the face; the blink frame
+still replaces it with the lids). Six eye colours in `avatarPalettes.json`: blue, green, brown,
+hazel, grey, amber. No generation needed: a new face gets its iris by running the command.
+
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
 becomes the editor for everyone, then the hand slot and armour.

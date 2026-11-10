@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "sourceHash": "ab5e0af1c25453b1e8ee8c496b780d3adad28030",
+  "sourceHash": "41706767f7b9e25c28ec330e6172488e160e78fe",
   "sheetSize": 2048,
   "sheets": [
     {
       "json": "world-0.json",
       "png": "world-0.png",
       "webp": "world-0.webp",
-      "frames": 34
+      "frames": 36
     },
     {
       "json": "world-1.json",
@@ -87,6 +87,8 @@
     "avatar/eyes/lids-m-01.png": 0,
     "avatar/facialHair/beard-m-full.png": 0,
     "avatar/eyes/lids-f-01.png": 0,
+    "avatar/eyes/iris-f-01.png": 0,
+    "avatar/eyes/iris-m-01.png": 0,
     "resources/warriors-den.svg": 1,
     "resources/inn.svg": 1,
     "resources/academy.svg": 1,

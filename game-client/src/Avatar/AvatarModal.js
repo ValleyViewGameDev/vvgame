@@ -170,7 +170,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
             {tab === 'eyes' && (
               <>
-                <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Eye colours come later.</div>
+                <div className="avatar-muted avatar-small-left">The eyes come with the face (and blink). Pick their colour.</div>
                 <AvatarPreview look={look} className="avatar-eyes-closeup" crop={CROP.head} width={144} height={144} />
               </>
             )}
