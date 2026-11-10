@@ -5,7 +5,9 @@ import { Graphics, Container, Text, Sprite } from 'pixi.js-legacy';
 import ConversationManager from '../../GameFeatures/Relationships/ConversationManager';
 import { playerIconSpan } from './PixiRendererPCs';
 import { getNpcHeadTop } from './npcHeadTops';
-import { topicArt } from './speechTopicArt';
+import { topicArt, setSpeechPlayer, isTopicToken, warmGlyphArt } from './speechTopicArt';
+
+const OUTCOME_SIZE = 0.6; // tiles: the painted mark that floats up from a head when an interaction lands
 
 /** How much higher than a one-tile sprite's a figure's bubble sits: (span - 1) tiles. */
 const headLift = (position, T) => (position.span ? (position.span - 1) * T : 0);
@@ -74,9 +76,18 @@ const PixiRendererSpeech = ({
   // Force re-render when ConversationManager updates
   const [conversationVersion, setConversationVersion] = useState(0);
 
+  // The player's own picture in a bubble is the saved avatar's head (speechTopicArt.js PLAYER_FACE);
+  // the painted glyphs are loaded ahead, so an outcome mark is a picture from its first frame
+  const avatarKey = currentPlayer?.avatar?.skin ? JSON.stringify(currentPlayer.avatar) : '';
+  useEffect(() => {
+    setSpeechPlayer(avatarKey ? JSON.parse(avatarKey) : null);
+    setConversationVersion((v) => v + 1);
+  }, [avatarKey]);
+  useEffect(() => { warmGlyphArt(); }, []);
+
   // Object pools for reuse
   const bubblePoolRef = useRef([]);      // Pool of { graphics, text } for bubbles
-  const outcomePoolRef = useRef([]);     // Pool of { text, startTime, startY } for animations
+  const outcomePoolRef = useRef([]);     // Pool of { box, sprite, text, startTime, startY } for animations
   const activeBubblesRef = useRef(0);
   const activeOutcomesRef = useRef([]);  // Track active outcome animations
   const processedOutcomesRef = useRef(new Set());  // Track outcomes we've already animated (by key)
@@ -184,24 +195,30 @@ const PixiRendererSpeech = ({
     const inactive = pool.find(o => !o.active);
     if (inactive) {
       inactive.active = true;
-      inactive.text.visible = true;
+      inactive.box.visible = true;
       return inactive;
     }
 
-    // Create new outcome
+    // Create new outcome: a box that floats up and fades, holding the mark's painted picture
+    // (speechTopicArt.js) or, for a glyph with no art, its text
+    const box = new Container();
     const text = new Text('', {
       fontSize: 32,
       fontFamily: 'sans-serif',
     });
     text.resolution = 2;
     text.anchor.set(0.5, 0.5);
+    const sprite = new Sprite();
+    sprite.anchor.set(0.5, 0.5);
+    sprite.visible = false;
+    box.addChild(sprite, text);
 
-    const outcome = { text, active: true, startTime: 0, startY: 0 };
+    const outcome = { box, text, sprite, active: true, startTime: 0, startY: 0 };
     pool.push(outcome);
 
     // Add to container
     if (speechContainerRef.current) {
-      speechContainerRef.current.addChild(text);
+      speechContainerRef.current.addChild(box);
     }
 
     return outcome;
@@ -280,7 +297,7 @@ const PixiRendererSpeech = ({
       for (const part of [b.graphics, b.portrait, b.sprite, b.mask, b.text]) if (!part.parent) speechContainer.addChild(part);
     });
     outcomePoolRef.current.forEach(o => {
-      if (!o.text.parent) speechContainer.addChild(o.text);
+      if (!o.box.parent) speechContainer.addChild(o.box);
     });
 
     return () => {
@@ -325,15 +342,15 @@ const PixiRendererSpeech = ({
         const progress = Math.min(elapsed / animationDuration, 1);
 
         // Float up (40px over duration)
-        outcome.text.y = outcome.startY - (progress * 40);
+        outcome.box.y = outcome.startY - (progress * 40);
 
         // Fade out
-        outcome.text.alpha = 1 - progress;
+        outcome.box.alpha = 1 - progress;
 
         // Deactivate when done
         if (progress >= 1) {
           outcome.active = false;
-          outcome.text.visible = false;
+          outcome.box.visible = false;
         }
       });
 
@@ -440,6 +457,8 @@ const PixiRendererSpeech = ({
         sprite.position.set(centerX, centerY);
         sprite.visible = true;
         text.visible = false;
+      } else if (isTopicToken(displayText)) {
+        text.visible = false; // the player's picture is still loading: an empty bubble for a moment, never the token
       } else {
         text.text = displayText;
         text.style.fontSize = TILE_SIZE * BUBBLE.emoji;
@@ -475,12 +494,27 @@ const PixiRendererSpeech = ({
       const startX = gridOffset.x + (position.x + 0.5) * TILE_SIZE;
       const startY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.5 - headLift(position, TILE_SIZE);
 
-      outcomeObj.text.text = outcome.emoji || (outcome.type === 'positive' ? '👍' : '👎');
-      // A small badge over the head, not a second NPC: ~half a tile (it was 1.2 tiles, cartoonishly big)
-      outcomeObj.text.style.fontSize = TILE_SIZE * 0.55;
-      outcomeObj.text.x = startX;
-      outcomeObj.text.y = startY;
-      outcomeObj.text.alpha = 1;
+      // A small badge over the head, not a second NPC: ~half a tile (it was 1.2 tiles, cartoonishly big).
+      // The mark's painted picture when it has one (loaded ahead by warmGlyphArt), else the glyph as text.
+      const glyph = outcome.emoji || (outcome.type === 'positive' ? '👍' : '👎');
+      const mark = topicArt(glyph);
+      if (mark) {
+        const side = TILE_SIZE * OUTCOME_SIZE;
+        const w = mark.texture.orig?.width || mark.texture.width; const h = mark.texture.orig?.height || mark.texture.height;
+        const k = side / Math.max(w, h, 1);
+        outcomeObj.sprite.texture = mark.texture;
+        outcomeObj.sprite.width = w * k; outcomeObj.sprite.height = h * k;
+        outcomeObj.sprite.visible = true;
+        outcomeObj.text.visible = false;
+      } else {
+        outcomeObj.text.text = glyph;
+        outcomeObj.text.style.fontSize = TILE_SIZE * 0.55;
+        outcomeObj.text.visible = true;
+        outcomeObj.sprite.visible = false;
+      }
+      outcomeObj.box.x = startX;
+      outcomeObj.box.y = startY;
+      outcomeObj.box.alpha = 1;
       outcomeObj.startTime = Date.now();
       outcomeObj.startY = startY;
       outcomeObj.speakerId = speakerId;

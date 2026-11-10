@@ -939,6 +939,22 @@ taught:
   edge, half over it, as a crafting station's slot wears its price; the grid's rows stand a
   little further apart for it.
 
+**Over the heads: the player's own face, painted feelings and marks (owner 2026-11-10).**
+- **The player's picture in a speech bubble is the avatar's head.** The topic was the player's
+  old `icon` emoji; it is now a token (`Relationships/topicTokens.js` `PLAYER_FACE`) that
+  `speechTopicArt.js` draws as the saved look's head, the default look's when there is none
+  (`setSpeechPlayer`, fed by `PixiRendererSpeech`). The token also ends two mix-ups: the old
+  fallback (the smiling face) was the "blush" feeling's glyph, and an icon that was also an
+  NPC's glyph was read as that NPC by `compareTopics`. In a talk between two citizens `player`
+  now means the initiator and `npc` the partner, as in the player's own talk.
+- **Feelings, marks and outcomes are painted** (`icons-r12`, docs/art/ui-icons.md): the bubble
+  topics, the outcome that floats up when an interaction lands, and the quest / trade overlays.
+  Taunt's first topic had no glyph in the map and showed a question mark; it is the mischief
+  face now.
+- **Still Twemoji in a bubble:** the weather, the random and secret topics without art of their
+  own (train, sprout, dragon, ghost, unicorn, genie, strength, the song) and the fallback
+  interests a character without interests shows. The twelve enemies are the other half of BL-17.
+
 **The woman's straw hat: forehead left in the layer (owner 2026-11-10).** The first straw hat
 (parts-r1, cut before the teal mannequin was the rule) kept a crescent of the forehead the
 redraw shaded under its brim; it sat over the hair and kept its own tone on every skin. The

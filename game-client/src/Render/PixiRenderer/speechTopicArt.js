@@ -5,10 +5,14 @@
  *
  *   a character (RelationshipMatrix symbol, or an NPC row's) -> its head crop (`iconFile`,
  *       tools/art/headcrop.js), drawn as a portrait in the avatar ring (kind 'portrait')
- *   the player's own icon (a PlayerIcons figure)       -> the figure cropped to its face, the
- *       header avatar's crop (UI/Icons/PlayerAvatarFace.js) (kind 'portrait')
+ *   the player's own picture (topicTokens.js PLAYER_FACE) -> the saved avatar's head, the default
+ *       look's when the player has made none (`setSpeechPlayer`; the header's crop, AvatarFace.js)
+ *       (kind 'portrait'). An old PlayerIcons figure emoji still shows that figure's face.
  *   a resource's symbol (a doober, Money, ...)          -> its painted art, `iconFile` or
  *       `filename`, as ResourceIcon shows it in panels (kind 'art')
+ *   a feeling or a mark (a heart, a smiling face, a thumb) -> its painted glyph, GLYPH_ART below
+ *       (public/assets/icons/mark-*.png, tools/art/jobs/icons-r12.json): the same pictures the
+ *       relationship outcomes float over a head (`glyphArt`) (kind 'art')
  *   anything else (weather, the secret topics, ...)     -> the atlas's Twemoji frame (kind 'art'),
  *       else null and the caller draws the glyph as text
  *
@@ -21,9 +25,40 @@ import { emojiKey } from '../../Utils/emojiKey';
 import { getMasterResources } from '../../Utils/TuningManager';
 import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMatrix.json';
 import PlayerIcons from '../../Authentication/PlayerIcons.json';
+import { PLAYER_FACE } from '../../GameFeatures/Relationships/topicTokens';
+import { loadAvatarCatalogue } from '../../Utils/TuningManager';
+import { lookFor, specFor } from '../../Avatar/avatarLook';
+import { renderLook } from '../../Avatar/avatarCompositor';
 
 const strip = (s) => (s ? String(s).replace(/️/g, '') : s);
 const FACE = { x: 156, y: 0, size: 200, art: 512 }; // the figure rig's face box (PlayerAvatarFace.js)
+
+// The painted glyphs (owner 2026-11-10: no emoji over a character's head). Keys are emoji with the
+// variation selector stripped; values are files under public/assets/. The feelings and marks are
+// the icons-r12 sheets (docs/art/ui-icons.md); a few topics borrow art the game already had.
+const GLYPH_ART = {
+  '✅': 'icons/mark-check.png', '❓': 'icons/mark-question.png', '❌': 'icons/mark-cross.png',
+  '👋': 'icons/mark-hand.png', '✋': 'icons/mark-hand.png', '🕐': 'icons/mark-clock.png', '🕑': 'icons/mark-clock.png',
+  '👍': 'icons/mark-thumbs-up.png', '👎': 'icons/mark-thumbs-down.png',
+  '❤': 'icons/mark-heart.png', '💖': 'icons/mark-heart.png', '💔': 'icons/mark-broken-heart.png',
+  '🎁': 'icons/mark-gift.png', '🤝': 'icons/mark-handshake.png', '🙏': 'icons/mark-thanks.png', '👫': 'icons/mark-friends.png',
+  '😄': 'icons/mark-happy.png', '🙂': 'icons/mark-happy.png', '😊': 'icons/mark-blush.png', '🥰': 'icons/mark-blush.png',
+  '😂': 'icons/mark-laughing.png', '🤣': 'icons/mark-laughing.png', '😘': 'icons/mark-kiss.png', '😉': 'icons/mark-kiss.png',
+  '🤗': 'icons/mark-hug.png', '😮': 'icons/mark-surprised.png', '😳': 'icons/mark-surprised.png',
+  '😡': 'icons/mark-angry.png', '😠': 'icons/mark-annoyed.png', '😤': 'icons/mark-annoyed.png',
+  '😈': 'icons/mark-mischief.png', '🤨': 'icons/mark-doubtful.png', '🤔': 'icons/mark-doubtful.png',
+  '💭': 'icons/icon-chat.png', '💬': 'icons/icon-chat.png', '👤': 'icons/icon-profile.png',
+  '🗺': 'icons/icon-map.png', '⚔': 'icons/icon-combat.png',
+};
+
+// The local player's saved look, for PLAYER_FACE (PixiRendererSpeech hands it over)
+let playerAvatar = null;
+let playerKey = 'default';
+/** The local player's `avatar` (null: the default look). A new look gets a new picture. */
+export function setSpeechPlayer(avatar) {
+  playerAvatar = avatar && avatar.skin ? avatar : null;
+  playerKey = playerAvatar ? JSON.stringify(playerAvatar) : 'default';
+}
 
 const cache = new Map();   // key -> Texture | null (null: none exists)
 const pending = new Map(); // key -> Promise
@@ -33,6 +68,9 @@ function resolveTopic(topic) {
   const sym = strip(topic);
   if (!sym) return null;
   const rows = getMasterResources() || [];
+
+  // the local player's own picture: the avatar's head
+  if (topic === PLAYER_FACE) return { key: `me:${playerKey}`, kind: 'portrait', load: playerFace };
 
   // a character: the RelationshipMatrix symbol names the NPC type, else an NPC row's own symbol
   const rel = RelationshipMatrix.find((e) => strip(e.symbol) === sym);
@@ -51,6 +89,9 @@ function resolveTopic(topic) {
   const row = rows.find((r) => strip(r.symbol) === sym && r.category !== 'npc' && r.category !== 'skill'
     && r.category !== 'power' && (r.iconFile || r.filename));
   if (row) return { key: `res:${row.type}`, kind: 'art', load: () => resourceTexture(row.iconFile || row.filename) };
+
+  // a feeling or a mark: its painted glyph
+  if (GLYPH_ART[sym]) return { key: `glyph:${GLYPH_ART[sym]}`, kind: 'art', load: () => urlTexture(`/assets/${GLYPH_ART[sym]}`) };
 
   // a bare emoji: the atlas's Twemoji frame when it has one
   const ek = emojiKey(topic);
@@ -72,6 +113,18 @@ async function figureFace(filename) {
   if (!full) return null;
   const k = full.baseTexture.width / FACE.art;
   return new Texture(full.baseTexture, new Rectangle(FACE.x * k, FACE.y * k, FACE.size * k, FACE.size * k));
+}
+
+/** The local player's head: the composed look (the default one when none is saved), cut to the face box on a canvas of its own. */
+async function playerFace() {
+  const data = await loadAvatarCatalogue();
+  if (!data?.catalogue?.length) return null;
+  const look = lookFor(specFor(playerAvatar, data), data, {});
+  const figure = await renderLook(look.layers, { size: FACE.art });
+  const canvas = document.createElement('canvas');
+  canvas.width = FACE.size; canvas.height = FACE.size;
+  canvas.getContext('2d').drawImage(figure, FACE.x, FACE.y, FACE.size, FACE.size, 0, 0, FACE.size, FACE.size);
+  return Texture.from(canvas);
 }
 
 function urlTexture(url) {
@@ -104,4 +157,12 @@ export function topicArt(topic, onReady) {
     }));
   }
   return null;
+}
+
+/** True when a topic is a token (PLAYER_FACE), not a glyph: there is nothing to print while its picture loads. */
+export const isTopicToken = (topic) => topic === PLAYER_FACE;
+
+/** Load every painted glyph ahead of its first use (an outcome mark is shown the moment it is asked for). */
+export function warmGlyphArt() {
+  for (const sym of Object.keys(GLYPH_ART)) topicArt(sym);
 }

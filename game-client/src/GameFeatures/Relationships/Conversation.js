@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Conversation.css';
 import ConversationManager from './ConversationManager';
+import { PLAYER_FACE } from './topicTokens';
 import RelationshipMatrix from './RelationshipMatrix.json';
 import Topics from './Topics.json';
 import { lastDoober, lastNpcInteraction } from './conversationMemory';
@@ -220,7 +221,7 @@ export const playConversation = async (
   
   // Create context for topic resolution
   const topicContext = {
-    playerIcon: currentPlayer?.icon || playerEmoji,
+    playerIcon: PLAYER_FACE, // the player's own picture: the avatar's head (topicTokens.js)
     npcIcon: npcEmoji,
     currentPlayer: currentPlayer,
     interaction: interaction,
@@ -319,14 +320,14 @@ export const playNPCConversation = async ({
     const roundNum = i + 1;
     results.totalRounds = roundNum;
     const aKey = interaction?.[`playertopic${roundNum}`] || 'random';
-    const aTopic = getTopicSymbol(aKey, { ...base, npcId: initiatorType, npcIcon: initiatorEmoji, roundNum }, false);
+    const aTopic = getTopicSymbol(aKey, { ...base, npcId: initiatorType, playerIcon: initiatorEmoji, npcIcon: partnerEmoji, roundNum }, false);
     ConversationManager.addSpeech(initiatorType, initiatorEmoji, aTopic, false);
     if (!(await beat(1200))) { clear(); return { aborted: true, results }; }
     ConversationManager.removeSpeech(initiatorType);
     if (!(await beat(400))) { clear(); return { aborted: true, results }; }
 
     const bKey = interaction?.[`npctopic${roundNum}`] || 'random';
-    const bTopic = getTopicSymbol(bKey, { ...base, npcId: partnerType, npcIcon: partnerEmoji, playerTopic: aTopic, roundNum }, false);
+    const bTopic = getTopicSymbol(bKey, { ...base, npcId: partnerType, playerIcon: initiatorEmoji, npcIcon: partnerEmoji, playerTopic: aTopic, roundNum }, false);
     const { matchState } = compareTopics(aTopic, bTopic, partnerType, interaction, roundNum);
     if (matchState === 'match') {
       results.matchingTopics++;
@@ -370,7 +371,8 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
       'emoji_party': '🥳',
       'emoji_sleepy': '😴',
       'emoji_hungry': '😋',
-      'emoji_brokenheart': '💔'
+      'emoji_brokenheart': '💔',
+      'emoji_taunt': '😈' // Taunt's first topic (interactions.json) had no glyph and showed the question mark
     };
     return emojiMap[topicKey] || '❓';
   }
@@ -378,7 +380,7 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
   // Handle special context-based topics
   switch (topicKey) {
     case 'player':
-      return context.playerIcon || '😊';
+      return context.playerIcon || PLAYER_FACE;
       
     case 'npc':
       return context.npcIcon || '🤔';

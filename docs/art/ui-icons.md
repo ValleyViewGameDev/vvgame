@@ -81,3 +81,26 @@ touch of blue so it reads as iron). It replaces the 🔒 emoji on a locked craft
 (`CraftingStation.js`, 22 px), a locked Trade Stall slot (24 px), the level lock
 (`UI/Panels/LevelLock.js`, 64 px) and the bulk-crafting note; each site sizes the `.lock-icon`
 img to the glyph it replaced. The Locked Door deco row keeps its 🔒 until the deco pass (BL-18).
+
+## Marks and feelings: what floats over a character's head (`icons-r12`, owner 2026-11-10)
+
+The last emoji over the board's characters, as two 4 x 3 sheets in the header's `system` style
+(`tools/art/jobs/icons-r12.json`, one candidate each, both approved as drawn), cut by
+`icons.js --prefix mark-` into `public/assets/icons/mark-<name>.png` (+ `.svg`).
+
+- **Marks:** check, question, hand, clock, cross, thumbs-up, thumbs-down, heart, broken-heart,
+  gift, handshake. The sheet's ring is not installed: the ring topic and the Propose outcome
+  show the Diamond Ring's own doober art.
+- **Feelings:** one family of round faces (happy, laughing, blush, kiss, hug, surprised, angry,
+  annoyed, mischief, doubtful) plus thanks (pressed hands) and friends (the pair of figures).
+- **After the cut** (the steps this file asks for): magenta-hued fringe to alpha 0 (not on
+  `mischief`, whose purple shares magenta's hue) and islands under 2 % pruned. The handshake's
+  cuff crosses the grid line into the gift's cell, so those two are cut by their own boxes
+  (`tools/art/_candidates/icons-r12/recut.js`).
+- **Where they show.** `Render/PixiRenderer/speechTopicArt.js` `GLYPH_ART` maps a glyph to its
+  picture for the speech bubbles and for the relationship outcome that floats up from a head
+  (`PixiRendererSpeech.js`, a sprite now). The four board overlays keep their file names
+  (`public/assets/overlays/checkmark.svg`, `question.svg`, `hand.svg`, `clock.svg`) and wear
+  the painted check, question, hand and clock, so the quest and trade overlays, the station
+  and farm-animal ready marks, the HUD quest badge, the trophy badge and the quest cards' task
+  ticks all changed together. The atlas was rebuilt for them.

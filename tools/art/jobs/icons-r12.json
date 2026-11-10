@@ -1,0 +1,36 @@
+{
+  "name": "icons-r12",
+  "note": "Owner 2026-11-10: the last emoji over characters' heads. Sheet `marks`: the quest / trade overlays (check, question, hand, clock) and the relationship outcome marks. Sheet `feelings`: the faces and gestures of the relationship outcomes and of the conversation bubbles' feeling topics. System style, square glyphs, read at 20 px.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "marks": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r9/approved/openai--system-places-1.png"
+      ],
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved Home and clock-tower glyphs: match their rendering, outline weight, colours and SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: twelve icons, in order on the 4 x 3 grid (four columns, three rows), left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each a SQUARE glyph of a few big simple shapes with thick dark outlines and no small details, that still reads at 20 pixels. No letters and no words anywhere. These are STATUS MARKS that float over a character's head in a medieval village game. 1 CHECK: a bold white check mark on a rounded leaf-green square. 2 QUESTION: a bold golden-yellow question mark with a dark outline, nothing behind it. 3 WAVING HAND: an open right hand, palm toward us, fingers together and thumb out, in warm cream, raised in greeting. 4 CLOCK: a round clock face, cream dial with a honey-wood rim and two dark hands at ten past ten. 5 CROSS: a bold red X of two thick rounded strokes, nothing behind it. 6 THUMBS UP: a closed fist in warm cream with the thumb pointing straight up. 7 THUMBS DOWN: the same fist turned over, the thumb pointing straight down. 8 HEART: a plump red heart. 9 BROKEN HEART: the same red heart split in two by a jagged crack down the middle, the halves a little apart. 10 RING: a golden ring seen at a slight tilt with one large blue gem on top. 11 GIFT: a square gift box in cream cloth tied with a red ribbon and a bow on top. 12 HANDSHAKE: two hands in warm cream clasped in a handshake, seen from the side, the cuffs one blue and one red."
+    },
+    "feelings": {
+      "refs": [
+        "_candidates/icons-r5/approved/chat-exemplar.small.jpg",
+        "_candidates/icons-r9/approved/openai--system-places-1.png"
+      ],
+      "guide": "guides/icon-grid-4x3.png",
+      "variants": [
+        "system"
+      ],
+      "prompt": "CONTROL: the SECOND attached sheet holds this game's approved Home and clock-tower glyphs: match their rendering, outline weight, colours and SIZE IN THE CELL exactly, so the new icons are one set with them. SUBJECTS: twelve icons, in order on the 4 x 3 grid (four columns, three rows), left to right then top to bottom, ONE icon per grid cell, centred in its cell and well inside it, each a SQUARE glyph of a few big simple shapes with thick dark outlines and no small details, that still reads at 20 pixels. No letters and no words anywhere. These are FEELINGS that float over a character's head in a medieval village game. Icons 1 to 10 are ONE family of simple ROUND FACES: the same plain warm golden-yellow disc with a thick dark outline every time, the same size, with only big dark eyes, brows and a mouth; no hair, no ears, no nose, no body, no hat. They must be told apart at a glance by the mouth and the brows. 1 HAPPY: a wide open smiling mouth, eyes as happy upturned arcs. 2 LAUGHING: eyes squeezed shut as two chevrons, a very wide open laughing mouth, one blue tear of laughter at each eye. 3 BLUSHING: a gentle closed smile, eyes as soft arcs, a round rosy pink cheek on each side. 4 KISS: one eye winking, puckered lips, and one small red heart floating beside the mouth. 5 HUG: a warm closed smile with rosy cheeks, and two open cream hands in front of the face, palms toward us, as if offering a hug. 6 SURPRISED: wide round eyes with raised brows and a small round open mouth. 7 ANGRY: the disc flushed RED instead of yellow, brows slanted hard down to the middle, a tight frowning mouth. 8 ANNOYED: flat half-closed eyes under level brows and a small sideways frown, still yellow. 9 MISCHIEF: a sly wide grin with slanted wicked brows, the disc PURPLE instead of yellow, with two small horns on top. 10 DOUBTFUL: one brow raised high and the other low, eyes looking to the side, a flat straight mouth. 11 THANKS: two hands in warm cream pressed together palm to palm, pointing up, with blue cuffs. 12 FRIENDS: two simple round-headed figures side by side, one in blue and one in red, shoulders touching, the classic pair-of-people glyph."
+    }
+  }
+}
