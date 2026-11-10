@@ -27,7 +27,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
  * @param {string} username - The player's username to replace {username} placeholders
  * @param {string} symbol - Direct symbol to display (overrides NPC lookup, useful for PC icon in FTUE)
  * @param {number|string} dialogKey - Direct string ID for dialog text (overrides NPC dialog lookup)
- * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-portia.svg") - used instead of emoji if provided
+ * @param {string} npcFilename - Optional SVG filename for the NPC (e.g., "npc-head-portia.svg") - used instead of emoji if provided
  * @param {string} speakerName - Optional name under the icon; by default the localized npcName, else the
  *   resource whose art npcFilename is, else (FTUE, the player's own icon) the player's username
  * @param {string} okLabel - Optional label for the last page's button (a scene's "Next" between speakers)

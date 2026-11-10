@@ -9,8 +9,8 @@ const normalizeEmoji = (emoji) => {
 // Static mapping of emojis to SVG filenames for the start screen animation characters
 // These are NPC characters from resources.json that have SVG files
 const emojiToSvgMap = {
-  '👸': 'npc-gertrude.svg',  // Gertrude (princess)
-  '🤠': 'npc-kent.svg',      // Kent (cowboy)
+  '👸': 'npc-head-gertrude.svg',  // Gertrude (princess)
+  '🤠': 'npc-head-kent.svg',      // Kent (cowboy)
   // Note: 🐺 (Coyote) does not have an SVG file yet
 };
 

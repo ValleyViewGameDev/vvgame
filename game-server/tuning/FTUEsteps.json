@@ -3,7 +3,7 @@
     "step": 1,
     "trigger": "StartedFTUE",
     "showModal": true,
-    "modalSprite": "npc-gertrude.svg",
+    "modalSprite": "npc-head-gertrude.svg",
     "bodyKey": 16019,
     "continue": true,
     "addQuests": []
@@ -15,7 +15,7 @@
     "doinkerType": "resource",
     "doinkerTarget": "Constable Elbow",
     "notificationKey": 741,
-    "notificationSprite": "npc-elbow.svg",
+    "notificationSprite": "npc-head-elbow.svg",
     "addQuests": []
   },
   {
@@ -85,7 +85,7 @@
     "doinkerTarget": "Kent",
     "scrim": true,
     "notificationKey": 7068,
-    "notificationSprite": "npc-kent.svg",
+    "notificationSprite": "npc-head-kent.svg",
     "addQuests": []
   },
   {
@@ -159,7 +159,7 @@
     "doinkerTarget": "The Shepherd",
     "notificationKey": 7062,
     "addQuests": [],
-    "notificationSprite": "npc-shepherd.svg",
+    "notificationSprite": "npc-head-shepherd.svg",
     "scrim": true
   },
   {
@@ -201,7 +201,7 @@
     "doinkerType": "resource",
     "doinkerTarget": "Constable Elbow",
     "notificationKey": 743,
-    "notificationSprite": "npc-elbow.svg",
+    "notificationSprite": "npc-head-elbow.svg",
     "addQuests": []
   },
   {
@@ -233,7 +233,7 @@
     "step": 19,
     "trigger": "AcquiredGrower",
     "showModal": true,
-    "modalSprite": "npc-elbow.svg",
+    "modalSprite": "npc-head-elbow.svg",
     "bodyKey": 16521,
     "continue": false,
     "doinker": true,

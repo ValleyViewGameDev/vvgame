@@ -395,6 +395,33 @@ slots from what the cast needed (hair 10, beards 4, hats 6, outfits 8 x 2, armou
 hands), with `tools/art/parts.js` promoted from the Phase 3 probe scripts first, and the
 skin-tone palette iterated on the neutralised base (owner's note).
 
+### 7f. The cast in the panels, and three board fixes (2026-11-09)
+
+- **Head crops**: `tools/art/headcrop.js --all` cuts a 256 px head-and-shoulders portrait
+  (`npc-head-<name>.{png,svg}`) out of every figure square (a square of 236 px centred on the
+  head's opaque centre over the top 170 rows, so a hat or the faint turn does not pull it off
+  the face). Every figure row's `iconFile` is its head crop, so the NPC panel title, the story
+  modal, quest cards, the relationship chips (`NPCConnections.js`, the other character's head
+  instead of the matrix glyph), the clues modal title, the FTUE sprites, the Snug lesson toast
+  and the start-screen map all show the new faces; the six "X's Secret" items took the heads
+  too. **The 30 old bust files are deleted**; the farm animals keep theirs. The NPC rows keep
+  their emoji `symbol` for now: `Conversation.js` still matches NPCs by symbol in the Talk
+  round and the quest files carry the giver's glyph, so the symbols go when those read the
+  type instead (a P5 item).
+- **Facing** is one shared value in `PlayerMovement.js` (`getPlayerFacing`, `setPlayerFacing`,
+  `facePlayerToward`): every horizontal step sets it (a blocked step too), tapping an NPC or
+  arriving at one through a walk-up turns the player toward it, and the PC renderer only
+  reads it. The flicker came from guessing facing out of render-position deltas: at the start
+  of every step the logical tile jumps ahead of the tween, so the delta flipped sign for one
+  frame.
+- **Headline glyphs and speech bubbles** ride above a figure's head: `NPCVFX.setHeadlineSpan`
+  (registered by the renderer per NPC) lifts Zzz / ?? to span - 0.35 tiles above the centre;
+  `PixiRendererSpeech` lifts bubbles and outcome badges by (span - 1) tiles for NPCs and for
+  the player's figure icon (`playerIconSpan`).
+- **Taps hit the whole figure**: `findNpcAtScreen` tests every NPC's rendered square (span
+  tall, up to 1.2 wide, nearest feet win) before the tile under the finger, for clicks, hover
+  tooltips and the long-press tooltip; enemies keep their half-tile slack box.
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front

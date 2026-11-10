@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
-import { renderPositions } from '../../PlayerMovement';
+import { renderPositions, getPlayerFacing } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import PixiCamera from './PixiCamera';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
@@ -21,6 +21,8 @@ const iconToSvgMap = new Map();
 // `artSpan` 1.5: its square is drawn that many tiles wide and tall, standing on the tile's
 // bottom edge, like artSpan art on the world layer; the busts and emoji keep the 0.9 square
 const iconToSpanMap = new Map();
+/** The art span of a player icon (0 for a bust or emoji): the speech renderer lifts bubbles by it. */
+export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) || 0;
 ['free', 'paid', 'platinum'].forEach(tier => {
   (playerIconsData[tier] || []).forEach(icon => {
     if (icon.filename) {
@@ -64,8 +66,6 @@ const PixiRendererPCs = ({
   const atlasTextureCacheRef = useRef(new Map());
   const svgLoadingPromisesRef = useRef(new Map());
   const isMountedRef = useRef(true);
-  const facingRef = useRef(1);           // 1 = as drawn (right-turned), -1 = mirrored (last moved left)
-  const lastXRef = useRef(null);         // the previous render's tile x, to tell a horizontal move
 
   // Ref to track if animation ticker is running (on-demand pattern)
   const animationTickerRef = useRef(null);
@@ -407,14 +407,11 @@ const PixiRendererPCs = ({
       sprite.height = TILE_SIZE * (span || 0.9);
       sprite.x = xPos;
       sprite.y = span ? yPos + TILE_SIZE / 2 - (TILE_SIZE * span) / 2 : yPos;
-      // A figure icon is drawn turned a little to the viewer's right and mirrors when the player
-      // last moved left (docs/avatar-plan.md D1); busts and emoji never flip. Sizing above leaves
-      // scale.x positive, so the sign is applied after it.
-      if (span) {
-        if (lastXRef.current !== null && posX !== lastXRef.current) facingRef.current = posX < lastXRef.current ? -1 : 1;
-        sprite.scale.x = Math.abs(sprite.scale.x) * facingRef.current;
-      } else if (sprite.scale.x < 0) sprite.scale.x = Math.abs(sprite.scale.x);
-      lastXRef.current = posX;
+      // A figure icon is drawn turned a little to the viewer's right and mirrors when the player's
+      // facing says so (PlayerMovement: set by horizontal steps and by facing an NPC; D1); busts
+      // and emoji never flip. Sizing above leaves scale.x positive, so the sign is applied after it.
+      if (span) sprite.scale.x = Math.abs(sprite.scale.x) * getPlayerFacing();
+      else if (sprite.scale.x < 0) sprite.scale.x = Math.abs(sprite.scale.x);
       sprite.zIndex = actorZ(posY, 0.51); // by its feet (depthSort.js); wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();

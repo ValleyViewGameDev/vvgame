@@ -6,7 +6,7 @@ import '../../UI/Buttons/SharedButtons.css';
 import '../Crafting/ScrollStation.css'; // Import for shared station panel styles
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
+import ResourceIcon, { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford, hasRoomFor, getPlayerQuantity } from '../../Utils/InventoryManagement';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
@@ -1034,13 +1034,10 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
   const npcResourceDef = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
 
   // Build the title with either SVG image or emoji
-  const panelTitle = npcResourceDef?.filename ? (
+  // the head crop (iconFile, tools/art/headcrop.js) beside the name: ResourceIcon is the one way
+  const panelTitle = npcResourceDef?.iconFile || npcResourceDef?.filename ? (
     <>
-      <img
-        src={`/assets/resources/${npcResourceDef.filename}`}
-        alt={npcData.type}
-        style={{ width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '6px' }}
-      />
+      <ResourceIcon resource={npcResourceDef} size={24} className="npc-panel-title-icon" />
       {getLocalizedString(npcData.type, strings)}
     </>
   ) : (
@@ -1741,7 +1738,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
         relationshipType={storyRelationshipType}
         dialogKey={storyDialogKey || undefined}
         username={currentPlayer?.username}
-        npcFilename={npcData?.filename}
+        npcFilename={npcResourceDef?.iconFile || npcData?.filename}
       />
     </Panel>
     {snugTravelOpen && (

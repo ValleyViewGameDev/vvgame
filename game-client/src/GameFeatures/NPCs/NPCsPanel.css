@@ -3,3 +3,6 @@
    the first requirement the player is short of (docs/ui-conventions.md). */
 .trader-offer-wrap .resource-button:disabled { pointer-events: none; }
 .trader-offer-wrap { cursor: default; position: relative; } /* holds the sale burst (UI/SaleBurst.js) */
+
+/* the NPC's head crop beside the panel title */
+.npc-panel-title-icon { vertical-align: middle; margin-right: 6px; }

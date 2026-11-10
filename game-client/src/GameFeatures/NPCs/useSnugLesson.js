@@ -55,7 +55,7 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
       showNotification('FTUE', {
         title: strings?.[10191] || 'Travel with Snug',
         message: strings?.[17027],
-        iconSrc: '/assets/resources/npc-snug.svg',
+        iconSrc: '/assets/resources/npc-head-snug.svg',
       });
       setStage('snug');
     }, START_DELAY_MS);
@@ -68,7 +68,7 @@ export default function useSnugLesson({ currentPlayer, setCurrentPlayer, gridId,
     window.__snugLesson = () => {
       if (!findBoardTarget('Snug', gridId)) return 'no Snug on this grid';
       closePanel?.();
-      showNotification('FTUE', { title: strings?.[10191] || 'Travel with Snug', message: strings?.[17027], iconSrc: '/assets/resources/npc-snug.svg' });
+      showNotification('FTUE', { title: strings?.[10191] || 'Travel with Snug', message: strings?.[17027], iconSrc: '/assets/resources/npc-head-snug.svg' });
       setStage('snug');
       return 'started';
     };

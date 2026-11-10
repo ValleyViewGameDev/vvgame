@@ -36,7 +36,10 @@ export default function NPCConnections({ npcType, relationship, masterResources,
     const value = matrixRelation(raw, currentPlayer); // rivals are friends once hope is returned
     if (!groups[value] || value === 'interest') return;
     const other = RelationshipMatrix.find((r) => r.type === name);
-    if (other) groups[value].push({ name: getLocalizedString(name, strings), symbol: other.symbol });
+    // the other character's head crop when its resource row has one (every named NPC since
+    // 2026-11-09), else the matrix glyph
+    const otherRow = (masterResources || []).find((r) => r.type === name && r.category === 'npc');
+    if (other) groups[value].push({ name: getLocalizedString(name, strings), symbol: other.symbol, resource: otherRow && (otherRow.iconFile || otherRow.filename) ? otherRow : null });
   });
 
   const chips = CATEGORIES.filter((c) => groups[c.key].length);

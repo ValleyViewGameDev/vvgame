@@ -36,7 +36,8 @@ import { boardArtScale } from './boardArt';
 import StoryFX from './StoryFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
-import { hasHeadlineEffect, updateHeadlineEffectPosition } from '../../VFX/NPCVFX';
+import { hasHeadlineEffect, updateHeadlineEffectPosition, setHeadlineSpan } from '../../VFX/NPCVFX';
+import { facePlayerToward } from '../../PlayerMovement';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
@@ -1190,6 +1191,7 @@ const PixiRenderer = ({
         // CombatFX are untouched); a bust or emoji keeps the centred square
         const artSpan = !emojiSized && Number(npc.artSpan) > 0 ? Number(npc.artSpan) : 0;
         const anchorY = artSpan ? 1 - 0.5 / artSpan : 0.5;
+        setHeadlineSpan(npc.id, artSpan); // the headline glyphs (Zzz, ??) ride above the figure's head
         const spriteSize = artSpan ? TILE_SIZE * artSpan : (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
         if (!npc.symbol && !texture) continue;
 
@@ -1549,6 +1551,7 @@ const PixiRenderer = ({
         const now = latestRef.current;
         const target = now?.npcs?.find((n) => n && n.id === npcId);
         if (!target) return;
+        if (target.position) facePlayerToward(target.position.x);
         const opened = handleNPCClickShared(target, {
           currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
           TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
@@ -1563,22 +1566,39 @@ const PixiRenderer = ({
     });
   }, []);
 
-  // The hostile NPC whose RENDERED sprite is under a board-relative screen point (half a tile
-  // of slack), or null. Enemies tween between tiles, so the tile under the cursor is often empty.
-  const findHostileAtScreen = useCallback((sx, sy) => {
+  // The NPC whose RENDERED sprite is under a board-relative screen point, or null. Enemies tween
+  // between tiles, so the tile under the cursor is often empty (half a tile of slack); a figure
+  // (resources.json artSpan) stands span tiles tall and nearly a tile wide on its tile, so a tap
+  // anywhere on it, head included, hits it (owner 2026-11-09), not the tile behind its head.
+  // Nearest feet win when figures overlap. `hostileOnly` keeps combat's old behaviour.
+  const findNpcAtScreen = useCallback((sx, sy, { hostileOnly = false } = {}) => {
     if (!npcs?.length) return null;
     const w = PixiCamera.screenToWorld(sx, sy);
     const px = w.x / TILE_SIZE; const py = w.y / TILE_SIZE;
     let best = null; let bestD = Infinity;
     for (const n of npcs) {
-      if (!n || n.action !== 'attack') continue;
+      if (!n) continue;
+      if (hostileOnly && n.action !== 'attack') continue;
+      if (masterResources?.find((m) => m.type === n.type)?.noClick) continue;
       const r = getNPCRenderPosition(n);
       if (!r) continue;
-      const dx = Math.abs(r.x + 0.5 - px); const dy = Math.abs(r.y + 0.5 - py);
-      if (dx <= 0.55 && dy <= 0.55 && dx + dy < bestD) { bestD = dx + dy; best = n; }
+      const span = Number(n.artSpan) > 0 ? Number(n.artSpan) : 0;
+      const cx = r.x + 0.5;
+      let hit, d;
+      if (span) {
+        // the figure's square: span wide centred on the tile, from the tile's bottom edge up
+        const halfW = Math.min(span, 1.2) / 2; // a slim figure does not fill its square sideways
+        hit = Math.abs(cx - px) <= halfW && py <= r.y + 1 && py >= r.y + 1 - span;
+        d = Math.abs(cx - px) + Math.abs(r.y + 1 - py) * 0.1 - r.y * 0.001; // feet nearest, then the southern one
+      } else {
+        const dx = Math.abs(cx - px); const dy = Math.abs(r.y + 0.5 - py);
+        hit = dx <= 0.55 && dy <= 0.55; d = dx + dy;
+      }
+      if (hit && d < bestD) { bestD = d; best = n; }
     }
     return best;
-  }, [npcs, TILE_SIZE, getNPCRenderPosition]);
+  }, [npcs, TILE_SIZE, getNPCRenderPosition, masterResources]);
+  const findHostileAtScreen = useCallback((sx, sy) => findNpcAtScreen(sx, sy, { hostileOnly: true }), [findNpcAtScreen]);
 
   const handleClick = useCallback((event) => {
     if (!containerRef.current) return;
@@ -1641,13 +1661,14 @@ const PixiRenderer = ({
     // Enemies are hit-tested on the sprite you SEE (its tween can trail the logical tile);
     // everything else on the logical tile
     // an NPC whose row says noClick (Peter Quince, the Oracle's woodcutter) is scenery: the tap goes through
-    const npc = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
+    const npc = findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
       n && n.position && !masterResources?.find((m) => m.type === n.type)?.noClick &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
     );
 
     if (npc) {
+      if (npc.position) facePlayerToward(npc.position.x); // the player turns to the NPC it taps (owner 2026-11-09)
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
       // the NPC) and open it on arrival, as if it had been tapped from there. Enemies
       // keep the plain click (walking into them is not a tap's intent).
@@ -1717,7 +1738,7 @@ const PixiRenderer = ({
       onNPCClick, setHoverTooltip, setInventory, setBackpack, setResources,
       setCurrentPlayer, setModalContent, setIsModalOpen, updateStatus, openPanel,
       setActiveStation, isDeveloper, isFrontierZoom, isRelocating, onFrontierGridClick,
-      settlementData, currentSettlementPosition]);
+      settlementData, currentSettlementPosition, findNpcAtScreen]);
 
   // Handle mouse move for tooltips and cursor highlight
   // Throttled to ~20 updates/sec for performance
@@ -1751,7 +1772,7 @@ const PixiRenderer = ({
 
     // Check for NPC at this position first (they render on top); enemies by their sprite
     const hostile = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top);
-    const npc = hostile || npcs?.find(n =>
+    const npc = hostile || findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
       n && n.position &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
@@ -1790,7 +1811,7 @@ const PixiRenderer = ({
 
     // Nothing to show tooltip for
     setHoverTooltip(null);
-  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip, findHostileAtScreen, cursorMode]);
+  }, [TILE_SIZE, zoomScale, npcs, resources, strings, timers, setHoverTooltip, findHostileAtScreen, cursorMode, findNpcAtScreen]);
 
   // Tooltip for whatever is under a screen point (long-press on touch uses this too)
   const showTooltipAt = useCallback((clientX, clientY) => {
@@ -1798,7 +1819,7 @@ const PixiRenderer = ({
     const rect = containerRef.current.getBoundingClientRect();
     const { row, col } = PixiCamera.screenToTile(clientX - rect.left, clientY - rect.top);
     if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) return false;
-    const npc = npcs?.find(n => n && n.position && Math.floor(n.position.x) === col && Math.floor(n.position.y) === row);
+    const npc = findNpcAtScreen(clientX - rect.left, clientY - rect.top) || npcs?.find(n => n && n.position && Math.floor(n.position.x) === col && Math.floor(n.position.y) === row);
     const tooltipPosition = calculateTooltipPosition(clientX, clientY);
     if (npc) {
       setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateNPCTooltip(npc, strings) });
@@ -1814,7 +1835,7 @@ const PixiRenderer = ({
       return true;
     }
     return false;
-  }, [npcs, resources, strings, timers, setHoverTooltip]);
+  }, [npcs, resources, strings, timers, setHoverTooltip, findNpcAtScreen]);
 
   const cancelLongPress = useCallback(() => {
     if (longPressTimerRef.current) { clearTimeout(longPressTimerRef.current); longPressTimerRef.current = null; }

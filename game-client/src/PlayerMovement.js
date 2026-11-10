@@ -80,6 +80,22 @@ let pathCrossDelta = null;  // set when the tap was beyond an edge: the final st
 let pathArrive = null;      // called once when the walk completes (not when it is cancelled)
 let pathGoalOpts = {};      // findPath options of the current walk, reused by a re-plan
 
+// The player's FACING (docs/avatar-plan.md D1): 1 = as drawn (turned a little to the viewer's
+// right), -1 = mirrored. Set by every horizontal step here and by an interaction (facing the NPC
+// you talk to); the PC renderer reads it, so it never guesses from render positions (a guess from
+// position deltas flickered at the start of every step, when the logical tile jumps ahead of the
+// tween). Diagonal and vertical steps leave it alone.
+let playerFacing = 1;
+export function getPlayerFacing() { return playerFacing; }
+export function setPlayerFacing(dir) { if (dir === 1 || dir === -1) playerFacing = dir; }
+/** Face a tile (an NPC you tap or talk to): left of the player = mirrored, right = as drawn, same column = unchanged. */
+export function facePlayerToward(col) {
+  const ctx = movementContext; const x = ctx?.currentPlayer?.location?.x;
+  if (x == null || col == null) return;
+  const d = Math.sign(Math.round(col) - Math.round(x));
+  if (d) setPlayerFacing(d);
+}
+
 export function setMovementContext(context) {
   movementContext = context;
 }
@@ -387,6 +403,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   // Clamp diagonal movement to -1, 0, or 1
   totalDx = Math.max(-1, Math.min(1, totalDx));
   totalDy = Math.max(-1, Math.min(1, totalDy));
+  if (totalDx) setPlayerFacing(totalDx); // the figure turns the way it walks (a blocked step turns it too)
 
   if (currentPlayer.iscamping) {
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);

@@ -7432,7 +7432,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-portia.svg"
+    "filename": "npc-head-portia.svg"
   },
   {
     "type": "Portia's Pardon",
@@ -7460,7 +7460,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-gertrude.svg"
+    "filename": "npc-head-gertrude.svg"
   },
   {
     "type": "Titania's Secret",
@@ -7474,7 +7474,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-titania.svg"
+    "filename": "npc-head-titania.svg"
   },
   {
     "type": "Caliban's Secret",
@@ -7488,7 +7488,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-caliban.svg"
+    "filename": "npc-head-caliban.svg"
   },
   {
     "type": "Yorick's Skull",
@@ -7530,7 +7530,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-juliet.svg"
+    "filename": "npc-head-juliet.svg"
   },
   {
     "type": "Viola's Secret",
@@ -7544,7 +7544,7 @@
     "qtycollected": 1,
     "xp": 1,
     "nogems": true,
-    "filename": "npc-mermaid.svg"
+    "filename": "npc-head-viola.svg"
   },
   {
     "type": "Hope",
@@ -9771,7 +9771,7 @@
     "crafttime": 28800,
     "totalnestedtime": 28800,
     "gemOverride": 24,
-    "iconFile": "npc-doctor.svg",
+    "iconFile": "npc-head-doctor.svg",
     "artSpan": 1.8
   },
   {
@@ -9816,7 +9816,7 @@
     "filename": "npc-figure-surgeon.svg",
     "crafttime": 43200,
     "totalnestedtime": 43200,
-    "iconFile": "npc-surgeon.svg",
+    "iconFile": "npc-head-surgeon.svg",
     "artSpan": 1.8
   },
   {
@@ -9855,7 +9855,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 300,
     "filename": "npc-figure-nurse.svg",
-    "iconFile": "npc-nurse.svg",
+    "iconFile": "npc-head-nurse.svg",
     "artSpan": 1.8
   },
   {
@@ -9897,7 +9897,8 @@
     "crafttime": 86400,
     "totalnestedtime": 345600,
     "filename": "npc-figure-fairy.svg",
-    "artSpan": 1.2
+    "artSpan": 1.2,
+    "iconFile": "npc-head-fairy.svg"
   },
   {
     "type": "Kent",
@@ -9935,7 +9936,7 @@
     "filename": "npc-figure-kent.svg",
     "crafttime": 3,
     "totalnestedtime": 3,
-    "iconFile": "npc-kent.svg",
+    "iconFile": "npc-head-kent.svg",
     "artSpan": 1.8
   },
   {
@@ -9970,7 +9971,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-portia.svg",
-    "iconFile": "npc-portia.svg",
+    "iconFile": "npc-head-portia.svg",
     "artSpan": 1.8
   },
   {
@@ -10009,7 +10010,7 @@
     "filename": "npc-figure-shepherd.svg",
     "crafttime": 3,
     "totalnestedtime": 3,
-    "iconFile": "npc-shepherd.svg",
+    "iconFile": "npc-head-shepherd.svg",
     "artSpan": 1.8
   },
   {
@@ -10044,7 +10045,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-hotspur.svg",
-    "iconFile": "npc-hotspur.svg",
+    "iconFile": "npc-head-hotspur.svg",
     "artSpan": 1.8
   },
   {
@@ -10079,7 +10080,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-cassio.svg",
-    "iconFile": "npc-cassio.svg",
+    "iconFile": "npc-head-cassio.svg",
     "artSpan": 1.8
   },
   {
@@ -10114,7 +10115,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-sebastian.svg",
-    "iconFile": "npc-cassio.svg",
+    "iconFile": "npc-head-sebastian.svg",
     "artSpan": 1.8
   },
   {
@@ -10149,7 +10150,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-quickly.svg",
-    "iconFile": "npc-chef.svg",
+    "iconFile": "npc-head-quickly.svg",
     "artSpan": 1.8
   },
   {
@@ -10184,7 +10185,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-feste.svg",
-    "iconFile": "npc-feste.svg",
+    "iconFile": "npc-head-feste.svg",
     "artSpan": 1.8
   },
   {
@@ -10219,7 +10220,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-helena.svg",
-    "iconFile": "npc-helena.svg",
+    "iconFile": "npc-head-helena.svg",
     "artSpan": 1.8
   },
   {
@@ -10254,7 +10255,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-titania.svg",
-    "iconFile": "npc-titania.svg",
+    "iconFile": "npc-head-titania.svg",
     "artSpan": 1.8
   },
   {
@@ -10289,7 +10290,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-vampire.svg",
-    "iconFile": "npc-vampire.svg",
+    "iconFile": "npc-head-vampire.svg",
     "artSpan": 1.8
   },
   {
@@ -10323,7 +10324,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-prospero.svg",
-    "iconFile": "npc-prospero.svg",
+    "iconFile": "npc-head-prospero.svg",
     "artSpan": 1.8
   },
   {
@@ -10358,7 +10359,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-elbow.svg",
-    "iconFile": "npc-elbow.svg",
+    "iconFile": "npc-head-elbow.svg",
     "artSpan": 1.8
   },
   {
@@ -10394,7 +10395,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-lumberjack.svg",
-    "iconFile": "npc-lumberjack.svg",
+    "iconFile": "npc-head-lumberjack.svg",
     "artSpan": 1.8
   },
   {
@@ -10488,7 +10489,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-snug.svg",
-    "iconFile": "npc-snug.svg",
+    "iconFile": "npc-head-snug.svg",
     "artSpan": 1.8
   },
   {
@@ -10523,7 +10524,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-falstaff.svg",
-    "iconFile": "npc-falstaff.svg",
+    "iconFile": "npc-head-falstaff.svg",
     "artSpan": 1.8
   },
   {
@@ -10558,7 +10559,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-apothecary.svg",
-    "iconFile": "npc-apothecary.svg",
+    "iconFile": "npc-head-apothecary.svg",
     "artSpan": 1.8
   },
   {
@@ -10593,7 +10594,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-iago.svg",
-    "iconFile": "npc-iago.svg",
+    "iconFile": "npc-head-iago.svg",
     "artSpan": 1.8
   },
   {
@@ -10628,7 +10629,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-gertrude.svg",
-    "iconFile": "npc-gertrude.svg",
+    "iconFile": "npc-head-gertrude.svg",
     "artSpan": 1.8
   },
   {
@@ -10663,7 +10664,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-leontes.svg",
-    "iconFile": "npc-leontes.svg",
+    "iconFile": "npc-head-leontes.svg",
     "artSpan": 1.8
   },
   {
@@ -10698,7 +10699,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-caliban.svg",
-    "iconFile": "npc-caliban.svg",
+    "iconFile": "npc-head-caliban.svg",
     "artSpan": 1.8
   },
   {
@@ -10733,7 +10734,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-hecate.svg",
-    "iconFile": "npc-hecate.svg",
+    "iconFile": "npc-head-hecate.svg",
     "artSpan": 1.8
   },
   {
@@ -10768,7 +10769,8 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-porter.svg",
-    "artSpan": 1.8
+    "artSpan": 1.8,
+    "iconFile": "npc-head-porter.svg"
   },
   {
     "type": "Juliet",
@@ -10802,7 +10804,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-juliet.svg",
-    "iconFile": "npc-juliet.svg",
+    "iconFile": "npc-head-juliet.svg",
     "artSpan": 1.8
   },
   {
@@ -10837,7 +10839,7 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-viola.svg",
-    "iconFile": "npc-mermaid.svg",
+    "iconFile": "npc-head-viola.svg",
     "artSpan": 1.8
   },
   {
@@ -10872,7 +10874,8 @@
     "validonv": false,
     "validonu": false,
     "filename": "npc-figure-oracle.svg",
-    "artSpan": 1.8
+    "artSpan": 1.8,
+    "iconFile": "npc-head-oracle.svg"
   },
   {
     "type": "Farm Hand",
@@ -10914,7 +10917,7 @@
     "filename": "npc-figure-farmhand.svg",
     "crafttime": 1800,
     "totalnestedtime": 1800,
-    "iconFile": "npc-farmhand.svg",
+    "iconFile": "npc-head-farmhand.svg",
     "artSpan": 1.8
   },
   {
@@ -10957,7 +10960,7 @@
     "filename": "npc-figure-rancher.svg",
     "crafttime": 14400,
     "totalnestedtime": 14400,
-    "iconFile": "npc-rancher.svg",
+    "iconFile": "npc-head-rancher.svg",
     "artSpan": 1.8
   },
   {
@@ -11000,7 +11003,7 @@
     "filename": "npc-figure-lumberjack.svg",
     "crafttime": 28800,
     "totalnestedtime": 28800,
-    "iconFile": "npc-lumberjack.svg",
+    "iconFile": "npc-head-lumberjack.svg",
     "artSpan": 1.8
   },
   {
@@ -11043,7 +11046,7 @@
     "filename": "npc-figure-crafter.svg",
     "crafttime": 57600,
     "totalnestedtime": 57600,
-    "iconFile": "npc-crafter.svg",
+    "iconFile": "npc-head-crafter.svg",
     "artSpan": 1.8
   },
   {
@@ -11436,7 +11439,7 @@
     "validonv": true,
     "validonu": true,
     "filename": "npc-figure-angelo.svg",
-    "iconFile": "npc-angelo.svg",
+    "iconFile": "npc-head-angelo.svg",
     "artSpan": 1.8
   },
   {

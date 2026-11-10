@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Graphics, Container, Text } from 'pixi.js-legacy';
 import ConversationManager from '../../GameFeatures/Relationships/ConversationManager';
+import { playerIconSpan } from './PixiRendererPCs';
+
+/** How much higher than a one-tile sprite's a figure's bubble sits: (span - 1) tiles. */
+const headLift = (position, T) => (position.span ? (position.span - 1) * T : 0);
 
 /**
  * PixiRendererSpeech - Speech bubbles and relationship outcomes for PixiJS renderer
@@ -51,20 +55,23 @@ const PixiRendererSpeech = ({
    * Find entity position by speaker ID
    * NPCs are identified by type; the only PC speaker is the local player (by playerId)
    */
+  // The speaker's tile position plus `span`: a full-body figure (resources.json artSpan, or the
+  // player's figure icon) stands span tiles tall on its tile, so its bubble sits (span - 1) tiles
+  // higher than a one-tile sprite's (docs/avatar-plan.md v2; owner 2026-11-09)
   const findEntityPosition = useCallback((speakerId) => {
     // Check if it's the current player (the only PC that can speak)
     if (currentPlayer && String(speakerId) === String(currentPlayer._id)) {
       const list = Array.isArray(pcs) ? pcs : Object.values(pcs || {});
       const currentPC = list.find(pc => pc && String(pc.playerId) === String(currentPlayer._id));
       if (currentPC?.position) {
-        return currentPC.position;
+        return { ...currentPC.position, span: playerIconSpan(currentPC.icon || currentPlayer.icon) };
       }
     }
 
     // Check NPCs by type
     const npc = npcs?.find(n => n && n.type === speakerId);
     if (npc?.position) {
-      return npc.position;
+      return { ...npc.position, span: Number(npc.artSpan) > 0 ? Number(npc.artSpan) : 0 };
     }
 
     return null;
@@ -339,7 +346,7 @@ const PixiRendererSpeech = ({
       // Apply grid offset for settlement zoom
       const bubbleRadius = TILE_SIZE * 0.75;
       const centerX = gridOffset.x + (position.x + 0.5) * TILE_SIZE;
-      const centerY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.2 - bubbleRadius;
+      const centerY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.2 - bubbleRadius - headLift(position, TILE_SIZE);
 
       // Get bubble from pool
       const bubble = getBubbleFromPool(bubblesUsed);
@@ -380,7 +387,7 @@ const PixiRendererSpeech = ({
       // Apply grid offset for settlement zoom
       const outcomeObj = getOutcomeFromPool();
       const startX = gridOffset.x + (position.x + 0.5) * TILE_SIZE;
-      const startY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.5;
+      const startY = gridOffset.y + position.y * TILE_SIZE - TILE_SIZE * 0.5 - headLift(position, TILE_SIZE);
 
       outcomeObj.text.text = outcome.emoji || (outcome.type === 'positive' ? '👍' : '👎');
       // A small badge over the head, not a second NPC: ~half a tile (it was 1.2 tiles, cartoonishly big)

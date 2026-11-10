@@ -11,7 +11,14 @@
  */
 import PixiCamera from '../Render/PixiRenderer/PixiCamera';
 
-const HEADLINE_VERTICAL_OFFSET = 0.75; // tiles above the sprite's centre (NPCs are one tile tall here)
+const HEADLINE_VERTICAL_OFFSET = 0.75; // tiles above the sprite's centre for a one-tile sprite (a bust, an emoji)
+
+// A full-body figure (resources.json artSpan, docs/avatar-plan.md v2) stands span tiles tall on
+// its tile, so its head is (span - 0.5) tiles above the tile centre; the renderer registers each
+// NPC's span when it builds the sprite and the glyphs ride just above the hair.
+const actorSpans = new Map(); // npcId -> artSpan
+export function setHeadlineSpan(npcId, span) { if (Number(span) > 0) actorSpans.set(npcId, Number(span)); else actorSpans.delete(npcId); }
+const offsetFor = (npcId) => { const s = actorSpans.get(npcId); return s ? s - 0.5 + 0.15 : HEADLINE_VERTICAL_OFFSET; };
 
 const VFX_CONFIG = {
   Zzz: { duration: 2000, stagger: 600, count: 3, loopEvery: 2600 },
@@ -21,9 +28,9 @@ const VFX_CONFIG = {
 
 const activeHeadlineEffects = new Map(); // npcId -> { type, container, elements, timeoutIds, intervalId }
 
-function anchor(position) {
+function anchor(position, npcId) {
   const t = PixiCamera.getTileSize();
-  return { x: (position.x + 0.5) * t, y: (position.y + 0.5 - HEADLINE_VERTICAL_OFFSET) * t, t };
+  return { x: (position.x + 0.5) * t, y: (position.y + 0.5 - offsetFor(npcId)) * t, t };
 }
 
 /** Spawn one rising glyph inside an effect's container. */
@@ -87,7 +94,7 @@ export function startHeadlineEffect(npcId, effectType, position, options = {}) {
   if (existing && existing.type === effectType && existing.emoji === options.emoji) { updateHeadlineEffectPosition(npcId, position); return; }
   stopHeadlineEffect(npcId);
 
-  const { x, y, t } = anchor(position);
+  const { x, y, t } = anchor(position, npcId);
   const container = document.createElement('div');
   container.style.cssText = `position: absolute; left: ${x}px; top: ${y}px; pointer-events: none; z-index: 1100;`;
   worldContainer.appendChild(container);
@@ -111,7 +118,7 @@ export function stopHeadlineEffect(npcId) {
 export function updateHeadlineEffectPosition(npcId, position) {
   const effect = activeHeadlineEffects.get(npcId);
   if (!effect || !position) return;
-  const { x, y } = anchor(position);
+  const { x, y } = anchor(position, npcId);
   effect.container.style.left = `${x}px`;
   effect.container.style.top = `${y}px`;
 }
