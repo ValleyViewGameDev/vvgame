@@ -52,6 +52,10 @@ import BreathSprite from './BreathSprite';
 import { WALK } from './walking';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
+// The farm animal's ready ✅ sits this many tiles lower than the humanoid head-top spot, so it
+// hugs the animal's art (owner 2026-11-10); quest/trade NPC overlays are unchanged
+const FARM_ANIMAL_OVERLAY_DROP = 0.15;
+
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
 // Note: pixi-viewport v6 requires PixiJS v8. For v7, we'd need pixi-viewport v5.
@@ -1590,9 +1594,12 @@ const PixiRenderer = ({
           const npcX = gridOffsetX + Math.floor(npc.position?.x || 0) * TILE_SIZE;
           const npcY = gridOffsetY + Math.floor(npc.position?.y || 0) * TILE_SIZE;
 
-          // Centred just above the animal's head (npcHeadTops.js; owner 2026-11-10)
+          // Centred above the animal's head (npcHeadTops.js; owner 2026-11-10), dropped a little
+          // closer to the art (FARM_ANIMAL_OVERLAY_DROP): only farm animals reach this path
           const overlaySize = TILE_SIZE * 0.4;
-          const { x: overlayX, y: overlayY } = npcOverlaySpot(npc.id, npcX, npcY, TILE_SIZE, overlaySize);
+          const spot = npcOverlaySpot(npc.id, npcX, npcY, TILE_SIZE, overlaySize);
+          const overlayX = spot.x;
+          const overlayY = spot.y + FARM_ANIMAL_OVERLAY_DROP * TILE_SIZE;
 
           // Get overlay from pool
           const overlay = getOverlayFromPool(overlaysUsed);

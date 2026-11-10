@@ -9,6 +9,10 @@ import questCache from '../../Utils/QuestCache';
 import { playCelebrationFireworks } from '../../VFX/Celebration';
 import CloseButton from '../Buttons/CloseButton';
 import ResourceIcon from '../Icons/ResourceIcon';
+import panelIconsData from '../Icons.json';
+
+// A skill shows the nav bar's Skills icon (UI/Icons.json, as App.js renderNavIcon), owner 2026-11-10
+const SKILLS_NAV_ICON = (panelIconsData.find((entry) => entry.SkillsPanel) || {}).SkillsPanel;
 
 // Categories to show in unlock list
 const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco', 'station'];
@@ -109,7 +113,9 @@ const LevelUpModal = ({
               <ul className="unlocked-list">
                 {unlockedResources.map((resource, index) => (
                   <li key={index}>
-                    <ResourceIcon resource={resource} /> {getLocalizedString(resource.type, strings)}
+                    {resource.category === 'skill' && SKILLS_NAV_ICON
+                      ? <img className="resource-icon" src={`/assets/icons/${SKILLS_NAV_ICON}`} alt="" draggable="false" />
+                      : <ResourceIcon resource={resource} />} {getLocalizedString(resource.type, strings)}
                   </li>
                 ))}
               </ul>
