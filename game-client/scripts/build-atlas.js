@@ -15,10 +15,14 @@
  *                slot = 256 px for size 1, 512 px for size 2-3, 768 px for size 4-5;
  *                128 px for a `doober` or growing `farmplot` row (drawn at 0.9 of a tile; docs/art/doobers.md),
  *                unless its artSpan is above 1 (a fruit tree's ready state). A row's `iconFile`
- *                (the panel icon when the board art is something else) is NOT packed: panels load it raw.
+ *                (the panel icon when the board art is something else) is NOT packed: panels load it raw;
+ *                except an NPC's head crop, 128 px, drawn in the conversation bubbles (speechTopicArt.js)
  *                (a size-5 building is 375 CSS px at the closest zoom, 750 px on a 2x screen)
  *   playerIcons/ every `filename` in src/Authentication/PlayerIcons.json   slot = 256 px
  *   overlays/    every .svg in public/assets/overlays                      slot = 128 px
+ *   icons/       the painted feelings and marks the conversation bubbles and outcomes draw
+ *                (public/assets/icons/mark-*.png + the few icon-*.png GLYPH_ART borrows,
+ *                speechTopicArt.js)                                        slot = 128 px
  *   avatar/      every file named in game-server/tuning/avatarParts.json   slot = 256 px
  *   tiles/       every .png in public/assets/tiles (tools/art/tiles.js cuts them from the
  *                approved ground panels; docs/art/slice-b/tiles.md)                slot = 144 px (frame 128, extruded 8 px into the gutter)
@@ -110,6 +114,8 @@ function listResourceSources() {
       // The same file can back several resource types; keep the largest cell it needs
       if (!prev || prev.cell < cell) seen.set(file, { cell });
     }
+    // an NPC's head crop: the portrait in a conversation bubble (a third of a tile across)
+    if (r.category === 'npc' && r.iconFile && !seen.has(r.iconFile)) seen.set(r.iconFile, { cell: OVERLAY_CELL });
   }
   return [...seen.entries()].map(([file, { cell }]) => ({
     key: `resources/${file}`,
@@ -231,6 +237,17 @@ function listOverlaySources() {
   }));
 }
 
+/** The painted feelings and marks (speechTopicArt.js GLYPH_ART): `icons/<file>.png`. */
+const GLYPH_ICONS = ['icon-chat.png', 'icon-profile.png', 'icon-map.png', 'icon-combat.png'];
+function listGlyphSources() {
+  const dir = path.join(PUBLIC, 'icons');
+  return fs.readdirSync(dir).filter((f) => (/^mark-.*\.png$/.test(f) || GLYPH_ICONS.includes(f))).map((file) => ({
+    key: `icons/${file}`,
+    src: path.join(dir, file),
+    cell: OVERLAY_CELL,
+  }));
+}
+
 /** Intrinsic SVG size so we can pick a density that renders at >= the target cell. */
 function svgIntrinsicSize(svgText) {
   const vb = svgText.match(/viewBox\s*=\s*["']\s*([-\d.]+)[\s,]+([-\d.]+)[\s,]+([-\d.]+)[\s,]+([-\d.]+)/i);
@@ -330,7 +347,7 @@ function sourceHash(items) {
 }
 
 async function main() {
-  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listTileSources(), ...listEdgeSources(), ...listWallSources(), ...listEmojiSources()];
+  const items = [...listResourceSources(), ...listPlayerIconSources(), ...listAvatarSources(), ...listOverlaySources(), ...listGlyphSources(), ...listTileSources(), ...listEdgeSources(), ...listWallSources(), ...listEmojiSources()];
   const missing = items.filter((i) => !fs.existsSync(i.src));
   if (missing.length) {
     console.error(`Referenced art not on disk:\n  ${missing.map((m) => m.key).join('\n  ')}`);

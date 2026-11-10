@@ -62,6 +62,7 @@ export function setSpeechPlayer(avatar) {
 
 const cache = new Map();   // key -> Texture | null (null: none exists)
 const pending = new Map(); // key -> Promise
+const listeners = new Map(); // key -> Set of onReady callbacks waiting on it
 
 /** What a topic emoji shows: { key, kind, load: () => Promise<Texture|null> } or null for plain text. */
 function resolveTopic(topic) {
@@ -91,7 +92,7 @@ function resolveTopic(topic) {
   if (row) return { key: `res:${row.type}`, kind: 'art', load: () => resourceTexture(row.iconFile || row.filename) };
 
   // a feeling or a mark: its painted glyph
-  if (GLYPH_ART[sym]) return { key: `glyph:${GLYPH_ART[sym]}`, kind: 'art', load: () => urlTexture(`/assets/${GLYPH_ART[sym]}`) };
+  if (GLYPH_ART[sym]) return { key: `glyph:${GLYPH_ART[sym]}`, kind: 'art', load: () => glyphTexture(GLYPH_ART[sym]) };
 
   // a bare emoji: the atlas's Twemoji frame when it has one
   const ek = emojiKey(topic);
@@ -105,6 +106,12 @@ async function resourceTexture(file) {
   if (atlas) return atlas;
   return urlTexture(`/assets/resources/${file.replace(/\.svg$/, '.png')}`)
     .then((t) => t || urlTexture(`/assets/resources/${file}`));
+}
+
+/** A painted glyph (`icons/<file>`): the atlas frame (scripts/build-atlas.js icons/), else the file. */
+async function glyphTexture(rel) {
+  const [ns, file] = rel.split('/');
+  return (await getAtlasTexture(ns, file)) || urlTexture(`/assets/${rel}`);
 }
 
 /** A player figure's face, cut from its 512 px PNG. */
@@ -149,14 +156,29 @@ export function topicArt(topic, onReady) {
     if (t && t.valid !== false && !t.baseTexture?.destroyed) return { texture: t, kind: r.kind };
     if (t) cache.delete(r.key); else return null; // a dead texture reloads; none-exists stays text
   }
+  // EVERY caller waiting on a picture is told when it lands (or turns out to have none): only the
+  // first caller's onReady used to fire, so a bubble asked for a picture already loading (warmed,
+  // or the same head a moment earlier) kept its fallback glyph until something else redrew it
+  if (onReady) {
+    if (!listeners.has(r.key)) listeners.set(r.key, new Set());
+    listeners.get(r.key).add(onReady);
+  }
   if (!pending.has(r.key)) {
     pending.set(r.key, Promise.resolve(r.load()).catch(() => null).then((t) => {
       pending.delete(r.key);
       cache.set(r.key, t || null);
-      if (t) onReady?.();
+      const waiting = listeners.get(r.key);
+      listeners.delete(r.key);
+      waiting?.forEach((fn) => { try { fn(); } catch (e) { /* a gone caller */ } });
     }));
   }
   return null;
+}
+
+/** True while a topic's picture is still loading: the bubble stays empty for that moment rather than print the fallback glyph. */
+export function topicArtLoading(topic) {
+  const r = resolveTopic(topic);
+  return !!r && !cache.has(r.key);
 }
 
 /** True when a topic is a token (PLAYER_FACE), not a glyph: there is nothing to print while its picture loads. */
@@ -165,4 +187,11 @@ export const isTopicToken = (topic) => topic === PLAYER_FACE;
 /** Load every painted glyph ahead of its first use (an outcome mark is shown the moment it is asked for). */
 export function warmGlyphArt() {
   for (const sym of Object.keys(GLYPH_ART)) topicArt(sym);
+}
+
+/** Load the glyphs, every character's head and the player's face ahead of the first conversation. */
+export function warmTopicArt() {
+  warmGlyphArt();
+  for (const e of RelationshipMatrix) if (e?.symbol) topicArt(e.symbol);
+  topicArt(PLAYER_FACE);
 }

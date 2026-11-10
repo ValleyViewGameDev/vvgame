@@ -10,6 +10,7 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
+import { opaqueTopFraction } from './artHitTest';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { loadAvatarCatalogue } from '../../Utils/TuningManager';
@@ -37,8 +38,15 @@ const iconToSvgMap = new Map();
 const iconToBreathTop = new Map(); // where a figure icon's head ends (PlayerIcons.json breathTop): the breath leaves it rigid
 const iconToBlinkMap = new Map(); // a figure icon's blink frame (PlayerIcons.json blinkFilename: the same art, eyes closed)
 const iconToSpanMap = new Map();
-/** The art span of a player icon (0 for a bust or emoji): the speech renderer lifts bubbles by it. */
+/** The art span of a player icon (0 for a bust or emoji). */
 export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) || 0;
+// Where the drawn player's head ends, in tiles below its tile's top edge (negative: above it),
+// measured from the art the board shows NOW (the saved avatar, a figure icon, a state picture),
+// as npcHeadTops.js measures an NPC's: the speech bubble's tail stops just above it (owner
+// 2026-11-10: the bubble used the icon's span, 0 for the avatar, and sat on its chest)
+let liveHeadTop = null;
+/** The local player's measured head top (tiles below the tile's top edge), or null before the first draw. */
+export const getPlayerHeadTop = () => liveHeadTop;
 ['free', 'paid', 'platinum'].forEach(tier => {
   (playerIconsData[tier] || []).forEach(icon => {
     if (icon.filename) {
@@ -493,6 +501,8 @@ const PixiRendererPCs = ({
       // idle breath (breathing.js) stretches it up from the ground; a bust or emoji stays centred
       if (span) { sprite.anchor.set(0.5, 1); sprite.y = yPos + TILE_SIZE / 2; }
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
+      const artTop = opaqueTopFraction(app?.renderer, texture);
+      liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - 0.45 + 0.9 * artTop;
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
       else if (avatarTex) sprite.breathTop = AVATAR_BREATH_TOP[av.body] || AVATAR_BREATH_TOP.female;
@@ -520,6 +530,7 @@ const PixiRendererPCs = ({
       text.style.fontSize = TILE_SIZE * 0.8;
       text.x = xPos;
       text.y = yPos;
+      liveHeadTop = 0.1;
       text.zIndex = actorZ(posY, 0.51);
       text.alpha = 1.0;
       hideSprite();

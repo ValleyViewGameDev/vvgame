@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Graphics, Container, Text, Sprite } from 'pixi.js-legacy';
 import ConversationManager from '../../GameFeatures/Relationships/ConversationManager';
-import { playerIconSpan } from './PixiRendererPCs';
+import { playerIconSpan, getPlayerHeadTop } from './PixiRendererPCs';
 import { getNpcHeadTop } from './npcHeadTops';
-import { topicArt, setSpeechPlayer, isTopicToken, warmGlyphArt } from './speechTopicArt';
+import { topicArt, setSpeechPlayer, isTopicToken, topicArtLoading, warmTopicArt } from './speechTopicArt';
 
 const OUTCOME_SIZE = 0.6; // tiles: the painted mark that floats up from a head when an interaction lands
 
@@ -24,12 +24,12 @@ const BUBBLE = {
   ring: 0xffffff,     // the avatar ring (App.css .header-desk-avatar)
   rx: 0.8 * SIZE, ry: 0.6 * SIZE, // tiles: a little wider than tall
   tail: 0.36 * SIZE,  // tiles from the body's bottom to the tail's tip
-  emoji: 0.72 * SIZE, // the topic emoji's font size, tiles
+  emoji: 0.9 * SIZE,  // the topic emoji's font size, tiles
   tipDx: 0.22,        // the tip sits this far right of the body's centre (x rx): the hook
   gap: 0.06,          // tiles of air between the tip and the head
   portrait: 0xbaee66, // a character's head crop sits in the avatar circle: white ring on the button green (--brand-leaf, NPCPortrait)
-  portraitR: 0.33 * SIZE, // tiles: the portrait circle's radius
-  art: 0.66 * SIZE,   // tiles: the box a resource's painted art or a Twemoji fits in
+  portraitR: 0.42 * SIZE, // tiles: the portrait circle's radius (owner 2026-11-10: bigger)
+  art: 0.86 * SIZE,   // tiles: the box a resource's painted art or a Twemoji fits in (bigger, 2026-11-10)
 };
 
 /** Trace the bubble's outline (body + tail as one path) with its body centred on (cx, cy); sx -1 mirrors it. */
@@ -83,7 +83,7 @@ const PixiRendererSpeech = ({
     setSpeechPlayer(avatarKey ? JSON.parse(avatarKey) : null);
     setConversationVersion((v) => v + 1);
   }, [avatarKey]);
-  useEffect(() => { warmGlyphArt(); }, []);
+  useEffect(() => { warmTopicArt(); }, []); // glyphs, every character's head, the player's face
 
   // Object pools for reuse
   const bubblePoolRef = useRef([]);      // Pool of { graphics, text } for bubbles
@@ -119,7 +119,9 @@ const PixiRendererSpeech = ({
       const list = Array.isArray(pcs) ? pcs : Object.values(pcs || {});
       const currentPC = list.find(pc => pc && String(pc.playerId) === String(currentPlayer._id));
       if (currentPC?.position) {
-        return { ...currentPC.position, span: playerIconSpan(currentPC.icon || currentPlayer.icon) };
+        // headTop: the drawn figure's measured head (the saved avatar is 1.8 tiles tall whatever
+        // the icon says), so the player's bubble sits at the NPC's height, back and forth
+        return { ...currentPC.position, span: playerIconSpan(currentPC.icon || currentPlayer.icon), headTop: getPlayerHeadTop() };
       }
     }
 
@@ -457,8 +459,8 @@ const PixiRendererSpeech = ({
         sprite.position.set(centerX, centerY);
         sprite.visible = true;
         text.visible = false;
-      } else if (isTopicToken(displayText)) {
-        text.visible = false; // the player's picture is still loading: an empty bubble for a moment, never the token
+      } else if (isTopicToken(displayText) || topicArtLoading(displayText)) {
+        text.visible = false; // its picture is still loading: an empty bubble for a moment, never the token or a fallback glyph
       } else {
         text.text = displayText;
         text.style.fontSize = TILE_SIZE * BUBBLE.emoji;
