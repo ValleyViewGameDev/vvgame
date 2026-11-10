@@ -38,7 +38,8 @@ import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition, setHeadlineSpan } from '../../VFX/NPCVFX';
 import { facePlayerToward } from '../../PlayerMovement';
-import { breathScaleY, breathSeed, breathingAllowed } from './breathing';
+import { breathLevel, breathSeed, breathingAllowed } from './breathing';
+import BreathSprite from './BreathSprite';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
@@ -463,22 +464,17 @@ const PixiRenderer = ({
   // Ref to track if NPC animation ticker is currently running (for on-demand ticker pattern)
   const npcAnimationTickerRef = useRef(null);
   // Idle breathing (breathing.js): the figure NPCs that breathe (id -> seed) and the one ticker that
-  // drives them. A figure's sprite is anchored at its TILE CENTRE (half a tile above its feet), so
-  // the stretch is paired with a small lift of the sprite that keeps the square's bottom edge, the
-  // feet, exactly where it was.
+  // drives them. An NPC sprite is a BreathSprite: the breath bends its vertices (a rise pivoted at
+  // the feet plus the chest expansion), so position, scale and anchor are never touched.
   const breathersRef = useRef(new Map());
   const breathTickerRef = useRef(null);
   const applyBreath = useCallback((npcId, displayObj, now) => {
+    if (!displayObj || !('breath' in displayObj)) return;
     const seed = breathersRef.current.get(npcId);
-    const rest = displayObj?.__restScale;
-    if (seed === undefined || !rest || !displayObj.__breathTile) return;
+    if (seed === undefined) { displayObj.breath = 0; return; }
     const animation = npcAnimations.current[npcId];
     const moving = !!animation && animation.duration !== 0;
-    const k = moving ? 1 : breathScaleY(now, seed);
-    displayObj.scale.y = rest.y * k;
-    // standing: lift the anchor by half a tile's worth of the stretch so the feet stay put (a walking
-    // figure's y belongs to its tween)
-    if (!moving && animation?.currentPos) displayObj.y = animation.currentPos.y * displayObj.__breathTile + displayObj.__breathTile / 2 - (k - 1) * 0.5 * displayObj.__breathTile;
+    displayObj.breath = moving ? 0 : breathLevel(now, seed); // a walking figure has its bob instead
   }, []);
   // Render version tracking for NPC async renders
   const npcRenderVersionRef = useRef(0);
@@ -1241,7 +1237,7 @@ const PixiRenderer = ({
         if (!displayObj) {
           // Create new display object
           if (needsSprite) {
-            displayObj = new Sprite(texture);
+            displayObj = new BreathSprite(texture); // a Sprite that can breathe (BreathSprite.js); plain until a breath level is set
             displayObj.width = spriteSize;
             displayObj.height = spriteSize;
             displayObj.anchor.set(0.5, anchorY);
@@ -1319,8 +1315,6 @@ const PixiRenderer = ({
         if (newDisplayType === 'sprite') {
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         }
-        // re-sizing reset the scale: put the breath straight back so a redraw never shows one rest frame
-        displayObj.__breathTile = TILE_SIZE;
         applyBreath(npc.id, displayObj, performance.now());
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).

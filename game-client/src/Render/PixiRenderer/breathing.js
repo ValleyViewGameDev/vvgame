@@ -1,24 +1,35 @@
 /**
  * breathing - the idle "breath" of a standing figure (docs/avatar-plan.md v2 §5, owner 2026-11-10).
  *
- * One sprite per character today, so the breath is the classic single-sprite idle: a small
- * vertical stretch PIVOTED AT THE FEET (squash and stretch about the ground contact). The
- * displacement is zero at the feet and grows linearly to the top of the head, which is what a
- * rig's breath deformer does to a still drawing (Live2D's ParamBreath cycles 0..1 and lifts the
- * chest and shoulders; Character Animator's Breathe scales the chest), without a mesh. Width is
- * not scaled: scaling x about the centre would slide each foot sideways.
- *
- * Only standing figures breathe: a walking one has its bob; a still one would otherwise be a
- * cut-out. Everything here is pure (no Pixi, no DOM) so the board renderers and tests share it;
- * the Edit Avatar preview runs the same curve as CSS keyframes (Avatar/AvatarModal.css).
+ * Two things happen together on each breath, as a rig's breath deformer does (Live2D's ParamBreath
+ * cycles 0..1 and lifts the chest and shoulders; Character Animator's Breathe scales the chest):
+ *   - the figure RISES: a vertical stretch pivoted at the feet, zero at the ground and growing
+ *     linearly to the top of the head;
+ *   - the CHEST EXPANDS: the figure widens about its centre line by a bell-shaped weight that
+ *     peaks at the chest and is zero at the feet and the head (breathBell).
+ * The feet never move in either direction. The board bends a strip of rows in the sprite's own
+ * vertices (BreathSprite.js); the Edit Avatar stage draws the same strips on a canvas. Only
+ * standing figures breathe: a walking one has its bob. Everything here is pure (no Pixi, no DOM).
  */
 export const BREATH = {
   periodMs: 3600,     // one breath: about 17 a minute, a calm resting rate
-  amplitude: 0.016,   // the head rises this fraction of the figure's height at full inhale
+  amplitude: 0.012,   // the head rises this fraction of the figure's height at full inhale (owner: 75 % of the first 0.016)
+  chest: 0.03,        // the chest widens by this fraction of its width at full inhale
+  chestAt: 0.44,      // where the chest is, as a fraction of the figure square from its top (collar ~0.33, belt ~0.55)
+  chestSpread: 0.12,  // the bell's width (same units): shoulders get about half, the head and the knees nothing
   inhale: 0.4,        // share of the cycle spent breathing in
   exhale: 0.45,       // ... breathing out; the rest is the pause before the next breath
   periodJitter: 0.24, // each figure's period varies by up to +-12 % so a crowd never breathes in step
 };
+
+/** The chest weight at height v (0 = the top of the figure square, 1 = its bottom, the feet): 1 at the chest, 0 at the feet and the head. */
+export const breathBell = (v) => { const d = (v - BREATH.chestAt) / BREATH.chestSpread; return Math.exp(-d * d); };
+
+/**
+ * Where a point of the figure goes at breath level L (0..1). x and y are fractions of the figure
+ * square (x from its centre line, -0.5..0.5; y from its top, 0..1). Returns [x, y] in the same units.
+ */
+export const breathPoint = (x, y, L) => [x * (1 + BREATH.chest * L * breathBell(y)), 1 - (1 - y) * (1 + BREATH.amplitude * L)];
 
 const smooth = (x) => x * x * (3 - 2 * x);
 
@@ -38,9 +49,6 @@ export function breathLevel(tMs, seed = 0) {
   if (phase < BREATH.inhale + BREATH.exhale) return 1 - smooth((phase - BREATH.inhale) / BREATH.exhale);
   return 0;
 }
-
-/** The vertical scale factor at time t (1 at rest, 1 + amplitude at full inhale). */
-export const breathScaleY = (tMs, seed = 0) => 1 + BREATH.amplitude * breathLevel(tMs, seed);
 
 /** Players who ask the system for less motion get still figures. */
 export const breathingAllowed = () => !(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);

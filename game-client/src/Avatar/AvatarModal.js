@@ -17,6 +17,7 @@ import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
 import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
+import { BREATH, breathLevel, breathBell, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
@@ -36,8 +37,56 @@ const CROP = {
 };
 const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'head', top: 'clothes' };
 
+/**
+ * The figure, breathing (owner 2026-11-10): the board's own deformation (BreathSprite.js) drawn on
+ * a canvas so it can be judged up close. The composed square is drawn in thin horizontal strips;
+ * each strip is lifted (a stretch pivoted at the square's bottom edge, the feet) and widened about
+ * the centre line by the chest bell, at the breath level of the moment.
+ */
+function BreathingFigure({ src, crop, width, height, className = '' }) {
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+  useEffect(() => {
+    if (!src) return undefined;
+    const img = new Image();
+    img.onload = () => { imgRef.current = img; };
+    img.src = src;
+    return () => { img.onload = null; };
+  }, [src]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return undefined;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+    const ctx = canvas.getContext('2d');
+    const STRIPS = 96;
+    let raf = 0;
+    const draw = () => {
+      raf = requestAnimationFrame(draw);
+      const img = imgRef.current;
+      if (!img) return;
+      const L = breathingAllowed() ? breathLevel(performance.now(), 0) : 0;
+      const S = img.naturalWidth;                 // the composed square, in image px
+      const full = (width / crop.w) * dpr;        // the whole square, in canvas px
+      const rise = 1 + BREATH.amplitude * L;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < STRIPS; i++) {
+        const v0 = crop.y + (crop.h * i) / STRIPS, v1 = crop.y + (crop.h * (i + 1)) / STRIPS; // fractions of the square, from its top
+        const bulge = 1 + BREATH.chest * L * breathBell((v0 + v1) / 2);
+        // a point at height v goes to 1 - (1 - v) * rise (the feet, v = 1, stay); then into the crop's frame
+        const y0 = (1 - (1 - v0) * rise - crop.y) * full, y1 = (1 - (1 - v1) * rise - crop.y) * full;
+        const dw = canvas.width * bulge;
+        ctx.drawImage(img, crop.x * S, v0 * S, crop.w * S, (v1 - v0) * S, (canvas.width - dw) / 2, y0, dw, y1 - y0 + 0.75);
+      }
+    };
+    draw();
+    return () => cancelAnimationFrame(raf);
+  }, [crop, width, height]);
+  return <canvas ref={canvasRef} className={`avatar-preview ${className}`} style={{ width, height }} />;
+}
+
 /** One composed figure as an <img>, blinking when the look has a blink frame. `crop` (a CROP entry) shows that region in a width x height box. */
-function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null }) {
+function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null, breathe = false }) {
   const [urls, setUrls] = useState({ open: null, closed: null });
   const [closed, setClosed] = useState(false);
   useEffect(() => {
@@ -60,6 +109,7 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   if (crop) {
     // the square is scaled so the crop's width fills the box, then shifted so the crop's corner is the box's
     const w = width || size, h = height || Math.round(w * (crop.h / crop.w));
+    if (breathe) return <BreathingFigure src={src} crop={crop} width={w} height={h} className={className} />;
     const full = w / crop.w;
     return (
       <div className={`avatar-preview avatar-crop ${className}`} style={{ width: w, height: h }}>
@@ -155,7 +205,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
         <div className="avatar-editor">
           <div className="avatar-stage">
-            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} className="avatar-breathe" />
+            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe />
             <div className="avatar-muted avatar-small">
               {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
             </div>

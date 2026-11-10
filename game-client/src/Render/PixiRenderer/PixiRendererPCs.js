@@ -8,7 +8,8 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
-import { breathScaleY, breathSeed, breathingAllowed } from './breathing';
+import { breathLevel, breathSeed, breathingAllowed } from './breathing';
+import BreathSprite from './BreathSprite';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -246,7 +247,7 @@ const PixiRendererPCs = ({
       spriteRef.current.visible = true;
       return spriteRef.current;
     }
-    const newSprite = new Sprite();
+    const newSprite = new BreathSprite(); // a Sprite that can breathe (BreathSprite.js)
     newSprite.anchor.set(0.5, 0.5);
     spriteRef.current = newSprite;
     if (pcContainerRef.current) {
@@ -411,8 +412,8 @@ const PixiRendererPCs = ({
       // idle breath (breathing.js) stretches it up from the ground; a bust or emoji stays centred
       if (span) { sprite.anchor.set(0.5, 1); sprite.y = yPos + TILE_SIZE / 2; }
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
-      sprite.__breathBase = span ? Math.abs(sprite.scale.y) : 0; // 0 = does not breathe
-      if (span && breathingAllowed() && !(pc.playerId && renderPositions[pc.playerId])) sprite.scale.y = sprite.__breathBase * breathScaleY(performance.now(), breathSeed(pc.playerId));
+      sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
+      if (!span) sprite.breath = 0;
       // A figure icon is drawn turned a little to the viewer's right and mirrors when the player's
       // facing says so (PlayerMovement: set by horizontal steps and by facing an NPC; D1); busts
       // and emoji never flip. Sizing above leaves scale.x positive, so the sign is applied after it.
@@ -495,10 +496,10 @@ const PixiRendererPCs = ({
     if (!ticker || !breathingAllowed()) return undefined;
     const onBreath = () => {
       const sprite = spriteRef.current;
-      if (!sprite || !sprite.visible || !sprite.__breathBase) return;
+      if (!sprite || !sprite.visible || !sprite.__breathes) return;
       const id = currentPC?.playerId;
       const moving = !!(id && renderPositions[id]);
-      sprite.scale.y = sprite.__breathBase * (moving ? 1 : breathScaleY(performance.now(), breathSeed(id)));
+      sprite.breath = moving ? 0 : breathLevel(performance.now(), breathSeed(id));
     };
     ticker.add(onBreath);
     return () => { try { ticker.remove(onBreath); } catch (e) { /* the ticker may be destroyed */ } };

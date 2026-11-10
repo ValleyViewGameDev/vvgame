@@ -489,19 +489,28 @@ hazel, grey, amber. No generation needed: a new face gets its iris by running th
 **Idle breathing (owner 2026-11-10).** Standing figures breathe; walking ones do not (they
 have the bob). The established ways are two: squash and stretch about the ground contact for a
 single sprite, and a rig's breath deformer on the upper body (Live2D's ParamBreath cycling
-0..1, Character Animator's Breathe scaling the chest). With one sprite per character the first
-gives the second's result: a vertical stretch pivoted exactly at the feet moves nothing at the
-feet and grows linearly to the head. `Render/PixiRenderer/breathing.js` is the one curve
-(`BREATH`: 3.6 s, 1.6 % of the height, inhale 40 %, exhale 45 %, a pause; each figure has its
-own phase and a period within 12 %, from `breathSeed(id)`); width is never scaled (it would
-slide the feet). The player's figure sprite is anchored at its feet (`anchor 0.5, 1`) and a
-ticker scales it while `renderPositions` has no step in progress; NPC figures keep their
-tile-centre anchor, so `applyBreath` pairs the stretch with a lift of half a tile's worth of
-it, which holds the square's bottom edge still (measured: the bottom stays on one pixel row
-through the cycle); enemies do not breathe (CombatFX owns their scale). The Edit Avatar stage
-runs the same curve as CSS keyframes from `transform-origin: 50% 100%`. `prefers-reduced-motion`
-turns all of it off. When the actor splits head from body (P5) the breath can move to the body
-sprite with the head riding it, which is the rig version proper.
+0..1, Character Animator's Breathe scaling the chest). The first pass was the single-sprite
+stretch alone; the owner's review: "a little too much vertical stretch, and not enough
+horizontal chest expansion; these need to happen at the same time". So the breath is now a
+real deformation with two parts on one curve (`Render/PixiRenderer/breathing.js`, `BREATH`:
+3.6 s, inhale 40 %, exhale 45 %, a pause; each figure its own phase and a period within 12 %):
+the figure RISES 1.2 % of its height (75 % of the first pass), a stretch pivoted at the feet,
+and the CHEST EXPANDS 3 % of its width through a bell weight (`breathBell`: centred 0.44 down
+the figure square, spread 0.12, so the shoulders get about half and the head, knees and feet
+nothing). The feet never move in either direction.
+
+How it is drawn: `BreathSprite.js` is a Pixi Sprite whose quad becomes a strip of 16 rows while
+`breath` is above 0. Pixi's batch renderer draws whatever `vertexData`, `uvs` and `indices` an
+element hands it, so the deformation lives entirely in `calculateVertices` (rows lifted from the
+square's bottom edge, widened about its centre line); position, scale, anchor, tint, the facing
+flip and CombatFX are untouched, and at `breath` 0 it is exactly a Sprite. NPC sprites and the
+player's pooled sprite are BreathSprites; one ticker per renderer sets `breath =
+breathLevel(now, seed)` for standing figures and 0 for walking ones; enemies never breathe
+(CombatFX owns them). The Edit Avatar stage (`BreathingFigure` in AvatarModal.js) draws the same
+strips on a canvas from the same constants. Measured live: at full inhale the head rises 1.2 %,
+the chest row widens 3 %, the feet row's width and position are constant to the hundredth of
+a pixel. `prefers-reduced-motion` turns it off; the legacy canvas renderer ignores vertexData,
+so there a figure stands still.
 
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
