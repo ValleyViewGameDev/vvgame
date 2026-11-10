@@ -377,6 +377,24 @@ Batch 1 (`npcs-r1.json`): Portia, Juliet, Hotspur, Falstaff, Prospero, Helena, F
 Doctor, two each, cast per the table; refs = the Cow, the approved farm woman or man for the
 body, the rasterised bust for likeness, the figure guide.
 
+### 7e. The named cast is complete (2026-11-09)
+
+Four NPC batches in one day (`npcs-r1` to `npcs-r5`, docs/art/npc-casting.md): all 34 named
+NPCs stand on the board as whole figures at `artSpan 1.8` (the Fairy 1.2), `artFacing right`,
+busts kept in `iconFile` for panels. Santa Claus was removed from the resource list. Lessons
+that go into the parts phase: one candidate per subject is enough once the references are
+right (one API failure in 43 calls, zero style misses, only taste redraws); the figure guide
+and "one figure only" are mandatory; profession costumes are written in fairy-tale terms;
+purples survive the keyer when asked as bluish; a figure may spill past its tile
+(`figurecut.js --fit height`).
+
+What the NPC lane still owes: **head crops** (the socket cut of each figure) so panels, quest
+cards and speech bubbles show the new faces instead of the old busts, which lands with P5's
+actor work (the same cut feeds the blink). **Next:** P4b, the player parts set, choosing the
+slots from what the cast needed (hair 10, beards 4, hats 6, outfits 8 x 2, armour 7 x 2,
+hands), with `tools/art/parts.js` promoted from the Phase 3 probe scripts first, and the
+skin-tone palette iterated on the neutralised base (owner's note).
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front
