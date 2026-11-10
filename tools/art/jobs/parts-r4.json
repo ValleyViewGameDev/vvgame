@@ -1,0 +1,84 @@
+{
+  "name": "parts-r4",
+  "note": "Owner 2026-11-10: the tiara redrawn 'more pronounced' and the flower ring with bigger flowers (both must read at a distance: docs/avatar-plan.md, headwear art direction); two outfits per body: f adventurer and court gown, m noble doublet and scholar's robe (the owner's picks of six recommended). One candidate each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "hat-f-tiara": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a bold SILVER TIARA: a broad band of bright silver, clearly thicker than a finger, rising at the front to a tall rounded peak, set with ONE large sky-blue gem at the peak and one smaller sky-blue gem on each side of it, with a dark outline; it sits on the top front of the head above the brow. It must READ AT A DISTANCE, when the whole figure is drawn very small: a few LARGE, bold, simple shapes with strong contrast against skin and hair, never fine or delicate detail. It is SYMMETRICAL and its centre sits exactly on the centre line of the face, straight above the nose. It is worn over HAIR in the game, so draw it a little WIDER than the bald head: it stands slightly proud of the scalp at both sides; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female --skinclear 8, seat --axis top (centre onto the nose line)"
+    },
+    "hat-f-flowers": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a RING OF FLOWERS, a flower crown: a wreath of about SEVEN LARGE flowers, each one as big as her eye or bigger (big white daisies with yellow centres, big sky-blue blossoms, big warm orange blossoms) with a few broad green leaves between them, sitting around the top of the bald head like a circlet above the brow, the same width as the head. It must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold, simple flower shapes, never many tiny ones; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female --skinclear 8 (the plain --faceclear took the orange flowers for skin)"
+    },
+    "outfit-f-adventurer": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-female.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a young woman). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in an ADVENTURER'S outfit: a rust-red hip-length tunic with long sleeves and a simple round neck, a broad brown leather belt with a brass buckle, dark brown trousers tucked into tall tan leather boots, and brown leather bracers on the forearms; the two legs are clearly apart, following the base body's arms and legs; a storybook fairy-tale costume, nothing modern; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split"
+    },
+    "outfit-f-court": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-female.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a young woman). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a COURT GOWN fit for a noble lady: a floor-length gown in rich crimson red with a fitted bodice, a wide gold-embroidered band at the square neckline, at the waist and at the hem, long full sleeves that widen toward the wrist and are lined in gold, and crimson slippers just showing under the hem, following the base body's arms and legs; a storybook fairy-tale costume, nothing modern; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split"
+    },
+    "outfit-m-doublet": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-male.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a grown man). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a NOBLEMAN'S outfit: a deep royal-blue doublet (a fitted jacket) with gold buttons down the front, gold trim at the high collar, the cuffs and the hem, a narrow dark belt with a gold buckle, cream breeches, and tall dark-brown leather boots; the two legs are clearly apart, following the base body's arms and legs; a storybook fairy-tale costume, nothing modern; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160 (scale 1.147: the redraw's head came out small), fitbody --xscale 0.872 (one over that scale: the body back to its own width), split"
+    },
+    "outfit-m-robe": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-male.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a grown man). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a SCHOLAR'S ROBE: a long, loose ankle-length robe in a soft BLUISH LAVENDER (a cool periwinkle blue-violet, clearly more blue than pink), with long wide sleeves, a darker blue trim down the front opening and at the cuffs and hem, a knotted rope belt at the waist, and brown leather shoes showing under the hem, following the base body's arms and legs; a storybook fairy-tale costume, nothing modern; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split"
+    }
+  }
+}

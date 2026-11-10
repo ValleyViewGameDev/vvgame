@@ -19,7 +19,7 @@
         "painterly"
       ],
       "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a RING OF FLOWERS, a flower crown: a wreath of small wildflowers (white daisies with yellow centres, small sky-blue and warm orange blossoms) and green leaves, sitting around the top of the bald head like a circlet, above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
-      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female"
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female  [superseded by parts-r4: bigger flowers]"
     },
     "hat-f-tiara": {
       "refs": [
@@ -30,7 +30,7 @@
         "painterly"
       ],
       "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a delicate SILVER TIARA: a thin silver band that rises to a small peak at the front, set with three small pale-blue gems, sitting on the top front of the bald head above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
-      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female"
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female  [superseded by parts-r4: redrawn bolder]"
     },
     "hat-m-headband": {
       "refs": [
@@ -41,7 +41,7 @@
         "painterly"
       ],
       "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a plain GOLDEN HEAD BAND: a simple smooth circlet of gold, a flat band about a finger wide worn level around the head just above the brow; it has NO points and NO gems (it is not a crown); it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
-      "extract": "key, align --eyes 474.2,271.6,599.2,272.6, mask --name hat-m-headband (tools/art/part-masks.json: gold against skin, no colour rule cuts it)"
+      "extract": "key, align --eyes 474.2,271.6,599.2,272.6, mask --name hat-m-headband (tools/art/part-masks.json: gold against skin, no colour rule cuts it), seat --axis none --widen 1.07 (a little wider for hair)"
     },
     "hat-m-crown": {
       "refs": [
@@ -52,7 +52,7 @@
         "painterly"
       ],
       "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a golden KING'S CROWN: a gold band with five tall points, a small red gem on the band at the front, sitting on the top of the bald head above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
-      "extract": "key, align --eyes 468.8,336.6,590.1,337.5 (the finders missed the pupils), diff --open 1 --defringe --min 0.02 --fill --faceclear male"
+      "extract": "key, align --eyes 468.8,336.6,590.1,337.5 (the finders missed the pupils), diff --open 1 --defringe --min 0.02 --fill --faceclear male, seat --axis top --widen 1.07 (centre onto the nose line, a little wider for hair)"
     },
     "hat-m-straw": {
       "refs": [

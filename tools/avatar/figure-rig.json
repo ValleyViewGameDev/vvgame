@@ -8,6 +8,7 @@
     "fit": "a figure is fitted hair-top-to-feet to the frame's height by figurecut.js; a hat counts in that height (Kent's top hat), so hat and head together must stay inside the headroom at generation",
     "socket": "the head/body split is `headCut`, a flat row just under the jaw where the base's silhouette is narrowest (measured on the base bodies 2026-11-10: female 115.5, male 109.5; the shoulders and every outfit's cloth start below it). The face part is the base above it; an outfit (cloth + its own neck and chest skin) is everything from it down. `collar` stays as fitbody's anchor: the row an outfit's body is resampled from. It was the split until 2026-11-10 and left the base's shoulders in the head layer, showing above every outfit",
     "centre": "the cut centres the figure's opaque box on x 128; the faint right turn and the near foot shift the face a few units right of centre (measured faces sit at x 128..136), which is accepted",
+    "nose": "`noseX` is the centre line of the FACE (the nose), measured on the base faces 2026-11-10; the faces are turned a little to the right, so it is right of the skull's middle (128). Symmetrical headwear with a centre to see (a crown, a tiara) is seated on it (tools/art/parts.js seat)",
     "flip": "every figure is drawn turned a little to the viewer's right; the renderer mirrors for left (D1)"
   },
   "female": {
@@ -17,6 +18,7 @@
     "brow": 68,
     "eyeLine": 82,
     "eyesX": [111, 159],
+    "noseX": 141,
     "eyeBox": { "w": 26, "h": 20 },
     "faceX": [90, 178],
     "mouth": 105,
@@ -47,6 +49,7 @@
     "brow": 62,
     "eyeLine": 75,
     "eyesX": [106, 154],
+    "noseX": 139,
     "eyeBox": { "w": 26, "h": 20 },
     "faceX": [88, 175],
     "mouth": 95,

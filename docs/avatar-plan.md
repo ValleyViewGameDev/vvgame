@@ -819,6 +819,45 @@ frames of one run rasterised.
 - The catalogue is 28 rows. Clothing is next: the owner asked for recommendations (three more
   per body) before any is drawn.
 
+**Headwear art direction (owner 2026-11-10). Rules for every hat, crown, band and wreath:**
+1. **It reads at a distance.** A figure on the board is about a hundred pixels tall, its
+   headwear a fifth of that. A piece is a few LARGE, bold, simple shapes with strong contrast
+   against skin and hair: one big gem, not five small ones; about seven big flowers, not a
+   garland of tiny ones; a band clearly thicker than a finger. The first tiara (a thin wire with
+   three small gems) and the first flower ring (small blossoms) were redrawn for this.
+2. **A symmetrical piece is centred on the NOSE, not on the skull.** The faces are turned a
+   little to the right, so the face's centre line (the rig's `noseX`: female 141, male 139) is
+   right of the skull's middle (128). The model draws a crown or a tiara centred on the skull:
+   the first tiara's gem sat 10 units left of the nose, the crown's 13. `parts.js seat --axis top`
+   moves the piece so its own centre (the middle of its top quarter: the peak, the middle point)
+   stands on `noseX`. A piece with no centre to see (a plain band, a hat, a wreath) stays put.
+3. **A circlet is a little wider than the bald head.** Crowns, tiaras and bands are worn over
+   hair, which is wider than the scalp they are drawn on. They are widened by about 7 % about
+   their centre (`seat --widen 1.07`, or asked for in the prompt as the redrawn tiara was): a
+   modest amount, because much more looks wrong on a bald head. A wreath that already sits at
+   the head's width (the flower ring) is left alone.
+The prompt wording for 1 to 3 is the `READ` text in `tools/art/jobs/parts-r4.json`.
+
+**Four outfits, the tiara and the flower ring redrawn, brighter eyes (owner 2026-11-10, content
+2).** Job `parts-r4`, one candidate each, all six used: f Adventurer (rust tunic, trousers,
+boots) and Court gown (crimson and gold); m Noble doublet (royal blue and gold) and Scholar's
+robe (bluish lavender); the catalogue is 32 rows, five tops a body. The crown and the head band
+were re-seated by rules 2 and 3, the new tiara by rule 2. Blue and green eyes are a little more
+vivid (#2F8FF2, #36B84C). What the cutting taught:
+- **`fitbody --xscale`.** The doublet's redraw had a smaller head than the base, so `align`
+  enlarged it 1.147 to match the eyes, body and all; `fitbody` put the height right and left it
+  that much too wide. `--xscale` (one over the align scale) narrows the body about the centre
+  line, not at all at the head cut and fully from the collar down. Use it when `align` reports
+  a scale more than about 8 % from 1.
+- **`--faceclear` alone is only for a hat of one cool colour.** Its hue rule dropped the new
+  tiara's silver band (warm reflections) and the wreath's orange flowers as skin. `--skinclear`
+  is now the default for anything else: it peels skin from the layer's top and bottom edges by
+  the body's colour model, and also removes LIT skin shut inside the piece (the scalp seen
+  through a tiara), which no silver, straw or petal is.
+- `seat` first drops what is not the piece (specks, and any mass that begins under the brow): a
+  sliver the cut left on a shoulder sat unseen where it was drawn and showed as a line in the
+  air once it moved with the crown.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.

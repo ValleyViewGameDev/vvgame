@@ -15,9 +15,11 @@
  *                                                                --fill: enclosed holes are filled from the redraw)
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
+ *   seat     --in <layer png> --body female|male --out <png> [--axis top|none] [--widen 1.07] [--figure]
+ *                                                                headwear: its centre onto the nose line, and a little wider for hair
  *   mask     --worn <aligned png> --name <part> --out <png>       a part cut by a hand-placed outline (tools/art/part-masks.json):
  *                                                                the gold head band, which no colour rule tells from skin
- *   fitbody  --worn <aligned outfit, with overflow> --base <base figure> --body female|male --out <png>
+ *   fitbody  --worn <aligned outfit, with overflow> --base <base figure> --body female|male --out <png> [--xscale 0.87]
  *                                                                resample the body below the collar so its feet land on
  *                                                                the base body's feet line (an outfit never changes height)
  *   face     --in <base figure png> --body female|male --out <png>        the face part: the base above the rig's headCut
@@ -192,7 +194,16 @@ function clearFace(img, body, skinclear = 0) {
         while (y >= 0 && y <= yEnd && d[(y * W + x) * 4 + 3] >= 24 && isSkinAt(x, y)) { d[(y * W + x) * 4 + 3] = 0; n++; y += dir; }
       }
     }
-    console.log(`  skin clear (model, d2 < ${skinclear}, peeled from the top and bottom edges): ${n} px dropped`);
+    // ... and LIT skin goes wherever it is, even shut inside the piece where no peel reaches (the scalp
+    // seen through a tiara): the model's skin that is also bright, warm and only moderately saturated,
+    // which no silver (hardly any saturation), straw (yellower) or petal (more saturated) is
+    let lit = 0;
+    for (let y = 0; y <= yEnd; y++) for (let x = Math.floor(b.headX[0] * k); x <= b.headX[1] * k && x < W; x++) {
+      const i = (y * W + x) * 4; if (d[i + 3] < 24 || !isSkinAt(x, y)) continue;
+      const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]);
+      if (h >= 8 && h <= 34 && sat >= 0.25 && sat <= 0.72 && v >= 0.85) { d[i + 3] = 0; lit++; }
+    }
+    console.log(`  skin clear (model, d2 < ${skinclear}): ${n} px peeled from the top and bottom edges, ${lit} px of lit skin inside`);
     return dropSpecks(img, 0.02); // what the clearing cut loose
   }
   // from the hairline (a hat sits low on the forehead) to the chin; the colour rules below protect the hat
@@ -272,6 +283,45 @@ function maskLayer(worn, poly) {
   return out;
 }
 
+/**
+ * `seat`: put a piece of headwear where it belongs on the head, and give it room for hair (owner
+ * 2026-11-10; the rules are in docs/avatar-plan.md, "Headwear art direction").
+ *  - CENTRE: a symmetrical piece with a centre to see (a crown, a tiara: a peak, a gem) is drawn by
+ *    the model centred on the SKULL, but the faces are turned a little to the right, so the centre of
+ *    the face, the nose, is right of that: the tiara's gem sat 10 frame units left of the nose and
+ *    the crown's 16. `--axis top` finds the piece's own centre (the middle of the top quarter of its
+ *    rows: the peak, the middle point) and moves the piece so it stands on the rig's `noseX`.
+ *    `--axis none` leaves it where it is (a plain band has no centre to see).
+ *  - WIDTH: a circlet is drawn tight on the bald head and then worn over hair, which is wider.
+ *    `--widen 1.07` stretches it sideways about its centre: a modest amount, so it still looks
+ *    right on a bald head.
+ * Works on a head crop (1024 or 512 px wide: the figure's upper tile) or on a figure square (512).
+ */
+function seatLayer(img, body, { axis = 'top', widen = 1, figure = false } = {}) {
+  // only the piece itself is moved: a stray sliver the cut left on a shoulder or an ear sat unseen on the
+  // body where it was drawn, and moved with the crown it showed as a line in the air
+  dropSpecks(img, 0.08);
+  const { d, W, H } = img; const k = figure ? S : W / 256, ox = figure ? FX : 0; // px per frame unit, and where frame x 0 is
+  for (const b of blobs(img, (p) => d[p * 4 + 3] >= 24)) if (b.y0 > rig[body].brow * k) for (const p of b.px) d[p * 4 + 3] = 0; // headwear starts above the brow: a mass that begins under it is not headwear
+  let x0 = W, x1 = -1, y0 = H, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d[(y * W + x) * 4 + 3] >= 24) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 < 0) return { img, info: { empty: true } };
+  // the piece's own centre: the middle of the span of its top quarter (a peak, the middle point of a crown)
+  let cx = (x0 + x1) / 2;
+  if (axis === 'top') { let a = W, b = -1; const yTop = y0 + Math.max(2, Math.round((y1 - y0) * 0.25)); for (let y = y0; y <= yTop; y++) for (let x = x0; x <= x1; x++) if (d[(y * W + x) * 4 + 3] >= 24) { a = Math.min(a, x); b = Math.max(b, x); } cx = (a + b) / 2; }
+  const target = axis === 'none' ? cx : ox + rig[body].noseX * k;
+  const out = blank(W, H);
+  // inverse map, bilinear: out(x) takes the piece at cx + (x - target) / widen
+  for (let y = y0; y <= y1; y++) for (let x = 0; x < W; x++) {
+    const sx = cx + (x - target) / widen; const xa = Math.floor(sx), f = sx - xa; if (xa < 0 || xa + 1 >= W) continue;
+    const i0 = (y * W + xa) * 4, i1 = i0 + 4, a0 = d[i0 + 3] * (1 - f), a1 = d[i1 + 3] * f, al = a0 + a1; if (al < 1) continue;
+    const o = (y * W + x) * 4;
+    for (let c = 0; c < 3; c++) out.d[o + c] = Math.round((d[i0 + c] * a0 + d[i1 + c] * a1) / al);
+    out.d[o + 3] = Math.round(al);
+  }
+  return { img: out, info: { centreWas: +((cx - ox) / k).toFixed(1), centreNow: +((target - ox) / k).toFixed(1), widen } };
+}
+
 function dropSpecks(img, minFrac) {
   const bl = blobs(img, (p) => img.d[p * 4 + 3] >= 24); const big = bl.length ? bl[0].n : 0;
   for (const b of bl) if (b.n < big * minFrac) for (const p of b.px) img.d[p * 4 + 3] = 0;
@@ -286,8 +336,14 @@ function dropSpecks(img, minFrac) {
  * lowest opaque row, so the feet land on the base's feet line. Widths are untouched: shoulders
  * and hands keep matching the head and the rig's boxes. Returns the image on the base's canvas.
  */
-function fitBody(worn, base, body) {
+function fitBody(worn, base, body, xscale = 1) {
   const collar = Math.round(rig[body].collar * S);
+  // `xscale` (the doublet of parts-r4): a redraw whose head came out SMALLER than the base's is enlarged
+  // by `align` to match the eyes (1.147 there), body and all; the rows below put its height right, but
+  // it stays that much too WIDE. `--xscale 0.87` (one over the align scale) narrows the body about the
+  // figure's centre line: not at all at the head cut, where it meets the neck, fully from the collar down.
+  const cutRow = Math.round((rig[body].headCut != null ? rig[body].headCut : rig[body].collar) * S), midX = (base.W - 1) / 2;
+  const widthAt = (y) => (xscale === 1 || y <= cutRow ? 1 : y >= collar ? xscale : 1 + (xscale - 1) * ((y - cutRow) / Math.max(1, collar - cutRow)));
   const lowest = (img) => { for (let y = img.H - 1; y >= 0; y--) for (let x = 0; x < img.W; x++) if (img.d[(y * img.W + x) * 4 + 3] > 60) return y; return 0; };
   const wb = lowest(worn), bb = lowest(base);
   const out = blank(base.W, base.H);
@@ -296,8 +352,10 @@ function fitBody(worn, base, body) {
     const sy = y <= collar ? y : collar + (y - collar) * k;
     const y0 = Math.floor(sy), y1 = Math.min(worn.H - 1, y0 + 1), f = sy - y0;
     if (y0 >= worn.H) continue;
+    const wx = widthAt(y);
     for (let x = 0; x < base.W; x++) {
-      const a = (y0 * worn.W + x) * 4, b2 = (y1 * worn.W + x) * 4, o = (y * base.W + x) * 4;
+      const srcX = wx === 1 ? x : Math.round(midX + (x - midX) / wx); if (srcX < 0 || srcX >= worn.W) continue;
+      const a = (y0 * worn.W + srcX) * 4, b2 = (y1 * worn.W + srcX) * 4, o = (y * base.W + x) * 4;
       const a0 = worn.d[a + 3], a1 = worn.d[b2 + 3]; const al = a0 * (1 - f) + a1 * f; if (al < 1) continue;
       // premultiplied blend of the two source rows
       for (let c = 0; c < 3; c++) out.d[o + c] = Math.round((worn.d[a + c] * a0 * (1 - f) + worn.d[b2 + c] * a1 * f) / al);
@@ -774,7 +832,7 @@ function tintImg(img, hex) {
     case 'key': { const img = keyOut(await load(args.in), !!args.green); await save(img, args.out); break; }
     case 'align': { const ey = args.eyes ? String(args.eyes).split(',').map(Number) : null; const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0), ey && ey.length === 4 ? [{ x: ey[0], y: ey[1] }, { x: ey[2], y: ey[3] }] : null); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
     case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null, skinclear: +(args.skinclear || 0) }); await save(out, args.out); break; }
-    case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
+    case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female', +(args.xscale || 1)); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'face': { const img = await load(args.in); await save(facePart(img, args.body || 'female'), args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female', !!args.bare, { step: +(args.step || 8), core: +(args.core || 6), grow: +(args.grow || 12) }); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found (misaligned, or a hood and gloves)'); break; }
     case 'skinmodel': { // measure a body's skin and shift colour models from its sample boxes, write them back
@@ -791,6 +849,7 @@ function tintImg(img, hex) {
       }
       break;
     }
+    case 'seat': { const { img, info } = seatLayer(await load(args.in), args.body || 'female', { axis: args.axis || 'top', widen: +(args.widen || 1), figure: !!args.figure }); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'mask': { // --name <part> reads its polygon from tools/art/part-masks.json; --poly "x,y x,y ..." gives one
       const masks = JSON.parse(fs.readFileSync(path.join(__dirname, 'part-masks.json'), 'utf8'));
       const poly = args.poly ? String(args.poly).trim().split(/\s+/).map((pt) => pt.split(',').map(Number)) : masks[args.name];

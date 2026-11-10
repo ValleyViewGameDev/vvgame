@@ -80,14 +80,14 @@
     "id": "eye-blue",
     "slot": "eyeColor",
     "label": "Blue",
-    "hex": "#4A90D9",
+    "hex": "#2F8FF2",
     "tier": "free"
   },
   {
     "id": "eye-green",
     "slot": "eyeColor",
     "label": "Green",
-    "hex": "#4FA35A",
+    "hex": "#36B84C",
     "tier": "free"
   },
   {

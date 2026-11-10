@@ -163,7 +163,7 @@
     "file": "hat-f-flowers.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+    "notes": "parts-r4 (2026-11-10: redrawn bolder, to read at a distance); cut by tools/art/parts.js"
   },
   {
     "id": "hat-f-tiara",
@@ -173,7 +173,7 @@
     "file": "hat-f-tiara.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+    "notes": "parts-r4 (2026-11-10: redrawn bolder, to read at a distance); cut by tools/art/parts.js, seated on the nose line"
   },
   {
     "id": "hat-m-cap",
@@ -203,7 +203,7 @@
     "file": "hat-m-headband.png",
     "hidesHair": false,
     "body": "male",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js, then seat: 7 % wider for hair"
   },
   {
     "id": "hat-m-crown",
@@ -213,7 +213,7 @@
     "file": "hat-m-crown.png",
     "hidesHair": false,
     "body": "male",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js, then seat: centred on the nose line, 7 % wider for hair"
   },
   {
     "id": "top-shift-f",
@@ -249,6 +249,28 @@
     "notes": "parts-r1"
   },
   {
+    "id": "top-f-adventurer",
+    "slot": "top",
+    "label": "Adventurer",
+    "tier": "free",
+    "file": "outfit-f-adventurer.cloth.png",
+    "file2": "outfit-f-adventurer.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+  },
+  {
+    "id": "top-f-court",
+    "slot": "top",
+    "label": "Court gown",
+    "tier": "free",
+    "file": "outfit-f-court.cloth.png",
+    "file2": "outfit-f-court.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+  },
+  {
     "id": "top-shift-m",
     "slot": "top",
     "label": "Shift",
@@ -280,5 +302,27 @@
     "tint2": "skinTone",
     "body": "male",
     "notes": "parts-r1"
+  },
+  {
+    "id": "top-m-doublet",
+    "slot": "top",
+    "label": "Noble doublet",
+    "tier": "free",
+    "file": "outfit-m-doublet.cloth.png",
+    "file2": "outfit-m-doublet.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
+  },
+  {
+    "id": "top-m-robe",
+    "slot": "top",
+    "label": "Scholar's robe",
+    "tier": "free",
+    "file": "outfit-m-robe.cloth.png",
+    "file2": "outfit-m-robe.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)"
   }
 ]
