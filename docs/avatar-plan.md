@@ -580,6 +580,19 @@ skin layer outside the neck is only the rig's hand and foot boxes keyed by colou
 and legs (the shift, the vest's rolled sleeves) do not tint and hands tint in patches; it needs
 its own pass before the skin tones are iterated.
 
+**The eyes keep their own colour (owner 2026-11-10).** The face part is multiplied by the skin
+tone and the eyes are painted into the face, so a darker tone turned the whites and the
+highlights brown. `tools/art/eyeballs.js` lifts each eyeball (the white, the iris, the pupil and
+its highlight) out of the face into `skin/eyeballs-<f|m>-01.png`, the face row's `file2`, which
+`lookFor` draws UNTINTED straight over the face in open-eyed frames only (the blink's lids are
+painted over the tinted face). It finds an eyeball from the face alone: the pupil's centre, the
+white joined to it, then row by row everything between the outermost white and the iris's
+chord; the anti-aliased rim against the lashes stays in the face. The same tool now writes the
+iris layer (`--irisout`, tinted by eyeColor): the old one, rings grown around the pupil, stopped
+short and left the lower third of each iris in its painted blue or brown, which only showed
+once the eyeball stopped taking the skin tone. A new face needs one run of this tool after
+`parts.js face`.
+
 **Next (P5, the rest)**: the Change Avatar modal becoming the editor for everyone, then the
 hand slot and armour.
 

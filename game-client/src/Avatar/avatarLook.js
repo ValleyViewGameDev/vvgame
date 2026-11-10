@@ -161,7 +161,14 @@ export function lookFor(spec, { catalogue, palettes }, equip = {}) {
   for (const z of Z_ORDER) {
     switch (z) {
       case 'hairBack': if (hairRow) both(hairRow, 'backFile', hairRow.tint); break;
-      case 'skin': twoFiles(part('skin')); break;
+      case 'skin': {
+        // file = the face (skinTone); file2 = the eyeballs, UNTINTED, so the whites and the iris keep
+        // their own colour under any skin tone (tools/art/eyeballs.js). Open-eyed frames only: the
+        // blink's lids are painted over the tinted face, and an eyeball pixel past them would show.
+        const skin = part('skin');
+        if (skin) { both(skin, 'file', skin.tint); push(layers, skin, 'file2', skin.tint2); }
+        break;
+      }
       case 'top': twoFiles(topRow); break;
       case 'eyes': {
         const eyes = part('eyes');
