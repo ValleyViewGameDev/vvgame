@@ -537,9 +537,19 @@ automatically for 22 of 34 NPC figures; `tools/art/blink-eyes.json` places the o
 (and the farm man) by hand. Rows carry `blinkFile`, player icons `blinkFilename`; the tickers
 swap textures.
 
-**Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
-swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
-becomes the editor for everyone, then the hand slot and armour.
+**The board draws the saved avatar (2026-11-10).** `PixiRendererPCs` composes `player.avatar`
+(`lookFor` + `renderLook` at 512 px, the parts' own square) into two Pixi textures, eyes open
+and the blink frame, rebuilt only when the spec changes, and draws them INSTEAD of the icon at
+1.8 tiles, with the flip, the breath (`breathTop` 0.345 / 0.294 by body) and the blink. The
+icon still shows for a player who never saved a look (`avatar` defaults to null, so no live
+player changes), for a spec whose face id an older catalogue had, and in the states with their
+own picture (dead, sick, camping, afloat). **The last thing picked is what shows**: saving in
+Edit Avatar puts the look on the board, and choosing an icon in Change Avatar clears it
+(`POST /api/player/avatar` now accepts `avatar: null`). Still icon-based: the header, panels and
+other DOM surfaces.
+
+**Next (P5, the rest)**: the head crop of the composed avatar in the DOM surfaces, the Change
+Avatar modal becoming the editor for everyone, then the hand slot and armour.
 
 ## 8. Risks, and what would change the plan
 

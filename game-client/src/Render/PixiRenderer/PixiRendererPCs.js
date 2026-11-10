@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
 import { renderPositions, getPlayerFacing } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -10,6 +10,16 @@ import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
+import { loadAvatarCatalogue } from '../../Utils/TuningManager';
+import { lookFor, byId } from '../../Avatar/avatarLook';
+import { renderLook } from '../../Avatar/avatarCompositor';
+
+// The saved parts avatar on the board (docs/avatar-plan.md v2 P5): composed at 512 px (the figure
+// square every part is drawn in), drawn 1.8 tiles tall like the figure icons, its head ending where
+// its body's does (tools/art/parts.js eyes on the two faces)
+const AVATAR_PX = 512;
+const AVATAR_SPAN = 1.8;
+const AVATAR_BREATH_TOP = { female: 0.345, male: 0.294 };
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
 const normalizeEmoji = (emoji) => {
@@ -73,6 +83,48 @@ const PixiRendererPCs = ({
   const svgLoadingPromisesRef = useRef(new Map());
   const isMountedRef = useRef(true);
   const blinkRequestedRef = useRef(new Set()); // blink frames already asked for
+
+  // The player's saved avatar (player.avatar, written by the Edit Avatar editor): composed from the
+  // catalogue's parts into two textures, eyes open and the blink frame, and drawn INSTEAD of the
+  // icon. A player who never saved one, or whose spec names parts an older catalogue had, keeps
+  // the icon. The textures are rebuilt only when the spec changes.
+  const avatarTexRef = useRef(null); // { key, open, blink, body } | null
+  const [avatarVersion, setAvatarVersion] = useState(0);
+  const avatarKey = currentPlayer?.avatar && currentPlayer.avatar.skin ? JSON.stringify(currentPlayer.avatar) : '';
+  useEffect(() => {
+    let live = true;
+    const drop = () => {
+      const old = avatarTexRef.current;
+      if (!old) return;
+      avatarTexRef.current = null;
+      old.open.destroy(true); if (old.blink) old.blink.destroy(true);
+      setAvatarVersion((v) => v + 1);
+    };
+    (async () => {
+      if (!avatarKey) { drop(); return; }
+      const data = await loadAvatarCatalogue();
+      if (!live) return;
+      const spec = JSON.parse(avatarKey);
+      const face = byId(data.catalogue, spec.skin);
+      if (!face || !face.file) { drop(); return; } // a spec from an older catalogue: the icon stands in
+      const look = lookFor(spec, data, {});
+      if (avatarTexRef.current?.key === look.key) return;
+      try {
+        const open = await renderLook(look.layers, { size: AVATAR_PX });
+        const shut = look.blinkLayers ? await renderLook(look.blinkLayers, { size: AVATAR_PX }) : null;
+        if (!live) return;
+        const old = avatarTexRef.current;
+        avatarTexRef.current = { key: look.key, open: Texture.from(open), blink: shut ? Texture.from(shut) : null, body: face.body || 'female' };
+        if (old) { old.open.destroy(true); if (old.blink) old.blink.destroy(true); }
+        setAvatarVersion((v) => v + 1);
+      } catch (e) { console.warn('avatar: could not compose the saved look', e); }
+    })();
+    return () => { live = false; };
+  }, [avatarKey]);
+  useEffect(() => () => { // unmount: the composed textures go with the renderer
+    const old = avatarTexRef.current;
+    if (old) { avatarTexRef.current = null; old.open.destroy(true); if (old.blink) old.blink.destroy(true); }
+  }, []);
 
   // Ref to track if animation ticker is running (on-demand pattern)
   const animationTickerRef = useRef(null);
@@ -402,14 +454,19 @@ const PixiRendererPCs = ({
     PixiCamera.follow(posX, posY);
 
     const cached = svgFilename ? (atlasTextureCache.get(svgFilename) || svgTextureCache.get(svgFilename)) : null;
-    const texture = cached && cached.valid !== false && !cached.baseTexture?.destroyed ? cached : null;
+    // the saved avatar stands in for the icon, except in the states that have their own picture
+    // (dead, sick, camping, afloat), which stay whole-icon swaps (avatar-plan v1 decision 6)
+    const av = avatarTexRef.current;
+    const inState = pc.hp === 0 || pc.hp < 100 || pc.iscamping || pc.isinboat;
+    const avatarTex = av && !inState && av.open.valid !== false && !av.open.baseTexture?.destroyed ? av.open : null;
+    const texture = avatarTex || (cached && cached.valid !== false && !cached.baseTexture?.destroyed ? cached : null);
 
     if (texture) {
       // Use SVG sprite
       const sprite = getSprite();
       sprite.texture = texture;
-      // a figure icon stands on the tile (its artSpan square's bottom edge is the tile's bottom edge)
-      const span = !getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon));
+      // a figure (the saved avatar or a figure icon) stands on the tile: its square's bottom edge is the tile's bottom edge
+      const span = avatarTex ? AVATAR_SPAN : (!getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon)));
       sprite.width = TILE_SIZE * (span || 0.9);
       sprite.height = TILE_SIZE * (span || 0.9);
       sprite.x = xPos;
@@ -419,11 +476,12 @@ const PixiRendererPCs = ({
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
+      else if (avatarTex) sprite.breathTop = AVATAR_BREATH_TOP[av.body] || AVATAR_BREATH_TOP.female;
       else if (iconToBreathTop.has(normalizeEmoji(displayIcon))) sprite.breathTop = iconToBreathTop.get(normalizeEmoji(displayIcon));
-      // blinking: the ticker swaps between this texture and the icon's blink frame once it is loaded
-      const blinkFile = span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
+      // blinking: the ticker swaps between this texture and the blink frame (the avatar's own, or the icon's once it is loaded)
+      const blinkFile = !avatarTex && span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
       sprite.__openTex = texture;
-      sprite.__blinkTex = blinkFile ? (atlasTextureCache.get(blinkFile) || svgTextureCache.get(blinkFile) || null) : null;
+      sprite.__blinkTex = avatarTex ? av.blink : (blinkFile ? (atlasTextureCache.get(blinkFile) || svgTextureCache.get(blinkFile) || null) : null);
       if (blinkFile && !sprite.__blinkTex && !blinkRequestedRef.current.has(blinkFile)) {
         blinkRequestedRef.current.add(blinkFile);
         loadSvgTexture(blinkFile).then((tex) => { if (tex && spriteRef.current) spriteRef.current.__blinkTex = tex; });
@@ -455,7 +513,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture, avatarVersion]);
 
   // Initial render and re-render on state changes
   useEffect(() => {

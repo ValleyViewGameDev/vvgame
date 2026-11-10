@@ -743,10 +743,17 @@ router.post('/npc-relationship', async (req, res) => {
 // paid parts against what the player has bought.
 router.post('/player/avatar', async (req, res) => {
   const { playerId, avatar } = req.body || {};
-  if (!playerId || !avatar || typeof avatar !== 'object') return res.status(400).json({ error: 'playerId and avatar are required.' });
+  // `avatar: null` clears the saved look (the board goes back to the icon): choosing an icon does it
+  if (!playerId || avatar === undefined || (avatar !== null && typeof avatar !== 'object')) return res.status(400).json({ error: 'playerId and avatar are required.' });
   try {
     const player = await Player.findById(playerId);
     if (!player) return res.status(404).json({ error: 'Player not found.' });
+    if (avatar === null) {
+      player.avatar = null;
+      player.markModified('avatar');
+      await player.save();
+      return res.json({ success: true, player: publicPlayer(player) });
+    }
     const spec = avatarCatalogue.cleanSpec(avatar);
     // developers may wear any part without buying it (the in-game Edit Avatar preview)
     const developer = await isDeveloperPlayerId(String(player._id));

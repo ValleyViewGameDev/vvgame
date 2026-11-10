@@ -235,7 +235,7 @@ const PlayerPanel = ({
       </div>
       {isDeveloper && (
         <div className="shared-buttons">
-          <button className="btn-basic btn-neutral" onClick={() => setShowAvatarModal(true)} title="Developer preview: the parts-based avatar editor (docs/avatar-plan.md). The board does not draw it yet.">
+          <button className="btn-basic btn-neutral" onClick={() => setShowAvatarModal(true)} title="Developer preview: the parts-based avatar editor (docs/avatar-plan.md). Saving puts the look on the board; choosing an icon in Change Avatar takes it off again.">
             Edit Avatar
           </button>
         </div>

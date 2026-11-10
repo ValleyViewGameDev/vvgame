@@ -41,7 +41,15 @@ export const updatePlayerIcon = async (currentPlayer, setCurrentPlayer, playerId
         console.warn("⚠️ No valid gridId found, skipping NPCsInGrid update.");
     }
 
-    const updatedCurrentPlayer = { ...currentPlayer, icon };
+    // Choosing an icon is choosing what the board draws: a saved parts avatar (the Edit Avatar
+    // editor) would otherwise keep standing in for it, so it is cleared (POST /api/player/avatar
+    // with null); the last thing picked is what shows.
+    let avatar = currentPlayer?.avatar || null;
+    if (avatar) {
+        try { await axios.post(`${API_BASE}/api/player/avatar`, { playerId, avatar: null }); avatar = null; }
+        catch (e) { console.warn('Could not clear the saved avatar:', e?.message); }
+    }
+    const updatedCurrentPlayer = { ...currentPlayer, icon, avatar };
     localStorage.setItem('player', JSON.stringify(updatedCurrentPlayer));
     setCurrentPlayer(updatedCurrentPlayer); // ✅ Trigger React state update
     console.log('✅ Updated localStorage and state for currentPlayer:', icon);
