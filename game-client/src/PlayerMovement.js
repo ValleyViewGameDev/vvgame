@@ -191,9 +191,10 @@ function planPath(goal, opts) {
  * `onArrive` walk that was already at its goal).
  *
  * options.stopShort  never step onto the goal tile, stop on a neighbour (tapping an NPC)
+ * options.beside     with stopShort: stop to the goal's left or right, in its row (Pathfinding.js)
  * options.onArrive   called once when the walk completes; dropped if it is cancelled
  */
-export function walkTo(col, row, { stopShort = false, onArrive = null } = {}) {
+export function walkTo(col, row, { stopShort = false, beside = false, onArrive = null } = {}) {
   const ctx = movementContext;
   if (!ctx?.currentPlayer) return 0;
   if (ctx.currentPlayer.iscamping) {
@@ -216,10 +217,10 @@ export function walkTo(col, row, { stopShort = false, onArrive = null } = {}) {
   }
 
   const goal = { x: col, y: row };
-  const path = planPath(goal, { stopShort });
+  const path = planPath(goal, { stopShort, beside });
   pathQueue = path;
   pathGoal = path.length ? goal : null;
-  pathGoalOpts = { stopShort };
+  pathGoalOpts = { stopShort, beside };
   pathCrossDelta = cross;
   pathArrive = onArrive;
   if (!cross && path.length === 0 && onArrive) {

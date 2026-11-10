@@ -1664,6 +1664,7 @@ const PixiRenderer = ({
     if (!npc?.position || !L.onWalkTo) return;
     L.onWalkTo(Math.floor(npc.position.y), Math.floor(npc.position.x), {
       stopShort: true,
+      beside: true, // end at its left or right, in its row, the two facing (owner 2026-11-10)
       onArrive: () => {
         const now = latestRef.current;
         const target = now?.npcs?.find((n) => n && n.id === npcId);

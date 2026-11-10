@@ -71,17 +71,47 @@ function octile(ax, ay, bx, by) {
   return (dx + dy) + (SQRT2 - 2) * Math.min(dx, dy);
 }
 
+const SIDE_DETOUR = 6; // `beside`: extra steps worth spending to stand in the NPC's row
+
 /**
  * @param {{x:number,y:number}} start
  * @param {{x:number,y:number}} goal
  * @param {(x:number,y:number)=>boolean} passable
+ * @param {{stopShort?:boolean, beside?:boolean}} [opts] stopShort: end beside the goal, never on it;
+ *   beside: the player walking up to an NPC, ending in its row (see below)
  * @returns {Array<{x:number,y:number}>}
  */
-export function findPath(start, goal, passable, { stopShort = false } = {}) {
+export function findPath(start, goal, passable, { stopShort = false, beside = false } = {}) {
   if (!start || !goal) return [];
   const sx = Math.round(start.x), sy = Math.round(start.y);
   const gx = Math.round(goal.x), gy = Math.round(goal.y);
   if (sx === gx && sy === gy) return [];
+
+  // `beside` (the player walking up to a tapped NPC, owner 2026-11-10): end on the NPC's LEFT or
+  // RIGHT, in its row, so the two stand side by side and face each other. Whichever side is the
+  // shorter walk; a tile above or below (then a diagonal) only when neither side can be reached,
+  // or when getting to a side would cost more than SIDE_DETOUR extra steps.
+  if (beside) {
+    const open = (list) => new Set(list.filter(([x, y]) => passable(x, y)).map(([x, y]) => key(x, y)));
+    const tiers = [
+      open([[gx - 1, gy], [gx + 1, gy]]),
+      open([[gx, gy - 1], [gx, gy + 1]]),
+      open([[gx - 1, gy - 1], [gx + 1, gy - 1], [gx - 1, gy + 1], [gx + 1, gy + 1]]),
+    ];
+    if (tiers[0].has(key(sx, sy))) return [];
+    const side = tiers[0].size ? search(sx, sy, gx, gy, tiers[0], passable) : null;
+    let other = null;
+    for (const t of tiers.slice(1)) {
+      if (!t.size) continue;
+      if (t.has(key(sx, sy))) { other = []; break; }
+      other = search(sx, sy, gx, gy, t, passable);
+      if (other) break;
+    }
+    if (side && (!other || side.length <= other.length + SIDE_DETOUR)) return side;
+    if (other) return other;
+    if (passable(gx, gy)) return search(sx, sy, gx, gy, new Set([key(gx, gy)]), passable) || []; // a pocket (see below)
+    return [];
+  }
 
   // Targets: the goal itself when open, otherwise its open neighbours. `stopShort` (walking up
   // to an NPC) never steps onto the goal: it prefers the four orthogonal neighbours, which are
@@ -108,6 +138,11 @@ export function findPath(start, goal, passable, { stopShort = false } = {}) {
   }
   if (targets.size === 0) return [];
   if (targets.has(key(sx, sy))) return []; // already adjacent to a blocked goal
+  return search(sx, sy, gx, gy, targets, passable) || [];
+}
+
+/** A* from (sx, sy) to the nearest tile in `targets` (keys), heuristic toward (gx, gy); the path, or null. */
+function search(sx, sy, gx, gy, targets, passable) {
 
   const gScore = new Map();
   const cameFrom = new Map();
@@ -181,5 +216,5 @@ export function findPath(start, goal, passable, { stopShort = false } = {}) {
       }
     }
   }
-  return [];
+  return null;
 }
