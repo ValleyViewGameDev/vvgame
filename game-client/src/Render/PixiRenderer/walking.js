@@ -70,14 +70,17 @@ export const WALK = {
  * life". Only a figure with two feet to tell apart taps (legs, or shoes under a robe); a hem or a
  * tail does not. Each figure has its own interval (from its seed) and, inside every interval, the
  * taps land at a different moment and on the other foot, so a crowd never taps in step.
+ * The foot TURNS AT THE ANKLE (owner: "rotate at the ankle, rather than just squishing the foot"):
+ * it pivots on its heel, the back-bottom end of the foot (the figures face the drawing's right,
+ * so the heel is each foot's left end on the ground), and the toe comes up by `lift`.
  */
 export const TAP = {
   afterMs: 4000,            // not before it has stood this long
-  everyMs: [15000, 35000],  // one run of taps per interval of this length (per figure, from its seed)
+  everyMs: [10000, 24000],  // one run of taps per interval of this length (per figure, from its seed; 15-35 s, then "a little more frequent")
   taps: 3,                  // taps in a run
   tapMs: 300,               // one tap, up and down and a beat's rest
-  lift: 0.022,              // the foot rises by this fraction of the figure square's height ...
-  foot: 0.09,               // ... over this much of the square above the ground (the foot and ankle): the leg above stays still
+  lift: 0.04,               // the TOE rises by this fraction of the figure square's height (0.022 was too faint) ...
+  foot: 0.09,               // ... the foot being this much of the square above the ground: it turns from the ankle down, the leg above stays still
 };
 /**
  * The tap at time `nowMs` for a figure standing since `stoodAtMs`: null, or { foot (0 the half on
@@ -248,6 +251,19 @@ export function shapeOf(texture) {
   cache.set(texture, shape);
   return shape;
 }
+/**
+ * Where a shape's feet end on the ground: [leftU, rightU], the outermost columns of the figure
+ * in its lowest rows (fractions of the square; kept on the shape).
+ */
+export function footEndsOf(shape) {
+  if (shape.footEnds) return shape.footEnds;
+  const { n, left, right } = shape.flanks; const yb = Math.min(n - 1, Math.round(shape.legs.feet * n) - 1);
+  let l = n, r = -1;
+  for (let y = Math.max(0, yb - Math.round(n * 0.04)); y <= yb; y++) { if (left[y] >= 0) l = Math.min(l, left[y]); if (right[y] >= 0) r = Math.max(r, right[y]); }
+  shape.footEnds = r < 0 ? [0, 1] : [(l + 0.5) / n, (r + 0.5) / n];
+  return shape.footEnds;
+}
+
 /** The arms of a shape for a shoulder line (kept on the shape: a texture has one shoulder line). */
 export function armsOf(shape, shoulderV) {
   if (!shape) return NO_ARMS;

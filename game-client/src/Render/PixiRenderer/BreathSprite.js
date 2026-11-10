@@ -1,6 +1,6 @@
 import { Sprite } from 'pixi.js-legacy';
 import { BREATH, breathDeform, breathingAllowed, turnAt, turnProgress, turnOver } from './breathing';
-import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, tapAt } from './walking';
+import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, tapAt, footEndsOf } from './walking';
 
 /**
  * BreathSprite - a Sprite whose quad becomes a mesh while it breathes (breathing.js), turns
@@ -189,6 +189,15 @@ export default class BreathSprite extends Sprite {
     const ankle = Math.max(partV, feetV - TAP.foot);                                 // a tapping foot moves from here down
     const tapLift = tap ? Math.min(tap.lift, 0.45 * (feetV - partV)) : 0;            // never more than under half of what shows of the leg (shoes under a robe)
     if (tap && ankle > partV + 0.005) lines.push(ankle);
+    // the tapping foot turns on its HEEL: the back-bottom end of the foot (the drawing faces its right, so
+    // each foot's left end on the ground), by the angle that brings the toe, the other end, up by tapLift
+    let heelX = 0, heelY = 0, tapSin = 0, tapCos = 1;
+    if (tapLift) {
+      const [endL, endR] = footEndsOf(shape);
+      const heel = tap.foot ? gapX : origLeft + endL * orig.width, toe = tap.foot ? origLeft + endR * orig.width : gapX;
+      const angle = Math.atan2(tapLift * orig.height, Math.max(orig.width * 0.05, toe - heel));
+      heelX = heel - centreX; heelY = origTop + feetV * orig.height; tapSin = Math.sin(angle); tapCos = Math.cos(angle);
+    }
     lines.sort((p, q) => p - q);
     for (let i = 0; i < lines.length; i++) {
       const v = Math.min(vEnd, Math.max(vStart, lines[i]));
@@ -247,8 +256,13 @@ export default class BreathSprite extends Sprite {
           }
           x += bx; y -= by;
         }
-        // the idle tap: the tapping foot rises from the ankle down, the leg above it still
-        if (tapLift && parted && half === tap.foot) y -= tapLift * Math.min(1, Math.max(0, (v - ankle) / (feetV - ankle))) * orig.height;
+        // the idle tap: the tapping foot turns about its heel from the ankle down (all of the turn at the
+        // ground, none at the ankle), the leg above it still
+        if (tapLift && parted && half === tap.foot && v > ankle) {
+          const wt = Math.min(1, (v - ankle) / (feetV - ankle)), dx = x - heelX, dy = y - heelY;
+          x += (heelX + dx * tapCos + dy * tapSin - x) * wt;
+          y += (heelY - dx * tapSin + dy * tapCos - y) * wt;
+        }
         x = centreX + x * f;
         const o = (r * COLS + k) * 2, tu = (x0 - left) / (right - left);
         V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;
