@@ -8,13 +8,15 @@
  *   align    --worn <png> --base <png> --out <png> [--overflow 160] [--eyes x1,y1,x2,y2]  scale + translate the redraw so its
  *                                                                pupils land on the base's (the model
  *                                                                redraws a base up to 10 % off)
- *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male [--skinclear 8]]
+ *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male [--skinclear 8]] [--drophue lo,hi]
  *                                                                (--open: erode+dilate the alpha, kills a redraw's outline
  *                                                                slivers; --defringe: drops skin-coloured pixels on the
  *                                                                layer's edge, the peach fringe where the hairline moved;
  *                                                                --fill: enclosed holes are filled from the redraw)
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
+ *   mannequin --in <bald head on magenta> --out <png> [--hue 175]   the teal reference headwear is drawn on
+ *   tidy     --in <layer png> --body female|male --out <png> [--figure]   headwear: only the piece itself (strays of the cut dropped)
  *   seat     --in <layer png> --body female|male --out <png> [--axis top|none] [--widen 1.07] [--figure]
  *                                                                headwear: its centre onto the nose line, and a little wider for hair
  *   mask     --worn <aligned png> --name <part> --out <png>       a part cut by a hand-placed outline (tools/art/part-masks.json):
@@ -145,7 +147,7 @@ async function alignByEyes(wornFile, baseFile, overflow = 0, wornEyes = null) {
 }
 
 /** keep worn pixels with no near-match within rad px in base; optionally only neutral (grey) ones; drop specks */
-function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false, fill = false, faceclear = null, skinclear = 0 } = {}) {
+function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false, fill = false, faceclear = null, skinclear = 0, drophue = null } = {}) {
   const { W, H } = worn; const out = blank(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const p = y * W + x, i = p * 4; if (worn.d[i + 3] < 40) continue;
@@ -164,6 +166,15 @@ function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, op
   const opened = openAlpha(out, open);
   const clean = dropSpecks(defringe ? defringeSkin(opened) : opened, min);
   const filled = fill ? fillHoles(clean, worn) : clean;
+  // `drophue` [lo, hi] (a part drawn on a MANNEQUIN: a head painted one colour no headwear has, teal):
+  // what is left of the mannequin after the diff (its shading under a brim, the rim where the piece
+  // meets it) is of that hue and goes. With it no skin rule is needed at all: see docs/avatar-plan.md.
+  if (drophue) {
+    let n = 0;
+    for (let p = 0; p < W * H; p++) { const i = p * 4; if (filled.d[i + 3] < 8) continue; const [h, sat] = hsv(filled.d[i], filled.d[i + 1], filled.d[i + 2]); if (h >= drophue[0] && h <= drophue[1] && sat > 0.2) { filled.d[i + 3] = 0; n++; } }
+    console.log(`  dropped ${n} px of the mannequin's hue`);
+    return dropSpecks(filled, min);
+  }
   return faceclear ? clearFace(filled, faceclear, skinclear) : filled; // last: the hole fill would put the forehead back
 }
 
@@ -194,16 +205,7 @@ function clearFace(img, body, skinclear = 0) {
         while (y >= 0 && y <= yEnd && d[(y * W + x) * 4 + 3] >= 24 && isSkinAt(x, y)) { d[(y * W + x) * 4 + 3] = 0; n++; y += dir; }
       }
     }
-    // ... and LIT skin goes wherever it is, even shut inside the piece where no peel reaches (the scalp
-    // seen through a tiara): the model's skin that is also bright, warm and only moderately saturated,
-    // which no silver (hardly any saturation), straw (yellower) or petal (more saturated) is
-    let lit = 0;
-    for (let y = 0; y <= yEnd; y++) for (let x = Math.floor(b.headX[0] * k); x <= b.headX[1] * k && x < W; x++) {
-      const i = (y * W + x) * 4; if (d[i + 3] < 24 || !isSkinAt(x, y)) continue;
-      const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]);
-      if (h >= 8 && h <= 34 && sat >= 0.25 && sat <= 0.72 && v >= 0.85) { d[i + 3] = 0; lit++; }
-    }
-    console.log(`  skin clear (model, d2 < ${skinclear}): ${n} px peeled from the top and bottom edges, ${lit} px of lit skin inside`);
+    console.log(`  skin clear (model, d2 < ${skinclear}, peeled from the top and bottom edges): ${n} px dropped`);
     return dropSpecks(img, 0.02); // what the clearing cut loose
   }
   // from the hairline (a hat sits low on the forehead) to the chin; the colour rules below protect the hat
@@ -217,6 +219,7 @@ function clearFace(img, body, skinclear = 0) {
   for (let y = Math.floor(y0); y <= y1 && y < H; y++) for (let x = Math.floor(x0); x <= x1 && x < W; x++) {
     const i = (y * W + x) * 4; if (d[i + 3] < 24) continue;
     const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]); if (h < 8 || h > 34) continue;
+    if (sat < 0.22) continue; // skin is never this grey: a silver band's warm reflections have skin's hue and none of its saturation (the tiara of parts-r4 lost its band here)
     if ((v >= 0.85 && sat <= 0.72) || !hatIsSkinHued) { d[i + 3] = 0; n++; }
   }
   console.log(`  face clear: hat hue ${Math.round(dom)}, ${n} px of skin dropped`);
@@ -284,25 +287,58 @@ function maskLayer(worn, poly) {
 }
 
 /**
- * `seat`: put a piece of headwear where it belongs on the head, and give it room for hair (owner
- * 2026-11-10; the rules are in docs/avatar-plan.md, "Headwear art direction").
- *  - CENTRE: a symmetrical piece with a centre to see (a crown, a tiara: a peak, a gem) is drawn by
- *    the model centred on the SKULL, but the faces are turned a little to the right, so the centre of
- *    the face, the nose, is right of that: the tiara's gem sat 10 frame units left of the nose and
- *    the crown's 16. `--axis top` finds the piece's own centre (the middle of the top quarter of its
- *    rows: the peak, the middle point) and moves the piece so it stands on the rig's `noseX`.
- *    `--axis none` leaves it where it is (a plain band has no centre to see).
- *  - WIDTH: a circlet is drawn tight on the bald head and then worn over hair, which is wider.
- *    `--widen 1.07` stretches it sideways about its centre: a modest amount, so it still looks
- *    right on a bald head.
+ * `mannequin`: the reference a piece of HEADWEAR is drawn on (docs/avatar-plan.md, "Headwear art
+ * direction", rule 4). The bald base head on magenta with every warm pixel (skin, lips, brows, the
+ * tan undershift and their brown outlines: hue 5..50) turned TEAL (hue 175), the eyes left as they
+ * are. Headwear is never teal, so once the model has redrawn the mannequin wearing a piece, the
+ * piece is whatever is not the mannequin: `diff` against the keyed mannequin, then `--drophue
+ * 140,186` for what is left of its shading. No skin rule is needed, and none works: cream petals,
+ * straw, gold and silver's reflections are all the colour of some skin.
+ */
+function mannequinOf(img, hue = 175) {
+  const { d, W, H } = img;
+  for (let p = 0; p < W * H; p++) {
+    const i = p * 4; if (d[i + 3] < 10) continue;
+    const [h, sat, v] = hsv(d[i], d[i + 1], d[i + 2]);
+    if (h < 5 || h > 50 || sat <= 0.18) continue; // the magenta ground, the eyes and anything cool stay
+    const s2 = Math.max(0.5, Math.min(0.85, sat * 1.15)), c = v * s2, x = c * (1 - Math.abs(((hue / 60) % 2) - 1)), m = v - c;
+    const [r, g, b] = hue < 180 ? [0, c, x] : [0, x, c]; // 120..180: green full, blue rising; 180..240: blue full, green falling
+    d[i] = Math.round((r + m) * 255); d[i + 1] = Math.round((g + m) * 255); d[i + 2] = Math.round((b + m) * 255);
+  }
+  return img;
+}
+
+/**
+ * `tidy`: keep only the piece of headwear itself. A cut leaves strays where the redraw's face did not
+ * quite land on the base's: a line of the scalp's or the jaw's outline, a sliver of an eye or an ear.
+ * They are small beside the piece, or they begin under the brow, where no headwear begins: both go.
+ * (Not for a piece made of separate small parts, which this would thin out.)
+ */
+function tidyHeadwear(img, body, figure = false) {
+  dropSpecks(img, 0.08);
+  const { d, W } = img; const k = figure ? S : W / 256;
+  for (const b of blobs(img, (p) => d[p * 4 + 3] >= 24)) if (b.y0 > rig[body].brow * k) for (const p of b.px) d[p * 4 + 3] = 0;
+  return img;
+}
+
+/**
+ * `seat`: widen a piece of headwear a little for hair, and (rarely) move it sideways (owner 2026-11-10;
+ * the rules are in docs/avatar-plan.md, "Headwear art direction").
+ *  - WIDTH: a circlet drawn tight on the bald head is worn over hair, which is wider. `--widen 1.07`
+ *    stretches it sideways about its centre: a modest amount, so it still looks right on a bald head.
+ *  - CENTRE: `--axis top` moves the piece so its own centre (the middle of the top quarter of its rows:
+ *    a peak, a middle point) stands on the rig's `noseX`. This was the first answer to a crown that sat
+ *    left of the nose, and it is NOT the way to do it: the faces are turned three quarters, so a crown
+ *    drawn from the front and slid onto the nose line hangs out into the air on the far side of the
+ *    head. A symmetrical piece is DRAWN turned with the head (the prompt), then needs no moving.
+ *    `--axis none` (the usual call) leaves the piece where it is.
  * Works on a head crop (1024 or 512 px wide: the figure's upper tile) or on a figure square (512).
  */
 function seatLayer(img, body, { axis = 'top', widen = 1, figure = false } = {}) {
   // only the piece itself is moved: a stray sliver the cut left on a shoulder or an ear sat unseen on the
   // body where it was drawn, and moved with the crown it showed as a line in the air
-  dropSpecks(img, 0.08);
+  tidyHeadwear(img, body, figure);
   const { d, W, H } = img; const k = figure ? S : W / 256, ox = figure ? FX : 0; // px per frame unit, and where frame x 0 is
-  for (const b of blobs(img, (p) => d[p * 4 + 3] >= 24)) if (b.y0 > rig[body].brow * k) for (const p of b.px) d[p * 4 + 3] = 0; // headwear starts above the brow: a mass that begins under it is not headwear
   let x0 = W, x1 = -1, y0 = H, y1 = -1;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (d[(y * W + x) * 4 + 3] >= 24) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
   if (x1 < 0) return { img, info: { empty: true } };
@@ -831,7 +867,7 @@ function tintImg(img, hex) {
   switch (cmd) {
     case 'key': { const img = keyOut(await load(args.in), !!args.green); await save(img, args.out); break; }
     case 'align': { const ey = args.eyes ? String(args.eyes).split(',').map(Number) : null; const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0), ey && ey.length === 4 ? [{ x: ey[0], y: ey[1] }, { x: ey[2], y: ey[3] }] : null); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
-    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null, skinclear: +(args.skinclear || 0) }); await save(out, args.out); break; }
+    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null, skinclear: +(args.skinclear || 0), drophue: args.drophue ? String(args.drophue).split(',').map(Number) : null }); await save(out, args.out); break; }
     case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female', +(args.xscale || 1)); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'face': { const img = await load(args.in); await save(facePart(img, args.body || 'female'), args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female', !!args.bare, { step: +(args.step || 8), core: +(args.core || 6), grow: +(args.grow || 12) }); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found (misaligned, or a hood and gloves)'); break; }
@@ -850,6 +886,8 @@ function tintImg(img, hex) {
       break;
     }
     case 'seat': { const { img, info } = seatLayer(await load(args.in), args.body || 'female', { axis: args.axis || 'top', widen: +(args.widen || 1), figure: !!args.figure }); console.log(JSON.stringify(info)); await save(img, args.out); break; }
+    case 'mannequin': { await save(mannequinOf(await load(args.in), +(args.hue || 175)), args.out); break; }
+    case 'tidy': { await save(tidyHeadwear(await load(args.in), args.body || 'female', !!args.figure), args.out); break; }
     case 'mask': { // --name <part> reads its polygon from tools/art/part-masks.json; --poly "x,y x,y ..." gives one
       const masks = JSON.parse(fs.readFileSync(path.join(__dirname, 'part-masks.json'), 'utf8'));
       const poly = args.poly ? String(args.poly).trim().split(/\s+/).map((pt) => pt.split(',').map(Number)) : masks[args.name];

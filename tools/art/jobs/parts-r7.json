@@ -1,0 +1,36 @@
+{
+  "name": "parts-r7",
+  "note": "Owner 2026-11-10: the three-quarter tiara and crown of parts-r5 redrawn on the TEAL MANNEQUIN (as the flower ring of parts-r6): cut against a skin-coloured head they kept strands of the head's outline wherever the redraw's head was a pixel off the base's; on the mannequin the outline is teal too and goes with the rest. The mannequin is the method for all headwear from here.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "hat-f-tiara": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female-teal.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a MANNEQUIN of this game's base body: a young woman, bald, whose skin and undershift are painted TEAL (blue-green) on purpose, so that software can cut out what is worn on it. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald TEAL head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, all in the SAME TEAL, changing NOTHING, and add ONLY her HEADWEAR: a bold SILVER TIARA: a broad band of bright silver, clearly thicker than a finger, rising at the front to a tall rounded peak, set with ONE large sky-blue gem at the peak and one smaller sky-blue gem on each side of it, with a dark outline; it sits on the top front of the head above the brow. THE VIEW MATTERS: the head in the picture is NOT seen from straight ahead. It is turned a little toward the viewer's right, a three-quarter view: the nose is to the right of the middle of the skull, more of the head shows on the viewer's left (the near side, where the ear is) than on the right (the far side). Draw the piece TURNED WITH THE HEAD, in that same three-quarter view, as a real one sitting on this head would look: its front centre is exactly above the NOSE, not above the middle of the skull; its band wraps round the skull and MEETS THE HEAD'S OUTLINE ON BOTH SIDES, ending where the head ends, so nothing of it sticks out into the air past the side of the head and nothing stops short; so the part of it on the viewer's left of the nose is longer, and the part on the right is shorter and foreshortened as it turns away round the far side of the head. It must READ AT A DISTANCE, when the whole figure is drawn very small: a few LARGE, bold, simple shapes with strong contrast against skin and hair, never fine or delicate detail. It is worn over HAIR in the game, so it stands very slightly proud of the scalp where it meets the sides of the head, no more. The headwear is in its own natural FULL COLOURS (real silver, real gold, real gems) and has NO teal anywhere in it; it casts NO shadow on the head. Everything that is not the added part stays identical, teal. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff against the keyed TEAL head --open 1 --min 0.02 --fill --drophue 140,186 (186, not 200: the gems are sky blue, hue 190 to 205), tidy"
+    },
+    "hat-m-crown": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male-teal.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a MANNEQUIN of this game's base body: a grown man, bald, whose skin and undershift are painted TEAL (blue-green) on purpose, so that software can cut out what is worn on it. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald TEAL head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, all in the SAME TEAL, changing NOTHING, and add ONLY his HEADWEAR: a golden KING'S CROWN: a broad gold band with five tall points, each tipped with a small gold ball, and ONE large red gem on the band at its front centre, with a dark outline; it sits on the top of the head above the brow. THE VIEW MATTERS: the head in the picture is NOT seen from straight ahead. It is turned a little toward the viewer's right, a three-quarter view: the nose is to the right of the middle of the skull, more of the head shows on the viewer's left (the near side, where the ear is) than on the right (the far side). Draw the piece TURNED WITH THE HEAD, in that same three-quarter view, as a real one sitting on this head would look: its front centre is exactly above the NOSE, not above the middle of the skull; its band wraps round the skull and MEETS THE HEAD'S OUTLINE ON BOTH SIDES, ending where the head ends, so nothing of it sticks out into the air past the side of the head and nothing stops short; so the part of it on the viewer's left of the nose is longer, and the part on the right is shorter and foreshortened as it turns away round the far side of the head. It must READ AT A DISTANCE, when the whole figure is drawn very small: a few LARGE, bold, simple shapes with strong contrast against skin and hair, never fine or delicate detail. It is worn over HAIR in the game, so it stands very slightly proud of the scalp where it meets the sides of the head, no more. The headwear is in its own natural FULL COLOURS (real silver, real gold, real gems) and has NO teal anywhere in it; it casts NO shadow on the head. Everything that is not the added part stays identical, teal. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align --eyes (pupils by a blob search: the mannequin's eyes are teal), diff against the keyed TEAL head --open 1 --min 0.02 --fill --drophue 140,186, tidy"
+    }
+  }
+}

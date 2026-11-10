@@ -163,7 +163,7 @@
     "file": "hat-f-flowers.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r4 (2026-11-10: redrawn bolder, to read at a distance); cut by tools/art/parts.js"
+    "notes": "parts-r6 (2026-11-10): bigger flowers, drawn on the teal mannequin; cut by tools/art/parts.js (diff --drophue)"
   },
   {
     "id": "hat-f-tiara",
@@ -173,7 +173,7 @@
     "file": "hat-f-tiara.png",
     "hidesHair": false,
     "body": "female",
-    "notes": "parts-r4 (2026-11-10: redrawn bolder, to read at a distance); cut by tools/art/parts.js, seated on the nose line"
+    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)"
   },
   {
     "id": "hat-m-cap",
@@ -213,7 +213,7 @@
     "file": "hat-m-crown.png",
     "hidesHair": false,
     "body": "male",
-    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js, then seat: centred on the nose line, 7 % wider for hair"
+    "notes": "parts-r7 (2026-11-10): drawn in the head's three-quarter view on the teal mannequin; cut by tools/art/parts.js (diff --drophue, tidy)"
   },
   {
     "id": "top-shift-f",

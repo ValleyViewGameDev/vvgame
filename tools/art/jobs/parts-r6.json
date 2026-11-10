@@ -1,0 +1,25 @@
+{
+  "name": "parts-r6",
+  "note": "Owner 2026-11-10: the flower ring redrawn on a TEAL MANNEQUIN. Cut against a skin-coloured head, its cream petals (the colour of shaded skin) and orange flowers were lost whatever the rule; against teal, everything that is not teal is the wreath. The reference is probes-r1/head-female-teal.magenta.png (the bald base head with every warm pixel turned teal, the eyes left as they are).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "hat-f-flowers": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female-teal.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a MANNEQUIN of this game's base body: a young woman, bald, whose skin and undershift are painted TEAL (blue-green) on purpose, so that software can cut out what she wears. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald TEAL head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, all in the SAME TEAL, changing NOTHING, and add ONLY her HEADWEAR: a RING OF FLOWERS, a flower crown: a wreath of about SEVEN LARGE flowers, each one as big as her eye or bigger (big white daisies with yellow centres, big sky-blue blossoms, big warm orange blossoms) with a few broad leaf-green leaves between them, sitting around the top of the bald head like a circlet above the brow, the same width as the head. It must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold, simple flower shapes, never many tiny ones. The headwear is in its own natural FULL COLOURS and has NO teal anywhere in it; it casts NO shadow on the head. Everything that is not the added part stays identical, teal. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff against the keyed TEAL head (probes-r1/head-female-teal.magenta.png) --open 1 --min 0.02 --fill --drophue 140,186"
+    }
+  }
+}

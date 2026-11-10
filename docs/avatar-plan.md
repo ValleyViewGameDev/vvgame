@@ -825,25 +825,51 @@ frames of one run rasterised.
    against skin and hair: one big gem, not five small ones; about seven big flowers, not a
    garland of tiny ones; a band clearly thicker than a finger. The first tiara (a thin wire with
    three small gems) and the first flower ring (small blossoms) were redrawn for this.
-2. **A symmetrical piece is centred on the NOSE, not on the skull.** The faces are turned a
-   little to the right, so the face's centre line (the rig's `noseX`: female 141, male 139) is
-   right of the skull's middle (128). The model draws a crown or a tiara centred on the skull:
-   the first tiara's gem sat 10 units left of the nose, the crown's 13. `parts.js seat --axis top`
-   moves the piece so its own centre (the middle of its top quarter: the peak, the middle point)
-   stands on `noseX`. A piece with no centre to see (a plain band, a hat, a wreath) stays put.
+2. **A symmetrical piece is DRAWN turned with the head: its centre over the NOSE, its ends on
+   the head's outline (owner, revised the same day).** The faces are in a three-quarter view,
+   turned a little to the viewer's right, so the face's centre line (the rig's `noseX`: female
+   141, male 139) is right of the skull's middle (128) and more of the head shows on the left.
+   The model draws a crown or a tiara from the front, centred on the skull: the first tiara's
+   gem sat 10 units left of the nose, the crown's 13. The first fix slid the finished piece
+   onto the nose line (`parts.js seat --axis top`), and that is WRONG: a frontal crown moved
+   sideways hangs out into the air on the far side of the head. The piece has to be drawn in
+   the head's own view: front centre exactly above the nose, the band wrapping the skull and
+   meeting the head's outline on both sides, the near half longer and the far half
+   foreshortened. Then it needs no moving. A piece with no centre to see (a plain band, a hat, a
+   wreath) only has to sit on the head.
 3. **A circlet is a little wider than the bald head.** Crowns, tiaras and bands are worn over
-   hair, which is wider than the scalp they are drawn on. They are widened by about 7 % about
-   their centre (`seat --widen 1.07`, or asked for in the prompt as the redrawn tiara was): a
-   modest amount, because much more looks wrong on a bald head. A wreath that already sits at
-   the head's width (the flower ring) is left alone.
-The prompt wording for 1 to 3 is the `READ` text in `tools/art/jobs/parts-r4.json`.
+   hair, which is wider than the scalp they are drawn on: ask for it to stand very slightly
+   proud of the scalp at the sides, or widen a finished piece by about 7 % about its centre
+   (`seat --axis none --widen 1.07`, the head band). A modest amount: much more looks wrong on a
+   bald head. A wreath that already sits at the head's width (the flower ring) is left alone.
+4. **Headwear is drawn on the TEAL MANNEQUIN, never on the skin-coloured head.** `parts.js
+   mannequin` turns every warm pixel of the bald base head (skin, lips, brows, the undershift
+   and their brown outlines) teal and leaves the eyes; the model redraws that mannequin wearing
+   the piece; the piece is then whatever is not the mannequin: `diff` against the keyed
+   mannequin, `--drophue 140,186` for what is left of its shading (not up to 200: a sky-blue
+   gem is hue 190 to 205), `tidy` for a one-piece item. Cut against skin, every rule failed on
+   something: cream petals are the colour of shaded skin (the wreath lost its daisies), orange
+   flowers and warm silver have skin's hue (the hue rule took them), straw and gold highlights
+   sit inside the skin colour model (it riddled them), gold against skin had to be cut by
+   hand, and wherever the redraw's head was a pixel off the base's, strands of its brown
+   outline stayed on the piece. On the mannequin the outline is teal too, and three pieces
+   (wreath, tiara, crown) cut clean first time.
+The prompt wording for 1 to 4 is in `tools/art/jobs/parts-r7.json` (the `THE VIEW MATTERS`
+text and the mannequin text); each subject's `extract` is how it was cut.
 
 **Four outfits, the tiara and the flower ring redrawn, brighter eyes (owner 2026-11-10, content
 2).** Job `parts-r4`, one candidate each, all six used: f Adventurer (rust tunic, trousers,
 boots) and Court gown (crimson and gold); m Noble doublet (royal blue and gold) and Scholar's
 robe (bluish lavender); the catalogue is 32 rows, five tops a body. The crown and the head band
-were re-seated by rules 2 and 3, the new tiara by rule 2. Blue and green eyes are a little more
-vivid (#2F8FF2, #36B84C). What the cutting taught:
+were re-seated by the first form of rule 2 and by rule 3, the new tiara by rule 2. **Corrected
+the same day:** the owner found the tiara and the flower ring partly transparent (a clearing
+pass had taken their pale parts for lit skin) and the crown and tiara hanging off the far side
+of the head (see rule 2). The tiara and the crown were redrawn in the head's three-quarter view
+and the flower ring redrawn, all three on the teal mannequin (jobs `parts-r5`, superseded,
+`parts-r6`, `parts-r7`; rule 4), and the lit-skin pass was removed. A hat layer is now always
+checked ALONE on a contrasting ground as well as on heads: holes do not show over skin of the
+same colour. Blue and green eyes are a little more vivid (#2F8FF2, #36B84C). What the cutting
+taught:
 - **`fitbody --xscale`.** The doublet's redraw had a smaller head than the base, so `align`
   enlarged it 1.147 to match the eyes, body and all; `fitbody` put the height right and left it
   that much too wide. `--xscale` (one over the align scale) narrows the body about the centre

@@ -52,7 +52,7 @@
         "painterly"
       ],
       "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a golden KING'S CROWN: a gold band with five tall points, a small red gem on the band at the front, sitting on the top of the bald head above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
-      "extract": "key, align --eyes 468.8,336.6,590.1,337.5 (the finders missed the pupils), diff --open 1 --defringe --min 0.02 --fill --faceclear male, seat --axis top --widen 1.07 (centre onto the nose line, a little wider for hair)"
+      "extract": "key, align --eyes 468.8,336.6,590.1,337.5 (the finders missed the pupils), diff --open 1 --defringe --min 0.02 --fill --faceclear male, seat --axis top --widen 1.07 (centre onto the nose line, a little wider for hair)  [superseded by parts-r7]"
     },
     "hat-m-straw": {
       "refs": [
