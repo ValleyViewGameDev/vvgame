@@ -5,16 +5,18 @@
  * squares from figurecut.js, or keyed head crops) and writes PNGs with alpha.
  *
  *   key      --in <magenta panel> --out <png> [--green]          key the magenta (and green) out
- *   align    --worn <png> --base <png> --out <png> [--overflow 160]  scale + translate the redraw so its
+ *   align    --worn <png> --base <png> --out <png> [--overflow 160] [--eyes x1,y1,x2,y2]  scale + translate the redraw so its
  *                                                                pupils land on the base's (the model
  *                                                                redraws a base up to 10 % off)
- *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male]
+ *   diff     --worn <png> --base <png> --out <png> [--tol 48] [--rad 3] [--grey] [--min 0.01] [--open 1] [--defringe] [--fill] [--faceclear female|male [--skinclear 8]]
  *                                                                (--open: erode+dilate the alpha, kills a redraw's outline
  *                                                                slivers; --defringe: drops skin-coloured pixels on the
  *                                                                layer's edge, the peach fringe where the hairline moved;
  *                                                                --fill: enclosed holes are filled from the redraw)
  *                                                                the part = what the worn redraw has
  *                                                                that the base has not (hair, beard, hat)
+ *   mask     --worn <aligned png> --name <part> --out <png>       a part cut by a hand-placed outline (tools/art/part-masks.json):
+ *                                                                the gold head band, which no colour rule tells from skin
  *   fitbody  --worn <aligned outfit, with overflow> --base <base figure> --body female|male --out <png>
  *                                                                resample the body below the collar so its feet land on
  *                                                                the base body's feet line (an outfit never changes height)
@@ -120,9 +122,12 @@ function findEyes(img) {
 }
 
 /** scale + translate `worn` so its eyes coincide with `base`'s; returns { img, info } */
-async function alignByEyes(wornFile, baseFile, overflow = 0) {
+async function alignByEyes(wornFile, baseFile, overflow = 0, wornEyes = null) {
   const worn = await load(wornFile), base = await load(baseFile);
-  const we = findEyes(worn), be = findEyes(base);
+  // the redraw's pupils: given by hand (--eyes), else found; a redraw drawn smaller than its reference
+  // (the crown and the head band of parts-r3 came back at waist length) can fail the first finder's
+  // "white around a dark blob" test, so the pupil-pair finder is tried after it (the same point: a pupil's centre)
+  const we = wornEyes || findEyes(worn) || findPupilPair(worn), be = findEyes(base) || findPupilPair(base);
   if (!we || !be) return { img: worn, info: { ok: false, wornEyes: !!we, baseEyes: !!be } };
   const s = (be[1].x - be[0].x) / (we[1].x - we[0].x);
   const wcx = (we[0].x + we[1].x) / 2, wcy = (we[0].y + we[1].y) / 2, bcx = (be[0].x + be[1].x) / 2, bcy = (be[0].y + be[1].y) / 2;
@@ -138,7 +143,7 @@ async function alignByEyes(wornFile, baseFile, overflow = 0) {
 }
 
 /** keep worn pixels with no near-match within rad px in base; optionally only neutral (grey) ones; drop specks */
-function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false, fill = false, faceclear = null } = {}) {
+function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, open = 0, defringe = false, fill = false, faceclear = null, skinclear = 0 } = {}) {
   const { W, H } = worn; const out = blank(W, H);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const p = y * W + x, i = p * 4; if (worn.d[i + 3] < 40) continue;
@@ -157,7 +162,7 @@ function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, op
   const opened = openAlpha(out, open);
   const clean = dropSpecks(defringe ? defringeSkin(opened) : opened, min);
   const filled = fill ? fillHoles(clean, worn) : clean;
-  return faceclear ? clearFace(filled, faceclear) : filled; // last: the hole fill would put the forehead back
+  return faceclear ? clearFace(filled, faceclear, skinclear) : filled; // last: the hole fill would put the forehead back
 }
 
 /**
@@ -167,8 +172,29 @@ function diffLayer(worn, base, { tol = 48, rad = 3, grey = false, min = 0.01, op
  * or a leather band), and when the hat itself is not an orange-brown thing (its dominant hue is
  * more than 20 degrees from skin's 25: a green cap, a blue hood) every skin-hued pixel goes.
  */
-function clearFace(img, body) {
+function clearFace(img, body, skinclear = 0) {
   const { d, W, H } = img; const b = rig[body], k = W / 256;
+  // `skinclear` (a distance, try 8): the hue rules below cannot tell a SKIN-HUED hat from the skin left
+  // around it (a straw brim's shaded forehead, the scalp over a gold head band, both parts-r3). The
+  // body's SKIN COLOUR MODEL (tools/avatar/skin-model.json, the one `split` uses) can tell shaded
+  // skin, but it also takes some straw and some gold highlight, so it is not applied everywhere (that
+  // riddled the straw crown with holes): in each column of the head, the layer is PEELED from its top
+  // edge and from its bottom edge, skin pixel by skin pixel, and the peel stops at the first pixel
+  // that is not skin: the hat's own outline. What was left above or under the hat goes; the hat stays.
+  if (skinclear > 0) {
+    const skinD2 = gaussFns(loadSkinModels()[body].skin); let n = 0;
+    const isSkinAt = (x, y) => { const i = (y * W + x) * 4; return skinD2(d[i], d[i + 1], d[i + 2]) < skinclear; };
+    const yEnd = Math.min(H - 1, Math.round(b.chin * k));
+    for (let x = Math.floor(b.headX[0] * k); x <= b.headX[1] * k && x < W; x++) {
+      for (const dir of [1, -1]) {
+        let y = dir > 0 ? 0 : yEnd;
+        while (y >= 0 && y <= yEnd && d[(y * W + x) * 4 + 3] < 24) y += dir;          // to the layer's edge
+        while (y >= 0 && y <= yEnd && d[(y * W + x) * 4 + 3] >= 24 && isSkinAt(x, y)) { d[(y * W + x) * 4 + 3] = 0; n++; y += dir; }
+      }
+    }
+    console.log(`  skin clear (model, d2 < ${skinclear}, peeled from the top and bottom edges): ${n} px dropped`);
+    return dropSpecks(img, 0.02); // what the clearing cut loose
+  }
   // from the hairline (a hat sits low on the forehead) to the chin; the colour rules below protect the hat
   const x0 = b.headX[0] * k, x1 = b.headX[1] * k, y0 = (b.brow - 34) * k, y1 = b.chin * k; // the whole head column
   const inBox = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
@@ -228,6 +254,22 @@ function fillHoles(img, worn, maxFrac = 0.12) {
   }
   if (filled) console.log(`  filled ${filled} px of holes`);
   return img;
+}
+
+/**
+ * `mask`: a part cut by a HAND-PLACED outline (a polygon in the aligned redraw's pixels), for the
+ * rare one no rule can cut. The gold head band of parts-r3 is the case: gold worn against skin has
+ * skin's hue, its highlights pass for skin and skin's shadows pass for gold, so `diff` (at any
+ * tolerance), a hue gate and a blue-ratio test all failed on it, where its outline is eleven points.
+ * The polygon is recorded with the part (tools/art/part-masks.json) so the cut can be repeated.
+ */
+function maskLayer(worn, poly) {
+  const { W, H } = worn; const out = blank(W, H); const n = poly.length;
+  const inside = (x, y) => { let c = false; for (let i = 0, j = n - 1; i < n; j = i++) { const [xi, yi] = poly[i], [xj, yj] = poly[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; };
+  let k = 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = (y * W + x) * 4; if (worn.d[i + 3] >= 40 && inside(x + 0.5, y + 0.5)) { out.d.set(worn.d.subarray(i, i + 4), i); k++; } }
+  console.log(`  mask: ${k} px inside ${n} points`);
+  return out;
 }
 
 function dropSpecks(img, minFrac) {
@@ -730,8 +772,8 @@ function tintImg(img, hex) {
 (async () => {
   switch (cmd) {
     case 'key': { const img = keyOut(await load(args.in), !!args.green); await save(img, args.out); break; }
-    case 'align': { const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0)); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
-    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null }); await save(out, args.out); break; }
+    case 'align': { const ey = args.eyes ? String(args.eyes).split(',').map(Number) : null; const { img, info } = await alignByEyes(args.worn, args.base, +(args.overflow || 0), ey && ey.length === 4 ? [{ x: ey[0], y: ey[1] }, { x: ey[2], y: ey[3] }] : null); console.log(JSON.stringify(info)); if (!info.ok) process.exitCode = 2; await save(img, args.out); break; }
+    case 'diff': { const worn = await load(args.worn), base = await load(args.base); const out = diffLayer(worn, base, { tol: +(args.tol || 48), rad: +(args.rad || 3), grey: !!args.grey, min: +(args.min || 0.01), open: +(args.open || 0), defringe: !!args.defringe, fill: !!args.fill, faceclear: args.faceclear || null, skinclear: +(args.skinclear || 0) }); await save(out, args.out); break; }
     case 'fitbody': { const worn = await load(args.worn), base = await load(args.base); const { img, info } = fitBody(worn, base, args.body || 'female'); console.log(JSON.stringify(info)); await save(img, args.out); break; }
     case 'face': { const img = await load(args.in); await save(facePart(img, args.body || 'female'), args.out); break; }
     case 'split': { const img = await load(args.in); const { cloth, skin, n } = splitOutfit(img, args.body || 'female', !!args.bare, { step: +(args.step || 8), core: +(args.core || 6), grow: +(args.grow || 12) }); await save(cloth, args.out + '.cloth.png'); await save(skin, args.out + '.skin.png'); console.log(`skin px ${n}`); if (n < 50) console.log('  WARNING: almost no skin found (misaligned, or a hood and gloves)'); break; }
@@ -749,6 +791,11 @@ function tintImg(img, hex) {
       }
       break;
     }
+    case 'mask': { // --name <part> reads its polygon from tools/art/part-masks.json; --poly "x,y x,y ..." gives one
+      const masks = JSON.parse(fs.readFileSync(path.join(__dirname, 'part-masks.json'), 'utf8'));
+      const poly = args.poly ? String(args.poly).trim().split(/\s+/).map((pt) => pt.split(',').map(Number)) : masks[args.name];
+      if (!poly) { console.error('no polygon for', args.name); process.exit(2); }
+      await save(maskLayer(await load(args.worn), poly), args.out); break; }
     case 'lids': { const img = await load(args.worn); const out = lidsLayer(img, args.body || 'female', +(args.crop || 2)); await save(out, args.out); break; }
     case 'blink': { // --name <figure>: its hand-placed eye centres from tools/art/blink-eyes.json, when it has an entry
       const table = JSON.parse(fs.readFileSync(path.join(__dirname, 'blink-eyes.json'), 'utf8'));

@@ -792,6 +792,33 @@ no tap. Checked offline: two minutes of standing run through the real sprite cod
 every 20 seconds, alternating feet; the gowned figure with no feet showing never taps) and the
 frames of one run rasterised.
 
+**Edit Avatar polish and eight more head parts (owner 2026-11-10, content 1).**
+- **The modal.** Copy spec and the equipment line are gone (the equipment FEED still shapes the
+  look; only its read-out went). The tabs are the shared `.tab-button` row, text with an
+  underline, as the Buy Deco catalogue's sub-sorts are. Every font comes from its role's tokens
+  (ui-conventions §9): tabs and buttons Lora, a colour row's label title-3, what is read
+  Philosopher. The Eyes tab shows one thumbnail per eye COLOUR, the size of every other tab's
+  and framed on the eyes alone (`CROP.eyes`); it has no swatch row.
+- **Colours.** Eye colours are blue, green and brown; auburn hair is cut and red is a little
+  brighter and more orange (#C9582B). `lookFor` gives a colour id the palette no longer has the
+  first colour of its kind, so a saved look never draws an untinted part.
+- **Parts** (job `parts-r3`, one candidate each, all eight used): hats f flower ring and tiara,
+  m gold head band, crown and farmer's straw hat (all sit on the hair: `hidesHair` false);
+  facial hair m moustache, goatee with moustache, mutton chops (tinted by hair colour). Each
+  subject's `extract` in the job file is how it was cut. What the cutting taught:
+  - `align` could not find the pupils on four of the eight redraws; it now tries the
+    pupil-pair finder after the first one and takes `--eyes x1,y1,x2,y2` when both fail.
+  - **A skin-hued hat needs `--skinclear`.** The hue rules of `--faceclear` cannot tell a straw
+    brim from the forehead it shades. The body's skin colour model can, but applied everywhere
+    it riddled the straw with holes, so it PEELS: in each column of the head it removes skin
+    from the layer's top and bottom edges and stops at the first pixel that is not skin.
+  - **Gold against skin is cut by hand.** The head band has skin's hue, its highlights pass for
+    skin and skin's shadows pass for gold: `diff` at any tolerance, a hue gate and a blue-ratio
+    test all failed. `parts.js mask` cuts it by a twenty-point outline kept in
+    `tools/art/part-masks.json`. Ask for a contrasting trim next time a thin metal part is drawn.
+- The catalogue is 28 rows. Clothing is next: the owner asked for recommendations (three more
+  per body) before any is drawn.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.

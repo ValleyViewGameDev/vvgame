@@ -1,0 +1,102 @@
+{
+  "name": "parts-r3",
+  "note": "Owner 2026-11-10, more head parts: hats f flower ring + tiara, m gold head band + crown + farmer's straw hat; facial hair m moustache, goatee (with moustache), mutton chops. One candidate each (OpenAI spend); extraction by tools/art/parts.js (key, align, diff). Prompts follow parts-r1. Each subject's `extract` is how its layer was cut (tools/art/parts.js, against the bald base head of probes-r1, then pasted from the head crop into the figure square: scale 342/512 at x 85).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "hat-f-flowers": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a RING OF FLOWERS, a flower crown: a wreath of small wildflowers (white daisies with yellow centres, small sky-blue and warm orange blossoms) and green leaves, sitting around the top of the bald head like a circlet, above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female"
+    },
+    "hat-f-tiara": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her HEADWEAR: a delicate SILVER TIARA: a thin silver band that rises to a small peak at the front, set with three small pale-blue gems, sitting on the top front of the bald head above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear female"
+    },
+    "hat-m-headband": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a plain GOLDEN HEAD BAND: a simple smooth circlet of gold, a flat band about a finger wide worn level around the head just above the brow; it has NO points and NO gems (it is not a crown); it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align --eyes 474.2,271.6,599.2,272.6, mask --name hat-m-headband (tools/art/part-masks.json: gold against skin, no colour rule cuts it)"
+    },
+    "hat-m-crown": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a golden KING'S CROWN: a gold band with five tall points, a small red gem on the band at the front, sitting on the top of the bald head above the brow; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align --eyes 468.8,336.6,590.1,337.5 (the finders missed the pupils), diff --open 1 --defringe --min 0.02 --fill --faceclear male"
+    },
+    "hat-m-straw": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his HEADWEAR: a FARMER'S STRAW HAT: a wide-brimmed hat woven of pale golden straw, the brim a little frayed and uneven at its edge, a rounded crown with a plain dark-brown band, sitting on the bald head and shading the brow a little; it is FULL COLOUR (not grey), worn naturally at head size; the face, the eyes and the brows stay fully visible and unchanged. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill --faceclear male --skinclear 8 (the shaded forehead under the brim)"
+    },
+    "beard-m-mustache": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his FACIAL HAIR: a MOUSTACHE ONLY: a full, thick moustache on the upper lip, its ends turned down a little past the corners of the mouth; the chin, the jaw and the cheeks stay bare, there is NO beard; the scalp stays bald, worn naturally at head size. Colour of the added part ONLY: NEUTRAL very light GREY (near white) fills with one mid-grey shadow tone and a dark grey outline; software tints it later. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align --eyes 474.7,261.2,599.7,261.3, diff --open 1 --defringe --min 0.02 --fill"
+    },
+    "beard-m-goatee": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his FACIAL HAIR: a GOATEE WITH A MOUSTACHE: a moustache on the upper lip joined down both sides of the mouth to a short, neat, pointed beard on the chin only; the cheeks and the jaw line stay bare; the scalp stays bald, worn naturally at head size. Colour of the added part ONLY: NEUTRAL very light GREY (near white) fills with one mid-grey shadow tone and a dark grey outline; software tints it later. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill"
+    },
+    "beard-m-chops": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his FACIAL HAIR: MUTTON CHOPS: thick bushy side whiskers that run from in front of each ear down over the cheeks to the jaw line, wide at the jaw, and do NOT meet at the chin; the chin and the upper lip stay bare, there is NO moustache and NO chin beard; the scalp stays bald, worn naturally at head size. Colour of the added part ONLY: NEUTRAL very light GREY (near white) fills with one mid-grey shadow tone and a dark grey outline; software tints it later. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align --eyes 475.0,259.9,599.5,260.7, diff --open 1 --defringe --min 0.02 --fill"
+    }
+  }
+}

@@ -110,6 +110,36 @@
     "notes": "parts-r1; stubble was tried and is too faint for the diff"
   },
   {
+    "id": "beard-m-mustache",
+    "slot": "facialHair",
+    "label": "Moustache",
+    "tier": "free",
+    "file": "beard-m-mustache.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
+    "id": "beard-m-goatee",
+    "slot": "facialHair",
+    "label": "Goatee",
+    "tier": "free",
+    "file": "beard-m-goatee.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
+    "id": "beard-m-chops",
+    "slot": "facialHair",
+    "label": "Mutton chops",
+    "tier": "free",
+    "file": "beard-m-chops.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
     "id": "hat-none",
     "slot": "hat",
     "label": "None",
@@ -126,6 +156,26 @@
     "notes": "parts-r1; sits on the full hair"
   },
   {
+    "id": "hat-f-flowers",
+    "slot": "hat",
+    "label": "Flower ring",
+    "tier": "free",
+    "file": "hat-f-flowers.png",
+    "hidesHair": false,
+    "body": "female",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
+    "id": "hat-f-tiara",
+    "slot": "hat",
+    "label": "Tiara",
+    "tier": "free",
+    "file": "hat-f-tiara.png",
+    "hidesHair": false,
+    "body": "female",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
     "id": "hat-m-cap",
     "slot": "hat",
     "label": "Flat cap",
@@ -134,6 +184,36 @@
     "hidesHair": false,
     "body": "male",
     "notes": "parts-r1"
+  },
+  {
+    "id": "hat-m-straw",
+    "slot": "hat",
+    "label": "Farmer's straw hat",
+    "tier": "free",
+    "file": "hat-m-straw.png",
+    "hidesHair": false,
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
+    "id": "hat-m-headband",
+    "slot": "hat",
+    "label": "Gold head band",
+    "tier": "free",
+    "file": "hat-m-headband.png",
+    "hidesHair": false,
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
+  },
+  {
+    "id": "hat-m-crown",
+    "slot": "hat",
+    "label": "Crown",
+    "tier": "free",
+    "file": "hat-m-crown.png",
+    "hidesHair": false,
+    "body": "male",
+    "notes": "parts-r3 (2026-11-10); cut by tools/art/parts.js"
   },
   {
     "id": "top-shift-f",
