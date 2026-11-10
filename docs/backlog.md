@@ -18,6 +18,8 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
   done (2026-11-08).
 - **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
   ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
+- **BL-25.** Test a season reset end to end before launch (it relocates every player and
+  rewrites every grid, and has not run since the single-player refactor).
 
 ## Open
 
@@ -324,6 +326,29 @@ visible loss at board zoom.
 
 **Size.** About a day: half for the regrouping in `build-atlas.js`, half for the awaiting, idle
 loading and release in `AtlasTextures.js` and the grid change.
+
+### BL-25: Test a season reset (LAUNCH BLOCKER)
+
+Added 2026-11-10. Launch blocker (owner 2026-11-10).
+
+**What.** Run a full season end and reset and check the game comes out of it whole. The reset
+(`game-server/utils/seasonReset.js`, with `seasonFinalizer.js` and `seasonTiles.js`) runs 25
+minutes after the season timer ends, only with `NODE_ENV=production`, relocates every player and
+rewrites every grid; the world model changed under it in the single-player refactor (per-player
+grid copies caught up lazily by `seasonNumber` / `resetEpoch`, docs/phase-2-contract.md), so it
+has to be proven before an ad buy brings players in. **Where to start.** Never against the live
+data without the backup script (`game-server/scripts/backup.js`) first; check winners and
+rewards (test accounts excluded), relocation, the template grids, a player's copies catching up
+on next entry, and the client across the boundary.
+
+### BL-26: Three gameplay videos for social media
+
+Added 2026-11-10. Not a launch blocker.
+
+**What.** Claude makes three short gameplay videos for promotional social media posts. **Where
+to start.** Pick three moments that sell the game (farming and Kent, a town and its characters
+talking, exploring a valley or a fight), record them from a clean test account (ftuetester,
+never Oberon), and cut them to the platforms' formats (vertical for Reels / TikTok).
 
 ### BL-20: `save-single-npc` trusts whatever NPC state the client sends
 
