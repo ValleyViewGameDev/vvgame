@@ -24,7 +24,7 @@ import PixiRendererSpeech from './PixiRendererSpeech';
 import PixiRendererNPCOverlays from './PixiRendererNPCOverlays';
 import PixiRendererSettlementGrids, { clearGridSnapshotCache } from './PixiRendererSettlementGrids';
 import PixiRendererFrontierSettlements from './PixiRendererFrontierSettlements';
-import PixiRendererDoinker from './PixiRendererDoinker';
+import PixiRendererDoinker, { boardArrowTargetAt } from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
@@ -1733,7 +1733,20 @@ const PixiRenderer = ({
     if (onBoardTap && onBoardTap({ placing: !!cursorMode })) return;
 
     const rect = containerRef.current.getBoundingClientRect();
-    const { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
+    let { row, col } = PixiCamera.screenToTile(event.clientX - rect.left, event.clientY - rect.top);
+
+    // A tap on a tutorial arrow is a tap on what it points at (the arrow lets taps through, and
+    // what lies under it, above a figure's head, is often something else: Snug's town door)
+    const arrowTarget = boardArrowTargetAt(event.clientX, event.clientY);
+    const arrowNpc = arrowTarget?.source === 'npc'
+      ? npcs?.find((n) => n && n.type === arrowTarget.targetName && n.position
+        && Math.floor(n.position.x) === arrowTarget.x && Math.floor(n.position.y) === arrowTarget.y)
+        || npcs?.find((n) => n && n.type === arrowTarget.targetName)
+      : null;
+    const arrowResource = arrowTarget?.source === 'resource' && !cursorMode
+      ? resources?.find((r) => r && r.type === arrowTarget.targetName && r.x === arrowTarget.x && r.y === arrowTarget.y)
+      : null;
+    if (arrowTarget?.source === 'tile') { row = arrowTarget.y; col = arrowTarget.x; } // the planting tile
 
     // Range as the interaction code sees it (ResourceClicking.js / NPCInteractionUtils.js):
     // Euclidean distance against the derived range, no limit on the player's own homestead.
@@ -1778,7 +1791,7 @@ const PixiRenderer = ({
     }
 
     // The avatar itself: open the Player Character panel (wins over whatever is on the tile)
-    if (onPlayerClick && playerPos && Math.round(playerPos.x) === col && Math.round(playerPos.y) === row) {
+    if (!arrowTarget && onPlayerClick && playerPos && Math.round(playerPos.x) === col && Math.round(playerPos.y) === row) {
       onPlayerClick();
       return;
     }
@@ -1786,11 +1799,11 @@ const PixiRenderer = ({
     // Enemies are hit-tested on the sprite you SEE (its tween can trail the logical tile);
     // everything else on the logical tile
     // an NPC whose row says noClick (Peter Quince, the Oracle's woodcutter) is scenery: the tap goes through
-    const npc = findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
+    const npc = arrowNpc || (arrowResource ? null : findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top)) || (!arrowResource && npcs?.find(n =>
       n && n.position && !masterResources?.find((m) => m.type === n.type)?.noClick &&
       Math.floor(n.position.x) === col &&
       Math.floor(n.position.y) === row
-    );
+    ));
 
     if (npc) {
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
@@ -1831,7 +1844,7 @@ const PixiRenderer = ({
 
     // Tall art (a tree's canopy, a building's roof) answers for the pixels it covers, even over
     // the tile north of it; cursor placement stays on tiles (artHitTest.js)
-    const artHit = !cursorMode && findArtAt(resourceSpritesRef.current, appRef.current?.renderer, event.clientX - rect.left, event.clientY - rect.top);
+    const artHit = arrowResource || !cursorMode && findArtAt(resourceSpritesRef.current, appRef.current?.renderer, event.clientX - rect.left, event.clientY - rect.top);
     if (artHit) {
       if (resourceOutOfRange(artHit)) { walkToward(artHit); return; }
       if (handleTileClick) handleTileClick(artHit.y, artHit.x);

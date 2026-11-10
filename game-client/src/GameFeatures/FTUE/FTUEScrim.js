@@ -26,7 +26,15 @@ export default function FTUEScrim({ target, gridId }) {
     // background tab where requestAnimationFrame stalls.
     const tick = () => {
       const el = ref.current;
-      const rect = targetRect(target, gridId, PAD);
+      let rect = targetRect(target, gridId, PAD);
+      // the board arrow above a board target stays inside the hole: a tap on it reaches the board,
+      // where it counts as a tap on its target (PixiRendererDoinker boardArrowTargetAt)
+      const arrow = rect && !(target && typeof target === 'object') && document.querySelector('.ftue-doinker-board');
+      if (arrow) {
+        const a = arrow.getBoundingClientRect();
+        rect = { x1: Math.min(rect.x1, Math.round(a.left - PAD)), y1: Math.min(rect.y1, Math.round(a.top - PAD - 12)),
+          x2: Math.max(rect.x2, Math.round(a.right + PAD)), y2: rect.y2 };
+      }
       if (el && rect) {
         const { x1, y1, x2, y2 } = rect;
         // Four dark panels framing the hole; the hole itself is empty, so taps there reach the target
