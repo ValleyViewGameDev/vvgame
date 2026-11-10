@@ -718,8 +718,8 @@ board). `walking.js`:
   tiles, an NPC while its step animates) and `walkCycleMs`; the walk fades in over 90 ms and
   settles over 140 ms, back to the exact drawing. Reduced motion: no walk.
 - Tunables are `WALK`: `cycleMs` 420 (the player, about five footfalls a second, since it
-  crosses a tile in 90 ms), `npcCycleMs` 760, `lift` 0.065 and `stride` 0.07 of the figure
-  square (raised twice on the owner's word), `bob` 0.01, and the hem's span, sway and tip.
+  crosses a tile in 90 ms), `npcCycleMs` 760, `lift` 0.07 and `stride` 0.05 of the figure
+  square (the owner's numbers, after 0.065 and a stride of 0.07 that was too much), `bob` 0.01, and the hem's span, sway and tip.
 - **Hinged at the hip (owner, same day: the first walk "feels hinged at the lower part of the
   leg" on trousers, though it "looks good for gowns").** The top of the gap between two legs is
   the crotch, or a tunic's hem: hinged there, only shins and feet moved. A figure with real legs

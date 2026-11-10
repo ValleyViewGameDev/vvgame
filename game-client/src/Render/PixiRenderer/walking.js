@@ -30,9 +30,9 @@
 export const WALK = {
   cycleMs: 420,     // one full cycle, both feet (the player moves fast: about five footfalls a second)
   npcCycleMs: 760,  // an NPC strolls
-  lift: 0.065,      // a foot rises by this fraction of the figure square's height ... (0.035, 0.045, then "bigger")
+  lift: 0.07,       // a foot rises by this fraction of the figure square's height ... (0.035, 0.045, 0.065, then the owner's 7 %)
   liftOfLeg: 0.55,  // ... but never by more than this fraction of the leg that shows (shoes under a hem only shuffle)
-  stride: 0.07,     // a foot swings this fraction of the square's width forward and back of where it is drawn ... (0.03, 0.035, then "bigger")
+  stride: 0.05,     // a foot swings this fraction of the square's width forward and back of where it is drawn ... (0.03, 0.035, 0.07 "too much", then the owner's 5 %)
   strideOfLeg: 1.2, // ... but never by more than this multiple of the leg that shows (shoes stay under their hem)
   hipRise: 0.3,     // the hinge sits this share of the visible leg ABOVE the top of the gap between the legs: the hip, not the crotch
   hipFrom: 0.06,    // a gap shorter than this share of the square is shoes under a robe: hinged at the hem, no rise;
