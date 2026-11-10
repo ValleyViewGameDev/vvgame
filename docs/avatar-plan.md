@@ -422,6 +422,39 @@ skin-tone palette iterated on the neutralised base (owner's note).
   tall, up to 1.2 wide, nearest feet win) before the tile under the finger, for clicks, hover
   tooltips and the long-press tooltip; enemies keep their half-tile slack box.
 
+### 7g. P4b: the starter catalogue composes in the editor (2026-11-09)
+
+Owner: "much smaller to start, a couple of options per part per gender". The catalogue
+(`tuning/avatarParts.json`, 20 rows): two bodies (the faces `face-f-01` / `face-m-01`, each
+naming its lids row as the blink), hair bun + long wavy (f) and short + swept back (m), one full
+beard, a straw hat (f) and a flat cap (m), the shift (No Clothes) plus two outfits per body
+(peasant dress and blue gown; green tunic and vest with shirt). Ten new images
+(`jobs/parts-r1.json`, one each) plus what the Phase 3 probes had already made. Stubble was
+tried and is too faint for the diff. Palettes are now RELATIVE (`tuning/avatarPalettes.json`:
+the lightest tone is #FFFFFF, the art as drawn), six skin tones, six hair colours.
+
+**The v1 schema fit without a code change to `lookFor`**: a `skin` row is the face above the
+collar (tinted), its `eyes` row carries only `blinkFile` (the lids, skin-tinted), a `top` row is
+the outfit as `file` (cloth) + `file2` (the exposed skin, `tint2: skinTone`), hair / beard / hat
+rows as before; every file is a 512 px figure square (artSpan 1.5 frame), head parts pasted
+back into it from the head-crop frame. What changed: parts carry `body`, and `partsFor` /
+`bodyOf` / `withEyes` (client) and the server's default spec keep every slot on the chosen
+face's body (switching the face to Man swaps the dress for the male shift and the bun for the
+short hair). The dev-only Edit Avatar modal composes it all, with the blink, and Save
+validates on the server.
+
+**`tools/art/parts.js` lessons**: the grey-only filter in `diff` killed silver hair with a warm
+tint (and the old prototype's white shift problem never came back with the tan shift); the
+right tools are a morphological opening (`--open 1`, erode then dilate: a redraw's 1 to 2 px
+outline slivers along the face and shoulders vanish, the hair mass stays) and an edge
+defringe (`--defringe`: skin-coloured pixels on the layer's own edge, the peach line where
+the hairline moved). The skin layer of an outfit keeps the base's own peach (not neutralised):
+one skinTone multiplier then lands the face and the hands on the same colour.
+
+**Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
+swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
+becomes the editor for everyone, then the hand slot and armour.
+
 ## 8. Risks, and what would change the plan
 
 - **The three-quarter pose reads no better than front at 45 px.** P1's A/B decides; if front
