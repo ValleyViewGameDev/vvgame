@@ -11,11 +11,18 @@
  *               gap down, the drawing is cut along the gap into two halves that move on their
  *               own. Where there is no gap (a gown to the ground, a tail), it has a HEM: the
  *               bottom of the drawing sways in one piece.
+ *               A leg swings from the HIP, not from where the gap between the legs ends: the
+ *               gap's top is the crotch (or a tunic's hem), the lowest point of the pelvis, and
+ *               a walk hinged there moves only the shins and feet (owner: "hinged too low"). So
+ *               a figure with real legs gets a `hinge` above the gap, and between the two the
+ *               drawing is still one piece: its sides go with their own leg and its middle with
+ *               the mean, which reads as the hips turning and tipping. Shoes under a robe keep
+ *               their hinge at the hem (they only shuffle), and so does a hem.
  *   walkLegs    where each half goes at a moment of the walk cycle: a foot LIFTS (its leg
- *               shortens from the hip, as a knee bends toward the viewer) and SWINGS forward while
- *               it is in the air, then stands and slides back while the other one swings; a hem
- *               sways side to side and tips up on the side that steps. The body above bobs a
- *               little, once per footfall.
+ *               shortens from the hinge, as a knee bends toward the viewer) and SWINGS forward
+ *               while it is in the air, then stands and slides back while the other one swings;
+ *               a hem sways side to side and tips up on the side that steps. The body above bobs
+ *               a little, once per footfall.
  *
  * BreathSprite bends its vertices by these numbers; the renderers only say `sprite.walking`.
  * Everything here but `legsOf` is pure (no Pixi, no DOM).
@@ -23,9 +30,13 @@
 export const WALK = {
   cycleMs: 420,     // one full cycle, both feet (the player moves fast: about five footfalls a second)
   npcCycleMs: 760,  // an NPC strolls
-  lift: 0.045,      // a foot rises by this fraction of the figure square's height ...
-  liftOfLeg: 0.55,  // ... but never by more than this fraction of its own leg (shoes under a hem only shuffle)
-  stride: 0.035,    // a foot swings this fraction of the square's width forward and back of where it is drawn
+  lift: 0.065,      // a foot rises by this fraction of the figure square's height ... (0.035, 0.045, then "bigger")
+  liftOfLeg: 0.55,  // ... but never by more than this fraction of the leg that shows (shoes under a hem only shuffle)
+  stride: 0.07,     // a foot swings this fraction of the square's width forward and back of where it is drawn ... (0.03, 0.035, then "bigger")
+  strideOfLeg: 1.2, // ... but never by more than this multiple of the leg that shows (shoes stay under their hem)
+  hipRise: 0.3,     // the hinge sits this share of the visible leg ABOVE the top of the gap between the legs: the hip, not the crotch
+  hipFrom: 0.06,    // a gap shorter than this share of the square is shoes under a robe: hinged at the hem, no rise;
+  hipFull: 0.12,    // ... at this length and above it is a pair of legs, hinged at the hip (in between, part of the rise)
   bob: 0.01,        // the body rises by this fraction of the square's height at each footfall's middle
   hemSpan: 0.13,    // a figure with no legs: this much of the square above its lowest point sways
   hemSway: 0.018,   // ... this far side to side, as a fraction of the square's width
@@ -41,8 +52,9 @@ const MIN_LEG = 0.02;    // a gap shorter than this share of the square is not a
 
 /**
  * The legs of a silhouette. `alpha` is n x n (row-major), the figure's whole square.
- * Returns { split, top, feet, gapU } in fractions of the square: `feet` the lowest row of the
- * figure, `top` where the legs (or the hem) begin, `gapU` the column the legs part at, `split`
+ * Returns { split, top, hinge, feet, gapU } in fractions of the square: `feet` the lowest row of
+ * the figure, `top` where the two legs part (or the hem begins), `hinge` where the walk begins to
+ * move the drawing (the hip: at or above `top`), `gapU` the column the legs part at, `split`
  * whether there are two legs to move apart. null when the square is empty.
  */
 export function findLegs(alpha, n = GRID) {
@@ -64,20 +76,32 @@ export function findLegs(alpha, n = GRID) {
   let sx = 0, sn = 0;
   for (let y = Math.max(0, feetY - Math.round(H * 0.1)); y <= feetY; y++) for (const [a, b] of runsOf(y)) { sx += (a + b) / 2 * (b - a + 1); sn += b - a + 1; }
   const groundX = sn ? sx / sn : n / 2;
-  const hem = { split: false, top: Math.max(0, (feetY + 1) / n - WALK.hemSpan), feet: (feetY + 1) / n, gapU: (groundX + 0.5) / n };
+  const hemTop = Math.max(0, (feetY + 1) / n - WALK.hemSpan);
+  const hem = { split: false, top: hemTop, hinge: hemTop, feet: (feetY + 1) / n, gapU: (groundX + 0.5) / n };
 
-  // climb from the feet while a gap between two runs continues upward
-  const rows = []; let ref = groundX, misses = 0, started = false;
-  const stopY = feetY - Math.round(H * MAX_LEG);
-  for (let y = feetY; y >= Math.max(0, stopY); y--) {
-    const runs = runsOf(y); let best = null;
-    for (let i = 0; i + 1 < runs.length; i++) {
-      const a = runs[i][1] + 1, b = runs[i + 1][0] - 1, c = (a + b) / 2;
-      if (Math.abs(c - ref) <= n * (started ? 0.06 : 0.16) && (!best || Math.abs(c - ref) < Math.abs(best.c - ref))) best = { a, b, c };
+  // climb from the feet while a gap between two runs continues upward. The lowest rows can be the
+  // toes of one foot alone, or hold a nick between two toes: a climb that dies at once is dropped
+  // and the next one starts a little higher (the bare-legged base bodies read as hems until this).
+  const climb = (fromY) => {
+    const rows = []; let ref = groundX, misses = 0, started = false;
+    for (let y = fromY; y >= Math.max(0, stopY); y--) {
+      const runs = runsOf(y); let best = null;
+      for (let i = 0; i + 1 < runs.length; i++) {
+        const a = runs[i][1] + 1, b = runs[i + 1][0] - 1, c = (a + b) / 2;
+        if (b - a + 1 < 2) continue; // a one-pixel nick is not the space between two legs
+        if (Math.abs(c - ref) <= n * (started ? 0.06 : 0.16) && (!best || Math.abs(c - ref) < Math.abs(best.c - ref))) best = { a, b, c };
+      }
+      if (best) { rows.push({ y, ...best }); ref = best.c; started = true; misses = 0; }
+      else if (!started) { if (feetY - y > H * 0.06) break; }  // one foot can reach lower than the other: look a little higher for the gap
+      else if (++misses > 1) break;                            // the gap has closed: the crotch, or the hem
     }
-    if (best) { rows.push({ y, ...best }); ref = best.c; started = true; misses = 0; }
-    else if (!started) { if (feetY - y > H * 0.06) break; }  // one foot can reach lower than the other: look a little higher for the gap
-    else if (++misses > 1) break;                            // the gap has closed: the crotch, or the hem
+    return rows;
+  };
+  const stopY = feetY - Math.round(H * MAX_LEG);
+  let rows = [];
+  for (let from = feetY; from >= feetY - Math.round(H * 0.06) && rows.length < Math.max(3, n * MIN_LEG); ) {
+    rows = climb(from);
+    from = (rows.length ? rows[0].y : from) - 1;
   }
   if (rows.length < Math.max(3, n * MIN_LEG)) return hem;
   // one straight cut: the column most of the gap rows hold, then the legs end where the gap first leaves it
@@ -85,7 +109,10 @@ export function findLegs(alpha, n = GRID) {
   let topY = feetY + 1, held = 0;
   for (const r of rows) { if (cut < r.a - 0.5 || cut > r.b + 0.5) break; topY = r.y; held++; }
   if (held < Math.max(3, n * MIN_LEG)) return hem;
-  return { split: true, top: topY / n, feet: (feetY + 1) / n, gapU: (cut + 0.5) / n };
+  const top = topY / n, feet = (feetY + 1) / n, span = feet - top;
+  // the hip: above the gap by a share of the leg that shows, for real legs; shoes under a robe stay hinged at the hem
+  const legged = Math.min(1, Math.max(0, (span - WALK.hipFrom) / (WALK.hipFull - WALK.hipFrom)));
+  return { split: true, top, hinge: top - WALK.hipRise * span * legged, feet, gapU: (cut + 0.5) / n };
 }
 
 /** The legs of a texture (cached per texture; null until its image can be read, or when it cannot). */
@@ -117,7 +144,7 @@ export function legsOf(texture) {
 }
 
 /** What a figure with no readable legs does: the default hem. */
-export const DEFAULT_LEGS = { split: false, top: 1 - WALK.hemSpan, feet: 1, gapU: 0.5 };
+export const DEFAULT_LEGS = { split: false, top: 1 - WALK.hemSpan, hinge: 1 - WALK.hemSpan, feet: 1, gapU: 0.5 };
 
 /**
  * The walk at phase `phase` (in cycles; the whole number is the cycle count) and strength `amp`
@@ -130,9 +157,10 @@ export const DEFAULT_LEGS = { split: false, top: 1 - WALK.hemSpan, feet: 1, gapU
  */
 export function walkLegs(phase, amp, legs) {
   const th = 2 * Math.PI * phase;
-  const span = Math.max(0.001, legs.feet - legs.top);
+  const span = Math.max(0.001, legs.feet - legs.top); // the leg that shows
   const up = Math.min(WALK.lift, WALK.liftOfLeg * span) * amp;
-  const foot = (t) => ({ lift: Math.max(0, Math.sin(t)) * up, swing: -Math.cos(t) * WALK.stride * amp });
+  const reach = Math.min(WALK.stride, WALK.strideOfLeg * span) * amp;
+  const foot = (t) => ({ lift: Math.max(0, Math.sin(t)) * up, swing: -Math.cos(t) * reach });
   const a = foot(th), b = foot(th + Math.PI);
   return {
     bob: Math.abs(Math.sin(th)) * WALK.bob * amp,

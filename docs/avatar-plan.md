@@ -718,8 +718,20 @@ board). `walking.js`:
   tiles, an NPC while its step animates) and `walkCycleMs`; the walk fades in over 90 ms and
   settles over 140 ms, back to the exact drawing. Reduced motion: no walk.
 - Tunables are `WALK`: `cycleMs` 420 (the player, about five footfalls a second, since it
-  crosses a tile in 90 ms), `npcCycleMs` 760, `lift` 0.045 and `stride` 0.035 of the figure
-  square, `bob` 0.01, and the hem's span, sway and tip.
+  crosses a tile in 90 ms), `npcCycleMs` 760, `lift` 0.065 and `stride` 0.07 of the figure
+  square (raised twice on the owner's word), `bob` 0.01, and the hem's span, sway and tip.
+- **Hinged at the hip (owner, same day: the first walk "feels hinged at the lower part of the
+  leg" on trousers, though it "looks good for gowns").** The top of the gap between two legs is
+  the crotch, or a tunic's hem: hinged there, only shins and feet moved. A figure with real legs
+  (a gap of 0.12 of the square or more) now has its `hinge` above the gap by `hipRise` 0.3 of
+  the leg that shows (the trousered cast: hinge 0.63 to 0.72 where the gap tops out at 0.71 to
+  0.78). Between hinge and gap the drawing is one piece: its sides go with their own leg and
+  its middle with the mean, so the hips turn and tip and a tunic's skirt flexes without a tear;
+  the mesh has a row at the hinge and one where the legs part. Shoes under a robe (a gap under
+  0.06) keep their hinge at the hem and their stride is capped at 1.2 of the shoe's height, so
+  gowns walk as they did. Also fixed: a one-pixel nick between two toes was taken for the gap
+  and the climb died there, so the bare-legged base bodies read as hems; a nick is now skipped
+  and a climb that dies at once restarts higher.
 Checked offline, not in motion: the leg finder on a contact sheet of all 34 figures, and the
 sprite's real vertex code run against a stub and rasterised (standing, six frames of a cycle,
 settled) for a legged figure, shoes under a robe and a hem. Known limits: the cut is one

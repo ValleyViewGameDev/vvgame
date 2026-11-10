@@ -10,10 +10,11 @@ import { WALK, DEFAULT_LEGS, legsOf, walkLegs } from './walking';
  * the deformation lives entirely in calculateVertices: each row of the mesh goes where
  * breathDeform sends it (the body stretched up from the feet and widened at the chest; the head,
  * everything above `breathTop`, carried up rigid). One row sits exactly on breathTop, so the
- * head is a single undeformed band; another sits where the legs begin. Every row is two cells,
- * left and right of the column the legs part at (walking.js legsOf, read from the drawing's own
- * silhouette): above the legs the two cells share that edge, below it each leg has its own, so
- * a walking figure's feet lift and swing one at a time. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
+ * head is a single undeformed band; another sits at the hinge of the legs (the hip) and another
+ * where the two legs part. Every row is two cells, left and right of the column the legs part at
+ * (walking.js legsOf, read from the drawing's own silhouette): down to where they part the two
+ * cells share that edge, below it each leg has its own, so a walking figure's legs swing from the
+ * hip and its feet lift one at a time. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
  * because nothing but the vertices changes; with `breath` at 0 it is exactly a Sprite (same four
  * vertices). The legacy canvas renderer ignores vertexData, so there a figure simply stands still.
  *
@@ -27,8 +28,8 @@ import { WALK, DEFAULT_LEGS, legsOf, walkLegs } from './walking';
  *
  *   sprite.walking = true;                    // while it moves; `walkCycleMs` sets its cadence
  */
-const ROWS = 16;      // 1 head band + BODY_ROWS + LEG_ROWS
-const LEG_ROWS = 3;   // the rows from where the legs begin down to the feet (the walk is linear over them)
+const ROWS = 16;      // 1 head band + the body rows + LEG_ROWS
+const LEG_ROWS = 4;   // below the hinge: one band down to where the legs part, then three down to the feet
 const COLS = 4;       // per row: left edge, the parting column twice (one per half), right edge
 const GRID_INDICES = (() => {
   const idx = new Uint16Array(ROWS * 12);
@@ -136,8 +137,9 @@ export default class BreathSprite extends Sprite {
     const headBand = headV > vStart + 0.01 && headV < vEnd - 0.01; // the head is one band, the body the other rows
     // the legs (walking.js): where they begin, the column they part at, and where each half is in its walk
     const legs = legsOf(texture) || DEFAULT_LEGS;
-    const legTop = Math.min(vEnd - 0.02, Math.max(legs.top, (headBand ? headV : vStart) + 0.05));
-    const feetV = Math.max(legTop + 0.01, Math.min(legs.feet, vEnd));
+    const hinge = Math.min(vEnd - 0.03, Math.max(legs.hinge, (headBand ? headV : vStart) + 0.05)); // where the walk begins to move the drawing
+    const partV = Math.min(vEnd - 0.02, Math.max(legs.top, hinge));                                // where the two legs part (the hinge itself for shoes and hems)
+    const feetV = Math.max(partV + 0.01, Math.min(legs.feet, vEnd));
     const gapX = Math.min(right - 1, Math.max(left + 1, origLeft + legs.gapU * orig.width)); // local x of the parting column
     const tGap = (gapX - left) / (right - left);                                             // ... and along the drawn frame, for the texture
     const step = walk ? walkLegs(walk.phase, walk.amp, legs) : null;
@@ -148,11 +150,13 @@ export default class BreathSprite extends Sprite {
       // the rows: the top of the frame, the head's end, the body down to the legs, the legs down to the feet
       let v;
       if (headBand && r === 0) v = vStart;
-      else if (r - firstBody <= bodyRows) v = bodyFrom + (legTop - bodyFrom) * ((r - firstBody) / bodyRows);
-      else v = legTop + (vEnd - legTop) * ((r - firstBody - bodyRows) / LEG_ROWS);
+      else if (r - firstBody <= bodyRows) v = bodyFrom + (hinge - bodyFrom) * ((r - firstBody) / bodyRows);
+      else if (r - firstBody === bodyRows + 1) v = partV;
+      else v = partV + (vEnd - partV) * ((r - firstBody - bodyRows - 1) / (LEG_ROWS - 1));
       const t = (v - vStart) / (vEnd - vStart);                 // along the drawn frame, for the texture
       const [, vD] = breathDeform(0, v, L, headV);
-      const w = v <= legTop ? 0 : Math.min(1, (v - legTop) / (feetV - legTop)); // how far down the leg this row is
+      const w = v <= hinge ? 0 : Math.min(1, (v - hinge) / (feetV - hinge)); // how far from the hinge to the foot this row is
+      const parted = legs.split && v > partV + 1e-6;                         // below where the legs part, each half has its own inner edge
       const f = turning >= 0 ? turnAt(turning, this._turnFrom, v, headV) : 1;   // the turn: this row's width, about the centre line
       // texture: the row's two ends, and the parting column between them
       const ulx = uv.x0 + (uv.x3 - uv.x0) * t, uly = uv.y0 + (uv.y3 - uv.y0) * t, urx = uv.x1 + (uv.x2 - uv.x1) * t, ury = uv.y1 + (uv.y2 - uv.y1) * t;
@@ -164,10 +168,13 @@ export default class BreathSprite extends Sprite {
         if (step) {
           y -= step.bob * (1 - w) * orig.height; // the body bobs; a standing foot stays on the ground
           if (w > 0) {
-            // legs: each half moves on its own. A hem is one piece: its middle takes the mean of the two sides.
-            const lift = legs.split || !inner ? step.lift[half] : (step.lift[0] + step.lift[1]) / 2;
+            // each side goes with its own leg. Where the drawing is still one piece (a hem; the hips
+            // above where the legs part) its middle takes the mean of the two, so nothing tears.
+            const own = parted || !inner;
+            const lift = own ? step.lift[half] : (step.lift[0] + step.lift[1]) / 2;
+            const swing = own ? step.swing[half] : (step.swing[0] + step.swing[1]) / 2;
             y -= lift * w * orig.height;
-            x += (step.swing[half] + step.sway) * w * orig.width;
+            x += (swing + step.sway) * w * orig.width;
           }
         }
         x = centreX + x * f;
