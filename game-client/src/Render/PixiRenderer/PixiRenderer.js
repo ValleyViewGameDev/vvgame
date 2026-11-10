@@ -37,7 +37,8 @@ import StoryFX from './StoryFX';
 import ambientVFXManager from '../../VFX/AmbientVFXManager';
 import { actorZ } from './depthSort';
 import { hasHeadlineEffect, updateHeadlineEffectPosition, setHeadlineSpan } from '../../VFX/NPCVFX';
-import { facePlayerToward } from '../../PlayerMovement';
+import { facePlayerToward, getPlayerTile } from '../../PlayerMovement';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
 import { footprintOf, coversTile, isMultiTile } from '../../Utils/footprint';
@@ -297,6 +298,25 @@ const getNPCFilename = (npcType, masterResources) => {
  * the PixiJS setup is working. Full tile/resource/NPC rendering will
  * be added in subsequent phases.
  */
+/**
+ * The player and an NPC turn to face each other when an engagement begins: a tap on an NPC in
+ * reach, or the arrival of the walk a tap on a distant one started (owner 2026-11-10).
+ * The player turns toward the NPC's tile (PlayerMovement, measured from the live tile). The NPC
+ * turns toward the player's: its `facing` is set on the live NPC as a client-only mark
+ * (NPCsInGridManager.markLocal: never saved, and it re-renders, where the NPC pass mirrors the
+ * sprite relative to the row's `artFacing`), so it holds until the NPC next takes a horizontal
+ * step. Enemies and farm animals keep their own facing (the way they hunt or graze), and
+ * nothing turns when the two stand in one column.
+ */
+function turnToEachOther(npc, gridId) {
+  if (!npc?.position) return;
+  facePlayerToward(npc.position.x);
+  if (npc.action === 'attack' || npc.action === 'graze' || npc.action === 'spawn') return;
+  const me = getPlayerTile();
+  const d = me ? Math.sign(Math.round(me.x) - Math.floor(npc.position.x)) : 0;
+  if (d && npc.facing !== d && gridId) NPCsInGridManager.markLocal(gridId, npc.id, { facing: d });
+}
+
 const PixiRenderer = ({
   grid,
   tileTypes,
@@ -1606,7 +1626,7 @@ const PixiRenderer = ({
         const now = latestRef.current;
         const target = now?.npcs?.find((n) => n && n.id === npcId);
         if (!target) return;
-        if (target.position) facePlayerToward(target.position.x);
+        turnToEachOther(target, now.gridId); // on arrival: the engagement begins here, not at the tap
         const opened = handleNPCClickShared(target, {
           currentPlayer: now.currentPlayer, playersInGrid: now.playersInGrid, gridId: now.gridId,
           TILE_SIZE: now.TILE_SIZE, masterResources: now.masterResources, masterSkills: now.masterSkills,
@@ -1723,12 +1743,12 @@ const PixiRenderer = ({
     );
 
     if (npc) {
-      if (npc.position) facePlayerToward(npc.position.x); // the player turns to the NPC it taps (owner 2026-11-09)
       // A helper NPC beyond reach: walk up to it (stopping on a neighbouring tile, never on
       // the NPC) and open it on arrival, as if it had been tapped from there. Enemies
       // keep the plain click (walking into them is not a tap's intent).
       const isHostile = npc.action === 'attack';
-      if (!isHostile && !cursorMode && outOfRange(col, row)) { walkToNpc(npc.id, 1); return; }
+      if (!isHostile && !cursorMode && outOfRange(col, row)) { walkToNpc(npc.id, 1); return; } // the walk turns the figure; the two face each other on arrival
+      turnToEachOther(npc, gridId); // the player turns to the NPC it taps, and the NPC to the player (owner 2026-11-09, 2026-11-10)
 
       // Use the shared click handler that includes cooldown logic for attack NPCs
       handleNPCClickShared(npc, {

@@ -86,13 +86,32 @@ let pathGoalOpts = {};      // findPath options of the current walk, reused by a
 // position deltas flickered at the start of every step, when the logical tile jumps ahead of the
 // tween). Diagonal and vertical steps leave it alone.
 let playerFacing = 1;
+const facingListeners = new Set();
 export function getPlayerFacing() { return playerFacing; }
-export function setPlayerFacing(dir) { if (dir === 1 || dir === -1) playerFacing = dir; }
-/** Face a tile (an NPC you tap or talk to): left of the player = mirrored, right = as drawn, same column = unchanged. */
+export function setPlayerFacing(dir) {
+  if ((dir !== 1 && dir !== -1) || dir === playerFacing) return;
+  playerFacing = dir;
+  for (const fn of facingListeners) fn(dir);
+}
+/**
+ * Hear every change of facing. The board's player sprite needs it: a turn made while standing
+ * still (facing an NPC) moves nothing, so no render pass follows it on its own, and the figure
+ * used to stay as it was until something unrelated redrew it. Returns the unsubscribe.
+ */
+export function onPlayerFacingChange(fn) { facingListeners.add(fn); return () => facingListeners.delete(fn); }
+/** The tile the player stands on right now ({ x, y } from the live grid state), or null. */
+export function getPlayerTile() { return currentPosition(); }
+/**
+ * Face a tile (an NPC you tap or talk to): left of the player = mirrored, right = as drawn, same
+ * column = unchanged. Measured from where the player STANDS (the live grid state): the player
+ * record's `location.x` is only the last saved tile, and judging from it turned the figure the
+ * wrong way, or not at all, whenever the player had walked since (owner's report 2026-11-10).
+ */
 export function facePlayerToward(col) {
-  const ctx = movementContext; const x = ctx?.currentPlayer?.location?.x;
+  const here = currentPosition();
+  const x = here ? here.x : movementContext?.currentPlayer?.location?.x;
   if (x == null || col == null) return;
-  const d = Math.sign(Math.round(col) - Math.round(x));
+  const d = Math.sign(Math.floor(col) - Math.round(x));
   if (d) setPlayerFacing(d);
 }
 

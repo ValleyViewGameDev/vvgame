@@ -668,8 +668,22 @@ unlock (`avatarsUnlocked`, `/action/unlock-avatars`) mapping to a paid set, and 
 that still draw the icon (the speech bubble's player picture, the settlement map cell, other
 players' figures on the board).
 
-**Next (P5, the rest)**: the hand slot and armour, a wider catalogue, then retiring `icon`
-(v1 §6 migration).
+**Facing an NPC, both ways (owner 2026-11-10).** The player's figure turned to a tapped NPC
+only some of the time, for two reasons. `facePlayerToward` measured from the player record's
+`location.x`, which is the last SAVED tile, not where the player stands, so after any walk it
+could judge the wrong side or call it the same column; it now reads the live tile
+(`getPlayerTile`). And a turn made while standing still moves nothing, so no render pass
+followed it and the sprite stayed as it was until something unrelated redrew it; the PC
+renderer now hears `onPlayerFacingChange` and mirrors the sprite at once. The NPC turns too:
+`turnToEachOther` (PixiRenderer, at the tap on an NPC in reach and at the arrival of the walk a
+tap on a distant one starts) sets the NPC's `facing` toward the player as a client-only mark
+(`NPCsInGridManager.markLocal`), which the NPC pass mirrors relative to `artFacing`; it holds
+until the NPC next takes a horizontal step. Enemies and farm animals keep their own facing, and
+nothing turns when the two stand in one column.
+
+**The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
+content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
+wider catalogue.
 
 ## 8. Risks, and what would change the plan
 

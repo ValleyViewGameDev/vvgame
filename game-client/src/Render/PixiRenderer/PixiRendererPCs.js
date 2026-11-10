@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
-import { renderPositions, getPlayerFacing } from '../../PlayerMovement';
+import { renderPositions, getPlayerFacing, onPlayerFacingChange } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import PixiCamera from './PixiCamera';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
@@ -594,6 +594,13 @@ const PixiRendererPCs = ({
     ticker.add(onBreath);
     return () => { try { ticker.remove(onBreath); } catch (e) { /* the ticker may be destroyed */ } };
   }, [app, currentPC?.playerId]);
+
+  // A turn made while standing still (facing an NPC the player taps or walks up to) moves nothing,
+  // so no render pass follows it: the figure is mirrored here, the moment the facing changes.
+  useEffect(() => onPlayerFacingChange((dir) => {
+    const sprite = spriteRef.current;
+    if (sprite && !sprite.destroyed && sprite.visible && sprite.__breathes) sprite.scale.x = Math.abs(sprite.scale.x) * dir; // __breathes: a figure (busts and emoji never flip)
+  }), []);
 
   // Cleanup animation loop on unmount
   useEffect(() => {
