@@ -100,7 +100,10 @@ const QuestGiverButton = ({
   // Transaction mode props
   isTransactionMode = false,
   transactionKey,
-  onTransactionAction
+  onTransactionAction,
+  // `pending`: the card waits on the server (a quest just accepted, already done, before the server
+  // has it): shown working and not tappable for that moment (NPCsPanel.js)
+  pending = false,
 }) => {
   const strings = useStrings();
   const { symbol, giver, title, reward, rewardqty, goals = [] } = quest;
@@ -111,8 +114,9 @@ const QuestGiverButton = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [transactionId, setTransactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
+  const busy = isProcessing || pending;
   const handleClick = async (e) => {
-    if (isDisabled || isProcessing) return;
+    if (isDisabled || busy) return;
 
     if (isTransactionMode && onTransactionAction && transactionKey) {
       // Transaction mode - prevent multiple clicks
@@ -138,12 +142,12 @@ const QuestGiverButton = ({
 
   return (
     <div
-      className={`quest-item quest-card ${state}${isDisabled ? ' disabled' : ''}${isProcessing ? ' processing' : ''}`}
+      className={`quest-item quest-card ${state}${isDisabled ? ' disabled' : ''}${busy ? ' processing' : ''}`}
       data-quest-card={quest?.title}
       onClick={handleClick}
       style={{
-        opacity: (isDisabled || isProcessing) ? 0.6 : 1,
-        cursor: (isDisabled || isProcessing) ? 'not-allowed' : 'pointer',
+        opacity: (isDisabled || busy) ? 0.6 : 1,
+        cursor: (isDisabled || busy) ? 'not-allowed' : 'pointer',
         position: 'relative'
       }}
     >
@@ -170,11 +174,11 @@ const QuestGiverButton = ({
       {/* the XP it pays, offered or ready (owner 2026-11-07: XP shows on every quest card) */}
       {xpReward > 0 && <p className="quest-xp"><XpStar /> +{xpReward} XP</p>}
       <button
-        className={`quest-giver-button${isProcessing ? ' processing' : ''}`}
+        className={`quest-giver-button${busy ? ' processing' : ''}`}
         data-no-click-sfx={noClickSfx ? 'true' : undefined}
-        disabled={isDisabled || isProcessing}
+        disabled={isDisabled || busy}
       >
-        {isProcessing ? '⏳' : buttonText}
+        {busy ? '⏳' : buttonText}
       </button>
     </div>
   );

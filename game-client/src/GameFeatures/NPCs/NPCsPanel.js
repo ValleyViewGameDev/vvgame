@@ -1619,6 +1619,7 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
                     meetsLevelRequirement={questMeetsLevel}
                     noClickSfx={state === 'reward'}
                     masterResources={masterResources}
+                    pending={!!fx?.asReward && !isRewardable}
                   />
                 </div>
                 {fx?.type === 'pop' && <SaleBurst key={`burst-${fx.id}`} />}
