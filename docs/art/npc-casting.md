@@ -80,4 +80,12 @@ creature lane.
   last), the Apothecary (long deep-plum gown; the dark bluish purple survived the keyer), Hecate
   (a thin, pale, slightly scary witch in a tattered red hood), the Shepherd (brown hood), Cassio
   (handsome, princely, blonde), the Surgeon (barber-surgeon in a leather apron) and the Field
-  Nurse (a healer in a wimple cap). Nineteen of 35 named NPCs are on the board.
+  Nurse (a healer in a wimple cap). Nineteen of 35 named NPCs were on the board.
+- Batch 3 (`npcs-r4.json`, 2026-11-09, one each, all installed): Titania (fairy queen, long white
+  hair, antler crown, faint wings), the Vampire (elegant, not cartoony), Constable Elbow (blue
+  constable's coat), Snug (fur hat and coat), Iago (hooded rogue, half-mask), Caliban (an ogre,
+  green, blue-haired, tusks), Viola (an elegant mermaid resting on her tail, the fin curving up
+  behind her and spilling past the tile: `figurecut.js --fit height`; no rock, she moves) and Duke
+  Angelo (the villain: black spiked crown, black and dark red). Twenty-seven of 35 are on the
+  board; left: the four workers, the Lumberjack shared with Peter Quince, Fairy, Santa Claus, the
+  Porter and the Oracle (batch 4).

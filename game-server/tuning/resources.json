@@ -10230,7 +10230,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10251,7 +10251,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-titania.svg"
+    "filename": "npc-figure-titania.svg",
+    "iconFile": "npc-titania.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Vampire",
@@ -10263,7 +10265,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "passable": true,
@@ -10284,7 +10286,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-vampire.svg"
+    "filename": "npc-figure-vampire.svg",
+    "iconFile": "npc-vampire.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Santa Claus",
@@ -10361,7 +10365,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Buy",
@@ -10382,7 +10386,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-elbow.svg"
+    "filename": "npc-figure-elbow.svg",
+    "iconFile": "npc-elbow.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Peter Quince",
@@ -10487,7 +10493,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10508,7 +10514,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-snug.svg"
+    "filename": "npc-figure-snug.svg",
+    "iconFile": "npc-snug.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Falstaff",
@@ -10590,7 +10598,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10611,7 +10619,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-iago.svg"
+    "filename": "npc-figure-iago.svg",
+    "iconFile": "npc-iago.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Gertrude",
@@ -10693,7 +10703,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "trade",
     "source": "Buy",
@@ -10714,7 +10724,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-caliban.svg"
+    "filename": "npc-figure-caliban.svg",
+    "iconFile": "npc-caliban.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Hecate",
@@ -10828,7 +10840,7 @@
     "stateRoaming": 0,
     "stateEating": 0,
     "stateSocializing": 300,
-    "artFacing": "front",
+    "artFacing": "right",
     "movespeed": 0.8,
     "action": "quest",
     "source": "Buy",
@@ -10849,7 +10861,9 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "filename": "npc-mermaid.svg"
+    "filename": "npc-figure-viola.svg",
+    "iconFile": "npc-mermaid.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Oracle",
@@ -11408,7 +11422,7 @@
     "symbol": "🙎🏻‍♂️",
     "layoutkey": "nA",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1,
     "action": "attack",
     "output": "Portrait",
@@ -11436,7 +11450,9 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "filename": "npc-angelo.svg"
+    "filename": "npc-figure-angelo.svg",
+    "iconFile": "npc-angelo.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Dragon",

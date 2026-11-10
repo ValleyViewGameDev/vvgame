@@ -18,7 +18,7 @@ const { keyMagenta } = require('./lib/key');
 
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
-const job = opt('job', 'characters-r1'), candidate = opt('candidate'), out = opt('out'), like = opt('like'); // --like <sidecar.json>: cut with THAT figure's transform (a base body drawn 'at the same size and place' as its source, a part drawn worn on the base)
+const job = opt('job', 'characters-r1'), candidate = opt('candidate'), out = opt('out'), like = opt('like'), fitMode = opt('fit', 'auto'); // --fit height: always fit by height, the art may be wider than a tile (a mermaid's fins spill into the neighbours) // --like <sidecar.json>: cut with THAT figure's transform (a base body drawn 'at the same size and place' as its source, a part drawn worn on the base)
 if (!candidate || !out) { console.error('need --candidate and --out'); process.exit(1); }
 
 /** Keep the figure (the largest opaque component) and anything at least 2 % of its size. */
@@ -83,8 +83,9 @@ async function dropSpecks(buf) {
     console.log(`  cut like ${path.basename(like)}: panel box ${cropL},${cropT} ${cropW}x${cropH} at scale ${scale.toFixed(4)}; this art's own box differs by ${x0 - cropL},${y0 - cropT} / ${artW - cropW}x${artH - cropH} px`);
   } else {
     scale = FRAME_H / artH;
-    if (artW * scale > FRAME_W) { scale = FRAME_W / artW; console.log(`  wider than tall allows: fitted by width, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
+    if (fitMode !== 'height' && artW * scale > FRAME_W) { scale = FRAME_W / artW; console.log(`  wider than tall allows: fitted by width, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
     cropL = x0; cropT = y0; cropW = artW; cropH = artH;
+    if (artW * scale > 512) { scale = 512 / artW; console.log(`  wider than the square: fitted to 512, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
     left = Math.round((512 - Math.round(artW * scale)) / 2); top = 512 - Math.round(artH * scale);
   }
   // the crop may run past the panel when reused on a taller or wider drawing: pad the keyed image first
