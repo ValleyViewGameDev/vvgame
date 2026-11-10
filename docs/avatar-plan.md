@@ -774,13 +774,17 @@ before (real vertex code, rasterised, sideways and up-and-down, four figures).
 seconds taps one foot three times, now and then: "occasional and not stressful, just to show a
 little more life". `walking.js` `TAP` and `tapAt`: each figure has its own interval (10 to 24
 seconds, from its seed; first 15 to 35, then "a little more frequent"), the run lands at a
-different moment inside every interval and on the other foot each time, so a crowd never taps
-in step. **The foot turns at the ankle** (owner: the first tap only squashed the foot, and at
-0.022 was too faint): from the ankle down (the bottom 0.09 of the square) it pivots on its
-heel, the back-bottom end of the foot (each foot's left end on the ground, since the figures
-face the drawing's right; `footEndsOf` reads the ends from the silhouette), by the angle that
-brings the toe up 0.04 of the square; all of the turn is at the ground and none at the ankle,
-so the leg above stays still. Under a robe the shoe taps by less than half its own height. Only a figure with two feet to tell apart taps (the same reading
+different moment inside every interval, so a crowd never taps in step. **Which foot, and how
+(the owner's third pass; a squash, then a shear about the heel, did not read):** always the
+foot on the side the figure faces, the drawing's RIGHT foot (mirrored, the left one on screen),
+because that one is drawn nearly in profile and the other points at the viewer. The WHOLE foot
+moves as one rigid piece hinged at the ANKLE: everything of that foot under the ankle row (the
+bottom 0.09 of the square) turns about the back of the ankle (`legs.ankleBackU`, the right edge
+of the gap between the legs on that row) by the angle that brings the toe (`footEndsOf`) up
+0.04 of the square. In the mesh the foot has its own copy of the ankle row, the band between
+the two is not drawn for that half, and the standing leg is drawn a little further down under
+the foot's top (`LAP`), so the foot laps over the shin and no line shows at the ankle. Under a
+robe the shoe taps by less than half its own height. Only a figure with two feet to tell apart taps (the same reading
 as the walk's legs), so a hem or a tail never does. `BreathSprite` keeps the clock itself: it
 knows it is a figure because a renderer tells it every tick whether it walks, and the wait
 starts over whenever it walks, turns or is not being drawn; no renderer changed. Reduced motion:

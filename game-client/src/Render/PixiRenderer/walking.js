@@ -69,10 +69,13 @@ export const WALK = {
  * foot a few times, now and then, "occasional and not stressful, just to show a little more
  * life". Only a figure with two feet to tell apart taps (legs, or shoes under a robe); a hem or a
  * tail does not. Each figure has its own interval (from its seed) and, inside every interval, the
- * taps land at a different moment and on the other foot, so a crowd never taps in step.
- * The foot TURNS AT THE ANKLE (owner: "rotate at the ankle, rather than just squishing the foot"):
- * it pivots on its heel, the back-bottom end of the foot (the figures face the drawing's right,
- * so the heel is each foot's left end on the ground), and the toe comes up by `lift`.
+ * taps land at a different moment, so a crowd never taps in step.
+ * WHICH FOOT, AND HOW (owner, third pass): always the foot on the side the figure faces, the
+ * drawing's RIGHT foot (the figures are drawn facing right; mirrored, it is the left one on
+ * screen). That foot is drawn nearly in profile; the other points at the viewer, and a tap cannot
+ * be read on it. The WHOLE foot moves as one rigid piece, hinged at the ANKLE: it turns about the
+ * back of the ankle (where the back of that leg meets the top of the foot) and the toe comes up
+ * by `lift`. Earlier passes squashed the foot, then sheared it about the heel; neither read.
  */
 export const TAP = {
   afterMs: 4000,            // not before it has stood this long
@@ -83,8 +86,8 @@ export const TAP = {
   foot: 0.09,               // ... the foot being this much of the square above the ground: it turns from the ankle down, the leg above stays still
 };
 /**
- * The tap at time `nowMs` for a figure standing since `stoodAtMs`: null, or { foot (0 the half on
- * the drawing's left, 1 the right), lift (a fraction of the square's height) }.
+ * The tap at time `nowMs` for a figure standing since `stoodAtMs`: null, or { lift } (how far the
+ * toe is up, a fraction of the square's height).
  */
 export function tapAt(nowMs, stoodAtMs, seed = 0) {
   const every = TAP.everyMs[0] + ((seed % 1000) / 1000) * (TAP.everyMs[1] - TAP.everyMs[0]);
@@ -96,8 +99,8 @@ export function tapAt(nowMs, stoodAtMs, seed = 0) {
   if (k < 0 || k >= run) return null;
   if (nowMs - k < stoodAtMs + TAP.afterMs) return null;    // the whole run must begin after it has stood long enough
   const p = (k % TAP.tapMs) / TAP.tapMs;
-  if (p >= 0.6) return { foot: (cycle + seed) & 1, lift: 0 }; // the beat between taps: the foot is down, the run is still on
-  return { foot: (cycle + seed) & 1, lift: Math.sin((Math.PI * p) / 0.6) * TAP.lift };
+  if (p >= 0.6) return { lift: 0 }; // the beat between taps: the foot is down, the run is still on
+  return { lift: Math.sin((Math.PI * p) / 0.6) * TAP.lift };
 }
 
 const GRID = 192;        // the silhouette is read on a grid this size (the figure's whole square)
@@ -165,9 +168,12 @@ export function findLegs(alpha, n = GRID) {
   for (const r of rows) { if (cut < r.a - 0.5 || cut > r.b + 0.5) break; topY = r.y; held++; }
   if (held < Math.max(3, n * MIN_LEG)) return hem;
   const top = topY / n, feet = (feetY + 1) / n, span = feet - top;
+  // the back of the RIGHT leg at its ankle: the right edge of the gap on the row a foot's height above the ground
+  const ankleY = Math.max(topY, feetY - Math.round(TAP.foot * n));
+  const atAnkle = rows.find((r) => r.y <= ankleY) || rows[rows.length - 1];
   // the hip: above the gap by a share of the leg that shows, for real legs; shoes under a robe stay hinged at the hem
   const legged = Math.min(1, Math.max(0, (span - WALK.hipFrom) / (WALK.hipFull - WALK.hipFrom)));
-  return { split: true, top, hinge: top - WALK.hipRise * span * legged, feet, gapU: (cut + 0.5) / n };
+  return { split: true, top, hinge: top - WALK.hipRise * span * legged, feet, gapU: (cut + 0.5) / n, ankleBackU: (atAnkle.b + 1.5) / n };
 }
 
 /**

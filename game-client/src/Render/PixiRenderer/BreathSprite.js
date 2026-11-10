@@ -46,15 +46,25 @@ const MAX_ROWS = 48;
 const ROW_STEP = 0.045;  // no two rows further apart than this (of the square): the breath's chest bump is a curve
 const ARM_TAIL = 0.03;   // under a hand's end the strip eases back into the body over this much of the square
 const QUAD_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3]);
-const indexCache = new Map(); // bands -> indices
-function indicesFor(bands) {
-  let idx = indexCache.get(bands);
+const HAIR = 0.0005;     // the tapping foot's own top row sits this far under the ankle row: the same line, drawn twice
+const LAP = 0.008;       // ... and the standing leg is drawn this much further down, under the foot's top, so no crack shows between them
+const indexCache = new Map(); // "bands|cut" -> indices
+/**
+ * The triangles of a mesh of `bands` row bands. `cut` is the band between the ankle row and the
+ * tapping foot's own copy of it (-1: none): the right half is not drawn there. The foot turns as a
+ * rigid piece below that band and the leg stands still above it, so drawn it would be one line of
+ * the picture smeared across the angle between them; left out, the foot simply laps over the shin.
+ */
+function indicesFor(bands, cut = -1) {
+  const key = `${bands}|${cut}`;
+  let idx = indexCache.get(key);
   if (idx) return idx;
-  idx = new Uint16Array(bands * 24); let o = 0;
-  const quad = (r, p, q) => { const a = r * COLS, n = a + COLS; idx.set([a + p, a + q, n + p, a + q, n + q, n + p], o); o += 6; };
-  for (let r = 0; r < bands; r++) { quad(r, 2, 3); quad(r, 4, 5); }   // the body first
-  for (let r = 0; r < bands; r++) { quad(r, 0, 1); quad(r, 6, 7); }   // the arm strips over it
-  indexCache.set(bands, idx);
+  const list = [];
+  const quad = (r, p, q) => { const a = r * COLS, n = a + COLS; list.push(a + p, a + q, n + p, a + q, n + q, n + p); };
+  for (let r = 0; r < bands; r++) { quad(r, 2, 3); if (r !== cut) quad(r, 4, 5); }   // the body first, top to bottom (a turned foot laps over the shin above it)
+  for (let r = 0; r < bands; r++) { quad(r, 0, 1); if (r !== cut) quad(r, 6, 7); }   // the arm strips over it
+  idx = new Uint16Array(list);
+  indexCache.set(key, idx);
   return idx;
 }
 
@@ -186,17 +196,17 @@ export default class BreathSprite extends Sprite {
     const lines = [vStart, hinge, partV, vEnd];
     if (headBand) lines.push(headV);
     for (const arm of arms) if (arm && arm.bottom > vStart && arm.bottom + ARM_TAIL < vEnd) lines.push(arm.bottom, arm.bottom + ARM_TAIL);
-    const ankle = Math.max(partV, feetV - TAP.foot);                                 // a tapping foot moves from here down
-    const tapLift = tap ? Math.min(tap.lift, 0.45 * (feetV - partV)) : 0;            // never more than under half of what shows of the leg (shoes under a robe)
-    if (tap && ankle > partV + 0.005) lines.push(ankle);
-    // the tapping foot turns on its HEEL: the back-bottom end of the foot (the drawing faces its right, so
-    // each foot's left end on the ground), by the angle that brings the toe, the other end, up by tapLift
-    let heelX = 0, heelY = 0, tapSin = 0, tapCos = 1;
+    // the idle tap: the drawing's RIGHT foot, whole, hinged at the ankle. It has its own copy of the
+    // ankle row (a hair under it), so it turns as one rigid piece while the leg above stands still.
+    const ankle = Math.max(partV, feetV - TAP.foot);
+    const tapLift = tap ? Math.min(tap.lift, 0.45 * (feetV - partV)) : 0; // never more than under half of what shows of the leg (shoes under a robe)
+    if (tap) lines.push(ankle, ankle + HAIR);
+    let hingeX = 0, hingeY = 0, tapSin = 0, tapCos = 1;
     if (tapLift) {
-      const [endL, endR] = footEndsOf(shape);
-      const heel = tap.foot ? gapX : origLeft + endL * orig.width, toe = tap.foot ? origLeft + endR * orig.width : gapX;
-      const angle = Math.atan2(tapLift * orig.height, Math.max(orig.width * 0.05, toe - heel));
-      heelX = heel - centreX; heelY = origTop + feetV * orig.height; tapSin = Math.sin(angle); tapCos = Math.cos(angle);
+      // the hinge: the back of the ankle (where the back of that leg meets the top of the foot); the toe is the foot's far end on the ground
+      const back = origLeft + (legs.ankleBackU ?? legs.gapU) * orig.width, toe = origLeft + footEndsOf(shape)[1] * orig.width;
+      const angle = Math.atan2(tapLift * orig.height, Math.max(orig.width * 0.05, toe - back));
+      hingeX = back - centreX; hingeY = origTop + breathDeform(0, ankle, L, headV)[1] * orig.height; tapSin = Math.sin(angle); tapCos = Math.cos(angle);
     }
     lines.sort((p, q) => p - q);
     for (let i = 0; i < lines.length; i++) {
@@ -207,7 +217,10 @@ export default class BreathSprite extends Sprite {
     }
     const bands = n - 1;
     if (this._meshBands !== bands) { this._meshBands = bands; this._meshVerts = new Float32Array(n * COLS * 2); this._meshUvs = new Float32Array(n * COLS * 2); }
-    this.vertexData = this._meshVerts; this.uvs = this._meshUvs; this.indices = indicesFor(bands);
+    // the band between the ankle row and the foot's own copy of it
+    let cutBand = -1;
+    if (tap) for (let r = 0; r < bands; r++) if (Math.abs(R[r] - ankle) < 1e-5 && R[r + 1] - R[r] < HAIR * 2) { cutBand = r; break; }
+    this.vertexData = this._meshVerts; this.uvs = this._meshUvs; this.indices = indicesFor(bands, cutBand);
 
     const uv = texture._uvs; // x0,y0 TL  x1,y1 TR  x2,y2 BR  x3,y3 BL (a rotated frame included)
     const V = this._meshVerts, U = this._meshUvs;
@@ -233,6 +246,9 @@ export default class BreathSprite extends Sprite {
         const x0 = k === 0 ? left : k < 3 ? cutL : k < 5 ? gapX : k < 7 ? cutR : right; // where the drawing has it
         let [x] = breathDeform(x0 - centreX, v, L, headV);
         let y = origTop + vD * orig.height;
+        // the standing leg's last row over a tapping foot reaches a little under the ankle (LAP): the foot's top laps over it
+        const lapT = r === cutBand && half === 1 ? (Math.min(vEnd, v + LAP) - vStart) / (vEnd - vStart) : -1;
+        if (lapT >= 0) y = origTop + breathDeform(0, Math.min(vEnd, v + LAP), L, headV)[1] * orig.height;
         if (step) {
           y -= step.bob * (1 - w) * orig.height; // the body bobs; a standing foot stays on the ground
           // as BODY: each side goes with its own leg. Where the drawing is still one piece (a hem; the
@@ -256,17 +272,19 @@ export default class BreathSprite extends Sprite {
           }
           x += bx; y -= by;
         }
-        // the idle tap: the tapping foot turns about its heel from the ankle down (all of the turn at the
-        // ground, none at the ankle), the leg above it still
-        if (tapLift && parted && half === tap.foot && v > ankle) {
-          const wt = Math.min(1, (v - ankle) / (feetV - ankle)), dx = x - heelX, dy = y - heelY;
-          x += (heelX + dx * tapCos + dy * tapSin - x) * wt;
-          y += (heelY - dx * tapSin + dy * tapCos - y) * wt;
+        // the idle tap: everything of the right foot under the ankle row turns about the hinge as one piece (toe up)
+        if (tapLift && half === 1 && v > ankle + HAIR / 2) {
+          const dx = x - hingeX, dy = y - hingeY;
+          x = hingeX + dx * tapCos + dy * tapSin;
+          y = hingeY - dx * tapSin + dy * tapCos;
         }
         x = centreX + x * f;
         const o = (r * COLS + k) * 2, tu = (x0 - left) / (right - left);
         V[o] = a * x + c * y + tx; V[o + 1] = d * y + b * x + ty;
-        U[o] = ulx + (urx - ulx) * tu; U[o + 1] = uly + (ury - uly) * tu;
+        if (lapT >= 0) { // this vertex sits LAP lower: its place in the picture is lower too
+          const lx = uv.x0 + (uv.x3 - uv.x0) * lapT, ly = uv.y0 + (uv.y3 - uv.y0) * lapT, rx = uv.x1 + (uv.x2 - uv.x1) * lapT, ry = uv.y1 + (uv.y2 - uv.y1) * lapT;
+          U[o] = lx + (rx - lx) * tu; U[o + 1] = ly + (ry - ly) * tu;
+        } else { U[o] = ulx + (urx - ulx) * tu; U[o + 1] = uly + (ury - uly) * tu; }
       }
     }
   }
