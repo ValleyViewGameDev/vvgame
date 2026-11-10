@@ -498,6 +498,7 @@ const PixiRenderer = ({
     const moving = !!animation && animation.duration !== 0;
     displayObj.breath = moving ? 0 : breathLevel(now, seed); // a walking figure has its bob instead
     displayObj.walkCycleMs = WALK.npcCycleMs;                // an NPC strolls (walking.js)
+    if (moving) displayObj.walkSideways = Math.abs((animation.targetPos?.x ?? 0) - (animation.startPos?.x ?? 0)) > 0.01; // left or right: stride and arm swing; up or down: the feet only step
     displayObj.walking = moving;                             // ... and its legs step while it does
   }, []);
   // Render version tracking for NPC async renders

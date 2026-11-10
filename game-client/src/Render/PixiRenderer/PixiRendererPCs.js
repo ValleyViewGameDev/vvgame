@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
-import { renderPositions, getPlayerFacing, onPlayerFacingChange } from '../../PlayerMovement';
+import { renderPositions, getPlayerFacing, onPlayerFacingChange, isPlayerWalkingSideways } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import PixiCamera from './PixiCamera';
 import playerIconsData from '../../Authentication/PlayerIcons.json';
@@ -586,6 +586,7 @@ const PixiRendererPCs = ({
       const moving = !!(id && renderPositions[id]);
       const now = performance.now();
       sprite.breath = moving ? 0 : breathLevel(now, breathSeed(id));
+      sprite.walkSideways = isPlayerWalkingSideways(); // left or right: stride and arm swing; up or down: the feet only step
       sprite.walking = moving; // the legs step while it moves (walking.js; BreathSprite plays them)
       if (sprite.__blinkTex && sprite.__openTex) {
         const want = isBlinking(now, breathSeed(`${id}:blink`)) ? sprite.__blinkTex : sprite.__openTex;

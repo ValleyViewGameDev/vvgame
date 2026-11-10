@@ -24,8 +24,21 @@
  *               a hem sways side to side and tips up on the side that steps. The body above bobs
  *               a little, once per footfall.
  *
- * BreathSprite bends its vertices by these numbers; the renderers only say `sprite.walking`.
- * Everything here but `legsOf` is pure (no Pixi, no DOM).
+ *   findArms    reads the ARMS the same way, from the silhouette's flanks. The cast's arms are
+ *               drawn against the body (a gap between arm and body is rare), so an arm is not
+ *               found by a gap: it is the strip along the flank, from the shoulder down to where
+ *               the flank STEPS BACK toward the body, which is a hand hanging clear of what is
+ *               under it. A flank with no such step (a gown's sleeve lying on its skirt, a cloak,
+ *               a held staff that reaches the ground) has no arm to swing, and stays as drawn.
+ *               An arm swings from the shoulder, against its own side's leg; its strip slides
+ *               over the body when it swings in, and the body's edge follows it out.
+ *
+ * Which way the figure is going matters (owner 2026-11-10): going LEFT or RIGHT the legs stride
+ * and the arms swing; going UP or DOWN the board the feet only step up and down, and the arms
+ * hang. `side` (0..1) is how sideways the walk is.
+ *
+ * BreathSprite bends its vertices by these numbers; the renderers only say `sprite.walking` and
+ * `sprite.walkSideways`. Everything here but `shapeOf` is pure (no Pixi, no DOM).
  */
 export const WALK = {
   cycleMs: 420,     // one full cycle, both feet (the player moves fast: about five footfalls a second)
@@ -41,6 +54,12 @@ export const WALK = {
   hemSpan: 0.13,    // a figure with no legs: this much of the square above its lowest point sways
   hemSway: 0.018,   // ... this far side to side, as a fraction of the square's width
   hemTip: 0.5,      // ... and tips up on the stepping side by this share of `lift`
+  armSwing: 0.03,   // a hand swings this fraction of the square's width forward and back of where it is drawn
+  armWidth: 0.075,  // an arm is the strip this wide (of the square) along the silhouette's flank
+  armFrom: 0.42,    // a hand ends between these shares of the way from the shoulder to the feet;
+  armTo: 0.66,      // ... a step in the flank outside them is a hem, a prop or hair, not a hand
+  armStep: 0.025,   // the flank must step back toward the body by this much of the square (within three rows) to be a hand's end
+  sideMs: 120,      // a walk that turns from sideways to up or down (or back) changes over this long
   attackMs: 90,     // the legs reach full swing this long after the walk starts
   releaseMs: 140,   // and settle to the drawing this long after it stops
 };
@@ -115,16 +134,69 @@ export function findLegs(alpha, n = GRID) {
   return { split: true, top, hinge: top - WALK.hipRise * span * legged, feet, gapU: (cut + 0.5) / n };
 }
 
-/** The legs of a texture (cached per texture; null until its image can be read, or when it cannot). */
+/**
+ * The flanks of a silhouette: per row of the n x n grid, the leftmost and the rightmost column
+ * of the figure (-1 for an empty row), smoothed over five rows so a stray pixel is not an edge.
+ */
+export function findFlanks(alpha, n = GRID) {
+  const rawL = new Int16Array(n).fill(-1), rawR = new Int16Array(n).fill(-1);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (alpha[y * n + x] >= OPAQUE) { if (rawL[y] < 0) rawL[y] = x; rawR[y] = x; }
+  const med = (raw) => {
+    const out = new Int16Array(n).fill(-1);
+    for (let y = 0; y < n; y++) {
+      if (raw[y] < 0) continue; const w = [];
+      for (let k = -2; k <= 2; k++) if (y + k >= 0 && y + k < n && raw[y + k] >= 0) w.push(raw[y + k]);
+      w.sort((p, q) => p - q); out[y] = w[w.length >> 1];
+    }
+    return out;
+  };
+  return { n, left: med(rawL), right: med(rawR) };
+}
+
+/**
+ * The arms of a silhouette, from its flanks and where its shoulders are (`shoulderV`, the
+ * figure's breathTop: where the head and neck end). Returns [left, right], each null or
+ * { top, bottom, y0, cut }: the arm runs from `top` (the shoulder) to `bottom` (the hand's end),
+ * and `cut[i]` is the column (a fraction of the square) where the arm's strip ends and the body
+ * begins on grid row y0 + i, so the cut follows the arm's slant.
+ */
+export function findArms(flanks, shoulderV, feetV = 1) {
+  const { n } = flanks; const shY = Math.round(shoulderV * n), span = Math.round(feetV * n) - shY;
+  const from = shY + Math.round(span * WALK.armFrom), to = Math.min(n - 4, shY + Math.round(span * WALK.armTo));
+  return [0, 1].map((side) => {
+    const edge = side ? flanks.right : flanks.left; const out = (y) => (edge[y] < 0 ? null : side ? edge[y] : -edge[y]); // outward is positive
+    let best = null;
+    for (let y = from; y <= to; y++) {
+      const here = out(y), below = out(y + 3); if (here == null || below == null) continue;
+      const step = here - below; // how far the flank steps back toward the body within three rows
+      if (step >= n * WALK.armStep && (!best || step > best.step)) best = { y, step };
+    }
+    if (!best || best.y - shY < 4) return null;
+    const cut = new Float32Array(best.y - shY + 1); let last = -1;
+    for (let i = 0; i < cut.length; i++) {
+      const e = edge[shY + i]; if (e >= 0) last = (e + 0.5 + (side ? -1 : 1) * WALK.armWidth * n) / n;
+      cut[i] = last;
+    }
+    for (let i = cut.length - 1, next = last; i >= 0; i--) { if (cut[i] < 0) cut[i] = next; else next = cut[i]; } // a row above the first edge takes the one under it
+    return { top: shoulderV, bottom: (best.y + 1) / n, y0: shY, cut };
+  });
+}
+/** Where an arm's strip ends on the row at height v (a fraction of the square). */
+export const armCutAt = (arm, v, n = GRID) => arm.cut[Math.min(arm.cut.length - 1, Math.max(0, Math.round(v * n) - arm.y0))];
+
+/**
+ * The shape of a texture: { legs, flanks } read from its picture, cached per texture; null until
+ * its image can be read, or when it cannot. `armsOf` adds the arms for a shoulder line.
+ */
 const cache = new WeakMap();
 let scratch = null;
-export function legsOf(texture) {
+export function shapeOf(texture) {
   if (!texture) return null;
   if (cache.has(texture)) return cache.get(texture);
   const base = texture.baseTexture; const src = base?.resource?.source;
   const fr = texture.frame, orig = texture.orig, trim = texture.trim;
   if (!base?.valid || !src || !fr || !orig || orig.width < 8 || orig.height < 8) return null; // not loaded yet (or the empty texture): ask again later
-  let legs = null;
+  let shape = null;
   try {
     if (!texture.rotate && typeof document !== 'undefined') {
       if (!scratch) { scratch = document.createElement('canvas'); scratch.width = GRID; scratch.height = GRID; }
@@ -136,30 +208,40 @@ export function legsOf(texture) {
         (trim ? trim.x : 0) * kx, (trim ? trim.y : 0) * ky, (trim ? trim.width : orig.width) * kx, (trim ? trim.height : orig.height) * ky);
       const rgba = ctx.getImageData(0, 0, GRID, GRID).data; const alpha = new Uint8Array(GRID * GRID);
       for (let i = 0; i < alpha.length; i++) alpha[i] = rgba[i * 4 + 3];
-      legs = findLegs(alpha, GRID);
+      const legs = findLegs(alpha, GRID);
+      if (legs) shape = { legs, flanks: findFlanks(alpha, GRID), arms: null, armsAt: -1 };
     }
-  } catch (e) { legs = null; } // an image the canvas may not read: the figure sways as a hem
-  cache.set(texture, legs);
-  return legs;
+  } catch (e) { shape = null; } // an image the canvas may not read: the figure sways as a hem
+  cache.set(texture, shape);
+  return shape;
 }
+/** The arms of a shape for a shoulder line (kept on the shape: a texture has one shoulder line). */
+export function armsOf(shape, shoulderV) {
+  if (!shape) return NO_ARMS;
+  if (Math.abs(shape.armsAt - shoulderV) > 0.005) { shape.arms = findArms(shape.flanks, shoulderV, shape.legs.feet); shape.armsAt = shoulderV; }
+  return shape.arms;
+}
+export const NO_ARMS = [null, null];
 
 /** What a figure with no readable legs does: the default hem. */
 export const DEFAULT_LEGS = { split: false, top: 1 - WALK.hemSpan, hinge: 1 - WALK.hemSpan, feet: 1, gapU: 0.5 };
 
 /**
- * The walk at phase `phase` (in cycles; the whole number is the cycle count) and strength `amp`
- * (0..1, the walk fading in and out). Returns, as fractions of the figure square:
+ * The walk at phase `phase` (in cycles; the whole number is the cycle count), strength `amp`
+ * (0..1, the walk fading in and out) and `side` (0..1: 1 going left or right, 0 going up or down
+ * the board, where the feet only step and the arms hang). Returns, as fractions of the square:
  *   bob       how far the body is up
  *   lift[i]   how far foot i is up (0: the half on the drawing's left, 1: the right)
  *   swing[i]  how far foot i is forward (+) or back (-) of where it is drawn; forward is the way
  *             the drawing faces (its right), which the facing flip mirrors with everything else
  *   sway      (a hem) how far the bottom is to the side
+ *   arm[i]    how far hand i is forward (+) or back (-): against its own side's foot
  */
-export function walkLegs(phase, amp, legs) {
+export function walkLegs(phase, amp, legs, side = 1) {
   const th = 2 * Math.PI * phase;
   const span = Math.max(0.001, legs.feet - legs.top); // the leg that shows
   const up = Math.min(WALK.lift, WALK.liftOfLeg * span) * amp;
-  const reach = Math.min(WALK.stride, WALK.strideOfLeg * span) * amp;
+  const reach = Math.min(WALK.stride, WALK.strideOfLeg * span) * amp * side;
   const foot = (t) => ({ lift: Math.max(0, Math.sin(t)) * up, swing: -Math.cos(t) * reach });
   const a = foot(th), b = foot(th + Math.PI);
   return {
@@ -167,5 +249,6 @@ export function walkLegs(phase, amp, legs) {
     lift: legs.split ? [a.lift, b.lift] : [a.lift * WALK.hemTip, b.lift * WALK.hemTip],
     swing: legs.split ? [a.swing, b.swing] : [0, 0],
     sway: legs.split ? 0 : Math.sin(th) * WALK.hemSway * amp,
+    arm: [Math.cos(th) * WALK.armSwing * amp * side, -Math.cos(th) * WALK.armSwing * amp * side],
   };
 }

@@ -99,6 +99,11 @@ export function setPlayerFacing(dir) {
  * used to stay as it was until something unrelated redrew it. Returns the unsubscribe.
  */
 export function onPlayerFacingChange(fn) { facingListeners.add(fn); return () => facingListeners.delete(fn); }
+// Whether the player's last step went left or right (a diagonal counts) rather than straight up
+// or down the board: a figure strides and swings its arms going sideways, and only steps its feet
+// going up or down (Render/PixiRenderer/walking.js).
+let playerSideways = true;
+export function isPlayerWalkingSideways() { return playerSideways; }
 /** The tile the player stands on right now ({ x, y } from the live grid state), or null. */
 export function getPlayerTile() { return currentPosition(); }
 /**
@@ -423,6 +428,7 @@ async function processMovement({ currentPlayer, TILE_SIZE, masterResources,
   totalDx = Math.max(-1, Math.min(1, totalDx));
   totalDy = Math.max(-1, Math.min(1, totalDy));
   if (totalDx) setPlayerFacing(totalDx); // the figure turns the way it walks (a blocked step turns it too)
+  playerSideways = totalDx !== 0;
 
   if (currentPlayer.iscamping) {
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);

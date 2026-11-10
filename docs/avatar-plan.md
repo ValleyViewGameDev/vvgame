@@ -739,6 +739,33 @@ straight column, so legs that cross it would be sliced (none of the cast's do); 
 rather than grip the ground, as any short-legged walk at this speed does; the stride is
 sideways even when the figure walks up or down the board; arms do not swing.
 
+**Which way it walks, and arm swing (owner 2026-11-10, animation 3).** The walk now knows its
+direction (`sprite.walkSideways`: the player's last step, `isPlayerWalkingSideways`; an NPC's
+step animation's start and target), eased over 120 ms when it changes:
+- **Going up or down the board the feet only step**: each foot lifts in turn, with no stride
+  and no arm swing. Going left or right it strides as before, and the arms swing.
+- **Arms are read from the silhouette too, but not as the legs are.** The cast's arms are
+  drawn against the body: a gap between arm and body is rare (a gap finder found six partial
+  arms in forty figures). So an arm is the STRIP along the silhouette's flank (`armWidth`
+  0.075 of the square, following the flank row by row, so it follows a slanted arm) from the
+  shoulder (`breathTop`) down to where the flank STEPS BACK toward the body, a hand hanging
+  clear of what is under it (`findArms`; the step must lie 0.42 to 0.66 of the way from the
+  shoulder to the feet, or it is a hem, a prop or hair). Of the 34 NPC figures and the six
+  avatar outfits: 24 have both arms, 8 one (the other holds something or lies on a skirt) and
+  8 none (cloaks, gowns whose sleeves lie on the skirt), and those stay as drawn.
+- **An arm swings from the shoulder against its own side's leg** (`armSwing` 0.03 of the
+  square at the hand). The strip is its own cell of the mesh, drawn over the body: swinging in
+  it passes in front of the body, swinging out the body's edge follows it so the cut never
+  opens. The strip rides with the hip it hangs against, and under the hand's end it eases back
+  into the body over `ARM_TAIL`. Three earlier forms were rejected on the offline frames: a
+  hard end at the hand (a seam across the hip), not drawing that band (a hairline through the
+  body), and letting the arm leave the body (a crack of background along the cut).
+- The mesh is now four cells across per row (arm strip, body left and right of the legs' gap,
+  arm strip) with rows on every line that matters and no two rows further apart than 0.045.
+In a view this close to the front, both hands move toward the body's middle and away together:
+that is what arms swinging in opposition look like from here, not a bug. Checked offline as
+before (real vertex code, rasterised, sideways and up-and-down, four figures).
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.
