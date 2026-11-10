@@ -54,7 +54,7 @@ export const WALK = {
   hemSpan: 0.13,    // a figure with no legs: this much of the square above its lowest point sways
   hemSway: 0.018,   // ... this far side to side, as a fraction of the square's width
   hemTip: 0.5,      // ... and tips up on the stepping side by this share of `lift`
-  armSwing: 0.03,   // a hand swings this fraction of the square's width forward and back of where it is drawn
+  armSwing: 0.015,  // a hand swings this fraction of the square's width forward and back of where it is drawn (0.03 dragged the hip or skirt under the hand with it: muted, owner)
   armWidth: 0.075,  // an arm is the strip this wide (of the square) along the silhouette's flank
   armFrom: 0.42,    // a hand ends between these shares of the way from the shoulder to the feet;
   armTo: 0.66,      // ... a step in the flank outside them is a hem, a prop or hair, not a hand

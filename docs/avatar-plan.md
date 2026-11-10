@@ -762,6 +762,10 @@ step animation's start and target), eased over 120 ms when it changes:
   body), and letting the arm leave the body (a crack of background along the cut).
 - The mesh is now four cells across per row (arm strip, body left and right of the legs' gap,
   arm strip) with rows on every line that matters and no two rows further apart than 0.045.
+**Muted (owner, same day).** The strip under a hand takes a little of the trousers or dress
+with it, because in the art the hands barely stand clear of the lower body, and that shows as a
+seam where the strip ends. There is no fix without cutting arms as their own parts, which the
+owner does not want to reopen, so `armSwing` is 0.015, half of what it was, to mute it.
 In a view this close to the front, both hands move toward the body's middle and away together:
 that is what arms swinging in opposition look like from here, not a bug. Checked offline as
 before (real vertex code, rasterised, sideways and up-and-down, four figures).
