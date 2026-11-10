@@ -22,6 +22,7 @@ const iconToSvgMap = new Map();
 // A full-body figure icon (docs/avatar-plan.md v2, the Phase 1 figures used wholesale) carries
 // `artSpan` 1.5: its square is drawn that many tiles wide and tall, standing on the tile's
 // bottom edge, like artSpan art on the world layer; the busts and emoji keep the 0.9 square
+const iconToBreathTop = new Map(); // where a figure icon's head ends (PlayerIcons.json breathTop): the breath leaves it rigid
 const iconToBlinkMap = new Map(); // a figure icon's blink frame (PlayerIcons.json blinkFilename: the same art, eyes closed)
 const iconToSpanMap = new Map();
 /** The art span of a player icon (0 for a bust or emoji): the speech renderer lifts bubbles by it. */
@@ -32,6 +33,7 @@ export const playerIconSpan = (icon) => iconToSpanMap.get(normalizeEmoji(icon)) 
       iconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
       if (Number(icon.artSpan) > 0) iconToSpanMap.set(normalizeEmoji(icon.value), Number(icon.artSpan));
       if (icon.blinkFilename) iconToBlinkMap.set(normalizeEmoji(icon.value), icon.blinkFilename);
+      if (Number(icon.breathTop) > 0) iconToBreathTop.set(normalizeEmoji(icon.value), Number(icon.breathTop));
     }
   });
 });
@@ -417,6 +419,7 @@ const PixiRendererPCs = ({
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
+      else if (iconToBreathTop.has(normalizeEmoji(displayIcon))) sprite.breathTop = iconToBreathTop.get(normalizeEmoji(displayIcon));
       // blinking: the ticker swaps between this texture and the icon's blink frame once it is loaded
       const blinkFile = span ? iconToBlinkMap.get(normalizeEmoji(displayIcon)) : null;
       sprite.__openTex = texture;

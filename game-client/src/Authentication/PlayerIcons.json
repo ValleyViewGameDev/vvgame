@@ -5,28 +5,32 @@
       "value": "👸",
       "filename": "pc-figure-gertrude.svg",
       "artSpan": 1.8,
-      "blinkFilename": "pc-figure-gertrude-blink.svg"
+      "blinkFilename": "pc-figure-gertrude-blink.svg",
+      "breathTop": 0.397
     },
     {
       "label": "Farm Woman",
       "value": "👩‍🌾",
       "filename": "pc-figure-woman.svg",
       "artSpan": 1.8,
-      "blinkFilename": "pc-figure-woman-blink.svg"
+      "blinkFilename": "pc-figure-woman-blink.svg",
+      "breathTop": 0.349
     },
     {
       "label": "Farm Man",
       "value": "👨‍🌾",
       "filename": "pc-figure-man.svg",
       "artSpan": 1.8,
-      "blinkFilename": "pc-figure-man-blink.svg"
+      "blinkFilename": "pc-figure-man-blink.svg",
+      "breathTop": 0.312
     },
     {
       "label": "Kent",
       "value": "🎩",
       "filename": "pc-figure-kent.svg",
       "artSpan": 1.8,
-      "blinkFilename": "pc-figure-kent-blink.svg"
+      "blinkFilename": "pc-figure-kent-blink.svg",
+      "breathTop": 0.377
     },
     {
       "label": "Cassio",

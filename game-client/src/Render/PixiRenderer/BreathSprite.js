@@ -1,13 +1,14 @@
 import { Sprite } from 'pixi.js-legacy';
-import { BREATH, breathBell } from './breathing';
+import { BREATH, breathDeform } from './breathing';
 
 /**
  * BreathSprite - a Sprite whose quad becomes a strip of rows while it breathes (breathing.js).
  *
  * Pixi's batch renderer draws whatever `vertexData`, `uvs` and `indices` an element hands it, so
- * the deformation lives entirely in calculateVertices: each row of the strip is lifted (a stretch
- * pivoted at the bottom edge of the figure square, the feet) and widened about the centre line
- * by the chest bell. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
+ * the deformation lives entirely in calculateVertices: each row of the strip goes where
+ * breathDeform sends it (the body stretched up from the feet and widened at the chest; the head,
+ * everything above `breathTop`, carried up rigid). One row sits exactly on breathTop, so the
+ * head is a single undeformed band. Position, scale, anchor, tint, the facing flip and CombatFX all keep working,
  * because nothing but the vertices changes; with `breath` at 0 it is exactly a Sprite (same four
  * vertices). The legacy canvas renderer ignores vertexData, so there a figure simply stands still.
  *
@@ -25,6 +26,7 @@ export default class BreathSprite extends Sprite {
   constructor(texture) {
     super(texture);
     this._breath = 0;
+    this.breathTop = BREATH.top; // where this figure's head ends (the row's or the icon's breathTop)
     this._quadVerts = this.vertexData;                       // the Sprite's own 8 floats
     this._gridVerts = new Float32Array((ROWS + 1) * 4);
     this._gridUvs = new Float32Array((ROWS + 1) * 4);
@@ -58,20 +60,21 @@ export default class BreathSprite extends Sprite {
     const left = trim ? origLeft + trim.x : origLeft, right = left + (trim ? trim.width : orig.width);
     const top = trim ? origTop + trim.y : origTop, bottom = top + (trim ? trim.height : orig.height);
     // the breath is defined on the FULL square: its bottom edge is the feet, its centre line the body's
-    const feetY = origTop + orig.height, centreX = origLeft + orig.width / 2;
-    const L = this._breath, rise = 1 + BREATH.amplitude * L;
+    const centreX = origLeft + orig.width / 2;
+    const L = this._breath, headV = this.breathTop;
+    const vStart = (top - origTop) / orig.height, vEnd = (bottom - origTop) / orig.height; // the drawn rows, as fractions of the square
+    const headBand = headV > vStart + 0.01 && headV < vEnd - 0.01; // the head is one band, the body the other rows
     const uv = texture._uvs; // x0,y0 TL  x1,y1 TR  x2,y2 BR  x3,y3 BL (a rotated frame included)
     const V = this._gridVerts, U = this._gridUvs;
     for (let r = 0; r <= ROWS; r++) {
-      const t = r / ROWS;
-      const y = top + (bottom - top) * t;
-      const v = (y - origTop) / orig.height;                   // 0 at the square's top, 1 at the feet
-      const bulge = 1 + BREATH.chest * L * breathBell(v);
-      const yD = feetY - (feetY - y) * rise;
-      const xl = centreX + (left - centreX) * bulge, xr = centreX + (right - centreX) * bulge;
+      const v = !headBand ? vStart + (vEnd - vStart) * (r / ROWS) : (r === 0 ? vStart : headV + (vEnd - headV) * ((r - 1) / (ROWS - 1)));
+      const t = (v - vStart) / (vEnd - vStart);                 // along the drawn frame, for the texture
+      const [, vD] = breathDeform(0, v, L, headV);
+      const yD = origTop + vD * orig.height;
+      const [xl] = breathDeform(left - centreX, v, L, headV), [xr] = breathDeform(right - centreX, v, L, headV);
       const o = r * 4;
-      V[o] = a * xl + c * yD + tx; V[o + 1] = d * yD + b * xl + ty;
-      V[o + 2] = a * xr + c * yD + tx; V[o + 3] = d * yD + b * xr + ty;
+      V[o] = a * (centreX + xl) + c * yD + tx; V[o + 1] = d * yD + b * (centreX + xl) + ty;
+      V[o + 2] = a * (centreX + xr) + c * yD + tx; V[o + 3] = d * yD + b * (centreX + xr) + ty;
       U[o] = uv.x0 + (uv.x3 - uv.x0) * t; U[o + 1] = uv.y0 + (uv.y3 - uv.y0) * t;
       U[o + 2] = uv.x1 + (uv.x2 - uv.x1) * t; U[o + 3] = uv.y1 + (uv.y2 - uv.y1) * t;
     }

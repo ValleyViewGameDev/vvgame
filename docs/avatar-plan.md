@@ -512,6 +512,31 @@ the chest row widens 3 %, the feet row's width and position are constant to the 
 a pixel. `prefers-reduced-motion` turns it off; the legacy canvas renderer ignores vertexData,
 so there a figure stands still.
 
+**Breath, third pass, and blinking (owner 2026-11-10).** "The chest expansion more noticeable,
+not stretching more vertically, and the head doesn't change size at all." The bell reached up
+into the jaw (at chest 5.5 % the chin was widening about 1.5 %), and the feet-pivoted stretch
+lengthened the head with everything else. Now `breathing.js breathDeform(x, v, L, top)` is the
+one function both drawers call: above `top` (the figure's `breathTop`: where its head and neck
+end) a point is only carried up by the rise of the shoulders under it, so the head is rigid;
+below it the body stretches from the feet at the same 1.2 % rate, and the chest widens 9 % by a
+bump that is zero at the top of the shoulders, peaks about 0.38 of the way down a span of 0.3 of
+the square, and is zero again at the hips. `breathTop` is per figure, because a hat pushes a
+head down: `parts.js eyes` derives it from the eye line and the gap between the eyes
+(`eyeY + 1.6 gap`: these faces share one proportion) and it is stored on every figure row and
+player figure icon (0.30 to 0.45; the editor uses 0.345 / 0.294 for the two bodies).
+BreathSprite puts one strip row exactly on it. Numeric check at full inhale: head 0 % wider and
+unchanged in height, chest peak +9 %, hips, knees and feet 0 %.
+
+**Blinking.** Each figure's eyes close for 130 ms every 2.8 to 6.2 s, at a different moment in
+each cycle (`breathing.js isBlinking`). The closed frame is made from the figure's own art by
+`parts.js blink`: each eye an ellipse (sized from the eye gap) painted in the skin sampled
+around it, feathered, with a lid arc in the eye's lash colour; so the lid matches the face on
+every figure whatever its tone (Portia, the Oracle's blue, Caliban's green), and the avatar
+faces' lids LAYER (`--layer`) takes the skin tint exactly as the face does. Eyes are found
+automatically for 22 of 34 NPC figures; `tools/art/blink-eyes.json` places the other twelve
+(and the farm man) by hand. Rows carry `blinkFile`, player icons `blinkFilename`; the tickers
+swap textures.
+
 **Next (P5)**: the board draws `player.avatar` (the PC renderer composes the look at 512 and
 swaps the blink texture; the figure icons stay as the fallback), then the Change Avatar modal
 becomes the editor for everyone, then the hand slot and armour.

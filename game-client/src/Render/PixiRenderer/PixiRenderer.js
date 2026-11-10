@@ -1320,6 +1320,7 @@ const PixiRenderer = ({
         if (newDisplayType === 'sprite') {
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         }
+        if ('breathTop' in displayObj && Number(npc.breathTop) > 0) displayObj.breathTop = Number(npc.breathTop); // where this figure's head ends: rigid above it
         applyBreath(npc.id, displayObj, performance.now());
         // blinking: the ticker swaps between the open art and the blink frame (breathing.js isBlinking)
         displayObj.__openTex = newDisplayType === 'sprite' ? texture : null;

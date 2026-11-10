@@ -1,35 +1,43 @@
 /**
  * breathing - the idle "breath" of a standing figure (docs/avatar-plan.md v2 §5, owner 2026-11-10).
  *
- * Two things happen together on each breath, as a rig's breath deformer does (Live2D's ParamBreath
- * cycles 0..1 and lifts the chest and shoulders; Character Animator's Breathe scales the chest):
- *   - the figure RISES: a vertical stretch pivoted at the feet, zero at the ground and growing
- *     linearly to the top of the head;
- *   - the CHEST EXPANDS: the figure widens about its centre line by a bell-shaped weight that
- *     peaks at the chest and is zero at the feet and the head (breathBell).
- * The feet never move in either direction. The board bends a strip of rows in the sprite's own
- * vertices (BreathSprite.js); the Edit Avatar stage draws the same strips on a canvas. Only
- * standing figures breathe: a walking one has its bob. Everything here is pure (no Pixi, no DOM).
+ * A breath does two things at once, as a rig's breath deformer does (Live2D's ParamBreath cycles
+ * 0..1 and lifts the chest and shoulders; Character Animator's Breathe scales the chest):
+ *   - the BODY rises: a vertical stretch pivoted at the feet, from the ground up to the top of the
+ *     shoulders;
+ *   - the CHEST expands: the torso widens about the centre line by a bump that is zero at the top
+ *     of the shoulders, peaks at the chest and is zero again at the hips.
+ * The HEAD is rigid (owner: "the head doesn't change size at all"): everything above `top` (where
+ * the head and neck end, per figure: `breathTop` on the resource row or the player icon) is only
+ * carried up by the rise of the shoulders under it, never stretched or widened. The feet never
+ * move. The board bends a strip of rows in the sprite's own vertices (BreathSprite.js); the Edit
+ * Avatar stage draws the same strips on a canvas. Only standing figures breathe: a walking one
+ * has its bob. Everything here is pure (no Pixi, no DOM).
  */
 export const BREATH = {
   periodMs: 3600,     // one breath: about 17 a minute, a calm resting rate
-  amplitude: 0.012,   // the head rises this fraction of the figure's height at full inhale (owner: 75 % of the first 0.016)
-  chest: 0.055,       // the chest widens by this fraction of its width at full inhale (owner: "go bigger", from 0.03)
-  chestAt: 0.44,      // where the chest is, as a fraction of the figure square from its top (collar ~0.33, belt ~0.55)
-  chestSpread: 0.12,  // the bell's width (same units): shoulders get about half, the head and the knees nothing
+  amplitude: 0.012,   // the body stretches by this fraction of its height at full inhale (owner: 75 % of the first 0.016; not raised since)
+  chest: 0.09,        // the chest widens by this fraction of its width at full inhale (0.03, then 0.055, then "more noticeable")
+  chestSpan: 0.3,     // the torso the expansion covers, as a fraction of the figure square below `top` (shoulders to hips)
+  chestSkew: 0.72,    // below 1 moves the peak up from the middle of that span toward the chest (0.72: about 0.38 of the way down)
+  top: 0.33,          // the default `breathTop`: where the head and neck end, from the top of the figure square
   inhale: 0.4,        // share of the cycle spent breathing in
   exhale: 0.45,       // ... breathing out; the rest is the pause before the next breath
   periodJitter: 0.24, // each figure's period varies by up to +-12 % so a crowd never breathes in step
 };
 
-/** The chest weight at height v (0 = the top of the figure square, 1 = its bottom, the feet): 1 at the chest, 0 at the feet and the head. */
-export const breathBell = (v) => { const d = (v - BREATH.chestAt) / BREATH.chestSpread; return Math.exp(-d * d); };
-
 /**
- * Where a point of the figure goes at breath level L (0..1). x and y are fractions of the figure
- * square (x from its centre line, -0.5..0.5; y from its top, 0..1). Returns [x, y] in the same units.
+ * Where a point of the figure goes at breath level L (0..1). `x` is its distance from the figure's
+ * centre line (any unit), `v` its height as a fraction of the figure square from the top (0) to
+ * the feet (1), `top` the figure's breathTop. Returns [x, v] in the same units.
  */
-export const breathPoint = (x, y, L) => [x * (1 + BREATH.chest * L * breathBell(y)), 1 - (1 - y) * (1 + BREATH.amplitude * L)];
+export function breathDeform(x, v, L, top = BREATH.top) {
+  const lift = BREATH.amplitude * L;
+  if (v <= top) return [x, v - (1 - top) * lift]; // the head: carried by the shoulders' rise, unchanged in size
+  const u = (v - top) / BREATH.chestSpan;
+  const bump = u >= 1 ? 0 : Math.sin(Math.PI * Math.pow(u, BREATH.chestSkew)) ** 2;
+  return [x * (1 + BREATH.chest * L * bump), 1 - (1 - v) * (1 + lift)];
+}
 
 const smooth = (x) => x * x * (3 - 2 * x);
 

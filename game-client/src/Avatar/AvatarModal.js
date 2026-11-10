@@ -17,7 +17,7 @@ import './AvatarModal.css';
 import { loadAvatarCatalogue } from '../Utils/TuningManager';
 import { SLOT_OF_SPEC_KEY, PALETTE_OF_SPEC_KEY, partsInSlot, partsFor, bodyOf, palette, defaultSpec, lookFor, equipFor, validateSpec, cleanSpec, withEyes } from './avatarLook';
 import { renderLookDataUrl } from './avatarCompositor';
-import { BREATH, BLINK, breathLevel, breathBell, breathingAllowed } from '../Render/PixiRenderer/breathing';
+import { BLINK, breathLevel, breathDeform, breathingAllowed } from '../Render/PixiRenderer/breathing';
 import CloseButton from '../UI/Buttons/CloseButton';
 
 import ResourceIcon from '../UI/Icons/ResourceIcon';
@@ -35,6 +35,8 @@ const CROP = {
   head: { x: 0.27, y: 0, w: 0.46, h: 0.46 },
   clothes: { x: 0.2, y: 0.3, w: 0.6, h: 0.7 },
 };
+// where each body's head ends (tools/art/parts.js eyes on the two faces): the breath leaves everything above it rigid
+const BREATH_TOP = { female: 0.345, male: 0.294 };
 const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'head', top: 'clothes' };
 
 /**
@@ -43,7 +45,7 @@ const CROP_FOR_TAB = { hair: 'head', facialHair: 'head', eyes: 'head', hat: 'hea
  * each strip is lifted (a stretch pivoted at the square's bottom edge, the feet) and widened about
  * the centre line by the chest bell, at the breath level of the moment.
  */
-function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, height, className = '' }) {
+function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, height, className = '', top }) {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);       // eyes open
   const closedImgRef = useRef(null); // the blink frame, loaded once so a 130 ms blink never waits on a decode
@@ -79,25 +81,25 @@ function BreathingFigure({ src, srcClosed = null, closed = false, crop, width, h
       const L = breathingAllowed() ? breathLevel(performance.now(), 0) : 0;
       const S = img.naturalWidth;                 // the composed square, in image px
       const full = (width / crop.w) * dpr;        // the whole square, in canvas px
-      const rise = 1 + BREATH.amplitude * L;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < STRIPS; i++) {
         const v0 = crop.y + (crop.h * i) / STRIPS, v1 = crop.y + (crop.h * (i + 1)) / STRIPS; // fractions of the square, from its top
-        const bulge = 1 + BREATH.chest * L * breathBell((v0 + v1) / 2);
-        // a point at height v goes to 1 - (1 - v) * rise (the feet, v = 1, stay); then into the crop's frame
-        const y0 = (1 - (1 - v0) * rise - crop.y) * full, y1 = (1 - (1 - v1) * rise - crop.y) * full;
+        // where the strip's edges and its width go (breathing.js: the head rigid, the body up, the chest out)
+        const [, d0] = breathDeform(0, v0, L, top), [, d1] = breathDeform(0, v1, L, top);
+        const [bulge] = breathDeform(1, (v0 + v1) / 2, L, top);
+        const y0 = (d0 - crop.y) * full, y1 = (d1 - crop.y) * full;
         const dw = canvas.width * bulge;
         ctx.drawImage(img, crop.x * S, v0 * S, crop.w * S, (v1 - v0) * S, (canvas.width - dw) / 2, y0, dw, y1 - y0 + 0.75);
       }
     };
     draw();
     return () => cancelAnimationFrame(raf);
-  }, [crop, width, height]);
+  }, [crop, width, height, top]);
   return <canvas ref={canvasRef} className={`avatar-preview ${className}`} style={{ width, height }} />;
 }
 
 /** One composed figure as an <img>, blinking when the look has a blink frame. `crop` (a CROP entry) shows that region in a width x height box. */
-function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null, breathe = false }) {
+function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', crop = null, width = null, height = null, breathe = false, breathTop }) {
   const [urls, setUrls] = useState({ open: null, closed: null });
   const [closed, setClosed] = useState(false);
   useEffect(() => {
@@ -120,7 +122,7 @@ function AvatarPreview({ look, size = PREVIEW_PX, blink = true, className = '', 
   if (crop) {
     // the square is scaled so the crop's width fills the box, then shifted so the crop's corner is the box's
     const w = width || size, h = height || Math.round(w * (crop.h / crop.w));
-    if (breathe) return <BreathingFigure src={urls.open} srcClosed={urls.closed} closed={closed} crop={crop} width={w} height={h} className={className} />;
+    if (breathe) return <BreathingFigure src={urls.open} srcClosed={urls.closed} closed={closed} crop={crop} width={w} height={h} className={className} top={breathTop} />;
     const full = w / crop.w;
     return (
       <div className={`avatar-preview avatar-crop ${className}`} style={{ width: w, height: h }}>
@@ -216,7 +218,7 @@ export default function AvatarModal({ currentPlayer, setCurrentPlayer, masterRes
 
         <div className="avatar-editor">
           <div className="avatar-stage">
-            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe />
+            <AvatarPreview look={look} crop={CROP.figure} width={128} height={256} breathe breathTop={BREATH_TOP[bodyOf(data.catalogue, spec)] || undefined} />
             <div className="avatar-muted avatar-small">
               {currentPlayer?.settings?.equippedWeapon || 'no weapon'}{equip?.weaponHand ? '' : ' (no hand art)'}, {currentPlayer?.settings?.equippedArmor || 'no armour'}{equip?.armorTop ? '' : ' (no top art)'}
             </div>

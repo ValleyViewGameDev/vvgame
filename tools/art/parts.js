@@ -24,6 +24,8 @@
  *   lids     --worn <closed-eyes png> --body female|male --out <png>     the blink layer: the eye boxes
  *   blink    --in <face or figure png> --out <png> [--name <figure>] [--scale 1.1] [--layer]  the same image with the eyes closed (--layer: only the changed pixels): each eye an
  *                                                                ellipse in the face's own cheek skin plus a lid arc
+ *   eyes     --in <face or figure png> [--name <figure>]          prints the eye line, the eye gap and breathTop (where
+ *                                                                the head ends: the rows' and icons' `breathTop`)
  *   iris     --in <face png> --out <png>                          the eye colour layer: the ring around each
  *                                                                pupil, neutralised to grey for the eyeColor tint
  *   tint     --in <png> --hex #rrggbb --out <png>                 multiply preview
@@ -513,6 +515,20 @@ function tintImg(img, hex) {
         for (let p = 0; p < out.W * out.H; p++) { const i = p * 4; if (out.d[i] === src.d[i] && out.d[i + 1] === src.d[i + 1] && out.d[i + 2] === src.d[i + 2]) out.d[i + 3] = 0; }
       }
       await save(out, args.out); break; }
+    case 'eyes': { // where a figure's eyes are, and where its HEAD ends (breathTop: the breath leaves everything above it rigid)
+      const table = JSON.parse(fs.readFileSync(path.join(__dirname, 'blink-eyes.json'), 'utf8'));
+      const img = await load(args.in);
+      const ov = args.name && table[args.name] && table[args.name].eyes ? table[args.name] : null;
+      const eyes = ov ? ov.eyes.map(([x, y]) => ({ x, y })) : (findEyeRegions(img) || findPupilPair(img) || findEyes(img));
+      if (!eyes || !eyes.length) { console.error('no eyes found'); process.exit(2); }
+      const gap = eyes.length > 1 ? eyes[1].x - eyes[0].x : (ov && ov.gap) || 48;
+      const eyeY = eyes.reduce((a, e) => a + e.y, 0) / eyes.length;
+      // these doll faces share one proportion: the chin is about 1.2 eye-gaps under the eye line and the
+      // collar 1.5; 1.6 lands on the top of the shoulders, so the whole head and neck stay rigid
+      const breathTop = Math.max(0.26, Math.min(0.5, (eyeY + gap * 1.6) / img.H));
+      console.log(JSON.stringify({ eyeY: +eyeY.toFixed(1), gap: +gap.toFixed(1), breathTop: +breathTop.toFixed(3) }));
+      break;
+    }
     case 'iris': { const out = irisLayer(await load(args.in)); if (!out) { console.error('no eyes found'); process.exit(2); } await save(out, args.out); break; }
     case 'tint': { const img = await load(args.in); await save(tintImg(img, args.hex), args.out); break; }
     case 'compose': {
@@ -526,6 +542,6 @@ function tintImg(img, hex) {
       await sharp(args.in).extract({ left: Math.round(FX), top: 0, width: Math.round(TILE), height: Math.round(TILE) }).composite([{ input: Buffer.from(`<svg width="${Math.round(TILE)}" height="${Math.round(TILE)}"><rect x="0" y="${collar}" width="${Math.round(TILE)}" height="${Math.round(TILE) - collar}" fill="black"/></svg>`), blend: 'dest-out' }]).resize(+(args.px || 1024), +(args.px || 1024)).png().toFile(args.out);
       break;
     }
-    default: console.error('commands: key align diff fitbody split lids blink iris tint compose headcrop'); process.exit(1);
+    default: console.error('commands: key align diff fitbody split lids blink eyes iris tint compose headcrop'); process.exit(1);
   }
 })().catch((e) => { console.error(e); process.exit(1); });
