@@ -4,8 +4,8 @@ Started 2026-11-11 (backlog W-12). Five new dungeon templates in
 `game-server/layouts/gridLayouts/dungeon/`, outside the Oracle's story: resetting, grindable
 maps for players who like to fight. Entrances in the valley are a later pass.
 
-**Status.** d006_ghosts is built (a first draft for the owner to look at). d007 to d010 are
-plans only.
+**Status.** d006_ghosts is built: second draft, redrawn the same day on the owner's notes
+(the rules below). d007 to d010 are plans only.
 
 ## What the existing five teach
 
@@ -16,7 +16,8 @@ plans only.
 - **d004_bears**: an outdoor cave of trees and mountains, Bears on dirt, a walled den.
 - **d005_Phoenix**: a one-tile maze with lava halls and the Phoenix at its heart.
 
-Conventions kept: Stone Walls one tile thick on cobblestone, the bare `DU` tile as the void,
+Conventions kept: Stone Walls one tile thick on cobblestone, the bare `DU` tile as the rock
+outside the walls and nowhere else,
 Dungeon Doors between sections, one Dungeon Exit where the player arrives, everything drawn
 (a fixed layout spawns nothing by distribution). The recent four are lean on loot; only d001
 is rich.
@@ -42,15 +43,32 @@ is rich.
 
 ## Design rules for these five
 
-Borrowed from tabletop dungeon craft: loops instead of a line (more than one way to every
-tier, so a player can double back), a choice at the door (two or three ways on from the first
-room), a centrepiece room the rest is built round, shortcuts that reward a tool or a key, and
-the five-room beat (a guarded way in, a room that is not a fight, a setback, a climax, a
-reward).
+**The owner's rules (2026-11-11, from the review of the first d006).** These come first.
 
-- **Tiers.** Each dungeon is three or four tiers, easiest by the exit. Every tier ends at
-  doors, so a player takes what they can and walks out.
-- **Loot rises with the tier** and the best piece sits at the far end.
+1. **One road.** A dungeon is a story with a start and a deepest room. The player always
+   knows which way is on. A stage may have ONE side room, a dead end with something in it;
+   no rings, no choice of three doors, no second way round. (The first d006 had five doors
+   off the first room and two ways to every tier: too open.)
+2. **The dungeon tile (`DU`) is only the rock outside the walls.** Rooms are cobblestone,
+   with other tiles for a reason: mud and moss where it is damp, slate for a worn aisle or a
+   fall of rock, grass in a garden gone wild.
+3. **Furniture has to make sense.** Chairs go with tables (a refectory, a desk). No rows of
+   chairs standing for pews.
+4. **Statues: Gargoyles and Knight Statues.** The Marble Statue is a garden piece and too
+   fine for a dungeon. The same goes for the Birdbath.
+5. **Water is organic.** A flood has an uneven edge, mud banks, and ferns growing in it. No
+   rectangles of water.
+6. **Nothing stands in a doorway.** Both sides of every door are open floor.
+
+Rules 2 and 6 are checked by the drafting kit; the rest are drawn by hand.
+
+Kept from tabletop dungeon craft: a centrepiece room the rest is built round, a side pocket
+that rewards a tool (a fall of rock for a player with a pick), and the five-room beat (a
+guarded way in, a room that is not a fight, a setback, a climax, a reward).
+
+- **Stages.** Each dungeon is three or four stages along the one road, easiest by the exit.
+  Every stage ends at a door, so a player takes what they can and walks back out.
+- **Loot rises with the stage** and the best piece sits in the deepest room.
 - **Gems: one in all five**, at the end of d010. Diamond Ring: one, also d010.
 - **A place, not a diagram.** Each is a building or a cave someone could have made, with
   furniture, damp, rubble and a reason for each room.
@@ -65,46 +83,51 @@ reward).
 | d009 | VulcansStithy | hard, L28 to 34 | medium to large | Ogres, Demons |
 | d010 | DragonHoard | very hard, L40 and up | large | Ogres, Demons, Dragons |
 
-### d006_ghosts: the Drowned Chantry (BUILT)
+### d006_ghosts: the Drowned Chantry (BUILT, second draft)
 
-A cruciform chapel whose nave has sunk into the water, with its cloister, its cellar and the
-abbots' crypt ringed round the chancel. Ghosts cross water and the player does not, so the
-flooded nave is the centrepiece: the middle causeway is the quick way and the exposed one
-(Ghosts hang over the water out of a sword's reach), the two side aisles are slower with
-arcades for cover. Picture: `docs/dungeons/d006_ghosts.png`.
+A ruined chantry with the water table in it. Ghosts cross water and the player does not.
+One road, from the porch at the south to the abbots' vault behind the high altar, the long
+way round. Picture: `docs/dungeons/d006_ghosts.png`.
 
-- **Tier 1, the west front:** the narthex (the exit, no enemy), the bell tower and the
-  sacristy (one Ghost each; Silver, Wine).
-- **Tier 2:** the nave (four Ghosts, two over water; Gold on two drowned pew platforms), the
-  cloister (a walk round the flooded garth; the well of souls on its island is a Ghost
-  Spawner no one can reach; mushrooms), the undercroft (the cellar: Wine, Aged Wine).
-- **Tier 3:** the transepts, the chancel behind the rood screen (the altar plate), the ossuary
-  and the scriptorium (Bones, Scrolls).
-- **Tier 4:** the ambulatory, a crypt ring round the chancel with burial niches, and the
-  Sepulchre of the Abbots, entered only from the north: three Ghosts, a second Spawner, Gold
-  and the Book.
-- **Loops:** five doors leave the narthex. West: bell tower, cloister, west transept, ossuary,
-  ring. East: sacristy, undercroft, east transept, scriptorium, ring. A fall of rock between
-  the cloister and the bell tower is a way out for a player with a pick.
-- **Counts:** 21 Ghosts, 2 Spawners, 21 Dungeon Doors. Loot: Bones 16, Silver 6, Gold 5,
-  Urns 5, Wine 4, Scroll 4, Mushroom 6, Magic Mushroom 1, Aged Wine 1, Book 1. No Gems.
+    porch > nave > crossing and chancel > cloister > scriptorium > ossuary > crypt passage > Sepulchre
+
+- **Stage 1.** The porch (the exit, no enemy). The nave, the centrepiece: the floor has sunk
+  and the flood has an uneven edge, mud banks and ferns. The east aisle is the dry way north;
+  the west aisle is cut in two (Silver at one end, Urns at the other); a spit of mud runs out
+  into the middle with Gold on it, under two Ghosts that hang over the water. Side room: the
+  foot of the bell tower (one Ghost, Silver).
+- **Stage 2.** The crossing and the chancel (the altar plate; the east transept is a dead
+  end). A door in the corner of the west transept goes down to the cloister: a paved walk
+  round a garden gone to marsh. The pond has broken through the east walk, so the way is
+  north then west, and the Silver in sight from the door is the long way round. The well of
+  souls on its island is a Ghost Spawner no one can reach. Side room: the refectory, one long
+  table with its chairs, the hearth, the wine.
+- **Stage 3.** The scriptorium (four desks, Scrolls), the night stair, the ossuary: the
+  charnel heap, a damp corner with mushrooms and a sump.
+- **Stage 4.** The crypt passage with its burial niches and a fall of rock, then the
+  Sepulchre of the Abbots: the effigies either side of a slate aisle, five Ghosts, a second
+  Spawner in the flooded corner, Gold and the Book. Side room: a reliquary walled up behind
+  rock (two Gold for a player with a pick).
+- **Counts:** 21 Ghosts (3, 5, 6, 7 by stage), 2 Spawners, 9 Dungeon Doors. Loot: Bones 23,
+  Silver 8, Gold 6, Urns 6, Scroll 4, Wine 3, Mushroom 6, Magic Mushroom 1, Aged Wine 1,
+  Book 1. No Gems.
+- **Ferns.** The Fern may not stand on a water tile (its `validon` flags), so a fern "in the
+  water" stands on a one-tile hummock of mud with water all round it.
 
 ### d007_BearGarden (plan)
 
 The baiting pit of the old playhouse quarter. A round dirt arena, a gallery ringing it, the
 kennels and cages opening off the gallery. Arena Doors throughout, so it needs no key and a
-player below L12 can come. Tier 1 the kennels (Coyote packs of three). Tier 2 the cages
-(Bears, one at a time, each cage also opens onto the pit). Tier 3 the pit itself: two Bears
-and the Great Bear at the stake, optional. The gallery is the loop: every door is a way back
-to the exit. Loot: Honey, Bones, a little Silver, one Gold in the keeper's lodge, one Scroll
+player below L12 can come. One road: in by the keeper's gate, along the kennels (Coyote packs
+of three), through the cages (Bears, one at a time), and out onto the pit: two Bears and the
+Great Bear at the stake. Side room: the keeper's lodge. Loot: Honey, Bones, a little Silver, one Gold in the keeper's lodge, one Scroll
 under the stake. Ten minutes, in and out.
 
 ### d008_SpiderMine (plan)
 
 An abandoned silver mine, drawn as tunnels and not rooms. One adit goes down in switchbacks
 through three galleries. Tier 1: single Spiders in one-tile workings. Tier 2: web halls with
-packs of three or four, and falls of rock: some hide Silver pockets, one opens a loop straight
-back to the adit. Tier 3: the brood chamber with a Spider Spawner, and the flooded sump where
+packs of three or four, and falls of rock that hide Silver pockets. Tier 3: the brood chamber with a Spider Spawner, and the flooded sump where
 two Zombies (the lost shift) guard the best of it. The long cart run is the trap: a straight
 line where Spiders spit from three tiles. Loot: Silver in the veins, Thread from the kills,
 two Gold and a Scroll at the bottom.
@@ -116,8 +139,7 @@ Crossing the lava is always possible and always costs. Tier 1 the slag yards (Og
 time, among heaps that break their leap). Tier 2 the bellows hall (Ogres between anvil
 pillars, Demons on the gantry). Tier 3 the lake: Demons stand out on the lava and shoot seven
 tiles; the causeways zigzag between cover. Tier 4 the Crucible, a Demon Spawner on its own
-islet. A vault behind Black Fog (Hecate's Torch) holds the best loot; a Locked Door (Golden
-Key) is the short way home. Loot: Gold, Silver, Scrolls, Urns, one Potion B. No Gems.
+islet. A vault behind Black Fog (Hecate's Torch) is the one side room and holds the best loot. Loot: Gold, Silver, Scrolls, Urns, one Potion B. No Gems.
 
 ### d010_DragonHoard (plan)
 
@@ -132,10 +154,12 @@ two Potion B, one Diamond Ring, and the only Gem.
 ## How they are made
 
 `tools/dungeons/lib.js` is a small drafting kit: a dungeon is drawn in code (rooms, water,
-doors, props, enemies, loot by coordinate), walls are raised round it, and it is checked
-before it is written: every key exists, each thing stands on a tile its `validon` flag
-allows, multi-tile props have room, no floor touches the void, and every piece of loot, door
-and enemy can be reached on foot from the exit (what needs a pick is listed).
+doors, props, enemies, loot by coordinate; water, mud and broken outlines as hand-drawn
+character stamps), walls are raised round it, and it is checked before it is written: every
+key exists, each thing stands on a tile its `validon` flag allows, multi-tile props have
+room, no floor touches the void, no room is floored with the dungeon tile, every door has
+open floor on both sides, and every piece of loot, door and enemy can be reached on foot
+from the exit (what needs a pick is listed).
 
 ```
 node tools/dungeons/d006_ghosts.js            # print the map and the counts

@@ -11,12 +11,16 @@
  *   d.wall(x, y) / d.door(x, y[, key])  a pillar inside a room; a door in a wall (DDor by default)
  *   d.put(x, y, 'Ghost')              anything from resources.json, by its type
  *   d.island(x, y)                    a cell meant to be out of reach (exempt from the reach check)
+ *   d.stamp(x0, y0, rows[, legend])   a hand-drawn patch, one character a cell (see STAMP below):
+ *                                     organic water, mud banks, moss, a room's broken outline
  *   d.build()                         walls round everything, then the checks; throws on a problem
  *   d.write()                         the layout file; d.print() the map as text
  *
  * x is the column, y the row (0..63, north at the top). Checks: every key exists; a thing stands
  * only on a tile its validon flag allows; multi-tile props have their footprint free; no floor
- * touches the void; the exit exists; every piece of loot, every door and every enemy that is not
+ * touches the void; no room is floored with the bare dungeon tile (that tile is the rock OUTSIDE
+ * the walls, the owner's rule); every door has open floor on both sides (nothing stands in a
+ * doorway); the exit exists; every piece of loot, every door and every enemy that is not
  * over water can be reached on foot from the exit (through doors, and through Rocks, which a
  * player mines: what needs mining is listed).
  */
@@ -28,6 +32,9 @@ const byType = new Map(RES.filter((r) => r.category !== 'tile').map((r) => [r.ty
 const tileByKey = new Map(RES.filter((r) => r.category === 'tile').map((r) => [r.layoutkey, r]));
 const N = 64;
 const VOID = 'DU';
+
+/** stamp characters: a tile, or [tile, thing], or [tile, thing, 'island']; '#' a pillar, 'x' solid rock, ' ' leave alone */
+const STAMP = { '.': 'CB', '~': 'WA', ',': 'DI', '"': 'ZZ', ';': 'GR', ':': 'SL' };
 
 class Dungeon {
   constructor(name) {
@@ -46,6 +53,25 @@ class Dungeon {
   tile(x, y, key) { this.tiles[y][x] = key; this.inside[y][x] = true; return this; }
   /** back to solid rock: a notch in a room's outline */
   fill(x0, y0, x1 = x0, y1 = y0) { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { this.tiles[y][x] = VOID; this.inside[y][x] = false; this.res[y][x] = null; } return this; }
+  /** a hand-drawn patch: rows of equal length, one character a cell, top-left at (x0, y0) */
+  stamp(x0, y0, rows, legend = {}) {
+    rows.forEach((row, j) => {
+      if (row.length !== rows[0].length) throw new Error(`stamp at (${x0},${y0}): row ${j} is ${row.length} long, not ${rows[0].length}: "${row}"`);
+      [...row].forEach((ch, i) => {
+        const x = x0 + i, y = y0 + j;
+        if (ch === ' ') return;
+        if (ch === 'x') return void this.fill(x, y);
+        if (ch === '#') return void this.wall(x, y);
+        const def = legend[ch] || STAMP[ch];
+        if (!def) throw new Error(`stamp at (${x0},${y0}): unknown character "${ch}"`);
+        const [tile, type, island] = Array.isArray(def) ? def : [def];
+        this.tile(x, y, tile); this.res[y][x] = null;
+        if (type) this.put(x, y, type);
+        if (island) this.island(x, y);
+      });
+    });
+    return this;
+  }
   put(x, y, type) {
     if (!byType.has(type)) throw new Error(`unknown resource type "${type}"`);
     if (this.res[y][x]) this.problems.push(`(${x},${y}): ${type} placed on ${this.res[y][x]}`);
@@ -84,6 +110,7 @@ class Dungeon {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const t = this.res[y][x]; const tile = tileByKey.get(this.tiles[y][x]);
       if (!tile) { this.problems.push(`(${x},${y}): unknown tile ${this.tiles[y][x]}`); continue; }
+      if (this.inside[y][x] && this.tiles[y][x] === VOID) this.problems.push(`(${x},${y}): a room floored with the bare dungeon tile (it belongs outside the walls)`);
       if (cover.has(`${x},${y}`) && (t || !this.inside[y][x])) this.problems.push(`(${x},${y}): ${cover.get(`${x},${y}`)}'s footprint is not free`);
       if (!t) continue;
       const r = byType.get(t);
@@ -98,7 +125,7 @@ class Dungeon {
       if (cover.has(`${x},${y}`)) return false;
       const t = this.res[y][x]; if (!t) return true;
       const r = byType.get(t);
-      return r.passable === true || r.action === 'door' || (mine && r.category === 'source');
+      return r.passable === true || r.action === 'door' || r.category === 'npc' || (mine && r.category === 'source'); // an enemy moves: it is not a wall
     };
     const flood = (mine) => {
       const seen = new Set(); const q = [];
@@ -109,6 +136,12 @@ class Dungeon {
     const free = flood(false), mined = flood(true);
     if (!free.size) this.problems.push('the exit has no open tile beside it');
     const beside = (set, x, y) => [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => set.has(`${x + dx},${y + dy}`));
+    // a doorway is clear: open floor on both sides, north and south or east and west
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const t = this.res[y][x]; if (!t || byType.get(t).action !== 'door') continue;
+      const open = (a, b) => walk(a, b, false) && byType.get(this.res[b][a] || 'Fern').action !== 'door';
+      if (!((open(x, y - 1) && open(x, y + 1)) || (open(x - 1, y) && open(x + 1, y)))) this.problems.push(`(${x},${y}): ${t} is blocked or leads nowhere`);
+    }
     this.needsMining = [];
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const t = this.res[y][x];
