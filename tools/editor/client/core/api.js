@@ -23,6 +23,7 @@ export const local = {
   resources: () => request('GET', '/api/local/resources'),
   randomValley: () => request('GET', '/api/local/random-valley'),
   layouts: () => request('GET', '/api/local/layouts'),
+  dungeonEntrances: () => request('GET', '/api/local/dungeon-entrances'),
   layout: (dir, name) => request('GET', `/api/local/layouts/${dir}/${encodeURIComponent(name)}`),
   saveLayout: (dir, name, layout) => request('PUT', `/api/local/layouts/${dir}/${encodeURIComponent(name)}`, layout),
   deleteLayout: (dir, name) => request('DELETE', `/api/local/layouts/${dir}/${encodeURIComponent(name)}`),

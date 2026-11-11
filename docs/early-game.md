@@ -225,7 +225,7 @@ one, so the rest of the game is a promise, not a mystery.
   Acheron's six **Mirrors** form a second way in that skips every patch of fog, for whoever holds
   the Mirror Key (kept on purpose, owner 2026-11-05).
 - **The Mirror Key** (Leontes, friend, for the six Secrets) opens every Mirror: the Phoenix's way in
-  (valley 1012276, Windsor: the Mirror room holds the Dungeon Entrance to dPhoenix, where a Dungeon
+  (valley 1012276, Windsor: the Mirror room holds the Dungeon Entrance to d005_Phoenix, where a Dungeon
   Door, the Dungeon Key, stands before the Phoenix), Duke Angelo's hidden room (1014204: a bed, books
   and two Scrolls) and Acheron's bypass. More Mirror rooms are planned as easter eggs (backlog W-18).
 

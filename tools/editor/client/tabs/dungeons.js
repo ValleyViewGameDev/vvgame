@@ -1,313 +1,241 @@
 /**
- * Dungeons tab: dungeon TEMPLATE instances and their frontier registry entry
- * (parity with game-editor/src/Dungeons.jsx).
+ * Dungeons tab: wire dungeon ENTRANCES to dungeon TEMPLATES (owner 2026-11-11).
  *
- * Selection panel: frontier picker, create-from-template, list of dungeon template grids.
- * Editing space: toolbar (reload, save, reset, delete) and the registry editor for the
- * selected dungeon: template used, entrance cells (gridCoords of town/valley cells whose
- * Dungeon Entrance leads here) with validation against the live grid.
- * Route: #dungeons/<frontierId>[/<dungeonGridId>]
+ * The workflow is: in the Layouts tab, make dungeon templates (dungeon directory, + New) and
+ * place Dungeon Entrances on town / fixed-coordinate valley layouts; then come here and pick, for
+ * each entrance, the dungeon it leads to.
  *
- * Every live write (create, save config, reset, delete) is behind confirm() and reports the
- * server's response in a toast (success) or a modal (failure). Nothing is written on mount.
+ * Entrances are read from the layout FILES on this machine (/api/local/dungeon-entrances: how
+ * many DIn each layout holds), matched to the selected frontier's town and valley cells (a town
+ * cell uses town<N|E|S|W> by its settlement's position, else townN). Wiring is read from and
+ * written to the frontier's registry on the game server (Frontier.dungeons) through
+ * POST /api/set-dungeon-entrance, which keeps every cell on at most one dungeon and creates a
+ * template's registry entry the first time it is used.
+ *
+ * Flags: a cell holding 2+ entrances (illegal), an entrance leading nowhere, a cell wired to
+ * two dungeons, a wired cell whose layout has no entrance, a template file that is missing.
+ * Route: #dungeons/<frontierId>
  */
 import { el, clear } from '../core/dom.js';
 import { local, game } from '../core/api.js';
 import { modal, confirm, toast, setStatus } from '../core/ui.js';
 
-const ENTRANCE_RESOURCE = 'Dungeon Entrance';
-
 const D = {
   ctx: null, els: {}, active: false,
-  loaded: false,                 // frontiers + settlements + templates fetched once
-  frontiers: [], settlements: [], templates: [],
-  frontierId: null,              // selected frontier (_id)
-  frontier: null,                // GET /api/get-frontier/:id (holds .dungeons registry)
-  grids: [],                     // GET /api/grids?gridType=dungeon&isTemplate=true
-  selectedId: null,              // selected dungeon grid _id
-  edits: {},                     // dungeonId -> { templateUsed, entranceGridCoords, hasChanges }
-  createTemplate: '',
-  addCoord: '',
-  busy: false,
+  frontiers: [], settlements: [], templates: [], townLayouts: [],
+  counts: { town: {}, valleyFixedCoord: {} },
+  frontierId: null,
+  frontier: null,
+  busyCoord: null,
 };
 
 // ----------------------------------------------------------------------------- helpers
 const idOf = (v) => String(v?._id || v || '');
-const isGridCoord = (v) => Number.isFinite(Number(v)) && String(v).trim() !== '';
-const fmtDate = (d) => (d ? new Date(d).toLocaleString() : 'n/a');
-const shortId = (id) => (id ? `${String(id).slice(0, 6)}…${String(id).slice(-4)}` : '');
+const stripJson = (s) => String(s || '').replace(/\.json$/, '');
 
-/** Decode the SSGG part of a TTFFSSGG gridCoord into settlement row/col + grid row/col. */
-function formatGridCoord(coord) {
-  if (!isGridCoord(coord)) return `${coord} (legacy grid id)`;
+/** "1011156 (S1,1 G5,6)": the settlement row/col and grid row/col packed into the gridCoord. */
+function cellLabel(coord) {
   const ssgg = Number(coord) % 10000;
-  const sRow = Math.floor(ssgg / 1000), sCol = Math.floor(ssgg / 100) % 10, gRow = Math.floor(ssgg / 10) % 10, gCol = ssgg % 10;
-  return `${coord} (S${sRow},${sCol} G${gRow},${gCol})`;
-}
-
-function frontierName(id) { return D.frontiers.find((f) => idOf(f) === String(id))?.name || (id ? shortId(id) : 'unassigned'); }
-
-/** Town/valley cells of the selected frontier that have a template grid (never homesteads). */
-function entranceCells() {
-  const cells = [];
-  for (const s of D.settlements) {
-    if (idOf(s.frontierId) !== String(D.frontierId)) continue;
-    const grids = Array.isArray(s.grids) ? s.grids.flat() : [];
-    for (const cell of grids) {
-      if (!cell?.gridId || !isGridCoord(cell.gridCoord) || cell.gridType === 'homestead') continue;
-      cells.push({ gridCoord: Number(cell.gridCoord), gridId: idOf(cell.gridId), gridType: cell.gridType, settlement: s.displayName || s.name });
-    }
-  }
-  return cells.sort((a, b) => a.gridCoord - b.gridCoord);
-}
-
-function registryEntry(id) { return D.frontier?.dungeons?.[id] || null; }
-function gridById(id) { return D.grids.find((g) => idOf(g) === String(id)) || null; }
-
-/** Current (edited or stored) config for a dungeon. */
-function configFor(id) {
-  const e = D.edits[id];
-  const reg = registryEntry(id);
-  const grid = gridById(id);
-  return {
-    templateUsed: e?.templateUsed ?? reg?.templateUsed ?? grid?.templateUsed ?? '',
-    entranceGridCoords: e?.entranceGridCoords ?? (reg?.entranceGrids || []).map((v) => (isGridCoord(v) ? Number(v) : v)),
-    hasChanges: !!e?.hasChanges,
-  };
-}
-function setEdit(id, patch) {
-  const cur = configFor(id);
-  D.edits[id] = { ...cur, ...patch, hasChanges: true };
-  renderSelection();
-  renderEditor();
+  return `S${Math.floor(ssgg / 1000)},${Math.floor(ssgg / 100) % 10} G${Math.floor(ssgg / 10) % 10},${ssgg % 10}`;
 }
 
 function showError(title, err) {
-  const body = err?.body && typeof err.body === 'object' ? JSON.stringify(err.body, null, 2) : (err?.body || '');
-  modal({ title, body: el('div', {}, [el('p', {}, err?.message || String(err)), body ? el('pre', { class: 'mono' }, body) : null]) });
+  modal({ title, body: el('div', {}, [el('p', {}, err?.message || String(err))]) });
+}
+
+/** The selected frontier's town and valley cells that hold at least one Dungeon Entrance. */
+function entranceCells() {
+  const positions = new Map(); // settlementId -> N/E/S/W from the frontier's settlement grid
+  for (const entry of (D.frontier?.settlements || []).flat()) {
+    if (!entry?.settlementId) continue;
+    const m = String(entry.settlementType || '').match(/homesteadSet([NSEW]+)$/);
+    positions.set(idOf(entry.settlementId), m ? m[1] : '');
+  }
+  const cells = [];
+  for (const s of D.settlements) {
+    if (idOf(s.frontierId) !== String(D.frontierId)) continue;
+    for (const cell of (Array.isArray(s.grids) ? s.grids.flat() : [])) {
+      if (!cell || cell.gridCoord == null) continue;
+      const coord = Number(cell.gridCoord);
+      let dir; let file;
+      if (cell.gridType === 'town') {
+        const pos = positions.get(idOf(s)) || '';
+        dir = 'town'; file = pos && D.townLayouts.includes(`town${pos}`) ? `town${pos}` : 'townN';
+      } else if (/^valley/.test(cell.gridType || '')) {
+        dir = 'valleyFixedCoord'; file = String(coord);
+      } else continue;
+      const count = D.counts[dir]?.[file] || 0;
+      cells.push({ coord, gridType: cell.gridType, settlement: s.displayName || s.name || '', dir, file, count });
+    }
+  }
+  return cells;
+}
+
+/** gridCoord -> template names it is wired to, from the frontier registry. */
+function wiring() {
+  const out = new Map();
+  for (const entry of Object.values(D.frontier?.dungeons || {})) {
+    const tpl = stripJson(entry.templateUsed);
+    for (const c of (entry.entranceGrids || []).map(Number)) {
+      if (!Number.isFinite(c)) continue;
+      out.set(c, [...new Set([...(out.get(c) || []), tpl])]);
+    }
+  }
+  return out;
+}
+
+/** One row per entrance cell plus one per wired cell that no longer has an entrance. */
+function buildRows() {
+  const wired = wiring();
+  const rows = entranceCells().filter((c) => c.count > 0).map((c) => ({ ...c, templates: wired.get(c.coord) || [] }));
+  const known = new Set(rows.map((r) => r.coord));
+  const allCells = new Map(entranceCells().map((c) => [c.coord, c]));
+  for (const [coord, templates] of wired) {
+    if (known.has(coord)) continue;
+    const c = allCells.get(coord);
+    rows.push({ coord, gridType: c?.gridType || '?', settlement: c?.settlement || '', dir: c?.dir, file: c?.file, count: 0, templates, stale: true });
+  }
+  for (const r of rows) {
+    if (r.count > 1) r.status = { level: 'error', text: `${r.count} entrances in this cell: only one is allowed. Remove the extras in Layouts.` };
+    else if (r.stale) r.status = { level: 'error', text: c0(r) };
+    else if (r.templates.length > 1) r.status = { level: 'error', text: `Wired to ${r.templates.length} dungeons (${r.templates.join(', ')}). Pick one to fix it.` };
+    else if (!r.templates.length) r.status = { level: 'warn', text: 'No dungeon assigned: the entrance leads nowhere.' };
+    else if (!D.templates.includes(r.templates[0])) r.status = { level: 'error', text: `Template ${r.templates[0]} has no layout file.` };
+    else r.status = { level: 'ok', text: 'OK' };
+  }
+  const order = { error: 0, warn: 1, ok: 2 };
+  return rows.sort((a, b) => order[a.status.level] - order[b.status.level] || a.coord - b.coord);
+}
+function c0(r) {
+  return r.dir ? 'Wired, but this cell\'s layout has no Dungeon Entrance. Unlink it, or place one in Layouts.' : 'Wired, but this is not a town or valley cell in this frontier. Unlink it.';
 }
 
 // ----------------------------------------------------------------------------- data
-async function loadWorld() {
-  const [frontiers, settlements, layouts] = await Promise.all([game.get('/api/frontiers'), game.get('/api/settlements'), local.layouts()]);
-  D.frontiers = frontiers || [];
-  D.settlements = settlements || [];
-  D.templates = layouts.dirs.dungeon || [];
-  if (!D.createTemplate && D.templates.length) D.createTemplate = D.templates[0];
-  if (!D.frontierId && D.frontiers.length) D.frontierId = idOf(D.frontiers[0]);
-  D.loaded = true;
-}
-async function loadGrids() {
-  const grids = await game.get('/api/grids?gridType=dungeon&isTemplate=true');
-  D.grids = (grids || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-async function loadFrontier() {
-  D.frontier = D.frontierId ? await game.get(`/api/get-frontier/${D.frontierId}`) : null;
-}
-async function reload({ keepEdits = true } = {}) {
+async function load() {
   setStatus('Loading dungeons…');
-  try {
-    await Promise.all([loadGrids(), loadFrontier()]);
-    if (!keepEdits) D.edits = {};
-    setStatus(`${D.grids.length} dungeon template grids`);
+  try { // this machine's layout files first, so the templates list even when the game server is down
+    const [layouts, counts] = await Promise.all([
+      local.layouts(),
+      // an editor server started before this endpoint existed answers 404: say so, keep going
+      local.dungeonEntrances().catch((err) => { toast(`Entrances could not be read (${err.message}). Restart the editor server.`, 'error'); return null; }),
+    ]);
+    D.templates = (layouts.dirs.dungeon || []).filter((t) => t !== 'opening');
+    D.townLayouts = layouts.dirs.town || [];
+    D.counts = counts || { town: {}, valleyFixedCoord: {} };
+    const [frontiers, settlements] = await Promise.all([game.get('/api/frontiers'), game.get('/api/settlements')]);
+    D.frontiers = frontiers || [];
+    D.settlements = settlements || [];
+    if (!D.frontierId || !D.frontiers.some((f) => idOf(f) === D.frontierId)) D.frontierId = D.frontiers.length ? idOf(D.frontiers[0]) : null;
+    D.frontier = D.frontierId ? await game.get(`/api/get-frontier/${D.frontierId}`) : null;
+    setStatus('');
   } catch (err) {
     setStatus('');
     toast(`Load failed: ${err.message}`, 'error');
   }
-  renderSelection();
-  renderEditor();
+  render();
 }
 
-// ----------------------------------------------------------------------------- live writes (all behind confirm)
-async function createDungeon() {
-  const tpl = D.createTemplate;
-  if (!tpl) return toast('Pick a template first', 'warn');
-  if (!D.frontierId) return toast('Pick a frontier first', 'warn');
-  const ok = await confirm(`Create a new dungeon template grid from "${tpl}" in frontier "${frontierName(D.frontierId)}"? This writes a Grid document and a registry entry on the frontier.`, { title: 'Create dungeon', okLabel: 'Create' });
-  if (!ok) return;
-  D.busy = true; renderSelection();
+/** Wire (template) or unwire (null) one entrance cell, after a confirm. */
+async function setEntrance(coord, template) {
+  const fname = D.frontiers.find((f) => idOf(f) === D.frontierId)?.name || 'this frontier';
+  const msg = template
+    ? `Wire the entrance at ${coord} (${cellLabel(coord)}) to the ${template} dungeon in ${fname}?`
+    : `Unlink the entrance at ${coord} (${cellLabel(coord)}) in ${fname}? It will lead nowhere.`;
+  if (!(await confirm(msg, { title: template ? 'Wire entrance' : 'Unlink entrance', okLabel: template ? 'Wire' : 'Unlink', danger: !template }))) { render(); return; }
+  D.busyCoord = coord; render();
   try {
-    const res = await game.post('/api/create-dungeon', { templateFilename: tpl, settlementId: D.frontierId, frontierId: D.frontierId });
-    toast(`Created dungeon ${idOf(res?.grid)} (${res?.grid?.templateUsed || tpl})`);
-    D.selectedId = idOf(res?.grid) || D.selectedId;
-    await reload();
-    D.ctx.navigate(`dungeons/${D.frontierId}/${D.selectedId}`);
-  } catch (err) { showError('Create dungeon failed', err); }
-  D.busy = false; renderSelection();
+    await game.post('/api/set-dungeon-entrance', { frontierId: D.frontierId, gridCoord: coord, template });
+    D.frontier = await game.get(`/api/get-frontier/${D.frontierId}`);
+    toast(template ? `${coord} now leads to ${template}` : `${coord} unlinked`);
+  } catch (err) { showError('Could not save', err); }
+  D.busyCoord = null; render();
 }
 
-async function saveConfig(id) {
-  const cfg = configFor(id);
-  if (!cfg.hasChanges) return;
-  const coords = cfg.entranceGridCoords.filter(isGridCoord).map(Number);
-  const dropped = cfg.entranceGridCoords.length - coords.length;
-  const ok = await confirm(el('div', {}, [
-    el('p', {}, `Save registry config for dungeon ${id} on frontier "${frontierName(D.frontierId)}"?`),
-    el('div', { class: 'mono' }, `templateUsed: ${cfg.templateUsed || '(empty)'}`),
-    el('div', { class: 'mono' }, `entranceGrids: ${coords.length ? coords.join(', ') : '(none)'}`),
-    dropped ? el('div', { class: 'note' }, `${dropped} legacy non-numeric entrance id(s) will be dropped.`) : null,
-  ]), { title: 'Save dungeon config', okLabel: 'Save' });
-  if (!ok) return;
-  D.busy = true; renderEditor();
-  try {
-    const res = await game.post('/api/update-dungeon-config', { frontierId: D.frontierId, dungeonGridId: id, templateUsed: cfg.templateUsed, entranceGridCoords: coords });
-    delete D.edits[id];
-    toast(`Saved: template ${res?.dungeon?.templateUsed || cfg.templateUsed}, ${(res?.dungeon?.entranceGrids || coords).length} entrance cell(s)`);
-    await reload();
-  } catch (err) { showError('Save dungeon config failed', err); }
-  D.busy = false; renderEditor();
+// ----------------------------------------------------------------------------- render
+function render() {
+  if (!D.active) return;
+  const rows = buildRows();
+  renderSelection(rows);
+  renderEditor(rows);
 }
 
-async function resetDungeon(id) {
-  const ok = await confirm(`Reset dungeon grid ${id}? All resources and NPCs are regenerated from the template recorded for it (templateKey, else the frontier registry). Players inside lose their progress in this instance.`, { title: 'Reset dungeon', okLabel: 'Reset', danger: true });
-  if (!ok) return;
-  D.busy = true; renderEditor();
-  try {
-    const res = await game.post('/api/reset-dungeon', { gridId: id });
-    toast(res?.message || 'Dungeon reset');
-    await reload();
-  } catch (err) { showError('Reset dungeon failed', err); }
-  D.busy = false; renderEditor();
-}
-
-async function deleteDungeon(id) {
-  const ok = await confirm(`Delete dungeon grid ${id} and remove it from the frontier registry? This cannot be undone.`, { title: 'Delete dungeon', okLabel: 'Delete', danger: true });
-  if (!ok) return;
-  D.busy = true; renderEditor();
-  try {
-    const res = await game.delete(`/api/delete-dungeon/${id}`);
-    toast(res?.message || 'Dungeon deleted');
-    delete D.edits[id];
-    if (D.selectedId === id) D.selectedId = null;
-    await reload();
-    D.ctx.navigate(`dungeons/${D.frontierId}`);
-  } catch (err) { showError('Delete dungeon failed', err); }
-  D.busy = false; renderEditor();
-}
-
-/** Validate the chosen cell against its live template grid (read only), then add it to the edit. */
-async function addEntrance(id, coordRaw) {
-  if (!isGridCoord(coordRaw)) return;
-  const gridCoord = Number(coordRaw);
-  const cell = entranceCells().find((c) => c.gridCoord === gridCoord);
-  if (!cell) return toast(`gridCoord ${gridCoord} is not a created town/valley cell in this frontier`, 'warn');
-  if (configFor(id).entranceGridCoords.includes(gridCoord)) return toast('This cell is already linked to this dungeon', 'warn');
-  try {
-    const res = await game.get(`/api/grid-has-resource?gridId=${encodeURIComponent(cell.gridId)}&resourceType=${encodeURIComponent(ENTRANCE_RESOURCE)}`);
-    if (!res?.hasResource) return toast(`Cell ${formatGridCoord(gridCoord)} has no ${ENTRANCE_RESOURCE} resource${res?.error ? ` (${res.error})` : ''}`, 'warn');
-  } catch (err) { return showError('Entrance validation failed', err); }
-  D.addCoord = '';
-  setEdit(id, { entranceGridCoords: [...configFor(id).entranceGridCoords, gridCoord] });
-}
-function removeEntrance(id, gridCoord) {
-  setEdit(id, { entranceGridCoords: configFor(id).entranceGridCoords.filter((c) => c !== gridCoord) });
-}
-
-// ----------------------------------------------------------------------------- selection panel
-function renderSelection() {
+function renderSelection(rows) {
   const s = clear(D.els.selection);
   s.appendChild(el('h2', {}, 'Dungeons'));
-
-  const frontierSel = el('select', { title: 'Frontier whose registry and entrance cells are edited', onchange: (e) => { D.frontierId = e.target.value; D.selectedId = null; D.ctx.navigate(`dungeons/${D.frontierId}`); } },
+  const frontierSel = el('select', { onchange: (e) => { D.frontierId = e.target.value; D.ctx.navigate(`dungeons/${D.frontierId}`); } },
     D.frontiers.length ? D.frontiers.map((f) => el('option', { value: idOf(f), selected: idOf(f) === String(D.frontierId) }, f.name)) : [el('option', { value: '' }, 'no frontiers')]);
   s.appendChild(el('div', { class: 'row' }, [el('label', {}, 'Frontier'), frontierSel]));
 
-  s.appendChild(el('h3', {}, 'Create from template'));
-  const tplSel = el('select', { onchange: (e) => { D.createTemplate = e.target.value; } }, [
-    el('option', { value: '' }, 'Select template…'),
-    ...D.templates.map((t) => el('option', { value: t, selected: D.createTemplate === t }, t)),
-  ]);
-  s.appendChild(el('div', { class: 'row' }, [tplSel, el('button', { class: 'primary', disabled: D.busy || !D.createTemplate || !D.frontierId, onclick: createDungeon }, D.busy ? 'Working…' : '+ Create')]));
-  s.appendChild(el('div', { class: 'note' }, 'Templates are the files in game-server/layouts/gridLayouts/dungeon/. Design new ones in the Layouts tab (dungeon directory).'));
-
-  const mine = D.grids.filter((g) => idOf(g.frontierId) === String(D.frontierId));
-  const others = D.grids.filter((g) => idOf(g.frontierId) !== String(D.frontierId));
-  s.appendChild(el('h3', {}, `Template grids (${mine.length})`));
-  const list = el('ul', { class: 'list' });
-  const item = (g, foreign) => {
-    const id = idOf(g);
-    const cfg = configFor(id);
-    return el('li', { class: [D.selectedId === id && 'active', foreign && 'muted'].filter(Boolean).join(' '), title: id, onclick: () => D.ctx.navigate(`dungeons/${D.frontierId}/${id}`) }, [
-      el('span', {}, [el('span', { class: 'mono' }, shortId(id)), ' ', cfg.templateUsed || el('em', {}, 'no template')]),
-      cfg.hasChanges ? el('span', { class: 'badge warn' }, 'unsaved') : null,
-    ]);
-  };
-  for (const g of mine) list.appendChild(item(g, false));
-  if (!mine.length) list.appendChild(el('li', { class: 'muted' }, 'no dungeon grids in this frontier'));
-  s.appendChild(list);
-  if (others.length) {
-    s.appendChild(el('h3', {}, `Other or unassigned frontier (${others.length})`));
-    const list2 = el('ul', { class: 'list' });
-    for (const g of others) list2.appendChild(item(g, true));
-    s.appendChild(list2);
-  }
-}
-
-// ----------------------------------------------------------------------------- editor space
-function renderEditor() {
-  const root = clear(D.els.editor);
-  const id = D.selectedId;
-  const grid = id ? gridById(id) : null;
-  if (!grid) {
-    root.appendChild(el('div', { class: 'toolbar' }, [el('strong', {}, 'Dungeons'), el('span', { class: 'spacer' }), el('button', { onclick: () => reload() }, '↻ Reload')]));
-    root.appendChild(el('div', { class: 'stub' }, D.grids.length ? 'Choose a dungeon template grid on the left, or create one.' : 'No dungeon template grids yet. Create one from a template on the left.'));
-    return;
-  }
-  const cfg = configFor(id);
-  const reg = registryEntry(id);
-  const foreign = idOf(grid.frontierId) !== String(D.frontierId);
-
-  const tb = el('div', { class: 'toolbar' }, [
-    el('strong', { class: 'mono', title: id }, id),
-    el('span', { class: 'badge' }, `created ${fmtDate(grid.createdAt)}`),
-    cfg.hasChanges ? el('span', { class: 'badge warn' }, 'unsaved') : el('span', { class: 'badge' }, 'saved'),
-    el('span', { class: 'spacer' }),
-    el('button', { onclick: () => reload(), disabled: D.busy }, '↻ Reload'),
-    el('button', { class: 'primary', disabled: D.busy || !cfg.hasChanges, onclick: () => saveConfig(id), title: 'POST /api/update-dungeon-config' }, 'Save config'),
-    el('button', { disabled: D.busy, onclick: () => resetDungeon(id), title: 'POST /api/reset-dungeon: regenerate resources and NPCs from the template' }, '🔄 Reset grid'),
-    el('button', { class: 'danger', disabled: D.busy, onclick: () => deleteDungeon(id), title: 'DELETE /api/delete-dungeon/:gridId' }, '🗑 Delete'),
-  ]);
-  const body = el('div', { class: 'tab-body' });
-  root.append(tb, body);
-
-  if (foreign) body.appendChild(el('div', { class: 'note warn-note' }, `This grid belongs to frontier "${frontierName(grid.frontierId)}" but the registry you are editing is frontier "${frontierName(D.frontierId)}". Switch the frontier picker to edit its own registry entry.`));
-  if (!reg) body.appendChild(el('div', { class: 'note warn-note' }, `No registry entry for this grid in frontier "${frontierName(D.frontierId)}" (frontier.dungeons). Saving creates one with the fields below.`));
-
-  // registry (read only)
-  body.appendChild(el('h3', {}, 'Registry (frontier.dungeons)'));
-  body.appendChild(el('div', { class: 'kv mono' }, [
-    el('span', {}, 'frontier'), el('span', {}, frontierName(grid.frontierId)),
-    el('span', {}, 'settlementId'), el('span', {}, idOf(grid.settlementId) || 'n/a'),
-    el('span', {}, 'createdAt'), el('span', {}, fmtDate(reg?.createdAt || grid.createdAt)),
-    el('span', {}, 'lastReset'), el('span', {}, fmtDate(reg?.lastReset)),
-    el('span', {}, 'needsReset'), el('span', {}, reg ? String(!!reg.needsReset) : 'n/a'),
-    el('span', {}, 'sourceValleyGrid'), el('span', {}, reg?.sourceValleyGrid || 'null'),
+  s.appendChild(el('h3', {}, 'How it works'));
+  s.appendChild(el('ol', { class: 'note', style: { paddingLeft: '18px' } }, [
+    el('li', {}, 'Layouts tab, dungeon directory, + New: make a dungeon template.'),
+    el('li', {}, 'Layouts tab: place one Dungeon Entrance on a town or valley layout.'),
+    el('li', {}, 'Here: pick the dungeon each entrance leads to. It saves at once.'),
   ]));
 
-  // template
-  body.appendChild(el('h3', {}, 'Template used'));
-  const tplSel = el('select', { disabled: D.busy, onchange: (e) => setEdit(id, { templateUsed: e.target.value }) }, [
-    el('option', { value: '' }, 'Select…'),
-    ...D.templates.map((t) => el('option', { value: t, selected: cfg.templateUsed === t }, t)),
-    cfg.templateUsed && !D.templates.includes(cfg.templateUsed) ? el('option', { value: cfg.templateUsed, selected: true }, `${cfg.templateUsed} (file missing)`) : null,
-  ]);
-  body.appendChild(el('div', { class: 'row' }, [tplSel, el('span', { class: 'note' }, 'Used by Reset when the grid has no templateKey, and by per-player copies.')]));
+  const n = (lvl) => rows.filter((r) => r.status.level === lvl).length;
+  s.appendChild(el('h3', {}, 'Summary'));
+  s.appendChild(el('div', { class: 'row', style: { gap: '6px', flexWrap: 'wrap' } }, [
+    el('span', { class: 'badge' }, `${rows.filter((r) => !r.stale).length} entrances`),
+    el('span', { class: 'badge' }, `${n('ok')} wired`),
+    n('warn') ? el('span', { class: 'badge warn' }, `${n('warn')} unassigned`) : null,
+    n('error') ? el('span', { class: 'badge error' }, `${n('error')} errors`) : null,
+  ]));
 
-  // entrances
-  body.appendChild(el('h3', {}, `Entrance cells (${cfg.entranceGridCoords.length})`));
-  body.appendChild(el('div', { class: 'note' }, 'Town/valley cells whose Dungeon Entrance resource leads into this dungeon, keyed by gridCoord. Adding a cell checks the live template grid for the resource; Save re-validates on the server.'));
-  const chips = el('div', { class: 'chips' }, cfg.entranceGridCoords.length ? cfg.entranceGridCoords.map((c) => el('span', { class: 'chip' }, [
-    formatGridCoord(c), ' ',
-    el('button', { class: 'chip-x', title: `Remove ${c}`, disabled: D.busy, onclick: () => removeEntrance(id, c) }, '×'),
-  ])) : [el('span', { class: 'muted' }, 'None')]);
-  body.appendChild(chips);
-  const addable = entranceCells().filter((c) => !cfg.entranceGridCoords.includes(c.gridCoord));
-  const addSel = el('select', { disabled: D.busy, onchange: (e) => { D.addCoord = e.target.value; addBtn.disabled = !D.addCoord; } }, [
-    el('option', { value: '' }, addable.length ? 'Select cell…' : 'No created town/valley cells in this frontier'),
-    ...addable.map((c) => el('option', { value: c.gridCoord, selected: String(D.addCoord) === String(c.gridCoord) }, `${formatGridCoord(c.gridCoord)} ${c.gridType} · ${c.settlement}`)),
+  s.appendChild(el('h3', {}, `Dungeon templates (${D.templates.length})`));
+  const used = new Map();
+  for (const r of rows) for (const t of r.templates) used.set(t, (used.get(t) || 0) + 1);
+  const list = el('ul', { class: 'list' }, D.templates.map((t) => el('li', { title: 'Open in the Layouts tab', onclick: () => D.ctx.navigate(`layouts/dungeon/${encodeURIComponent(t)}`) }, [
+    el('span', {}, t),
+    used.get(t) ? el('span', { class: 'badge' }, `${used.get(t)} entrance${used.get(t) > 1 ? 's' : ''}`) : el('span', { class: 'muted' }, 'unused'),
+  ])));
+  s.appendChild(list);
+  s.appendChild(el('div', { class: 'note' }, 'The FTUE opening cave is wired by the game itself and is not listed.'));
+}
+
+function renderEditor(rows) {
+  const root = clear(D.els.editor);
+  root.appendChild(el('div', { class: 'toolbar' }, [
+    el('strong', {}, 'Dungeon entrances'),
+    el('span', { class: 'spacer' }),
+    el('button', { onclick: () => load(), title: 'Re-read the layouts and the frontier registry' }, '↻ Reload'),
+  ]));
+  const body = el('div', { class: 'tab-body' });
+  root.appendChild(body);
+  if (!D.frontier) { body.appendChild(el('div', { class: 'stub' }, 'No frontier loaded.')); return; }
+  if (!rows.length) { body.appendChild(el('div', { class: 'stub' }, 'No Dungeon Entrances on this frontier\'s town or valley layouts yet. Place one in the Layouts tab.')); return; }
+
+  const tag = { ok: null, warn: 'warn', error: 'error' };
+  const table = el('table', { class: 'plain' }, [
+    el('thead', {}, el('tr', {}, ['Cell', 'Where', 'Layout', 'Leads to', 'Status'].map((h) => el('th', {}, h)))),
+    el('tbody', {}, rows.map((r) => {
+      const busy = D.busyCoord === r.coord;
+      const current = r.templates.length === 1 ? r.templates[0] : '';
+      const sel = el('select', {
+        disabled: busy || !!D.busyCoord || r.count > 1,
+        onchange: (e) => setEntrance(r.coord, e.target.value || null),
+      }, [
+        el('option', { value: '', selected: !current }, r.templates.length > 1 ? 'Choose one…' : '(none)'),
+        ...D.templates.map((t) => el('option', { value: t, selected: t === current }, t)),
+        current && !D.templates.includes(current) ? el('option', { value: current, selected: true }, `${current} (missing)`) : null,
+      ]);
+      const layoutLink = r.dir
+        ? el('a', { href: '#', onclick: (e) => { e.preventDefault(); D.ctx.navigate(`layouts/${r.dir}/${encodeURIComponent(r.file)}`); } }, `${r.dir}/${r.file}`)
+        : el('span', { class: 'muted' }, 'n/a');
+      return el('tr', {}, [
+        el('td', { class: 'mono' }, [String(r.coord), el('div', { class: 'muted' }, cellLabel(r.coord))]),
+        el('td', {}, [r.gridType === 'town' ? 'Town' : 'Valley', r.settlement ? el('div', { class: 'muted' }, r.settlement) : null]),
+        el('td', {}, layoutLink),
+        el('td', {}, [busy ? 'Saving…' : sel, r.stale && r.templates.length ? el('button', { style: { marginLeft: '6px' }, disabled: !!D.busyCoord, onclick: () => setEntrance(r.coord, null) }, 'Unlink') : null]),
+        el('td', {}, tag[r.status.level] ? el('span', { class: `badge ${tag[r.status.level]}` }, r.status.text) : el('span', { class: 'muted' }, r.status.text)),
+      ]);
+    })),
   ]);
-  const addBtn = el('button', { disabled: D.busy || !D.addCoord, onclick: () => addEntrance(id, D.addCoord) }, 'Add cell');
-  body.appendChild(el('div', { class: 'row', style: { marginTop: '6px' } }, [addSel, addBtn]));
+  body.appendChild(table);
+  if (rows.some((r) => r.gridType === 'town')) {
+    body.appendChild(el('div', { class: 'note' }, 'Each settlement has its own Town cell, so a town entrance is wired once per settlement, even when they share one town layout.'));
+  }
+  body.appendChild(el('div', { class: 'note' }, 'Entrances are read from the layout files on this machine. The game server only accepts a wiring once that layout and the dungeon template are pushed. Players who already have a copy of a cell see a new entrance after that copy is reset.'));
 }
 
 // ----------------------------------------------------------------------------- tab
@@ -317,19 +245,9 @@ export function dungeonsTab() {
     async mount(selectionEl, editorEl, ctx, route) {
       D.ctx = ctx; D.els.selection = selectionEl; D.els.editor = editorEl; D.active = true;
       clear(editorEl).appendChild(el('div', { class: 'stub' }, 'Loading dungeons…'));
-      const [, frontierId, dungeonId] = route.split('/');
-      try {
-        if (!D.loaded) await loadWorld();
-      } catch (err) {
-        clear(editorEl).appendChild(el('div', { class: 'stub' }, `Dungeons failed to load: ${err.message}`));
-        return;
-      }
-      const wanted = frontierId && D.frontiers.some((f) => idOf(f) === frontierId) ? frontierId : D.frontierId;
-      const frontierChanged = wanted !== D.frontierId || !D.frontier;
-      D.frontierId = wanted;
-      D.selectedId = dungeonId || D.selectedId;
-      if (frontierChanged || !D.grids.length) await reload();
-      else { renderSelection(); renderEditor(); }
+      const [, frontierId] = route.split('/');
+      if (frontierId) D.frontierId = frontierId;
+      await load();
     },
     unmount() { D.active = false; },
   };

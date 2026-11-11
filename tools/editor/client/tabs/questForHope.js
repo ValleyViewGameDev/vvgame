@@ -11,7 +11,7 @@ import { local, game } from '../core/api.js';
 const TOWN_RE = /^town\/town[NESW]$/;
 
 async function dungeonEntrances() {
-  // templateUsed (e.g. "dPhoenix.json") -> [entrance gridCoords], from every frontier's registry
+  // templateUsed (e.g. "d005_Phoenix") -> [entrance gridCoords], from every frontier's registry
   const out = new Map();
   try {
     const frontiers = await game.get('/api/frontiers');

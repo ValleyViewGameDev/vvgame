@@ -115,6 +115,23 @@ function listLayouts() {
   return dirs;
 }
 
+/** Dungeon Tab: how many Dungeon Entrances (layout key DIn) each town and fixed-coordinate valley
+ *  layout holds, only the layouts holding at least one: { town: { townN: 1 }, valleyFixedCoord: { 1011156: 1 } }. */
+function dungeonEntranceCounts() {
+  const out = { town: {}, valleyFixedCoord: {} };
+  for (const d of Object.keys(out)) {
+    const dir = path.join(LAYOUTS_DIR, 'gridLayouts', d);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+      try {
+        const n = (readJSONFile(path.join(dir, f)).resources || []).flat().filter((k) => k === 'DIn').length;
+        if (n) out[d][f.replace(/\.json$/, '')] = n;
+      } catch (e) { /* unreadable layout: skipped */ }
+    }
+  }
+  return out;
+}
+
 function resourcesJSON() { return readJSONFile(path.join(GAME_SERVER_DIR, 'tuning', 'resources.json')); }
 
 function validateLayout(layout) {
@@ -245,6 +262,7 @@ async function handle(req, res) {
   }
 
   if (p === '/api/local/layouts' && req.method === 'GET') return sendJSON(res, 200, { dirs: listLayouts() });
+  if (p === '/api/local/dungeon-entrances') return sendJSON(res, 200, dungeonEntranceCounts());
   if ((x = m('GET', /^\/api\/local\/layouts\/([^/]+)\/([^/]+)$/))) {
     const [, dir, name] = x;
     if (!GRID_LAYOUT_DIRS.includes(dir) || !safeName(name)) return sendError(res, 400, 'bad layout path');
