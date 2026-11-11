@@ -120,7 +120,7 @@ export default function SellSection({ resourceType, masterResources, refund, onS
           onClick={confirmThenSell}
           disabled={disabled || selling}
         >
-          {selling ? '⏳' : label}
+          {selling ? <span className="btn-spinner" /> : label}
         </button>
       )}
       {v.move && (

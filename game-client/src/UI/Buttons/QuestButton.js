@@ -4,6 +4,7 @@ import './QuestButton.css';
 import { useStrings } from '../StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import XpStar from '../Icons/XpStar';
+import './SharedButtons.css'; // .btn-spinner
 
 // A goal's words on a card: the item's display name (the Farm Hand is Audrey), and "Hire" for a farm
 // worker, whose goal is a Craft at the Farm House underneath
@@ -178,7 +179,7 @@ const QuestGiverButton = ({
         data-no-click-sfx={noClickSfx ? 'true' : undefined}
         disabled={isDisabled || busy}
       >
-        {busy ? '⏳' : buttonText}
+        {busy ? <span className="btn-spinner" /> : buttonText}
       </button>
     </div>
   );

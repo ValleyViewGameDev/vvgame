@@ -9,6 +9,7 @@ import { canHover } from '../../Utils/inputMode';
 import InfoButton from './InfoButton';
 import ResourceIcon from '../Icons/ResourceIcon';
 import './ResourceButton.css';
+import './SharedButtons.css'; // .btn-spinner
 
 // Function to format numbers in HTML details strings
 const formatDetailsForDisplay = (details) => {
@@ -201,7 +202,7 @@ const ResourceButton = ({
 
           {/* Processing overlay - hourglass centered on button */}
           {isProcessing && (
-            <span className="resource-button-processing-overlay">⏳</span>
+            <span className="resource-button-processing-overlay"><span className="btn-spinner" /></span>
           )}
 
 

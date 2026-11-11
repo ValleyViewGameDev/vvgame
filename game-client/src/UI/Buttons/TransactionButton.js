@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './SharedButtons.css'; // .btn-spinner
 
 /**
  * A button component that prevents transaction spamming by managing its own state
@@ -44,7 +45,7 @@ const TransactionButton = ({
         cursor: (disabled || isProcessing) ? 'not-allowed' : 'pointer'
       }}
     >
-      {isProcessing ? '⏳' : children}
+      {isProcessing ? <span className="btn-spinner" /> : children}
     </button>
   );
 };

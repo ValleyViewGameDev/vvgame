@@ -446,7 +446,8 @@ so wrap any new text surface in it. For a `title` attribute use `plainText(text)
   text color) in place of the label, keeping their face; work that leaves the page (a reload)
   starts after two animation frames so the spinner is painted first (the Refresh button of
   `UI/Modals/UpdatePrompt.js`, 2026-11-11). Card buttons in transaction mode (`ResourceButton`,
-  `QuestButton`, `TransactionButton`) show their ⏳ state the same way.
+  `QuestButton`, `TransactionButton`) and the Sell button (`SellSection`) show the same spinner
+  while they wait (it replaced their ⏳, 2026-11-11).
 
 ## 6. Board interaction
 
