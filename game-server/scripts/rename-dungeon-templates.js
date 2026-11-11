@@ -4,8 +4,7 @@
  * they are persisted:
  *   - frontiers: dungeons.<id>.templateUsed
  *   - grids:     templateKey 'dungeon:<old>' (the template instance and every player's copy)
- * Until it runs, the server still finds the file through RENAMED_TEMPLATES (utils/dungeonUtils.js),
- * so it is safe to run after the deploy.
+ * APPLIED to production 2026-11-11. The server's old-name alias map was removed afterwards.
  *
  *   node scripts/backup.js                           first
  *   node scripts/rename-dungeon-templates.js          dry run: what would change
@@ -14,7 +13,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 
-const { RENAMED_TEMPLATES } = require('../utils/dungeonUtils');
+const RENAMED_TEMPLATES = { d001: 'd001_Large', d002: 'd002_TownCellar', d003: 'd003_Zombie', dPhoenix: 'd005_Phoenix' };
 const apply = process.argv.includes('--apply');
 
 (async () => {

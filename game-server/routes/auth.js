@@ -123,8 +123,8 @@ async function createPlayerAccount({ username, silent, hashedPassword, ipHash, i
   // Homestead will be created when they buy the Home Deed
   // FTUE: every new player gets their own copy of the tutorial cave (docs/phase-2-contract.md).
   const { createDungeonGrid, FTUE_TEMPLATE, FTUE_KEY } = require('../utils/dungeonUtils');
-  const FTUE_CAVE_START_X = 4;
-  const FTUE_CAVE_START_Y = 9;
+  const FTUE_CAVE_START_X = 6; // 2026-11-11: was (4,9), now an Oak Tree after the townN copy
+  const FTUE_CAVE_START_Y = 11;
   const newPlayerId = new mongoose.Types.ObjectId();
   const caveGrid = await createDungeonGrid(FTUE_TEMPLATE, {
     frontierId, settlementId: frontierId, ownerId: newPlayerId, templateKey: FTUE_KEY,

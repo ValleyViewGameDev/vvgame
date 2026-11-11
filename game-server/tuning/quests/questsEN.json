@@ -240,20 +240,6 @@
     "goal2qty": 8
   },
   {
-    "index": 9,
-    "title": "Hire Farm Hand",
-    "symbol": "👵🏻",
-    "level": 5,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Money",
-    "rewardqty": 1000,
-    "xp": 25,
-    "goal1action": "Craft",
-    "goal1item": "Farm Hand",
-    "goal1qty": 1
-  },
-  {
     "index": 26,
     "title": "Master Mason",
     "symbol": "👵🏻",

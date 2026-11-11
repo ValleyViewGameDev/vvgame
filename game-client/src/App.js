@@ -4242,6 +4242,7 @@ return (
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           globalTuning={globalTuning}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'ShopStation' && (

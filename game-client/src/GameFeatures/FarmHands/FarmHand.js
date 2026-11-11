@@ -6,7 +6,7 @@ import ProgressModal from '../../UI/Modals/ProgressModal';
 import '../../UI/Buttons/ResourceButton.css';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { resourceIconHtml } from '../../UI/Icons/ResourceIcon';
-import { canAfford, ensureRoomFor } from '../../Utils/InventoryManagement';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { useStrings } from '../../UI/StringsContext';
@@ -22,8 +22,6 @@ import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './
 import { showBulkResults } from './BulkResultsHost';
 import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
-import { isACrop } from '../../Utils/ResourceHelpers';
-import { getDerivedLevel } from '../../Utils/playerManagement';
 import CitizenStatusLine from '../NPCs/CitizenStatusLine';
 import WorkerAutoWorkToggle from './WorkerAutoWorkToggle';
 import { gameConfirm } from '../../UI/Modals/GameDialog';
@@ -70,7 +68,6 @@ const FarmHandPanel = ({
   masterXPLevels = [],
 }) => {
   const strings = useStrings();
-  const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationDetails, setStationDetails] = useState(null);
   const [workerSkills, setFarmhandSkills] = useState([]);
@@ -124,7 +121,6 @@ const FarmHandPanel = ({
   const showBulkReplant = npcType === 'Farm Hand' && hasBulkReplant;
   const showBulkAnimalCollect = npcType === 'Rancher';
   const showLogging = npcType === 'Lumberjack';
-  const showCropPurchase = npcType === 'Farm Hand';
   const showBulkCrafting = npcType === 'Crafter';
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
@@ -148,53 +144,9 @@ const FarmHandPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
-  // Calculate player level for filtering crops
-  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
-
   useEffect(() => {
-    try {
-      // Combine inventory and backpack for quantity checks
-      const safeInventory = Array.isArray(inventory) ? inventory : [];
-      const safeBackpack = Array.isArray(backpack) ? backpack : [];
-
-      const filteredRecipes = masterResources.filter((res) => {
-        // Must be a crop (output of a farmplot)
-        if (!isACrop(res.type, masterResources)) return false;
-
-        // Check devonly restriction (allow if isDeveloper)
-        if (res.requires === 'devonly' && !isDeveloper) return false;
-
-        // A regional crop (its plot has a growregion: Blueberry, Coffee Cherry, ...) is never sold
-        // here: you grow it in its region (docs/tuning.md 4m)
-        if (masterResources.some((p) => p.category === 'farmplot' && p.output === res.type && p.growregion)) return false;
-
-        // Check seasonal restriction (allow if isDeveloper)
-        if (!isDeveloper && res.season && currentSeason && res.season !== currentSeason) {
-          return false;
-        }
-
-        // Check level restriction (allow if isDeveloper)
-        if (!isDeveloper && res.level && res.level > playerLevel) {
-          return false;
-        }
-
-        // Hide crops the player already has 10+ of (this is a safety net, not a primary source)
-        const inventoryQty = safeInventory.find(item => item.type === res.type)?.quantity || 0;
-        const backpackQty = safeBackpack.find(item => item.type === res.type)?.quantity || 0;
-        if (inventoryQty + backpackQty > 9) {
-          return false;
-        }
-
-        return true;
-      });
-      setRecipes(filteredRecipes);
-
-      const stationResource = masterResources.find((res) => res.type === stationType);
-      setStationDetails(stationResource);
-    } catch (error) {
-      console.error('Error loading worker offers:', error);
-    }
-  }, [stationType, masterResources, currentSeason, isDeveloper, playerLevel, inventory, backpack]);
+    setStationDetails(masterResources.find((res) => res.type === stationType));
+  }, [stationType, masterResources]);
 
   useEffect(() => {
     const ownedTypes = withWorkerSkill(currentPlayer.skills, npcType).map(skill => skill.type);
@@ -225,24 +177,6 @@ const FarmHandPanel = ({
   }, [masterResources, currentPlayer, npcType]);
 
   const deltaSetters = { setCurrentPlayer, setInventory, setBackpack };
-
-  // A crop for maxprice x 10 Money: ONE request (game-server routes/actionRoutes.js
-  // /action/farmhand-buy-crop), which checks the offer, room and money itself
-  const handleTrade = async (resource) => {
-    setErrorMessage('');
-    const cost = (resource.maxprice || 100) * 10;
-    const safeInventory = Array.isArray(inventory) ? inventory : [];
-    const safeBackpack = Array.isArray(backpack) ? backpack : [];
-    // Room first, money second: a full Warehouse or Backpack says so and nothing is spent
-    if (!ensureRoomFor({ resource: resource.type, quantity: 1, currentPlayer, inventory: safeInventory, backpack: safeBackpack, masterResources, globalTuning, updateStatus })) return;
-    const answer = await postAction('/api/action/farmhand-buy-crop', { playerId: currentPlayer.playerId, cropType: resource.type });
-    applyPlayerDelta(answer.data, deltaSetters);
-    if (!answer.ok) {
-      setErrorMessage(answer.reason === 'short-Money' ? 'Not enough Gold.' : 'Not enough space to carry that item.');
-      return;
-    }
-    updateStatus(`Bought 1 ${resource.type} for ${cost} Gold.`);
-  };
 
   // A skill: ONE request (/action/buy-skill), priced from resources.json on the server
   const handlePurchaseSkill = async (resource) => {
@@ -818,33 +752,6 @@ const FarmHandPanel = ({
                 />
               );
             })}
-          </>
-        )}
-
-        {showCropPurchase && (
-          <>
-            <h3>{strings[426]}</h3>
-            {recipes?.length > 0 ? (
-              recipes.map((resource) => {
-                const cost = (resource.maxprice || 100) * 10;
-                const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
-                                    (backpack.find((item) => item.type === 'Money')?.quantity || 0);
-                const affordable = playerMoney >= cost;
-                const details = `${strings[347]} ${resourceIconHtml('Money', masterResources)} ${cost}`;
-                return (
-                  <ResourceButton
-                    key={resource.type}
-                    symbol={resource.symbol}
-                    resource={resource}
-                    name={resource.type}
-                    className="resource-button"
-                    details={details}
-                    disabled={!affordable}
-                    onClick={() => handleTrade(resource)}
-                  />
-                );
-              })
-            ) : <p>{strings[423]}</p>}
           </>
         )}
 

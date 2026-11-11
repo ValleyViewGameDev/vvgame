@@ -19,7 +19,6 @@ export const QUEST_DISPLAY_TITLES = {
   'Fleecy Fellowship': 'To See My Ewes Graze',                 // As You Like It 3.2 (Corin)
   'Mill by Moonlight': 'Well Met by Moonlight',                // after "Ill met by moonlight", the Dream 2.1
   'Sweet Harvest': 'If Sack and Sugar Be a Fault',             // Henry IV Part 1, 2.4 (Falstaff)
-  'Hire Farm Hand': 'Come Apace, Good Audrey',                 // As You Like It 3.3
   'Master Mason': 'O Sweet, O Lovely Wall',                    // the Dream 5.1
   "Cook's Harvest": "Earth's Increase",                        // The Tempest 4.1 (Ceres)
   'Hire Rancher': 'I Am a True Labourer',                      // As You Like It 3.2 (Corin)

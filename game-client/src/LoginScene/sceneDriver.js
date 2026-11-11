@@ -12,7 +12,6 @@
 import { buildPassability, findPath } from '../Utils/Pathfinding';
 import { footprintOf } from '../Utils/footprint';
 import { enrichResourceFromMaster } from '../Utils/ResourceHelpers';
-import CombatFX from '../Render/PixiRenderer/CombatFX';
 import StoryFX from '../Render/PixiRenderer/StoryFX';
 
 const TICK_MS = 100;
@@ -140,6 +139,9 @@ export function createSceneDriver({ tiles, resources, npcs, zones, masterResourc
     if (p.mode === 'toTree') {
       if (!res.includes(p.tree)) { a.plan = { mode: 'pause', until: now }; a.path = []; return false; }
       if (a.path.length) return stepAlong(a, now);
+      // the last step is still being drawn (the renderer tweens it over lastStepMs, which ends at
+      // nextStepAt): he is not at the tree until it lands (owner 2026-11-11)
+      if (now < a.nextStepAt) return false;
       const adjacent = Math.max(Math.abs(p.tree.x - a.position.x), Math.abs(p.tree.y - a.position.y)) <= 1;
       if (!adjacent) { a.plan = { mode: 'pause', until: now + 500 }; return false; } // blocked on the way: choose again
       const face = p.tree.x === a.position.x ? a.facing : (p.tree.x > a.position.x ? 1 : -1);
@@ -151,7 +153,8 @@ export function createSceneDriver({ tiles, resources, npcs, zones, masterResourc
     if (p.mode === 'chop') {
       if (now < p.nextSwingAt) return false;
       p.swings += 1;
-      CombatFX.enemyWindup(a.id); // the axe swing: the same squash-and-spring as a beast's attack
+      // each stroke: chips fly back toward him and the tree shivers (owner 2026-11-11; no squash on him)
+      StoryFX.treeHit(p.tree.x, p.tree.y, -a.facing);
       if (p.swings < SWINGS) { p.nextSwingAt = now + SWING_MS; return false; }
       // the tree falls; a log pops off and vanishes (the wood goes nowhere), and it will grow back
       const tree = p.tree;

@@ -8,6 +8,7 @@
  *                           nothing (the Enormous Mountain); kept invisible until clearFade()
  *   gemFall(x, y)           a gem falls from the sky with a trail of magic dust, bounces and settles
  *   woodChip(x, y)          a log pops off a tree and vanishes (Peter Quince's wood goes nowhere)
+ *   treeHit(x, y, side)     one axe stroke: wood chips fly off toward `side` and the tree shivers
  *
  * PixiRenderer attaches the app, the world container and an accessor for the resource sprites
  * (each tagged `__res` with its resource). Every call is a no-op until attached.
@@ -260,5 +261,57 @@ export async function woodChip(x, y) {
   });
 }
 
-const StoryFX = { attach, detach, doveFlight, fadeResource, clearFade, gemFall, woodChip };
+// ---------------------------------------------------------------- an axe stroke
+
+const CHIP_COLORS = [0xc8955a, 0xe2b77c, 0x9a6a3c, 0xf0d6a8];
+const shaking = new WeakMap(); // sprite -> its resting x while it shivers (a stroke mid-shake keeps the first)
+
+/** One axe stroke on the tree at (x, y) (owner 2026-11-11): a few wood chips fly off toward
+ *  `side` (-1 left, 1 right: the axeman's side) and fall, and the tree gives a short damped shiver. */
+export function treeHit(x, y, side = 1) {
+  if (!ready()) return;
+  // the chips: small pale-wood flakes, out and up, then down under gravity, fading
+  const n = 3 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < n; i++) {
+    const g = new Graphics();
+    const w = TILE * (0.05 + Math.random() * 0.05); const h = w * (0.5 + Math.random() * 0.4);
+    g.beginFill(CHIP_COLORS[i % CHIP_COLORS.length], 1); g.drawRect(-w / 2, -h / 2, w, h); g.endFill();
+    const x0 = (x + 0.5 + side * 0.18) * TILE; const y0 = (y + 0.55 + (Math.random() - 0.5) * 0.12) * TILE;
+    g.x = x0; g.y = y0; g.rotation = Math.random() * Math.PI;
+    fxContainer.addChild(g);
+    const vx = side * TILE * (0.4 + Math.random() * 0.5); // px over the flight
+    const up = TILE * (0.25 + Math.random() * 0.3);
+    const spin = (Math.random() - 0.5) * 8;
+    const start = Date.now(); const ms = 450 + Math.random() * 200;
+    run({
+      update(now) {
+        if (g.destroyed) return false;
+        const p = Math.min(1, (now - start) / ms);
+        g.x = x0 + vx * p;
+        g.y = y0 - up * 4 * p * (1 - p) + TILE * 0.3 * p * p; // a hop, then down past the start
+        g.rotation += spin * 0.016;
+        g.alpha = p < 0.65 ? 1 : 1 - (p - 0.65) / 0.35;
+        if (p >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
+        return true;
+      },
+    });
+  }
+  // the shiver: the tree's own sprite rocks side to side, dying away
+  const sprite = (getResourceSprites() || []).find((sp) => sp.__res && sp.__res.x === x && sp.__res.y === y && !sp.destroyed);
+  if (!sprite) return;
+  if (!shaking.has(sprite)) shaking.set(sprite, sprite.x);
+  const baseX = shaking.get(sprite);
+  const start = Date.now(); const ms = 320; const amp = TILE * 0.045;
+  run({
+    update(now) {
+      if (sprite.destroyed) return false;
+      const p = Math.min(1, (now - start) / ms);
+      sprite.x = baseX + side * -1 * amp * (1 - p) * Math.sin(p * Math.PI * 5);
+      if (p >= 1) { sprite.x = baseX; shaking.delete(sprite); return false; }
+      return true;
+    },
+  });
+}
+
+const StoryFX = { attach, detach, doveFlight, fadeResource, clearFade, gemFall, woodChip, treeHit };
 export default StoryFX;

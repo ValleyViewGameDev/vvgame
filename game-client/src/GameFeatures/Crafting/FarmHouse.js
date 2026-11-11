@@ -25,6 +25,7 @@ import { requestMove } from '../Move/moveMode';
 import { applyPlayerDelta, postAction } from '../../Utils/playerDelta';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { canCollect, reportRefusal } from '../../Utils/noRoom';
+import PurchaseGoods from '../FarmHands/PurchaseGoods';
 
 const FarmHouse = ({
   onClose,
@@ -45,6 +46,7 @@ const FarmHouse = ({
   TILE_SIZE,
   isDeveloper,
   globalTuning,
+  currentSeason,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -515,6 +517,16 @@ const FarmHouse = ({
           ) : null}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+        {/* The safety-net crop shop, moved here from Audrey's panel (owner 2026-11-11); shown only once
+            Audrey (the Farm Hand) is hired, i.e. stands on this homestead */}
+        {Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {}).some((n) => n?.type === 'Farm Hand') && <PurchaseGoods
+          inventory={inventory} setInventory={setInventory} backpack={backpack} setBackpack={setBackpack}
+          currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer}
+          masterResources={masterResources || allResources} masterXPLevels={masterXPLevels}
+          currentSeason={currentSeason} isDeveloper={isDeveloper} globalTuning={globalTuning}
+          updateStatus={updateStatus}
+        />}
 
 
       </div>

@@ -15,15 +15,8 @@ const masterResources = require('../tuning/resources.json');
 const FTUE_TEMPLATE = 'opening';
 const FTUE_KEY = 'ftue-cave';
 
-// Renamed template files (old name -> new). Registry entries and player copies saved under the old
-// name keep working until scripts/rename-dungeon-templates.js rewrites them.
-const RENAMED_TEMPLATES = { // 2026-11-11
-  d001: 'd001_Large', d002: 'd002_TownCellar', d003: 'd003_Zombie', dPhoenix: 'd005_Phoenix',
-};
-
 function templatePath(templateFilename) {
-  const name = RENAMED_TEMPLATES[templateFilename] || templateFilename;
-  return path.join(__dirname, '../layouts/gridLayouts/dungeon', `${name}.json`);
+  return path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
 }
 
 function dungeonTemplateExists(templateFilename) {
@@ -95,4 +88,4 @@ async function resetDungeonGrid(grid, templateFilename) {
   return grid;
 }
 
-module.exports = { RENAMED_TEMPLATES, buildDungeonFields, createDungeonGrid, resetDungeonGrid, dungeonTemplateExists, FTUE_TEMPLATE, FTUE_KEY };
+module.exports = { buildDungeonFields, createDungeonGrid, resetDungeonGrid, dungeonTemplateExists, FTUE_TEMPLATE, FTUE_KEY };

@@ -339,3 +339,16 @@ panel + one lone-post panel, `tools/art/walls.js`). **Why.** The garden has no g
 only the stone wall and the wooden fence. **Where to start.** `tools/art/jobs/walls.json` (the
 stone set's prompts and the TALL window), then a `Hedge` row with `wallSet: hedge` and a deco
 group for walls.
+
+### BL-27: Review the combat animations
+
+Added 2026-11-11. Not a blocker.
+
+**What.** A separate pass over how combat moves on the board. The owner dropped the squash from
+the login scene's Lumberjack as unrealistic (2026-11-11) but kept it on enemies for now, to be
+judged together with the rest. **In scope.** The enemy windup before a swing (squash and spring,
+`CombatFX.enemyWindup`), the leap's crouch-squash and in-air stretch (`enemyLeapCharge` /
+`enemyLeapArc`), the hit pop and knockback (`hitEnemy`), the death pop and fade (`killEnemy`), and
+the player's lunge and hit (`playerLunge` / `playerHit`). **Where to start.**
+`game-client/src/Render/PixiRenderer/CombatFX.js` (all of them, timings in its `FX` table);
+callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.md, Combat).
