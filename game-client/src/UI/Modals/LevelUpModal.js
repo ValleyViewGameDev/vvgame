@@ -9,6 +9,7 @@ import questCache from '../../Utils/QuestCache';
 import { playCelebrationFireworks } from '../../VFX/Celebration';
 import CloseButton from '../Buttons/CloseButton';
 import ResourceIcon from '../Icons/ResourceIcon';
+import { isDevOnly } from '../../Utils/ResourceHelpers';
 import panelIconsData from '../Icons.json';
 
 // A skill shows the nav bar's Skills icon (UI/Icons.json, as App.js renderNavIcon), owner 2026-11-10
@@ -20,6 +21,7 @@ const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'de
 // Check if resource should be shown in unlock list
 const shouldShowResource = (resource) => {
   if (!resource.category) return false;
+  if (isDevOnly(resource)) return false; // developers' rows are never announced to players
 
   // Direct category match
   if (ALLOWED_CATEGORIES.includes(resource.category)) {

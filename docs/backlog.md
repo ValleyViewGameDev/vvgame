@@ -204,6 +204,21 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   derived from it by `tools/rotate-town.py`; `tools/expand-town.py` for footprints), the arrival
   tile from the Map / signpost / Snug travel, and the building and NPC levels in
   `resources.json`.
+  **Draft applied 2026-11-10, awaiting owner review:** same-size buildings swapped between their
+  existing footprints in level order by walking distance from the arrival tile (Agriculture Center
+  at the gate, then General Store and Warrior's Den just inside, Factory, Adventure Camp, Bank,
+  Armory, Laboratory, Academy, Guild furthest); Quickly, Hotspur and Feste moved to the plaza
+  inside the south gate; Hospital and its Doctors, the Courthouse, Train, Fair, Magic Shop and the
+  late NPCs unchanged. Applied to townN and, by building type and rotated tiles, townE/S/W.
+  Originals: `town<N|E|S|W>.before-relayout-2026-11-10.json.orig` beside the layouts. Existing
+  players' town copies keep the old layout until their town is re-created.
+  **Owner pass 2026-11-10 (townN only so far):** a walled castle compound where the Caravan stood
+  (gate (11,32), back gate (15,41)) holds the Armory and the Warrior's Den; the Caravan at (50,44);
+  Bank and Guild swapped; Falstaff's walled cottage (bed, barrels) north of the Harvest Fair, door
+  (7,21); one open park (no walls, Oaks, the pond and Shakespeare Statue moved in) over the old
+  Apothecary / Falstaff / Adventure Camp rooms; the central square one row taller at each end
+  (walls on rows 20 and 42, gates (31,20) and (31,42)); the Factory in its upper left; the Cow in its
+  south-west corner. townE/S/W still carry the earlier draft: re-derive them once townN is approved.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 

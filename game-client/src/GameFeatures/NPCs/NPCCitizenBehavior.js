@@ -109,9 +109,10 @@ const noop = () => {};
 export const isCitizen = (npc) => !!npc && CITIZEN_ACTIONS.includes(npc.action);
 /**
  * Citizens who keep their post: no state loop, no wandering, never a conversation partner;
- * only the waiting cue when the player is near (owner 2026-10-28: Kent, The Shepherd).
+ * only the waiting cue when the player is near (owner 2026-10-28: Kent, The Shepherd; 2026-11-11:
+ * Snug, so the Snug lesson's arrow and the player's taps always find him on his own tile).
  */
-const STATIONARY_CITIZENS = new Set(['Kent', 'The Shepherd']);
+const STATIONARY_CITIZENS = new Set(['Kent', 'The Shepherd', 'Snug']);
 export const isStationaryCitizen = (npc) => !!npc && STATIONARY_CITIZENS.has(npc.type);
 /**
  * Does this worker do its job on its own in the working state? The worker panel's
@@ -646,6 +647,13 @@ async function handleCitizenBehavior(gridId, TILE_SIZE) {
   // Kent and The Shepherd keep their post everywhere the same way (isStationaryCitizen)
   if (GlobalGridStateTilesAndResources.getGridMeta()?.isFTUECave || isStationaryCitizen(this)) {
     this.path = null;
+    // one saved mid-wander (before he kept his post) goes back to his home tile, unless the player stands there
+    if (isStationaryCitizen(this) && Number.isInteger(this.homeX) && Number.isInteger(this.homeY)
+      && (Math.round(this.position.x) !== this.homeX || Math.round(this.position.y) !== this.homeY)) {
+      const pc = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
+      const onHome = pc && Math.round(pc.position?.x) === this.homeX && Math.round(pc.position?.y) === this.homeY;
+      if (!onHome) { this.position = { x: this.homeX, y: this.homeY }; persist(this, gridId); }
+    }
     if (this.citizenState && this.citizenState !== 'waiting') {
       this.citizenState = null;
       stopHeadlineEffect(this.id);
