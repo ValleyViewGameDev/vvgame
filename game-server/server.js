@@ -140,6 +140,10 @@ mongoose.connect(process.env.MONGODB_URI, {
       const { initializeTimers } = require('./schedulers/mainScheduler');
       initializeTimers();
       console.log("✅ Timers initialized after MongoDB connection");
+      // dungeon wiring ships in tuning/dungeonEntrances.json (the editor's Dungeons tab): the push
+      // that deploys it is what makes it live, like a layout; local servers leave the shared registry alone
+      require('./utils/dungeonWiring').syncDungeonWiring()
+        .catch((err) => console.error('❌ dungeon wiring sync failed:', err));
     }
 
     // Create HTTP server and bind it to Express app

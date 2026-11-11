@@ -7,10 +7,11 @@
  *
  * Entrances are read from the layout FILES on this machine (/api/local/dungeon-entrances: how
  * many DIn each layout holds), matched to the selected frontier's town and valley cells (a town
- * cell uses town<N|E|S|W> by its settlement's position, else townN). Wiring is read from and
- * written to the frontier's registry on the game server (Frontier.dungeons) through
- * POST /api/set-dungeon-entrance, which keeps every cell on at most one dungeon and creates a
- * template's registry entry the first time it is used.
+ * cell uses town<N|E|S|W> by its settlement's position, else townN). Wiring is a repo file,
+ * game-server/tuning/dungeonEntrances.json ({ gridCoord: template }, so a cell leads to one
+ * dungeon at most), saved here like a layout (/api/local/dungeon-wiring, owner 2026-11-11). The
+ * push deploys it: the game server makes the frontier registry match it on boot
+ * (game-server/utils/dungeonWiring.js). No game-server call, so no developer session needed.
  *
  * Flags: a cell holding 2+ entrances (illegal), an entrance leading nowhere, a cell wired to
  * two dungeons, a wired cell whose layout has no entrance, a template file that is missing.
@@ -26,6 +27,7 @@ const D = {
   counts: { town: {}, valleyFixedCoord: {} },
   frontierId: null,
   frontier: null,
+  wiring: {},   // dungeonEntrances.json: gridCoord -> template
   busyCoord: null,
 };
 
@@ -73,15 +75,12 @@ function entranceCells() {
   return cells;
 }
 
-/** gridCoord -> template names it is wired to, from the frontier registry. */
+/** gridCoord -> [template] it is wired to, from dungeonEntrances.json (one per cell by its shape). */
 function wiring() {
   const out = new Map();
-  for (const entry of Object.values(D.frontier?.dungeons || {})) {
-    const tpl = stripJson(entry.templateUsed);
-    for (const c of (entry.entranceGrids || []).map(Number)) {
-      if (!Number.isFinite(c)) continue;
-      out.set(c, [...new Set([...(out.get(c) || []), tpl])]);
-    }
+  for (const [coord, tpl] of Object.entries(D.wiring || {})) {
+    const c = Number(coord);
+    if (Number.isFinite(c) && tpl) out.set(c, [stripJson(tpl)]);
   }
   return out;
 }
@@ -124,6 +123,7 @@ async function load() {
     D.templates = (layouts.dirs.dungeon || []).filter((t) => t !== 'opening');
     D.townLayouts = layouts.dirs.town || [];
     D.counts = counts || { town: {}, valleyFixedCoord: {} };
+    D.wiring = (await local.dungeonWiring()).wiring || {};
     const [frontiers, settlements] = await Promise.all([game.get('/api/frontiers'), game.get('/api/settlements')]);
     D.frontiers = frontiers || [];
     D.settlements = settlements || [];
@@ -141,14 +141,13 @@ async function load() {
 async function setEntrance(coord, template) {
   const fname = D.frontiers.find((f) => idOf(f) === D.frontierId)?.name || 'this frontier';
   const msg = template
-    ? `Wire the entrance at ${coord} (${cellLabel(coord)}) to the ${template} dungeon in ${fname}?`
-    : `Unlink the entrance at ${coord} (${cellLabel(coord)}) in ${fname}? It will lead nowhere.`;
+    ? `Wire the entrance at ${coord} (${cellLabel(coord)}) to the ${template} dungeon in ${fname}? Saved to dungeonEntrances.json; live after the push.`
+    : `Unlink the entrance at ${coord} (${cellLabel(coord)}) in ${fname}? It will lead nowhere after the push.`;
   if (!(await confirm(msg, { title: template ? 'Wire entrance' : 'Unlink entrance', okLabel: template ? 'Wire' : 'Unlink', danger: !template }))) { render(); return; }
   D.busyCoord = coord; render();
   try {
-    await game.post('/api/set-dungeon-entrance', { frontierId: D.frontierId, gridCoord: coord, template });
-    D.frontier = await game.get(`/api/get-frontier/${D.frontierId}`);
-    toast(template ? `${coord} now leads to ${template}` : `${coord} unlinked`);
+    D.wiring = (await local.saveDungeonWiring(coord, template)).wiring || {};
+    toast(template ? `${coord} now leads to ${template}. Push to make it live.` : `${coord} unlinked. Push to make it live.`);
   } catch (err) { showError('Could not save', err); }
   D.busyCoord = null; render();
 }
@@ -172,7 +171,8 @@ function renderSelection(rows) {
   s.appendChild(el('ol', { class: 'note', style: { paddingLeft: '18px' } }, [
     el('li', {}, 'Layouts tab, dungeon directory, + New: make a dungeon template.'),
     el('li', {}, 'Layouts tab: place one Dungeon Entrance on a town or valley layout.'),
-    el('li', {}, 'Here: pick the dungeon each entrance leads to. It saves at once.'),
+    el('li', {}, 'Here: pick the dungeon each entrance leads to. It saves to game-server/tuning/dungeonEntrances.json at once.'),
+    el('li', {}, 'Push: the game server applies the wiring when it starts.'),
   ]));
 
   const n = (lvl) => rows.filter((r) => r.status.level === lvl).length;
@@ -200,7 +200,7 @@ function renderEditor(rows) {
   root.appendChild(el('div', { class: 'toolbar' }, [
     el('strong', {}, 'Dungeon entrances'),
     el('span', { class: 'spacer' }),
-    el('button', { onclick: () => load(), title: 'Re-read the layouts and the frontier registry' }, '↻ Reload'),
+    el('button', { onclick: () => load(), title: 'Re-read the layouts and dungeonEntrances.json' }, '↻ Reload'),
   ]));
   const body = el('div', { class: 'tab-body' });
   root.appendChild(body);
@@ -237,7 +237,7 @@ function renderEditor(rows) {
   if (rows.some((r) => r.gridType === 'town')) {
     body.appendChild(el('div', { class: 'note' }, 'Each settlement has its own Town cell, so a town entrance is wired once per settlement, even when they share one town layout.'));
   }
-  body.appendChild(el('div', { class: 'note' }, 'Entrances are read from the layout files on this machine. The game server only accepts a wiring once that layout and the dungeon template are pushed. Players who already have a copy of a cell see a new entrance after that copy is reset.'));
+  body.appendChild(el('div', { class: 'note' }, 'Entrances and wiring are read from the files on this machine; the push makes both live (a template whose file is not on the server yet is skipped there). Players who already have a copy of a cell see a new entrance after that copy is reset.'));
 }
 
 // ----------------------------------------------------------------------------- tab

@@ -2848,82 +2848,8 @@ router.post('/update-dungeon-config', requireDeveloper, async (req, res) => {
   }
 });
 
-/** How many Dungeon Entrances (layout key DIn) the layout behind a world cell holds, or null when
- *  the cell has no layout file of its own (random valleys): towns by settlement position, valleys
- *  by layouts/gridLayouts/valleyFixedCoord/<gridCoord>.json. */
-function entranceCountInCellLayout(frontier, settlement, cell) {
-  const { getTownLayoutFile, getPositionFromSettlementType } = require('../utils/templateUtils');
-  let file = null;
-  if (cell.gridType === 'town') {
-    const entry = (frontier.settlements || []).flat().find((s) => String(s?.settlementId) === String(settlement._id));
-    file = path.join(__dirname, '../layouts/gridLayouts/town', getTownLayoutFile(null, getPositionFromSettlementType(entry?.settlementType)));
-  } else {
-    file = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${cell.gridCoord}.json`);
-  }
-  if (!fs.existsSync(file)) return null;
-  const layout = JSON.parse(fs.readFileSync(file, 'utf-8'));
-  return (layout.resources || []).flat().filter((k) => k === 'DIn').length;
-}
-
-router.post('/set-dungeon-entrance', requireDeveloper, async (req, res) => {
-  // Editor Dungeons tab: wire ONE entrance cell to ONE dungeon template (or unwire it with
-  // template null). The cell is removed from every other registry entry, so an entrance never
-  // leads to two dungeons; the template's registry entry (and its template instance) is created
-  // the first time a cell is wired to it.
-  try {
-    const { frontierId } = req.body;
-    const gridCoord = Number(req.body.gridCoord);
-    const template = req.body.template ? String(req.body.template).replace(/\.json$/, '') : null;
-    if (!frontierId || !Number.isFinite(gridCoord)) return res.status(400).json({ error: 'frontierId and gridCoord are required.' });
-    const frontier = await Frontier.findById(frontierId);
-    if (!frontier) return res.status(404).json({ error: 'Frontier not found' });
-    const { findCell } = require('../utils/gridResolver');
-    const { createDungeonGrid, dungeonTemplateExists } = require('../utils/dungeonUtils');
-
-    if (template) {
-      if (!dungeonTemplateExists(template)) return res.status(404).json({ error: `Dungeon template ${template} is not on this game server yet (push it first).` });
-      const found = await findCell(frontier, gridCoord);
-      if (!found?.cell || ['homestead', 'reserved'].includes(found.cell.gridType)) return res.status(400).json({ error: `Cell ${gridCoord} is not a town or valley cell in this frontier.` });
-      const count = entranceCountInCellLayout(frontier, found.settlement, found.cell);
-      if (count != null && count > 1) return res.status(400).json({ error: `Cell ${gridCoord} has ${count} Dungeon Entrances; a cell may hold only one.` });
-      if (count === 0 || count == null) {
-        const tpl = found.cell.gridId ? await Grid.findById(found.cell.gridId) : null;
-        const onGrid = tpl && gridResourceManager.getResources(tpl).some((r) => r.type === 'Dungeon Entrance');
-        if (!onGrid) return res.status(400).json({ error: `Cell ${gridCoord} has no Dungeon Entrance on this game server yet (push its layout first).` });
-      }
-    }
-
-    if (!frontier.dungeons) frontier.dungeons = new Map();
-    const changed = [];
-    let targetId = null;
-    for (const [id, entry] of frontier.dungeons.entries()) {
-      if (template && !targetId && String(entry.templateUsed).replace(/\.json$/, '') === template) { targetId = id; continue; }
-      const before = (entry.entranceGrids || []).map(Number);
-      if (before.includes(gridCoord)) { entry.entranceGrids = before.filter((c) => c !== gridCoord); changed.push(id); }
-    }
-    if (template) {
-      if (!targetId) {
-        const grid = await createDungeonGrid(template, { frontierId: frontier._id, settlementId: frontier._id, isTemplate: true });
-        targetId = grid._id.toString();
-        frontier.dungeons.set(targetId, {
-          gridId: targetId, templateUsed: template, createdAt: new Date(),
-          needsReset: false, lastReset: new Date(), sourceValleyGrid: null, entranceGrids: [],
-        });
-      }
-      const entry = frontier.dungeons.get(targetId);
-      const coords = (entry.entranceGrids || []).map(Number);
-      if (!coords.includes(gridCoord)) { entry.entranceGrids = [...coords, gridCoord]; changed.push(targetId); }
-    }
-    frontier.markModified('dungeons');
-    await frontier.save();
-    res.json({ success: true, gridCoord, template, changed, dungeons: Object.fromEntries(frontier.dungeons) });
-  } catch (error) {
-    console.error('Error setting dungeon entrance:', error);
-    res.status(500).json({ error: error.message || 'Failed to set dungeon entrance' });
-  }
-});
-
-
+// Dungeon wiring (which template each entrance cell leads to) is no longer saved through a
+// route: it ships in tuning/dungeonEntrances.json and utils/dungeonWiring.js applies it on boot.
 
 // Update region for a single grid
 router.post('/update-grid-region', requireDeveloper, async (req, res) => {

@@ -280,6 +280,26 @@ async function handle(req, res) {
 
   if (p === '/api/local/layouts' && req.method === 'GET') return sendJSON(res, 200, { dirs: listLayouts() });
   if (p === '/api/local/dungeon-entrances') return sendJSON(res, 200, dungeonEntranceCounts());
+  // Dungeon wiring (game-server/tuning/dungeonEntrances.json, { gridCoord: template }): saved here
+  // like a layout; the game server applies it on boot, so a push makes it live (utils/dungeonWiring.js)
+  if (p === '/api/local/dungeon-wiring' && req.method === 'GET') {
+    const file = path.join(GAME_SERVER_DIR, 'tuning', 'dungeonEntrances.json');
+    return sendJSON(res, 200, { wiring: fs.existsSync(file) ? readJSONFile(file) : {} });
+  }
+  if (p === '/api/local/dungeon-wiring' && req.method === 'PUT') {
+    const body = await readJSONBody(req);
+    const coord = Number(body?.gridCoord);
+    const template = body?.template == null || body.template === '' ? null : String(body.template).replace(/\.json$/, '');
+    if (!Number.isInteger(coord) || coord <= 0) return sendError(res, 400, 'gridCoord must be a cell number');
+    if (template && (!safeName(template) || !fs.existsSync(path.join(GAME_SERVER_DIR, 'layouts', 'gridLayouts', 'dungeon', `${template}.json`)))) {
+      return sendError(res, 400, `Dungeon template ${template} has no layout file`);
+    }
+    const file = path.join(GAME_SERVER_DIR, 'tuning', 'dungeonEntrances.json');
+    const wiring = fs.existsSync(file) ? readJSONFile(file) : {};
+    if (template) wiring[String(coord)] = template; else delete wiring[String(coord)];
+    const sorted = Object.fromEntries(Object.entries(wiring).sort(([a], [b]) => Number(a) - Number(b)));
+    return sendJSON(res, 200, { ...writeJSONFile(file, sorted), wiring: sorted });
+  }
   if ((x = m('GET', /^\/api\/local\/layouts\/([^/]+)\/([^/]+)$/))) {
     const [, dir, name] = x;
     if (!GRID_LAYOUT_DIRS.includes(dir) || !safeName(name)) return sendError(res, 400, 'bad layout path');
