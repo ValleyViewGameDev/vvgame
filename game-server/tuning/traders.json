@@ -56,6 +56,8 @@
     "trader": "Juliet",
     "index": 1,
     "gives": "Tulip",
+    "clueKey": "16544",
+    "clueTitle": "Portrait",
     "givesqty": 64,
     "xp": 8,
     "repeat": true,

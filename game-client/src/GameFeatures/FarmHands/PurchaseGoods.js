@@ -51,7 +51,7 @@ export default function PurchaseGoods({
   const playerMoney = getPlayerQuantity('Money', safeInventory, safeBackpack);
   return (
     <>
-      <h3>{strings[17518]}</h3>
+      <h3 style={{ marginTop: 'var(--spacing-lg)' }}>{strings[17518]}</h3>
       <p>{strings[426]}</p>
       {offers.length > 0 ? offers.map((resource) => {
         const cost = (resource.maxprice || 100) * 10;

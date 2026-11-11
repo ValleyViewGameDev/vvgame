@@ -129,6 +129,14 @@ export function hasActiveAnimation(playerId) {
 }
 
 /**
+ * The tile a player's running step ends on (null when not moving): depthSort's actorZ keeps the
+ * row it is leaving until it lands
+ */
+export function getAnimationTarget(playerId) {
+  return activeAnimations[playerId]?.targetPos || null;
+}
+
+/**
  * Get the current visual position for a player (animated or final)
  */
 export function getVisualPosition(playerId) {

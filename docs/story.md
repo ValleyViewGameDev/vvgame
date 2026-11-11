@@ -198,6 +198,10 @@ em-dashes in player copy (repo rule). Every string goes into all 10 languages.
   under the quest's title for every player who has completed the quest (derived from
   `completedQuests`, nothing stored). First use: Helena's "Rosemary, for Remembrance" (16522),
   handing over Gertrude's Song and sending the player to Feste.
+- **So can trades.** A TRADERS offer's `clueKey` is said as the trade is made, once (a
+  repeatable offer does not replay it), and joins the trader's Clues under `clueTitle` (default
+  the item given). Caliban's Yorick's Skull; Juliet's Portrait (16544, 2026-11-11: Angelo's
+  killer brings Romeo home in paint, and she points them at the Vampire's Blood).
 - **The QUEST FOR HOPE editor tab** shows every route to the seven artifacts with its gates.
   Check it after changing a quest, trade, door or layout on the spine.
 

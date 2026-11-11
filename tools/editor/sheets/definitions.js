@@ -183,6 +183,7 @@ export const DEFINITIONS = [
       str('rel'), { ...num('relscore'), label: 'relscore (do not gate unlocks on a score: use rel, docs/story.md)' },
       { ...str('minigame'), label: 'minigame (won, not paid: Minigames/minigames.js id)' },
       { ...str('clueKey'), label: 'clueKey (string id the trader says as the trade is made; kept in their Clues)' },
+      { ...str('clueTitle'), label: 'clueTitle (the clue\'s title in Clues, a resource type; default: gives)' },
     ],
   },
   {

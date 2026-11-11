@@ -1046,7 +1046,8 @@ router.post('/action/npc-trade', async (req, res) => {
     // one-time one stays done once recorded, even after the item is spent (handed to Hecate).
     const clueTag = offer.clueKey ? `trade:${offer.gives}` : null;
     const rel = clueTag ? (player.relationships || []).find((r) => r.name === trader) : null;
-    if (clueTag && offer.repeat === false && (rel?.clues || []).includes(clueTag)) return answer(409, 'owned');
+    const clueKnown = !!clueTag && (rel?.clues || []).includes(clueTag);
+    if (clueKnown && offer.repeat === false) return answer(409, 'owned');
     const isSkill = def?.category === 'skill';
     // a one-of-a-kind item (a Secret, a key, a skill) is never multiplied by the relationship buff
     const qty = Math.floor((offer.givesqty || 1) * (econ.isOneOfAKind(offer.gives) ? 1 : econ.relationshipMultiplier(player, trader)));
@@ -1082,7 +1083,8 @@ router.post('/action/npc-trade', async (req, res) => {
     await player.save();
     return res.json({
       success: true, collected: { type: offer.gives, qty }, skill: isSkill, xpGained, trophies, gems: paid.gems || 0,
-      ...(clueTag ? { clueKey: offer.clueKey, relationships: player.relationships.map((r) => (r.toObject ? r.toObject() : r)) } : {}),
+      // the story plays the first time only: a repeatable clue trade (Juliet's Portrait) tells it once
+      ...(clueTag && !clueKnown ? { clueKey: offer.clueKey, relationships: player.relationships.map((r) => (r.toObject ? r.toObject() : r)) } : {}),
       player: econ.playerDelta(player), seq: econ.nextSeq(),
     });
   } catch (err) {

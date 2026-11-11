@@ -37,13 +37,14 @@ export function questCluesFor(npcType, allQuests, completedQuests) {
  * Trade clues (owner 2026-11-06): a trader offer with a `clueKey` (traders.json, e.g. Caliban's
  * Yorick's Skull) plays that story when the trade is made (NPCsPanel handleTrade), and the server
  * records `trade:<gives>` in the relationship's clues (routes/actionRoutes.js /action/npc-trade).
- * Same shape as questCluesFor, titled with the item's name: [{ title, clueKey }].
+ * Same shape as questCluesFor, titled with the item's name, or the offer's `clueTitle` when what
+ * it gives is not the point (Juliet's Portrait trade gives Tulips): [{ title, clueKey }].
  */
 export function tradeCluesFor(npcType, relationship, masterTraders, strings) {
   const earned = new Set(relationship?.clues || []);
   return (masterTraders || [])
     .filter((o) => o.trader === npcType && o.clueKey && earned.has(`trade:${o.gives}`))
-    .map((o) => ({ title: getLocalizedString(o.gives, strings), clueKey: o.clueKey }));
+    .map((o) => ({ title: getLocalizedString(o.clueTitle || o.gives, strings), clueKey: o.clueKey }));
 }
 
 /** The clues to show for an NPC: [{ status, text, label? }], "met" first, then quest clues. Empty when there are none. */

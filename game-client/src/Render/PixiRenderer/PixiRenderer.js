@@ -1190,7 +1190,7 @@ const PixiRenderer = ({
         if (displayObj) {
           displayObj.x = animation.currentPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
-          displayObj.zIndex = actorZ(animation.currentPos.y); // by its feet: leaves a row's depth as it leaves the row (depthSort.js)
+          displayObj.zIndex = actorZ(animation.currentPos.y, 0.5, animation.targetPos.y); // keeps the row it leaves until it lands (depthSort.js)
         }
         // A headline glyph (❗, Zzz, 💬: VFX/NPCVFX.js) rides above the NPC as it walks
         if (hasHeadlineEffect(npcId)) updateHeadlineEffectPosition(npcId, animation.currentPos);
@@ -1376,7 +1376,7 @@ const PixiRenderer = ({
           const renderPos = getNPCRenderPosition(npc);
           displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.zIndex = actorZ(renderPos.y); // over the resources of its own row, under the row south
+          displayObj.zIndex = actorZ(renderPos.y, 0.5, npcAnimations.current[npc.id]?.targetPos?.y ?? null); // over the resources of its own row, under the row south
         }
         // Resting scale for CombatFX. Only a sprite is re-sized above (width/height reset its scale),
         // so only a sprite may re-record it here: an emoji (Text) NPC keeps the scale it was created
