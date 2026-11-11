@@ -113,12 +113,6 @@
           <div class="metric-delta" id="tm-dau-delta"></div>
           <div class="metric-label">DAU Yesterday</div>
         </div>
-        <div class="metric-tile">
-          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Distinct Gold-tier accounts (accountStatus Gold) active yesterday. The arrow compares it to the same weekday 7 days ago.</span></span>
-          <div class="metric-num" id="tm-subdau">-</div>
-          <div class="metric-delta" id="tm-subdau-delta"></div>
-          <div class="metric-label">Gold DAU Yesterday</div>
-        </div>
       </div>
       <section class="card">
         <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Active players per day (DAU, distinct players with an activity row) and new signups. Toggle stacked composition vs. overlay. DAU is recorded by the live server from the deploy that shipped analytics; before that only New Users (backfilled from account creation) exists, so DAU reads as a floor equal to New Users on those days.</span></span>
@@ -226,7 +220,6 @@
             <th data-key="net_worth" data-type="num" class="num">Net worth</th>
             <th data-key="ftue_sort" data-type="num">FTUE</th>
             <th data-key="home_deed" data-type="num">Home Deed</th>
-            <th data-key="subscribed" data-type="num">Gold</th>
             <th data-key="language" data-type="str">Lang</th>
             <th data-key="source" data-type="str">Source</th>
           </tr>
@@ -237,26 +230,26 @@
     <!-- ================= ENGAGEMENT ================= -->
     <div id="tab-engagement" class="tabpanel" hidden>
       <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The retired editor's FTUE drop-off chart, re-implemented against the players collection. Cohort = accounts CREATED in the range (standard exclusions). Each bar = the share that reached AT LEAST that step (ftuestep, from tuning/FTUEsteps.json), then Completed (firsttimeuser false), then on to the Audrey lesson, where it ends: Reached Level 5 (from xp) and Hired Audrey (a Farm Hand on the player's homestead). Bars are cumulative, so a player who hired Audrey counts in every bar above. A legacy account with no step counter and firsttimeuser false counts as completed, as the old route did. The chips filter the cohort client-side (OS / browser / timezone / language / aspiration), and the table below lists the filtered players.</span></span>
+        <h2 id="ftue-funnel-title">FTUE funnel</h2>
+        <div id="ftue-filters"></div>
+        <div class="chart-wrap"><canvas id="ftueFunnelChart"></canvas></div>
+        <div class="table-wrap"><table class="audit-table" id="ftueTable"><thead>
+          <tr><th>Username</th><th>FTUE</th><th>Step</th><th>Level</th><th>Audrey</th><th>Aspiration</th><th>Home Deed</th><th>Lang</th><th>OS</th><th>Browser</th><th>Timezone</th><th>Registered</th><th>Last active</th></tr>
+        </thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card">
         <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The retired editor's "Daily Active Users" chart, under its honest name. Gold bars = players whose players.lastActive (ONE overwritten timestamp per player) falls on that day, i.e. players whose MOST RECENT visit was that day: a floor on activity, but the only signal that exists for days before the recording deploy. Blue line = real DAU from analytics_activity, which starts at the deploy. Where both exist the line should sit on or above the bars.</span></span>
         <h2>Players last seen per day (legacy) vs DAU</h2>
         <div class="chart-wrap"><canvas id="lastSeenChart"></canvas></div>
       </section>
 
       <section class="card">
-        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the players active each day (DAU), the share who PLAYED (a harvest or craft collection), turned in a quest, or bought something; plus grid entries per active player. All from analytics_activity, so forward-only: days before the first live row are a gap, not 0%.</span></span>
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the players active each day (DAU), the share who PLAYED (a harvest or craft collection), turned in a quest, bought something (a real-money Store purchase, the Stripe checkout), sold to Kent, entered a Valley, or killed an enemy. The Kent, Valley and enemy lines are recorded from 2026-11-11 (the game-server deploy that added them) and are a gap before that. All from analytics_activity, so forward-only: days before the first live row are a gap, not 0%.</span></span>
         <h2>What active players did</h2>
         <p id="flags-note" class="chart-note" hidden></p>
         <div class="chart-wrap"><canvas id="flagsChart"></canvas></div>
-      </section>
-
-      <section class="card">
-        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">The retired editor's FTUE drop-off chart, re-implemented against the players collection. Cohort = accounts CREATED in the range (standard exclusions). Each bar = the share that reached AT LEAST that step (ftuestep, from tuning/FTUEsteps.json), ending with Completed (firsttimeuser false). A legacy account with no step counter and firsttimeuser false counts as completed, as the old route did. The chips filter the cohort client-side (OS / browser / timezone / language / aspiration), and the table below lists the filtered players.</span></span>
-        <h2 id="ftue-funnel-title">FTUE funnel</h2>
-        <div id="ftue-filters"></div>
-        <div class="chart-wrap"><canvas id="ftueFunnelChart"></canvas></div>
-        <div class="table-wrap"><table class="audit-table" id="ftueTable"><thead>
-          <tr><th>Username</th><th>FTUE</th><th>Step</th><th>Aspiration</th><th>Home Deed</th><th>Lang</th><th>OS</th><th>Browser</th><th>Timezone</th><th>Registered</th><th>Last active</th></tr>
-        </thead><tbody></tbody></table></div>
       </section>
 
       <section class="card">
@@ -322,11 +315,6 @@
       <p id="mon-start-note" class="chart-note warn" hidden></p>
       <div class="metric-row">
         <div class="metric-tile">
-          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Current accounts on the Gold tier (accountStatus Gold, set by the Gold Pass purchase). There is no end date or churn signal on the account; a Gold account stays Gold.</span></span>
-          <div class="metric-num" id="metric-gold">-</div>
-          <div class="metric-label">Gold Accounts</div>
-        </div>
-        <div class="metric-tile">
           <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Sum of offer prices (store.json priceInCents at purchase time) over the whole purchases ledger. The ledger starts with the recording deploy; purchases before it were never recorded. Not Stripe-verified: a row means the server fulfilled an offer the client reported as paid.</span></span>
           <div class="metric-num" id="metric-revenue">-</div>
           <div class="metric-label">Lifetime Revenue (ledger)</div>
@@ -347,28 +335,10 @@
         <h2>Revenue &amp; purchases per day</h2>
         <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
       </section>
-      <div class="demographics-grid">
-        <section class="card">
-          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Purchases in the range by store offer (title from tuning/store.json), with revenue in the tooltip.</span></span>
-          <h2>Purchases by offer</h2>
-          <div class="chart-wrap small"><canvas id="offersChart"></canvas></div>
-        </section>
-        <section class="card">
-          <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the accounts that are Gold TODAY, the share active each day. accountStatus carries no start date, so the base is today's Gold set on every day (a Gold account's pre-purchase activity counts). A day with no Gold base breaks the line.</span></span>
-          <h2>% of Gold accounts active</h2>
-          <div class="chart-wrap small"><canvas id="subActivePctChart"></canvas></div>
-        </section>
-      </div>
       <section class="card">
-        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Gold accounts active per day. New = Gold Pass purchases (offer 1) in the ledger that day. Toggle stacked vs. overlay.</span></span>
-        <div class="card-head">
-          <h2>Gold DAU</h2>
-          <div class="seg" id="subdau-mode">
-            <button type="button" data-mode="stacked" class="active">Stacked</button>
-            <button type="button" data-mode="overlay">Overlay</button>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="subDauChart"></canvas></div>
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Purchases in the range by store offer (title from tuning/store.json), with revenue in the tooltip.</span></span>
+        <h2>Purchases by offer</h2>
+        <div class="chart-wrap small"><canvas id="offersChart"></canvas></div>
       </section>
     </div>
 

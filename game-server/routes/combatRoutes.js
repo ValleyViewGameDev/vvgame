@@ -19,7 +19,7 @@ const gridTileManager = require('../utils/GridTileManager');
 const masterResources = require('../tuning/resources.json');
 const { derivedStats, attackCooldownMs } = require('../utils/combatStats');
 const { publicPlayer } = require('../utils/publicPlayer');
-const { recordQuestCompleted, recordLevelUps } = require('../utils/analytics');
+const { recordQuestCompleted, recordLevelUps, recordEnemyKill } = require('../utils/analytics');
 const { applyTrophy } = require('../utils/trophyUtils');
 
 const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
@@ -162,6 +162,7 @@ router.post('/action/npc-kill', async (req, res) => {
     }
     player.lastActive = new Date();
     await player.save();
+    recordEnemyKill(player._id).catch(() => {}); // analytics day flag, fire-and-forget
 
     const pub = publicPlayer(player);
     return res.json({ success: true, xpGained, xp: player.xp, drop, activeQuests: pub.activeQuests, trophies, playerTrophies: pub.trophies });

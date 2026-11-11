@@ -10,8 +10,13 @@ import '../Buttons/SharedButtons.css';
  * A soft nudge, dismissable (× or later): the player can finish what they are doing and refresh
  * on their own. Refresh reloads the page; the client build's file names are content-hashed and
  * index.html is served no-cache (render.yaml), so the reload fetches the new code.
+ * Only for a signed-in player: while logged out it stays silent (the way in reloads anyway).
  * One <UpdatePromptHost /> at the app root (index.js).
  */
+function isSignedIn() {
+  try { return !!localStorage.getItem('player'); } catch (_) { return true; } // storage blocked: assume a player, as before
+}
+
 export function UpdatePromptHost() {
   const strings = useStrings();
   const [open, setOpen] = useState(false);
@@ -25,7 +30,10 @@ export function UpdatePromptHost() {
     requestAnimationFrame(() => requestAnimationFrame(() => window.location.reload()));
   };
   useEffect(() => {
-    const onChange = () => setOpen(true);
+    // Logged out (no stored player: the login scene, Begin, the sign-in panel) never sees it
+    // (owner 2026-11-11): Begin, a typed login and Google sign-in all reload the page, and that
+    // reload loads the new build, so the prompt has nothing to offer a visitor
+    const onChange = () => { if (isSignedIn()) setOpen(true); };
     window.addEventListener(BUILD_CHANGED_EVENT, onChange);
     return () => window.removeEventListener(BUILD_CHANGED_EVENT, onChange);
   }, []);

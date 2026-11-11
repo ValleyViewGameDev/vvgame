@@ -46,14 +46,16 @@ function showError(title, err) {
 /** The selected frontier's town and valley cells that hold at least one Dungeon Entrance. */
 function entranceCells() {
   const positions = new Map(); // settlementId -> N/E/S/W from the frontier's settlement grid
+  const closed = new Set();    // the closed corner settlements: the game never shows their grids (core/world.js closedSettlementIds)
   for (const entry of (D.frontier?.settlements || []).flat()) {
     if (!entry?.settlementId) continue;
+    if (String(entry.settlementType || '').startsWith('homestead') && entry.available === false) closed.add(idOf(entry.settlementId));
     const m = String(entry.settlementType || '').match(/homesteadSet([NSEW]+)$/);
     positions.set(idOf(entry.settlementId), m ? m[1] : '');
   }
   const cells = [];
   for (const s of D.settlements) {
-    if (idOf(s.frontierId) !== String(D.frontierId)) continue;
+    if (idOf(s.frontierId) !== String(D.frontierId) || closed.has(idOf(s))) continue;
     for (const cell of (Array.isArray(s.grids) ? s.grids.flat() : [])) {
       if (!cell || cell.gridCoord == null) continue;
       const coord = Number(cell.gridCoord);
@@ -107,7 +109,7 @@ function buildRows() {
   return rows.sort((a, b) => order[a.status.level] - order[b.status.level] || a.coord - b.coord);
 }
 function c0(r) {
-  return r.dir ? 'Wired, but this cell\'s layout has no Dungeon Entrance. Unlink it, or place one in Layouts.' : 'Wired, but this is not a town or valley cell in this frontier. Unlink it.';
+  return r.dir ? 'Wired, but this cell\'s layout has no Dungeon Entrance. Unlink it, or place one in Layouts.' : 'Wired, but this is not an open town or valley cell in this frontier (a closed corner settlement, or no cell). Unlink it.';
 }
 
 // ----------------------------------------------------------------------------- data

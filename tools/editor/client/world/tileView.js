@@ -30,7 +30,7 @@ const T = {
   sel: [],               // gridCoords in the multi-selection (picked is the last one clicked)
   rect: null,            // shift+drag: { start, end } grid positions
   regionPick: '',        // region dropdown value (single + bulk)
-  show: { resources: false, bounds: true, regions: true },
+  show: { resources: false, bounds: true, regions: true, dungeons: false },
 };
 
 // ----------------------------------------------------------------------------- data
@@ -41,6 +41,12 @@ function sourceFor(cell) {
   if (cell.gridType === 'town') { const name = townLayoutName(S.frontier, cell.settlementId); return name ? { dir: 'town', name } : null; }
   if (cell.gridType === 'homestead') return { dir: 'homestead', name: 'homestead' };
   return null;
+}
+
+/** True when a template layout holds a Dungeon Entrance (its layout key from resources.json). */
+function hasDungeonEntrance(layout) {
+  const keys = new Set([...(T.shared.res?.byLayoutKey || new Map()).values()].filter((r) => r.type === 'Dungeon Entrance').map((r) => r.layoutkey));
+  return !!keys.size && Array.isArray(layout?.resources) && layout.resources.some((row) => Array.isArray(row) && row.some((k) => keys.has(k)));
 }
 
 function tileColor(key) {
@@ -233,6 +239,17 @@ function draw() {
     ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
     for (const c of T.shared.gridMap.values()) { if (!c.region) continue; const p = coordParts(c.gridCoord); if (p) ctx.fillRect(p.col * GRID_PX, p.row * GRID_PX, GRID_PX, GRID_PX); }
   }
+  if (T.show.dungeons) {
+    // every drawn grid whose template layout holds a Dungeon Entrance (owner 2026-11-11)
+    ctx.fillStyle = 'rgba(40, 40, 40, 0.65)';
+    const seen = new Map(); // "dir/name" -> has an entrance (towns and homesteads share files)
+    for (const e of T.grids.values()) {
+      const k = `${e.source.dir}/${e.source.name}`;
+      if (!seen.has(k)) seen.set(k, hasDungeonEntrance(T.files.get(k)));
+      if (!seen.get(k)) continue;
+      const p = coordParts(e.gridCoord); if (p) ctx.fillRect(p.col * GRID_PX, p.row * GRID_PX, GRID_PX, GRID_PX);
+    }
+  }
   const outline = (g, color, w = 3) => { if (!g) return; ctx.strokeStyle = color; ctx.lineWidth = w / T.zoom; ctx.strokeRect(g.col * GRID_PX, g.row * GRID_PX, GRID_PX, GRID_PX); };
   outline(T.hover, '#3f8a2f');
   for (const coord of T.sel) { const p = coordParts(coord); if (p) outline(p, '#c0392b', 2); }
@@ -278,6 +295,7 @@ function renderPanel() {
     check('resources', 'Show resources (white dots)', rerasterizeAll),
     check('bounds', 'Show settlement bounds', draw),
     check('regions', 'Show regions (red tint)', draw),
+    check('dungeons', 'Show dungeon entrances', draw),
   );
 
   const pickRegion = (value) => { T.regionPick = value; renderPanel(); };

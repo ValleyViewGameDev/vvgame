@@ -8,7 +8,7 @@
 //   - Engagement: last-seen vs DAU, activity flags, the FTUE funnel, Home Deed,
 //     quests, trophies, grids visited.
 //   - Events: Train / Carnival / elections per day, the season leaderboard.
-//   - Monetization: the purchases ledger + Gold accounts.
+//   - Monetization: the purchases ledger.
 //   - Demographics: device / OS / browser / timezone / screen / language.
 // Only the active tab fetches/renders. Day math is the viewer's LOCAL day; the
 // server buckets with the tz we send.
@@ -42,8 +42,6 @@ let lastSourceData = null;
 let retentionMode = 'opened';
 let retentionSelectedSources = null;
 let retentionAvailableSources = [];
-let subDauMode = 'stacked';
-let lastSubDauSeries = null;
 
 // ---- LOCAL day helpers ----
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -225,9 +223,7 @@ function renderSiteTraffic(payload) {
 function renderTrafficMetrics(m) {
   $('tm-total-accounts').textContent = m.total_accounts != null ? m.total_accounts.toLocaleString() : '-';
   $('tm-dau').textContent = m.dau_yesterday != null ? m.dau_yesterday : '-';
-  $('tm-subdau').textContent = m.sub_dau_yesterday != null ? m.sub_dau_yesterday : '-';
   setDelta('tm-dau-delta', m.dau_delta_pct);
-  setDelta('tm-subdau-delta', m.sub_dau_delta_pct);
   setNote('traffic-start-note', m.activity_start_day
     ? `Live activity recording began ${m.activity_start_day}. DAU before that is a floor (signups only); retention cohorts before it have no data.`
     : 'No live activity recorded yet: DAU, retention and Source start with the deploy that ships analytics. Until then DAU equals New Users (backfilled signups) and retention is a gap, not zero.', !m.activity_start_day);
@@ -406,7 +402,6 @@ function appendUserRow(ul, row, meta) {
   name.className = row.username ? 'uname' : 'deleted';
   // textContent (never innerHTML): usernames are user-controlled.
   name.textContent = (row.username || '(unknown)')
-    + (row.subscribed ? ' \u{1F4B0}' : '')
     + (row.played ? ' \u{1F33F}' : '')
     + (row.deleted ? ' \u{1F5D1}️' : '');
   const right = document.createElement('span');
@@ -430,7 +425,6 @@ function showUserPopover(anchor, row) {
   const acq = ci.acquisition || {};
   const lines = [];
   if (row.deleted) lines.push('Deleted account');
-  if (row.subscribed) lines.push('Gold account');
   if (row.played) lines.push('Played today (harvest / craft)');
   if (d.is_mobile === true) lines.push('Device: Mobile');
   else if (d.is_mobile === false) lines.push('Device: Desktop');
@@ -545,7 +539,7 @@ function renderPlayersTable(data) {
   }));
   sortableTable('playersTable', rows, (p) => `
     <tr>
-      <td>${esc(p.username || '(unknown)')}${p.subscribed ? ' \u{1F4B0}' : ''}</td>
+      <td>${esc(p.username || '(unknown)')}</td>
       <td>${fmtDate(p.created_at)}</td>
       <td>${p.last_active ? new Date(p.last_active).toLocaleString() : '-'}</td>
       <td class="num">${p.level}</td>
@@ -553,7 +547,6 @@ function renderPlayersTable(data) {
       <td class="num">${p.net_worth != null ? p.net_worth.toLocaleString() : '-'}</td>
       <td>${p.in_ftue ? `Step ${p.ftue_step ?? 0}` : 'Done'}</td>
       <td>${p.home_deed ? 'yes' : '-'}</td>
-      <td>${p.subscribed ? 'Gold' : '-'}</td>
       <td>${esc(p.language || '-')}</td>
       <td>${esc(sourceLabel(p.source || 'Unknown'))}</td>
     </tr>`, { key: 'last_active', dir: 'desc' });
@@ -578,23 +571,26 @@ function renderLastSeen(lastSeen, dau) {
 
 function renderFlags(payload) {
   const s = payload.series || [];
-  setNote('flags-note', payload.start_day ? `Recording began ${payload.start_day}.` : 'Nothing recorded yet: every day is a gap until the deploy that ships analytics.');
+  setNote('flags-note', payload.start_day
+    ? `Recording began ${payload.start_day}. Kent, Valley and enemy lines ${payload.new_flags_start_day ? `began ${payload.new_flags_start_day}` : 'start with the game-server deploy that records them'}.`
+    : 'Nothing recorded yet: every day is a gap until the deploy that ships analytics.');
   const share = (k) => s.map((p) => (p.dau == null ? null : (p.dau ? pct(p[k], p.dau) : null)));
   chart('flagsChart', {
     type: 'line',
     data: { labels: s.map((p) => p.day), datasets: [
       line('% played (harvest / craft)', share('played'), '#8bbf6a', { yAxisID: 'y' }),
       line('% turned in a quest', share('quest'), '#7aa2f7', { yAxisID: 'y' }),
-      line('% bought something', share('purchase'), '#e46ba5', { yAxisID: 'y' }),
-      bar('Grid entries per active player', s.map((p) => (p.dau ? Math.round((p.moves / p.dau) * 10) / 10 : null)), '#d8a65766', { yAxisID: 'y1', order: 3 }),
+      line('% bought something (Store, real money)', share('purchase'), '#e46ba5', { yAxisID: 'y' }),
+      line('% sold to Kent', share('kent'), '#d8a657', { yAxisID: 'y' }),
+      line('% visited a Valley', share('valley'), '#56b6c2', { yAxisID: 'y' }),
+      line('% killed an enemy', share('kill'), '#e06c4a', { yAxisID: 'y' }),
     ] },
     options: { ...BASE, scales: {
       x: AXES.x,
       y: PCT_AXIS({ max: 100, position: 'left', title: { display: true, text: '% of DAU', color: '#b7ab95' } }),
-      y1: { beginAtZero: true, position: 'right', ticks: { color: '#b7ab95' }, grid: { drawOnChartArea: false }, title: { display: true, text: 'grids / player', color: '#b7ab95' } },
     }, plugins: { ...LEGEND, tooltip: { callbacks: {
-      afterTitle: (items) => { const p = s[items[0].dataIndex] || {}; return p.dau == null ? 'no data (pre-deploy)' : `DAU ${p.dau}: ${p.played} played, ${p.quest} quests, ${p.purchase} bought, ${p.moves} grid entries by ${p.movers}`; },
-      label: (c) => (c.raw == null ? `${c.dataset.label}: n/a` : `${c.dataset.label}: ${c.raw}${c.dataset.yAxisID === 'y' ? '%' : ''}`),
+      afterTitle: (items) => { const p = s[items[0].dataIndex] || {}; return p.dau == null ? 'no data (pre-deploy)' : `DAU ${p.dau}: ${p.played} played, ${p.quest} quests, ${p.purchase} bought${p.kent == null ? '' : `, ${p.kent} sold to Kent, ${p.valley} visited a Valley, ${p.kill} killed an enemy`}`; },
+      label: (c) => (c.raw == null ? `${c.dataset.label}: n/a` : `${c.dataset.label}: ${c.raw}%`),
     } } } },
   });
 }
@@ -637,42 +633,54 @@ function ftueFiltered() {
   return ftueData.players.filter((p) => FTUE_DIMS.every(([dim]) => !ftueSelected[dim] || ftueSelected[dim].has(ftueVal(p, dim))));
 }
 // Cumulative funnel: "reached at least step i" = currently at step >= i, or
-// completed. Mirrors the retired route's stepProgression exactly.
-function computeFunnel(rows, steps) {
+// completed (mirrors the retired route's stepProgression). Past Completed it
+// runs on to the Audrey lesson and ends there: Reached Level 5, Hired Audrey.
+// Each bar counts everyone at or past it, so the bars only ever step down (a
+// player who hired Audrey counts as completed and as level 5 whatever their
+// recorded state; Audrey unlocked later than L5 before 2026-11-10).
+function computeFunnel(rows, steps, audreyLevel = 5) {
   const total = rows.length;
   const maxStep = steps.reduce((m, s) => Math.max(m, s.step), 0);
   const atStep = {};
-  let completed = 0;
+  let completed = 0; let leveled = 0; let hired = 0;
   for (const p of rows) {
-    if (p.completed) completed++;
-    else atStep[p.ftue_step ?? 0] = (atStep[p.ftue_step ?? 0] || 0) + 1;
+    const done = p.completed || p.hired_audrey;
+    if (!done) { atStep[p.ftue_step ?? 0] = (atStep[p.ftue_step ?? 0] || 0) + 1; continue; }
+    completed++;
+    if (p.hired_audrey || (p.level || 0) >= audreyLevel) leveled++;
+    if (p.hired_audrey) hired++;
   }
+  const pc = (n) => (total ? Math.round((n / total) * 1000) / 10 : 0);
   const out = [];
   for (const s of steps) {
     let cum = completed;
     for (let j = s.step; j <= maxStep; j++) cum += atStep[j] || 0;
-    out.push({ id: s.step, label: `Step ${s.step}: ${s.trigger}`, count: cum, percent: total ? Math.round((cum / total) * 1000) / 10 : 0, at: atStep[s.step] || 0 });
+    out.push({ id: s.step, label: `Step ${s.step}: ${s.trigger}`, count: cum, percent: pc(cum), at: atStep[s.step] || 0 });
   }
-  out.push({ id: 'completed', label: 'Completed FTUE', count: completed, percent: total ? Math.round((completed / total) * 1000) / 10 : 0, at: completed });
+  out.push({ id: 'completed', label: 'Completed FTUE', count: completed, percent: pc(completed), at: completed - leveled });
+  out.push({ id: 'level', label: `Reached Level ${audreyLevel}`, count: leveled, percent: pc(leveled), at: leveled - hired });
+  out.push({ id: 'hired', label: 'Hired Audrey (end)', count: hired, percent: pc(hired), at: hired });
   return { total, rows: out };
 }
+const POST_FTUE_IDS = new Set(['completed', 'level', 'hired']);
 function renderFtue() {
   renderFtueChips();
   const rows = ftueFiltered();
-  const f = computeFunnel(rows, ftueData.steps);
-  const done = f.rows[f.rows.length - 1];
+  const f = computeFunnel(rows, ftueData.steps, ftueData.audrey_level);
+  const done = f.rows.find((r) => r.id === 'completed');
+  const hired = f.rows.find((r) => r.id === 'hired');
   $('ftue-funnel-title').textContent = `FTUE funnel: ${f.total} account${f.total === 1 ? '' : 's'} created in range`
     + (f.total !== ftueData.cohort_total ? ` (filtered from ${ftueData.cohort_total})` : '')
-    + (f.total ? `, ${done.percent}% completed` : '')
-    + (ftueData.purged_unnamed ? `; ${ftueData.purged_unnamed} bounced in the cave (unnamed, purged)` : '')
+    + (f.total ? `, ${done.percent}% completed, ${hired.percent}% hired Audrey` : '')
+    + (ftueData.purged_unnamed ? `; ${ftueData.purged_unnamed} bounced before naming (unnamed, purged)` : '')
     + (rows.length ? `; ${rows.filter((p) => p.has_email).length} with email` : '');
   chart('ftueFunnelChart', {
     type: 'bar',
-    data: { labels: f.rows.map((r) => r.label), datasets: [{ label: '% of cohort', data: f.rows.map((r) => r.percent), backgroundColor: f.rows.map((r) => (r.id === 'completed' ? '#8bbf6a' : '#d8a657')) }] },
+    data: { labels: f.rows.map((r) => r.label), datasets: [{ label: '% of cohort', data: f.rows.map((r) => r.percent), backgroundColor: f.rows.map((r) => (POST_FTUE_IDS.has(r.id) ? '#8bbf6a' : '#d8a657')) }] },
     options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       scales: { x: PCT_AXIS({ max: 100 }), y: { ticks: { color: '#efe7d8' }, grid: { display: false } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: {
-        label: (item) => { const r = f.rows[item.dataIndex]; return `${r.count} of ${f.total} reached (${item.raw}%)${r.id !== 'completed' && r.at ? `, ${r.at} currently here` : ''}`; },
+        label: (item) => { const r = f.rows[item.dataIndex]; return `${r.count} of ${f.total} reached (${item.raw}%)${r.at ? `, ${r.at} ${r.id === 'hired' ? 'in all' : 'stopped here'}` : ''}`; },
       } } } },
   });
   document.querySelector('#ftueTable tbody').innerHTML = rows.map((p) => `
@@ -680,6 +688,8 @@ function renderFtue() {
       <td>${esc(p.username || '(unknown)')}</td>
       <td>${p.completed ? 'Completed' : 'In progress'}</td>
       <td>${p.completed ? 'Done' : `Step ${p.ftue_step ?? 0}`}</td>
+      <td>${p.level ?? '-'}</td>
+      <td>${p.hired_audrey ? 'yes' : '-'}</td>
       <td>${p.aspiration ?? '-'}</td>
       <td>${p.home_deed ? 'yes' : '-'}</td>
       <td>${esc(p.language || '-')}</td>
@@ -688,7 +698,7 @@ function renderFtue() {
       <td>${esc(p.timezone || 'Unknown')}</td>
       <td>${fmtDate(p.created_at)}</td>
       <td>${fmtDate(p.last_active)}</td>
-    </tr>`).join('') || '<tr><td colspan="11">No accounts created in range.</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="13">No accounts created in range.</td></tr>';
 }
 
 function renderHomeDeed(payload) {
@@ -794,8 +804,7 @@ function renderMonetization(p) {
   const m = p.metrics || {};
   setNote('mon-start-note', p.ledger_start_day
     ? `Purchases ledger began ${p.ledger_start_day}; earlier purchases were never recorded.`
-    : 'No purchases recorded yet: the ledger starts with the deploy that ships analytics. Gold accounts come from the live players collection and have history.', !p.ledger_start_day);
-  $('metric-gold').textContent = m.gold_accounts ?? '-';
+    : 'No purchases recorded yet: the ledger starts with the deploy that ships analytics.', !p.ledger_start_day);
   $('metric-revenue').textContent = dollars(m.lifetime_cents);
   $('metric-purchases').textContent = m.lifetime_purchases ?? '-';
   $('metric-purchases-label').textContent = `Lifetime Purchases (${m.lifetime_buyers || 0} buyer${m.lifetime_buyers === 1 ? '' : 's'})`;
@@ -825,40 +834,6 @@ function renderMonetization(p) {
       scales: { x: { beginAtZero: true, ticks: { precision: 0, color: '#b7ab95' }, grid: { color: '#3a312855' } }, y: { ticks: { color: '#efe7d8' }, grid: { display: false } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.raw} purchase${c.raw === 1 ? '' : 's'}, ${dollars(offers[c.dataIndex].cents)}` } } } },
   });
-}
-function renderSubActivePct(series) {
-  const daily = series.map((p) => (p.subs ? pct(p.dau, p.subs) : null));
-  const ROLL = 7;
-  const rolling = series.map((_, i) => {
-    let active = 0, base = 0;
-    for (let j = Math.max(0, i - (ROLL - 1)); j <= i; j++) { const p = series[j]; if (!p) continue; active += p.dau || 0; base += p.subs || 0; }
-    return base > 0 ? pct(active, base) : null;
-  });
-  chart('subActivePctChart', {
-    type: 'line',
-    data: { labels: series.map((p) => p.day), datasets: [
-      line('% of Gold active', daily, '#d8a657', { order: 2 }),
-      line(`Rolling ${ROLL}d Avg.`, rolling, '#56b6c2', { tension: 0.35, borderWidth: 3, pointRadius: 0, order: 1 }),
-    ] },
-    options: { ...BASE, scales: { x: AXES.x, y: PCT_AXIS({ max: 100 }) }, plugins: { ...LEGEND, tooltip: { callbacks: {
-      label: (c) => `${c.dataset.label}: ${c.raw == null ? 'no data' : `${c.raw}%`}`,
-      afterBody: (items) => { const p = series[items[0].dataIndex]; return p ? `${p.dau} of ${p.subs} Gold accounts active` : ''; },
-    } } } },
-  });
-}
-function renderSubDau(series, mode = subDauMode) {
-  const labels = series.map((p) => p.day);
-  const newU = series.map((p) => p.newUsers);
-  const returning = series.map((p) => Math.max(0, p.dau - p.newUsers));
-  let datasets, scales;
-  if (mode === 'stacked') {
-    datasets = [line('Returning Gold', returning, '#8bbf6a', { backgroundColor: '#8bbf6a55', fill: true }), line('New Gold', newU, '#7aa2f7', { backgroundColor: '#7aa2f755', fill: true })];
-    scales = STACKED_AXES;
-  } else {
-    datasets = [line('Gold DAU', series.map((p) => p.dau), '#d8a657', { backgroundColor: '#d8a65733', fill: true, order: 3 }), line('Returning Gold', returning, '#8bbf6a', { order: 1 }), line('New Gold', newU, '#7aa2f7', { order: 2 })];
-    scales = AXES;
-  }
-  chart('subDauChart', { type: 'line', data: { labels, datasets }, options: { ...BASE, scales, plugins: LEGEND } });
 }
 
 // ======================= DEMOGRAPHICS =======================
@@ -1075,14 +1050,11 @@ async function refresh() {
       const carnivals = ev.series.reduce((s, p) => s + p.carnival, 0);
       setStatus(`${from} to ${to} / ${trains} train departures / ${carnivals} carnival departures / ${seasons.seasons.length} finished seasons`);
     } else if (activeTab === 'monetization') {
-      const [purchases, subDau] = await Promise.all([getJSON(`/api/purchases${qs}`), getJSON(`/api/sub-dau${qs}`)]);
+      const purchases = await getJSON(`/api/purchases${qs}`);
       renderMonetization(purchases);
-      lastSubDauSeries = subDau.series;
-      renderSubDau(subDau.series, subDauMode);
-      renderSubActivePct(subDau.series);
       const cents = purchases.series.reduce((s, p) => s + p.cents, 0);
       const n = purchases.series.reduce((s, p) => s + p.purchases, 0);
-      setStatus(`${from} to ${to} / ${n} purchases / ${dollars(cents)} / ${purchases.metrics.gold_accounts} Gold accounts${devSuffix}`);
+      setStatus(`${from} to ${to} / ${n} purchases / ${dollars(cents)}${devSuffix}`);
     } else if (activeTab === 'demographics') {
       const [data, language] = await Promise.all([getJSON(`/api/demographics${qs}`), getJSON(`/api/language${qs}`)]);
       renderDemographics(data);
@@ -1120,7 +1092,7 @@ $('apply').addEventListener('click', refresh);
 hideDevsEl.addEventListener('change', refresh);
 
 // Mode toggles: each persists to localStorage and re-renders from cache where
-// the payload already carries both views (DAU, Source, Visits, Gold DAU);
+// the payload already carries both views (DAU, Source, Visits);
 // Retention refetches because the mode changes what the SERVER counts.
 function wireSeg(id, key, get, set, onChange) {
   const saved = localStorage.getItem(KEY(key));
@@ -1136,7 +1108,6 @@ function wireSeg(id, key, get, set, onChange) {
 wireSeg('dau-mode', 'dauMode', () => dauMode, (m) => { dauMode = m; }, () => { if (lastDauSeries) renderDau(lastDauSeries, dauMode); });
 wireSeg('source-mode', 'sourceMode', () => sourceMode, (m) => { sourceMode = m; }, () => { if (lastSourceData) { renderSource(lastSourceData, sourceMode); renderSourceLine(lastSourceData, sourceMode); } });
 wireSeg('visitsrc-mode', 'visitSrcMode', () => visitSrcMode, (m) => { visitSrcMode = m; }, () => { if (lastSiteTraffic) renderSiteTraffic(lastSiteTraffic); });
-wireSeg('subdau-mode', 'subDauMode', () => subDauMode, (m) => { subDauMode = m; }, () => { if (lastSubDauSeries) renderSubDau(lastSubDauSeries, subDauMode); });
 wireSeg('retention-mode', 'retentionMode', () => retentionMode, (m) => { retentionMode = m; }, () => loadRetention());
 
 hideDevsEl.checked = localStorage.getItem(KEY('hideDevs')) === '1';

@@ -106,6 +106,18 @@ async function recordGridEntered(playerId, when = new Date()) {
   await setDayFlag(playerId, { $inc: { grids_entered: 1 } }, when);
 }
 
+// Per-day reach flags for the Engagement chart (2026-11-11): sold to Kent, entered a Valley,
+// killed an enemy. Idempotent like the others: the first event of the day sets it.
+async function recordKentSale(playerId, when = new Date()) {
+  await setDayFlag(playerId, { $set: { kent_sold: true } }, when);
+}
+async function recordValleyVisit(playerId, when = new Date()) {
+  await setDayFlag(playerId, { $set: { valley_visited: true } }, when);
+}
+async function recordEnemyKill(playerId, when = new Date()) {
+  await setDayFlag(playerId, { $set: { enemy_killed: true } }, when);
+}
+
 // The level a total xp gives (as the client's getDerivedLevel: level i+2 at XP_THRESHOLDS[i]).
 function levelForXp(xp) {
   let level = 1;
@@ -227,6 +239,6 @@ function sanitizeClientInfo(body) {
 }
 
 module.exports = {
-  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered, recordLevelUps, levelForXp,
+  recordActivity, recordPlayed, recordQuestCompleted, recordPurchase, recordGridEntered, recordKentSale, recordValleyVisit, recordEnemyKill, recordLevelUps, levelForXp,
   recordPageview, ensurePageview, sanitizeClientInfo, dayKeyUTC, HEX24,
 };

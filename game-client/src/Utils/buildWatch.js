@@ -2,7 +2,8 @@ import axios from 'axios';
 
 /**
  * Deploy-freshness detection (ported from House, game-client/api.js there). The game server
- * stamps every response with X-App-Build, its deployed commit. The first one this tab sees is
+ * stamps every response with X-App-Build, its deployed commit; only /api/status responses are
+ * read (any other may be a stale browser-cached copy). The first one this tab sees is
  * the build it loaded against; when a later response carries a different one, a deploy landed
  * while the tab stayed open, so the code running here is stale: fire a one-shot window event,
  * 'app:build-changed', that UI/Modals/UpdatePrompt.js turns into a "The Game Has Updated"
@@ -47,8 +48,13 @@ export function installBuildWatch() {
   if (installed) return;
   installed = true;
   if (CLIENT_BUILD && CLIENT_BUILD !== 'dev') setInterval(checkClientBuild, 60 * 1000);
+  // Only /api/status speaks for the server's build (owner 2026-11-11): any other response can come
+  // out of the browser's HTTP cache carrying the stamp of an older deploy (the login scene was
+  // cached for an hour), which looked like a new deploy on every load and brought the prompt back
+  // after each Refresh. App.js polls /api/status at boot and every 60 s, and it is never cached.
+  const isStatus = (config) => /\/api\/status(\?|$)/.test(config?.url || '');
   axios.interceptors.response.use(
-    (res) => { checkBuild(res.headers); return res; },
-    (err) => { checkBuild(err?.response?.headers); return Promise.reject(err); },
+    (res) => { if (isStatus(res.config)) checkBuild(res.headers); return res; },
+    (err) => { if (isStatus(err?.config)) checkBuild(err?.response?.headers); return Promise.reject(err); },
   );
 }

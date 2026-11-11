@@ -40,6 +40,13 @@ const AnalyticsActivitySchema = new mongoose.Schema({
   // player travels many times a day. Total moves/day = sum; movers/day = rows
   // with grids_entered > 0.
   grids_entered: { type: Number, default: 0 },
+  // Per-day reach flags added 2026-11-11 (Engagement tab, "What active players did"): sold to
+  // Kent (/action/kent-sell), entered a Valley grid (enter-grid onto gridType valley*), killed an
+  // enemy (/action/npc-kill). Rows written before that deploy lack the fields, which is how the
+  // dashboard tells "no data yet" from "didn't": keep the defaults so every new row carries them.
+  kent_sold: { type: Boolean, default: false },
+  valley_visited: { type: Boolean, default: false },
+  enemy_killed: { type: Boolean, default: false },
   schema_version: { type: Number, default: 1 },
 }, { collection: 'analytics_activity', versionKey: false });
 

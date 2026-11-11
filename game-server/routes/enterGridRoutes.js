@@ -16,7 +16,7 @@ const {
   applyDungeonCatchUp, buildGridPayload, setPlayerLocation, sendPlayerHome, spawnNextTo, FTUE_KEY,
 } = require('../utils/gridResolver');
 
-const { recordActivity, recordGridEntered } = require('../utils/analytics');
+const { recordActivity, recordGridEntered, recordValleyVisit } = require('../utils/analytics');
 const { seedRegionsVisited } = require('../utils/regionsVisited');
 const { isDeveloper } = require('../utils/developerHelpers');
 
@@ -255,6 +255,7 @@ router.post('/enter-grid', async (req, res) => {
     // Analytics (fire-and-forget): day heartbeat + the grids_entered counter.
     recordActivity(player._id).catch(() => {});
     recordGridEntered(player._id).catch(() => {});
+    if (/^valley/.test(grid.gridType || '')) recordValleyVisit(player._id).catch(() => {});
 
     return res.json({
       grid: buildGridPayload(grid, playerId, { ownerUsername }),

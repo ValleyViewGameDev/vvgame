@@ -30,7 +30,7 @@ const Frontier = require('../models/frontier');
 const econ = require('../utils/playerEconomy');
 const kent = require('../utils/kentOffers');
 const { spendCosts, heldQuantity } = require('../utils/playerHoldings');
-const { recordLevelUps } = require('../utils/analytics');
+const { recordLevelUps, recordKentSale } = require('../utils/analytics');
 const globalTuning = require('../tuning/globalTuning.json');
 const { isDeveloper } = require('../utils/developerHelpers');
 
@@ -146,6 +146,7 @@ router.post('/action/kent-sell', async (req, res) => {
 
     player.lastActive = new Date();
     await player.save();
+    recordKentSale(player._id).catch(() => {}); // analytics day flag, fire-and-forget
     return res.json({
       success: true, sold: goods, rewards, xpGained,
       kentOffers: boardOf(player), kentCooldowns: cooldownsOf(player), player: econ.playerDelta(player), seq: econ.nextSeq(),

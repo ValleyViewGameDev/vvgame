@@ -36,7 +36,10 @@ router.get('/login-scene', (req, res) => {
   try {
     const scene = (IS_PROD && cached) || buildScene();
     if (IS_PROD) cached = scene;
-    res.set('Cache-Control', IS_PROD ? 'public, max-age=3600' : 'no-store');
+    // no-cache, not max-age: a browser-cached copy replays the X-App-Build of the deploy that served
+    // it, and Utils/buildWatch.js then sees two builds and shows "The Game Has Updated" on every
+    // load (owner 2026-11-11). The ETag keeps the revalidation a cheap 304.
+    res.set('Cache-Control', IS_PROD ? 'no-cache' : 'no-store');
     res.json(scene);
   } catch (err) {
     console.error('login-scene:', err.message);

@@ -49,6 +49,7 @@ function connectMongo() {
 const Player = require(path.join(GAME_SERVER, 'models', 'player'));
 const Frontier = require(path.join(GAME_SERVER, 'models', 'frontier'));
 const Settlement = require(path.join(GAME_SERVER, 'models', 'settlement'));
+const Grid = require(path.join(GAME_SERVER, 'models', 'grid'));
 const Purchase = require(path.join(GAME_SERVER, 'models', 'purchase'));
 const AnalyticsActivity = require(path.join(GAME_SERVER, 'models', 'analyticsActivity'));
 const AnalyticsPurge = require(path.join(GAME_SERVER, 'models', 'analyticsPurge'));
@@ -272,6 +273,8 @@ const ABUSE_USERNAME_RES = [];
 // _id, since a real player may be dealt the same name once the test account is gone.
 const NON_PLAYER_IDS = [
   '6ae7b8cad2bda7135a57c424', // Kind Stag 6047 (owner's test, 2026-11-01)
+  '6af4a45bfa3646a095c433ed', // Bold Stag 2077 (owner's test, 2026-11-11)
+  '6af4aa6e0931408e897e8dd2', // Bold Robin 8905 (owner's test, 2026-11-11)
 ];
 
 async function abuseExcludeIds() {
@@ -351,30 +354,20 @@ async function trafficMetrics({ tz }, excludeIds = []) {
   const yesterday = addDays(today, -1);
   const weekAgo = addDays(yesterday, -7);
   const since = new Date(Date.now() - 12 * 24 * 60 * 60 * 1000); // buffer past weekAgo
-  const [total_accounts, dauRows, golds] = await Promise.all([
+  const [total_accounts, dauRows] = await Promise.all([
     Player.countDocuments(exPlQ(excludeIds)),
     AnalyticsActivity.aggregate([
       { $match: { ts: { $gte: since }, ...exActQ(excludeIds) } },
       { $group: { _id: localDayExpr('$ts', tz), players: { $addToSet: '$playerId' } } },
       { $project: { n: { $size: '$players' } } },
     ]),
-    Player.find({ accountStatus: 'Gold', ...exPlQ(excludeIds) }, { _id: 1 }).lean(),
   ]);
   const dauByDay = Object.fromEntries(dauRows.map((r) => [r._id, r.n]));
-  const goldIds = golds.map((s) => String(s._id));
-  const goldRows = goldIds.length ? await AnalyticsActivity.aggregate([
-    { $match: { ts: { $gte: since }, playerId: { $in: goldIds } } },
-    { $group: { _id: localDayExpr('$ts', tz), players: { $addToSet: '$playerId' } } },
-    { $project: { n: { $size: '$players' } } },
-  ]) : [];
-  const goldByDay = Object.fromEntries(goldRows.map((r) => [r._id, r.n]));
   const delta = (cur, prev) => (prev > 0 ? Math.round(((cur - prev) / prev) * 1000) / 10 : null);
   const dauY = dauByDay[yesterday] || 0, dauW = dauByDay[weekAgo] || 0;
-  const subY = goldByDay[yesterday] || 0, subW = goldByDay[weekAgo] || 0;
   return {
     total_accounts,
     dau_yesterday: dauY, dau_week_ago: dauW, dau_delta_pct: delta(dauY, dauW),
-    sub_dau_yesterday: subY, sub_dau_week_ago: subW, sub_dau_delta_pct: delta(subY, subW),
     yesterday, week_ago: weekAgo,
     activity_start_day: await activityStartDay(tz),
   };
@@ -753,7 +746,7 @@ function deviceOf(p) {
     connection: f.connectionType || null,
   };
 }
-const PLAYER_ROW_FIELDS = { username: 1, accountStatus: 1, client_info: 1, ftueFeedback: 1, created: 1, createdAt: 1, language: 1 };
+const PLAYER_ROW_FIELDS = { username: 1, client_info: 1, ftueFeedback: 1, created: 1, createdAt: 1, language: 1 };
 
 // ---- Users tab: the actual people active in a time window ----
 async function activeUsers(start, end, excludeIds = []) {
@@ -773,7 +766,6 @@ async function activeUsers(start, end, excludeIds = []) {
       return redactPerUser({
         username: (p && p.username) || lastName[a.playerId] || null,
         deleted: !p,
-        subscribed: !!p && p.accountStatus === 'Gold',
         played: !!a.played,
         playerId: a.playerId,
         ts: a.ts,
@@ -856,7 +848,6 @@ async function newAccountsInRange({ start, end }, excludeIds = []) {
         username: (p && p.username) || r.username || null,
         firstSeenAt: r.firstSeenAt, firstSeenDay: r.firstSeenDay,
         deleted: !p,
-        subscribed: !!p && p.accountStatus === 'Gold',
         client_info: p ? (p.client_info || null) : null,
         device: p ? deviceOf(p) : null,
         created_at: p ? createdOf(p) : null,
@@ -872,7 +863,7 @@ async function newAccountsInRange({ start, end }, excludeIds = []) {
 async function playersTable(excludeIds = []) {
   const rows = await Player.find(exPlQ(excludeIds), {
     username: 1, created: 1, createdAt: 1, lastActive: 1, xp: 1, netWorth: 1, ftuestep: 1, firsttimeuser: 1,
-    aspiration: 1, settlementId: 1, accountStatus: 1, language: 1, ftueFeedback: 1, client_info: 1,
+    aspiration: 1, settlementId: 1, language: 1, ftueFeedback: 1, client_info: 1,
   }).sort({ lastActive: -1 }).limit(2000).lean();
   return {
     total: rows.length,
@@ -887,7 +878,6 @@ async function playersTable(excludeIds = []) {
       in_ftue: p.firsttimeuser === true,
       aspiration: p.aspiration ?? null,
       home_deed: !!p.settlementId,
-      subscribed: p.accountStatus === 'Gold',
       language: p.language || null,
       source: resolveSource(p.client_info),
       device: deviceOf(p),
@@ -906,17 +896,30 @@ async function playersTable(excludeIds = []) {
 //   "reached step i" = ftuestep >= i OR completed; completed = firsttimeuser false.
 // A player with ftuestep null and firsttimeuser false predates the step counter
 // (legacy account) and is counted as completed, as the old route did.
+// After Completed, the funnel runs on to the Audrey lesson (FarmHands/useAudreyLesson.js),
+// where it ends: Reached Level 5 (xp, the client's level rule; Audrey unlocks at L5) and
+// Hired Audrey (a 'Farm Hand' NPC on the player's own homestead grid: the hire leaves no
+// player-side record, and the 'audreyLesson' moment is stamped when the lesson STARTS).
+const AUDREY_LEVEL = 5;
 async function ftueFunnelForRange({ start, end }, excludeIds = []) {
   const rows = await Player.aggregate([
     { $addFields: { created_at: CREATED_EXPR } },
     { $match: { created_at: { $gte: start, $lte: end }, ...exPlQ(excludeIds) } },
     { $project: {
       username: 1, named: 1, email: 1, firsttimeuser: 1, ftuestep: 1, aspiration: 1, created_at: 1, lastActive: 1, language: 1,
-      settlementId: 1, client_info: 1,
+      settlementId: 1, client_info: 1, xp: 1, gridId: 1,
       'ftueFeedback.os': 1, 'ftueFeedback.browser': 1, 'ftueFeedback.timezone': 1, 'ftueFeedback.isMobile': 1,
     } },
     { $sort: { created_at: -1 } },
   ]);
+  const homeIds = rows.map((p) => p.gridId).filter(Boolean);
+  const hiredGrids = homeIds.length ? await Grid.aggregate([
+    { $match: { _id: { $in: homeIds } } },
+    { $project: { npcs: { $objectToArray: { $ifNull: ['$NPCsInGrid', {}] } } } },
+    { $match: { 'npcs.v.type': 'Farm Hand' } },
+    { $project: { _id: 1 } },
+  ]) : [];
+  const hiredSet = new Set(hiredGrids.map((g) => String(g._id)));
   // Silent accounts purged for bouncing in the cave are gone from `players`; their count comes from
   // the purge log (utils/purgeUnnamed.js), by purge day, so the funnel can say what it no longer sees.
   const purged = await AnalyticsPurge.aggregate([
@@ -925,6 +928,7 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
   ]);
   return {
     steps: FTUE_STEPS,
+    audrey_level: AUDREY_LEVEL,
     cohort_total: rows.length,
     purged_unnamed: purged.length ? purged[0].count : 0,
     players: rows.map((p) => redactPerUser({
@@ -934,6 +938,8 @@ async function ftueFunnelForRange({ start, end }, excludeIds = []) {
       has_email: !!p.email,
       completed: p.firsttimeuser === false || p.firsttimeuser === undefined,
       ftue_step: Number.isFinite(p.ftuestep) ? p.ftuestep : null,
+      level: levelOf(p.xp),
+      hired_audrey: !!p.gridId && hiredSet.has(String(p.gridId)),
       aspiration: p.aspiration ?? null,
       home_deed: !!p.settlementId,
       created_at: p.created_at,
@@ -1062,10 +1068,16 @@ async function gridsVisitedStats(excludeIds = []) {
 
 // ---- Engagement: per-day activity flags from analytics_activity ----
 // Of the players active each local day: how many PLAYED (harvest/craft write),
-// turned in a quest, bought something, and how many grids were entered. All
-// forward-only: days before the first live row return null -> a gap, not 0.
+// turned in a quest, bought something (a real-money Store purchase, the Stripe
+// checkout), sold to Kent, entered a Valley, killed an enemy, and how many grids
+// were entered. All forward-only: days before the first live row return null ->
+// a gap, not 0. The Kent / Valley / kill flags came later (2026-11-11): their
+// own start day is the first row that carries the fields (the schema writes
+// them on every new row), and they are null before it.
 async function activityFlagsForRange({ from, to, start, end, tz }, excludeIds = []) {
   const startDay = await activityStartDay(tz);
+  const firstNew = await AnalyticsActivity.findOne({ source: 'live', kent_sold: { $exists: true } }, { ts: 1 }).sort({ ts: 1 }).lean();
+  const newStartDay = firstNew ? localDay(firstNew.ts, tz) : null;
   const rows = await AnalyticsActivity.aggregate([
     { $match: { ts: { $gte: start, $lte: end }, source: 'live', ...exActQ(excludeIds) } },
     { $group: {
@@ -1073,20 +1085,30 @@ async function activityFlagsForRange({ from, to, start, end, tz }, excludeIds = 
       played: { $max: { $cond: ['$played', 1, 0] } },
       quest: { $max: { $cond: ['$quest_completed', 1, 0] } },
       purchase: { $max: { $cond: ['$purchase', 1, 0] } },
+      kent: { $max: { $cond: ['$kent_sold', 1, 0] } },
+      valley: { $max: { $cond: ['$valley_visited', 1, 0] } },
+      kill: { $max: { $cond: ['$enemy_killed', 1, 0] } },
       moves: { $sum: { $ifNull: ['$grids_entered', 0] } },
     } },
     { $group: {
       _id: '$_id.day', dau: { $sum: 1 }, played: { $sum: '$played' }, quest: { $sum: '$quest' },
-      purchase: { $sum: '$purchase' }, moves: { $sum: '$moves' }, movers: { $sum: { $cond: [{ $gt: ['$moves', 0] }, 1, 0] } },
+      purchase: { $sum: '$purchase' }, kent: { $sum: '$kent' }, valley: { $sum: '$valley' }, kill: { $sum: '$kill' },
+      moves: { $sum: '$moves' }, movers: { $sum: { $cond: [{ $gt: ['$moves', 0] }, 1, 0] } },
     } },
   ]);
   const by = Object.fromEntries(rows.map((r) => [r._id, r]));
   return {
     start_day: startDay,
+    new_flags_start_day: newStartDay,
     series: daysBetween(from, to).map((day) => {
-      if (!startDay || day < startDay) return { day, dau: null, played: null, quest: null, purchase: null, moves: null, movers: null };
+      if (!startDay || day < startDay) return { day, dau: null, played: null, quest: null, purchase: null, kent: null, valley: null, kill: null, moves: null, movers: null };
       const r = by[day] || {};
-      return { day, dau: r.dau || 0, played: r.played || 0, quest: r.quest || 0, purchase: r.purchase || 0, moves: r.moves || 0, movers: r.movers || 0 };
+      const hasNew = !!newStartDay && day >= newStartDay;
+      return {
+        day, dau: r.dau || 0, played: r.played || 0, quest: r.quest || 0, purchase: r.purchase || 0,
+        kent: hasNew ? r.kent || 0 : null, valley: hasNew ? r.valley || 0 : null, kill: hasNew ? r.kill || 0 : null,
+        moves: r.moves || 0, movers: r.movers || 0,
+      };
     }),
   };
 }
@@ -1159,11 +1181,10 @@ async function settlementEventsForRange({ from, to, start, end, tz }) {
 // Revenue (cents), purchase count and distinct buyers per local day, plus the
 // breakdown by offer over the range and lifetime totals. The ledger starts with
 // the recording deploy; there is no history to backfill (the old route kept no
-// record of fulfilled offers). Gold accounts are counted from the live players
-// collection (accountStatus 'Gold' is the subscriber tier).
+// record of fulfilled offers).
 async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) {
   const exP = excludeIds.length ? { playerId: { $nin: toObjectIds(excludeIds) } } : {};
-  const [perDay, byOffer, lifetime, gold, first] = await Promise.all([
+  const [perDay, byOffer, lifetime, first] = await Promise.all([
     Purchase.aggregate([
       { $match: { ts: { $gte: start, $lte: end }, ...exP } },
       { $group: { _id: localDayExpr('$ts', tz), n: { $sum: 1 }, cents: { $sum: '$amountCents' }, gems: { $sum: '$gems' }, buyers: { $addToSet: '$playerId' } } },
@@ -1179,7 +1200,6 @@ async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) 
       { $group: { _id: null, n: { $sum: 1 }, cents: { $sum: '$amountCents' }, buyers: { $addToSet: '$playerId' } } },
       { $project: { n: 1, cents: 1, buyers: { $size: '$buyers' } } },
     ]),
-    Player.countDocuments({ accountStatus: 'Gold', ...exPlQ(excludeIds) }),
     Purchase.findOne({}, { ts: 1 }).sort({ ts: 1 }).lean(),
   ]);
   const by = Object.fromEntries(perDay.map((r) => [r._id, r]));
@@ -1198,7 +1218,6 @@ async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) 
     })),
     by_offer: byOffer.map((r) => ({ offerId: r._id, title: offerTitle(r._id), purchases: r.n, cents: r.cents })),
     metrics: {
-      gold_accounts: gold,
       lifetime_purchases: lifetime.length ? lifetime[0].n : 0,
       lifetime_cents: lifetime.length ? lifetime[0].cents : 0,
       lifetime_buyers: lifetime.length ? lifetime[0].buyers : 0,
@@ -1207,30 +1226,6 @@ async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) 
   };
 }
 
-// ---- Monetization: Gold-account DAU ----
-// Active Gold accounts per day. accountStatus carries no start date (the Gold
-// Pass purchase flips it in place), so the base is "accounts that are Gold
-// TODAY" on every day: a lapsed Gold is invisible, and a Gold account's pre-
-// purchase activity counts as Gold activity. Purchases of offer 1 (the Gold
-// Pass) in the ledger are the forward-only "new Gold per day" series.
-async function goldDauSeries({ from, to, start, end, tz }, excludeIds = []) {
-  const golds = await Player.find({ accountStatus: 'Gold', ...exPlQ(excludeIds) }, { _id: 1 }).lean();
-  const goldIds = golds.map((g) => String(g._id));
-  const [acts, newGold] = await Promise.all([
-    goldIds.length ? AnalyticsActivity.aggregate([
-      { $match: { ts: { $gte: start, $lte: end }, playerId: { $in: goldIds } } },
-      { $group: { _id: localDayExpr('$ts', tz), players: { $addToSet: '$playerId' } } },
-      { $project: { n: { $size: '$players' } } },
-    ]) : [],
-    Purchase.aggregate([
-      { $match: { ts: { $gte: start, $lte: end }, offerId: '1', ...(excludeIds.length ? { playerId: { $nin: toObjectIds(excludeIds) } } : {}) } },
-      { $group: { _id: localDayExpr('$ts', tz), n: { $sum: 1 } } },
-    ]),
-  ]);
-  const by = Object.fromEntries(acts.map((r) => [r._id, r.n]));
-  const nb = Object.fromEntries(newGold.map((r) => [r._id, r.n]));
-  return daysBetween(from, to).map((day) => ({ day, dau: by[day] || 0, newUsers: nb[day] || 0, subs: goldIds.length }));
-}
 
 // ---- Demographics (new accounts in range) ----
 // Device / OS / browser / timezone / screen come from ftueFeedback (captured at
@@ -1458,10 +1453,6 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/purchases') {
       const range = rangeFrom(url); const ex = await excludeFor(url);
       return sendJSON(res, 200, { from: range.from, to: range.to, ...(await purchasesForRange(range, ex)) });
-    }
-    if (p === '/api/sub-dau') {
-      const range = rangeFrom(url); const ex = await excludeFor(url);
-      return sendJSON(res, 200, { from: range.from, to: range.to, series: await goldDauSeries(range, ex) });
     }
     if (p === '/api/demographics') {
       const range = rangeFrom(url); const ex = await excludeFor(url);
