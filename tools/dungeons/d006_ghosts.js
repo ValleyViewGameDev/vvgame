@@ -1,4 +1,7 @@
 /**
+ * HISTORY. The owner finished d006 in the Editor on 2026-11-11; the layout file is the truth and
+ * this script no longer matches it (the kit refuses to write over it). Kept as the worked example.
+ *
  * d006_ghosts: THE DROWNED CHANTRY (docs/dungeons-plan.md). Medium, Ghosts (home level 17).
  * A ruined chantry with the water table in it. ONE road, from the porch at the south to the
  * abbots' vault behind the high altar, the long way round:

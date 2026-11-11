@@ -4,8 +4,9 @@ Started 2026-11-11 (backlog W-12). Five new dungeon templates in
 `game-server/layouts/gridLayouts/dungeon/`, outside the Oracle's story: resetting, grindable
 maps for players who like to fight. Entrances in the valley are a later pass.
 
-**Status.** d006_ghosts is built: second draft, redrawn the same day on the owner's notes
-(the rules below). d007 to d010 are plans only.
+**Status.** d006_ghosts is done: drawn here, then finished by the owner in the Editor
+(2026-11-11); the layout file is the truth. d007_BearGarden is built, a first draft for the
+owner to look at. d008 to d010 are plans only.
 
 ## What the existing five teach
 
@@ -62,6 +63,19 @@ is rich.
 
 Rules 2 and 6 are checked by the drafting kit; the rest are drawn by hand.
 
+**What the owner's own pass over d006 added** (read from the diff of his edit; follow it):
+
+- **Damp everywhere.** Moss along the foot of walls and in corners, puddles that break into
+  a walk, mushrooms on the moss. Not one flood per room: a fringe all through.
+- **A second, weaker enemy among the theme enemy** (Spiders and a Spider Spawner among the
+  Ghosts).
+- **A fall of rock may close the road itself**, two or three Rocks deep. A pick is expected.
+- **Furniture full and even.** Whole rows of chairs, pairs of braziers, loot set out
+  symmetrically round an altar.
+- **Loot where it belongs** (the Books in the scriptorium, not the vault), **a Throne at the
+  end**, and more Gold in the deepest room than a first draft dares.
+- **A secret behind a Mirror** (Mirror Key): a small stash room off the road.
+
 Kept from tabletop dungeon craft: a centrepiece room the rest is built round, a side pocket
 that rewards a tool (a fall of rock for a player with a pick), and the five-room beat (a
 guarded way in, a room that is not a fight, a setback, a climax, a reward).
@@ -83,11 +97,12 @@ guarded way in, a room that is not a fight, a setback, a climax, a reward).
 | d009 | VulcansStithy | hard, L28 to 34 | medium to large | Ogres, Demons |
 | d010 | DragonHoard | very hard, L40 and up | large | Ogres, Demons, Dragons |
 
-### d006_ghosts: the Drowned Chantry (BUILT, second draft)
+### d006_ghosts: the Drowned Chantry (DONE, owner-finished)
 
 A ruined chantry with the water table in it. Ghosts cross water and the player does not.
 One road, from the porch at the south to the abbots' vault behind the high altar, the long
-way round. Picture: `docs/dungeons/d006_ghosts.png`.
+way round. Picture (of the owner's finished file): `docs/dungeons/d006_ghosts.png`. The
+stage notes below describe the draft; the owner's pass added the things listed above.
 
     porch > nave > crossing and chancel > cloister > scriptorium > ossuary > crypt passage > Sepulchre
 
@@ -114,14 +129,33 @@ way round. Picture: `docs/dungeons/d006_ghosts.png`.
 - **Ferns.** The Fern may not stand on a water tile (its `validon` flags), so a fern "in the
   water" stands on a one-tile hummock of mud with water all round it.
 
-### d007_BearGarden (plan)
+### d007_BearGarden (BUILT, first draft)
 
-The baiting pit of the old playhouse quarter. A round dirt arena, a gallery ringing it, the
-kennels and cages opening off the gallery. Arena Doors throughout, so it needs no key and a
-player below L12 can come. One road: in by the keeper's gate, along the kennels (Coyote packs
-of three), through the cages (Bears, one at a time), and out onto the pit: two Bears and the
-Great Bear at the stake. Side room: the keeper's lodge. Loot: Honey, Bones, a little Silver, one Gold in the keeper's lodge, one Scroll
-under the stake. Ten minutes, in and out.
+A baiting house: a round building, a "wooden O", with a sand pit in the middle. Arena Doors
+throughout, so it needs no key and a player below L12 can come. One road, clockwise round
+the ring and then into the pit; the wall between the yard and the lodge has no door, so the
+ring cannot be walked the other way. Picture: `docs/dungeons/d007_BearGarden.png`.
+
+    gatehouse > yard > kennels > feed store > bear house > the ward's room > the pit
+
+- **Stage 1.** The gatehouse (the exit) and the yard: no enemy. The kennels: straw and mud,
+  a fenced pen with its gate hanging open, the dogs' water. Two packs of three Coyotes and a
+  Coyote Spawner.
+- **Stage 2.** The feed store: the butcher's block, Meat, Honey, a hand cart. No fight.
+  Side pocket: a fallen corner behind one Rock (Silver, Honey).
+- **Stage 3.** The bear house. Two cages against the north wall, each shut behind its own
+  door with a Bear and something worth having inside: one at a time, and only if you open
+  it. A third Bear has got out and dens by the far door, with a Bear Spawner.
+- **Stage 4.** The ward's room (two Bears brought up for the next bout). Side room: the
+  keeper's lodge (his two dogs, his table, bed, wine, one Gold). West through the bear
+  gate, the pit: the Great Bear at the stake and two Bears, a Scroll under the stake and
+  Gold on the far side.
+- **Bears are placed on dirt, sand or moss only** (their `validon` flags name no stone
+  floor), so each stands on a patch of its own. Once roused an enemy walks wherever a
+  player can.
+- **Counts:** 8 Coyotes, 7 Bears, the Great Bear, 1 Coyote Spawner, 1 Bear Spawner, 9 Arena
+  Doors. Loot: Bones 13, Honey 5, Meat 4, Silver 3, Gold 2, Wine 2, Mushroom 6, Scroll 1.
+  No Gems.
 
 ### d008_SpiderMine (plan)
 
@@ -159,7 +193,8 @@ character stamps), walls are raised round it, and it is checked before it is wri
 key exists, each thing stands on a tile its `validon` flag allows, multi-tile props have
 room, no floor touches the void, no room is floored with the dungeon tile, every door has
 open floor on both sides, and every piece of loot, door and enemy can be reached on foot
-from the exit (what needs a pick is listed).
+from the exit (what needs a pick is listed). The kit will not write over a layout file that
+differs from its draft (one the owner has edited) unless told to with `--overwrite`.
 
 ```
 node tools/dungeons/d006_ghosts.js            # print the map and the counts

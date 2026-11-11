@@ -8,7 +8,7 @@
  *   d.floor(x0, y0, x1, y1[, tile])   a room or a corridor (inclusive; tile CB by default)
  *   d.water(x0, y0, x1, y1)           water inside a room (players cannot cross; Ghosts can)
  *   d.tile(x, y, key)                 one tile (ZZ moss, SL slate, ...)
- *   d.wall(x, y) / d.door(x, y[, key])  a pillar inside a room; a door in a wall (DDor by default)
+ *   d.wall(x, y) / d.door(x, y[, type])  a pillar inside a room; a door in a wall (Dungeon Door by default)
  *   d.put(x, y, 'Ghost')              anything from resources.json, by its type
  *   d.island(x, y)                    a cell meant to be out of reach (exempt from the reach check)
  *   d.stamp(x0, y0, rows[, legend])   a hand-drawn patch, one character a cell (see STAMP below):
@@ -34,7 +34,7 @@ const N = 64;
 const VOID = 'DU';
 
 /** stamp characters: a tile, or [tile, thing], or [tile, thing, 'island']; '#' a pillar, 'x' solid rock, ' ' leave alone */
-const STAMP = { '.': 'CB', '~': 'WA', ',': 'DI', '"': 'ZZ', ';': 'GR', ':': 'SL' };
+const STAMP = { '.': 'CB', '~': 'WA', ',': 'DI', '"': 'ZZ', ';': 'GR', ':': 'SL', '_': 'SA' };
 
 class Dungeon {
   constructor(name) {
@@ -166,11 +166,16 @@ class Dungeon {
   }
   write() {
     const file = path.join(ROOT, 'game-server', 'layouts', 'gridLayouts', 'dungeon', `${this.name}.json`);
+    // one-way: a layout the owner has edited in the Editor is the truth. Never draw over it by accident.
+    const text = JSON.stringify(this.layout(), null, 2) + '\n';
+    if (fs.existsSync(file) && fs.readFileSync(file, 'utf8') !== text && !process.argv.includes('--overwrite')) {
+      throw new Error(`${file} exists and differs from this draft (edited in the Editor?). Pass --overwrite to replace it.`);
+    }
     fs.writeFileSync(file, JSON.stringify(this.layout(), null, 2) + '\n'); // the editor's own formatting (tools/editor/server.js writeJSONFile)
     return file;
   }
   print() {
-    const T = { CB: '.', DU: ' ', SL: ':', WA: '~', ZZ: '"', LV: '^', DI: ',', GR: ';' };
+    const T = { CB: '.', DU: ' ', SL: ':', WA: '~', ZZ: '"', LV: '^', DI: ',', GR: ';', SA: '_' };
     const lines = ['    ' + Array.from({ length: N }, (_, x) => (x % 10 === 0 ? String(x / 10) : ' ')).join(''), '    ' + Array.from({ length: N }, (_, x) => x % 10).join('')];
     const glyph = {}; let next = 0; const pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const FIX = { 'Stone Wall': '#', 'Dungeon Door': '+', 'Arena Door': '+', 'Locked Door': '+', 'Dungeon Exit': '@' };
