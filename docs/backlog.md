@@ -48,6 +48,9 @@ explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-on
 
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
+  Started 2026-11-11: `docs/dungeons-plan.md` plans five (d006 to d010, mild to very hard);
+  d006_ghosts (the Drowned Chantry) is drafted for the owner's review, d007 to d010 are plans.
+  Entrances in the valley are a later pass.
 
 Closed 2026-11-11 (owner: the world is good enough for now): W-1, W-3, W-11; W-17 and W-18 done
 by the owner.
