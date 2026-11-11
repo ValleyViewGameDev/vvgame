@@ -1182,6 +1182,44 @@ async function settlementEventsForRange({ from, to, start, end, tz }) {
 // breakdown by offer over the range and lifetime totals. The ledger starts with
 // the recording deploy; there is no history to backfill (the old route kept no
 // record of fulfilled offers).
+// ---- Monetization: Gem wallets ----
+// Every current account (standard exclusions), bucketed by the Gems it holds
+// right now: the 'Gem' rows in inventory (the warehouse) plus backpack. A
+// snapshot of today, so it ignores the date range. 50-gem buckets (0-50,
+// 51-100, ...) up to GEM_BUCKET_TOP, then one "or more" bucket.
+const GEM_BUCKET_SIZE = 50;
+const GEM_BUCKET_TOP = 1000; // 20 buckets, then "1,001 or more"
+async function gemWallets(excludeIds = []) {
+  const gemsOf = (field) => ({ $sum: { $map: {
+    input: { $filter: { input: { $ifNull: [field, []] }, cond: { $eq: ['$$this.type', 'Gem'] } } },
+    in: { $ifNull: ['$$this.quantity', 0] },
+  } } });
+  const rows = await Player.aggregate([
+    { $match: exPlQ(excludeIds) },
+    { $project: { _id: 0, gems: { $add: [gemsOf('$inventory'), gemsOf('$backpack')] } } },
+  ]);
+  const n = GEM_BUCKET_TOP / GEM_BUCKET_SIZE;
+  const buckets = Array.from({ length: n }, (_, i) => ({
+    label: i === 0 ? `0-${GEM_BUCKET_SIZE}` : `${(i * GEM_BUCKET_SIZE + 1).toLocaleString('en-US')}-${((i + 1) * GEM_BUCKET_SIZE).toLocaleString('en-US')}`,
+    count: 0,
+  }));
+  buckets.push({ label: `${(GEM_BUCKET_TOP + 1).toLocaleString('en-US')} or more`, count: 0 });
+  const values = [];
+  for (const r of rows) {
+    const g = Math.max(0, Number(r.gems) || 0);
+    values.push(g);
+    const i = g <= GEM_BUCKET_SIZE ? 0 : Math.min(n, Math.ceil(g / GEM_BUCKET_SIZE) - 1);
+    buckets[i].count++;
+  }
+  values.sort((a, b) => a - b);
+  return {
+    accounts: values.length,
+    total_gems: values.reduce((a, b) => a + b, 0),
+    median: values.length ? values[Math.floor(values.length / 2)] : 0,
+    buckets,
+  };
+}
+
 async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) {
   const exP = excludeIds.length ? { playerId: { $nin: toObjectIds(excludeIds) } } : {};
   const [perDay, byOffer, lifetime, first] = await Promise.all([
@@ -1217,6 +1255,7 @@ async function purchasesForRange({ from, to, start, end, tz }, excludeIds = []) 
       day, purchases: by[day] ? by[day].n : 0, cents: by[day] ? by[day].cents : 0, gems: by[day] ? by[day].gems : 0, buyers: by[day] ? by[day].buyers : 0,
     })),
     by_offer: byOffer.map((r) => ({ offerId: r._id, title: offerTitle(r._id), purchases: r.n, cents: r.cents })),
+    gem_wallets: await gemWallets(excludeIds),
     metrics: {
       lifetime_purchases: lifetime.length ? lifetime[0].n : 0,
       lifetime_cents: lifetime.length ? lifetime[0].cents : 0,

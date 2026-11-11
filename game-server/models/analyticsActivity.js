@@ -23,7 +23,8 @@ const AnalyticsActivitySchema = new mongoose.Schema({
   //            before instrumentation were never recorded), so retention ignores
   //            them when deciding which cohorts have real data.
   source: { type: String, default: 'live', enum: ['live', 'backfill'] },
-  // True if the player actually PLAYED that day, not merely opened the app.
+  // True if the player farmed or crafted that day (plant, harvest, craft start/collect; set by
+  // routes/actionRoutes.js since 2026-11-11), not merely opened the app.
   // The activity row is written on login / app boot / grid entry, so opening the
   // tab creates one; this flag is set by utils/analytics.recordPlayed from a
   // gameplay write (bulk-harvest, crafting collect). Forward-only: rows before

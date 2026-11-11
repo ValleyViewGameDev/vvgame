@@ -79,8 +79,10 @@ async function setDayFlag(playerId, update, when) {
   );
 }
 
-// Flags the player's activity-day row as "actually played today". Set by the
-// gameplay writes that constitute playing (bulk-harvest, crafting collect).
+// Flags the player's activity-day row as "farmed or crafted today" (the field keeps its old name,
+// `played`). Set by routes/actionRoutes.js after any successful plant, harvest or craft
+// (owner 2026-11-11; until then only the retired developer-only bulk-harvest / crafting-collect
+// routes set it, so it read 0 from the Phase 5 switch on 2026-11-04).
 // WHY: the activity row is written on login / app boot / grid entry, so merely
 // opening the app produces one. Retention measured on activity alone answers
 // "did they come back to the tab?", not "did they play?".

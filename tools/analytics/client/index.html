@@ -246,7 +246,7 @@
       </section>
 
       <section class="card">
-        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the players active each day (DAU), the share who PLAYED (a harvest or craft collection), turned in a quest, bought something (a real-money Store purchase, the Stripe checkout), sold to Kent, entered a Valley, or killed an enemy. The Kent, Valley and enemy lines are recorded from 2026-11-11 (the game-server deploy that added them) and are a gap before that. All from analytics_activity, so forward-only: days before the first live row are a gap, not 0%.</span></span>
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Of the players active each day (DAU), the share who farmed or crafted (any plant, harvest or craft: start, collect, bulk, gem craft; recorded again from the 2026-11-11 game-server deploy, it read 0 from 2026-11-04 until then), turned in a quest, bought something (a real-money Store purchase, the Stripe checkout), sold to Kent, entered a Valley, or killed an enemy. The Kent, Valley and enemy lines are recorded from 2026-11-11 (the game-server deploy that added them) and are a gap before that. All from analytics_activity, so forward-only: days before the first live row are a gap, not 0%.</span></span>
         <h2>What active players did</h2>
         <p id="flags-note" class="chart-note" hidden></p>
         <div class="chart-wrap"><canvas id="flagsChart"></canvas></div>
@@ -339,6 +339,11 @@
         <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Purchases in the range by store offer (title from tuning/store.json), with revenue in the tooltip.</span></span>
         <h2>Purchases by offer</h2>
         <div class="chart-wrap small"><canvas id="offersChart"></canvas></div>
+      </section>
+      <section class="card">
+        <span class="info-dot" tabindex="0" aria-label="Details">i<span class="info-tip">Every current account (standard exclusions) by the Gems it holds right now: the Gem rows in the warehouse (inventory) plus the backpack. 50-Gem buckets up to 1,000, then one "1,001 or more" bucket. A snapshot of today: it ignores the date range.</span></span>
+        <h2 id="gem-wallets-title">Gem Wallets</h2>
+        <div class="chart-wrap"><canvas id="gemWalletsChart"></canvas></div>
       </section>
     </div>
 

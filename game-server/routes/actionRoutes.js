@@ -58,7 +58,7 @@ const gridResourceManager = require('../utils/GridResourceManager');
 const gridTileManager = require('../utils/GridTileManager');
 const econ = require('../utils/playerEconomy');
 const { applyTrophy } = require('../utils/trophyUtils');
-const { recordLevelUps } = require('../utils/analytics');
+const { recordLevelUps, recordPlayed } = require('../utils/analytics');
 const { isCurrency } = require('../utils/inventoryUtils');
 const { getSeasonLevel } = require('../utils/scheduleHelpers');
 const { hopeArtifacts } = require('../utils/hopeArtifacts');
@@ -66,6 +66,21 @@ const holdings = require('../utils/playerHoldings');
 const { spendCosts, recipeCosts, heldQuantity } = holdings;
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ success: false, error: reason, reason, ...extra });
+
+// Analytics "farmed / crafted today" day flag (Engagement tab, owner 2026-11-11): any successful
+// plant, harvest or craft (start, collect, bulk, instant gem craft). Set once the answer is a 2xx,
+// fire-and-forget, so it never touches the action itself.
+const FARM_CRAFT_PATHS = new Set([
+  '/action/plant', '/action/harvest', '/action/bulk-harvest',
+  '/action/craft-start', '/action/craft-collect', '/action/bulk-craft-collect', '/action/gem-craft',
+]);
+router.use((req, res, next) => {
+  if (req.method === 'POST' && FARM_CRAFT_PATHS.has(req.path)) {
+    const playerId = req.body && req.body.playerId;
+    res.on('finish', () => { if (res.statusCode < 300 && playerId) recordPlayed(playerId).catch(() => {}); });
+  }
+  next();
+});
 
 // Collecting these counts toward a trophy, one per item (the Quest for Hope artifacts)
 const COLLECT_TROPHIES = new Set(["King's Crown", 'Trident']);

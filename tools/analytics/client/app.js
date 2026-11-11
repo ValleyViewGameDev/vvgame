@@ -425,7 +425,7 @@ function showUserPopover(anchor, row) {
   const acq = ci.acquisition || {};
   const lines = [];
   if (row.deleted) lines.push('Deleted account');
-  if (row.played) lines.push('Played today (harvest / craft)');
+  if (row.played) lines.push('Farmed / crafted today');
   if (d.is_mobile === true) lines.push('Device: Mobile');
   else if (d.is_mobile === false) lines.push('Device: Desktop');
   if (d.os) lines.push(`OS: ${d.os}`);
@@ -578,7 +578,7 @@ function renderFlags(payload) {
   chart('flagsChart', {
     type: 'line',
     data: { labels: s.map((p) => p.day), datasets: [
-      line('% played (harvest / craft)', share('played'), '#8bbf6a', { yAxisID: 'y' }),
+      line('% farmed / crafted', share('played'), '#8bbf6a', { yAxisID: 'y' }),
       line('% turned in a quest', share('quest'), '#7aa2f7', { yAxisID: 'y' }),
       line('% bought something (Store, real money)', share('purchase'), '#e46ba5', { yAxisID: 'y' }),
       line('% sold to Kent', share('kent'), '#d8a657', { yAxisID: 'y' }),
@@ -589,7 +589,7 @@ function renderFlags(payload) {
       x: AXES.x,
       y: PCT_AXIS({ max: 100, position: 'left', title: { display: true, text: '% of DAU', color: '#b7ab95' } }),
     }, plugins: { ...LEGEND, tooltip: { callbacks: {
-      afterTitle: (items) => { const p = s[items[0].dataIndex] || {}; return p.dau == null ? 'no data (pre-deploy)' : `DAU ${p.dau}: ${p.played} played, ${p.quest} quests, ${p.purchase} bought${p.kent == null ? '' : `, ${p.kent} sold to Kent, ${p.valley} visited a Valley, ${p.kill} killed an enemy`}`; },
+      afterTitle: (items) => { const p = s[items[0].dataIndex] || {}; return p.dau == null ? 'no data (pre-deploy)' : `DAU ${p.dau}: ${p.played} farmed / crafted, ${p.quest} quests, ${p.purchase} bought${p.kent == null ? '' : `, ${p.kent} sold to Kent, ${p.valley} visited a Valley, ${p.kill} killed an enemy`}`; },
       label: (c) => (c.raw == null ? `${c.dataset.label}: n/a` : `${c.dataset.label}: ${c.raw}%`),
     } } } },
   });
@@ -833,6 +833,20 @@ function renderMonetization(p) {
     options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       scales: { x: { beginAtZero: true, ticks: { precision: 0, color: '#b7ab95' }, grid: { color: '#3a312855' } }, y: { ticks: { color: '#efe7d8' }, grid: { display: false } } },
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.raw} purchase${c.raw === 1 ? '' : 's'}, ${dollars(offers[c.dataIndex].cents)}` } } } },
+  });
+  renderGemWallets(p.gem_wallets || { accounts: 0, buckets: [] });
+}
+function renderGemWallets(w) {
+  const b = w.buckets || [];
+  $('gem-wallets-title').textContent = `Gem Wallets: ${w.accounts.toLocaleString()} account${w.accounts === 1 ? '' : 's'}`
+    + (w.accounts ? `, median ${w.median.toLocaleString()} Gems, ${(w.total_gems || 0).toLocaleString()} held in all` : '');
+  chart('gemWalletsChart', {
+    type: 'bar',
+    data: { labels: b.map((x) => x.label), datasets: [{ label: 'Accounts', data: b.map((x) => x.count), backgroundColor: '#7aa2f7' }] },
+    options: { ...BASE, scales: { x: { ...AXES.x, ticks: { ...AXES.x.ticks, autoSkip: false, maxRotation: 50, minRotation: 50 }, title: { display: true, text: 'Gems held', color: '#b7ab95' } }, y: { ...AXES.y, ticks: { ...(AXES.y.ticks || {}), precision: 0 }, title: { display: true, text: 'accounts', color: '#b7ab95' } } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        label: (c) => `${c.raw} account${c.raw === 1 ? '' : 's'} (${pct(c.raw, w.accounts) ?? 0}%)`,
+      } } } },
   });
 }
 
