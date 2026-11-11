@@ -16,6 +16,10 @@ import API_BASE from '../config';
 import { getPlayerQuantity, canAfford } from './InventoryManagement';
 
 export const OFFER_BUILDINGS = { Bank: 'bank', Train: 'caravan', Carnival: 'carnival' };
+// The Harvest Fair panel (GameFeatures/Carnival/Carnival.js) announces its orders on this event
+// whenever they change (a claim, a fill, a refresh), so the sign over the Fair follows them; the
+// overlay used to keep the orders it fetched on arrival and kept a ✅ on an order already filled
+export const FAIR_OFFERS_EVENT = 'vv:fair-offers';
 
 /** The skills each building teaches: { [source]: rows }. Skills only: the Adventure Camp's Tent and
  *  Boat ('special') are goods bought again and again, never "acquired", so they raise no "?". */
@@ -113,6 +117,11 @@ export function useBuildingOffers({ resources, currentPlayer, timers }) {
     }).catch(() => {});
     return () => { live = false; };
   }, [here, settlementId, fairPhase, fairEnd]);
+  useEffect(() => {
+    const onOffers = (e) => { if (Array.isArray(e.detail)) setFairOffers(e.detail); };
+    window.addEventListener(FAIR_OFFERS_EVENT, onOffers);
+    return () => window.removeEventListener(FAIR_OFFERS_EVENT, onOffers);
+  }, []);
 
   return useMemo(() => {
     const bank = bankPhase === 'active' && bankOffers
@@ -125,8 +134,16 @@ export function useBuildingOffers({ resources, currentPlayer, timers }) {
     const caravan = trainPhase === 'loading' && !loadingOver && train
       ? (train.currentTrainOffers || []).filter((o) => !o.completed).map((o) => ({ item: o.item, qty: o.quantity }))
       : null;
+    // The orders the player can fill (owner 2026-11-11): never a filled one, never another's claim.
+    // A player holds one claim at a time (harvestFairRoutes /claim: has-claim), so with an open claim
+    // of their own that order is the only one they can fill; without one, any unclaimed order.
     const carnival = fairPhase === 'here' && fairOffers
-      ? fairOffers.filter((o) => !o.filled && (!o.claimedBy || String(o.claimedBy) === String(playerId))).map((o) => ({ item: o.itemBought, qty: o.qtyBought }))
+      ? (() => {
+        const open = fairOffers.filter((o) => !o.filled);
+        const mine = open.filter((o) => o.claimedBy && String(o.claimedBy) === String(playerId));
+        const fillable = mine.length ? mine : open.filter((o) => !o.claimedBy);
+        return fillable.map((o) => ({ item: o.itemBought, qty: o.qtyBought }));
+      })()
       : null;
     return { bank, caravan, carnival };
   }, [bankPhase, bankOffers, currentPlayer?.train, syncedTrain, trainPhase, trainEnd, fairPhase, fairOffers, playerId]);

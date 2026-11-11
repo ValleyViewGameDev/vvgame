@@ -15,6 +15,7 @@ import soundManager from '../../Sound/SoundManager';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { FAIR_OFFERS_EVENT } from '../../Utils/buildingStatus';
 
 function CarnivalPanel({
   onClose,
@@ -41,6 +42,10 @@ function CarnivalPanel({
   const [infoResource, setInfoResource] = useState(null); // ResourceModalSmall for a claimed offer you cannot fill
 
   const [carnivalOffers, setCarnivalOffers] = useState([]);
+  // the sign over the Fair on the board follows these orders (Utils/buildingStatus.js), on the tap
+  useEffect(() => {
+    if (carnivalOffers.length) window.dispatchEvent(new CustomEvent(FAIR_OFFERS_EVENT, { detail: carnivalOffers }));
+  }, [carnivalOffers]);
   const [carnivalPhase, setCarnivalPhase] = useState("here");
   const [carnivalTimer, setCarnivalTimer] = useState("");
   const [nextOffers, setNextOffers] = useState([]);
