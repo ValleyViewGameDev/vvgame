@@ -4,9 +4,10 @@
  *
  *   node tools/editor/server.js [--port 8770] [--game-server https://vvgame-server.onrender.com] [--dev-player-id <id>]
  *
- * --dev-player-id (or EDITOR_DEV_PLAYER_ID) is sent as x-player-id on every proxied request so the
- * game server's maintenance gate (utils/serviceMode.js) lets the editor through while SERVICE_MODE
- * is maintenance; it must be a developer account's player id.
+ * --dev-player-id (or EDITOR_DEV_PLAYER_ID) must be a developer account's player id: the editor
+ * signs a session token for it (game-server/utils/session.js, with SESSION_SECRET / SECRET_KEY from
+ * game-server/.env) and sends it on every proxied request, so the developer-only routes and the
+ * maintenance gate accept the editor. The game server it talks to must hold the same secret.
  *
  * Plain Node http server, binds 127.0.0.1, no auth, no build step. Serves the vanilla-JS
  * client from ./client, reads and writes the game server's files under game-server/
@@ -35,6 +36,22 @@ const GRID_LAYOUT_DIRS = ['valleyFixedCoord', 'homestead', 'town', 'dungeon', 'm
 const defs = require(path.join(SHEETS_DIR, 'definitions.js')); // ESM via require (Node >= 22.12)
 const offerRules = require(path.join(GAME_SERVER_DIR, 'utils', 'offerRules.mjs')); // the game's offer rule (ESM via require)
 const { hopeArtifacts } = require(path.join(GAME_SERVER_DIR, 'utils', 'hopeArtifacts.js'));
+
+// The developer session the proxy sends (BL-2): signed with the game server's own secret, read
+// from game-server/.env (only the two secret names go into this process's env)
+let devSessionToken = null;
+function devAuthorization() {
+  if (!ARGS.devPlayerId) return null;
+  if (!devSessionToken) {
+    try {
+      const dotenv = require(path.join(GAME_SERVER_DIR, 'node_modules', 'dotenv'));
+      const env = dotenv.parse(fs.readFileSync(path.join(GAME_SERVER_DIR, '.env')));
+      for (const k of ['SESSION_SECRET', 'SECRET_KEY']) if (env[k] && !process.env[k]) process.env[k] = env[k];
+    } catch (err) { console.warn('[editor] game-server/.env unreadable:', err.message); }
+    devSessionToken = require(path.join(GAME_SERVER_DIR, 'utils', 'session.js')).signSession(ARGS.devPlayerId);
+  }
+  return `Bearer ${devSessionToken}`;
+}
 /** The ECONOMY sheet's "Offered at" text per row, from the files as they are now (seasons, the Oracle's trade). */
 function offeredAtFn() {
   const seasons = readJSONFile(path.join(GAME_SERVER_DIR, 'tuning', 'seasons.json'));
@@ -203,7 +220,7 @@ function proxyToGame(req, res, pathname, search) {
   // every POST) fails the game server's CORS allowlist in production, which answers with an
   // HTML 500 ("Not allowed by CORS"). Upstream sees a plain server-to-server request.
   for (const h of ['origin', 'referer', 'cookie', 'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-dest']) delete headers[h];
-  if (ARGS.devPlayerId && !headers['x-player-id']) headers['x-player-id'] = ARGS.devPlayerId;
+  if (ARGS.devPlayerId && !headers.authorization) headers.authorization = devAuthorization();
   readBody(req).then((body) => {
     if (body.length) headers['content-length'] = String(body.length);
     const upstream = lib.request(target, { method: req.method, headers }, (up) => {

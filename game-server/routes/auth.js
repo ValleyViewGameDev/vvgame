@@ -20,6 +20,8 @@ const { validateUsername, isReservedUsername, generateUniqueRandomUsername } = r
 const sendMailboxMessage = require('../utils/messageUtils');
 const { sendWelcomeEmail } = require('../utils/emailNotifications');
 const { setMarketingConsent, isMarketingEligible } = require('../utils/crmAudience');
+const { signSession } = require('../utils/session');
+const { forgetDeveloperStatus } = require('../utils/serviceMode');
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WELCOME_MESSAGE_ID = 1; // tuning/messages.json: the day-0 gift (Money, Gems, Wood, seeds)
 
@@ -279,7 +281,7 @@ router.post('/register-new-player', async (req, res) => {
       username, silent, hashedPassword, ipHash, icon: req.body.icon, language, frontierId, browser, os, diagnostics, clientInfo,
     }, req.app.get('socketio'));
 
-    res.status(201).json({ success: true, player: publicPlayer(newPlayer) });
+    res.status(201).json({ success: true, player: publicPlayer(newPlayer), sessionToken: signSession(newPlayer._id) });
   } catch (err) {
     console.error('❌ Error in /register-new-player:', err);
     res.status(500).json({ error: 'Failed to register player.' });
@@ -323,7 +325,7 @@ router.post('/login-google', async (req, res) => {
       sendWelcomeEmail(current).catch(() => {});
       recordActivity(current._id, { username: current.username }).catch(() => {});
       console.log(`✅ Google linked to ${current.username}`);
-      return res.json({ success: true, player: publicPlayer(current), isNewAccount: false, linked: true });
+      return res.json({ success: true, player: publicPlayer(current), isNewAccount: false, linked: true, sessionToken: signSession(current._id) });
     }
 
     let player = await Player.findOne({ googleId });
@@ -350,7 +352,7 @@ router.post('/login-google', async (req, res) => {
       console.log(`✅ Google signup: new player ${username}`);
     }
     recordActivity(player._id, { username: player.username }).catch(() => {});
-    res.json({ success: true, player: publicPlayer(player), isNewAccount });
+    res.json({ success: true, player: publicPlayer(player), isNewAccount, sessionToken: signSession(player._id) });
   } catch (err) {
     console.error('❌ /login-google:', err?.message || err);
     res.status(400).json({ success: false, error: 'Google sign-in failed.', code: 'GOOGLE_FAILED' });
@@ -402,6 +404,7 @@ router.post('/login', async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Login successful',
+      sessionToken: signSession(player._id),
       player: {
         playerId: player._id,
         username: player.username,
@@ -424,6 +427,25 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     console.error('Error during login:', err.message || err);
     return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// POST /session/resume {playerId} -> { success, sessionToken } (BL-2, 2026-11-11)
+// A client that holds a stored player but no session token (it signed in before sessions
+// existed, or the token expired) asks for one. Only a passwordless profile gets one this way,
+// the same rule as /login, where such a profile signs in with its name alone; a profile with a
+// password answers 401 SIGN_IN_REQUIRED and the client shows the sign-in form.
+router.post('/session/resume', async (req, res) => {
+  const playerId = req.body?.resumePlayerId;
+  if (!playerId || !mongoose.isValidObjectId(playerId)) return res.status(400).json({ success: false, error: 'Missing player.', code: 'MISSING' });
+  try {
+    const player = await Player.findById(playerId, 'username password').lean();
+    if (!player) return res.status(404).json({ success: false, error: 'Player not found.', code: 'NOT_FOUND' });
+    if (hasPassword(player)) return res.status(401).json({ success: false, error: 'Please sign in again.', code: 'SIGN_IN_REQUIRED' });
+    res.json({ success: true, sessionToken: signSession(player._id) });
+  } catch (err) {
+    console.error('❌ /session/resume:', err?.message || err);
+    res.status(500).json({ success: false, error: 'Server error.' });
   }
 });
 
@@ -515,6 +537,7 @@ router.post('/player/change-password', async (req, res) => {
     }
     player.password = await bcrypt.hash(newPassword, 10);
     await player.save();
+    forgetDeveloperStatus(player._id); // developer rights need a password (utils/serviceMode.js)
     res.json({ success: true, hasPassword: true });
   } catch (err) {
     console.error('❌ /player/change-password:', err);

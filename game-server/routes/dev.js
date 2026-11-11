@@ -12,8 +12,8 @@ const CLIENT_SRC = path.resolve(__dirname, '..', '..', 'game-client', 'src');
 
 async function requireLocalDeveloper(req, res) {
   if (process.env.NODE_ENV === 'production') { res.status(403).json({ error: 'Edit Mode writes are disabled in production.' }); return false; }
-  const callerId = req.body?.playerId || req.get('x-player-id');
-  if (!(await isDeveloperPlayerId(callerId))) { res.status(403).json({ error: 'Developers only.' }); return false; }
+  // the session's player (utils/session.js), never an id the request names
+  if (!(await isDeveloperPlayerId(req.get('x-player-id')))) { res.status(403).json({ error: 'Developers only.' }); return false; }
   return true;
 }
 

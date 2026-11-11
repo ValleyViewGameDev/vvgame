@@ -8,7 +8,8 @@ here; detail lives in the linked docs and backlog items.
 
 - [x] **Close the open admin routes.** Done 2026-10-30 (7df2ac65): `requireDeveloper` on every
   editor/debug route, Mayor-only Courthouse settings, unclaimed developer usernames reserved.
-  Follow-up: BL-2 (real session auth instead of the bare `x-player-id`).
+  Follow-up: BL-2 (real session auth instead of the bare `x-player-id`), built 2026-11-11; on once
+  `SESSION_ENFORCE=on` is set on Render (see the backlog).
 - [x] **Developer accounts have passwords.** Owner is setting them on `ftuetester` and `test`
   (passwordless profiles log in with the username alone).
 - [x] **Store grants only verified Stripe payments.** Done 2026-10-30 (c70b066d): session checked

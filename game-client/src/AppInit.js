@@ -4,6 +4,7 @@ import ambientVFXManager from './VFX/AmbientVFXManager';
 import soundManager from './Sound/SoundManager';
 import { isViewOnly } from './Utils/viewOnly';
 import { footprintOf } from './Utils/footprint';
+import { clearSession } from './Authentication/session';
 
 /**
  * Enrich raw grid resources with master data and add shadow tiles for
@@ -137,6 +138,7 @@ export const initializeGridFromData = async (
  */
 export const logoutPlayer = (setPlayerData, setisLoginPanelOpen, setGrid, setResources, setTileTypes) => {
   localStorage.removeItem('player');
+  clearSession();
   setPlayerData(null);
   setGrid([]); // Clear the grid state
   setResources([]); // Clear resources

@@ -19,7 +19,7 @@ const globalTuning = require('../tuning/globalTuning.json');
 const { requireDeveloper } = require('../utils/developerHelpers');
 
 // Account routes the editor uses (and the profile's own delete): the caller must be a developer
-// (x-player-id of a developer account, as the maintenance gate checks) or, for delete, the player themself.
+// or, for delete, the player themself. x-player-id is the caller's session player (utils/session.js).
 async function requireDeveloperOrSelf(req, res, targetId, { allowSelf }) {
   const callerId = req.get('x-player-id') || null;
   if (allowSelf && callerId && String(callerId) === String(targetId)) return true;
@@ -1292,6 +1292,7 @@ router.post('/reset-password', async (req, res) => {
 
     player.password = NO_PASSWORD;
     await player.save();
+    forgetDeveloperStatus(player._id); // a passwordless profile has no developer rights
 
     console.log(`✅ Password cleared for player: ${player.username} (ID: ${playerId})`);
     res.json({

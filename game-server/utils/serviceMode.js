@@ -24,14 +24,19 @@ const developerUsernames = new Set(
 );
 
 // playerId -> isDeveloper, so the maintenance gate costs one lookup per player per process.
+// The id comes from the caller's session (utils/session.js rewrites x-player-id). A developer
+// account must also have a password (BL-2): a passwordless profile signs in, and resumes its
+// session, by name or id alone, so it can never carry developer rights.
 const devCache = new Map();
 async function isDeveloperPlayerId(playerId) {
   if (!playerId) return false;
+  playerId = String(playerId);
   if (devCache.has(playerId)) return devCache.get(playerId);
   let result = false;
   try {
-    const player = await Player.findById(playerId, 'username').lean();
-    result = !!player && developerUsernames.has(player.username);
+    const { hasPassword } = require('./publicPlayer');
+    const player = await Player.findById(playerId, 'username password').lean();
+    result = !!player && developerUsernames.has(player.username) && hasPassword(player);
   } catch (_) {
     result = false;
   }
@@ -51,13 +56,13 @@ function maintenanceGate() {
     if (mode !== 'maintenance') return next();
     const base = req.path.split('/').slice(0, 3).join('/'); // '/api/<first segment>'
     if (OPEN_PATHS.has(base) || !req.path.startsWith('/api')) return next();
-    const playerId = req.get('x-player-id') || req.body?.playerId || req.query?.playerId;
-    if (await isDeveloperPlayerId(playerId)) return next();
+    // the session's player (utils/session.js), never an id the request names
+    if (await isDeveloperPlayerId(req.get('x-player-id'))) return next();
     return res.status(503).json({ maintenance: true, message });
   };
 }
 
-// A rename can make a player a developer or stop them being one: drop the cached answer.
+// A rename or a password change can make a player a developer or stop them being one: drop the cached answer.
 function forgetDeveloperStatus(playerId) { if (playerId) devCache.delete(String(playerId)); }
 
 module.exports = { getStatus, maintenanceGate, isDeveloperPlayerId, forgetDeveloperStatus };

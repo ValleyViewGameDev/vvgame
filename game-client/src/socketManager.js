@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import API_BASE from './config';
+import { getSessionToken, SESSION_EVENT } from './Authentication/session';
 
 // Phase 1 (docs/refactor-plan.md): the socket carries only per-player notifications and chat.
 // There is no grid-sync traffic (PCs, NPCs, tiles, resources, NPC controller) on the client.
@@ -9,6 +10,7 @@ import API_BASE from './config';
 const socket = io(API_BASE, {
   transports: ['websocket'],
   autoConnect: false, // Don't connect until explicitly told to (App init calls socket.connect())
+  auth: (cb) => cb({ token: getSessionToken() }), // read at every (re)connect: the server joins only the session's player room (BL-2)
 });
 
 // 🔄 SOCKET LISTENER: connect / disconnect. Re-joins the per-player room on every (re)connect.
@@ -19,7 +21,7 @@ export function socketListenForConnectAndDisconnect(playerId, setIsSocketConnect
     console.log('📡 Socket connected/reconnected!');
     setIsSocketConnected?.(true);
     if (playerId) {
-      socket.emit('join-player-room', { playerId });
+      socket.emit('join-player-room', { playerId, token: getSessionToken() });
     }
   };
 
@@ -28,12 +30,19 @@ export function socketListenForConnectAndDisconnect(playerId, setIsSocketConnect
     setIsSocketConnected?.(false);
   };
 
+  // A renewed session (resume after a refused token): join again with it
+  const handleSession = () => {
+    if (playerId && socket.connected) socket.emit('join-player-room', { playerId, token: getSessionToken() });
+  };
+
   socket.on('connect', handleConnect);
   socket.on('disconnect', handleDisconnect);
+  window.addEventListener(SESSION_EVENT, handleSession);
 
   return () => {
     socket.off('connect', handleConnect);
     socket.off('disconnect', handleDisconnect);
+    window.removeEventListener(SESSION_EVENT, handleSession);
   };
 }
 

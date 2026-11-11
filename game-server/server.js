@@ -105,6 +105,9 @@ app.use((req, res, next) => { res.set('X-App-Build', APP_BUILD); next(); });
 
 app.use(compression()); // gzip every response (grid bundles are JSON that compresses ~10x)
 app.use(express.json({ limit: '10mb' }));
+// Player sessions (BL-2): verify the token, and make x-player-id mean the session's player (utils/session.js)
+const { sessionMiddleware, claimGuard, socketPlayerId, ENFORCE: SESSION_ENFORCE } = require('./utils/session');
+app.use(sessionMiddleware);
 
 // Service status (update notice / maintenance). See utils/serviceMode.js.
 app.get('/api/status', (req, res) => res.json({ ...getStatus(), build: APP_BUILD }));
@@ -157,9 +160,18 @@ mongoose.connect(process.env.MONGODB_URI, {
     // There are no grid rooms, no NPC controller, and no PC/NPC/tile/resource sync.
 
     io.on('connection', (socket) => {
-      // Private room for player-specific pushes (mailbox/store badges, force-refresh).
-      socket.on('join-player-room', ({ playerId } = {}) => {
-        if (playerId) socket.join(String(playerId));
+      socket.data.playerId = socketPlayerId(socket);
+      // Private room for player-specific pushes (mailbox/store badges, force-refresh): only the
+      // player the session names (handshake auth.token, or the token sent with the join; BL-2).
+      socket.on('join-player-room', ({ playerId, token } = {}) => {
+        if (!playerId) return;
+        const sessionId = socketPlayerId(socket, token);
+        if (sessionId) socket.data.playerId = sessionId;
+        if (sessionId !== String(playerId)) {
+          console.warn(`🔐 socket join-player-room for ${playerId} with session ${sessionId || '-'}${SESSION_ENFORCE === 'on' ? '' : ' (logged, not enforced)'}`);
+          if (SESSION_ENFORCE === 'on') return;
+        }
+        socket.join(String(playerId));
       });
 
       // Chat rooms are the settlement and the frontier. Grid-scoped chat is gone with shared grids.
@@ -172,6 +184,11 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       socket.on('send-chat-message', async (msg = {}) => {
         const { scope, message, playerId, username } = msg;
+        // a chat line speaks for the socket's session player only (BL-2)
+        if (String(playerId || '') !== String(socket.data.playerId || '')) {
+          console.warn(`🔐 chat as ${playerId} with session ${socket.data.playerId || '-'}${SESSION_ENFORCE === 'on' ? '' : ' (logged, not enforced)'}`);
+          if (SESSION_ENFORCE === 'on') return;
+        }
         let scopeId;
         if (scope === 'settlement') scopeId = socket.settlementId;
         else if (scope === 'frontier') scopeId = socket.frontierId;
@@ -212,6 +229,8 @@ app.use((req, res, next) => {
 
 
 console.log('Setting up authentication routes...');
+// A request that names its acting player must carry that player's session (utils/session.js)
+app.use('/api', claimGuard);
 // One writer per grid at a time: queues grid write requests per grid id (utils/gridWriteLock.js)
 app.use('/api', require('./utils/gridWriteLock').gridWriteLock);
 // ...then one writer per player: queues player write requests per playerId, after the grid lock (utils/playerWriteLock.js)
@@ -269,8 +288,7 @@ app._router.stack.forEach(function(r) {
 
 // Ask every connected client to reload (used after deploys and service-mode flips). Developer-only.
 app.post('/api/force-refresh', async (req, res) => {
-  const playerId = req.get('x-player-id') || req.body?.playerId;
-  if (!(await isDeveloperPlayerId(playerId))) return res.status(403).json({ error: 'developer only' });
+  if (!(await isDeveloperPlayerId(req.get('x-player-id')))) return res.status(403).json({ error: 'developer only' });
   const io = app.get('socketio');
   if (!io) return res.status(503).json({ error: 'socket server not ready' });
   io.emit('force-refresh', { reason: req.body?.reason || 'update' });

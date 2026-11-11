@@ -21,6 +21,7 @@ import { authErrorText } from './authErrors';
 import EmailModal from '../UI/Modals/EmailModal';
 import { gameConfirm, gameAlert } from '../UI/Modals/GameDialog';
 import { isPhone } from '../UI/Modals/InstallPromptModal';
+import { clearSession } from './session';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -525,6 +526,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
                 if (response.data.success) {
                   await gameAlert({ message: strings[2052] || 'Your profile has been deleted.' });
                   localStorage.removeItem('player');
+                  clearSession();
                   window.location.reload();
                 } else {
                   gameAlert({ message: strings[2053] || "Couldn't delete your profile. Please try again." });

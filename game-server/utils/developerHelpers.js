@@ -46,8 +46,9 @@ function excludeDevelopers(players) {
 
 /**
  * Express middleware for admin routes (the editor and the in-game debug panel): the caller's
- * x-player-id must be a developer account's, the same check as the maintenance gate. The editor
- * sends it from --dev-player-id; the game client sets it on every request once signed in.
+ * session must be a developer account's, the same check as the maintenance gate. x-player-id is
+ * rewritten from the session token (utils/session.js); the editor signs a token for
+ * --dev-player-id, the game client sends the one it got at sign-in.
  */
 async function requireDeveloper(req, res, next) {
   const { isDeveloperPlayerId } = require('./serviceMode');

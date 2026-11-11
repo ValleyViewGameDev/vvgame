@@ -9,13 +9,10 @@ Keep done items out of here; the git log is the record.
 Flagged by the owner 2026-11-08: these must be done before the launch (the next ad buy). Each
 item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
-- **BL-2.** Real session auth: today any client can act as any player whose id it knows (delete
-  their account through `/delete-player`'s "self" check, spend their holdings on every
-  `/action/*` route), and a developer's id opens the admin routes.
+- **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
+  enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
 - **BL-17.** The last emoji characters: the twelve enemies and the quest-giver, relationship
   and speech glyphs (the player avatar and the 34 named NPCs are done and live).
-- **OB-11.** Re-lay the town so early buildings and characters sit by the entry: townN done,
-  townE/S/W and the FTUE opening derived from it 2026-11-10; awaiting the owner's look at E/W.
 - **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
   ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
@@ -155,39 +152,30 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
   `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
   session, only if the measured view leaves questions; a dashboard tab, if wanted.
-- **OB-11. Re-lay the town so early buildings and characters sit by the entry (LAUNCH BLOCKER,
-  owner 2026-11-10)** (added 2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
-  where the player enters town, and the later ones farther in, so a new player meets what they
-  can use first. Touch points: `game-server/layouts/gridLayouts/town/townN.json` (townE/S/W are
-  derived from it by `tools/rotate-town.py`; `tools/expand-town.py` for footprints), the arrival
-  tile from the Map / signpost / Snug travel, and the building and NPC levels in
-  `resources.json`.
-  **Draft applied 2026-11-10, awaiting owner review:** same-size buildings swapped between their
-  existing footprints in level order by walking distance from the arrival tile (Agriculture Center
-  at the gate, then General Store and Warrior's Den just inside, Factory, Adventure Camp, Bank,
-  Armory, Laboratory, Academy, Guild furthest); Quickly, Hotspur and Feste moved to the plaza
-  inside the south gate; Hospital and its Doctors, the Courthouse, Train, Fair, Magic Shop and the
-  late NPCs unchanged. Applied to townN and, by building type and rotated tiles, townE/S/W.
-  Originals: `town<N|E|S|W>.before-relayout-2026-11-10.json.orig` beside the layouts. Existing
-  players' town copies keep the old layout until their town is re-created.
-  **Owner pass 2026-11-10 (townN only so far):** a walled castle compound where the Caravan stood
-  (gate (11,32), back gate (15,41)) holds the Armory and the Warrior's Den; the Caravan at (50,44);
-  Bank and Guild swapped; Falstaff's walled cottage (bed, barrels) north of the Harvest Fair, door
-  (7,21); one open park (no walls, Oaks, the pond and Shakespeare Statue moved in) over the old
-  Apothecary / Falstaff / Adventure Camp rooms; the central square one row taller at each end
-  (walls on rows 20 and 42, gates (31,20) and (31,42)); the Factory in its upper left; the Cow in its
-  south-west corner.
-  **Derived 2026-11-10:** townN approved; townE/S/W re-derived from it by `tools/rotate-town.py`
-  (now rectangle-aware; rectangles on a quarter turn keep their shape, centred, listed by the
-  script) and the FTUE opening's pocket (`dungeon/opening.json`) copied from townN around Signpost
-  Home. Open: the owner's look at townE/W (the Gatehouse most of all); whether existing players'
-  town copies are re-created with the new layout.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
 Added 2026-10-30.
 
-**What.** Every privileged check on the server (`requireDeveloper` in
+**Built 2026-11-11** (the rules are in CLAUDE.md, "Sessions"): sign-in, a new profile and
+`/session/resume` answer with an HMAC-signed session token (`game-server/utils/session.js`); the
+client sends it on every request, the beacon and the socket (`game-client/src/Authentication/session.js`);
+`x-player-id` is rewritten from the session, so every developer check (admin routes, the
+maintenance gate, Mayor edits, delete-player) reads it; a developer account must also have a
+password; a request whose `playerId` / `voterId` / `linkPlayerId` is not the session's player
+is refused (developers excepted); the editor signs its own developer token. Verified locally with
+enforcement on: spoofed header, missing, forged and mismatched tokens refused; a new profile
+played, resumed a lost token and recovered from a bad one; the throwaway profile deleted itself.
+**Left (owner):** (1) after the push, once the client deploy is live, set `SESSION_ENFORCE=on`
+on the Render server (until then refusals are only logged as `🔐` lines; developer rights need a
+session from the start); (2) the editor talking to production needs the same `SECRET_KEY` (or a
+new `SESSION_SECRET`) in the local `game-server/.env` as on Render, and a restart.
+**Not covered, by design or for later:** a passwordless profile is only as private as its name
+(`/login` takes the name alone, so `/session/resume` takes the id alone); a Google-linked
+profile without a password can still sign in by name; GETs by player id are not guarded
+(they read, never write); `save-single-npc` trusts the client (BL-20).
+
+**What (as filed).** Every privileged check on the server (`requireDeveloper` in
 `game-server/utils/developerHelpers.js`, `requireDeveloperOrSelf` in `routes/playerRoutes.js`,
 the maintenance gate in `utils/serviceMode.js`) trusts the `x-player-id` header, which is only
 a player's Mongo id, not a secret. Player ids appear in other API responses, so anyone who

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { gatherClientInfo } from '../Utils/pageviewBeacon';
 import { getBrowserType, getOSType, getDiagnostics } from '../Utils/clientDiagnostics';
 import { detectLanguage } from '../Utils/detectLanguage';
+import { rememberSession } from './session';
 
 const FRONTIER_NAME = 'Valley View 1';
 
@@ -11,7 +12,7 @@ const FRONTIER_NAME = 'Valley View 1';
  * they tap Begin (UI/Modals/BeginModal.js; a bare page load never creates one), with a generated
  * name, no password and the detected language, and lands in their own tutorial cave. The name is
  * asked for when they sign the Home Deed. Returns the player record, already stored in
- * localStorage and set as the x-player-id header.
+ * localStorage, with its session token kept (Authentication/session.js).
  */
 export async function createSilentAccount() {
   const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, { params: { name: FRONTIER_NAME } });
@@ -31,6 +32,6 @@ export async function createSilentAccount() {
   if (!response.data?.success || !player) throw new Error('Silent registration failed');
   localStorage.setItem('player', JSON.stringify(player));
   localStorage.setItem('initialZoomLevel', 'close');
-  axios.defaults.headers.common['x-player-id'] = String(player.playerId || player._id);
+  rememberSession(response.data);
   return player;
 }

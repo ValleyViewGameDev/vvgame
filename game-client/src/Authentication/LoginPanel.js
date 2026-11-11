@@ -11,6 +11,7 @@ import soundManager from '../Sound/SoundManager';
 import { sendPageviewBeacon } from '../Utils/pageviewBeacon';
 import { authErrorText } from './authErrors';
 import { isGoogleAvailable, renderGoogleButton, loginWithGoogle } from './googleSignIn';
+import { rememberSession } from './session';
 
 // Sign-in only: new players start from the Begin screen (a silent account, named at the Home
 // Deed), so there is no create-account form. initialUsername comes from a `?signin=1&u=<name>`
@@ -54,6 +55,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess, initialUsername
       const response = await axios.post(`${API_BASE}/api/login`, { username: username.trim(), password: password || '' });
       if (response.data.success) {
         const player = response.data.player;
+        rememberSession(response.data);
         setCurrentPlayer(player);
         localStorage.setItem('player', JSON.stringify(player));
         onClose();

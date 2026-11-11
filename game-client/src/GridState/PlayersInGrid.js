@@ -4,6 +4,7 @@ import { animateRemotePC } from '../Render/RenderAnimatePosition';
 import { loadMasterResources, loadGlobalTuning, getGlobalTuning } from '../Utils/TuningManager';
 import { powerModifiers as gearModifiers } from '../GameFeatures/Combat/combatGear';
 import { isViewOnly } from '../Utils/viewOnly';
+import { getSessionToken } from '../Authentication/session';
 
 /**
  * Single-PC store (docs/phase-3-contract.md §1).
@@ -275,15 +276,16 @@ class GridStatePCManager {
   /**
    * Page dismissal: `navigator.sendBeacon` is the only request a browser is guaranteed to
    * deliver from pagehide / a hidden tab (synchronous XHR is blocked there now, which is why
-   * a refresh after walking used to lose the position). The payload carries playerId, which
-   * the maintenance gate accepts in place of the x-player-id header a beacon cannot set.
+   * a refresh after walking used to lose the position). A beacon cannot set headers, so the
+   * session token rides in the body as `sessionToken` (game-server/utils/session.js).
    */
   sendBeaconState() {
     if (!this.dirty || isViewOnly()) return;
     const payload = this.buildStatePayload();
     if (!payload) return;
     const url = `${API_BASE}/api/player/state`;
-    const body = JSON.stringify(payload);
+    const token = getSessionToken();
+    const body = JSON.stringify(token ? { ...payload, sessionToken: token } : payload);
     try {
       if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))) {
         this.dirty = false;
@@ -294,7 +296,7 @@ class GridStatePCManager {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', url, false);
       xhr.setRequestHeader('Content-Type', 'application/json');
-      if (this.localPlayerId) xhr.setRequestHeader('x-player-id', String(this.localPlayerId));
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.send(body);
       this.dirty = false;
     } catch (err) {

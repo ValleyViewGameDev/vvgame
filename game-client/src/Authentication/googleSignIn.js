@@ -3,6 +3,7 @@ import API_BASE from '../config';
 import { gatherClientInfo, isInAppBrowser } from '../Utils/pageviewBeacon';
 import { getBrowserType, getOSType, getDiagnostics } from '../Utils/clientDiagnostics';
 import { detectLanguage } from '../Utils/detectLanguage';
+import { rememberSession } from './session';
 
 // Google sign-in (ported from House). The GIS script is loaded by public/index.html; the button
 // renders only when REACT_APP_GOOGLE_CLIENT_ID is set and the page is not inside a Meta/TikTok
@@ -34,5 +35,6 @@ export async function loginWithGoogle(credential, { linkPlayerId } = {}) {
     payload.clientInfo = gatherClientInfo();
   }
   const res = await axios.post(`${API_BASE}/api/login-google`, payload);
+  rememberSession(res.data); // sign-in, a new profile and a link all answer with the session token
   return res.data;
 }

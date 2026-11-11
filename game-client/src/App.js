@@ -181,20 +181,12 @@ import ServiceStatusModal from './UI/Modals/ServiceStatusModal';
 import { useHeldValue } from './UI/FlyToTarget';
 import { confirmGemSpend, setGemConfirmResources } from './UI/Modals/GemSpendConfirm';
 import { coversTile, isMultiTile } from './Utils/footprint';
+import { clearSession } from './Authentication/session'; // importing it sets the session header and interceptors (BL-2)
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
-// Identify this client to the server's maintenance gate (utils/serviceMode.js) from the very first request.
-// The React effect below re-applies it once currentPlayer loads; this module-level set covers app boot
-// and the post-login reload, which happen before any player state exists.
-try {
-  const storedForHeader = JSON.parse(localStorage.getItem('player') || 'null');
-  const storedId = storedForHeader?.playerId || storedForHeader?._id;
-  if (storedId) axios.defaults.headers.common['x-player-id'] = String(storedId);
-} catch (_) { /* no stored player */ }
-
 const normalizeEmoji = (emoji) => {
   if (!emoji) return emoji;
   return emoji.replace(/\uFE0F/g, '');
@@ -432,10 +424,6 @@ useEffect(() => {
   };
   const seasonData = getSeasonData();
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
-  // Lets the server's maintenance gate recognise developer accounts (utils/serviceMode.js).
-  useEffect(() => {
-    if (currentPlayer?.playerId) axios.defaults.headers.common['x-player-id'] = currentPlayer.playerId;
-  }, [currentPlayer?.playerId]);
 
   // Canvas settings migration removed - now forced to Canvas mode always
 
@@ -3022,6 +3010,7 @@ const handleLogout = () => {
   setGridId(null); // Clear gridId
   localStorage.removeItem('gridId'); // Remove gridId from local storage
   localStorage.removeItem('player');  // Remove player data from local storage
+  clearSession();
   localStorage.setItem('vv_signin_requested', '1'); // next load shows the sign-in form instead of a silent account
   window.location.reload();  // Force a state reset by triggering the login modal
   console.log('Player has logged out, and state has been reset.');
