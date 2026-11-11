@@ -14,8 +14,8 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
   `/action/*` route), and a developer's id opens the admin routes.
 - **BL-17.** The last emoji characters: the twelve enemies and the quest-giver, relationship
   and speech glyphs (the player avatar and the 34 named NPCs are done and live).
-- **BL-16.** Final art for the twelve Zoo animals (the Zoo panel's pets); the farm animals are
-  done (2026-11-08).
+- **OB-11.** Re-lay the town so early buildings and characters sit by the entry: townN done,
+  townE/S/W and the FTUE opening derived from it 2026-11-10; awaiting the owner's look at E/W.
 - **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
   ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
@@ -49,40 +49,11 @@ Added 2026-10-09.
 final Regions that matter to play, the Citizens' storylines tied off, and stronger reasons to
 explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-only).
 
-- **W-1. Write `docs/world-design.md`.** The design doc this epic needs: regions, template
-  inventory, storylines, exploration motivations. Not written yet.
-- **W-3. Iterate on existing templates** to create more interesting scenarios.
-- **W-11. Original valley grid templates, made by Claude** (added 2026-10-09). Every valley0-3
-  grid now has a template (phase 1, 2026-10-09: the 1,915 that had none). Design doc, phases
-  and log: `docs/making-original-grids.md` (§1 phases, §11 log); scripts in `tools/gridgen/`.
-  Done: phase 1 (base build), phase 2 mountain ranges (Prospero's Range, the King's Circle north
-  bank, The Swoop, the north-south range down column 29 with its pass, seams closed across grid
-  edges), phase 6 river and lake banks (2026-10-12), plus the ground passes (slate edges, lava
-  islands, the settlement 5_2 dirt, the King's Circle sand beach). **Remaining:**
-  - Phase 3, towns and scenarios (mini-towns, sets, the spreadsheet's emoji anchors): only the
-    Haunted River's Drowned Scriptorium and ferry landing exist. This is the same work as W-3 (making the grids interesting; W-6, Regions, closed 2026-11-05), so do it there.
-  - Phase 4, roads: a valley-wide pass. Started 2026-10-14 (`roads.py`, `data/roads.json`):
-    the Town's south road, the hamlet road through the column-29 pass, a T off the river road in
-    1012205. Re-run `roads.py --apply` after any `phase1_build.mjs` rebuild.
-  - Phase 5, trees: smooth out repeating tree patterns (doc §8a).
-  - Phase 7, enemy balance across the valley (by ring and level).
-  - Phase 8, final polish.
 - **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
   Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
-- **W-17. Re-do the dungeon templates for the new stone walls** (added 2026-10-21). The stone
-  wall rendering has changed: walls and fences now join up (`wallSet` on the resource row,
-  post + spokes + runs composed from the N/E/S/W mask by `PixiRendererWalls.js`, no diagonals;
-  `docs/walls.md`). The dungeon templates were laid out before that and need re-doing so their
-  walls read well with the joined rendering. Start at `game-server/layouts/gridLayouts/dungeon/`
-  (editor Dungeons tab) and `docs/walls.md`.
-- **W-18. Two or three more Mirror Key rooms around the world** (added 2026-11-05). Easter eggs
-  for whoever holds the Mirror Key (Leontes trades it, as a friend, for the six Secrets): small
-  hidden rooms behind a Mirror (deco, `action: door`, `requires: Mirror Key`), like Duke Angelo's
-  bedroom on 1014204 (a bed, books, two Scrolls). Today the Mirrors are Windsor's way to the
-  Phoenix (1012276), Angelo's room, and Acheron's fog bypass (1014571); keep those. A room
-  rewards with a few precious finds, not a Quest for Hope artifact. Check each with the editor's
-  QUEST FOR HOPE tab (Keys and doors).
 
+Closed 2026-11-11 (owner: the world is good enough for now): W-1, W-3, W-11; W-17 and W-18 done
+by the owner.
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
@@ -184,19 +155,6 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
   `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
   session, only if the measured view leaves questions; a dashboard tab, if wanted.
-- **OB-9. A just-in-time lesson for Snug travel** (added 2026-10-24). The mid game's wild crops
-  come from outposts: a valley region found once is reached again with Snug, its Trading Post
-  ships goods home, and the crops regrow in one to three days (`tuning.md` §4h, `node
-  tools/progression.js --regions`; Sunflower Lake is the Potion C outpost). Nothing teaches that.
-  The first time a player stands in a valley town they found, show how Snug brings them back,
-  and that the Trading Post sends goods home. Start at `GameFeatures/NPCs/SnugTravelModal.js` and
-  the region-entry notice in `Utils/GridManagement.js`.
-  **Built 2026-11-05** (`GameFeatures/NPCs/useSnugLesson.js`): once per profile, a few seconds
-  after a player past the FTUE arrives on a valley grid with Snug, a scrim-forced flow: tap Snug,
-  Greet him if they never have (Travel needs "met"), tap "Travel with Snug"; when the Travel
-  modal opens, control returns and the `snugLesson` moment is stamped (`Utils/moments.js`,
-  `player.moments`, 2026-11-06). A persistent toast (string 17027) explains Snug travel. The
-  Trading Post half is not taught yet.
 - **OB-11. Re-lay the town so early buildings and characters sit by the entry (LAUNCH BLOCKER,
   owner 2026-11-10)** (added 2026-11-05). Re-do the town layout so the lower-level buildings and characters are closest to
   where the player enters town, and the later ones farther in, so a new player meets what they
@@ -218,7 +176,12 @@ hints were built 2026-10-11). The first session's account / email / FTUE mechani
   (7,21); one open park (no walls, Oaks, the pond and Shakespeare Statue moved in) over the old
   Apothecary / Falstaff / Adventure Camp rooms; the central square one row taller at each end
   (walls on rows 20 and 42, gates (31,20) and (31,42)); the Factory in its upper left; the Cow in its
-  south-west corner. townE/S/W still carry the earlier draft: re-derive them once townN is approved.
+  south-west corner.
+  **Derived 2026-11-10:** townN approved; townE/S/W re-derived from it by `tools/rotate-town.py`
+  (now rectangle-aware; rectangles on a quarter turn keep their shape, centred, listed by the
+  script) and the FTUE opening's pocket (`dungeon/opening.json`) copied from townN around Signpost
+  Home. Open: the owner's look at townE/W (the Gatehouse most of all); whether existing players'
+  town copies are re-created with the new layout.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
@@ -232,21 +195,6 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 (issued at login / silent signup, verified server-side), and derive the caller from it rather
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
-
-### BL-16: Art pass, Zoo animals (farm animals done) (LAUNCH BLOCKER)
-
-Added 2026-11-07. Strategy written 2026-11-08: docs/art/zoo-animals-plan.md (zoo animals as standing props through the deco pipeline, two sheets; farm animals as walking NPCs after the Pig; footprints explicit, no state art). Farm animals DONE 2026-11-08: six side-on sprites (the Pig redrawn too, so the set matches) at `npc-<name>.svg`, every row `artFacing: right` with a per-animal `artScale` (cows 1.1, ram 1.0, pig and sheep 0.95, goat 0.85); job tools/art/jobs/farm-animals.json. Zoo animals DONE 2026-11-08: style probe (Owl on a stump, Cat sitting, Donkey; tools/art/jobs/zoo-probe.json) then the nine others (zoo-sheet.json), all twelve installed as `pet-<name>.svg` with explicit footprints (Zebra 2 x 1, Giraffe 1 x 2, the rest 1 x 1; fractional `size` gone) and artSpan per animal; PetPanel shows the art through ResourceIcon. BL-16 is complete; only BL-17 (avatars) remains of the emoji project.
-
-**What.** Draw the farm animals (Cow, Sheep, Brown Cow, Ram, Goat, Pig: done 2026-11-08)
-and the twelve Zoo pets (Cat, Poodle, Monkey, Duck, Donkey, Owl, Parrot, Eagle, Zebra,
-Giraffe, Orangutan, Dodo Bird) in the game's style, on the board and in the Buy / Pets panel
-cards, so the last emoji outside the characters are gone. **Why.** The emoji audit
-(docs/art/emoji-audit.md) leaves animals and pets to the second-to-last art pass by the
-owner's decision: after the story items, the UI chrome, the board's growing plots and
-signposts, the power and skill icons and the rich status line, and before the avatars.
-**Where to start.** The doober loop in docs/art/doobers.md (a sheet per family, cut with
-`tools/art/icons.js`, approved on grass and dirt); animals move, so check PixiRendererNPCs'
-facing flip and bob with the Pig first. No animals in any other art (building bible rule).
 
 ### BL-17: Art pass, the last emoji characters: enemies and glyphs (LAUNCH BLOCKER)
 
@@ -381,33 +329,13 @@ the client). **Where to start.** Make the route refuse the fields an `/action/*`
 have the server derive graze state from its own `grazeEnd`; check the graze behaviour's
 `updateThisNPC` calls in `NPCGrazeBehavior.js` first.
 
-### BL-21: Rectangular footprints for deco (a 1 wide, 2 tall bed)
+### BL-22: A hedge wall set
 
-Added 2026-11-08. **DONE 2026-11-08**: `sizeX` / `sizeY` on a resource row (editor columns),
-`game-client/src/Utils/footprint.js` + `game-server/utils/footprint.js`, every site below threaded;
-verified with a temporary 1 x 2 Bed (placement highlight, blocking of the upper tile, move).
+Added 2026-11-08; narrowed to the hedge 2026-11-11 (owner: no more stone or sandstone walls).
 
-**What.** A resource's footprint is one number, `size`, and every path treats it as size x
-size: the renderer (`PixiRenderer.js` tileSpan), the server's occupancy and move checks
-(`worldRoutes.js` sizeOf: x..x+n-1, y-n+1..y), placement, path-blocking, the atlas slot, the
-editor, the seed scripts. A bed that is 1 wide and 2 tall cannot be expressed; in the deco pass
-it ships as a 1 x 1 row with tall art (artSpan ~1.3, the headboard rising into the tile behind,
-like the statues), so a player can walk through the tile its head appears to stand on. **Why.**
-Furniture and village pieces (bed, bench, cart, market stall, gatehouse) read better as 2 x 1 /
-1 x 2 / 3 x 2. **Where to start.** Add `sizeW` / `sizeH` (default = size) and thread them
-through the places above, the client's enrich of shadow tiles (AppInit.enrichGridResources)
-first; artSpan stays a square around the footprint's bottom-centre.
-
-### BL-22: More wall sets (castle wall, hedge, sandstone)
-
-Added 2026-11-08.
-
-**What.** The deco pass plan (docs/art/deco-pass-plan.md B1, B3) called for a crenellated
-CASTLE WALL set and a clipped HEDGE set (the Green Wall's replacement), each a joining
-`wallSet` of seven pieces through the walls pipeline (docs/walls.md: one plus panel + one
-lone-post panel, `tools/art/walls.js`), plus a sandstone wall for the valley3 desert where
-the Sand Wall stood. The owner parked walls on 2026-11-08 after the castle props landed.
-**Why.** The castle set reads as a castle only with its wall; the garden has no edge piece
-but the stone wall and the wooden fence. **Where to start.** `tools/art/jobs/walls.json`
-(the stone set's prompts and the TALL window), then a `Castle Wall` row with `wallSet:
-castle`, `decoGroup: castle;walls`.
+**What.** A clipped HEDGE wall set (the Green Wall's replacement; docs/art/deco-pass-plan.md
+B3): a joining `wallSet` of seven pieces through the walls pipeline (docs/walls.md: one plus
+panel + one lone-post panel, `tools/art/walls.js`). **Why.** The garden has no green edge piece,
+only the stone wall and the wooden fence. **Where to start.** `tools/art/jobs/walls.json` (the
+stone set's prompts and the TALL window), then a `Hedge` row with `wallSet: hedge` and a deco
+group for walls.
