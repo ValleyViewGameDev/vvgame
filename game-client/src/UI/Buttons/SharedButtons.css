@@ -279,3 +279,24 @@
   }
 }
 .close-btn:active { transform: scale(0.92); }
+
+/* A button waiting on something it started (a reload, a server answer): it keeps its own face,
+   cannot be pressed again, and shows the spinner in place of its label, on the tap
+   (docs/ui-conventions.md §5, "Busy"). Markup: <button class="btn-basic ... is-busy" aria-busy="true">
+   <span class="btn-spinner" /></button>; the label's width is kept by min-width on the caller. */
+.shared-buttons .btn-basic.is-busy {
+  pointer-events: none;
+  cursor: progress;
+}
+.btn-spinner {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.2em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-round);
+  animation: btn-spin 0.7s linear infinite;
+}
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .btn-spinner { animation-duration: 2s; } }

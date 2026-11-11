@@ -439,6 +439,14 @@ so wrap any new text surface in it. For a `title` attribute use `plainText(text)
 - Optimistic UI is a house rule: react on the input (sprite, VFX, SFX, local state), fire the
   server call in parallel, revert only on a real conflict. Doober collection
   (`ResourceClicking.js`) is the reference; never gate the visual on the round trip.
+- **Busy (a button waiting on what it started).** A tap answers on the tap (house rule): the
+  button stops taking taps and shows that it is working until the result lands, never a dead
+  button for a second or two. Action buttons (`.btn-basic`) add `is-busy` + `aria-busy` and put
+  the spinner (`<span class="btn-spinner" />`, `SharedButtons.css`, drawn in the button's own
+  text color) in place of the label, keeping their face; work that leaves the page (a reload)
+  starts after two animation frames so the spinner is painted first (the Refresh button of
+  `UI/Modals/UpdatePrompt.js`, 2026-11-11). Card buttons in transaction mode (`ResourceButton`,
+  `QuestButton`, `TransactionButton`) show their ⏳ state the same way.
 
 ## 6. Board interaction
 

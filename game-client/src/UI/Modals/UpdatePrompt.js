@@ -15,6 +15,15 @@ import '../Buttons/SharedButtons.css';
 export function UpdatePromptHost() {
   const strings = useStrings();
   const [open, setOpen] = useState(false);
+  const [reloading, setReloading] = useState(false);
+  // The tap answers at once (the spinner replaces the label and the button stops taking taps);
+  // the reload starts after two frames so the spinner is painted first: a reload begun in the
+  // same tick freezes the page with the old label still showing until the new page arrives
+  const refresh = () => {
+    if (reloading) return;
+    setReloading(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => window.location.reload()));
+  };
   useEffect(() => {
     const onChange = () => setOpen(true);
     window.addEventListener(BUILD_CHANGED_EVENT, onChange);
@@ -25,8 +34,13 @@ export function UpdatePromptHost() {
     <Modal size="narrow" className="update-prompt-modal" onClose={() => setOpen(false)} title={strings[2056] || 'The Game Has Updated'}>
       <p className="modal-message">{strings[2057] || 'A new version of Secrets of Elsinore is available. Refresh to load the latest.'}</p>
       <div className="modal-buttons shared-buttons">
-        <button className="btn-basic btn-success btn-modal" onClick={() => window.location.reload()}>
-          {strings[2058] || 'Refresh'}
+        <button
+          className={`btn-basic btn-success btn-modal${reloading ? ' is-busy' : ''}`}
+          onClick={refresh}
+          aria-busy={reloading}
+          aria-label={strings[2058] || 'Refresh'}
+        >
+          {reloading ? <span className="btn-spinner" /> : (strings[2058] || 'Refresh')}
         </button>
       </div>
     </Modal>
