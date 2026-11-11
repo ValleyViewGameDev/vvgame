@@ -186,6 +186,28 @@
         "FR"
       ],
       "ts": "2026-11-11T15:49:48.469Z"
+    },
+    {
+      "key": "4148",
+      "en_old": "",
+      "en_new": "Add Password",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-11T22:55:00.000Z"
+    },
+    {
+      "key": "4149",
+      "en_old": "",
+      "en_new": "We recommend you add a password to your profile. You'll be able to log into other devices this way, and also protect your profile from being played by someone else. If you forget the password, you can always email us to reset it.",
+      "langs": [
+        "DE",
+        "ES",
+        "FR"
+      ],
+      "ts": "2026-11-11T22:55:00.000Z"
     }
   ]
 }

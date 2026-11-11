@@ -164,6 +164,7 @@ import { isInputLocked } from './Utils/inputLock';
 import { createSilentAccount } from './Authentication/silentAccount';
 import BeginModal from './UI/Modals/BeginModal';
 import EmailModal from './UI/Modals/EmailModal';
+import PasswordModal from './UI/Modals/PasswordModal';
 import SurveyPromptModal from './UI/Modals/SurveyPromptModal';
 import { hasMoment, markMoment } from './Utils/moments';
 import { registerActionRetry } from './Utils/actionRetry';
@@ -265,6 +266,7 @@ useEffect(() => {
   // Canvas rendering mode variables removed - now forced to Canvas mode
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [passwordAskAfterPurchase, setPasswordAskAfterPurchase] = useState(false); // Add Password after the pay flow (closeLevelUp's neighbour)
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const [isRevivalModalOpen, setIsRevivalModalOpen] = useState(false);
   const [revivalPending, setRevivalPending] = useState(false);
@@ -348,6 +350,7 @@ useEffect(() => {
               size: "small",
             });
           setIsModalOpen(true);
+          setPasswordAskAfterPurchase(true); // Add Password once the Gold modal is closed
           }).catch((err) => {
             console.error("❌ Failed to refresh player data after Gold purchase:", err);
           });
@@ -355,6 +358,7 @@ useEffect(() => {
         } else {
           updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
           openMailbox && openMailbox();
+          setPasswordAskAfterPurchase(true); // Add Password once the Mailbox is closed
         }
       }).catch((err) => {
         console.error("❌ Failed to fulfill purchase:", err);
@@ -1830,13 +1834,32 @@ const shownDoinkerPointing = doinkerTargets ? doinkerPointing : (lesson?.doinker
 // SURVEY_PROMPT_LEVEL or above is closed; stamped as it shows (moment 'survey', Utils/moments.js),
 // like the email ask. The survey itself stays in the Mailbox and Settings (FeedbackLinks).
 const SURVEY_PROMPT_LEVEL = 5;
+// The Add Password ask (owner 2026-11-11): once per profile (moment 'passwordAsk'), when the first
+// level-up modal at PASSWORD_PROMPT_LEVEL or above is closed while the profile has no password;
+// a close that shows the survey nudge leaves it for the next level-up. Also after every store
+// purchase while the profile has no password (the purchase effect above).
+const PASSWORD_PROMPT_LEVEL = 8;
+const [showPasswordAsk, setShowPasswordAsk] = useState(false);
 const closeLevelUp = () => {
   setIsLevelUpModalOpen(false);
   const p = currentPlayerRef.current;
-  if (!p || hasMoment(p, 'survey') || levelUpData.currentLevel < SURVEY_PROMPT_LEVEL) return;
-  markMoment(p, 'survey', setCurrentPlayer);
-  setTimeout(() => setShowSurveyPrompt(true), 400); // let the level-up modal leave first
+  if (!p) return;
+  if (!hasMoment(p, 'survey') && levelUpData.currentLevel >= SURVEY_PROMPT_LEVEL) {
+    markMoment(p, 'survey', setCurrentPlayer);
+    setTimeout(() => setShowSurveyPrompt(true), 400); // let the level-up modal leave first
+    return;
+  }
+  if (!p.hasPassword && !hasMoment(p, 'passwordAsk') && levelUpData.currentLevel >= PASSWORD_PROMPT_LEVEL) {
+    markMoment(p, 'passwordAsk', setCurrentPlayer);
+    setTimeout(() => setShowPasswordAsk(true), 400);
+  }
 };
+// After a store purchase: wait for its Gold modal or Mailbox to close, then ask
+useEffect(() => {
+  if (!passwordAskAfterPurchase || !currentPlayer || isModalOpen || activeModal || isLevelUpModalOpen) return;
+  setPasswordAskAfterPurchase(false);
+  if (!currentPlayer.hasPassword) setShowPasswordAsk(true);
+}, [passwordAskAfterPurchase, currentPlayer, isModalOpen, activeModal, isLevelUpModalOpen]);
 
 // Level-up detection: Watch for XP changes and show level-up modal
 useEffect(() => {
@@ -3870,6 +3893,9 @@ return (
         <EmailModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} inApp={emailAsk.inApp} onClose={() => setEmailAsk(null)} />
       )}
       {showSurveyPrompt && <SurveyPromptModal onClose={() => setShowSurveyPrompt(false)} />}
+      {showPasswordAsk && currentPlayer && (
+        <PasswordModal currentPlayer={currentPlayer} setCurrentPlayer={setCurrentPlayer} onClose={() => setShowPasswordAsk(false)} />
+      )}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
           onClose={handleLoginPanelClose}

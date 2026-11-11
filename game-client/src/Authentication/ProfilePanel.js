@@ -22,6 +22,7 @@ import EmailModal from '../UI/Modals/EmailModal';
 import { gameConfirm, gameAlert } from '../UI/Modals/GameDialog';
 import { isPhone } from '../UI/Modals/InstallPromptModal';
 import { clearSession } from './session';
+import { savePassword, MIN_PASSWORD_LENGTH } from './savePassword';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
@@ -55,17 +56,10 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
   const handleSavePassword = async () => {
     setPwMessage('');
-    if (pwForm.next.length < 4) { setPwMessage(strings[4086]); return; }
+    if (pwForm.next.length < MIN_PASSWORD_LENGTH) { setPwMessage(strings[4086]); return; }
     setPwSaving(true);
     try {
-      await axios.post(`${API_BASE}/api/player/change-password`, {
-        playerId: currentPlayer.playerId,
-        currentPassword: hasPassword ? pwForm.current : undefined,
-        newPassword: pwForm.next,
-      });
-      const updatedPlayer = { ...currentPlayer, hasPassword: true };
-      setCurrentPlayer(updatedPlayer);
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      await savePassword({ currentPlayer, setCurrentPlayer, currentPassword: pwForm.current, newPassword: pwForm.next });
       setPwForm({ current: '', next: '' });
       setPwMessage(strings[4080]);
     } catch (err) {

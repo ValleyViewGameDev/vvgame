@@ -326,6 +326,7 @@ function renderPanel() {
   s.appendChild(el('div', { class: 'row' }, [
     openRoute ? el('button', { class: 'primary', onclick: () => S.ctx.navigate(openRoute) }, p.entry ? 'Open layout' : 'Create layout') : null,
   ]));
+  if (p.entry && hasDungeonEntrance(T.files.get(`${p.entry.source.dir}/${p.entry.source.name}`))) dungeonSection(s, p.coord);
   if (!cell) return;
   s.appendChild(el('h3', {}, 'Region'));
   s.appendChild(el('div', { class: 'note' }, `Current: ${cell.region || '(none)'}`));
@@ -336,6 +337,30 @@ function renderPanel() {
     ])
     : el('div', { class: 'note' }, 'Create the grid in the live game before assigning a region.'));
   liveSection(s, [cell]);
+}
+
+/** The picked grid's Dungeon Entrance: the template dungeonEntrances.json wires it to (owner
+ * 2026-11-11), read once per mount; the Dungeons tab changes it. */
+function dungeonSection(s, coord) {
+  s.appendChild(el('h3', {}, 'Dungeon entrance'));
+  if (!T.wiring) {
+    s.appendChild(el('div', { class: 'note' }, 'Loading wiring…'));
+    if (!T.wiringLoading) {
+      T.wiringLoading = true;
+      local.dungeonWiring()
+        .then((r) => { T.wiring = r.wiring || {}; })
+        .catch((err) => { T.wiring = {}; toast(`Dungeon wiring could not be read (${err.message}). Restart the editor server.`, 'error'); })
+        .finally(() => { T.wiringLoading = false; renderPanel(); });
+    }
+    return;
+  }
+  const template = T.wiring[String(coord)];
+  s.appendChild(el('div', { class: template ? 'mono' : 'note' }, template ? `Leads to ${template}` : 'Not wired: the entrance leads nowhere.'));
+  s.appendChild(el('div', { class: 'row' }, [
+    template ? el('button', { onclick: () => T.shared.ctx.navigate(`layouts/dungeon/${encodeURIComponent(template)}`) }, 'Open dungeon') : null,
+    el('button', { onclick: () => T.shared.ctx.navigate(`dungeons/${T.shared.frontierId}`) }, template ? 'Change in Dungeons' : 'Wire in Dungeons'),
+  ]));
+  s.appendChild(el('div', { class: 'note' }, 'From game-server/tuning/dungeonEntrances.json; the game uses it after the push.'));
 }
 
 /** Live game: create a grid that is not in the database yet, or reset it (template + every
@@ -359,6 +384,7 @@ export const tileView = {
   mount(editorEl, panelEl, shared) {
     const switching = T.shared?.frontierId !== shared.frontierId;
     T.shared = shared; T.els.panel = panelEl;
+    T.wiring = null; // re-read dungeonEntrances.json each time the tab mounts (the Dungeons tab may have changed it)
     if (switching) { T.sel = []; T.picked = null; T.regionPick = ''; }
     else T.sel = T.sel.filter((c) => shared.gridMap.has(Number(c)));
     if (shared.pickCoord && shared.gridMap.has(Number(shared.pickCoord))) { T.picked = pickOf(Number(shared.pickCoord)); T.sel = [Number(shared.pickCoord)]; syncRegionPick(); }
