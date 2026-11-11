@@ -73,7 +73,7 @@ function newLayout(dir, name) {
   T.selected = null;
 }
 async function save() {
-  if (!T.name) return;
+  if (!T.name) return false;
   const layout = M.toLayout(T.state, T.idx);
   try {
     const res = await local.saveLayout(T.dir, T.name, layout);
@@ -82,10 +82,29 @@ async function save() {
     const w = res.written[0];
     toast(w.changed ? `Saved ${w.path}` : `${w.path} unchanged`);
     if (!T.dirs[T.dir]?.includes(T.name)) { T.dirs = (await local.layouts()).dirs; renderSelection(); }
+    return true;
   } catch (err) {
     const problems = err.body?.problems;
     modal({ title: 'Save rejected', body: el('div', {}, [el('p', {}, err.message), problems ? el('pre', { class: 'mono' }, problems.join('\n')) : null]) });
+    return false;
   }
+}
+/** The layout open now, when it differs from what is on disk (app.js asks before leaving it). */
+function pendingChanges() {
+  if (!T.state || !T.name) return null;
+  if (JSON.stringify(M.toLayout(T.state, T.idx)) === JSON.stringify(T.loaded)) return null;
+  return {
+    route: `layouts/${T.dir}/${encodeURIComponent(T.name)}`,
+    label: `${T.dir}/${T.name}.json`,
+    save,
+    discard() {
+      // back to the file as saved (a new, never-saved layout is dropped)
+      if (T.loaded) T.state = M.fromLayout(T.loaded, T.idx); else { T.state = null; T.name = null; }
+      T.history.clear();
+      T.selected = null;
+      setDirty('layout', '', false);
+    },
+  };
 }
 
 // ----------------------------------------------------------------------------- keyboard
@@ -141,6 +160,7 @@ async function createNew() {
   if (!name) return;
   if (!/^[A-Za-z0-9_.-]{1,80}$/.test(name)) return toast('Use letters, digits, _ . - only', 'error');
   if ((T.dirs[dir] || []).includes(name)) return toast('That layout already exists', 'error');
+  if (!(await T.ctx.confirmLeave())) return; // the open layout's unsaved work first
   newLayout(dir, name);
   T.ctx.navigate(`layouts/${dir}/${encodeURIComponent(name)}?new=1`);
 }
@@ -407,5 +427,6 @@ export function layoutsTab() {
       renderEditor();
     },
     unmount() { T.active = false; },
+    pendingChanges,
   };
 }

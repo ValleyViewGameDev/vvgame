@@ -5,7 +5,7 @@
  */
 import { el, clear, $ } from './core/dom.js';
 import { local } from './core/api.js';
-import { toast, setStatus } from './core/ui.js';
+import { toast, setStatus, modal } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
 import { layoutsTab } from './tabs/layouts.js';
 import { worldTab } from './tabs/world.js';
@@ -39,10 +39,57 @@ const selectionEl = $('#selection');
 const editorEl = $('#editor');
 let active = null;
 
+// ---------------------------------------------------------------- leaving unsaved work (owner 2026-11-10)
+// A tab may offer pendingChanges() -> null, or { route, label, save: async () => boolean, discard }:
+// work not yet saved, living at `route`. Leaving that route (another layout, another tab, the
+// browser's Back) asks Save / Discard / Cancel first; Cancel puts the address back.
+let currentHash = location.hash.replace(/^#/, '');
+let restoring = false;
+const pathOf = (h) => (h || '').split('?')[0];
+
+function askLeave(pending) {
+  return new Promise((resolve) => {
+    let answered = false;
+    const answer = (v) => { if (!answered) { answered = true; resolve(v); } };
+    modal({
+      title: 'Unsaved changes',
+      body: el('p', {}, `${pending.label} has changes that are not saved.`),
+      buttons: [
+        { label: 'Cancel', onClick: (close) => { answer('cancel'); close(); } },
+        { label: 'Discard', danger: true, onClick: (close) => { answer('discard'); close(); } },
+        { label: 'Save', primary: true, onClick: (close) => { answer('save'); close(); } },
+      ],
+      onClose: () => answer('cancel'),
+    });
+  });
+}
+
+/** True when it is fine to leave for `nextHash` (nothing unsaved there, or saved / discarded now). */
+async function confirmLeave(nextHash) {
+  const pending = active?.pendingChanges?.();
+  if (!pending || pathOf(nextHash) === pathOf(pending.route)) return true;
+  const choice = await askLeave(pending);
+  if (choice === 'cancel') return false;
+  if (choice === 'save') return !!(await pending.save());
+  pending.discard();
+  return true;
+}
+
 const ctx = {
   navigate(route) { location.hash = '#' + route; },
+  confirmLeave: () => confirmLeave(null),
   toast, setStatus,
 };
+
+// Cmd+Left / Cmd+Right (and Cmd+[ / Cmd+]) are the browser's Back / Forward on a Mac: outside a
+// text field they would leave the layout in the middle of editing, so the editor swallows them
+window.addEventListener('keydown', (e) => {
+  if (!(e.metaKey || e.ctrlKey) || e.shiftKey) return;
+  if (!['ArrowLeft', 'ArrowRight', '[', ']'].includes(e.key)) return;
+  const a = document.activeElement;
+  if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return; // text navigation
+  e.preventDefault();
+}, true);
 
 function renderNav() {
   clear(navEl);
@@ -55,7 +102,15 @@ function renderNav() {
 }
 
 async function route() {
-  const hash = location.hash.replace(/^#/, '') || TABS[0].id;
+  const raw = location.hash.replace(/^#/, '');
+  if (restoring) { restoring = false; return; } // Cancel put the old address back: stay put
+  if (raw !== currentHash && !(await confirmLeave(raw))) {
+    restoring = true;
+    location.hash = '#' + currentHash;
+    return;
+  }
+  currentHash = raw;
+  const hash = raw || TABS[0].id;
   const id = hash.split('/')[0];
   const tab = TABS.find((t) => t.id === id) || (id === 'atlas' ? TABS.find((t) => t.id === 'world') : null) || TABS[0]; // #atlas lives on as World's Tile view
   if (active && active.id !== tab.id) { try { active.unmount(); } catch (e) { console.warn(e); } }

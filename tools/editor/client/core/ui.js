@@ -3,9 +3,10 @@ import { el, clear, $ } from './dom.js';
 const root = () => $('#modal-root');
 
 /** Open a modal. Returns { close }. Buttons: [{label, primary, danger, onClick(close)}]. */
-export function modal({ title, body, buttons = [{ label: 'Close' }], width }) {
+export function modal({ title, body, buttons = [{ label: 'Close' }], width, onClose }) {
   const overlay = el('div', { class: 'overlay' });
-  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
+  // onClose: called however the modal goes (a button, ×, Escape, a click outside)
+  const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); onClose?.(); };
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   const foot = el('div', { class: 'foot' }, buttons.map((b) => el('button', {
     class: [b.primary && 'primary', b.danger && 'danger'].filter(Boolean).join(' '),
