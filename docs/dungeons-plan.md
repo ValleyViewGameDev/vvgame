@@ -5,8 +5,10 @@ Started 2026-11-11 (backlog W-12). Five new dungeon templates in
 maps for players who like to fight. Entrances in the valley are a later pass.
 
 **Status.** d006_ghosts is done: drawn here, then finished by the owner in the Editor
-(2026-11-11); the layout file is the truth. d007_BearGarden is built, a first draft for the
-owner to look at. d008 to d010 are plans only.
+(2026-11-11); the layout file is the truth. d007 (the Bear Garden) was built, then scrapped
+the same day: the owner did not like it, and d004_bears already covers bears. Its number
+stays empty and the concept is not to be revived. d008_SpiderMine is built, a first draft
+for the owner to look at. d009 and d010 are plans only.
 
 ## What the existing five teach
 
@@ -92,7 +94,7 @@ guarded way in, a room that is not a fight, a setback, a climax, a reward).
 | | Name | Difficulty | Size | Enemies |
 |---|---|---|---|---|
 | d006 | ghosts: the Drowned Chantry | medium, L17 to 22 | medium | Ghosts |
-| d007 | BearGarden | mild, L8 to 12 | small | Coyotes, Bears, the Great Bear |
+| d007 | (scrapped) | | | |
 | d008 | SpiderMine | mild to medium, L12 to 16 | medium | Spiders, a few Zombies |
 | d009 | VulcansStithy | hard, L28 to 34 | medium to large | Ogres, Demons |
 | d010 | DragonHoard | very hard, L40 and up | large | Ogres, Demons, Dragons |
@@ -129,42 +131,33 @@ stage notes below describe the draft; the owner's pass added the things listed a
 - **Ferns.** The Fern may not stand on a water tile (its `validon` flags), so a fern "in the
   water" stands on a one-tile hummock of mud with water all round it.
 
-### d007_BearGarden (BUILT, first draft)
+### d008_SpiderMine (BUILT, first draft)
 
-A baiting house: a round building, a "wooden O", with a sand pit in the middle. Arena Doors
-throughout, so it needs no key and a player below L12 can come. One road, clockwise round
-the ring and then into the pit; the wall between the yard and the lodge has no door, so the
-ring cannot be walked the other way. Picture: `docs/dungeons/d007_BearGarden.png`.
+An abandoned silver mine. The way in is top left and down the map is deeper. One road that
+switches back four times, with a winze (a short shaft and a door) between each level.
+Tunnels are two tiles wide with jogs, bulges, veins and damp; the caverns are drawn by hand.
+Picture: `docs/dungeons/d008_SpiderMine.png`.
 
-    gatehouse > yard > kennels > feed store > bear house > the ward's room > the pit
+    adit > upper level > two web halls > the cart run > the sump > the brood chamber > the lode
 
-- **Stage 1.** The gatehouse (the exit) and the yard: no enemy. The kennels: straw and mud,
-  a fenced pen with its gate hanging open, the dogs' water. Two packs of three Coyotes and a
-  Coyote Spawner.
-- **Stage 2.** The feed store: the butcher's block, Meat, Honey, a hand cart. No fight.
-  Side pocket: a fallen corner behind one Rock (Silver, Honey).
-- **Stage 3.** The bear house. Two cages against the north wall, each shut behind its own
-  door with a Bear and something worth having inside: one at a time, and only if you open
-  it. A third Bear has got out and dens by the far door, with a Bear Spawner.
-- **Stage 4.** The ward's room (two Bears brought up for the next bout). Side room: the
-  keeper's lodge (his two dogs, his table, bed, wine, one Gold). West through the bear
-  gate, the pit: the Great Bear at the stake and two Bears, a Scroll under the stake and
-  Gold on the far side.
-- **Bears are placed on dirt, sand or moss only** (their `validon` flags name no stone
-  floor), so each stands on a patch of its own. Once roused an enemy walks wherever a
-  player can.
-- **Counts:** 8 Coyotes, 7 Bears, the Great Bear, 1 Coyote Spawner, 1 Bear Spawner, 9 Arena
-  Doors. Loot: Bones 13, Honey 5, Meat 4, Silver 3, Gold 2, Wine 2, Mushroom 6, Scroll 1.
-  No Gems.
-
-### d008_SpiderMine (plan)
-
-An abandoned silver mine, drawn as tunnels and not rooms. One adit goes down in switchbacks
-through three galleries. Tier 1: single Spiders in one-tile workings. Tier 2: web halls with
-packs of three or four, and falls of rock that hide Silver pockets. Tier 3: the brood chamber with a Spider Spawner, and the flooded sump where
-two Zombies (the lost shift) guard the best of it. The long cart run is the trap: a straight
-line where Spiders spit from three tiles. Loot: Silver in the veins, Thread from the kills,
-two Gold and a Scroll at the bottom.
+- **Stage 1.** The adit (the exit, no enemy) and the upper level: six Spiders, alone or in
+  a pair. Side room: the miners' mess (two tables with their chairs, the hearth, Wine).
+- **Stage 2.** Two web halls with rock pillars: a row of four Spiders across the way out of
+  the first, a row of five and two more in the second. Side room: the ore store, behind a
+  fall of rock at the big hall's south end (Silver, Stone).
+- **Stage 3.** The cart run: one long straight, where Spiders spit from three tiles.
+  Refuges are cut into the walls to duck into, and three carts lie off the rails across one
+  lane each. A fall of rock two deep closes the run (a Pickaxe, L8, is expected). Beyond it
+  a row of four. Side room: a stash behind a Mirror (Mirror Key, L14): a Gold and two Scrolls.
+- **Stage 4.** The sump, the bottom of the mine and flooded: a causeway of mud between two
+  pools, ferns out in the water, two Zombies (the lost shift). Then the brood chamber: two
+  rows of four Spiders and two Spider Spawners. Behind it, the lode: a slate chamber with
+  four Gold, Silver, Stone, a Scroll and veins to mine.
+- **The Spawners.** The cap is ten Spiders for the whole grid, so the brood wakes only once
+  the player has cut most of the way down, and then it keeps ten alive round the last door.
+- **Counts:** 38 Spiders (7, 13, 8, 10 by stage), 2 Zombies, 2 Spider Spawners, 7 Dungeon
+  Doors, 1 Mirror. Loot: Silver 13, Gold 5, Scroll 5, Stone 5, Wine 2, Bones 15, Mushroom 19,
+  Magic Mushroom 1, and 15 Rocks to mine. No Gems.
 
 ### d009_VulcansStithy (plan)
 
