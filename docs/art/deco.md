@@ -212,7 +212,7 @@ as the third ref), purples asked for as bluish violet: Rose Bush (`rose-bush`, a
 Lavender (`lavender`, 0.93, 40), Topiary Ball (`topiary-ball`, 1.34, 150), Topiary Cone
 (`topiary-cone`, 1.79, 150), Ivy Trellis (`ivy-trellis`, 0.98, 120) and the Wildflower Patch
 (`wildflower-patch`, 0.97, 30; PASSABLE, the first floor deco: a character walks over it). The
-hedge wall set is parked in BL-22. Every cut is seated at its square's bottom after the defringe
+hedge wall set came later (2026-11-11, below). Every cut is seated at its square's bottom after the defringe
 (the cart lesson).
 
 ## Tweaks after B3 (2026-11-08, `tools/art/jobs/deco-tweaks.json`)
@@ -242,11 +242,41 @@ statuary + garden), Stone Urn (`stone-urn`, 0.96, 800, statuary + garden), Obeli
 1.93, 3,000, statuary; made 2 x 3 at artSpan 4.5 and 8,000 Gold the same day: the owner wanted it much bigger, overflowing the top of its footprint); and the Maypole (`maypole`, 2.03, 1,200, garden), ribbons in red, yellow
 and blue (no pink or purple near the key). The Gargoyle came with the castle set.
 
+## Rugs, a stool and the hedge (2026-11-11, `tools/art/jobs/deco-r6.json`)
+
+One candidate each, all used.
+
+- **Runner Rug** (`rug-runner`, 3 x 1, artSpan 3.16, 1,200) and **Grand Rug** (`rug-grand`,
+  2 x 4, artSpan 4.17, 4,000), castle + furniture: crimson with a gold border, the Throne's
+  red and gold (the Throne and the Heraldic Banner as the colour references). PASSABLE.
+  - **A rug is drawn from directly overhead**, not in the prop camera: a flat piece must cover
+    its tiles exactly. The model's rectangle is never the footprint's aspect (3.42 and 0.43
+    for 3 and 0.5), so `tools/art/rug.py` keys the panel, takes the rug's own box, resizes it
+    to the exact aspect and seats it at the bottom-centre of a square. Between the fringe's
+    threads the model shades the magenta to a dull pink the key misses: in the fringe band
+    only gold stays.
+  - **artSpan is a little more than the footprint's longer side** (fill 0.95): the renderer
+    draws a row's art as an artSpan square only when artSpan differs from the footprint's
+    width, and the atlas only holds squares.
+  - **A passable deco is a FLOOR piece** (`PixiRenderer.js`): it sorts under the top row of its
+    footprint, not at its bottom row, so a figure on any tile of the rug draws over it. The
+    Wildflower Patch follows the same rule.
+  - The runner lands in a 256 px atlas slot (about 80 px a tile, like the Round Tower); if it
+    reads soft at the closest zoom, the slot rule in `build-atlas.js` is the place.
+- **Stool** (`stool`, 1 x 1, artSpan 0.73, 100, furniture): a round seat on four legs in the
+  Chair's oak (the Chair as the wood reference), sized so its seat stands at the Chair's seat
+  height. Cut with `--flood islands`: the magenta shut between the legs is not reached by the
+  border flood.
+- **Hedge** (`hedge`, a wall set, 15, walls + garden): drawn leaf by leaf by
+  `tools/art/hedge.py` in the topiary's colours; docs/walls.md "The hedge". The job's
+  `hedge-swatch` (a generated leaf texture) was the first version's source and is no longer
+  used: the owner found it read as scales.
+
 ## The deco pass is done (2026-11-08)
 
 Pass A (the emoji rows), B1 castle, B2 farm, B3 greenery and B4 art pieces shipped; B5
 furniture was skipped by the owner (the Chair, Bed, Royal Bed, Oak Table, Stack of Books and
-Harp stand for furniture). No deco row draws an emoji. Parked: the wall sets (BL-22). Next art
+Harp stand for furniture). No deco row draws an emoji. The hedge wall set followed on 2026-11-11. Next art
 passes: BL-16 animals and pets (strategy in docs/art/zoo-animals-plan.md), then BL-17 avatars.
 
 ## Mountains redrawn as slab blocks (2026-11-08)

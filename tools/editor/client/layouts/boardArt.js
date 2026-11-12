@@ -97,7 +97,8 @@ export function wallPieces(set, col, row, setAt) {
   if (!post) return null;
   let mask = 0;
   SIDES.forEach((d, i) => { if (setAt(col + OFFSET[d][0], row + OFFSET[d][1]) === set) mask |= 1 << i; });
-  const names = RUNS[mask] ? [RUNS[mask]]
+  // a set drawn whole (the hedge: it has `-m15`): one picture per mask, as in PixiRendererWalls.js
+  const names = artImage(`walls/${set}-m15.png`) ? [mask ? `m${mask}` : 'post'] : RUNS[mask] ? [RUNS[mask]]
     : [...SIDES.filter((d, i) => d !== 's' && mask & (1 << i)), 'post', ...(mask & 4 ? ['s'] : [])];
   const pieces = names.map((n) => artImage(`walls/${set}-${n}.png`)).filter(Boolean);
   return { pieces, span: post.naturalWidth / 128 };

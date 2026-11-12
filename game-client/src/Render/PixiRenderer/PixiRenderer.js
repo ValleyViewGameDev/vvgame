@@ -1004,7 +1004,10 @@ const PixiRenderer = ({
         const artSpan = master?.artSpan;
         // any artSpan other than the footprint counts, smaller ones too (a prop drawn at 0.85 of its tile)
         const span = Number(artSpan);
-        if (texture) return { resource, texture, emojiTexture: null, wallSpan: span > 0 && span !== footprintOf(resource).w ? span : undefined };
+        // a passable deco lies FLAT on the ground (a rug, the Wildflower Patch): it sorts under everything
+        // that stands on any of its rows, not at its bottom row like a thing that stands up
+        const floor = master?.category === 'deco' && master?.passable === true;
+        if (texture) return { resource, texture, emojiTexture: null, floor, wallSpan: span > 0 && span !== footprintOf(resource).w ? span : undefined };
         const emojiTexture = resource.symbol ? await loadEmojiTexture(resource.symbol) : null;
         return { resource, texture: null, emojiTexture };
       });
@@ -1040,7 +1043,7 @@ const PixiRenderer = ({
       let emojiCount = 0;
       let skippedAnimating = 0;
 
-      for (const { resource, texture, emojiTexture, wallSpan: span, isWall } of loadedResources) {
+      for (const { resource, texture, emojiTexture, wallSpan: span, isWall, floor } of loadedResources) {
         // Skip resources that are currently animating (VFX grow effect handles their visual)
         const isAnimating = isResourceAnimating(resource.x, resource.y);
         if (isAnimating) {
@@ -1056,6 +1059,10 @@ const PixiRenderer = ({
         // Position calculation (a footprint grows UPWARD from its anchor)
         const x = resource.x * TILE_SIZE;
         const visualY = (resource.y - fh + 1) * TILE_SIZE;
+        // the y-sort row: the anchor (bottom) row; a floor piece goes under its TOP row, so a figure on
+        // any tile of a 2 x 4 rug draws over it, and so does one stepping onto it from the north (an
+        // actor's zIndex is its row + 0.5, so the row above the rug is top - 0.5)
+        const sortRow = floor ? resource.y - fh + 1 - 0.75 : resource.y;
 
         // Art taller than its footprint (a composed wall from PixiRendererWalls, a building or a
         // statue with artSpan): a span x span square of tiles whose bottom rows and middle columns
@@ -1068,7 +1075,7 @@ const PixiRenderer = ({
           sprite.y = (resource.y - (span - 1)) * TILE_SIZE;
           // taps on the part above the footprint hit this art, not the tile behind it (artHitTest.js)
           if (!isWall && resource.action !== 'wall') sprite.__artHit = resource;
-          addResource(sprite, resource.y, resource);
+          addResource(sprite, sortRow, resource);
           svgCount++;
           continue;
         }
@@ -1093,7 +1100,7 @@ const PixiRenderer = ({
             sprite.x = x;
             sprite.y = visualY;
           }
-          addResource(sprite, resource.y, resource);
+          addResource(sprite, sortRow, resource);
           svgCount++;
           continue;
         }

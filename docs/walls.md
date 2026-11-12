@@ -10,7 +10,7 @@ resource with `action: 'wall'`, `passable: false`.
 ## The data
 
 - A resource row joins a **set** with `wallSet` (ECONOMY sheet column): `Stone Wall` is
-  `stone`, `Wooden Fence` is `fence`. Rows without `wallSet` (the coloured walls) draw as
+  `stone`, `Wooden Fence` is `fence`, `Hedge` is `hedge`. Rows without `wallSet` (the coloured walls) draw as
   before. Two different sets never connect to each other. (`Stone Wall Large`, the old 2 x 2
   wall, was removed 2026-10-21: every layout now has four `Stone Wall`s on its footprint.)
 - `filename` stays the Deco panel's cursor and button image: `wall-stone.svg`,
@@ -77,6 +77,43 @@ To make a new set: add a plus subject (and, for a set with a tower, a lone-post 
 `jobs/walls.json` with the set's description, generate, `node tools/art/walls.js --set
 <name> --plus <panel> [--post-panel <panel>]`, add the row with `wallSet`,
 `npm run build:atlas`.
+
+## The hedge: a set drawn, not cut (2026-11-11)
+
+`Hedge` (`wallSet: hedge`, Walls and Fences + Garden, 15 Gold) is a clipped hedgerow for hedge
+mazes. The owner's brief: no posts, no special treatment at corners, the same height everywhere,
+one continuous face, the topiary's colour and foliage. A generated junction panel cannot promise
+any of that (the stone wall took six rounds), so `tools/art/hedge.py` DRAWS the set: one whole
+picture for each of the sixteen connection masks (`hedge-post.png` for a lone tile, `hedge-m1`
+.. `hedge-m15`, bits n 1, e 2, s 4, w 8; 192 px, a 1.5-tile square like the stone wall's). A
+set that has `-m15` is drawn whole by `PixiRendererWalls.js` and the editor's `boardArt.js`;
+nothing is composed from a post and spokes.
+
+- **Foliage, leaf by leaf (owner's review of the first version).** The first hedge laid a
+  generated leaf TEXTURE over straight-edged boxes with a soft mottle. The owner: it "looks more
+  like a snake's scales", it is "blotchy", and it does not treat foliage the way the topiaries
+  and trees do. A texture has no single leaves. Now every leaf is its own shape, as on the
+  topiary: about a fifth of a tile long, tip down, a pale yellow-green fill with a darker green
+  edge, its lit half a touch paler, a faint midrib, softened; leaves lie over one another like
+  shingles, each a shade of its own (never patches of tone), the ones along an edge a little
+  deeper; the outline is a row of leaf tips with a soft darker line inside it. Colours are
+  sampled from `topiary-ball.png` and `topiary-cone.png`.
+- **Geometry.** The hedge is a band 0.7 of a tile thick through the tile's middle. A leaf
+  growing at a footprint point is drawn half a tile higher on screen (the lit TOP). Under the
+  top's south edge hangs the FACE: five rows of the same leaves in shade, darker toward the
+  ground, over a soft contact shadow. A north-south hedge shows its top only.
+- **Why tiles join with no seam.** The leaves are ONE pattern that repeats every tile (a
+  jittered lattice: leaf i, j is the same leaf in every tile), so a leaf that straddles two
+  tiles is the same leaf in both pictures. Each picture also draws its neighbours' leaves near a
+  shared edge and is cut a few pixels past it, so both hold the same pixels there. The tile to
+  the south is drawn after the one to the north (the board's y-sort) and its top begins exactly
+  where the northern one's ends. The translucent contact shadow is cross-faded over the shared
+  strip so it is never laid down twice.
+- **To change it:** the leaf's size, the lattice, the colours, the band's thickness and height
+  are the constants at the top of `hedge.py`; run it (`--proof <png>` draws a small maze the way
+  the board does), then `npm run build:atlas`. A new drawn set would copy the script.
+- Checked by composing a maze offline with the board's rule (y-sorted tiles); the owner saw the
+  first version in the running game.
 
 ## The rules (`Render/PixiRenderer/PixiRendererWalls.js`)
 

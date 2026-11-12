@@ -7,6 +7,7 @@
  * composed on a canvas from the atlas pieces `walls/<set>-post.png`, `-n/e/s/w` (spokes to
  * the tile's edges) and `-run-h/v` (a tile-long run with no post, used when the tile is a
  * straight pass-through), which tools/art/walls.js cuts from one generated junction panel.
+ * A set may instead ship one WHOLE picture per mask (`-post` and `-m1` .. `-m15`: the hedge).
  * The neighbour's matching spoke meets it at the shared edge, so any formation reads as
  * one wall.
  *
@@ -82,8 +83,11 @@ export function wallTexture(set, mask) {
   // their near ends); the spoke that leaves to the south goes OVER it, so the wall is seen
   // running up into the post's lower body and ending there, the post's cap and upper body
   // above it (owner, 2026-10-21).
+  // A set drawn WHOLE (the hedge, tools/art/hedge.py: it has `-m15`): one finished picture per
+  // mask, `post` for a lone tile and `m<mask>` for the rest, so nothing is composed here.
   const run = RUNS[mask];
-  if (run) drawPiece(ctx, set, run);
+  if (peekAtlasTexture('walls', `${set}-m15.png`)) drawPiece(ctx, set, mask ? `m${mask}` : 'post');
+  else if (run) drawPiece(ctx, set, run);
   else {
     SIDES.forEach((d, i) => { if (d !== 's' && mask & (1 << i)) drawPiece(ctx, set, d); });
     drawPiece(ctx, set, 'post');

@@ -30,6 +30,32 @@
         "run-h",
         "run-v"
       ]
+    },
+    "hedge": {
+      "plus": null,
+      "post": null,
+      "px": 192,
+      "span": 1.5,
+      "pieces": [
+        "post",
+        "m1",
+        "m2",
+        "m3",
+        "m4",
+        "m5",
+        "m6",
+        "m7",
+        "m8",
+        "m9",
+        "m10",
+        "m11",
+        "m12",
+        "m13",
+        "m14",
+        "m15"
+      ],
+      "whole": true,
+      "made": "tools/art/hedge.py: one whole picture per connection mask (post = mask 0, m<mask>: n 1, e 2, s 4, w 8), drawn leaf by leaf"
     }
   }
 }

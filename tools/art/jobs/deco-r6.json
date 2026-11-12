@@ -1,0 +1,60 @@
+{
+  "name": "deco-r6",
+  "note": "Owner 2026-11-11: two castle rugs (3 x 1 and 2 x 4, passable floor pieces), a plain round wooden stool (the Chair's wood and seat height, no cushion, no back), and a leaf swatch first used for the hedgerow wall set (BL-22; the hedge is now drawn leaf by leaf by tools/art/hedge.py and does not use it). One candidate each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "rug-3x1": {
+      "refs": [
+        "../../game-client/public/assets/resources/throne.png",
+        "../../game-client/public/assets/resources/heraldic-banner.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "COLOUR AND RENDERING REFERENCE: the attached THRONE and HERALDIC BANNER on green are this game's castle furniture: match their painterly storybook rendering, their deep crimson red and their warm gold exactly. SUBJECT: a castle RUG lying FLAT on the floor, seen from DIRECTLY OVERHEAD, a pure top-down plan view with NO perspective: a LONG, NARROW runner, exactly THREE times as wide as it is tall, lying across the middle of the image from left to right and nearly as wide as the image. Its four edges are perfectly straight and parallel to the edges of the image, its corners square. A deep crimson woven wool field, a broad gold border band all the way round with a thin dark-red line inside it, one large simple gold diamond medallion in the centre with a smaller gold diamond to its left and to its right, and a short gold fringe along the two SHORT ends only. It is perfectly flat: no folds, no wrinkles, no curl, no thickness, no shadow. Keep it SIMPLE and at the game's scale: it is seen very small on the board, so big plain shapes, flat areas of colour, a thick border, no fine pattern. Everything that is not the rug is perfectly flat, uniform, solid pure magenta (#FF00FF): no floor, no ground, no shadow, no scene, no frame, no text; never pink, magenta or purple on the rug itself. ",
+      "extract": "tools/art/rug.py --candidate painterly-rug-3x1-1 --file rug-runner --w 3 --h 1 --fill 0.95 --px 768 (artSpan 3.16)"
+    },
+    "rug-2x4": {
+      "refs": [
+        "../../game-client/public/assets/resources/throne.png",
+        "../../game-client/public/assets/resources/heraldic-banner.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "COLOUR AND RENDERING REFERENCE: the attached THRONE and HERALDIC BANNER on green are this game's castle furniture: match their painterly storybook rendering, their deep crimson red and their warm gold exactly. SUBJECT: a castle RUG lying FLAT on the floor, seen from DIRECTLY OVERHEAD, a pure top-down plan view with NO perspective: a TALL rug, exactly TWICE as tall as it is wide, standing upright in the middle of the image and nearly as tall as the image. Its four edges are perfectly straight and parallel to the edges of the image, its corners square. A deep crimson woven wool field, a broad gold border band all the way round with a thin dark-red line inside it, one large simple gold diamond medallion in the centre with a smaller gold diamond above it and below it, and a short gold fringe along the two SHORT ends only. It is perfectly flat: no folds, no wrinkles, no curl, no thickness, no shadow. Keep it SIMPLE and at the game's scale: it is seen very small on the board, so big plain shapes, flat areas of colour, a thick border, no fine pattern. Everything that is not the rug is perfectly flat, uniform, solid pure magenta (#FF00FF): no floor, no ground, no shadow, no scene, no frame, no text; never pink, magenta or purple on the rug itself. ",
+      "extract": "tools/art/rug.py --candidate painterly-rug-2x4-1 --file rug-grand --w 2 --h 4 --fill 0.96 --px 1024 (artSpan 4.17)"
+    },
+    "stool": {
+      "refs": [
+        "_candidates/deco-whimsical-r1/exploration/openai/painterly-barrel-1.png",
+        "_candidates/buildings-bible-r2/approved/openai--painterly-hospital-1.png",
+        "../../game-client/public/assets/resources/chair.png"
+      ],
+      "guide": "guides/building1-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "CAMERA CONTROL: the FIRST attached image is this game's approved BARREL, cut on magenta: draw the subject from the SAME camera as that barrel (mostly from the front, a little from above, a top showing only as a narrow strip), at the same rendering and daylight. CAMERA AND STYLE REFERENCE: the SECOND attached panel is a building from this game, drawn in the game's camera (top-down three-quarter: the object seen from the front and from above at once, verticals straight up) and in its painterly storybook rendering; match that camera and rendering exactly, the same brush texture, the same warm full daylight from high up and a little left, the same soft shadows only in the recesses. WOOD REFERENCE: the attached wooden CHAIR on green is this game's chair; the stool is made of exactly the same warm oak, with the same chunky legs, and its seat is at the SAME HEIGHT as that chair's seat. SUBJECT: a plain round wooden STOOL: a thick ROUND flat wooden seat (seen as a wide ellipse from this camera) on four short, sturdy, slightly splayed square legs joined by one low stretcher; bare wood only: NO cushion, NO back, NO arms; about half as tall as the chair with its back. Keep it SIMPLE and at the game's scale: this prop is seen 45 pixels wide on the board next to a barrel, so big plain shapes, flat areas of colour, thick outlines, no fine detail, no more than six or seven shapes in all, the way the approved barrel is just staves and two hoops. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid and a 1 x 1 box outlined in the middle, one board tile. Draw the SUBJECT alone, standing on the ground inside that box and filling it well (it may rise above the box, never past the box's sides), seen in the game's camera, square-on (its front face parallel to the bottom edge of the image, never turned at a diagonal), with a soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no scene, no frame, no text. ",
+      "extract": "cutout.js --n 1 --fit silhouette --fill 0.72 --flood islands (the magenta shut between the legs); artSpan 0.73, the seat at the Chair's seat height"
+    },
+    "hedge-swatch": {
+      "refs": [
+        "../../game-client/public/assets/resources/topiary-ball.png",
+        "../../game-client/public/assets/resources/topiary-cone.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "TEXTURE SWATCH, not an object. The two attached topiary plants on green are from this game. Fill the WHOLE square image, edge to edge and corner to corner, with ONLY the clipped leaf surface of those topiaries, as if looking straight at a huge flat wall of the same hedge: the same small pointed overlapping leaves laid like scales with their tips pointing down, the same yellow-green colour, the same painterly rendering, every leaf the same size, about THIRTY leaves across the width of the image. EVENLY LIT everywhere: one flat mid-bright light with no gradient, no dark corners, no highlight spot, no shadow areas; a perfectly regular, repeating all-over pattern. No pot, no trunk, no outline of a shape, no ground, no sky, no border, no magenta, no text.",
+      "extract": "NOT USED. The first hedge was textured with this swatch; the owner's review: a snake's scales, blotchy. tools/art/hedge.py now draws every leaf itself (docs/walls.md, The hedge)."
+    }
+  }
+}

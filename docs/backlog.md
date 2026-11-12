@@ -325,17 +325,6 @@ the client). **Where to start.** Make the route refuse the fields an `/action/*`
 have the server derive graze state from its own `grazeEnd`; check the graze behaviour's
 `updateThisNPC` calls in `NPCGrazeBehavior.js` first.
 
-### BL-22: A hedge wall set
-
-Added 2026-11-08; narrowed to the hedge 2026-11-11 (owner: no more stone or sandstone walls).
-
-**What.** A clipped HEDGE wall set (the Green Wall's replacement; docs/art/deco-pass-plan.md
-B3): a joining `wallSet` of seven pieces through the walls pipeline (docs/walls.md: one plus
-panel + one lone-post panel, `tools/art/walls.js`). **Why.** The garden has no green edge piece,
-only the stone wall and the wooden fence. **Where to start.** `tools/art/jobs/walls.json` (the
-stone set's prompts and the TALL window), then a `Hedge` row with `wallSet: hedge` and a deco
-group for walls.
-
 ### BL-27: Review the combat animations
 
 Added 2026-11-11. Not a blocker.
