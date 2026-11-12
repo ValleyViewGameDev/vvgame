@@ -75,6 +75,16 @@
     "notes": "parts-r1"
   },
   {
+    "id": "hair-f-spiky",
+    "slot": "hair",
+    "label": "Short spiky",
+    "tier": "free",
+    "file": "hair-f-spiky.png",
+    "tint": "hairColor",
+    "body": "female",
+    "notes": "parts-r8 (2026-11-11); key, align, diff, then hair-clean and hair-gapfill (tools/art/_candidates/parts-fitted); the spikes squashed 0.78 above the brow to fit the headroom"
+  },
+  {
     "id": "hair-m-short",
     "slot": "hair",
     "label": "Short",
@@ -93,6 +103,16 @@
     "tint": "hairColor",
     "body": "male",
     "notes": "parts-r1"
+  },
+  {
+    "id": "hair-m-shoulder",
+    "slot": "hair",
+    "label": "Shoulder length",
+    "tier": "free",
+    "file": "hair-m-shoulder.png",
+    "tint": "hairColor",
+    "body": "male",
+    "notes": "parts-r8 (2026-11-11); key, align, diff, then hair-clean and hair-gapfill (tools/art/_candidates/parts-fitted)"
   },
   {
     "id": "beard-none",
@@ -255,6 +275,17 @@
     "notes": "parts-r1"
   },
   {
+    "id": "top-f-ranger",
+    "slot": "top",
+    "label": "Green adventurer",
+    "tier": "free",
+    "file": "outfit-f-ranger.cloth.png",
+    "file2": "outfit-f-ranger.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "parts-r8 (2026-11-11); figurecut, align, fitbody, split --rise 48 --dekey (tools/art/parts.js)"
+  },
+  {
     "id": "top-f-adventurer",
     "slot": "top",
     "label": "Adventurer",
@@ -276,6 +307,18 @@
     "tint2": "skinTone",
     "body": "female",
     "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
+  },
+  {
+    "id": "top-f-queen",
+    "slot": "top",
+    "label": "Black queen's coat",
+    "tier": "paid",
+    "file": "outfit-f-queen.cloth.png",
+    "file2": "outfit-f-queen.skin.png",
+    "tint2": "skinTone",
+    "body": "female",
+    "notes": "parts-r8 (2026-11-11); figurecut, align, fitbody, split --rise 48 --dekey (tools/art/parts.js); split --grow 30 --step 14 for the shaded neck",
     "gemcost": 30
   },
   {
@@ -316,13 +359,12 @@
     "id": "top-m-doublet",
     "slot": "top",
     "label": "Noble doublet",
-    "tier": "paid",
+    "tier": "free",
     "file": "outfit-m-doublet.cloth.png",
     "file2": "outfit-m-doublet.skin.png",
     "tint2": "skinTone",
     "body": "male",
-    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
-    "gemcost": 30
+    "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js); free since 2026-11-11 (owner)"
   },
   {
     "id": "top-m-robe",
@@ -334,6 +376,30 @@
     "tint2": "skinTone",
     "body": "male",
     "notes": "parts-r4 (2026-11-10); figurecut, align, fitbody, split (tools/art/parts.js)",
+    "gemcost": 30
+  },
+  {
+    "id": "top-m-ranger",
+    "slot": "top",
+    "label": "Black leathers",
+    "tier": "paid",
+    "file": "outfit-m-ranger.cloth.png",
+    "file2": "outfit-m-ranger.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "parts-r8 (2026-11-11); figurecut, align, fitbody, split --rise 48 --dekey (tools/art/parts.js)",
+    "gemcost": 30
+  },
+  {
+    "id": "top-m-king",
+    "slot": "top",
+    "label": "King's crimson",
+    "tier": "paid",
+    "file": "outfit-m-king.cloth.png",
+    "file2": "outfit-m-king.skin.png",
+    "tint2": "skinTone",
+    "body": "male",
+    "notes": "parts-r8 (2026-11-11); figurecut, align, fitbody, split --rise 48 --dekey (tools/art/parts.js); align --eyes by hand",
     "gemcost": 30
   }
 ]

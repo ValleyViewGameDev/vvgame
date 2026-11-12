@@ -1,0 +1,84 @@
+{
+  "name": "parts-r8",
+  "note": "Owner 2026-11-11, more parts content: m a long black leather ranger's outfit (leather, not armour) and a crimson embroidered king's costume (both paid); f a black queen's coat (paid) and a green adventurer (free); hair f short and a little spiky, m hanging to the shoulders (both free). The owner named television costumes as the direction; the reference pictures did not reach the session, so these are drawn from the description, as this game's own designs. One candidate each.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "outfit-m-ranger": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-male.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a grown man). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a NORTHERN RANGER'S outfit, all BLACK LEATHER and no armour: a long black leather coat that reaches just below the knee and hangs open below the belt, over a black quilted leather jerkin fastened down the front with a row of dark iron clasps, a broad black belt with a pewter buckle and a second leather strap crossing the chest from one shoulder, a thick dark-grey FUR mantle lying low across both shoulders, black leather bracers on the forearms, black trousers and tall black leather boots; the blacks are drawn as charcoal with slate-grey highlights and a dark outline so every piece is clearly readable, never one flat black mass; the two legs are clearly apart with the background showing between them, following the base body's arms and legs; the hands stay bare; nothing of the costume rises above the base of the neck: no hood, no collar or fur up beside the jaw or the face; a storybook fairy-tale costume, nothing modern; it must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold shapes, never fine detail; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no weapon, no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split --rise 48 --face <face-m-01> --dekey (the fur mantle stands above the head cut)"
+    },
+    "outfit-m-king": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-male.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a grown man). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a YOUNG KING'S costume in rich CRIMSON: a crimson velvet doublet that falls to mid thigh, its chest, sleeves and skirt covered in bold GOLD EMBROIDERY (large scrolling vines and leaves, big simple shapes), padded shoulders, a low gold-embroidered collar at the base of the neck, wide gold-trimmed cuffs, a gold belt of linked medallions, and a heavy gold chain across the chest; dark crimson hose and polished dark-brown boots with gold tops; the two legs are clearly apart with the background showing between them, following the base body's arms and legs; the hands stay bare; nothing of the costume rises above the base of the neck: no hood, no collar or fur up beside the jaw or the face; a storybook fairy-tale costume, nothing modern; it must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold shapes, never fine detail; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no weapon, no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160 --eyes 241.3,56.2,284.7,56.6 (the finders missed the pupils), fitbody, split --rise 48 --face <face-m-01> --dekey (a half-keyed pink pocket beside the hand)"
+    },
+    "outfit-f-queen": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-female.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a young woman). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a WARRIOR QUEEN'S outfit in BLACK: a fitted black coat-dress with strong, structured, pointed shoulders, a quilted pattern of large scales across the bodice, a low neat collar at the base of the neck, long fitted sleeves, cinched at the waist with a silver belt, its skirt flaring to the knee and split open at the front to show a deep crimson lining; a silver chain across the chest from shoulder to shoulder; black trousers and tall black boots; the blacks are drawn as charcoal with slate-grey highlights and a dark outline so every piece is clearly readable, never one flat black mass; the two legs are clearly apart with the background showing between them, following the base body's arms and legs; the hands stay bare; nothing of the costume rises above the base of the neck: no hood, no collar or fur up beside the jaw or the face; a storybook fairy-tale costume, nothing modern; it must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold shapes, never fine detail; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no weapon, no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split --rise 48 --face <face-f-01> --dekey --grow 30 --step 14 (the neck's shaded side is past the skin model's usual reach; black cloth cannot leak)"
+    },
+    "outfit-f-ranger": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/base-female.magenta.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached bald figure in a tan undershift on magenta is a BASE BODY of this game (a young woman). Redraw the BASE BODY EXACTLY as it is, pixel for pixel: the same bald head, face, eyes, skin, the same size and position in the frame, the same arms, hands and bare feet, the same contact shadow, changing NOTHING about it, and dress it ONLY in a WOODLAND ADVENTURER'S outfit in GREEN: a forest-green tunic to mid thigh with long sleeves and a simple round neck, a sleeveless brown leather jerkin laced down the front over it, a brown leather belt with a brass buckle and a small pouch, tan trousers tucked into tall brown leather boots, and brown leather bracers on the forearms; the two legs are clearly apart with the background showing between them, following the base body's arms and legs; the hands stay bare; nothing of the costume rises above the base of the neck: no hood, no collar or fur up beside the jaw or the face; a storybook fairy-tale costume, nothing modern; it must READ AT A DISTANCE, when the whole figure is drawn very small: a few large, bold shapes, never fine detail; full colour, the game's gentle shading. The head stays bald, no hair, no hat. ONE FIGURE ONLY, nothing else in the picture: no weapon, no building, no props, no scene. The LAST attached image is a layout guide (a magenta field with a 1 x 1 box and a dashed headroom box): the figure stands with its feet on the box's bottom edge, head in the headroom, exactly as the base body does. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "figurecut, align --overflow 160, fitbody, split --rise 48 --face <face-f-01> --dekey"
+    },
+    "hair-f-spiky": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-female.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a young woman, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY her hair: SHORT, a little SPIKY hair: a tousled cropped cut, close at the sides and the nape with the ears showing, the top and the fringe standing up in a few soft, chunky spikes brushed up and a little to one side, covering the scalp from the brow line up; it ends above the neck and never reaches the shoulders, worn naturally at head size; a few large, bold locks that read when the figure is drawn very small, never fine strands. Colour of the added part ONLY: NEUTRAL very light GREY (near white) fills with one mid-grey shadow tone and a dark grey outline; software tints it later. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "the redraw and the base head padded 130 rows on top (the spikes stand taller than the frame's headroom); key, align --eyes 482.0,510.7,623.3,502.5, diff --open 1 --defringe --min 0.02 --fill; hair-clean.py <raw> <layer> 130 272 26 (skin, key pink and specks dropped; rows above the brow squashed 0.78 so the top lands on row 26); hair-gapfill.py; paste into the figure frame. NOT diff --grey: this hair's warm cream shadows pass for skin and it shreds"
+    },
+    "hair-m-shoulder": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/probes-r1/head-male.magenta.png"
+      ],
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture). The attached close-up on magenta is the HEAD AND SHOULDERS of a BASE BODY of this game: a grown man, bald, in a tan undershift. Redraw that close-up EXACTLY as it is, pixel for pixel: the same bald head at the same size and position, the same face, eyes, brows, ears, neck, shoulders and undershift, changing NOTHING, and add ONLY his hair: hair that HANGS TO THE SHOULDERS: thick, loosely wavy hair parted near the middle, covering the scalp from the brow line up, falling down both sides of the face past the ears and the jaw, and resting on the shoulders; the face stays fully visible, worn naturally at head size; a few large, bold locks that read when the figure is drawn very small, never fine strands. Colour of the added part ONLY: NEUTRAL very light GREY (near white) fills with one mid-grey shadow tone and a dark grey outline; software tints it later. Everything that is not the added part stays identical. The background is a perfectly flat, uniform, solid pure magenta (#FF00FF) everywhere that is not the drawing: no gradient, no texture, no scene, no frame, no text; never pink, never magenta, never purple on the drawing itself. ",
+      "extract": "key, align, diff --open 1 --defringe --min 0.02 --fill; hair-clean.py (the redraw's shoulders left skin slivers in the layer); hair-gapfill.py (the hairline gap against the face); paste into the figure frame. NOT diff --grey"
+    }
+  }
+}

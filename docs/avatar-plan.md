@@ -965,6 +965,39 @@ through pixels on the head that are skin by the model or by the given shaded-ski
 stops at the straw and the band. Rule 4 stands: new headwear is drawn on the teal mannequin
 and never needs this.
 
+**Four more outfits and two hair styles (owner 2026-11-11, content 3).** Job `parts-r8`, one
+candidate each, all six used; the catalogue is 38 rows. Male: Black leathers (a long black
+leather coat with a fur mantle, no armour) and King's crimson (gold-embroidered doublet), both
+paid at 30 gems; the Noble doublet is now FREE. Female: Black queen's coat (paid, 30) and a
+Green adventurer (free). Hair, both free: f Short spiky, m Shoulder length. The owner gave
+television costumes as the direction; the reference pictures did not reach the session, so the
+four were drawn from the description. The paid rule is now simply each row's `tier`: "the last
+two of each list" no longer holds (male clothes: three free, three paid). What the cutting taught:
+- **Cloth above the head cut: `split --rise 48 --face <face part>`.** An outfit starts at the
+  cut, a flat row under the jaw, so the fur mantle and two standing collars came out sliced
+  level. `--rise` takes back what stands above the cut: from the cloth on the cut row, up
+  through the redraw's pixels that lie clear of the face part's silhouette, then the two-pixel
+  seam against the jaw where it is not skin. The cloth layer draws over the face, so nothing
+  gaps. Use it on every outfit; it adds nothing to one that stops at the neck.
+- **`split --dekey`.** The key left pink beside two hands: pure key pink anywhere, the
+  pink-red blend on the figure's edge, and a half-keyed pocket between sleeve and hand (bright
+  pink-red, bluer than crimson cloth, no larger than a fingertip). Crimson velvet is untouched.
+- **A neck in deep shade needs a looser skin growth** (`--grow 30 --step 14`, the queen's
+  coat): the shaded half of her neck sat past the model's usual reach and stayed peach on a
+  dark tone. Safe there because black cloth is nowhere near skin; not a new default.
+- **Hair that is not neutral grey is NOT cut with `diff --grey`.** Both redraws came back in a
+  warm cream, whose shadows the grey filter takes for skin: it shredded them. Cut with the plain
+  diff, then two small steps kept beside the fitted intermediates
+  (`tools/art/_candidates/parts-fitted/`): `hair-clean.py` drops what is warm AND saturated
+  (the redraw's shoulders, which move a few pixels and leave skin slivers), key pink and specks;
+  `hair-gapfill.py` closes the hairline where the redraw's face was a pixel or two wider than
+  the base's (transparent pixels caught between hair and the bald head take the hair's colour).
+- **Tall hair must fit the headroom.** The spikes stood about 45 rows above the top of the
+  head-crop frame. The redraw and the base were padded on top so the cut kept them, then the
+  rows above the brow were squashed 0.78 so the top lands inside the frame. Ask for hair that
+  "stays close to the head" when it is meant to stand up.
+- `align` missed the pupils on the king and the spiky hair; `--eyes` from a dark-blob search.
+
 **The owner's order from here (2026-11-10):** 1 more logic, 2 more animation, 3 more parts
 content, 4 equipment (the hand slot and armour). Retiring `icon` (v1 §6 migration) follows a
 wider catalogue.
