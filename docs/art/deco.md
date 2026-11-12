@@ -272,6 +272,15 @@ One candidate each, all used.
   `hedge-swatch` (a generated leaf texture) was the first version's source and is no longer
   used: the owner found it read as scales.
 
+Same day, after the owner's review:
+- **Oak Table seated.** Its cut had kept 49 empty rows under the legs (of 512), so the table
+  stood higher in its tile than the Chair, Stool, Throne and Bed, whose feet are on the square's
+  bottom edge. The art was moved down to the bottom of its square (the Hand Cart lesson: seat
+  every cut). Its artSpan is the owner's 1.71.
+- **Black Wall out of the Buy Deco catalogue** (`source` removed from the row). The row stays:
+  valley layouts and the demon fort templates use it (`Bw`), and one already placed still draws
+  and sells.
+
 ## The deco pass is done (2026-11-08)
 
 Pass A (the emoji rows), B1 castle, B2 farm, B3 greenery and B4 art pieces shipped; B5

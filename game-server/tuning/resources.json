@@ -15358,7 +15358,6 @@
     "category": "deco",
     "decoGroup": "walls",
     "action": "wall",
-    "source": "Deco",
     "passable": false,
     "qtycollected": 1,
     "validong": true,
@@ -16288,7 +16287,7 @@
     "ingredient1qty": 1000,
     "gemcost": 10,
     "filename": "stone-well.svg",
-    "artSpan": 1.35
+    "artSpan": 1.7
   },
   {
     "type": "Hand Cart",
