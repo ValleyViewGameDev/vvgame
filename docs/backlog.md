@@ -171,8 +171,11 @@ one candidate each, all installed): the Ogre redrawn in the game's style (r4 was
 pulled there by the reference photographs, which are no longer refs) and narrower, its skin
 nudged from ochre to a slightly green olive in the cut; the Ghost without a mouth, only the eyes
 floating in the dark hood; the **Phoenix** painted, 2 x 2, hovering with its wings open over a
-ground shadow like the Demon (`artSpan 2.9`). Still to draw: Cerberus, Dragon, the two other
-bears.
+ground shadow like the Demon (`artSpan 2.9`). **The Dragon, 3 x 3** (`enemies-r6`): three
+concepts, one image each, awaiting the owner's pick (`_candidates/enemies-r6/review.jpg`), none
+installed and the row still 1 x 1: A seated (green, grounded, wings half-open), B flying (steel
+blue, hovering with wings spread like the Demon and the Phoenix), C a coiled wingless wyrm
+(crimson and gold, from the higher camera). Still to draw: Cerberus, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.
