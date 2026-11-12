@@ -1,0 +1,25 @@
+{
+  "name": "doobers-r15",
+  "note": "Bear Skin redrawn (owner, 2026-11-12): its colour must match the Bear enemy now in the game (the first was a duller brown, drawn before the Bear existed), and the pelt has NO head: body, arms and legs only. The installed Bear is the colour reference.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "bearskin": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg",
+        "../../game-client/public/assets/resources/npc-enemy-bear.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 BEAR SKIN: a bear-skin rug laid flat to the viewer, the pelt of the BEAR in the SECOND attached image (a brown bear standing up, one of this game's enemies). COLOUR, important: the pelt's fur is exactly that bear's fur: the same bright warm orange-brown chestnut on the body, the same lighter golden-tan patch down the middle of the chest and belly, the same darker red-brown at the edges and in the shadows; not grey-brown, not dull, not darker than the bear. SHAPE: the body with its two arm flaps spread out to the sides at the top and its two leg flaps at the bottom, the fur edge softly ragged all the way round. NO HEAD: the pelt ends at the shoulders in a plain rounded neck edge between the two arms; no head flap, no face, no ears, no eyes, no nose, no muzzle. No claws, no gore, nothing else on it. Cells 2 to 9 stay EMPTY, pure flat magenta."
+    }
+  }
+}

@@ -88,6 +88,7 @@ the whole set sheet by sheet, nine items at a time, on grass and dirt with names
 | r8 story2 | Scorpion, Diamond Ring, King's Crown, Portrait, Trident, Phoenix Feather, Brief Candle, Brass Bell, Prospero's Orb |
 | r9 last | Vampire's Blood (the drop), Scroll (the open parchment), Ancient Coin, Money (the coin stack; the header uses it too) |
 | r10 | Coconut (missed by the sheets because its row carried the tree's filename) |
+| r15 | Bear Skin redrawn 2026-11-12: no head (body, arms and legs only), and its fur matched to the Bear enemy's (the cut's fur hue shifted 7 degrees toward orange and darkened to the Bear's value) |
 
 Two items were recoloured after approval rather than redrawn (owner, 2026-11-07): the Runic
 Tunic's blue brightened (HSV value x1.5, saturation x1.3), and the Thread spool's cream thread
