@@ -1,0 +1,27 @@
+{
+  "name": "enemies-r8",
+  "note": "BL-17 loose end, owner 2026-11-12: Cerberus at 2 x 2, one candidate. Three heads on one mastiff body, four-legged and facing the viewer like the Coyote; charcoal with rust markings so it does not read as the Great Bear (the Bear's art tinted near-black).",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "cerberus": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-coyote.png",
+        "../../game-client/public/assets/resources/npc-enemy-demon.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). STYLE REFERENCE, the most important image: the attached farm man on magenta is an APPROVED character of this game. The new creature must look drawn by the same hand on the same day, for the same storybook: the same chunky doll proportion (a big head, large expressive eyes, a short thick body, small feet), the same soft rendering; never realistic, never anatomical, never gory. THIS IS AN ENEMY the player fights: menacing in a storybook way (a scowl, bared teeth, a glare), but still charming and readable, something a child would call a monster and not be frightened by; no blood, no wounds. VIEW, for this four-legged creature: it stands on all FOUR legs FACING THE VIEWER, seen from the front and a little from above: the three heads and the chest toward the viewer, the body turned a FAINT three-quarter so that its back and tail are seen behind and above the heads; all four paws on ONE flat ground plane, the two front legs both clearly seen, planted wide. Never a side view. Left and right sides roughly symmetrical. SIBLINGS: the attached grey COYOTE and the attached red DEMON are approved enemies of this game: the new creature must look painted by the same hand: the same simple rounded shapes, clean flat-ish colour with gentle soft shading, soft thick outlines, clear readable faces with big angry eyes. SUBJECT: CERBERUS, the three-headed guard hound, a boss: ONE huge, heavy, deep-chested dog's body, like a giant mastiff, with THREE heads on three thick necks growing side by side from its shoulders: the MIDDLE head faces the viewer straight on, held a little higher, snarling with its fangs bared; the LEFT head is turned outward toward the viewer's left, growling with its mouth shut; the RIGHT head is turned outward toward the viewer's right, barking with its mouth open. The three heads are the same size and the same kind: broad skulls, short square muzzles, small pointed ears laid back, heavy brows, glowing ember-ORANGE eyes, white fangs. FUR: short and smooth, a deep charcoal blue-black, with rust-brown markings like a rottweiler's on the muzzles, the brows, the chest and the paws, so the heads read clearly against the dark body. Each neck wears a plain wide dark-red leather collar with a row of blunt iron studs. Thick strong legs with big paws and dark claws; a single thick tail held up behind. It holds NOTHING; no chain, no fire, no smoke, no drool, no glow spilling onto the background; every part is OPAQUE. Keep it at the game's scale: it is seen about 100 pixels wide on the board, so big plain shapes, a strong silhouette, flat areas of colour, no fine detail. COLOUR: never pink, never magenta, never purple anywhere on it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom); the reference character stands in that box with its head in the headroom. ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. This is a large creature: IGNORE the box for its size and fill most of the picture, leaving a margin of magenta on every side: its heads stand a little higher than the reference character's head would, and it is a little wider than it is tall. A soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    }
+  }
+}

@@ -945,7 +945,7 @@ does catch you should hurt. Its Spawner allows 10 Zombies on a grid, was 5):
 | Enemy | Attack | AC | Damage | Max hp | Attacks every |
 |---|---|---|---|---|---|
 | Coyote | 3 | 18 | 11 | 60 | 1.0 s |
-| Bear, Polar Bear | 8 | 18 | 26 | 170 | 1.6 s |
+| Bear | 8 | 18 | 26 | 170 | 1.6 s |
 | Spider | 12 | 22 | 19 | 70 | 0.9 s |
 | Zombie | 13 | 22 | 53 | 440 | 2.2 s |
 | Ghost | 17 | 22 | 38 | 240 | 1.6 s |
