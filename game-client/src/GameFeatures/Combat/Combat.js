@@ -22,6 +22,7 @@ import { createImpactEffect, createNPCDeathEffect } from '../../VFX/VFX';
 import { isViewOnly } from '../../Utils/viewOnly';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
+import { npcNearestCell, npcCentre } from '../../Utils/npcFootprint';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -99,9 +100,11 @@ export function findEnemyInReach(gridId, playerId) {
   let best = null; let bestD = Infinity;
   for (const npc of Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {})) {
     if (!isHostile(npc) || !npc.position || npc.hp <= 0) continue;
-    const d = reachDistance(player.position, npc.position);
-    if (d > reach || isWallBlocking(player.position, npc.position, { trees: true })) continue;
-    const euclid = Math.hypot(player.position.x - npc.position.x, player.position.y - npc.position.y);
+    // reach is to the nearest tile of the enemy's BODY (a 2 x 2 Phoenix is in reach from any side: Utils/npcFootprint.js)
+    const near = npcNearestCell(npc, player.position);
+    const d = reachDistance(player.position, near);
+    if (d > reach || isWallBlocking(player.position, near, { trees: true })) continue;
+    const euclid = Math.hypot(player.position.x - near.x, player.position.y - near.y);
     if (euclid < bestD) { bestD = euclid; best = npc; }
   }
   return best;
@@ -110,11 +113,12 @@ export function findEnemyInReach(gridId, playerId) {
 /** Helper to check if target is in range and no wall is between **/
 function checkRange(player, target, TILE_SIZE) {
     const playerPos = player.position;
-    const targetPos = extractXY(target.position);
-    if (!targetPos) {
+    const anchor = extractXY(target.position);
+    if (!anchor) {
         FloatingTextManager.addFloatingText(505, 0, 0, TILE_SIZE);
         return false;
     }
+    const targetPos = npcNearestCell(target, playerPos); // the tile of its body nearest the player
     const playerRange = player.attackrange || 1;
     if (reachDistance(playerPos, targetPos) > playerRange) {
         CombatFX.text(targetPos.x, targetPos.y, '🎯', 'miss');
@@ -188,7 +192,8 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     const cooldown = attackCooldownMs(player.speed, globalTuning);
     attackReadyAt = Date.now() + cooldown;
     CombatFX.showCooldown(attackReadyAt, cooldown);
-    CombatFX.playerLunge(player.position.x, player.position.y, freshNPC.position.x, freshNPC.position.y);
+    const near = npcNearestCell(freshNPC, player.position);   // the lunge goes at the nearest part of the body
+    CombatFX.playerLunge(player.position.x, player.position.y, near.x, near.y);
     CombatFX.engageEnemy(freshNPC.id, freshNPC.hp, freshNPC.maxhp);
 
     // The roll is decided now; the feedback lands when the blow does (at once for melee,
@@ -199,16 +204,17 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     const ranged = isRangedWeaponEquipped(currentPlayer, masterResources);
     if (!hit || ranged) soundManager.playSFX('attack_miss');
     const from = { x: player.position.x, y: player.position.y };
-    const to = { x: freshNPC.position.x, y: freshNPC.position.y };
+    const to = npcCentre(freshNPC);   // effects, numbers and shots aim at the middle of the body
     const land = () => {
         const live = NPCsInGridManager.getNPCsInGrid(gridId)?.[freshNPC.id];
         if (!hit) { CombatFX.text(to.x, to.y, 'miss', 'miss'); return; }
         if (!live || live.hp <= 0) return; // died to something else meanwhile
         live.hp -= damage;
         soundManager.playSFX('attack_hit');
-        CombatFX.hitEnemy(live.id, from.x, from.y, live.position.x, live.position.y);
-        createImpactEffect(live.position.x, live.position.y, from.x, from.y);
-        CombatFX.text(live.position.x, live.position.y, `-${damage}`, 'damage');
+        const mid = npcCentre(live);
+        CombatFX.hitEnemy(live.id, from.x, from.y, mid.x, mid.y);
+        createImpactEffect(mid.x, mid.y, from.x, from.y);
+        CombatFX.text(mid.x, mid.y, `-${damage}`, 'damage');
         CombatFX.engageEnemy(live.id, live.hp, live.maxhp);
         if (live.hp > 0) return; // a wound stays client-side; the server only hears about the kill
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
@@ -225,7 +231,8 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
  * answer reconciles the header xp, the quest list and, if it chose another tile, the drop.
  */
 function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies) {
-    const pos = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
+    const pos = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };   // its anchor tile: where the drop lands
+    const mid = npcCentre(npc);                                                       // where it dies
     const npcResource = masterResources.find((r) => r.type === npc.type && r.category === 'npc');
     const xp = npcResource?.xp || 0;
     const playerId = String(currentPlayer._id || currentPlayer.playerId);
@@ -234,7 +241,7 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
     // 1. The board: the death beat takes the sprite over and a burst (VFX.js, picked by the
     //    template's deathVfx) explodes from the tile; the store forgets the NPC at once.
     CombatFX.killEnemy(npc.id);
-    setTimeout(() => createNPCDeathEffect(pos.x, pos.y, npcResource?.deathVfx), CombatFX.FX.DEATH_BURST_DELAY_MS);
+    setTimeout(() => createNPCDeathEffect(mid.x, mid.y, npcResource?.deathVfx), CombatFX.FX.DEATH_BURST_DELAY_MS);
     setTimeout(() => soundManager.playSFX('collect_money'), CombatFX.FX.DEATH_XP_DELAY_MS);
     NPCsInGridManager.forgetNPC(gridId, npc.id);
 

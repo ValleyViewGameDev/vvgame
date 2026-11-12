@@ -1,3 +1,4 @@
+import { npcOnTile } from './Utils/npcFootprint';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { burnTick } from './GameFeatures/Combat/tileHazards';
 import NPCsInGridManager from './GridState/GridStateNPCs';
@@ -756,9 +757,8 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
   if (currentPlayer?.location?.g) {
     const npcsInGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
     if (npcsInGrid) {
-      const npcInTile = Object.values(npcsInGrid).find(npc => npc.action !== 'spawn' && // spawners are passable (BL-19)
-        Math.floor(npc.position?.x) === x && Math.floor(npc.position?.y) === y
-      );
+      // any tile of an NPC's body blocks (a 2 x 2 Phoenix blocks four: Utils/npcFootprint.js); spawners are passable (BL-19)
+      const npcInTile = npcOnTile(npcsInGrid, x, y);
       if (npcInTile && npcInTile.passable === false) {
         console.warn(`⛔ Tile (${x}, ${y}) contains an impassable NPC (${npcInTile.type}).`);
         return false;

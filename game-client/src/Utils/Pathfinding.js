@@ -17,6 +17,7 @@
  */
 
 import { checkDoorAccess } from '../GameFeatures/Doors/Doors.js';
+import { npcCells } from './npcFootprint';
 
 const SQRT2 = Math.SQRT2;
 const MAX_EXPANSIONS = 6000;   // the whole grid is 4,096 tiles; this bounds a hopeless search
@@ -44,7 +45,7 @@ export function buildPassability({ tiles, resources, npcs, masterResources, curr
   for (const npc of npcList) {
     // Spawners are passable (BL-19), whatever their row or saved record says
     if (npc && npc.passable === false && npc.action !== 'spawn' && npc.position) {
-      blockedByNpc.add(key(Math.floor(npc.position.x), Math.floor(npc.position.y)));
+      for (const c of npcCells(npc)) blockedByNpc.add(key(c.x, c.y)); // its whole body (a 2 x 2 Phoenix blocks four tiles)
     }
   }
   const inBoat = !!currentPlayer?.isinboat;
@@ -139,6 +140,21 @@ export function findPath(start, goal, passable, { stopShort = false, beside = fa
   if (targets.size === 0) return [];
   if (targets.has(key(sx, sy))) return []; // already adjacent to a blocked goal
   return search(sx, sy, gx, gy, targets, passable) || [];
+}
+
+/**
+ * A route to the nearest of a given set of tiles (a multi-tile NPC walking up to the player: the
+ * tiles are the anchors where its body touches the player's tile, Utils/npcFootprint.anchorsBeside).
+ * `passable` is asked about anchors, so it must answer for the whole body. Steps after the
+ * start, or [] when already there or nothing is reachable.
+ */
+export function findPathToAny(start, goal, targetTiles, passable) {
+  if (!start || !goal) return [];
+  const sx = Math.round(start.x), sy = Math.round(start.y);
+  const targets = new Set();
+  for (const t of targetTiles || []) if (t.x >= 0 && t.y >= 0 && t.x < GRID && t.y < GRID && passable(t.x, t.y)) targets.add(key(t.x, t.y));
+  if (!targets.size || targets.has(key(sx, sy))) return [];
+  return search(sx, sy, Math.round(goal.x), Math.round(goal.y), targets, passable) || [];
 }
 
 /** A* from (sx, sy) to the nearest tile in `targets` (keys), heuristic toward (gx, gy); the path, or null. */

@@ -5,17 +5,19 @@ import soundManager from '../../Sound/SoundManager';
 import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { createImpactEffect } from '../../VFX/VFX';
 import { isWallBlocking } from '../../Utils/GridManagement';
+import { npcNearestCell, npcReach, npcCentre, anchorsBeside } from '../../Utils/npcFootprint';
 
 /**
  * Sight vs. a clear swing (Utils/GridManagement.isWallBlocking, one line-of-sight rule for the
  * whole game). Walls and doors block both. Trees only block the swing: an enemy still notices
  * and chases you past a tree, but cannot hit you through one, the same as you cannot hit it.
  */
-function canSeeTarget(npcPosition, targetPosition) {
-    return !isWallBlocking(npcPosition, targetPosition);
+// A multi-tile enemy looks and swings from the tile of its body nearest the target (Utils/npcFootprint.js).
+function canSeeTarget(npc, targetPosition) {
+    return !isWallBlocking(npcNearestCell(npc, targetPosition), targetPosition);
 }
-function canHitTarget(npcPosition, targetPosition) {
-    return !isWallBlocking(npcPosition, targetPosition, { trees: true });
+function canHitTarget(npc, targetPosition) {
+    return !isWallBlocking(npcNearestCell(npc, targetPosition), targetPosition, { trees: true });
 }
 
 const updateThisNPC = async function(gridId) {
@@ -55,14 +57,10 @@ function leapLanding(npc, target, tiles, resources, npcs) {
   const from = { x: Math.floor(npc.position.x), y: Math.floor(npc.position.y) };
   const px = Math.floor(target.position.x), py = Math.floor(target.position.y);
   const options = [];
-  for (let dy = -1; dy <= 1; dy++) {
-    for (let dx = -1; dx <= 1; dx++) {
-      if (!dx && !dy) continue;
-      const t = { x: px + dx, y: py + dy };
-      if (!npc.isValidTile(t.x, t.y, tiles, resources, npcs)) continue;
-      if (isWallBlocking(from, t, { trees: true })) continue;   // walls, doors and trees stop a leap
-      options.push({ ...t, d: (t.x - from.x) ** 2 + (t.y - from.y) ** 2 });
-    }
+  for (const t of anchorsBeside(npc, px, py)) {   // every anchor where its body touches the player's tile (the eight neighbours for a 1 x 1)
+    if (!npc.isValidTile(t.x, t.y, tiles, resources, npcs)) continue;
+    if (isWallBlocking(from, t, { trees: true })) continue;   // walls, doors and trees stop a leap
+    options.push({ ...t, d: (t.x - from.x) ** 2 + (t.y - from.y) ** 2 });
   }
   options.sort((a, b) => a.d - b.d);   // the near side of the player
   return options[0] || null;
@@ -72,7 +70,7 @@ function leapLanding(npc, target, tiles, resources, npcs) {
 function tryLeap(npc, gridId, tiles, resources, npcs) {
   const cooldownMs = Number(npc.leapcooldown) * 1000;
   if (!(cooldownMs > 0) || npc.leaping || Date.now() < (npc.nextLeapAt || 0) || !npc.targetPC) return false;
-  const far = reach(npc.position, npc.targetPC.position);
+  const far = npcReach(npc, npc.targetPC.position);
   if (far < LEAP_MIN_REACH || far > LEAP_MAX_REACH) return false;
   if (!leapLanding(npc, npc.targetPC, tiles, resources, npcs)) return false;
 
@@ -191,8 +189,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   // Check whether the PC is visible at the start of any state (immediate reaction)
   const pcVisibleInRange = !!localPC &&
     localPC.hp > 0 &&
-    getDistance(this.position, localPC.position) <= this.range &&
-    canSeeTarget(this.position, localPC.position);
+    getDistance(npcNearestCell(this, localPC.position), localPC.position) <= this.range &&
+    canSeeTarget(this, localPC.position);
 
   // If we see the PC and we're not already pursuing/attacking, immediately react
   if (pcVisibleInRange && this.state === 'roam') {
@@ -226,16 +224,16 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       }
 
       // Lost sight of the player: settle here (a new home, not the old one)
-      if (!canSeeTarget(this.position, this.targetPC.position)) {
+      if (!canSeeTarget(this, this.targetPC.position)) {
         await giveUpAndReanchor(this, gridId);
         break;
       }
       
       // Check if already in attack range AND can see target before pursuing
-      const currentDistance = reach(this.position, this.targetPC.position);
+      const currentDistance = npcReach(this, this.targetPC.position);
       if (currentDistance <= this.attackrange) {
         // Verify a clear swing before switching to attack
-        if (canHitTarget(this.position, this.targetPC.position)) {
+        if (canHitTarget(this, this.targetPC.position)) {
           this.state = 'attack';
           await updateThisNPC.call(this, gridId);
           performAttack.call(this, gridId, TILE_SIZE); // no dead tick between arriving and swinging
@@ -244,7 +242,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       }
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
       const timeSincePursueStart = Date.now() - this.pursueTimerStart;
-      const distance = getDistance(this.position, this.targetPC?.position);
+      const distance = getDistance(npcNearestCell(this, this.targetPC.position), this.targetPC.position);
       // Give up if: 
       // 1. Target is too far AND we've been chasing for a while, OR
       // 2. We can't see the target anymore (behind wall)
@@ -260,9 +258,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       // who could still hit it.
       const handlePursueWithLineOfSight = async () => {
         // Check if already in attack range AND can hit target BEFORE attempting to move
-        const distanceToPlayer = reach(this.position, this.targetPC.position);
+        const distanceToPlayer = npcReach(this, this.targetPC.position);
         if (distanceToPlayer <= this.attackrange) {
-          if (canHitTarget(this.position, this.targetPC.position)) {
+          if (canHitTarget(this, this.targetPC.position)) {
             this.state = 'attack';
             await updateThisNPC.call(this, gridId);
             performAttack.call(this, gridId, TILE_SIZE);
@@ -305,7 +303,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         await giveUpAndReanchor(this, gridId); // gone, dead or camping
         break;
       }
-      const distanceToTarget = reach(this.position, this.targetPC.position);
+      const distanceToTarget = npcReach(this, this.targetPC.position);
       if (distanceToTarget > this.attackrange) {
         //console.log(`PC ${this.targetPC.username} moved out of attack range. Returning to 'pursue' state.`);
         this.state = 'pursue';
@@ -314,7 +312,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       }
       
       // Check for a clear swing (walls, doors, trees) before attacking
-      if (!canHitTarget(this.position, this.targetPC.position)) {
+      if (!canHitTarget(this, this.targetPC.position)) {
         this.state = 'pursue';
         await updateThisNPC.call(this, gridId);
         break;
@@ -371,11 +369,6 @@ function getDistance(pos1, pos2) {
   return Math.sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2);
 }
 
-/** Board reach (Chebyshev): the eight neighbours are all 1 away, like the player's swing. */
-function reach(pos1, pos2) {
-  return Math.max(Math.abs(pos1.x - pos2.x), Math.abs(pos1.y - pos2.y));
-}
-
 /**
  * The swing (docs/audits/combat-and-npc-review-2026-10-07.md, Track 1.6): a short wind-up on
  * the sprite, then the roll resolves, provided the enemy is still attacking a live target in
@@ -408,7 +401,7 @@ function performAttack(gridId, TILE_SIZE) {
     // Re-read the live PC: it may have stepped away during the wind-up
     const live = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
     if (!live || live.playerId !== target.playerId) return;
-    if (reach(this.position, live.position) > this.attackrange || !canHitTarget(this.position, live.position)) return;
+    if (npcReach(this, live.position) > this.attackrange || !canHitTarget(this, live.position)) return;
 
     const attackRoll = Math.floor(Math.random() * 20) + 1;
     const isAHit = attackRoll + (this.attackbonus || 0) >= (live.armorclass || 0);
@@ -419,7 +412,8 @@ function performAttack(gridId, TILE_SIZE) {
       if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss'); return; }
       const newHP = Math.max(0, pc.hp - damage);
       CombatFX.playerHit();
-      createImpactEffect(pc.position.x, pc.position.y, this.position.x, this.position.y);
+      const body = npcCentre(this);
+      createImpactEffect(pc.position.x, pc.position.y, body.x, body.y);
       CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player');
       soundManager.playSFX('take_damage');
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
@@ -429,8 +423,9 @@ function performAttack(gridId, TILE_SIZE) {
     // arrow, fireball, fireball-small, blob); `none` is a melee enemy with reach (the Ogre's 2):
     // its blow lands at once, as a melee blow beside the player does
     const shot = this.projectile || 'arrow';
-    if (shot !== 'none' && reach(this.position, live.position) > 1) {
-      CombatFX.projectile(this.position.x, this.position.y, live.position.x, live.position.y, land, shot);
+    if (shot !== 'none' && npcReach(this, live.position) > 1) {
+      const mouth = npcCentre(this);   // the shot leaves the middle of the body
+      CombatFX.projectile(mouth.x, mouth.y, live.position.x, live.position.y, land, shot);
     } else land();
   }, CombatFX.FX.WINDUP_MS);
 }

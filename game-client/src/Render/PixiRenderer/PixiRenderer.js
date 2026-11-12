@@ -28,6 +28,7 @@ import PixiRendererDoinker, { boardArrowTargetAt } from './PixiRendererDoinker';
 import PixiCamera from './PixiCamera';
 import { generateTileTexture, clearTileTextureCache } from './PixiRendererTileTextures';
 import { indexWalls, wallMask, wallTexture, wallSpan, clearWallTextureCache } from './PixiRendererWalls';
+import { npcSize, npcCovers } from '../../Utils/npcFootprint';
 import { findArtAt, opaqueTopFraction } from './artHitTest';
 import { setNpcHeadTop, clearNpcHeadTop, npcOverlaySpot, onNpcHeadTopsChanged } from './npcHeadTops';
 import { loadAtlas, getAtlasTexture, resetAtlas, isAtlasLoaded } from './AtlasTextures';
@@ -1196,8 +1197,9 @@ const PixiRenderer = ({
         // Update display object position directly
         const displayObj = npcDisplayObjects.current[npcId];
         if (displayObj) {
-          displayObj.x = animation.currentPos.x * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.y = animation.currentPos.y * TILE_SIZE + TILE_SIZE / 2 - bob;
+          const off = displayObj.__off || { x: 0, y: 0 }; // a multi-tile NPC is drawn at its body's middle, not its anchor tile
+          displayObj.x = (animation.currentPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = (animation.currentPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2 - bob;
           displayObj.zIndex = actorZ(animation.currentPos.y, 0.5, animation.targetPos.y); // keeps the row it leaves until it lands (depthSort.js)
         }
         // A headline glyph (❗, Zzz, 💬: VFX/NPCVFX.js) rides above the NPC as it walks
@@ -1289,7 +1291,14 @@ const PixiRenderer = ({
         // a standing figure breathes; enemies do not (CombatFX owns their scale: hit pops, the death beat)
         if (artSpan && npc.action !== 'attack') { if (!breathersRef.current.has(npc.id)) breathersRef.current.set(npc.id, breathSeed(npc.id)); }
         else breathersRef.current.delete(npc.id);
-        const spriteSize = artSpan ? TILE_SIZE * artSpan : (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale;
+        // A multi-tile NPC (resources.json sizeX x sizeY: a 2 x 2 Phoenix; Utils/npcFootprint.js). Its
+        // `position` is the footprint's lower-left tile. Painted art (artSpan) stands on the footprint's
+        // bottom edge, centred across it; a bust or an emoji is centred on the whole footprint and
+        // drawn larger by the footprint's mean side (a placeholder until the enemy is painted).
+        const { w: bodyW, h: bodyH } = npcSize(npc);
+        const bodyScale = artSpan ? 1 : (bodyW + bodyH) / 2;
+        const off = { x: (bodyW - 1) / 2, y: artSpan ? 0 : -(bodyH - 1) / 2 };
+        const spriteSize = artSpan ? TILE_SIZE * artSpan : (emojiSized ? fontSize * EMOJI_SPRITE_SCALE : TILE_SIZE) * artScale * bodyScale;
         if (!npc.symbol && !texture) continue;
 
         const targetPos = npc.position || { x: npc.x, y: npc.y };
@@ -1321,7 +1330,7 @@ const PixiRenderer = ({
             displayObj.anchor.set(0.5, anchorY);
           } else {
             displayObj = new Text(npc.symbol, {
-              fontSize: fontSize * artScale,
+              fontSize: fontSize * artScale * bodyScale,
               fontFamily: 'sans-serif',
             });
             displayObj.resolution = 2;
@@ -1342,8 +1351,9 @@ const PixiRenderer = ({
           };
 
           // Set initial position
-          displayObj.x = targetPos.x * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.y = targetPos.y * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.__off = off;
+          displayObj.x = (targetPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = (targetPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2;
           // y-sorted from its first frame: a new sprite used to keep zIndex 0 (behind every resource)
           // until the NPC next moved, so a worker whose sprite was rebuilt while resting on its slot
           // drew behind the haybale (owner 2026-10-30)
@@ -1360,7 +1370,7 @@ const PixiRenderer = ({
           } else {
             // Update text content and style
             displayObj.text = npc.symbol;
-            displayObj.style.fontSize = fontSize;
+            displayObj.style.fontSize = fontSize * artScale * bodyScale;
           }
 
           // Check if position changed - start new animation
@@ -1382,8 +1392,9 @@ const PixiRenderer = ({
 
           // Get render position (may be mid-animation)
           const renderPos = getNPCRenderPosition(npc);
-          displayObj.x = renderPos.x * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.y = renderPos.y * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.__off = off;
+          displayObj.x = (renderPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
+          displayObj.y = (renderPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2;
           displayObj.zIndex = actorZ(renderPos.y, 0.5, npcAnimations.current[npc.id]?.targetPos?.y ?? null); // over the resources of its own row, under the row south
         }
         // Resting scale for CombatFX. Only a sprite is re-sized above (width/height reset its scale),
@@ -1413,10 +1424,13 @@ const PixiRenderer = ({
         // art starts opaqueTop of the way down from there; an emoji glyph is about its font size tall
         if (newDisplayType === 'sprite') {
           const artTop = opaqueTopFraction(appRef.current?.renderer, texture);
-          setNpcHeadTop(npc.id, 0.5 + (spriteSize * (artTop - anchorY)) / TILE_SIZE);
+          setNpcHeadTop(npc.id, 0.5 + off.y + (spriteSize * (artTop - anchorY)) / TILE_SIZE);
+          displayObj.__topAbove = spriteSize * (anchorY - artTop); // px from its position up to its head: CombatFX floats the hp bar over it
         } else {
-          setNpcHeadTop(npc.id, 0.5 - (fontSize * artScale * 0.5) / TILE_SIZE);
+          setNpcHeadTop(npc.id, 0.5 + off.y - (fontSize * artScale * bodyScale * 0.5) / TILE_SIZE);
+          displayObj.__topAbove = fontSize * artScale * bodyScale * 0.5;
         }
+        displayObj.__bodyW = bodyW;
       }
     };
 
@@ -1750,16 +1764,17 @@ const PixiRenderer = ({
       const r = getNPCRenderPosition(n);
       if (!r) continue;
       const span = Number(n.artSpan) > 0 ? Number(n.artSpan) : 0;
-      const cx = r.x + 0.5;
+      const { w: bw, h: bh } = npcSize(n); // a multi-tile NPC is hit anywhere on its body (r is its lower-left tile)
+      const cx = r.x + bw / 2;
       let hit, d;
       if (span) {
-        // the figure's square: span wide centred on the tile, from the tile's bottom edge up
-        const halfW = Math.min(span, 1.2) / 2; // a slim figure does not fill its square sideways
-        hit = Math.abs(cx - px) <= halfW && py <= r.y + 1 && py >= r.y + 1 - span;
+        // the figure's square: span wide centred on the footprint, from its bottom edge up
+        const halfW = Math.max(Math.min(span, 1.2), bw) / 2; // a slim figure does not fill its square sideways
+        hit = Math.abs(cx - px) <= halfW && py <= r.y + 1 && py >= r.y + 1 - Math.max(span, bh);
         d = Math.abs(cx - px) + Math.abs(r.y + 1 - py) * 0.1 - r.y * 0.001; // feet nearest, then the southern one
       } else {
-        const dx = Math.abs(cx - px); const dy = Math.abs(r.y + 0.5 - py);
-        hit = dx <= 0.55 && dy <= 0.55; d = dx + dy;
+        const dx = Math.abs(cx - px); const dy = Math.abs(r.y + 1 - bh / 2 - py);
+        hit = dx <= bw / 2 + 0.05 && dy <= bh / 2 + 0.05; d = dx + dy;
       }
       if (hit && d < bestD) { bestD = d; best = n; }
     }
@@ -1782,7 +1797,7 @@ const PixiRenderer = ({
     const arrowTarget = boardArrowTargetAt(event.clientX, event.clientY);
     const arrowNpc = arrowTarget?.source === 'npc'
       ? npcs?.find((n) => n && n.type === arrowTarget.targetName && n.position
-        && Math.floor(n.position.x) === arrowTarget.x && Math.floor(n.position.y) === arrowTarget.y)
+        && npcCovers(n, arrowTarget.x, arrowTarget.y))
         || npcs?.find((n) => n && n.type === arrowTarget.targetName)
       : null;
     const arrowResource = arrowTarget?.source === 'resource' && !cursorMode
@@ -1843,8 +1858,7 @@ const PixiRenderer = ({
     // an NPC whose row says noClick (Peter Quince, the Oracle's woodcutter) is scenery: the tap goes through
     const npc = arrowNpc || (arrowResource ? null : findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top)) || (!arrowResource && npcs?.find(n =>
       n && n.position && !masterResources?.find((m) => m.type === n.type)?.noClick &&
-      Math.floor(n.position.x) === col &&
-      Math.floor(n.position.y) === row
+      npcCovers(n, col, row)
     ));
 
     if (npc) {
@@ -1965,8 +1979,7 @@ const PixiRenderer = ({
     const hostile = findHostileAtScreen(event.clientX - rect.left, event.clientY - rect.top);
     const npc = hostile || findNpcAtScreen(event.clientX - rect.left, event.clientY - rect.top) || npcs?.find(n =>
       n && n.position &&
-      Math.floor(n.position.x) === col &&
-      Math.floor(n.position.y) === row
+      npcCovers(n, col, row)
     );
 
     if (npc) {
@@ -2010,7 +2023,7 @@ const PixiRenderer = ({
     const rect = containerRef.current.getBoundingClientRect();
     const { row, col } = PixiCamera.screenToTile(clientX - rect.left, clientY - rect.top);
     if (row < 0 || row >= TILES_PER_GRID || col < 0 || col >= TILES_PER_GRID) return false;
-    const npc = findNpcAtScreen(clientX - rect.left, clientY - rect.top) || npcs?.find(n => n && n.position && Math.floor(n.position.x) === col && Math.floor(n.position.y) === row);
+    const npc = findNpcAtScreen(clientX - rect.left, clientY - rect.top) || npcs?.find(n => n && n.position && npcCovers(n, col, row));
     const tooltipPosition = calculateTooltipPosition(clientX, clientY);
     if (npc) {
       setHoverTooltip({ x: tooltipPosition.x, y: tooltipPosition.y, content: generateNPCTooltip(npc, strings) });

@@ -11555,6 +11555,8 @@
     "type": "Phoenix",
     "symbol": "🐦‍🔥",
     "layoutkey": "pH",
+    "sizeX": 2,
+    "sizeY": 2,
     "category": "npc",
     "artFacing": "left",
     "movespeed": 1.5,

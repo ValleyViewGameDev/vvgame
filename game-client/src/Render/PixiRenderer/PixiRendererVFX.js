@@ -1,5 +1,6 @@
 // @refresh reset
 // ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
+import { npcCentre } from '../../Utils/npcFootprint';
 import { useEffect, useRef, useCallback } from 'react';
 import { Graphics, Container } from 'pixi.js-legacy';
 import { getDerivedRange } from '../../Utils/worldHelpers';
@@ -261,10 +262,10 @@ const PixiRendererVFX = ({
       for (const npc of attackNPCs) {
         // Use interpolated render position for smooth animation (from parent's npcAnimations)
         const renderPos = getNPCRenderPosition ? getNPCRenderPosition(npc) : (npc.position || { x: npc.x, y: npc.y });
-        const posX = renderPos?.x;
-        const posY = renderPos?.y;
-
-        if (posX === undefined || posY === undefined) continue;
+        if (renderPos?.x === undefined || renderPos?.y === undefined) continue;
+        const mid = npcCentre(npc, renderPos); // the range ring is drawn round the middle of the body
+        const posX = mid.x;
+        const posY = mid.y;
 
         // Apply grid offset for settlement zoom
         const centerX = gridOffset.x + (posX + 0.5) * TILE_SIZE;

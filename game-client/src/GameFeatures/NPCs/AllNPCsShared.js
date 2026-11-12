@@ -1,6 +1,8 @@
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import { findPath } from '../../Utils/Pathfinding';
+import { findPath, findPathToAny } from '../../Utils/Pathfinding';
+import { npcCells, npcReach, anchorsBeside, isMultiTileNpc } from '../../Utils/npcFootprint';
+import { npcFitsAt } from './npcGround';
 import { calculateDistance } from '../../Utils/worldHelpers';
 import { attachGrazingBehavior } from './NPCGrazeBehavior';
 import { attachQuestBehavior } from './NPCQuestBehavior';
@@ -10,7 +12,6 @@ import { attachSpawnBehavior } from './NPCSpawnerBehavior';
 import { attachFarmerBehavior } from './NPCWorkerBehavior';
 import { attachCitizenBehavior } from './NPCCitizenBehavior';
 import { attachTraderBehavior } from './NPCTraderBehavior';
-import { getMasterResources, getGlobalTuning } from '../../Utils/TuningManager';
 
 const DIRECTION_DELTAS = {
   N: { x: 0, y: -1 },
@@ -30,32 +31,7 @@ function passable_(goal, tiles, resources) {
   return !(res && res.passable === false);
 }
 
-// Ground a player can walk on: the tile rows marked passable in resources.json (water is not).
-// Built once, after the master resources load.
-let footTiles = null;
-function playerCanWalkOn(tileType) {
-  if (!footTiles) {
-    const rows = getMasterResources();
-    if (!rows?.length) return false;
-    footTiles = new Set(rows.filter((r) => r.category === 'tile' && r.passable).map((r) => r.type));
-  }
-  return footTiles.has(tileType);
-}
-
-/**
- * May this NPC stand on a tile of this type? Its own validon<tile> flag says yes; and an Enemy
- * (action 'attack') also goes wherever a player on foot can, so no tile is a safe spot to fight
- * from (BL-4: roads were). Ground that hurts (globalTuning.tileHazards: lava) stays its own call:
- * only an enemy flagged for it goes there (Demon, Dragon, Phoenix, Ghost). The validon flags
- * still decide where an enemy is PLACED (grid creation, the editor); this is only where it walks.
- */
-function npcCanStandOn(npc, tileType) {
-  if (npc[`validon${tileType}`] === true) return true;
-  if (npc.action !== 'attack') return false;
-  const hazards = getGlobalTuning()?.tileHazards || { l: true };
-  if (hazards[tileType]) return false;
-  return playerCanWalkOn(tileType);
-}
+// What ground an NPC may stand on, and whether its whole body fits somewhere: ./npcGround.js
 
 // Small stable hash for per-NPC jitter (ids are timestamps or ObjectIds)
 function hashId(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return Math.abs(h >>> 0); }
@@ -378,15 +354,20 @@ async moveOneTile(direction, tiles, resources, npcs) {
 followPath(x, y, tiles, resources, npcs, { stopShort = false } = {}) {
   const here = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
   const goal = { x: Math.floor(x), y: Math.floor(y) };
-  const adjacentDone = stopShort && Math.max(Math.abs(here.x - goal.x), Math.abs(here.y - goal.y)) <= 1;
+  // beside the goal = the BODY touches it (a 2 x 2 enemy's anchor can be two tiles from the player it stands against)
+  const big = isMultiTileNpc(this);
+  const beside = () => npcReach(this, goal, here) <= 1;
+  const adjacentDone = stopShort && beside();
   if ((here.x === goal.x && here.y === goal.y) || adjacentDone) { this.path = null; return 'arrived'; }
   const plan = () => {
     // Passability is the NPC's own: its tiles (npcCanStandOn) and impassable resources
     // (terrainOpen), never the player's tile, never another NPC's tile
+    // (asked about an ANCHOR: every tile of the body there must be open: npcGround.npcFitsAt)
     const me = playersInGridManager.getLocalRecord?.()?.position;
-    const open = (px, py) => this.terrainOpen(px, py, tiles, resources) && !(me && Math.round(me.x) === px && Math.round(me.y) === py)
-      && !npcs.some((n) => n && n.id !== this.id && n.action !== 'spawn' && Math.floor(n.position?.x) === px && Math.floor(n.position?.y) === py);
-    const path = findPath(here, goal, open, { stopShort });
+    const open = (px, py) => npcFitsAt(this, px, py, tiles, resources, npcs, me);
+    // A multi-tile NPC walking up to something ends on any anchor where its body touches it; the
+    // eight neighbours findPath would offer are the wrong set (half of them put the body ON the goal)
+    const path = big && stopShort ? findPathToAny(here, goal, anchorsBeside(this, goal.x, goal.y), open) : findPath(here, goal, open, { stopShort });
     this.path = { goal, steps: path, replans: (this.path?.goal?.x === goal.x && this.path?.goal?.y === goal.y) ? (this.path.replans || 0) + 1 : 0 };
     return path;
   };
@@ -394,7 +375,7 @@ followPath(x, y, tiles, resources, npcs, { stopShort = false } = {}) {
     if (this.path && (this.path.replans || 0) >= 3) { this.path = null; return 'blocked'; }
     if (!plan().length) {
       // already next to a blocked goal counts as arrived; otherwise unreachable
-      if (Math.max(Math.abs(here.x - goal.x), Math.abs(here.y - goal.y)) <= 1) { this.path = null; return 'arrived'; }
+      if (beside()) { this.path = null; return 'arrived'; }
       return (this.path?.replans || 0) >= 3 ? 'blocked' : 'moving';
     }
   }
@@ -427,81 +408,30 @@ getAdjacentTile(direction) {
 
 // Its own ground: the tiles its validon<tile> flags name, where it is placed and where an
 // Enemy settles (it may chase a player beyond them, npcCanStandOn).
+// (the whole body: a 2 x 2 enemy is home only where all four tiles are its ground)
 isHomeGround(x, y, tiles) {
-  const t = tiles?.[Math.floor(y)]?.[Math.floor(x)];
-  return !!t && this[`validon${t}`] === true;
+  return npcCells(this, { x, y }).every((c) => { const t = tiles?.[c.y]?.[c.x]; return !!t && this[`validon${t}`] === true; });
 }
 
 // Terrain + resources only (no NPC / player checks): what an A* route may cross. An NPC on a
 // story errand (`passDoors`, e.g. Feste walking to the Queen) goes through doors as a resident would.
+// Asked about an ANCHOR tile: every tile of the body there must be open.
 terrainOpen(x, y, tiles, resources) {
-  if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) return false;
-  if (!npcCanStandOn(this, tiles[y][x])) return false;
-  const res = resources.find((r) => r.x === x && r.y === y);
-  return !(res && !res.passable && !(this.passDoors && res.action === 'door'));
+  return npcFitsAt(this, Math.floor(x), Math.floor(y), tiles, resources, null, null);
 }
 
+/**
+ * May the NPC stand with its anchor at (x, y)? Asked before every step. No part of its footprint
+ * may make an illegal move (owner 2026-11-11): EVERY tile of the body there must be on the grid,
+ * ground it may stand on (npcCanStandOn), free of an impassable resource, of the player, and of
+ * every other NPC's body (farm animals included: no stacking; spawners are passable, BL-19).
+ * The same rules as the player otherwise: a diagonal step only needs its target open.
+ */
 isValidTile(x, y, tiles, resources, npcs) {
-
-    // Round x and y to ensure valid integer indices
-    x = Math.floor(x);
-    y = Math.floor(y);
-
-  // Check if tiles data is valid
-  if (!tiles || !Array.isArray(tiles)) {
-    //console.error('isValidTile; Tiles data is invalid.');
-    return false;
-  }
-  if (!resources || !Array.isArray(resources)) {
-    //console.error('isValidTile; Resources data is invalid or missing.');
-    return false;
-}
-  // Check if tile is out of bounds
-  if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) {
-    //console.error(`Tile (${x}, ${y}) is out of bounds.`);
-    return false;
-  } else {
-    //console.log(`Tile (${x}, ${y}) is in bounds.`);
-  }
-
-    // **Step 1: Check if NPC is allowed to step on this tile type**
-    const tileType = tiles[y][x]; // Get the tile type at x, y
-    //console.log(`Checking tileType: ${tileType} for NPC ${this.id}`);
-  
-    // Its validon<tile> flags; an Enemy also goes wherever a player on foot can (npcCanStandOn)
-    const canWalkOnTile = npcCanStandOn(this, tileType);
-  
-    if (!canWalkOnTile) {
-    //   console.warn(`NPC ${this.id} cannot step on tile type "${tileType}".`);
-      return false;
-    }
-  
-    // **Step 2: Check if there's an impassable resource in this tile**
-    const resourceInTile = resources.find((res) => res.x === x && res.y === y);
-    if (resourceInTile) {
-  
-      if (!resourceInTile.passable && !(this.passDoors && resourceInTile.action === 'door')) {
-        //console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
-        return false;
-      }
-    }
-  
-  // **Step 3: the same rules as the player (keyboard and Utils/Pathfinding.js)**
-  // A diagonal step only needs its target tile open: it may slip between two trees.
-  // Never onto the player's tile
+  if (!tiles || !Array.isArray(tiles)) return false;
+  if (!resources || !Array.isArray(resources)) return false;
   const me = playersInGridManager.getLocalRecord?.()?.position;
-  if (me && Math.round(me.x) === x && Math.round(me.y) === y) return false;
-
-  // Ensure npcs is an array before calling .some()
-  if (!Array.isArray(npcs)) {
-    return true;
-  }
-
-  // Never onto another NPC's tile (farm animals included: no stacking); spawners are passable (BL-19)
-  const npcInTile = npcs.find(npc => npc.action !== 'spawn' && Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y && npc.id !== this.id);
-  if (npcInTile) return false;
-
-  return true;
+  return npcFitsAt(this, Math.floor(x), Math.floor(y), tiles, resources, Array.isArray(npcs) ? npcs : null, me);
 }
 
 

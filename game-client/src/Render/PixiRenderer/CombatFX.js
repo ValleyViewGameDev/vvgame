@@ -574,8 +574,10 @@ function tickHpBars(now) {
       continue;
     }
     const alpha = age < FX.HP_BAR_LINGER_MS ? 1 : 1 - (age - FX.HP_BAR_LINGER_MS) / FX.HP_BAR_FADE_MS;
-    const w = TILE * 0.9; const h = 4;
-    const x = obj.x - w / 2; const y = obj.y - TILE * 0.62;
+    // over the enemy's head, as wide as its body: a figure or a multi-tile enemy stands taller than the old
+    // fixed 0.62 of a tile (the renderer records `__topAbove`, the px from its position to its head, and `__bodyW`)
+    const w = TILE * 0.9 * Math.max(1, obj.__bodyW || 1); const h = 4;
+    const x = obj.x - w / 2; const y = obj.y - Math.max(TILE * 0.62, (obj.__topAbove || 0) + TILE * 0.12);
     const frac = Math.max(0, Math.min(1, entry.hp / entry.maxhp));
     const g = entry.bar;
     g.clear();
