@@ -105,7 +105,9 @@ function listResourceSources() {
   for (const r of list) {
     const size = Math.max(1, Math.min(5, Number(r.sizeX) || Number(r.size) || 1, Number(r.sizeY) || Number(r.size) || 1)); // a rectangle takes its larger side's slot (BL-21)
     // a doober whose art is taller than its tile (the fruit trees' ready state: Apple = tree-apple.svg at artSpan 1.73) keeps the full slot
-    const cell = (r.category === 'doober' || r.category === 'farmplot') && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(size);
+    // a painted NPC far taller than its footprint (the Ogre: 1 x 2 tiles, artSpan 2.7) takes the 512 slot, or it is soft at the closer zoom
+    const tallNpc = r.category === 'npc' && Number(r.artSpan) >= 2.4;
+    const cell = (r.category === 'doober' || r.category === 'farmplot') && size === 1 && !(Number(r.artSpan) > 1) ? DOOBER_CELL : slotForSize(tallNpc ? Math.max(size, 2) : size);
     // the row's file plus its cosmetic variants (`artVariants`: "file=weight;file=weight", Utils/artVariants.js)
     // (and its blink frame: `blinkFile`, the same figure with the eyes closed, tools/art/parts.js blink)
     const files = [r.filename, r.blinkFile, ...String(r.artVariants || '').split(';').map((p) => p.split('=')[0].trim())].filter(Boolean);

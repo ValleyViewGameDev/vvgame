@@ -1,5 +1,6 @@
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { findPath, findPathToAny } from '../../Utils/Pathfinding';
 import { npcCells, npcReach, anchorsBeside, isMultiTileNpc } from '../../Utils/npcFootprint';
 import { npcFitsAt } from './npcGround';
@@ -105,8 +106,36 @@ update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
   // Own clock: nothing until the next step is due (moveOneTile pushes it out for diagonals)
   if (currentTime < (this.nextUpdateAt || 0)) return;
   this.nextUpdateAt = currentTime + this.stepMs;
+  if (!this.bodySettled && isMultiTileNpc(this)) this.settleBody(gridId);
   this.processState(NPCsInGrid, gridId, TILE_SIZE);
   this.lastUpdated = currentTime;
+}
+
+/**
+ * A multi-tile NPC that starts where its body does not fit moves to the nearest anchor where it
+ * does, once, before its first step (owner 2026-11-12: the Demon became 2 x 2 and the Ogre 1 x 2
+ * after hundreds of them were placed as one tile, in layouts and in grids already saved: against
+ * a wall, or two Ogres one above the other). Within three tiles, the nearest first; if there is
+ * no room it stays, and the step rules still refuse every illegal move from there.
+ */
+settleBody(gridId) {
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  if (!tiles?.length || !this.position) return; // the grid is not loaded yet: ask again next step
+  this.bodySettled = true;
+  const resources = GlobalGridStateTilesAndResources.getResources() || [];
+  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId || this.gridId) || {});
+  const me = playersInGridManager.getLocalRecord?.()?.position || null;
+  const at = { x: Math.floor(this.position.x), y: Math.floor(this.position.y) };
+  if (npcFitsAt(this, at.x, at.y, tiles, resources, npcs, null)) return;
+  const spots = [];
+  for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (dx || dy) spots.push({ x: at.x + dx, y: at.y + dy, d: dx * dx + dy * dy });
+  spots.sort((a, b) => a.d - b.d);
+  const spot = spots.find((t) => npcFitsAt(this, t.x, t.y, tiles, resources, npcs, me));
+  if (!spot) return;
+  this.position.x = spot.x;
+  this.position.y = spot.y;
+  this.path = null;
+  NPCsInGridManager.updateNPCPosition(this.gridId, this.id, { x: spot.x, y: spot.y });
 }
 
 async processState(NPCsInGrid, gridId, TILE_SIZE) {

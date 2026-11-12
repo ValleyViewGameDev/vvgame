@@ -154,14 +154,19 @@ with a head crop in `iconFile` (`npc-head-<name>.svg`); the Great Bear and the P
 still emoji. **Second round, same day** (`enemies-r2`, `enemies-r3`, one candidate each): the Spider was
 redrawn from a higher three-quarter camera, like the buildings and deco, so its back is seen,
 and is installed (`npc-enemy-spider.svg`, `artSpan 1.5`, its icon the whole spider); the Zombie
-was revised (both feet bare, the head held straight) and replaces the first. The Demon is still
-open: r2 (empty hands, arms at its sides) came out chubby; r3 is a new design, a floating
-half-bat with open wings, a small bat's lower body with little dangling legs, a fit upper body,
-arms crossed like a genie, tattoos, tall ridged lyre horns and a braided beard
-(`_candidates/enemies-r3/review.jpg`), awaiting the owner's word; not installed (it needs a
-footprint and a hover height). Rules so far: an enemy never holds an object (it makes trouble
-for animation later). Still to draw after the style is settled: Coyote, Ogre, Cerberus, Dragon,
-Phoenix, the two other bears.
+was revised (both feet bare, the head held straight) and replaces the first. The Demon went through
+three designs: r2 (empty hands, arms at its sides) came out chubby; r3 is the owner's new design
+and is **installed at 2 x 2**: a floating half-bat with open wings, a small bat's lower body with
+little dangling legs, a fit upper body, arms crossed like a genie, tattoos, tall ridged lyre horns
+and a braided beard; its square (`artSpan 2.8`) carries a ground shadow with the figure lifted
+0.3 tile above it. **The Ogre and the Coyote** (`enemies-r4`, one candidate each) are installed:
+the Ogre 1 x 2 (one wide, two deep), `artSpan 2.7` (half as tall again as the Zombie), painted
+less cartoon than the others on the owner's word (a small head, no doll proportion), skin a
+sallow olive; the Coyote 1 x 1, four-legged, facing the viewer from a little above. Because
+hundreds of Demons and Ogres were placed as one tile (layouts and saved grids), a multi-tile
+NPC whose body does not fit where it starts moves once to the nearest anchor where it does
+(`AllNPCsShared.settleBody`). A painted NPC with `artSpan` 2.4 or more takes the 512 px atlas
+slot. Rules so far: an enemy never holds an object (it makes trouble for animation later). Still to draw: Cerberus, Dragon, Phoenix, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.

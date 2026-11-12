@@ -11125,7 +11125,7 @@
     "symbol": "🐺",
     "layoutkey": "nC",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 2.2,
     "action": "attack",
     "output": "Pelt",
@@ -11153,7 +11153,10 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "attackinterval": 1
+    "attackinterval": 1,
+    "filename": "npc-enemy-coyote.svg",
+    "iconFile": "npc-head-coyote.svg",
+    "artSpan": 1.2
   },
   {
     "type": "Bear",
@@ -11383,8 +11386,10 @@
     "type": "Ogre",
     "symbol": "👹",
     "layoutkey": "nO",
+    "sizeX": 1,
+    "sizeY": 2,
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.7,
     "action": "attack",
     "output": "Magic Mushroom",
@@ -11414,14 +11419,19 @@
     "validonu": true,
     "projectile": "none",
     "leapcooldown": 5,
-    "attackinterval": 2.4
+    "attackinterval": 2.4,
+    "filename": "npc-enemy-ogre.svg",
+    "iconFile": "npc-head-ogre.svg",
+    "artSpan": 2.7
   },
   {
     "type": "Demon",
     "symbol": "👿",
     "layoutkey": "nD",
+    "sizeX": 2,
+    "sizeY": 2,
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1,
     "action": "attack",
     "output": "Scorpion",
@@ -11450,7 +11460,10 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball-small",
-    "attackinterval": 1.8
+    "attackinterval": 1.8,
+    "filename": "npc-enemy-demon.svg",
+    "iconFile": "npc-head-demon.svg",
+    "artSpan": 2.8
   },
   {
     "type": "Cerberus",

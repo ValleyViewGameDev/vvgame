@@ -220,3 +220,37 @@ describe('the player and a 2 x 2 enemy', () => {
     expect(npcReach(npc, end)).toBe(1);
   });
 });
+
+describe('a multi-tile enemy placed where its body does not fit', () => {
+  test('a 2 x 2 placed against a wall settles on the nearest anchor where all four tiles are open', () => {
+    const map = world([
+      '########',
+      '#......#',
+      '#......#',
+      '#......#',
+      '########',
+    ]);
+    const demon = enemy('d1', 1, 1, { sizeX: 2, sizeY: 2 }); // its top row would be in the wall
+    mockWorld.npcs = { d1: demon };
+    mockWorld.player.position = { x: 6, y: 3 };
+    demon.settleBody('g1');
+    expectLegal(demon, map);
+    expect(Math.max(Math.abs(demon.position.x - 1), Math.abs(demon.position.y - 1))).toBe(1);
+  });
+  test('two 1 x 2 enemies placed one above the other move apart; one that fits stays where it is', () => {
+    const map = world([
+      '......',
+      '......',
+      '......',
+      '......',
+    ]);
+    const a = enemy('a', 2, 2, { sizeX: 1, sizeY: 2 });
+    const b = enemy('b', 2, 3, { sizeX: 1, sizeY: 2 }); // b's upper tile is a's anchor
+    const c = enemy('c', 5, 3, { sizeX: 1, sizeY: 2 });
+    mockWorld.npcs = { a, b, c };
+    mockWorld.player.position = { x: 0, y: 0 };
+    for (const n of [a, b, c]) n.settleBody('g1');
+    for (const n of [a, b, c]) expectLegal(n, map);
+    expect(c.position).toEqual({ x: 5, y: 3 });
+  });
+});

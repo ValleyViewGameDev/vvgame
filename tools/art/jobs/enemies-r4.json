@@ -1,0 +1,41 @@
+{
+  "name": "enemies-r4",
+  "note": "BL-17, owner 2026-11-12: the Ogre and the Coyote, one candidate each. Ogre: 1 x 2, about half as tall again as the Zombie, 'don't get too cartoony', skin only slightly green; the owner's three inspiration photographs are refs (_candidates/enemies-r4/refs, not committed), to be taken as an idea and not copied; it holds nothing (the enemies' rule). Coyote: 1 x 1, four-legged, facing the viewer from a little above.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "ogre": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-zombie.png",
+        "_candidates/enemies-r4/refs/ogre-a.webp",
+        "_candidates/enemies-r4/refs/ogre-b.webp",
+        "_candidates/enemies-r4/refs/ogre-head.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). STYLE REFERENCES: the attached farm man and the attached ZOMBIE on magenta are an approved character and an approved enemy of this game; the new creature must sit beside them on the same board and look painted by the same hand: the same soft painted rendering, soft outlines and clean flat-ish colour. TONE, important: this one is LESS CARTOON than they are. NOT the doll proportion: a SMALL head on a huge body (the head about a sixth of its whole height), small deep-set eyes (no big round eyes), no goofy grin, no comic expression. A grim, heavy, dangerous brute with real weight, painted with a little more modelling of form than the people have; but still a painting for a storybook game, never a photograph, never gory: no blood, no wounds, no stitches. INSPIRATION, not to be copied: the three attached photographs of ogres (two whole figures, one head) show the KIND of creature wanted: the mass, the sloping shoulders, the heavy brow, the underbite with short lower tusks, the pointed ears, the wrapped forearms and the ragged cloth. Take the idea from all three and copy none of them exactly; draw a new ogre of your own in this game's painted style. VIEW, the rule for every enemy: FRONT-FACING, like the player characters: upright and facing the viewer, the body square-ish to the viewer with a FAINT three-quarter turn, the head and the eyes turned a little toward the viewer's RIGHT, standing on ONE flat ground line, left and right sides roughly symmetrical. SUBJECT: an OGRE: enormous and thick: massive sloping shoulders, a thick neck, a broad chest over a big hard belly, long heavy arms, short thick legs. HEAD: bald on top with a rough strip of dark hair at the back, a heavy brow ridge, small angry eyes, a broad flat nose, a wide jaw with an underbite and two short blunt tusks rising from the lower lip, pointed ears. SKIN: a dull sallow olive: flesh first and green second, only SLIGHTLY green, greyish and muted; never bright green, never lime, never a cartoon green. ARMS: BOTH arms hang DOWN at its sides, a little away from the body, the big hands open and EMPTY: it holds NOTHING, no club, no weapon, no object. DRESS: bare-chested; a ragged dark brown cloth kilt hanging to the knees under a wide worn leather belt with a plain iron ring buckle; dark leather wrappings round both forearms; cloth wrappings round the shins; huge bare feet with thick toes, planted wide. Keep it at the game's scale: it is seen about 60 pixels wide on the board, so big plain shapes, a strong silhouette, no fine detail, no small accessories. COLOUR: muted earth colours; never pink, never magenta, never purple anywhere on it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom); the reference character stands in that box with its head in the headroom. ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw it standing on the box's bottom edge and MUCH bigger than the reference character: about one and a half times as tall and twice as broad, its feet on the box's bottom edge, its head near the top of the headroom; it may spill past the box's sides. A soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    },
+    "coyote": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-bear.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). STYLE REFERENCE, the most important image: the attached farm man on magenta is an APPROVED character of this game. The new creature must look drawn by the same hand on the same day, for the same storybook: the same chunky doll proportion (a big head, large expressive eyes, a short thick body, small feet), the same soft rendering; never realistic, never anatomical, never gory. THIS IS AN ENEMY the player fights: menacing in a storybook way (a scowl, bared teeth, a glare), but still charming and readable, something a child would call a monster and not be frightened by; no blood, no wounds. VIEW, for this four-legged creature: it stands on all FOUR legs FACING THE VIEWER, seen from the front and a little from above (the game's camera for its furniture, as on the attached BEAR's ground line): the head and chest toward the viewer at the bottom of the picture, the body turned a FAINT three-quarter so that its back, one flank and its tail are seen behind and above the head, toward the viewer's left; the head and eyes turned a little toward the viewer's RIGHT; all four paws on ONE flat ground plane, the two front legs both clearly seen. Never a side view. The attached brown BEAR is an approved enemy of this game: the coyote must look painted by the same hand. SUBJECT: a COYOTE, lean and scruffy, about waist-high to the reference character: sandy grey-tan fur with a paler cream throat, chest and muzzle, a darker grey saddle along the back, big upright pointed ears, a long narrow muzzle wrinkled in a snarl showing white fangs, narrow yellow eyes, the head held LOW between the shoulders and the hackles raised, a bushy tail with a black tip held low behind. Wild and hungry, not a pet dog and not a wolf. Keep it at the game's scale: it is seen about 45 pixels wide on the board, so big plain shapes, a strong silhouette, flat areas of colour, no fine detail, no collar, no accessories. COLOUR: bright and saturated; never pink, never magenta, never purple anywhere on it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom); the reference character stands in that box with its head in the headroom. ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw it standing in the box, its paws inside the box and the front paws near the box's bottom edge: about HALF as tall as the reference character and nearly as wide as the box; the headroom stays empty. A soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    }
+  }
+}
