@@ -220,16 +220,13 @@ callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.
 Carried over from BL-17 when it closed (2026-11-12); listed by the owner 2026-11-10 so they are
 not lost. Equipment on the figure is BL-23.
 - The last readers of the old `icon` emoji, then `PlayerIcons.json`, `playerIcons/` and the
-  `icon` field can go (the plan's slice D). No other player is ever drawn on the board (the
-  single-player refactor draws only the local player). Where another player has a picture at
-  all, it is already the saved avatar's head, with the old `icon` emoji as the fallback for a
-  player who never saved a look: the Leaderboard rows and the Global Market's two lists
-  (`AvatarFace` in `Leaderboard.js`, `GlobalMarketModal.js`). What is left: draw the default
-  look's head there instead of the emoji, and replace the local player's own `icon` on the
-  settlement map's "you are here" cell (`PixiRendererFrontierSettlements.js`) and in the board's
-  fallback (`PixiRendererPCs.js getDisplayIcon`). Chat, the Courthouse, the season lists and the
-  Carnival show names only. No record needs rewriting: a player without a look is drawn in the
-  default one.
+  `icon` field can go (the plan's slice D). Other players are done (owner, verified 2026-11-12):
+  none is ever drawn on the board, and the Leaderboard and the Global Market show the saved
+  avatars' heads. What is left is the LOCAL player's own `icon`: the settlement map's "you are
+  here" cell (`PixiRendererFrontierSettlements.js`) and the board's fallback
+  (`PixiRendererPCs.js getDisplayIcon`), plus the emoji those two lists fall back to for a
+  player who never saved a look. No record needs rewriting: a player without a look is drawn in
+  the default one.
 - Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
   owner found the tones a little strong).
 - Arm swing is muted (the art has no separate arms; see the plan).
