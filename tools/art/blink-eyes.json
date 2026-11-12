@@ -1,5 +1,5 @@
 {
-  "note": "Hand-placed eye centres for tools/art/parts.js blink, in figure-square pixels (512 px), for the figures whose eyes the finders miss or misplace (small or deep-set eyes, a hood, a helmet, a robe full of buttons). Read off a gridded head sheet. `eyes`: one or two [x, y] centres; `gap`: the distance between the eyes when only one is given (Falstaff's other eye is under a patch); `scale`: multiplies the lid ellipse (small eyes).",
+  "note": "Hand-placed eye centres for tools/art/parts.js blink, in figure-square pixels (512 px), for the figures whose eyes the finders miss or misplace (small or deep-set eyes, a hood, a helmet, a robe full of buttons). Read off a gridded head sheet. `eyes`: one or two [x, y] centres; `gap`: the distance between the eyes when only one is given (Falstaff's other eye is under a patch); `scale`: multiplies the lid ellipse (small eyes). `cheek`: [x, y], where this face's bare skin is sampled when what lies under the eye is not skin (Falstaff's moustache). `keepRings`: [[cx, cy, r], ...], spectacle rims that cross the eyes and are drawn back over the lid (the Doctor).",
   "hecate": {
     "eyes": [
       [
@@ -53,11 +53,16 @@
   "falstaff": {
     "eyes": [
       [
-        242,
+        238,
         124
       ]
     ],
-    "gap": 66
+    "gap": 66,
+    "scale": 0.8,
+    "cheek": [
+      236,
+      143
+    ]
   },
   "hotspur": {
     "eyes": [
@@ -142,6 +147,30 @@
       [
         290,
         86
+      ]
+    ]
+  },
+  "doctor": {
+    "eyes": [
+      [
+        243,
+        107
+      ],
+      [
+        295,
+        108
+      ]
+    ],
+    "keepRings": [
+      [
+        256.5,
+        122.5,
+        8.5
+      ],
+      [
+        291,
+        123,
+        8
       ]
     ]
   }

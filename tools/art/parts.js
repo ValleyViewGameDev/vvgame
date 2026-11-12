@@ -901,7 +901,17 @@ function blinkFrame(img, override = null) {
       const v = Math.max(d[i], d[i + 1], d[i + 2]) / 255; if (v < 0.3) continue;
       cr.push(d[i]); cg.push(d[i + 1]); cb.push(d[i + 2]);
     }
-    const cheek = cr.length >= 8 ? med3(cr, cg, cb) : null;
+    let cheek = cr.length >= 8 ? med3(cr, cg, cb) : null;
+    // `cheek: [x, y]` in blink-eyes.json: where THIS face's bare skin is, when what lies under the
+    // eye is not skin (Falstaff: his moustache starts there, and the lid was painted moustache brown)
+    if (override && override.cheek) {
+      cr = []; cg = []; cb = [];
+      for (let y = override.cheek[1] - 3; y <= override.cheek[1] + 3; y++) for (let x = override.cheek[0] - 3; x <= override.cheek[0] + 3; x++) {
+        if (x < 0 || y < 0 || x >= W || y >= H) continue; const i = at(x, y); if (d[i + 3] < 200) continue;
+        cr.push(d[i]); cg.push(d[i + 1]); cb.push(d[i + 2]);
+      }
+      if (cr.length >= 8) cheek = med3(cr, cg, cb);
+    }
     if (!cheek) continue;
     cr = []; cg = []; cb = [];
     for (let y = Math.floor(e.y - ry * 1.6); y <= e.y + ry * 1.6; y++) for (let x = Math.floor(e.x - rx * 1.6); x <= e.x + rx * 1.6; x++) {
@@ -938,6 +948,19 @@ function blinkFrame(img, override = null) {
       for (let c = 0; c < 3; c++) out.d[i + c] = Math.round(out.d[i + c] * (1 - a) + lash[c] * a);
     }
     report.push({ x: Math.round(e.x), y: Math.round(e.y) });
+  }
+  // `keepRings: [[cx, cy, r], ...]` in blink-eyes.json: spectacle rims that cross the eyes (the
+  // Doctor). The lid is painted UNDER them: every pixel on a ring is put back as it was drawn,
+  // except the white of the eye showing beside the rim, so the glasses stay whole through a blink.
+  for (const [cx, cy, r] of (override && override.keepRings) || []) {
+    for (let y = Math.floor(cy - r - 3); y <= cy + r + 3; y++) for (let x = Math.floor(cx - r - 3); x <= cx + r + 3; x++) {
+      if (x < 0 || y < 0 || x >= W || y >= H) continue;
+      const off = Math.abs(Math.hypot(x - cx, y - cy) - r); if (off > 2.4) continue;
+      const i = at(x, y); if (d[i + 3] < 200) continue;
+      const [, sat] = hsv(d[i], d[i + 1], d[i + 2]); if (sat < 0.4) continue; // the white of the eye
+      const a = off <= 1.5 ? 1 : (2.4 - off) / 0.9;
+      for (let c = 0; c < 3; c++) out.d[i + c] = Math.round(out.d[i + c] * (1 - a) + d[i + c] * a);
+    }
   }
   console.log(JSON.stringify({ eyes: report, rx: +rx.toFixed(1), ry: +ry.toFixed(1), by: override ? 'override' : 'found' }));
   return report.length === eyes.length ? out : null;

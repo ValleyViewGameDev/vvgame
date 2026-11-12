@@ -535,7 +535,10 @@ every figure whatever its tone (Portia, the Oracle's blue, Caliban's green), and
 faces' lids LAYER (`--layer`) takes the skin tint exactly as the face does. Eyes are found
 automatically for 22 of 34 NPC figures; `tools/art/blink-eyes.json` places the other twelve
 (and the farm man) by hand. Rows carry `blinkFile`, player icons `blinkFilename`; the tickers
-swap textures.
+swap textures. Two more hand fields in that file (2026-11-12): `cheek`, where a face's bare skin
+is sampled when what lies under the eye is not skin (Falstaff: his moustache starts there and
+his lid was painted moustache brown), and `keepRings`, spectacle rims that cross the eyes and
+are drawn back over the lid (the Doctor's glasses were partly painted over).
 
 **The board draws the saved avatar (2026-11-10).** `PixiRendererPCs` composes `player.avatar`
 (`lookFor` + `renderLook` at 512 px, the parts' own square) into two Pixi textures, eyes open

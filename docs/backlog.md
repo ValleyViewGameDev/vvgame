@@ -219,12 +219,19 @@ callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.
 
 Carried over from BL-17 when it closed (2026-11-12); listed by the owner 2026-11-10 so they are
 not lost. Equipment on the figure is BL-23.
-- Other players' figures on the board, and anything else that still reads `icon` for another
-  player; then `PlayerIcons.json`, `playerIcons/` and the `icon` field can go (the plan's
-  slice D). No record needs rewriting: a player without a look is drawn in the default one.
+- The last readers of the old `icon` emoji, then `PlayerIcons.json`, `playerIcons/` and the
+  `icon` field can go (the plan's slice D). No other player is ever drawn on the board (the
+  single-player refactor draws only the local player). Where another player has a picture at
+  all, it is already the saved avatar's head, with the old `icon` emoji as the fallback for a
+  player who never saved a look: the Leaderboard rows and the Global Market's two lists
+  (`AvatarFace` in `Leaderboard.js`, `GlobalMarketModal.js`). What is left: draw the default
+  look's head there instead of the emoji, and replace the local player's own `icon` on the
+  settlement map's "you are here" cell (`PixiRendererFrontierSettlements.js`) and in the board's
+  fallback (`PixiRendererPCs.js getDisplayIcon`). Chat, the Courthouse, the season lists and the
+  Carnival show names only. No record needs rewriting: a player without a look is drawn in the
+  default one.
 - Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
   owner found the tones a little strong).
-- The Doctor's glasses are partly painted over when he blinks; Falstaff blinks one eye.
 - Arm swing is muted (the art has no separate arms; see the plan).
 
 ### BL-29: Four Dragons have no room for their 3 x 3 body
