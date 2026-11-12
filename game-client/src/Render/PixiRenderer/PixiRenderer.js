@@ -64,6 +64,7 @@ const FARM_ANIMAL_OVERLAY_DROP = 0.15;
 const BUILDING_OVERLAY = 0.8;  // of a tile
 const SMALL_OVERLAY = 0.4;
 const SMALL_OVERLAY_CATEGORIES = new Set(['crafting', 'pet']);
+const PET_OVERLAY_GAP = 0.04; // tiles of air between a Zoo animal's head and its timer / check
 
 // Resource types that are the player's Trade Stall (App.js opens the TradeStall panel for these)
 const TRADE_STALL_TYPES = new Set(['Trading Post', 'Trade Stall', 'Trade']);
@@ -1556,7 +1557,20 @@ const PixiRenderer = ({
         const { w: fpW, h: fpH } = footprintOf(resource);
         const overlaySize = TILE_SIZE * (SMALL_OVERLAY_CATEGORIES.has(resource.category) ? SMALL_OVERLAY : BUILDING_OVERLAY);
         const x = gridOffsetX + (resource.x + fpW / 2) * TILE_SIZE - overlaySize / 2;
-        const y = gridOffsetY + (resource.y - fpH + 1) * TILE_SIZE + 2;
+        let y = gridOffsetY + (resource.y - fpH + 1) * TILE_SIZE + 2;
+        // A Zoo animal (owner 2026-11-11): inside the tile the timer / check covered its face, so it
+        // floats just above the art's head instead: the art is an artSpan square standing on the
+        // tile's bottom edge, and its head is the texture's topmost opaque row (artHitTest)
+        if (resource.category === 'pet') {
+          const master = masterResources?.find((m) => m.type === resource.type);
+          const span = Number(master?.artSpan) > 0 ? Number(master.artSpan) : 1;
+          const artFile = master ? pickArtFile(master, resource.x, resource.y) : null;
+          const artTex = artFile ? await loadSVGTexture(artFile) : null;
+          if (thisRenderVersion !== overlayRenderVersionRef.current) return;
+          const artTop = opaqueTopFraction(appRef.current?.renderer, artTex);
+          const headY = gridOffsetY + (resource.y + 1 - span * (1 - artTop)) * TILE_SIZE;
+          y = headY - PET_OVERLAY_GAP * TILE_SIZE - overlaySize;
+        }
 
         // Get overlay from pool
         const overlay = getOverlayFromPool(overlaysUsed);
