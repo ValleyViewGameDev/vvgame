@@ -124,7 +124,7 @@ router.post('/action/npc-kill', async (req, res) => {
     // Kill-rate bound from the server's own view of the player's stats: a kill cannot land
     // sooner than the swings it needs, at the fastest swing the tuning allows.
     const stats = derivedStats(player);
-    const maxhp = Number(npc.maxhp || def.maxhp || 1);
+    const maxhp = Number(def.maxhp || npc.maxhp || 1); // the tuning's: the client saves the NPC record (BL-20)
     const minHits = Math.max(1, Math.ceil(maxhp / (stats.damage + 6)));
     const needMs = (minHits - 1) * attackCooldownMs(stats.speed);
     const now = Date.now();

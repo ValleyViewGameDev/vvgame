@@ -172,8 +172,8 @@ new `SESSION_SECRET`) in the local `game-server/.env` as on Render, and a restar
 **Not covered, by design or for later:** a passwordless profile is only as private as its name
 (`/login` takes the name alone, so `/session/resume` takes the id alone); a Google-linked
 profile without a password can still sign in by name; GETs by player id are not guarded
-(they read, never write); the grid owner's own client is still trusted with its NPC state
-(BL-20, after launch). Done the same day as part 2: the grid NPC write routes are owner-only.
+(they read, never write). Done the same day: the grid NPC write routes are owner-only, and
+BL-20 (an NPC save cannot finish a graze early or change hp / maxhp, `utils/npcSaveRules.js`).
 
 **What (as filed).** Every privileged check on the server (`requireDeveloper` in
 `game-server/utils/developerHelpers.js`, `requireDeveloperOrSelf` in `routes/playerRoutes.js`,
@@ -300,30 +300,6 @@ Added 2026-11-10. Not a launch blocker.
 to start.** Pick three moments that sell the game (farming and Kent, a town and its characters
 talking, exploring a valley or a fight), record them from a clean test account (ftuetester,
 never Oberon), and cut them to the platforms' formats (vertical for Reels / TikTok).
-
-### BL-20: `save-single-npc` trusts whatever NPC state the owner's client sends
-
-Added 2026-11-08; narrowed 2026-11-11 (owner): not a launch blocker, after launch.
-
-**Done 2026-11-11 (as BL-2 part 2):** the four grid NPC write routes (`save-single-npc`,
-`remove-single-npc`, `batch-update-npc-positions`, `save-grid-state-npcs`) accept a write only
-from the grid owner's session or a developer's (`ownerGuard` in `utils/session.js`; the NPC
-position beacon carries the token in its body), and npc ids must be plain ids. Before that anyone
-who knew a grid id could write, add or delete NPCs in another player's grid. The
-synchronous-era PC routes and `grid-has-resource` (no callers) were deleted. **What is left is
-the original item:** the owner's own client is still trusted with the NPC state.
-
-**What.** `POST /api/save-single-npc` (`game-server/routes/gridRoutes.js`, called by
-`NPCsInGridManager.updateNPC` in `GridState/GridStateNPCs.js`) writes the client's NPC record
-(state, grazeEnd, hp, position, ...) into the grid as sent. A tampered client can mark a grazing
-farm animal `processing` for free, which undercuts the gem price of the new
-`/action/graze-speedup` (and any timer the server prices), or rewrite an enemy's hp. **Why.**
-Every economic action is meant to be one `/action/*` request that takes its numbers from the
-server (CLAUDE.md, Phase 5); this route predates that. Same family as BL-2 (the server trusting
-the client). **Where to start.** Make the route refuse the fields an `/action/*` route owns
-(e.g. a graze animal's move to `processing` before the server's own `grazeEnd`, hp rises), or
-have the server derive graze state from its own `grazeEnd`; check the graze behaviour's
-`updateThisNPC` calls in `NPCGrazeBehavior.js` first.
 
 ### BL-27: Review the combat animations
 

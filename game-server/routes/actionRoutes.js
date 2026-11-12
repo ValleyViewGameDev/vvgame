@@ -63,6 +63,7 @@ const { isCurrency } = require('../utils/inventoryUtils');
 const { getSeasonLevel } = require('../utils/scheduleHelpers');
 const { hopeArtifacts } = require('../utils/hopeArtifacts');
 const holdings = require('../utils/playerHoldings');
+const { grazeReady } = require('../utils/npcSaveRules');
 const { spendCosts, recipeCosts, heldQuantity } = holdings;
 
 const fail = (res, status, reason, extra = {}) => res.status(status).json({ success: false, error: reason, reason, ...extra });
@@ -657,7 +658,7 @@ router.post('/action/animal-collect', async (req, res) => {
     const npc = npcs.get(String(npcId));
     const def = npc && econ.resourceDef(npc.type);
     if (!def || !def.output) return answer(409, 'no-animal');
-    if (npc.state !== 'processing') return answer(409, 'not-ready');
+    if (!grazeReady(npc)) return answer(409, 'not-ready'); // 'processing' and its grazeEnd passed, by the server's clock (BL-20)
     const qty = animalYield(player, def);
     const atHome = econ.atHomeOn(grid);
     const room = econ.roomFor(player, def.output, qty, { atHome });

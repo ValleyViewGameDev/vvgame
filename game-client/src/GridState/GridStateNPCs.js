@@ -425,13 +425,14 @@ class GridStateManager {
 
     try {
       if (this.savesSuspended) return;
-      await axios.post(`${API_BASE}/api/save-single-npc`, {
+      const { data } = await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
         npcId: npc.id,
         npc,
         lastUpdated: now,
         create: true, // a new NPC: the one save-single-npc that may add an id the grid lacks
       });
+      this.adoptAdjusted(gridId, npc.id, data?.adjusted);
       console.log(`✅ Saved single NPC ${npc.id} to server.`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npc.id}:`, error);
@@ -448,6 +449,19 @@ class GridStateManager {
     const npc = this.NPCsInGrid[gridId]?.npcs?.[npcId];
     if (!npc) return;
     Object.assign(npc, props);
+    this.syncReact(gridId);
+  }
+
+  /**
+   * The server's answer to a save may correct the fields it owns (game-server/utils/npcSaveRules.js,
+   * BL-20: a graze timer that started short on a clock behind the server's, an animal marked ready
+   * before the server's grazeEnd, hp / maxhp): take its values so the board shows what will happen.
+   */
+  adoptAdjusted(gridId, npcId, adjusted) {
+    if (!adjusted || typeof adjusted !== 'object') return;
+    const npc = this.NPCsInGrid[gridId]?.npcs?.[npcId];
+    if (!npc) return;
+    Object.assign(npc, adjusted);
     this.syncReact(gridId);
   }
 
@@ -509,12 +523,13 @@ class GridStateManager {
       //console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
       
       if (this.savesSuspended) return;
-      await axios.post(`${API_BASE}/api/save-single-npc`, {
+      const { data } = await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
         npcId,
         npc: npcData,
         lastUpdated: now,
       });
+      this.adoptAdjusted(gridId, npcId, data?.adjusted);
       //console.log(`🐮✅ Saved single NPC ${npcId} to server with state: ${npcData.state}`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
@@ -566,54 +581,6 @@ class GridStateManager {
       console.log(`✅ Removed single NPC ${npcId} from server.`);
     } catch (error) {
       console.error(`❌ Failed to remove single NPC ${npcId}:`, error);
-    }
-  }
-
-  /**
-   * Save only NPCs in the NPCsInGrid to the database.
-   * This version dehydrates live NPC instances into plain objects and matches the PC saving structure.
-   */
-  async saveGridStateNPCs(gridId) {
-    //console.log('💾 saveGridStateNPCs called with gridId:', gridId);
-    try {
-      const NPCsInGrid = this.NPCsInGrid[gridId];
-      if (!NPCsInGrid || !NPCsInGrid.npcs) {
-        console.warn(`⚠️ No NPCs to save for grid ${gridId}`);
-        return;
-      }
-
-      // Update local NPC timestamp
-      const now = Date.now();
-      NPCsInGrid.NPCsInGridLastUpdated = now;
-
-      // Dehydrate the NPCs to simple objects
-      const dehydratedNPCs = {};
-      Object.entries(NPCsInGrid.npcs).forEach(([id, npc]) => {
-        dehydratedNPCs[id] = {
-          id: npc.id,
-          type: npc.type,
-          position: npc.position,
-          state: npc.state,
-          hp: npc.hp,
-          maxhp: npc.maxhp,
-          grazeEnd: npc.grazeEnd,
-          lastUpdated: npc.lastUpdated,
-        };
-      });
-
-      const payload = {
-        gridId,
-        npcs: dehydratedNPCs,
-        NPCsInGridLastUpdated: now,
-      };
-
-      //console.log('💾 Payload for saving NPCs:', payload);
-
-      // Save to server (no callers yet; Phase 3 switches persistence to this per-grid snapshot)
-      if (this.savesSuspended) return;
-      await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
-    } catch (error) {
-      console.error(`❌ Error saving NPCs for grid ${gridId}:`, error);
     }
   }
 

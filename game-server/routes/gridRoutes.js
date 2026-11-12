@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Grid = require('../models/grid');
 const { ownerGuard } = require('../utils/session');
+const { applyNpcSaveRules } = require('../utils/npcSaveRules');
+const { resourceDef } = require('../utils/playerEconomy');
 
 ///////////////////////////////////////////////////////////////
 // GRID NPC STATE ROUTES
@@ -11,9 +13,10 @@ const { ownerGuard } = require('../utils/session');
 // Single-player (Phase 2): a town, valley or dungeon is the viewer's own copy and a homestead is its
 // owner's, so only the grid's owner (or a developer) may write its NPCs (ownerGuard, BL-2 part 2,
 // 2026-11-11); a visitor's read-only homestead view never saves. The synchronous-era PC routes
-// (save-single-pc, remove-single-pc, batch-update-pc-positions, load-grid-state) and the unused
-// grid-has-resource were removed then: grids hold no player records.
-// Still trusted from the owner's client: the NPC state itself (BL-20).
+// (save-single-pc, remove-single-pc, batch-update-pc-positions, load-grid-state), the unused
+// grid-has-resource and the never-called whole-map save-grid-state-npcs were removed then: grids
+// hold no player records. What a save may change (graze timers, hp, maxhp) is checked against the
+// server's own copy by utils/npcSaveRules.js (BL-20); positions are free.
 
 const NPC_ID_RE = /^[A-Za-z0-9_-]{1,64}$/; // ObjectId hex or a timestamp; never a dotted path
 
@@ -24,33 +27,6 @@ async function writableGrid(req, res, gridId) {
   if (!grid) { res.status(404).json({ error: 'Grid not found.' }); return false; }
   return ownerGuard(req, res, grid.ownerId, `grid=${gridId}`);
 }
-
-// Replace the grid's whole NPC map
-router.post('/save-grid-state-npcs', async (req, res) => {
-  const { gridId, npcs, NPCsInGridLastUpdated } = req.body;
-
-  if (!gridId || !npcs) {
-    return res.status(400).json({ error: 'gridId and npcs are required.' });
-  }
-  try {
-    if (!(await writableGrid(req, res, gridId))) return;
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
-    }
-
-    grid.NPCsInGrid = npcs;
-    grid.NPCsInGridLastUpdated = new Date(NPCsInGridLastUpdated);
-
-    await grid.save();
-
-    console.log(`✅ NPCs successfully saved for gridId: ${gridId}`);
-    res.status(200).json({ success: true });
-  } catch (error) {
-    console.error('❌ Error saving NPCsInGrid NPCs:', error);
-    res.status(500).json({ error: 'Failed to save NPCsInGrid NPCs.' });
-  }
-});
 
 // Updates touch only an NPC the grid still holds; only `create: true` (GridStateNPCs.addNPC: a
 // spawn, a bought animal) may add a new id. A grid reset rebuilds the NPCs with NEW ids, and a page
@@ -67,7 +43,18 @@ router.post('/save-single-npc', async (req, res) => {
     if (!NPC_ID_RE.test(String(npcId)) || typeof npc !== 'object') {
       return res.status(400).json({ error: 'Invalid npcId or npc.' });
     }
-    if (!(await writableGrid(req, res, gridId))) return;
+    if (!mongoose.isValidObjectId(gridId)) return res.status(400).json({ error: 'A valid gridId is required.' });
+    // the owner and the stored copy of this one NPC, in one read
+    const stored = await Grid.findById(gridId, { ownerId: 1, [`NPCsInGrid.${npcId}`]: 1 }).lean();
+    if (!stored) return res.status(404).json({ error: 'Grid not found.' });
+    if (!(await ownerGuard(req, res, stored.ownerId, `grid=${gridId}`))) return;
+    const prev = stored.NPCsInGrid ? stored.NPCsInGrid[npcId] : undefined;
+
+    // The fields something is paid for follow the server's copy and clock (BL-20); the client
+    // adopts what was adjusted from the answer
+    const def = resourceDef(npc.type || prev?.type);
+    const adjusted = applyNpcSaveRules(prev, npc, def && def.category === 'npc' ? def : null);
+    if (adjusted) console.warn(`🔐 NPC save adjusted grid=${gridId} npc=${npcId} ${npc.type || ''} ${JSON.stringify(adjusted)}`);
 
     // Update the one NPC field directly, without loading the grid
     npc.lastUpdated = new Date(lastUpdated);
@@ -90,7 +77,7 @@ router.post('/save-single-npc', async (req, res) => {
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    res.status(200).json({ success: true });
+    res.status(200).json(adjusted ? { success: true, adjusted } : { success: true });
   } catch (error) {
     console.error('❌ Error saving single NPC:', error);
     res.status(500).json({ error: 'Failed to save single NPC.' });
