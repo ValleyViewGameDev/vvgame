@@ -222,7 +222,6 @@ export const handleConstruction = async ({
   GlobalGridStateTilesAndResources.setResources(finalResources);
   setResources(finalResources);
   createCollectEffect(x, y, TILE_SIZE);
-  FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
   soundManager.playSFX('place');
 
   const answer = await placeRequest();

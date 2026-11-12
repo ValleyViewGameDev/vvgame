@@ -10,3 +10,8 @@ game-client/public/assets/avatar/_lab/
 
 # art generation candidates (docs/art-pipeline-plan.md §5): regenerable from the sidecars
 tools/art/_candidates/
+
+# advertising: raw screen recordings and editor projects are too large for git (ads/README.md)
+ads/video/raw/
+ads/video/selects/
+ads/video/project/

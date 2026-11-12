@@ -230,6 +230,8 @@ Added 2026-11-10. Not a launch blocker.
 to start.** Pick three moments that sell the game (farming and Kent, a town and its characters
 talking, exploring a valley or a fight), record them from a clean test account (ftuetester,
 never Oberon), and cut them to the platforms' formats (vertical for Reels / TikTok).
+**Plan (2026-11-11):** `docs/social-video-plan.md` (eight videos, shot lists, recording and
+editing steps); assets go in `ads/` (`ads/README.md`).
 
 ### BL-27: Review the combat animations
 
