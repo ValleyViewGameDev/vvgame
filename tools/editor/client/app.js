@@ -4,7 +4,7 @@
  * See docs/tools-plan.md §2.
  */
 import { el, clear, $ } from './core/dom.js';
-import { local } from './core/api.js';
+import { local, currentSession, onSessionChange, signIn, signOut } from './core/api.js';
 import { toast, setStatus, modal } from './core/ui.js';
 import { sheetTab, sheetsTab } from './tabs/sheetTab.js';
 import { layoutsTab } from './tabs/layouts.js';
@@ -121,6 +121,13 @@ async function route() {
   catch (err) { console.error(err); clear(editorEl).appendChild(el('div', { class: 'stub' }, `${tab.label} failed to load: ${err.message}`)); }
 }
 
+// Who the editor is signed in as (core/api.js): game writes need a developer's session
+function renderWho(session) {
+  const who = clear($('#who'));
+  if (session) who.append(el('span', {}, `Signed in as ${session.username}`), el('button', { onclick: () => signOut() }, 'Sign out'));
+  else who.append(el('span', {}, 'Not signed in'), el('button', { onclick: () => signIn() }, 'Sign in'));
+}
+
 async function init() {
   try {
     const info = await local.info();
@@ -128,6 +135,8 @@ async function init() {
     t.textContent = `game server: ${info.gameServer}`;
     if (info.isProduction) { t.classList.add('prod'); t.title = 'PRODUCTION. Live writes from World, Dungeons, Events and Players hit real player data.'; }
   } catch (e) { $('#target').textContent = 'game server: (unknown)'; }
+  renderWho(await currentSession());
+  onSessionChange(renderWho);
   window.addEventListener('hashchange', route);
   await route();
 }

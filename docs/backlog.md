@@ -96,13 +96,13 @@ client sends it on every request, the beacon and the socket (`game-client/src/Au
 `x-player-id` is rewritten from the session, so every developer check (admin routes, the
 maintenance gate, Mayor edits, delete-player) reads it; a developer account must also have a
 password; a request whose `playerId` / `voterId` / `linkPlayerId` is not the session's player
-is refused (developers excepted); the editor signs its own developer token. Verified locally with
+is refused (developers excepted); the editor signs in with a developer's name and password
+(2026-11-12; it had signed its own token with the local `.env` secret, which production refused). Verified locally with
 enforcement on: spoofed header, missing, forged and mismatched tokens refused; a new profile
 played, resumed a lost token and recovered from a bad one; the throwaway profile deleted itself.
 **Left (owner):** (1) after the push, once the client deploy is live, set `SESSION_ENFORCE=on`
 on the Render server (until then refusals are only logged as `🔐` lines; developer rights need a
-session from the start); (2) the editor talking to production needs the same `SECRET_KEY` (or a
-new `SESSION_SECRET`) in the local `game-server/.env` as on Render, and a restart.
+session from the start).
 **Not covered, by design or for later:** a passwordless profile is only as private as its name
 (`/login` takes the name alone, so `/session/resume` takes the id alone); a Google-linked
 profile without a password can still sign in by name; GETs by player id are not guarded

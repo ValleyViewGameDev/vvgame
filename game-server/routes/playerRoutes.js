@@ -369,8 +369,11 @@ router.post('/update-profile', async (req, res) => {
     }
     // matched on the key's root, so a dotted path ('inventory.0.quantity') is caught too
     const devOnly = (key) => PROFILE_DEVELOPER_ONLY.includes(key.split('.')[0]);
+    // A non-developer's dev-only fields are dropped, and named in the answer (`ignored`) so a tool
+    // whose session lapsed (the editor) does not report a save that never happened
+    const ignored = [];
     if (Object.keys(updates).some(devOnly) && !(await isDeveloperPlayerId(req.get('x-player-id')))) {
-      for (const k of Object.keys(updates)) if (devOnly(k)) delete updates[k];
+      for (const k of Object.keys(updates)) if (devOnly(k)) { delete updates[k]; ignored.push(k); }
     }
 
     // ✅ Username: same rules as registration, and not already taken by someone else
@@ -401,7 +404,7 @@ router.post('/update-profile', async (req, res) => {
       recordQuestCompleted(playerId).catch(() => {});
     }
 
-    res.json({ success: true, player: publicPlayer(player) });
+    res.json(ignored.length ? { success: true, player: publicPlayer(player), ignored } : { success: true, player: publicPlayer(player) });
   } catch (err) {
     console.error('Error updating profile:', err);
     res.status(500).json({ error: 'Failed to update profile.' });

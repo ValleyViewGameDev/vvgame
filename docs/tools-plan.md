@@ -219,8 +219,8 @@ settlement event participation from the settlement logs. Owner to add the rest.
   sent `'global'` and 500'd), Events edits phase durations in the local globalTuning.json
   (minutes, as the scheduler reads them) and only shows the live server's values, Players'
   "Delete Unstarted" uses the 7 days its code always used. `core/world.js` is the shared
-  frontier/settlement cache. The proxy takes `--dev-player-id` so the editor passes the
-  maintenance gate. Analytics as designed; `config/database.js` turned out to be dead
+  frontier/settlement cache. The editor signs in with a developer account (2026-11-12) and the
+  proxy sends that session, so it passes the admin routes and the maintenance gate. Analytics as designed; `config/database.js` turned out to be dead
   (Mongoose 5 options), so the tools connect with `mongoose.connect` like server.js; the Stripe
   success path is client-side, so `/purchase-store-offer` is the single ledger point (webhook =
   TODO in docs/analytics.md). `game-editor/` deleted, with its `.env` credential and builds.

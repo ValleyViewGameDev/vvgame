@@ -2,14 +2,17 @@
 /**
  * VVGame Editor: local content and world-administration tool (docs/tools-plan.md).
  *
- *   node tools/editor/server.js [--port 8770] [--game-server https://vvgame-server.onrender.com] [--dev-player-id <id>]
+ *   node tools/editor/server.js [--port 8770] [--game-server https://vvgame-server.onrender.com]
  *
- * --dev-player-id (or EDITOR_DEV_PLAYER_ID) must be a developer account's player id: the editor
- * signs a session token for it (game-server/utils/session.js, with SESSION_SECRET / SECRET_KEY from
- * game-server/.env) and sends it on every proxied request, so the developer-only routes and the
- * maintenance gate accept the editor. The game server it talks to must hold the same secret.
+ * Sign-in (2026-11-12): the editor asks for a developer's username and password and signs in to
+ * the game server it talks to (POST /api/local/login -> the game's own /api/login). Only a name in
+ * game-server/tuning/developerUsernames.json is accepted. The browser keeps the session token the
+ * game server answered (per game server, localStorage) and sends it on every /api/game request,
+ * so the developer-only routes, the maintenance gate and the developer-only profile fields accept
+ * the editor. No secret is shared with the game server. (--dev-player-id, the old self-signed
+ * token, is gone; the flag is still accepted and ignored.)
  *
- * Plain Node http server, binds 127.0.0.1, no auth, no build step. Serves the vanilla-JS
+ * Plain Node http server, binds 127.0.0.1, no build step. Serves the vanilla-JS
  * client from ./client, reads and writes the game server's files under game-server/
  * (layouts and tuning JSON) through /api/local/*, and proxies /api/game/* to the game
  * server so the client stays same-origin. Reuses game-server/node_modules; no package.json
@@ -37,21 +40,22 @@ const defs = require(path.join(SHEETS_DIR, 'definitions.js')); // ESM via requir
 const offerRules = require(path.join(GAME_SERVER_DIR, 'utils', 'offerRules.mjs')); // the game's offer rule (ESM via require)
 const { hopeArtifacts } = require(path.join(GAME_SERVER_DIR, 'utils', 'hopeArtifacts.js'));
 
-// The developer session the proxy sends (BL-2): signed with the game server's own secret, read
-// from game-server/.env (only the two secret names go into this process's env)
-let devSessionToken = null;
-function devAuthorization() {
-  if (!ARGS.devPlayerId) return null;
-  if (!devSessionToken) {
-    try {
-      const dotenv = require(path.join(GAME_SERVER_DIR, 'node_modules', 'dotenv'));
-      const env = dotenv.parse(fs.readFileSync(path.join(GAME_SERVER_DIR, '.env')));
-      for (const k of ['SESSION_SECRET', 'SECRET_KEY']) if (env[k] && !process.env[k]) process.env[k] = env[k];
-    } catch (err) { console.warn('[editor] game-server/.env unreadable:', err.message); }
-    devSessionToken = require(path.join(GAME_SERVER_DIR, 'utils', 'session.js')).signSession(ARGS.devPlayerId);
-  }
-  return `Bearer ${devSessionToken}`;
+// Editor sign-in: the game server's own /api/login, for a developer name only
+async function editorLogin(body) {
+  const username = String(body?.username || '').trim();
+  const password = typeof body?.password === 'string' ? body.password : '';
+  if (!username || !password) return [400, { error: 'Enter a developer username and its password.' }];
+  const developers = readJSONFile(path.join(GAME_SERVER_DIR, 'tuning', 'developerUsernames.json'));
+  if (!developers.includes(username)) return [403, { error: `"${username}" is not a developer account.` }];
+  let res, data;
+  try {
+    res = await fetch(`${ARGS.gameServer}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+    data = await res.json().catch(() => null);
+  } catch (err) { return [502, { error: `game server unreachable: ${err.message}` }]; }
+  if (!res.ok || !data?.sessionToken) return [res.ok ? 502 : res.status, { error: data?.error || `Sign-in failed (${res.status}).`, code: data?.code }];
+  return [200, { token: data.sessionToken, username: data.player?.username || username }];
 }
+
 /** The ECONOMY sheet's "Offered at" text per row, from the files as they are now (seasons, the Oracle's trade). */
 function offeredAtFn() {
   const seasons = readJSONFile(path.join(GAME_SERVER_DIR, 'tuning', 'seasons.json'));
@@ -61,13 +65,13 @@ function offeredAtFn() {
 
 // ----------------------------------------------------------------------------- args
 function parseArgs(argv) {
-  const out = { port: 8770, gameServer: 'https://vvgame-server.onrender.com', devPlayerId: process.env.EDITOR_DEV_PLAYER_ID || null };
+  const out = { port: 8770, gameServer: 'https://vvgame-server.onrender.com' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--port') out.port = Number(argv[++i]);
     else if (a === '--game-server') out.gameServer = String(argv[++i]).replace(/\/+$/, '');
-    else if (a === '--dev-player-id') out.devPlayerId = String(argv[++i]);
-    else if (a === '-h' || a === '--help') { console.log('node server.js [--port 8770] [--game-server <url>] [--dev-player-id <id>]'); process.exit(0); }
+    else if (a === '--dev-player-id') i++; // retired (the editor signs in now); accepted so old launch configs still start
+    else if (a === '-h' || a === '--help') { console.log('node server.js [--port 8770] [--game-server <url>]'); process.exit(0); }
   }
   return out;
 }
@@ -220,7 +224,6 @@ function proxyToGame(req, res, pathname, search) {
   // every POST) fails the game server's CORS allowlist in production, which answers with an
   // HTML 500 ("Not allowed by CORS"). Upstream sees a plain server-to-server request.
   for (const h of ['origin', 'referer', 'cookie', 'sec-fetch-site', 'sec-fetch-mode', 'sec-fetch-dest']) delete headers[h];
-  if (ARGS.devPlayerId && !headers.authorization) headers.authorization = devAuthorization();
   readBody(req).then((body) => {
     if (body.length) headers['content-length'] = String(body.length);
     const upstream = lib.request(target, { method: req.method, headers }, (up) => {
@@ -253,9 +256,15 @@ async function handle(req, res) {
   if (p.startsWith('/avatar-assets/')) return serveStatic(res, AVATAR_DIR, decodeURIComponent(p.slice('/avatar-assets/'.length)));
   if (p === '/api/local/avatar/files') return sendJSON(res, 200, avatarFiles());
   if (p.startsWith('/api/game/')) return proxyToGame(req, res, p.slice('/api/game'.length), url.search);
+  if (m('POST', /^\/api\/local\/login$/)) {
+    let body = null;
+    try { body = await readJSONBody(req); } catch (e) { return sendError(res, 400, 'bad JSON'); }
+    const [status, out] = await editorLogin(body);
+    return sendJSON(res, status, out);
+  }
 
   if (p === '/api/local/info') {
-    return sendJSON(res, 200, { gameServer: ARGS.gameServer, repoRoot: REPO_ROOT, devPlayerId: !!ARGS.devPlayerId, isProduction: /onrender\.com|secretsofelsinore|valleyviewgame/.test(ARGS.gameServer) });
+    return sendJSON(res, 200, { gameServer: ARGS.gameServer, repoRoot: REPO_ROOT, isProduction: /onrender\.com|secretsofelsinore|valleyviewgame/.test(ARGS.gameServer) });
   }
   if (p === '/api/local/resources') return sendJSON(res, 200, resourcesJSON());
   if (p === '/api/local/quest-for-hope') { // the QUEST FOR HOPE tab: derived from tuning + layouts on each call

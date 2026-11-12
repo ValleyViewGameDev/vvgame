@@ -22,9 +22,8 @@
  * SESSION_INVALID, 403 SESSION_MISMATCH); `log` (the default until the client that sends tokens
  * is live everywhere) only logs it. Developer rights need a valid session in either mode.
  *
- * Secret: SESSION_SECRET, else SECRET_KEY (both from the env). The editor signs its own token
- * with the same secret (tools/editor/server.js), so the local .env and the Render service must
- * hold the same value.
+ * Secret: SESSION_SECRET, else SECRET_KEY (both from the env). Only this server signs tokens; the
+ * editor signs in with a developer's name and password like any client (tools/editor/server.js).
  */
 const crypto = require('crypto');
 
