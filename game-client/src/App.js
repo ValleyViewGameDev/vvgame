@@ -155,6 +155,7 @@ import PixiCamera from './Render/PixiRenderer/PixiCamera';
 import { installPanelExitGhost } from './UI/Panels/panelExitGhost';
 import { installScrollFade } from './UI/Panels/scrollFade';
 import { initDevEditMode, setDevEditContext } from './Dev/devEditMode';
+import { initDevCaptureMode } from './Dev/devCaptureMode';
 import FTUEScrim from './GameFeatures/FTUE/FTUEScrim';
 import useSnugLesson from './GameFeatures/NPCs/useSnugLesson';
 import useAudreyLesson from './GameFeatures/FarmHands/useAudreyLesson';
@@ -2334,6 +2335,7 @@ useEffect(() => {
 useEffect(() => {
   if (!isDeveloper) return;
   initDevEditMode({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });
+  initDevCaptureMode(); // ⌘+Ctrl+H: hide the chrome for recording (Dev/devCaptureMode.js)
 }, [isDeveloper]); // eslint-disable-line react-hooks/exhaustive-deps
 useEffect(() => {
   if (isDeveloper) setDevEditContext({ playerId: currentPlayer?.playerId, language: currentPlayer?.language });

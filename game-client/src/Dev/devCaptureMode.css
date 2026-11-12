@@ -1,0 +1,26 @@
+/* Dev-only "Capture Mode" (Dev/devCaptureMode.js): hide the chrome and let the board fill the
+   window, for recording ad footage. Inert unless <html> carries .dev-capture-mode. */
+
+/* The board starts at the window's top on desktop and on the phone layout: everything laid
+   out from these tokens (the board, panels, toasts) follows. */
+html.dev-capture-mode {
+  --d-top: 0px;
+  --m-top: 0px;
+}
+
+html.dev-capture-mode .app-header,
+html.dev-capture-mode .status-bar-wrapper,
+html.dev-capture-mode .zoom-controls,
+html.dev-capture-mode .map-controls,
+html.dev-capture-mode .season-controls,
+html.dev-capture-mode .nav-column,
+html.dev-capture-mode [id^="kofi-widget-overlay"] {
+  display: none !important;
+}
+
+.dev-capture-notice {
+  position: fixed; top: 0.5rem; left: 50%; transform: translateX(-50%); z-index: 9999;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; /* style-ok: dev tool */
+  background: rgba(20, 13, 6, 0.85); color: #fff; padding: 0.25rem 0.6rem; border-radius: 8px; /* style-ok: dev tool */
+  pointer-events: none; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}

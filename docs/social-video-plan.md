@@ -16,9 +16,11 @@ This is a plan for a first-time video maker: every step names the tool and the s
 - **Record the outdoor footage before 20 November.** The live season is Fall and ends
   2026-11-20; after that the grass is snow until spring (the debug panel's Melt the Snow fixes one
   grid at a time, which is slow).
+- **Capture mode hides the game's chrome.** On a developer account, Cmd+Ctrl+H hides the
+  header, nav and floating buttons so the board fills the window (section 4.2).
 - **Three things to settle before recording** (section 9): whether the in-game music may be used
-  in ads, whether to add a small "capture mode" that hides the header and nav, and whether the
-  combat video waits for painted enemies (BL-17).
+  in ads, how to stage the late story scenes, and whether the combat video waits for painted
+  enemies (BL-17).
 
 ## 2. What the research says
 
@@ -83,8 +85,16 @@ The nav bar's Debug button (developer accounts only) has what staging needs:
 - **Make it Snow / Melt the Snow**: a before-and-after on one grid.
 - **Reset FTUE**: replay the opening (Gertrude's spirit at the forest edge) as often as needed.
 
-What does not exist: a way to hide the header and nav, a way to set the player's level or jump to
-a quest stage, and a safe way to change the season. See section 9.
+**Capture mode** (built 2026-11-11, `game-client/src/Dev/devCaptureMode.js`): press
+**Cmd+Ctrl+H** on a developer account to hide the header, status bar, zoom / map / To Do / season
+buttons, the nav bar (and its Debug button) and the Ko-fi widget. The board fills the whole
+window. Press it again to bring everything back. A panel or modal that is already open stays
+open, so for a shot that needs one (planting from the Farming panel, an NPC's menu), open it
+first and then press the keys. Zoom still works on the `+` and `-` keys. A short notice appears
+for about a second when it switches, so start recording after it fades.
+
+What does not exist: a way to set the player's level or jump to a quest stage, and a safe way to
+change the season. See section 9.
 
 Build the "hero homestead" once, before any recording: crops in tidy blocks at different growth
 stages, a paddock with cows and sheep, a row of crafting stations, fences that join up, some deco,
@@ -317,7 +327,7 @@ Per video:
 - [ ] The first 2 seconds make sense with the sound off.
 - [ ] No text under the app buttons (preview it in each app).
 - [ ] Nothing from the off-camera list in section 8.
-- [ ] `ftuetester` name, debug button and browser chrome are not visible.
+- [ ] `ftuetester` name, debug button and browser chrome are not visible (capture mode on).
 - [ ] It still reads on a phone held at arm's length.
 - [ ] The end card shows the address.
 
@@ -338,14 +348,10 @@ Per video:
    advertising, use them: the game's own music is the simplest and most recognisable choice. If
    not, or if unsure, buy or pick a royalty-free track with a clear commercial licence and keep
    the licence in `ads/video/audio/music/`. Do not use trending songs.
-2. **Capture mode.** There is no way to hide the header, nav and Debug button. Way B's centre crop
-   avoids the side panels but the header strip can still show. A small developer-only toggle that
-   hides the chrome would make every shot cleaner. It is optional: the first three videos can be
-   made without it.
-3. **Story staging.** The statue waking, the twins' reunion and the King's Crown are the best
+2. **Story staging.** The statue waking, the twins' reunion and the King's Crown are the best
    story shots and all sit behind days of play. Either play `ftuetester` up to them, or add a
    developer helper that replays a scene. Until then V3 uses the opening and the cast montage.
-4. **Combat timing.** Make V7 after BL-17 (recommended), or accept emoji enemies at a distance.
+3. **Combat timing.** Make V7 after BL-17 (recommended), or accept emoji enemies at a distance.
 
 ## 10. Posting
 
