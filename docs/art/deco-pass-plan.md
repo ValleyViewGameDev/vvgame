@@ -1,4 +1,4 @@
-# The deco pass (BL-18): DONE 2026-11-08. The record of what shipped is docs/art/deco.md (passes A, B1-B4; B5 furniture skipped; walls parked in BL-22).
+# The deco pass (BL-18): DONE 2026-11-08. The record of what shipped is docs/art/deco.md (passes A, B1-B4; B5 furniture skipped; the hedge wall set, BL-22, was done 2026-11-11: docs/walls.md).
 
 # The deco pass (BL-18): plan for the owner's greenlight (2026-11-08)
 
