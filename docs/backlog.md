@@ -38,30 +38,6 @@ brain.
 
 **Next.** The rest of Track 4 (Citizens: motives, schedules, stories). Track 5 (tuning) is done (owner, 2026-10-21).
 
-### EPIC: Build the World ("World", opened 2026-10-09)
-
-Added 2026-10-09.
-
-**What.** Make the world itself the content: finished and more interesting grid templates,
-final Regions that matter to play, the Citizens' storylines tied off, and stronger reasons to
-explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-only).
-
-Closed 2026-11-11 (owner: the world is good enough for now): W-1, W-3, W-11; W-17 and W-18 done
-by the owner. W-12 (more dungeons) closed 2026-11-11: d006_ghosts and d008_SpiderMine were added and
-the owner wired more entrances across the valley; enough for now (the unbuilt ideas are in
-`docs/dungeons-plan.md`).
-
-### EPIC: UI Updates ("UI", opened 2026-10-09)
-
-Added 2026-10-09.
-
-**What.** Interface polish across the HUD and panels. Tasks are numbered UI-n (append-only).
-
-UI-1 (HUD timers), UI-2 (Town News revamp) and UI-3 (Discord on How to Play) are done and
-verified by the owner (2026-10-14).
-UI-4 (a live gameboard behind the Begin screen) is done (2026-11-08): the login scene,
-docs/login-scene-plan.md.
-
 ### EPIC: Spells (opened 2026-10-09)
 
 Added 2026-10-09.
@@ -82,14 +58,6 @@ numbered SP-n (append-only).
   fire and venom of Demons, Cerberus and Dragons. Scorpions only drop from Demons (L28) and have
   few sinks (54 over a whole account, all one-time), so this is a repeatable one.
 
-### EPIC: Tuning ("T", opened 2026-10-10)
-
-Added 2026-10-10.
-
-**What.** Economy and progression tuning: level gates, recipes, prices, pacing (rules in
-`docs/tuning.md`). Combat tuning stays in Track 5 of the NPC / Combat epic. Tasks are numbered
-T-n (append-only).
-
 ### EPIC: Onboarding & Early Game ("OB", opened 2026-10-24)
 
 Added 2026-10-24.
@@ -103,54 +71,16 @@ teaches, and where the first Quest for Hope artifact lands (the King's Crown, ab
 hints were built 2026-10-11). The first session's account / email / FTUE mechanics stay in
 `docs/onboarding-plan.md`. Tasks are numbered OB-n (append-only).
 
-- **OB-6. Close the quest gaps** (added 2026-10-24, revised for the story). L11 has two quests;
-  selling to Kent is taught in the FTUE and then only once (Hotspur's Pelts, L8); and between
-  Elbow's L18 and L30 steps the mid game has no story step (L16-30 is where the open goals must
-  carry the player). Helena's "Uneasy Lies the Head" (L10, buy the King's Crown) now duplicates
-  Elbow's "A Crown for the King" (L10, Find the King's Crown): retire one (the story step is
-  Elbow's). Start at `node tools/progression.js --to 35` (quests by level).
-  **Quick fixes built 2026-10-24:** Helena's "Uneasy Lies the Head" retired (it was new and
-  unshipped), so Elbow's "A Crown for the King" is the Crown's only quest; L11 gains the
-  Shepherd's "What, You Egg!" (quest 129: craft 10 Egg in the Chicken Coop, pays 8 Olive, one
-  Olive Bread's worth once Baker opens at L11; the Shepherd had nothing from L9 to L15).
-  **Kent built 2026-10-24:** a new goal, `Serve Kent` (one per Kent order filled, whatever it
-  was, so it is always completable; `Kent.js` tracks it, the editor's goal enum has it), and three
-  Shepherd quests on it: "I Earn That I Eat" (L4, 5 orders, Money 400), "Neither a Borrower Nor a
-  Lender Be" (L9, 12, Money 2000), "Put Money in Thy Purse" (L21, 30, Money 5000; L21 had none).
-  The FTUE's last toast (7065) says "keep selling to Kent" again (the OB-3 rewrite had lost it).
-  **Story gap built 2026-10-24** (the L18-30 gap sits in a wider one: L19-29 hold 0-2 quests a
-  level): two Elbow `Meet` steps in the post-Queen set (prereq "Be Stone No More", Gem 3 each),
-  L21 "A Sad Tale's Best for Winter" (Meet Leontes, 1012276; string 16514) and L27 "This Thing of
-  Darkness" (Meet Caliban, 1012265, who knows the way to Hecate at L30; 16515), both naming the
-  Oracle. **No quest to meet the Oracle** (owner, 2026-10-24: she IS the Quest for Hope): the
-  Quest for Hope modal now opens with where the seven go ("The Oracle, in her Sanctuary deep in
-  the Valley, will trade Hope for these seven lost treasures. Find them, then find her.", 200860),
-  and other characters should mention her in their own lines (for the narrative pass, P2/P3:
-  quests other than Elbow's carry no text yet). Open: the other givers' mid-game quests (L19-29):
-  17 drafted in `docs/midgame-quests-draft.md` (not built; revised after the owner's review:
-  Hotspur's regional quests become a new `Discover <region>` goal; Helena adds Discover Sunflower
-  Lake (L16) and Forest of Arden (L18), the Potion C outposts). Florist checked: measured by
-  outposts (Snug + Trading Post; `node tools/progression.js --regions`), 100 Potion C is about a
-  week with Ink the long pole, a fair long goal; it stays.
-  **Built 2026-10-24:** the `Discover <region>` goal (a state goal: `player.regionsVisited`, added
-  in `setPlayerLocation`, seeded once from `gridsVisited` for older accounts in enter-grid,
-  `utils/regionsVisited.js`; the client mirrors it on arrival and also counts the region the
-  player stands in; editor enum) and the 20 quests (L16-29). Not yet played. Open: Elbow's L27 and
-  L30 xp per the draft's reward rule (175 and about 500), if wanted.
+- **OB-6. Close the quest gaps** (added 2026-10-24). Built 2026-10-24: the L11 and Kent fixes,
+  Elbow's L21 and L27 story steps, the `Discover <region>` goal and the 20 mid-game quests
+  (L16-29, drafted in `docs/midgame-quests-draft.md`). Left: play the L16-29 quests through, then
+  close. Optional: Elbow's L27 and L30 xp per the draft's reward rule (175 and about 500).
 
-- **OB-7. Measure pacing: level timestamps and a pacing view** (added 2026-10-24). Record when a
-  player reaches each level (analytics), then add a pacing model to `tools/progression.js`
-  (estimated XP per session from Kent, quests and kills) calibrated against those timestamps, so
-  the play-time targets in `docs/early-game.md` §1 become measurements. Start at
-  `game-server/utils/analytics.js` (`recordActivity`) and the level-up path.
-  **Built 2026-10-24:** `analytics_level` (`models/analyticsLevel.js`), one write-once row per
-  (player, level), from `recordLevelUps` in `utils/analytics.js`, called by the three XP writes
-  (`/api/addXP`, the mailbox collect, a combat kill); the purge tool deletes it too. The pacing
-  view: `node tools/progression.js --pacing [--to 20] [--since <day>]`, per level the players
-  reaching it, median (p25-p75) hours since first seen, median active days, and the §1 target.
-  Forward-only (empty until the deploy). Also fixed `early-game.md` §1's XP column, which read
-  `xpLevels.json` one level late (L3 is 25 xp, L15 2,960, L30 81,250). Open: the modelled XP per
-  session, only if the measured view leaves questions; a dashboard tab, if wanted.
+### Closed epics
+
+Build the World (W-n, last W-18), UI Updates (UI-n, last UI-4) and Tuning (T-n, last T-6) hold no
+open tasks (closed 2026-11-11). A new task in one of them reopens the epic with the next id.
+The tuning rules stay in `docs/tuning.md`; the unbuilt dungeon ideas in `docs/dungeons-plan.md`.
 
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
