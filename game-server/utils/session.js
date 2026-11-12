@@ -15,6 +15,8 @@
  * - claimGuard: a request that names a player as its actor (`playerId`, the cast-vote `voterId`,
  *   the Google `linkPlayerId`) must carry that player's session, or a developer's. Reads by id
  *   (GET with a playerId) are not guarded here.
+ * - ownerGuard: routes that write a thing by its id with no playerId (the grid NPC routes) check
+ *   that the session's player owns it.
  *
  * SESSION_ENFORCE=on refuses a request that fails claimGuard (401 SESSION_REQUIRED /
  * SESSION_INVALID, 403 SESSION_MISMATCH); `log` (the default until the client that sends tokens
@@ -108,9 +110,32 @@ async function claimGuard(req, res, next) {
   return res.status(code === 'SESSION_MISMATCH' ? 403 : 401).json({ success: false, error: 'Please sign in again.', code });
 }
 
+/**
+ * Owner-only writes (BL-2 part 2, 2026-11-11): a write to something a player owns (a grid's NPCs)
+ * must come from that owner's session, or a developer's. In the single-player game no two players
+ * ever write the same grid. Answers true when the write may go ahead; otherwise it has answered
+ * the request (401 SESSION_REQUIRED / SESSION_INVALID, 403 NOT_OWNER) and returns false. With
+ * SESSION_ENFORCE off it logs and lets the write through, like claimGuard.
+ */
+async function ownerGuard(req, res, ownerId, what) {
+  const session = req.sessionPlayerId;
+  if (session && ownerId && String(ownerId) === session) return true;
+  let code;
+  if (!session) code = req.sessionInvalid ? 'SESSION_INVALID' : 'SESSION_REQUIRED';
+  else {
+    const { isDeveloperPlayerId } = require('./serviceMode');
+    if (await isDeveloperPlayerId(session)) return true;
+    code = 'NOT_OWNER';
+  }
+  console.warn(`🔐 ${code} ${req.method} ${req.originalUrl} ${what} owner=${ownerId || '-'} session=${session || '-'}${ENFORCE === 'on' ? '' : ' (logged, not enforced)'}`);
+  if (ENFORCE !== 'on') return true;
+  res.status(code === 'NOT_OWNER' ? 403 : 401).json({ success: false, error: code === 'NOT_OWNER' ? 'Not yours.' : 'Please sign in again.', code });
+  return false;
+}
+
 /** Socket.io: the player the connection's token names (handshake `auth.token`), else null. */
 function socketPlayerId(socket, fallbackToken) {
   return verifySession(socket?.handshake?.auth?.token) || verifySession(fallbackToken) || null;
 }
 
-module.exports = { signSession, verifySession, sessionMiddleware, claimGuard, socketPlayerId, ENFORCE };
+module.exports = { signSession, verifySession, sessionMiddleware, claimGuard, ownerGuard, socketPlayerId, ENFORCE };

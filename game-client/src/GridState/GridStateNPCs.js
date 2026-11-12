@@ -5,6 +5,7 @@ import { stopAllHeadlineEffects } from '../VFX/NPCVFX';
 import { abortAllConversations } from '../GameFeatures/NPCs/NPCCitizenBehavior';
 import { loadMasterResources } from '../Utils/TuningManager';
 import { isViewOnly } from '../Utils/viewOnly';
+import { getSessionToken } from '../Authentication/session';
 
 class GridStateManager {
   constructor() {
@@ -48,7 +49,8 @@ class GridStateManager {
       const updates = {};
       for (const [npcId, u] of npcUpdates) updates[npcId] = u.position;
       try {
-        navigator.sendBeacon(`${API_BASE}/api/batch-update-npc-positions`, new Blob([JSON.stringify({ gridId, updates })], { type: 'application/json' }));
+        // a beacon cannot set headers: the session token rides in the body (game-server/utils/session.js)
+        navigator.sendBeacon(`${API_BASE}/api/batch-update-npc-positions`, new Blob([JSON.stringify({ gridId, updates, sessionToken: getSessionToken() || undefined })], { type: 'application/json' }));
         npcUpdates.clear();
       } catch (_) { /* best effort */ }
     }
