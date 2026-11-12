@@ -33,8 +33,9 @@ here; detail lives in the linked docs and backlog items.
 - [x] **Avatar creation / selection.** Done 2026-11-10 (plan and record: `docs/avatar-plan.md`):
   Change Avatar and the FTUE's avatar step open the parts editor for every player; the board,
   the header and the panels draw the look; a player who has not made one is drawn in the
-  default look; some hats and clothes are bought with gems. What is left of the character art
-  (the enemies, the glyphs) is BL-17; equipment on the figure is BL-23 and not a blocker.
+  default look; some hats and clothes are bought with gems. The rest of the character art
+  (the enemies) was painted 2026-11-12 and BL-17 is closed; topics with no game art stay emoji
+  in speech bubbles by the owner's decision. Equipment on the figure is BL-23 and not a blocker.
 - [x] **Atlas size pass.** Done 2026-10-30: 11 sheets -> 7 (about 185 MB -> 117 MB of GPU
   memory once decoded). The waste was packing, not resolution (768 px building slots are what a
   size-5 building needs at the closest zoom on a 2x phone): frames are now trimmed to their

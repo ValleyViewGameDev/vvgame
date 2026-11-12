@@ -11,8 +11,6 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
 - **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
   enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
-- **BL-17.** The last emoji glyphs: the speech-bubble topics with no art of their own (the NPC
-  and enemy art is done and closed, 2026-11-12: every row is painted).
 - **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
   ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
@@ -82,6 +80,12 @@ Build the World (W-n, last W-18), UI Updates (UI-n, last UI-4) and Tuning (T-n, 
 open tasks (closed 2026-11-11). A new task in one of them reopens the epic with the next id.
 The tuning rules stay in `docs/tuning.md`; the unbuilt dungeon ideas in `docs/dungeons-plan.md`.
 
+BL-17 (the art pass on the last emoji characters) closed 2026-11-12: the player avatar, the 34
+named NPCs and every enemy are painted. Conversation topics with no game art of their own (the
+weather, the random and secret topics) STAY emoji by the owner's decision: a bubble shows the
+NPC's painted head, the painted doober for a thing, and an emoji for the rest; no more icon art
+is to be made for them, so `scripts/build-atlas.js` keeps its Twemoji step.
+
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
 Added 2026-10-30.
@@ -113,48 +117,6 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 (issued at login / silent signup, verified server-side), and derive the caller from it rather
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
-
-### BL-17: Art pass, the last emoji glyphs (NPC and enemy art closed 2026-11-12) (LAUNCH BLOCKER)
-
-Added 2026-11-07; rewritten 2026-11-10, when the avatar and named-NPC half shipped.
-
-**Done and live (the record is `docs/avatar-plan.md` and the git log):** the parts-based player
-avatar, on the board, in the header and the panels, with its editor (Change Avatar and the
-FTUE step) for every player; the 34 named NPCs as full figures with head crops; facing, the
-turn, the walk, the breath, the blink and the idle foot tap; a default look for every player
-who has not made one, so no legacy icon is drawn for the local player any more; paid parts
-bought with gems. Santa Claus was cut.
-
-**What is left of this item (the launch blocker).** The handful of conversation topics that are
-still Twemoji in a speech bubble (the weather, the random and secret topics with no art of their
-own). Spawners are out of this item (owner 2026-11-10): they draw as nothing and appear in no
-panel for a player. Done 2026-11-10: the named NPCs' glyphs are gone from every panel and modal
-(quest cards, Level Up modal, Story modal, hire cards); the player's picture in a bubble is the
-avatar's head; the feelings, the relationship outcomes and the quest / trade overlays are painted
-(docs/art/ui-icons.md, `icons-r12`). **Why.** Owner's order in docs/art/emoji-audit.md:
-characters come last. When this lands the game has no emoji left and `scripts/build-atlas.js`
-can drop its Twemoji step. **Where to start.** docs/art/emoji-audit.md for the list; the NPC
-rows' `symbol` (still emoji, and `Conversation.js` matches speakers by it).
-
-**NPC and enemy art: CLOSED 2026-11-12** (owner: "call the NPC art backlog item done"). Every
-named NPC and every enemy row has painted art; the record is the git log and
-`tools/art/jobs/enemies-r1..r8.json`: front-facing painted enemies, free footprints (`sizeX` x
-`sizeY`), installed with `artSpan`, `iconFile` head crops, `noFlip`, `hover`. The last three
-rows closed with it: Cerberus is painted (2 x 2), the Great Bear is the Bear's art tinted
-near-black and 30 % larger, and the Polar Bear row was cut. One loose end, not part of this
-item: 4 of the 15 Dragons stand in dense forest with no 3 x 3 clearing within eight tiles
-(valley layouts 1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44), so they cannot settle or
-move until those spots are cleared.
-
-**Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
-the rest is small and listed here so it is not lost.
-- Other players' figures on the board, and anything else that still reads `icon` for another
-  player; then `PlayerIcons.json`, `playerIcons/` and the `icon` field can go (the plan's
-  slice D). No record needs rewriting: a player without a look is drawn in the default one.
-- Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
-  owner found the tones a little strong).
-- The Doctor's glasses are partly painted over when he blinks; Falstaff blinks one eye.
-- Arm swing is muted (the art has no separate arms; see the plan).
 
 ### BL-23: Avatar equipment: the weapon in the hand, armour as the outfit
 
@@ -252,3 +214,23 @@ judged together with the rest. **In scope.** The enemy windup before a swing (sq
 the player's lunge and hit (`playerLunge` / `playerHit`). **Where to start.**
 `game-client/src/Render/PixiRenderer/CombatFX.js` (all of them, timings in its `FX` table);
 callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.md, Combat).
+
+### BL-28: Avatar follow-ups (not launch blockers)
+
+Carried over from BL-17 when it closed (2026-11-12); listed by the owner 2026-11-10 so they are
+not lost. Equipment on the figure is BL-23.
+- Other players' figures on the board, and anything else that still reads `icon` for another
+  player; then `PlayerIcons.json`, `playerIcons/` and the `icon` field can go (the plan's
+  slice D). No record needs rewriting: a player without a look is drawn in the default one.
+- Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
+  owner found the tones a little strong).
+- The Doctor's glasses are partly painted over when he blinks; Falstaff blinks one eye.
+- Arm swing is muted (the art has no separate arms; see the plan).
+
+### BL-29: Four Dragons have no room for their 3 x 3 body
+
+Carried over from BL-17 when it closed (found 2026-11-12, when the Dragon became 3 x 3). Of
+the 15 Dragons placed in layouts, 4 stand in dense forest with no 3 x 3 clearing within eight
+tiles (valley layouts 1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44), so they cannot
+settle or move (`AllNPCsShared.settleBody` looks three tiles) and sit over the trees. Clear a
+patch at each spot or move them.

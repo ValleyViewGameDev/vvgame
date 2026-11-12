@@ -194,5 +194,9 @@ unapproved, `iconFile` (panel-only) or `filename` (board) on the row, `npm run b
    stay visible, Fairy, Santa Claus, The Porter, the Oracle, the RelationshipMatrix glyphs,
    the quest symbols and the conversation glyphs.
 
-After pass 5 the only emoji left in the game are animals, pets and characters; after pass 7
-there are none, and `scripts/build-atlas.js` can drop its Twemoji step.
+After pass 5 the only emoji left in the game are animals, pets and characters. **Pass 7 closed
+2026-11-12 (BL-17):** the player avatar, the 34 named NPCs and every enemy are painted. The
+owner's decision at closing: a speech bubble shows the NPC's painted head and the painted doober
+for a thing it wants, and a topic with no game art of its own (the weather, the random and secret
+topics) STAYS an emoji; no icon art is made for those. So the game keeps a few emoji on purpose,
+and `scripts/build-atlas.js` keeps its Twemoji step.
