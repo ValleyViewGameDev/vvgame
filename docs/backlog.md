@@ -162,7 +162,7 @@ and a braided beard; its square (`artSpan 2.8`) carries a ground shadow with the
 0.3 tile above it. **The Ogre and the Coyote** (`enemies-r4`, one candidate each) are installed:
 the Ogre 1 x 2 (one wide, two deep), `artSpan 2.7` (half as tall again as the Zombie), painted
 less cartoon than the others on the owner's word (a small head, no doll proportion), skin a
-sallow olive; the Coyote 1 x 1, four-legged, facing the viewer from a little above. Because
+sallow olive; the Coyote 1 x 1, four-legged, facing the viewer from a little above, its tan fur recoloured LIGHT GREY so it stands out on the ground (owner; a hue-masked recolour of the cut, the yellow eyes kept). Because
 hundreds of Demons and Ogres were placed as one tile (layouts and saved grids), a multi-tile
 NPC whose body does not fit where it starts moves once to the nearest anchor where it does
 (`AllNPCsShared.settleBody`). A painted NPC with `artSpan` 2.4 or more takes the 512 px atlas
