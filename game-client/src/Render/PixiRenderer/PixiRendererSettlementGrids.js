@@ -10,7 +10,7 @@
  * Rendering strategy by grid type:
  * - Valley/Town (visited): Tile color snapshot (64×64 canvas, 1 pixel per tile)
  * - Valley/Town (unvisited): Solid grass green
- * - Homestead (occupied): Player text info (username, role, net worth)
+ * - Homestead (occupied): Player text info (username, role, net worth, trade goods)
  * - Homestead (unoccupied): Solid grass green
  */
 
@@ -229,13 +229,13 @@ const SnapshotGridCell = ({ x, y, size, dataUrl, zoomScale, screenScale = zoomSc
 );
 
 /**
- * Homestead info cell component
- * Matches the layout from SettlementView.js / SettlementTile.json:
- * - "Homestead owned by:" header
- * - 👤 username (white, bold)
- * - 🏛️ role (yellow if Mayor, otherwise normal)
- * - 💰 netWorth "(net worth)"
- * - 📥 Trade: [trade stall items]
+ * Homestead info cell component. Plain text lines, no header and no row icons (owner 2026-11-12):
+ *   username (white, bold)
+ *   role (Citizen, or Mayor in yellow)
+ *   Net Worth:
+ *   the net worth
+ *   Trade:
+ *   the goods on the owner's trade stall, as their painted art (the emoji only for one with none)
  */
 const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomScale, masterResources, isFrontierZoom = false, onClick, isClickable = false }) => {
   const scaledSize = size * zoomScale;
@@ -288,9 +288,8 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
     for (const stall of owner.tradeStall) {
       if (stall?.resource && !stall?.boughtBy) {
         const template = masterResources.find(r => r.type === stall.resource);
-        if (template?.symbol) {
-          tradeStallItems.push(template.symbol);
-        }
+        const file = template?.iconFile || template?.filename;
+        if (file || template?.symbol) tradeStallItems.push({ file, symbol: template.symbol });
       }
     }
   }
@@ -329,18 +328,6 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         pointerEvents: isClickable ? 'auto' : 'none',
       }}
     >
-      {/* Header */}
-      <div style={{
-        fontSize: smallFontSize,
-        fontFamily: 'var(--font-body)',
-        color: 'var(--color-text-primary)',
-        fontWeight: 'bold',
-        lineHeight: 1.3,
-        marginBottom: px(2),
-      }}>
-        Homestead owned by:
-      </div>
-
       {/* Username row */}
       <div style={{
         ...rowStyle,
@@ -350,8 +337,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontWeight: 'bold',
         textShadow,
       }}>
-        <img src="/assets/icons/icon-profile.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain' }} />
-        <span>&nbsp;{owner.username || 'Unknown'}</span>
+        <span>{owner.username || 'Unknown'}</span>
       </div>
 
       {/* Role row */}
@@ -363,8 +349,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontWeight: isMayor ? 'bold' : 'normal',
         textShadow,
       }}>
-        <img src="/assets/resources/town-hall.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
-        <span>&nbsp;{role}</span>
+        <span>{role}</span>
       </div>
 
       {/* Net worth label */}
@@ -374,8 +359,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         fontFamily: 'var(--font-body)',
         color: 'var(--color-text-primary)',
       }}>
-        <img src="/assets/resources/doober-money.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
-        <span>&nbsp;Net Worth:</span>
+        <span>Net Worth:</span>
       </div>
 
       {/* Net worth value */}
@@ -398,8 +382,7 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
         color: 'var(--color-text-primary)',
         marginTop: px(2),
       }}>
-        <img src="/assets/resources/trading-post.svg" alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain', }} />
-        <span>&nbsp;Trade:</span>
+        <span>Trade:</span>
       </div>
 
       {/* Trade stall items */}
@@ -410,8 +393,9 @@ const HomesteadGridCell = ({ x, y, size, owner, zoomScale, screenScale = zoomSca
           gap: px(2),
           flexWrap: 'wrap',
         }}>
-          {tradeStallItems.map((symbol, idx) => (
-            <span key={idx}>{symbol}</span>
+          {tradeStallItems.map((item, idx) => (item.file
+            ? <img key={idx} src={`/assets/resources/${item.file}`} alt="" draggable="false" style={{ width: emojiSize, height: emojiSize, objectFit: 'contain' }} />
+            : <span key={idx}>{item.symbol}</span>
           ))}
         </div>
       )}
