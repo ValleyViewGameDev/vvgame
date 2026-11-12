@@ -147,7 +147,16 @@ player that spills over its tile). Each enemy gets its own animation rules later
 multi-tile enemies (`Utils/npcFootprint.js`, CLAUDE.md's footprint rule; the Phoenix is 2 x 2
 as a scaled emoji for testing). Commissioned: the style probe `tools/art/jobs/enemies-r1.json`,
 two candidates each of Bear, Spider, Ghost, Zombie and Demon
-(`tools/art/_candidates/enemies-r1/review.jpg`), awaiting the owner's pick; none is installed.
+(`tools/art/_candidates/enemies-r1/review.jpg`). **Installed 2026-11-12 to see them in game:**
+the Bear (`npc-enemy-bear.svg`, `artSpan 2.05`), the Ghost and the Zombie (`artSpan 1.8`, a
+named NPC's height), candidate 1 of each, cut by `figurecut.js --fit height`, `artFacing right`,
+with a head crop in `iconFile` (`npc-head-<name>.svg`); the Great Bear and the Polar Bear are
+still emoji. **Redrawn on the owner's notes** (`tools/art/jobs/enemies-r2.json`, one candidate
+each, `_candidates/enemies-r2/review.jpg`), not installed: the Demon holds nothing, arms at its
+sides, far less muscular and narrower (an enemy never holds an object: it makes trouble for
+animation later); the Spider from a higher three-quarter camera, like the buildings and deco,
+so its back is seen. Still to draw after the style is settled: Coyote, Ogre, Cerberus, Dragon,
+Phoenix, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.

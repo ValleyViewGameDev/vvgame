@@ -11160,7 +11160,7 @@
     "symbol": "🐻",
     "layoutkey": "nB",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 2,
     "action": "attack",
     "output": "Bear Skin",
@@ -11188,7 +11188,10 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "filename": "npc-enemy-bear.svg",
+    "iconFile": "npc-head-bear.svg",
+    "artSpan": 2.05
   },
   {
     "type": "Great Bear",
@@ -11302,7 +11305,7 @@
     "symbol": "🧟",
     "layoutkey": "nZ",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.6,
     "action": "attack",
     "output": "Potion A",
@@ -11330,14 +11333,17 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2.2
+    "attackinterval": 2.2,
+    "filename": "npc-enemy-zombie.svg",
+    "iconFile": "npc-head-zombie.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Ghost",
     "symbol": "👻",
     "layoutkey": "nG",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1,
     "action": "attack",
     "output": "Bones",
@@ -11365,7 +11371,10 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "filename": "npc-enemy-ghost.svg",
+    "iconFile": "npc-head-ghost.svg",
+    "artSpan": 1.8
   },
   {
     "type": "Ogre",
