@@ -139,6 +139,16 @@ this lands the game has no emoji left and `scripts/build-atlas.js` can drop its 
 for how the named NPCs were prompted and cut; the NPC rows' `symbol` (still emoji, and
 `Conversation.js` matches speakers by it) for the glyph half.
 
+**Enemies, started 2026-11-11.** Two owner decisions replace the plan's "side-on creature
+lane": enemies are drawn FRONT-FACING like the player characters (not side-on like the farm
+animals), and an enemy's footprint is free (`sizeX` x `sizeY` on its row, like deco: the Demon
+may be 1 x 2, the Phoenix 2 x 2, the Dragon 2 x 4; the Bear stays 1 x 1 with art as tall as a
+player that spills over its tile). Each enemy gets its own animation rules later. Built:
+multi-tile enemies (`Utils/npcFootprint.js`, CLAUDE.md's footprint rule; the Phoenix is 2 x 2
+as a scaled emoji for testing). Commissioned: the style probe `tools/art/jobs/enemies-r1.json`,
+two candidates each of Bear, Spider, Ghost, Zombie and Demon
+(`tools/art/_candidates/enemies-r1/review.jpg`), awaiting the owner's pick; none is installed.
+
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.
 - Other players' figures on the board, and anything else that still reads `icon` for another
