@@ -505,6 +505,7 @@ const PixiRendererPCs = ({
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
       const artTop = opaqueTopFraction(app?.renderer, texture);
       liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - 0.45 + 0.9 * artTop;
+      sprite.__artTop = artTop; // CombatFX centres the cooldown ring on the drawn figure, not its feet
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
       else if (avatarTex) sprite.breathTop = AVATAR_BREATH_TOP[av.body] || AVATAR_BREATH_TOP.female;

@@ -156,6 +156,21 @@ const NPCPanel = ({
   // Ref to track relationship status before an interaction
   const preInteractionRelationshipRef = useRef(null);
 
+  // The twins (Story/violaReunion.js): a player who met Sebastian before they knew Viola hears his
+  // grief again when they next open his panel once they have met her, and its close raises her
+  // (the StoryModal onClose below). Once per panel opening.
+  const reunionOfferedFor = useRef(null);
+  useEffect(() => {
+    if (npcData?.type !== 'Sebastian' || reunionOfferedFor.current === npcKey) return;
+    reunionOfferedFor.current = npcKey;
+    import('../Story/violaReunion').then(({ isReunionDue, hasMetSebastian }) => {
+      if (!hasMetSebastian(currentPlayer) || !isReunionDue(currentPlayer)) return;
+      setStoryDialogKey(null);
+      setStoryRelationshipType('met');
+      setStoryModalOpen(true);
+    });
+  }, [npcKey, npcData?.type, currentPlayer]);
+
   // Hide relationship UI for FTUE users interacting with Constable Elbow
   // This simplifies the UI during the tutorial to focus on trading for the Home Deed
   const hideFTUERelationshipUI = currentPlayer?.firsttimeuser && npcData?.type === 'Constable Elbow';

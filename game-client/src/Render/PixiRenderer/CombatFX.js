@@ -538,10 +538,15 @@ function tickCooldown(now) {
   const g = cooldown.ring;
   g.clear();
   const r = TILE * FX.RING_RADIUS_TILES;
+  // a figure (the avatar) is anchored at its feet and stands taller than its tile: centre the ring
+  // halfway between its feet and its head (the art's opaque top), not on the feet
+  const cy = obj.anchor?.y === 1
+    ? obj.y - Math.abs(obj.height) * (1 - (obj.__artTop || 0)) / 2
+    : obj.y;
   g.lineStyle(2, 0x000000, 0.25);
-  g.drawCircle(obj.x, obj.y, r);
+  g.drawCircle(obj.x, cy, r);
   g.lineStyle(2.5, 0xffffff, 0.75);
-  g.arc(obj.x, obj.y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac);
+  g.arc(obj.x, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac);
 }
 
 // ---------------------------------------------------------------- enemy hp bars

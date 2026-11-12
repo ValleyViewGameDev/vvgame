@@ -30,6 +30,14 @@ const SCENE = [[SEBASTIAN, 2161], [VIOLA, 2162], [SEBASTIAN, 2163], [VIOLA, 2164
 const cheb = (a, b) => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 const hex24 = () => Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 export const isViolaReunited = (player) => !!player?.storyFlags?.violaReunited;
+const hasMet = (player, name) => !!player?.relationships?.some((r) => r?.name === name && r.met);
+/**
+ * The reunion waits until the player knows Viola (owner 2026-11-11): a player who greets
+ * Sebastian first hears only his grief; once they have met her (her quest sends them to him),
+ * the next time they talk to him his grief plays again and she rises (NPCsPanel).
+ */
+export const isReunionDue = (player) => !isViolaReunited(player) && hasMet(player, VIOLA);
+export const hasMetSebastian = (player) => hasMet(player, SEBASTIAN);
 
 let showScene = null; // set by the mounted host
 
@@ -51,7 +59,7 @@ function waterTiles(tiles, resources, npcs) {
  */
 export async function startViolaReunion(ctx) {
   const { currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, TILE_SIZE = 45, masterResources, strings = {} } = ctx;
-  if (!currentPlayer || isViolaReunited(currentPlayer)) return;
+  if (!currentPlayer || !isReunionDue(currentPlayer)) return;
   const gridId = currentPlayer.location?.g;
   const npcsMap = NPCsInGridManager.getNPCsInGrid(gridId) || {};
   const npcs = Object.values(npcsMap);
@@ -92,6 +100,8 @@ export async function startViolaReunion(ctx) {
       if (!err.response) return true; // the network: keep her; the next enter-grid agrees with the server
       NPCsInGridManager.forgetNPC(gridId, npcId);
       stopHeadlineEffect(npcId);
+      // the optimistic flag goes too, or his next greeting would think they had met
+      setCurrentPlayer?.((prev) => { const flags = { ...(prev?.storyFlags || {}) }; delete flags.violaReunited; return { ...prev, storyFlags: flags }; });
       updateStatus?.(strings[2167] || 'Viola could not reach the island. Try again.');
       return false;
     });

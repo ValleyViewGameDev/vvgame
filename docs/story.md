@@ -125,7 +125,10 @@ plays at once as a two-voice modal ("My father had a mole upon his brow." "And s
 her old lake (1012435), counts as met, and gives the player her Secret. Server:
 `utils/storyState.js` (`player.storyFlags.violaReunited`, both grid copies put right on every
 enter-grid), `POST /api/story/reunite-viola`; client: `GameFeatures/Story/violaReunion.js` and
-the one-off walk `storyGoal.js`.
+the one-off walk `storyGoal.js`. The reunion waits until the player has met Viola (owner 2026-11-11):
+a player who greets Sebastian first hears only his grief, and once they know her, the next time
+they open his panel his grief plays again and she rises (`isReunionDue`, NPCsPanel). It also
+plays on a test grid of the player's own where Sebastian stands.
 
 ## 1. The rule: a mash-up, not an adaptation
 
@@ -239,7 +242,7 @@ stub riddle, the real puzzle is still to be designed.
 | Iago | Othello | Trader; the Brass Bell |
 | Gertrude | Hamlet | Leontes' queen, turned to stone by the storm (Gertrude's Statue in her Town castle) until the player wakes her (§0); then a trader again, Gertrude's Secret |
 | Leontes | The Winter's Tale | The King, lost without his queen and crown; the Mirror Key, for six secrets; Prospero is his enemy |
-| Juliet | Romeo and Juliet | Trader; Juliet's Secret |
+| Juliet | Romeo and Juliet | Trader; Juliet's Secret (16527, rewritten 2026-11-11 since Angelo killed Romeo: she pressed the last sunflower he gave her behind his portrait, and still turns toward her lost sun) |
 | Viola (was the Mermaid) | Twelfth Night | Lives in the water since the storm wrecked her ship and took her twin Sebastian. Her one quest, "What Country, Friends, Is This?" (L12, Meet Sebastian), ends in the twins' reunion (§0); she then lives beside him and gives her Secret (the trade for it is gone) |
 | Sebastian | Twelfth Night | Viola's twin, alone on the sandy island in Sunflower Lake (1011670, where the Brass Bell used to lie); Cassio's art for now |
 | The Oracle | The Winter's Tale (Apollo's oracle at Delphos) | Trades Hope for the seven artifacts; her home is the **Oracle's Sanctuary** (the `Shiro` row, a dev-placed shop in the valley; players read "Oracle's Sanctuary" through `DISPLAY_ALIASES` in `Utils/stringLookup.js`), where sealed scrolls are bought with gems; the Ancient Temple opens them, as in the play |

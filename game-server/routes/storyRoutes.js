@@ -36,7 +36,9 @@ router.post('/story/wake-gertrude', async (req, res) => {
     if (!isStatueReady(player)) return res.status(403).json({ error: 'feste-quest' });
     const grid = await Grid.findById(gridId);
     if (!grid) return res.status(404).json({ error: 'Grid not found.' });
-    if (grid.gridType !== 'town' || String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-your-town' });
+    // any grid that is the player's own (their town or valley copy, their homestead): the statue
+    // lives in the town, but a test valley (e.g. 1016101) can hold one too (owner 2026-11-11)
+    if (String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-your-grid' });
 
     const queen = wakeOnGrid(grid, npcId);
     const already = !queen && [...(grid.NPCsInGrid instanceof Map ? grid.NPCsInGrid.values() : Object.values(grid.NPCsInGrid || {}))].find((n) => n?.type === QUEEN);
@@ -104,9 +106,12 @@ router.post('/story/reunite-viola', async (req, res) => {
     if (!player.relationships?.some((r) => r.name === SEBASTIAN && r.met)) return res.status(403).json({ error: 'meet-sebastian' });
     const grid = await Grid.findById(gridId);
     if (!grid) return res.status(404).json({ error: 'Grid not found.' });
-    if (Number(grid.gridCoord) !== ISLAND_COORD || String(grid.ownerId) !== String(player._id)) return res.status(403).json({ error: 'not-the-island' });
-
+    // the player's own copy of the island, or any grid of theirs where Sebastian stands (a test
+    // valley such as 1016101; owner 2026-11-11)
     const npcs = npcMap(grid);
+    const sebastianHere = [...npcs.values()].some((n) => n?.type === SEBASTIAN);
+    if (String(grid.ownerId) !== String(player._id) || (Number(grid.gridCoord) !== ISLAND_COORD && !sebastianHere)) return res.status(403).json({ error: 'not-the-island' });
+
     let viola = [...npcs.values()].find((n) => n?.type === VIOLA);
     if (!viola) {
       const id = typeof npcId === 'string' && /^[0-9a-f]{24}$/.test(npcId) && !npcs.has(npcId) ? npcId : undefined;
