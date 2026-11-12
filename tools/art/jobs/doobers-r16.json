@@ -1,0 +1,26 @@
+{
+  "name": "doobers-r16",
+  "note": "Pelt redrawn (owner, 2026-11-12): the Coyote drops it, so it takes the Coyote's light grey, and it must be told from the Bear Skin at a glance: slim and long with thin pointed leg flaps and a bushy black-tipped tail, where the Bear Skin is broad and orange-brown.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "pelt": {
+      "refs": [
+        "_candidates/doobers-r1/approved/openai--lined-sample-1.small.jpg",
+        "../../game-client/public/assets/resources/npc-enemy-coyote.png",
+        "../../game-client/public/assets/resources/doober-bear-skin.png"
+      ],
+      "guide": "guides/icon-grid-3x3.png",
+      "variants": [
+        "lined"
+      ],
+      "prompt": "CONTROL: the first attached sheet on magenta is this game's APPROVED doober set: match its rendering, outline weight, simplicity, daylight, colours and item size within the cell EXACTLY, so every sheet is one set. CAMERA, NOT negotiable and the same as every other piece of this game's art: each item is seen STRAIGHT FROM THE FRONT, flat-on, as if it stood on a shelf at eye level facing the viewer, its front face parallel to the picture plane; NO three-quarter turn, NO top-down tilt, NO perspective, NO foreshortened top faces; round things are circles, flat things are flat to the viewer, symmetrical things are drawn symmetrically. Only where a pure front view would hide what the thing is may it be tipped the smallest amount needed, never more. SUBJECTS, nine items in order on the 3 x 3 grid, left to right then top to bottom, each straight from the front, and EVERY item kept well inside its own cell with clear magenta margin on all sides, never touching a grid line: 1 PELT: a COYOTE's pelt laid flat to the viewer, the skin of the grey COYOTE in the SECOND attached image (one of this game's enemies). COLOUR, important: exactly that coyote's fur: a LIGHT cool grey over the whole pelt, a darker grey stripe down the middle of the back, paler near-white fur at the edges of the legs; no brown, no tan, no orange anywhere. SHAPE, important: it must look nothing like the game's bear skin (the THIRD attached image: a broad orange-brown pelt): this one is SLIM and LONG, clearly taller than it is wide, a narrow body with four THIN pointed leg flaps, two angled up and out at the top and two angled down and out at the bottom, and at the bottom centre a long BUSHY TAIL hanging straight down between the back legs, grey with a BLACK tip, about a third of the pelt's whole length. NO HEAD: the top ends in a small plain rounded neck edge; no face, no ears, no eyes, no nose. The fur edge softly ragged all the way round. No claws, no gore, nothing else on it. Cells 2 to 9 stay EMPTY, pure flat magenta."
+    }
+  }
+}
