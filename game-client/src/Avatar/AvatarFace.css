@@ -3,3 +3,7 @@
 .avatar-face-crop { position: relative; display: block; width: 100%; height: 100%; border-radius: 50%; overflow: hidden; }
 .avatar-face-crop.avatar-face-sized { display: inline-block; vertical-align: middle; flex: none; }
 .avatar-face-crop img { position: absolute; max-width: none; pointer-events: none; }
+/* the face has not loaded yet: the smiling face emoji in the same box (AvatarFace.js AVATAR_FALLBACK) */
+.avatar-face-fallback { display: block; width: 100%; height: 100%; }
+.avatar-face-fallback.avatar-face-sized { display: inline-block; vertical-align: middle; flex: none; }
+.avatar-face-fallback svg { display: block; width: 100%; height: 100%; }

@@ -121,7 +121,7 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
                         #{index + 1}
                       </div>
                       <div className="player-info">
-                        <AvatarFace avatar={player.avatar} size={22} fallback={player.icon} /> <strong>{player.username}</strong>
+                        <AvatarFace avatar={player.avatar} size={22} /> <strong>{player.username}</strong>
                       </div>
                     </div>
                     <div className="player-networth">

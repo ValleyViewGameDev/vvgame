@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import AvatarModal from '../../Avatar/AvatarModal';
 import AvatarFace from '../../Avatar/AvatarFace';
-import PlayerAvatarFace from '../../UI/Icons/PlayerAvatarFace';
 import '../../UI/Icons/NPCPortrait.css';
 import EatingModal from '../Eating/Eating';
 import { spendIngredients } from '../../Utils/InventoryManagement';
@@ -223,7 +222,7 @@ const PlayerPanel = ({
         <div className="player-panel-portrait">
           {/* the avatar itself opens Edit Avatar too (owner 2026-11-10) */}
           <button className="npc-portrait player-panel-avatar" onClick={() => setShowAvatarModal(true)} aria-label={strings[4065]}>
-            <AvatarFace avatar={currentPlayer.avatar} fallback={<PlayerAvatarFace icon={currentPlayer.icon} />} />
+            <AvatarFace avatar={currentPlayer.avatar} />
           </button>
           {/* Edit Avatar is the pencil on the avatar's lower right (owner 2026-11-10) */}
           <button className="player-panel-edit" onClick={() => setShowAvatarModal(true)} title={strings[4065]} aria-label={strings[4065]}>

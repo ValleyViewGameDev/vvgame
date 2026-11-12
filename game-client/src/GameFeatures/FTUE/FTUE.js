@@ -6,7 +6,7 @@ import './FTUE.css';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
-import AvatarFace from '../../Avatar/AvatarFace';
+import AvatarFace, { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
 import AvatarModal from '../../Avatar/AvatarModal';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { uiString } from '../../Utils/inputMode';
@@ -454,14 +454,14 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   }
 
   // Standard render for steps with showModal: true - use StoryModal
-  // Use modalIcon from step data if specified, otherwise fall back to player icon
-  const modalSymbol = currentStepData?.modalIcon || currentPlayer?.icon || '😀';
+  // Use modalIcon from step data if specified; otherwise the speaker is the player: the avatar's face (symbolNode)
+  const modalSymbol = currentStepData?.modalIcon || AVATAR_FALLBACK;
   return (
     <StoryModal
       isOpen={true}
       onClose={handleOK}
       symbol={modalSymbol}
-      symbolNode={!currentStepData?.modalIcon ? <AvatarFace avatar={currentPlayer?.avatar} size={96} fallback={modalSymbol} /> : null}
+      symbolNode={!currentStepData?.modalIcon ? <AvatarFace avatar={currentPlayer?.avatar} size={96} /> : null}
       npcFilename={currentStepData?.modalSprite}
       dialogKey={currentStepData.bodyKey}
       relationshipType="FTUE"

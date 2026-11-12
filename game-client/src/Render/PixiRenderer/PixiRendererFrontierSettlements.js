@@ -116,10 +116,9 @@ function renderMiniGrid(settlement, settlementGridData, currentPlayer, settlemen
       const hasBeenVisited = isGridVisited(gridsVisited, calculatedSSGG);
 
       // Determine content based on grid type
-      if (grid?.gridId === currentPlayer?.location?.g) {
-        content = currentPlayer.icon || '👤'; // Player is here
-        cellBg = GRASS; // Green background for player location
-      } else if (thumbCells?.has(`${row}-${col}`)) {
+      // No "you are here" picture (owner 2026-11-12): the player's tile is the one with the yellow
+      // outline, so its cell shows what any cell of its kind shows
+      if (thumbCells?.has(`${row}-${col}`)) {
         // Visited town/valley: the settlement's thumbnail image shows through (frontierThumbnails.js)
       } else if (grid?.gridType === 'homestead' && grid.gridId) {
         content = { src: '/assets/icons/icon-home.svg' }; // Owned homestead: the Home glyph (docs/art/ui-icons.md), the cell is too small for the Farm House art

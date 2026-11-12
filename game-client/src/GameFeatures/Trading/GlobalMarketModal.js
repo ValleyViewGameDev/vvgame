@@ -258,7 +258,7 @@ function GlobalMarketModal({
                 <div key={player.playerId} className="player-row">
                   <div className="player-info">
                     <div className="player-username">
-                      <AvatarFace avatar={player.avatar} size={22} fallback={player.icon ? <span className="player-icon">{player.icon}</span> : null} />
+                      <AvatarFace avatar={player.avatar} size={22} />
                       {player.username}
                     </div>
                     <div className="player-items-count">
@@ -322,7 +322,7 @@ function GlobalMarketModal({
                 <div key={player.playerId} className="player-row">
                   <div className="player-info">
                     <div className="player-username">
-                      <AvatarFace avatar={player.avatar} size={22} fallback={player.icon ? <span className="player-icon">{player.icon}</span> : null} />
+                      <AvatarFace avatar={player.avatar} size={22} />
                       {player.username}
                     </div>
                     <div className="player-items-count">

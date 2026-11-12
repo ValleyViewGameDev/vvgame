@@ -6,6 +6,7 @@ import ConversationManager from '../../GameFeatures/Relationships/ConversationMa
 import { playerIconSpan, getPlayerHeadTop } from './PixiRendererPCs';
 import { getNpcHeadTop } from './npcHeadTops';
 import { topicArt, setSpeechPlayer, isTopicToken, topicArtLoading, warmTopicArt } from './speechTopicArt';
+import { AVATAR_FALLBACK } from '../../Avatar/AvatarFace';
 
 const OUTCOME_SIZE = 0.6; // tiles: the painted mark that floats up from a head when an interaction lands
 
@@ -459,8 +460,15 @@ const PixiRendererSpeech = ({
         sprite.position.set(centerX, centerY);
         sprite.visible = true;
         text.visible = false;
-      } else if (isTopicToken(displayText) || topicArtLoading(displayText)) {
-        text.visible = false; // its picture is still loading: an empty bubble for a moment, never the token or a fallback glyph
+      } else if (isTopicToken(displayText)) {
+        // the player's own face, not loaded yet (or it could not be): the smiling face, as every avatar face shows (Avatar/AvatarFace.js)
+        text.text = AVATAR_FALLBACK;
+        text.style.fontSize = TILE_SIZE * BUBBLE.emoji;
+        text.x = centerX;
+        text.y = centerY;
+        text.visible = true;
+      } else if (topicArtLoading(displayText)) {
+        text.visible = false; // its picture is still loading: an empty bubble for a moment, never a fallback glyph
       } else {
         text.text = displayText;
         text.style.fontSize = TILE_SIZE * BUBBLE.emoji;

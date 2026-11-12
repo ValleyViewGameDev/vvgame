@@ -132,8 +132,6 @@ import HopeFound from './GameFeatures/Social/HopeFound';
 import { startHopeFinale, setHopeFinaleHooks, isHopeReturned, holdsHope, isHopeFinaleRunning, HOPE_COORD as HOPE_FINALE_COORD } from './GameFeatures/Story/hopeFinale';
 import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
 import ShareModal from './UI/Modals/ShareModal';
-import PlayerIcons from './Authentication/PlayerIcons.json';
-import PlayerAvatarFace from './UI/Icons/PlayerAvatarFace';
 import AvatarFace from './Avatar/AvatarFace';
 import { usePanelContext } from './UI/Panels/PanelContext';
 import { useModalContext } from './UI/ModalContext';
@@ -187,22 +185,6 @@ import { clearSession } from './Authentication/session'; // importing it sets th
 
 // Phone layout media list; must match UI/Styles/mobile.css and UI/Panels/PanelContext.js
 const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 500px) and (orientation: landscape)';
-
-// Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
-const normalizeEmoji = (emoji) => {
-  if (!emoji) return emoji;
-  return emoji.replace(/\uFE0F/g, '');
-};
-
-// Build a static lookup map from emoji value to SVG filename (created once at module load)
-const playerIconToSvgMap = new Map();
-['free', 'paid', 'platinum'].forEach(tier => {
-  (PlayerIcons[tier] || []).forEach(icon => {
-    if (icon.filename) {
-      playerIconToSvgMap.set(normalizeEmoji(icon.value), icon.filename);
-    }
-  });
-});
 
 // FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
 
@@ -3191,10 +3173,9 @@ return (
         <div className="header-desk">
           <div className="header-desk-left">
             {/* the player's avatar in a circle, in line with the round HUD buttons under it */}
-            {/* a figure is cropped to its face, like a profile picture (UI/Icons/PlayerAvatarFace.js) */}
             <button className="header-desk-avatar" disabled={!currentPlayer} onClick={() => currentPlayer && openMyProfile()} aria-label={currentPlayer?.username || ''}>
-              {/* a saved parts avatar (Edit Avatar) shows its head; otherwise the icon, as before */}
-              <AvatarFace avatar={currentPlayer?.avatar} fallback={<PlayerAvatarFace icon={currentPlayer?.icon} />} />
+              {/* the avatar's head (the default look's for a player who has made none); the smiling face while it loads (Avatar/AvatarFace.js) */}
+              <AvatarFace avatar={currentPlayer?.avatar} />
             </button>
             <div className="header-desk-titles">
               <h1 className="header-desk-title">{strings[0]}</h1>
@@ -3247,14 +3228,7 @@ return (
               openMyProfile();
             }
           }}>
-            <AvatarFace avatar={currentPlayer?.avatar} size={16} className="header-link-face" fallback={(() => {
-              const icon = currentPlayer?.icon || '😊';
-              const svgFilename = playerIconToSvgMap.get(normalizeEmoji(icon));
-              if (svgFilename) {
-                return <img src={`/assets/playerIcons/${svgFilename}`} alt={icon} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} />;
-              }
-              return icon + ' ';
-            })()} />
+            <AvatarFace avatar={currentPlayer?.avatar} size={16} className="header-link-face" />
             {currentPlayer?.username || 'Loading...'}
           </button>
 

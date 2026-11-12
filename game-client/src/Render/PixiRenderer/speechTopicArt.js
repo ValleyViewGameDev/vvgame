@@ -31,7 +31,7 @@ import { lookFor, specFor } from '../../Avatar/avatarLook';
 import { renderLook } from '../../Avatar/avatarCompositor';
 
 const strip = (s) => (s ? String(s).replace(/️/g, '') : s);
-const FACE = { x: 156, y: 0, size: 200, art: 512 }; // the figure rig's face box (PlayerAvatarFace.js)
+const FACE = { x: 156, y: 0, size: 200, art: 512 }; // the figure rig's face box (Avatar/AvatarFace.js)
 
 // The painted glyphs (owner 2026-11-10: no emoji over a character's head). Keys are emoji with the
 // variation selector stripped; values are files under public/assets/. The feelings and marks are
@@ -181,7 +181,7 @@ export function topicArtLoading(topic) {
   return !!r && !cache.has(r.key);
 }
 
-/** True when a topic is a token (PLAYER_FACE), not a glyph: there is nothing to print while its picture loads. */
+/** True when a topic is a token (PLAYER_FACE), not a glyph: the bubble shows the smiling face while its picture loads. */
 export const isTopicToken = (topic) => topic === PLAYER_FACE;
 
 /** Load every painted glyph ahead of its first use (an outcome mark is shown the moment it is asked for). */

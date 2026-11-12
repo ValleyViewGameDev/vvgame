@@ -220,13 +220,15 @@ callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.
 Carried over from BL-17 when it closed (2026-11-12); listed by the owner 2026-11-10 so they are
 not lost. Equipment on the figure is BL-23.
 - The last readers of the old `icon` emoji, then `PlayerIcons.json`, `playerIcons/` and the
-  `icon` field can go (the plan's slice D). Other players are done (owner, verified 2026-11-12):
-  none is ever drawn on the board, and the Leaderboard and the Global Market show the saved
-  avatars' heads. What is left is the LOCAL player's own `icon`: the settlement map's "you are
-  here" cell (`PixiRendererFrontierSettlements.js`) and the board's fallback
-  (`PixiRendererPCs.js getDisplayIcon`), plus the emoji those two lists fall back to for a
-  player who never saved a look. No record needs rewriting: a player without a look is drawn in
-  the default one.
+  `icon` field can go (the plan's slice D). Done 2026-11-12: other players (none is drawn on the
+  board; the Leaderboard and the Global Market show avatar heads, owner verified); every avatar
+  face falls back to ONE thing while it loads, the smiling face emoji (`AvatarFace.js`
+  `AVATAR_FALLBACK`, the speech bubble too), never the old `icon`; the "you are here" picture on
+  the frontier map is gone (the yellow outline marks the tile); `PlayerAvatarFace` is deleted.
+  What still reads `icon`: the board's fallback for the local player
+  (`PixiRendererPCs.js getDisplayIcon`, `PlayersInGrid.js`), the old Profile panel's icon field,
+  `RelationshipCard.js`, and `speechTopicArt.js` for an old figure emoji. No record needs
+  rewriting: a player without a look is drawn in the default one.
 - Hair is two styles a body, faces one a body; the skin tone palette is to be iterated (the
   owner found the tones a little strong).
 - Arm swing is muted (the art has no separate arms; see the plan).
