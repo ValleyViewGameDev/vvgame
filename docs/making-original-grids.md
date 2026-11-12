@@ -100,8 +100,8 @@ settlement col × 8 + grid col. Rows grow south, columns east. One parser on the
   shift-drag for many, to open its layout, assign a region (All regions / Unused regions), or
   create / reset the live grid (Reset rebuilds the template AND every player's copy). Every
   live write asks first.
-- **Dungeons**: dungeon templates and their entrances (`layouts/gridLayouts/dungeon`). More
-  dungeons are a separate World task (W-12).
+- **Dungeons**: dungeon templates and their entrances (`layouts/gridLayouts/dungeon`). The
+  d006 to d010 notes are in `docs/dungeons-plan.md` (W-12, closed 2026-11-11).
 
 ## 7. Rarity ladder (from the random layouts)
 

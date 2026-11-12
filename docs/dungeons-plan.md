@@ -1,14 +1,18 @@
-# Dungeons d006 to d010: the plan
+# Dungeons d006 to d010: the plan (closed)
 
 Started 2026-11-11 (backlog W-12). Five new dungeon templates in
 `game-server/layouts/gridLayouts/dungeon/`, outside the Oracle's story: resetting, grindable
-maps for players who like to fight. Entrances in the valley are a later pass.
+maps for players who like to fight.
+
+**Closed 2026-11-11.** The owner closed W-12 with two of the five built (d006, d008): the
+game has enough dungeons for now, and the owner wired more entrances across the valley
+(`game-server/tuning/dungeonEntrances.json`). d009 and d010 stay below as unbuilt ideas, not
+scheduled work; build one only when the owner asks.
 
 **Status.** d006_ghosts is done: drawn here, then finished by the owner in the Editor
 (2026-11-11); the layout file is the truth. d007 (the Bear Garden) was built, then scrapped
 the same day: the owner did not like it, and d004_bears already covers bears. Its number
-stays empty and the concept is not to be revived. d008_SpiderMine is built, a first draft
-for the owner to look at. d009 and d010 are plans only.
+stays empty and the concept is not to be revived. d008_SpiderMine is built. d009 and d010 were never built.
 
 ## What the existing five teach
 
@@ -131,7 +135,7 @@ stage notes below describe the draft; the owner's pass added the things listed a
 - **Ferns.** The Fern may not stand on a water tile (its `validon` flags), so a fern "in the
   water" stands on a one-tile hummock of mud with water all round it.
 
-### d008_SpiderMine (BUILT, first draft)
+### d008_SpiderMine (BUILT)
 
 An abandoned silver mine. The way in is top left and down the map is deeper. One road that
 switches back four times, with a winze (a short shaft and a door) between each level.
@@ -159,7 +163,7 @@ Picture: `docs/dungeons/d008_SpiderMine.png`.
   Doors, 1 Mirror. Loot: Silver 13, Gold 5, Scroll 5, Stone 5, Wine 2, Bones 15, Mushroom 19,
   Magic Mushroom 1, and 15 Rocks to mine. No Gems.
 
-### d009_VulcansStithy (plan)
+### d009_VulcansStithy (idea, not built)
 
 "As foul as Vulcan's stithy." A forge on a lake of lava: stone islands joined by causeways.
 Crossing the lava is always possible and always costs. Tier 1 the slag yards (Ogres, one at a
@@ -168,7 +172,7 @@ pillars, Demons on the gantry). Tier 3 the lake: Demons stand out on the lava an
 tiles; the causeways zigzag between cover. Tier 4 the Crucible, a Demon Spawner on its own
 islet. A vault behind Black Fog (Hecate's Torch) is the one side room and holds the best loot. Loot: Gold, Silver, Scrolls, Urns, one Potion B. No Gems.
 
-### d010_DragonHoard (plan)
+### d010_DragonHoard (idea, not built)
 
 The end of the ladder. The barbican (Ogres), the long gallery (Demons down a hall with
 alcoves to duck into), the hatchery (lava nests, Demons and one Dragon), then the Hoard: a

@@ -46,14 +46,10 @@ Added 2026-10-09.
 final Regions that matter to play, the Citizens' storylines tied off, and stronger reasons to
 explore, with the Quest for Hope as the spine. Tasks are numbered W-n (append-only).
 
-- **W-12. More dungeons** (added 2026-10-09). Design and build more dungeon templates (editor
-  Dungeons tab, `layouts/gridLayouts/dungeon/`). A future pass, after the valley grids.
-  Started 2026-11-11: `docs/dungeons-plan.md` plans five (d006 to d010, mild to very hard);
-  d006_ghosts (the Drowned Chantry) is done, d007 was scrapped, d008_SpiderMine is drafted for the owner's review, d009 and d010 are plans.
-  Entrances in the valley are a later pass.
-
 Closed 2026-11-11 (owner: the world is good enough for now): W-1, W-3, W-11; W-17 and W-18 done
-by the owner.
+by the owner. W-12 (more dungeons) closed 2026-11-11: d006_ghosts and d008_SpiderMine were added and
+the owner wired more entrances across the valley; enough for now (the unbuilt ideas are in
+`docs/dungeons-plan.md`).
 
 ### EPIC: UI Updates ("UI", opened 2026-10-09)
 
