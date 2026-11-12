@@ -166,7 +166,13 @@ sallow olive; the Coyote 1 x 1, four-legged, facing the viewer from a little abo
 hundreds of Demons and Ogres were placed as one tile (layouts and saved grids), a multi-tile
 NPC whose body does not fit where it starts moves once to the nearest anchor where it does
 (`AllNPCsShared.settleBody`). A painted NPC with `artSpan` 2.4 or more takes the 512 px atlas
-slot. Rules so far: an enemy never holds an object (it makes trouble for animation later). Still to draw: Cerberus, Dragon, Phoenix, the two other bears.
+slot. Rules so far: an enemy never holds an object (it makes trouble for animation later). **Fourth round** (`enemies-r5`,
+one candidate each, all installed): the Ogre redrawn in the game's style (r4 was too realistic,
+pulled there by the reference photographs, which are no longer refs) and narrower, its skin
+nudged from ochre to a slightly green olive in the cut; the Ghost without a mouth, only the eyes
+floating in the dark hood; the **Phoenix** painted, 2 x 2, hovering with its wings open over a
+ground shadow like the Demon (`artSpan 2.9`). Still to draw: Cerberus, Dragon, the two other
+bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.

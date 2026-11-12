@@ -11583,7 +11583,7 @@
     "sizeX": 2,
     "sizeY": 2,
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1.5,
     "action": "attack",
     "output": "Phoenix Feather",
@@ -11611,7 +11611,10 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 2
+    "attackinterval": 2,
+    "filename": "npc-enemy-phoenix.svg",
+    "iconFile": "npc-head-phoenix.svg",
+    "artSpan": 2.9
   },
   {
     "type": "Coyote Spawner",
