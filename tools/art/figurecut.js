@@ -6,7 +6,7 @@
  * feet on the tile's bottom edge, hair at the headroom's top; the model ignores the guide's box
  * for scale) and write a 512 px square with that frame centred, artSpan 1.5.
  *
- *   node tools/art/figurecut.js --job characters-r1 --candidate painterly-kent-1 --out <png> [--like <png's sidecar .json of the source figure>]
+ *   node tools/art/figurecut.js --job characters-r1 --candidate painterly-kent-1 --out <png> [--like <png's sidecar .json of the source figure>] [--fit height] [--size 1024]
  * Writes <out>.json beside the PNG: the transform (crop box, scale, placement) a later cut can reuse with --like.
  * Prints the art's box in frame units (width and height in tiles, feet offset) so a figure that
  * overflows the box or stands short is caught before anyone looks.
@@ -18,7 +18,7 @@ const { keyMagenta } = require('./lib/key');
 
 const args = process.argv.slice(2);
 const opt = (n, d) => (args.includes(`--${n}`) ? args[args.indexOf(`--${n}`) + 1] : d);
-const job = opt('job', 'characters-r1'), candidate = opt('candidate'), out = opt('out'), like = opt('like'), fitMode = opt('fit', 'auto'); // --fit height: always fit by height, the art may be wider than a tile (a mermaid's fins spill into the neighbours) // --like <sidecar.json>: cut with THAT figure's transform (a base body drawn 'at the same size and place' as its source, a part drawn worn on the base)
+const job = opt('job', 'characters-r1'), candidate = opt('candidate'), out = opt('out'), like = opt('like'), fitMode = opt('fit', 'auto'), SQ = Number(opt('size', 512)); // --fit height: always fit by height, the art may be wider than a tile (a mermaid's fins spill into the neighbours) // --like <sidecar.json>: cut with THAT figure's transform (a base body drawn 'at the same size and place' as its source, a part drawn worn on the base)
 if (!candidate || !out) { console.error('need --candidate and --out'); process.exit(1); }
 
 /** Keep the figure (the largest opaque component) and anything at least 2 % of its size. */
@@ -74,7 +74,7 @@ async function dropSpecks(buf) {
   // the tile's bottom edge, hair at the headroom's top), unless that would make it wider than a
   // tile, in which case its width is the tile and it stands shorter. The square is 512 px, the
   // frame 341 x 512 centred in it, artSpan 1.5.
-  const FRAME_W = 512 / 1.5, FRAME_H = 512;
+  const FRAME_W = SQ / 1.5, FRAME_H = SQ; // --size 1024: a bigger square for a creature drawn several tiles wide (the Dragon), same frame
   let scale, cropL, cropT, cropW, cropH, left, top;
   if (like) {
     // the source's transform: the same panel crop, scale and placement, so the two squares line up pixel for pixel
@@ -85,8 +85,8 @@ async function dropSpecks(buf) {
     scale = FRAME_H / artH;
     if (fitMode !== 'height' && artW * scale > FRAME_W) { scale = FRAME_W / artW; console.log(`  wider than tall allows: fitted by width, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
     cropL = x0; cropT = y0; cropW = artW; cropH = artH;
-    if (artW * scale > 512) { scale = 512 / artW; console.log(`  wider than the square: fitted to 512, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
-    left = Math.round((512 - Math.round(artW * scale)) / 2); top = 512 - Math.round(artH * scale);
+    if (artW * scale > SQ) { scale = SQ / artW; console.log(`  wider than the square: fitted to ${SQ}, stands ${(artH * scale / FRAME_H * 1.5).toFixed(2)} tiles tall`); }
+    left = Math.round((SQ - Math.round(artW * scale)) / 2); top = SQ - Math.round(artH * scale);
   }
   // the crop may run past the panel when reused on a taller or wider drawing: pad the keyed image first
   const PAD = 256;
@@ -95,7 +95,7 @@ async function dropSpecks(buf) {
   const sm = await sharp(scaled).metadata();
   console.log(`  frame: ${(sm.width / FRAME_W).toFixed(2)} tiles wide, feet on the tile bottom, head ${(sm.height / FRAME_W).toFixed(2)} tiles up`);
   fs.writeFileSync(out.replace(/\.png$/, '.json'), JSON.stringify({ src: path.relative(process.cwd(), src), scale, cropL, cropT, cropW, cropH, left, top, artBox: { x0, y0, artW, artH } }, null, 2));
-  await sharp({ create: { width: 512, height: 512, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+  await sharp({ create: { width: SQ, height: SQ, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
     .composite([{ input: scaled, left, top }]).png().toFile(out);
   console.log('wrote', out, 'ARTSPAN 1.5');
 })().catch((e) => { console.error(e); process.exit(1); });

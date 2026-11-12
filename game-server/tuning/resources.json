@@ -11554,8 +11554,10 @@
     "type": "Dragon",
     "symbol": "🐲",
     "layoutkey": "nX",
+    "sizeX": 3,
+    "sizeY": 3,
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 1.2,
     "action": "attack",
     "output": "Scroll",
@@ -11585,7 +11587,10 @@
     "validonu": true,
     "projectile": "fireball",
     "attackinterval": 2.5,
-    "noFlip": true
+    "noFlip": true,
+    "filename": "npc-enemy-dragon.svg",
+    "iconFile": "npc-head-dragon.svg",
+    "artSpan": 5.1
   },
   {
     "type": "Phoenix",

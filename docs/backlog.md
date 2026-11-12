@@ -178,7 +178,13 @@ blue, hovering with wings spread like the Demon and the Phoenix), C a coiled win
 (crimson and gold, from the higher camera). The owner chose B and asked for three variations
 (`enemies-r7`, `_candidates/enemies-r7/review.jpg`, none installed): its bat wings were too like
 the Demon's, so fin wings, scaled wings and swept pterosaur wings; NO horns (the Demon has them),
-only spikes, fins and scales round the head; and the Dragon is a fairly bright green. Still to draw: Cerberus, the two other bears.
+only spikes, fins and scales round the head; and the Dragon is a fairly bright green. **Installed:
+variation 2, the scaled wings**, at 3 x 3: `npc-enemy-dragon.svg`, a 1024 px square
+(`figurecut.js --size 1024`) at `artSpan 5.1` (wings 5 tiles across, the figure lifted 0.35 tile
+over a ground shadow), in the 768 px atlas slot (`artSpan` 4.5 or more). Of the 15 Dragons placed
+in layouts, 4 stand in dense forest with no 3 x 3 clearing within eight tiles (valley layouts
+1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44): they cannot settle or move until those
+spots are cleared. Still to draw: Cerberus, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.
