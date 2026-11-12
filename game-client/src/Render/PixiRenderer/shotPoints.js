@@ -61,6 +61,15 @@ export function npcShotOrigin(npc) {
   return artPoint(npcDisplay(npc.id), at) || npcCentre(npc);
 }
 
+/**
+ * The top of the head (tile coords, x centred on the art): where the combat texts ("miss", "-3")
+ * start, a few pixels above it (passed as CombatFX.text's `head`; owner 2026-11-12). The head is
+ * the art's opaque top (`__artTop`, recorded by the renderers); null without a drawn sprite.
+ */
+const headOf = (obj) => artPoint(obj, { x: 0.5, y: obj?.__artTop || 0 });
+export const npcHead = (npc) => headOf(npcDisplay(npc.id)) || { ...npcCentre(npc), fallback: true };
+export const pcHead = (position) => headOf(pcDisplay()) || { x: position.x, y: position.y, fallback: true };
+
 /** The player's chest (tile coords): where its shots leave and where enemy shots land. */
 export function pcChest(position) {
   const obj = pcDisplay();

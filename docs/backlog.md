@@ -11,8 +11,8 @@ item keeps its full entry below and carries **LAUNCH BLOCKER** in its heading.
 
 - **BL-2.** Real session auth: built 2026-11-11 (signed session tokens); left: switch
   enforcement on (`SESSION_ENFORCE=on` on Render) once the new client is live.
-- **BL-17.** The last emoji characters: the twelve enemies and the quest-giver, relationship
-  and speech glyphs (the player avatar and the 34 named NPCs are done and live).
+- **BL-17.** The last emoji glyphs: the speech-bubble topics with no art of their own (the NPC
+  and enemy art is done and closed, 2026-11-12: every row is painted).
 - **BL-24.** Optimize Sprite Sheets: all nine atlas sheets load before the first grid (~9.4 MB,
   ~150 MB of GPU memory on phones); group them by where art is used and load per grid.
 - **BL-25.** Test a season reset end to end before launch (it relocates every player and
@@ -114,7 +114,7 @@ finds a developer's id can call the admin routes. Replace it with a signed sessi
 than from the header or a `playerId` in the body. Found while closing the open admin routes
 (commit 7df2ac65); flagged as a launch-readiness gap before the next ad buy.
 
-### BL-17: Art pass, the last emoji characters: enemies and glyphs (LAUNCH BLOCKER)
+### BL-17: Art pass, the last emoji glyphs (NPC and enemy art closed 2026-11-12) (LAUNCH BLOCKER)
 
 Added 2026-11-07; rewritten 2026-11-10, when the avatar and named-NPC half shipped.
 
@@ -125,66 +125,26 @@ turn, the walk, the breath, the blink and the idle foot tap; a default look for 
 who has not made one, so no legacy icon is drawn for the local player any more; paid parts
 bought with gems. Santa Claus was cut.
 
-**What is left of this item (the launch blocker).** Every character that is still an emoji:
-the twelve enemies (Coyote to Phoenix: "a separate creature lane" in the plan, not started),
-and the handful of conversation topics that are still Twemoji in a speech bubble (the
-weather, the random and secret topics with no art of their own). Spawners are out of this item
-(owner 2026-11-10): they draw as nothing and appear in no panel for a player. Done 2026-11-10:
-the named NPCs' glyphs are gone from every panel and modal (quest cards, Level Up modal, Story
-modal, hire cards); the player's picture in a bubble is the avatar's head; the feelings, the
-relationship outcomes and the quest / trade overlays are painted (docs/art/ui-icons.md,
-`icons-r12`). **Why.** Owner's order in docs/art/emoji-audit.md: characters come last. When
-this lands the game has no emoji left and `scripts/build-atlas.js` can drop its Twemoji step.
-**Where to start.** docs/art/emoji-audit.md for the list; `tools/art/jobs/npcs-r1..r5.json`
-for how the named NPCs were prompted and cut; the NPC rows' `symbol` (still emoji, and
-`Conversation.js` matches speakers by it) for the glyph half.
+**What is left of this item (the launch blocker).** The handful of conversation topics that are
+still Twemoji in a speech bubble (the weather, the random and secret topics with no art of their
+own). Spawners are out of this item (owner 2026-11-10): they draw as nothing and appear in no
+panel for a player. Done 2026-11-10: the named NPCs' glyphs are gone from every panel and modal
+(quest cards, Level Up modal, Story modal, hire cards); the player's picture in a bubble is the
+avatar's head; the feelings, the relationship outcomes and the quest / trade overlays are painted
+(docs/art/ui-icons.md, `icons-r12`). **Why.** Owner's order in docs/art/emoji-audit.md:
+characters come last. When this lands the game has no emoji left and `scripts/build-atlas.js`
+can drop its Twemoji step. **Where to start.** docs/art/emoji-audit.md for the list; the NPC
+rows' `symbol` (still emoji, and `Conversation.js` matches speakers by it).
 
-**Enemies, started 2026-11-11.** Two owner decisions replace the plan's "side-on creature
-lane": enemies are drawn FRONT-FACING like the player characters (not side-on like the farm
-animals), and an enemy's footprint is free (`sizeX` x `sizeY` on its row, like deco: the Demon
-may be 1 x 2, the Phoenix 2 x 2, the Dragon 2 x 4; the Bear stays 1 x 1 with art as tall as a
-player that spills over its tile). Each enemy gets its own animation rules later. Built:
-multi-tile enemies (`Utils/npcFootprint.js`, CLAUDE.md's footprint rule; the Phoenix is 2 x 2
-as a scaled emoji for testing). Commissioned: the style probe `tools/art/jobs/enemies-r1.json`,
-two candidates each of Bear, Spider, Ghost, Zombie and Demon
-(`tools/art/_candidates/enemies-r1/review.jpg`). **Installed 2026-11-12 to see them in game:**
-the Bear (`npc-enemy-bear.svg`, `artSpan 2.05`), the Ghost and the Zombie (`artSpan 1.8`, a
-named NPC's height), candidate 1 of each, cut by `figurecut.js --fit height`, `artFacing right`,
-with a head crop in `iconFile` (`npc-head-<name>.svg`); the Great Bear and the Polar Bear are
-still emoji. **Second round, same day** (`enemies-r2`, `enemies-r3`, one candidate each): the Spider was
-redrawn from a higher three-quarter camera, like the buildings and deco, so its back is seen,
-and is installed (`npc-enemy-spider.svg`, `artSpan 1.5`, its icon the whole spider); the Zombie
-was revised (both feet bare, the head held straight) and replaces the first. The Demon went through
-three designs: r2 (empty hands, arms at its sides) came out chubby; r3 is the owner's new design
-and is **installed at 2 x 2**: a floating half-bat with open wings, a small bat's lower body with
-little dangling legs, a fit upper body, arms crossed like a genie, tattoos, tall ridged lyre horns
-and a braided beard; its square (`artSpan 2.8`) carries a ground shadow with the figure lifted
-0.3 tile above it. **The Ogre and the Coyote** (`enemies-r4`, one candidate each) are installed:
-the Ogre 1 x 2 (one wide, two deep), `artSpan 2.7` (half as tall again as the Zombie), painted
-less cartoon than the others on the owner's word (a small head, no doll proportion), skin a
-sallow olive; the Coyote 1 x 1, four-legged, facing the viewer from a little above, its tan fur recoloured LIGHT GREY so it stands out on the ground (owner; a hue-masked recolour of the cut, the yellow eyes kept). Because
-hundreds of Demons and Ogres were placed as one tile (layouts and saved grids), a multi-tile
-NPC whose body does not fit where it starts moves once to the nearest anchor where it does
-(`AllNPCsShared.settleBody`). A painted NPC with `artSpan` 2.4 or more takes the 512 px atlas
-slot. Rules so far: an enemy never holds an object (it makes trouble for animation later). **Fourth round** (`enemies-r5`,
-one candidate each, all installed): the Ogre redrawn in the game's style (r4 was too realistic,
-pulled there by the reference photographs, which are no longer refs) and narrower, its skin
-nudged from ochre to a slightly green olive in the cut; the Ghost without a mouth, only the eyes
-floating in the dark hood; the **Phoenix** painted, 2 x 2, hovering with its wings open over a
-ground shadow like the Demon (`artSpan 2.9`). **The Dragon, 3 x 3** (`enemies-r6`): three
-concepts, one image each, awaiting the owner's pick (`_candidates/enemies-r6/review.jpg`), none
-installed and the row still 1 x 1: A seated (green, grounded, wings half-open), B flying (steel
-blue, hovering with wings spread like the Demon and the Phoenix), C a coiled wingless wyrm
-(crimson and gold, from the higher camera). The owner chose B and asked for three variations
-(`enemies-r7`, `_candidates/enemies-r7/review.jpg`, none installed): its bat wings were too like
-the Demon's, so fin wings, scaled wings and swept pterosaur wings; NO horns (the Demon has them),
-only spikes, fins and scales round the head; and the Dragon is a fairly bright green. **Installed:
-variation 2, the scaled wings**, at 3 x 3: `npc-enemy-dragon.svg`, a 1024 px square
-(`figurecut.js --size 1024`) at `artSpan 5.1` (wings 5 tiles across, the figure lifted 0.35 tile
-over a ground shadow), in the 768 px atlas slot (`artSpan` 4.5 or more). Of the 15 Dragons placed
-in layouts, 4 stand in dense forest with no 3 x 3 clearing within eight tiles (valley layouts
-1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44): they cannot settle or move until those
-spots are cleared. Still to draw: Cerberus, the two other bears.
+**NPC and enemy art: CLOSED 2026-11-12** (owner: "call the NPC art backlog item done"). Every
+named NPC and every enemy row has painted art; the record is the git log and
+`tools/art/jobs/enemies-r1..r8.json`: front-facing painted enemies, free footprints (`sizeX` x
+`sizeY`), installed with `artSpan`, `iconFile` head crops, `noFlip`, `hover`. The last three
+rows closed with it: Cerberus is painted (2 x 2), the Great Bear is the Bear's art tinted
+near-black and 30 % larger, and the Polar Bear row was cut. One loose end, not part of this
+item: 4 of the 15 Dragons stand in dense forest with no 3 x 3 clearing within eight tiles
+(valley layouts 1012274 at 54,59 and 1013320 at 6,31 / 5,37 / 11,44), so they cannot settle or
+move until those spots are cleared.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.

@@ -59,6 +59,8 @@ import { getMasterXPLevels } from '../../Utils/TuningManager';
 // The farm animal's ready ✅ sits this many tiles lower than the humanoid head-top spot, so it
 // hugs the animal's art (owner 2026-11-10); quest/trade NPC overlays are unchanged
 const FARM_ANIMAL_OVERLAY_DROP = 0.15;
+const HOVER = { tiles: 0.12, periodMs: 2200 };
+const FLAP = { periodMs: 420, idleSlow: 2 }; // one wing beat while a winged enemy flies to its next tile; idle it beats this many times slower // a floating enemy's idle bob: how high (of a tile) and how slow
 
 // Building overlays (✅, clock, ?) sit centred at the top of the footprint, over the art
 // (owner 2026-11-10): twice the old size, except crafting stations and pets (the old size)
@@ -526,8 +528,22 @@ const PixiRenderer = ({
   const breathersRef = useRef(new Map());
   const blinkersRef = useRef(new Map()); // figure NPCs with a blink frame (id -> seed)
   const breathTickerRef = useRef(null);
+  // A floating enemy's idle bob (owner 2026-11-12): `hover` on its row (Ghost, Demon, Dragon,
+  // Phoenix) is the fraction of its art square above which it rises (the gap over its painted
+  // ground shadow; 1 = the whole art). id -> { seed, amp }: amp eases to 1 while it stands, to 0
+  // while it moves, so the bob settles in and out instead of jumping (BreathSprite.hoverLift).
+  const hoverersRef = useRef(new Map());
+  // A winged enemy flaps (owner 2026-11-12): `wingRoots` on its row ("uL,uR", where the wings meet
+  // the body; the Demon, the Dragon). It beats at FLAP.periodMs while it flies to the next tile and at
+  // half that speed while it hovers in place. id -> { phase, last } (BreathSprite.wingFold): the phase
+  // runs on, so the change of speed never makes the wings jump.
+  const flappersRef = useRef(new Map());
   const applyBreath = useCallback((npcId, displayObj, now) => {
     if (!displayObj || !('breath' in displayObj)) return;
+    // the idle foot tap is for people: never an enemy or a farm animal (owner 2026-11-12). Set on
+    // every pass, since a sprite can be rebuilt or reused (it showed briefly after a hot reload)
+    const kind = displayObj.__npc?.action;
+    displayObj.noIdleTap = kind === 'attack' || kind === 'graze' || kind === 'spawn';
     const seed = breathersRef.current.get(npcId);
     if (seed === undefined) { displayObj.breath = 0; displayObj.walking = false; return; }
     const animation = npcAnimations.current[npcId];
@@ -1405,6 +1421,17 @@ const PixiRenderer = ({
           displayObj.__restScale = { x: Math.abs(displayObj.scale.x), y: Math.abs(displayObj.scale.y) };
         }
         if ('breathTop' in displayObj && Number(npc.breathTop) > 0) displayObj.breathTop = Number(npc.breathTop); // where this figure's head ends: rigid above it
+        displayObj.__npc = npc; // set before applyBreath, which reads its kind (the idle tap)
+        const hover = Number(npc.hover ?? masterResources?.find((m) => m.type === npc.type)?.hover) || 0;
+        if (hover > 0 && 'breath' in displayObj) {
+          displayObj.hoverCut = hover;
+          if (!hoverersRef.current.has(npc.id)) hoverersRef.current.set(npc.id, { seed: breathSeed(`${npc.id}:hover`), amp: 0 });
+        } else { hoverersRef.current.delete(npc.id); displayObj.hoverLift = 0; }
+        const roots = String(npc.wingRoots ?? masterResources?.find((m) => m.type === npc.type)?.wingRoots ?? '').split(',').map(Number);
+        if ((roots.length === 2 || roots.length === 3) && roots.every((u) => u > 0 && u < 1) && 'breath' in displayObj) {
+          displayObj.wingRoots = roots;
+          if (!flappersRef.current.has(npc.id)) flappersRef.current.set(npc.id, { phase: (breathSeed(`${npc.id}:flap`) % 1000) / 1000, last: performance.now() });
+        } else { flappersRef.current.delete(npc.id); displayObj.wingRoots = null; displayObj.wingFold = 0; }
         applyBreath(npc.id, displayObj, performance.now());
         // blinking: the ticker swaps between the open art and the blink frame (breathing.js isBlinking)
         displayObj.__openTex = newDisplayType === 'sprite' ? texture : null;
@@ -1447,8 +1474,28 @@ const PixiRenderer = ({
     const ticker = appRef.current?.ticker;
     if (!ticker || breathTickerRef.current || !breathingAllowed()) return undefined;
     const onBreath = () => {
-      if (!breathersRef.current.size && !blinkersRef.current.size) return;
+      if (!breathersRef.current.size && !blinkersRef.current.size && !hoverersRef.current.size && !flappersRef.current.size) return;
       const now = performance.now();
+      for (const [npcId, f] of flappersRef.current) {
+        const displayObj = npcDisplayObjects.current[npcId];
+        if (!displayObj || displayObj.destroyed) { flappersRef.current.delete(npcId); continue; }
+        const animation = npcAnimations.current[npcId];
+        const moving = !!animation && animation.duration !== 0;
+        const dt = Math.min(100, now - f.last); f.last = now;
+        f.phase = (f.phase + dt / (FLAP.periodMs * (moving ? 1 : FLAP.idleSlow))) % 1;
+        // fold and open again, a quick in-stroke and a slower out-stroke
+        const p = f.phase;
+        displayObj.wingFold = p < 0.4 ? Math.sin((p / 0.4) * Math.PI / 2) : Math.cos(((p - 0.4) / 0.6) * Math.PI / 2);
+      }
+      for (const [npcId, h] of hoverersRef.current) {
+        const displayObj = npcDisplayObjects.current[npcId];
+        if (!displayObj || displayObj.destroyed) { hoverersRef.current.delete(npcId); continue; }
+        const animation = npcAnimations.current[npcId];
+        const moving = !!animation && animation.duration !== 0;
+        h.amp = moving ? Math.max(0, h.amp - 0.06) : Math.min(1, h.amp + 0.02); // settles in over ~1 s, out quickly
+        const phase = (now / HOVER.periodMs + (h.seed % 1000) / 1000) * Math.PI * 2;
+        displayObj.hoverLift = h.amp * HOVER.tiles * TILE_SIZE * (0.5 + 0.5 * Math.sin(phase));
+      }
       for (const npcId of breathersRef.current.keys()) {
         const displayObj = npcDisplayObjects.current[npcId];
         if (displayObj && !displayObj.destroyed) applyBreath(npcId, displayObj, now);

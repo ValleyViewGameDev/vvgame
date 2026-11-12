@@ -3,21 +3,58 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { getMasterResources } from '../../Utils/TuningManager';
-import { isMultiTileNpc } from '../../Utils/npcFootprint';
+import { isMultiTileNpc, npcCells, npcCentre } from '../../Utils/npcFootprint';
 import { npcFitsAt } from './npcGround';
 
 /**
- * Where a MULTI-TILE enemy can be born: the nearest anchor to the spawner (within 3 tiles) where
- * its whole body fits (its ground, no impassable resource, no other NPC, not the player), or null
- * when there is no room yet. A 1 x 1 enemy is born on the spawner's own tile, as always.
+ * Where a MULTI-TILE enemy can be born: the anchor nearest the spawner (its body's middle, within
+ * ROOM_RADIUS) where its whole body fits (its ground, no impassable resource, no other NPC, not
+ * the player), or null when there is no room yet. A 1 x 1 enemy is born on the spawner's own
+ * tile, as always.
+ *
+ * The body must also be on the SPAWNER'S SIDE of any wall (owner 2026-11-12: a Demon was born
+ * through a dungeon wall): every tile it covers has to be reachable from the spawner by steps
+ * N/E/S/W over open ground (sideReach; no diagonal squeeze through two wall corners). Only when
+ * the layout itself leaves no such room (even with every NPC and the player gone) does it fall
+ * back to the nearest fit anywhere, so a spawner never stops for good.
  */
-function roomFor(def, at, npcs, pcs) {
+const ROOM_RADIUS = 4;
+
+/** The tiles reachable from (sx, sy) by N/E/S/W steps over ground this enemy may stand on, within ROOM_RADIUS + its size. */
+function sideReach(def, sx, sy, tiles, resources) {
+  const one = { ...def, size: 1, sizeX: 1, sizeY: 1 };
+  const limit = ROOM_RADIUS + Math.max(Number(def.sizeX) || Number(def.size) || 1, Number(def.sizeY) || Number(def.size) || 1);
+  const seen = new Set([`${sx},${sy}`]);
+  const queue = [[sx, sy]];
+  while (queue.length) {
+    const [x, y] = queue.shift();
+    for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0]]) {
+      const nx = x + dx; const ny = y + dy; const k = `${nx},${ny}`;
+      if (seen.has(k) || Math.abs(nx - sx) > limit || Math.abs(ny - sy) > limit) continue;
+      if (!npcFitsAt(one, nx, ny, tiles, resources, null, null)) continue;
+      seen.add(k); queue.push([nx, ny]);
+    }
+  }
+  return seen;
+}
+
+export function roomFor(def, at, npcs, pcs) {
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources() || [];
   const me = pcs[0]?.position || null;
   const spots = [];
-  for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) spots.push({ x: at.x + dx, y: at.y + dy, d: dx * dx + dy * dy });
+  for (let dy = -ROOM_RADIUS; dy <= ROOM_RADIUS; dy++) for (let dx = -ROOM_RADIUS; dx <= ROOM_RADIUS; dx++) {
+    const c = npcCentre(def, { x: at.x + dx, y: at.y + dy });
+    spots.push({ x: at.x + dx, y: at.y + dy, d: (c.x - at.x) ** 2 + (c.y - at.y) ** 2 });
+  }
   spots.sort((a, b) => a.d - b.d);
+  const side = sideReach(def, at.x, at.y, tiles, resources);
+  const onSide = (t) => npcCells(def, t).every((c) => side.has(`${c.x},${c.y}`));
+  const sideSpots = spots.filter(onSide);
+  const free = sideSpots.find((t) => npcFitsAt(def, t.x, t.y, tiles, resources, npcs, me));
+  if (free) return free;
+  // the spawner's side has room, just not now (an NPC or the player in the way): wait a cycle
+  if (sideSpots.some((t) => npcFitsAt(def, t.x, t.y, tiles, resources, null, null))) return null;
   return spots.find((t) => npcFitsAt(def, t.x, t.y, tiles, resources, npcs, me)) || null;
 }
 

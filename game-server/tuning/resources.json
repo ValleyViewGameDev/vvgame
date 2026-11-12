@@ -11316,6 +11316,7 @@
   },
   {
     "type": "Ghost",
+    "hover": 1,
     "symbol": "👻",
     "layoutkey": "nG",
     "category": "npc",
@@ -11398,6 +11399,8 @@
   },
   {
     "type": "Demon",
+    "wingRoots": "0.305,0.695",
+    "hover": 0.9,
     "symbol": "👿",
     "layoutkey": "nD",
     "sizeX": 2,
@@ -11523,6 +11526,9 @@
   },
   {
     "type": "Dragon",
+    "shotFrom": "0.457,0.288",
+    "wingRoots": "0.34,0.665",
+    "hover": 0.918,
     "symbol": "🐲",
     "layoutkey": "nX",
     "sizeX": 3,
@@ -11558,13 +11564,14 @@
     "validonu": true,
     "projectile": "fireball",
     "attackinterval": 2.5,
-    "noFlip": true,
     "filename": "npc-enemy-dragon.svg",
     "iconFile": "npc-head-dragon.svg",
     "artSpan": 5.1
   },
   {
     "type": "Phoenix",
+    "wingRoots": "0.41,0.59,0.56",
+    "hover": 0.9,
     "symbol": "🐦‍🔥",
     "layoutkey": "pH",
     "sizeX": 2,

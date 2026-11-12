@@ -6,7 +6,7 @@ import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { createImpactEffect } from '../../VFX/VFX';
 import { isWallBlocking } from '../../Utils/GridManagement';
 import { npcNearestCell, npcReach, npcCentre, anchorsBeside } from '../../Utils/npcFootprint';
-import { npcShotOrigin, pcChest } from '../../Render/PixiRenderer/shotPoints';
+import { npcShotOrigin, pcChest, pcHead } from '../../Render/PixiRenderer/shotPoints';
 
 /**
  * Sight vs. a clear swing (Utils/GridManagement.isWallBlocking, one line-of-sight rule for the
@@ -410,12 +410,12 @@ function performAttack(gridId, TILE_SIZE) {
     const land = () => {
       const pc = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {})[0];
       if (!pc || pc.hp <= 0) return;
-      if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss'); return; }
+      if (!isAHit) { CombatFX.text(pc.position.x, pc.position.y, 'miss', 'miss', pcHead(pc.position)); return; }
       const newHP = Math.max(0, pc.hp - damage);
       CombatFX.playerHit();
       const body = npcCentre(this);
       createImpactEffect(pc.position.x, pc.position.y, body.x, body.y);
-      CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player');
+      CombatFX.text(pc.position.x, pc.position.y, `-${damage}`, 'player', pcHead(pc.position));
       soundManager.playSFX('take_damage');
       playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP, lastUpdated: Date.now() });
       if (newHP <= 0) playersInGridManager.flushAfterTransaction(); // death is worth saving now

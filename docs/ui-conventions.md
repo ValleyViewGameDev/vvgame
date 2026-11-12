@@ -571,7 +571,7 @@ so wrap any new text surface in it. For a `title` attribute use `plainText(text)
   relative to the art's native facing in `artFacing` (resources.json: `left` for animals and
   beasts, `front` for people, which never flip); no random turns in place. A row with
   `noFlip: true` is never mirrored, whichever way it walks (owner 2026-11-12: set on every
-  enemy except the Zombie, the Ogre and the Coyote, which still flip).
+  enemy except the Zombie, the Ogre, the Coyote and the Dragon, which still flip).
 - Grid-change fade (`UI/TransitionContext.js`): 250 ms to black, 400 ms back. A crossing pays
   both back to back, so together they are the floor of every grid change; keep them a short
   breath, not a scene change (they were 600 / 900 until 2026-10-07 and read as "slow"). The

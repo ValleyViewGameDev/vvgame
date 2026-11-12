@@ -40,6 +40,8 @@ const FX = {
   HP_BAR_LINGER_MS: 2500,
   HP_BAR_FADE_MS: 400,
   WINDUP_MS: 300,
+  TEXT_HEAD_GAP: -2,         // px from the top of a head to the bottom of a combat text's BOX (the box carries
+                             // ~5 px of descent and stroke under the letters, so the letters still clear the head)
   LIGHTNING_MS: 260,         // the Ghost's bolt: there at once, flickers, fades; the hit lands on the strike
   FIREBALL_MS_PER_TILE: 95,  // fireballs fly a little slower than arrows, so they read
   EMBER_EVERY_MS: 28,        // a fireball sheds an ember this often
@@ -149,8 +151,12 @@ function setPivotOffset(obj, dxWorld, dyWorld, sx, sy) {
 
 // ---------------------------------------------------------------- texts
 
-/** A short text that rises from tile (x, y) and fades. Colors: 'damage' | 'player' | 'miss' | 'gain'. */
-export function text(x, y, label, kind = 'damage') {
+/**
+ * A short text that rises from tile (x, y) and fades. Colors: 'damage' | 'player' | 'miss' | 'gain'.
+ * With `head` (a point from shotPoints.npcHead / pcHead: the top of the drawn head), it starts
+ * TEXT_HEAD_GAP px above that head instead of near the tile's top, so it clears tall art.
+ */
+export function text(x, y, label, kind = 'damage', head = null) {
   if (!ready()) return;
   const styles = {
     damage: { fill: '#ffffff', stroke: '#5a1010', strokeThickness: 4, fontSize: TILE * 0.5 },
@@ -166,7 +172,7 @@ export function text(x, y, label, kind = 'damage') {
   t.resolution = 2;
   t.anchor.set(0.5, 1);
   const x0 = (x + 0.5) * TILE + (Math.random() - 0.5) * TILE * 0.3;
-  const y0 = (y + 0.15) * TILE;
+  const y0 = head && !head.fallback ? (head.y + 0.5) * TILE - FX.TEXT_HEAD_GAP : (y + 0.15) * TILE;
   t.x = x0; t.y = y0;
   fxContainer.addChild(t);
   const start = Date.now();
@@ -539,11 +545,15 @@ export function enemyLeapCharge(npcId, ms) {
       if (obj.destroyed) return false;
       const e = now - start;
       const r = rest(obj);
-      if (e >= ms) { setPivotOffset(obj, 0, 0, r.x, r.y); applyScale(obj, 1, 1); return false; }
+      const bends = 'breath' in obj; // a BreathSprite bends its legs (BreathSprite.crouch)
+      if (e >= ms) { setPivotOffset(obj, 0, 0, r.x, r.y); if (bends) obj.crouch = 0; else applyScale(obj, 1, 1); return false; }
+      const crouch = easeOut(Math.min(1, e / ms));
+      // gathering itself (owner 2026-11-12): the feet stay planted and it sinks into its legs from the
+      // waist down, the upper body unbent; the shake only sideways, so the feet never leave the ground
       const k = FX.LEAP_SHAKE_PX * (0.5 + 0.5 * (e / ms));          // it builds
-      setPivotOffset(obj, (Math.random() - 0.5) * 2 * k, (Math.random() - 0.5) * k, r.x, r.y);
-      const crouch = Math.min(1, e / ms);
-      applyScale(obj, 1 + 0.08 * crouch, 1 - 0.12 * crouch);           // gathering itself
+      setPivotOffset(obj, (Math.random() - 0.5) * 2 * k, 0, r.x, r.y);
+      if (bends) obj.crouch = crouch;
+      else applyScale(obj, 1 + 0.08 * crouch, 1 - 0.12 * crouch);
       return true;
     },
   });
@@ -559,6 +569,7 @@ export function enemyLeapArc(npcId, ms) {
       if (obj.destroyed) return false;
       const p = Math.min(1, (now - start) / ms);
       const r = rest(obj);
+      if ('breath' in obj && obj.crouch) obj.crouch = 0; // the legs spring straight at take-off
       setPivotOffset(obj, 0, -Math.sin(p * Math.PI) * FX.LEAP_ARC_TILES * TILE, r.x, r.y);
       applyScale(obj, 1 - 0.1 * Math.sin(p * Math.PI), 1 + 0.12 * Math.sin(p * Math.PI)); // stretched in the air
       if (p >= 1) { setPivotOffset(obj, 0, 0, r.x, r.y); applyScale(obj, 1, 1); return false; }

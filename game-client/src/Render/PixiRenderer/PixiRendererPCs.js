@@ -1,7 +1,7 @@
 // @refresh reset
 // ^ Development only: remount on a hot reload instead of re-running effects on destroyed Pixi objects (see PixiRenderer.js).
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
-import { Container, Text, Sprite, Texture } from 'pixi.js-legacy';
+import { Container, Text, Sprite, Texture, Rectangle } from 'pixi.js-legacy';
 import { renderPositions, getPlayerFacing, onPlayerFacingChange, isPlayerWalkingSideways } from '../../PlayerMovement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import PixiCamera from './PixiCamera';
@@ -22,6 +22,16 @@ import { renderLook } from '../../Avatar/avatarCompositor';
 // its body's does (tools/art/parts.js eyes on the two faces)
 const AVATAR_PX = 512;
 const AVATAR_SPAN = 1.8;
+// the boat the player turns into afloat: 1.8x the 0.9-tile state art, centred on the tile (owner 2026-11-12)
+const BOAT_SPAN = 1.62;
+// Afloat, the saved avatar sits IN the boat (owner 2026-11-12): the avatar cut off at its waist,
+// drawn at its usual size over the boat with the waist on the boat's near rim, so the rim reads
+// as the boat's front edge. Both are fractions of their picture's square, measured on the art
+// (item-boat.png: the near gunwale's top edge; new boat art = re-measure BOAT_RIM).
+const BOAT_RIM = 0.445;
+// One waist line for every avatar, whatever the clothes or body (owner 2026-11-12: reading it off
+// each drawing cut different outfits at different heights): this fraction of the avatar's square.
+const RIDER_WAIST = 0.56;
 const AVATAR_BREATH_TOP = { female: 0.345, male: 0.294 };
 
 // Normalize emoji by removing variation selectors (U+FE0F) for consistent matching
@@ -99,6 +109,16 @@ const PixiRendererPCs = ({
   // Pooled display objects (one of each; only the local PC is ever drawn)
   const textRef = useRef(null);             // Text object for PC icon (emoji fallback)
   const spriteRef = useRef(null);           // Sprite object for SVG icon
+  const riderRef = useRef(null);            // afloat: the avatar's upper half sitting in the boat
+  const riderTexRef = useRef(null);         // { src, waist, tex }: the waist-cropped avatar texture
+  // the rider's cut shares the avatar's base texture: let go of it before that avatar is destroyed
+  const releaseRider = (old) => {
+    const cut = riderTexRef.current;
+    if (!cut || cut.src !== old?.open) return;
+    if (riderRef.current && !riderRef.current.destroyed) riderRef.current.texture = Texture.EMPTY;
+    try { cut.tex.destroy(false); } catch (e) { /* already gone */ }
+    riderTexRef.current = null;
+  };
 
   // Per-instance SVG texture cache (destroyed on unmount). Atlas frames are kept apart
   // in atlasTextureCacheRef because they belong to the shared sheets and must not be destroyed here.
@@ -122,7 +142,7 @@ const PixiRendererPCs = ({
       const old = avatarTexRef.current;
       if (!old) return;
       avatarTexRef.current = null;
-      retireAvatarTex(old, spriteRef.current, avatarTexRef.current);
+      releaseRider(old); retireAvatarTex(old, spriteRef.current, avatarTexRef.current);
       setAvatarVersion((v) => v + 1);
     };
     (async () => {
@@ -139,7 +159,7 @@ const PixiRendererPCs = ({
         if (!live) return;
         const old = avatarTexRef.current;
         avatarTexRef.current = { key: look.key, open: Texture.from(open), blink: shut ? Texture.from(shut) : null, body: face.body || 'female' };
-        if (old) retireAvatarTex(old, spriteRef.current, avatarTexRef.current);
+        if (old) { releaseRider(old); retireAvatarTex(old, spriteRef.current, avatarTexRef.current); }
         setAvatarVersion((v) => v + 1);
       } catch (e) { console.warn('avatar: could not compose the saved look', e); }
     })();
@@ -147,7 +167,7 @@ const PixiRendererPCs = ({
   }, [avatarKey]);
   useEffect(() => () => { // unmount: the composed textures go with the renderer
     const old = avatarTexRef.current;
-    if (old) { avatarTexRef.current = null; retireAvatarTex(old, spriteRef.current, null); }
+    if (old) { avatarTexRef.current = null; releaseRider(old); retireAvatarTex(old, spriteRef.current, null); }
   }, []);
 
   // Ref to track if animation ticker is running (on-demand pattern)
@@ -343,6 +363,34 @@ const PixiRendererPCs = ({
 
   const hideSprite = useCallback(() => {
     if (spriteRef.current) spriteRef.current.visible = false;
+    if (riderRef.current) riderRef.current.visible = false;
+  }, []);
+
+  const hideRider = useCallback(() => {
+    if (riderRef.current) riderRef.current.visible = false;
+  }, []);
+
+  /** The rider sprite (lazily made) wearing the avatar cut at its waist; null when there is no avatar. */
+  const getRider = useCallback((avatarOpen) => {
+    if (!avatarOpen || avatarOpen.valid === false || avatarOpen.baseTexture?.destroyed) return null;
+    const waist = RIDER_WAIST;
+    let cut = riderTexRef.current;
+    if (!cut || cut.src !== avatarOpen || cut.waist !== waist) {
+      if (cut?.tex) { try { cut.tex.destroy(false); } catch (e) { /* gone with its base */ } }
+      const fr = avatarOpen.frame;
+      const tex = new Texture(avatarOpen.baseTexture, new Rectangle(fr.x, fr.y, fr.width, Math.max(1, Math.round(fr.height * waist))));
+      cut = riderTexRef.current = { src: avatarOpen, waist, tex };
+    }
+    let rider = riderRef.current;
+    if (!rider) {
+      rider = riderRef.current = new Sprite(cut.tex);
+      rider.anchor.set(0.5, 1); // its waist (the cut) is its bottom edge
+      if (pcContainerRef.current) pcContainerRef.current.addChild(rider);
+    }
+    if (!rider.parent && pcContainerRef.current) pcContainerRef.current.addChild(rider);
+    rider.texture = cut.tex;
+    rider.visible = true;
+    return { rider, waist };
   }, []);
 
   // Initialize PC container and persistent graphics
@@ -385,6 +433,9 @@ const PixiRendererPCs = ({
     if (spriteRef.current && !spriteRef.current.parent) {
       pcContainer.addChild(spriteRef.current);
     }
+    if (riderRef.current && !riderRef.current.parent) {
+      pcContainer.addChild(riderRef.current);
+    }
 
     return () => {
       // Cleanup on unmount
@@ -392,6 +443,10 @@ const PixiRendererPCs = ({
       if (spriteRef.current) {
         spriteRef.current.texture = Texture.EMPTY;
       }
+      if (riderRef.current) riderRef.current.texture = Texture.EMPTY;
+      riderRef.current = null;
+      if (riderTexRef.current?.tex) { try { riderTexRef.current.tex.destroy(false); } catch (e) { /* already gone */ } }
+      riderTexRef.current = null;
       CombatFX.registerPC(null);
       textRef.current = null;
       spriteRef.current = null;
@@ -494,15 +549,16 @@ const PixiRendererPCs = ({
       sprite.texture = texture;
       // a figure (the saved avatar or a figure icon) stands on the tile: its square's bottom edge is the tile's bottom edge
       const span = avatarTex ? AVATAR_SPAN : (!getStateArt(pc) && iconToSpanMap.get(normalizeEmoji(displayIcon)));
-      sprite.width = TILE_SIZE * (span || 0.9);
-      sprite.height = TILE_SIZE * (span || 0.9);
+      const flatSize = !avatarTex && pc.isinboat && getStateArt(pc) ? BOAT_SPAN : 0.9; // non-figure art, drawn centred
+      sprite.width = TILE_SIZE * (span || flatSize);
+      sprite.height = TILE_SIZE * (span || flatSize);
       sprite.x = xPos;
       // a figure is anchored at its FEET (the square's bottom-centre on the tile's bottom edge), so the
       // idle breath (breathing.js) stretches it up from the ground; a bust or emoji stays centred
       if (span) { sprite.anchor.set(0.5, 1); sprite.y = yPos + TILE_SIZE / 2; }
       else { sprite.anchor.set(0.5, 0.5); sprite.y = yPos; }
       const artTop = opaqueTopFraction(app?.renderer, texture);
-      liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - 0.45 + 0.9 * artTop;
+      liveHeadTop = span ? 1 - span * (1 - artTop) : 0.5 - flatSize / 2 + flatSize * artTop;
       sprite.__artTop = artTop; // CombatFX centres the cooldown ring on the drawn figure, not its feet
       sprite.__breathes = !!span; // only a figure breathes (the ticker below sets sprite.breath)
       if (!span) sprite.breath = 0;
@@ -524,6 +580,25 @@ const PixiRendererPCs = ({
       sprite.zIndex = actorZ(posY, 0.51); // by its feet (depthSort.js); wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();
+
+      // Afloat with a saved avatar: the avatar's upper half sits in the boat, its waist on the rim
+      const seated = pc.isinboat && getStateArt(pc) && pc.hp > 0 && !pc.iscamping ? getRider(av?.open) : null;
+      if (seated) {
+        const { rider, waist } = seated;
+        const rimY = yPos - (BOAT_SPAN * TILE_SIZE) / 2 + BOAT_RIM * BOAT_SPAN * TILE_SIZE;
+        rider.width = AVATAR_SPAN * TILE_SIZE;
+        rider.height = AVATAR_SPAN * TILE_SIZE * waist;
+        rider.scale.x = Math.abs(rider.scale.x) * getPlayerFacing();
+        rider.x = xPos;
+        rider.y = rimY;
+        rider.zIndex = actorZ(posY, 0.511); // over the boat, so the cut sits on the rim
+        rider.alpha = 1.0;
+        // the speech bubble rides above the rider's head (tiles from the tile's top)
+        const riderTop = opaqueTopFraction(app?.renderer, av.open);
+        liveHeadTop = (rimY - (yPos - TILE_SIZE / 2)) / TILE_SIZE - AVATAR_SPAN * (waist - riderTop);
+      } else {
+        hideRider();
+      }
     } else {
       // Use emoji text fallback
       const text = getText();
@@ -535,6 +610,7 @@ const PixiRendererPCs = ({
       text.zIndex = actorZ(posY, 0.51);
       text.alpha = 1.0;
       hideSprite();
+      hideRider();
 
       // If SVG exists but not loaded, trigger load
       if (svgFilename && !svgTextureCache.has(svgFilename) && !atlasTextureCache.has(svgFilename)) {
@@ -544,7 +620,7 @@ const PixiRendererPCs = ({
         });
       }
     }
-  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden]);
+  }, [currentPC, TILE_SIZE, gridOffset, getDisplayIcon, getStateArt, getSvgFilename, getEmojiCacheKey, getText, getSprite, hideText, hideSprite, hideRider, getRider, getPCRenderPosition, loadSvgTexture, avatarVersion, hidden]);
 
   // Initial render and re-render on state changes
   useEffect(() => {

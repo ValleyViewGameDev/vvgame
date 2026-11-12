@@ -23,7 +23,7 @@ import { isViewOnly } from '../../Utils/viewOnly';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
 import { npcNearestCell, npcCentre } from '../../Utils/npcFootprint';
-import { npcChest, pcChest } from '../../Render/PixiRenderer/shotPoints';
+import { npcChest, pcChest, npcHead, pcHead } from '../../Render/PixiRenderer/shotPoints';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -122,7 +122,7 @@ function checkRange(player, target, TILE_SIZE) {
     const targetPos = npcNearestCell(target, playerPos); // the tile of its body nearest the player
     const playerRange = player.attackrange || 1;
     if (reachDistance(playerPos, targetPos) > playerRange) {
-        CombatFX.text(targetPos.x, targetPos.y, '🎯', 'miss');
+        CombatFX.text(targetPos.x, targetPos.y, '🎯', 'miss', npcHead(target));
         FloatingTextManager.addFloatingText(501, targetPos.x, targetPos.y, TILE_SIZE);
         return false;
     }
@@ -208,14 +208,14 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
     const to = npcCentre(freshNPC);   // effects, numbers and shots aim at the middle of the body
     const land = () => {
         const live = NPCsInGridManager.getNPCsInGrid(gridId)?.[freshNPC.id];
-        if (!hit) { CombatFX.text(to.x, to.y, 'miss', 'miss'); return; }
+        if (!hit) { CombatFX.text(to.x, to.y, 'miss', 'miss', npcHead(freshNPC)); return; }
         if (!live || live.hp <= 0) return; // died to something else meanwhile
         live.hp -= damage;
         soundManager.playSFX('attack_hit');
         const mid = npcCentre(live);
         CombatFX.hitEnemy(live.id, from.x, from.y, mid.x, mid.y);
         createImpactEffect(mid.x, mid.y, from.x, from.y);
-        CombatFX.text(mid.x, mid.y, `-${damage}`, 'damage');
+        CombatFX.text(mid.x, mid.y, `-${damage}`, 'damage', npcHead(live));
         CombatFX.engageEnemy(live.id, live.hp, live.maxhp);
         if (live.hp > 0) return; // a wound stays client-side; the server only hears about the kill
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
@@ -318,7 +318,7 @@ function resolveKill(npc, gridId, currentPlayer, setCurrentPlayer, setResources,
                     });
                     if (response.data?.success) {
                         setCurrentPlayer(response.data.player);
-                        CombatFX.text(pos.x, pos.y - 1.4, 'Quest: Blood for Juliet', 'gain');
+                        CombatFX.text(pos.x, pos.y - 1.4, 'Quest: Blood for Juliet', 'gain', pcHead(pos));
                     }
                 }
             } catch (error) {

@@ -34,6 +34,20 @@ import { WALK, TAP, DEFAULT_LEGS, NO_ARMS, shapeOf, armsOf, armCutAt, walkLegs, 
  * And a figure that stands (one that breathes) TAPS A FOOT now and then (walking.js TAP): the
  * sprite keeps its own clock of how long it has stood and its own seed, so nothing sets it.
  *
+ * Two more, set by the renderers (owner 2026-11-12):
+ *   sprite.crouch = 0..1;      // the legs squash from the hip line down, the feet stay on the ground and
+ *                              // the upper body sinks with them unbent (the Ogre gathering for a leap, CombatFX)
+ *   sprite.hoverLift = px;     // a floating enemy's idle bob (world px up): every row above `hoverCut` (the
+ *                              // fraction of the square where the gap over its painted ground shadow is; 1 = the
+ *                              // whole art) rises, the shadow under it stays; the band across the gap stretches,
+ *                              // and it is transparent
+ *   sprite.wingRoots = [uL, uR, vEnd?]; // where a winged figure's wings meet its body (fractions of the square across;
+ *                                // the optional third: the row the wings end at, so what hangs under them, the
+ *                                // Phoenix's tail flames, is not folded; the fold fades out over WING.ramp under it)
+ *   sprite.wingFold = 0..1;      // the Demon 0.305, 0.695): the mesh is cut there, and each wing (everything
+ *                                // outside its root) folds in toward the body by wingFold, the body untouched:
+ *                                // a flap while it flies to the next tile
+ *
  * It also TURNS (breathing.js TURN): the renderers go on setting the sign of scale.x the moment a
  * figure's facing changes, and the sprite notices the sign change itself when it next computes
  * its vertices and plays the turn in them: each row narrows to TURN.minWidth, flips to the new
@@ -46,6 +60,8 @@ const MAX_ROWS = 48;
 const ROW_STEP = 0.045;  // no two rows further apart than this (of the square): the breath's chest bump is a curve
 const ARM_TAIL = 0.03;   // under a hand's end the strip eases back into the body over this much of the square
 const QUAD_INDICES = new Uint16Array([0, 1, 2, 0, 2, 3]);
+const WING = { fold: 0.55, lift: 0.03, peakV: 0.25, ramp: 0.05 }; // the flap: how far a wing folds in; how much its tips rise
+const CROUCH = { waist: 0.6, depth: 0.3, bow: 0.06 }; // where the bend starts (of the figure, top to feet); how much of what is under it squashes; how far the legs bow out
 const HAIR = 0.0005;     // the tapping foot's own top row sits this far under the ankle row: the same line, drawn twice
 const LAP = 0.008;       // ... and the standing leg is drawn this much further down, under the foot's top, so no crack shows between them
 const indexCache = new Map(); // "bands|cut" -> indices
@@ -147,7 +163,8 @@ export default class BreathSprite extends Sprite {
   _tapNow() {
     const now = performance.now();
     // walking, turning, not a figure (never told whether it walks) or not being drawn: the wait starts over
-    if (this._walkOn || this._walkAmp > 0 || this._turnT0 || now - this._toldAt > 500 || now - this._seenAt > 400) { this._stoodAt = now; return null; }
+    // `noIdleTap` (the renderer sets it on enemies and farm animals; owner 2026-11-12): never taps
+    if (this.noIdleTap || this._walkOn || this._walkAmp > 0 || this._turnT0 || now - this._toldAt > 500 || now - this._seenAt > 400) { this._stoodAt = now; return null; }
     if (!this._stoodAt) this._stoodAt = now;
     const tap = tapAt(now, this._stoodAt, this._tapSeed);
     return tap && shapeOf(this._texture)?.legs.split ? tap : null;
@@ -158,13 +175,16 @@ export default class BreathSprite extends Sprite {
     const tap = this._tapNow(); // before the turn stamps _seenAt
     const turning = this._turnElapsed();
     const walk = this._walkNow();
-    if (!this._breath && turning < 0 && !walk && !tap) {
+    const crouch = Math.max(0, Math.min(1, this.crouch || 0));
+    const hoverLift = this.hoverLift || 0;
+    const wingFold = this.wingRoots ? Math.max(0, Math.min(1, this.wingFold || 0)) : 0;
+    if (!this._breath && turning < 0 && !walk && !tap && !crouch && !hoverLift && !wingFold) {
       // a plain sprite again: hand the quad back (uvs are re-read by Sprite when _textureID differs)
       if (this.vertexData !== this._quadVerts) { this.vertexData = this._quadVerts; this.indices = QUAD_INDICES; this._textureID = -1; this._transformID = -1; }
       super.calculateVertices();
       return;
     }
-    const moving = turning >= 0 || !!walk || !!tap; // a turn, a walk or a tap moves every frame: never cached
+    const moving = turning >= 0 || !!walk || !!tap || !!crouch || !!hoverLift || !!wingFold; // these move every frame: never cached
     if (!moving && this.vertexData === this._meshVerts && this._transformID === this.transform._worldID && this._textureID === texture._updateID) return;
     this._transformID = moving ? -1 : this.transform._worldID;
     this._textureID = texture._updateID;
@@ -201,6 +221,16 @@ export default class BreathSprite extends Sprite {
     const ankle = Math.max(partV, feetV - TAP.foot);
     const tapLift = tap ? Math.min(tap.lift, 0.45 * (feetV - partV)) : 0; // never more than under half of what shows of the leg (shoes under a robe)
     if (tap) lines.push(ankle, ankle + HAIR);
+    const hoverCut = this.hoverCut > 0 && this.hoverCut < 1 ? this.hoverCut : vEnd;
+    if (hoverLift && hoverCut < vEnd) lines.push(hoverCut);
+    const hoverLocal = hoverLift / (Math.abs(this.scale.y) || 1); // world px -> the drawing's units
+    // the crouch bends from the WAIST (CROUCH.waist of the way from the top of the drawing to its feet, or
+    // the legs' hinge if that is higher): the walk's hinge sits near the knees on a short-legged figure
+    const waistV = Math.min(hinge, vStart + CROUCH.waist * (feetV - vStart));
+    const wingEnd = wingFold && this.wingRoots[2] > 0 ? this.wingRoots[2] : 0;
+    if (wingEnd) lines.push(wingEnd, wingEnd + WING.ramp);
+    const crouchDrop = crouch * CROUCH.depth * (feetV - waistV) * orig.height; // how far the waist sinks
+    if (crouch) lines.push(waistV);
     let hingeX = 0, hingeY = 0, tapSin = 0, tapCos = 1;
     if (tapLift) {
       // the hinge: the back of the ankle (where the back of that leg meets the top of the foot); the toe is the foot's far end on the ground
@@ -235,6 +265,10 @@ export default class BreathSprite extends Sprite {
       // the arms on this row: its cut, how far down the arm it is (0 at the shoulder .. 1 at the hand's end and
       // under it), and how much of the strip is ARM here (1 on the arm, easing to 0 under the hand's end; 0 off it)
       let cutL = left + (gapX - left) * 0.5, cutR = gapX + (right - gapX) * 0.5, wL = 0, wR = 0, armL = 0, armR = 0;
+      if (wingFold) { // the wings' roots are the cuts, so each wing is its own strip
+        cutL = Math.min(gapX - 1, Math.max(left + 1, origLeft + this.wingRoots[0] * orig.width));
+        cutR = Math.max(gapX + 1, Math.min(right - 1, origLeft + this.wingRoots[1] * orig.width));
+      }
       const onArm = (arm) => (v < arm.top || v > arm.bottom + ARM_TAIL ? 0 : v <= arm.bottom ? 1 : 1 - (v - arm.bottom) / ARM_TAIL);
       if (arms[0]) { cutL = Math.min(gapX - 1, Math.max(left + 1, origLeft + armCutAt(arms[0], v) * orig.width)); armL = onArm(arms[0]); wL = Math.min(1, Math.max(0, (v - arms[0].top) / (arms[0].bottom - arms[0].top))); }
       if (arms[1]) { cutR = Math.max(gapX + 1, Math.min(right - 1, origLeft + armCutAt(arms[1], v) * orig.width)); armR = onArm(arms[1]); wR = Math.min(1, Math.max(0, (v - arms[1].top) / (arms[1].bottom - arms[1].top))); }
@@ -271,6 +305,21 @@ export default class BreathSprite extends Sprite {
             bx += swingX; // the body's edge follows its arm OUT, so no hole opens between them; it stays when the arm swings in over it
           }
           x += bx; y -= by;
+        }
+        // the crouch: the hips sink by crouchDrop, the legs between them and the feet squash, the feet stay;
+        // the legs bow out a little as they bend
+        if (crouch) {
+          const legT = v <= waistV ? 0 : Math.min(1, (v - waistV) / (feetV - waistV)); // 0 at the waist .. 1 at the feet
+          y += crouchDrop * (1 - legT);
+          if (legT > 0 && legT < 1) x *= 1 + CROUCH.bow * crouch * Math.sin(legT * Math.PI);
+        }
+        if (hoverLift && v <= hoverCut + 1e-6) y -= hoverLocal; // the floating body bobs over its shadow
+        // the flap: a wing's outer edge folds in toward its root (the strip squashes), the body stays
+        if (wingFold && (k === 0 || k === 7)) {
+          const rowFold = wingFold * (!wingEnd || v <= wingEnd ? 1 : Math.max(0, 1 - (v - wingEnd) / WING.ramp));
+          const root = (k === 0 ? cutL : cutR) - centreX;
+          x = root + (x - root) * (1 - WING.fold * rowFold);
+          y -= WING.lift * rowFold * orig.height * Math.max(0, 1 - Math.abs(v - WING.peakV) / 0.4); // the tips rise a little as they fold
         }
         // the idle tap: everything of the right foot under the ankle row turns about the hinge as one piece (toe up)
         if (tapLift && half === 1 && v > ankle + HAIR / 2) {
