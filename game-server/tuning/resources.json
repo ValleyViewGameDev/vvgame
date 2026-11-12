@@ -11269,7 +11269,7 @@
     "symbol": "🕷️",
     "layoutkey": "nS",
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 2.4,
     "action": "attack",
     "output": "Thread",
@@ -11298,7 +11298,10 @@
     "validonv": true,
     "validonu": true,
     "projectile": "blob",
-    "attackinterval": 0.9
+    "attackinterval": 0.9,
+    "filename": "npc-enemy-spider.svg",
+    "iconFile": "npc-head-spider.svg",
+    "artSpan": 1.5
   },
   {
     "type": "Zombie",

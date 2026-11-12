@@ -151,11 +151,16 @@ two candidates each of Bear, Spider, Ghost, Zombie and Demon
 the Bear (`npc-enemy-bear.svg`, `artSpan 2.05`), the Ghost and the Zombie (`artSpan 1.8`, a
 named NPC's height), candidate 1 of each, cut by `figurecut.js --fit height`, `artFacing right`,
 with a head crop in `iconFile` (`npc-head-<name>.svg`); the Great Bear and the Polar Bear are
-still emoji. **Redrawn on the owner's notes** (`tools/art/jobs/enemies-r2.json`, one candidate
-each, `_candidates/enemies-r2/review.jpg`), not installed: the Demon holds nothing, arms at its
-sides, far less muscular and narrower (an enemy never holds an object: it makes trouble for
-animation later); the Spider from a higher three-quarter camera, like the buildings and deco,
-so its back is seen. Still to draw after the style is settled: Coyote, Ogre, Cerberus, Dragon,
+still emoji. **Second round, same day** (`enemies-r2`, `enemies-r3`, one candidate each): the Spider was
+redrawn from a higher three-quarter camera, like the buildings and deco, so its back is seen,
+and is installed (`npc-enemy-spider.svg`, `artSpan 1.5`, its icon the whole spider); the Zombie
+was revised (both feet bare, the head held straight) and replaces the first. The Demon is still
+open: r2 (empty hands, arms at its sides) came out chubby; r3 is a new design, a floating
+half-bat with open wings, a small bat's lower body with little dangling legs, a fit upper body,
+arms crossed like a genie, tattoos, tall ridged lyre horns and a braided beard
+(`_candidates/enemies-r3/review.jpg`), awaiting the owner's word; not installed (it needs a
+footprint and a hover height). Rules so far: an enemy never holds an object (it makes trouble
+for animation later). Still to draw after the style is settled: Coyote, Ogre, Cerberus, Dragon,
 Phoenix, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
