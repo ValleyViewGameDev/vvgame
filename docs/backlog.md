@@ -175,7 +175,10 @@ ground shadow like the Demon (`artSpan 2.9`). **The Dragon, 3 x 3** (`enemies-r6
 concepts, one image each, awaiting the owner's pick (`_candidates/enemies-r6/review.jpg`), none
 installed and the row still 1 x 1: A seated (green, grounded, wings half-open), B flying (steel
 blue, hovering with wings spread like the Demon and the Phoenix), C a coiled wingless wyrm
-(crimson and gold, from the higher camera). Still to draw: Cerberus, the two other bears.
+(crimson and gold, from the higher camera). The owner chose B and asked for three variations
+(`enemies-r7`, `_candidates/enemies-r7/review.jpg`, none installed): its bat wings were too like
+the Demon's, so fin wings, scaled wings and swept pterosaur wings; NO horns (the Demon has them),
+only spikes, fins and scales round the head; and the Dragon is a fairly bright green. Still to draw: Cerberus, the two other bears.
 
 **Avatar follow-ups that are NOT launch blockers** (owner 2026-11-10): equipment is BL-23;
 the rest is small and listed here so it is not lost.
