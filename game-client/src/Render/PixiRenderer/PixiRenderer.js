@@ -1200,7 +1200,7 @@ const PixiRenderer = ({
           const off = displayObj.__off || { x: 0, y: 0 }; // a multi-tile NPC is drawn at its body's middle, not its anchor tile
           displayObj.x = (animation.currentPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = (animation.currentPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2 - bob;
-          displayObj.zIndex = actorZ(animation.currentPos.y, 0.5, animation.targetPos.y); // keeps the row it leaves until it lands (depthSort.js)
+          displayObj.zIndex = actorZ(animation.currentPos.y); // by its feet: leaves a row's depth as it leaves the row (depthSort.js)
         }
         // A headline glyph (❗, Zzz, 💬: VFX/NPCVFX.js) rides above the NPC as it walks
         if (hasHeadlineEffect(npcId)) updateHeadlineEffectPosition(npcId, animation.currentPos);
@@ -1395,7 +1395,7 @@ const PixiRenderer = ({
           displayObj.__off = off;
           displayObj.x = (renderPos.x + off.x) * TILE_SIZE + TILE_SIZE / 2;
           displayObj.y = (renderPos.y + off.y) * TILE_SIZE + TILE_SIZE / 2;
-          displayObj.zIndex = actorZ(renderPos.y, 0.5, npcAnimations.current[npc.id]?.targetPos?.y ?? null); // over the resources of its own row, under the row south
+          displayObj.zIndex = actorZ(renderPos.y); // over the resources of its own row, under the row south
         }
         // Resting scale for CombatFX. Only a sprite is re-sized above (width/height reset its scale),
         // so only a sprite may re-record it here: an emoji (Text) NPC keeps the scale it was created
@@ -1414,8 +1414,11 @@ const PixiRenderer = ({
         // Face the way it last walked, relative to the art's native facing (`artFacing` on the
         // template: 'left' for the animals and beasts, 'front' for people, which never flip).
         // Sizing above leaves scale.x positive; facing only changes on a horizontal step.
+        // `noFlip` on the row (owner 2026-11-12): the art is never mirrored, whichever way it walks
+        // (the front-facing enemies; read from the master row so a stored NPC follows a sheet edit)
+        const noFlip = npc.noFlip ?? masterResources?.find((m) => m.type === npc.type)?.noFlip;
         const art = npc.artFacing || (npc.action === 'graze' || npc.action === 'attack' ? 'left' : 'front');
-        const flip = art === 'left' ? (npc.facing > 0 ? -1 : 1) : art === 'right' ? (npc.facing < 0 ? -1 : 1) : 1;
+        const flip = noFlip ? 1 : art === 'left' ? (npc.facing > 0 ? -1 : 1) : art === 'right' ? (npc.facing < 0 ? -1 : 1) : 1;
         displayObj.scale.x = Math.abs(displayObj.scale.x) * flip;
         displayObj.visible = !actorsHiddenRef.current; // no NPCs in the Settlement and Frontier views
         displayObj.__npc = npc; // dev Edit Mode finds the NPC under a click by it (Dev/devResourceEditor.js)
@@ -1425,6 +1428,7 @@ const PixiRenderer = ({
         if (newDisplayType === 'sprite') {
           const artTop = opaqueTopFraction(appRef.current?.renderer, texture);
           setNpcHeadTop(npc.id, 0.5 + off.y + (spriteSize * (artTop - anchorY)) / TILE_SIZE);
+          displayObj.__artTop = artTop; // shotPoints.js: the default chest is measured down from here
           displayObj.__topAbove = spriteSize * (anchorY - artTop); // px from its position up to its head: CombatFX floats the hp bar over it
         } else {
           setNpcHeadTop(npc.id, 0.5 + off.y - (fontSize * artScale * bodyScale * 0.5) / TILE_SIZE);

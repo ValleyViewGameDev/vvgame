@@ -87,8 +87,8 @@ The nav bar's Debug button (developer accounts only) has what staging needs:
 
 **Capture mode** (built 2026-11-11, `game-client/src/Dev/devCaptureMode.js`): press
 **Cmd+Ctrl+H** on a developer account to hide the header, status bar, zoom / map / To Do / season
-buttons, the nav bar (and its Debug button) and the Ko-fi widget. The board fills the whole
-window. Press it again to bring everything back. A panel or modal that is already open stays
+buttons, the nav bar (and its Debug button) and the Ko-fi widget, and stops the hover tips that
+follow the pointer over things on the board. The board fills the whole window. Press it again to bring everything back. A panel or modal that is already open stays
 open, so for a shot that needs one (planting from the Farming panel, an NPC's menu), open it
 first and then press the keys. Zoom still works on the `+` and `-` keys. A short notice appears
 for about a second when it switches, so start recording after it fades.

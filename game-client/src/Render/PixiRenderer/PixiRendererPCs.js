@@ -10,7 +10,6 @@ import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import CombatFX from './CombatFX';
 import { actorZ } from './depthSort';
-import { getAnimationTarget } from '../RenderAnimatePosition';
 import { opaqueTopFraction } from './artHitTest';
 import { breathLevel, breathSeed, breathingAllowed, isBlinking } from './breathing';
 import BreathSprite from './BreathSprite';
@@ -456,7 +455,6 @@ const PixiRendererPCs = ({
     const renderPos = pc ? getPCRenderPosition(pc) : null;
     const posX = renderPos?.x;
     const posY = renderPos?.y;
-    const stepTargetY = pc?.playerId ? getAnimationTarget(pc.playerId)?.y ?? null : null; // depth stays on the row it leaves until it lands
 
     if (!pc || posX === undefined || posY === undefined) {
       hideText();
@@ -523,7 +521,7 @@ const PixiRendererPCs = ({
       // and emoji never flip. Sizing above leaves scale.x positive, so the sign is applied after it.
       if (span) sprite.scale.x = Math.abs(sprite.scale.x) * getPlayerFacing();
       else if (sprite.scale.x < 0) sprite.scale.x = Math.abs(sprite.scale.x);
-      sprite.zIndex = actorZ(posY, 0.51, stepTargetY); // the row it stands on, the row it leaves while stepping (depthSort.js); wins a tie with an NPC on the same row
+      sprite.zIndex = actorZ(posY, 0.51); // by its feet (depthSort.js); wins a tie with an NPC on the same row
       sprite.alpha = 1.0;
       hideText();
     } else {
@@ -534,7 +532,7 @@ const PixiRendererPCs = ({
       text.x = xPos;
       text.y = yPos;
       liveHeadTop = 0.1;
-      text.zIndex = actorZ(posY, 0.51, stepTargetY);
+      text.zIndex = actorZ(posY, 0.51);
       text.alpha = 1.0;
       hideSprite();
 

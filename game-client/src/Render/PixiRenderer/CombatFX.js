@@ -15,7 +15,7 @@
  * the singleton; every call is a no-op until attached, so the logic never depends on it.
  * Casual by design: nothing here is a permanent UI element.
  */
-import { Container, Graphics, Sprite, Text } from 'pixi.js-legacy';
+import { BLEND_MODES, Container, Graphics, Sprite, Text } from 'pixi.js-legacy';
 import { getAtlasTexture } from './AtlasTextures';
 import { emojiKey } from '../../Utils/emojiKey';
 import { holdResourceRender } from '../../VFX/VFX';
@@ -40,6 +40,7 @@ const FX = {
   HP_BAR_LINGER_MS: 2500,
   HP_BAR_FADE_MS: 400,
   WINDUP_MS: 300,
+  LIGHTNING_MS: 260,         // the Ghost's bolt: there at once, flickers, fades; the hit lands on the strike
   FIREBALL_MS_PER_TILE: 95,  // fireballs fly a little slower than arrows, so they read
   EMBER_EVERY_MS: 28,        // a fireball sheds an ember this often
   EMBER_MS: 320,
@@ -101,6 +102,11 @@ export function detach() {
 }
 
 export function registerPC(getter) { getPcDisplay = getter || (() => null); }
+
+// read-only views for shotPoints.js (where a projectile leaves and lands)
+export const npcDisplay = (npcId) => getNpcDisplay(npcId);
+export const pcDisplay = () => getPcDisplay();
+export const tileSize = () => TILE;
 
 const ready = () => !!(app?.ticker && fxContainer && !fxContainer.destroyed);
 
@@ -378,7 +384,7 @@ export async function dropBounce(x, y, { symbol, filename } = {}) {
 // ---------------------------------------------------------------- projectiles
 
 // One shot's look (resources.json `projectile` on the enemy; the player's bows are arrows):
-// 'arrow', 'fireball' (the Dragon), 'fireball-small' (the Demon), 'blob' (the Spider's spit).
+// 'arrow', 'fireball' (the Dragon), 'fireball-small' (the Demon), 'blob' (the Spider's spit), 'lightning' (the Ghost: no flight, see lightning()).
 // Each is drawn along +x and rotated to the flight direction.
 function drawShot(g, style) {
   const len = TILE * 0.45;
@@ -428,6 +434,7 @@ export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow') {
   if (!ready()) { if (onArrive) onArrive(); return; }
   const x0 = (fromX + 0.5) * TILE; const y0 = (fromY + 0.5) * TILE;
   const x1 = (toX + 0.5) * TILE; const y1 = (toY + 0.5) * TILE;
+  if (style === 'lightning') { lightning(x0, y0, x1, y1, onArrive); return; }
   const dist = Math.hypot(x1 - x0, y1 - y0) / TILE;
   const g = new Graphics();
   const look = drawShot(g, style);
@@ -450,6 +457,71 @@ export function projectile(fromX, fromY, toX, toY, onArrive, style = 'arrow') {
         if (onArrive) { try { onArrive(); } catch (e) { console.error('projectile onArrive failed', e); } }
         return false;
       }
+      return true;
+    },
+  });
+}
+
+// The Ghost's shot (owner 2026-11-12): a bright flash of white lightning. It does not fly: a
+// jagged bolt is there at once from the ghost to the target, with a wide soft glow, a flash at
+// both ends and a fork or two; it flickers (re-jagged a few times) and fades over LIGHTNING_MS.
+// The hit lands on the strike.
+function boltPath(x0, y0, x1, y1, jag) {
+  const len = Math.hypot(x1 - x0, y1 - y0) || 1;
+  const nx = -(y1 - y0) / len; const ny = (x1 - x0) / len; // the normal: jag sideways
+  const n = Math.max(4, Math.round(len / (TILE * 0.35)));
+  const pts = [[x0, y0]];
+  for (let i = 1; i < n; i++) {
+    const t = i / n; const off = (Math.random() - 0.5) * 2 * jag;
+    pts.push([x0 + (x1 - x0) * t + nx * off, y0 + (y1 - y0) * t + ny * off]);
+  }
+  pts.push([x1, y1]);
+  return pts;
+}
+
+function drawBolt(g, x0, y0, x1, y1) {
+  g.clear();
+  const main = boltPath(x0, y0, x1, y1, TILE * 0.22);
+  const stroke = (pts, w, color, a) => {
+    g.lineStyle(w, color, a);
+    g.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+  };
+  stroke(main, TILE * 0.32, 0xbfd8ff, 0.25);  // the soft glow
+  stroke(main, TILE * 0.13, 0xe6f0ff, 0.6);
+  stroke(main, 2.5, 0xffffff, 1);              // the white-hot core
+  // a fork or two off the main bolt
+  const forks = 1 + Math.floor(Math.random() * 2);
+  for (let f = 0; f < forks; f++) {
+    const k = 1 + Math.floor(Math.random() * (main.length - 2));
+    const [sx, sy] = main[k];
+    const ang = Math.atan2(y1 - y0, x1 - x0) + (Math.random() < 0.5 ? -1 : 1) * (0.5 + Math.random() * 0.5);
+    const fl = TILE * (0.5 + Math.random() * 0.6);
+    const fork = boltPath(sx, sy, sx + Math.cos(ang) * fl, sy + Math.sin(ang) * fl, TILE * 0.12);
+    stroke(fork, TILE * 0.1, 0xe6f0ff, 0.45);
+    stroke(fork, 1.5, 0xffffff, 0.95);
+  }
+  g.lineStyle(0);
+  for (const [x, y, r] of [[x0, y0, 0.28], [x1, y1, 0.42]]) { // a flash where it leaves and where it strikes
+    g.beginFill(0xdfeaff, 0.35); g.drawCircle(x, y, TILE * r); g.endFill();
+    g.beginFill(0xffffff, 0.9); g.drawCircle(x, y, TILE * r * 0.4); g.endFill();
+  }
+}
+
+function lightning(x0, y0, x1, y1, onArrive) {
+  const g = new Graphics();
+  g.blendMode = BLEND_MODES.ADD;
+  fxContainer.addChild(g);
+  drawBolt(g, x0, y0, x1, y1);
+  if (onArrive) { try { onArrive(); } catch (e) { console.error('projectile onArrive failed', e); } }
+  const start = Date.now();
+  let lastJag = start;
+  run({
+    update(now) {
+      const p = Math.min(1, (now - start) / FX.LIGHTNING_MS);
+      if (now - lastJag >= 55 && p < 0.7) { lastJag = now; drawBolt(g, x0, y0, x1, y1); } // the flicker
+      g.alpha = p < 0.35 ? (Math.random() < 0.25 ? 0.55 : 1) : 1 - (p - 0.35) / 0.65;
+      if (p >= 1) { fxContainer.removeChild(g); g.destroy(); return false; }
       return true;
     },
   });

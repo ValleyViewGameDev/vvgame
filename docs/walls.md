@@ -13,7 +13,7 @@ resource with `action: 'wall'`, `passable: false`.
   `stone`, `Wooden Fence` is `fence`, `Hedge` is `hedge`. Rows without `wallSet` (the coloured walls) draw as
   before. Two different sets never connect to each other. (`Stone Wall Large`, the old 2 x 2
   wall, was removed 2026-10-21: every layout now has four `Stone Wall`s on its footprint.)
-- `filename` stays the Deco panel's cursor and button image: `wall-stone.svg`,
+- `filename` stays the Deco panel's cursor and button image: `wall-stone.png` (a composed run with a tower, from the pieces; 2026-11-12),
   `fence-wood.png` (a composed straight run, made by the cutter).
 
 ## The art: a post, four spokes, two runs

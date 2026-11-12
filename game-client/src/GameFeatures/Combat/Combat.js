@@ -23,6 +23,7 @@ import { isViewOnly } from '../../Utils/viewOnly';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { footprintOf, footprintCells } from '../../Utils/footprint';
 import { npcNearestCell, npcCentre } from '../../Utils/npcFootprint';
+import { npcChest, pcChest } from '../../Render/PixiRenderer/shotPoints';
 
 // Defaults when globalTuning.combat is missing (the server copy is the real knob)
 const COMBAT_DEFAULTS = {
@@ -219,7 +220,11 @@ export function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZ
         if (live.hp > 0) return; // a wound stays client-side; the server only hears about the kill
         resolveKill(live, gridId, currentPlayer, setCurrentPlayer, setResources, masterResources, masterTrophies);
     };
-    if (ranged) CombatFX.projectile(from.x, from.y, to.x, to.y, land);
+    if (ranged) {
+        // the arrow leaves the player's chest and lands on the enemy's (shotPoints.js)
+        const a = pcChest(player.position); const b = npcChest(freshNPC);
+        CombatFX.projectile(a.x, a.y, b.x, b.y, land);
+    }
     else land();
     return true;
 }

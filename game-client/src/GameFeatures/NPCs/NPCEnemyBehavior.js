@@ -6,6 +6,7 @@ import CombatFX from '../../Render/PixiRenderer/CombatFX';
 import { createImpactEffect } from '../../VFX/VFX';
 import { isWallBlocking } from '../../Utils/GridManagement';
 import { npcNearestCell, npcReach, npcCentre, anchorsBeside } from '../../Utils/npcFootprint';
+import { npcShotOrigin, pcChest } from '../../Render/PixiRenderer/shotPoints';
 
 /**
  * Sight vs. a clear swing (Utils/GridManagement.isWallBlocking, one line-of-sight rule for the
@@ -420,12 +421,14 @@ function performAttack(gridId, TILE_SIZE) {
       if (newHP <= 0) playersInGridManager.flushAfterTransaction(); // death is worth saving now
     };
     // A ranged enemy's shot flies to the player in its own look (resources.json `projectile`:
-    // arrow, fireball, fireball-small, blob); `none` is a melee enemy with reach (the Ogre's 2):
+    // arrow, fireball, fireball-small, blob, lightning); `none` is a melee enemy with reach (the Ogre's 2):
     // its blow lands at once, as a melee blow beside the player does
     const shot = this.projectile || 'arrow';
     if (shot !== 'none' && npcReach(this, live.position) > 1) {
-      const mouth = npcCentre(this);   // the shot leaves the middle of the body
-      CombatFX.projectile(mouth.x, mouth.y, live.position.x, live.position.y, land, shot);
+      // it leaves the enemy's `shotFrom` (the Demon's mouth) and flies at the player's chest (shotPoints.js)
+      const from = npcShotOrigin(this);
+      const to = pcChest(live.position);
+      CombatFX.projectile(from.x, from.y, to.x, to.y, land, shot);
     } else land();
   }, CombatFX.FX.WINDUP_MS);
 }

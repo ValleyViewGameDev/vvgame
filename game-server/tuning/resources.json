@@ -11194,7 +11194,8 @@
     "attackinterval": 1.6,
     "filename": "npc-enemy-bear.svg",
     "iconFile": "npc-head-bear.svg",
-    "artSpan": 2.05
+    "artSpan": 1.9,
+    "noFlip": true
   },
   {
     "type": "Great Bear",
@@ -11230,7 +11231,8 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 1.8,
-    "artScale": 1.5
+    "artScale": 1.5,
+    "noFlip": true
   },
   {
     "type": "Polar Bear",
@@ -11265,7 +11267,8 @@
     "validonc": true,
     "validonv": true,
     "validonu": true,
-    "attackinterval": 1.6
+    "attackinterval": 1.6,
+    "noFlip": true
   },
   {
     "type": "Spider",
@@ -11304,7 +11307,8 @@
     "attackinterval": 0.9,
     "filename": "npc-enemy-spider.svg",
     "iconFile": "npc-head-spider.svg",
-    "artSpan": 1.5
+    "artSpan": 1.5,
+    "noFlip": true
   },
   {
     "type": "Zombie",
@@ -11363,6 +11367,7 @@
     "damage": 38,
     "attackbonus": 17,
     "attackrange": 5,
+    "projectile": "lightning",
     "validong": true,
     "validond": true,
     "validons": true,
@@ -11380,7 +11385,8 @@
     "attackinterval": 1.6,
     "filename": "npc-enemy-ghost.svg",
     "iconFile": "npc-head-ghost.svg",
-    "artSpan": 1.8
+    "artSpan": 1.8,
+    "noFlip": true
   },
   {
     "type": "Ogre",
@@ -11460,7 +11466,9 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball-small",
+    "shotFrom": "0.5,0.38",
     "attackinterval": 1.8,
+    "noFlip": true,
     "filename": "npc-enemy-demon.svg",
     "iconFile": "npc-head-demon.svg",
     "artSpan": 2.8
@@ -11499,7 +11507,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "noFlip": true
   },
   {
     "type": "Duke Angelo",
@@ -11538,7 +11547,8 @@
     "iconFile": "npc-head-angelo.svg",
     "artSpan": 1.8,
     "blinkFile": "npc-figure-angelo-blink.svg",
-    "breathTop": 0.419
+    "breathTop": 0.419,
+    "noFlip": true
   },
   {
     "type": "Dragon",
@@ -11574,7 +11584,8 @@
     "validonv": true,
     "validonu": true,
     "projectile": "fireball",
-    "attackinterval": 2.5
+    "attackinterval": 2.5,
+    "noFlip": true
   },
   {
     "type": "Phoenix",
@@ -11612,6 +11623,7 @@
     "validonv": true,
     "validonu": true,
     "attackinterval": 2,
+    "noFlip": true,
     "filename": "npc-enemy-phoenix.svg",
     "iconFile": "npc-head-phoenix.svg",
     "artSpan": 2.9
@@ -15326,7 +15338,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 20,
     "gemcost": 1,
-    "filename": "wall-stone.svg",
+    "filename": "wall-stone.png",
     "wallSet": "stone"
   },
   {

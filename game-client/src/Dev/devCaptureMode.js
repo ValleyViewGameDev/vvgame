@@ -1,7 +1,8 @@
 // devCaptureMode: a developer-only "Capture Mode" for recording ad footage and stills
 // (docs/social-video-plan.md). ⌘+Ctrl+H toggles it; while ON the header, status bar, the
 // floating HUD buttons (zoom, map, To Do, season, news), the nav bar (and so the Debug button)
-// and the Ko-fi widget are hidden and the board fills the whole window. Nothing else changes:
+// and the Ko-fi widget are hidden, hover tips (the board tooltip over a resource or NPC, the
+// button tips) do not show, and the board fills the whole window. Nothing else changes:
 // keys, clicks and taps play the game as usual, and a panel or modal that is open stays open, so
 // open what the shot needs first (the Farming panel, an NPC), then toggle. Zoom still works on
 // the + / - keys.

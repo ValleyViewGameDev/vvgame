@@ -18,6 +18,13 @@ html.dev-capture-mode [id^="kofi-widget-overlay"] {
   display: none !important;
 }
 
+/* Hover tips: the board's tooltip for a resource or NPC under the pointer (Render/Tooltip.css)
+   and the header / HUD / nav button tips. */
+html.dev-capture-mode .HoverTooltip,
+html.dev-capture-mode .header-tip {
+  display: none !important;
+}
+
 .dev-capture-notice {
   position: fixed; top: 0.5rem; left: 50%; transform: translateX(-50%); z-index: 9999;
   font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; /* style-ok: dev tool */
