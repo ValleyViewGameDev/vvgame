@@ -86,6 +86,12 @@ weather, the random and secret topics) STAY emoji by the owner's decision: a bub
 NPC's painted head, the painted doober for a thing, and an emoji for the rest; no more icon art
 is to be made for them, so `scripts/build-atlas.js` keeps its Twemoji step.
 
+BL-27 (review the combat animations) closed 2026-11-13 with the enemies' visuals (owner: "close
+out any enemy-visual-related items"): every enemy is painted, the Zombie, the Bear and the Ogre
+attack with rigged arms (the Ogre swings a club), the Coyote lurches, the Spider crawls, the
+fliers hover and flap, and the Ogre's leap crouches from the legs. What was left of BL-27, the
+player's own lunge, is part of BL-23 (`docs/equipment-plan.md` §3.4).
+
 ### BL-2: Real session auth in place of the bare `x-player-id` header (LAUNCH BLOCKER)
 
 Added 2026-10-30.
@@ -121,18 +127,19 @@ than from the header or a `playerId` in the body. Found while closing the open a
 ### BL-23: Avatar equipment: the weapon in the hand, armour as the outfit
 
 Added 2026-11-10. Not a launch blocker (owner: "a big task ... come back to that later").
+**Plan written 2026-11-13: `docs/equipment-plan.md`** (hand-held weapons first; nothing built).
 
-**What.** The equipped weapon drawn in the avatar's hand and the equipped armour drawn in
-place of the chosen outfit, as `docs/avatar-plan.md` decided (v1 decisions 3 and 4, v2 D4:
-armour rows are outfit rows; weapons draw in the valley, the dungeon and the FTUE opening and
-are put away in Town and on the Homestead). **Why.** The gear a player earns should show on
-the figure. **Where to start.** The feed already exists and shapes the look: `equipFor` and
-`lookFor` in `game-client/src/Avatar/avatarLook.js` read `settings.equippedArmor` /
-`equippedWeapon` and the resource rows' `avatarTop` / `avatarHand`, and the `hand` layer is in
-`Z_ORDER`; no row names either yet and there is no art. Outfits go through the body pipeline
-(`figurecut`, `align`, `fitbody`, `split`), a hand item needs a rig hand position and its own
-cut; draw both on the base bodies, two per item (female, male). About seven armours and ten
-weapons.
+**What.** The equipped weapon drawn in the avatar's hand, held up in an en garde stance and swung
+when the player attacks, then armour and helmets as overlays (armour rows are outfit rows, helmets
+are hats: `docs/avatar-plan.md` v2 D4). **Why.** The gear a player earns should show on the
+figure. **Where it stands.** The Ogre's club proved the arm (three joints, the weapon on the
+wrist: docs/arm-rig-plan.md §0a), and a probe showed the avatars' existing arms can be cut and
+posed without redrawing the outfits (the plan's §2). The plan's P1 is a prototype outside the
+game (one sword, one outfit a body, a fist piece, the guard and a slash) for the owner to approve;
+two-handed weapons start as a one-hand carry (its §5). The player's lunge (`CombatFX.playerLunge`)
+is replaced by the weapon's swing there, so the old "review the combat animations" item (BL-27)
+has no player half left. The feed exists: `equipFor` / `lookFor` in
+`game-client/src/Avatar/avatarLook.js` read `settings.equippedWeapon` and the rows' `avatarHand`.
 
 ### BL-24: Optimize Sprite Sheets (LAUNCH BLOCKER)
 
@@ -201,19 +208,6 @@ talking, exploring a valley or a fight), record them from a clean test account (
 never Oberon), and cut them to the platforms' formats (vertical for Reels / TikTok).
 **Plan (2026-11-11):** `docs/social-video-plan.md` (eight videos, shot lists, recording and
 editing steps); assets go in `ads/` (`ads/README.md`).
-
-### BL-27: Review the combat animations
-
-Added 2026-11-11. Not a blocker.
-
-**What.** A separate pass over how combat moves on the board. The owner dropped the squash from
-the login scene's Lumberjack as unrealistic (2026-11-11) but kept it on enemies for now, to be
-judged together with the rest. **In scope.** The enemy windup before a swing (squash and spring,
-`CombatFX.enemyWindup`), the leap's crouch-squash and in-air stretch (`enemyLeapCharge` /
-`enemyLeapArc`), the hit pop and knockback (`hitEnemy`), the death pop and fade (`killEnemy`), and
-the player's lunge and hit (`playerLunge` / `playerHit`). **Where to start.**
-`game-client/src/Render/PixiRenderer/CombatFX.js` (all of them, timings in its `FX` table);
-callers in `GameFeatures/NPCs/NPCEnemyBehavior.js`. Combat stays casual (CLAUDE.md, Combat).
 
 ### BL-28: Avatar follow-ups (not launch blockers)
 

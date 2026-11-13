@@ -10,6 +10,7 @@
  *   node tools/art/rigshot.js --art <png> --rig <key in rigs.json> --out <png>
  *        [--view cut]                      the drawing with the rig drawn over it, the body alone, each limb alone
  *        [--clip swipe --times 0,130,260,400,520,780]   one frame per time (ms) of the clip
+ *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
  *        [--lead R] [--lean 1] [--mirror] [--px 384] [--top 0.3] [--pad 0.3] [--cols 6] [--walk] [--bg 76aa16] [--rigs <other rigs.json>]
  *
  * --lean 1 plays the clip's body lean toward the image's right (-1: left). --mirror flips the sprite, as
@@ -43,7 +44,7 @@ fs.copyFileSync(PIXI_MJS, path.join(dir, 'pixi.mjs'));
 fs.copyFileSync(path.resolve(args.art), path.join(dir, 'art.png'));
 
 const params = {
-  rig: args.rig, view: args.view || (args.clip || args.walk || args.times ? 'clip' : 'cut'), clip: args.clip || null,
+  rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
   mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0),
 };
@@ -52,7 +53,9 @@ fs.writeFileSync(path.join(dir, 'harness.js'), `
 import * as PIXI from './pixi.mjs';
 import BreathSprite from './BreathSprite.js';
 import { rigFor, cutRig, syncArmRig } from './ArmRig.js';
+import { ARM_CLIPS } from './armClips.js';
 const P = ${JSON.stringify(params)};
+if (P.pose) { const [s, e, w] = P.pose; ARM_CLIPS.__pose = { lead: [{ t: 0, s, e, w: w || 0 }, { t: 1e7, s, e, w: w || 0 }] }; } // a held stance, this tool only
 const fail = (m) => fetch('/fail', { method: 'POST', body: String(m && m.stack || m) });
 window.addEventListener('error', (e) => fail(e.error || e.message));
 window.addEventListener('unhandledrejection', (e) => fail(e.reason));
