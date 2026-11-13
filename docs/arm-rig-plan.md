@@ -55,7 +55,7 @@ limbs open and close twice; the Spider's fangs). Both are data in `rigs.json`.
 Owner: give the Ogre a club, held through idle and walk, swung when he attacks, with the arm nearest
 his target; if it works, the avatar's hand can hold whatever is equipped. What it took:
 
-- **The drawing is made for the rig** (job `enemies-r10`): the same Ogre, leaner round the middle so
+- **The drawing is made for the rig** (jobs `enemies-r10`, then `enemies-r11`): the same Ogre, leaner round the middle so
   the belly no longer hides the arm, both arms hanging FREE of the body with background between the
   whole arm and the torso from the armpit down (natural, not a T-pose), and the club in the hand on the
   side the art faces, hanging in line with the forearm and clear of the leg. Nothing overlaps the arm
@@ -67,9 +67,14 @@ his target; if it works, the avatar's hand can hold whatever is equipped. What i
   locked stiff to the forearm swings like a plank; with a wrist it is cocked back at the top and snaps
   through at the bottom, so its head arrives last.
 - **`attackArm` on the rig** names the one arm that attacks on every side. The Ogre has no `noFlip`,
-  so he turns to face his target (`faceTarget`), and with `artFacing` set to the club's side that arm
-  is always the one nearest it: the owner's "facing arm". (The drawing came back with the club in the
-  hand on the viewer's left, so the row says `artFacing: left`.)
+  so he turns to face his target (`faceTarget`), and the club is in the hand on the side the drawing
+  FACES (the image's right: `artFacing: right`, `attackArm: R`), so that arm is always the one
+  nearest the target: the owner's "facing arm". **The weapon hand and the way the figure faces must
+  agree in the drawing itself.** r10 drew the club in the hand on the viewer's left while head and
+  body were turned to the viewer's right; telling the row to face left made him walk and attack
+  looking backwards (owner, in game), and no flag can fix that: a figure's facing is its whole body's
+  turn, not only its head. r11 is the same drawing with the club moved to the other hand (asked as
+  "the club changes hands", with r10 as the reference), and the rig was measured again on it.
 - **`rim` on an arm** (with `rimWidth`, `rimColor`): where the cut runs THROUGH the figure (the arm's
   edge against the chest) the arm image has an edge the drawing never outlined; once the arm lifts,
   that edge is the visible underside of the arm and it read as a soft, lineless smear on smooth skin

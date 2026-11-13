@@ -11371,7 +11371,7 @@
     "sizeX": 1,
     "sizeY": 2,
     "category": "npc",
-    "artFacing": "left",
+    "artFacing": "right",
     "movespeed": 0.7,
     "action": "attack",
     "output": "Magic Mushroom",

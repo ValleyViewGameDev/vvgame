@@ -1,0 +1,28 @@
+{
+  "name": "enemies-r11",
+  "note": "The Ogre's club moved to his other hand (owner, 2026-11-13). r10 drew the club in the hand on the viewer's left while the whole figure faces the viewer's right, so the club arm was the arm AWAY from his target and, with the row told to face left, he looked backwards walking and attacking. Same drawing, one change: the club is in the hand on the viewer's right, the side he faces, so the facing arm holds it.",
+  "models": {
+    "openai": {
+      "model": "gpt-image-2",
+      "quality": "medium",
+      "size": "1024x1024"
+    }
+  },
+  "n": 1,
+  "subjects": {
+    "ogre": {
+      "refs": [
+        "../../game-client/public/assets/resources/npc-cow.png",
+        "_candidates/characters-r3/approved/openai--painterly-peasant-man-2.png",
+        "../../game-client/public/assets/resources/npc-enemy-zombie.png",
+        "../../game-client/public/assets/resources/npc-enemy-bear.png",
+        "../../game-client/public/assets/resources/npc-enemy-ogre.png"
+      ],
+      "guide": "guides/figure-cut.png",
+      "variants": [
+        "painterly"
+      ],
+      "prompt": "RENDERING REFERENCE: the attached COW on magenta is one of this game's animals: match its rendering (soft painterly, flat colour with gentle shading, soft thick outlines, no texture, no background). STYLE REFERENCE, the most important image: the attached farm man on magenta is an APPROVED character of this game. The new creature must look drawn by the same hand on the same day, for the same storybook: the same chunky doll proportion (a big head, large expressive eyes, a short thick body, small feet), the same soft rendering; never realistic, never anatomical, never gory. THIS IS AN ENEMY the player fights: menacing in a storybook way (a scowl, bared teeth, a glare), but still charming and readable, something a child would call a monster and not be frightened by; no blood, no wounds. VIEW, the rule for every enemy (unlike this game's farm animals, which are drawn side-on): FRONT-FACING, like the player characters: upright and facing the viewer, the body square-ish to the viewer with a FAINT three-quarter turn, the head and the eyes turned a little toward the viewer's RIGHT, standing on ONE flat ground line, left and right sides roughly symmetrical, nothing trailing far outside the body's silhouette. SIBLINGS: the attached ZOMBIE and the attached brown BEAR are approved enemies of this game: the ogre must look painted by the same hand. DESIGN REFERENCE, the most important image: the attached OGRE holding a club is the approved drawing of this enemy. Redraw it EXACTLY as it is: the same pose, the same build (broad chest, firm small belly, thick limbs), the same face and head turned a little toward the viewer's RIGHT with the strip of dark hair showing behind the ear on the viewer's left, the same olive skin, the same leather forearm wrappings, ragged brown kilt, belt with an iron ring buckle, wrapped shins and huge bare feet, the same rendering and outline; and both arms hanging free of the body exactly as they do there, with a clear strip of magenta background between each WHOLE arm and the torso, hip and kilt from the armpit down to the hand. ONE CHANGE, THE CLUB CHANGES HANDS: in the reference he holds the club in the hand on the viewer's LEFT. Move it to his OTHER hand, the hand on the viewer's RIGHT side of the picture (the side his head is turned toward). That hand is now a closed fist gripping the club's handle, and the same club (a thick knotted tree-limb club, narrow at the grip, swelling to a fat rounded head with three short blunt iron studs) hangs straight DOWN from it, in line with that forearm, its heavy head a little above the ground beside the foot on the viewer's right. The WHOLE club lies outside that leg with magenta background between the club and the leg; it overlaps nothing and nothing overlaps it. The hand on the viewer's LEFT is now EMPTY and open, hanging relaxed, as the other hand was. There is exactly ONE club in the picture, on the viewer's RIGHT. He stands on ONE flat ground line, feet planted a little apart. Keep it at the game's scale: it is seen about 60 pixels wide on the board, so big plain shapes, a strong silhouette, flat areas of colour, no fine detail, no small accessories. COLOUR: never pink, never magenta, never purple anywhere on it. The LAST attached image is a layout guide: a pure magenta (#FF00FF) field with a thin grid, a 1 x 1 box outlined in the middle (one board tile) and a dashed half-height box directly above it (the headroom); the reference character stands in that box with its head in the headroom. ONE FIGURE ONLY, nothing else in the picture: no building, no props on the ground, no scene. Draw him standing on the box's bottom edge and bigger than the reference character: about one and a half times as tall, his feet on the box's bottom edge, his head near the top of the headroom; with the arms and the club he may be wider than the box. A soft contact shadow directly under it; leave every other pixel pure solid magenta: no grass, no ground, no frame, no text."
+    }
+  }
+}
