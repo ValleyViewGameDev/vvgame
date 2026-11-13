@@ -14,6 +14,7 @@
  *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
  *        [--class sword]                   the weapon's category (heldWeapon.WEAPON_CLASSES): its guard and its clip
  *        [--turn]                          the figure turns round at 0 ms: one frame per time, each drawn ONCE as the board draws it (16 ms steps show a part that lags the body); mid-breath, as a figure on the board always is
+ *        [--gap 3]                         with --turn: this many ms pass between placing the figure's parts and drawing it, as on a busy board (everything under the figure is drawn in between)
  *        [--away]                          with --held: the weapon is put away at 0 ms, the frames show the arm easing down (and say when it is at rest)
  *        [--lead R] [--lean 1] [--mirror] [--px 384] [--top 0.3] [--pad 0.3] [--cols 6] [--walk] [--bg 76aa16] [--rigs <other rigs.json>]
  *
@@ -51,7 +52,7 @@ if (args.held) fs.copyFileSync(path.resolve(args.held), path.join(dir, 'held.png
 const params = {
   rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
-  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', away: !!args.away, turn: !!args.turn,
+  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', away: !!args.away, turn: !!args.turn, gap: Number(args.gap || 0),
 };
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0"><script type="module" src="./harness.js"></script>`);
 fs.writeFileSync(path.join(dir, 'harness.js'), `
@@ -107,6 +108,7 @@ if (P.view === 'cut') {
   if (P.away) sprite.armRig.setStance(null, false); // what the board does when the weapon is unequipped or the last enemy dies
   if (P.turn) { sprite.breath = 0.5; app.renderer.render(app.stage); fake += 16; app.renderer.render(app.stage); fake += 16; }
   const tTurn = fake;
+  if (P.turn && P.gap) { const placed = sprite.updateTransform.bind(sprite); sprite.updateTransform = () => { placed(); fake += P.gap; }; } // the clock moves on between the transforms and the drawing
   if (P.turn) sprite.scale.x = -sprite.scale.x;
   for (const t of P.times) {
     fake = (P.turn ? tTurn : t0) + t;

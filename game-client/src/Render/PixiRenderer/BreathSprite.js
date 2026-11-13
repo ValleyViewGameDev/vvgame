@@ -111,6 +111,7 @@ export default class BreathSprite extends Sprite {
     this._rows = new Float32Array(MAX_ROWS + 1);
     this._facing = 0;      // the sign of scale.x last seen (0: not drawn yet)
     this._turnT0 = 0;      // when the turn in flight began (performance.now), 0 when none
+    this._frameAt = 0;     // this frame's time, stamped in the transform pass (_turnClock)
     this._turnFrom = -1;   // where it began: -1 the full old look, more when it reversed one in flight
     this._seenAt = 0;      // when the vertices were last computed
     this._walkOn = false;  // the renderer says the figure is moving
@@ -127,7 +128,7 @@ export default class BreathSprite extends Sprite {
 
   /** Notice a reversed facing and say how far into its turn the figure is (ms), or -1 when it is not turning. */
   _turnElapsed() {
-    const now = performance.now();
+    const now = this._turnClock();
     const sign = this.transform.scale.x < 0 ? -1 : 1;
     const drawnLately = now - this._seenAt < 120;
     this._seenAt = now;
@@ -151,7 +152,7 @@ export default class BreathSprite extends Sprite {
    * the last frame, and the body only notices that in its vertices. Mirrors _turnElapsed.
    */
   _turnPeek() {
-    const now = performance.now();
+    const now = this._turnClock();
     const sign = this.transform.scale.x < 0 ? -1 : 1;
     if (sign !== this._facing) {
       if (this._facing === 0 || now - this._seenAt >= 120 || !breathingAllowed()) return [-1, -1];
@@ -415,8 +416,21 @@ export default class BreathSprite extends Sprite {
     return { x: centreX + x * f, y, f };
   }
 
+  /**
+   * The turn's clock for this frame. An attached part is placed here, in the transform pass, and the
+   * body's vertices are computed only when it is drawn, after everything under it on the board: a few
+   * ms later. Each reading the clock for itself, the two disagreed whenever the turn's flip (or its
+   * start or end) fell in that gap, and the arm and the sword showed on the wrong side of the body for
+   * a frame, about one turn in six (owner 2026-11-13). So the pass stamps one time and both use it.
+   */
+  _turnClock() {
+    const now = performance.now();
+    return now - this._frameAt < 100 ? this._frameAt : now; // no recent pass (bounds asked for outside a frame): the real time
+  }
+
   /** An attached ArmRig is placed before the children's transforms are updated. */
   updateTransform() {
+    this._frameAt = performance.now();
     if (this.armRig) this.armRig.sync(this);
     super.updateTransform();
   }
