@@ -145,6 +145,23 @@ export default class BreathSprite extends Sprite {
     return elapsed;
   }
 
+  /**
+   * The turn THIS frame's vertices will draw, read without starting it: [ms into it or -1, where it
+   * began]. For a part placed before the body is drawn (pointAt): the facing may have flipped since
+   * the last frame, and the body only notices that in its vertices. Mirrors _turnElapsed.
+   */
+  _turnPeek() {
+    const now = performance.now();
+    const sign = this.transform.scale.x < 0 ? -1 : 1;
+    if (sign !== this._facing) {
+      if (this._facing === 0 || now - this._seenAt >= 120 || !breathingAllowed()) return [-1, -1];
+      return [0, this._turnT0 ? -turnProgress(now - this._turnT0, this._turnFrom) : -1];
+    }
+    if (!this._turnT0) return [-1, -1];
+    const elapsed = now - this._turnT0;
+    return turnOver(elapsed) ? [-1, -1] : [elapsed, this._turnFrom];
+  }
+
   get breath() { return this._breath; }
   set breath(level) {
     const v = level > 0.0005 ? level : 0;
@@ -372,8 +389,8 @@ export default class BreathSprite extends Sprite {
 
   /**
    * Where a point of the drawing (u, v: fractions of its square) is drawn in this sprite's local units
-   * after the last frame's breath, walk bob, crouch, hover and turn: an ArmRig's shoulder follows the
-   * body with it. Rows above the walk's hinge only bob; a joint is always there.
+   * after the last frame's breath, walk bob, crouch and hover and this frame's turn: an ArmRig's shoulder
+   * follows the body with it. Rows above the walk's hinge only bob; a joint is always there.
    */
   pointAt(u, v) {
     const orig = this._texture.orig, a = this._anchor;
@@ -390,7 +407,11 @@ export default class BreathSprite extends Sprite {
     const leanY = this.leanY || 0;
     if (leanY) y += leanY * orig.height * Math.max(0, P.feetV - v) / Math.max(0.01, P.feetV - P.vStart);
     if (P.pant) [x, y] = panted(x, y, v, P.pant, origTop + P.pantV * orig.height, P.pantV, P.vStart);
-    const f = P.turning >= 0 ? turnAt(P.turning, this._turnFrom, v, P.headV) : 1;
+    // the turn as this frame will draw it, not as the last one did: a turn starts the frame the facing
+    // flips, and a part still placed by the last frame showed the NEW look for that one frame, on the
+    // far side of a body still drawing the old one (the avatar's sword flashed across it, owner 2026-11-13)
+    const [turning, from] = this._turnPeek();
+    const f = turning >= 0 ? turnAt(turning, from, v, P.headV) : 1;
     return { x: centreX + x * f, y, f };
   }
 

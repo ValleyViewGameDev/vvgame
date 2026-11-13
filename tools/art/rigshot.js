@@ -13,6 +13,7 @@
  *        [--pose 0.1,1.4,0 --lead R]       the lead arm HELD at shoulder, elbow, wrist angles (radians): try a stance before any clip exists
  *        [--held <weapon png> --span 1.8]  an avatar: the weapon in its hand and the guard raised (heldWeapon.js); --times 0 shows the guard
  *        [--class sword]                   the weapon's category (heldWeapon.WEAPON_CLASSES): its guard and its clip
+ *        [--turn]                          the figure turns round at 0 ms: one frame per time, each drawn ONCE as the board draws it (16 ms steps show a part that lags the body); mid-breath, as a figure on the board always is
  *        [--away]                          with --held: the weapon is put away at 0 ms, the frames show the arm easing down (and say when it is at rest)
  *        [--lead R] [--lean 1] [--mirror] [--px 384] [--top 0.3] [--pad 0.3] [--cols 6] [--walk] [--bg 76aa16] [--rigs <other rigs.json>]
  *
@@ -50,7 +51,7 @@ if (args.held) fs.copyFileSync(path.resolve(args.held), path.join(dir, 'held.png
 const params = {
   rig: args.rig, view: args.view || (args.clip || args.pose || args.walk || args.times ? 'clip' : 'cut'), clip: args.pose ? '__pose' : args.clip || null, pose: args.pose ? String(args.pose).split(',').map(Number) : null,
   times: String(args.times || '0').split(',').map(Number), lead: args.lead || 'R', lean: Number(args.lean || 0),
-  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', away: !!args.away,
+  mirror: !!args.mirror, px: Number(args.px || 384), walk: !!args.walk, bg: args.bg || '76aa16', top: Number(args.top || 0.3), pad: Number(args.pad || 0.3), cols: Number(args.cols || 0), held: !!args.held, span: Number(args.span || 1.8), cls: args.class || 'sword', away: !!args.away, turn: !!args.turn,
 };
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0"><script type="module" src="./harness.js"></script>`);
 fs.writeFileSync(path.join(dir, 'harness.js'), `
@@ -104,12 +105,15 @@ if (P.view === 'cut') {
   const mark = new PIXI.Graphics(); mark.beginFill(0x000000, 0.28); mark.drawEllipse(CW / 2, CH - 8, S * 0.11, S * 0.022); mark.endFill(); // where the figure stands, so its step shows
   if (P.clip) sprite.armRig.playClip(P.clip, P.lead, P.lean);
   if (P.away) sprite.armRig.setStance(null, false); // what the board does when the weapon is unequipped or the last enemy dies
+  if (P.turn) { sprite.breath = 0.5; app.renderer.render(app.stage); fake += 16; app.renderer.render(app.stage); fake += 16; }
+  const tTurn = fake;
+  if (P.turn) sprite.scale.x = -sprite.scale.x;
   for (const t of P.times) {
-    fake = t0 + t;
+    fake = (P.turn ? tTurn : t0) + t;
     const body = P.clip && ARM_CLIPS[P.clip].body; // the body's half of the attack (CombatFX.playerAttack moves the figure by it): the target is to the image's right
     if (body) { sprite.x = CW / 2 + (P.mirror ? -1 : 1) * valueAt(body, t, 'd') * (S / P.span); if (!mark.parent) app.stage.addChildAt(mark, 0); }
-    app.renderer.render(app.stage); app.renderer.render(app.stage); // twice: an attached part reads the body's last drawn frame
-    snap((P.away ? 'put away' : P.clip || 'rest') + ' ' + t + ' ms' + (P.away ? (sprite.armRig.atRest ? ': at rest' : ': easing') : '') + (P.mirror ? ' (mirrored)' : ''));
+    app.renderer.render(app.stage); if (!P.turn) app.renderer.render(app.stage); // twice: an attached part reads the body's last drawn frame (once for --turn: that lag is what it shows)
+    snap((P.turn ? 'turn' : P.away ? 'put away' : P.clip || 'rest') + ' ' + t + ' ms' + (P.away ? (sprite.armRig.atRest ? ': at rest' : ': easing') : '') + (P.mirror ? ' (mirrored)' : ''));
   }
 }
 const cols = Math.min(frames.length, P.cols || (P.view === 'cut' ? 4 : 6)), rows = Math.ceil(frames.length / cols);
